@@ -237,3 +237,22 @@ gtest_discover_tests(simu_case_lifecycle_test
   DISCOVERY_MODE PRE_TEST
 )
 
+
+# ---------------------------------------------------------------------------
+# Production SimuImp case lifecycle integration
+# ---------------------------------------------------------------------------
+add_executable(simu_imp_case_lifecycle_integration_test
+  simu_imp_case_lifecycle_integration_test.cpp
+)
+
+target_link_libraries(simu_imp_case_lifecycle_integration_test
+  PRIVATE
+    OneFLOW_RuntimeObjects
+    GTest::gtest_main
+)
+
+target_compile_features(simu_imp_case_lifecycle_integration_test PRIVATE cxx_std_20)
+
+gtest_discover_tests(simu_imp_case_lifecycle_integration_test
+  DISCOVERY_MODE PRE_TEST
+)

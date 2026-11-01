@@ -13,6 +13,73 @@ from pathlib import Path
 from .task_types import ExecutionLocation, TaskType, task_definition
 
 
+def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
+    """Extract framework test counts and actionable failure details from output."""
+    import re
+
+    output = "\n".join(output_lines)
+    summary: list[str] = []
+    unittest_results = re.findall(
+        r"Ran (\d+) tests?[^\n]*(?:\n[ \t]*)?(?:\n[ \t]*)?"
+        r"(FAILED \(([^)]*)\)|OK(?: \(([^)]*)\))?)",
+        output,
+    )
+    ctest_matches = re.findall(
+        r"(\d+)% tests passed, (\d+) tests failed out of (\d+)",
+        output,
+    )
+    if unittest_results:
+        total = sum(int(item[0]) for item in unittest_results)
+        failed = 0
+        skipped = 0
+        for _, _, failed_status, ok_status in unittest_results:
+            status = failed_status or ok_status or ""
+
+            def status_count(name: str) -> int:
+                match = re.search(rf"{name}=(\d+)", status)
+                return int(match.group(1)) if match else 0
+
+            failed += status_count("failures") + status_count("errors")
+            skipped += status_count("skipped")
+        passed = max(total - failed - skipped, 0)
+        summary.append(
+            f"Python unittest cases: {total} run, {passed} passed, "
+            f"{failed} failed, {skipped} skipped."
+        )
+    if ctest_matches:
+        total = sum(int(item[2]) for item in ctest_matches)
+        failed = sum(int(item[1]) for item in ctest_matches)
+        summary.append(
+            f"CTest cases: {total} run, {total - failed} passed, {failed} failed."
+        )
+
+    failure_markers = (
+        "FAIL:",
+        "ERROR:",
+        "FAILED:",
+        "The following tests FAILED:",
+        "Traceback (most recent call last):",
+        "fatal error",
+        "error ",
+        "AssertionError:",
+    )
+    failure_start = next(
+        (
+            index
+            for index, line in enumerate(output_lines)
+            if line.lstrip().startswith(failure_markers)
+        ),
+        None,
+    )
+    if failure_start is not None:
+        details = output_lines[failure_start:]
+        summary.append("Failure details:")
+        summary.extend(details[:120])
+        if len(details) > 120:
+            summary.append(f"... {len(details) - 120} additional lines omitted.")
+    return tuple(summary)
+
+
 @dataclass(frozen=True, slots=True)
 class TestCommand:
     """One existing test command and the directory in which it must run."""
@@ -45,7 +112,75 @@ _PYTHON_UNIT_TESTS = (
     ("Runtime override tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_runtime_overrides")),
     ("Workflow case staging tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_case_runtime")),
     ("GUI test command builder tests", ("-m", "unittest", "tools.oneflow_gui.test_test_runner")),
+    ("Numerical verification catalog tests", ("-m", "unittest", "tools.verification.test_curve_catalog")),
+    ("Combined contract catalog tests", ("-m", "unittest", "tools.verification.test_contract_catalog")),
+    ("Contract Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_contract_workbench_dialog")),
+    ("Repository test inventory discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_test_inventory")),
+    ("Mesh layout editor document tests", ("-m", "unittest", "tests.tools.test_editor_document")),
+    ("Rectangle layout compiler tests", ("-m", "unittest", "tests.tools.test_compile_rectangle")),
+    ("Geometry analytic contract tests", ("-m", "unittest", "discover", "-s", "tools", "-p", "test_analytic_contracts.py")),
+    ("Geometry scenario persistence tests", ("-m", "unittest", "discover", "-s", "tools", "-p", "test_scenario_contract_persistence.py")),
+    ("Geometry scenario import tests", ("-m", "unittest", "discover", "-s", "tools", "-p", "test_scenario_import.py")),
+    ("Geometry workbench fixture tests", ("-m", "unittest", "discover", "-s", "tools/geometry_workbench", "-p", "test_workbench_stub.py")),
+    ("Background project runner tests", ("-m", "unittest", "tools.oneflow_gui.test_background_project_runner")),
+    ("Background task host tests", ("-m", "unittest", "tools.oneflow_gui.test_background_task_host")),
+    ("Background task manager tests", ("-m", "unittest", "tools.oneflow_gui.test_background_task_manager")),
+    ("Background task registry tests", ("-m", "unittest", "tools.oneflow_gui.test_background_task_registry")),
+    ("Geometry contract bridge tests", ("-m", "unittest", "tools.oneflow_gui.test_geometry_contract_bridge")),
+    ("Mesh layout project tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_layout_projects")),
+    ("Project inventory tests", ("-m", "unittest", "tools.oneflow_gui.test_project_inventory")),
+    ("Project template tests", ("-m", "unittest", "tools.oneflow_gui.test_project_templates")),
+    ("RAE2822 project template tests", ("-m", "unittest", "tools.oneflow_gui.test_rae2822_project_template")),
+    ("SA closure curve tests", ("-m", "unittest", "discover", "-s", "tools/verification", "-p", "test_sa_closure_curves.py")),
+    ("Tkinter runner tests", ("gui/python/tkinter/test_oneflow_runner.py",)),
 )
+
+_PYTHON_TEST_EXCLUSIONS = {
+    "tools/oneflow_gui/test_main_window.py": "Qt widget/queue tests; keep in a dedicated headless GUI test group.",
+    "tools/oneflow_gui/test_new_project_dialog.py": "Qt dialog tests; keep in a dedicated headless GUI test group.",
+    "tools/oneflow_gui/test_workspace_dialog.py": "Qt dialog tests; keep in a dedicated headless GUI test group.",
+    "tools/verification/test_latex_preview.py": "Optional Matplotlib rendering dependency; run in the visualization-enabled test environment.",
+}
+
+
+def build_ctest_test_commands(
+    repository_root: Path,
+    *,
+    build_config: str = "Debug",
+) -> list[TestCommand]:
+    """Return the CTest command when the source build tree has test metadata."""
+    if build_config not in {"Debug", "Release"}:
+        raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
+    task = task_definition(TaskType.UNIT_TESTS)
+    if task.execution_location is not ExecutionLocation.SOURCE_BUILD:
+        raise RuntimeError("Unit tests must execute from the source build tree.")
+    root = Path(repository_root).resolve()
+    build_directory = root / "build"
+    if not (build_directory / "CTestTestfile.cmake").is_file():
+        return []
+    return [
+        TestCommand(
+            "C++ unit tests (CTest)",
+            ("ctest", "--output-on-failure", "-C", build_config),
+            build_directory,
+        )
+    ]
+
+
+def build_python_test_commands(
+    repository_root: Path,
+    python: str | None = None,
+) -> list[TestCommand]:
+    """Return the explicit Python unittest command registry."""
+    task = task_definition(TaskType.UNIT_TESTS)
+    if task.execution_location is not ExecutionLocation.SOURCE_BUILD:
+        raise RuntimeError("Unit tests must execute from the source build tree.")
+    root = Path(repository_root).resolve()
+    python_executable = python or sys.executable
+    return [
+        TestCommand(label, (python_executable, *arguments), root)
+        for label, arguments in _PYTHON_UNIT_TESTS
+    ]
 
 
 def build_unit_test_commands(
@@ -55,28 +190,23 @@ def build_unit_test_commands(
     build_config: str = "Debug",
     include_ctest: bool | None = None,
 ) -> list[TestCommand]:
-    """Return the same CTest and Python test commands used by repository CI."""
+    """Return the combined CTest and Python test commands for legacy callers."""
     if build_config not in {"Debug", "Release"}:
         raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
-    task = task_definition(TaskType.UNIT_TESTS)
-    if task.execution_location is not ExecutionLocation.SOURCE_BUILD:
-        raise RuntimeError("Unit tests must execute from the source build tree.")
     root = Path(repository_root).resolve()
-    python_executable = python or sys.executable
-    commands: list[TestCommand] = []
-    build_directory = root / "build"
-    ctest_is_available = (build_directory / "CTestTestfile.cmake").is_file()
-    should_include_ctest = (
-        ctest_is_available if include_ctest is None else include_ctest
-    )
-    if should_include_ctest:
-        arguments = ["ctest", "--output-on-failure", "-C", build_config]
-        commands.append(TestCommand("C++ unit tests (CTest)", tuple(arguments), build_directory))
-
-    for label, arguments in _PYTHON_UNIT_TESTS:
-        commands.append(
-            TestCommand(label, (python_executable, *arguments), root)
-        )
+    commands = build_ctest_test_commands(root, build_config=build_config)
+    if include_ctest is False:
+        commands = []
+    elif include_ctest is True and not commands:
+        build_directory = root / "build"
+        commands = [
+            TestCommand(
+                "C++ unit tests (CTest)",
+                ("ctest", "--output-on-failure", "-C", build_config),
+                build_directory,
+            )
+        ]
+    commands.extend(build_python_test_commands(root, python))
     return commands
 
 

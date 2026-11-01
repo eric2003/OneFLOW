@@ -339,6 +339,7 @@ set ( JsonPrjDir "${PRJ_ROOT_DIR}/${THIRD_PARTY_DIR}/jsoncpp" )
 set ( JsonHeaderDir ${JsonPrjDir} )
 
 ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} PRJ_HEADER_LIST PRJ_SRC_LIST PRJ_LOCAL_INCLUDE_DIRS )
+
 list ( FILTER PRJ_SRC_LIST EXCLUDE REGEX "/codes/accel/src/HipSmoke\\.cpp$" )
 if ( ONEFLOW_BUILD_HIP )
     list ( APPEND PRJ_HEADER_LIST ${HIP_HEADER_LIST} )
@@ -380,31 +381,48 @@ elseif ( MPI_ENABLE )
     list ( APPEND PRJ_COMPILE_DEF HX_CGNS )
 endif ()
 
-add_executable ( ${PROJECT_NAME} ${PRJ_SRC_LIST} ${PRJ_HEADER_LIST} )
+# OneFLOW remains a single executable at this stage. Keep its runtime sources
+# as an object collection so the application and production integration tests
+# consume the same compiled translation units without creating a library boundary.
+list ( FILTER PRJ_SRC_LIST EXCLUDE REGEX "/codes/main/src/OneFlow\\.cpp$" )
 
-target_include_directories ( ${PROJECT_NAME}
-    PRIVATE 
+add_library ( OneFLOW_RuntimeObjects OBJECT
+    ${PRJ_SRC_LIST}
+    ${PRJ_HEADER_LIST}
+)
+
+target_include_directories ( OneFLOW_RuntimeObjects
+    PUBLIC
         ${PRJ_INCLUDE_DIRS}
 )
 
-target_link_directories ( ${PROJECT_NAME} 
-    PRIVATE 
+target_link_directories ( OneFLOW_RuntimeObjects
+    PUBLIC
         ${PRJ_LINK_DIRS}
 )
 
-target_link_libraries ( ${PROJECT_NAME} 
-    PRIVATE 
+target_link_libraries ( OneFLOW_RuntimeObjects
+    PUBLIC
         ${PRJ_LIBRARIES}
 )
 
-target_compile_features ( ${PROJECT_NAME} 
-    PRIVATE 
+target_compile_features ( OneFLOW_RuntimeObjects
+    PUBLIC
         ${PRJ_COMPILE_FEATURES}
 )
 
-target_compile_definitions ( ${PROJECT_NAME}
+target_compile_definitions ( OneFLOW_RuntimeObjects
+    PUBLIC
+        ${PRJ_COMPILE_DEF}
+)
+
+add_executable ( ${PROJECT_NAME}
+    ${CMAKE_CURRENT_SOURCE_DIR}/main/src/OneFlow.cpp
+)
+
+target_link_libraries ( ${PROJECT_NAME}
     PRIVATE
-       ${PRJ_COMPILE_DEF} 
+        OneFLOW_RuntimeObjects
 )
 
 set ( PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/ )

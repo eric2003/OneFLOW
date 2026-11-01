@@ -54,7 +54,13 @@ Parallel::~Parallel()
 
 void Parallel::SetDefaultParallelParameter()
 {
-    ONEFLOW::HXInit();
+    const int initError = ONEFLOW::HXInit();
+    if ( initError != 0 )
+    {
+        throw std::runtime_error(
+            "Parallel runtime initialization failed with error code "
+            + std::to_string( initError ) );
+    }
     Parallel::SetServerid( 0 );
     Parallel::SetPid( ONEFLOW::HXRank() );
     Parallel::SetNProc( ONEFLOW::HXSize() );

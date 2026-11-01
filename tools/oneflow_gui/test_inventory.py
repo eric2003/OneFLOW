@@ -75,42 +75,144 @@ def _cpp_tests(repository_root: Path, links: dict) -> list[dict[str, Any]]:
     return records
 
 
+def _python_test_roots(repository_root: Path) -> tuple[Path, ...]:
+    return tuple(
+        repository_root / relative
+        for relative in ("tools", "tests", Path("gui/python/tkinter"))
+        if (repository_root / relative).is_dir()
+    )
+
+
+def _has_python_test_declarations(tree: ast.AST) -> bool:
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ClassDef):
+            if any(
+                isinstance(method, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and method.name.startswith("test_")
+                for method in node.body
+            ):
+                return True
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            if node.name.startswith("test_"):
+                return True
+    return False
+
+
 def _python_tests(repository_root: Path) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
-    tools_root = repository_root / "tools"
-    if not tools_root.is_dir():
-        return records
-    for path in sorted(tools_root.rglob("test_*.py")):
-        if "__pycache__" in path.parts or ".venv" in path.parts:
-            continue
-        try:
-            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-        except (OSError, UnicodeDecodeError, SyntaxError):
-            continue
-        module_name = ".".join(path.relative_to(repository_root).with_suffix("").parts)
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.ClassDef):
+    for source_root in _python_test_roots(repository_root):
+        for path in sorted(source_root.rglob("test_*.py")):
+            if "__pycache__" in path.parts or ".venv" in path.parts:
                 continue
-            for method in node.body:
-                if isinstance(method, (ast.FunctionDef, ast.AsyncFunctionDef)) and method.name.startswith("test_"):
+            try:
+                source = path.read_text(encoding="utf-8")
+                tree = ast.parse(source, filename=str(path))
+            except (OSError, UnicodeDecodeError, SyntaxError):
+                continue
+            module_name = ".".join(path.relative_to(repository_root).with_suffix("").parts)
+            relative_source = path.relative_to(repository_root).as_posix()
+            for node in tree.body:
+                if isinstance(node, ast.ClassDef):
+                    for method in node.body:
+                        if isinstance(method, (ast.FunctionDef, ast.AsyncFunctionDef)) and method.name.startswith("test_"):
+                            records.append({
+                                "id": f"unittest:{module_name}.{node.name}.{method.name}",
+                                "framework": "unittest",
+                                "suite": node.name,
+                                "name": method.name,
+                                "kind": "test method",
+                                "source": relative_source,
+                                "line": method.lineno,
+                                "discovery": "source",
+                                "scenarioId": None,
+                                "scenarioRole": None,
+                                "input": None,
+                                "expected": None,
+                                "result": None,
+                                "execution": f"python -m unittest {module_name}.{node.name}.{method.name}",
+                            })
+                elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_"):
                     records.append({
-                        "id": f"unittest:{module_name}.{node.name}.{method.name}",
+                        "id": f"unittest:{module_name}.{node.name}",
                         "framework": "unittest",
-                        "suite": node.name,
-                        "name": method.name,
-                        "kind": "test method",
-                        "source": path.relative_to(repository_root).as_posix(),
-                        "line": method.lineno,
+                        "suite": module_name,
+                        "name": node.name,
+                        "kind": "test function",
+                        "source": relative_source,
+                        "line": node.lineno,
                         "discovery": "source",
                         "scenarioId": None,
                         "scenarioRole": None,
                         "input": None,
                         "expected": None,
                         "result": None,
-                        "execution": f"python -m unittest {module_name}.{node.name}.{method.name}",
+                        "execution": f"python -m unittest {module_name}.{node.name}",
                     })
     return records
 
+
+def audit_python_test_registry(
+    repository_root: Path,
+    commands: tuple | None = None,
+    exclusions: dict[str, str] | None = None,
+) -> dict[str, tuple[str, ...]]:
+    """Compare discovered unittest source files with the explicit execution registry."""
+    from .test_runner import _PYTHON_TEST_EXCLUSIONS, _PYTHON_UNIT_TESTS
+
+    root = repository_root.resolve()
+    command_entries = _PYTHON_UNIT_TESTS if commands is None else commands
+    exclusion_reasons = _PYTHON_TEST_EXCLUSIONS if exclusions is None else exclusions
+
+    discovered: set[str] = set()
+    for source_root in _python_test_roots(root):
+        for path in source_root.rglob("test_*.py"):
+            try:
+                tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+            except (OSError, UnicodeDecodeError, SyntaxError):
+                continue
+            if _has_python_test_declarations(tree):
+                discovered.add(path.relative_to(root).as_posix())
+
+    registered: set[str] = set()
+    for _label, arguments in command_entries:
+        if len(arguments) >= 3 and arguments[0:2] == ("-m", "unittest"):
+            if arguments[2] == "discover":
+                start_dir = Path(".")
+                pattern = "test*.py"
+                for index, argument in enumerate(arguments[:-1]):
+                    if argument == "-s":
+                        start_dir = Path(arguments[index + 1])
+                    elif argument == "-p":
+                        pattern = arguments[index + 1]
+                search_root = (root / start_dir).resolve()
+                if search_root.is_dir():
+                    registered.update(
+                        path.relative_to(root).as_posix()
+                        for path in search_root.rglob(pattern)
+                        if path.is_file()
+                    )
+            else:
+                module_path = root.joinpath(*arguments[2].split(".")).with_suffix(".py")
+                if module_path.is_file():
+                    registered.add(module_path.relative_to(root).as_posix())
+        elif arguments:
+            script_path = (root / arguments[0]).resolve()
+            if script_path.is_file():
+                try:
+                    registered.add(script_path.relative_to(root).as_posix())
+                except ValueError:
+                    pass
+
+    excluded = discovered.intersection(exclusion_reasons)
+    unregistered = discovered.difference(registered).difference(excluded)
+    stale_exclusions = set(exclusion_reasons).difference(discovered)
+    return {
+        "discovered": tuple(sorted(discovered)),
+        "registered": tuple(sorted(discovered.intersection(registered))),
+        "excluded": tuple(sorted(excluded)),
+        "unregistered": tuple(sorted(unregistered)),
+        "stale_exclusions": tuple(sorted(stale_exclusions)),
+    }
 
 def discover_tests(repository_root: Path) -> list[dict[str, Any]]:
     """Return a stable catalog of C++ and Python tests.

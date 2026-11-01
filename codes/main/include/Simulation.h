@@ -21,17 +21,18 @@ License
 \*---------------------------------------------------------------------------*/
 #pragma once
 #include "NamespaceMacros.h"
-#include "SimuBase.h"
+#include <memory>
 #include <vector>
 #include <string>
 
 BeginNameSpace(ONEFLOW)
 
+class SimuBase;
+
 class Simulation
 {
 public:
     Simulation(int argc, char** argv);
-    virtual ~Simulation();
 
 public:
     // Public entry point: never throws, returns 0 or EXIT_FAILURE

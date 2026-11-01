@@ -1,43 +1,319 @@
 # AI and Developer Project Context
 
-Last updated: 2026-10-30
-Working branch: `hexin`
-Latest inspected starting HEAD for the 2026-10-30 continuation: `d00d86c64cf940f57106a68f62f406c8b6b36fc5`; latest source/documentation slice HEAD: `edacedd47f38c10b114f72c330af9243e16b5b8b`. Subsequent changes add production `ConfigDatabaseAdapter.cpp` coverage in `control_parameter_resolver_test`, and document its incremental ordered-commit semantics. The current source split places manifest orchestration in `ControlFileReader.cpp`, parsing and `ConfigDocument` commit in `ControlScriptParser.cpp`, database-backed array-size lookup in `ControlParameterResolver.cpp`, and broadcast/compression/decompression/diagnostic dumping in `ControlDatabaseIO.cpp`. `ParaFile.cpp` retains legacy parameter-inspection helpers; public declarations remain in `codes/io/include/ParaFile.h`. Recursive source discovery is expected to include the new translation units, but exact-revision build/CI evidence is still required.
-User-reported pre-change local baseline for the 2026-10-30 continuation: 976/976 tests passed. This is not evidence for any later change.
+## 2026-11-01 continuation: first typed CFD Case contract
 
-## Current focus: R1 case I/O root configuration contract
+The user reported 1126/1126 tests passing before this slice. That is the
+baseline only; no local test result is claimed for the changes below.
 
-The active mainline is to make case setup configuration predictable and testable without coupling every contract test to the complete solver bootstrap. The current intermediate test now pins the production ConfigDocument-to-DataBase conversion boundary, while the physical multi-file reader remains the next integration target.
+The active architecture workstream remains the cross-domain Contract Workbench.
+The repository-root `gui/` directory remains temporarily out of scope. The
+latest hexin HEAD before handoff is
+`e0d315a46f63c49a7af0487a753b95a63739219b`.
 
-Production path: `SimuImp::InitSimu() -> SimuContext::SetupCaseEnvironment() -> ReadControlInfo(caseDir) -> RequireGlobalDataBase().RequireDataPara() -> ReadCaseIOSettings() -> Prj root setters -> io_paths.txt`.
+Added `tools/verification/contracts/case/laminar_flat_plate_slau2.json`,
+a real Case-domain definition for `test/cfd/plateuns2dslau2`. It is already
+selected by `test/suites/cpu-serial.txt`. The definition records:
+- 2-D laminar compressible Navier-Stokes, `NsSolver`, SLAU2, 50 steps;
+- control scripts and grid inputs;
+- the exact five paths from `autotest/compare.txt`;
+- `results/res.dat` as the residual output;
+- `test/baselines/residual-baseline.json` with absolute tolerance 1e-15;
+- retained Blasius Cf/u/v references, explicitly marked as not automatically
+  compared by the current runner.
+
+`contract_catalog.py` now has immutable `CaseContractData` as a typed
+domain-specific payload attached optionally to `ContractSummary`. It checks
+that case paths and input/reference files exist, the case is selected by the
+declared suite, the output list exactly matches `autotest/compare.txt`, and
+the residual database:
+- has the expected schema;
+- contains the named case;
+- contains every declared residual output;
+- contains iteration columns `iter` and `sub-iter`;
+- has the configured number of residual rows;
+- uses the declared absolute tolerance.
+
+Tests cover Case payload adaptation, missing payload, combined catalog
+discovery, tolerance drift, and residual-history length drift. The catalog
+does not launch CFD and does not mark the case as executed. A baseline match
+is regression reproducibility, not independent physical validation. Blasius
+reference files remain declared-only evidence until an explicit comparison
+is implemented and scientifically reviewed.
+
+Documentation updated:
+- `tools/verification/README.md`
+- `test/README.md`
+- `doc/plans/verification-contract-workbench.md`
+
+Important commits in this slice:
+- typed payload: `253c51948cf94e88f96ca71deb68795a1574e043`
+- Case definition: `c6410ec05bb4558b7db637faa43d7e27a22f4450`
+- catalog checks: `80f4c46aa62237c5b45628ed384095b074e22a5d`,
+  `3c8882f4e3afd2f685f2ef06dab539bd98504098`,
+  `811b36cbb6451bcaed0c71debc1152d2aeb64320`
+- test coverage: `5b6d854085e0efbefbe71f8527518300a0b830ad`,
+  `6607bb791706765cf81b6da39ff3ef76aab2efc4`,
+  `177e7e2b9688f29427ee4a808bbefc6736b2ebe7`,
+  `be6ea51bb09e0fc4cd91e1401e07d0394de88ae1`
+- documentation: `bb4300822edae9f3286aae5b906f176347947327`,
+  `2c3125f4c943de8c44af672d242cc59b3a4cd4e8`,
+  `a7c5451343d924c93605efe848443b2925004f47`,
+  `003947f073853491983752c8f4bd69de2f1d9fc4`,
+  `e0d315a46f63c49a7af0487a753b95a63739219b`.
+
+Focused validation required:
+`python -m unittest tools.verification.test_contract_catalog`.
+The previous 1126/1126 result predates this slice. Next, run focused tests
+and full Python tests. Once validated, add a second Case/CFD contract only if
+it exercises a genuinely different payload (e.g. turbulence or grid-only
+conversion), then use a Workflow contract to test the same shared evidence
+model. Do not add a generic runner or GUI.
+
+## 2026-11-01 continuation: Contract Workbench becomes cross-domain data
+
+The user reports 1126/1126 tests passing before this slice. That result is the
+baseline only; it does not validate the changes below.
+
+The Contract Workbench direction is an active architecture workstream, not a
+GUI-only feature. The repository root `gui/` remains out of active scope, and
+do not spend effort expanding `tools/oneflow_gui` while the C++ and contract
+foundations need attention.
+
+Implemented the first declared Runtime contract:
+- `tools/verification/contracts/runtime/process_lifecycle.json`
+- `tools/verification/contract_catalog.py`: `ContractSummary` now exposes
+  common architecture/status fields; `adapt_declared_contract` loads schema
+  version 1; `load_contract_catalog` discovers declared contracts alongside
+  Numerical and Geometry compatibility adapters.
+- `tools/verification/test_contract_catalog.py`: tests the declared runtime
+  contract, schema-version rejection, evidence status, and reference validity.
+- `tools/verification/README.md` and
+  `doc/plans/verification-contract-workbench.md` describe the vertical slice.
+
+The runtime contract links exact production implementation paths and three
+GoogleTest declarations. They remain `linked_not_executed`; catalog loading
+checks source declarations but never infers a pass. Contract status
+`implemented` is not a verification result. Its claims explicitly exclude
+physical CUDA/HIP driver behavior, multi-rank MPI teardown, all solver resource
+release paths, and CFD numerical correctness.
+
+Commits:
+- catalog model: `ffe646c4bfb82d33f3b5121d8eeb0d3c2d9d4aa7`
+- runtime contract definition: `76934c00585ed7245035ffe674505afcf39f4546`
+- tests: `170293fbd9f90269df2cf3882efb435a09be119d`
+- verification README: `3ed2596e16d409a7db7dc23458d1770fd79c70eb`
+- architecture proposal: `7fec4524fd6df556de8f445543becebbc94970be`
+
+Focused local validation required:
+`python -m unittest tools.verification.test_contract_catalog`.
+No assistant-side Windows build or test result is claimed.
+
+Next architectural decision: use a second genuinely different domain
+(prefer a Case/CFD regression contract, with workflow as another candidate) to
+test whether the shared envelope is sufficient. Do not introduce a generic
+runner, plugin framework, or wholesale JSON migration yet. Case definitions
+should normally remain evidence fixtures linked to multiple contracts, not
+become one contract per case. Keep claims, evidence scope, exact command,
+revision, backend/platform, outcome, and artifacts distinct. Once two real
+domains exercise the same extension point, consider a typed evidence payload
+or adapter interface.
+
+## 2026-11-01 continuation: production process-level accelerator retry
+
+The user reports all 41 registered Python command groups passed. The root
+`gui/` directory is temporarily out of active development scope; do not spend
+the next slices expanding its legacy test inventory. Keep the existing
+`tools/oneflow_gui` infrastructure stable, but prioritize C++ core,
+numerical algorithms, runtime architecture, documentation, and CFD regression.
+
+Added a production-linked lifecycle test:
+`SimuImpCaseLifecycleIntegration.FailedAcceleratorFinalizationKeepsProcessRuntimeActiveForRetry`.
+It injects a retryable backend under the HIP backend kind, forces the first
+`AccelRuntime::Finalize()` call to throw through the real
+`SimuImp::FinalizeEnvironment()` entry point, and verifies the process
+lifecycle remains Active and the backend remains initialized. A second
+finalization succeeds and commits the lifecycle transition.
+
+Design record: `doc/plans/accelerator-runtime-shutdown-order.md`, section 8.
+Implementation commit: `5e38b60444c6090e372a77326e987bfdad4da99d`.
+Documentation commit: `f111469cac3458701f9a1a2a2e9ef4902db6d75e`.
+
+Status: implemented, not yet validated on the user's Windows build. The fake
+HIP-kind backend verifies process-level retry ordering without requiring HIP
+hardware; it does not replace HIP driver or multi-rank MPI validation.
+
+Next validation: build and run the focused
+`SimuImpCaseLifecycleIntegration.FailedAcceleratorFinalizationKeepsProcessRuntimeActiveForRetry`,
+then `AccelRuntimeTest.FailedFinalizationPreservesBackendForRetry`, followed
+by full Debug CTest. If they pass, proceed to the remaining case-teardown
+failure boundaries and representative CFD regressions.
+
+Last updated: 2026-11-01
+Working branch: `hexin` only. Latest inspected baseline for the shutdown-order slice: `6e550260578a7ad3490793791f9a26feb1e670ae`. Current hexin HEAD after fixture correction and handoff updates: see the latest commits in this section.
+User-reported local validation on the pre-change baseline: **1123/1123 tests passed**. This does not validate the shutdown-order change added afterward.
+
+## 2026-11-01 continuation: lifecycle integration test fixture correction
+
+The user reported 1123/1124 tests passing after the accelerator shutdown-order
+change. The sole failure was
+`SimuImpCaseLifecycleIntegration.ProcessFinalizationReleasesContextBackendStatesBeforeRuntime`,
+which threw in `Prj::ResolveCaseDir()` during `SimuImp` construction. The
+test passed the relative placeholder `unused-case` before initializing
+`Prj::current_dir`; therefore it never reached process runtime setup or the
+shutdown-order assertions.
+
+Corrected the test fixture on `hexin`:
+- Call production `Prj::Init()` before constructing `SimuImp`.
+- Reuse the existing RAII `TemporaryCase` fixture and pass its absolute
+  directory to the constructor.
+- Document why the test requires an initialized project environment and an
+  absolute case path.
+
+Updated design record:
+[Accelerator runtime shutdown order](plans/accelerator-runtime-shutdown-order.md).
+
+Correction commits:
+- Test fixture: [aeae2fb](https://github.com/eric2003/OneFLOW/commit/aeae2fb51e719d0d6a1a8a9786f22f18dfb9230b).
+- Design/validation record: [298e022](https://github.com/eric2003/OneFLOW/commit/298e022c8feddf4fea1f46fec05ccca4031e74d5).
+
+Status: **Fixture corrected; rerun not yet verified**. The 1123/1124 result
+belongs to the pre-correction revision. First rebuild and run the focused
+integration test, then the full Debug CTest suite. If the focused test passes,
+inspect any remaining failures before proceeding to the next runtime
+finalization exception-safety slice.
+
+## 2026-11-01 continuation: retryable accelerator shutdown
+
+The user reports **1124/1124 tests passed** on the preceding hexin revision
+after the process-finalization test fixture was corrected. This is the
+pre-change baseline for the current slice.
+
+Starting revision: `ba067226fcfefad896648d24bd7daa75b49b3a20`.
+
+Source review found a dependency bug in the previous shutdown sequence:
+`ExecuteAllCleanupSteps(ClearAccelStates, ReleaseShared, FinalizeAccelRuntime,
+HXFinalize)` treats all four operations as independent. They are not.
+`HXFinalize()` must not run when accelerator finalization fails, because the
+backend may still require the process/parallel runtime. The previous helper
+would continue into HXFinalize after a failed FinalizeAccelRuntime.
+
+Implemented on `hexin`:
+- Split independent pre-runtime releases from dependent runtime finalization
+  in `SimuContext::FinalizeEnvironment()`.
+- Clear context-owned accelerator states and release the shared HIP backend
+  together; attempt both, then stop if either reports failure.
+- Call `FinalizeAccelRuntime()` separately. If it throws, skip
+  `HXFinalize()` and leave the process lifecycle phase Active.
+- Call `HXFinalize()` and mark the process finalized only after accelerator
+  shutdown succeeds.
+- Documented the backend contract: if `AccelBackend::Finalize()` throws,
+  the backend must remain valid and safe to retry. `AccelRuntime::Finalize()`
+  already retains its backend unique_ptr and initialized flag when the virtual
+  call throws.
+- Added `AccelRuntimeTest.FailedFinalizationPreservesBackendForRetry`, which
+  injects one backend finalization failure, verifies the backend remains
+  accessible/initialized, then verifies a successful retry.
+
+Design and architecture records:
+- [Accelerator runtime shutdown order](plans/accelerator-runtime-shutdown-order.md)
+- [Runtime architecture](source/runtime_architecture.rst)
+
+Industry basis: C++ Core Guidelines E.4/E.17 (invariants and exception
+propagation) and C.36/C.37 (non-throwing destructors). The important design
+distinction is between independent cleanup steps, which should all be
+attempted, and dependent lifecycle transitions, which must stop when a
+precondition has not been established.
+
+Status: **Implemented, unverified**. The user's 1124/1124 result predates
+these changes. Run the focused accelerator runtime test, the production
+SimuImp lifecycle integration test, and full Debug CTest on the exact updated
+hexin HEAD. Also check Windows/Linux and documentation CI. HIP hardware failure
+behavior and multi-rank MPI remain separate validation items.
+
+## Current follow-on: accelerator runtime shutdown ordering
+
+The user reports **1123/1123 tests passed** on baseline hexin HEAD
+6e550260578a7ad3490793791f9a26feb1e670ae. The current slice addresses a lifecycle
+gap discovered while tracing SimuContext, EulerDomainStateRegistry, DeviceBuffer,
+and AccelRuntime ownership.
+
+- SimuContext owns EulerDomainStateRegistry; registered backend states may own
+  device allocations.
+- TeardownCase() already clears context states and releases the shared HIP flux
+  backend before process finalization.
+- FinalizeEnvironment() was independently callable but did not clear any
+  remaining context-owned states before FinalizeAccelRuntime(). A caller that
+  skipped TeardownCase() could therefore destroy backend state after runtime
+  shutdown.
+- FinalizeEnvironment() now clears the registry and releases HipFluxBackend's
+  shared instance (when HIP is enabled) before FinalizeAccelRuntime(), then
+  calls HXFinalize(). This is defensive process cleanup, not a replacement for
+  full TeardownCase() of solver/global case state.
+- A production-linked integration test inserts a state whose destructor
+  records whether AccelRuntime is still initialized, then finalizes without
+  TeardownCase() and checks destruction order.
+- Design record: [Accelerator runtime shutdown order](plans/accelerator-runtime-shutdown-order.md).
+- Runtime architecture guide updated in source/runtime_architecture.rst.
+
+Industry references: C++ Core Guidelines R.1, C.31, C.36, C.37, E.4 and E.7.
+The important distinction is that RAII manages each object's lifetime, while
+the owning context must still order that lifetime before the allocator runtime
+it depends on.
+
+Status: **Implemented, unverified**. The user-reported 1123/1123 result predates
+this slice. Build/run the production integration target, full Debug CTest,
+and representative CPU regressions on the exact latest hexin HEAD. Also check
+Windows/Linux CI. HIP-enabled compile/runtime coverage remains distinct from
+the CPU ownership-ordering test.
+
+
+## Previous mainline: R1 case configuration rollback and lifecycle
+
+The mainline is to make the production case bootstrap exception-safe without confusing configuration rollback with full solver teardown.
+
+Production path: `SimuImp::Run() -> RunCase() -> PreProcess() -> InitSimu() -> SimuContext::SetupCaseEnvironment() -> InitializeCaseConfiguration(caseDir) -> ReadControlInfo(caseDir) -> ReadCaseIOSettings() -> ApplyCaseIOSettings()`.
 
 Current implementation:
-- `codes/main/include/SimuContextParameter.h` defines `CaseIOSettings` and validates optional string entries before path application.
-- `codes/main/src/SimuContextEnv.cpp` uses that snapshot and delegates root application and path diagnostics to `SimuContextDetail::ApplyCaseIOSettings()`, declared in `codes/main/include/SimuContextIO.h` and implemented in `codes/main/src/SimuContextIO.cpp`. The operation uses the existing `Prj` compatibility APIs. The implementation was moved out of the header so `Prj` and filesystem dependencies do not leak through an inline implementation.
-- An explicit `meshInputRoot` takes precedence over legacy `sourceGridCaseDir`; the legacy value is read only when mesh input is empty or `default`.
-- `tests/main/simu_context_parameter_test.cpp` covers missing/valid/invalid optional strings, the complete root snapshot, and legacy fallback behavior. The current slice extends invalid-type coverage to every root key and `ioPathInfoFileName`; applicable settings are read before path-root mutation.
+- `codes/main/src/SimuContextCaseEnvironment.cpp` now wraps the production configuration bootstrap in `SimuCaseLifecycleDetail::ExecuteWithRollback()`.
+- On bootstrap failure, `SimuContextDetail::ClearCaseConfigurationState()` clears partial DataField/DataPara state, the case log binding, and the project-root binding. The rollback helper preserves the original bootstrap exception if rollback itself throws.
+- `IsEnvironmentReady()` remains false until the entire bootstrap succeeds.
+- `SimuImp::RunCase()` still owns full `PostProcess() -> TeardownCase()` cleanup for solver/runtime resources on both setup and task failures. The new rollback is a narrower guarantee for callers of the public Context setup API; it does not replace full teardown.
+- `tests/io/control_configuration_ingestion_test.cpp` now exercises the production Context setup path: the first script commits a value, the second script is missing, and the test verifies the partial value and project binding are cleared. It then creates the missing script and retries successfully on the same context.
+- The separate two-case bootstrap test covers configured roots on one case and default-root rebinding on the next. It still uses the production configuration composition and real control reader.
 
-System-level reason: configuration lookup and type validation are now separated from mutation of global project paths. This reduces ambiguity in the runtime boundary, but does not prove the full setup lifecycle or per-case isolation.
+System-level reason: case configuration now has a strong failure boundary independent of whether the caller is `SimuImp` or another Context consumer. This prevents partially ingested global configuration from leaking after a failed bootstrap. It does not yet prove full solver/device resource release through the actual `SimuImp::RunCase()` callback wiring.
 
 ## Validation status
 
-- User-reported pre-change baseline for the current work slice: 974/974 tests passed.
-- The user-reported 974/974 result is the pre-change local baseline, not a result for the latest revision.
-- Exact-HEAD CI for `d080aaa1b6a567ae3d0f2f5034f9332600c3e7ec`: [Windows](https://github.com/eric2003/OneFLOW/actions/runs/40954345525), [Linux](https://github.com/eric2003/OneFLOW/actions/runs/40954345454), and [documentation](https://github.com/eric2003/OneFLOW/actions/runs/40954345433) completed successfully. These results validate that revision only.
-- The documentation workflow for `69a03cc27dd7ed7ab78c7516d4265138d00b20e8` completed successfully: [documentation check](https://github.com/eric2003/OneFLOW/actions/runs/41046094881). Windows and Linux workflows for that revision were still in progress at the latest check: [Windows](https://github.com/eric2003/OneFLOW/actions/runs/41046094753), [Linux](https://github.com/eric2003/OneFLOW/actions/runs/41046094882).
-- No local test run is available in this environment. The user-reported 971/971 remains the pre-change baseline.
-- The current Linux sandbox has CMake, GCC, Clang, Python, and Git, but no OneFLOW checkout is mounted and shell network/DNS access is unavailable. GitHub source edits are possible, but a complete local CMake/CTest run is not possible until a checkout/archive is available.
-- Keep C++ source ASCII-only.
+- User reports 1096/1096 local tests passed on the pre-change baseline. No local build or CTest run is available in this environment for this slice.
+- Runtime implementation commit: [6a325f7](https://github.com/eric2003/OneFLOW/commit/6a325f71ede48251df3d50e9e65d3a98f8b5dafe).
+- Integration assertions and retry test: [4de3f86](https://github.com/eric2003/OneFLOW/commit/4de3f869affe58a5ac495a4cb90f12024bb3a6f7), [729811b](https://github.com/eric2003/OneFLOW/commit/729811b0996c929ec9b566bee643ab13b0897b75).
+- Runtime architecture guide update: [abf2bd2](https://github.com/eric2003/OneFLOW/commit/abf2bd241d2139177630a2a99e7bb21d531e591a).
+- Exact-HEAD Sphinx check succeeded; Windows and Linux CI were in progress at the last poll: [Sphinx](https://github.com/eric2003/OneFLOW/actions/runs/41280382266), [Windows](https://github.com/eric2003/OneFLOW/actions/runs/41280382252), [Linux](https://github.com/eric2003/OneFLOW/actions/runs/41280382250).
+- This environment has no mounted OneFLOW Windows checkout, so no local VS2022/MSBuild/CTest result can be produced here.
+- C++ source files remain ASCII-only by default; Python and mathematical presentation may retain useful Unicode characters.
 
 ## Remaining R1 gap
 
-A real integration test still needs to exercise the production `ReadControlInfo(caseDir)` path, effective `Prj` root application, `io_paths.txt`/database diagnostics, sequential-case reset, and cleanup after setup failure. Candidate fixtures confirmed in the current `hexin` tree are `test/grid/rae2822convert` (smaller multi-file control manifest) and `test/cfd/rae2822_roe_sa` (fuller CFD manifest; `simu.txt` declares `Solve`, which must not be executed by a setup-only test). The existing test targets intentionally avoid linking the full solver runtime; do not duplicate the parser or copy the executable's complete source list into a test target.
+R1 remains **Partial**. The production integration target exercises the real `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` wiring after a setup failure. A new success-path integration test is now implemented but unverified: it runs two separate `SimuImp` cases through the production `RunCasesWithProcessLifecycle()` orchestration, overrides `ToyModel` with a marker task, and checks case-state cleanup plus process-runtime continuity between cases. Remaining gaps are injected failures at individual solver/device release points, multi-rank MPI behavior, and representative full CFD regressions. The shared `OneFLOW_RuntimeObjects` CMake object collection now lets the executable and integration target consume the same production translation units without creating a static-library boundary. Do not substitute fake teardown and call it end-to-end.
 
-The existing investigation record is `doc/plans/setup-case-environment-integration-test.md`. It identifies the key constraints: the global database is statically initialized, but `ReadControlInfo` uses parallel coordination and database broadcast; `SimuContext::TeardownCase()` resets much more than path state; the production executable currently compiles a broad source list rather than exposing a reusable runtime library. The IO test target now covers the real document-to-DataBase adapter for typed scalar values and ordered duplicate replacement, but it still does not exercise the complete physical-manifest reader.
+The earlier investigation record remains `doc/plans/setup-case-environment-integration-test.md`. Its original findings are historical; this handoff and `doc/source/runtime_architecture.rst` record the newer rollback behavior.
 
-Cleanup ownership has now been distinguished explicitly in that investigation: `SimuImp::RunCase()` cleans up one case and leaves process runtime ownership to `SimuImp::Run()`, while the compatibility `SimuContext::SetupEnvironment()` rollback tears down both case and process runtime. Preserve these scopes; do not collapse them into a shared generic lifecycle. The post-`ReadControlInfo` application stage is now extracted as `SimuContextDetail::ApplyCaseIOSettings()` in `codes/main/include/SimuContextIO.h`. `SetupCaseEnvironment()` still calls the real reader first, validates a full snapshot, then invokes the extracted operation. The focused parameter test target now links the production `Prj` path sources and includes filesystem-backed diagnostic-path tests. This is source-level progress only; build and CTest evidence is still required.
+Next single action: build and run the focused production lifecycle integration target on the exact latest commit, then run the full Debug CTest suite and representative grid/CFD regressions. If those pass, update the R1 evidence; keep teardown fault injection and multi-rank MPI as explicit remaining gaps. Detailed findings are in `doc/plans/setup-case-environment-integration-test.md`.
+## Previous follow-on: accelerator buffer ownership
 
-Next single action: map the exact link dependency closure for `ReadControlInfo(caseDir)` and determine whether a small production configuration-runtime library can be shared by the executable and tests without duplicating CMake compile definitions or source lists. Then add a temporary multi-file integration fixture using the real reader, `SetUpParallelEnvironment()`, typed DataBase assertions, and `log/database.log` verification. Do not substitute a test parser or mock the database commit. Keep `tests/` for test code and `test/` for CFD cases. Do not mark R1 complete until effective path application, sequential-case isolation, and failure cleanup have test evidence.
+The latest branch focus has moved to accelerator resource reliability after the recent
+transactional backend initialization work. Inspected starting HEAD: d9e25a7b671e6104c0d116ae5c561e5d12ba09d0 (Register accelerator runtime tests). The user reports 1119/1119 local tests passed on that pre-change baseline.
+
+- DeviceBuffer<T>::Resize() previously leaked its replacement allocation if device-to-device copy failed.
+- Its destructor and noexcept move assignment called a backend deallocator that may throw.
+- The implementation now guards candidate allocations, preserves the old buffer on allocation/copy failure, rejects byte-count overflow and out-of-capacity host copies, commits replacement ownership before releasing the old allocation, and uses non-throwing cleanup from destruction/move assignment.
+- Explicit Reset() reports release errors but clears object ownership first. Buffers must still be released before accelerator runtime finalization; a destructor cannot free through a backend that has already been finalized.
+- Focused fake-backend tests cover failed growth cleanup/original-buffer preservation and non-throwing destruction.
+- Design record: [DeviceBuffer resource lifecycle](plans/device-buffer-resource-lifecycle.md).
+
+Implementation: [9728e46](https://github.com/eric2003/OneFLOW/commit/9728e46f97204a04a0bc188e770fde2e3d453e23). Focused test coverage and tracking backend: [df8dd00](https://github.com/eric2003/OneFLOW/commit/df8dd0008356e85ff0021cbb221535d9045069fd), [3bd2bf8](https://github.com/eric2003/OneFLOW/commit/3bd2bf84ca4f7b2abd71be94e2e77faf513ffffa), [e6d3e90](https://github.com/eric2003/OneFLOW/commit/e6d3e902e2f64dacb9ec1cb9a27cfbc3ca4cd2e5), [c19ef29](https://github.com/eric2003/OneFLOW/commit/c19ef29558f5a62ebe34e595d40976ad2af59aac), [a48c2b6](https://github.com/eric2003/OneFLOW/commit/a48c2b6f79651ec24e98d979a6a900d61a43dbf8), [74de922](https://github.com/eric2003/OneFLOW/commit/74de9222c90c7bce19602c209d4ddbdd1ab10b21).
+Status at the time of that slice: implemented. The subsequent 1123/1123 local test report covers the DeviceBuffer changes, not the newer shutdown-order change. No local compiler/CTest execution is available in this environment. Next action is to build and run accel_runtime_test, then the full Debug CTest suite and CPU regression cases on the exact updated HEAD.
 
 ## 1. Read this first
 
@@ -69,36 +345,35 @@ Do not start by reading the whole repository. Use the architecture map to identi
 
 The published [architecture review](source/architecture_review.rst) is now the common checklist for substantial AI-assisted changes. It deliberately separates general CFD/CAE concerns from verified OneFLOW behavior. Keep these cross-system risks visible while working locally: implicit global runtime state, configuration parsing versus validation/application, mutable mesh data and derived connectivity, workflow artifact provenance and execution locations, repeated/failed-run cleanup, and the gap between documented plans and actual test/CI evidence. At each meaningful milestone, state which system-level concern improved, what remains untouched, and whether the priority order should change.
 
-## 4. Current focus: R1 case I/O root configuration
+## 4. Current focus: R1 case configuration and lifecycle
 
 Source and tests:
-- `codes/main/include/SimuContextParameter.h`
-- `codes/main/src/SimuContextEnv.cpp`
-- `codes/io/src/ControlFileReader.cpp`
-- `codes/io/src/ControlDatabaseIO.cpp`
-- `codes/io/src/ParaFile.cpp`
-- `tests/main/simu_context_parameter_test.cpp`
-- `tests/main/prj_cmdline_test.cpp`
-- `doc/plans/setup-case-environment-integration-test.md`
+- `codes/main/src/SimuContextCaseEnvironment.cpp`
+- `codes/main/src/SimuContextBootstrap.cpp`
+- `codes/main/src/SimuContextCaseState.cpp`
+- `codes/main/include/SimuCaseLifecycle.h`
+- `tests/io/control_configuration_ingestion_test.cpp`
+- `tests/main/simu_case_lifecycle_test.cpp`
+- `tests/main/simu_imp_case_lifecycle_integration_test.cpp`
+- `doc/source/runtime_architecture.rst`
+- `doc/plans/runtime-refactoring-roadmap.md`
 
-Verified behavior: missing optional root settings resolve to empty strings; present entries declared with a non-string type are rejected; generic and domain-specific roots are selected in a snapshot before being applied; explicit `meshInputRoot` wins over `sourceGridCaseDir`, and the legacy key is read only when mesh input is empty or `default`. Existing `Prj` tests cover path-root inheritance and reset rules.
+Verified contracts:
+- Case setup publishes readiness only after the complete production bootstrap succeeds.
+- A bootstrap failure rolls back partial DataField/DataPara state, case log binding, and project-root binding; the original setup exception is preserved.
+- The same Context can retry after the failed manifest is repaired.
+- `SimuImp::RunCase()` remains responsible for full case teardown; process finalization remains a separate owner.
 
-Implemented, not yet verified for this slice: a test iterates over all eight root-setting keys and confirms that integer-valued entries produce a parameter-named type error. This strengthens the configuration schema contract, but is not a substitute for setup integration.
-
-System-level concern improved: parameter interpretation is kept separate from mutation of process-global path state. Unchanged: real control-file loading through `ReadControlInfo(caseDir)`, effective `Prj` application, diagnostic file output, sequential-case isolation, and cleanup after setup failure.
-
-A new unverified test in `tests/main/prj_cmdline_test.cpp` pins the existing distinction that relative `projectRoot` resolves from `Prj::current_dir`, while ordinary relative I/O roots resolve from the case root. The runtime architecture guide records this compatibility behavior. This is source-backed but not yet built or run in this environment.
-
+Verified by production-linked integration: a real setup failure through `SimuImp::RunCase()` resets context-owned case state and leaves process runtime active until explicit finalization. Implemented, unverified: a successful two-case sequence using separate production `SimuImp` instances, checking per-case reset and process runtime continuity. Still open: injected teardown failures in the concrete release chain, multi-rank MPI, and full numerical regressions.
 ## 5. Next actions, in priority order
 
-1. Check Windows and Linux CI for the exact source revision `a40941b661f53f54add332627cbfc939db057a34`; do not infer a pass from queued or in-progress runs.
-2. Verify the recursive CMake source collector includes the parser and resolver translation units and inspect any CI link/build failures.
-3. Preserve ConfigLoader's injected-resolver tests and the database-backed resolver tests as separate contracts.
-4. Build a minimal target for the real `ReadControlInfo(caseDir)` path, initialized through `SetUpParallelEnvironment()`, with typed database assertions and `log/database.log` verification. Avoid copying the entire executable source list into a test target.
-5. Extend from reader integration to effective `SetupCaseEnvironment()` path application, two-case isolation, and failure cleanup at the correct case/process lifecycle boundaries.
-6. Reassess whether a reusable runtime library boundary is justified by this test and production dependency graph; do not introduce a generic lifecycle framework merely to make the test link.
+1. Check exact-HEAD Windows/Linux CI for the current `hexin` revision; distinguish queued, in-progress, and completed jobs.
+2. Build and run the new successful sequential-case integration contract on the exact commit.
+3. Run the full Debug CTest suite and representative grid/CFD regression cases.
+4. If successful, update R1 evidence; then investigate teardown fault injection at concrete solver/device release points.
+5. Keep multi-rank MPI validation as a separate acceptance item and reassess R1 status only against the required evidence.
 
-Suggested next mainline: the real multi-file control-reader integration path, not another source split or path helper. The whole-project investment ranking is documented in `doc/source/architecture_priority_roadmap.rst`.
+Suggested next mainline: validate production sequential-case isolation, then close the remaining concrete cleanup-failure and MPI gaps—not another generic lifecycle helper or unrelated local refactor. The whole-project investment ranking is documented in `doc/source/architecture_priority_roadmap.rst`.
 ## 6. Status vocabulary
 
 Use these labels consistently in this page and related records:
@@ -593,3 +868,482 @@ proposal are recorded in
 No source code or post-982 test result is claimed in this slice. The latest
 hexin revision for this note is recorded by its commit history; check exact
 HEAD CI before declaring the preceding PIO source-list fix green.
+
+
+## 2026-11-01 continuation: shared production runtime and SimuImp integration
+
+The user reports 1096/1096 local tests passed before this slice. This is a
+pre-change baseline only.
+
+Starting `hexin` HEAD: `0da2d68deeb7216c174e82630d75dab792103722`.
+
+Implemented on `hexin`:
+- `codes/CMakeLists.txt` now builds the recursively collected production
+  source set as static `OneFLOW_Runtime`; `OneFlow.cpp` remains the sole
+  executable entry point. The runtime target publishes the prior executable
+  compile and link requirements so production consumers share one source graph.
+- `SimuContext::IsProcessEnvironmentActive()` exposes a read-only process
+  lifecycle observation.
+- `simu_imp_case_lifecycle_integration_test` links the production runtime and
+  invokes real `SimuImp::RunCase()` with a temporary case whose second control
+  script is missing. It checks the full Context teardown through seeded task
+  and solver-name state, configuration rollback, and process-runtime lifetime.
+- Runtime architecture, lifecycle investigation, roadmap, and this handoff
+  document the target boundary and acceptance gaps.
+
+Important test contract: after the failed case, task resolution and expanded
+solver names must be reset, partial configuration and project-root binding
+must be absent, and process runtime must remain active until explicit
+`FinalizeEnvironment()`.
+
+No local build or CTest was run here. The 1096/1096 report is pre-change
+baseline only. Exact-HEAD Windows/Linux CI and a fresh local build/test are
+required because the executable was moved behind a new static-library target.
+
+R1 is improved with real production `RunCase() -> PostProcess() ->
+TeardownCase()` integration coverage, but remains Partial. Remaining:
+individual teardown-step failure injection in the concrete chain, successful
+repeated full SimuImp cases, multi-rank MPI, and CFD numerical regression.
+Next action: inspect exact-HEAD CI and fix any build/link regressions before
+expanding the integration suite.
+
+
+Latest validation poll for `db7439f55c9b230004e09640f12f31fa860bcfad`:
+- Windows CI queued: https://github.com/eric2003/OneFLOW/actions/runs/41281608533
+- Linux CI queued: https://github.com/eric2003/OneFLOW/actions/runs/41281608515
+- Earlier CI runs for the preceding C++ commits were still in progress; none had completed at this poll.
+- No local CMake configure, build, or CTest was run in this environment. The user's 1096/1096 report remains the pre-change baseline.
+
+
+## 2026-11-01 continuation: Verification Contract Workbench proposal
+
+The user reports **1125/1125 local tests passed** on the preceding revision. The latest inspected hexin baseline before this documentation slice was the merge commit `74baec02d1e170340224c6e320b02412f184947d`.
+
+The current branch already contains two useful foundations:
+- Numerical Contract Workbench: `tools/verification/curve_catalog.py` and `tools/oneflow_gui/verification_curve_dialog.py`, with formula/principle/reference/source/API/documentation/code-sketch/curve data and explicit proves/does-not-prove statements.
+- Geometry Contract Workbench: `tools/geometry_workbench` and `tools/oneflow_gui/geometry_contract_dialog.py`, with editable fixture-backed scenarios. Its current stub does not execute the production geometry algorithm; keep that limitation visible.
+
+Added a discussion proposal:
+- `doc/plans/verification-contract-workbench.md`
+- Indexed from `doc/source/index.rst`.
+
+The proposal recommends a shared contract envelope with domain-specific typed payloads and evidence adapters. Candidate domains include numerical formulas/methods, geometry/mesh, runtime lifecycle, workflows, case regressions, I/O/configuration, and performance. Common navigation is Overview, Principle, References, Architecture, Implementation, Code, Documentation, and Verification, with optional type-specific visualizers such as Formula/Curve, Scenario, Case, Workflow Graph, Mesh View, Benchmark, and Run Artifacts.
+
+Important design decisions proposed (not yet implemented):
+- A Case is normally an evidence fixture linked to multiple contracts, not itself the contract.
+- Definitions remain versioned and reviewable in the repository; generated run evidence/artifacts live under user data paths.
+- Begin read-only and preserve existing source catalogs; do not immediately migrate everything to JSON/YAML.
+- Keep catalog/schema/evidence resolution Qt-independent.
+- Do not add generic dynamic plugin execution. Use typed, allow-listed adapters that invoke existing test and case systems.
+- Preserve the explicit evidence scope: a passing unit test does not establish full physical validation.
+- Keep geometry fixture-backed results distinct from production algorithm results.
+
+Industry practices to borrow selectively: requirements traceability, V&V separation, reproducible run manifests, layered testing with production-path integration, ADRs, schema evolution, and explicit claim limits.
+
+Status: **Proposal committed; no runtime or Workbench implementation changes in this slice.** User-reported 1125/1125 is the baseline, not validation of new executable code. Next step is to discuss the five open design questions in the proposal, then inventory current numerical and geometry metadata before Stage 1. Do not start a broad rewrite.
+
+
+## 2026-11-01 decision: incremental Contract Workbench evolution
+
+The user agrees with a gradual migration: **keep the existing workbenches running first, then abstract and refactor incrementally**. Do not pause working functionality for a broad rewrite.
+
+Working rules:
+- Preserve the current Numerical Contract Workbench and Geometry Contract Workbench entry points and behavior while adding shared capabilities.
+- Start with read-only compatibility/adaptation; do not migrate their source data formats prematurely.
+- Extract shared abstractions only after at least two real consumers demonstrate the same stable need.
+- Keep execution in authoritative existing systems (GoogleTest/CTest, geometry native tests, CFD regressions, workflow runners). The Workbench organizes and presents evidence; it must not duplicate solver algorithms or become a competing test engine.
+- Keep the shared catalog/validation core Qt-independent and test it headlessly.
+- For each migration step, maintain old-path/new-path equivalence tests and a runnable fallback until the new path is established.
+- No large-bang GUI, catalog, or runner rewrite.
+
+User-reported validation baseline for this continuation: **1125/1125 local tests passed**. This validates the preceding user-tested revision, not any future implementation work.
+
+Recommended first implementation slice after the design review:
+1. Inventory current Numerical entries and Geometry scenario metadata.
+2. Define the smallest read-only common view/protocol needed to list a contract's stable ID, title, domain/kind, overview/principle, references, implementation/documentation links, and evidence links.
+3. Adapt one existing numerical entry and one geometry scenario without changing either source format or current UI.
+4. Add headless tests for adaptation, missing references, and explicit fixture-vs-production evidence labeling.
+5. Only then add a shared read-only browser surface or common navigation shell.
+
+
+## 2026-11-01 implementation: first read-only Contract adapters
+
+The user confirmed the migration strategy: keep existing workbenches working,
+then abstract and refactor incrementally. The first executable-code slice now
+exists on `hexin`:
+
+- `tools/verification/contract_catalog.py`
+  - Immutable, Qt-independent `ContractSummary` and `ContractEvidence`.
+  - `adapt_theory_entry` adapts the current numerical dataclass without
+    changing `curve_catalog.py`.
+  - `adapt_geometry_scenario` adapts an already loaded geometry scenario
+    without changing its JSON format or running either the fixture pipeline
+    or production C++.
+  - `validate_contract_summaries` checks duplicate IDs, path containment,
+    and existence of source, documentation, theory CSV, and linked-test
+    source files.
+- `tools/verification/test_contract_catalog.py`
+  - Covers both adapters, evidence-status semantics, invalid/duplicate IDs,
+    missing and escaping paths, and repository references.
+- `tools/verification/README.md` and
+  `doc/plans/verification-contract-workbench.md` describe the compatibility
+  layer and focused validation commands.
+
+Evidence semantics are deliberately conservative:
+- numerical API names and theory CSV are `declared_not_executed`;
+- a geometry fixture is `fixture_available`, not production verification;
+- linked GoogleTest declarations are `linked_not_executed`;
+- a non-null scenario result is `result_recorded_unverified` until a
+  trustworthy runner/provenance model exists.
+
+No existing GUI entry point or source data format has changed. This slice
+does not add a generic runner, JSON/YAML migration, or shared GUI shell.
+
+Assistant has not run the new Python tests or full CTest in the user's
+Windows/MSVC environment. The user's 1125/1125 result remains the
+pre-implementation baseline. First run:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.verification.test_curve_catalog
+```
+
+Then run the full existing suite. Resolve any failures before adding more
+consumers. Next likely increment: make the adapter inventory all current
+numerical entries and geometry scenarios, report invalid/stale links, and
+only then expose a read-only combined browser view. Do not change the two
+existing GUI flows yet.
+
+## 2026-11-01 implementation: combined contract inventory
+
+The next incremental slice extends the read-only compatibility model:
+
+- `load_contract_catalog(repository_root)` enumerates all current Numerical
+  `TheoryEntry` records and all Geometry scenario JSON files through their
+  existing source loaders.
+- Canonical IDs are namespaced as `numerical/<source-id>` and
+  `geometry/<source-id>`; `source_id` retains the original identifier.
+- Geometry fixture evidence records the repository-relative JSON path.
+- Validation checks duplicate IDs, repository-relative path containment,
+  source/document/data file existence, and whether each linked GoogleTest
+  declaration is actually present in its declared C++ source.
+- `tools/oneflow_gui/test_test_inventory.py` explicitly verifies that the
+  new `tools/verification/test_contract_catalog.py` methods are discovered
+  by the existing Workbench test inventory.
+
+This remains read-only discovery. It does not invoke GoogleTest, CTest,
+geometry production algorithms, or persist execution results. The test
+inventory's discovery of a Python test is not evidence that the test passed.
+
+Focused commands:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_test_inventory
+python -m unittest tools.verification.test_curve_catalog
+```
+
+The assistant has not run these commands in the user's Windows/MSVC
+environment. The last user-reported 1125/1125 remains a pre-change baseline.
+Do not add GUI integration until these checks pass. The next design step after
+validation is to inspect the generated catalog and decide which traceability
+fields are genuinely missing before introducing Runtime/Workflow contracts.
+
+The combined loader also reuses the existing Numerical catalog's pure-API
+reference validator. It checks that declared API references resolve to
+repository symbols, in addition to validating source/data/document paths and
+linked Geometry GoogleTest declarations. This reuses established validation
+logic rather than creating a second parser for the Numerical catalog.
+
+
+## 2026-11-01 implementation: Contract Workbench tests in GUI Unit Tests
+
+The user reported 1125/1125 local CTest tests passed before this slice and
+confirmed these focused Python modules pass locally:
+- `tools.verification.test_curve_catalog`: 5 tests.
+- `tools.verification.test_contract_catalog`: 9 tests.
+- `tools.oneflow_gui.test_test_inventory`: 6 tests.
+
+Reviewed the current `hexin` GUI test architecture:
+- `test_inventory.py` performs read-only source discovery of GoogleTest
+  declarations under `tests/` and Python unittest methods under `tools/`.
+  It can attach Geometry scenario input/expected metadata only when the
+  scenario explicitly links a test. Its result field remains unset.
+- `repository_test_inventory_dialog.py` presents that catalog; it does not
+  execute tests.
+- `test_runner.py` owns an explicit Python command registry plus the CTest
+  command. `test_dialog.py` executes these commands sequentially.
+- The GUI's Unit Tests action therefore differs from the Repository Test
+  Inventory: one executes registered commands; the other reports declarations.
+
+Changes on `hexin`:
+- Added the three passing modules to `_PYTHON_UNIT_TESTS` in
+  `tools/oneflow_gui/test_runner.py`.
+- Extended `tools/oneflow_gui/test_test_runner.py` to assert that all three
+  module paths remain registered in the GUI unit-test command list.
+- Added `doc/plans/testing-architecture.md` and linked it from the Workbench
+  README. The document describes test-layer ownership, each module's purpose,
+  discovery-versus-execution semantics, evidence limitations, and industry
+  practices.
+
+Design decision:
+- Unify the GUI entry point and command/result presentation, not the underlying
+  test frameworks. CTest remains authoritative for CMake-registered native
+  tests; Python unittest remains authoritative for Python tests; the CFD
+  regression harness and Development Test case runner retain their own
+  execution semantics.
+- Keep the source inventory broader than the execution allow-list. Do not
+  automatically execute every AST-discovered `test_*.py`: commands may need
+  specific arguments, dependencies, or working directories.
+- Contract fixture metadata and linked-test declarations remain unexecuted
+  until an actual runner reports a result.
+
+Commits:
+- `22201a1a23cf7eac91689fe87bd3e2f549b3b894`: register the three modules.
+- `c3d5c50709770bde07ea6aefcf2bd4fd07a0a0f0`: test the command registry.
+- `1ff595bf6d338231511bccd68a133bfc966b930d`: add testing architecture doc.
+
+No tests were executed by the assistant in the user's Windows environment.
+The user's 1125/1125 result and 5/9/6 focused Python results are pre-change
+validation for the code/documentation slice. Next validation:
+```powershell
+python -m unittest tools.oneflow_gui.test_test_runner
+python -m unittest tools.verification.test_curve_catalog
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_test_inventory
+ctest --test-dir build -C Debug --output-on-failure
+```
+
+
+## 2026-11-01 follow-up: split CTest and Python Unit Tests in GUI
+
+User requested separate GUI selections for CTest and Python tests.
+
+Changes on `hexin`:
+- Added `build_ctest_test_commands()` and
+  `build_python_test_commands()` to `tools/oneflow_gui/test_runner.py`.
+  The legacy combined `build_unit_test_commands()` remains for callers that
+  need the combined sequence.
+- Replaced the single "Unit Tests (CTest and Python tests)" checkbox in
+  `test_dialog.py` with independent "C++ Unit Tests (CTest)" and
+  "Python Unit Tests (unittest)" checkboxes. Both default to checked, but
+  either can now run independently.
+- If CTest is selected but `build/CTestTestfile.cmake` is absent, the GUI
+  reports that the CMake build tree must be configured; it does not silently
+  skip the selected test group.
+- Added command-builder tests for independent command construction and
+  unconfigured CTest handling.
+- Updated GUI and testing architecture documentation.
+
+Commits:
+- `87c393d41c3b25f4bfd348f8d4640774b3204817`: add independent command builders.
+- `d15565aab3e5e47021bb10b33cd194f38a50bfeb`: split GUI test selections.
+- `7d178caa3f7c7906b11471d1e3a4ed41a3ad8348`: remove combined builder from GUI path.
+- `f6f280e7e1a74e0c9f3f6e28299a3d12e282aa44`: test independent command construction.
+
+Assistant has not run tests in the user's Windows environment. Next validation:
+```powershell
+python -m unittest tools.oneflow_gui.test_test_runner
+python -m unittest tools.oneflow_gui.test_test_inventory
+python -m unittest tools.verification.test_curve_catalog
+python -m unittest tools.verification.test_contract_catalog
+```
+Then open the GUI Tests dialog and run CTest and Python Unit Tests separately.
+
+## Python test inventory and execution-registry audit (2026-11-01)
+
+The Workbench Python test command registry was expanded from 24 to 41
+commands. Newly registered coverage includes the mesh-layout editor document
+and rectangle compiler, Geometry Workbench analytic/scenario tests, background
+task services, project/template inventory, SA closure curves, and the standalone
+Tkinter runner test.
+
+tools/oneflow_gui/test_inventory.py now discovers Python unittest methods
+under tools/, tests/, and gui/python/tkinter/. Its
+audit_python_test_registry() compares discovered test source files with
+explicit module, discovery, and script commands in
+tools/oneflow_gui/test_runner.py. The audit reports discovered, registered,
+excluded, unregistered, and stale-exclusion paths. Every discovered module
+must be registered or have a documented exclusion.
+
+Current intentional exclusions:
+- Qt widget/queue and dialog tests pending a dedicated headless GUI test policy.
+- LaTeX preview tests pending the optional Matplotlib rendering environment.
+
+The audit is exercised by
+tools.oneflow_gui.test_test_inventory, including a negative test proving
+that an unregistered unittest module is detected. Example-local/tutorial
+verification scripts are outside the generic unit-test roots; they retain
+their own case-specific execution contracts.
+
+Validation still required on the user's Windows checkout:
+
+    python -m unittest tools.oneflow_gui.test_test_runner
+    python -m unittest tools.oneflow_gui.test_test_inventory
+    python -m unittest tools.oneflow_gui.test_test_runner tools.oneflow_gui.test_test_inventory
+
+Run the full Python Unit Tests group in the GUI after pulling the changes.
+The assistant did not execute the updated suite in the user's Windows
+environment.
+
+Follow-up cleanup from the user's GUI test output:
+- workflow_process.run_process() now closes the captured subprocess stdout
+  stream when the reader thread reaches EOF, preventing an unclosed-file
+  ResourceWarning. The Windows process test now uses io.StringIO so the
+  mocked stream follows the same closeable-file contract.
+
+## Background task stop-state correction (2026-11-01)
+
+The user's Windows run exposed a failure in
+test_background_task_host.test_host_stops_active_process_when_stop_file_appears:
+the task ended as failed instead of stopped. The host now latches the stop
+request as soon as the stop file is observed, performs process-tree termination
+and fallback cleanup, and finalizes as stopped when the requested process has
+been reaped. The test explicitly verifies that its stop-request thread delivered
+the request before asserting the persisted terminal state.
+
+Validation required on Windows:
+
+    python -m unittest tools.oneflow_gui.test_background_task_host
+    python -m unittest tools.oneflow_gui.test_background_task_manager
+
+
+Follow-up hardening on the same slice:
+- Contract JSON sections are shape-checked before adaptation.
+- Declared IDs must use their domain as the namespace.
+- Declared evidence statuses are validated against explicit semantics
+  (`linked_not_executed`, `fixture_available`, `passed`, `failed`,
+  `blocked`, `stale`, etc.); arbitrary labels such as `green` are rejected.
+- Test fixtures were updated for the common `architecture` and `status`
+  fields.
+- Latest focused-test source commits:
+  `69e362b50a28efa1c95a783f0ba300c6006082b8`,
+  `b19040a57bb6338a6f95ef12bf7379ddb48353ce`.
+- Latest catalog validation commits:
+  `e0dc99728de0cad69244005c01a80b11de7a3033`,
+  `2bb1d6af8ec65156245c346b211726c8cf661bf8`,
+  `70230b22886f4ce9fbf69af4d29bea9a9f33e48c`,
+  `7f23f44ab972506bb1e3c8da6b64a8611edb19de`.
+
+The user's 1126/1126 result was reported before these Contract Workbench
+changes. Re-run the focused catalog tests and full suite; do not mark this
+slice verified until then.
+
+
+Final evidence-link correction: declared `google_test` records are now
+validated by the same source-declaration checker as Geometry
+`linked_test` records. This ensures the Runtime contract's three test links
+are not merely path-checked; each named GoogleTest suite/case must be present
+in its declared C++ source. Commit:
+`1f28288bfa88cf87d1d86bbb9eb76d346bcfab8a`.
+
+
+Case-contract follow-up hardening after the initial handoff entry:
+- `CaseContractData` now explicitly declares residual output channels.
+- The catalog requires residual outputs to be a subset of the compared outputs.
+- It validates that the output manifest and contract output lists match exactly.
+- It checks that each residual output exists in the canonical residual database,
+  has `iter` and `sub-iter` columns, and has exactly `max_steps` rows.
+- It rejects unsupported Case kinds and malformed residual database roots.
+- Tests include tolerance drift and residual-history length drift.
+- Documentation records these additional invariants.
+
+Latest focused-slice commits include:
+`3c8882f4e3afd2f685f2ef06dab539bd98504098`,
+`fe471a278ec9d08e9812c5302719ff9b8053268a`,
+`be6ea51bb09e0fc4cd91e1401e07d0394de88ae1`,
+`8674ede4725e12e0cd769244fb455ab04295e9fa`,
+`f5657d890e718cc3ecc63f7a625f7fed3e239056`,
+`bd8bf7ef0cb1fb881307c10f7f00630906a05c3b`.
+
+The exact latest hexin HEAD at this handoff is
+`bd8bf7ef0cb1fb881307c10f7f00630906a05c3b`. No CI status was reported for
+this direct branch commit and no local Windows test run is claimed.
+
+
+## 2026-11-01: visible cross-domain Contract Workbench entry
+
+The user explicitly requested that the Contract Workbench be visible in the
+desktop interface, with distinct entry points for Formula/Knowledge, Geometry,
+Case, and Runtime. This request supersedes the earlier temporary instruction
+to avoid expanding `tools/oneflow_gui` for this specific feature. The repository
+root `gui/` remains out of scope.
+
+Implemented on `hexin`:
+- Added `tools/oneflow_gui/contract_workbench_dialog.py`.
+- Added a domain hub with Formula & Knowledge, Geometry, Case, and Runtime
+  buttons.
+- Formula & Knowledge routes to the existing
+  `VerificationCurveDialog` (the existing title already identifies it as
+  Contract Workbench — Formula knowledge).
+- Geometry routes to the existing `GeometryContractDialog`.
+- Case and Runtime open a shared read-only `ContractDomainDialog` driven by
+  `load_contract_catalog()`.
+- Case view adds a typed Case Setup tab for suite, solver, physics, mesh/input,
+  compared outputs, residual policy, and analytical reference paths.
+- Runtime uses the shared Overview, Principle, Architecture,
+  Implementation/Code, Documentation/References, and Verification tabs.
+- Replaced the two separate home-page Geometry Contracts and Verification
+  Curves buttons with one **Contract Workbench...** entry.
+- Added `test_contract_workbench_dialog.py` for domain buttons and Case/Runtime
+  navigation, and registered it as the 42nd Python command in
+  `test_runner.py`.
+- Updated `tools/oneflow_gui/README.md` and the Chinese
+  `doc/source/workbench_user_guide_zh.rst`.
+
+The new UI is a presentation layer only. It does not execute C++ tests, run CFD,
+or upgrade evidence statuses. Existing Formula and Geometry domain tools remain
+in place; this is an incremental integration rather than a rewrite. Workflow
+and Performance buttons are intentionally deferred until their typed contracts
+have grounded repository content.
+
+Focused validation to run locally:
+```powershell
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.verification.test_curve_catalog
+```
+Then run all registered Python commands and the full CTest suite. The previous
+1126/1126 and 41-command pass results predate this UI integration; no local
+Windows test result is claimed for these commits.
+
+The new UI test is registered as the 42nd Python test command. The latest
+`hexin` HEAD for this handoff is
+`246b1f72ff91af7c7352ec73e5b63309ba4ee876`.
+
+
+## 2026-11-01: Case Contract artifact navigation
+
+Extended the visible Case Contract view in
+`tools/oneflow_gui/contract_workbench_dialog.py`:
+- **Open case directory...** opens the declared repository case folder.
+- **Open suite and references...** opens the declared suite manifest, residual
+  baseline, and retained Blasius reference files.
+- Both actions resolve declared paths under the repository root. Directory
+  navigation rejects a path that escapes the repository; file navigation uses
+  the existing containment-checked `_open_paths` helper.
+- These are read-only navigation actions; they do not run CFD or mutate
+  reference data.
+
+Extended `test_contract_workbench_dialog.py` to mock the desktop URL-opening
+boundary and assert the exact case directory and all five suite/reference
+targets. The test remains in the explicit Python command registry (42 commands).
+Updated the English Workbench README, Chinese user guide, and Contract Workbench
+design plan.
+
+Focused validation:
+```powershell
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+python -m unittest tools.verification.test_contract_catalog
+```
+The latest user-reported 1126/1126 baseline predates these changes. No local
+Windows test execution is claimed.
+
+
+The desktop-open tests replace the module-level `QDesktopServices` dependency
+with a mock object rather than patching a method on the PySide C++ extension
+type. This keeps the test independent of Qt's type mutability and the host
+desktop shell.
+
+Latest `hexin` HEAD after this slice:
+`925a8c779b6944eecbf4f880af46730bc5e2eafb`.

@@ -138,12 +138,17 @@ Application entry:
 
 * `codes/main/src/OneFlow.cpp` contains the small `main(argc, argv)` entry point. It
   constructs `Simulation` and returns `Simulation::Run()`.
+  `Simulation` is an automatic object in `main`; its lifetime is the application
+  entry-point scope. It is not a polymorphic base, so it has no virtual destructor
+  or manually managed heap lifetime. Runtime-selected lightweight test instances
+  are different: `MakeDefaultSimulation()` returns `std::unique_ptr<SimuBase>`
+  because the registry creates implementations through a polymorphic interface.
 * `codes/main/src/Simulation.cpp` processes command-line arguments and chooses between
   the lightweight test-selector path and full case execution.
 * `codes/main/src/SimuImp.cpp` owns a case lifecycle: setup, task resolution, execution,
   and teardown. Its exception path attempts teardown before rethrowing the original error.
 * `codes/main/src/SimuContext.cpp` contains testable context state and selected state
-  operations. Environment setup is separated into `SimuContextEnv.cpp`.
+  operations. Case-environment setup is implemented in `SimuContextCaseEnvironment.cpp`; the production configuration sequence is composed in `SimuContextBootstrap.cpp`.
 * `codes/main/src/SimuTaskReg.cpp` registers task implementations. Concrete task classes
   adapt existing operations to the `ISimuTask` interface.
 * `codes/io/src/ConfigLoader.cpp` parses the legacy parameter syntax into a
@@ -183,7 +188,7 @@ The current `Simulation::RunImpl()` has three argument-count paths:
   `SimuImp` instance.
 
 For example, `OneFLOW.exe r <caseDir>` has three process arguments and follows the full
-simulation path. Case directories passed to one process are executed in command-line order; every argument entry is executed, so repeating the same path runs that case again. Each entry gets a separate ``SimuImp`` / ``SimuContext`` and case teardown, while process runtime (including MPI initialization) is initialized once and finalized after the sequence. ``SimuImp::RunCase()`` can be called repeatedly inside that process lifetime; it owns case teardown, not MPI lifecycle. ``SimuImp::Run()`` is the single-case compatibility entry point that owns one process lifecycle. If process initialization or case setup/run throws, the owning boundary attempts rollback/finalization before propagating the original failure. The compatibility ``SimuContext::SetupEnvironment()`` path rolls back a failed case setup, and ``TeardownEnvironment()`` finalizes process runtime even if case teardown throws. A failed case stops the sequence; later entries are not run. This is not parallel multi-case execution and does not itself express artifact dependencies. Thirteen focused lifecycle tests cover ordering, repeated paths, rollback only on setup failure, exception preservation, and stop-on-failure behavior. ``SimuContextEnv.cpp`` compiled separately with MSVC. The full suite and executable link remain unverified. Use the Workbench architecture page for the distinction between sequential multi-case runs and dependency workflows.
+simulation path. Case directories passed to one process are executed in command-line order; every argument entry is executed, so repeating the same path runs that case again. Each entry gets a separate ``SimuImp`` / ``SimuContext`` and case teardown, while process runtime (including MPI initialization) is initialized once and finalized after the sequence. ``SimuImp::RunCase()`` can be called repeatedly inside that process lifetime; it owns case teardown, not MPI lifecycle. ``SimuImp::Run()`` is the single-case compatibility entry point that owns one process lifecycle. If process initialization or case setup/run throws, the owning boundary attempts rollback/finalization before propagating the original failure. Both ``SimuContext::SetupCaseEnvironment()`` and the compatibility ``SetupEnvironment()`` path roll back partial case-configuration state after a bootstrap failure. ``TeardownEnvironment()`` finalizes process runtime even if case teardown throws. A failed case stops the sequence; later entries are not run. This is not parallel multi-case execution and does not itself express artifact dependencies. Focused lifecycle tests cover ordering, repeated paths, rollback only on setup failure, exception preservation, and stop-on-failure behavior. The production-linked target `tests/main/simu_imp_case_lifecycle_integration_test.cpp` also covers a successful two-case sequence: it uses the same `RunCasesWithProcessLifecycle()` orchestration as `Simulation::RunImpl()`, creates a separate `SimuImp` for each case, and substitutes a marker-only `ToyModel` task so real control-file ingestion and `TeardownCase()` execute without starting a numerical solver. The test checks that case configuration and context state are cleared after each run, that process runtime remains active between cases, and that it is finalized only after the sequence. This verifies lifecycle composition, not successful CFD solver execution or numerical correctness; the exact-commit test result remains required. The exact-commit Windows/Linux CI results remain the authority for build and test validation. Use the Workbench architecture page for the distinction between sequential multi-case runs and dependency workflows.
 
 Context ownership transfer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -243,12 +248,7 @@ execution failure. If execution succeeds, a cleanup failure is allowed to propag
 These are observable contracts and should remain explicit when the orchestration boundary
 is extracted.
 
-This diagram describes the existing path; it does not imply that case setup is
-transactional. In particular, project and log bindings are established before the real
-control reader runs. A failed read can therefore leave partial state until the owning
-cleanup boundary runs. Direct callers of ``SetupCaseEnvironment()`` do not get the
-same automatic rollback that callers of ``SetupEnvironment()`` or ``SimuImp::RunCase()``
-receive. Integration tests must invoke the owning production boundary for cleanup claims.
+This diagram includes a narrow rollback boundary for case configuration. Project and log bindings and script parameters are established before the full bootstrap has completed. If the control reader or later IO-setting validation fails, ``SetupCaseEnvironment()`` clears the partially committed parameter/field data and case log/project bindings while preserving the original bootstrap exception. This rollback does not replace full ``TeardownCase()``: ``SimuImp::RunCase()`` still invokes ``PostProcess()`` on both setup and task failures to release the wider set of case-owned solver and runtime resources.
 
 The next R1 acceptance evidence should cover distinct layers:
 
@@ -702,7 +702,7 @@ SimuContext::TeardownCase releases case-owned resources in dependency order:
 accelerator-backed state and shared backend buffers first, solver and physics
 state next, then zone/field/database state, and finally case log and
 project-path bindings. The process-level accelerator and parallel runtimes
-remain alive until the process owner calls FinalizeEnvironment().
+remain alive until the process owner calls FinalizeEnvironment(). Process finalization attempts accelerator and parallel runtime release independently, then commits the lifecycle-state transition only when both release operations succeed. The first release failure is rethrown after both attempts.
 
 Each release/reset is an independent cleanup step. The production teardown
 uses SimuCaseLifecycleDetail::ExecuteAllCleanupSteps() so an exception in
@@ -728,11 +728,7 @@ Case environment readiness
 entire case bootstrap, not merely that setup has started. The flag is cleared
 at the beginning of ``SetupCaseEnvironment()`` and set only after the case
 root/log binding, production control ingestion, IO-setting validation, and
-IO-path application have all completed. If any step throws, the owning
-``SimuImp::RunCase()`` or compatibility rollback path still attempts case
-teardown, while the context remains not-ready. This distinction prevents
-callers from observing a partially initialized case as ready. It does not
-replace the outstanding integration test of the full production bootstrap.
+IO-path application have all completed. If any step throws, ``SetupCaseEnvironment()`` rolls back the partial configuration state and leaves the context not-ready. The original setup exception is preserved even if rollback itself fails. This distinction prevents callers from observing a partially initialized case as ready. ``SimuImp::RunCase()`` additionally attempts full case teardown through ``PostProcess()``.
 
 Production case-bootstrap composition
 -------------------------------------
@@ -748,18 +744,11 @@ The serial integration target links this same production translation unit
 and exercises two successive case configurations, including configured
 roots on the first case and default-root rebinding on the second. A scoped
 test guard clears case-owned log, project-path, and parameter state even when
-a fatal assertion exits the test early. The test still resets state directly
-between the two bootstrap calls; it does not invoke production
-``TeardownCase()``, the full ``SimuImp::RunCase()``, MPI collectives, or
-accelerator resource release.
+a fatal assertion exits the test early. The two-case test still resets state directly between its bootstrap calls; it does not invoke production ``TeardownCase()``, the full ``SimuImp::RunCase()``, MPI collectives, or accelerator resource release. A separate failure test now calls the public ``SetupCaseEnvironment()``: it commits one script, fails on the next, verifies automatic rollback of the first script and case path binding, then repairs the missing script and retries successfully on the same context.
 
 This is meaningful component-integration evidence: the production bootstrap
 composition, real control reader, typed database commit, IO-setting
-application, and sequential root rebinding are exercised together. R1
-remains partial because the public readiness transition in
-``SetupCaseEnvironment()`` and cleanup wiring through production
-``RunCase() -> PostProcess() -> TeardownCase()`` are not yet exercised
-end-to-end.
+application, and sequential root rebinding are exercised together. R1 remains partial because the public readiness transition and configuration rollback are now exercised, but the complete production cleanup wiring through ``RunCase() -> PostProcess() -> TeardownCase()`` is not yet exercised end-to-end.
 
 Process runtime ownership and Context moves
 -------------------------------------------
@@ -808,3 +797,306 @@ ownership has begun transferring. The invariant is tested at compile time and by
 a runtime ownership-transfer test. The trade-off is one allocation on first use and
 one pointer indirection for registry operations; an empty registry performs no
 allocation.
+
+Process shutdown and accelerator-state ordering
+------------------------------------------------
+
+SimuContext owns its EulerDomainStateRegistry. Registered backend states may
+in turn own device allocations, so they must be destroyed while AccelRuntime
+is still initialized. The normal per-case path already clears the registry in
+SimuContext::TeardownCase(). The process boundary is also defensive:
+SimuContext::FinalizeEnvironment() clears any remaining context-owned states
+and, in HIP builds, releases HipFluxBackend's shared instance before calling
+FinalizeAccelRuntime(). HXFinalize() follows accelerator finalization.
+
+This is an ordering guarantee for accelerator-owned state, not a substitute
+for full case teardown. Solver/global case objects must still be released by
+TeardownCase(). A production-linked test inserts a state whose destructor
+observes the runtime and calls process finalization without prior case teardown;
+it asserts that the state is destroyed while the runtime remains active. The
+HIP shared-instance release branch additionally requires HIP-enabled CI/build
+coverage. See doc/plans/accelerator-runtime-shutdown-order.md for the contract,
+ownership rationale, and validation limits.
+
+Production runtime target and lifecycle integration
+---------------------------------------------------
+
+The production sources collected under ``codes`` are now compiled once into
+the static target ``OneFLOW_Runtime``. The executable entry point remains in
+``codes/main/src/OneFlow.cpp`` and links this target. The target publishes the
+same include directories, compile definitions, compile features, and external
+link dependencies that were previously attached directly to the executable.
+This makes the runtime implementation reusable by integration tests without
+copying the executable's recursively collected source list into each test.
+
+``simu_imp_case_lifecycle_integration_test`` links ``OneFLOW_Runtime`` and
+constructs the real ``SimuImp`` with a temporary case. It starts the process
+runtime, provides a manifest whose first script commits a value and whose
+second script is missing, then calls the production ``RunCase()`` entry point.
+The assertions inspect context-owned task metadata that only the full
+``TeardownCase()`` reset clears, the partial database and project-root state,
+and the process-runtime active flag before and after explicit finalization.
+This distinguishes full case teardown from the narrower rollback performed
+inside ``SetupCaseEnvironment()``.
+
+``SimuContext::IsProcessEnvironmentActive()`` is a read-only lifecycle
+observation; it does not grant callers ownership of process initialization or
+finalization. ``RunCase()`` remains a per-case operation and must leave the
+process runtime active. The process owner remains responsible for the explicit
+``FinalizeEnvironment()`` call.
+
+The new target and test establish a production link boundary and an executable
+integration path. They do not yet validate cleanup failure injection for each
+individual solver/device release step, multi-rank MPI behavior, or numerical
+regression behavior. Exact-configuration Windows/Linux CI and a fresh local
+CTest run are required before treating the refactor as validated.
+
+Simulation arguments and runtime ownership
+------------------------------------------
+
+The application entry point's parsed argument vector remains owned by ``Simulation``.
+When the full simulation path is created, ``SimuImp`` accepts that vector by const
+reference and constructs its ``SimuContext``. The context takes a value snapshot in
+``args_``; this is the single authoritative argument view for runtime consumers.
+``SimuImp`` does not keep a second mutable ``args`` mirror.
+
+This distinction is intentional:
+
+* the caller retains its original vector and cannot be modified by ``SimuImp``;
+* ``SimuContext::Args()`` is the read-only view used by runtime code;
+* there is no additional ``SimuImp`` copy that can drift out of sync after construction;
+* the context lifetime is explicit and bounded by the ``SimuImp`` owner.
+
+The old public ``SimuImp::args`` compatibility member had no repository call sites
+outside its own declaration and constructor initializer. Keeping it would preserve
+an ambiguous API: a write to that vector would not update ``SimuContext::args_``.
+The member has therefore been removed rather than synchronized. Code that needs
+arguments should use ``Context().Args()``. The constructor now accepts a const
+reference to make its non-mutating input contract explicit.
+
+The data path is:
+
+.. code-block:: text
+
+   argc / argv
+       |
+       v
+   Simulation::ProcessCmdLineArgs()
+       |
+       v
+   Simulation::args
+       |
+       | const reference
+       v
+   SimuImp
+       |
+       | value construction
+       v
+   SimuContext::args_
+       |
+       | const Args() accessor
+       v
+   task / runtime consumers
+
+The copy at the context boundary is deliberate: ``SimuContext`` is a self-contained
+runtime context and must not depend on the caller's argument vector remaining alive.
+The removed copy was the additional ``SimuImp::args`` mirror, not the context's
+ownership snapshot. ``Simulation`` still owns its parsed argv storage for the
+application-level invocation lifetime.
+
+Simulation and case lifecycle
+-----------------------------
+
+The full run has two nested lifetimes. The process runtime is initialized once and
+may serve several case directories. Each case gets its own ``SimuImp`` and
+``SimuContext``; a case failure must not skip case cleanup, and case cleanup must
+not prematurely finalize resources still needed by later cases.
+
+.. code-block:: text
+
+   Simulation / process owner
+       |
+       +-- SetupProcessEnvironment()
+       |
+       +-- Case A: SimuImp::RunCase()
+       |      PreProcess()  -> SetupCaseEnvironment()
+       |      MainProcess() -> resolve task -> TaskRegistry -> Execute(ctx)
+       |      PostProcess() -> TeardownCase()
+       |
+       +-- Case B: SimuImp::RunCase()
+       |      PreProcess()  -> SetupCaseEnvironment()
+       |      MainProcess() -> resolve task -> TaskRegistry -> Execute(ctx)
+       |      PostProcess() -> TeardownCase()
+       |
+       +-- FinalizeEnvironment()
+
+The ownership relationship can be summarized as:
+
+.. math::
+
+   T_{case} \subset T_{process}
+
+where ``T_case`` is the interval during which one case's configuration, fields,
+solver state, and case-local resources are valid; ``T_process`` is the larger
+interval during which shared parallel and accelerator runtimes are initialized.
+The subset relation is a lifetime constraint, not a statement that every resource
+is physically owned by the same C++ object.
+
+``SimuImp::Run()`` composes process setup, one case execution, and process
+finalization through ``ExecuteWithProcessLifecycle()``. ``RunCase()`` composes
+pre-processing and main execution with unconditional case cleanup through
+``ExecuteWithCleanup()``. The multi-case integration path uses the same separation:
+the process owner remains active across cases while each case context is torn down.
+
+The key invariant is:
+
+* case-owned state is released before the next case begins;
+* process-owned runtime remains active between cases;
+* process finalization is attempted after case execution, including exceptional exits;
+* the original execution exception is preserved if cleanup also fails;
+* the process lifecycle is marked finalized only after all process-release steps succeed.
+
+Process finalization has a strict dependency chain, not two independent
+cleanup operations. Context-owned accelerator states and shared backend objects
+are released first. Those independent pre-runtime releases are all attempted,
+but any reported failure prevents the accelerator runtime from being finalized.
+After they succeed, ``FinalizeAccelRuntime()`` must complete before
+``HXFinalize()`` is entered. If accelerator finalization throws, the parallel
+runtime remains active; finalizing MPI while a backend may still be active would
+violate the resource dependency. The process lifecycle marker is committed only
+after both runtime layers finish successfully.
+
+Accelerator initialization follows a matching commit boundary. The runtime first
+constructs a candidate ``AccelContext`` and a candidate backend in local
+variables. Only after ``AccelBackend::Initialize()`` returns successfully are
+the backend, device-selection context, and ``initialized`` flag committed to
+the ``AccelRuntime`` object. If an explicitly requested backend fails, its
+candidate object is destroyed and the runtime remains uninitialized with its
+previously published context unchanged. In ``AUTO`` mode, each candidate gets
+a separate context snapshot; a failed candidate cannot leak its partial
+device-selection values into the next attempt or the CPU fallback.
+
+The backend interface has a corresponding exception-safety contract:
+``Initialize()`` must release resources it acquired before throwing. The
+runtime deliberately does not call ``Finalize()`` on a backend whose
+initialization failed, because finalization is not generally valid for a
+partially initialized implementation. Once initialization succeeds,
+``Finalize()`` remains retryable at the runtime boundary: if backend
+finalization throws, the backend and active state are retained rather than
+being reported as successfully finalized.
+
+The state transition is therefore:
+
+.. code-block:: text
+
+   Uninitialized
+        |
+        v
+   candidate context + candidate backend
+        |
+        +---- Initialize throws ----> destroy candidate; remain Uninitialized
+        |
+        v
+   Initialize succeeds
+        |
+        v
+   commit backend + context + initialized=true
+        |
+        v
+   Finalize succeeds
+        |
+        v
+   Uninitialized
+
+This is the same principle used by the process lifecycle marker: externally
+observable state is committed only after the operation that establishes that
+state has succeeded. It does not claim that every backend has identical
+hardware rollback semantics; those remain part of each backend's
+implementation contract.
+
+The MPI compatibility layer now tracks whether OneFLOW itself initialized MPI.
+``HXInit()`` first queries ``MPI_Initialized()`` and ``MPI_Finalized()``. It
+initializes MPI only when no external owner has already initialized it, and
+records ownership only after a successful ``MPI_Init()``. If MPI was already
+initialized by an embedding application, OneFLOW uses that runtime but does
+not claim ownership of its finalization. ``HXFinalize()`` is consequently a
+no-op unless OneFLOW owns the MPI runtime; when it does, it checks the finalized
+state and propagates query/finalization errors. The process bootstrap also
+checks the return code from ``HXInit()`` rather than continuing with rank and
+size queries after a failed initialization.
+
+This is an ownership boundary, not merely defensive error handling. The
+required rule is:
+
+.. math::
+
+   O_{OneFLOW}(MPI) \Rightarrow \text{OneFLOW may finalize MPI}
+
+where ``O_OneFLOW(MPI)`` means that this process successfully initialized MPI
+through the OneFLOW compatibility layer. An externally initialized MPI runtime
+belongs to its embedding application. The serial backend follows the same
+public API and remains a no-op for MPI-specific operations.
+
+The existing ``simu_imp_case_lifecycle_integration_test`` exercises the real
+``SimuImp::RunCase()`` path for setup failure and successful sequential cases.
+It checks case-state clearing and verifies that the process runtime remains active
+between cases. This is stronger than testing the cleanup helper alone, although it
+does not establish multi-rank MPI correctness or every accelerator backend's
+device-resource release behavior.
+
+The distinction also guides future architecture work: process runtime services
+should be injected or observed through a process-level owner, while case data and
+solver state should remain scoped to a case context. Do not move a resource between
+these scopes until its actual use interval and teardown dependency have been traced.
+
+
+Accelerator memory ownership
+----------------------------
+
+The accelerator memory wrapper is ``DeviceBuffer<T>``, declared in
+``codes/accel/include/DeviceBuffer.h``. It is a move-only owner of a backend allocation.
+Its grow-only ``Resize()`` allocates a replacement, copies the current contents, commits
+ownership of the replacement, and then releases the previous allocation. A scope guard
+releases a candidate if allocation/copy does not complete. Byte-count overflow and
+out-of-capacity host copies are rejected before reaching the backend. Destruction and
+``noexcept`` move assignment perform best-effort non-throwing cleanup; explicit ``Reset()``
+can report a backend release error. Buffers must be destroyed or reset before the accelerator
+runtime is finalized. See ``doc/plans/device-buffer-resource-lifecycle.md`` for the exception
+guarantees, focused tests, and remaining validation requirements.
+
+
+Accelerator shutdown failure semantics
+---------------------------------------
+
+``AccelRuntime::Finalize()`` invokes the backend before releasing its
+``unique_ptr`` or clearing the initialized flag. If backend finalization
+throws, the runtime retains the backend object and remains initialized. The
+backend interface therefore requires ``Finalize()`` to preserve a valid,
+retryable backend state on failure. The caller may diagnose the error and retry;
+it must not proceed to ``HXFinalize()`` while the accelerator runtime remains
+active.
+
+The production sequence in ``SimuContext::FinalizeEnvironment()`` reflects
+this dependency:
+
+.. code-block:: text
+
+   clear context-owned accelerator states
+   release shared HIP backend (when enabled)
+        |  independent prerequisites; attempt all
+        v
+   FinalizeAccelRuntime()
+        |  failure stops the dependent sequence
+        v
+   HXFinalize()
+        |
+        v
+   mark process lifecycle finalized
+
+The focused ``AccelRuntimeTest.FailedFinalizationPreservesBackendForRetry``
+injects a backend finalization failure, checks that the backend remains
+accessible and initialized, then disables the fault and verifies a successful
+retry. The test pins the runtime state transition; hardware/driver failure
+behavior still requires backend-specific validation. This follows the C++
+Core Guidelines' emphasis on invariants and meaningful exception propagation
+(E.4, E.17), while keeping destructors non-throwing (C.36/C.37).

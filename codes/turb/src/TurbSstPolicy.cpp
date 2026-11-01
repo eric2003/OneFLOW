@@ -1,4 +1,5 @@
 #include "TurbSstPolicy.h"
+#include "TurbViscosityPolicy.h"
 #include "HXMath.h"
 #include <cmath>
 
@@ -173,9 +174,67 @@ Real SstNegativeSourcePart( Real source )
 }
 
 
-Real SstF2Arg( Real termLength, Real termViscous )
+Real SstStrainRateMagnitude(
+    Real dudx, Real dudy, Real dudz,
+    Real dvdx, Real dvdy, Real dvdz,
+    Real dwdx, Real dwdy, Real dwdz )
+{
+    const Real s11 = dudx;
+    const Real s22 = dvdy;
+    const Real s33 = dwdz;
+    const Real s12 = half * ( dudy + dvdx );
+    const Real s13 = half * ( dudz + dwdx );
+    const Real s23 = half * ( dvdz + dwdy );
+    const Real diagonal = SQR( s11 ) + SQR( s22 ) + SQR( s33 );
+    const Real offDiagonal = SQR( s12 ) + SQR( s13 ) + SQR( s23 );
+    return std::sqrt( two * ( diagonal + two * offDiagonal ) );
+}
+
+Real SstVorticityMagnitude(
+    Real dudx, Real dudy, Real dudz,
+    Real dvdx, Real dvdy, Real dvdz,
+    Real dwdx, Real dwdy, Real dwdz )
+{
+    const Real omegaX = dwdy - dvdz;
+    const Real omegaY = dudz - dwdx;
+    const Real omegaZ = dvdx - dudy;
+    return std::sqrt( SQR( omegaX ) + SQR( omegaY ) + SQR( omegaZ ) );
+}
+
+Real SstLimitingRateMagnitude(
+    int productionOption,
+    Real dudx, Real dudy, Real dudz,
+    Real dvdx, Real dvdy, Real dvdz,
+    Real dwdx, Real dwdy, Real dwdz )
+{
+    if ( productionOption == 1 )
+    {
+        return SstStrainRateMagnitude(
+            dudx, dudy, dudz,
+            dvdx, dvdy, dvdz,
+            dwdx, dwdy, dwdz );
+    }
+    return SstVorticityMagnitude(
+        dudx, dudy, dudz,
+        dvdx, dvdy, dvdz,
+        dwdx, dwdy, dwdz );
+}
+
+Real SstF2ArgFromTerms( Real termLength, Real termViscous )
 {
     return MAX( termLength, termViscous );
+}
+
+Real SstF2Argument(
+    Real kineticEnergy, Real omega, Real wallDistance, Real betaStar,
+    Real laminarViscosity, Real density, Real reynolds )
+{
+    const Real distanceSquared = SQR( wallDistance );
+    const Real termLength = two * std::sqrt( kineticEnergy )
+        / ( betaStar * omega * wallDistance );
+    const Real termViscous = 500.0 * laminarViscosity
+        / ( density * omega * distanceSquared * reynolds );
+    return SstF2ArgFromTerms( termLength, termViscous );
 }
 
 Real SstF2FromArg( Real arg2 )
@@ -185,11 +244,37 @@ Real SstF2FromArg( Real arg2 )
 
 Real SstEddyViscosity(
     Real density, Real kineticEnergy, Real omega,
-    Real vorticityMagnitude, Real f2, Real a1, Real reynolds )
+    Real limitingRateMagnitude, Real f2, Real a1, Real reynolds )
 {
     return density * kineticEnergy
-         / MAX( omega, vorticityMagnitude * f2 / a1 )
+         / MAX( omega, limitingRateMagnitude * f2 / a1 )
          * reynolds;
+}
+
+SstEddyViscosityResult SstComputeEddyViscosity(
+    const SstEddyViscosityInput& input )
+{
+    SstEddyViscosityResult result;
+
+    result.f2Argument = SstF2Argument(
+        input.kineticEnergy, input.omega, input.wallDistance, input.betaStar,
+        input.laminarViscosity, input.density, input.reynolds );
+    result.f2 = SstF2FromArg( result.f2Argument );
+
+    result.limitingRateMagnitude = SstLimitingRateMagnitude(
+        input.productionOption,
+        input.dudx, input.dudy, input.dudz,
+        input.dvdx, input.dvdy, input.dvdz,
+        input.dwdx, input.dwdy, input.dwdz );
+
+    result.uncappedEddyViscosity = SstEddyViscosity(
+        input.density, input.kineticEnergy, input.omega,
+        result.limitingRateMagnitude, result.f2, input.a1, input.reynolds );
+    result.eddyViscosity = TurbCappedEddyViscosity(
+        result.uncappedEddyViscosity,
+        input.laminarViscosity, input.maxViscosityRatio );
+
+    return result;
 }
 
 

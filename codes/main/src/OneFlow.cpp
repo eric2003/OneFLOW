@@ -21,10 +21,9 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Simulation.h"
-#include <memory>
 
 int main( int argc, char ** argv )
 {
-    auto simulation = std::make_unique<ONEFLOW::Simulation>( argc, argv );
-    return simulation->Run();
+    ONEFLOW::Simulation simulation( argc, argv );
+    return simulation.Run();
 }

@@ -22,7 +22,7 @@ License
 #include "TurbSrcFlux.h"
 #include "TurbSstPolicy.h"
 #include "TurbSaPolicy.h"
-#include "TurbSaPolicy.h"
+#include "TurbViscosityPolicy.h"
 #include "NsCtrl.h"
 #include "DataBase.h"
 #include "HXMath.h"
@@ -281,51 +281,45 @@ void TurbSrcFlux::CalcSrc()
 
 void TurbSrcFlux::CalcCellVist1Equ()
 {
-    Real olam = turbcom.rho / ( turbcom.visl + SMALL );
-    turbcom.xsi  = SaChi( turbcom.nuet, olam );
-    turbcom.xsi3 = POWER3( turbcom.xsi );
-    turbcom.fv1  = SaFv1( turbcom.xsi, turbcom.cv13 );
+    SaEddyViscosityInput input;
+    input.density = turbcom.rho;
+    input.workingVariable = turbcom.nuet;
+    input.laminarViscosity = turbcom.visl;
+    input.cv1Cubed = turbcom.cv13;
+    input.maxViscosityRatio = turbcom.max_vis_ratio;
 
-    turbcom.vist = SaEddyViscosity( turbcom.rho, turbcom.nuet, turbcom.fv1 );
-    turbcom.vist = SaCappedEddyViscosity(
-        turbcom.vist, turbcom.visl, turbcom.max_vis_ratio );
+    const SaEddyViscosityResult result = SaComputeEddyViscosity( input );
+    turbcom.xsi = result.chi;
+    turbcom.xsi3 = POWER3( result.chi );
+    turbcom.fv1 = result.fv1;
+    turbcom.vist = result.eddyViscosity;
 }
 
 void TurbSrcFlux::CalcCellVist2Equ()
 {
-    const Real dist2 = SQR( turbcom.dist );
-    const Real part1 = 2.0 * sqrt( turbcom.ke )
-        / ( turbcom.betas * turbcom.kw * turbcom.dist );
-    const Real part2 = 500.0 * turbcom.visl
-        / ( turbcom.rho * turbcom.kw * dist2 * turbcom.reynolds );
-    const Real arg2 = SstF2Arg( part1, part2 );
-    const Real f2 = SstF2FromArg( arg2 );
+    SstEddyViscosityInput input;
+    input.kineticEnergy = turbcom.ke;
+    input.omega = turbcom.kw;
+    input.wallDistance = turbcom.dist;
+    input.betaStar = turbcom.betas;
+    input.laminarViscosity = turbcom.visl;
+    input.density = turbcom.rho;
+    input.reynolds = turbcom.reynolds;
+    input.a1 = turbcom.a1;
+    input.maxViscosityRatio = turbcom.max_vis_ratio;
+    input.productionOption = turbcom.iprod_sst;
+    input.dudx = turbcom.dudx;
+    input.dudy = turbcom.dudy;
+    input.dudz = turbcom.dudz;
+    input.dvdx = turbcom.dvdx;
+    input.dvdy = turbcom.dvdy;
+    input.dvdz = turbcom.dvdz;
+    input.dwdx = turbcom.dwdx;
+    input.dwdy = turbcom.dwdy;
+    input.dwdz = turbcom.dwdz;
 
-    Real vort = 0.0;
-
-    if ( turbcom.iprod_sst == 1 )
-    {
-        const Real s11 = turbcom.dudx;
-        const Real s22 = turbcom.dvdy;
-        const Real s33 = turbcom.dwdz;
-        const Real s12 = half * ( turbcom.dudy + turbcom.dvdx );
-        const Real s13 = half * ( turbcom.dudz + turbcom.dwdx );
-        const Real s23 = half * ( turbcom.dvdz + turbcom.dwdy );
-        const Real sij2 = two * ( SQR( s11, s22, s33 ) + two * SQR( s12, s13, s23 ) );
-        vort = sqrt( sij2 );
-    }
-    else
-    {
-        vort = DIST( turbcom.dwdy - turbcom.dvdz,
-                     turbcom.dudz - turbcom.dwdx,
-                     turbcom.dvdx - turbcom.dudy );
-    }
-
-    turbcom.vist = SstEddyViscosity(
-        turbcom.rho, turbcom.ke, turbcom.kw,
-        vort, f2, turbcom.a1, turbcom.reynolds );
-    turbcom.vist = SaCappedEddyViscosity(
-        turbcom.vist, turbcom.visl, turbcom.max_vis_ratio );
+    const SstEddyViscosityResult result = SstComputeEddyViscosity( input );
+    turbcom.vist = result.eddyViscosity;
 }
 
 

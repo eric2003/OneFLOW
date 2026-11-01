@@ -49,7 +49,6 @@ License
 #include "ActionState.h"
 #include "Iteration.h"
 #include <iostream>
-#include <exception>
 #include <filesystem>
 #include <stdexcept>
 
@@ -137,33 +136,32 @@ void SimuContext::FinalizeEnvironment()
         return;
     }
 
-    std::exception_ptr finalizeFailure;
-    try
-    {
-        ONEFLOW::FinalizeAccelRuntime();
-    }
-    catch ( ... )
-    {
-        finalizeFailure = std::current_exception();
-    }
+    // Commit the lifecycle transition only after every release operation
+    // has completed. If a release fails, the state remains Active so callers
+    // do not observe a false successful-finalization state.
+    // Context-owned backend states may contain device allocations. Release
+    // them while the backend is still initialized, even when callers finalize
+    // the process directly without first running TeardownCase().
+    // These releases are independent, but both depend on the accelerator
+    // runtime remaining alive. Attempt both before crossing the runtime boundary.
+#ifdef ONEFLOW_ENABLE_HIP
+    SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
+        [&]() { ClearAccelStates(); },
+        []() { HipFluxBackend::ReleaseShared(); } );
+#else
+    SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
+        [&]() { ClearAccelStates(); } );
+#endif
 
-    try
-    {
-        HXFinalize();
-    }
-    catch ( ... )
-    {
-        if ( ! finalizeFailure )
-        {
-            finalizeFailure = std::current_exception();
-        }
-    }
+    // Runtime finalization is a dependency boundary, not an independent
+    // cleanup step. If it fails, keep the parallel environment alive so the
+    // caller can diagnose the backend failure and retry finalization.
+    ONEFLOW::FinalizeAccelRuntime();
 
+    // The parallel runtime may be finalized only after accelerator shutdown
+    // has completed successfully.
+    HXFinalize();
     processLifecycle_.MarkFinalized();
-    if ( finalizeFailure )
-    {
-        std::rethrow_exception( finalizeFailure );
-    }
 }
 
 void SimuContext::TeardownEnvironment()

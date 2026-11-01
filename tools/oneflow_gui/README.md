@@ -2,7 +2,36 @@
 
 For the user-manual entry in the main OneFLOW documentation, see [OneFLOW Workbench User Guide](../../doc/source/workbench_user_guide_zh.rst). This README remains the detailed module-level reference for current UI behavior and service tests. The architecture overview is [Workbench Architecture](../../doc/source/workbench_architecture.rst). Case parameter file ownership, runtime database limitations, and the proposed schema-backed editor are documented in [Case Parameter Design](../../doc/source/case_parameter_design.rst).
 
-The desktop application starts with a minimal Workbench home containing a single **Project** button. Open it to access **New Project...**, **Open Project...**, **Open Multi-Case Workspace...**, **Create Multi-Case Workspace...**, **Run History...**, and **Saved Workflows...** in a vertical list. The home page places **Tests...**, **Mesh Layout Editor...**, **Background Tasks...**, and **Configuration...** as separate vertical buttons directly below **Project**. **New Project...** creates a project from a template in a user-selected workspace directory; the initial templates are Blank project, Mesh conversion (`grid/mesh_workflow`), Mesh generation (`grid/minimal_rectangle`), and RAE2822 grid and CFD workflow. The RAE2822 template copies the mesh-conversion case and Roe-SA solver case into one workspace and includes `workflow.json`, which declares the generated-grid artifact and the solver dependency. Existing templates are copied and never edited in the source tree. The Blank project includes `.oneflow-project.json` metadata and a README. **Open Project** accepts any existing directory, including projects outside the repository and projects not registered in the built-in case catalog. The project window identifies Grid or CFD/flow projects where possible; unknown projects can still be opened. Projects inside the OneFLOW source repository must be copied to a workspace before running, and copy destinations must remain outside the source repository. User projects outside the repository can still be run in place or copied to a workspace. **Development Tests**, **Unit Tests**, and **CFD/Grid Regression** are task types with different execution strategies. The **Tests** entry groups unit tests, CFD/grid regression, and Development Tests. Development Tests is opt-in and unchecked by default. Its **Select cases...** dialog starts with all catalog cases selected, so checking Development Tests and pressing **Run** is enough; open the selector only to change the selection. Cases are copied to the fixed protected test workspace before each batch, and per-case results remain visible in the Tests dialog. The **Configuration...** dialog stores a **Run mode** preference with **Run single case**, **Multi-case run**, and **Dependency workflow** values. When **Saved Workflows...** opens, **Multi-case run** and **Dependency workflow** create a matching new draft; **Run single case** leaves the saved-workflow list unchanged. Use **Open Project...** for a single project. A versioned `.ofw` workspace file records case directories, execution mode, and dependency edges; use **Project > Open Multi-Case Workspace...** or **Project > Create Multi-Case Workspace...** to edit it. The `.ofw` editor can open the existing Saved Workflows runner through **Save and Run...**; artifact handoff still requires a full graph definition in Saved Workflows. Project discovery, catalog definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
+The desktop application starts with a minimal Workbench home containing a single **Project** button. Open it to access **New Project...**, **Open Project...**, **Open Multi-Case Workspace...**, **Create Multi-Case Workspace...**, **Run History...**, and **Saved Workflows...** in a vertical list. The home page places **Tests...**, **Repository Test Inventory...**, **Contract Workbench...**, **Mesh Layout Editor...**, **Background Tasks...**, and **Configuration...** as separate vertical buttons directly below **Project**. **New Project...** creates a project from a template in a user-selected workspace directory; the initial templates are Blank project, Mesh conversion (`grid/mesh_workflow`), Mesh generation (`grid/minimal_rectangle`), and RAE2822 grid and CFD workflow. The RAE2822 template copies the mesh-conversion case and Roe-SA solver case into one workspace and includes `workflow.json`, which declares the generated-grid artifact and the solver dependency. Existing templates are copied and never edited in the source tree. The Blank project includes `.oneflow-project.json` metadata and a README. **Open Project** accepts any existing directory, including projects outside the repository and projects not registered in the built-in case catalog. The project window identifies Grid or CFD/flow projects where possible; unknown projects can still be opened. Projects inside the OneFLOW source repository must be copied to a workspace before running, and copy destinations must remain outside the source repository. User projects outside the repository can still be run in place or copied to a workspace. **Development Tests**, **Unit Tests**, and **CFD/Grid Regression** are task types with different execution strategies. The **Tests** entry groups unit tests, CFD/grid regression, and Development Tests. Development Tests is opt-in and unchecked by default. Its **Select cases...** dialog starts with all catalog cases selected, so checking Development Tests and pressing **Run** is enough; open the selector only to change the selection. Cases are copied to the fixed protected test workspace before each batch, and per-case results remain visible in the Tests dialog. The **Configuration...** dialog stores a **Run mode** preference with **Run single case**, **Multi-case run**, and **Dependency workflow** values. When **Saved Workflows...** opens, **Multi-case run** and **Dependency workflow** create a matching new draft; **Run single case** leaves the saved-workflow list unchanged. Use **Open Project...** for a single project. A versioned `.ofw` workspace file records case directories, execution mode, and dependency edges; use **Project > Open Multi-Case Workspace...** or **Project > Create Multi-Case Workspace...** to edit it. The `.ofw` editor can open the existing Saved Workflows runner through **Save and Run...**; artifact handoff still requires a full graph definition in Saved Workflows. Project discovery, catalog definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
+
+## Contract Workbench
+Case contracts also expose direct artifact navigation: **Open case directory...**
+opens the declared case folder, while **Open suite and references...** opens
+the suite manifest, residual baseline, and retained analytical reference files.
+These actions resolve repository-relative paths and do not run the case.
+
+The home page's **Contract Workbench...** button opens the cross-domain contract
+navigator. Current domain entry points are:
+
+- **Formula & Knowledge** opens the existing Verification Curves browser,
+  retaining its formula, principle, references, documentation, code sketch,
+  and theory-curve views.
+- **Geometry** opens the existing Geometry Contract explorer. Fixture execution
+  remains explicitly distinct from native C++ GoogleTest execution.
+- **Case** browses typed CFD Case contracts through the shared catalog, showing
+  suite membership, solver and physical setup, input files, output manifests,
+  residual policy, analytical references (including Blasius skin-friction and
+  velocity profiles), and evidence limitations.
+- **Runtime** browses lifecycle and resource-ownership contracts using the
+  shared Overview, Principle, Architecture, Implementation/Code, Documentation,
+  and Verification views.
+
+The Case and Runtime browsers are read-only views of
+`tools/verification/contract_catalog.py`; they do not launch CFD or tests.
+Evidence statuses are displayed as declared by the catalog and are never
+promoted to PASS by the UI. Workflow and Performance entry points will be added
+when their typed contracts have concrete repository evidence. The root
+`gui/` directory is outside this Workbench integration.
 
 ## Workspace files
 
@@ -38,7 +67,9 @@ Both the source repository and its built-in case data are protected from in-plac
 The application invokes the standard command shape:
 `OneFLOW.exe r <case-directory>`.
 
-Use the **Tests...** button below **Project** to run the existing CTest and Python unit-test commands by default, enable the optional CFD/grid regression suite, or run the selected Development Tests cases. The shared action bar uses **Build**, **Rebuild**, **Run**, **Stop**, and **Close**. The Debug/Release selection is made in Configuration and passed into the Tests dialog. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Project > Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
+Use the **Tests...** button below **Project** to run C++ Unit Tests (CTest)
+and Python Unit Tests (unittest) independently, enable the optional CFD/grid
+regression suite, or run the selected Development Tests cases. The shared action bar uses **Build**, **Rebuild**, **Run**, **Stop**, and **Close**. The Debug/Release selection is made in Configuration and passed into the Tests dialog. Regression runs invoke `test/test.py` and an existing manifest from `test/suites/`; the GUI does not implement a second test engine. Use **Project > Run History...** to inspect Case Workbench and workflow run records and logs, edit notes, delete individual records, or clean matching history by workflow, status, and timestamp. These history operations never delete run artifacts.
 
 Use the **Mesh Layout Editor...** button below **Project** to open the mesh layout project editor. Choosing
 **Single rectangle**, **Single rectangle with vertical midpoints**, **Two-block turbulent flat plate**, **Two-block laminar flat plate**, or **Two-block laminar flat plate (10 edges)** copies the complete template
@@ -121,6 +152,50 @@ case discovery and process execution remain separable from the GUI framework.
 The shared `TaskRunResult` model establishes a common outcome contract without
 merging the case queue and test-command workers; each runner retains its own
 execution and cancellation semantics.
+
+## Test inventory and execution
+
+The **Repository Test Inventory** is a read-only source browser. It scans C++
+GoogleTest declarations under `tests/` and Python unittest declarations under
+`tools/`, `tests/`, and the standalone `gui/python/tkinter/` test area. It
+displays source locations and explicitly linked Geometry scenario
+input/expected metadata. A registry audit compares discovered Python test
+modules with the explicit execution commands. Qt widget tests and optional
+Matplotlib rendering tests remain explicitly excluded until a dedicated
+headless/visualization test environment is configured. Discovery does not
+execute tests and does not populate a pass/fail result.
+
+The **Tests** dialog exposes two independent unit-test selections:
+**C++ Unit Tests (CTest)** and **Python Unit Tests (unittest)**. CTest runs
+native tests registered by the configured CMake build tree; Python tests run
+the explicit Python command registry using the selected interpreter. Either
+group can be run without the other. Selecting CTest requires an existing
+`build/CTestTestfile.cmake`; if it is missing, the GUI asks the user to
+configure the build tree rather than silently skipping CTest. The inventory is intentionally broader than this
+execution registry: a discovered Python test is not automatically safe to
+run without considering its arguments, working directory, and dependencies.
+
+After each command batch, the Tests dialog reports command totals (passed,
+failed, and not run). It also parses framework summaries to report individual
+Python unittest and CTest case counts, including passed, failed, and skipped
+Python tests where available. On failure, the final report includes the failed
+command and the captured traceback or CTest failed-test listing; the full
+streamed log remains available above it. Execution stops at the first failed
+command, and the not-run count makes that early stop explicit.
+
+The following Contract Workbench modules are included in the GUI Python unit
+suite:
+
+- `tools.verification.test_curve_catalog`: numerical catalog formulas,
+  implementation API references, and source/document/data paths.
+- `tools.verification.test_contract_catalog`: shared Numerical/Geometry
+  adapters, stable IDs, evidence semantics, and repository-reference checks.
+- `tools.oneflow_gui.test_test_inventory`: C++/Python test discovery,
+  explicit scenario linkage, and the rule that discovery never fabricates
+  execution results.
+
+The architecture and rationale are documented in
+[OneFLOW Testing Architecture](../../doc/plans/testing-architecture.md).
 
 ## Service tests
 

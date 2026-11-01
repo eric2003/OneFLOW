@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+import re
 
 
 @dataclass(frozen=True)
@@ -228,7 +229,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             title="F1 blending function",
             role_tags=("closure", "blending"),
             formula_plain=(
-                "CD_kw = max(2*rho*sigw2*(gradk.gradw)/w, small)\n"
+                "CD_kw = max(2*rho*sigw2*(gradk·gradw)/w, small)\n"
                 "arg1 = min( max(sqrt(k)/(beta_star*w*d), 500*nu/(w*d^2*Re)), "
                 "4*rho*sigw2*k/(CD_kw*d^2) )\n"
                 "F1 = tanh(arg1^4)\n"
@@ -282,15 +283,15 @@ def list_theory_entries() -> list[TheoryEntry]:
             formula_plain=(
                 "arg2 = max(2*sqrt(k)/(beta_star*w*d), 500*nu/(w*d^2*Re))\n"
                 "F2 = tanh(arg2^2)\n"
-                "mu_t = a1*rho*k / max(a1*w, Omega*F2) * Re"
+                "mu_t = rho*k / max(w, R*F2/a1) * Re (R = selected strain/vorticity magnitude)"
             ),
             formula_latex=(
                 r"F_2=\tanh(\mathrm{arg}_2^{2})"
                 "\n"
-                r"\mu_t=\frac{a_1\rho k}{\max(a_1\omega,\Omega F_2)}\,Re"
+                r"\mu_t=\frac{\rho k}{\max(\omega,R F_2/a_1)}\,Re"
             ),
             principle=(
-                "F2 limits eddy viscosity in boundary layers (Bradshaw)."
+                "F2 limits eddy viscosity using the selected strain-rate or vorticity magnitude (Bradshaw limiter)."
             ),
             background=("Optional laminar-ratio cap may still apply in the solver."),
             references=(
@@ -298,7 +299,11 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             csv_relpath="tools/verification/data/sst_f2_arg2_theory.csv",
             plot_module="plot_sst_f2",
-            pure_apis=("SstF2Arg", "SstF2FromArg", "SstEddyViscosity"),
+            pure_apis=(
+                "SstF2Argument", "SstF2ArgFromTerms",
+                "SstF2FromArg", "SstEddyViscosity",
+                "SstComputeEddyViscosity",
+            ),
             source_relpaths=(
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSrcFlux.cpp",
@@ -310,7 +315,11 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "  return std::tanh(arg2 * arg2);\n"
                 "}\n"
             ),
-            proves="F2(arg2)=tanh(arg2^2) curve vs SstF2FromArg; eddy-viscosity algebra samples.",
+            proves=(
+                "Physical-input arg2 construction selects the larger length-scale or viscous term; "
+                "F2(arg2)=tanh(arg2^2) curve, complete per-cell closure composition, "
+                "production-option rate selection, and shared laminar-ratio cap."
+            ),
             does_not_prove="Wall-resolved SST validation or full mu_t field.",
         ),
         TheoryEntry(
@@ -360,7 +369,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             formula_plain=(
                 "P_w ~ alpha * rho * S^2 (or related forms)\n"
                 "D_w = beta * rho * omega^2\n"
-                "CD ~ 2*(1-F1)*rho*sigw2*(gradk·gradw)/omega"
+                "CD ~ 2*(1-F1)*rho*sigw2*(gradk.gradw)/omega"
             ),
             formula_latex=(
                 r"D_\omega=\beta\rho\omega^{2}"
@@ -379,7 +388,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             pure_apis=(
                 "SstProdwMenter",
                 "SstDissw",
-                "SstCrossDiffTerm",
+                "SstCrossDiffMenter",
             ),
             source_relpaths=(
                 "codes/turb/include/TurbSstPolicy.h",
@@ -387,11 +396,346 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             doc_relpath="doc/source/numerical/sst_omega_source.rst",
             code_sketch=(
-                "// GATED SKETCH — see TurbSstPolicy for exact signatures.\n"
+                "// GATED SKETCH - see TurbSstPolicy for exact signatures.\n"
             ),
             proves="Omega source piece APIs where extracted.",
             does_not_prove="Full SST residual on a case.",
         ),
+
+
+        TheoryEntry(
+            id="sst_residual_diagonal",
+            family="turbulence",
+            genus="SST",
+            section="source / residual linearization",
+            title="SST source residual and diagonal pieces",
+            role_tags=("source", "linearization", "SST"),
+            formula_plain=(
+                "S_k = P_k - eps\n"
+                "S_w = P_w - D_w + CD\n"
+                "d_k = -2 * f_beta* * beta* * omega\n"
+                "d_w = -2 * f_beta * beta * omega - |CD|/(rho*omega)\n"
+                "neg = 0.5 * (S - |S|)"
+            ),
+            formula_latex=(
+                r"S_k=P_k-\varepsilon"
+                "\n"
+                r"S_\omega=P_\omega-D_\omega+CD"
+                "\n"
+                r"d_k=-2 f_{\beta^*}\beta^*\omega"
+                "\n"
+                r"d_\omega=-2 f_\beta\beta\omega-|CD|/(\rho\omega)"
+            ),
+            principle=(
+                "Menter linearization splits explicit source and diagonal "
+                "contributions for implicit turbulence updates."
+            ),
+            background=(
+                "Pure APIs SstSourceK/W, SstDiagonalK/W, SstNegativeSourcePart "
+                "are locked in turb_sst_residual_test."
+            ),
+            references=(
+                "Menter SST linearization practice.",
+                "OneFLOW TurbSstPolicy residual section.",
+            ),
+            csv_relpath=None,
+            plot_module=None,
+            pure_apis=(
+                "SstSourceK",
+                "SstSourceW",
+                "SstDiagonalK",
+                "SstDiagonalW",
+                "SstNegativeSourcePart",
+            ),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_k_source.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real SstDiagonalW(Real fBeta, Real beta, Real omega,\n"
+                "                  Real absCD, Real rho) {\n"
+                "  return -2*fBeta*beta*omega - absCD/(rho*omega);\n"
+                "}\n"
+            ),
+            proves="Residual piece algebra vs pure APIs.",
+            does_not_prove="Full SST field residual or case Cf.",
+        ),
+
+
+        TheoryEntry(
+            id="sst_wall_omega_menter",
+            family="turbulence",
+            genus="SST",
+            section="boundary / wall omega",
+            title="Wall omega_w (Menter)",
+            role_tags=("boundary", "wall", "omega"),
+            formula_plain=(
+                "omega_w = 60 * mu_l / (rho * beta1 * d^2 * Re)\n"
+                "with beta1 ~ 0.075 (inner SST constant)"
+            ),
+            formula_latex=(
+                r"\omega_w=\frac{60\mu_l}{\rho\beta_1 d^{2} Re}"
+            ),
+            principle=(
+                "Rough-wall / smooth-wall SST practice sets a large omega at "
+                "the wall scaling as 1/d^2 so the viscous sublayer is resolved "
+                "without integrating to omega->inf."
+            ),
+            background=(
+                "Pure API TurbWallOmegaMenter; image conditions for k and SA "
+                "nu_tilde use sign-flip ghosts (TurbWallKineticEnergyImage, "
+                "TurbWallSaImage)."
+            ),
+            references=(
+                "Menter SST wall boundary practice; NASA TMR SST.",
+                "OneFLOW TurbBcPolicy.",
+            ),
+            csv_relpath="tools/verification/data/sst_wall_omega_menter_theory.csv",
+            plot_module="plot_sst_wall_omega",
+            pure_apis=("TurbWallOmegaMenter", "TurbWallKineticEnergyImage"),
+            source_relpaths=(
+                "codes/turb/include/TurbBcPolicy.h",
+                "codes/turb/src/TurbBcPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/index.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real TurbWallOmegaMenter(Real mu, Real rho, Real beta1,\n"
+                "                         Real d2, Real Re) {\n"
+                "  return 60*mu / (rho*beta1*d2*Re);\n"
+                "}\n"
+            ),
+            proves="omega_w(d) closed form vs TurbWallOmegaMenter grid.",
+            does_not_prove="y+ resolution or full SST wall shear.",
+        ),
+
+        # ========== Wilcox ==========
+        TheoryEntry(
+            id="wilcox_fk_xk",
+            family="turbulence",
+            genus="Wilcox",
+            section="closure / beta-star modifier",
+            title="fk(xk) Wilcox beta* modifier",
+            role_tags=("closure", "Wilcox", "beta-star"),
+            formula_plain=(
+                "xk = (grad k · grad omega) / omega^3\n"
+                "fk = 1  if xk <= 0\n"
+                "fk = (1+680 xk^2)/(1+400 xk^2)  if xk > 0"
+            ),
+            formula_latex=(
+                r"x_k=(\nabla k\cdot\nabla\omega)/\omega^{3}"
+                "\n"
+                r"f_k=1\ (x_k\le 0);\quad "
+                r"(1+680 x_k^{2})/(1+400 x_k^{2})\ (x_k>0)"
+            ),
+            principle=(
+                "Wilcox beta-star is modulated by fk(xk) from the k-omega "
+                "cross-diffusion sense."
+            ),
+            background=(
+                "Used on Wilcox/EASM paths in TurbCom. SST uses F1; this is the Wilcox piece."
+            ),
+            references=(
+                "Wilcox turbulence modeling notes.",
+                "OneFLOW: doc/source/numerical/wilcox_fbeta.rst",
+            ),
+            csv_relpath="tools/verification/data/wilcox_fk_xk_theory.csv",
+            plot_module="plot_wilcox_fk",
+            pure_apis=("WilcoxXkFromCrossTerm", "WilcoxFkFromXk"),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/wilcox_fbeta.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real WilcoxFkFromXk(Real xk) {\n"
+                "  if (xk <= 0) return 1;\n"
+                "  Real xk2 = xk*xk;\n"
+                "  return (1 + 680*xk2) / (1 + 400*xk2);\n"
+                "}\n"
+            ),
+            proves="fk(xk) closed form vs WilcoxFkFromXk sample grid.",
+            does_not_prove="Full k-omega residual or SST F1 path.",
+        ),
+
+        TheoryEntry(
+            id="wilcox_fw1998",
+            family="turbulence",
+            genus="Wilcox",
+            section="closure / beta modifier",
+            title="fw1998(xw) Wilcox beta modifier",
+            role_tags=("closure", "Wilcox", "beta"),
+            formula_plain="fw1998 = (1 + 70*xw) / (1 + 80*xw)",
+            formula_latex=r"f_w^{1998}=(1+70 x_w)/(1+80 x_w)",
+            principle=(
+                "1998 Wilcox fw softens beta based on vortex-stretching parameter xw."
+            ),
+            background=(
+                "As xw->inf, fw->7/8. Used with Wilcox beta/beta* paths in TurbCom."
+            ),
+            references=(
+                "Wilcox (1998) turbulence model notes.",
+                "OneFLOW: doc/source/numerical/wilcox_fbeta.rst",
+            ),
+            csv_relpath="tools/verification/data/wilcox_fw1998_theory.csv",
+            plot_module="plot_wilcox_fw",
+            pure_apis=("WilcoxFw1998",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/wilcox_fbeta.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real WilcoxFw1998(Real xw) {\n"
+                "  return (1 + 70*xw) / (1 + 80*xw);\n"
+                "}\n"
+            ),
+            proves="fw1998 closed form vs WilcoxFw1998 sample grid.",
+            does_not_prove="Full Wilcox residual or SST path.",
+        ),
+        TheoryEntry(
+            id="wilcox_fw2006",
+            family="turbulence",
+            genus="Wilcox",
+            section="closure / beta modifier",
+            title="fw2006(xw) Wilcox beta modifier",
+            role_tags=("closure", "Wilcox", "beta"),
+            formula_plain="fw2006 = (1 + 85*xw) / (1 + 100*xw)",
+            formula_latex=r"f_w^{2006}=(1+85 x_w)/(1+100 x_w)",
+            principle=(
+                "2006 Wilcox fw variant; limit as xw->inf is 85/100=0.85."
+            ),
+            background=(
+                "Companion to fw1998; selection depends on model variant flags."
+            ),
+            references=(
+                "Wilcox (2006) notes; OneFLOW wilcox_fbeta.rst",
+            ),
+            csv_relpath="tools/verification/data/wilcox_fw2006_theory.csv",
+            plot_module="plot_wilcox_fw",
+            pure_apis=("WilcoxFw2006",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/wilcox_fbeta.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real WilcoxFw2006(Real xw) {\n"
+                "  return (1 + 85*xw) / (1 + 100*xw);\n"
+                "}\n"
+            ),
+            proves="fw2006 closed form vs WilcoxFw2006 sample grid.",
+            does_not_prove="Full Wilcox residual or SST path.",
+        ),
+
+
+
+        TheoryEntry(
+            id="turb_inviscid_spectrum",
+            family="turbulence",
+            genus="Turb-spectrum",
+            section="implicit / face spectral radius",
+            title="Inviscid face spectral radius",
+            role_tags=("implicit", "spectrum", "turbulence"),
+            formula_plain=(
+                "lambda_inv = (1/2) * A * |vn_mid|\n"
+                "matrix L/R += (A/2) * (-/+ vn - |vn|) contributions"
+            ),
+            formula_latex=(
+                r"\lambda_{\mathrm{inv}}=\frac{A}{2}|v_n|"
+            ),
+            principle=(
+                "Turbulence LUSGS uses a scalar face spectral radius from "
+                "mid-face normal speed, analogous to mean-flow inviscid radius."
+            ),
+            background=(
+                "Pure APIs TurbInviscidFaceSpectralRadius and "
+                "TurbInviscidFaceMatrixContrib; SA also uses "
+                "SaEffectiveKinematicViscosity and TurbDiffusiveFaceSpectralRadius."
+            ),
+            references=(
+                "OneFLOW TurbSpectrumPolicy; LUSGS spectral-radius practice.",
+            ),
+            csv_relpath="tools/verification/data/turb_inviscid_spectrum_theory.csv",
+            plot_module="plot_turb_inviscid_spectrum",
+            pure_apis=(
+                "TurbInviscidFaceSpectralRadius",
+                "TurbInviscidFaceMatrixContrib",
+                "SaEffectiveKinematicViscosity",
+                "TurbDiffusiveFaceSpectralRadius",
+            ),
+            source_relpaths=(
+                "codes/turb/include/TurbSpectrumPolicy.h",
+                "codes/turb/src/TurbSpectrumPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/turb_spectrum.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real TurbInviscidFaceSpectralRadius(Real A, Real absVn) {\n"
+                "  return 0.5 * A * absVn;\n"
+                "}\n"
+            ),
+            proves="lambda_inv algebra vs pure API on |vn| grid.",
+            does_not_prove="Full turb LUSGS convergence.",
+        ),
+
+        TheoryEntry(
+            id="turb_diffusive_spectrum",
+            family="turbulence",
+            genus="Turb-spectrum",
+            section="implicit / face spectral radius",
+            title="Diffusive face spectral radius (SA)",
+            role_tags=("implicit", "spectrum", "diffusive", "SA"),
+            formula_plain=(
+                "nu_et = mu_l/rho + nu_tilde\n"
+                "lambda_diff = (1/Re)*(1/sigma)*nu_et*A^2/V"
+            ),
+            formula_latex=(
+                r"\nu_{\mathrm{et}}=\mu_l/\rho+\tilde\nu"
+                "\n"
+                r"\lambda_{\mathrm{diff}}=\frac{1}{Re}\frac{1}{\sigma}"
+                r"\nu_{\mathrm{et}}\frac{A^{2}}{V}"
+            ),
+            principle=(
+                "SA turbulence LUSGS adds a diffusive spectral radius from "
+                "effective kinematic viscosity and face geometry."
+            ),
+            background=(
+                "Companion to turb_inviscid_spectrum. Pure APIs "
+                "SaEffectiveKinematicViscosity and TurbDiffusiveFaceSpectralRadius."
+            ),
+            references=(
+                "OneFLOW TurbSpectrumPolicy; turb_spectrum.rst",
+            ),
+            csv_relpath="tools/verification/data/turb_diffusive_spectrum_theory.csv",
+            plot_module="plot_turb_diffusive_spectrum",
+            pure_apis=(
+                "SaEffectiveKinematicViscosity",
+                "TurbDiffusiveFaceSpectralRadius",
+            ),
+            source_relpaths=(
+                "codes/turb/include/TurbSpectrumPolicy.h",
+                "codes/turb/src/TurbSpectrumPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/turb_spectrum.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real TurbDiffusiveFaceSpectralRadius(\n"
+                "    Real invRe, Real invSigma, Real nuEff,\n"
+                "    Real A2, Real invV) {\n"
+                "  return invRe * invV * (invSigma * nuEff * A2);\n"
+                "}\n"
+            ),
+            proves="lambda_diff algebra vs pure API on nu_eff grid.",
+            does_not_prove="Full turb LUSGS case convergence.",
+        ),
+
+
         # ========== NS / LUSGS ==========
         TheoryEntry(
             id="ns_lusgs_viscous_spectrum",
@@ -419,8 +763,8 @@ def list_theory_entries() -> list[TheoryEntry]:
             references=(
                 "Yoon-Jameson LUSGS; OneFLOW lusgs_viscous_spectrum.rst",
             ),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/lusgs_viscous_spectrum_contrib_theory.csv",
+            plot_module="plot_lusgs_viscous_spectrum",
             pure_apis=(
                 "LusgsViscousSpectrumContribution",
                 "LusgsFaceArithmeticMean",
@@ -440,6 +784,55 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="Contribution algebra vs pure API.",
             does_not_prove="Full LUSGS case convergence.",
         ),
+
+        TheoryEntry(
+            id="lusgs_split_eigenvalues",
+            family="mean-flow",
+            genus="NS-LUSGS",
+            section="implicit / inviscid Jacobian",
+            title="Face eigenvalue split (matrix sign)",
+            role_tags=("implicit", "LUSGS", "eigenvalue"),
+            formula_plain=(
+                "lmd1 = 1/2 * (vn + s * faceAbs1)\n"
+                "lmd2 = 1/2 * (vn + c + s * faceAbs2)\n"
+                "lmd3 = 1/2 * (vn - c + s * faceAbs3)"
+            ),
+            formula_latex=(
+                r"\lambda_i=\frac12(\lambda_i^{\mathrm{phys}}+s|\lambda|_{f,i})"
+            ),
+            principle=(
+                "Sweep direction enters through matrix sign s, blending physical "
+                "eigenvalues with face absolute spectral radii."
+            ),
+            background=(
+                "Pure API LusgsSplitFaceEigenvalues; weights follow "
+                "LusgsLinearizationWeights; flux via LusgsFluxIncrementFiveEq."
+            ),
+            references=(
+                "Yoon-Jameson LUSGS; OneFLOW NsLusgsPolicy",
+            ),
+            csv_relpath="tools/verification/data/lusgs_split_eigenvalues_theory.csv",
+            plot_module="plot_lusgs_split_eigenvalues",
+            pure_apis=(
+                "LusgsSplitFaceEigenvalues",
+                "LusgsLinearizationWeights",
+                "LusgsFluxIncrementFiveEq",
+            ),
+            source_relpaths=(
+                "codes/ns/include/NsLusgsPolicy.h",
+                "codes/ns/src/NsLusgsPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/lusgs_split_eigenvalues.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "lmd1 = 0.5 * (vn + s * faceAbs1);\n"
+                "lmd2 = 0.5 * (vn + c + s * faceAbs2);\n"
+                "lmd3 = 0.5 * (vn - c + s * faceAbs3);\n"
+            ),
+            proves="Split eigenvalues vs closed form for s in {-1,0,+1}.",
+            does_not_prove="Full LUSGS sweep stability on a case.",
+        ),
+
         TheoryEntry(
             id="ns_lusgs_flux_increment",
             family="mean-flow",
@@ -476,11 +869,62 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             doc_relpath="doc/source/numerical/index.rst",
             code_sketch=(
-                "// GATED SKETCH — see NsLusgsPolicy.h signatures.\n"
+                "// GATED SKETCH - see NsLusgsPolicy.h signatures.\n"
             ),
             proves="Five-eq increment unit tests where present.",
             does_not_prove="Sweep stability on arbitrary meshes.",
         ),
+
+        TheoryEntry(
+            id="ns_inviscid_spectrum",
+            family="mean-flow",
+            genus="NS-spectrum",
+            section="time-step / face spectral radius",
+            title="Inviscid face spectral radius and cell dt",
+            role_tags=("time-step", "spectrum", "mean-flow"),
+            formula_plain=(
+                "lambda_inv = (1/2) * A * (|vn| + c)\n"
+                "dt = CFL * Vol / lambda\n"
+                "dt <- dt_inv * dt_vis / (dt_inv + dt_vis)"
+            ),
+            formula_latex=(
+                r"\lambda_{\mathrm{inv}}=\frac{A}{2}(|v_n|+c)"
+                "\n"
+                r"\Delta t=\mathrm{CFL}\,V/\lambda"
+            ),
+            principle=(
+                "Local time step from inviscid (and viscous) face spectral "
+                "radii; inviscid and viscous dt combined harmonically."
+            ),
+            background=(
+                "Pure APIs in TimeStepPolicy; separate from turbulence "
+                "TurbSpectrumPolicy which uses |vn| only for scalar turb."
+            ),
+            references=(
+                "Blazek CFD; OneFLOW TimeStepPolicy",
+            ),
+            csv_relpath="tools/verification/data/ns_inviscid_spectrum_theory.csv",
+            plot_module="plot_ns_inviscid_spectrum",
+            pure_apis=(
+                "InviscidFaceSpectralRadius",
+                "CellTimeStepFromSpectrum",
+                "CombineInvAndVisTimeStep",
+            ),
+            source_relpaths=(
+                "codes/ns/include/TimeStepPolicy.h",
+                "codes/ns/src/TimeStepPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ns_timestep_spectrum.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Real InviscidFaceSpectralRadius(Real vn, Real c, Real A) {\n"
+                "  return 0.5 * A * (fabs(vn) + c);\n"
+                "}\n"
+            ),
+            proves="lambda_inv and dt algebra vs pure APIs.",
+            does_not_prove="Global CFL stability on a case.",
+        ),
+
         TheoryEntry(
             id="ns_roe_harten",
             family="mean-flow",
@@ -510,7 +954,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             doc_relpath="doc/source/numerical/index.rst",
             code_sketch=(
-                "// GATED SKETCH — mirror production MAX in tests.\n"
+                "// GATED SKETCH - mirror production MAX in tests.\n"
             ),
             proves="Entropy-fix pure policy tests.",
             does_not_prove="Full Roe flux shock-capturing quality.",
@@ -543,6 +987,53 @@ def source_paths(repository_root: Path, entry: TheoryEntry) -> list[Path]:
         for rel in entry.source_relpaths
         if (p := resolve_repo_path(repository_root, rel)) is not None
     ]
+
+
+def validate_catalog_paths(repository_root: Path) -> list[str]:
+    """Return missing repository files referenced by the theory catalog."""
+    issues: list[str] = []
+    for entry in list_theory_entries():
+        if bool(entry.csv_relpath) != bool(entry.plot_module):
+            issues.append(
+                f"{entry.id}: CSV and plot module must be configured together"
+            )
+        for relpath in entry.source_relpaths:
+            path = resolve_repo_path(repository_root, relpath)
+            if path is None or not path.is_file():
+                issues.append(f"{entry.id}: missing source file: {relpath}")
+        if entry.doc_relpath:
+            path = doc_path(repository_root, entry)
+            if path is None or not path.is_file():
+                issues.append(f"{entry.id}: missing documentation: {entry.doc_relpath}")
+        if entry.csv_relpath:
+            path = csv_path(repository_root, entry)
+            if path is None or not path.is_file():
+                issues.append(f"{entry.id}: missing theory data: {entry.csv_relpath}")
+        if entry.plot_module:
+            plot_path = verification_root(repository_root) / f"{entry.plot_module}.py"
+            if not plot_path.is_file():
+                issues.append(
+                    f"{entry.id}: missing plot module: "
+                    f"tools/verification/{entry.plot_module}.py"
+                )
+    return issues
+
+
+def validate_catalog_api_references(repository_root: Path) -> list[str]:
+    """Return pure API symbols not referenced by an entry's source files."""
+    issues: list[str] = []
+    for entry in list_theory_entries():
+        source_text = "\n".join(
+            path.read_text(encoding="utf-8", errors="replace")
+            for path in source_paths(repository_root, entry)
+            if path.is_file()
+        )
+        for api in entry.pure_apis:
+            if re.search(rf"\b{re.escape(api)}\s*\(", source_text) is None:
+                issues.append(
+                    f"{entry.id}: API reference not found in source files: {api}"
+                )
+    return issues
 
 
 def read_doc_excerpt(repository_root: Path, entry: TheoryEntry, max_chars: int = 4000) -> str:

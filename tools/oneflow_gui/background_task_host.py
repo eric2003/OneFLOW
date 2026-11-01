@@ -55,6 +55,7 @@ def run_host(
     final_status = "failed"
     final_message = "Background host failed."
     return_code = 1
+    stop_requested = False
     try:
         with log_file.open("a", encoding="utf-8", newline="\n") as stream:
             stream.write("Command: " + json.dumps(command, ensure_ascii=True) + "\n")
@@ -82,6 +83,7 @@ def run_host(
             registry.save(task)
             while process.poll() is None:
                 if stop_path.exists():
+                    stop_requested = True
                     task = replace(
                         task,
                         status="stopping",
@@ -89,31 +91,33 @@ def run_host(
                         message="Stop requested.",
                     )
                     registry.save(task)
-                    try:
-                        if os.name == "nt":
-                            subprocess.run(
-                                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
-                                stdin=subprocess.DEVNULL,
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL,
-                                check=False,
-                            )
-                        else:
-                            os.killpg(process.pid, signal.SIGTERM)
-                        process.wait(timeout=5)
-                    except (OSError, subprocess.TimeoutExpired):
+                    if os.name == "nt":
+                        subprocess.run(
+                            ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                            stdin=subprocess.DEVNULL,
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                            check=False,
+                        )
+                    else:
                         try:
-                            if os.name == "nt":
-                                process.kill()
-                            else:
-                                os.killpg(process.pid, signal.SIGKILL)
-                        except OSError:
+                            os.killpg(process.pid, signal.SIGTERM)
+                        except ProcessLookupError:
                             pass
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        if os.name == "nt":
+                            process.kill()
+                        else:
+                            try:
+                                os.killpg(process.pid, signal.SIGKILL)
+                            except ProcessLookupError:
+                                pass
                         process.wait()
                     break
                 time.sleep(poll_interval)
             return_code = process.wait()
-        stop_requested = stop_path.exists() or task.status == "stopping"
         if stop_path.exists():
             stop_path.unlink()
         if stop_requested:
@@ -126,11 +130,16 @@ def run_host(
             final_status = "failed"
             final_message = f"Process exited with code {return_code}."
     except Exception as error:
-        final_message = f"Background host error: {error}"
-        _write_log(log_file, final_message)
+        _write_log(log_file, f"Background host error: {error}")
         if process is not None and process.poll() is None:
             process.kill()
             process.wait()
+        if stop_requested and process is not None and process.poll() is not None:
+            final_status = "stopped"
+            final_message = "Process stopped by request."
+        else:
+            final_status = "failed"
+            final_message = f"Background host error: {error}"
     finally:
         current = registry.load(task_id)
         registry.save(

@@ -275,6 +275,46 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
 }
 
 
+TEST( ControlReaderIntegration, CaseEnvironmentSetupFailureCanBeRolledBack )
+{
+    TemporaryControlCase testCase;
+    ScopedCaseRuntimeReset runtimeReset;
+    testCase.WriteManifest(
+        "\"available.txt\";\n"
+        "\"missing.txt\";\n" );
+    testCase.WriteScript(
+        "available.txt",
+        "string partial_case_bootstrap_value = \"must_be_rolled_back\";\n" );
+
+    ClearRuntimeParameters();
+    Prj::current_dir = std::filesystem::current_path().string();
+    EnsureParallelEnvironment();
+
+    SimuContext context( testCase.CaseDirectory(), false );
+
+    EXPECT_THROW( context.SetupCaseEnvironment(), std::runtime_error );
+    EXPECT_FALSE( context.IsEnvironmentReady() );
+
+    // Bootstrap commits scripts in manifest order. Failure on the second
+    // script must roll back the first script and the case-relative bindings.
+    EXPECT_TRUE( Prj::prjBaseDir.empty() );
+    EXPECT_THROW(
+        GetDataValue<std::string>(
+            "partial_case_bootstrap_value", &RequireGlobalDataBase() ),
+        std::runtime_error );
+
+    // The same context can retry after the failed bootstrap has been rolled back.
+    testCase.WriteScript(
+        "missing.txt",
+        "string recovered_case_bootstrap_value = \"recovered\";\n" );
+    EXPECT_NO_THROW( context.SetupCaseEnvironment() );
+    EXPECT_TRUE( context.IsEnvironmentReady() );
+    EXPECT_EQ(
+        GetDataValue<std::string>(
+            "recovered_case_bootstrap_value", &RequireGlobalDataBase() ),
+        "recovered" );
+}
+
 TEST( ControlReaderIntegration, CaseBootstrapAppliesSettingsAndRebindsNextCase )
 {
     TemporaryControlCase firstCase;

@@ -20,6 +20,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 #include "Simulation.h"
+#include "SimuBase.h"
 #include "Prj.h"
 #include "SimulationCommandLine.h"
 #include "SimuImp.h"
@@ -38,15 +39,6 @@ BeginNameSpace( ONEFLOW )
 Simulation::Simulation( int argc, char ** argv )
 {
     this->ProcessCmdLineArgs( argc, argv );
-}
-
-Simulation::~Simulation()
-{
-    if ( ! args.empty() ) 
-    {
-        args.clear();
-        args.shrink_to_fit();
-    };
 }
 
 void Simulation::ProcessCmdLineArgs( int argc, char ** argv )

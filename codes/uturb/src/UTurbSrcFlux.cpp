@@ -33,6 +33,7 @@ License
 #include "Zone.h"
 #include "ZoneState.h"
 #include "HXMath.h"
+#include "TurbViscosityPolicy.h"
 #include "CellMesh.h"
 #include "BcRecord.h"
 #include "Boundary.h"
@@ -167,13 +168,12 @@ void UTurbSrcFlux::CalcVist1Equ()
     {
         ug.cId = cId;
 
-        if ( turbcom.rho < 0 || NotANumber( turbcom.rho ) )
+        turbcom.rho  = ( * uturbf.meanFlow.q  )[ IDX::IR  ][ ug.cId ];
+        if ( TurbDensityIsInvalid( turbcom.rho ) )
         {
             std::cout << " zone = " << ZoneState::zid << " cId = " << cId << " rho = " << turbcom.rho << "\n";
-            Fatal( "NotANumber( turbcom.rho )" );
-            //cin.get();
+            Fatal( "Invalid density in SA eddy-viscosity evaluation" );
         }
-        turbcom.rho  = ( * uturbf.meanFlow.q  )[ IDX::IR  ][ ug.cId ];
         turbcom.nuet = ( * uturbf.q  )[ ISA ][ ug.cId ];
         turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
 
@@ -203,7 +203,6 @@ void UTurbSrcFlux::CalcVist2Equ()
         turbcom.ke   = ( * uturbf.q  )[ IKE ][ ug.cId ];
         turbcom.kw   = ( * uturbf.q  )[ IKW ][ ug.cId ];
         turbcom.visl = ( * uturbf.visl )[ 0 ][ ug.cId ];
-        turbcom.vist = ( * uturbf.vist )[ 0 ][ ug.cId ];
         turbcom.dist  = ( * uturbf.dist )[ ug.cId ];
 
         this->CalcCellVist2Equ();

@@ -11,11 +11,14 @@ from tools.oneflow_gui.test_runner import (
     available_suites,
     build_cmake_command,
     build_cmake_configure_command,
+    build_ctest_test_commands,
+    build_python_test_commands,
     build_default_test_commands,
     cmake_build_tree_is_configured,
     build_regression_command,
     build_unit_test_commands,
     stage_regression_tests,
+    summarize_test_output,
 )
 
 
@@ -28,8 +31,44 @@ class TestRunnerCommandTest(unittest.TestCase):
         self.assertIn("Mesh workflow tests", labels)
         self.assertIn("Workflow persistence tests", labels)
         self.assertIn("GUI test command builder tests", labels)
+        python_modules = {
+            command.arguments[-1]
+            for command in commands
+            if len(command.arguments) >= 4 and command.arguments[1:3] == ("-m", "unittest")
+        }
+        self.assertTrue({
+            "tools.verification.test_curve_catalog",
+            "tools.verification.test_contract_catalog",
+            "tools.oneflow_gui.test_contract_workbench_dialog",
+            "tools.oneflow_gui.test_test_inventory",
+        }.issubset(python_modules))
         self.assertTrue(all(command.task_type is TaskType.UNIT_TESTS for command in commands))
         self.assertFalse(any("OneFLOW.exe" in " ".join(command.arguments) for command in commands))
+
+    def test_ctest_and_python_commands_can_be_built_independently(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            build = root / "build"
+            build.mkdir()
+            (build / "CTestTestfile.cmake").write_text("", encoding="utf-8")
+
+            ctest_commands = build_ctest_test_commands(root, build_config="Release")
+            python_commands = build_python_test_commands(root, python="python-test")
+
+            self.assertEqual(len(ctest_commands), 1)
+            self.assertEqual(ctest_commands[0].arguments, (
+                "ctest", "--output-on-failure", "-C", "Release"
+            ))
+            self.assertEqual(ctest_commands[0].working_directory, build)
+            self.assertTrue(python_commands)
+            self.assertTrue(all(command.arguments[0] == "python-test" for command in python_commands))
+            self.assertFalse(any(command.arguments[0] == "ctest" for command in python_commands))
+
+    def test_ctest_builder_reports_unconfigured_build_tree(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            self.assertEqual(build_ctest_test_commands(root), [])
+            self.assertTrue(build_python_test_commands(root))
 
     def test_configure_command_uses_build_directory_and_repository_root(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -256,6 +295,50 @@ class TestRunnerCommandTest(unittest.TestCase):
                 validate_executable=False,
             )
             self.assertEqual(deferred.arguments[1], "test.py")
+
+
+    def test_unittest_output_reports_case_counts_and_failure_traceback(self) -> None:
+        report = summarize_test_output([
+            "F..",
+            "FAIL: test_case_domain_displays_typed_case_setup_tab (sample.TestCase)",
+            "Traceback (most recent call last):",
+            '  File "test_sample.py", line 10, in test_case',
+            "AssertionError: expected label was missing",
+            "Ran 3 tests in 0.153s",
+            "FAILED (failures=1)",
+        ])
+        self.assertIn("Python unittest cases: 3 run, 2 passed, 1 failed, 0 skipped.", report)
+        self.assertIn("Failure details:", report)
+        self.assertIn("AssertionError: expected label was missing", report)
+
+    def test_ctest_output_reports_passed_and_failed_test_counts(self) -> None:
+        report = summarize_test_output([
+            "67% tests passed, 1 tests failed out of 3",
+            "The following tests FAILED:",
+            "  2 - FaceTopologyTest (Failed)",
+        ])
+        self.assertIn("CTest cases: 3 run, 2 passed, 1 failed.", report)
+        self.assertIn("Failure details:", report)
+        self.assertIn("  2 - FaceTopologyTest (Failed)", report)
+
+    def test_multiple_unittest_runs_aggregate_each_failure_count(self) -> None:
+        report = summarize_test_output([
+            "Ran 10 tests in 0.2s",
+            "OK",
+            "Ran 21 tests in 0.1s",
+            "FAILED (failures=2)",
+        ])
+        self.assertIn(
+            "Python unittest cases: 31 run, 29 passed, 2 failed, 0 skipped.",
+            report,
+        )
+
+    def test_successful_unittest_output_reports_case_count_without_failure(self) -> None:
+        report = summarize_test_output([
+            "Ran 12 tests in 0.8s",
+            "OK",
+        ])
+        self.assertEqual(report, ("Python unittest cases: 12 run, 12 passed, 0 failed, 0 skipped.",))
 
 
 if __name__ == "__main__":

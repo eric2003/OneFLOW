@@ -1181,3 +1181,63 @@ reader:
 This advances R1 beyond testing only the bootstrap helper. It does not yet exercise
 production ``TeardownCase()``, the full ``SimuImp::RunCase()`` exception boundary,
 or process-runtime preservation. Those remain separate integration milestones.
+
+## 2026-11-01 continuation: make public case bootstrap rollback-safe
+
+Starting from `hexin` revision `c57d952708e55e91813155d2c16a1a01a80406c3`. The user reports 1096/1096 local tests passed before this slice; this is a pre-change baseline.
+
+`SimuContext::SetupCaseEnvironment()` now wraps the production `InitializeCaseConfiguration(caseDir_)` call in `SimuCaseLifecycleDetail::ExecuteWithRollback()`. If the real control reader or a later configuration step fails, `SimuContextDetail::ClearCaseConfigurationState()` clears the partially committed parameter/field database, case log binding, and project-root binding. The rollback helper deliberately preserves the original bootstrap exception if cleanup also fails. The readiness flag remains false.
+
+The integration test now creates a two-entry manifest: the first script commits a marker, and the second script is initially missing. It asserts that the first marker and project binding are absent after the failed setup. It then creates the missing script and retries setup on the same `SimuContext`, verifying that readiness becomes true and the recovered value is present. This tests the public production Context setup method, not a duplicate test-only parser.
+
+This rollback is intentionally narrower than `TeardownCase()`. It covers state created by the configuration bootstrap and makes direct `SetupCaseEnvironment()` callers safe from partial configuration leakage. `SimuImp::RunCase()` still owns full teardown through `PostProcess() -> TeardownCase()` for solver and accelerator resources.
+
+R1 remains Partial. The next target is to test the actual `SimuImp::RunCase()` callback wiring after setup/task failure without linking the complete executable source graph or duplicating the orchestration. The test must prove teardown is attempted, the original setup exception survives a teardown exception, and process runtime remains owned until explicit finalization.
+
+Code/test commits: `6a325f71ede48251df3d50e9e65d3a98f8b5dafe`, `4de3f869affe58a5ac495a4cb90f12024bb3a6f7`, and `729811b0996c929ec9b566bee643ab13b0897b75`. No local build or CTest was run for this slice; exact-HEAD Windows/Linux CI is required.
+
+
+## 2026-11-01 continuation: production RunCase test-boundary review
+
+Starting revision: `1efc6c3253e3abd6df9f32e07afc38669df24437` on `hexin`. The user reports 1096/1096 local tests passed before this continuation; this is a pre-change baseline.
+
+The exact production call wiring was re-read:
+
+- `SimuImp::RunCase()` invokes the concrete `PreProcess()` and `MainProcess()` methods inside `ExecuteWithCleanup`; its cleanup callback invokes `PostProcess()`.
+- `PostProcess()` calls the real `SimuContext::TeardownCase()`.
+- `TeardownCase()` is currently implemented in `SimuContextEnv.cpp`, alongside process setup/finalization. It invokes the accelerator-state registry, optional HIP shared release, solver-map/name reset, numerous solver/global resets, field-manager release, configuration-state clearing, and Context-owned state reset.
+- `SimuImp` owns a concrete `std::unique_ptr<SimuContext>`; its current public API does not provide an alternate Context or lifecycle callback injection point.
+- The focused `control_configuration_test` target compiles selected production Context and IO translation units. It does not compile `SimuImp.cpp` or the complete teardown dependency closure.
+- The root build constructs the production executable from a recursively collected source set rather than exposing a reusable main-runtime library. Copying that entire source set into a test target would duplicate production build configuration and pull in solver/runtime dependencies solely to reach the lifecycle entry point.
+
+This establishes a concrete architectural blocker, not merely a missing assertion: the case orchestrator and the full teardown implementation do not currently sit behind a narrow reusable production target. A test that substitutes a fake Context or fake teardown would only prove a test double, not the requested real cleanup. Do not add such a test and describe it as end-to-end.
+
+The next engineering decision should be evaluated against two acceptable options:
+
+1. Extract a cohesive production runtime library/object target shared by the executable and integration tests, including its real compile definitions, include paths, and link dependencies. This is the strongest route if the existing source graph can be factored without broad build-system churn.
+2. Extract a narrowly scoped production case-lifecycle owner whose implementation still calls the real Context setup/teardown operations, and make both `SimuImp` and the integration test use that same owner. Do not create a second orchestration path or a generic callback framework.
+
+Before choosing, inspect `codes/CMakeLists.txt` and the source-collection helper to determine whether the production source graph can be factored incrementally. Keep process initialization/finalization separate from per-case teardown. The acceptance contract remains: real setup failure invokes real teardown; teardown failure does not replace the setup exception; process runtime remains active until explicit finalization; and a later case starts without stale case state.
+
+Exact-HEAD CI observed during this review:
+- Sphinx documentation check: success — [run](https://github.com/eric2003/OneFLOW/actions/runs/41280382266).
+- Windows CI: in progress — [run](https://github.com/eric2003/OneFLOW/actions/runs/41280382252).
+- Linux CI: in progress — [run](https://github.com/eric2003/OneFLOW/actions/runs/41280382250).
+
+No source or test code was changed in this review, and no local build/CTest was run here. R1 remains **Partial**. The 1096/1096 user report is the pre-change baseline only.
+
+## 2026-11-01 continuation: share production runtime with integration tests
+
+Starting from `hexin` HEAD `0da2d68deeb7216c174e82630d75dab792103722`. The user reports 1096/1096 local tests passed before this slice; this is a pre-change baseline.
+
+The build now exposes the recursively collected production sources as the static `OneFLOW_Runtime` target. `codes/main/src/OneFlow.cpp` remains the executable entry point and is compiled only into the `OneFLOW` executable. The runtime target publishes the existing include directories, compile definitions, C++ feature requirement, link directories, and external libraries. This is the same production source set, not a copied test-only source graph.
+
+A new `simu_imp_case_lifecycle_integration_test` links `OneFLOW_Runtime` and exercises the concrete `SimuImp::RunCase()` implementation. It initializes the real process runtime, creates a two-script manifest where the first script commits a database value and the second is missing, and expects the production setup failure to propagate.
+
+To distinguish full `TeardownCase()` from the narrower setup rollback, the test seeds context-owned task-resolution and expanded-solver-name state before invoking `RunCase()`. After failure it verifies those fields have been reset, the case root and partial database value are cleared, and `IsEnvironmentReady()` is false. It also verifies the process runtime remains active after `RunCase()` returns and becomes inactive only after explicit `FinalizeEnvironment()`.
+
+`SimuContext::IsProcessEnvironmentActive()` is a read-only state accessor used to assert the process/case ownership boundary. It does not change lifecycle ownership.
+
+R1 is advanced from the earlier source-only boundary review to a concrete production integration test and shared link target. The remaining acceptance gaps are cleanup failure injection at individual solver/device release points, multi-rank MPI execution, successful consecutive full `SimuImp` cases, and numerical regression validation. The new static target also changes the executable's compilation/link boundary and therefore needs Windows and Linux CI scrutiny.
+
+No local build or CTest was run here. The user's 1096/1096 report predates these changes and must not be represented as validation of this slice.

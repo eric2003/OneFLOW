@@ -34,9 +34,11 @@ from .test_runner import (
     TestCommand,
     available_suites,
     build_cmake_command,
-    build_default_test_commands,
+    build_ctest_test_commands,
+    build_python_test_commands,
     build_regression_command,
     stage_regression_tests,
+    summarize_test_output,
 )
 
 
@@ -63,7 +65,10 @@ class TestCommandWorker(QThread):
 
     def run(self) -> None:
         failed_labels: list[str] = []
+        passed_labels: list[str] = []
+        run_output: list[str] = []
         for command in self._commands:
+            command_output: list[str] = []
             if self._cancel.is_set():
                 self.command_completed.emit(
                     TaskRunResult(
@@ -95,7 +100,9 @@ class TestCommandWorker(QThread):
                         self._process = process
                     if process.stdout is not None:
                         for line in process.stdout:
-                            self.output_line.emit(line.rstrip("\r\n"))
+                            output_line = line.rstrip("\r\n")
+                            command_output.append(output_line)
+                            self.output_line.emit(output_line)
                             if self._cancel.is_set() and process.poll() is None:
                                 process.terminate()
                     return_code = process.wait()
@@ -103,6 +110,7 @@ class TestCommandWorker(QThread):
                         self._process = None
             except OSError as error:
                 self.output_line.emit(f"ERROR: {error}")
+                run_output.append(f"ERROR: {error}")
                 self.command_completed.emit(
                     TaskRunResult(
                         task_type=command.task_type,
@@ -113,7 +121,9 @@ class TestCommandWorker(QThread):
                     )
                 )
                 failed_labels.append(command.label)
+                run_output.extend(command_output)
                 break
+            run_output.extend(command_output)
             if self._cancel.is_set():
                 self.command_completed.emit(
                     TaskRunResult(
@@ -139,6 +149,7 @@ class TestCommandWorker(QThread):
                 failed_labels.append(command.label)
                 self.output_line.emit(f"FAILED: exit code {return_code}")
                 break
+            passed_labels.append(command.label)
             self.command_completed.emit(
                 TaskRunResult(
                     task_type=command.task_type,
@@ -149,10 +160,21 @@ class TestCommandWorker(QThread):
                 )
             )
             self.output_line.emit("PASSED")
+
+        not_run = len(self._commands) - len(passed_labels) - len(failed_labels)
+        report = [
+            "Test command summary:",
+            f"  Total: {len(self._commands)}",
+            f"  Passed: {len(passed_labels)}",
+            f"  Failed: {len(failed_labels)}",
+            f"  Not run: {not_run}",
+        ]
+        report.extend(summarize_test_output(run_output))
         if failed_labels:
-            self.completed.emit(False, "Failed: " + ", ".join(failed_labels))
+            report.insert(1, "  Failed commands: " + ", ".join(failed_labels))
+            self.completed.emit(False, "\n".join(report))
         else:
-            self.completed.emit(True, f"Passed all {len(self._commands)} command(s).")
+            self.completed.emit(True, "\n".join(report))
 
 
 class TestRunnerDialog(QDialog):
@@ -186,13 +208,19 @@ class TestRunnerDialog(QDialog):
             )
         )
 
-        unit_test_task = task_definition(TaskType.UNIT_TESTS)
         regression_task = task_definition(TaskType.CFD_GRID_REGRESSION)
-        self.unit_tests_check = QCheckBox(
-            f"{unit_test_task.title} (CTest and Python tests)"
+        self.ctest_check = QCheckBox("C++ Unit Tests (CTest)")
+        self.ctest_check.setToolTip(
+            "Run C++ GoogleTest targets registered in the configured CMake build tree."
         )
-        self.unit_tests_check.setChecked(True)
-        layout.addWidget(self.unit_tests_check)
+        self.ctest_check.setChecked(True)
+        layout.addWidget(self.ctest_check)
+        self.python_tests_check = QCheckBox("Python Unit Tests (unittest)")
+        self.python_tests_check.setToolTip(
+            "Run the explicitly registered Python unittest modules with the selected Python interpreter."
+        )
+        self.python_tests_check.setChecked(True)
+        layout.addWidget(self.python_tests_check)
 
         self.regression_check = QCheckBox(
             f"Optional {regression_task.title}"
@@ -283,13 +311,21 @@ class TestRunnerDialog(QDialog):
         if self._case_worker is not None and self._case_worker.isRunning():
             return
         commands: list[TestCommand] = []
-        if self.unit_tests_check.isChecked():
-            commands.extend(
-                build_default_test_commands(
-                    self._repository_root,
-                    build_config=self._build_config,
-                )
+        if self.ctest_check.isChecked():
+            ctest_commands = build_ctest_test_commands(
+                self._repository_root,
+                build_config=self._build_config,
             )
+            if not ctest_commands:
+                QMessageBox.warning(
+                    self,
+                    "CTest is not configured",
+                    "No build/CTestTestfile.cmake was found. Configure the CMake build tree first.",
+                )
+                return
+            commands.extend(ctest_commands)
+        if self.python_tests_check.isChecked():
+            commands.extend(build_python_test_commands(self._repository_root))
         if self.regression_check.isChecked():
             executable = self.executable_combo.currentText().strip()
             suite_name = self.suite_combo.currentText().strip()
@@ -334,7 +370,7 @@ class TestRunnerDialog(QDialog):
         if not commands and not run_database:
             QMessageBox.information(
                 self, "No tests selected",
-                "Select unit tests, CFD regression, or Development Tests.",
+                "Select CTest, Python Unit Tests, CFD regression, or Development Tests.",
             )
             return
 

@@ -36,7 +36,7 @@ Real SstCrossDiffWilcox(
 // @doc-algorithm sst-f1
 // @doc-stage cross-diff-scalar
 // @doc-pure
-// @doc-formula CD_raw = 2 rho sigw2 (grad k · grad omega) / omega
+// @doc-formula CD_raw = 2 rho sigw2 (grad k dot grad omega) / omega
 Real SstCrossDiffScalar(
     Real density, Real sigw2, Real crossTerm, Real omega );
 
@@ -61,7 +61,7 @@ Real SstF1FromArg1( Real arg1 );
 // @doc-algorithm sst-f1
 // @doc-stage cross-term
 // @doc-pure
-// @doc-formula cross = grad k · grad omega
+// @doc-formula cross = grad k dot grad omega
 Real SstGradientDotProduct(
     Real dkdx, Real dkdy, Real dkdz,
     Real dwdx, Real dwdy, Real dwdz );
@@ -71,7 +71,7 @@ Real SstGradientDotProduct(
 // @doc-algorithm wilcox-fbeta
 // @doc-stage xk
 // @doc-pure
-// @doc-formula x_k = (grad k · grad omega) / omega^3
+// @doc-formula x_k = (grad k dot grad omega) / omega^3
 Real WilcoxXkFromCrossTerm( Real crossTerm, Real omega );
 
 // @doc-algorithm wilcox-fbeta
@@ -135,11 +135,48 @@ Real SstDiagonalW(
 Real SstNegativeSourcePart( Real source );
 
 
+// --- SST rate invariants ---
+// @doc-algorithm sst-eddy-viscosity
+// @doc-stage strain-rate-magnitude
+// @doc-pure
+// @doc-formula |S| = sqrt(2 (S11^2 + S22^2 + S33^2 + 2(S12^2 + S13^2 + S23^2)))
+Real SstStrainRateMagnitude(
+    Real dudx, Real dudy, Real dudz,
+    Real dvdx, Real dvdy, Real dvdz,
+    Real dwdx, Real dwdy, Real dwdz );
+
+// @doc-algorithm sst-eddy-viscosity
+// @doc-stage vorticity-magnitude
+// @doc-pure
+// @doc-formula |Omega| = sqrt((dw/dy-dv/dz)^2 + (du/dz-dw/dx)^2 + (dv/dx-du/dy)^2)
+Real SstVorticityMagnitude(
+    Real dudx, Real dudy, Real dudz,
+    Real dvdx, Real dvdy, Real dvdz,
+    Real dwdx, Real dwdy, Real dwdz );
+
+// @doc-algorithm sst-eddy-viscosity
+// @doc-stage limiting-rate-selection
+// @doc-pure
+// iprod_sst == 1 selects strain rate; all other values select vorticity.
+Real SstLimitingRateMagnitude(
+    int productionOption,
+    Real dudx, Real dudy, Real dudz,
+    Real dvdx, Real dvdy, Real dvdz,
+    Real dwdx, Real dwdy, Real dwdz );
+
 // --- SST eddy viscosity / F2 ---
 // @doc-algorithm sst-eddy-viscosity
 // @doc-stage f2-arg
 // @doc-pure
-Real SstF2Arg( Real termLength, Real termViscous );
+Real SstF2ArgFromTerms( Real termLength, Real termViscous );
+
+// @doc-algorithm sst-eddy-viscosity
+// @doc-stage f2-arg
+// @doc-pure
+// @doc-formula arg2 = max(2*sqrt(k)/(betaStar*omega*d), 500*mu/(rho*omega*d^2*Re))
+Real SstF2Argument(
+    Real kineticEnergy, Real omega, Real wallDistance, Real betaStar,
+    Real laminarViscosity, Real density, Real reynolds );
 
 // @doc-algorithm sst-eddy-viscosity
 // @doc-stage f2
@@ -150,10 +187,43 @@ Real SstF2FromArg( Real arg2 );
 // @doc-algorithm sst-eddy-viscosity
 // @doc-stage mu-t
 // @doc-pure
-// @doc-formula mu_t = rho k / max(omega, Omega F2 / a1) * Re
+// @doc-formula mu_t = rho k / max(omega, R F2 / a1) * Re
+// R is the selected strain-rate or vorticity magnitude.
 Real SstEddyViscosity(
     Real density, Real kineticEnergy, Real omega,
-    Real vorticityMagnitude, Real f2, Real a1, Real reynolds );
+    Real limitingRateMagnitude, Real f2, Real a1, Real reynolds );
+
+struct SstEddyViscosityInput
+{
+    Real kineticEnergy{};
+    Real omega{};
+    Real wallDistance{};
+    Real betaStar{};
+    Real laminarViscosity{};
+    Real density{};
+    Real reynolds{};
+    Real a1{};
+    Real maxViscosityRatio{};
+    int productionOption{};
+    Real dudx{}, dudy{}, dudz{};
+    Real dvdx{}, dvdy{}, dvdz{};
+    Real dwdx{}, dwdy{}, dwdz{};
+};
+
+struct SstEddyViscosityResult
+{
+    Real f2Argument{};
+    Real f2{};
+    Real limitingRateMagnitude{};
+    Real uncappedEddyViscosity{};
+    Real eddyViscosity{};
+};
+
+// @doc-algorithm sst-eddy-viscosity
+// @doc-stage complete-cell-closure
+// @doc-pure
+SstEddyViscosityResult SstComputeEddyViscosity(
+    const SstEddyViscosityInput& input );
 
 
 // --- update floors / caps ---

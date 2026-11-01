@@ -23,32 +23,71 @@ License
 #include "BasicParallel.h"
 #include <vector>
 #include <iostream>
+#include <stdexcept>
 
 
 BeginNameSpace( ONEFLOW )
 
+#ifdef HX_PARALLEL
+namespace
+{
+bool ownsMpiRuntime = false;
+}
+#endif
+
 void HXFinalize()
 {
 #ifdef HX_PARALLEL
-    int err = MPI_Finalize();
+    if ( !ownsMpiRuntime ) return;
+
+    int finalized = 0;
+    const int queryError = MPI_Finalized( &finalized );
+    if ( queryError != MPI_SUCCESS )
+    {
+        throw std::runtime_error( "MPI_Finalized failed during OneFLOW shutdown." );
+    }
+    if ( !finalized )
+    {
+        const int finalizeError = MPI_Finalize();
+        if ( finalizeError != MPI_SUCCESS )
+        {
+            throw std::runtime_error( "MPI_Finalize failed during OneFLOW shutdown." );
+        }
+    }
+    ownsMpiRuntime = false;
 #endif
 }
 
 int HXInit()
 {
-    int err      = 0;
-    int argc     = 0;
-    char *** argv = 0;
-    return ONEFLOW::HXInit( argc, argv );
+    int argc = 0;
+    char ** argv = nullptr;
+    return ONEFLOW::HXInit( argc, &argv );
 }
 
 int HXInit( int & argc, char *** argv )
 {
-    int err = 0;
 #ifdef HX_PARALLEL
-    err = MPI_Init( & argc, argv );
+    int initialized = 0;
+    int error = MPI_Initialized( &initialized );
+    if ( error != MPI_SUCCESS ) return error;
+
+    if ( initialized )
+    {
+        int finalized = 0;
+        error = MPI_Finalized( &finalized );
+        if ( error != MPI_SUCCESS ) return error;
+        return finalized ? MPI_ERR_OTHER : MPI_SUCCESS;
+    }
+
+    error = MPI_Init( &argc, argv );
+    if ( error == MPI_SUCCESS ) ownsMpiRuntime = true;
+    return error;
+#else
+    (void)argc;
+    (void)argv;
+    return 0;
 #endif
-    return err;
 }
 
 int HXRank()

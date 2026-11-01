@@ -24,3 +24,15 @@ References
 Pure APIs: ``LusgsViscousSpectrumContribution``,
 ``LusgsFaceArithmeticMean``, ``LusgsViscousRadiusPerVolume``.
 Wiring: ``UNsLusgs::CalcViscousTerm``.
+
+Intermediate verification
+-------------------------
+
+Closed-form checks of :math:`\Delta r = -\lambda_{\mathrm{vis}}\Delta q`
+live in ``lusgs_viscous_spectrum_test`` with theory table
+``tools/verification/data/lusgs_viscous_spectrum_contrib_theory.csv``
+(reference :math:`\lambda_{\mathrm{vis}}=2`).
+
+.. image:: figures/lusgs_viscous_spectrum_contrib_theory.png
+   :alt: LUSGS viscous spectrum contribution vs dq
+   :width: 480

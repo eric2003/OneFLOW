@@ -25,8 +25,33 @@ Real SaNegativePart( Real x );
 
 // --- eddy viscosity ---
 Real SaEddyViscosity( Real density, Real nuTilde, Real fv1 );
-Real SaCappedEddyViscosity(
-    Real eddyViscosity, Real laminarViscosity, Real maxViscosityRatio );
+
+// @doc-algorithm sa-eddy-viscosity
+// @doc-stage complete-cell-closure
+// @doc-pure
+// @doc-formula chi = rho * nuTilde / (mu_l + SMALL) + SMALL
+// @doc-formula fv1 = chi^3 / (chi^3 + cv1^3)
+// @doc-formula mu_t = min(rho * nuTilde * fv1, r_max * mu_l)
+// Complete per-cell SA eddy-viscosity closure and its intermediate values.
+struct SaEddyViscosityInput
+{
+    Real density{};
+    Real workingVariable{};
+    Real laminarViscosity{};
+    Real cv1Cubed{};
+    Real maxViscosityRatio{};
+};
+
+struct SaEddyViscosityResult
+{
+    Real chi{};
+    Real fv1{};
+    Real uncappedEddyViscosity{};
+    Real eddyViscosity{};
+};
+
+SaEddyViscosityResult SaComputeEddyViscosity(
+    const SaEddyViscosityInput& input );
 
 
 // --- SA production strain measure ---

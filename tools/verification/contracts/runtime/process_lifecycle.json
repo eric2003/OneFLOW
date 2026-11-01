@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "runtime/process-lifecycle",
+  "title": "Process and case lifecycle finalization",
+  "domain": "runtime",
+  "kind": "state_transition",
+  "status": "implemented",
+  "overview": "Keep process-owned runtime resources alive across independent cases, release case-owned state at each case boundary, and finalize process resources only after their dependents have been released.",
+  "principle": "Resource teardown must follow reverse dependency order. Case state is shorter-lived than process runtime state. If accelerator backend finalization fails, the runtime must retain ownership and the process lifecycle must remain active so the caller can retry instead of continuing shutdown with live backend resources.",
+  "references": [
+    "doc/source/runtime_architecture.rst",
+    "doc/plans/accelerator-runtime-shutdown-order.md",
+    "doc/plans/runtime-refactoring-roadmap.md"
+  ],
+  "architecture": "SimuImp owns the production case and process lifecycle entry points. SimuContext coordinates case-owned state and process-owned runtime state. AccelRuntime owns the active AccelBackend. Case teardown must not finalize the process runtime; process finalization releases context-owned backend state before finalizing AccelRuntime. A failed backend Finalize leaves both runtime ownership and the process lifecycle active for retry.",
+  "implementation": {
+    "source_paths": [
+      "codes/main/src/SimuImp.cpp",
+      "codes/main/src/SimuContextCaseEnvironment.cpp",
+      "codes/main/src/SimuContextEnv.cpp",
+      "codes/accel/src/AccelRuntime.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/runtime_architecture.rst",
+      "doc/plans/accelerator-runtime-shutdown-order.md",
+      "doc/plans/runtime-refactoring-roadmap.md"
+    ]
+  },
+  "verification": [
+    {
+      "kind": "google_test",
+      "reference": "SimuImpCaseLifecycleIntegration.ProcessFinalizationReleasesContextBackendStatesBeforeRuntime",
+      "status": "linked_not_executed",
+      "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; verifies context-owned backend state is destroyed before process runtime finalization."
+    },
+    {
+      "kind": "google_test",
+      "reference": "SimuImpCaseLifecycleIntegration.FailedAcceleratorFinalizationKeepsProcessRuntimeActiveForRetry",
+      "status": "linked_not_executed",
+      "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; injects a backend finalization failure through the production SimuImp entry point and verifies retry."
+    },
+    {
+      "kind": "google_test",
+      "reference": "AccelRuntimeTest.FailedFinalizationPreservesBackendForRetry",
+      "status": "linked_not_executed",
+      "scope": "tests/accel/accel_runtime_test.cpp; verifies runtime-level backend ownership retention after failed finalization."
+    }
+  ],
+  "claims": {
+    "proves": [
+      "The production process lifecycle releases context-owned backend states before finalizing the accelerator runtime.",
+      "A failed accelerator backend finalization propagates to the caller while preserving runtime ownership and an active process lifecycle for retry.",
+      "A subsequent successful finalization completes the process lifecycle."
+    ],
+    "does_not_prove": [
+      "Real CUDA or HIP driver shutdown behavior on physical accelerator hardware.",
+      "Multi-rank MPI teardown behavior or failures across heterogeneous ranks.",
+      "Every solver-specific resource release path or all possible exceptions during case teardown.",
+      "Physical or numerical correctness of CFD solutions."
+    ]
+  },
+  "tags": [
+    "runtime",
+    "lifecycle",
+    "resource-ownership",
+    "exception-safety",
+    "accelerator",
+    "retry"
+  ]
+}

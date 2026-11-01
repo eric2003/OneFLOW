@@ -2,7 +2,7 @@
 
 Status: In progress
 Branch baseline: `hexin`
-Last reviewed: 2026-10-30
+Last reviewed: 2026-11-01
 
 This is a living engineering roadmap, not a promise that every proposed boundary already
 exists. It records the direction and acceptance criteria for incremental runtime refactoring.
@@ -62,7 +62,7 @@ and distinguishes process and case lifetimes.
 ### R1. Make case configuration and I/O root resolution understandable
 
 **Observed area:** `SimuContext::SetupCaseEnvironment()` in
-`codes/main/src/SimuContextEnv.cpp` reads optional root settings, applies project and
+`codes/main/src/SimuContextCaseEnvironment.cpp` reads optional root settings, applies project and
 generic I/O roots, applies mesh/flow-specific roots, falls back to `sourceGridCaseDir`
 for mesh input, and writes path information.
 
@@ -86,7 +86,7 @@ for mesh input, and writes path information.
 - Resolution rules can be tested without initializing the full solver where practical.
 - Relevant integration tests and Windows/Linux CI are reported against the changed commit.
 
-**Status:** Partial. Root-setting lookup and legacy fallback selection are isolated into a tested value-object adapter. The real `SetupCaseEnvironment()` / `ReadControlInfo(caseDir)` integration path, effective `Prj` application, diagnostic output, and sequential-case behavior remain unverified.
+**Status:** Partial. Root-setting lookup and legacy fallback selection are isolated into a tested value-object adapter. The real `SetupCaseEnvironment()` / `ReadControlInfo(caseDir)` integration path, effective `Prj` application, diagnostic output, and sequential-case behavior have focused component-integration coverage. `SetupCaseEnvironment()` now rolls back partially committed configuration, log binding, and project-root state when bootstrap fails; a test verifies rollback after the first script commits, confirms readiness remains false, and retries successfully on the same context. The production `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` path now has failure-path integration coverage. A successful two-case sequence using separate production `SimuImp` instances has been added to the production-linked integration target; it is implemented but awaits local validation. Remaining gaps include injected failures at concrete solver/device release points and multi-rank MPI.
 
 ### R2. Trace task selection and parameter semantics
 
@@ -173,6 +173,15 @@ Append a short entry when a slice materially advances. Keep it factual and link 
 - No C++ behavior change is included in this roadmap entry.
 - Validation: documentation and runtime CI were still in progress at the recorded baseline; this entry itself does not claim a passing build or test suite.
 
+### 2026-11-01 - Make case configuration bootstrap rollback-safe
+
+- Based on the user's reported local baseline of 1096/1096 tests passing before this slice. That count is not evidence for the changes below.
+- `SimuContext::SetupCaseEnvironment()` now executes the production `InitializeCaseConfiguration(caseDir)` through `ExecuteWithRollback()`. If the control reader or later configuration stage throws, the rollback clears case-owned DataField/DataPara state, log binding, and project-root binding while preserving the original bootstrap exception.
+- Strengthened `CaseEnvironmentSetupFailureCanBeRolledBack` into a production Context integration contract: the first manifest script commits a value, the second script is missing, and the test verifies the first value and case binding are cleared. It then creates the missing script and retries on the same context, verifying readiness and the recovered value.
+- Updated `doc/source/runtime_architecture.rst` to distinguish narrow configuration rollback from full `TeardownCase()`. `SimuImp::RunCase()` still owns full case teardown on both setup and task failures.
+- Commits for this slice: runtime rollback `6a325f71ede48251df3d50e9e65d3a98f8b5dafe`; integration assertions `4de3f869affe58a5ac495a4cb90f12024bb3a6f7` and retry contract `729811b0996c929ec9b566bee643ab13b0897b75`; runtime guide `abf2bd241d2139177630a2a99e7bb21d531e591a`.
+- Validation: no local build or CTest run is available in this environment. At the last CI poll, Windows and Linux workflows for the runtime/test commit were still in progress; later documentation changes require their own exact-HEAD checks.
+- Architecture assessment: configuration bootstrap now has a stronger exception-safety contract independent of the caller. This prevents partial case configuration from leaking when the public Context setup API is used directly. R1 remains Partial until full `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` integration is tested, including the wider solver/device cleanup boundary.
 ## 5. Review checklist
 
 Before calling a slice complete, ask:
@@ -225,7 +234,7 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 
 - Added `doc/plans/templates/refactoring-stage-record.md` so substantial refactoring stages use a consistent record for problem, call path, intended contract, minimal boundary, changes, evidence, open gaps, and next action.
 - Linked the template from this roadmap and `doc/AI_CONTEXT.md`; the handoff page remains a concise overall state index rather than a duplicate of every stage.
-- Added an explicit `<stdexcept>` include in `codes/main/src/SimuContextEnv.cpp` for the existing `std::invalid_argument` use (commit `ec9575216e9b6db14a400446c1373e22405c7169`).
+- Added an explicit `<stdexcept>` include in `codes/main/src/SimuContextCaseEnvironment.cpp` for the existing `std::invalid_argument` use (commit `ec9575216e9b6db14a400446c1373e22405c7169`).
 - Validation: this was a source/include correctness cleanup and documentation change. No local build or tests were run in this step; the invalid-type behavior still lacks a focused automated test. Continue R1 test-seam investigation and verify CI for the exact current branch revision.
 
 
@@ -241,7 +250,7 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 ### 2026-10-26 - Extract and test optional string parameter lookup
 
 - Added `codes/main/include/SimuContextParameter.h` with a small helper that accepts `const DataPara&`. This keeps the parameter type contract directly testable without initializing the full simulation runtime or adding a public database API.
-- Updated `codes/main/src/SimuContextEnv.cpp` to use the helper while retaining the existing global-database lookup and call-site behavior.
+- Updated `codes/main/src/SimuContextCaseEnvironment.cpp` to use the helper while retaining the existing global-database lookup and call-site behavior.
 - Added `tests/main/simu_context_parameter_test.cpp` and registered `simu_context_parameter_test` in `tests/main/CMakeLists.txt`. The tests cover a missing optional entry returning an empty string, reading a valid string, and rejecting a non-string entry with the parameter name and expected type in the message.
 - Implementation commits: [helper](https://github.com/eric2003/OneFLOW/commit/fd3889362408586e379d45d08a170abf2077efb9), [production integration](https://github.com/eric2003/OneFLOW/commit/6d72e31f93f55b00b622e122fa75eb689832694f), [tests](https://github.com/eric2003/OneFLOW/commit/1e438f84f600c689666f831ff0837ce3d5936e13), [CMake registration](https://github.com/eric2003/OneFLOW/commit/a13a890bb31e2d84434fbe4297cf76aebc24c865).
 - Validation: source and CMake files were inspected after the changes. The exact-revision GitHub combined status query returned no checks, and no local C++ build or test execution was available in this step. Do not interpret the new tests as passing until `simu_context_parameter_test` is built and run.
@@ -411,3 +420,107 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Documented the compatibility distinction in `doc/source/runtime_architecture.rst`. This is a behavior clarification, not a path-semantics change.
 - Validation: source and test were edited through GitHub; no local build or CTest execution was available. The user-reported 967/967 pass remains the pre-change baseline and does not validate this test.
 - System-level value: reduces ambiguity in the case configuration contract before extracting the production setup path. R1 remains partial until the real control reader, effective roots, diagnostics, sequential isolation, and failure cleanup are tested together.
+
+### 2026-11-01 - Share the production runtime with case-lifecycle integration tests
+
+- Starting `hexin` HEAD: `0da2d68deeb7216c174e82630d75dab792103722`. The user reports 1096/1096 local tests passed before this slice; that is a pre-change baseline.
+- Extracted the recursively collected production C++ source set into the static `OneFLOW_Runtime` target. The `OneFLOW` executable now contains only `codes/main/src/OneFlow.cpp` and links the runtime target. Include paths, compile definitions/features, link directories, and external libraries are propagated from the runtime target. The executable and test therefore share the same compiled production implementation.
+- Added `simu_imp_case_lifecycle_integration_test`, which starts the real process runtime, triggers a real `SetupCaseEnvironment()` failure through `SimuImp::RunCase()`, and checks full Context teardown using seeded task/solver metadata, database/project binding rollback, and process-runtime lifetime.
+- Added the read-only `SimuContext::IsProcessEnvironmentActive()` accessor to make the process-versus-case ownership contract observable without changing lifecycle ownership.
+- Architecture value: R1 now has a production `SimuImp::RunCase()` integration test path, rather than only testing a generic lifecycle helper or Context setup. The build also has its first reusable production runtime target.
+- Remaining: cleanup failure injection at individual solver/device release points; successful repeated full SimuImp cases; multi-rank MPI validation; numerical regression suite; exact Windows/Linux CI and fresh local CTest. Do not claim the 1096/1096 pre-change baseline validates this slice.
+- Detailed contract and test scope: `doc/plans/setup-case-environment-integration-test.md`; implementation map: `doc/source/runtime_architecture.rst`.
+
+### 2026-11-01 - Add successful sequential production-case isolation coverage
+
+- Based on inspected `hexin` base `4ad8f02c7405be4205750e9473b9f87f16acb985`; the user reports 1110/1110 local tests passed on this pre-change revision.
+- Added `SuccessfulCasesRemainIsolatedWithinOneProcess` to `tests/main/simu_imp_case_lifecycle_integration_test.cpp`. It uses the same `RunCasesWithProcessLifecycle()` orchestration as `Simulation::RunImpl()`, creates a separate production `SimuImp` for each temporary case, and injects a marker-only `ToyModel` task so the test exercises real configuration ingestion and teardown without invoking a numerical solver.
+- The contract checks that both case markers are observed in command-line order, case-owned configuration and context state are cleared after each run, and process runtime remains active between cases but is finalized after the sequence.
+- This is production-path lifecycle integration evidence, not numerical verification of a full CFD Solve task. The test is **implemented, unverified** until the user builds and runs the exact commit.
+- Implementation commits: [17ab1eb](https://github.com/eric2003/OneFLOW/commit/17ab1eb524467fe58caded1f4a2b8d30a5792170), [0d3597e](https://github.com/eric2003/OneFLOW/commit/0d3597ee004ff4830b4d16433df7e315d1b6323a).
+- Next: run the focused integration target, full Debug CTest, and representative grid/CFD regressions; then reassess R1 and continue with concrete teardown failure injection and MPI behavior.
+
+
+### 2026-11-01 - Unify process and case cleanup composition
+
+- `SimuContext::TeardownCase()` already used `SimuCaseLifecycleDetail::ExecuteAllCleanupSteps()` to attempt every independent case cleanup and rethrow the first failure.
+- `SimuContext::FinalizeEnvironment()` duplicated that exception-aggregation loop manually. It now uses the same helper for accelerator finalization, parallel finalization, and the process lifecycle marker transition.
+- The ordering and failure contract are unchanged: every step is attempted, the first failure is propagated afterward, and the lifecycle marker is transitioned even if a finalizer reports failure.
+- Existing `SimuCaseLifecycleTest.RunsEveryCleanupStepAndPreservesFirstFailure` and `ExecutesAllCleanupStepsWhenNoStepFails` cover the composition semantics. The source change itself remains **implemented, unverified** until exact-commit build and test execution.
+
+
+### 2026-11-01 - Clarify and verify both SST eddy-viscosity limiter branches
+
+- Based on `hexin` HEAD `b76756a19544b81ee538584548b511665bcead71` and the user's reported 1111/1111 passing baseline.
+- Source inspection found that `CalcCellVist2Equ()` passes either the strain-rate magnitude (when `iprod_sst == 1`) or the vorticity magnitude to `SstEddyViscosity()`. The policy parameter was named `vorticityMagnitude`, which incorrectly described the strain-based path.
+- Renamed the policy input and the `CalcCellVist2Equ()` local value to `limitingRateMagnitude` without changing the formula or branch behavior. Documented the selected rate as (R) and made the distinction visible in the Contract Workbench theory catalog.
+- Added a direct policy test that activates the Bradshaw limiter branch (R F_2/a_1 > omega), complementing the existing omega-limited branch test. The existing F2 theory-curve test remains the closed-form check (F_2=\tanh(\mathrm{arg}_2^2)).
+- The focused tests establish both denominator branches of the pure eddy-viscosity policy; they do not verify the strain/vorticity tensor construction, the post-policy laminar-ratio cap, or full-case SST accuracy.
+- Validation status: implementation and documentation committed; exact-commit build, focused CTest, full CTest, and CFD regression remain unverified. The user's 1111/1111 result is the pre-change baseline.
+
+
+### 2026-11-01 - Extract the shared turbulence eddy-viscosity cap
+
+- The SA-named `SaCappedEddyViscosity()` policy was also called by the SST closure. Its behavior is model-independent: `min(mu_t, r_max * mu_l)`.
+- Moved the policy into `TurbViscosityPolicy.h/.cpp` as `TurbCappedEddyViscosity()`; both SA and SST production paths now depend on the shared turbulence policy rather than an SA-owned API.
+- Removed the SA-specific declaration, implementation, and test. Added a focused shared-policy test target covering both the active cap and the unchanged-below-cap branch.
+- This is a responsibility-boundary refactor only. The cap formula and its call order after each model's eddy-viscosity calculation are unchanged.
+- Validation status: code, CMake registration, tests, and model documentation committed; exact-commit configure/build, focused CTest, full CTest, and CFD regression remain unverified.
+
+
+### 2026-11-01 - Make SST limiter-rate construction independently testable
+
+- Starting from the exact current `hexin` HEAD `ad6abfb3c3b5f06d7793f6077bf385f1797b9669`; the user reports 1112/1112 tests passed on the pre-change baseline.
+- Moved the two velocity-gradient invariants used by the SST eddy-viscosity limiter into pure model policy functions: `SstStrainRateMagnitude()` computes the symmetric strain-tensor norm, while `SstVorticityMagnitude()` computes the curl magnitude. `TurbSrcFlux::CalcCellVist2Equ()` retains the `iprod_sst` selection and passes the selected value to the existing Bradshaw limiter.
+- Added closed-form tests for the diagonal strain tensor and a simple shear field where the strain and vorticity magnitudes differ (4 versus 2). This closes the specific gap recorded in the preceding SST stage: the limiter formula had both denominator branches tested, but the tensor construction and model-option selection were not isolated.
+- No model option, formula, or call ordering changes are intended. Exact-commit build, focused CTest, full CTest, and flat-plate/RAE2822 regression remain unverified until run locally.
+
+
+### 2026-11-01 - Specify SST production-option rate selection
+
+- Based on current `hexin` HEAD `26aab5886c4da5dd06e2f93820856f19ab620f8c`; the user reports 1112/1112 tests passed on the pre-change baseline.
+- Confirmed `TurbCom::iprod_sst` is an integer option. Extracted its exact selection contract into `SstLimitingRateMagnitude()`: only value 1 selects the strain-rate magnitude; every other value selects vorticity, preserving the previous production conditional.
+- `TurbSrcFlux::CalcCellVist2Equ()` now delegates selection to the pure policy. Added tests for option 1 and for 0, 2, and -1, using a velocity gradient where the two candidate magnitudes differ (4 versus 2).
+- This closes the unit-test seam between the two independently verified invariants and the SST option dispatch. It does not prove configuration parsing, option propagation from case input, or full CFD accuracy; those require runtime/regression coverage.
+- Exact-commit configure/build, focused CTest, full CTest, and flat-plate/RAE2822 regression remain unverified until run locally.
+
+### 2026-11-01 - Verify SST rate invariants under coordinate rotation
+
+- Based on inspected hexin HEAD 74baec02d1e170340224c6e320b02412f184947d; the user reports 1117/1117 tests passed before this slice.
+- Added a nontrivial velocity-gradient test that applies the orthogonal basis transformation G' = Q^T G Q and verifies that both the symmetric strain norm and vorticity magnitude remain unchanged.
+- Added a rigid-body rotation contract: an antisymmetric velocity gradient has zero strain magnitude and nonzero vorticity magnitude. This is a physical invariant check, not just a hand-picked arithmetic example.
+- Updated the SST numerical guide to state the coordinate-frame invariant and distinguish these mathematical checks from mesh-level SST verification.
+- Validation: source and documentation edits are committed to hexin; no MSVC build, focused CTest, full CTest, or CFD regression was run in this environment. The user's 1117/1117 result is the pre-change baseline only.
+- Scope deliberately unchanged: no turbulence model option semantics, solver call path, mesh behavior, or regression reference values were modified. The next numerical step remains a production-path check of the F1/F2 and eddy-viscosity intermediates on a real flat-plate case.
+
+### 2026-11-01 - Verify SST F2 argument from primitive flow state
+
+- Based on current `hexin` HEAD `e81a15508c4088ea07a9d83fff2710666c149344`; the user reports 1119/1119 local tests passed before this slice.
+- Source inspection found that `SstF2Arg()` only selected the maximum of two already-computed terms, while the production `CalcCellVist2Equ()` still contained the actual length-scale and viscous-term equations inline. The existing F2 theory curve therefore did not verify the primitive-input-to-arg2 calculation.
+- Added `SstF2Argument(k, omega, d, betaStar, mu, rho, Re)` as the complete pure policy for the two physical terms and their maximum. Renamed the narrower helper to `SstF2ArgFromTerms()` to make its input contract explicit. The production SST eddy-viscosity path now calls the complete policy; equations and call ordering are unchanged.
+- Added tests that independently activate the length-scale term and the viscous term, and updated the SST numerical guide plus Contract Workbench metadata to show the new production-linked API.
+- Validation: changes are committed to `hexin`; no MSVC build, focused CTest, full CTest, Python verification test, or CFD regression was run here. The reported 1119/1119 result is the pre-change baseline.
+- Scope: this closes the primitive-state-to-arg2 policy gap but still does not prove the full field on a mesh, the post-policy laminar-viscosity cap, or complete flat-plate SST accuracy. Next step is a production-path intermediate capture or real-case comparison for arg2, F2, selected rate, and final eddy viscosity.
+
+## 2026-11-01 - Compose and verify the complete SST cell eddy-viscosity closure
+
+The previous SST tests independently covered the F2 argument, F2 function,
+strain/vorticity invariants, production-option selection, Bradshaw limiter,
+and shared laminar-viscosity cap. The real finite-volume path, however,
+composed these stages inside `TurbSrcFlux::CalcCellVist2Equ`, leaving the
+ordered per-cell closure without one direct contract test.
+
+Added `SstEddyViscosityInput`, `SstEddyViscosityResult`, and the pure
+`SstComputeEddyViscosity` composition. The input names all cell-local
+physical quantities and velocity-gradient components. The result exposes
+F2 argument, F2, selected rate magnitude, uncapped viscosity, and capped
+viscosity. Production now maps `turbcom` state into this input and writes
+the returned value, preserving the per-cell loop and ghost-cell handling.
+
+Two tests verify the complete composition: one activates the strain-rate
+branch without activating the viscosity cap; the other selects vorticity
+and verifies the shared laminar-ratio cap. This closes the gap between
+separately tested formulas and their production ordering, while not claiming
+to validate gradient reconstruction, mesh fields, boundary treatment, or
+full CFD convergence. Those remain the next integration-level verification
+targets.

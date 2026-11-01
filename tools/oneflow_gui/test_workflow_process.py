@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import sys
 import tempfile
 import time
@@ -51,7 +52,7 @@ class WorkflowProcessTest(unittest.TestCase):
 
     def test_windows_process_suppresses_console_window(self) -> None:
         process = MagicMock()
-        process.stdout = iter([])
+        process.stdout = io.StringIO("")
         process.poll.return_value = 0
         process.returncode = 0
         with (
