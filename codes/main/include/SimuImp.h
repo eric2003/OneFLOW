@@ -34,9 +34,10 @@ BeginNameSpace( ONEFLOW )
 class SimuImp : public SimuBase
 {
 public:
-    explicit SimuImp( std::vector<std::string>& args );
+    // The context takes its own argument snapshot; SimuImp does not mirror it.
+    explicit SimuImp( const std::vector<std::string>& args );
     SimuImp( const std::string& caseDir, bool debug );
-    ~SimuImp() override;
+    ~SimuImp() override = default;
 
     void Run() override;
 
@@ -62,10 +63,6 @@ protected:
 private:
     std::unique_ptr<SimuContext> ctx_;
 
-public:
-    // Kept for source compatibility with any code reading simu.args.
-    // Prefer Context().Args().
-    std::vector<std::string> args;
 };
 
 EndNameSpace
