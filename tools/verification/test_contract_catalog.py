@@ -59,7 +59,9 @@ class ContractCatalogTest(unittest.TestCase):
         ]
         self.assertEqual(len(linked_tests), 1)
         self.assertEqual(linked_tests[0].status, "linked_not_executed")
-        self.assertTrue(\n            any("does not execute production C++" in x for x in summary.limitations)\n        )
+        self.assertTrue(
+            any("does not execute production C++" in x for x in summary.limitations)
+        )
 
     def test_rejects_geometry_scenario_without_stable_id(self) -> None:
         with self.assertRaisesRegex(ValueError, "non-empty id"):
@@ -69,7 +71,19 @@ class ContractCatalogTest(unittest.TestCase):
         numerical = adapt_theory_entry(
             next(item for item in list_theory_entries() if item.id == "sst_f2_eddy")
         )
-        scenario_path = (\n            self.repository_root\n            / "tools"\n            / "geometry_workbench"\n            / "scenarios"\n            / "registered_child_resolution.json"\n        )\n        scenario = json.loads(scenario_path.read_text(encoding="utf-8"))\n        geometry = adapt_geometry_scenario(scenario)\n\n        issues = validate_contract_summaries(\n            self.repository_root, [numerical, geometry]\n        )
+        scenario_path = (
+            self.repository_root
+            / "tools"
+            / "geometry_workbench"
+            / "scenarios"
+            / "registered_child_resolution.json"
+        )
+        scenario = json.loads(scenario_path.read_text(encoding="utf-8"))
+        geometry = adapt_geometry_scenario(scenario)
+
+        issues = validate_contract_summaries(
+            self.repository_root, [numerical, geometry]
+        )
         self.assertEqual(issues, [], "\\n".join(issues))
 
     def test_reports_missing_and_escaping_paths(self) -> None:
