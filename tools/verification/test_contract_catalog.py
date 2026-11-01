@@ -96,6 +96,50 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\\n".join(issues))
 
+    def test_adapts_laminar_flat_plate_case_contract(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+
+        summary = adapt_declared_contract(definition)
+
+        self.assertEqual(summary.id, "case/laminar-flat-plate-slaU2")
+        self.assertEqual(summary.domain, "case")
+        self.assertEqual(summary.kind, "cfd_regression_case")
+        self.assertIsNotNone(summary.case_data)
+        case_data = summary.case_data
+        self.assertEqual(case_data.solver, "NsSolver")
+        self.assertEqual(case_data.dimension, 2)
+        self.assertEqual(case_data.flux_scheme, "SLAU2")
+        self.assertEqual(case_data.max_steps, 50)
+        self.assertEqual(len(case_data.comparison_outputs), 5)
+        self.assertEqual(len(case_data.analytical_references), 3)
+        self.assertEqual(case_data.residual_absolute_tolerance, 1e-15)
+
+        issues = validate_contract_summaries(self.repository_root, [summary])
+        self.assertEqual(issues, [], "\\n".join(issues))
+
+    def test_requires_typed_payload_for_case_contract(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition.pop("case")
+
+        with self.assertRaisesRegex(ValueError, "requires a case object"):
+            adapt_declared_contract(definition)
+
     def test_rejects_unknown_declared_evidence_status(self) -> None:
         definition_path = (
             self.repository_root
