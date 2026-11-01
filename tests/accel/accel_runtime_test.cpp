@@ -333,3 +333,43 @@ TEST( DeviceBufferTest, DestructorDoesNotPropagateBackendReleaseFailure )
     EXPECT_EQ( trackedAllocations, 1 );
     EXPECT_EQ( trackedDeallocations, 1 );
 }
+
+TEST( DeviceBufferTest, ReleaseFailureKeepsCommittedBufferStateConsistent )
+{
+    EnvironmentVariableGuard backendSetting( "ONEFLOW_ACCEL_BACKEND" );
+    SetEnvironmentVariable( "ONEFLOW_ACCEL_BACKEND", "CPU" );
+
+    trackedAllocations = 0;
+    trackedDeallocations = 0;
+    failDeviceCopy = false;
+    throwAfterDeviceDeallocation = false;
+
+    AccelBackendRegistry::Instance().Register(
+        AccelBackendKind::CPU,
+        []() { return std::make_unique< TrackingCpuBackend >(); } );
+
+    AccelRuntimeGuard runtimeGuard;
+    AccelRuntime & runtime = AccelRuntime::Instance();
+    ASSERT_FALSE( runtime.IsInitialized() );
+    ASSERT_NO_THROW( runtime.Initialize( 0, 1 ) );
+
+    DeviceBuffer< int > buffer( 2 );
+    int * originalData = buffer.Data();
+
+    throwAfterDeviceDeallocation = true;
+    EXPECT_THROW( buffer.Resize( 4 ), std::runtime_error );
+    throwAfterDeviceDeallocation = false;
+
+    EXPECT_NE( buffer.Data(), originalData );
+    EXPECT_EQ( buffer.Size(), 4u );
+    EXPECT_EQ( trackedAllocations, 2 );
+    EXPECT_EQ( trackedDeallocations, 1 );
+
+    throwAfterDeviceDeallocation = true;
+    EXPECT_THROW( buffer.Reset(), std::runtime_error );
+    throwAfterDeviceDeallocation = false;
+
+    EXPECT_EQ( buffer.Data(), nullptr );
+    EXPECT_EQ( buffer.Size(), 0u );
+    EXPECT_EQ( trackedDeallocations, 2 );
+}
