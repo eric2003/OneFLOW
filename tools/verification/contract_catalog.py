@@ -433,6 +433,7 @@ def _mask_cpp_non_code(source: str) -> str:
     source = raw_string.sub(preserve_lines, source)
     return non_code.sub(preserve_lines, source)
 
+
 def validate_contract_summaries(
     repository_root: Path,
     summaries: Iterable[ContractSummary],
