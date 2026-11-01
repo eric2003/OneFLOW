@@ -754,8 +754,8 @@ def list_theory_entries() -> list[TheoryEntry]:
             references=(
                 "Yoon-Jameson LUSGS; OneFLOW lusgs_viscous_spectrum.rst",
             ),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/lusgs_viscous_spectrum_contrib_theory.csv",
+            plot_module="plot_lusgs_viscous_spectrum",
             pure_apis=(
                 "LusgsViscousSpectrumContribution",
                 "LusgsFaceArithmeticMean",
