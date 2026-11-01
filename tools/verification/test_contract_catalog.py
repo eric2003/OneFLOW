@@ -96,6 +96,36 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\\n".join(issues))
 
+    def test_rejects_unknown_declared_evidence_status(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "runtime"
+            / "process_lifecycle.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["verification"][0]["status"] = "green"
+
+        with self.assertRaisesRegex(ValueError, "unsupported status"):
+            adapt_declared_contract(definition)
+
+    def test_requires_contract_id_namespace_to_match_domain(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "runtime"
+            / "process_lifecycle.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["id"] = "numerical/process-lifecycle"
+
+        with self.assertRaisesRegex(ValueError, "namespaced by its domain"):
+            adapt_declared_contract(definition)
+
     def test_rejects_unsupported_declared_contract_schema(self) -> None:
         with self.assertRaisesRegex(ValueError, "unsupported contract schema_version"):
             adapt_declared_contract({"schema_version": 2})
