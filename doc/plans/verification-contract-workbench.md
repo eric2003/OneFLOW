@@ -1,6 +1,6 @@
 # Verification Contract Workbench: architecture proposal
 
-Status: **Architecture proposal; Stage 1 compatibility adapters implemented, with the first declared Runtime contract added as a Stage 3 vertical slice (see Sections 13-14).**
+Status: **Architecture proposal; Stage 1 compatibility adapters implemented, with declared Runtime and Case contracts added as vertical slices (see Sections 13-15).**
 
 Target branch: **hexin**
 
