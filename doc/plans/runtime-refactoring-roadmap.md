@@ -483,3 +483,13 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - `TurbSrcFlux::CalcCellVist2Equ()` now delegates selection to the pure policy. Added tests for option 1 and for 0, 2, and -1, using a velocity gradient where the two candidate magnitudes differ (4 versus 2).
 - This closes the unit-test seam between the two independently verified invariants and the SST option dispatch. It does not prove configuration parsing, option propagation from case input, or full CFD accuracy; those require runtime/regression coverage.
 - Exact-commit configure/build, focused CTest, full CTest, and flat-plate/RAE2822 regression remain unverified until run locally.
+
+### 2026-11-01 - Verify SST rate invariants under coordinate rotation
+
+- Based on inspected hexin HEAD 74baec02d1e170340224c6e320b02412f184947d; the user reports 1117/1117 tests passed before this slice.
+- Added a nontrivial velocity-gradient test that applies the orthogonal basis transformation G' = Q^T G Q and verifies that both the symmetric strain norm and vorticity magnitude remain unchanged.
+- Added a rigid-body rotation contract: an antisymmetric velocity gradient has zero strain magnitude and nonzero vorticity magnitude. This is a physical invariant check, not just a hand-picked arithmetic example.
+- Updated the SST numerical guide to state the coordinate-frame invariant and distinguish these mathematical checks from mesh-level SST verification.
+- Validation: source and documentation edits are committed to hexin; no MSVC build, focused CTest, full CTest, or CFD regression was run in this environment. The user's 1117/1117 result is the pre-change baseline only.
+- Scope deliberately unchanged: no turbulence model option semantics, solver call path, mesh behavior, or regression reference values were modified. The next numerical step remains a production-path check of the F1/F2 and eddy-viscosity intermediates on a real flat-plate case.
+
