@@ -200,6 +200,25 @@ Real SstVorticityMagnitude(
     return std::sqrt( SQR( omegaX ) + SQR( omegaY ) + SQR( omegaZ ) );
 }
 
+Real SstLimitingRateMagnitude(
+    int productionOption,
+    Real dudx, Real dudy, Real dudz,
+    Real dvdx, Real dvdy, Real dvdz,
+    Real dwdx, Real dwdy, Real dwdz )
+{
+    if ( productionOption == 1 )
+    {
+        return SstStrainRateMagnitude(
+            dudx, dudy, dudz,
+            dvdx, dvdy, dvdz,
+            dwdx, dwdy, dwdz );
+    }
+    return SstVorticityMagnitude(
+        dudx, dudy, dudz,
+        dvdx, dvdy, dvdz,
+        dwdx, dwdy, dwdz );
+}
+
 Real SstF2Arg( Real termLength, Real termViscous )
 {
     return MAX( termLength, termViscous );
