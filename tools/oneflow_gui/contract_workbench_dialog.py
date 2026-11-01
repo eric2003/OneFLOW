@@ -39,7 +39,10 @@ class ContractDomainDialog(QDialog):
         self._domain = domain
         _ensure_tools_on_path(self._repository_root)
 
-        from verification.contract_catalog import load_contract_catalog
+        from verification.contract_catalog import (
+            load_contract_catalog,
+            resolve_contract_evidence,
+        )
 
         summaries, diagnostics = load_contract_catalog(self._repository_root)
         self._summaries = tuple(
@@ -174,10 +177,19 @@ class ContractDomainDialog(QDialog):
             + "\n\nDocumentation\n-------------\n"
             + "\n".join(summary.documentation_paths)
         )
-        evidence_lines = [
-            f"[{item.status}] {item.kind}: {item.reference}\n  Scope: {item.scope}"
-            for item in summary.evidence
-        ]
+        resolutions = resolve_contract_evidence(self._repository_root, summary)
+        evidence_lines = []
+        for resolution in resolutions:
+            item = resolution.evidence
+            evidence_lines.append(
+                f"[{resolution.status.upper()}] {item.kind}: {item.reference}"
+                f"\\n  Declaration: {item.status}"
+                f"\\n  Scope: {item.scope}"
+            )
+            if resolution.resolved_path:
+                evidence_lines.append(f"  Resolved file: {resolution.resolved_path}")
+            if resolution.diagnostic:
+                evidence_lines.append(f"  Diagnostic: {resolution.diagnostic}")
         if self._diagnostics:
             evidence_lines.extend(
                 ("", "Catalog diagnostics", "-------------------", *self._diagnostics)
