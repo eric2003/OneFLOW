@@ -9,6 +9,7 @@ from pathlib import Path
 from .contract_catalog import (
     ContractEvidence,
     ContractSummary,
+    adapt_declared_contract,
     adapt_geometry_scenario,
     adapt_theory_entry,
     load_contract_catalog,
@@ -70,6 +71,35 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(len(linked_tests), 1)
         self.assertEqual(linked_tests[0].status, "linked_not_executed")
 
+    def test_adapts_declared_runtime_contract_with_typed_evidence(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "runtime"
+            / "process_lifecycle.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+
+        summary = adapt_declared_contract(definition)
+
+        self.assertEqual(summary.id, "runtime/process-lifecycle")
+        self.assertEqual(summary.domain, "runtime")
+        self.assertEqual(summary.kind, "state_transition")
+        self.assertEqual(summary.status, "implemented")
+        self.assertTrue(summary.architecture)
+        self.assertEqual(len(summary.evidence), 3)
+        self.assertTrue(
+            all(item.status == "linked_not_executed" for item in summary.evidence)
+        )
+        issues = validate_contract_summaries(self.repository_root, [summary])
+        self.assertEqual(issues, [], "\\n".join(issues))
+
+    def test_rejects_unsupported_declared_contract_schema(self) -> None:
+        with self.assertRaisesRegex(ValueError, "unsupported contract schema_version"):
+            adapt_declared_contract({"schema_version": 2})
+
     def test_rejects_geometry_scenario_without_stable_id(self) -> None:
         with self.assertRaisesRegex(ValueError, "non-empty id"):
             adapt_geometry_scenario({"title": "Missing identity"})
@@ -112,6 +142,7 @@ class ContractCatalogTest(unittest.TestCase):
 
         self.assertTrue(any(item.domain == "numerical" for item in summaries))
         self.assertTrue(any(item.domain == "geometry" for item in summaries))
+        self.assertTrue(any(item.domain == "runtime" for item in summaries))
         self.assertEqual(len({item.id for item in summaries}), len(summaries))
         self.assertEqual(issues, (), "\n".join(issues))
 
@@ -134,6 +165,8 @@ class ContractCatalogTest(unittest.TestCase):
             kind=summary.kind,
             overview=summary.overview,
             principle=summary.principle,
+            architecture=summary.architecture,
+            status=summary.status,
             references=summary.references,
             implementation_paths=summary.implementation_paths,
             documentation_paths=summary.documentation_paths,
