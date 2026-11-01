@@ -746,9 +746,10 @@ python -m unittest tools.oneflow_gui.test_test_inventory
 The test command layer keeps argument vectors as the source of truth and uses
 host-appropriate quoting only for human-readable logs. Windows-specific
 executable suffixes and multi-configuration output paths are selected only on
-Windows; POSIX builds use the conventional unsuffixed executable under
-`build/bin`. The configure command no longer injects a local Windows install
-prefix, leaving CMake's platform default intact.
+Windows. POSIX single-configuration builds use the conventional unsuffixed
+executable under `build/bin`; POSIX multi-configuration generators are also
+recognized through their CMake cache metadata. The configure command no longer
+injects a local Windows install prefix, leaving CMake's platform default intact.
 
 This is a bounded compatibility improvement, not a claim of full Linux
 validation. Platform branches are unit-testable through an explicit platform
