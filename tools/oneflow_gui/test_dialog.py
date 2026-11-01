@@ -200,7 +200,11 @@ class TestCommandWorker(QThread):
             f"  Failed: {len(failed_labels)}",
             f"  Not run: {not_run}",
         ]
-        report.extend(summarize_test_output(run_output))
+        report.extend(
+            summarize_test_output(
+                run_output, include_failed_cases=not failed_diagnostics
+            )
+        )
         report.extend(format_failure_summary(failed_diagnostics))
         if failed_labels:
             report.insert(1, "  Failed commands: " + ", ".join(failed_labels))
