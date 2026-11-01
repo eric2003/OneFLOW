@@ -430,7 +430,7 @@ class ContractCatalogTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             source = root / "EvidenceTest.cpp"
-            source.write_text("TEST(EvidenceSuite, Present) {}\\n", encoding="utf-8")
+            source.write_text("TEST(EvidenceSuite, Present) {}\n", encoding="utf-8")
             summary = ContractSummary(
                 id="runtime/evidence-resolution",
                 source_id="evidence-resolution",
