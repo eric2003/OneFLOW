@@ -169,6 +169,19 @@ def adapt_geometry_scenario(
     )
 
 
+_EVIDENCE_STATUSES = {
+    "declared_not_executed",
+    "linked_not_executed",
+    "fixture_available",
+    "result_recorded_unverified",
+    "not_run",
+    "passed",
+    "failed",
+    "blocked",
+    "stale",
+}
+
+
 _CONTRACT_STATUSES = {
     "proposed",
     "implemented",
@@ -182,6 +195,8 @@ _CONTRACT_STATUSES = {
 
 def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
     """Adapt a versioned, domain-owned contract definition."""
+    if not isinstance(definition, dict):
+        raise ValueError("contract definition must be an object")
     if definition.get("schema_version") != 1:
         raise ValueError("unsupported contract schema_version; expected 1")
 
@@ -239,22 +254,30 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
                 raise ValueError(
                     f"verification[{index}] requires non-empty {field}"
                 )
+        evidence_status = item["status"].strip()
+        if evidence_status not in _EVIDENCE_STATUSES:
+            raise ValueError(
+                f"verification[{index}] has unsupported status: {evidence_status}"
+            )
         evidence_items.append(
             ContractEvidence(
                 kind=item["kind"].strip(),
                 reference=item["reference"].strip(),
-                status=item["status"].strip(),
+                status=evidence_status,
                 scope=item["scope"].strip(),
             )
         )
 
     contract_id = definition["id"].strip()
-    if "/" not in contract_id:
-        raise ValueError("declared contract id must be namespaced")
+    domain_prefix, separator, source_id = contract_id.partition("/")
+    if not separator or not source_id or domain_prefix != definition["domain"].strip():
+        raise ValueError(
+            "declared contract id must be namespaced by its domain"
+        )
 
     return ContractSummary(
         id=contract_id,
-        source_id=contract_id.split("/", 1)[1],
+        source_id=source_id,
         title=definition["title"].strip(),
         domain=definition["domain"].strip(),
         kind=definition["kind"].strip(),
