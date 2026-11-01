@@ -117,20 +117,25 @@ void AccelRuntime::Initialize( int worldRank, int worldSize )
 {
     if ( initialized ) return;
 
-    context.worldRank = worldRank;
-    context.worldSize = worldSize;
-    context.localRank = DetectLocalRank();
-    context.localSize = DetectLocalSize();
-    context.requestedDevice = DetectRequestedDevice();
+    // Build the candidate state off to the side. The runtime becomes visible
+    // only after a backend has completed initialization successfully.
+    AccelContext candidateContext;
+    candidateContext.worldRank = worldRank;
+    candidateContext.worldSize = worldSize;
+    candidateContext.localRank = DetectLocalRank();
+    candidateContext.localSize = DetectLocalSize();
+    candidateContext.requestedDevice = DetectRequestedDevice();
 #ifdef ONEFLOW_ENABLE_MULTI_DEVICE
-    context.multiDeviceEnabled = true;
+    candidateContext.multiDeviceEnabled = true;
 #else
-    context.multiDeviceEnabled = false;
+    candidateContext.multiDeviceEnabled = false;
 #endif
 
     const std::string requestedName =
         NormalizeBackendName( RequestedBackendName() );
     AccelBackendRegistry & registry = AccelBackendRegistry::Instance();
+    std::unique_ptr< AccelBackend > candidateBackend;
+
     if ( requestedName == "AUTO" )
     {
         const AccelBackendKind candidates[] = {
@@ -141,54 +146,69 @@ void AccelRuntime::Initialize( int worldRank, int worldSize )
         for ( AccelBackendKind candidate : candidates )
         {
             if ( !registry.Contains( candidate ) ) continue;
+
+            AccelContext attemptContext = candidateContext;
+            std::unique_ptr< AccelBackend > attemptBackend =
+                registry.Create( candidate );
             try
             {
-                backend = registry.Create( candidate );
-                backend->Initialize( context );
+                attemptBackend->Initialize( attemptContext );
+                candidateContext = attemptContext;
+                candidateBackend = std::move( attemptBackend );
                 break;
             }
             catch ( const std::exception & error )
             {
-                if ( context.worldRank == 0 )
+                if ( candidateContext.worldRank == 0 )
                 {
                     std::cerr << "OneFLOW AUTO backend skipped "
                               << AccelBackendKindName( candidate ) << ": "
-                              << error.what() << "\n";
+                              << error.what() << "\\n";
                 }
-                backend.reset();
-                context.selectedDevice = -1;
-                context.deviceCount = 0;
             }
         }
-        if ( !backend )
+
+        if ( !candidateBackend )
         {
             if ( !registry.Contains( AccelBackendKind::CPU ) )
                 throw std::runtime_error( "OneFLOW CPU backend is not registered." );
-            backend = registry.Create( AccelBackendKind::CPU );
-            backend->Initialize( context );
+
+            AccelContext cpuContext = candidateContext;
+            std::unique_ptr< AccelBackend > cpuBackend =
+                registry.Create( AccelBackendKind::CPU );
+            cpuBackend->Initialize( cpuContext );
+            candidateContext = cpuContext;
+            candidateBackend = std::move( cpuBackend );
         }
     }
     else
     {
         const AccelBackendKind requestedKind = ParseAccelBackendKind( requestedName );
-        if ( ! registry.Contains( requestedKind ) )
+        if ( !registry.Contains( requestedKind ) )
         {
             throw std::runtime_error(
                 std::string( "OneFLOW backend '" )
                 + AccelBackendKindName( requestedKind )
                 + "' is reserved but is not built in this configuration." );
         }
-        backend = registry.Create( requestedKind );
-        backend->Initialize( context );
+
+        std::unique_ptr< AccelBackend > requestedBackend =
+            registry.Create( requestedKind );
+        requestedBackend->Initialize( candidateContext );
+        candidateBackend = std::move( requestedBackend );
     }
+
+    // Commit the backend and its matching context as one successful state.
+    backend = std::move( candidateBackend );
+    context = candidateContext;
     initialized = true;
 
     if ( context.worldRank == 0 )
     {
-        std::cout << "OneFLOW compute backend: " << backend->Name() << "\n";
+        std::cout << "OneFLOW compute backend: " << backend->Name() << "\\n";
         std::cout << "OneFLOW multi-device context: "
                   << ( context.multiDeviceEnabled ? "enabled" : "disabled" )
-                  << "\n";
+                  << "\\n";
     }
 }
 
