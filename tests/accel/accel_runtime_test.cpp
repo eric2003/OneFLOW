@@ -147,6 +147,72 @@ private:
     bool hadValue_ = false;
 };
 
+int trackedAllocations = 0;
+int trackedDeallocations = 0;
+bool failDeviceCopy = false;
+bool throwAfterDeviceDeallocation = false;
+
+class TrackingCpuBackend final : public AccelBackend
+{
+public:
+    AccelBackendKind Kind() const override { return AccelBackendKind::CPU; }
+    const char * Name() const override { return "TRACKING_CPU"; }
+    bool IsAccelerator() const override { return false; }
+    bool SupportsMultiDevice() const override { return false; }
+    void Initialize( AccelContext & context ) override
+    {
+        context.deviceCount = 0;
+        context.selectedDevice = -1;
+    }
+    void Finalize() override {}
+    void Synchronize() override {}
+    void * Allocate( std::size_t bytes ) override
+    {
+        ++trackedAllocations;
+        return bytes == 0 ? nullptr : ::operator new( bytes );
+    }
+    void Deallocate( void * pointer ) override
+    {
+        ++trackedDeallocations;
+        ::operator delete( pointer );
+        if ( throwAfterDeviceDeallocation )
+        {
+            throw std::runtime_error( "simulated deallocation diagnostic failure" );
+        }
+    }
+    void Copy(
+        void * destination,
+        const void * source,
+        std::size_t bytes,
+        AccelCopyKind ) override
+    {
+        if ( failDeviceCopy )
+        {
+            throw std::runtime_error( "simulated device copy failure" );
+        }
+        if ( bytes != 0 ) std::memcpy( destination, source, bytes );
+    }
+};
+
+class AccelRuntimeGuard
+{
+public:
+    ~AccelRuntimeGuard() noexcept
+    {
+        AccelRuntime & runtime = AccelRuntime::Instance();
+        if ( runtime.IsInitialized() )
+        {
+            try
+            {
+                runtime.Finalize();
+            }
+            catch ( ... )
+            {
+            }
+        }
+    }
+};
+
 }
 
 TEST( AccelRuntimeTest, FailedInitializationDoesNotPublishPartialState )
