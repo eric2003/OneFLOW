@@ -390,8 +390,12 @@ geometry, or runtime contract.
 
 The adapter validates required case fields and the catalog checks that suite,
 case directory, input files, analytical references, and residual database
-exist. It also checks suite membership, output-manifest consistency, residual
-database schema, case membership, and agreement of the absolute tolerance.
+exist. It also checks suite membership, exact equality between the declared
+output set and `autotest/compare.txt`, residual database schema, case
+membership, residual output channels, iteration columns, row count against
+`max_steps`, and agreement of the absolute tolerance. This catches stale
+metadata when either the case manifest or the accepted residual history
+changes.
 
 ### 15.2 What the case evidence means
 
