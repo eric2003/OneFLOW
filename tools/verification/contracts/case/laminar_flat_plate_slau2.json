@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "id": "case/laminar-flat-plate-slaU2",
+  "title": "2-D laminar flat plate with SLAU2",
+  "domain": "case",
+  "kind": "cfd_regression_case",
+  "status": "implemented",
+  "overview": "A two-dimensional laminar flat-plate Navier-Stokes case using the SLAU2 convective flux. It is part of the canonical CPU serial regression suite and retains Blasius reference profiles for scientific interpretation.",
+  "principle": "The case provides a reproducible production-solver regression. The solver must complete the configured 50 steps, produce every declared result, match accepted text outputs within the runner tolerance, and match the canonical residual history under the residual database policy. Agreement with a stored baseline demonstrates regression consistency, not independent physical validation. The Blasius profiles provide a separate analytical reference for boundary-layer behavior, but are not automatically compared by the current regression runner.",
+  "references": [
+    "test/README.md",
+    "test/baselines/README.md",
+    "doc/plans/verification-contract-workbench.md"
+  ],
+  "architecture": "The suite manifest selects the case. test/test.py loads the case control scripts, launches the OneFLOW executable, checks solver exit status, compares files listed in autotest/compare.txt against autotest references, and compares res.dat against test/baselines/residual-baseline.json when that baseline is supplied. The case owns its grid, script inputs, output manifests, accepted reference files, and analytical comparison data. The shared Contract Catalog reads this metadata but does not execute the solver.",
+  "implementation": {
+    "source_paths": [
+      "test/test.py",
+      "test/residual_db.py"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "test/README.md",
+      "test/baselines/README.md",
+      "doc/plans/verification-contract-workbench.md"
+    ]
+  },
+  "case": {
+    "suite": "test/suites/cpu-serial.txt",
+    "path": "test/cfd/plateuns2dslau2",
+    "solver": "NsSolver",
+    "dimension": 2,
+    "flow_model": "laminar compressible Navier-Stokes",
+    "flux_scheme": "SLAU2",
+    "max_steps": 50,
+    "input_paths": [
+      "test/cfd/plateuns2dslau2/script/control.txt",
+      "test/cfd/plateuns2dslau2/script/cfd.txt",
+      "test/cfd/plateuns2dslau2/script/dimension.txt",
+      "test/cfd/plateuns2dslau2/script/inflow.txt",
+      "test/cfd/plateuns2dslau2/script/multigrid.txt",
+      "test/cfd/plateuns2dslau2/script/simu.txt",
+      "test/cfd/plateuns2dslau2/script/solver.txt",
+      "test/cfd/plateuns2dslau2/script/tolerence.txt",
+      "test/cfd/plateuns2dslau2/script/turb.txt",
+      "test/cfd/plateuns2dslau2/script/vismodel.txt",
+      "test/cfd/plateuns2dslau2/script/walldist.txt",
+      "test/cfd/plateuns2dslau2/grid/plate20182d.ofl",
+      "test/cfd/plateuns2dslau2/grid/bcRegionMap.txt"
+    ],
+    "comparison_outputs": [
+      "results/aero.dat",
+      "results/res.dat",
+      "results/flatplate_cf.dat",
+      "results/flatplateflow.dat",
+      "results/wallaero.dat"
+    ],
+    "residual_baseline": "test/baselines/residual-baseline.json",
+    "analytical_references": [
+      "test/cfd/plateuns2dslau2/results/cf.blasius",
+      "test/cfd/plateuns2dslau2/results/u.blasius",
+      "test/cfd/plateuns2dslau2/results/v.blasius"
+    ],
+    "residual_absolute_tolerance": 1e-15
+  },
+  "verification": [
+    {
+      "kind": "case_suite",
+      "reference": "test/suites/cpu-serial.txt",
+      "status": "declared_not_executed",
+      "scope": "The suite includes cfd/plateuns2dslau2. Suite membership is checked statically; no solver execution is implied."
+    },
+    {
+      "kind": "output_manifest",
+      "reference": "test/cfd/plateuns2dslau2/autotest/compare.txt",
+      "status": "declared_not_executed",
+      "scope": "Five generated result paths are compared against checked-in references using the test runner's text comparison tolerance of 1e-8."
+    },
+    {
+      "kind": "residual_baseline",
+      "reference": "test/baselines/residual-baseline.json",
+      "status": "declared_not_executed",
+      "scope": "The canonical CPU baseline stores the 50-row residual history with absolute tolerance 1e-15, zero relative tolerance, exact iteration columns, and NaN/Inf rejection. The baseline is shared by the cpu-serial suite."
+    },
+    {
+      "kind": "analytical_reference",
+      "reference": "test/cfd/plateuns2dslau2/results/cf.blasius",
+      "status": "declared_not_executed",
+      "scope": "Blasius skin-friction reference data is retained for scientific comparison; the current test.py runner does not automatically compare this file."
+    },
+    {
+      "kind": "analytical_reference",
+      "reference": "test/cfd/plateuns2dslau2/results/u.blasius",
+      "status": "declared_not_executed",
+      "scope": "Blasius velocity-profile reference data is retained for scientific comparison; the current test.py runner does not automatically compare this file."
+    },
+    {
+      "kind": "analytical_reference",
+      "reference": "test/cfd/plateuns2dslau2/results/v.blasius",
+      "status": "declared_not_executed",
+      "scope": "Blasius wall-normal velocity reference data is retained for scientific comparison; the current test.py runner does not automatically compare this file."
+    }
+  ],
+  "claims": {
+    "proves": [
+      "The canonical suite selects this case for CPU serial regression.",
+      "The case declares the solver configuration, grid inputs, output comparisons, and residual baseline used by its regression workflow.",
+      "A passing run under the documented runner contract establishes agreement with the accepted text and residual references for this configured case."
+    ],
+    "does_not_prove": [
+      "Independent physical validation of the Navier-Stokes solution.",
+      "Automated agreement with the retained Blasius skin-friction and velocity profiles; these references are not consumed by the current runner.",
+      "Grid convergence, temporal convergence, or discretization error bounds.",
+      "Accuracy on other Reynolds numbers, Mach numbers, meshes, flux schemes, or turbulence models.",
+      "GPU backend correctness, MPI parallel reproducibility, or performance."
+    ]
+  },
+  "tags": [
+    "cfd",
+    "regression",
+    "laminar",
+    "flat-plate",
+    "navier-stokes",
+    "slau2",
+    "cpu-serial",
+    "blasius"
+  ]
+}
