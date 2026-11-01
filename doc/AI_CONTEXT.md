@@ -1,8 +1,44 @@
+## Current follow-on: accelerator runtime shutdown ordering
+
+The user reports **1123/1123 tests passed** on baseline hexin HEAD
+6e550260578a7ad3490793791f9a26feb1e670ae. The current slice addresses a lifecycle
+gap discovered while tracing SimuContext, EulerDomainStateRegistry, DeviceBuffer,
+and AccelRuntime ownership.
+
+- SimuContext owns EulerDomainStateRegistry; registered backend states may own
+  device allocations.
+- TeardownCase() already clears context states and releases the shared HIP flux
+  backend before process finalization.
+- FinalizeEnvironment() was independently callable but did not clear any
+  remaining context-owned states before FinalizeAccelRuntime(). A caller that
+  skipped TeardownCase() could therefore destroy backend state after runtime
+  shutdown.
+- FinalizeEnvironment() now clears the registry and releases HipFluxBackend's
+  shared instance (when HIP is enabled) before FinalizeAccelRuntime(), then
+  calls HXFinalize(). This is defensive process cleanup, not a replacement for
+  full TeardownCase() of solver/global case state.
+- A production-linked integration test inserts a state whose destructor
+  records whether AccelRuntime is still initialized, then finalizes without
+  TeardownCase() and checks destruction order.
+- Design record: [Accelerator runtime shutdown order](plans/accelerator-runtime-shutdown-order.md).
+- Runtime architecture guide updated in source/runtime_architecture.rst.
+
+Industry references: C++ Core Guidelines R.1, C.31, C.36, C.37, E.4 and E.7.
+The important distinction is that RAII manages each object's lifetime, while
+the owning context must still order that lifetime before the allocator runtime
+it depends on.
+
+Status: **Implemented, unverified**. The user-reported 1123/1123 result predates
+this slice. Build/run the production integration target, full Debug CTest,
+and representative CPU regressions on the exact latest hexin HEAD. Also check
+Windows/Linux CI. HIP-enabled compile/runtime coverage remains distinct from
+the CPU ownership-ordering test.
+
 # AI and Developer Project Context
 
 Last updated: 2026-11-01
-Working branch: `hexin` only. Latest inspected accelerator-buffer baseline: `d9e25a7b671e6104c0d116ae5c561e5d12ba09d0`. Current implementation HEAD: `74de9222c90c7bce19602c209d4ddbdd1ab10b21`.
-User-reported local validation on the pre-change baseline: **1119/1119 tests passed**. This does not validate the DeviceBuffer changes added afterward.
+Working branch: `hexin` only. Latest inspected baseline for this slice: `6e550260578a7ad3490793791f9a26feb1e670ae`. Current implementation HEAD before this handoff update: `7eff3d06099700cdd7026dca35cb843112b07332`.
+User-reported local validation on the pre-change baseline: **1123/1123 tests passed**. This does not validate the shutdown-order change added afterward.
 
 ## Previous mainline: R1 case configuration rollback and lifecycle
 
