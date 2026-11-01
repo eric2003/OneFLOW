@@ -46,6 +46,19 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertEqual(dialog.tabs.tabText(dialog.tabs.count() - 1), "Case Setup")
             self.assertIn("SLAU2", dialog.case_view.toPlainText())
             self.assertIn("Blasius", dialog.case_view.toPlainText())
+            case_text = dialog.case_view.toPlainText()
+            self.assertIn(
+                "Blasius analytical reference - skin-friction coefficient (cf)",
+                case_text,
+            )
+            self.assertIn(
+                "Blasius analytical reference - streamwise velocity profile (u)",
+                case_text,
+            )
+            self.assertIn(
+                "Blasius analytical reference - wall-normal velocity profile (v)",
+                case_text,
+            )
             self.assertIsNotNone(dialog.open_case_directory_button)
             self.assertIsNotNone(dialog.open_case_references_button)
             desktop_services = Mock()
