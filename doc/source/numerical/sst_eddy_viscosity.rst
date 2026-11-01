@@ -83,3 +83,31 @@ gradient tensor and separately verify that rigid-body rotation has zero strain
 but nonzero vorticity. These checks protect the tensor interpretation, not only
 individual component arithmetic.
 
+
+Production data flow
+--------------------
+
+The production update is a cell-field operation, not a call with an
+already-populated viscosity. ``UTurbSrcFlux::CalcVist`` initializes the
+unstructured-grid and turbulence-field views, refreshes mean-flow gradients,
+then calls ``CalcVist2Equ`` for the two-equation models. For each interior
+cell, ``CalcVist2Equ`` reads the nine mean-velocity gradient components,
+density, :math:`k`, :math:`\\omega`, laminar viscosity, and wall distance
+from their corresponding fields. ``TurbSrcFlux::CalcCellVist2Equ`` adds the
+case-level SST constants and options initialized by ``TurbCom::Init``
+(:math:`Re`, :math:`\\beta^*`, :math:`a_1`, ``iprod_sst``, and the maximum
+viscosity ratio), evaluates ``SstComputeEddyViscosity``, and writes the
+result back to the cell's eddy-viscosity field.
+
+The previous eddy-viscosity field value is not an input to this closure. The
+cell update therefore no longer reads it before computing the replacement.
+After all interior cells are updated, ``SetGhostCellVist`` copies the
+adjacent interior value to boundary ghost cells, and ``CalcVistMax`` scans
+the resulting field. This separates three contracts that should be verified
+independently: per-cell closure, field traversal/write-back, and ghost-cell
+synchronization.
+
+The remaining integration gap is a mesh-backed test of that complete field
+path. The current pure policy tests validate the numerical closure; they do
+not by themselves prove that gradient and primitive fields are indexed
+correctly for every cell or that ghost values are synchronized as intended.
