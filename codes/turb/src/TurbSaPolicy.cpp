@@ -1,4 +1,5 @@
 #include "TurbSaPolicy.h"
+#include "TurbViscosityPolicy.h"
 #include "HXMath.h"
 #include <cmath>
 
@@ -96,6 +97,23 @@ Real SaNegativePart( Real x )
 Real SaEddyViscosity( Real density, Real nuTilde, Real fv1 )
 {
     return density * nuTilde * fv1;
+}
+
+SaEddyViscosityResult SaComputeEddyViscosity(
+    const SaEddyViscosityInput& input )
+{
+    const Real inverseKinematicViscosity =
+        input.density / ( input.laminarViscosity + SMALL );
+    SaEddyViscosityResult result;
+    result.chi = SaChi( input.workingVariable, inverseKinematicViscosity );
+    result.fv1 = SaFv1( result.chi, input.cv1Cubed );
+    result.uncappedEddyViscosity =
+        SaEddyViscosity( input.density, input.workingVariable, result.fv1 );
+    result.eddyViscosity = TurbCappedEddyViscosity(
+        result.uncappedEddyViscosity,
+        input.laminarViscosity,
+        input.maxViscosityRatio );
+    return result;
 }
 
 
