@@ -502,3 +502,25 @@ Commit: `d8568fe91722af5d78d8083d6bae23d9446d952d`
 - Validation: changes are committed to `hexin`; no MSVC build, focused CTest, full CTest, Python verification test, or CFD regression was run here. The reported 1119/1119 result is the pre-change baseline.
 - Scope: this closes the primitive-state-to-arg2 policy gap but still does not prove the full field on a mesh, the post-policy laminar-viscosity cap, or complete flat-plate SST accuracy. Next step is a production-path intermediate capture or real-case comparison for arg2, F2, selected rate, and final eddy viscosity.
 
+## 2026-11-01 - Compose and verify the complete SST cell eddy-viscosity closure
+
+The previous SST tests independently covered the F2 argument, F2 function,
+strain/vorticity invariants, production-option selection, Bradshaw limiter,
+and shared laminar-viscosity cap. The real finite-volume path, however,
+composed these stages inside `TurbSrcFlux::CalcCellVist2Equ`, leaving the
+ordered per-cell closure without one direct contract test.
+
+Added `SstEddyViscosityInput`, `SstEddyViscosityResult`, and the pure
+`SstComputeEddyViscosity` composition. The input names all cell-local
+physical quantities and velocity-gradient components. The result exposes
+F2 argument, F2, selected rate magnitude, uncapped viscosity, and capped
+viscosity. Production now maps `turbcom` state into this input and writes
+the returned value, preserving the per-cell loop and ghost-cell handling.
+
+Two tests verify the complete composition: one activates the strain-rate
+branch without activating the viscosity cap; the other selects vorticity
+and verifies the shared laminar-ratio cap. This closes the gap between
+separately tested formulas and their production ordering, while not claiming
+to validate gradient reconstruction, mesh fields, boundary treatment, or
+full CFD convergence. Those remain the next integration-level verification
+targets.
