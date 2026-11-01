@@ -175,3 +175,13 @@ and skipped by path or test validation. Adding a new evidence kind therefore
 requires an intentional schema/catalog change and corresponding tests. A known
 kind still does not imply execution: status remains a separate, explicit field.
 
+
+
+### Repository-path evidence validation
+
+The shared validator resolves artifact evidence references against the repository
+root for `theory_data`, `case_suite`, `output_manifest`,
+`residual_baseline`, and `analytical_reference`. Geometry `fixture`
+references are validated when they are path-shaped; opaque scenario IDs remain
+valid identifiers. Paths must remain inside the repository and point to files.
+This checks declaration integrity only: it does not execute or pass the evidence.
