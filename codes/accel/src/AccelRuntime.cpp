@@ -163,7 +163,7 @@ void AccelRuntime::Initialize( int worldRank, int worldSize )
                 {
                     std::cerr << "OneFLOW AUTO backend skipped "
                               << AccelBackendKindName( candidate ) << ": "
-                              << error.what() << "\\n";
+                              << error.what() << "\n";
                 }
             }
         }
@@ -205,10 +205,10 @@ void AccelRuntime::Initialize( int worldRank, int worldSize )
 
     if ( context.worldRank == 0 )
     {
-        std::cout << "OneFLOW compute backend: " << backend->Name() << "\\n";
+        std::cout << "OneFLOW compute backend: " << backend->Name() << "\n";
         std::cout << "OneFLOW multi-device context: "
                   << ( context.multiDeviceEnabled ? "enabled" : "disabled" )
-                  << "\\n";
+                  << "\n";
     }
 }
 
