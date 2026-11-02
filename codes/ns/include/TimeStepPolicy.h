@@ -54,7 +54,9 @@ Real CellTimeStepFromSpectrum(
 // @doc-algorithm spectral-radius
 // @doc-stage harmonic-combine
 // @doc-pure
-// @doc-formula dt <- dt * dt_vis / (dt + dt_vis)
+// @doc-formula dt = dt_inv * dt_vis / (dt_inv + dt_vis)
+// Harmonic-type combine of inviscid and viscous local time steps.
+// See doc/source/numerical/combine_inv_vis_timestep.rst.
 Real CombineInvAndVisTimeStep(
     Real invTimeStep, Real visTimeStep );
 

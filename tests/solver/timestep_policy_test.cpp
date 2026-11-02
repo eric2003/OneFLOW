@@ -157,3 +157,26 @@ TEST( TimeStepPolicy, ViscousFaceSpectralRadiusModel3ScalesWithAreaSquared )
     const Real b = ViscousFaceSpectralRadiusModel3( 1.0, 100.0, 2.0 );
     EXPECT_NEAR( b, 4.0 * a, 1.0e-12 );
 }
+
+// Intermediate: CombineInvAndVisTimeStep on a dt_inv grid (dt_vis fixed).
+TEST( TimeStepPolicy, CombineInvAndVisTimeStepCurveMatchesClosedForm )
+{
+    const Real dtVis = 2.0;
+    const Real dtInvs[] = { 0.5, 1.0, 2.0, 3.0, 4.0, 8.0 };
+    for ( Real dtInv : dtInvs )
+    {
+        EXPECT_NEAR(
+            CombineInvAndVisTimeStep( dtInv, dtVis ),
+            dtInv * dtVis / ( dtInv + dtVis ),
+            1.0e-12 );
+    }
+}
+
+TEST( TimeStepPolicy, CombineInvAndVisTimeStepIsBoundedByMin )
+{
+    // Combined step is strictly less than each side when both positive.
+    const Real c = CombineInvAndVisTimeStep( 3.0, 5.0 );
+    EXPECT_LT( c, 3.0 );
+    EXPECT_LT( c, 5.0 );
+    EXPECT_NEAR( c, 1.875, 1.0e-12 );
+}

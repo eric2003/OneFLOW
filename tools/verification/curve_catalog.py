@@ -878,6 +878,51 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+        TheoryEntry(
+            id="combine_inv_vis_timestep",
+            family="mean-flow",
+            genus="NS-spectrum",
+            section="time-step / inviscid-viscous combine",
+            title="Harmonic combine of inviscid and viscous time steps",
+            role_tags=("time-step", "CFL"),
+            formula_plain=(
+                "dt = dt_inv * dt_vis / (dt_inv + dt_vis)\n"
+                "Harmonic-type bound: limited by the stiffer (smaller) side"
+            ),
+            formula_latex=(
+                r"\Delta t=\frac{\Delta t_{\mathrm{inv}}\Delta t_{\mathrm{vis}}}"
+                r"{\Delta t_{\mathrm{inv}}+\Delta t_{\mathrm{vis}}}"
+            ),
+            principle=(
+                "After separate inviscid and viscous Delta-t estimates, combine "
+                "so either stiff channel reduces the final step. Equivalent to "
+                "parallel resistors / harmonic mean scaled by 1/2 when equal."
+            ),
+            background=(
+                "Pure API CombineInvAndVisTimeStep in TimeStepPolicy. Upstream: "
+                "CellTimeStepFromSpectrum on inviscid and viscous spectra."
+            ),
+            references=(
+                "Standard CFD local time-step practice; OneFLOW TimeStepPolicy",
+                "doc/source/numerical/combine_inv_vis_timestep.rst",
+            ),
+            csv_relpath="tools/verification/data/combine_inv_vis_timestep_theory.csv",
+            plot_module="plot_combine_inv_vis_timestep",
+            pure_apis=("CombineInvAndVisTimeStep",),
+            source_relpaths=(
+                "codes/ns/include/TimeStepPolicy.h",
+                "codes/ns/src/TimeStepPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/combine_inv_vis_timestep.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "dt = dtInv * dtVis / (dtInv + dtVis);\n"
+            ),
+            proves="Harmonic combine algebra vs pure API on a dt_inv grid.",
+            does_not_prove="Optimal CFL on a case mesh or spectrum accuracy.",
+        ),
+
         TheoryEntry(
             id="viscous_spectral_radius_model3",
             family="mean-flow",
