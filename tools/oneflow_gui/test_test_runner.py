@@ -424,7 +424,7 @@ class TestRunnerCommandTest(unittest.TestCase):
         self.assertIn("CTest cases: 3 run, 2 passed, 0 failed, 1 skipped.", report)
 
     def test_final_status_includes_command_and_framework_case_counts(self) -> None:
-        report = "\\n".join([
+        report = "\n".join([
             "Test command summary:",
             "  Total: 8",
             "  Passed: 5",
@@ -444,8 +444,8 @@ class TestRunnerCommandTest(unittest.TestCase):
     def test_final_status_without_case_summary_keeps_command_counts(self) -> None:
         status = format_final_test_status(
             True,
-            "Test command summary:\\n  Total: 2\\n  Passed: 2\\n"
-            "  Failed: 0\\n  Not run: 0",
+            "Test command summary:\n  Total: 2\n  Passed: 2\n"
+            "  Failed: 0\n  Not run: 0",
         )
         self.assertEqual(
             status,
