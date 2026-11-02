@@ -7,6 +7,7 @@ geometry JSON scenarios into a small, Qt-independent summary model.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import ast
 import json
 import re
 from pathlib import Path, PureWindowsPath
@@ -209,6 +210,7 @@ _EVIDENCE_KINDS = {
     "output_manifest",
     "residual_baseline",
     "analytical_reference",
+    "python_test",
 }
 
 
@@ -452,6 +454,33 @@ def _linked_test_source_path(scope: str) -> str | None:
     return None
 
 
+def _python_test_source_path(scope: str) -> str | None:
+    """Extract a Python test source path from an evidence scope."""
+    source_path = scope.split(";", 1)[0].strip()
+    return source_path if source_path.endswith(".py") else None
+
+
+def _has_python_test_declaration(source: str, reference: str) -> bool:
+    """Check a unittest class/method declaration without importing the module."""
+    suite, separator, test_name = reference.partition(".")
+    if not separator or not suite or not test_name or "." in test_name:
+        return False
+    try:
+        module = ast.parse(source)
+    except SyntaxError:
+        return False
+    return any(
+        isinstance(node, ast.ClassDef)
+        and node.name == suite
+        and any(
+            isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and member.name == test_name
+            for member in node.body
+        )
+        for node in module.body
+    )
+
+
 def resolve_contract_evidence(
     repository_root: Path,
     summary: ContractSummary,
@@ -467,7 +496,9 @@ def resolve_contract_evidence(
         ):
             path_reference = False
         source_path = (
-            _linked_test_source_path(item.scope)
+            _python_test_source_path(item.scope)
+            if item.kind == "python_test"
+            else _linked_test_source_path(item.scope)
             if item.kind in ("linked_test", "google_test")
             else None
         )
@@ -490,6 +521,29 @@ def resolve_contract_evidence(
                     diagnostic=f"missing repository file: {relative}",
                 )
             )
+            continue
+
+        if item.kind == "python_test":
+            try:
+                source = path.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError) as exc:
+                results.append(
+                    EvidenceResolution(
+                        item, "stale", str(path), f"cannot read Python test source: {exc}"
+                    )
+                )
+                continue
+            if not _has_python_test_declaration(source, item.reference):
+                results.append(
+                    EvidenceResolution(
+                        item,
+                        "stale",
+                        str(path),
+                        f"Python unittest declaration not found: {item.reference}",
+                    )
+                )
+                continue
+            results.append(EvidenceResolution(item, "resolved", str(path)))
             continue
 
         if source_reference:
@@ -702,6 +756,35 @@ def validate_contract_summaries(
                         f"{summary.id}: cannot validate residual baseline "
                         f"{case_data.residual_baseline}: {exc}"
                     )
+        for item in summary.evidence:
+            if item.kind != "python_test":
+                continue
+            source_path_reference = _python_test_source_path(item.scope)
+            if source_path_reference is None:
+                issues.append(
+                    f"{summary.id}: Python test evidence requires a .py source path"
+                )
+                continue
+            try:
+                source_path = _relative_path(repository_root, source_path_reference)
+            except ValueError as exc:
+                issues.append(f"{summary.id}: {exc}")
+                continue
+            if not source_path.is_file():
+                continue
+            try:
+                source = source_path.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError) as exc:
+                issues.append(
+                    f"{summary.id}: cannot read Python test source "
+                    f"{source_path_reference}: {exc}"
+                )
+                continue
+            if not _has_python_test_declaration(source, item.reference):
+                issues.append(
+                    f"{summary.id}: Python unittest declaration not found: "
+                    f"{item.reference} in {source_path_reference}"
+                )
         for item in summary.evidence:
             if item.kind not in ("linked_test", "google_test"):
                 continue
