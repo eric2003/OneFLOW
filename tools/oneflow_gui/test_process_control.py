@@ -67,7 +67,7 @@ class ProcessControlTest(unittest.TestCase):
 
     def test_terminate_and_reap_waits_for_direct_child(self) -> None:
         process = Mock()
-        process.poll.side_effect = [None, 0]
+        process.poll.side_effect = [None, None, 0]
         process.wait.return_value = 0
 
         self.assertTrue(terminate_and_reap(process, platform_name="nt"))
