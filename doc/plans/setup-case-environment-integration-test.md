@@ -1241,3 +1241,17 @@ To distinguish full `TeardownCase()` from the narrower setup rollback, the test 
 R1 is advanced from the earlier source-only boundary review to a concrete production integration test and shared link target. The remaining acceptance gaps are cleanup failure injection at individual solver/device release points, multi-rank MPI execution, successful consecutive full `SimuImp` cases, and numerical regression validation. The new static target also changes the executable's compilation/link boundary and therefore needs Windows and Linux CI scrutiny.
 
 No local build or CTest was run here. The user's 1096/1096 report predates these changes and must not be represented as validation of this slice.
+
+## Follow-up: verify typed control values and materialized case outputs
+
+Inspected `hexin` HEAD `08795cabafc7d6eb54f57b1140c0ea0d0477da26`. The user reports 1126/1126 local tests passing on the pre-change baseline; that result does not validate this follow-up.
+
+Extended `SuccessfulCasesRemainIsolatedWithinOneProcess` in `tests/main/simu_imp_case_lifecycle_integration_test.cpp`:
+
+- Each temporary case now declares a different integer `dimension` in its real `script/control.txt` input.
+- The registered `ToyModel` task reads both `case_marker` and `dimension` from `RequireGlobalDataBase()` while the production case is executing. The expected values are checked in command-line order (`first_case/2`, then `second_case/3`). This makes the test assert typed control-database ingestion rather than only a string marker.
+- After each `RunCase()`, the test checks for `log/database.log` and `results/io_paths.txt`, in addition to the existing assertions for case-state cleanup and process-runtime continuity.
+
+The exercised path is `SimuImp::RunCase() -> PreProcess() -> InitSimu() -> SetupCaseEnvironment() -> InitializeCaseConfiguration() -> ReadControlInfo(caseDir) -> ReadCaseIOSettings() -> ApplyCaseIOSettings()`, followed by task resolution/execution and `PostProcess() -> TeardownCase()`. The test uses the production runtime object collection; it does not reimplement the control parser or path application.
+
+This is stronger production configuration evidence, but it is still a test implementation awaiting execution on the user's Windows/MSVC checkout. It does not run a numerical solver, validate CFD accuracy, or exercise multi-rank MPI. R1 remains Partial until the focused target and full suite pass on this exact revision and the remaining teardown failure boundaries are assessed.
