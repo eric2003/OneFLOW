@@ -311,6 +311,15 @@ they create a new process group and use `taskkill /PID <pid> /T /F` to stop the
 process tree. The Windows command is invoked with an argument list, never
 through a shell.
 
+The shared `terminate_and_reap` operation also defines the shutdown
+sequence: request process-tree termination, wait for the direct child, retry
+tree termination if the wait times out, and finally kill/reap the direct child
+as a last resort. The GUI test worker, Case Database runner, and workflow
+runner use this same escalation policy. This prevents each caller from
+silently implementing a different timeout or leaving an unreaped direct child.
+The process-tree helper itself remains a platform boundary; callers retain
+ownership of their task-specific result records and output presentation.
+
 This boundary matters for CFD regression: the Python regression runner can
 launch a shell command that in turn starts MPI and OneFLOW. Stopping only the
 Python process can leave those descendants running. The process-control
