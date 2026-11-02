@@ -232,3 +232,22 @@ Related documentation
 * :doc:`workbench_user_guide_zh` and ``tools/oneflow_gui/README.md`` describe current
   user-visible GUI behavior.
 
+
+
+Runtime consumer evidence: first audited slice
+--------------------------------------------
+
+The Qt-independent parameter_consumer_catalog.py records a small set of source-level reads checked against the current hexin source. It is an evidence index, not a complete static-analysis engine. Each record names the parameter key, repository-relative source path, consuming function, read expression, read timing, applicability, and a short behavior/evidence note.
+
+The initial audited keys are:
+
+* maxSteps — required read in Iteration::Init. It initializes the iteration limit; SimuIterState::Running applies it when iexitflag == 0.
+* time_integral — required reads in Ctrl::Init and NsCtrl::Init. These are distinct initialization paths, not duplicate declarations.
+* mach_ref — required read in NsCom::Init and used with gama_ref to derive const_cp.
+* vismodel — required read in VisModel::Init. The selected model subsequently gates viscous/turbulence validation and wall-distance behavior.
+* ptTol — lazy read through Tolerance::Init on the first Tolerance::GetTol call; it is not necessarily read during every startup path.
+* nmg — required read in MG::Init; values at or below one normalize the pre/post smoothing counts.
+
+The catalog distinguishes required, optional, and lazy read kinds. A key absent from this curated list is not classified as unused: it is simply not audited in this slice. Likewise, a direct database read proves a consumer exists, not that the parameter affects every run or that its numerical recommendation has been verified. Conditional applicability and downstream numerical effects must be traced separately.
+
+The focused unit tests verify case-insensitive lookup, multiple read sites, lazy-read classification, behavior notes, and the unknown-key boundary. The next extension should add consumer records only after checking the corresponding hexin implementation and should link them to task/model applicability and Formula & Knowledge evidence without inferring formulas from key names.
