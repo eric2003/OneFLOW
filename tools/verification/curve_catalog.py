@@ -880,6 +880,53 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+        TheoryEntry(
+            id="stokes_stress_pure_shear",
+            family="mean-flow",
+            genus="NS-viscous",
+            section="stress / Stokes tensor",
+            title="Stokes stress tensor (pure shear and bulk sample)",
+            role_tags=("viscous", "stress"),
+            formula_plain=(
+                "div*2/3 = (2/3)*(du/dx+dv/dy+dw/dz)\n"
+                "txx = mu*(2*du/dx - div*2/3), ...\n"
+                "txy = mu*(du/dy + dv/dx), ...\n"
+                "Pure shear du/dy=1: txy=mu"
+            ),
+            formula_latex=(
+                r"\tau_{ij}=\mu\left(\partial_i u_j+\partial_j u_i"
+                r"-\frac{2}{3}\delta_{ij}\nabla\cdot\mathbf{u}\right)"
+            ),
+            principle=(
+                "Newtonian Stokes stress for NS viscous fluxes. Pure shear "
+                "isolates off-diagonal viscosity; bulk strain exercises the "
+                "2/3 divergence correction."
+            ),
+            background=(
+                "Pure API StokesStressTensor in NsVisFluxPolicy. Downstream: "
+                "ProjectStressMomentumFlux, ViscousEnergyFlux."
+            ),
+            references=(
+                "Standard Newtonian fluid constitutive law; OneFLOW NsVisFluxPolicy",
+                "doc/source/numerical/stokes_stress_pure_shear.rst",
+            ),
+            csv_relpath="tools/verification/data/stokes_stress_pure_shear_theory.csv",
+            plot_module="plot_stokes_stress_pure_shear",
+            pure_apis=("StokesStressTensor",),
+            source_relpaths=(
+                "codes/ns/include/NsVisFluxPolicy.h",
+                "codes/ns/src/NsVisFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/stokes_stress_pure_shear.rst",
+            code_sketch=(
+                "// GATED SKETCH pure shear\n"
+                "txy = mu * (dudy + dvdx);\n"
+            ),
+            proves="Pure-shear txy=mu and bulk 4/3 sample vs pure API.",
+            does_not_prove="Full viscous face residual on a mesh.",
+        ),
+
         TheoryEntry(
             id="effective_thermal_conductivity",
             family="mean-flow",

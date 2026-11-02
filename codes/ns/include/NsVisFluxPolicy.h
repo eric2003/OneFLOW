@@ -7,6 +7,10 @@ BeginNameSpace( ONEFLOW )
 // @doc-algorithm stokes-stress
 // @doc-stage tensor
 // @doc-pure
+// @doc-algorithm viscous-stress
+// @doc-stage stokes-tensor
+// @doc-pure
+// @doc-formula tau_ij = mu*(dui/dxj+duj/dxi - (2/3) d_ij div u)
 void StokesStressTensor(
     Real viscosity,
     Real dudx, Real dudy, Real dudz,

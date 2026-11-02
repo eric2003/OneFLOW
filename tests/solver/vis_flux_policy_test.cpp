@@ -77,3 +77,43 @@ TEST( VisFluxPolicy, EffectiveThermalConductivityLinearInMut )
     const Real k1 = EffectiveThermalConductivity( 1.0, 1.0, 1.0, 1.0, 2.0 );
     EXPECT_NEAR( k1 - k0, 2.0, 1.0e-12 ); // + mut*invPrT*cp = 1*1*2
 }
+
+// Intermediate: StokesStressTensor pure shear on a viscosity grid.
+// Gradients: du/dy=1, all others 0 => txy=mu, normals 0.
+TEST( VisFluxPolicy, StokesStressTensorPureShearCurveMatchesClosedForm )
+{
+    const Real mus[] = { 0.1, 0.5, 1.0, 2.0, 5.0, 10.0 };
+    for ( Real mu : mus )
+    {
+        Real txx, tyy, tzz, txy, txz, tyz;
+        StokesStressTensor(
+            mu,
+            0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0,
+            txx, tyy, tzz, txy, txz, tyz );
+        EXPECT_NEAR( txy, mu, 1.0e-12 );
+        EXPECT_NEAR( txx, 0.0, 1.0e-12 );
+        EXPECT_NEAR( tyy, 0.0, 1.0e-12 );
+        EXPECT_NEAR( tzz, 0.0, 1.0e-12 );
+        EXPECT_NEAR( txz, 0.0, 1.0e-12 );
+        EXPECT_NEAR( tyz, 0.0, 1.0e-12 );
+    }
+}
+
+TEST( VisFluxPolicy, StokesStressTensorBulkStrainHasFourThirds )
+{
+    // Pure extension du/dx=1, others 0:
+    // divv = 1, divv*2/3 = 2/3
+    // txx = mu*(2 - 2/3) = mu*(4/3)
+    Real txx, tyy, tzz, txy, txz, tyz;
+    StokesStressTensor(
+        3.0,
+        1.0, 0.0, 0.0,
+        0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0,
+        txx, tyy, tzz, txy, txz, tyz );
+    EXPECT_NEAR( txx, 3.0 * ( 4.0 / 3.0 ), 1.0e-12 );
+    EXPECT_NEAR( tyy, 3.0 * ( 0.0 - two3rd ), 1.0e-12 );
+    EXPECT_NEAR( tzz, 3.0 * ( 0.0 - two3rd ), 1.0e-12 );
+}
