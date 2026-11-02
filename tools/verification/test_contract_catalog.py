@@ -176,6 +176,68 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\n".join(issues))
 
+    def test_rejects_case_dimension_outside_supported_range(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["dimension"] = 4
+
+        with self.assertRaisesRegex(ValueError, "dimension must be 1, 2, or 3"):
+            adapt_declared_contract(definition)
+
+    def test_rejects_non_finite_case_residual_tolerance(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["residual_absolute_tolerance"] = float("nan")
+
+        with self.assertRaisesRegex(ValueError, "finite and non-negative"):
+            adapt_declared_contract(definition)
+
+    def test_rejects_case_paths_that_escape_repository_root(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["input_paths"][0] = "../outside/control.txt"
+
+        with self.assertRaisesRegex(ValueError, "must stay within its declared root"):
+            adapt_declared_contract(definition)
+
+    def test_rejects_duplicate_case_output_declarations(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["comparison_outputs"].append(
+            definition["case"]["comparison_outputs"][0]
+        )
+
+        with self.assertRaisesRegex(ValueError, "comparison_outputs must not contain duplicate"):
+            adapt_declared_contract(definition)
+
     def test_adapts_rae2822_dependency_workflow_contract(self) -> None:
         definition_path = (
             self.repository_root

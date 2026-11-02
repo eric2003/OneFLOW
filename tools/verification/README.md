@@ -457,3 +457,25 @@ One record is written per launched process, with its exact argument vector,
 source case, working directory, revision, platform/configuration metadata,
 outcome, and checksummed output/log files. Dependency-blocked cases are kept
 in workflow run history and are not presented as process executions.
+
+
+## Case contract declaration invariants
+
+Case contract adaptation validates the declared setup before repository
+resolution: dimensions are restricted to 1-D, 2-D, or 3-D; iteration counts
+must be positive; residual tolerances must be finite and non-negative; and
+suite, case, baseline, input, output, and analytical-reference paths must be
+relative and remain within the repository namespace. Repeated path declarations
+are rejected rather than silently collapsed.
+
+These checks protect the contract boundary from malformed or ambiguous
+metadata. They do not validate the physical correctness of a case, execute the
+solver, or establish that expected output values are scientifically valid.
+The focused cases are part of the existing Python contract catalog test module,
+which is discovered by the Python test inventory and run by Python Tooling CI.
+
+Run:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```

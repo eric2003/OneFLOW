@@ -1198,3 +1198,36 @@ records. The Workbench test verifies that a two-step workflow is rendered as
 one invocation with both step records retained. This is a presentation and
 traceability improvement; it does not change workflow execution, scheduling,
 or the authoritative WorkflowRunRecord history.
+
+
+## 16. Case contract declaration integrity
+
+The first Case contract exposed a useful boundary: a versioned declaration is
+still untrusted input to the catalog. Before resolving repository files or
+presenting a case in the Workbench, the typed adapter now enforces these
+invariants:
+
+- dimension is exactly 1, 2, or 3;
+- maximum iteration count is a positive integer;
+- residual absolute tolerance is finite and non-negative (NaN and infinity
+  are invalid);
+- suite, case directory, residual baseline, input, comparison-output, and
+  analytical-reference paths are relative and contain no parent traversal;
+- each declared path list contains no duplicate entries.
+
+This is schema/domain validation, not solver validation. It prevents malformed
+metadata from being interpreted inconsistently across Windows and POSIX path
+semantics. The repository resolver still checks whether source-owned files
+exist, while the regression runner remains responsible for executing the
+solver and comparing generated results.
+
+The checks are covered by focused unit tests for unsupported dimensions,
+non-finite tolerance, path traversal, and duplicate output declarations.
+They run in the existing Python Tooling CI through the discovered
+tools.verification.test_contract_catalog module; no parallel runner or new
+CI execution path is introduced.
+
+The boundary follows a common secure-input practice: validate structure and
+domain invariants before resolving paths or acting on declarations, while
+keeping declaration validation, execution evidence, numerical verification,
+and physical validation as separate claims.

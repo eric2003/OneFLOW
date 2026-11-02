@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import ast
 import json
+import math
 import re
 from pathlib import Path, PureWindowsPath
 from typing import Any, Iterable
@@ -543,12 +544,24 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
         for field in required_case_strings:
             if not isinstance(raw_case.get(field), str) or not raw_case[field].strip():
                 raise ValueError(f"case.{field} must be a non-empty string")
-        for field in ("dimension", "max_steps"):
-            if not isinstance(raw_case.get(field), int) or isinstance(raw_case[field], bool) or raw_case[field] <= 0:
-                raise ValueError(f"case.{field} must be a positive integer")
+        dimension = raw_case.get("dimension")
+        if not isinstance(dimension, int) or isinstance(dimension, bool) or dimension not in (1, 2, 3):
+            raise ValueError("case.dimension must be 1, 2, or 3")
+        max_steps = raw_case.get("max_steps")
+        if not isinstance(max_steps, int) or isinstance(max_steps, bool) or max_steps <= 0:
+            raise ValueError("case.max_steps must be a positive integer")
         tolerance = raw_case.get("residual_absolute_tolerance")
-        if not isinstance(tolerance, (int, float)) or isinstance(tolerance, bool) or tolerance < 0:
-            raise ValueError("case.residual_absolute_tolerance must be non-negative")
+        if (
+            not isinstance(tolerance, (int, float))
+            or isinstance(tolerance, bool)
+            or not math.isfinite(tolerance)
+            or tolerance < 0
+        ):
+            raise ValueError(
+                "case.residual_absolute_tolerance must be finite and non-negative"
+            )
+        for field in ("suite", "path", "residual_baseline"):
+            _safe_relative_workflow_path(raw_case[field], f"case.{field}")
         case_arrays = {}
         for field in (
             "input_paths",
@@ -562,6 +575,10 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
             ):
                 raise ValueError(f"case.{field} must be an array of non-empty strings")
             case_arrays[field] = _non_empty_strings(values)
+            if len(set(case_arrays[field])) != len(case_arrays[field]):
+                raise ValueError(f"case.{field} must not contain duplicate paths")
+            for value in case_arrays[field]:
+                _safe_relative_workflow_path(value, f"case.{field} entry")
         if (
             not case_arrays["input_paths"]
             or not case_arrays["comparison_outputs"]
@@ -580,10 +597,10 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
             suite=raw_case["suite"].strip(),
             case_path=raw_case["path"].strip(),
             solver=raw_case["solver"].strip(),
-            dimension=raw_case["dimension"],
+            dimension=dimension,
             flow_model=raw_case["flow_model"].strip(),
             flux_scheme=raw_case["flux_scheme"].strip(),
-            max_steps=raw_case["max_steps"],
+            max_steps=max_steps,
             input_paths=case_arrays["input_paths"],
             comparison_outputs=case_arrays["comparison_outputs"],
             residual_outputs=case_arrays["residual_outputs"],
