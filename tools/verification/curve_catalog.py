@@ -998,18 +998,18 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             background=("Pure policy ApplyHartenEntropyFix; tests must match MAX semantics."),
             references=("Harten entropy fix; NsInvFluxPolicy tests",),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/harten_entropy_fix_theory.csv",
+            plot_module="plot_harten_entropy_fix",
             pure_apis=("ApplyHartenEntropyFix",),
             source_relpaths=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/index.rst",
+            doc_relpath="doc/source/numerical/harten_entropy_fix.rst",
             code_sketch=(
                 "// GATED SKETCH - mirror production MAX in tests.\n"
             ),
-            proves="Entropy-fix pure policy tests.",
+            proves="Harten floor algebra vs ApplyHartenEntropyFix on |vn| grid.",
             does_not_prove="Full Roe flux shock-capturing quality.",
         ),
     ]

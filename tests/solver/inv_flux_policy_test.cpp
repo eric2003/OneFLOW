@@ -352,3 +352,39 @@ TEST( InvFluxPolicy, FMSplit4NegativeIpnIsMirror )
         - FMSplit4( -0.5, beta, 1.0 ),
         1.0e-12 );
 }
+
+// Intermediate: Harten floors |lambda| on an |vn| grid (enabled).
+// Ref: |vn+c|=2, |vn-c|=1.5, centropy1=0.5, centropy2=0.25 => maxEig=2, m1=1, m2=0.5.
+TEST( InvFluxPolicy, HartenEntropyFixCurveMatchesClosedForm )
+{
+    const Real absVnPlusC = 2.0;
+    const Real absVnMinusC = 1.5;
+    const Real c1 = 0.5;
+    const Real c2 = 0.25;
+    const Real absVns[] = { 0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 3.0 };
+    for ( Real absVn : absVns )
+    {
+        Real f1, f2, f3;
+        ApplyHartenEntropyFix(
+            absVn, absVnPlusC, absVnMinusC, c1, c2, true, f1, f2, f3 );
+        const Real maxEig = MAX( absVnPlusC, absVnMinusC );
+        const Real m1 = maxEig * c1;
+        const Real m2 = maxEig * c2;
+        EXPECT_NEAR( f1, MAX( m1, absVn ), 1.0e-12 );
+        EXPECT_NEAR( f2, MAX( m2, absVnPlusC ), 1.0e-12 );
+        EXPECT_NEAR( f3, MAX( m2, absVnMinusC ), 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, HartenEntropyFixDisabledLeavesInputs )
+{
+    const Real absVns[] = { 0.0, 0.1, 1.0, 5.0 };
+    for ( Real absVn : absVns )
+    {
+        Real f1, f2, f3;
+        ApplyHartenEntropyFix( absVn, 2.0, 1.5, 0.5, 0.25, false, f1, f2, f3 );
+        EXPECT_DOUBLE_EQ( f1, absVn );
+        EXPECT_DOUBLE_EQ( f2, 2.0 );
+        EXPECT_DOUBLE_EQ( f3, 1.5 );
+    }
+}
