@@ -86,6 +86,17 @@ class ProjectTemplatesTest(unittest.TestCase):
             self.assertTrue((project.root / "README.md").is_file())
             self.assertFalse((project.root / "autotest").exists())
 
+    def test_gb2312_parameter_copy_preserves_original_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "repository" / "test" / "cfd" / "plateuns2dslau2"
+            (source / "script").mkdir(parents=True)
+            (source / "script" / "control.txt").write_bytes(b'"cfd.txt";\\n')
+            original = "int maxSteps = 50; // 总模拟步数\\r\\n".encode("gb18030")
+            (source / "script" / "cfd.txt").write_bytes(original)
+            project = create_project(root / "repository", "laminar_flat_plate", "Plate", root / "projects")
+            self.assertEqual((project.root / "script" / "cfd.txt").read_bytes(), original)
+
     def test_copies_template_without_modifying_source(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

@@ -1,2 +1,0 @@
-grid/bcRegionMap.txt
-grid/rae2822_2d.ofl
