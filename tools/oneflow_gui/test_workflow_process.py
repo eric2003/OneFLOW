@@ -50,6 +50,39 @@ class WorkflowProcessTest(unittest.TestCase):
         self.assertEqual(result.status, "cancelled")
         self.assertNotEqual(result.return_code, 0)
 
+    def test_cancellation_terminates_descendant_processes(self) -> None:
+        started_marker = self._cwd / "child-started.txt"
+        survived_marker = self._cwd / "child-survived.txt"
+        child_code = (
+            "import pathlib, time; "
+            f"pathlib.Path({str(started_marker)!r}).write_text('ready'); "
+            "time.sleep(1); "
+            f"pathlib.Path({str(survived_marker)!r}).write_text('alive')"
+        )
+        parent_code = (
+            "import pathlib, subprocess, sys, time\\n"
+            f"subprocess.Popen([sys.executable, '-c', {child_code!r}])\\n"
+            f"started = pathlib.Path({str(started_marker)!r})\\n"
+            "deadline = time.monotonic() + 5\\n"
+            "while not started.exists() and time.monotonic() < deadline:\\n"
+            "    time.sleep(0.01)\\n"
+            "print('child-started', flush=True)\\n"
+            "time.sleep(30)\\n"
+        )
+        start = time.monotonic()
+        result = run_process(
+            [sys.executable, "-c", parent_code],
+            cwd=self._cwd,
+            on_output=lambda line: None,
+            is_cancelled=lambda: (
+                started_marker.is_file() and time.monotonic() - start > 0.2
+            ),
+        )
+
+        self.assertEqual(result.status, "cancelled")
+        time.sleep(1.2)
+        self.assertFalse(survived_marker.exists())
+
     def test_windows_process_suppresses_console_window(self) -> None:
         process = MagicMock()
         process.stdout = io.StringIO("")
@@ -75,7 +108,7 @@ class WorkflowProcessTest(unittest.TestCase):
             )
 
         self.assertEqual(result.status, "succeeded")
-        self.assertEqual(popen.call_args.kwargs["creationflags"], 0x08000000)
+        self.assertEqual(popen.call_args.kwargs["creationflags"], 0x08000200)
 
     def test_empty_command_is_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "non-empty string arguments"):
