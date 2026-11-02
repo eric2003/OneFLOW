@@ -268,3 +268,17 @@ template source. The case's simutask = "Solve" is classified as a CFD/flow
 project by project discovery.
 
 When the laminar template is selected, the suggested project name is `LaminarFlatPlate`. If that destination already exists, the dialog asks for explicit confirmation before replacement. Replacement removes the complete existing project directory and copies a fresh template; generated results and other user changes in the old directory are permanently discarded. Declining the confirmation leaves the existing project untouched.
+
+## Unified parameter and runtime-consumer view
+
+The Project Window builds a read-only Shared / CFD / Grid / Other tree from the parameter files listed by `control.txt`, preserving manifest order, declaration order, and source paths. `control.txt` remains a manifest and is not shown as a parameter. The last declaration is effective; earlier declarations remain visible as overridden child rows. Double-clicking a declaration opens its original parameter file in the configured source editor.
+
+A curated runtime-consumer child is shown for keys whose C++ read sites have been checked in `parameter_consumer_catalog.py`. The first slice covers `maxSteps`, `time_integral`, `mach_ref`, `vismodel`, `ptTol`, and `nmg`. Other keys are marked `Not audited`; absence from this index does not mean unused. Read-site evidence is not a claim of universal applicability or numerical validation.
+
+Run the focused tests with:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_parameter_model
+python -m unittest tools.oneflow_gui.test_parameter_consumer_catalog
+python -m unittest tools.oneflow_gui.test_project_window
+```
