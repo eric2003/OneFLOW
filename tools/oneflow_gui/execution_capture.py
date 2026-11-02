@@ -34,8 +34,8 @@ def _repository_name(remote: str) -> str:
     value = remote.strip()
     if not value:
         return ""
-    value = re.sub(r"\\.git$", "", value)
-    match = re.search(r"(?:github\\.com[:/])([^/]+/[^/]+)$", value)
+    value = re.sub(r"\.git$", "", value)
+    match = re.search(r"(?:github\.com[:/])([^/]+/[^/]+)$", value)
     return match.group(1) if match else ""
 
 
@@ -63,14 +63,7 @@ def _unittest_source_path(command: TestCommand) -> str:
 def is_python_unittest_command(command: TestCommand) -> bool:
     """Return true only for commands explicitly invoking unittest."""
     arguments = command.arguments
-    return (
-        len(arguments) >= 3
-        and arguments[1:3] == ("-m", "unittest")
-    ) or (
-        len(arguments) >= 4
-        and arguments[1:3] == ("-m", "unittest")
-        and "discover" in arguments[3:]
-    )
+    return len(arguments) >= 3 and arguments[1:3] == ("-m", "unittest")
 
 
 def capture_python_unittest_execution(
@@ -92,7 +85,7 @@ def capture_python_unittest_execution(
     artifact_root = Path(artifact_directory)
     artifact_root.mkdir(parents=True, exist_ok=True)
     log_path = artifact_root / (record_id + ".log")
-    log_bytes = ("\\n".join(output_lines) + ("\\n" if output_lines else "")).encode(
+    log_bytes = ("\n".join(output_lines) + ("\n" if output_lines else "")).encode(
         "utf-8"
     )
     log_path.write_bytes(log_bytes)
