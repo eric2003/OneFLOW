@@ -75,11 +75,13 @@ class WorkflowProcessTest(unittest.TestCase):
             cwd=self._cwd,
             on_output=lambda line: None,
             is_cancelled=lambda: (
-                started_marker.is_file() and time.monotonic() - start > 0.2
+                (started_marker.is_file() and time.monotonic() - start > 0.2)
+                or time.monotonic() - start > 5
             ),
         )
 
         self.assertEqual(result.status, "cancelled")
+        self.assertTrue(started_marker.is_file())
         time.sleep(1.2)
         self.assertFalse(survived_marker.exists())
 
