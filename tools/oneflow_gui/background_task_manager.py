@@ -102,20 +102,18 @@ def request_background_stop(root: Path, task_id: str) -> None:
     """Ask the host to stop its active process using a persistent request file."""
     registry = BackgroundTaskRegistry(root)
     stop_file = registry.records_directory / f"{task_id}.stop"
-    task = registry.update(
-        task_id,
-        lambda current: (
-            replace(
-                current,
-                status="stopping",
-                updated_at=utc_now(),
-                message="Stop requested by the user.",
-            )
-            if current.status in ACTIVE_STATUSES
-            else current
-        ),
-    )
-    if task.status in ACTIVE_STATUSES:
+
+    def request_stop(current):
+        if current.status not in ACTIVE_STATUSES:
+            return current
         stop_file.write_text(utc_now() + "\n", encoding="utf-8")
-    else:
+        return replace(
+            current,
+            status="stopping",
+            updated_at=utc_now(),
+            message="Stop requested by the user.",
+        )
+
+    task = registry.update(task_id, request_stop)
+    if task.status not in ACTIVE_STATUSES:
         stop_file.unlink(missing_ok=True)
