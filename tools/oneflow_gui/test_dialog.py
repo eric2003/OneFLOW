@@ -28,7 +28,7 @@ from PySide6.QtWidgets import (
 from .executable_discovery import executable_candidates
 from .case_repository import load_cases
 from .models import CaseDefinition
-from .process_control import process_group_options, terminate_process_tree
+from .process_control import process_group_options, terminate_and_reap, terminate_process_tree
 from .runner import create_run_id
 from .user_data_paths import UserDataPaths
 from .task_types import TaskRunResult, TaskRunStatus, TaskType, task_definition
@@ -117,7 +117,8 @@ class TestCommandWorker(QThread):
                                 command_output.append(output_line)
                                 self.output_line.emit(output_line)
                                 if self._cancel.is_set():
-                                    terminate_process_tree(process)
+                                    terminate_and_reap(process)
+                                    break
                         return_code = process.wait()
                     finally:
                         with self._process_lock:
