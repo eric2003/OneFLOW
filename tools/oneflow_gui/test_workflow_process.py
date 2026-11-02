@@ -61,7 +61,7 @@ class WorkflowProcessTest(unittest.TestCase):
         )
         parent_code = (
             "import pathlib, subprocess, sys, time\n"
-            f"subprocess.Popen([sys.executable, '-c', {child_code!r}])\n"
+            f"subprocess.Popen([sys.executable, '-S', '-c', {child_code!r}])\n"
             f"started = pathlib.Path({str(started_marker)!r})\n"
             "deadline = time.monotonic() + 5\n"
             "while not started.exists() and time.monotonic() < deadline:\n"
@@ -71,7 +71,7 @@ class WorkflowProcessTest(unittest.TestCase):
         )
         start = time.monotonic()
         result = run_process(
-            [sys.executable, "-c", parent_code],
+            [sys.executable, "-S", "-c", parent_code],
             cwd=self._cwd,
             on_output=lambda line: None,
             is_cancelled=lambda: (
