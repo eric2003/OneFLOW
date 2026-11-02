@@ -90,7 +90,7 @@ Contract Workbench 展示证据声明和验证范围，不负责执行求解器�
 
 **Project > Run History...** 查看运行状态、日志和记录；删除运行记录或清理历史不会删除运行产物。**Background Tasks...** 查看、停止或打开后台任务结果。退出时如果仍有活动任务，Workbench 会询问如何处理。
 
-默认用户数据目录是 %USERPROFILE%\.oneflow。设置 ONEFLOW_HOME 可将其移动到其他位置。设置、工作区定义、工作流定义、运行历史、日志、后台任务状态、网格编辑器项目和隔离运行目录都保存在用户数据树中；它与源码仓库分开。
+默认用户数据目录是 Windows 的 %USERPROFILE%\.oneflow，Linux 的 $HOME/.oneflow。设置 ONEFLOW_HOME 可将其移动到其他位置。设置、工作区定义、工作流定义、运行历史、日志、后台任务状态、网格编辑器项目和隔离运行目录都保存在用户数据树中；它与源码仓库分开。GUI 启动的 Python unittest 命令仍从源码根目录运行，以保证模块导入和相对路径语义不变；其执行日志写入 test-runs/logs，执行证据写入 verification/execution-records.jsonl。临时测试夹具使用系统临时目录或显式隔离工作区，不应在源码树留下运行产物。
 
 架构和当前边界
 --------------
