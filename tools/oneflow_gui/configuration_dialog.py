@@ -103,7 +103,6 @@ class ConfigurationDialog(QDialog):
         self.source_editor_combo.addItem("Visual Studio 2026", "vs2026")
         self.source_editor_combo.addItem("Visual Studio 2022", "vs2022")
         self.source_editor_combo.addItem("Notepad++", "notepad++")
-        self.source_editor_combo.addItem("System default application", "system")
         self.source_editor_combo.setCurrentIndex(max(0, self.source_editor_combo.findData(settings.source_editor)))
         self.source_editor_combo.setToolTip("Used when opening source, documentation, and declared test files.")
         form.addRow("Source file editor", self.source_editor_combo)

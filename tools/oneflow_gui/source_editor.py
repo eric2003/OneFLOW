@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 from typing import Sequence
 
-EDITOR_CHOICES = ("vscode", "vs2026", "vs2022", "notepad++", "system")
+EDITOR_CHOICES = ("vscode", "vs2026", "vs2022", "notepad++")
 
 def _existing_file(candidates: Sequence[Path]) -> Path | None:
     return next((path.resolve() for path in candidates if path.is_file()), None)
@@ -25,8 +25,6 @@ def _visual_studio_executable(editor: str) -> Path | None:
 def resolve_editor_executable(editor: str) -> Path:
     if editor not in EDITOR_CHOICES:
         raise ValueError(f"Unsupported source editor: {editor}")
-    if editor == "system":
-        raise ValueError("Choose an explicit editor for source files.")
     if editor in ("vs2026", "vs2022"):
         resolved = _visual_studio_executable(editor) if os.name == "nt" else None
     elif editor == "vscode":

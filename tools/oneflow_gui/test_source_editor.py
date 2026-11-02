@@ -32,10 +32,6 @@ class SourceEditorTest(unittest.TestCase):
             with self.assertRaisesRegex(FileNotFoundError, "Visual Studio Code was not found"):
                 resolve_editor_executable("vscode")
 
-    def test_system_default_is_not_accepted_for_source_code(self):
-        with self.assertRaisesRegex(ValueError, "explicit editor"):
-            resolve_editor_executable("system")
-
     def test_missing_file_is_rejected_before_launch(self):
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaisesRegex(FileNotFoundError, "no longer exist"):

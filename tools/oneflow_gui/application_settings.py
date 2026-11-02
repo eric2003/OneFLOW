@@ -50,7 +50,7 @@ class ApplicationSettings:
         if run_mode not in {"single_case", "multi_case", "dependency_workflow"}:
             run_mode = "single_case"
         source_editor = data.get("source_editor", "vscode")
-        if source_editor not in {"vscode", "vs2026", "vs2022", "notepad++", "system"}:
+        if source_editor not in {"vscode", "vs2026", "vs2022", "notepad++"}:
             source_editor = "vscode"
         return cls(Path(repository).expanduser(), configuration, executable, run_mode, source_editor)
 

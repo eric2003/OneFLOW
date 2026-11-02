@@ -292,6 +292,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             )
             dialog.contract_list.setCurrentRow(contract_index)
             self.assertTrue(dialog.open_tests_button.isEnabled())
+            desktop_services = Mock()
             expected_paths = (
                 "tools/oneflow_gui/test_process_control.py",
                 "tools/oneflow_gui/test_runner_process.py",
@@ -304,16 +305,24 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 selection.exec.return_value = 1
                 selection.selected_paths = expected_paths
                 with patch(
-                    "tools.oneflow_gui.contract_workbench_dialog.ApplicationSettings.load",
-                    return_value=Mock(source_editor="vs2026"),
-                ), patch(
-                    "tools.oneflow_gui.contract_workbench_dialog.open_source_files"
-                ) as open_files:
+                    "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices",
+                    desktop_services,
+                ):
                     dialog.open_tests_button.click()
-            open_files.assert_called_once_with(
-                "vs2026",
-                tuple((self.repository_root / item).resolve() for item in expected_paths),
-                working_directory=self.repository_root,
+            opened_paths = {
+                Path(call.args[0].toLocalFile()).resolve()
+                for call in desktop_services.openUrl.call_args_list
+            }
+            self.assertEqual(
+                opened_paths,
+                {
+                    (self.repository_root / path).resolve()
+                    for path in (
+                        "tools/oneflow_gui/test_process_control.py",
+                        "tools/oneflow_gui/test_runner_process.py",
+                        "tools/oneflow_gui/test_workflow_process.py",
+                    )
+                },
             )
         finally:
             dialog.close()
