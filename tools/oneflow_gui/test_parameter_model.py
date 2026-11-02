@@ -122,7 +122,7 @@ class ParameterModelTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             documents = self._documents(root, {
-                "grid.txt": "Real gridTrans[3] = {0.0, 0.0, 0.0};\\ndouble vendorScale = 2.0;\\n",
+                "grid.txt": "Real gridTrans[3] = {0.0, 0.0, 0.0};\ndouble vendorScale = 2.0;\n",
             })
             model = ParameterModel.from_documents(documents)
 
@@ -134,6 +134,7 @@ class ParameterModelTest(unittest.TestCase):
             self.assertIn("not supported", model.unsupported_declarations[1].reason)
             self.assertEqual(model.unsupported_declarations[0].line_number, 1)
             self.assertEqual(model.unsupported_declarations[1].line_number, 2)
+
     def test_without_task_unknown_keys_stay_unclassified(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
