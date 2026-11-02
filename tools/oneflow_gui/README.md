@@ -193,6 +193,8 @@ suite:
 - `tools.oneflow_gui.test_test_inventory`: C++/Python test discovery,
   explicit scenario linkage, and the rule that discovery never fabricates
   execution results.
+- `tools.oneflow_gui.test_project_window`: project parameter-file listing,
+  runtime-file de-duplication, and configured source-editor launch behavior.
 
 The architecture and rationale are documented in
 [OneFLOW Testing Architecture](../../doc/plans/testing-architecture.md).
@@ -209,6 +211,7 @@ python -m unittest tools.oneflow_gui.test_application_settings
 python -m unittest tools.oneflow_gui.test_workspace_workflow_adapter
 python -m unittest tools.oneflow_gui.test_workspace_repository
 python -m unittest tools.oneflow_gui.test_workspace_dialog
+python -m unittest tools.oneflow_gui.test_project_window
 python -m unittest tools.oneflow_gui.test_workflow_repository
 python -m unittest tools.oneflow_gui.test_workflow_execution
 python -m unittest tools.oneflow_gui.test_workflow_dependencies
