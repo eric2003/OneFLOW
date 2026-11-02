@@ -182,13 +182,14 @@ def _display_group_key(entry: ParameterEntry) -> tuple[ParameterDomain, str]:
 
 
 _DECLARATION_HEAD = re.compile(
-    r"^[ \\t]*(?P<type>[A-Za-z_][A-Za-z0-9_]*)[ \\t]+"
-    r"(?P<name>[A-Za-z_][A-Za-z0-9_]*)(?P<shape>[ \\t]*\\[[^\\]\\r\\n]*\\])?[ \\t]*=",
+    r"^[ \t]*(?P<type>[A-Za-z_][A-Za-z0-9_]*)[ \t]+"
+    r"(?P<name>[A-Za-z_][A-Za-z0-9_]*)(?P<shape>[ \t]*\[[^\]\r\n]*\])?[ \t]*=",
     re.MULTILINE,
 )
 
 
-class ParameterModel:    """Combine declarations from multiple files into one logical parameter view.
+class ParameterModel:
+    """Combine declarations from multiple files into one logical parameter view.
 
     The source files remain authoritative and are never rewritten by this model.
     Repeated names follow the runtime database's last-declaration-wins behavior;
