@@ -40,6 +40,7 @@ from .test_runner import (
     build_python_test_commands,
     build_regression_command,
     format_command_arguments,
+    format_final_test_status,
     oneflow_executable_path,
     stage_regression_tests,
     summarize_test_output,
@@ -568,7 +569,7 @@ class TestRunnerDialog(QDialog):
         if self._run_database_after_commands and passed:
             self.log_view.appendPlainText("Unit/regression commands passed; starting Development Tests.")
             return
-        self.log_view.appendPlainText("FINAL STATUS: PASS" if passed else "FINAL STATUS: FAIL")
+        self.log_view.appendPlainText(format_final_test_status(passed, message))
 
     def _worker_finished(self) -> None:
         self.run_button.setEnabled(True)
