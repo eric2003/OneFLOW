@@ -444,3 +444,31 @@ TEST( InvFluxPolicy, RoeDissipationWaveCoefficientXi2IndependentOfAbsVn )
     EXPECT_DOUBLE_EQ( x2a, x2b );
     EXPECT_NE( x1a, x1b );
 }
+
+// Intermediate: RoeDissipationCouplingTerms on a Delta-H grid.
+// Ref: dc=2, c^2=4, xi1=0.5, xi2=0.25.
+TEST( InvFluxPolicy, RoeDissipationCouplingTermsCurveMatchesClosedForm )
+{
+    const Real dc = 2.0;
+    const Real c2 = 4.0;
+    const Real xi1 = 0.5;
+    const Real xi2 = 0.25;
+    const Real dhs[] = { -4.0, -1.0, 0.0, 0.5, 1.0, 2.0, 4.0 };
+    for ( Real dh : dhs )
+    {
+        Real t1, t2;
+        RoeDissipationCouplingTerms( dh, dc, c2, xi1, xi2, t1, t2 );
+        EXPECT_NEAR( t1, dh * xi1 + dc * xi2, 1.0e-12 );
+        EXPECT_NEAR( t2, c2 * dc * xi1 + dh * xi2, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeDissipationCouplingTerm2HasAcousticWeight )
+{
+    // term2 acoustic piece is c2*dc*xi1 independent of dh.
+    Real t1a, t2a, t1b, t2b;
+    RoeDissipationCouplingTerms( 0.0, 2.0, 4.0, 0.5, 0.25, t1a, t2a );
+    RoeDissipationCouplingTerms( 3.0, 2.0, 4.0, 0.5, 0.25, t1b, t2b );
+    EXPECT_NEAR( t2a - 0.0 * 0.25, 4.0 * 2.0 * 0.5, 1.0e-12 );
+    EXPECT_NEAR( t2b - 3.0 * 0.25, 4.0 * 2.0 * 0.5, 1.0e-12 );
+}

@@ -993,6 +993,53 @@ principle=(
         ),
 
 
+
+        TheoryEntry(
+            id="roe_dissipation_coupling",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="flux / Roe dissipation",
+            title="Roe dissipation coupling terms (term1, term2)",
+            role_tags=("flux", "Roe", "dissipation"),
+            formula_plain=(
+                "term1 = dh * xi1 + dc * xi2\n"
+                "term2 = c^2 * dc * xi1 + dh * xi2\n"
+                "dh = total-enthalpy jump; dc = density jump (Roe-scaled)"
+            ),
+            formula_latex=(
+                r"\mathrm{term}_1=\Delta H\,\xi_1+d_c\,\xi_2"
+                "\n"
+                r"\mathrm{term}_2=c^{2}\,d_c\,\xi_1+\Delta H\,\xi_2"
+            ),
+            principle=(
+                "Maps wave coefficients and jumps into the two scalars that "
+                "enter the five-equation Roe dissipation update."
+            ),
+            background=(
+                "Pure API RoeDissipationCouplingTerms. Upstream: xi1/xi2 from "
+                "RoeDissipationWaveCoefficients. Downstream: ApplyRoeDissipationFiveEq."
+            ),
+            references=(
+                "Roe (1981); OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/roe_dissipation_coupling.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_dissipation_coupling_theory.csv",
+            plot_module="plot_roe_dissipation_coupling",
+            pure_apis=("RoeDissipationCouplingTerms",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_dissipation_coupling.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "term1 = dh * xi1 + dc * xi2;\n"
+                "term2 = c2 * dc * xi1 + dh * xi2;\n"
+            ),
+            proves="term1/term2 algebra vs pure API on a Delta-H grid.",
+            does_not_prove="Full five-eq Roe flux residual on a case mesh.",
+        ),
+
         TheoryEntry(
             id="roe_dissipation_wave_coeff",
             family="mean-flow",
