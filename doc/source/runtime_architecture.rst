@@ -1100,3 +1100,31 @@ retry. The test pins the runtime state transition; hardware/driver failure
 behavior still requires backend-specific validation. This follows the C++
 Core Guidelines' emphasis on invariants and meaningful exception propagation
 (E.4, E.17), while keeping destructors non-throwing (C.36/C.37).
+
+
+Repository-case setup-only evidence
+-----------------------------------
+
+The production lifecycle integration target also contains
+``SimuImpCaseLifecycleIntegration.RepositoryRae2822ConversionCaseCanBeInitializedWithoutRunningGridTask``.
+It copies the checked-in ``test/grid/rae2822convert/script`` directory into
+the test's temporary case directory, then invokes the real
+``SimuContext::SetupCaseEnvironment()`` and ``TeardownCase()`` methods.
+
+The test checks the typed ``dimension``, ``simutask``, and ``ptTol`` values
+committed by the real multi-file control reader, along with the generated
+``log/database.log`` and ``results/io_paths.txt`` diagnostics. It intentionally
+does not call ``ResolveTaskFromControl()`` or execute the ``Grid`` task.
+Generated files therefore remain in the temporary directory rather than
+polluting the checked-in reference case.
+
+This case is suitable as a control-ingestion smoke test, but not as evidence
+that grid conversion succeeds. Its ``grid.txt`` and ``part.txt`` contain
+legacy filenames that do not all correspond to the checked-in assets in this
+case directory. The test must not silently promote successful configuration
+loading into a successful mesh conversion claim.
+
+The evidence ladder remains explicit: control-reader ingestion and case setup;
+Grid task execution and output validation; mesh/topology quality checks; and
+numerical or physical validation, where applicable. Each level needs its own
+acceptance criteria and execution record.
