@@ -379,13 +379,30 @@ The default user-data location is
 `UserDataPaths.verification_execution_records`. The store accepts an explicit
 path so tests and future services can inject isolated locations.
 
-This is a persistence foundation, not yet an execution adapter: existing
-runners do not write records, and the Contract Workbench does not yet display
-them. A declaration or statically resolved source link must therefore continue
-to display as unexecuted until an actual invocation is ingested.
+## Python unittest execution adapter
 
-Run the focused model and persistence tests:
+`tools/oneflow_gui/execution_capture.py` captures a completed Python
+`unittest` subprocess from the existing `TestCommandWorker`. The record is
+written only after a process was successfully launched and has returned an
+exit code. Commands cancelled before launch and process-launch failures do not
+create execution evidence. A process stopped after launch is recorded as
+`cancelled`, even if its eventual exit code is nonzero.
+
+Each record preserves the command argument vector, working directory,
+timestamps, configuration, available Git revision/branch/remote metadata,
+Python/platform versions, and a SHA-256-addressed stdout log under
+`~/.oneflow/verification/logs`. Missing Git metadata stays empty. Contract
+IDs remain empty until an explicit test-to-contract mapping is defined; the
+adapter never guesses links from labels or module names.
+
+Persistence errors are reported in the test dialog without replacing the
+actual test process result. CTest/GoogleTest and CFD regression execution are
+not yet captured by this adapter, and the Contract Workbench has not yet
+presented execution history.
+
+Run the focused model and adapter tests:
 
 ```powershell
 python -m unittest tools.verification.test_execution_records
+python -m unittest tools.oneflow_gui.test_execution_capture
 ```
