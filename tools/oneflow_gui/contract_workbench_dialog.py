@@ -141,7 +141,7 @@ class ContractDomainDialog(QDialog):
         )
         self._diagnostics = tuple(diagnostics)
 
-        self.setWindowTitle(f"Contract Workbench — {domain.title()}")
+        self.setWindowTitle(f"Contract Workbench - {domain.title()}")
         self.resize(1120, 740)
         root = QVBoxLayout(self)
         intro = QLabel(
@@ -301,28 +301,48 @@ class ContractDomainDialog(QDialog):
         return lines
 
     def _format_execution_records(self, heading: str, records) -> list[str]:
+        from verification.execution_records import group_execution_records
+
         lines = ["", heading, "-" * len(heading)]
         if not records:
             lines.append("None recorded.")
             return lines
-        for record in reversed(records[-10:]):
-            freshness = record.freshness(self._current_commit)
-            lines.append(
-                f"[{record.outcome.upper()} / {freshness.upper()}] "
-                f"{record.test_name}"
-            )
-            lines.append(
-                f"  Finished: {record.finished_at}; framework: {record.framework}; "
-                f"commit: {record.commit or 'unknown'}"
-            )
-            if record.invocation_id:
-                lines.append(f"  Invocation: {record.invocation_id}")
-            lines.append(f"  Command: {' '.join(record.command)}")
-            for artifact in record.artifacts:
+        invocation_groups = group_execution_records(records)
+        for invocation_id, invocation_records in reversed(invocation_groups[-10:]):
+            if invocation_id:
+                outcomes = {item.outcome for item in invocation_records}
+                if "failed" in outcomes:
+                    outcome = "failed"
+                elif "blocked" in outcomes:
+                    outcome = "blocked"
+                elif "cancelled" in outcomes:
+                    outcome = "cancelled"
+                elif outcomes == {"passed"}:
+                    outcome = "passed"
+                else:
+                    outcome = "mixed"
                 lines.append(
-                    f"  Artifact ({artifact.role}): {artifact.path}"
-                    + (f" [sha256: {artifact.sha256}]" if artifact.sha256 else "")
+                    f"Invocation group: {invocation_id} "
+                    f"({len(invocation_records)} steps; {outcome.upper()})"
                 )
+            for record in invocation_records:
+                freshness = record.freshness(self._current_commit)
+                lines.append(
+                    f"[{record.outcome.upper()} / {freshness.upper()}] "
+                    f"{record.test_name}"
+                )
+                lines.append(
+                    f"  Finished: {record.finished_at}; framework: {record.framework}; "
+                    f"commit: {record.commit or 'unknown'}"
+                )
+                if record.invocation_id:
+                    lines.append(f"  Invocation: {record.invocation_id}")
+                lines.append(f"  Command: {' '.join(record.command)}")
+                for artifact in record.artifacts:
+                    lines.append(
+                        f"  Artifact ({artifact.role}): {artifact.path}"
+                        + (f" [sha256: {artifact.sha256}]" if artifact.sha256 else "")
+                    )
         return lines
 
     def _set_diagnostics_only(self) -> None:
@@ -338,7 +358,7 @@ class ContractDomainDialog(QDialog):
         if row < 0 or row >= len(self._summaries):
             return
         summary = self._summaries[row]
-        self.heading.setText(f"{summary.title}  ·  {summary.id}")
+        self.heading.setText(f"{summary.title} | {summary.id}")
         self.overview_view.setPlainText(
             f"Domain: {summary.domain}\n"
             f"Kind: {summary.kind}\n"

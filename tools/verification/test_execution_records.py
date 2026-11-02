@@ -11,6 +11,7 @@ from tools.verification.execution_records import (
     ExecutionArtifact,
     ExecutionRecord,
     ExecutionRecordStore,
+    group_execution_records,
 )
 
 
@@ -110,6 +111,26 @@ class ExecutionRecordTest(unittest.TestCase):
 
             self.assertEqual(store.list_records(), (first, second))
             self.assertEqual(len(path.read_text(encoding="utf-8").splitlines()), 2)
+
+    def test_groups_workflow_steps_by_invocation_and_keeps_legacy_records_separate(self) -> None:
+        first = make_record(test_name="Grid.run", invocation_id="run-42")
+        unrelated = make_record(test_name="Standalone.test", invocation_id="")
+        second = make_record(test_name="Solver.run", invocation_id="run-42")
+        another = make_record(test_name="Other.run", invocation_id="run-43")
+
+        groups = group_execution_records((first, unrelated, second, another))
+
+        self.assertEqual(
+            tuple(
+                (invocation, tuple(item.test_name for item in items))
+                for invocation, items in groups
+            ),
+            (
+                ("run-42", ("Grid.run", "Solver.run")),
+                ("", ("Standalone.test",)),
+                ("run-43", ("Other.run",)),
+            ),
+        )
 
     def test_missing_store_is_an_empty_history(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

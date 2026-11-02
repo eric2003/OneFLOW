@@ -1175,3 +1175,26 @@ signed SLSA attestation. It does not claim a trusted builder identity,
 complete dependency provenance, tamper resistance, or cryptographic
 attestation. Artifact hashes identify recorded files; they do not establish
 scientific correctness.
+
+
+## 27. Present workflow execution evidence by invocation
+
+Per-step execution records are intentionally retained as the immutable unit of
+process evidence. The shared `invocation_id` identifies the parent graph run;
+the Workbench now groups records with the same ID and presents a concise
+invocation summary (step count and aggregate outcome) before the individual
+step details.
+
+Aggregation is conservative: any failed step makes the invocation failed;
+otherwise blocked or cancelled steps retain those outcomes; the invocation is
+shown as passed only when every recorded step passed. Legacy records without an
+invocation ID remain independent and are never correlated by timestamp,
+command text, or test name. This avoids inventing relationships for older
+schema-v1 records.
+
+The grouping policy lives in the Qt-independent execution-record module and
+has unit coverage for interleaved records, multiple invocations, and legacy
+records. The Workbench test verifies that a two-step workflow is rendered as
+one invocation with both step records retained. This is a presentation and
+traceability improvement; it does not change workflow execution, scheduling,
+or the authoritative WorkflowRunRecord history.

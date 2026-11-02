@@ -200,6 +200,28 @@ class ExecutionRecord:
         return "current" if self.commit == current_commit else "stale"
 
 
+def group_execution_records(
+    records: tuple[ExecutionRecord, ...] | list[ExecutionRecord],
+) -> tuple[tuple[str, tuple[ExecutionRecord, ...]], ...]:
+    """Group workflow-step records by invocation while preserving first-seen order.
+
+    Records without an invocation ID remain independent legacy executions; they
+    are never merged based on timestamps, commands, or test names.
+    """
+    groups: dict[tuple[str, str], list[ExecutionRecord]] = {}
+    for index, record in enumerate(records):
+        key = (
+            ("invocation", record.invocation_id)
+            if record.invocation_id
+            else ("legacy", str(index))
+        )
+        groups.setdefault(key, []).append(record)
+    return tuple(
+        (key[1] if key[0] == "invocation" else "", tuple(items))
+        for key, items in groups.items()
+    )
+
+
 class ExecutionRecordStore:
     """Append-only JSON Lines store; callers choose the user-data location."""
 

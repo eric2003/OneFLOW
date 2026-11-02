@@ -444,6 +444,47 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             finally:
                 dialog.close()
 
+    def test_execution_history_groups_workflow_steps_by_invocation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            store = ExecutionRecordStore(Path(temporary) / "execution-records.jsonl")
+            common = {
+                "framework": "workflow",
+                "source_path": "tools/oneflow_gui/workflow_dialog.py",
+                "command": ("python", "-m", "tools.oneflow_gui"),
+                "outcome": "passed",
+                "started_at": "2026-11-02T01:00:00+08:00",
+                "finished_at": "2026-11-02T01:00:01+08:00",
+                "exit_code": 0,
+                "commit": "current-sha",
+                "branch": "hexin",
+                "contract_ids": ("workflow/rae2822-grid-to-solver",),
+                "invocation_id": "workflow-run-42",
+            }
+            store.append(ExecutionRecord(
+                **common, test_id="workflow:grid", test_name="Grid.run"
+            ))
+            store.append(ExecutionRecord(
+                **common, test_id="workflow:solver", test_name="Solver.run"
+            ))
+            dialog = ContractDomainDialog(
+                self.repository_root, "workflow",
+                execution_records_path=store.path,
+                current_commit="current-sha",
+            )
+            try:
+                index = next(
+                    index for index, summary in enumerate(dialog._summaries)
+                    if summary.id == "workflow/rae2822-grid-to-solver"
+                )
+                dialog.contract_list.setCurrentRow(index)
+                evidence = dialog.evidence_view.toPlainText()
+                self.assertIn(
+                    "Invocation group: workflow-run-42 (2 steps; PASSED)", evidence
+                )
+                self.assertLess(evidence.index("Grid.run"), evidence.index("Solver.run"))
+            finally:
+                dialog.close()
+
     def test_runtime_domain_uses_shared_contract_navigation(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
         try:
