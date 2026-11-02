@@ -21,6 +21,13 @@ https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md
 
 **Run mode** 设置保存在用户设置文件中。选择 **Multi-case run** 或 **Dependency workflow** 后打开 **Saved Workflows...**，会自动创建对应模式的新工作流草稿；**Run single case** 不会创建工作流草稿，单算例从 **Project > Open Project...** 进入。
 
+参数统一视图
+------------
+
+打开项目后，ProjectWindow 根据 control.txt 中列出的文件顺序读取参数文件，显示 Shared、CFD、Grid 和 Other 四个分类。control.txt 只作为加载清单，不会作为普通参数显示。参数行保留原始值、声明类型、来源文件、manifest 文件顺序和文件内声明顺序。
+
+同名参数按后声明覆盖先声明处理；有效声明下方保留所有被覆盖声明及其来源。部分已核对的参数还会显示 Runtime consumer 子项，包括消费函数、读取时机和 C++ 源文件。消费者目录目前是经过源码核对的有限清单；显示 Not audited 或未列出消费者表示尚未追踪，不表示参数无用。参数视图只读，双击参数可在配置的外部编辑器中打开原始文件。
+
 项目和单算例
 ------------
 
