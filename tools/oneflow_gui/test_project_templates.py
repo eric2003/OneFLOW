@@ -106,6 +106,40 @@ class ProjectTemplatesTest(unittest.TestCase):
                 '{"task": "Grid"}\n',
             )
 
+    def test_overwrites_existing_project_by_removing_it_before_copy(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repository = root / "repository"
+            source = repository / "test" / "cfd" / "plateuns2dslau2"
+            (source / "script").mkdir(parents=True)
+            (source / "script" / "control.txt").write_text(
+                '"simu.txt";\n', encoding="utf-8"
+            )
+            (source / "script" / "simu.txt").write_text(
+                'string simutask = "Solve";\n', encoding="utf-8"
+            )
+            target = root / "projects"
+            existing = target / "LaminarFlatPlate"
+            (existing / "old-results").mkdir(parents=True)
+            (existing / "old-results" / "stale.dat").write_text(
+                "stale user output", encoding="utf-8"
+            )
+            (existing / "user-note.txt").write_text(
+                "must be removed on explicit overwrite", encoding="utf-8"
+            )
+
+            project = create_project(
+                repository, "laminar_flat_plate", "LaminarFlatPlate", target,
+                overwrite=True,
+            )
+
+            self.assertTrue((project.root / "script" / "control.txt").is_file())
+            self.assertTrue((project.root / "script" / "simu.txt").is_file())
+            self.assertFalse((project.root / "old-results").exists())
+            self.assertFalse((project.root / "user-note.txt").exists())
+            self.assertTrue((project.root / ".oneflow-project.json").is_file())
+            self.assertTrue((source / "script" / "control.txt").is_file())
+
     def test_rejects_existing_destination(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

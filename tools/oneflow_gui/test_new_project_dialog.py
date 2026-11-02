@@ -32,6 +32,26 @@ class NewProjectDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_laminar_template_uses_requested_default_project_name(self) -> None:
+        from pathlib import Path
+
+        dialog = NewProjectDialog(Path.cwd())
+        try:
+            index = dialog.template_combo.findData("laminar_flat_plate")
+            dialog.template_combo.setCurrentIndex(index)
+            self.assertEqual(dialog.name_edit.text(), "LaminarFlatPlate")
+
+            dialog.name_edit.setText("MyCustomPlate")
+            dialog.template_combo.setCurrentIndex(
+                dialog.template_combo.findData("blank")
+            )
+            self.assertEqual(dialog.name_edit.text(), "MyCustomPlate")
+
+            dialog.template_combo.setCurrentIndex(index)
+            self.assertEqual(dialog.name_edit.text(), "MyCustomPlate")
+        finally:
+            dialog.close()
+
     def test_template_descriptions_do_not_replace_template_ids(self) -> None:
         from pathlib import Path
 

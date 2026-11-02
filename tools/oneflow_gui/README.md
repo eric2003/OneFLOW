@@ -260,3 +260,5 @@ inputs. The original source case remains unchanged. The created project
 contains .oneflow-project.json metadata and a short README identifying its
 template source. The case's simutask = "Solve" is classified as a CFD/flow
 project by project discovery.
+
+When the laminar template is selected, the suggested project name is `LaminarFlatPlate`. If that destination already exists, the dialog asks for explicit confirmation before replacement. Replacement removes the complete existing project directory and copies a fresh template; generated results and other user changes in the old directory are permanently discarded. Declining the confirmation leaves the existing project untouched.

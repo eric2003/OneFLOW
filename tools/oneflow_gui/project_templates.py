@@ -147,6 +147,8 @@ def create_project(
     template_id: str,
     project_name: str,
     parent_directory: str | Path,
+    *,
+    overwrite: bool = False,
 ) -> ProjectDefinition:
     """Create a project from a template without writing into the source checkout."""
     repository = Path(repository_root).expanduser().resolve()
@@ -173,8 +175,13 @@ def create_project(
     if destination == repository or repository in destination.parents:
         raise ValueError("New projects must be created outside the OneFLOW source repository.")
     parent.mkdir(parents=True, exist_ok=True)
-    if destination.exists():
-        raise FileExistsError(f"Project directory already exists: {destination}")
+    if destination.exists() or destination.is_symlink():
+        if not overwrite:
+            raise FileExistsError(f"Project directory already exists: {destination}")
+        if destination.is_symlink() or not destination.is_dir():
+            destination.unlink()
+        else:
+            shutil.rmtree(destination)
 
     if template.template_id == "blank":
         destination.mkdir()
