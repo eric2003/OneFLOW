@@ -428,3 +428,17 @@ revision labeling, and artifact visibility:
 ```powershell
 python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
 ```
+
+
+## Contract-to-test navigation
+
+The Contract Workbench exposes **Open declared test sources** for the selected
+contract. It opens only existing repository files returned by the static
+evidence resolver for declared python_test, google_test, or linked_test
+evidence. Missing, stale, or out-of-repository paths are not opened. This is
+navigation to a test declaration, not test execution and not proof that the
+test is registered, built, or passed.
+
+The next integration step is to invoke these tests through the existing typed
+test runner. The Workbench must not create a second subprocess lifecycle or
+silently infer commands from arbitrary contract text.
