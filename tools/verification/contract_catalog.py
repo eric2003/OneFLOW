@@ -11,6 +11,7 @@ import ast
 import json
 import math
 import re
+import tokenize
 from pathlib import Path, PureWindowsPath
 from typing import Any, Iterable
 
@@ -722,6 +723,12 @@ def _python_test_source_path(scope: str) -> str | None:
     return source_path if source_path.endswith(".py") else None
 
 
+def _read_python_source(path: Path) -> str:
+    """Read Python source using PEP 263 encoding detection, including UTF-8 BOM."""
+    with tokenize.open(path) as source_file:
+        return source_file.read()
+
+
 def _read_python_numeric_constant(
     repository_root: Path,
     relative_path: str,
@@ -729,7 +736,7 @@ def _read_python_numeric_constant(
 ) -> float:
     """Read a numeric module constant without importing executable test code."""
     path = _relative_path(repository_root, relative_path)
-    source = path.read_text(encoding="utf-8")
+    source = _read_python_source(path)
     module = ast.parse(source, filename=str(path))
     for node in module.body:
         if not isinstance(node, ast.Assign):
@@ -823,8 +830,8 @@ def resolve_contract_evidence(
 
         if item.kind == "python_test":
             try:
-                source = path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError) as exc:
+                source = _read_python_source(path)
+            except (OSError, UnicodeDecodeError, SyntaxError, LookupError) as exc:
                 results.append(
                     EvidenceResolution(
                         item, "stale", str(path), f"cannot read Python test source: {exc}"
@@ -1102,8 +1109,8 @@ def validate_contract_summaries(
             if not source_path.is_file():
                 continue
             try:
-                source = source_path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError) as exc:
+                source = _read_python_source(source_path)
+            except (OSError, UnicodeDecodeError, SyntaxError, LookupError) as exc:
                 issues.append(
                     f"{summary.id}: cannot read Python test source "
                     f"{source_path_reference}: {exc}"
