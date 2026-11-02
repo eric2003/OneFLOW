@@ -105,3 +105,8 @@ class UserDataPaths:
     @property
     def logs(self) -> Path:
         return self.root / "logs"
+
+    @property
+    def verification_execution_records(self) -> Path:
+        """Append-only verification evidence, separate from workflow task history."""
+        return self.root / "verification" / "execution-records.jsonl"
