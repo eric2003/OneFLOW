@@ -153,10 +153,10 @@ class WorkflowExecutionCaptureTest(unittest.TestCase):
             self.assertEqual(len(payloads), 1)
             mesh, solver = payloads[0]["steps"]
             self.assertEqual(payloads[0]["status"], "succeeded")
-            self.assertEqual(mesh["source_path"], str(base_dir / "mesh"))
+            self.assertEqual(mesh["source_path"], str((base_dir / "mesh").resolve()))
             self.assertEqual(mesh["working_directory"], str(executable.parent))
             self.assertEqual(len(mesh["artifacts"]), 1)
-            self.assertEqual(solver["source_path"], str(base_dir / "solver"))
+            self.assertEqual(solver["source_path"], str((base_dir / "solver").resolve()))
             self.assertEqual(solver["command"][1], "r")
 
 
