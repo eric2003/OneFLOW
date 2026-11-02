@@ -78,6 +78,10 @@ class ExecutionRecordTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "outcome"):
             make_record(outcome="green")
 
+    def test_passed_outcome_requires_zero_exit_code(self) -> None:
+        with self.assertRaisesRegex(ValueError, "exit_code 0"):
+            make_record(exit_code=1)
+
     def test_rejects_invalid_source_line_and_artifact_checksum(self) -> None:
         with self.assertRaisesRegex(ValueError, "source_line"):
             make_record(source_line=0)
