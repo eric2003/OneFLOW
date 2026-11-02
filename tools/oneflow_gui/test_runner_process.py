@@ -55,7 +55,7 @@ class CaseRunnerProcessTest(unittest.TestCase):
                     time.sleep(0.01)
                 if started_marker.is_file():
                     time.sleep(0.2)
-                    cancel_event.set()
+                cancel_event.set()
 
             cancellation_thread = threading.Thread(
                 target=cancel_after_child_starts,
