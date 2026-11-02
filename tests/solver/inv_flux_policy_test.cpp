@@ -295,3 +295,60 @@ TEST( InvFluxPolicy, IdealGasBilateralSoundSpeedsAveragesSides )
     EXPECT_NEAR( cr, std::sqrt( 1.4 ), 1.0e-12 );
     EXPECT_NEAR( cm, std::sqrt( 1.4 ), 1.0e-12 );
 }
+
+
+// Intermediate verification: AUSM FMSplit4 / FPSplit5 vs closed form on a Mach grid.
+// Proves pure inline splits in NsInvFluxPolicy.h; does not prove full AUSM face flux.
+TEST( InvFluxPolicy, FMSplit4MachCurveMatchesClosedForm )
+{
+    const Real beta = 0.125;
+    const Real ipn = 1.0;
+    const Real machs[] = { -2.0, -1.5, -1.0, -0.5, 0.0, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0 };
+    for ( Real mach : machs )
+    {
+        Real expected = 0.0;
+        if ( ABS( mach ) >= one )
+        {
+            expected = FMSplit1( mach, ipn );
+        }
+        else
+        {
+            expected = FMSplit2( mach, ipn )
+                * ( one - ipn * sixteen * beta * FMSplit2( mach, - ipn ) );
+        }
+        EXPECT_NEAR( FMSplit4( mach, beta, ipn ), expected, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, FPSplit5MachCurveMatchesClosedForm )
+{
+    const Real alpha = 0.1875;
+    const Real ipn = 1.0;
+    const Real machs[] = { -2.0, -1.5, -1.0, -0.5, 0.0, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0 };
+    for ( Real mach : machs )
+    {
+        Real expected = 0.0;
+        const Real macha = ABS( mach );
+        if ( macha >= one )
+        {
+            expected = half * ( one + ipn * mach / ( macha + SMALL ) );
+        }
+        else
+        {
+            expected = FMSplit2( mach, ipn )
+                * ( ( two * ipn - mach )
+                    - ipn * sixteen * alpha * mach * FMSplit2( mach, - ipn ) );
+        }
+        EXPECT_NEAR( FPSplit5( mach, alpha, ipn ), expected, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, FMSplit4NegativeIpnIsMirror )
+{
+    // ipn = -1 branch at M=0.5 should equal -FMSplit4(+0.5) with +ipn for mass-like split symmetry
+    const Real beta = 0.125;
+    EXPECT_NEAR(
+        FMSplit4( 0.5, beta, -1.0 ),
+        - FMSplit4( -0.5, beta, 1.0 ),
+        1.0e-12 );
+}

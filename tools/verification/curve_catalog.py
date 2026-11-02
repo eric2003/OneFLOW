@@ -925,6 +925,59 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Global CFL stability on a case.",
         ),
 
+
+        TheoryEntry(
+            id="ausm_mach_split",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="flux / AUSM splits",
+            title="AUSM Mach and pressure split (FMSplit4 / FPSplit5)",
+            role_tags=("flux", "AUSM", "Mach-split"),
+            formula_plain=(
+                "FMSplit1 = 0.5*(M + ipn*|M|)\n"
+                "FMSplit2 = ipn*0.25*(M+ipn)^2\n"
+                "FMSplit4 = FMSplit1 if |M|>=1 else "
+                "FMSplit2*(1 - ipn*16*beta*FMSplit2(M,-ipn))\n"
+                "FPSplit5 = 0.5*(1 + ipn*M/|M|) if |M|>=1 else "
+                "FMSplit2*((2*ipn-M) - ipn*16*alpha*M*FMSplit2(M,-ipn))\n"
+                "beta=1/8, alpha=3/16 typical"
+            ),
+            formula_latex=(
+                r"M^{\pm}=\mathrm{FMSplit4}(M,\beta,i_{pn})"
+                "\n"
+                r"P^{\pm}=\mathrm{FPSplit5}(M,\alpha,i_{pn})"
+            ),
+            principle=(
+                "AUSM splits mass and pressure contributions using smooth "
+                "polynomials in the subsonic range and upwind steps outside "
+                "the sonic interval."
+            ),
+            background=(
+                "Pure inline APIs in NsInvFluxPolicy.h (single definition, "
+                "ODR-safe). Locked by inv_flux_policy_test Mach-grid checks."
+            ),
+            references=(
+                "Liou AUSM family; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/ausm_mach_split.rst",
+            ),
+            csv_relpath="tools/verification/data/ausm_mach_split_theory.csv",
+            plot_module="plot_ausm_mach_split",
+            pure_apis=("FMSplit1", "FMSplit2", "FMSplit4", "FPSplit5"),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+            ),
+            doc_relpath="doc/source/numerical/ausm_mach_split.rst",
+            code_sketch=(
+                "// GATED SKETCH — production is inline in NsInvFluxPolicy.h\n"
+                "Real FMSplit4(Real M, Real beta, Real ipn) {\n"
+                "  if (fabs(M) >= 1) return FMSplit1(M, ipn);\n"
+                "  return FMSplit2(M, ipn) * (1 - ipn*16*beta*FMSplit2(M, -ipn));\n"
+                "}\n"
+            ),
+            proves="FMSplit4/FPSplit5 closed form vs pure APIs on a Mach grid.",
+            does_not_prove="Full AUSM face flux or shock-capturing quality.",
+        ),
+
         TheoryEntry(
             id="ns_roe_harten",
             family="mean-flow",
