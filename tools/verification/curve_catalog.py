@@ -879,6 +879,50 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+        TheoryEntry(
+            id="effective_thermal_conductivity",
+            family="mean-flow",
+            genus="NS-viscous",
+            section="heat flux / conductivity",
+            title="Effective thermal conductivity (laminar + turbulent)",
+            role_tags=("viscous", "heat-flux", "conductivity"),
+            formula_plain=(
+                "k_eff = (mu/Pr_l + mut/Pr_t) * cp\n"
+                "     = (mu*invPr_l + mut*invPr_t) * cp"
+            ),
+            formula_latex=(
+                r"k_{\mathrm{eff}}=\left(\frac{\mu}{\mathrm{Pr}_l}+\frac{\mu_t}{\mathrm{Pr}_t}\right)c_p"
+            ),
+            principle=(
+                "Eddy-viscosity heat transport: laminar and turbulent "
+                "contributions add after division by Prandtl numbers, "
+                "then scale by specific heat to conductivity."
+            ),
+            background=(
+                "Pure API EffectiveThermalConductivity in NsVisFluxPolicy. "
+                "Downstream: ConductiveHeatFluxNormal."
+            ),
+            references=(
+                "Standard RANS heat-flux closure; OneFLOW NsVisFluxPolicy",
+                "doc/source/numerical/effective_thermal_conductivity.rst",
+            ),
+            csv_relpath="tools/verification/data/effective_thermal_conductivity_theory.csv",
+            plot_module="plot_effective_thermal_conductivity",
+            pure_apis=("EffectiveThermalConductivity",),
+            source_relpaths=(
+                "codes/ns/include/NsVisFluxPolicy.h",
+                "codes/ns/src/NsVisFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/effective_thermal_conductivity.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "k = (mu*invPrL + mut*invPrT) * cp;\n"
+            ),
+            proves="k_eff algebra vs pure API on a mut grid.",
+            does_not_prove="Full viscous face heat flux residual on a mesh.",
+        ),
+
         TheoryEntry(
             id="combine_inv_vis_timestep",
             family="mean-flow",

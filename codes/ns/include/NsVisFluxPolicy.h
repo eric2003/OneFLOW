@@ -36,6 +36,10 @@ Real ViscousEnergyFlux(
 // @doc-stage conductivity
 // @doc-pure
 // @doc-formula k/cp = mu_l/Pr_l + mu_t/Pr_t  (returns k when multiplied by cp)
+// @doc-algorithm heat-flux
+// @doc-stage effective-conductivity
+// @doc-pure
+// @doc-formula k_eff = (mu/Pr_l + mut/Pr_t) * cp
 Real EffectiveThermalConductivity(
     Real laminarViscosity, Real turbulentViscosity,
     Real invPrandtlLaminar, Real invPrandtlTurbulent,

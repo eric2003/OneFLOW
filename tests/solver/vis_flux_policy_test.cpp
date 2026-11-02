@@ -51,3 +51,29 @@ TEST( VisFluxPolicy, DepositFaceScalarToCellsAddsBothSides )
     EXPECT_DOUBLE_EQ( L, 4.0 );
     EXPECT_DOUBLE_EQ( R, 5.0 );
 }
+
+// Intermediate: EffectiveThermalConductivity on a mut grid.
+// Ref: mu=1, invPr_l=1/0.72, invPr_t=1/0.9, cp=1004.5.
+TEST( VisFluxPolicy, EffectiveThermalConductivityCurveMatchesClosedForm )
+{
+    const Real mu = 1.0;
+    const Real invPrL = 1.0 / 0.72;
+    const Real invPrT = 1.0 / 0.9;
+    const Real cp = 1004.5;
+    const Real muts[] = { 0.0, 0.5, 1.0, 2.0, 5.0, 10.0 };
+    for ( Real mut : muts )
+    {
+        const Real expected = ( mu * invPrL + mut * invPrT ) * cp;
+        EXPECT_NEAR(
+            EffectiveThermalConductivity( mu, mut, invPrL, invPrT, cp ),
+            expected,
+            1.0e-10 );
+    }
+}
+
+TEST( VisFluxPolicy, EffectiveThermalConductivityLinearInMut )
+{
+    const Real k0 = EffectiveThermalConductivity( 1.0, 0.0, 1.0, 1.0, 2.0 );
+    const Real k1 = EffectiveThermalConductivity( 1.0, 1.0, 1.0, 1.0, 2.0 );
+    EXPECT_NEAR( k1 - k0, 2.0, 1.0e-12 ); // + mut*invPrT*cp = 1*1*2
+}
