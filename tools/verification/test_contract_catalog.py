@@ -99,7 +99,9 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\n".join(issues))
 
-    def test_adapts_gui_process_execution_contract_and_resolves_python_tests(self) -> None:
+    def test_adapts_gui_process_execution_contract_and_resolves_python_tests(
+        self,
+    ) -> None:
         definition_path = (
             self.repository_root
             / "tools"
@@ -116,7 +118,7 @@ class ContractCatalogTest(unittest.TestCase):
 
         self.assertEqual(summary.id, "runtime/gui-process-execution")
         self.assertEqual(len(summary.evidence), 7)
-        self.assertEqual(issues, [], "\\n".join(issues))
+        self.assertEqual(issues, [], "\n".join(issues))
         self.assertEqual(
             [item.status for item in resolutions],
             ["resolved"] * len(summary.evidence),
