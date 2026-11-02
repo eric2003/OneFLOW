@@ -157,6 +157,44 @@ The parser tests cover typed values, GBK and UTF-8 BOM preservation, CRLF and co
 preservation, unknown syntax preservation, no-op formatting stability, and external-edit
 conflict detection.
 
+Logical parameter model
+-----------------------
+
+The physical files listed by ``control.txt`` are an input organization, not the
+parameter model itself. The same logical CFD parameter set can be assembled from
+``simu.txt``, ``dimension.txt``, ``tolerence.txt``, ``cfd.txt``, ``vismodel.txt``,
+``inflow.txt``, ``turb.txt``, and other files. Grid cases follow the same pattern.
+The Workbench should therefore present a unified parameter view and retain the
+originating file for each value, rather than treating each file as an independent
+parameter database.
+
+The Qt-independent ``parameter_model.py`` is the first implementation of this
+boundary. It combines multiple ``ParameterDocument`` instances in the order supplied
+by the case's control manifest. It identifies ``simutask``, ``dimension``, and
+``ptTol`` as shared parameters; recognizes initial CFD groups (run control, output,
+numerical methods, reference conditions, physical models, turbulence, multigrid, and
+wall distance); and recognizes initial Grid groups (grid definition, formats/files,
+and partitioning). Classification is deliberately conservative: keys not yet in the
+registry remain visible under ``Other`` or ``Unclassified`` rather than being dropped
+or assigned invented metadata. The declared type and value always come from the source
+declaration, not from a guessed schema type.
+
+The model preserves declaration order and source paths. When the same key occurs in
+multiple files, the last declaration is the effective value, matching the runtime
+``DataPara`` replacement behavior; earlier declarations remain available as shadowed
+entries for diagnostics. The model does not modify source files. ``control.txt`` stays
+outside the parameter collection because it is the ordered manifest that tells the
+loader which parameter files to read.
+
+This is a logical consolidation only. It does not merge or rewrite the legacy files.
+That distinction allows the Workbench to offer one coherent editor even if users later
+choose to store a subset of parameters in one file or split them across several files.
+Physical consolidation should be considered only after runtime loading order,
+duplicate-key behavior, compatibility with existing cases, and round-trip preservation
+have explicit tests. The current document parser still handles scalar declarations;
+array declarations such as ``gridTrans[3]`` remain unsupported and must not be silently
+presented as complete parameter coverage.
+
 SQLite parameter catalog
 ------------------------
 
