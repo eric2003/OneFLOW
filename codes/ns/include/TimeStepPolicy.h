@@ -28,6 +28,9 @@ Real ViscousFaceSpectralRadiusModel1(
 // @doc-algorithm spectral-radius
 // @doc-stage viscous-face-model2
 // @doc-pure
+// @doc-formula c1=2*mu_tot/(rho*d*Re); lambda_vis=0.5*c1*A
+// Length-scale form: d is cell/wall distance. See
+// doc/source/numerical/viscous_spectral_radius_model2.rst.
 Real ViscousFaceSpectralRadiusModel2(
     Real densityMid, Real totalViscosity,
     Real cellDistance, Real reynolds, Real faceArea );

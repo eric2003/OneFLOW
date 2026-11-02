@@ -876,6 +876,54 @@ def list_theory_entries() -> list[TheoryEntry]:
         ),
 
 
+
+        TheoryEntry(
+            id="viscous_spectral_radius_model2",
+            family="mean-flow",
+            genus="NS-spectrum",
+            section="time-step / viscous spectral radius",
+            title="Viscous face spectral radius (model 2, length-scale)",
+            role_tags=("time-step", "spectrum", "viscous"),
+            formula_plain=(
+                "c1 = 2 * mu_tot / (rho * d * Re)\n"
+                "lambda = 0.5 * c1 * A\n"
+                "d = cell/wall distance scale"
+            ),
+            formula_latex=(
+                r"c_1=\frac{2\mu_{\mathrm{tot}}}{\rho\,d\,\mathrm{Re}},\quad "
+                r"\lambda_{\mathrm{vis}}=\frac{1}{2} c_1 A"
+            ),
+            principle=(
+                "Uses an explicit length scale d (cell or wall distance) instead "
+                "of area-squared only. Diffusion scale nu/d^2 mapped to a face "
+                "spectral contribution proportional to A."
+            ),
+            background=(
+                "Pure API ViscousFaceSpectralRadiusModel2 in TimeStepPolicy. "
+                "Companion to model 1 (Blazek max diffusivity) and model 3 "
+                "(A^2/(Re rho) only)."
+            ),
+            references=(
+                "Blazek CFD; OneFLOW TimeStepPolicy",
+                "doc/source/numerical/viscous_spectral_radius_model2.rst",
+            ),
+            csv_relpath="tools/verification/data/viscous_spectral_radius_model2_theory.csv",
+            plot_module="plot_viscous_spectral_radius_model2",
+            pure_apis=("ViscousFaceSpectralRadiusModel2",),
+            source_relpaths=(
+                "codes/ns/include/TimeStepPolicy.h",
+                "codes/ns/src/TimeStepPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/viscous_spectral_radius_model2.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "c1 = 2*mu / (rho*d*Re + SMALL);\n"
+                "lambda = 0.5 * c1 * A;\n"
+            ),
+            proves="Model-2 algebra vs pure API on a viscosity grid; 1/d scaling.",
+            does_not_prove="Optimal choice of d on a mesh or model 1/3 equivalence.",
+        ),
+
         TheoryEntry(
             id="viscous_spectral_radius_model1",
             family="mean-flow",

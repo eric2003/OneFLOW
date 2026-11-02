@@ -106,3 +106,31 @@ TEST( TimeStepPolicy, ViscousFaceSpectralRadiusModel1ScalesWithAreaSquared )
         1.0, 1.0, 1.0, 1.0 / 0.72, 1.0 / 0.9, 1.4, 100.0, 2.0 );
     EXPECT_NEAR( twice, 4.0 * base, 1.0e-12 );
 }
+
+// Intermediate: ViscousFaceSpectralRadiusModel2 on a total-viscosity grid.
+// Ref: rho=1, d=0.1, Re=100, A=1.
+TEST( TimeStepPolicy, ViscousFaceSpectralRadiusModel2CurveMatchesClosedForm )
+{
+    const Real density = 1.0;
+    const Real cellDistance = 0.1;
+    const Real reynolds = 100.0;
+    const Real area = 1.0;
+    const Real mus[] = { 0.05, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0 };
+    for ( Real mu : mus )
+    {
+        const Real c1 = two * mu / ( density * cellDistance * reynolds + SMALL );
+        const Real expected = half * c1 * area;
+        EXPECT_NEAR(
+            ViscousFaceSpectralRadiusModel2(
+                density, mu, cellDistance, reynolds, area ),
+            expected,
+            1.0e-12 );
+    }
+}
+
+TEST( TimeStepPolicy, ViscousFaceSpectralRadiusModel2InverselyScalesWithDistance )
+{
+    const Real a = ViscousFaceSpectralRadiusModel2( 1.0, 1.0, 0.1, 100.0, 1.0 );
+    const Real b = ViscousFaceSpectralRadiusModel2( 1.0, 1.0, 0.2, 100.0, 1.0 );
+    EXPECT_NEAR( a, 2.0 * b, 1.0e-12 );
+}
