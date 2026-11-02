@@ -147,10 +147,9 @@ Writable data follows the centralized `UserDataPaths` policy:
   merely because the repository root is their process working directory.
 
 This separation preserves reproducible imports while keeping generated data,
-logs, and execution evidence outside version-controlled source. Tests for the
-path policy assert both Windows-style and POSIX-independent home resolution
-through injected home/environment values; they do not create the real user
-profile directory.
+logs, and execution evidence outside version-controlled source. Path-policy tests inject home and environment values, including the
+`ONEFLOW_HOME` override; they never create or depend on the real user profile
+directory.
 
 ## Design principles and industry practices
 
