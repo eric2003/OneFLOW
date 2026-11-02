@@ -28,11 +28,21 @@ def resolve_editor_executable(editor: str) -> Path:
     if editor in ("vs2026", "vs2022"):
         resolved = _visual_studio_executable(editor) if os.name == "nt" else None
     elif editor == "vscode":
-        command = shutil.which("code")
-        roots = [Path(os.environ[key]) for key in ("LOCALAPPDATA", "ProgramFiles") if os.environ.get(key)]
-        candidates = [root / "Programs/Microsoft VS Code/Code.exe" for root in roots[:1]]
-        candidates += [root / "Microsoft VS Code/Code.exe" for root in roots[1:]]
-        resolved = Path(command).resolve() if command else _existing_file(candidates)
+        candidates = []
+        local_app_data = os.environ.get("LOCALAPPDATA")
+        program_files = os.environ.get("ProgramFiles")
+        program_files_x86 = os.environ.get("ProgramFiles(x86)")
+        if local_app_data:
+            candidates.append(Path(local_app_data) / "Programs/Microsoft VS Code/Code.exe")
+        if program_files:
+            candidates.append(Path(program_files) / "Microsoft VS Code/Code.exe")
+        if program_files_x86:
+            candidates.append(Path(program_files_x86) / "Microsoft VS Code/Code.exe")
+        resolved = _existing_file(candidates)
+        if resolved is None:
+            command = shutil.which("code")
+            if command and Path(command).suffix.lower() != ".cmd":
+                resolved = Path(command).resolve()
     else:
         command = shutil.which("notepad++") or shutil.which("notepad++.exe")
         roots = [Path(os.environ[key]) for key in ("ProgramFiles", "ProgramFiles(x86)") if os.environ.get(key)]
