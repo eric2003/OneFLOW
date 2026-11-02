@@ -836,7 +836,7 @@ class ProjectWindow(QMainWindow):
         self.parameter_coverage_note.setText(
             f"{len(model.entries)} effective scalar parameter(s); {len(model.shadowed_entries)} overridden declaration(s); "
             f"{unsupported_count} unsupported declaration(s); {unclassified_count} unmapped parameter(s). "
-            "Arrays and unknown syntax are visible as unsupported; this view does not claim complete runtime coverage."
+            "Detected arrays and declaration-like statements outside the scalar parser are listed; other unrecognized file content may still require parser coverage work."
         )
 
     def _parameter_source_label(self, path: Path, file_order: int, declaration_order: int) -> str:
