@@ -10,7 +10,6 @@ from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QTreeWidget
 
 from tools.oneflow_gui.project_repository import open_project
@@ -77,6 +76,7 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 self.assertIsNone(self._find_item(tree, "control.txt"))
             finally:
                 window.close()
+
     def test_runtime_file_is_not_repeated_and_parameter_files_are_selectable(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -97,9 +97,9 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 self.assertNotIn("Runtime file", labels)
                 parameter_tree = window.findChild(QTreeWidget, "unifiedParameterTree")
                 self.assertIsNotNone(parameter_tree)
-self.assertEqual(parameter_tree.topLevelItemCount(), 4)
-self.assertIsNotNone(self._find_item(parameter_tree, "simuTask"))
-self.assertIsNone(self._find_item(parameter_tree, "control.txt"))
+                self.assertEqual(parameter_tree.topLevelItemCount(), 4)
+                self.assertIsNotNone(self._find_item(parameter_tree, "simuTask"))
+                self.assertIsNone(self._find_item(parameter_tree, "control.txt"))
                 button = window.findChild(QPushButton, "modifyParametersButton")
                 self.assertIsNotNone(button)
                 self.assertTrue(button.isEnabled())
@@ -122,7 +122,8 @@ self.assertIsNone(self._find_item(parameter_tree, "control.txt"))
                 self.assertIsNotNone(declaration)
                 tree.setCurrentItem(declaration)
                 with patch(
-                    "tools.oneflow_gui.project_window.ApplicationSettings.load"                ) as load_settings, patch(
+                    "tools.oneflow_gui.project_window.ApplicationSettings.load"
+                ) as load_settings, patch(
                     "tools.oneflow_gui.project_window.open_source_files"
                 ) as open_files:
                     load_settings.return_value.source_editor = "vscode"
