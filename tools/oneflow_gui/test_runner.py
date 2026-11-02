@@ -86,8 +86,19 @@ def summarize_test_output(
     if ctest_matches:
         total = sum(int(item[2]) for item in ctest_matches)
         failed = sum(int(item[1]) for item in ctest_matches)
+        skipped_block = re.search(
+            r"The following tests did not run:\\s*((?:\\n[ \\t]+\\d+\\s+-[^\\n]*)+)",
+            output,
+        )
+        skipped = (
+            len(re.findall(r"^\\s*\\d+\\s+-", skipped_block.group(1), re.MULTILINE))
+            if skipped_block
+            else 0
+        )
+        passed = max(total - failed - skipped, 0)
         summary.append(
-            f"CTest cases: {total} run, {total - failed} passed, {failed} failed."
+            f"CTest cases: {total} run, {passed} passed, "
+            f"{failed} failed, {skipped} skipped."
         )
 
     failure_markers = (
@@ -126,6 +137,54 @@ def summarize_test_output(
         if len(details) > 120:
             summary.append(f"... {len(details) - 120} additional lines omitted.")
     return tuple(summary)
+
+
+def format_final_test_status(passed: bool, report: str) -> str:
+    """Format command and framework case counts on the final status line."""
+    import re
+
+    status = "PASS" if passed else "FAIL"
+    details: list[str] = []
+    command_counts = re.search(
+        r"Test command summary:\\s*\\n\\s*Total: (\\d+)\\s*\\n"
+        r"\\s*Passed: (\\d+)\\s*\\n\\s*Failed: (\\d+)\\s*\\n"
+        r"\\s*Not run: (\\d+)",
+        report,
+    )
+    if command_counts:
+        total, command_passed, command_failed, not_run = map(
+            int, command_counts.groups()
+        )
+        details.append(
+            f"Commands: {command_passed} passed, {command_failed} failed, "
+            f"{not_run} not run ({total} total)"
+        )
+
+    case_patterns = (
+        (
+            "Python unittest",
+            r"Python unittest cases: (\\d+) run, (\\d+) passed, "
+            r"(\\d+) failed, (\\d+) skipped\\.",
+        ),
+        (
+            "CTest",
+            r"CTest cases: (\\d+) run, (\\d+) passed, "
+            r"(\\d+) failed, (\\d+) skipped\\.",
+        ),
+    )
+    for label, pattern in case_patterns:
+        matches = re.findall(pattern, report)
+        if not matches:
+            continue
+        counts = [sum(int(item[index]) for item in matches) for index in range(4)]
+        total, case_passed, case_failed, skipped = counts
+        details.append(
+            f"{label}: {case_passed} passed, {case_failed} failed, "
+            f"{skipped} skipped ({total} total)"
+        )
+
+    suffix = " | " + " | ".join(details) if details else ""
+    return f"FINAL STATUS: {status}{suffix}"
 
 
 @dataclass(frozen=True, slots=True)
