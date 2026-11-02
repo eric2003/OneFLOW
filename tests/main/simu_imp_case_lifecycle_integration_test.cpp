@@ -511,4 +511,37 @@ TEST( SimulationEntryIntegration,
 }
 
 
+TEST( SimulationEntryIntegration,
+      FailedFullSimulationEntryTearsDownCaseAndFinalizesProcessRuntime )
+{
+    TemporaryCase testCase;
+    testCase.WriteManifest(
+        "\"available.txt\";\n"
+        "\"missing.txt\";\n" );
+    testCase.WriteScript(
+        "available.txt",
+        "string partial_simulation_value = \"must_be_cleared\";\n" );
+
+    const std::string executable = "OneFLOW.exe";
+    const std::string mode = "r";
+    const std::string caseDirectory = testCase.Directory();
+    char * arguments[] = {
+        const_cast<char *>( executable.c_str() ),
+        const_cast<char *>( mode.c_str() ),
+        const_cast<char *>( caseDirectory.c_str() )
+    };
+
+    Simulation simulation( 3, arguments );
+
+    EXPECT_EQ( simulation.Run(), EXIT_FAILURE );
+    EXPECT_FALSE( AccelRuntime::Instance().IsInitialized() );
+    EXPECT_TRUE( Prj::prjBaseDir.empty() );
+    EXPECT_THROW(
+        GetDataValue<std::string>(
+            "partial_simulation_value", &RequireGlobalDataBase() ),
+        std::runtime_error );
+}
+
+
+
 } // namespace

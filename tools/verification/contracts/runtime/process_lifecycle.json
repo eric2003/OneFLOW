@@ -68,6 +68,12 @@
       "reference": "SimulationEntryIntegration.FullSimulationEntryReadsControlFilesAndFinalizesProcessRuntime",
       "status": "linked_not_executed",
       "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; invokes Simulation::Run with the production full-simulation command-line shape, loads a multi-file control manifest, dispatches the registered task, checks database and I/O artifacts, and verifies process runtime finalization."
+    },
+    {
+      "kind": "google_test",
+      "reference": "SimulationEntryIntegration.FailedFullSimulationEntryTearsDownCaseAndFinalizesProcessRuntime",
+      "status": "linked_not_executed",
+      "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; invokes Simulation::Run with a control manifest whose second script is missing after the first script has populated the real DataBase, then verifies public failure reporting, case rollback, project-path cleanup, and process-runtime finalization."
     }
   ],
   "claims": {
@@ -76,7 +82,8 @@
       "A failed accelerator backend finalization propagates to the caller while preserving runtime ownership and an active process lifecycle for retry.",
       "A subsequent successful finalization completes the process lifecycle.",
       "Each sequential production case reads its own typed control value and materializes its database and I/O path diagnostics before case-owned state is cleared.",
-      "The public Simulation::Run entry point dispatches a full case invocation through the real multi-file control reader and task registry, materializes case artifacts, and finalizes the process runtime."
+      "The public Simulation::Run entry point dispatches a full case invocation through the real multi-file control reader and task registry, materializes case artifacts, and finalizes the process runtime.",
+      "A configuration failure reached through the public Simulation::Run entry point clears partially ingested case data and project bindings, reports failure, and still finalizes the process runtime."
     ],
     "does_not_prove": [
       "Real CUDA or HIP driver shutdown behavior on physical accelerator hardware.",

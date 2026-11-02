@@ -92,9 +92,28 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(summary.kind, "state_transition")
         self.assertEqual(summary.status, "implemented")
         self.assertTrue(summary.architecture)
-        self.assertEqual(len(summary.evidence), 3)
+        self.assertEqual(len(summary.evidence), 7)
+        self.assertIn(
+            "SimulationEntryIntegration.FullSimulationEntryReadsControlFilesAndFinalizesProcessRuntime",
+            {item.reference for item in summary.evidence},
+        )
+        self.assertIn(
+            "SimulationEntryIntegration.FailedFullSimulationEntryTearsDownCaseAndFinalizesProcessRuntime",
+            {item.reference for item in summary.evidence},
+        )
         self.assertTrue(
             all(item.status == "linked_not_executed" for item in summary.evidence)
+        )
+        resolutions = resolve_contract_evidence(self.repository_root, summary)
+        self.assertEqual(
+            [item.status for item in resolutions],
+            ["resolved"] * len(summary.evidence),
+        )
+        self.assertTrue(
+            all(
+                item.evidence.status == "linked_not_executed"
+                for item in resolutions
+            )
         )
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\n".join(issues))

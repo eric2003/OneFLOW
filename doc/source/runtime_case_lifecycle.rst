@@ -106,6 +106,9 @@ integration boundaries:
 * ``FullSimulationEntryReadsControlFilesAndFinalizesProcessRuntime``: the
   public ``Simulation::Run()`` entry point, multi-file control ingestion, task
   dispatch, generated artifacts, and process finalization.
+* ``FailedFullSimulationEntryTearsDownCaseAndFinalizesProcessRuntime``: a
+  missing second control script after a partial read, with rollback verified
+  through the public entry point and process finalization.
 * Accelerator lifecycle tests: dependency-ordered release and retry after an
   injected backend finalization failure.
 
@@ -121,7 +124,9 @@ do not establish multi-rank MPI behavior, physical CUDA/HIP driver behavior,
 all solver-specific cleanup paths, or numerical correctness. The next R1
 acceptance increment should exercise the same production setup sequence with a
 repository CFD case in setup-only mode, after confirming its complete input
-asset set. Numerical regression remains a separate evidence layer.
+asset set. This should verify real case-specific I/O settings and path
+resolution without conflating setup correctness with a numerical regression.
+Numerical regression remains a separate evidence layer.
 
 Architecture implication
 ------------------------

@@ -886,3 +886,103 @@ that same file. Directory-wide discovery, unknown files, and catalog failures
 remain unlinked. The resolver is Qt-independent and has focused catalog and
 capture tests. This is an evidence association, not a claim that every test in
 the file was relevant to every contract or that the contract is fully verified.
+
+
+## 30. Shared Workbench page composition across engineering domains
+
+The common Workbench should standardize navigation and evidence semantics,
+not force every engineering topic into a formula-shaped record or view.
+
+### Shared page sections
+
+The proposed shared navigation vocabulary is:
+
+1. **Overview** - intent, scope, domain, kind, maturity, and concise summary.
+2. **Principle** - governing equations, invariants, ownership rules, state
+   transitions, numerical assumptions, or operational constraints.
+3. **References** - papers, standards, upstream definitions, ADRs, issues, and
+   internal design documents.
+4. **Architecture** - module boundaries, ownership, dependency direction,
+   sequence/state/dataflow diagrams, and collaboration maps.
+5. **Implementation** - production entry points, configuration, adapters,
+   data structures, and relevant symbols.
+6. **Code** - source and test navigation with clearly separated production
+   code, test code, and illustrative snippets.
+7. **Documentation** - canonical developer/user pages and generated excerpts.
+8. **Verification** - declared tests, actual runs, evidence artifacts, outcomes,
+   freshness, and explicit limitations.
+
+The navigation labels are shared, but a section is shown only when the contract
+has meaningful content for it. Missing evidence must be shown as missing; an
+inapplicable view should not become an empty placeholder.
+
+### Domain-specific visualizers
+
+A domain may provide one or more specialized visualizers without changing the
+shared envelope:
+
+| Domain / kind | Specialized visualizers |
+|---|---|
+| Numerical formula or method | Formula, derivation, theory curve, convergence plot |
+| Mesh or geometry | Topology, orientation, boundary map, mesh snapshot |
+| Runtime lifecycle | State machine, sequence diagram, ownership graph |
+| Case / CFD regression | Case setup, input inventory, run artifacts, residual and field comparisons |
+| Workflow | Dependency graph, artifact flow, failure propagation |
+| Performance | Benchmark protocol, scaling plot, profile and resource summary |
+
+A specialized visualizer is a projection of domain-owned data. It is not a new
+source of truth and must not duplicate the solver algorithm in GUI code.
+
+### Three independent status dimensions
+
+The page must distinguish:
+
+* **Intent status** - proposed, accepted, deprecated, or superseded design.
+* **Implementation status** - absent, partial, or implemented production behavior.
+* **Evidence status** - not linked, declared, resolved, executed, passed, failed,
+  stale, or blocked, with the scope and revision of the evidence.
+
+These dimensions must not collapse into one verified flag. For example, an
+implemented runtime lifecycle may have passing unit tests while still lacking
+multi-rank MPI or physical accelerator evidence.
+
+### Layout and interaction proposal
+
+The initial layout can retain the current Formula Knowledge experience as one
+specialization. A shared page should place the contract identity and status
+summary at the top, shared section navigation below it, and domain visualizers
+inside the relevant section. Architecture diagrams should link to their source
+modules and production entry points; implementation references should link to
+source files and symbols; verification entries should navigate to the exact
+test declaration and, when available, the immutable run record and artifacts.
+
+For Runtime, the Architecture view may show process and case scopes as a
+sequence/state diagram. For Case, the Principle view may explain governing
+equations and boundary conditions while the Case view shows actual inputs and
+run outputs. For Mesh, the Principle view may state orientation and incidence
+invariants while the Topology view visualizes nodes, faces, cells, and boundary
+ownership. This keeps a consistent mental model without pretending all domains
+are numerical formulas.
+
+### Migration rule
+
+Do not replace the existing Numerical or Geometry dialogs in one rewrite.
+Keep their current catalogs as authoritative inputs, continue using the
+read-only adapters, and introduce the shared shell only after the same
+navigation and evidence behavior has been exercised by at least two different
+domains. Runtime and Case are the next useful examples. The common schema should
+remain small; domain-specific payloads and visualizers should be typed and
+validated independently.
+
+### Acceptance checks
+
+* Numerical Formula/Curve behavior remains unchanged.
+* Runtime pages can render architecture and lifecycle diagrams without a
+  formula field.
+* Case pages can show physical setup, input assets, run evidence, and residual
+  comparisons without requiring a formula plot.
+* A section with no applicable content is omitted or clearly marked
+  inapplicable, never silently treated as verified.
+* Each displayed implementation or evidence link resolves to its declared
+  source; execution status is never inferred from a declaration.
+* The Qt-independent catalog and validation remain usable in CI.
