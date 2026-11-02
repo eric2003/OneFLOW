@@ -13,6 +13,7 @@ from unittest.mock import Mock
 
 from tools.oneflow_gui.process_control import (
     process_group_options,
+    terminate_and_reap,
     terminate_process_tree,
 )
 
@@ -63,6 +64,53 @@ class ProcessControlTest(unittest.TestCase):
             )
         )
         process.terminate.assert_called_once_with()
+
+    def test_terminate_and_reap_waits_for_direct_child(self) -> None:
+        process = Mock()
+        process.poll.side_effect = [None, 0]
+        process.wait.return_value = 0
+
+        self.assertTrue(terminate_and_reap(process, platform_name="nt"))
+
+        process.wait.assert_called_once_with(timeout=3.0)
+        process.kill.assert_not_called()
+
+    def test_terminate_and_reap_escalates_after_timeout(self) -> None:
+        process = Mock()
+        process.poll.side_effect = [None, None, 0]
+        process.wait.side_effect = [subprocess.TimeoutExpired("solver", 1.0), 0]
+        runner = Mock(return_value=subprocess.CompletedProcess([], 0))
+
+        self.assertTrue(
+            terminate_and_reap(
+                process,
+                timeout=1.0,
+                platform_name="nt",
+                command_runner=runner,
+            )
+        )
+
+        self.assertEqual(runner.call_count, 2)
+        process.kill.assert_not_called()
+        self.assertEqual(process.wait.call_count, 2)
+
+    def test_terminate_and_reap_kills_child_if_tree_termination_does_not(self) -> None:
+        process = Mock()
+        process.poll.side_effect = [None, None, 0]
+        process.wait.side_effect = [subprocess.TimeoutExpired("solver", 1.0), 0]
+        runner = Mock(return_value=subprocess.CompletedProcess([], 1))
+
+        self.assertTrue(
+            terminate_and_reap(
+                process,
+                timeout=1.0,
+                platform_name="nt",
+                command_runner=runner,
+            )
+        )
+
+        process.kill.assert_called_once_with()
+        process.wait.assert_called_with()
 
     def test_completed_process_is_not_terminated(self) -> None:
         process = Mock()
