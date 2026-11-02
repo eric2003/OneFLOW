@@ -222,11 +222,11 @@ class ParameterModel:
         task = None
         for file_order, document in enumerate(document_list):
             parsed_lines = {
-                document.text.count("\\n", 0, declaration.value_start) + 1
+                document.text.count("\n", 0, declaration.value_start) + 1
                 for declaration in document.declarations
             }
             for match in _DECLARATION_HEAD.finditer(document.text):
-                line_number = document.text.count("\\n", 0, match.start()) + 1
+                line_number = document.text.count("\n", 0, match.start()) + 1
                 shape = match.group("shape")
                 if shape is not None:
                     reason = "Array declarations are not supported by the scalar parameter view."
@@ -234,8 +234,8 @@ class ParameterModel:
                     reason = "Declaration syntax or type is not supported by the scalar parser."
                 else:
                     continue
-                line_start = document.text.rfind("\\n", 0, match.start()) + 1
-                line_end = document.text.find("\\n", match.start())
+                line_start = document.text.rfind("\n", 0, match.start()) + 1
+                line_end = document.text.find("\n", match.start())
                 if line_end < 0:
                     line_end = len(document.text)
                 unsupported.append(UnsupportedDeclaration(
