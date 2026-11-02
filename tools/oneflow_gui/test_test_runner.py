@@ -18,6 +18,7 @@ from tools.oneflow_gui.test_runner import (
     build_regression_command,
     build_unit_test_commands,
     format_command_arguments,
+    format_final_test_status,
     oneflow_executable_path,
     stage_regression_tests,
     summarize_test_output,
@@ -410,9 +411,46 @@ class TestRunnerCommandTest(unittest.TestCase):
             "The following tests FAILED:",
             "  2 - FaceTopologyTest (Failed)",
         ])
-        self.assertIn("CTest cases: 3 run, 2 passed, 1 failed.", report)
+        self.assertIn("CTest cases: 3 run, 2 passed, 1 failed, 0 skipped.", report)
         self.assertIn("Failure details:", report)
         self.assertIn("  2 - FaceTopologyTest (Failed)", report)
+
+    def test_ctest_output_reports_skipped_test_counts(self) -> None:
+        report = summarize_test_output([
+            "100% tests passed, 0 tests failed out of 3",
+            "The following tests did not run:",
+            "  3 - OptionalHardwareTest (Skipped)",
+        ])
+        self.assertIn("CTest cases: 3 run, 2 passed, 0 failed, 1 skipped.", report)
+
+    def test_final_status_includes_command_and_framework_case_counts(self) -> None:
+        report = "\n".join([
+            "Test command summary:",
+            "  Total: 8",
+            "  Passed: 5",
+            "  Failed: 1",
+            "  Not run: 2",
+            "Python unittest cases: 26 run, 24 passed, 1 failed, 1 skipped.",
+            "CTest cases: 10 run, 9 passed, 0 failed, 1 skipped.",
+        ])
+        status = format_final_test_status(False, report)
+        self.assertEqual(
+            status,
+            "FINAL STATUS: FAIL | Commands: 5 passed, 1 failed, 2 not run (8 total) "
+            "| Python unittest: 24 passed, 1 failed, 1 skipped (26 total) "
+            "| CTest: 9 passed, 0 failed, 1 skipped (10 total)",
+        )
+
+    def test_final_status_without_case_summary_keeps_command_counts(self) -> None:
+        status = format_final_test_status(
+            True,
+            "Test command summary:\n  Total: 2\n  Passed: 2\n"
+            "  Failed: 0\n  Not run: 0",
+        )
+        self.assertEqual(
+            status,
+            "FINAL STATUS: PASS | Commands: 2 passed, 0 failed, 0 not run (2 total)",
+        )
 
     def test_multiple_unittest_runs_aggregate_each_failure_count(self) -> None:
         report = summarize_test_output([

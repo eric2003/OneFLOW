@@ -99,6 +99,15 @@ An evidence record should carry at least:
 
 Do not collapse these into a single green “verified” badge. A contract can have a passing unit test and still lack integration, backend, or physical validation. Display evidence by level and freshness.
 
+The Tests workbench reports two separate accounting levels. **Command counts**
+(Passed / Failed / Not run) describe launched command groups; **case counts**
+(Passed / Failed / Skipped) describe framework-reported test cases. A command
+that was never launched is not a skipped test case. Python unittest and CTest
+counts remain separate on the final status line so different frameworks are
+not silently conflated. CTest skipped cases are counted from its explicit
+"tests did not run" section; absent that section, the skipped count is zero.
+
+
 Suggested evidence ladder (not a universal strict hierarchy):
 
 1. static/schema validation;

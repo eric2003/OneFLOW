@@ -92,7 +92,7 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(summary.kind, "state_transition")
         self.assertEqual(summary.status, "implemented")
         self.assertTrue(summary.architecture)
-        self.assertEqual(len(summary.evidence), 7)
+        self.assertEqual(len(summary.evidence), 8)
         self.assertIn(
             "SimulationEntryIntegration.FullSimulationEntryReadsControlFilesAndFinalizesProcessRuntime",
             {item.reference for item in summary.evidence},
