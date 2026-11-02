@@ -86,10 +86,22 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             )
             desktop_services.reset_mock()
             with patch(
-                "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices",
-                desktop_services,
-            ):
-                dialog._open_case_references()
+                "tools.oneflow_gui.contract_workbench_dialog.RepositoryFileSelectionDialog"
+            ) as selection_type:
+                selection = selection_type.return_value
+                selection.exec.return_value = 1
+                selection.selected_paths = (
+                    "test/suites/cpu-serial.txt",
+                    "test/baselines/residual-baseline.json",
+                    "test/cfd/plateuns2dslau2/results/cf.blasius",
+                    "test/cfd/plateuns2dslau2/results/u.blasius",
+                    "test/cfd/plateuns2dslau2/results/v.blasius",
+                )
+                with patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices",
+                    desktop_services,
+                ):
+                    dialog._open_case_references()
             opened_paths = [
                 call.args[0].toLocalFile()
                 for call in desktop_services.openUrl.call_args_list
@@ -153,6 +165,94 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_gui_process_contract_exposes_implementation_sources(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "runtime")
+        try:
+            contract_index = next(
+                index
+                for index, summary in enumerate(dialog._summaries)
+                if summary.id == "runtime/gui-process-execution"
+            )
+            dialog.contract_list.setCurrentRow(contract_index)
+            implementation_text = dialog.implementation_view.toPlainText()
+            self.assertIn("tools/oneflow_gui/process_control.py", implementation_text)
+            self.assertIn("tools/oneflow_gui/test_dialog.py", implementation_text)
+            self.assertFalse(dialog.open_source_button.isHidden())
+            self.assertIs(
+                dialog.open_source_button.parentWidget(),
+                dialog.implementation_page,
+            )
+            self.assertTrue(dialog.open_source_button.isEnabled())
+        finally:
+            dialog.close()
+
+    def test_file_selection_supports_single_multiple_and_select_all(self) -> None:
+        from tools.oneflow_gui.contract_workbench_dialog import (
+            RepositoryFileSelectionDialog,
+        )
+
+        dialog = RepositoryFileSelectionDialog(
+            ("src/one.cpp", "src/two.cpp", "src/three.cpp")
+        )
+        try:
+            dialog.file_list.item(1).setSelected(True)
+            self.assertEqual(
+                [item.text() for item in dialog.file_list.selectedItems()],
+                ["src/two.cpp"],
+            )
+            dialog.file_list.item(2).setSelected(True)
+            self.assertEqual(
+                {item.text() for item in dialog.file_list.selectedItems()},
+                {"src/two.cpp", "src/three.cpp"},
+            )
+            dialog.file_list.clearSelection()
+            select_all = next(
+                button
+                for button in dialog.findChildren(type(dialog.open_button))
+                if button.text() == "Select all"
+            )
+            select_all.click()
+            selected = {
+                item.text() for item in dialog.file_list.selectedItems()
+            }
+            self.assertEqual(selected, {"src/one.cpp", "src/two.cpp", "src/three.cpp"})
+            dialog._accept_selection()
+            self.assertEqual(
+                set(dialog.selected_paths),
+                {"src/one.cpp", "src/two.cpp", "src/three.cpp"},
+            )
+        finally:
+            dialog.close()
+
+    def test_open_sources_opens_only_selected_files(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "runtime")
+        try:
+            contract_index = next(
+                index
+                for index, summary in enumerate(dialog._summaries)
+                if summary.id == "runtime/gui-process-execution"
+            )
+            dialog.contract_list.setCurrentRow(contract_index)
+            with patch(
+                "tools.oneflow_gui.contract_workbench_dialog.RepositoryFileSelectionDialog"
+            ) as selection_type:
+                selection = selection_type.return_value
+                selection.exec.return_value = 1
+                selection.selected_paths = ("tools/oneflow_gui/process_control.py",)
+                desktop_services = Mock()
+                with patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices",
+                    desktop_services,
+                ):
+                    dialog._open_sources()
+            desktop_services.openUrl.assert_called_once()
+            self.assertEqual(
+                Path(desktop_services.openUrl.call_args.args[0].toLocalFile()).resolve(),
+                (self.repository_root / "tools/oneflow_gui/process_control.py").resolve(),
+            )
+        finally:
+            dialog.close()
+
     def test_open_declared_python_test_sources_from_verification(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
         try:
@@ -164,11 +264,22 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             dialog.contract_list.setCurrentRow(contract_index)
             self.assertTrue(dialog.open_tests_button.isEnabled())
             desktop_services = Mock()
+            expected_paths = (
+                "tools/oneflow_gui/test_process_control.py",
+                "tools/oneflow_gui/test_runner_process.py",
+                "tools/oneflow_gui/test_workflow_process.py",
+            )
             with patch(
-                "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices",
-                desktop_services,
-            ):
-                dialog.open_tests_button.click()
+                "tools.oneflow_gui.contract_workbench_dialog.RepositoryFileSelectionDialog"
+            ) as selection_type:
+                selection = selection_type.return_value
+                selection.exec.return_value = 1
+                selection.selected_paths = expected_paths
+                with patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices",
+                    desktop_services,
+                ):
+                    dialog.open_tests_button.click()
             opened_paths = {
                 Path(call.args[0].toLocalFile()).resolve()
                 for call in desktop_services.openUrl.call_args_list

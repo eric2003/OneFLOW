@@ -986,3 +986,22 @@ validated independently.
 * Each displayed implementation or evidence link resolves to its declared
   source; execution status is never inferred from a declaration.
 * The Qt-independent catalog and validation remain usable in CI.
+
+## 31. Selective source navigation
+
+Source-opening actions must never launch every associated file without asking.
+The shared file-opening path first resolves and deduplicates repository-relative
+files, rejects paths outside the repository, and excludes missing files. It then
+presents a selection dialog with extended selection, Select all, and
+Clear selection actions. A user can open one file, several selected files,
+or all files; Cancel opens none. The same selection behavior applies to
+implementation sources, documentation and references, and declared test
+sources. This keeps the action predictable when a contract links multiple
+production modules or tests.
+
+The Runtime contract runtime/gui-process-execution must expose its declared
+implementation paths in the Implementation / Code view and use the same
+selection action as every other contract. A regression test covers visibility
+of this action, the declared process-control source paths, selection cardinality,
+and opening only the selected file.
+

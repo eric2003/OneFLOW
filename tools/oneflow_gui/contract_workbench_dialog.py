@@ -9,7 +9,9 @@ from pathlib import Path
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QDialog,
+    QDialogButtonBox,
     QHBoxLayout,
     QLabel,
     QListWidget,
@@ -31,6 +33,68 @@ def _ensure_tools_on_path(repository_root: Path) -> None:
     tools_text = str(tools_root)
     if tools_text not in sys.path:
         sys.path.insert(0, tools_text)
+
+
+class RepositoryFileSelectionDialog(QDialog):
+    """Let users choose one, several, or all repository files to open."""
+
+    def __init__(self, paths: tuple[str, ...], parent=None) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("Select files to open")
+        self.resize(620, 440)
+        self._selected_paths: tuple[str, ...] = ()
+
+        layout = QVBoxLayout(self)
+        description = QLabel(
+            "Select one or more files. Use Select all to open every listed file."
+        )
+        description.setWordWrap(True)
+        layout.addWidget(description)
+
+        self.file_list = QListWidget()
+        self.file_list.setSelectionMode(
+            QAbstractItemView.SelectionMode.ExtendedSelection
+        )
+        for path in paths:
+            item = QListWidgetItem(path)
+            item.setData(Qt.ItemDataRole.UserRole, path)
+            self.file_list.addItem(item)
+        layout.addWidget(self.file_list, 1)
+
+        actions = QHBoxLayout()
+        select_all_button = QPushButton("Select all")
+        select_all_button.clicked.connect(self.file_list.selectAll)
+        clear_button = QPushButton("Clear selection")
+        clear_button.clicked.connect(self.file_list.clearSelection)
+        actions.addWidget(select_all_button)
+        actions.addWidget(clear_button)
+        actions.addStretch(1)
+        layout.addLayout(actions)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Open
+            | QDialogButtonBox.StandardButton.Cancel
+        )
+        self.open_button = buttons.button(QDialogButtonBox.StandardButton.Open)
+        self.open_button.setEnabled(False)
+        self.file_list.itemSelectionChanged.connect(
+            lambda: self.open_button.setEnabled(bool(self.file_list.selectedItems()))
+        )
+        buttons.accepted.connect(self._accept_selection)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+    @property
+    def selected_paths(self) -> tuple[str, ...]:
+        return self._selected_paths
+
+    def _accept_selection(self) -> None:
+        self._selected_paths = tuple(
+            item.data(Qt.ItemDataRole.UserRole)
+            for item in self.file_list.selectedItems()
+        )
+        if self._selected_paths:
+            self.accept()
 
 
 class ContractDomainDialog(QDialog):
@@ -108,6 +172,14 @@ class ContractDomainDialog(QDialog):
         self.architecture_view.setReadOnly(True)
         self.implementation_view = QPlainTextEdit()
         self.implementation_view.setReadOnly(True)
+        self.implementation_page = QWidget()
+        implementation_layout = QVBoxLayout(self.implementation_page)
+        implementation_layout.addWidget(self.implementation_view, 1)
+        self.open_source_button = QPushButton("Open selected source files...")
+        self.open_source_button.clicked.connect(self._open_sources)
+        implementation_layout.addWidget(
+            self.open_source_button, 0, Qt.AlignmentFlag.AlignRight
+        )
         self.documentation_view = QPlainTextEdit()
         self.documentation_view.setReadOnly(True)
         self.evidence_view = QPlainTextEdit()
@@ -118,7 +190,7 @@ class ContractDomainDialog(QDialog):
         self.tabs.addTab(self.overview_view, "Overview")
         self.tabs.addTab(self.principle_view, "Principle")
         self.tabs.addTab(self.architecture_view, "Architecture")
-        self.tabs.addTab(self.implementation_view, "Implementation / Code")
+        self.tabs.addTab(self.implementation_page, "Implementation / Code")
         self.tabs.addTab(self.documentation_view, "Documentation / References")
         self.tabs.addTab(self.evidence_view, "Verification")
         if domain == "case":
@@ -126,14 +198,11 @@ class ContractDomainDialog(QDialog):
         detail_layout.addWidget(self.tabs, 1)
 
         open_layout = QHBoxLayout()
-        self.open_source_button = QPushButton("Open source files...")
-        self.open_source_button.clicked.connect(self._open_sources)
         self.open_docs_button = QPushButton("Open documentation...")
         self.open_docs_button.clicked.connect(self._open_documentation)
         self.open_tests_button = QPushButton("Open declared test sources...")
         self.open_tests_button.setEnabled(False)
         self.open_tests_button.clicked.connect(self._open_verification_sources)
-        open_layout.addWidget(self.open_source_button)
         open_layout.addWidget(self.open_docs_button)
         open_layout.addWidget(self.open_tests_button)
         self.open_case_directory_button = None
@@ -260,6 +329,7 @@ class ContractDomainDialog(QDialog):
         self.implementation_view.setPlainText(
             "\n".join(summary.implementation_paths) or "No implementation paths declared."
         )
+        self.open_source_button.setEnabled(bool(summary.implementation_paths))
         self.documentation_view.setPlainText(
             "References\n----------\n"
             + "\n".join(summary.references)
@@ -363,18 +433,29 @@ class ContractDomainDialog(QDialog):
         return f"{description}: {relative_path}"
 
     def _open_paths(self, paths: tuple[str, ...], label: str) -> None:
-        opened = 0
-        for relative in paths:
+        """Resolve safe repository files, then open only the user's selection."""
+        existing_paths = []
+        for relative in dict.fromkeys(paths):
             candidate = (self._repository_root / relative).resolve()
             try:
                 candidate.relative_to(self._repository_root)
             except ValueError:
                 continue
             if candidate.is_file():
-                QDesktopServices.openUrl(QUrl.fromLocalFile(str(candidate)))
-                opened += 1
-        if not opened:
+                existing_paths.append(
+                    candidate.relative_to(self._repository_root).as_posix()
+                )
+        if not existing_paths:
             QMessageBox.information(self, label, "No existing repository files to open.")
+            return
+
+        selection = RepositoryFileSelectionDialog(tuple(existing_paths), self)
+        selection.setWindowTitle(f"{label}: select files")
+        if selection.exec() != QDialog.DialogCode.Accepted:
+            return
+        for relative in selection.selected_paths:
+            candidate = (self._repository_root / relative).resolve()
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(candidate)))
 
     def _open_sources(self) -> None:
         summary = self._current_summary()
