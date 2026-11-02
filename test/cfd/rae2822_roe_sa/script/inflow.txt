@@ -1,5 +1,5 @@
 int  inflowType             = 0; (0-x-direction uniform flow; 1-static;2-manufacturing solution,3-given value,4-read in from a file)
-int  manufacturedInflowType = 1; // 1 - 等熵涡; 2 - Euler制造解; 3 - Couette Flow; 4 - 待添加
+int  manufacturedInflowType = 1; // 1 - preset 1; 2 - Euler solution; 3 - Couette flow; 4 - preset 4
 Real inflowVelocity         = 0.5;
 
 //rae2822 airfoil condition
@@ -35,5 +35,5 @@ Real prt      =  0.90;
 Real schmidtl =  0.5;
 Real schmidtt =  0.5;
 string gasModelFile  =  "gasmodel/air5s11r.dat"
-int  isowallbc  =  0;     // 0 绝热壁 1 等温壁
+int  isowallbc  =  0;     // 0 - adiabatic wall; 1 - isothermal wall
 Real twall_dim  =  300.0; // K
