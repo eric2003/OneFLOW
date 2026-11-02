@@ -20,7 +20,8 @@
       "codes/main/src/SimuImp.cpp",
       "codes/main/src/SimuContextCaseEnvironment.cpp",
       "codes/main/src/SimuContextEnv.cpp",
-      "codes/accel/src/AccelRuntime.cpp"
+      "codes/accel/src/AccelRuntime.cpp",
+      "tests/main/simu_imp_case_lifecycle_integration_test.cpp"
     ]
   },
   "documentation": {
@@ -74,6 +75,12 @@
       "reference": "SimulationEntryIntegration.FailedFullSimulationEntryTearsDownCaseAndFinalizesProcessRuntime",
       "status": "linked_not_executed",
       "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; invokes Simulation::Run with a control manifest whose second script is missing after the first script has populated the real DataBase, then verifies public failure reporting, case rollback, project-path cleanup, and process-runtime finalization."
+    },
+    {
+      "kind": "google_test",
+      "reference": "SimuImpCaseLifecycleIntegration.RepositoryRae2822ConversionCaseCanBeInitializedWithoutRunningGridTask",
+      "status": "linked_not_executed",
+      "scope": "Copies the checked-in test/grid/rae2822convert control scripts to a temporary directory, calls the production SimuContext::SetupCaseEnvironment and TeardownCase methods, checks typed values and initialization artifacts, and deliberately does not resolve or execute the Grid task."
     }
   ],
   "claims": {
@@ -83,14 +90,16 @@
       "A subsequent successful finalization completes the process lifecycle.",
       "Each sequential production case reads its own typed control value and materializes its database and I/O path diagnostics before case-owned state is cleared.",
       "The public Simulation::Run entry point dispatches a full case invocation through the real multi-file control reader and task registry, materializes case artifacts, and finalizes the process runtime.",
-      "A configuration failure reached through the public Simulation::Run entry point clears partially ingested case data and project bindings, reports failure, and still finalizes the process runtime."
+      "A configuration failure reached through the public Simulation::Run entry point clears partially ingested case data and project bindings, reports failure, and still finalizes the process runtime.",
+      "The checked-in rae2822convert control-script set can be ingested by the production case-configuration path and torn down without executing its Grid task or writing generated files into the reference case."
     ],
     "does_not_prove": [
       "Real CUDA or HIP driver shutdown behavior on physical accelerator hardware.",
       "Multi-rank MPI teardown behavior or failures across heterogeneous ranks.",
       "Every solver-specific resource release path or all possible exceptions during case teardown.",
       "Physical or numerical correctness of CFD solutions.",
-      "The operating-system executable main function, multi-case CLI argument handling, or full solver execution and numerical correctness."
+      "The operating-system executable main function, multi-case CLI argument handling, or full solver execution and numerical correctness.",
+      "The referenced grid conversion inputs in rae2822convert are mutually consistent or that the Grid task succeeds; this setup-only check validates control ingestion, not grid conversion."
     ]
   },
   "tags": [
