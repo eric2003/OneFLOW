@@ -80,7 +80,7 @@
       "kind": "google_test",
       "reference": "SimuImpCaseLifecycleIntegration.RepositoryRae2822ConversionCaseCanBeInitializedWithoutRunningGridTask",
       "status": "linked_not_executed",
-      "scope": "Copies the checked-in test/grid/rae2822convert control scripts to a temporary directory, calls the production SimuContext::SetupCaseEnvironment and TeardownCase methods, checks typed values and initialization artifacts, and deliberately does not resolve or execute the Grid task. A scoped guard retries case teardown if a fatal assertion exits the test early."
+      "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; copies the checked-in test/grid/rae2822convert control scripts to a temporary directory, calls the production SimuContext::SetupCaseEnvironment and TeardownCase methods, checks typed values and initialization artifacts, and deliberately does not resolve or execute the Grid task. A scoped guard retries case teardown if a fatal assertion exits the test early."
     }
   ],
   "claims": {
