@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+from contextlib import contextmanager
 import json
 import sqlite3
 from datetime import datetime, timezone
@@ -79,12 +80,21 @@ class ParameterCatalogStore:
     def __init__(self, database_path: str | Path):
         self.database_path = Path(database_path).expanduser().resolve()
 
-    def _connect(self) -> sqlite3.Connection:
+    @contextmanager
+    def _connect(self):
+        """Commit successful operations and always release the database handle."""
         self.database_path.parent.mkdir(parents=True, exist_ok=True)
         connection = sqlite3.connect(self.database_path, timeout=10.0)
-        connection.execute("PRAGMA foreign_keys = ON")
-        connection.executescript(_SCHEMA)
-        return connection
+        try:
+            connection.execute("PRAGMA foreign_keys = ON")
+            connection.executescript(_SCHEMA)
+            yield connection
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            connection.close()
 
     def sync_document(self, project_root: str | Path, document: ParameterDocument) -> bool:
         """Index one file; return True only when a new content snapshot is recorded."""

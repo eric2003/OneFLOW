@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import sqlite3
+from contextlib import closing
 import tempfile
 import unittest
 from pathlib import Path
@@ -79,7 +80,7 @@ class ParameterCatalogStoreTest(unittest.TestCase):
             path.write_text("int maxSteps = 50;\n", encoding="utf-8")
             database = Path(temporary) / "catalog.sqlite3"
             ParameterCatalogStore(database).sync_document(root, ParameterDocument.load(path))
-            with sqlite3.connect(database) as db:
+            with closing(sqlite3.connect(database)) as db:
                 integrity = db.execute("PRAGMA integrity_check").fetchone()[0]
                 definition = db.execute(
                     "SELECT value_kind, label FROM parameter_definitions "
