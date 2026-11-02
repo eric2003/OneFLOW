@@ -302,6 +302,27 @@ Platform branches are covered by unit tests that can run on either host. These
 tests validate path and command construction; they do not replace a real Linux
 CMake configure/build/CTest/regression run.
 
+## Python unittest contract evidence
+
+Versioned contracts may now declare `python_test` evidence using a fully
+qualified unittest class/method identity and a repository-relative source path
+in the evidence scope. The catalog parses the source with Python's AST and
+checks that the named class and test method are declared; it does not import
+the test module, execute the test, or promote `linked_not_executed` to a
+passing result.
+
+The GUI process-execution contract uses this evidence kind to connect its
+process-control, Case Runner, and Workflow descendant-cancellation tests to
+the shared Contract Workbench. This is deliberately separate from the
+solver's accelerator-runtime lifecycle contract.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
+
 ## Process-tree cancellation in the test workbench
 
 The GUI test worker, Case Database runner, and workflow process runner start
