@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+import codecs
 import json
 import subprocess
 import tempfile
@@ -10,6 +11,7 @@ from pathlib import Path
 
 from .contract_catalog import (
     ContractEvidence,
+    _read_python_numeric_constant,
     ContractSummary,
     adapt_declared_contract,
     adapt_geometry_scenario,
@@ -771,6 +773,56 @@ class ContractCatalogTest(unittest.TestCase):
         )
         self.assertTrue(resolutions[0].resolved_path.endswith("EvidenceTest.cpp"))
         self.assertIn("missing repository file", resolutions[1].diagnostic)
+
+
+    def test_reads_python_sources_with_utf8_bom(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            source = root / "BomContractTest.py"
+            source.write_bytes(
+                codecs.BOM_UTF8
+                + (
+                    "OUTPUT_ABSOLUTE_TOLERANCE = 1e-8\\n"
+                    "class BomContractTest(unittest.TestCase):\\n"
+                    "    def test_bom_source(self):\\n"
+                    "        pass\\n"
+                ).encode("utf-8")
+            )
+
+            tolerance = _read_python_numeric_constant(
+                root, "BomContractTest.py", "OUTPUT_ABSOLUTE_TOLERANCE"
+            )
+            summary = ContractSummary(
+                id="runtime/python-bom-source",
+                source_id="python-bom-source",
+                title="Python BOM source",
+                domain="runtime",
+                kind="test_contract",
+                overview="",
+                principle="",
+                architecture="",
+                status="implemented",
+                references=(),
+                implementation_paths=(),
+                documentation_paths=(),
+                evidence=(
+                    ContractEvidence(
+                        kind="python_test",
+                        reference="BomContractTest.test_bom_source",
+                        status="linked_not_executed",
+                        scope="BomContractTest.py; UTF-8 BOM regression fixture.",
+                    ),
+                ),
+                claims=(),
+                limitations=(),
+            )
+
+            resolutions = resolve_contract_evidence(root, summary)
+            issues = validate_contract_summaries(root, [summary])
+
+        self.assertEqual(tolerance, 1e-8)
+        self.assertEqual([item.status for item in resolutions], ["resolved"])
+        self.assertEqual(issues, [], "\\n".join(issues))
 
     def test_resolves_python_unittest_declarations_without_importing_them(self) -> None:
         from .contract_catalog import resolve_contract_evidence
