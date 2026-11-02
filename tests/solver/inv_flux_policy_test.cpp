@@ -472,3 +472,25 @@ TEST( InvFluxPolicy, RoeDissipationCouplingTerm2HasAcousticWeight )
     EXPECT_NEAR( t2a - 0.0 * 0.25, 4.0 * 2.0 * 0.5, 1.0e-12 );
     EXPECT_NEAR( t2b - 3.0 * 0.25, 4.0 * 2.0 * 0.5, 1.0e-12 );
 }
+
+// Intermediate: RoeAverageWeights on a density-ratio grid.
+TEST( InvFluxPolicy, RoeAverageWeightsCurveMatchesClosedForm )
+{
+    const Real rhoL = 1.0;
+    const Real rhoRs[] = { 0.25, 0.5, 1.0, 2.0, 4.0, 9.0, 16.0 };
+    for ( Real rhoR : rhoRs )
+    {
+        Real ratio = 0.0, coef = 0.0;
+        RoeAverageWeights( rhoL, rhoR, ratio, coef );
+        EXPECT_NEAR( ratio, std::sqrt( rhoR / rhoL ), 1.0e-12 );
+        EXPECT_NEAR( coef, 1.0 / ( 1.0 + ratio ), 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeAverageWeightsSymmetricAtUnitRatio )
+{
+    Real ratio = 0.0, coef = 0.0;
+    RoeAverageWeights( 2.0, 2.0, ratio, coef );
+    EXPECT_DOUBLE_EQ( ratio, 1.0 );
+    EXPECT_DOUBLE_EQ( coef, 0.5 );
+}

@@ -994,6 +994,53 @@ principle=(
 
 
 
+
+        TheoryEntry(
+            id="roe_average_weights",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="flux / Roe average",
+            title="Roe average weights (ratio, coef)",
+            role_tags=("flux", "Roe", "average"),
+            formula_plain=(
+                "ratio = sqrt(rho_R / rho_L)\n"
+                "coef  = 1 / (1 + ratio)\n"
+                "Component average: (left + right*ratio)*coef"
+            ),
+            formula_latex=(
+                r"\mathrm{ratio}=\sqrt{\rho_R/\rho_L}"
+                "\n"
+                r"\mathrm{coef}=\frac{1}{1+\mathrm{ratio}}"
+            ),
+            principle=(
+                "Density-based weights for the Roe-averaged interface state. "
+                "Equal densities give ratio=1, coef=1/2 (arithmetic mean)."
+            ),
+            background=(
+                "Pure API RoeAverageWeights. Feeds RoeAverageComponent and "
+                "RoeAverageState used by the Roe flux."
+            ),
+            references=(
+                "Roe (1981); OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/roe_average_weights.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_average_weights_theory.csv",
+            plot_module="plot_roe_average_weights",
+            pure_apis=("RoeAverageWeights", "RoeAverageComponent"),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_average_weights.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "ratio = sqrt(rhoR / rhoL);\n"
+                "coef  = 1.0 / (1.0 + ratio);\n"
+            ),
+            proves="ratio/coef algebra vs pure API on a density-ratio grid.",
+            does_not_prove="Full RoeAverageState pressure/enthalpy consistency.",
+        ),
+
         TheoryEntry(
             id="roe_dissipation_coupling",
             family="mean-flow",
