@@ -12,6 +12,7 @@ from typing import Callable
 from uuid import uuid4
 
 from .models import CaseDefinition, CaseRunResult, RunState
+from .process_control import process_group_options, terminate_process_tree
 
 
 LogCallback = Callable[[str], None]
@@ -154,6 +155,7 @@ def run_case(
             text=True,
             errors="replace",
             bufsize=1,
+            **process_group_options(),
         )
         output_queue: queue.Queue[str | None] = queue.Queue()
 
@@ -176,12 +178,14 @@ def run_case(
 
         while process.poll() is None or not reader_finished:
             if cancel_event.is_set() and process.poll() is None:
-                log(f"[{case.case_id}] Stop requested; terminating process.")
-                process.terminate()
+                log(f"[{case.case_id}] Stop requested; terminating process tree.")
+                terminate_process_tree(process)
                 try:
                     process.wait(timeout=3.0)
                 except subprocess.TimeoutExpired:
-                    process.kill()
+                    terminate_process_tree(process)
+                    if process.poll() is None:
+                        process.kill()
                     process.wait()
 
             try:
