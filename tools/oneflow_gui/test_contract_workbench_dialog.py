@@ -84,40 +84,30 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 ).resolve(),
                 expected_directory,
             )
-            desktop_services.reset_mock()
+            selected_references = (
+                "test/suites/cpu-serial.txt",
+                "test/baselines/residual-baseline.json",
+                "test/cfd/plateuns2dslau2/results/cf.blasius",
+                "test/cfd/plateuns2dslau2/results/u.blasius",
+                "test/cfd/plateuns2dslau2/results/v.blasius",
+            )
             with patch(
                 "tools.oneflow_gui.contract_workbench_dialog.RepositoryFileSelectionDialog"
             ) as selection_type:
                 selection = selection_type.return_value
                 selection.exec.return_value = 1
-                selection.selected_paths = (
-                    "test/suites/cpu-serial.txt",
-                    "test/baselines/residual-baseline.json",
-                    "test/cfd/plateuns2dslau2/results/cf.blasius",
-                    "test/cfd/plateuns2dslau2/results/u.blasius",
-                    "test/cfd/plateuns2dslau2/results/v.blasius",
-                )
+                selection.selected_paths = selected_references
                 with patch(
-                    "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices",
-                    desktop_services,
-                ):
+                    "tools.oneflow_gui.contract_workbench_dialog.ApplicationSettings.load",
+                    return_value=Mock(source_editor="vscode"),
+                ), patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.open_source_files"
+                ) as open_files:
                     dialog._open_case_references()
-            opened_paths = [
-                call.args[0].toLocalFile()
-                for call in desktop_services.openUrl.call_args_list
-            ]
-            self.assertEqual(
-                [Path(path).resolve() for path in opened_paths],
-                [
-                    (self.repository_root / path).resolve()
-                    for path in (
-                        "test/suites/cpu-serial.txt",
-                        "test/baselines/residual-baseline.json",
-                        "test/cfd/plateuns2dslau2/results/cf.blasius",
-                        "test/cfd/plateuns2dslau2/results/u.blasius",
-                        "test/cfd/plateuns2dslau2/results/v.blasius",
-                    )
-                ],
+            open_files.assert_called_once_with(
+                "vscode",
+                tuple((self.repository_root / item).resolve() for item in selected_references),
+                working_directory=self.repository_root,
             )
         finally:
             dialog.close()
