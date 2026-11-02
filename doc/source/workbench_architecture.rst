@@ -184,3 +184,31 @@ run details, including invocation identity, timestamps, and output subjects
 (https://slsa.dev/spec/v1.2/provenance). OneFLOW's local records are not signed
 attestations and do not claim trusted-builder or complete-dependency
 guarantees.
+
+Unified parameter view
+-----------------------
+
+The Project Window presents a unified, read-only parameter tree built from
+``ParameterModel``. Its top-level domains are Shared, CFD, Grid, and Other;
+the model and UI remain Qt-independent at the data-contract boundary.
+
+The parameter documents are loaded in ``control.txt`` manifest order. The
+manifest is not itself a parameter file. Every effective scalar row retains
+its declared type, raw value, source path, manifest file order, and declaration
+order. Duplicate keys use the runtime last-declaration-wins rule; shadowed
+declarations remain visible beneath the effective value with their own source
+locations.
+
+Unknown scalar keys are retained and visibly classified as Other or as an
+unmapped group within a known task domain. Array declarations and declarations
+outside the scalar parser's supported syntax are listed as unsupported, with
+source location and a reason. The tree does not imply complete runtime coverage
+or make unsupported declarations editable. Opening a row in the configured
+source editor navigates to the original parameter file; it does not rewrite
+configuration through the tree.
+
+The model's next integration boundary is runtime consumer tracing and
+applicability evidence. Formula & Knowledge cross-references should be added
+only after parameter identity and formula relationships have source-backed
+evidence. A parsed declaration is not proof that a selected solver path reads
+or uses it.
