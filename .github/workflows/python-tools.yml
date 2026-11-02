@@ -120,3 +120,14 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_workflow_case_runtime
       - name: Test workspace persistence and editor paths
         run: python -m unittest tools.oneflow_gui.test_workspace_repository tools.oneflow_gui.test_workspace_dialog
+
+  background-task-python-315:
+    name: Background task lifecycle (Windows, Python 3.15)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.15"
+      - name: Test detached background task lifecycle
+        run: python -m unittest tools.oneflow_gui.test_background_task_manager tools.oneflow_gui.test_background_task_host
