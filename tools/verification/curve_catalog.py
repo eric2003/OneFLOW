@@ -875,6 +875,56 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Sweep stability on arbitrary meshes.",
         ),
 
+
+        TheoryEntry(
+            id="viscous_spectral_radius_model1",
+            family="mean-flow",
+            genus="NS-spectrum",
+            section="time-step / viscous spectral radius",
+            title="Viscous face spectral radius (model 1, Blazek-style)",
+            role_tags=("time-step", "spectrum", "viscous"),
+            formula_plain=(
+                "c1 = (4/3)*(mu + mut)\n"
+                "c2 = gamma*(mu/Pr_l + mut/Pr_t)\n"
+                "c3 = 2*max(c1,c2)/(Re*rho)\n"
+                "lambda = A^2 * c3"
+            ),
+            formula_latex=(
+                r"c_1=\frac{4}{3}(\mu+\mu_t),\ "
+                r"c_2=\gamma(\mu/\mathrm{Pr}_l+\mu_t/\mathrm{Pr}_t)"
+                "\n"
+                r"\lambda_{\mathrm{vis}}=A^{2}\cdot\frac{2\max(c_1,c_2)}{\mathrm{Re}\,\rho}"
+            ),
+            principle=(
+                "Blazek-style viscous spectral estimate taking the larger of "
+                "momentum and energy diffusivities, scaled by face area squared."
+            ),
+            background=(
+                "Pure API ViscousFaceSpectralRadiusModel1 in TimeStepPolicy. "
+                "Feeds viscous time-step and LUSGS viscous spectrum paths."
+            ),
+            references=(
+                "Blazek, Computational Fluid Dynamics; OneFLOW TimeStepPolicy",
+                "doc/source/numerical/viscous_spectral_radius_model1.rst",
+            ),
+            csv_relpath="tools/verification/data/viscous_spectral_radius_model1_theory.csv",
+            plot_module="plot_viscous_spectral_radius_model1",
+            pure_apis=("ViscousFaceSpectralRadiusModel1",),
+            source_relpaths=(
+                "codes/ns/include/TimeStepPolicy.h",
+                "codes/ns/src/TimeStepPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/viscous_spectral_radius_model1.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "c1 = (4.0/3.0)*(mu+mut);\n"
+                "c2 = gama*(mu*invPrL + mut*invPrT);\n"
+                "lambda = A*A * 2*max(c1,c2)/(Re*rho);\n"
+            ),
+            proves="Model-1 viscous spectral algebra vs pure API on a mut grid.",
+            does_not_prove="Full CFL time-step on a case mesh or models 2/3.",
+        ),
+
         TheoryEntry(
             id="ns_inviscid_spectrum",
             family="mean-flow",
