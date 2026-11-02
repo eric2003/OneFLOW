@@ -758,9 +758,10 @@ configure, build, CTest, and regression run to establish runtime compatibility.
 
 ## 27. Cross-platform process-tree cancellation
 
-The GUI test worker now starts each command in an isolated process group via
-the Qt-independent `tools.oneflow_gui.process_control` module. Stop terminates
-the whole process tree rather than only the direct child:
+The GUI test worker, Case Database runner, and workflow process runner now
+start each command in an isolated process group via the Qt-independent
+`tools.oneflow_gui.process_control` module. Stop terminates the whole process
+tree rather than only the direct child:
 
 - POSIX: `start_new_session=True` and process-group termination with
   `os.killpg`;
