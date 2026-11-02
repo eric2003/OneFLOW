@@ -1315,6 +1315,51 @@ principle=(
             does_not_prove="Variable-gamma gas or numerical flux case residuals.",
         ),
 
+
+        TheoryEntry(
+            id="total_enthalpy",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Total enthalpy H = h + |u|^2/2",
+            role_tags=("EOS", "enthalpy"),
+            formula_plain=(
+                "H = h + 0.5 * |u|^2\n"
+                "Feeds Roe average, sound speed, pressure-from-H"
+            ),
+            formula_latex=(
+                r"H=h+\frac{1}{2}|u|^{2}"
+            ),
+            principle=(
+                "Total enthalpy adds kinetic energy to static enthalpy. "
+                "Central link between IdealGasStaticEnthalpy and Roe/LUSGS "
+                "face thermodynamics."
+            ),
+            background=(
+                "Pure API TotalEnthalpy in NsInvFluxPolicy. Upstream: static "
+                "enthalpy; downstream: IdealGasSoundSpeed, "
+                "RoePressureFromTotalEnthalpy."
+            ),
+            references=(
+                "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/total_enthalpy.rst",
+            ),
+            csv_relpath="tools/verification/data/total_enthalpy_theory.csv",
+            plot_module="plot_total_enthalpy",
+            pure_apis=("TotalEnthalpy",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/total_enthalpy.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "H = h + 0.5 * speedSquared;\n"
+            ),
+            proves="Total-enthalpy algebra vs pure API on a kinetic grid.",
+            does_not_prove="Full Roe average state consistency on a mesh.",
+        ),
+
         TheoryEntry(
             id="ideal_gas_static_enthalpy",
             family="mean-flow",
