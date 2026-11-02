@@ -45,6 +45,10 @@ from .test_runner import (
     summarize_test_output,
 )
 from .test_diagnostics import format_failure_summary, parse_test_diagnostics
+from .execution_capture import (
+    capture_python_unittest_execution,
+    is_python_unittest_command,
+)
 
 
 class TestCommandWorker(QThread):
@@ -139,6 +143,31 @@ class TestCommandWorker(QThread):
                 failed_labels.append(command.label)
                 run_output.extend(command_output)
                 break
+            finished_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            if is_python_unittest_command(command):
+                try:
+                    user_paths = UserDataPaths.discover()
+                    record = capture_python_unittest_execution(
+                        command,
+                        repository_root=command.working_directory,
+                        records_path=user_paths.verification_execution_records,
+                        artifact_directory=(
+                            user_paths.verification_execution_records.parent / "logs"
+                        ),
+                        started_at=started_at,
+                        finished_at=finished_at,
+                        exit_code=return_code,
+                        output_lines=command_output,
+                        cancelled=self._cancel.is_set(),
+                        configuration=self._build_config or "",
+                    )
+                    self.output_line.emit(
+                        f"EXECUTION RECORD: {record.record_id} / {record.outcome}"
+                    )
+                except Exception as error:
+                    self.output_line.emit(
+                        f"WARNING: unable to persist execution evidence: {error}"
+                    )
             run_output.extend(command_output)
             if self._cancel.is_set():
                 self.command_completed.emit(
@@ -153,7 +182,6 @@ class TestCommandWorker(QThread):
                 self.completed.emit(False, "Test run cancelled.")
                 return
             if return_code != 0:
-                finished_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
                 configuration = self._build_config
                 for index, argument in enumerate(command.arguments[:-1]):
                     if argument == "-C":
