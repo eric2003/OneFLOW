@@ -106,6 +106,8 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_project_window
       - name: Test lossless parameter document
         run: python -m unittest tools.oneflow_gui.test_parameter_document
+      - name: Test SQLite parameter catalog
+        run: python -m unittest tools.oneflow_gui.test_parameter_catalog_store
       - name: Test mesh layout project copying
         run: python -m unittest tools.oneflow_gui.test_mesh_layout_projects
       - name: Test workflow persistence

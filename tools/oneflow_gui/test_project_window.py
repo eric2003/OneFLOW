@@ -29,10 +29,13 @@ class ProjectWindowParameterTest(unittest.TestCase):
             (script / "control.txt").write_text('"simu.txt"\n', encoding="ascii")
             (script / "simu.txt").write_text('string simuTask = "flow";\n', encoding="ascii")
 
-            window = ProjectWindow(
-                open_project(root),
-                root.parent,
-            )
+            catalog_home = root.parent / "oneflow-user-data"
+            with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
+                window = ProjectWindow(
+                    open_project(root),
+                    root.parent,
+                )
+            self.assertTrue((catalog_home / "parameter-catalog.sqlite3").is_file())
             try:
                 labels = [label.text() for label in window.findChildren(QLabel)]
                 self.assertNotIn("Runtime file", labels)
@@ -56,7 +59,9 @@ class ProjectWindowParameterTest(unittest.TestCase):
             script.mkdir()
             (script / "control.txt").write_text('"simu.txt"\n', encoding="ascii")
             (script / "simu.txt").write_text("string simuTask = \"flow\";\n", encoding="ascii")
-            window = ProjectWindow(open_project(root), root.parent)
+            catalog_home = root.parent / "oneflow-user-data"
+            with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
+                window = ProjectWindow(open_project(root), root.parent)
             try:
                 with patch(
                     "tools.oneflow_gui.project_window.ApplicationSettings.load"

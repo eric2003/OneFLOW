@@ -208,6 +208,7 @@ _PYTHON_UNIT_TESTS = (
     ("Project repository tests", ("-m", "unittest", "tools.oneflow_gui.test_project_repository")),
     ("Project window tests", ("-m", "unittest", "tools.oneflow_gui.test_project_window")),
     ("Parameter document tests", ("-m", "unittest", "tools.oneflow_gui.test_parameter_document")),
+    ("Parameter catalog database tests", ("-m", "unittest", "tools.oneflow_gui.test_parameter_catalog_store")),
     ("User data path tests", ("-m", "unittest", "tools.oneflow_gui.test_user_data_paths")),
     ("Application settings tests", ("-m", "unittest", "tools.oneflow_gui.test_application_settings")),
     ("Workflow persistence tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_repository")),

@@ -157,6 +157,15 @@ The parser tests cover typed values, GBK and UTF-8 BOM preservation, CRLF and co
 preservation, unknown syntax preservation, no-op formatting stability, and external-edit
 conflict detection.
 
+SQLite parameter catalog
+------------------------
+
+The Workbench stores a local database at ``%USERPROFILE%/.oneflow/parameter-catalog.sqlite3`` (or ``ONEFLOW_HOME/parameter-catalog.sqlite3``). This is an application index, not a replacement for legacy case files or the C++ runtime ``DataBase``.
+
+The catalog stores project roots, relative file paths, source encoding, SHA-256 fingerprints, parsed typed declarations, schema-backed parameter definitions, and immutable content snapshots. Re-indexing an unchanged file is a no-op. A changed file adds a snapshot and refreshes the current-value view. Opening a project indexes supported parameter files without modifying them. Comments, formatting, line endings, and unknown declarations remain in the source file; the catalog stores parsed values and source identity.
+
+The index is intentionally limited to scalar declarations understood by ``ParameterDocument``. Arrays and conditional declarations require explicit parser contracts before they can be represented safely. SQLite uses the Python standard library and adds no third-party runtime dependency.
+
 Recommended migration sequence
 ------------------------------
 

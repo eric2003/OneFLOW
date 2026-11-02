@@ -37,6 +37,8 @@ from PySide6.QtWidgets import (
 from .application_settings import ApplicationSettings
 from .executable_discovery import executable_candidates
 from .source_editor import open_source_files
+from .parameter_document import ParameterDocument
+from .parameter_catalog_store import ParameterCatalogStore
 from .background_task_manager import start_background_task, request_background_stop
 from .background_task_registry import BackgroundTask, BackgroundTaskRegistry, TERMINAL_STATUSES
 from .project_inventory import (
@@ -282,6 +284,7 @@ class ProjectWindow(QMainWindow):
         self.resize(1180, 820)
         self.setMinimumSize(900, 650)
         self._build_ui()
+        self._index_parameter_files()
 
     def _build_ui(self) -> None:
         central = QWidget(self)
@@ -721,6 +724,26 @@ class ProjectWindow(QMainWindow):
             self._detached_changes_tree.sortItems(0, Qt.SortOrder.AscendingOrder)
         if self._detached_changes_summary is not None:
             self._detached_changes_summary.setText(self.changes_summary.text())
+
+    def _index_parameter_files(self) -> None:
+        """Index readable parameter files without changing their source bytes."""
+        store = ParameterCatalogStore(UserDataPaths.discover().parameter_catalog_database)
+        indexed = 0
+        failures = []
+        for path in self._project.parameter_files:
+            try:
+                document = ParameterDocument.load(path)
+                indexed += int(store.sync_document(self._project.root, document))
+            except (OSError, UnicodeError, ValueError) as error:
+                failures.append(f"{path.name}: {error}")
+        if failures:
+            self.statusBar().showMessage(
+                f"Parameter catalog indexed {indexed} file(s); {len(failures)} file(s) need attention.", 10000
+            )
+        elif indexed:
+            self.statusBar().showMessage(
+                f"Indexed {indexed} parameter-file snapshot(s) in the local catalog.", 5000
+            )
 
     def _modify_selected_parameter(self) -> None:
         """Open the selected case parameter file in the configured source editor."""
