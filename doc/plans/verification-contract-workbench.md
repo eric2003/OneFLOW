@@ -843,10 +843,18 @@ The JSONL store is append-only and strict on read: malformed lines report
 their line number instead of silently losing evidence. Its default path is
 reserved under the user data root, separate from workflow history.
 
-This stage does not yet create records from runner output or render them in the
-Workbench. The next vertical slice should adapt one real Python unittest
-invocation, capturing process metadata and a log artifact, then display matching
-records for an explicitly linked contract. Only after that path is proven
+The first real execution adapter is now connected to
+`TestCommandWorker` for Python `unittest` commands. It persists a record only
+after a process has launched and returned, captures the exact argument vector,
+timestamps, exit code, working directory, available Git/runtime metadata, and
+a SHA-256-addressed stdout artifact. Pre-launch cancellation and process-start
+failure do not create execution records; post-launch cancellation is recorded
+as cancelled. Contract IDs remain empty until an explicit mapping is authored.
+
+This proves the persistence boundary for one framework, but the Contract
+Workbench does not yet render execution history. The next vertical slice should
+display recent records and freshness in the Workbench, while keeping static
+resolution separate from actual execution. Only after that path is proven
 should CTest/GoogleTest and CFD regression adapters be added. A declaration,
 static source resolution, build registration, execution, and passing outcome
 must remain separate states.
