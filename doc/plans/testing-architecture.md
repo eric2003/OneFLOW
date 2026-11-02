@@ -120,6 +120,35 @@ The separate Repository Test Inventory remains the read-only source browser.
 This preserves a clear distinction between discovery and execution while
 making the three tests part of the normal GUI test action.
 
+## Test artifact and workspace isolation
+
+Test execution has two different path responsibilities: source access and writable
+artifacts. Python unittest commands intentionally keep the repository root as
+their working directory so package imports, repository-relative catalog paths,
+and existing command semantics remain stable. This does not make the repository
+a writable test-output directory.
+
+Writable data follows the centralized `UserDataPaths` policy:
+
+- Windows default: `%USERPROFILE%\\.oneflow`.
+- Linux and other POSIX defaults: `$HOME/.oneflow`.
+- `ONEFLOW_HOME` overrides the default on either platform.
+- GUI-captured Python unittest output is stored under
+  `test-runs/logs/<record-id>.log`.
+- Append-only execution evidence remains under
+  `verification/execution-records.jsonl`; records refer to the captured log
+  artifact rather than duplicating its contents.
+- CFD regression cases are staged under the user-data `cfd-regression/`
+  workspace, and Development Tests use their dedicated protected workspace.
+- CTest executes in the configured build tree. CMake build products belong
+  under `build/`, not the source root.
+- Short-lived unit-test fixtures should use `TemporaryDirectory` or an explicit
+  isolated workspace. Tests must not create generated files beside source files
+  merely because the repository root is their process working directory.
+
+This separation preserves reproducible imports while keeping generated data,
+logs, and execution evidence outside version-controlled source.
+
 ## Design principles and industry practices
 
 The design borrows a small set of established practices:
