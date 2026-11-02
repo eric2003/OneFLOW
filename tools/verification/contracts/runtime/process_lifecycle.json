@@ -80,7 +80,7 @@
       "kind": "google_test",
       "reference": "SimuImpCaseLifecycleIntegration.RepositoryRae2822ConversionCaseCanBeInitializedWithoutRunningGridTask",
       "status": "linked_not_executed",
-      "scope": "Copies the checked-in test/grid/rae2822convert control scripts to a temporary directory, calls the production SimuContext::SetupCaseEnvironment and TeardownCase methods, checks typed values and initialization artifacts, and deliberately does not resolve or execute the Grid task."
+      "scope": "Copies the checked-in test/grid/rae2822convert control scripts to a temporary directory, calls the production SimuContext::SetupCaseEnvironment and TeardownCase methods, checks typed values and initialization artifacts, and deliberately does not resolve or execute the Grid task. A scoped guard retries case teardown if a fatal assertion exits the test early."
     }
   ],
   "claims": {
@@ -91,7 +91,7 @@
       "Each sequential production case reads its own typed control value and materializes its database and I/O path diagnostics before case-owned state is cleared.",
       "The public Simulation::Run entry point dispatches a full case invocation through the real multi-file control reader and task registry, materializes case artifacts, and finalizes the process runtime.",
       "A configuration failure reached through the public Simulation::Run entry point clears partially ingested case data and project bindings, reports failure, and still finalizes the process runtime.",
-      "The checked-in rae2822convert control-script set can be ingested by the production case-configuration path and torn down without executing its Grid task or writing generated files into the reference case."
+      "The checked-in rae2822convert control-script set can be ingested by the production case-configuration path and torn down without executing its Grid task or writing generated files into the reference case; the test fixture also attempts case teardown on early assertion exit."
     ],
     "does_not_prove": [
       "Real CUDA or HIP driver shutdown behavior on physical accelerator hardware.",
