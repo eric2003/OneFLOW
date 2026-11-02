@@ -46,6 +46,7 @@ Developer resources
 
 * :doc:`test_inventory` — source-discovered test catalog, separated by framework, with input/expected/result contracts.
 * :doc:`runtime_architecture` — runtime entry points, configuration boundaries, execution flow, and refactoring rules.
+* :doc:`runtime_case_lifecycle` — production CLI-to-case execution sequence, configuration ingestion, cleanup ownership, and integration evidence.
 * :doc:`database_architecture` — parameter ownership, type-erased storage, const access, field pointer registration, and serialization contracts.
 * :doc:`evolutionary_computation_architecture` — computation-unit contracts, intermediate representations, and the long-term algorithm/dataflow evolution model.
 * :doc:`architecture_review` — whole-system CFD/CAE architecture checklist, major cross-cutting risks, and AI-assisted development review prompts.
@@ -136,6 +137,7 @@ The existing reference library covers programming languages, build systems, para
    architecture_review
    verification_evidence_lifecycle
    runtime_architecture
+   runtime_case_lifecycle
    database_architecture
    evolutionary_computation_architecture
    mesh_architecture
