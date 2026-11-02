@@ -10,7 +10,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from .process_control import process_group_options, terminate_process_tree
+from .process_control import process_group_options, terminate_and_reap
 
 
 def _process_creation_options() -> dict[str, object]:
@@ -72,14 +72,7 @@ def run_process(
     while process.poll() is None or not reader_finished:
         if is_cancelled() and process.poll() is None:
             cancellation_requested = True
-            terminate_process_tree(process)
-            try:
-                process.wait(timeout=3)
-            except subprocess.TimeoutExpired:
-                terminate_process_tree(process)
-                if process.poll() is None:
-                    process.kill()
-                process.wait()
+            terminate_and_reap(process)
         try:
             line = output_queue.get(timeout=0.1)
             if line is None:
