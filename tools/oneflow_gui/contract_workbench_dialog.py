@@ -485,7 +485,10 @@ class ContractDomainDialog(QDialog):
                 f"Flow model: {case.flow_model}\n"
                 f"Flux scheme: {case.flux_scheme}\n"
                 f"Maximum steps: {case.max_steps}\n"
-                f"Residual absolute tolerance: {case.residual_absolute_tolerance:g}\n\n"
+                f"Output absolute tolerance: {case.output_absolute_tolerance:g}\n"
+                f"Residual absolute tolerance: {case.residual_absolute_tolerance:g}\n"
+                f"Residual relative tolerance: {case.residual_relative_tolerance:g}\n"
+                f"Residual NaN policy: {case.residual_nan_policy}\n\n"
                 "Inputs\n------\n"
                 + "\n".join(case.input_paths)
                 + "\n\nCompared outputs\n-----------------\n"

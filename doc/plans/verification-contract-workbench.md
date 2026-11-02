@@ -1231,3 +1231,33 @@ The boundary follows a common secure-input practice: validate structure and
 domain invariants before resolving paths or acting on declarations, while
 keeping declaration validation, execution evidence, numerical verification,
 and physical validation as separate claims.
+
+
+## 17. Case comparison policy is part of the contract
+
+The Case payload now makes the two comparison paths explicit:
+
+- `output_absolute_tolerance` describes the ordinary text-output comparator
+  in `test/test.py` (`FLOAT_ABS_TOLERANCE`);
+- `residual_absolute_tolerance` and
+  `residual_relative_tolerance` describe the residual database comparator;
+- `residual_nan_policy` is explicit and currently must be `reject`.
+
+The catalog parses the runner's numeric constant from its Python AST rather
+than importing `test/test.py`, because importing a test runner can configure
+logging, parse arguments, or launch work. It compares the declaration with the
+actual runner constant and with the baseline JSON's residual tolerances and
+NaN policy. The Workbench displays the policies in Case Setup.
+
+The residual comparison is scale-aware:
+`|a-r| <= max(abs_tol, rel_tol * max(|a|, |r|))`. Iteration and sub-iteration
+columns are compared exactly; non-finite values are rejected. The ordinary
+text comparator uses an absolute tolerance for numeric tokens and exact
+matching for non-numeric tokens. These policies establish reproducible
+regression consistency only; they are not numerical error estimates,
+grid-convergence evidence, or independent physical validation.
+
+Focused tests cover typed policy adaptation, runner-tolerance drift,
+baseline-relative-tolerance drift, and rejection of a permissive NaN policy.
+The existing Python Tooling test inventory and CI commands already include
+the contract catalog and Workbench modules, so no duplicate CI lane is needed.

@@ -479,3 +479,20 @@ Run:
 ```powershell
 python -m unittest tools.verification.test_contract_catalog
 ```
+
+
+## Case comparison policy traceability
+
+Case contracts carry separate policies for ordinary output files and residual
+histories. The output absolute tolerance is checked against the
+`FLOAT_ABS_TOLERANCE` constant in `test/test.py`, parsed from the source AST
+without importing the executable test runner. Residual absolute/relative
+tolerances and the NaN policy are checked against the selected residual
+baseline database.
+
+This keeps declaration, implementation, and baseline policy aligned without
+making the Workbench execute CFD cases. Ordinary text comparison uses an
+absolute token tolerance; residual comparison uses
+`max(abs_tol, rel_tol * scale)`, compares iteration columns exactly, and
+rejects non-finite values. These are regression-consistency rules, not
+estimates of discretization error or independent physical validation.

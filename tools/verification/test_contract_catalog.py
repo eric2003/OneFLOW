@@ -172,6 +172,9 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(case_data.residual_outputs, ("results/res.dat",))
         self.assertEqual(len(case_data.analytical_references), 3)
         self.assertEqual(case_data.residual_absolute_tolerance, 1e-15)
+        self.assertEqual(case_data.output_absolute_tolerance, 1e-8)
+        self.assertEqual(case_data.residual_relative_tolerance, 0.0)
+        self.assertEqual(case_data.residual_nan_policy, "reject")
 
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\n".join(issues))
@@ -350,6 +353,61 @@ class ContractCatalogTest(unittest.TestCase):
             any("workflow definition steps do not match" in issue for issue in issues),
             "\\n".join(issues),
         )
+
+    def test_detects_case_output_tolerance_drift(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["output_absolute_tolerance"] = 1e-7
+        summary = adapt_declared_contract(definition)
+
+        issues = validate_contract_summaries(self.repository_root, [summary])
+
+        self.assertTrue(
+            any("output tolerance does not match" in issue for issue in issues),
+            "\n".join(issues),
+        )
+
+    def test_detects_case_residual_relative_tolerance_drift(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["residual_relative_tolerance"] = 1e-12
+        summary = adapt_declared_contract(definition)
+
+        issues = validate_contract_summaries(self.repository_root, [summary])
+
+        self.assertTrue(
+            any("residual relative tolerance does not match" in issue for issue in issues),
+            "\n".join(issues),
+        )
+
+    def test_rejects_case_residual_nan_policy_other_than_reject(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["residual_nan_policy"] = "allow"
+
+        with self.assertRaisesRegex(ValueError, "residual_nan_policy must be reject"):
+            adapt_declared_contract(definition)
 
     def test_detects_case_residual_tolerance_drift(self) -> None:
         definition_path = (

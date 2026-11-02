@@ -52,6 +52,9 @@ class CaseContractData:
     residual_baseline: str
     analytical_references: tuple[str, ...]
     residual_absolute_tolerance: float
+    output_absolute_tolerance: float
+    residual_relative_tolerance: float
+    residual_nan_policy: str
 
 
 @dataclass(frozen=True)
@@ -560,6 +563,29 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
             raise ValueError(
                 "case.residual_absolute_tolerance must be finite and non-negative"
             )
+        output_tolerance = raw_case.get("output_absolute_tolerance")
+        if (
+            not isinstance(output_tolerance, (int, float))
+            or isinstance(output_tolerance, bool)
+            or not math.isfinite(output_tolerance)
+            or output_tolerance < 0
+        ):
+            raise ValueError(
+                "case.output_absolute_tolerance must be finite and non-negative"
+            )
+        residual_relative_tolerance = raw_case.get("residual_relative_tolerance")
+        if (
+            not isinstance(residual_relative_tolerance, (int, float))
+            or isinstance(residual_relative_tolerance, bool)
+            or not math.isfinite(residual_relative_tolerance)
+            or residual_relative_tolerance < 0
+        ):
+            raise ValueError(
+                "case.residual_relative_tolerance must be finite and non-negative"
+            )
+        residual_nan_policy = raw_case.get("residual_nan_policy")
+        if residual_nan_policy != "reject":
+            raise ValueError("case.residual_nan_policy must be reject")
         for field in ("suite", "path", "residual_baseline"):
             _safe_relative_workflow_path(raw_case[field], f"case.{field}")
         case_arrays = {}
@@ -607,6 +633,9 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
             residual_baseline=raw_case["residual_baseline"].strip(),
             analytical_references=case_arrays["analytical_references"],
             residual_absolute_tolerance=float(tolerance),
+            output_absolute_tolerance=float(output_tolerance),
+            residual_relative_tolerance=float(residual_relative_tolerance),
+            residual_nan_policy=residual_nan_policy,
         )
 
     workflow_data = None
@@ -691,6 +720,42 @@ def _python_test_source_path(scope: str) -> str | None:
     """Extract a Python test source path from an evidence scope."""
     source_path = scope.split(";", 1)[0].strip()
     return source_path if source_path.endswith(".py") else None
+
+
+def _read_python_numeric_constant(
+    repository_root: Path,
+    relative_path: str,
+    constant_name: str,
+) -> float:
+    """Read a numeric module constant without importing executable test code."""
+    path = _relative_path(repository_root, relative_path)
+    source = path.read_text(encoding="utf-8")
+    module = ast.parse(source, filename=str(path))
+    for node in module.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        if not any(
+            isinstance(target, ast.Name) and target.id == constant_name
+            for target in node.targets
+        ):
+            continue
+        try:
+            value = ast.literal_eval(node.value)
+        except (ValueError, TypeError) as exc:
+            raise ValueError(
+                f"{relative_path}: {constant_name} must be a numeric literal"
+            ) from exc
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(value)
+            or value < 0
+        ):
+            raise ValueError(
+                f"{relative_path}: {constant_name} must be finite and non-negative"
+            )
+        return float(value)
+    raise ValueError(f"{relative_path}: missing numeric constant {constant_name}")
 
 
 def _has_python_test_declaration(source: str, reference: str) -> bool:
@@ -899,6 +964,21 @@ def validate_contract_summaries(
                     f"{summary.id}: missing case directory: {case_data.case_path}"
                 )
             if case_path is not None and case_path.is_dir():
+                try:
+                    runner_tolerance = _read_python_numeric_constant(
+                        repository_root,
+                        "test/test.py",
+                        "FLOAT_ABS_TOLERANCE",
+                    )
+                    if runner_tolerance != case_data.output_absolute_tolerance:
+                        issues.append(
+                            f"{summary.id}: output tolerance does not match "
+                            "test/test.py FLOAT_ABS_TOLERANCE"
+                        )
+                except (OSError, SyntaxError, ValueError) as exc:
+                    issues.append(
+                        f"{summary.id}: cannot validate output comparison policy: {exc}"
+                    )
                 compare_path = case_path / "autotest" / "compare.txt"
                 if not compare_path.is_file():
                     issues.append(
@@ -984,6 +1064,20 @@ def validate_contract_summaries(
                     if baseline_tolerance != case_data.residual_absolute_tolerance:
                         issues.append(
                             f"{summary.id}: residual tolerance does not match "
+                            f"{case_data.residual_baseline}"
+                        )
+                    baseline_relative_tolerance = comparison.get(
+                        "relative_tolerance"
+                    )
+                    if baseline_relative_tolerance != case_data.residual_relative_tolerance:
+                        issues.append(
+                            f"{summary.id}: residual relative tolerance does not match "
+                            f"{case_data.residual_baseline}"
+                        )
+                    baseline_nan_policy = comparison.get("nan_policy")
+                    if baseline_nan_policy != case_data.residual_nan_policy:
+                        issues.append(
+                            f"{summary.id}: residual NaN policy does not match "
                             f"{case_data.residual_baseline}"
                         )
                 except (OSError, UnicodeDecodeError, ValueError, TypeError) as exc:

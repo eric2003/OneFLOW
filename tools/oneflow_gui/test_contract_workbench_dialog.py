@@ -53,6 +53,9 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertGreaterEqual(dialog.contract_list.count(), 1)
             self.assertEqual(dialog.tabs.tabText(dialog.tabs.count() - 1), "Case Setup")
             self.assertIn("SLAU2", dialog.case_view.toPlainText())
+            self.assertIn("Output absolute tolerance: 1e-08", dialog.case_view.toPlainText())
+            self.assertIn("Residual relative tolerance: 0", dialog.case_view.toPlainText())
+            self.assertIn("Residual NaN policy: reject", dialog.case_view.toPlainText())
             self.assertIn("Blasius", dialog.case_view.toPlainText())
             case_text = dialog.case_view.toPlainText()
             self.assertIn(
