@@ -87,11 +87,11 @@ def summarize_test_output(
         total = sum(int(item[2]) for item in ctest_matches)
         failed = sum(int(item[1]) for item in ctest_matches)
         skipped_block = re.search(
-            r"The following tests did not run:\\s*((?:\\n[ \\t]+\\d+\\s+-[^\\n]*)+)",
+            r"The following tests did not run:\s*((?:\n[ \t]+\d+\s+-[^\n]*)+)",
             output,
         )
         skipped = (
-            len(re.findall(r"^\\s*\\d+\\s+-", skipped_block.group(1), re.MULTILINE))
+            len(re.findall(r"^\s*\d+\s+-", skipped_block.group(1), re.MULTILINE))
             if skipped_block
             else 0
         )
@@ -146,9 +146,9 @@ def format_final_test_status(passed: bool, report: str) -> str:
     status = "PASS" if passed else "FAIL"
     details: list[str] = []
     command_counts = re.search(
-        r"Test command summary:\\s*\\n\\s*Total: (\\d+)\\s*\\n"
-        r"\\s*Passed: (\\d+)\\s*\\n\\s*Failed: (\\d+)\\s*\\n"
-        r"\\s*Not run: (\\d+)",
+        r"Test command summary:\s*\n\s*Total: (\d+)\s*\n"
+        r"\s*Passed: (\d+)\s*\n\s*Failed: (\d+)\s*\n"
+        r"\s*Not run: (\d+)",
         report,
     )
     if command_counts:
@@ -163,13 +163,13 @@ def format_final_test_status(passed: bool, report: str) -> str:
     case_patterns = (
         (
             "Python unittest",
-            r"Python unittest cases: (\\d+) run, (\\d+) passed, "
-            r"(\\d+) failed, (\\d+) skipped\\.",
+            r"Python unittest cases: (\d+) run, (\d+) passed, "
+            r"(\d+) failed, (\d+) skipped\.",
         ),
         (
             "CTest",
-            r"CTest cases: (\\d+) run, (\\d+) passed, "
-            r"(\\d+) failed, (\\d+) skipped\\.",
+            r"CTest cases: (\d+) run, (\d+) passed, "
+            r"(\d+) failed, (\d+) skipped\.",
         ),
     )
     for label, pattern in case_patterns:
