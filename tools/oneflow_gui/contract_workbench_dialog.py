@@ -175,11 +175,8 @@ class ContractDomainDialog(QDialog):
         self.implementation_page = QWidget()
         implementation_layout = QVBoxLayout(self.implementation_page)
         implementation_layout.addWidget(self.implementation_view, 1)
-        self.open_source_button = QPushButton("Open selected source files...")
+        self.open_source_button = QPushButton("Open source files...")
         self.open_source_button.clicked.connect(self._open_sources)
-        implementation_layout.addWidget(
-            self.open_source_button, 0, Qt.AlignmentFlag.AlignRight
-        )
         self.documentation_view = QPlainTextEdit()
         self.documentation_view.setReadOnly(True)
         self.evidence_view = QPlainTextEdit()
@@ -197,14 +194,16 @@ class ContractDomainDialog(QDialog):
             self.tabs.addTab(self.case_view, "Case Setup")
         detail_layout.addWidget(self.tabs, 1)
 
-        open_layout = QHBoxLayout()
+        self.open_actions_layout = QHBoxLayout()
+        self.open_source_button.setObjectName("openSourceFilesButton")
         self.open_docs_button = QPushButton("Open documentation...")
         self.open_docs_button.clicked.connect(self._open_documentation)
         self.open_tests_button = QPushButton("Open declared test sources...")
         self.open_tests_button.setEnabled(False)
         self.open_tests_button.clicked.connect(self._open_verification_sources)
-        open_layout.addWidget(self.open_docs_button)
-        open_layout.addWidget(self.open_tests_button)
+        self.open_actions_layout.addWidget(self.open_source_button)
+        self.open_actions_layout.addWidget(self.open_docs_button)
+        self.open_actions_layout.addWidget(self.open_tests_button)
         self.open_case_directory_button = None
         self.open_case_references_button = None
         if domain == "case":
@@ -212,13 +211,13 @@ class ContractDomainDialog(QDialog):
             self.open_case_directory_button.clicked.connect(self._open_case_directory)
             self.open_case_references_button = QPushButton("Open suite and references...")
             self.open_case_references_button.clicked.connect(self._open_case_references)
-            open_layout.addWidget(self.open_case_directory_button)
-            open_layout.addWidget(self.open_case_references_button)
-        open_layout.addStretch(1)
+            self.open_actions_layout.addWidget(self.open_case_directory_button)
+            self.open_actions_layout.addWidget(self.open_case_references_button)
+        self.open_actions_layout.addStretch(1)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.accept)
-        open_layout.addWidget(close_button)
-        detail_layout.addLayout(open_layout)
+        self.open_actions_layout.addWidget(close_button)
+        detail_layout.addLayout(self.open_actions_layout)
         split.addWidget(detail)
         split.setStretchFactor(0, 1)
         split.setStretchFactor(1, 4)
@@ -453,9 +452,18 @@ class ContractDomainDialog(QDialog):
         selection.setWindowTitle(f"{label}: select files")
         if selection.exec() != QDialog.DialogCode.Accepted:
             return
+        failed_paths = []
         for relative in selection.selected_paths:
             candidate = (self._repository_root / relative).resolve()
-            QDesktopServices.openUrl(QUrl.fromLocalFile(str(candidate)))
+            if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(candidate))):
+                failed_paths.append(relative)
+        if failed_paths:
+            QMessageBox.warning(
+                self,
+                f"{label}: unable to open files",
+                "The system could not open these files. Check the default application "
+                "for the file type:\n\n" + "\n".join(failed_paths),
+            )
 
     def _open_sources(self) -> None:
         summary = self._current_summary()

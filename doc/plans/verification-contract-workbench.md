@@ -1005,3 +1005,19 @@ selection action as every other contract. A regression test covers visibility
 of this action, the declared process-control source paths, selection cardinality,
 and opening only the selected file.
 
+
+
+## 32. Put source-opening actions in one visible action row
+
+The Implementation / Code source action is now part of the shared action row
+below the tabs, rather than being placed inside the Implementation page where
+it can be missed. The row order is intentional: **Open source files** first,
+then **Open documentation**, then **Open declared test sources**, followed by
+Case-specific actions when the Case domain is active. The source action always
+opens the implementation paths declared by the selected contract; it does not
+substitute the smaller set of test-evidence paths.
+
+The file picker still supports one, multiple, or all selected files. If the
+operating system rejects a file-opening request, the Workbench now reports the
+affected paths instead of silently closing the picker and appearing to do
+nothing. Tests assert the action order and the visible failure diagnostic.

@@ -178,10 +178,18 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("tools/oneflow_gui/process_control.py", implementation_text)
             self.assertIn("tools/oneflow_gui/test_dialog.py", implementation_text)
             self.assertFalse(dialog.open_source_button.isHidden())
-            self.assertIs(
-                dialog.open_source_button.parentWidget(),
-                dialog.implementation_page,
+            self.assertEqual(
+                dialog.open_actions_layout.indexOf(dialog.open_source_button), 0
             )
+            self.assertLess(
+                dialog.open_actions_layout.indexOf(dialog.open_source_button),
+                dialog.open_actions_layout.indexOf(dialog.open_docs_button),
+            )
+            self.assertLess(
+                dialog.open_actions_layout.indexOf(dialog.open_docs_button),
+                dialog.open_actions_layout.indexOf(dialog.open_tests_button),
+            )
+            self.assertEqual(dialog.open_source_button.text(), "Open source files...")
             self.assertTrue(dialog.open_source_button.isEnabled())
         finally:
             dialog.close()
@@ -249,6 +257,32 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertEqual(
                 Path(desktop_services.openUrl.call_args.args[0].toLocalFile()).resolve(),
                 (self.repository_root / "tools/oneflow_gui/process_control.py").resolve(),
+            )
+        finally:
+            dialog.close()
+
+    def test_open_paths_reports_system_open_failures(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "runtime")
+        try:
+            with patch(
+                "tools.oneflow_gui.contract_workbench_dialog.RepositoryFileSelectionDialog"
+            ) as selection_type:
+                selection = selection_type.return_value
+                selection.exec.return_value = 1
+                selection.selected_paths = ("tools/oneflow_gui/process_control.py",)
+                with patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices.openUrl",
+                    return_value=False,
+                ), patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.QMessageBox.warning"
+                ) as warning:
+                    dialog._open_paths(
+                        ("tools/oneflow_gui/process_control.py",), "Implementation"
+                    )
+            warning.assert_called_once()
+            self.assertIn(
+                "tools/oneflow_gui/process_control.py",
+                warning.call_args.args[2],
             )
         finally:
             dialog.close()
