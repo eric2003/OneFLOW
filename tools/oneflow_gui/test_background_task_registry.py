@@ -100,6 +100,35 @@ class BackgroundTaskRegistryTest(unittest.TestCase):
             [f"{original.task_id}.json"],
         )
 
+    def test_update_applies_transition_to_latest_record(self) -> None:
+        original = self.make_task()
+        self.registry.save(original)
+        latest = replace(original, host_pid=4321, status="running")
+        self.registry.save(latest)
+
+        updated = self.registry.update(
+            original.task_id,
+            lambda current: replace(
+                current,
+                status="stopping",
+                message="Stop requested by the user.",
+            ),
+        )
+
+        self.assertEqual(updated.host_pid, 4321)
+        self.assertEqual(updated.status, "stopping")
+        self.assertEqual(self.registry.load(original.task_id), updated)
+
+    def test_update_rejects_task_id_changes(self) -> None:
+        original = self.make_task()
+        self.registry.save(original)
+        with self.assertRaisesRegex(ValueError, "cannot change its ID"):
+            self.registry.update(
+                original.task_id,
+                lambda current: replace(current, task_id="other-task"),
+            )
+        self.assertEqual(self.registry.load(original.task_id), original)
+
     def test_invalid_task_id_is_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "Invalid background task ID"):
             self.registry.load("../outside")

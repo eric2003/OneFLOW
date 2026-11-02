@@ -113,3 +113,24 @@ Parameter editing
 
 See :doc:`case_parameter_design` for the proposed schema-backed GUI direction and
 its migration stages. Current workflow artifact overrides remain a narrower adapter.
+
+
+Contract Workbench navigation and domain payloads
+-------------------------------------------------
+
+The shared tabs (Overview, Principle, Architecture, Implementation / Code,
+Documentation / References, and Verification) describe the common engineering
+contract envelope. Domain-specific content remains typed: a Case exposes Case
+Setup, while Runtime lifecycle contracts expose ownership and transition details
+through Architecture and Verification. Do not add empty universal tabs merely for
+symmetry. Add a domain-specific view only when its typed payload and a real source of
+evidence exist. In particular, a Case is currently a reproducible evidence fixture
+that may exercise several contracts; it is not a replacement for the contract
+itself. Workflow Graph and Run Artifacts should be introduced when workflow
+contracts can link actual workflow definitions and persisted run records, not as
+placeholder tabs.
+
+A declaration or source link is not an execution result. A recorded run must retain
+its revision, command, configuration, platform, outcome, and artifact references;
+freshness and outcome are separate properties. A stale passing run remains a
+historical pass, not current verification.

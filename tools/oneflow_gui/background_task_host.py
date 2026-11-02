@@ -41,15 +41,17 @@ def run_host(
     task = registry.load(task_id)
     log_file = Path(task.log_file)
     stop_path = stop_file or (registry.records_directory / f"{task_id}.stop")
-    task = replace(
-        task,
-        host_pid=os.getpid(),
-        process_pid=None,
-        status="running",
-        updated_at=utc_now(),
-        message="Background host started.",
+    task = registry.update(
+        task_id,
+        lambda current: replace(
+            current,
+            host_pid=os.getpid(),
+            process_pid=None,
+            status=("stopping" if current.status == "stopping" else "running"),
+            updated_at=utc_now(),
+            message="Background host started.",
+        ),
     )
-    registry.save(task)
     _write_log(log_file, f"Background host PID: {os.getpid()}")
     process = None
     final_status = "failed"
@@ -74,23 +76,27 @@ def run_host(
                     )
                 } if os.name == "nt" else {"start_new_session": True}),
             )
-            task = replace(
-                task,
-                process_pid=process.pid,
-                updated_at=utc_now(),
-                message="OneFLOW process started.",
+            task = registry.update(
+                task_id,
+                lambda current: replace(
+                    current,
+                    process_pid=process.pid,
+                    updated_at=utc_now(),
+                    message="OneFLOW process started.",
+                ),
             )
-            registry.save(task)
             while process.poll() is None:
                 if stop_path.exists():
                     stop_requested = True
-                    task = replace(
-                        task,
-                        status="stopping",
-                        updated_at=utc_now(),
-                        message="Stop requested.",
+                    task = registry.update(
+                        task_id,
+                        lambda current: replace(
+                            current,
+                            status="stopping",
+                            updated_at=utc_now(),
+                            message="Stop requested.",
+                        ),
                     )
-                    registry.save(task)
                     if os.name == "nt":
                         subprocess.run(
                             ["taskkill", "/PID", str(process.pid), "/T", "/F"],
@@ -141,14 +147,14 @@ def run_host(
             final_status = "failed"
             final_message = f"Background host error: {error}"
     finally:
-        current = registry.load(task_id)
-        registry.save(
-            replace(
+        registry.update(
+            task_id,
+            lambda current: replace(
                 current,
                 status=final_status,
                 updated_at=utc_now(),
                 message=final_message,
-            )
+            ),
         )
         _write_log(log_file, f"Final status: {final_status} ({final_message})")
     return return_code

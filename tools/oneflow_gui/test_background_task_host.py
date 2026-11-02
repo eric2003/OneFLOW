@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from tools.oneflow_gui.background_task_host import run_host
+from tools.oneflow_gui.background_task_manager import request_background_stop
 from tools.oneflow_gui.background_task_registry import BackgroundTask, BackgroundTaskRegistry
 
 
@@ -51,7 +52,7 @@ class BackgroundTaskHostTest(unittest.TestCase):
 
         def popen_and_request_stop(*args, **kwargs):
             process = subprocess.Popen(*args, **kwargs)
-            stop_file.write_text("stop\n", encoding="utf-8")
+            request_background_stop(self.root, "task-001")
             return process
 
         result = run_host(

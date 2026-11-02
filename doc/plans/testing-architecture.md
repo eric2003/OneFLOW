@@ -234,3 +234,16 @@ finite: a persistent access-control error still fails visibly, the previous reco
 remains intact, and the temporary file is removed. Tests cover both transient
 recovery and permanent denial; the detached-host integration test remains the
 end-to-end check that a completed child process reaches a terminal task state.
+
+
+### Background task state transition serialization
+
+Atomic JSON replacement prevents partial reads, but it does not by itself prevent
+lost updates: the GUI and detached host can both read an old record and then replace
+one another's newer state. Registry state transitions therefore use a small
+cross-process exclusive lock around read-modify-write operations. The lock is held
+only while reading the current record and publishing its replacement; child-process
+execution and log I/O remain outside the critical section. Callers use the registry
+`update` operation to derive a transition from the latest persisted state, rather
+than saving a stale snapshot. Atomic replacement remains necessary for readers that
+do not take the update lock.
