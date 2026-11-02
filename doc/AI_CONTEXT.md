@@ -1,3 +1,55 @@
+## 2026-11-02 continuation: first typed Workflow contract
+
+The user reported 1156/1156 tests passing before this slice. This is the
+pre-change baseline only; no local test result is claimed for the changes
+below.
+
+Inspected the actual `hexin` HEAD:
+`e8369e5b09cfab84cb88c324df3b62a6b33731df`.
+
+Added the first Workflow-domain contract using the checked-in
+`tools/oneflow_gui/examples/rae2822_multicase.json` example. The typed payload
+records the mesh producer, Roe-SA consumer, direct dependency, stable artifact
+ID, producer output path, and consumer `gridFileName` parameter binding.
+
+The Qt-independent catalog now validates safe relative paths, unique step and
+artifact IDs, producer resolution, direct dependency edges, and consistency
+between the typed payload and the checked-in workflow definition. It does not
+duplicate topological sorting or runner behavior. Those remain owned by the
+existing workflow planning and graph execution services.
+
+The Contract Workbench domain hub now exposes Workflow. Its Workflow Graph tab
+shows the declared steps and artifact bindings and provides read-only access to
+the source definition. Linked Python plan/runner tests remain
+`linked_not_executed`; no workflow or CFD execution is inferred.
+
+Changed files:
+- `tools/verification/contract_catalog.py`
+- `tools/verification/test_contract_catalog.py`
+- `tools/verification/contracts/workflow/rae2822_grid_to_solver.json`
+- `tools/oneflow_gui/contract_workbench_dialog.py`
+- `tools/oneflow_gui/test_contract_workbench_dialog.py`
+- `tools/oneflow_gui/test_test_inventory.py`
+- `doc/plans/verification-contract-workbench.md`
+- `doc/source/workbench_architecture.rst`
+
+Focused validation required:
+`python -m unittest tools.verification.test_contract_catalog`
+`python -m unittest tools.oneflow_gui.test_contract_workbench_dialog`
+`python -m unittest tools.oneflow_gui.test_workflow_plan`
+`python -m unittest tools.oneflow_gui.test_workflow_graph_runner`
+`python -m unittest tools.oneflow_gui.test_test_inventory`
+
+The assistant has not run the Windows test suite. The 1156/1156 result
+predates this slice. The workflow contract is implemented but unverified until
+these focused tests and the full suite pass on the resulting revision.
+
+Next single action: validate this slice on Windows, then add execution-record
+linkage only when a real workflow run can retain exact revision, command,
+configuration, outcome, and artifact references. Do not add a generic runner.
+
+---
+
 # AI and Developer Project Context
 
 ## 2026-11-01 continuation: first typed CFD Case contract

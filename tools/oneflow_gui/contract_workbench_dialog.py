@@ -185,6 +185,8 @@ class ContractDomainDialog(QDialog):
         self.evidence_view.setReadOnly(True)
         self.case_view = QPlainTextEdit()
         self.case_view.setReadOnly(True)
+        self.workflow_view = QPlainTextEdit()
+        self.workflow_view.setReadOnly(True)
 
         self.tabs.addTab(self.overview_view, "Overview")
         self.tabs.addTab(self.principle_view, "Principle")
@@ -194,6 +196,8 @@ class ContractDomainDialog(QDialog):
         self.tabs.addTab(self.evidence_view, "Verification")
         if domain == "case":
             self.tabs.addTab(self.case_view, "Case Setup")
+        if domain == "workflow":
+            self.tabs.addTab(self.workflow_view, "Workflow Graph")
         detail_layout.addWidget(self.tabs, 1)
 
         self.open_actions_layout = QHBoxLayout()
@@ -208,6 +212,17 @@ class ContractDomainDialog(QDialog):
         self.open_actions_layout.addWidget(self.open_tests_button)
         self.open_case_directory_button = None
         self.open_case_references_button = None
+        self.open_workflow_definition_button = None
+        if domain == "workflow":
+            self.open_workflow_definition_button = QPushButton(
+                "Open workflow definition..."
+            )
+            self.open_workflow_definition_button.clicked.connect(
+                self._open_workflow_definition
+            )
+            self.open_actions_layout.addWidget(
+                self.open_workflow_definition_button
+            )
         if domain == "case":
             self.open_case_directory_button = QPushButton("Open case directory...")
             self.open_case_directory_button.clicked.connect(self._open_case_directory)
@@ -392,6 +407,37 @@ class ContractDomainDialog(QDialog):
                 for resolution in resolutions
             )
         )
+        if summary.workflow_data is not None:
+            workflow = summary.workflow_data
+            lines = [
+                f"Workflow ID: {workflow.workflow_id}",
+                f"Execution mode: {workflow.execution_mode}",
+                f"Definition: {workflow.definition_path}",
+                "",
+                "Steps",
+                "-----",
+            ]
+            for step in workflow.steps:
+                lines.append(f"{step.case_id} ({step.directory})")
+                lines.append(
+                    "  Depends on: "
+                    + (", ".join(step.depends_on) if step.depends_on else "None")
+                )
+                for output in step.outputs:
+                    lines.append(
+                        f"  Produces: {output.artifact_id} -> {output.path}"
+                    )
+                    if output.parameter_file:
+                        lines.append(
+                            f"    Producer setting: {output.setting} in {output.parameter_file}"
+                        )
+                for item in step.inputs:
+                    lines.append(
+                        f"  Consumes: {item.artifact_id} -> {item.setting} "
+                        f"in {item.parameter_file}"
+                    )
+            self.workflow_view.setPlainText("\\n".join(lines))
+
         if summary.case_data is not None:
             case = summary.case_data
             self.case_view.setPlainText(
@@ -505,6 +551,14 @@ class ContractDomainDialog(QDialog):
             "Verification test sources",
         )
 
+    def _open_workflow_definition(self) -> None:
+        summary = self._current_summary()
+        if summary is not None and summary.workflow_data is not None:
+            self._open_paths(
+                (summary.workflow_data.definition_path,),
+                "Workflow definition",
+            )
+
     def _open_case_directory(self) -> None:
         summary = self._current_summary()
         if summary is None or summary.case_data is None:
@@ -580,6 +634,12 @@ class ContractWorkbenchDialog(QDialog):
                 self._open_case,
             ),
             (
+                "workflow",
+                "Workflow",
+                "Dependency graphs, producer-consumer artifact bindings, execution ordering and failure blocking.",
+                self._open_workflow,
+            ),
+            (
                 "runtime",
                 "Runtime",
                 "Process lifecycle, resource ownership, state transitions and verification evidence.",
@@ -602,8 +662,7 @@ class ContractWorkbenchDialog(QDialog):
             root.addLayout(row)
 
         future = QLabel(
-            "Workflow and Performance domains are planned as additional typed views; "
-            "they will be added when their evidence models are grounded in real repository use."
+            "Performance remains a planned domain; it will be added when a reproducible benchmark contract and evidence model are available."
         )
         future.setWordWrap(True)
         future.setObjectName("subtitle")
@@ -641,3 +700,6 @@ class ContractWorkbenchDialog(QDialog):
 
     def _open_runtime(self) -> None:
         ContractDomainDialog(self._repository_root, "runtime", self).exec()
+
+    def _open_workflow(self) -> None:
+        ContractDomainDialog(self._repository_root, "workflow", self).exec()

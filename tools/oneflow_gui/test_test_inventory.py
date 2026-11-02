@@ -128,6 +128,28 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             )
         )
 
+    def test_discovers_workflow_contract_and_workbench_tests(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+
+        records = discover_tests(repository_root)
+        expected = {
+            (
+                "tools/verification/test_contract_catalog.py",
+                "test_adapts_rae2822_dependency_workflow_contract",
+            ),
+            (
+                "tools/verification/test_contract_catalog.py",
+                "test_detects_workflow_definition_drift",
+            ),
+            (
+                "tools/oneflow_gui/test_contract_workbench_dialog.py",
+                "test_workflow_domain_displays_typed_graph_and_definition_navigation",
+            ),
+        }
+        discovered = {(item["source"], item["name"]) for item in records}
+
+        self.assertTrue(expected.issubset(discovered), sorted(expected - discovered))
+
     def test_discovers_verification_execution_record_tests(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
 

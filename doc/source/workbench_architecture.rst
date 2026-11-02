@@ -134,3 +134,20 @@ A declaration or source link is not an execution result. A recorded run must ret
 its revision, command, configuration, platform, outcome, and artifact references;
 freshness and outcome are separate properties. A stale passing run remains a
 historical pass, not current verification.
+
+
+Workflow contract view
+----------------------
+
+The Contract Workbench includes a Workflow domain for declared dependency
+graphs. Its typed view shows case nodes, direct dependency edges, producer
+artifact paths, and consumer parameter bindings. The view is read-only and
+links to the checked-in workflow definition and existing plan/runner tests.
+
+Catalog validation checks that the typed graph agrees with the source
+definition and that artifact consumers name a direct producer dependency.
+Topological ordering, cycle detection, runtime staging, output checks, and
+failure propagation remain owned by the existing workflow planning and
+execution services. A declared graph or linked test is not an execution
+record; the Workbench must not infer a successful workflow run from static
+catalog validation.

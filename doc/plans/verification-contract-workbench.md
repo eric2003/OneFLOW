@@ -1054,3 +1054,62 @@ The runtime contract declaration links the exact GoogleTest name as
 linked_not_executed. Static catalog resolution, CMake target declaration,
 CTest discovery, actual execution, and pass outcome remain distinct evidence
 states. The assistant has not run the user's Windows build or CTest.
+
+
+## 25. First typed Workflow-domain contract (2026-11-02)
+
+The first Workflow-domain slice uses the checked-in RAE2822 grid-to-solver
+example:
+
+`tools/oneflow_gui/examples/rae2822_multicase.json`
+
+The declared contract
+`tools/verification/contracts/workflow/rae2822_grid_to_solver.json`
+captures its two case nodes, the direct producer-consumer dependency, the
+stable `rae2822_grid` artifact ID, the producer output path, and the
+consumer's `gridFileName` binding in `script/cfd.txt`.
+
+### Typed graph payload and consistency
+
+The shared immutable `ContractSummary` now optionally carries
+`WorkflowContractData`, composed of typed step, input-binding, and
+output-artifact records. This remains a domain-specific extension; no
+workflow-only fields were added to numerical, geometry, case, or runtime
+contracts.
+
+The catalog checks:
+- unique workflow step IDs and output artifact IDs;
+- non-empty, root-relative case directories, artifact paths, and parameter
+  file paths without parent traversal;
+- every consumer input resolves to a declared producer artifact;
+- every consumer declares a direct dependency on that producer;
+- the typed graph payload matches the checked-in source workflow definition.
+
+The catalog does not reimplement topological sorting, cycle detection, runtime
+staging, process execution, or artifact existence checks. Those remain owned
+by the existing workflow plan and graph runner. Their Python tests are linked
+as `linked_not_executed` evidence until an actual execution record is attached.
+
+### Workbench presentation
+
+The domain hub now exposes Workflow. Its Workflow Graph tab presents the
+producer and consumer steps, dependency edge, artifact path, and parameter
+binding. A read-only action opens the exact workflow definition; the existing
+Verification tab links the plan and runner tests. This is a presentation of
+declared intent, not a claim that the example has been executed.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+python -m unittest tools.oneflow_gui.test_workflow_plan
+python -m unittest tools.oneflow_gui.test_workflow_graph_runner
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
+
+The test inventory now asserts discovery of the new catalog and Workbench
+tests. Existing CI test commands continue to execute the inventory and
+registered Python test groups; no duplicate workflow-specific CI pipeline
+was added. The user's 1156/1156 result is the pre-change baseline; this slice
+remains unverified until the focused and full local suites pass.

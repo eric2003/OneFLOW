@@ -54,6 +54,46 @@ class CaseContractData:
 
 
 @dataclass(frozen=True)
+class WorkflowArtifactInput:
+    """A workflow step's declared artifact input binding."""
+
+    artifact_id: str
+    setting: str
+    parameter_file: str
+
+
+@dataclass(frozen=True)
+class WorkflowArtifactOutput:
+    """A workflow step's declared artifact output."""
+
+    artifact_id: str
+    path: str
+    parameter_file: str = ""
+    setting: str = ""
+
+
+@dataclass(frozen=True)
+class WorkflowStepData:
+    """One case node in a dependency workflow."""
+
+    case_id: str
+    directory: str
+    depends_on: tuple[str, ...]
+    inputs: tuple[WorkflowArtifactInput, ...]
+    outputs: tuple[WorkflowArtifactOutput, ...]
+
+
+@dataclass(frozen=True)
+class WorkflowContractData:
+    """Typed view of a declared dependency workflow."""
+
+    workflow_id: str
+    definition_path: str
+    execution_mode: str
+    steps: tuple[WorkflowStepData, ...]
+
+
+@dataclass(frozen=True)
 class ContractSummary:
     """Common read-only navigation data for a verification contract."""
 
@@ -73,6 +113,7 @@ class ContractSummary:
     claims: tuple[str, ...]
     limitations: tuple[str, ...]
     case_data: CaseContractData | None = None
+    workflow_data: WorkflowContractData | None = None
 
 
 def _non_empty_strings(values: Iterable[Any]) -> tuple[str, ...]:
@@ -202,6 +243,7 @@ def adapt_geometry_scenario(
 
 _EVIDENCE_KINDS = {
     "pure_api",
+    "workflow_definition",
     "theory_data",
     "fixture",
     "linked_test",
@@ -216,6 +258,7 @@ _EVIDENCE_KINDS = {
 
 _EVIDENCE_PATH_KINDS = {
     "theory_data",
+    "workflow_definition",
     "fixture",
     "case_suite",
     "output_manifest",
@@ -246,6 +289,153 @@ _CONTRACT_STATUSES = {
     "deprecated",
     "fixture_only",
 }
+
+
+def _safe_relative_workflow_path(value: Any, label: str) -> str:
+    """Require a relative path without parent traversal."""
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{label} must be a non-empty relative path")
+    value = value.strip()
+    path = Path(value)
+    windows_path = PureWindowsPath(value)
+    if (
+        path.is_absolute()
+        or windows_path.is_absolute()
+        or ".." in path.parts
+        or ".." in windows_path.parts
+    ):
+        raise ValueError(f"{label} must stay within its declared root")
+    return value
+
+
+def _adapt_workflow_steps(values: Any) -> tuple[WorkflowStepData, ...]:
+    """Adapt the case-graph shape used by the Workflow contract."""
+    if not isinstance(values, list) or not values:
+        raise ValueError("workflow.steps must be a non-empty array")
+    steps = []
+    for index, raw_step in enumerate(values):
+        if not isinstance(raw_step, dict):
+            raise ValueError(f"workflow.steps[{index}] must be an object")
+        case_id = raw_step.get("id")
+        if not isinstance(case_id, str) or not case_id.strip():
+            raise ValueError(f"workflow.steps[{index}].id must be non-empty")
+        directory = _safe_relative_workflow_path(
+            raw_step.get("directory"), f"workflow.steps[{index}].directory"
+        )
+        dependencies = raw_step.get("depends_on", [])
+        if not isinstance(dependencies, list) or any(
+            not isinstance(item, str) or not item.strip() for item in dependencies
+        ):
+            raise ValueError(
+                f"workflow.steps[{index}].depends_on must be an array of non-empty strings"
+            )
+        raw_inputs = raw_step.get("inputs", [])
+        raw_outputs = raw_step.get("outputs", [])
+        if not isinstance(raw_inputs, list) or not isinstance(raw_outputs, list):
+            raise ValueError(
+                f"workflow.steps[{index}].inputs and outputs must be arrays"
+            )
+        inputs = []
+        for input_index, item in enumerate(raw_inputs):
+            if not isinstance(item, dict):
+                raise ValueError(
+                    f"workflow.steps[{index}].inputs[{input_index}] must be an object"
+                )
+            artifact_id = item.get("artifact")
+            setting = item.get("setting")
+            if not isinstance(artifact_id, str) or not artifact_id.strip():
+                raise ValueError("workflow input artifact must be non-empty")
+            if not isinstance(setting, str) or not setting.strip():
+                raise ValueError("workflow input setting must be non-empty")
+            parameter_file = _safe_relative_workflow_path(
+                item.get("parameter_file"), f"workflow input {artifact_id} parameter_file"
+            )
+            inputs.append(
+                WorkflowArtifactInput(artifact_id.strip(), setting.strip(), parameter_file)
+            )
+        outputs = []
+        for output_index, item in enumerate(raw_outputs):
+            if not isinstance(item, dict):
+                raise ValueError(
+                    f"workflow.steps[{index}].outputs[{output_index}] must be an object"
+                )
+            artifact_id = item.get("id")
+            if not isinstance(artifact_id, str) or not artifact_id.strip():
+                raise ValueError("workflow output id must be non-empty")
+            artifact_path = _safe_relative_workflow_path(
+                item.get("path"), f"workflow output {artifact_id} path"
+            )
+            parameter_file = item.get("parameter_file", "")
+            setting = item.get("setting", "")
+            if bool(parameter_file) != bool(setting):
+                raise ValueError(
+                    f"workflow output {artifact_id} must declare parameter_file and setting together"
+                )
+            if parameter_file:
+                parameter_file = _safe_relative_workflow_path(
+                    parameter_file, f"workflow output {artifact_id} parameter_file"
+                )
+            if not isinstance(setting, str):
+                raise ValueError(f"workflow output {artifact_id} setting must be a string")
+            outputs.append(
+                WorkflowArtifactOutput(
+                    artifact_id.strip(), artifact_path, parameter_file, setting.strip()
+                )
+            )
+        steps.append(
+            WorkflowStepData(
+                case_id.strip(),
+                directory,
+                tuple(item.strip() for item in dependencies),
+                tuple(inputs),
+                tuple(outputs),
+            )
+        )
+    step_ids = [step.case_id for step in steps]
+    if len(set(step_ids)) != len(step_ids):
+        raise ValueError("workflow step ids must be unique")
+    if any(
+        dependency not in set(step_ids)
+        for step in steps
+        for dependency in step.depends_on
+    ):
+        raise ValueError("workflow dependency references an unknown step")
+    producers = {}
+    for step in steps:
+        for output in step.outputs:
+            if output.artifact_id in producers:
+                raise ValueError(
+                    f"workflow artifact id is declared more than once: {output.artifact_id}"
+                )
+            producers[output.artifact_id] = step.case_id
+    for step in steps:
+        for item in step.inputs:
+            producer_id = producers.get(item.artifact_id)
+            if producer_id is None:
+                raise ValueError(
+                    f"workflow input references unknown artifact: {item.artifact_id}"
+                )
+            if producer_id == step.case_id or producer_id not in step.depends_on:
+                raise ValueError(
+                    f"workflow consumer {step.case_id} must depend directly on producer {producer_id}"
+                )
+    return tuple(steps)
+
+
+def _workflow_steps_from_definition(
+    definition: dict[str, Any],
+) -> tuple[WorkflowStepData, ...]:
+    """Read the supported single case-graph block from a workflow definition."""
+    raw_steps = definition.get("steps")
+    if not isinstance(raw_steps, list):
+        raise ValueError("workflow definition steps must be an array")
+    graphs = [
+        item for item in raw_steps
+        if isinstance(item, dict) and item.get("type") == "case_graph"
+    ]
+    if len(graphs) != 1:
+        raise ValueError("workflow definition must contain exactly one case_graph step")
+    return _adapt_workflow_steps(graphs[0].get("cases"))
 
 
 def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
@@ -402,6 +592,31 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
             residual_absolute_tolerance=float(tolerance),
         )
 
+    workflow_data = None
+    if definition["domain"].strip() == "workflow":
+        if definition["kind"].strip() != "dependency_workflow":
+            raise ValueError(
+                "workflow domain currently requires kind dependency_workflow"
+            )
+        raw_workflow = definition.get("workflow")
+        if not isinstance(raw_workflow, dict):
+            raise ValueError("workflow contract requires a workflow object")
+        workflow_id = raw_workflow.get("workflow_id")
+        if not isinstance(workflow_id, str) or not workflow_id.strip():
+            raise ValueError("workflow.workflow_id must be a non-empty string")
+        definition_path = _safe_relative_workflow_path(
+            raw_workflow.get("definition_path"), "workflow.definition_path"
+        )
+        execution_mode = raw_workflow.get("execution_mode")
+        if execution_mode != "dependency_graph":
+            raise ValueError("workflow.execution_mode must be dependency_graph")
+        workflow_data = WorkflowContractData(
+            workflow_id.strip(),
+            definition_path,
+            execution_mode,
+            _adapt_workflow_steps(raw_workflow.get("steps")),
+        )
+
     return ContractSummary(
         id=contract_id,
         source_id=source_id,
@@ -425,6 +640,7 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
             definition.get("claims", {}).get("does_not_prove", ())
         ),
         case_data=case_data,
+        workflow_data=workflow_data,
     )
 
 
@@ -619,6 +835,8 @@ def validate_contract_summaries(
                 and _linked_test_source_path(item.scope) is not None
             ),
         )))
+        if summary.workflow_data is not None:
+            declared_paths.append(summary.workflow_data.definition_path)
         if summary.case_data is not None:
             case_data = summary.case_data
             declared_paths.extend(
@@ -785,6 +1003,34 @@ def validate_contract_summaries(
                     f"{summary.id}: Python unittest declaration not found: "
                     f"{item.reference} in {source_path_reference}"
                 )
+        if summary.workflow_data is not None:
+            workflow_data = summary.workflow_data
+            try:
+                definition_path = _relative_path(
+                    repository_root, workflow_data.definition_path
+                )
+            except ValueError as exc:
+                issues.append(f"{summary.id}: {exc}")
+                definition_path = None
+            if definition_path is not None and definition_path.is_file():
+                try:
+                    source_definition = json.loads(
+                        definition_path.read_text(encoding="utf-8")
+                    )
+                    if source_definition.get("workflow_id") != workflow_data.workflow_id:
+                        issues.append(
+                            f"{summary.id}: workflow id does not match its definition"
+                        )
+                    source_steps = _workflow_steps_from_definition(source_definition)
+                    if source_steps != workflow_data.steps:
+                        issues.append(
+                            f"{summary.id}: workflow definition steps do not match typed workflow payload"
+                        )
+                except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+                    issues.append(
+                        f"{summary.id}: cannot validate workflow definition: {exc}"
+                    )
+
         for item in summary.evidence:
             if item.kind not in ("linked_test", "google_test"):
                 continue

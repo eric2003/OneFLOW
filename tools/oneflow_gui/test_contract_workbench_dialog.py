@@ -35,7 +35,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         try:
             self.assertEqual(
                 set(dialog.domain_buttons),
-                {"formula", "geometry", "case", "runtime"},
+                {"formula", "geometry", "case", "runtime", "workflow"},
             )
             self.assertEqual(
                 dialog.domain_buttons["formula"].text(),
@@ -43,6 +43,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             )
             self.assertEqual(dialog.domain_buttons["case"].text(), "Case")
             self.assertEqual(dialog.domain_buttons["runtime"].text(), "Runtime")
+            self.assertEqual(dialog.domain_buttons["workflow"].text(), "Workflow")
         finally:
             dialog.close()
 
@@ -107,6 +108,54 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             open_files.assert_called_once_with(
                 "vscode",
                 tuple((self.repository_root / item).resolve() for item in selected_references),
+                working_directory=self.repository_root,
+            )
+        finally:
+            dialog.close()
+
+    def test_workflow_domain_displays_typed_graph_and_definition_navigation(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "workflow")
+        try:
+            contract_index = next(
+                index
+                for index, summary in enumerate(dialog._summaries)
+                if summary.id == "workflow/rae2822-grid-to-solver"
+            )
+            dialog.contract_list.setCurrentRow(contract_index)
+            self.assertEqual(
+                dialog.tabs.tabText(dialog.tabs.count() - 1), "Workflow Graph"
+            )
+            graph_text = dialog.workflow_view.toPlainText()
+            self.assertIn("rae2822-grid-to-solver", graph_text)
+            self.assertIn(
+                "Produces: rae2822_grid -> results/rae2822_2d.ofl", graph_text
+            )
+            self.assertIn(
+                "Consumes: rae2822_grid -> gridFileName in script/cfd.txt",
+                graph_text,
+            )
+            self.assertIn("Depends on: rae2822grid", graph_text)
+            self.assertIsNotNone(dialog.open_workflow_definition_button)
+            self.assertTrue(dialog.open_workflow_definition_button.isEnabled())
+            self.assertTrue(dialog.open_tests_button.isEnabled())
+
+            definition_path = "tools/oneflow_gui/examples/rae2822_multicase.json"
+            with patch(
+                "tools.oneflow_gui.contract_workbench_dialog.RepositoryFileSelectionDialog"
+            ) as selection_type:
+                selection = selection_type.return_value
+                selection.exec.return_value = 1
+                selection.selected_paths = (definition_path,)
+                with patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.ApplicationSettings.load",
+                    return_value=Mock(source_editor="vscode"),
+                ), patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.open_source_files"
+                ) as open_files:
+                    dialog._open_workflow_definition()
+            open_files.assert_called_once_with(
+                "vscode",
+                ((self.repository_root / definition_path).resolve(),),
                 working_directory=self.repository_root,
             )
         finally:

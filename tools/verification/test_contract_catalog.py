@@ -176,6 +176,119 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\n".join(issues))
 
+    def test_adapts_rae2822_dependency_workflow_contract(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "workflow"
+            / "rae2822_grid_to_solver.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+
+        summary = adapt_declared_contract(definition)
+
+        self.assertEqual(summary.id, "workflow/rae2822-grid-to-solver")
+        self.assertEqual(summary.domain, "workflow")
+        self.assertEqual(summary.kind, "dependency_workflow")
+        self.assertIsNotNone(summary.workflow_data)
+        workflow = summary.workflow_data
+        self.assertEqual(workflow.workflow_id, "rae2822-grid-to-solver")
+        self.assertEqual(workflow.execution_mode, "dependency_graph")
+        self.assertEqual(
+            [step.case_id for step in workflow.steps],
+            ["rae2822grid", "rae2822_roe_sa"],
+        )
+        producer, consumer = workflow.steps
+        self.assertEqual(producer.outputs[0].artifact_id, "rae2822_grid")
+        self.assertEqual(producer.outputs[0].path, "results/rae2822_2d.ofl")
+        self.assertEqual(consumer.depends_on, ("rae2822grid",))
+        self.assertEqual(consumer.inputs[0].artifact_id, "rae2822_grid")
+        self.assertEqual(consumer.inputs[0].setting, "gridFileName")
+
+        issues = validate_contract_summaries(self.repository_root, [summary])
+        self.assertEqual(issues, [], "\\n".join(issues))
+
+    def test_requires_typed_payload_for_workflow_contract(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "workflow"
+            / "rae2822_grid_to_solver.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition.pop("workflow")
+
+        with self.assertRaisesRegex(ValueError, "requires a workflow object"):
+            adapt_declared_contract(definition)
+
+    def test_rejects_workflow_input_without_direct_artifact_dependency(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "workflow"
+            / "rae2822_grid_to_solver.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["workflow"]["steps"][1]["depends_on"] = []
+
+        with self.assertRaisesRegex(ValueError, "must depend directly"):
+            adapt_declared_contract(definition)
+
+    def test_detects_workflow_definition_drift(self) -> None:
+        from .contract_catalog import WorkflowContractData
+
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "workflow"
+            / "rae2822_grid_to_solver.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+        source_path = (
+            self.repository_root
+            / "tools"
+            / "oneflow_gui"
+            / "examples"
+            / "rae2822_multicase.json"
+        )
+        source_definition = json.loads(source_path.read_text(encoding="utf-8"))
+        source_definition["steps"][0]["cases"][1]["directory"] = "stale-case"
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "workflow.json").write_text(
+                json.dumps(source_definition), encoding="utf-8"
+            )
+            workflow = WorkflowContractData(
+                summary.workflow_data.workflow_id,
+                "workflow.json",
+                summary.workflow_data.execution_mode,
+                summary.workflow_data.steps,
+            )
+            isolated = replace(
+                summary,
+                references=(),
+                implementation_paths=(),
+                documentation_paths=(),
+                evidence=(),
+                workflow_data=workflow,
+            )
+            issues = validate_contract_summaries(root, [isolated])
+
+        self.assertTrue(
+            any("workflow definition steps do not match" in issue for issue in issues),
+            "\\n".join(issues),
+        )
+
     def test_detects_case_residual_tolerance_drift(self) -> None:
         definition_path = (
             self.repository_root
@@ -406,6 +519,13 @@ class ContractCatalogTest(unittest.TestCase):
         )
         case_contracts = [item for item in summaries if item.domain == "case"]
         self.assertEqual(len(case_contracts), 1)
+        workflow_contracts = [
+            item for item in summaries if item.domain == "workflow"
+        ]
+        self.assertEqual(len(workflow_contracts), 1)
+        self.assertEqual(
+            workflow_contracts[0].id, "workflow/rae2822-grid-to-solver"
+        )
         self.assertEqual(
             case_contracts[0].id,
             "case/laminar-flat-plate-slau2",
