@@ -90,16 +90,22 @@ class ProjectWindowParameterTest(unittest.TestCase):
             try:
                 tree = window.findChild(QTreeWidget, "unifiedParameterTree")
                 effective = self._find_item(tree, "MAXSTEPS")
-                overridden_first = self._find_item(tree, "[overridden] maxSteps")
-                overridden_second = self._find_item(tree, "[overridden] maxSteps")
                 self.assertIsNotNone(effective)
                 self.assertEqual(effective.text(1), "30")
                 self.assertIn("file 3", effective.text(3))
-                self.assertIsNotNone(overridden_first)
-                self.assertEqual(overridden_first.text(1), "10")
-                self.assertIn("file 1", overridden_first.text(3))
-                self.assertIsNotNone(self._find_item(effective, "Runtime consumer"))
-                consumer = self._find_item(effective, "Runtime consumer")
+                overridden = [
+                    effective.child(index)
+                    for index in range(effective.childCount())
+                    if effective.child(index).text(0) == "[overridden] maxSteps"
+                ]
+                self.assertEqual([item.text(1) for item in overridden], ["10", "20"])
+                self.assertIn("file 1", overridden[0].text(3))
+                self.assertIn("file 2", overridden[1].text(3))
+                consumer = next(
+                    effective.child(index)
+                    for index in range(effective.childCount())
+                    if effective.child(index).text(0) == "Runtime consumer"
+                )
                 self.assertEqual(consumer.text(1), "Iteration::Init")
                 self.assertIn("Iteration.cpp", consumer.text(3))
                 self.assertIsNone(self._find_item(tree, "control.txt"))
