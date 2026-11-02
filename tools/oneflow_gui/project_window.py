@@ -795,8 +795,14 @@ class ProjectWindow(QMainWindow):
             item = QTreeWidgetItem([entry.name, entry.raw_value, entry.declared_type, source])
             item.setData(0, Qt.ItemDataRole.UserRole, entry.source_path)
             item.setToolTip(0, f"Effective declaration from {entry.source_path}\nRaw value: {entry.raw_value}")
-            if entry.classification.domain == ParameterDomain.OTHER:
-                item.setToolTip(0, "Unclassified parameter: no domain mapping or runtime consumer has been established.")
+            if (
+                entry.classification.domain == ParameterDomain.OTHER
+                or entry.classification.group == "Other"
+            ):
+                item.setToolTip(
+                    0,
+                    "No specific parameter schema or runtime consumer has been established for this key.",
+                )
             parent.addChild(item)
             for previous in shadowed_by_key.get(entry.name.casefold(), []):
                 previous_source = self._parameter_source_label(
@@ -825,10 +831,11 @@ class ProjectWindow(QMainWindow):
         unclassified_count = sum(
             1 for entry in model.entries
             if entry.classification.domain == ParameterDomain.OTHER
+            or entry.classification.group == "Other"
         )
         self.parameter_coverage_note.setText(
             f"{len(model.entries)} effective scalar parameter(s); {len(model.shadowed_entries)} overridden declaration(s); "
-            f"{unsupported_count} unsupported declaration(s); {unclassified_count} unclassified parameter(s). "
+            f"{unsupported_count} unsupported declaration(s); {unclassified_count} unmapped parameter(s). "
             "Arrays and unknown syntax are visible as unsupported; this view does not claim complete runtime coverage."
         )
 
