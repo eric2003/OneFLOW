@@ -166,6 +166,7 @@ def run_case(
                 for line in process.stdout:
                     output_queue.put(line.rstrip("\r\n"))
             finally:
+                process.stdout.close()
                 output_queue.put(None)
 
         reader = threading.Thread(
