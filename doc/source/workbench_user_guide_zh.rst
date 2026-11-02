@@ -98,3 +98,21 @@ Contract Workbench 展示证据声明和验证范围，不负责执行求解器�
 Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动求解器进程。case、工作流、运行记录和任务结果等服务尽量保持 Qt 无关并有独立测试。项目发现、case catalog、工作流定义、运行副本和运行历史各自有不同职责。
 
 后续可完善项是：让工作流定义与 .ofw 定义共享一个持久化模型，减少两种格式之间的重复。详细架构约束见 doc/source/workbench_architecture.rst；GUI 模块、服务和测试索引见 tools/oneflow_gui/README.md。
+
+参数运行时消费者追踪：第一批证据
+--------------------------------
+
+新增 parameter_consumer_catalog.py，作为 Qt 无关的运行时消费者证据目录。它不是全仓库自动扫描器，而是经过当前 hexin C++ 源码核对的一组明确记录。每条记录包含参数名、源文件、消费函数、读取表达式、读取时机、适用条件以及行为说明。
+
+第一批核对的参数包括：
+
+* maxSteps：Iteration::Init 必需读取；在 iexitflag == 0 时，SimuIterState::Running 使用它作为外迭代终止上限。
+* time_integral：分别在 Ctrl::Init 和 NsCtrl::Init 中读取，属于不同控制初始化路径。
+* mach_ref：由 NsCom::Init 读取，并与 gama_ref 一起用于计算 const_cp。
+* vismodel：由 VisModel::Init 读取，后续影响黏性模型检查和壁面距离处理分支。
+* ptTol：不是简单的启动时立即读取，而是在首次调用 Tolerance::GetTol 时通过 Tolerance::Init 延迟读取。
+* nmg：由 MG::Init 读取；当值不大于 1 时，程序会调整前、后平滑步数。
+
+读取时机区分为 required、optional 和 lazy。参数不在当前目录中，只表示尚未完成追踪，不能据此判定参数无用。代码中存在读取语句，也不代表该参数对所有任务都生效，更不代表其物理意义、推荐范围和数值效果已经验证。
+
+新增独立单元测试，覆盖大小写无关查询、多处消费者、延迟读取和未知参数边界。后续逐步扩充时，必须先核对 hexin 中的真实代码路径，再补充适用模型、公式依据和验证证据；不能仅凭参数名称推断公式。
