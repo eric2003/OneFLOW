@@ -566,3 +566,30 @@ TEST( InvFluxPolicy, RoePressureFromTotalEnthalpyRemovesKinetic )
         2.0 * 4.5 * ( 0.4 / 1.4 ),
         1.0e-12 );
 }
+
+// Intermediate: IdealGasSpecificInternalEnergy on a kinetic grid.
+// Ref: rho=1, p=1, gamma=1.4 -> e_int = 2.5.
+TEST( InvFluxPolicy, IdealGasSpecificInternalEnergyCurveMatchesClosedForm )
+{
+    const Real density = 1.0;
+    const Real pressure = 1.0;
+    const Real gama = 1.4;
+    const Real eInt = ( pressure / density ) / ( gama - 1.0 );
+    const Real u2s[] = { 0.0, 1.0, 2.0, 4.0, 8.0, 16.0 };
+    for ( Real u2 : u2s )
+    {
+        EXPECT_NEAR(
+            IdealGasSpecificInternalEnergy( density, pressure, gama, u2 ),
+            eInt + 0.5 * u2,
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, IdealGasSpecificInternalEnergyScalesWithPressure )
+{
+    // Double p at fixed rho and u=0 doubles e_int.
+    EXPECT_NEAR(
+        IdealGasSpecificInternalEnergy( 1.0, 2.0, 1.4, 0.0 ),
+        2.0 * IdealGasSpecificInternalEnergy( 1.0, 1.0, 1.4, 0.0 ),
+        1.0e-12 );
+}

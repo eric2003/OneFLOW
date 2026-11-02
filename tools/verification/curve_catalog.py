@@ -1316,6 +1316,50 @@ principle=(
         ),
 
 
+
+        TheoryEntry(
+            id="ideal_gas_specific_internal_energy",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Ideal-gas specific energy e(p, rho, |u|^2, gamma)",
+            role_tags=("EOS", "energy"),
+            formula_plain=(
+                "e = p / (rho * (gamma - 1)) + 0.5 * |u|^2\n"
+                "Feeds conservative energy and total enthalpy paths"
+            ),
+            formula_latex=(
+                r"e=\frac{p}{\rho(\gamma-1)}+\frac{1}{2}|u|^{2}"
+            ),
+            principle=(
+                "Calorically perfect gas specific total energy: thermal part "
+                "from equation of state plus kinetic energy."
+            ),
+            background=(
+                "Pure API IdealGasSpecificInternalEnergy in NsInvFluxPolicy. "
+                "Related: IdealGasStaticEnthalpy, TotalEnthalpy, "
+                "IdealGasPrimToConservative."
+            ),
+            references=(
+                "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/ideal_gas_specific_internal_energy.rst",
+            ),
+            csv_relpath="tools/verification/data/ideal_gas_specific_internal_energy_theory.csv",
+            plot_module="plot_ideal_gas_specific_internal_energy",
+            pure_apis=("IdealGasSpecificInternalEnergy",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ideal_gas_specific_internal_energy.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "e = (p/rho)/(gama-1) + 0.5*speedSquared;\n"
+            ),
+            proves="Specific-energy algebra vs pure API on a kinetic grid.",
+            does_not_prove="Variable-gamma gas or full conservative residual.",
+        ),
+
         TheoryEntry(
             id="total_enthalpy",
             family="mean-flow",
