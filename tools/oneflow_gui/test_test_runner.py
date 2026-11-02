@@ -43,6 +43,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             "tools.verification.test_contract_catalog",
             "tools.verification.test_cmake_test_catalog",
             "tools.oneflow_gui.test_contract_workbench_dialog",
+            "tools.oneflow_gui.test_source_editor",
             "tools.oneflow_gui.test_test_inventory",
             "tools.oneflow_gui.test_test_diagnostics",
             "tools.oneflow_gui.test_executable_discovery",
