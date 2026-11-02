@@ -997,6 +997,49 @@ principle=(
 
 
 
+
+        TheoryEntry(
+            id="roe_pressure_from_enthalpy",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / face pressure",
+            title="Roe pressure from total enthalpy (LUSGS mode 0)",
+            role_tags=("EOS", "pressure", "LUSGS"),
+            formula_plain=(
+                "p = rho * (H - 0.5*|u|^2) * (gamma - 1) / gamma\n"
+                "LusgsFacePressureFromMode(0,...) uses this closure"
+            ),
+            formula_latex=(
+                r"p=\rho\left(H-\frac{1}{2}|u|^{2}\right)\frac{\gamma-1}{\gamma}"
+            ),
+            principle=(
+                "Recover static pressure from Roe-averaged total enthalpy by "
+                "removing kinetic energy and applying the ideal-gas factor."
+            ),
+            background=(
+                "Pure API RoePressureFromTotalEnthalpy. Selected by "
+                "LusgsFacePressureFromMode when mode==0."
+            ),
+            references=(
+                "Roe average state; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/roe_pressure_from_enthalpy.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_pressure_from_enthalpy_theory.csv",
+            plot_module="plot_roe_pressure_from_enthalpy",
+            pure_apis=("RoePressureFromTotalEnthalpy", "LusgsFacePressureFromMode"),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_pressure_from_enthalpy.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "p = rho * (H - 0.5 * speedSquared) * (gama - 1) / gama;\n"
+            ),
+            proves="Pressure-from-enthalpy algebra vs pure API on an H grid.",
+            does_not_prove="Full LUSGS residual or mode-1 Roe-weighted pressure path.",
+        ),
+
         TheoryEntry(
             id="ideal_gas_sound_speed",
             family="mean-flow",

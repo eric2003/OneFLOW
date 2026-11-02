@@ -541,3 +541,28 @@ TEST( InvFluxPolicy, IdealGasSoundSpeedSubtractsKineticEnergy )
         sqrt( 0.4 * 3.0 ),
         1.0e-12 );
 }
+
+// Intermediate: RoePressureFromTotalEnthalpy on an H grid (rho=1, u^2=0).
+TEST( InvFluxPolicy, RoePressureFromTotalEnthalpyCurveMatchesClosedForm )
+{
+    const Real density = 1.0;
+    const Real speedSquared = 0.0;
+    const Real gama = 1.4;
+    const Real fac = ( gama - 1.0 ) / gama;
+    const Real Hs[] = { 0.5, 1.0, 2.0, 3.5, 4.0, 5.0 };
+    for ( Real H : Hs )
+    {
+        EXPECT_NEAR(
+            RoePressureFromTotalEnthalpy( density, H, speedSquared, gama ),
+            density * H * fac,
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoePressureFromTotalEnthalpyRemovesKinetic )
+{
+    EXPECT_NEAR(
+        RoePressureFromTotalEnthalpy( 2.0, 6.5, 4.0, 1.4 ),
+        2.0 * 4.5 * ( 0.4 / 1.4 ),
+        1.0e-12 );
+}
