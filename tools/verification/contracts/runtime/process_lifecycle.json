@@ -10,7 +10,8 @@
   "references": [
     "doc/source/runtime_architecture.rst",
     "doc/plans/accelerator-runtime-shutdown-order.md",
-    "doc/plans/runtime-refactoring-roadmap.md"
+    "doc/plans/runtime-refactoring-roadmap.md",
+    "doc/plans/setup-case-environment-integration-test.md"
   ],
   "architecture": "SimuImp owns the production case and process lifecycle entry points. SimuContext coordinates case-owned state and process-owned runtime state. AccelRuntime owns the active AccelBackend. Case teardown must not finalize the process runtime; process finalization releases context-owned backend state before finalizing AccelRuntime. A failed backend Finalize leaves both runtime ownership and the process lifecycle active for retry.",
   "implementation": {
@@ -25,7 +26,8 @@
     "paths": [
       "doc/source/runtime_architecture.rst",
       "doc/plans/accelerator-runtime-shutdown-order.md",
-      "doc/plans/runtime-refactoring-roadmap.md"
+      "doc/plans/runtime-refactoring-roadmap.md",
+      "doc/plans/setup-case-environment-integration-test.md"
     ]
   },
   "verification": [
@@ -46,13 +48,26 @@
       "reference": "AccelRuntimeTest.FailedFinalizationPreservesBackendForRetry",
       "status": "linked_not_executed",
       "scope": "tests/accel/accel_runtime_test.cpp; verifies runtime-level backend ownership retention after failed finalization."
+    },
+    {
+      "kind": "google_test",
+      "reference": "SimuImpCaseLifecycleIntegration.FailedProductionSetupRunsRealCaseTeardownAndKeepsProcessRuntimeActive",
+      "status": "linked_not_executed",
+      "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; feeds a multi-file control manifest through the production SimuImp::RunCase path, injects a missing script after a partial read, and verifies real case teardown while process runtime remains active."
+    },
+    {
+      "kind": "google_test",
+      "reference": "SimuImpCaseLifecycleIntegration.SuccessfulCasesRemainIsolatedWithinOneProcess",
+      "status": "linked_not_executed",
+      "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; runs two production SimuImp cases in one process, reads distinct typed dimension values from the real control database, verifies database and I/O diagnostic artifacts, and checks per-case reset with process-runtime continuity."
     }
   ],
   "claims": {
     "proves": [
       "The production process lifecycle releases context-owned backend states before finalizing the accelerator runtime.",
       "A failed accelerator backend finalization propagates to the caller while preserving runtime ownership and an active process lifecycle for retry.",
-      "A subsequent successful finalization completes the process lifecycle."
+      "A subsequent successful finalization completes the process lifecycle.",
+      "Each sequential production case reads its own typed control value and materializes its database and I/O path diagnostics before case-owned state is cleared."
     ],
     "does_not_prove": [
       "Real CUDA or HIP driver shutdown behavior on physical accelerator hardware.",
