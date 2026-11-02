@@ -494,3 +494,27 @@ TEST( InvFluxPolicy, RoeAverageWeightsSymmetricAtUnitRatio )
     EXPECT_DOUBLE_EQ( ratio, 1.0 );
     EXPECT_DOUBLE_EQ( coef, 0.5 );
 }
+
+// Intermediate: IdealGasStaticEnthalpy on a p/rho grid (gamma=1.4).
+TEST( InvFluxPolicy, IdealGasStaticEnthalpyCurveMatchesClosedForm )
+{
+    const Real gama = 1.4;
+    const Real coef = gama / ( gama - 1.0 ); // 3.5
+    const Real density = 1.0;
+    const Real pressures[] = { 0.2, 0.5, 1.0, 1.5, 2.0, 4.0 };
+    for ( Real p : pressures )
+    {
+        EXPECT_NEAR(
+            IdealGasStaticEnthalpy( density, p, gama ),
+            coef * ( p / density ),
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, IdealGasStaticEnthalpyScalesWithPressureDensity )
+{
+    // Doubling p and rho keeps h constant.
+    EXPECT_DOUBLE_EQ(
+        IdealGasStaticEnthalpy( 1.0, 2.0, 1.4 ),
+        IdealGasStaticEnthalpy( 2.0, 4.0, 1.4 ) );
+}

@@ -995,6 +995,49 @@ principle=(
 
 
 
+
+        TheoryEntry(
+            id="ideal_gas_static_enthalpy",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Ideal-gas static enthalpy h(p, rho, gamma)",
+            role_tags=("EOS", "enthalpy"),
+            formula_plain=(
+                "h = (gamma / (gamma - 1)) * (p / rho)\n"
+                "gamma = 1.4 -> slope 3.5 on the p/rho axis"
+            ),
+            formula_latex=(
+                r"h=\frac{\gamma}{\gamma-1}\frac{p}{\rho}"
+            ),
+            principle=(
+                "Calorically perfect gas static enthalpy from pressure and density. "
+                "Feeds Roe average total enthalpy and sound-speed closures."
+            ),
+            background=(
+                "Pure API IdealGasStaticEnthalpy in NsInvFluxPolicy. "
+                "Related: IdealGasSpecificInternalEnergy, IdealGasSoundSpeed."
+            ),
+            references=(
+                "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/ideal_gas_static_enthalpy.rst",
+            ),
+            csv_relpath="tools/verification/data/ideal_gas_static_enthalpy_theory.csv",
+            plot_module="plot_ideal_gas_static_enthalpy",
+            pure_apis=("IdealGasStaticEnthalpy",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ideal_gas_static_enthalpy.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "h = (gama / (gama - 1.0)) * (pressure / density);\n"
+            ),
+            proves="Static enthalpy algebra vs pure API on a p/rho grid.",
+            does_not_prove="Variable-gamma gas or real-gas thermodynamics.",
+        ),
+
         TheoryEntry(
             id="roe_average_weights",
             family="mean-flow",
