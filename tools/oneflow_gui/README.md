@@ -240,6 +240,7 @@ root. The source checkout remains separate from this directory.
 - `cfd-regression/`: staged CFD regression inputs.
 - `background-tasks/`: persistent background task records.
 - `logs/`: application logs.
+- `test-runs/logs/`: captured stdout/stderr from GUI-launched Python unittest commands; the append-only verification records remain under `verification/execution-records.jsonl`.
 
 The Workbench does not move or overwrite existing source projects automatically;
 choose an existing project directory to open it, or create a new project under
