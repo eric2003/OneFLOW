@@ -25,6 +25,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .application_settings import ApplicationSettings
+from .source_editor import open_source_files
 from .user_data_paths import UserDataPaths
 
 
@@ -452,18 +454,13 @@ class ContractDomainDialog(QDialog):
         selection.setWindowTitle(f"{label}: select files")
         if selection.exec() != QDialog.DialogCode.Accepted:
             return
-        failed_paths = []
-        for relative in selection.selected_paths:
-            candidate = (self._repository_root / relative).resolve()
-            if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(candidate))):
-                failed_paths.append(relative)
-        if failed_paths:
-            QMessageBox.warning(
-                self,
-                f"{label}: unable to open files",
-                "The system could not open these files. Check the default application "
-                "for the file type:\n\n" + "\n".join(failed_paths),
-            )
+        selected_files = tuple((self._repository_root / relative).resolve() for relative in selection.selected_paths)
+        settings = ApplicationSettings.load()
+        try:
+            open_source_files(settings.source_editor, selected_files, working_directory=self._repository_root)
+        except (OSError, ValueError) as error:
+            QMessageBox.warning(self, f"{label}: unable to launch editor",
+                f"Editor: {settings.source_editor}\n{error}\n\nChoose another editor in OneFLOW Configuration.")
 
     def _open_sources(self) -> None:
         summary = self._current_summary()

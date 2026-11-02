@@ -52,6 +52,7 @@ class ApplicationSettingsTest(unittest.TestCase):
                     "build_configuration": "Debug",
                     "executable_path": "",
                     "run_mode": "single_case",
+                    "source_editor": "vscode",
                 },
             )
 
@@ -70,6 +71,14 @@ class ApplicationSettingsTest(unittest.TestCase):
             self.assertEqual(settings.build_configuration, "Release")
             self.assertEqual(settings.executable_path, str(repository_root / "custom.exe"))
             self.assertEqual(settings.run_mode, "dependency_workflow")
+            self.assertEqual(settings.source_editor, "vscode")
+
+    def test_source_editor_preference_round_trips(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "settings.json"
+            ApplicationSettings(root, source_editor="vs2026").save(path)
+            self.assertEqual(ApplicationSettings.load(path).source_editor, "vs2026")
 
     def test_load_old_settings_defaults_new_preferences(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -84,6 +93,7 @@ class ApplicationSettingsTest(unittest.TestCase):
             self.assertEqual(settings.build_configuration, "Debug")
             self.assertEqual(settings.executable_path, "")
             self.assertEqual(settings.run_mode, "single_case")
+            self.assertEqual(settings.source_editor, "vscode")
 
     def test_missing_configured_checkout_falls_back_to_launch_checkout(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

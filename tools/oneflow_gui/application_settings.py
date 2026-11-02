@@ -28,6 +28,7 @@ class ApplicationSettings:
     build_configuration: str = "Debug"
     executable_path: str = ""
     run_mode: str = "single_case"
+    source_editor: str = "vscode"
 
     @classmethod
     def load(cls, settings_file: Path | None = None) -> "ApplicationSettings":
@@ -48,7 +49,10 @@ class ApplicationSettings:
         run_mode = data.get("run_mode", "single_case")
         if run_mode not in {"single_case", "multi_case", "dependency_workflow"}:
             run_mode = "single_case"
-        return cls(Path(repository).expanduser(), configuration, executable, run_mode)
+        source_editor = data.get("source_editor", "vscode")
+        if source_editor not in {"vscode", "vs2026", "vs2022", "notepad++", "system"}:
+            source_editor = "vscode"
+        return cls(Path(repository).expanduser(), configuration, executable, run_mode, source_editor)
 
     def save(self, settings_file: Path | None = None) -> None:
         path = settings_file or UserDataPaths.discover().settings_file
@@ -58,6 +62,7 @@ class ApplicationSettings:
             "build_configuration": self.build_configuration,
             "executable_path": self.executable_path,
             "run_mode": self.run_mode,
+            "source_editor": self.source_editor,
         }
         with path.open("w", encoding="utf-8", newline="\n") as stream:
             json.dump(payload, stream, indent=2)

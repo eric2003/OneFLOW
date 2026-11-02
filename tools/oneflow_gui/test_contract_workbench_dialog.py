@@ -247,21 +247,18 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 selection = selection_type.return_value
                 selection.exec.return_value = 1
                 selection.selected_paths = ("tools/oneflow_gui/process_control.py",)
-                desktop_services = Mock()
-                with patch(
-                    "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices",
-                    desktop_services,
-                ):
+                with patch("tools.oneflow_gui.contract_workbench_dialog.ApplicationSettings.load",
+                           return_value=Mock(source_editor="vscode")), patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.open_source_files"
+                ) as open_files:
                     dialog._open_sources()
-            desktop_services.openUrl.assert_called_once()
-            self.assertEqual(
-                Path(desktop_services.openUrl.call_args.args[0].toLocalFile()).resolve(),
-                (self.repository_root / "tools/oneflow_gui/process_control.py").resolve(),
-            )
+            open_files.assert_called_once_with("vscode",
+                ((self.repository_root / "tools/oneflow_gui/process_control.py").resolve(),),
+                working_directory=self.repository_root)
         finally:
             dialog.close()
 
-    def test_open_paths_reports_system_open_failures(self) -> None:
+    def test_open_paths_reports_editor_launch_failures(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
         try:
             with patch(
@@ -270,9 +267,10 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 selection = selection_type.return_value
                 selection.exec.return_value = 1
                 selection.selected_paths = ("tools/oneflow_gui/process_control.py",)
-                with patch(
-                    "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices.openUrl",
-                    return_value=False,
+                with patch("tools.oneflow_gui.contract_workbench_dialog.ApplicationSettings.load",
+                           return_value=Mock(source_editor="vscode")), patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.open_source_files",
+                    side_effect=OSError("VS Code executable was not found."),
                 ), patch(
                     "tools.oneflow_gui.contract_workbench_dialog.QMessageBox.warning"
                 ) as warning:
@@ -280,10 +278,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                         ("tools/oneflow_gui/process_control.py",), "Implementation"
                     )
             warning.assert_called_once()
-            self.assertIn(
-                "tools/oneflow_gui/process_control.py",
-                warning.call_args.args[2],
-            )
+            self.assertIn("VS Code executable was not found", warning.call_args.args[2])
         finally:
             dialog.close()
 

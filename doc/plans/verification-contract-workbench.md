@@ -1017,7 +1017,11 @@ Case-specific actions when the Case domain is active. The source action always
 opens the implementation paths declared by the selected contract; it does not
 substitute the smaller set of test-evidence paths.
 
-The file picker still supports one, multiple, or all selected files. If the
-operating system rejects a file-opening request, the Workbench now reports the
-affected paths instead of silently closing the picker and appearing to do
-nothing. Tests assert the action order and the visible failure diagnostic.
+The file picker still supports one, multiple, or all selected files. Source
+files are launched by an explicitly selected editor process rather than by the
+Windows file association for ``.py`` files; this avoids accidentally starting
+the Python interpreter and closing immediately. Configuration persists a
+source-editor preference: Visual Studio Code (default), Visual Studio 2026,
+Visual Studio 2022, Notepad++, or the system default application. Missing
+executables produce an actionable warning. Directory navigation continues to
+use the operating system file manager.
