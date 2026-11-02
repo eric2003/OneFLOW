@@ -1,14 +1,14 @@
 int    startStrategy  = 0;
 int    iexitflag  = 0; //0 maxstep 1 maxtime;
-int    maxSteps   =  50; //总模拟步数
-Real   maxTime    =  0.2;    //总模拟时间
+int    maxSteps   =  50; // Total simulation steps
+Real   maxTime    =  0.2;    // Maximum physical time
 
-//输出相关										      
-int    nFieldSave       =  50;   //流场保存
+// Output controls										      
+int    nFieldSave       =  50;   // Flow-field output interval
 int    nForceSave      =  1;
-int    nResSave          =  1;    //残差及气动力输出
-int    nVisualSave      =  50;    //流场显示
-int    addVisualizationSteps               =  0;     //1: 文件名+外迭代步，0不加
+int    nResSave          =  1;    // Residual and aerodynamic-force output interval
+int    nVisualSave      =  50;    // Flow-field visualization interval
+int    addVisualizationSteps               =  0;     // 1: append the outer iteration to the filename; 0: do not append
 
 string gridFileName = "grid/turbplate20182d.ofl";
 string aeroFile   =  "results/aero.dat";
