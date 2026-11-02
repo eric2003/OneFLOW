@@ -72,6 +72,7 @@ class UserDataPathsTest(unittest.TestCase):
 
             self.assertEqual(paths.root, root.resolve())
             self.assertEqual(paths.workflow_data, root.resolve() / "workflow-data")
+            self.assertEqual(paths.test_run_logs, root.resolve() / "test-runs" / "logs")
 
     def test_empty_override_keeps_default_home(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
