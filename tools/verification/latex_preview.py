@@ -127,7 +127,7 @@ def _render_with_usetex(lines: list[str], out_png: Path) -> Path:
     return out_png
 
 
-def _render_with_mathtext(lines: list[str], out_png: Path) -> Path:
+def _render_with_mathtext(lines: list[str], out_png: Path, *, dpi: int = 160, fontsize: float = 18) -> Path:
     import matplotlib
 
     matplotlib.use("Agg")
@@ -180,7 +180,7 @@ def _render_with_mathtext(lines: list[str], out_png: Path) -> Path:
                     f"${cand}$",
                     ha="center",
                     va="top",
-                    fontsize=18,
+                    fontsize=fontsize,
                     color="#111111",
                     transform=ax.transAxes,
                     zorder=1,
@@ -208,7 +208,7 @@ def _render_with_mathtext(lines: list[str], out_png: Path) -> Path:
     out_png.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(
         out_png,
-        dpi=160,
+        dpi=dpi,
         facecolor="white",
         bbox_inches="tight",
         pad_inches=0.3,
@@ -217,8 +217,17 @@ def _render_with_mathtext(lines: list[str], out_png: Path) -> Path:
     return out_png
 
 
-def render_latex_preview_png(latex_body: str, out_png: Path) -> Path:
-    """Render formula lines to PNG. Prefer TeX, else mathtext, else plain."""
+def render_latex_preview_png(
+    latex_body: str,
+    out_png: Path,
+    *,
+    dpi: int = 160,
+    fontsize: float = 18,
+) -> Path:
+    """Render formula lines to PNG. Prefer TeX, else mathtext, else plain.
+
+    dpi/fontsize control sharpness for zoomed or popup views.
+    """
     lines = _prepare_lines(latex_body)
     out_png = Path(out_png)
 
@@ -229,7 +238,7 @@ def render_latex_preview_png(latex_body: str, out_png: Path) -> Path:
             pass
 
     try:
-        return _render_with_mathtext(lines, out_png)
+        return _render_with_mathtext(lines, out_png, dpi=dpi, fontsize=fontsize)
     except Exception:
         # Ultimate fallback: plain text figure
         import matplotlib

@@ -19,6 +19,8 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QScrollArea,
+    QSlider,
     QSplitter,
     QTabWidget,
     QTreeWidget,
@@ -84,18 +86,35 @@ class VerificationCurveDialog(QDialog):
         self.formula_plain.setStyleSheet("font-family: Consolas, monospace;")
         self.formula_latex = QPlainTextEdit(); self.formula_latex.setReadOnly(True)
         self.formula_latex.setStyleSheet("font-family: Consolas, monospace;")
-        self.latex_preview = QLabel("Render preview (mathtext)")
+        self.latex_preview = QLabel("Render preview (mathtext) — click to open large view")
         self.latex_preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.latex_preview.setMinimumHeight(180)
         self.latex_preview.setStyleSheet("background:#f7f7f7;")
+        self.latex_preview.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.latex_preview.mousePressEvent = self._on_latex_preview_click  # type: ignore[method-assign]
+        self._latex_pixmap = QPixmap()  # full-resolution render
+        self._latex_zoom = 1.0
         latex_page = QWidget(); ll = QVBoxLayout(latex_page)
         ll.addWidget(QLabel("Plain text")); ll.addWidget(self.formula_plain, 1)
         ll.addWidget(QLabel("LaTeX source")); ll.addWidget(self.formula_latex, 1)
         lb = QHBoxLayout()
         b1 = QPushButton("Render preview"); b1.clicked.connect(self._render_latex)
         b2 = QPushButton("Copy LaTeX"); b2.clicked.connect(lambda: QApplication.clipboard().setText(self.formula_latex.toPlainText()))
-        lb.addWidget(b1); lb.addWidget(b2); lb.addStretch(1)
-        ll.addLayout(lb); ll.addWidget(self.latex_preview)
+        b_zoom_out = QPushButton("Zoom -")
+        b_zoom_in = QPushButton("Zoom +")
+        b_zoom_reset = QPushButton("100%")
+        b_popup = QPushButton("Open large view...")
+        b_zoom_out.clicked.connect(lambda: self._adjust_latex_zoom(1 / 1.25))
+        b_zoom_in.clicked.connect(lambda: self._adjust_latex_zoom(1.25))
+        b_zoom_reset.clicked.connect(lambda: self._set_latex_zoom(1.0))
+        b_popup.clicked.connect(self._open_latex_popup)
+        lb.addWidget(b1); lb.addWidget(b2)
+        lb.addWidget(b_zoom_out); lb.addWidget(b_zoom_in); lb.addWidget(b_zoom_reset)
+        lb.addWidget(b_popup); lb.addStretch(1)
+        ll.addLayout(lb)
+        self.latex_zoom_label = QLabel("Zoom 100%")
+        ll.addWidget(self.latex_zoom_label)
+        ll.addWidget(self.latex_preview)
         self.principle = QPlainTextEdit(); self.principle.setReadOnly(True)
         self.refs = QPlainTextEdit(); self.refs.setReadOnly(True)
         self.doc_view = QPlainTextEdit(); self.doc_view.setReadOnly(True)
@@ -188,17 +207,124 @@ class VerificationCurveDialog(QDialog):
 
     def _render_latex(self) -> None:
         e = self._cur()
-        if not e: return
+        if not e:
+            return
         try:
             from verification.latex_preview import render_latex_preview_png
             preview_dir = UserDataPaths.discover().contract_workbench_preview
             preview_dir.mkdir(parents=True, exist_ok=True)
             out = preview_dir / f"{e.id}_latex.png"
-            render_latex_preview_png(_latex(e), out)
-            pix = QPixmap(str(out))
-            self.latex_preview.setPixmap(pix.scaled(self.latex_preview.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+            # High-res base image so Zoom + stays sharp.
+            render_latex_preview_png(_latex(e), out, dpi=220, fontsize=20)
+            self._latex_pixmap = QPixmap(str(out))
+            self._latex_zoom = 1.0
+            self._apply_latex_zoom()
         except Exception as exc:
-            self.latex_preview.setText(f"Preview unavailable ({exc}). Use LaTeX source above.")
+            self._latex_pixmap = QPixmap()
+            self.latex_preview.setText(
+                f"Preview unavailable ({exc}). Use LaTeX source above."
+            )
+
+    def _set_latex_zoom(self, zoom: float) -> None:
+        self._latex_zoom = max(0.4, min(4.0, float(zoom)))
+        self._apply_latex_zoom()
+
+    def _adjust_latex_zoom(self, factor: float) -> None:
+        self._set_latex_zoom(self._latex_zoom * factor)
+
+    def _apply_latex_zoom(self) -> None:
+        if self._latex_pixmap is None or self._latex_pixmap.isNull():
+            return
+        self.latex_zoom_label.setText(f"Zoom {int(round(self._latex_zoom * 100))}%")
+        # Fit into label, then apply user zoom relative to fit size.
+        base = self.latex_preview.size()
+        if base.width() < 20 or base.height() < 20:
+            base = self.latex_preview.minimumSize()
+        fitted = self._latex_pixmap.scaled(
+            base,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        w = max(1, int(fitted.width() * self._latex_zoom))
+        h = max(1, int(fitted.height() * self._latex_zoom))
+        shown = self._latex_pixmap.scaled(
+            w,
+            h,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        self.latex_preview.setPixmap(shown)
+        self.latex_preview.setToolTip(
+            "Click to open large view. Use Zoom +/- to enlarge in place."
+        )
+
+    def _on_latex_preview_click(self, event) -> None:  # noqa: ANN001
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._open_latex_popup()
+        QLabel.mousePressEvent(self.latex_preview, event)
+
+    def _open_latex_popup(self) -> None:
+        if self._latex_pixmap is None or self._latex_pixmap.isNull():
+            self._render_latex()
+        if self._latex_pixmap is None or self._latex_pixmap.isNull():
+            QMessageBox.information(
+                self, "LaTeX preview", "Render a preview first."
+            )
+            return
+        dlg = QDialog(self)
+        dlg.setWindowTitle("Formula preview (large view)")
+        dlg.resize(900, 520)
+        lay = QVBoxLayout(dlg)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        img = QLabel()
+        img.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        img.setStyleSheet("background:#ffffff;")
+        scroll.setWidget(img)
+        lay.addWidget(scroll, 1)
+        bar = QHBoxLayout()
+        zoom_state = {"z": 1.25}
+
+        def show() -> None:
+            z = zoom_state["z"]
+            w = max(1, int(self._latex_pixmap.width() * z))
+            h = max(1, int(self._latex_pixmap.height() * z))
+            img.setPixmap(
+                self._latex_pixmap.scaled(
+                    w,
+                    h,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+            zlab.setText(f"Zoom {int(round(z * 100))}%")
+
+        def zin() -> None:
+            zoom_state["z"] = min(5.0, zoom_state["z"] * 1.25)
+            show()
+
+        def zout() -> None:
+            zoom_state["z"] = max(0.4, zoom_state["z"] / 1.25)
+            show()
+
+        def zreset() -> None:
+            zoom_state["z"] = 1.0
+            show()
+
+        zlab = QLabel()
+        b_out = QPushButton("Zoom -"); b_out.clicked.connect(zout)
+        b_in = QPushButton("Zoom +"); b_in.clicked.connect(zin)
+        b_rs = QPushButton("100%"); b_rs.clicked.connect(zreset)
+        bar.addWidget(b_out); bar.addWidget(b_in); bar.addWidget(b_rs)
+        bar.addWidget(zlab)
+        bar.addStretch(1)
+        close_btn = QPushButton("Close")
+        close_btn.clicked.connect(dlg.accept)
+        bar.addWidget(close_btn)
+        lay.addLayout(bar)
+        show()
+        dlg.exec()
+        # After close, keep in-place preview as-is.
 
     def _render_curve(self) -> None:
         e = self._cur()
