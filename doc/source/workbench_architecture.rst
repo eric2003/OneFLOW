@@ -184,3 +184,13 @@ run details, including invocation identity, timestamps, and output subjects
 (https://slsa.dev/spec/v1.2/provenance). OneFLOW's local records are not signed
 attestations and do not claim trusted-builder or complete-dependency
 guarantees.
+
+
+Runtime parameter-consumer evidence
+-----------------------------------
+
+parameter_consumer_catalog.py is the first source-backed consumer index. It deliberately lives outside the Qt presentation layer and stores a curated set of verified C++ reads. A record includes the parameter key, source path, consumer symbol, read expression, read timing (required / optional / lazy), applicability, and behavior/evidence notes.
+
+The first audited examples cover maxSteps (Iteration::Init and the step-count termination predicate), time_integral (global and NS control initialization), mach_ref (NsCom::Init and the derived const_cp), vismodel (model selection and downstream conditional behavior), ptTol (lazy initialization on first Tolerance::GetTol), and nmg (multigrid setup and smoothing normalization).
+
+This is intentionally not presented as whole-repository usage analysis. Absence from the catalog means not yet audited, not unused. A source-level read proves a consumer exists; it does not prove the parameter is active for every task, controls a particular numerical outcome in every configuration, or has a validated physical range. Those claims require applicability tracing and separate numerical verification. The catalog is tested independently of Qt so the evidence model can later feed the Project Window and Contract Workbench.
