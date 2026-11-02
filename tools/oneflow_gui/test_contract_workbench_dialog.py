@@ -106,6 +106,12 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
     def test_runtime_verification_shows_resolution_separately_from_declaration(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
         try:
+            contract_index = next(
+                index
+                for index, summary in enumerate(dialog._summaries)
+                if summary.id == "runtime/process-lifecycle"
+            )
+            dialog.contract_list.setCurrentRow(contract_index)
             evidence_text = dialog.evidence_view.toPlainText()
             self.assertIn("[RESOLVED] google_test:", evidence_text)
             self.assertIn("Declaration: linked_not_executed", evidence_text)
@@ -117,6 +123,26 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("Build declaration: target_resolved", evidence_text)
             self.assertIn("CTest discovery declaration: registered", evidence_text)
             self.assertIn("CTest discovery mode: PRE_TEST", evidence_text)
+        finally:
+            dialog.close()
+
+    def test_gui_process_contract_displays_python_test_declarations(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "runtime")
+        try:
+            contract_index = next(
+                index
+                for index, summary in enumerate(dialog._summaries)
+                if summary.id == "runtime/gui-process-execution"
+            )
+            dialog.contract_list.setCurrentRow(contract_index)
+            evidence_text = dialog.evidence_view.toPlainText()
+            self.assertIn("[RESOLVED] python_test:", evidence_text)
+            self.assertIn(
+                "ProcessControlTest.test_terminate_and_reap_waits_for_direct_child",
+                evidence_text,
+            )
+            self.assertIn("Declaration: linked_not_executed", evidence_text)
+            self.assertIn("Resolved file:", evidence_text)
         finally:
             dialog.close()
 
