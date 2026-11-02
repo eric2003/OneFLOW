@@ -353,3 +353,39 @@ The Windows-specific command fallback is also tested with a controlled fake
 process. The Ubuntu and Windows CI matrix runs the same test module. A real MPI
 regression stop should still be checked on each supported host because MPI
 launchers may have implementation-specific process management behavior.
+
+## Durable verification execution records
+
+`execution_records.py` defines the first persisted execution-evidence model.
+It is deliberately separate from GUI `TaskRunResult` and workflow run history:
+those models describe task scheduling and user-facing task outcomes, while an
+execution record captures one test invocation and its provenance.
+
+Schema version 1 records include:
+
+- stable record and test identities, framework, source path, and optional line;
+- repository revision, branch, build configuration, platform, and runtime version;
+- exact command, working directory, start/finish timestamps, exit code, and outcome;
+- explicit contract IDs, structured artifact references, and diagnostics.
+
+Unknown metadata remains empty rather than being inferred. Contract links are
+explicit only. `freshness(current_commit)` returns `current`, `stale`, or
+`unknown`; missing revision data is never treated as current. The JSON Lines
+store is append-only and reports malformed records with their line number
+instead of silently discarding evidence.
+
+The default user-data location is
+`~/.oneflow/verification/execution-records.jsonl`, exposed by
+`UserDataPaths.verification_execution_records`. The store accepts an explicit
+path so tests and future services can inject isolated locations.
+
+This is a persistence foundation, not yet an execution adapter: existing
+runners do not write records, and the Contract Workbench does not yet display
+them. A declaration or statically resolved source link must therefore continue
+to display as unexecuted until an actual invocation is ingested.
+
+Run the focused model and persistence tests:
+
+```powershell
+python -m unittest tools.verification.test_execution_records
+```
