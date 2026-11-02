@@ -304,11 +304,12 @@ CMake configure/build/CTest/regression run.
 
 ## Process-tree cancellation in the test workbench
 
-The GUI test worker starts each command in an isolated process group. On POSIX
-systems it creates a new session and terminates the process group when Stop is
-requested. On Windows it creates a new process group and uses
-`taskkill /PID <pid> /T /F` to stop the process tree. The Windows command is
-invoked with an argument list, never through a shell.
+The GUI test worker, Case Database runner, and workflow process runner start
+each command in an isolated process group. On POSIX systems they create a new
+session and terminate the process group when Stop is requested. On Windows
+they create a new process group and use `taskkill /PID <pid> /T /F` to stop the
+process tree. The Windows command is invoked with an argument list, never
+through a shell.
 
 This boundary matters for CFD regression: the Python regression runner can
 launch a shell command that in turn starts MPI and OneFLOW. Stopping only the
