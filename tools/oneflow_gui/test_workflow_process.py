@@ -22,7 +22,7 @@ class WorkflowProcessTest(unittest.TestCase):
     def _run(self, code: str, cancelled=lambda: False):
         output: list[str] = []
         result = run_process(
-            [sys.executable, "-c", code],
+            [sys.executable, "-S", "-c", code],
             cwd=self._cwd,
             on_output=output.append,
             is_cancelled=cancelled,
