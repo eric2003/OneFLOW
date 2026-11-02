@@ -463,6 +463,57 @@ TEST( SimuImpCaseLifecycleIntegration,
 }
 
 
+TEST( SimuImpCaseLifecycleIntegration,
+      RepositoryRae2822ConversionCaseCanBeInitializedWithoutRunningGridTask )
+{
+#ifndef ONEFLOW_SOURCE_DIR
+    GTEST_SKIP() << "ONEFLOW_SOURCE_DIR is not configured";
+#else
+    const std::filesystem::path sourceCase =
+        std::filesystem::path( ONEFLOW_SOURCE_DIR )
+        / "test" / "grid" / "rae2822convert";
+    ASSERT_TRUE( std::filesystem::is_directory( sourceCase / "script" ) );
+
+    TemporaryCase testCase;
+    std::filesystem::copy(
+        sourceCase / "script",
+        std::filesystem::path( testCase.Directory() ) / "script",
+        std::filesystem::copy_options::recursive
+            | std::filesystem::copy_options::overwrite_existing );
+
+    Prj::Init();
+    SimuImp simulation( testCase.Directory(), false );
+    SimuContext & context = simulation.Context();
+    context.SetupProcessEnvironment();
+    ProcessRuntimeGuard runtimeGuard( simulation );
+
+    ASSERT_TRUE( context.IsProcessEnvironmentActive() );
+    ASSERT_FALSE( context.IsEnvironmentReady() );
+
+    EXPECT_NO_THROW( context.SetupCaseEnvironment() );
+    ASSERT_TRUE( context.IsEnvironmentReady() );
+
+    DataBase & database = RequireGlobalDataBase();
+    EXPECT_EQ( GetDataValue<int>( "dimension", &database ), 2 );
+    EXPECT_EQ( GetDataValue<std::string>( "simutask", &database ), "Grid" );
+    EXPECT_DOUBLE_EQ( GetDataValue<Real>( "ptTol", &database ), 1.0e-10 );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( testCase.Directory() )
+        / "log" / "database.log" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( testCase.Directory() )
+        / "results" / "io_paths.txt" ) );
+
+    // Setup-only evidence: do not resolve or execute the Grid task.
+    EXPECT_NO_THROW( context.TeardownCase() );
+    EXPECT_FALSE( context.IsEnvironmentReady() );
+    EXPECT_TRUE( context.IsProcessEnvironmentActive() );
+    EXPECT_NO_THROW( simulation.FinalizeEnvironment() );
+    EXPECT_FALSE( context.IsProcessEnvironmentActive() );
+#endif
+}
+
+
 TEST( SimulationEntryIntegration,
       FullSimulationEntryReadsControlFilesAndFinalizesProcessRuntime )
 {
