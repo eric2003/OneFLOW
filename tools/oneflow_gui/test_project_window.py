@@ -111,6 +111,7 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 self.assertIsNone(self._find_item(tree, "control.txt"))
             finally:
                 window.close()
+
     def test_modify_selected_parameter_uses_configured_editor(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
