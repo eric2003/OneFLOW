@@ -405,4 +405,5 @@ Run the focused model and adapter tests:
 ```powershell
 python -m unittest tools.verification.test_execution_records
 python -m unittest tools.oneflow_gui.test_execution_capture
+python -m unittest tools.oneflow_gui.test_test_dialog_execution_capture
 ```
