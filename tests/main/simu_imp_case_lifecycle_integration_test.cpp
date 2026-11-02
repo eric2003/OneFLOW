@@ -507,6 +507,7 @@ TEST( SimulationEntryIntegration,
     EXPECT_TRUE( std::filesystem::exists(
         std::filesystem::path( caseDirectory ) / "results" / "io_paths.txt" ) );
     EXPECT_FALSE( AccelRuntime::Instance().IsInitialized() );
+    EXPECT_TRUE( Prj::prjBaseDir.empty() );
 }
 
 
