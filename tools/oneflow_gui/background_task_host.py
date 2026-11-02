@@ -87,7 +87,6 @@ def run_host(
             )
             while process.poll() is None:
                 if stop_path.exists():
-                    stop_requested = True
                     task = registry.update(
                         task_id,
                         lambda current: (
@@ -101,6 +100,10 @@ def run_host(
                             else current
                         ),
                     )
+                    if task.status not in {"starting", "running", "stopping"}:
+                        stop_path.unlink(missing_ok=True)
+                        continue
+                    stop_requested = True
                     if os.name == "nt":
                         subprocess.run(
                             ["taskkill", "/PID", str(process.pid), "/T", "/F"],
