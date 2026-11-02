@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import tempfile
+from unittest.mock import patch
 import unittest
 from dataclasses import replace
 from pathlib import Path
@@ -54,6 +55,49 @@ class BackgroundTaskRegistryTest(unittest.TestCase):
         self.assertEqual(
             [path.name for path in self.registry.records_directory.iterdir()],
             ["run-001.json"],
+        )
+
+    def test_save_retries_transient_windows_replace_denial(self) -> None:
+        task = self.make_task()
+        real_replace = __import__("os").replace
+        attempts = 0
+
+        def replace_with_transient_denial(source: str, destination: Path) -> None:
+            nonlocal attempts
+            attempts += 1
+            if attempts < 3:
+                raise PermissionError(5, "temporary sharing violation")
+            real_replace(source, destination)
+
+        with patch(
+            "tools.oneflow_gui.background_task_registry.os.replace",
+            side_effect=replace_with_transient_denial,
+        ):
+            self.registry.save(task)
+
+        self.assertEqual(attempts, 3)
+        self.assertEqual(self.registry.load(task.task_id), task)
+        self.assertEqual(
+            [path.name for path in self.registry.records_directory.iterdir()],
+            [f"{task.task_id}.json"],
+        )
+
+    def test_save_preserves_existing_record_when_replace_remains_denied(self) -> None:
+        original = self.make_task()
+        self.registry.save(original)
+        updated = replace(original, status="running")
+
+        with patch(
+            "tools.oneflow_gui.background_task_registry.os.replace",
+            side_effect=PermissionError(5, "persistent access denial"),
+        ):
+            with self.assertRaises(PermissionError):
+                self.registry.save(updated)
+
+        self.assertEqual(self.registry.load(original.task_id), original)
+        self.assertEqual(
+            [path.name for path in self.registry.records_directory.iterdir()],
+            [f"{original.task_id}.json"],
         )
 
     def test_invalid_task_id_is_rejected(self) -> None:

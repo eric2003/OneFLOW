@@ -219,3 +219,18 @@ catalog continues to label these declarations `linked_not_executed` until
 an actual run result is captured. This test proves the stated sequential
 configuration-isolation behavior only; it does not prove multi-rank MPI,
 hardware accelerator teardown, or CFD numerical correctness.
+
+
+## Detached background-task registry on Windows
+
+The detached host and the Workbench may read the same task record while the host
+publishes state transitions. Registry writes use a same-directory temporary file,
+flush it to disk, and replace the JSON record atomically so readers do not observe
+partial JSON. Windows can temporarily reject a rename/replace when another process
+has a short-lived handle on the destination (for example, an overlapping reader or
+file-system scanner). The registry therefore retries `PermissionError` a bounded
+number of times with a short increasing delay. The retry window is deliberately
+finite: a persistent access-control error still fails visibly, the previous record
+remains intact, and the temporary file is removed. Tests cover both transient
+recovery and permanent denial; the detached-host integration test remains the
+end-to-end check that a completed child process reaches a terminal task state.

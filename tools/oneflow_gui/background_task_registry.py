@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -64,6 +65,7 @@ class BackgroundTaskRegistry:
     """Store task records outside the source tree using atomic JSON replacement."""
 
     SCHEMA_VERSION = 1
+    REPLACE_RETRY_DELAYS = (0.01, 0.02, 0.04, 0.08, 0.16)
 
     def __init__(self, root: Path) -> None:
         self.root = root
@@ -91,7 +93,15 @@ class BackgroundTaskRegistry:
                 stream.write("\n")
                 stream.flush()
                 os.fsync(stream.fileno())
-            os.replace(temporary_name, path)
+            for attempt, delay in enumerate((0.0, *self.REPLACE_RETRY_DELAYS)):
+                if delay:
+                    time.sleep(delay)
+                try:
+                    os.replace(temporary_name, path)
+                    break
+                except PermissionError:
+                    if attempt == len(self.REPLACE_RETRY_DELAYS):
+                        raise
         finally:
             try:
                 os.unlink(temporary_name)
