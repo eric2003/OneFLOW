@@ -407,3 +407,24 @@ python -m unittest tools.verification.test_execution_records
 python -m unittest tools.oneflow_gui.test_execution_capture
 python -m unittest tools.oneflow_gui.test_test_dialog_execution_capture
 ```
+
+
+## Recorded execution history in the Workbench
+
+The domain Verification tab now reads the append-only execution JSONL store from
+`UserDataPaths.verification_execution_records`. Records are associated with a
+contract only when their `contract_ids` explicitly contain that contract ID.
+Records without contract IDs are shown in a separate unlinked section and are
+never presented as proof for the selected contract.
+
+Each entry displays its outcome, revision freshness, command, timestamp, and
+recorded artifact paths. Freshness is current only for an exact match with the
+checked-out Git commit; missing revision metadata is unknown. This is a
+read-only view and does not launch tests or mutate execution records.
+
+The focused GUI test covers explicit association, unlinked records, stale/current
+revision labeling, and artifact visibility:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+```

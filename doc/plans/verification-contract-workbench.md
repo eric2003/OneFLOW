@@ -858,3 +858,20 @@ resolution separate from actual execution. Only after that path is proven
 should CTest/GoogleTest and CFD regression adapters be added. A declaration,
 static source resolution, build registration, execution, and passing outcome
 must remain separate states.
+
+
+## 16. Recorded execution history presentation
+
+The domain Verification tab now displays immutable execution records from the
+user-data JSONL store. The presentation has two deliberately separate groups:
+records explicitly linked through `contract_ids`, and recent unlinked records.
+Unlinked records are visible for discovery but are not attributed to the selected
+contract. Each record shows outcome, commit freshness, exact command, completion
+time, and artifact references.
+
+Freshness is compared against the current checkout's Git revision. If either
+revision is unavailable, the status remains unknown. This is a read-only
+presentation layer: it does not infer links from test names, source paths, or
+matching commands, and it does not claim that a passing run verifies the entire
+contract. The integration test exercises both linked and unlinked histories and
+current/stale revision states.

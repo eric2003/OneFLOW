@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import subprocess
 import sys
 from pathlib import Path
 
@@ -22,6 +23,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .user_data_paths import UserDataPaths
+
 
 def _ensure_tools_on_path(repository_root: Path) -> None:
     tools_root = (repository_root / "tools").resolve()
@@ -33,10 +36,28 @@ def _ensure_tools_on_path(repository_root: Path) -> None:
 class ContractDomainDialog(QDialog):
     """Browse contracts in one domain using the shared catalog model."""
 
-    def __init__(self, repository_root: Path, domain: str, parent=None) -> None:
+    def __init__(
+        self,
+        repository_root: Path,
+        domain: str,
+        parent=None,
+        *,
+        execution_records_path: Path | None = None,
+        current_commit: str | None = None,
+    ) -> None:
         super().__init__(parent)
         self._repository_root = repository_root.resolve()
         self._domain = domain
+        self._execution_records_path = (
+            Path(execution_records_path)
+            if execution_records_path is not None
+            else UserDataPaths.discover().verification_execution_records
+        )
+        self._current_commit = (
+            current_commit
+            if current_commit is not None
+            else self._read_repository_commit()
+        )
         _ensure_tools_on_path(self._repository_root)
 
         from verification.cmake_test_catalog import discover_cmake_test_targets
@@ -145,6 +166,67 @@ class ContractDomainDialog(QDialog):
             self.status_label.setWordWrap(True)
             root.addWidget(self.status_label)
 
+    def _read_repository_commit(self) -> str | None:
+        """Read the checked-out revision; return unknown outside a Git worktree."""
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "HEAD"],
+                cwd=self._repository_root,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=2,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return None
+        commit = result.stdout.strip()
+        return commit or None
+
+    def _execution_history_lines(self, contract_id: str) -> list[str]:
+        """Show only explicit contract links and keep unlinked runs separate."""
+        from verification.execution_records import ExecutionRecordStore
+
+        lines = ["", "Execution history", "-----------------"]
+        try:
+            records = ExecutionRecordStore(self._execution_records_path).list_records()
+        except (OSError, ValueError) as exc:
+            lines.append(f"Execution history unavailable: {exc}")
+            return lines
+
+        linked = [item for item in records if contract_id in item.contract_ids]
+        unlinked = [item for item in records if not item.contract_ids]
+        lines.extend(self._format_execution_records("Linked executions", linked))
+        lines.extend(
+            self._format_execution_records(
+                "Recent unlinked executions (not attributed to this contract)",
+                unlinked,
+            )
+        )
+        return lines
+
+    def _format_execution_records(self, heading: str, records) -> list[str]:
+        lines = ["", heading, "-" * len(heading)]
+        if not records:
+            lines.append("None recorded.")
+            return lines
+        for record in reversed(records[-10:]):
+            freshness = record.freshness(self._current_commit)
+            lines.append(
+                f"[{record.outcome.upper()} / {freshness.upper()}] "
+                f"{record.test_name}"
+            )
+            lines.append(
+                f"  Finished: {record.finished_at}; framework: {record.framework}; "
+                f"commit: {record.commit or 'unknown'}"
+            )
+            lines.append(f"  Command: {' '.join(record.command)}")
+            for artifact in record.artifacts:
+                lines.append(
+                    f"  Artifact ({artifact.role}): {artifact.path}"
+                    + (f" [sha256: {artifact.sha256}]" if artifact.sha256 else "")
+                )
+        return lines
+
     def _set_diagnostics_only(self) -> None:
         self.evidence_view.setPlainText("\n".join(self._diagnostics))
 
@@ -224,6 +306,7 @@ class ContractDomainDialog(QDialog):
             evidence_lines.extend(
                 ("", "Catalog diagnostics", "-------------------", *self._diagnostics)
             )
+        evidence_lines.extend(self._execution_history_lines(summary.id))
         self.evidence_view.setPlainText("\n".join(evidence_lines) or "No evidence declared.")
         if summary.case_data is not None:
             case = summary.case_data

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -10,6 +11,12 @@ from unittest.mock import Mock, patch
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import QApplication
+
+from tools.verification.execution_records import (
+    ExecutionArtifact,
+    ExecutionRecord,
+    ExecutionRecordStore,
+)
 
 from tools.oneflow_gui.contract_workbench_dialog import (
     ContractDomainDialog,
@@ -145,6 +152,71 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("Resolved file:", evidence_text)
         finally:
             dialog.close()
+
+    def test_execution_history_separates_explicit_links_from_unlinked_runs(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            store_path = Path(temporary) / "execution-records.jsonl"
+            store = ExecutionRecordStore(store_path)
+            common = {
+                "test_id": "unittest:sample",
+                "framework": "unittest",
+                "test_name": "SampleTest.test_contract",
+                "source_path": "tools/sample_test.py",
+                "command": ("python", "-m", "unittest", "tools.sample_test"),
+                "outcome": "passed",
+                "started_at": "2026-11-02T01:00:00+08:00",
+                "finished_at": "2026-11-02T01:00:01+08:00",
+                "exit_code": 0,
+                "branch": "hexin",
+            }
+            store.append(
+                ExecutionRecord(
+                    **common,
+                    commit="current-sha",
+                    contract_ids=("runtime/gui-process-execution",),
+                    artifacts=(ExecutionArtifact("log", ".oneflow/logs/run.log"),),
+                )
+            )
+            store.append(
+                ExecutionRecord(
+                    **{
+                        **common,
+                        "test_id": "unittest:unlinked",
+                        "test_name": "SampleTest.test_unlinked",
+                    },
+                    commit="old-sha",
+                    contract_ids=(),
+                )
+            )
+            dialog = ContractDomainDialog(
+                self.repository_root,
+                "runtime",
+                execution_records_path=store_path,
+                current_commit="current-sha",
+            )
+            try:
+                index = next(
+                    index
+                    for index, summary in enumerate(dialog._summaries)
+                    if summary.id == "runtime/gui-process-execution"
+                )
+                dialog.contract_list.setCurrentRow(index)
+                text = dialog.evidence_view.toPlainText()
+                linked_section = text.split("Linked executions", 1)[1].split(
+                    "Recent unlinked executions", 1
+                )[0]
+                unlinked_section = text.split(
+                    "Recent unlinked executions", 1
+                )[1]
+                self.assertIn("SampleTest.test_contract", linked_section)
+                self.assertIn("CURRENT", linked_section)
+                self.assertIn(".oneflow/logs/run.log", linked_section)
+                self.assertNotIn("unlinked", linked_section)
+                self.assertIn("SampleTest.test_unlinked", unlinked_section)
+                self.assertIn("STALE", unlinked_section)
+                self.assertIn("not attributed to this contract", text)
+            finally:
+                dialog.close()
 
     def test_runtime_domain_uses_shared_contract_navigation(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
