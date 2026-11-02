@@ -123,6 +123,13 @@ case mesh; models 2 and 3.
 References
 ----------
 
-* J. Blazek, *Computational Fluid Dynamics: Principles and Applications*
-  (spectral radius / time-step chapters; viscous estimates).
-* OneFLOW ``TimeStepPolicy`` implementation and intermediate theory curve.
+* J. Blazek, *Computational Fluid Dynamics: Principles and Applications*,
+  Elsevier (2nd/3rd ed.), temporal discretisation / maximum time step:
+  viscous spectral radius with
+  \(\maxigl(	frac{4}{3}(\mu_L+\mu_T),\gamma(\mu_L/\mathrm{Pr}_L+\mu_T/\mathrm{Pr}_T)igr)\)
+  and surface-element scaling. Primary structural source for model 1.
+* Overview and comparative notes: :doc:`viscous_spectral_radius`.
+* SU2 / AIAA papers: edge-based \(\lambda_{\mathrm{vis}}\propto\mu S^{2}/ho\)
+  for comparison of scaling only.
+* OneFLOW intermediate curve:
+  ``tools/verification/data/viscous_spectral_radius_model1_theory.csv``.
