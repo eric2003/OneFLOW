@@ -29,7 +29,12 @@ Source map
 * ``ViscousFaceSpectralRadiusModel3`` in ``TimeStepPolicy``
 * Existing unit test:
   ``TimeStepPolicy.ViscousFaceSpectralRadiusModel3IsArea2OverReRho``
-* Contract Workbench: add when an intermediate curve entry is introduced
+* Theory table: ``tools/verification/data/viscous_spectral_radius_model3_theory.csv``
+* Contract Workbench id: ``viscous_spectral_radius_model3``
+
+.. image:: figures/viscous_spectral_radius_model3_theory.png
+   :alt: Viscous spectral radius model3 vs area
+   :width: 520
 
 What this proves / does not prove
 ---------------------------------

@@ -877,6 +877,49 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+        TheoryEntry(
+            id="viscous_spectral_radius_model3",
+            family="mean-flow",
+            genus="NS-spectrum",
+            section="time-step / viscous spectral radius",
+            title="Viscous face spectral radius (model 3, minimal)",
+            role_tags=("time-step", "spectrum", "viscous"),
+            formula_plain=(
+                "lambda = A^2 / (Re * rho)\n"
+                "No explicit mu; cheapest viscous spectral placeholder"
+            ),
+            formula_latex=(
+                r"\lambda_{\mathrm{vis}}=\frac{A^{2}}{\mathrm{Re}\,\rho}"
+            ),
+            principle=(
+                "Minimal A^2 diffusion-scale bound with viscous magnitude "
+                "absorbed into Re. Fallback when full mu/Pr fields are unused."
+            ),
+            background=(
+                "Pure API ViscousFaceSpectralRadiusModel3. Family overview: "
+                "doc/source/numerical/viscous_spectral_radius.rst"
+            ),
+            references=(
+                "Blazek time-step chapters (motivation); OneFLOW TimeStepPolicy",
+                "doc/source/numerical/viscous_spectral_radius_model3.rst",
+            ),
+            csv_relpath="tools/verification/data/viscous_spectral_radius_model3_theory.csv",
+            plot_module="plot_viscous_spectral_radius_model3",
+            pure_apis=("ViscousFaceSpectralRadiusModel3",),
+            source_relpaths=(
+                "codes/ns/include/TimeStepPolicy.h",
+                "codes/ns/src/TimeStepPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/viscous_spectral_radius_model3.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "lambda = A*A / (Re * rho + SMALL);\n"
+            ),
+            proves="Model-3 algebra and A^2 scaling vs pure API.",
+            does_not_prove="Adequacy vs model 1 in high-mut boundary layers.",
+        ),
+
         TheoryEntry(
             id="viscous_spectral_radius_model2",
             family="mean-flow",
