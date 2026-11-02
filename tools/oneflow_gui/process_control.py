@@ -54,3 +54,33 @@ def terminate_process_tree(
     except OSError:
         process.kill()
     return True
+
+
+def terminate_and_reap(
+    process: subprocess.Popen[object],
+    *,
+    timeout: float = 3.0,
+    platform_name: str | None = None,
+    command_runner: CommandRunner | None = None,
+) -> bool:
+    """Terminate a running process tree and ensure the direct child is reaped."""
+    if process.poll() is not None:
+        return False
+
+    terminate_process_tree(
+        process,
+        platform_name=platform_name,
+        command_runner=command_runner,
+    )
+    try:
+        process.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        terminate_process_tree(
+            process,
+            platform_name=platform_name,
+            command_runner=command_runner,
+        )
+        if process.poll() is None:
+            process.kill()
+        process.wait()
+    return True
