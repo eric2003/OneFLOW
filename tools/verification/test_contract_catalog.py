@@ -118,7 +118,7 @@ class ContractCatalogTest(unittest.TestCase):
             )
         )
         issues = validate_contract_summaries(self.repository_root, [summary])
-        self.assertEqual(issues, [], "\n".join(issues))
+        self.assertEqual(issues, [], "\\\\n".join(issues))
 
     def test_adapts_gui_process_execution_contract_and_resolves_python_tests(
         self,
@@ -353,7 +353,7 @@ class ContractCatalogTest(unittest.TestCase):
 
         self.assertTrue(
             any("workflow definition steps do not match" in issue for issue in issues),
-            "\n".join(issues),
+            "\\\\n".join(issues),
         )
 
     def test_detects_case_output_tolerance_drift(self) -> None:
