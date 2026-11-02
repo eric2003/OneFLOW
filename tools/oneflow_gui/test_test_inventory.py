@@ -120,6 +120,13 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
                 for item in contract_tests
             )
         )
+        self.assertTrue(
+            any(
+                item["name"]
+                == "test_adapts_gui_process_execution_contract_and_resolves_python_tests"
+                for item in contract_tests
+            )
+        )
 
     def test_geometry_contracts_expose_input_expected_and_unexecuted_result(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
