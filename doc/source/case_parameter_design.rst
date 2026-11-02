@@ -192,8 +192,11 @@ choose to store a subset of parameters in one file or split them across several 
 Physical consolidation should be considered only after runtime loading order,
 duplicate-key behavior, compatibility with existing cases, and round-trip preservation
 have explicit tests. The current document parser still handles scalar declarations;
-array declarations such as ``gridTrans[3]`` remain unsupported and must not be silently
-presented as complete parameter coverage.
+array declarations such as ``gridTrans[3]`` remain unsupported by the scalar model.
+The Project Window conservatively detects declaration-like array statements and
+other declaration types outside the scalar parser and lists them with source line
+and reason. This scan is not exhaustive and must not be presented as complete
+parameter coverage.
 
 SQLite parameter catalog
 ------------------------
