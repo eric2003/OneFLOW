@@ -11,7 +11,8 @@
     "doc/source/runtime_architecture.rst",
     "doc/plans/accelerator-runtime-shutdown-order.md",
     "doc/plans/runtime-refactoring-roadmap.md",
-    "doc/plans/setup-case-environment-integration-test.md"
+    "doc/plans/setup-case-environment-integration-test.md",
+    "doc/source/runtime_case_lifecycle.rst"
   ],
   "architecture": "SimuImp owns the production case and process lifecycle entry points. SimuContext coordinates case-owned state and process-owned runtime state. AccelRuntime owns the active AccelBackend. Case teardown must not finalize the process runtime; process finalization releases context-owned backend state before finalizing AccelRuntime. A failed backend Finalize leaves both runtime ownership and the process lifecycle active for retry.",
   "implementation": {
@@ -27,7 +28,8 @@
       "doc/source/runtime_architecture.rst",
       "doc/plans/accelerator-runtime-shutdown-order.md",
       "doc/plans/runtime-refactoring-roadmap.md",
-      "doc/plans/setup-case-environment-integration-test.md"
+      "doc/plans/setup-case-environment-integration-test.md",
+      "doc/source/runtime_case_lifecycle.rst"
     ]
   },
   "verification": [
@@ -60,6 +62,12 @@
       "reference": "SimuImpCaseLifecycleIntegration.SuccessfulCasesRemainIsolatedWithinOneProcess",
       "status": "linked_not_executed",
       "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; runs two production SimuImp cases in one process, reads distinct typed dimension values from the real control database, verifies database and I/O diagnostic artifacts, and checks per-case reset with process-runtime continuity."
+    },
+    {
+      "kind": "google_test",
+      "reference": "SimulationEntryIntegration.FullSimulationEntryReadsControlFilesAndFinalizesProcessRuntime",
+      "status": "linked_not_executed",
+      "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; invokes Simulation::Run with the production full-simulation command-line shape, loads a multi-file control manifest, dispatches the registered task, checks database and I/O artifacts, and verifies process runtime finalization."
     }
   ],
   "claims": {
@@ -67,13 +75,15 @@
       "The production process lifecycle releases context-owned backend states before finalizing the accelerator runtime.",
       "A failed accelerator backend finalization propagates to the caller while preserving runtime ownership and an active process lifecycle for retry.",
       "A subsequent successful finalization completes the process lifecycle.",
-      "Each sequential production case reads its own typed control value and materializes its database and I/O path diagnostics before case-owned state is cleared."
+      "Each sequential production case reads its own typed control value and materializes its database and I/O path diagnostics before case-owned state is cleared.",
+      "The public Simulation::Run entry point dispatches a full case invocation through the real multi-file control reader and task registry, materializes case artifacts, and finalizes the process runtime."
     ],
     "does_not_prove": [
       "Real CUDA or HIP driver shutdown behavior on physical accelerator hardware.",
       "Multi-rank MPI teardown behavior or failures across heterogeneous ranks.",
       "Every solver-specific resource release path or all possible exceptions during case teardown.",
-      "Physical or numerical correctness of CFD solutions."
+      "Physical or numerical correctness of CFD solutions.",
+      "The operating-system executable main function, multi-case CLI argument handling, or full solver execution and numerical correctness."
     ]
   },
   "tags": [
