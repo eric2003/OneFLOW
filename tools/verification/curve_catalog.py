@@ -1160,7 +1160,7 @@ principle=(
                 r"|v_n|\leftarrow\max(m_1,|v_n|),\ "
                 r"|v_n\pm c|\leftarrow\max(m_2,|v_n\pm c|)"
             ),
-principle=(
+            principle=(
                 "Floors small Roe wave speeds to reduce expansion shocks."
             ),
             background=(
@@ -1171,18 +1171,21 @@ principle=(
                 "Harten entropy fix; OneFLOW NsInvFluxPolicy",
                 "doc/source/numerical/harten_entropy_fix.rst",
             ),
-            csv_relpath=None,
-            plot_module=None,
+                        csv_relpath="tools/verification/data/harten_entropy_fix_theory.csv",
+            plot_module="plot_harten_entropy_fix",
             pure_apis=("ApplyHartenEntropyFix",),
             source_relpaths=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/index.rst",
+            doc_relpath="doc/source/numerical/harten_entropy_fix.rst",
             code_sketch=(
                 "// GATED SKETCH - mirror production MAX in tests.\n"
+                "lambda_max = max(|vn+c|, |vn-c|);\n"
+                "m1 = lambda_max * centropy1; m2 = lambda_max * centropy2;\n"
+                "|vn| = max(m1, |vn|); |vn+/-c| = max(m2, |vn+/-c|);\n"
             ),
-            proves="Entropy-fix pure policy tests.",
+proves="Entropy-fix pure policy tests.",
             does_not_prove="Full Roe flux shock-capturing quality.",
         ),
     ]
