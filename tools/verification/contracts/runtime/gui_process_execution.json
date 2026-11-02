@@ -5,8 +5,8 @@
   "domain": "runtime",
   "kind": "state_transition",
   "status": "implemented",
-  "overview": "Ensure commands launched by the OneFLOW GUI have bounded process-tree cancellation, direct-child reaping, output-pipe completion, and an explicit task outcome.",
-  "principle": "A task owns the process it starts and must not report final completion while its direct child remains unreaped or its output reader is still active. Cancellation is a lifecycle transition, not merely a request to terminate the root PID. Platform-specific process-tree operations belong at the process-control boundary; task-specific result semantics remain with each runner.",
+  "overview": "Ensure commands launched by the OneFLOW GUI have process-tree cancellation, direct-child reaping, output-pipe completion, and an explicit task outcome.",
+  "principle": "A task owns the process it starts and must not report final completion before its direct child has exited and its output reader has finished. Cancellation is a lifecycle transition, not merely a request to terminate the root PID. Platform-specific process-tree operations belong at the process-control boundary; task-specific result semantics remain with each runner.",
   "references": [
     "doc/plans/verification-contract-workbench.md",
     "tools/verification/README.md"
@@ -78,9 +78,9 @@
     ],
     "does_not_prove": [
       "That every MPI implementation terminates all remote ranks or launcher-managed processes.",
-      "That cancellation can interrupt a process stuck in an uninterruptible kernel or driver state.",
+      "That the operating system can promptly schedule termination of a process stuck in an uninterruptible kernel or driver state.",
       "That GUI task results are durably persisted across application restarts.",
-      "That every caller waits for every output-reader thread under all possible I/O failures.",
+      "That the final blocking wait can be bounded when the operating system cannot complete process termination.",
       "That solver numerical results are correct."
     ]
   },
