@@ -128,6 +128,29 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             )
         )
 
+    def test_discovers_verification_execution_record_tests(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+
+        records = discover_tests(repository_root)
+
+        execution_tests = [
+            item for item in records
+            if item["source"] == "tools/verification/test_execution_records.py"
+        ]
+        self.assertTrue(execution_tests)
+        self.assertTrue(
+            any(
+                item["name"] == "test_jsonl_store_appends_and_reads_multiple_records"
+                for item in execution_tests
+            )
+        )
+        self.assertTrue(
+            any(
+                item["name"] == "test_freshness_requires_exact_revision_match"
+                for item in execution_tests
+            )
+        )
+
     def test_geometry_contracts_expose_input_expected_and_unexecuted_result(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
         records = discover_tests(repository_root)
