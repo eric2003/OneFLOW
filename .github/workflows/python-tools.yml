@@ -80,6 +80,8 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_runner_process
       - name: Test verification contract catalog
         run: python -m unittest tools.verification.test_contract_catalog
+      - name: Test verification execution records
+        run: python -m unittest tools.verification.test_execution_records
       - name: Test workbench test inventory
         run: python -m unittest tools.oneflow_gui.test_test_inventory
       - name: Test user data paths
