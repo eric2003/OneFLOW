@@ -11,6 +11,10 @@ as pure inline APIs in ``NsInvFluxPolicy.h``.
 Formulas
 --------
 
+Production names ``FMSplit1``, ``FMSplit2``, ``FMSplit4``, ``FPSplit5``
+implement the following (``s = i_{pn} = \\pm 1``):
+
+
 With interface sign :math:`i_{pn}=\pm 1`, :math:`\beta=1/8`, :math:`\alpha=3/16`:
 
 .. math::
@@ -33,6 +37,14 @@ With interface sign :math:`i_{pn}=\pm 1`, :math:`\beta=1/8`, :math:`\alpha=3/16`
    \tfrac12\bigl(1 + i_{pn} M/|M|\bigr) & |M|\ge 1 \\
    M^{\pm}_2\bigl((2 i_{pn}-M) - i_{pn}\,16\,\alpha\, M\, M^{\mp}_2\bigr) & |M|< 1
    \end{cases}
+
+API mapping
+-----------
+
+* ``FMSplit1(M, s)`` :math:`\\equiv M_1`
+* ``FMSplit2(M, s)`` :math:`\\equiv M_2`
+* ``FMSplit4(M, \\beta, s)`` :math:`\\equiv M^{\\pm}_4` (mass/Mach split)
+* ``FPSplit5(M, \\alpha, s)`` :math:`\\equiv P^{\\pm}_5` (pressure split)
 
 Source map
 ----------

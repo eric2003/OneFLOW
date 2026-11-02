@@ -27,8 +27,8 @@ def main() -> None:
             y4.append(float(row["fmsplit4_plus"]))
             y5.append(float(row["fpsplit5_plus"]))
     fig, ax = plt.subplots(figsize=(7.2, 4.4))
-    ax.plot(xs, y4, lw=2.0, label=r"$M^{\pm}$ via FMSplit4 ($i_{pn}=+1$)")
-    ax.plot(xs, y5, lw=2.0, label=r"$P^{\pm}$ via FPSplit5 ($i_{pn}=+1$)")
+    ax.plot(xs, y4, lw=2.0, label=r"$M_4=\mathrm{FMSplit4}(M,\beta,+1)$")
+    ax.plot(xs, y5, lw=2.0, label=r"$P_5=\mathrm{FPSplit5}(M,\alpha,+1)$")
     ax.axvline(-1.0, color="0.6", ls=":", lw=1)
     ax.axvline(1.0, color="0.6", ls=":", lw=1)
     ax.axhline(0.0, color="0.6", ls="--", lw=1)
@@ -38,7 +38,7 @@ def main() -> None:
             xlabel=r"Mach number $M$",
             ylabel=r"split function value",
             title=r"AUSM Mach / pressure split polynomials",
-            subtitle=r"$\beta=1/8$, $\alpha=3/16$; sonic lines at $|M|=1$",
+            subtitle=r"$M_4=M_1$ ($|M|>=1$) else $M_2(1-16\beta M_2)$; $\beta=1/8$, $\alpha=3/16$",
         )
     else:
         ax.set_xlabel(r"Mach number $M$")
