@@ -33,7 +33,8 @@ class TestCommandWorkerEvidenceTest(unittest.TestCase):
             root = Path(temporary)
             process = self._process()
             paths = SimpleNamespace(
-                verification_execution_records=root / ".oneflow" / "records.jsonl"
+                verification_execution_records=root / ".oneflow" / "verification" / "execution-records.jsonl",
+                test_run_logs=root / ".oneflow" / "test-runs" / "logs",
             )
             with (
                 patch(
@@ -62,6 +63,7 @@ class TestCommandWorkerEvidenceTest(unittest.TestCase):
                 "OK",
             ])
             self.assertEqual(arguments["configuration"], "Debug")
+            self.assertEqual(arguments["artifact_directory"], paths.test_run_logs)
             self.assertFalse(arguments["cancelled"])
 
     def test_process_launch_failure_does_not_create_execution_evidence(self) -> None:
