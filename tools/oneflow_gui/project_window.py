@@ -20,6 +20,8 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QListWidget,
+    QListWidgetItem,
     QMainWindow,
     QSplitter,
     QMessageBox,
@@ -32,7 +34,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .application_settings import ApplicationSettings
 from .executable_discovery import executable_candidates
+from .source_editor import open_source_files
 from .background_task_manager import start_background_task, request_background_stop
 from .background_task_registry import BackgroundTask, BackgroundTaskRegistry, TERMINAL_STATUSES
 from .project_inventory import (
@@ -302,16 +306,35 @@ class ProjectWindow(QMainWindow):
             "Control file",
             QLabel(str(self._project.control_file) if self._project.control_file else "Not detected"),
         )
-        details.addRow(
-            "Runtime file",
-            QLabel(str(self._project.runtime_file) if self._project.runtime_file else "Not detected"),
-        )
         root.addLayout(details)
-        parameter_text = "\n".join(str(path) for path in self._project.parameter_files)
-        details.addRow(
-            "Parameter files",
-            QLabel(parameter_text or "None detected"),
+
+        parameter_group = QWidget()
+        parameter_layout = QVBoxLayout(parameter_group)
+        parameter_layout.setContentsMargins(0, 0, 0, 0)
+        parameter_layout.setSpacing(6)
+        parameter_heading = QHBoxLayout()
+        parameter_heading.addWidget(QLabel("Parameter files"))
+        parameter_heading.addStretch(1)
+        self.modify_parameters_button = QPushButton("Modify selected...")
+        self.modify_parameters_button.setObjectName("modifyParametersButton")
+        self.modify_parameters_button.setEnabled(bool(self._project.parameter_files))
+        self.modify_parameters_button.clicked.connect(self._modify_selected_parameter)
+        parameter_heading.addWidget(self.modify_parameters_button)
+        parameter_layout.addLayout(parameter_heading)
+        self.parameter_list = QListWidget()
+        self.parameter_list.setObjectName("parameterFileList")
+        self.parameter_list.setMinimumHeight(112)
+        for path in self._project.parameter_files:
+            item = QListWidgetItem(str(path))
+            item.setData(Qt.ItemDataRole.UserRole, path)
+            self.parameter_list.addItem(item)
+        if self.parameter_list.count():
+            self.parameter_list.setCurrentRow(0)
+        self.parameter_list.itemDoubleClicked.connect(
+            lambda _item: self._modify_selected_parameter()
         )
+        parameter_layout.addWidget(self.parameter_list)
+        root.addWidget(parameter_group)
 
         executable_row = QHBoxLayout()
         executable_row.addWidget(QLabel("OneFLOW executable"))
@@ -698,6 +721,29 @@ class ProjectWindow(QMainWindow):
             self._detached_changes_tree.sortItems(0, Qt.SortOrder.AscendingOrder)
         if self._detached_changes_summary is not None:
             self._detached_changes_summary.setText(self.changes_summary.text())
+
+    def _modify_selected_parameter(self) -> None:
+        """Open the selected case parameter file in the configured source editor."""
+        item = self.parameter_list.currentItem()
+        if item is None:
+            QMessageBox.information(
+                self, "No parameter selected", "Select a parameter file to modify."
+            )
+            return
+        path = item.data(Qt.ItemDataRole.UserRole)
+        if not isinstance(path, Path):
+            path = Path(item.text())
+        try:
+            settings = ApplicationSettings.load()
+            open_source_files(
+                settings.source_editor,
+                (path,),
+                working_directory=self._project.root,
+            )
+        except (OSError, ValueError) as error:
+            QMessageBox.warning(
+                self, "Cannot open parameter file", str(error)
+            )
 
     def _choose_executable(self) -> None:
         current = self.executable_combo.currentText().strip()
