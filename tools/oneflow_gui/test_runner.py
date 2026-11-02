@@ -165,6 +165,7 @@ _PYTHON_UNIT_TESTS = (
     ("Combined contract catalog tests", ("-m", "unittest", "tools.verification.test_contract_catalog")),
     ("Verification execution record tests", ("-m", "unittest", "tools.verification.test_execution_records")),
     ("Python execution capture tests", ("-m", "unittest", "tools.oneflow_gui.test_execution_capture")),
+    ("Test worker execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_test_dialog_execution_capture")),
     ("CMake test catalog tests", ("-m", "unittest", "tools.verification.test_cmake_test_catalog")),
     ("Contract Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_contract_workbench_dialog")),
     ("Repository test inventory discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_test_inventory")),
