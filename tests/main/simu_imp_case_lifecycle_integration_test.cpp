@@ -95,15 +95,18 @@ private:
 };
 
 std::vector<std::string> successfulCaseMarkers;
+std::vector<int> successfulCaseDimensions;
 
 class CaseMarkerTask final : public ISimuTask
 {
 public:
     void Execute( SimuContext & /*context*/ ) override
     {
+        DataBase & database = RequireGlobalDataBase();
         successfulCaseMarkers.push_back(
-            GetDataValue<std::string>(
-                "case_marker", &RequireGlobalDataBase() ) );
+            GetDataValue<std::string>( "case_marker", &database ) );
+        successfulCaseDimensions.push_back(
+            GetDataValue<int>( "dimension", &database ) );
     }
 };
 
@@ -379,15 +382,18 @@ TEST( SimuImpCaseLifecycleIntegration,
     firstCase.WriteScript(
         "case.txt",
         "string simutask = \"ToyModel\";\n"
-        "string case_marker = \"first_case\";\n" );
+        "string case_marker = \"first_case\";\n"
+        "int dimension = 2;\n" );
 
     secondCase.WriteManifest( "\"case.txt\";\n" );
     secondCase.WriteScript(
         "case.txt",
         "string simutask = \"ToyModel\";\n"
-        "string case_marker = \"second_case\";\n" );
+        "string case_marker = \"second_case\";\n"
+        "int dimension = 3;\n" );
 
     successfulCaseMarkers.clear();
+    successfulCaseDimensions.clear();
     TaskRegistry::Instance().Register(
         "ToyModel",
         []() { return std::make_unique<CaseMarkerTask>(); } );
@@ -435,6 +441,17 @@ TEST( SimuImpCaseLifecycleIntegration,
     EXPECT_EQ(
         successfulCaseMarkers,
         ( std::vector<std::string>{ "first_case", "second_case" } ) );
+    EXPECT_EQ(
+        successfulCaseDimensions,
+        ( std::vector<int>{ 2, 3 } ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( firstCase.Directory() ) / "log" / "database.log" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( secondCase.Directory() ) / "log" / "database.log" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( firstCase.Directory() ) / "results" / "io_paths.txt" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( secondCase.Directory() ) / "results" / "io_paths.txt" ) );
     ASSERT_EQ( caseStateCleared.size(), 2u );
     EXPECT_TRUE( caseStateCleared[ 0 ] );
     EXPECT_TRUE( caseStateCleared[ 1 ] );
