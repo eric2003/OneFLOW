@@ -151,6 +151,29 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             )
         )
 
+    def test_discovers_python_execution_capture_tests(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+
+        records = discover_tests(repository_root)
+
+        capture_tests = [
+            item for item in records
+            if item["source"] == "tools/oneflow_gui/test_execution_capture.py"
+        ]
+        self.assertTrue(capture_tests)
+        self.assertTrue(
+            any(
+                item["name"] == "test_captures_completed_unittest_command_and_log_artifact"
+                for item in capture_tests
+            )
+        )
+        self.assertTrue(
+            any(
+                item["name"] == "test_records_failed_and_cancelled_process_outcomes"
+                for item in capture_tests
+            )
+        )
+
     def test_geometry_contracts_expose_input_expected_and_unexecuted_result(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
         records = discover_tests(repository_root)
