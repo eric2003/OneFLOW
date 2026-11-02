@@ -116,17 +116,35 @@ Evidence status is deliberately explicit. A declaration of a linked GoogleTest
 is not an execution record. The Contract Workbench must continue to display
 ``linked_not_executed`` until a test run produces a result and evidence artifact.
 
+Repository case setup-only evidence
+-------------------------------------
+
+``RepositoryRae2822ConversionCaseCanBeInitializedWithoutRunningGridTask``
+copies the checked-in ``test/grid/rae2822convert/script`` directory to a
+temporary case directory and invokes the production
+``SimuContext::SetupCaseEnvironment()``. It checks typed values
+(``dimension == 2``, ``simutask == "Grid"``, and
+``ptTol == 1.0e-10``) and the materialized
+``log/database.log`` and ``results/io_paths.txt`` artifacts. The test
+then invokes the real ``TeardownCase()``, verifies that case readiness is
+cleared while process runtime remains active, and only then finalizes the
+process runtime. A scoped guard retries case teardown during early test exit.
+
+The test deliberately does not resolve or execute the Grid task. It therefore
+proves that this repository control-script set can be ingested and its case
+environment can be torn down; it does not prove that the grid conversion
+inputs are mutually consistent or that conversion succeeds.
+
 Known limits and next checks
 ----------------------------
 
 The current tests use a serial runtime and a registered lightweight task. They
 do not establish multi-rank MPI behavior, physical CUDA/HIP driver behavior,
-all solver-specific cleanup paths, or numerical correctness. The next R1
-acceptance increment should exercise the same production setup sequence with a
-repository CFD case in setup-only mode, after confirming its complete input
-asset set. This should verify real case-specific I/O settings and path
-resolution without conflating setup correctness with a numerical regression.
-Numerical regression remains a separate evidence layer.
+all solver-specific cleanup paths, or numerical correctness. The repository
+case test is linked evidence until an exact-revision CTest run records its
+execution. R1 remains Partial until the focused test, full suite, and
+Windows/MSVC and Linux CI have passed on the same revision. Numerical
+regression remains a separate evidence layer.
 
 Architecture implication
 ------------------------
