@@ -1255,3 +1255,30 @@ Extended `SuccessfulCasesRemainIsolatedWithinOneProcess` in `tests/main/simu_imp
 The exercised path is `SimuImp::RunCase() -> PreProcess() -> InitSimu() -> SetupCaseEnvironment() -> InitializeCaseConfiguration() -> ReadControlInfo(caseDir) -> ReadCaseIOSettings() -> ApplyCaseIOSettings()`, followed by task resolution/execution and `PostProcess() -> TeardownCase()`. The test uses the production runtime object collection; it does not reimplement the control parser or path application.
 
 This is stronger production configuration evidence, but it is still a test implementation awaiting execution on the user's Windows/MSVC checkout. It does not run a numerical solver, validate CFD accuracy, or exercise multi-rank MPI. R1 remains Partial until the focused target and full suite pass on this exact revision and the remaining teardown failure boundaries are assessed.
+
+## 2026-11-02 continuation: repository case setup-only evidence and fixture cleanup
+
+The production integration target now includes
+`RepositoryRae2822ConversionCaseCanBeInitializedWithoutRunningGridTask`.
+It copies the checked-in `test/grid/rae2822convert/script` directory into a
+temporary case directory, then calls the real
+`SimuContext::SetupCaseEnvironment()`. The test checks the parsed
+`dimension`, `simutask`, and `ptTol` values, plus
+`log/database.log` and `results/io_paths.txt`. It deliberately does not
+resolve or execute the Grid task, so this is control/configuration evidence,
+not a grid conversion or numerical regression.
+
+A review found that the test's explicit teardown could be skipped by a fatal
+GoogleTest assertion after successful setup. A scoped `CaseEnvironmentGuard`
+now provides a fallback call to the real `TeardownCase()`; its explicit
+`Teardown()` method is used by the normal assertion path and disarms the
+fallback only after teardown succeeds. Declaration order ensures this case
+guard is destroyed before the process-runtime guard, preserving the required
+reverse ownership order.
+
+The source test and catalog declaration are linked, but this repository
+inspection does not constitute a test execution. The evidence status remains
+`linked_not_executed` until the exact revision is built and the focused test
+is observed in a real CTest run. R1 remains Partial. Remaining checks include
+the Windows/MSVC and Linux builds, complete suite, and review of teardown
+failure paths beyond the configuration rollback already covered.
