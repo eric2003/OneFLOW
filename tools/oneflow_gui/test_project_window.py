@@ -45,6 +45,12 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 parameter = self._find_item(parameter_tree, "simuTask")
                 self.assertIsNotNone(parameter)
                 self.assertEqual(parameter.text(1), "flow")
+                runtime = next(
+                    parameter.child(index)
+                    for index in range(parameter.childCount())
+                    if parameter.child(index).text(0) == "Runtime consumer"
+                )
+                self.assertEqual(runtime.text(1), "Not audited")
                 self.assertIsNone(self._find_item(parameter_tree, "control.txt"))
                 button = window.findChild(QPushButton, "modifyParametersButton")
                 self.assertIsNotNone(button)
@@ -83,7 +89,7 @@ class ProjectWindowParameterTest(unittest.TestCase):
             )
             (script / "simu.txt").write_text('string simuTask = "Solve";\nint maxSteps = 10;\n', encoding="ascii")
             (script / "cfd.txt").write_text("int maxSteps = 20;\n", encoding="ascii")
-            (script / "override.txt").write_text("int MAXSTEPS = 30;\n", encoding="ascii")
+            (script / "override.txt").write_text("int MAXSTEPS = 30;\nReal gridTrans[3] = {0.0, 0.0, 0.0};\n", encoding="ascii")
             catalog_home = root.parent / "oneflow-user-data"
             with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
                 window = ProjectWindow(open_project(root), root.parent)
@@ -108,6 +114,9 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 )
                 self.assertEqual(consumer.text(1), "Iteration::Init")
                 self.assertIn("Iteration.cpp", consumer.text(3))
+                unsupported = self._find_item(tree, "gridTrans")
+                self.assertIsNotNone(unsupported)
+                self.assertIn("Array declarations", unsupported.toolTip(0))
                 self.assertIsNone(self._find_item(tree, "control.txt"))
             finally:
                 window.close()
