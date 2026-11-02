@@ -153,3 +153,102 @@ def capture_python_unittest_execution(
     )
     ExecutionRecordStore(Path(records_path)).append(record)
     return record
+
+
+def _file_artifact(role: str, value: str) -> ExecutionArtifact | None:
+    """Return a checksummed artifact only when the recorded file still exists."""
+    path = Path(value).expanduser()
+    if not path.is_file():
+        return None
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return ExecutionArtifact(role, str(path.resolve()), digest.hexdigest())
+
+
+def capture_workflow_execution(
+    run_data: dict,
+    *,
+    repository_root: Path,
+    records_path: Path,
+    contract_ids: tuple[str, ...] = (),
+) -> tuple[ExecutionRecord, ...]:
+    """Persist evidence for each workflow step that launched a process."""
+    root = Path(repository_root).resolve()
+    steps = run_data.get("steps", [])
+    if not isinstance(steps, list):
+        raise ValueError("workflow run steps must be an array")
+    executable = str(run_data.get("executable") or "")
+    configuration = Path(executable).parent.name if executable else ""
+    if configuration not in {"Debug", "Release", "RelWithDebInfo", "MinSizeRel"}:
+        configuration = ""
+    log_path = str(run_data.get("log_path") or "")
+    log_artifact = _file_artifact("workflow-log", log_path) if log_path else None
+    repository = _repository_name(_git_value(root, "remote", "get-url", "origin"))
+    commit = _git_value(root, "rev-parse", "HEAD")
+    branch = _git_value(root, "branch", "--show-current")
+    records = []
+    for index, step in enumerate(steps):
+        if not isinstance(step, dict):
+            raise ValueError(f"workflow run step {index} must be an object")
+        command = step.get("command")
+        if not isinstance(command, (list, tuple)) or not command:
+            continue
+        if any(not isinstance(part, str) or not part for part in command):
+            raise ValueError(f"workflow run step {index} command is invalid")
+        status = step.get("status")
+        if status not in {"succeeded", "failed", "cancelled"}:
+            continue
+        return_code = step.get("return_code")
+        if return_code is not None and (
+            isinstance(return_code, bool) or not isinstance(return_code, int)
+        ):
+            raise ValueError(f"workflow run step {index} return_code is invalid")
+        outcome = (
+            "cancelled" if status == "cancelled"
+            else "passed" if status == "succeeded" and return_code == 0
+            else "failed"
+        )
+        workflow_id = str(run_data.get("workflow_id") or "workflow")
+        case_id = str(step.get("case_id") or "multi-directory")
+        artifacts = [log_artifact] if log_artifact is not None else []
+        raw_artifacts = step.get("artifacts", [])
+        if not isinstance(raw_artifacts, list):
+            raise ValueError(f"workflow run step {index} artifacts must be an array")
+        for artifact_path in raw_artifacts:
+            if not isinstance(artifact_path, str) or not artifact_path.strip():
+                raise ValueError(f"workflow run step {index} artifact path is invalid")
+            artifact = _file_artifact("workflow-output", artifact_path)
+            if artifact is not None:
+                artifacts.append(artifact)
+        message = step.get("message", "")
+        diagnostics = (message,) if outcome != "passed" and message else ()
+        records.append(
+            ExecutionRecord(
+                test_id=f"workflow:{workflow_id}:{case_id}",
+                framework="OneFLOW Workflow",
+                test_name=f"{workflow_id} / {case_id}",
+                source_path=str(step.get("source_path") or "tools/oneflow_gui/workflow_dialog.py"),
+                command=tuple(command),
+                outcome=outcome,
+                started_at=step.get("started_at") or run_data["started_at"],
+                finished_at=step.get("finished_at") or run_data["finished_at"],
+                exit_code=return_code,
+                repository=repository,
+                commit=commit,
+                branch=branch,
+                configuration=configuration,
+                platform=platform.platform(),
+                runtime_version="Python " + platform.python_version(),
+                working_directory=str(step.get("working_directory") or ""),
+                contract_ids=contract_ids,
+                artifacts=tuple(artifacts),
+                diagnostics=diagnostics,
+                invocation_id=str(run_data.get("run_id") or ""),
+            )
+        )
+    store = ExecutionRecordStore(Path(records_path))
+    for record in records:
+        store.append(record)
+    return tuple(records)

@@ -442,3 +442,18 @@ test is registered, built, or passed.
 The next integration step is to invoke these tests through the existing typed
 test runner. The Workbench must not create a second subprocess lifecycle or
 silently infer commands from arbitrary contract text.
+
+
+## Workflow execution evidence
+
+The existing workflow runner records real process executions in the shared
+append-only verification store at
+`~/.oneflow/verification/execution-records.jsonl` (or under
+`ONEFLOW_HOME`). A workflow launched from a Workflow contract in the
+Contract Workbench carries that contract's stable ID into each launched-step
+record. Runs launched elsewhere remain unlinked.
+
+One record is written per launched process, with its exact argument vector,
+source case, working directory, revision, platform/configuration metadata,
+outcome, and checksummed output/log files. Dependency-blocked cases are kept
+in workflow run history and are not presented as process executions.

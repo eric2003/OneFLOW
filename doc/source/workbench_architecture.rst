@@ -151,3 +151,36 @@ failure propagation remain owned by the existing workflow planning and
 execution services. A declared graph or linked test is not an execution
 record; the Workbench must not infer a successful workflow run from static
 catalog validation.
+
+
+Workflow execution evidence
+---------------------------
+
+The Workflow contract can be opened in the existing workflow runner through
+an explicit Workbench action. The action passes the contract ID into the
+runner; it does not launch a process. The developer still selects the
+executable and base directory and starts the run explicitly.
+
+After real process execution, the runner appends one ExecutionRecord per
+launched step. Records contain the actual command, source case, process
+working directory, timestamps, exit code, repository revision, branch,
+platform/runtime metadata, explicit contract attribution, and checksummed
+output/log artifacts. Dependency-blocked steps and pre-launch failures remain
+in workflow history but are not represented as launched processes.
+
+The Contract Workbench Verification view displays explicitly linked runs
+separately from unlinked history and labels revision freshness independently
+from the recorded outcome. A successful process exit does not override a
+failed declared-output check.
+
+
+Each step-level ExecutionRecord also carries the parent workflow's
+`invocation_id`, allowing records to be grouped back into one graph run
+without changing the stable workflow-step `test_id`. This is an additive,
+optional schema-v1 field so existing records remain readable.
+
+The design borrows the SLSA provenance separation of build definition and
+run details, including invocation identity, timestamps, and output subjects
+(https://slsa.dev/spec/v1.2/provenance). OneFLOW's local records are not signed
+attestations and do not claim trusted-builder or complete-dependency
+guarantees.

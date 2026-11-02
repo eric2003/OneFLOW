@@ -137,6 +137,8 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("Depends on: rae2822grid", graph_text)
             self.assertIsNotNone(dialog.open_workflow_definition_button)
             self.assertTrue(dialog.open_workflow_definition_button.isEnabled())
+            self.assertIsNotNone(dialog.open_workflow_runner_button)
+            self.assertTrue(dialog.open_workflow_runner_button.isEnabled())
             self.assertTrue(dialog.open_tests_button.isEnabled())
 
             definition_path = "tools/oneflow_gui/examples/rae2822_multicase.json"
@@ -158,6 +160,26 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 ((self.repository_root / definition_path).resolve(),),
                 working_directory=self.repository_root,
             )
+        finally:
+            dialog.close()
+
+    def test_workflow_runner_receives_explicit_contract_link(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "workflow")
+        try:
+            contract_index = next(
+                index for index, summary in enumerate(dialog._summaries)
+                if summary.id == "workflow/rae2822-grid-to-solver"
+            )
+            dialog.contract_list.setCurrentRow(contract_index)
+            with patch("tools.oneflow_gui.workflow_dialog.WorkflowDialog") as runner_type:
+                runner_type.return_value.exec.return_value = 0
+                dialog._run_workflow()
+            runner_type.assert_called_once()
+            args, kwargs = runner_type.call_args
+            self.assertEqual(args[0], self.repository_root)
+            self.assertEqual(kwargs["contract_ids"], ("workflow/rae2822-grid-to-solver",))
+            self.assertEqual(kwargs["initial_workflow"].workflow_id, "rae2822-grid-to-solver")
+            self.assertEqual(kwargs["initial_workflow"].steps[0]["type"], "case_graph")
         finally:
             dialog.close()
 

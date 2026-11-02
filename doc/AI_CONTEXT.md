@@ -1,3 +1,62 @@
+## 2026-11-02 continuation: workflow execution evidence linkage
+
+The user reported 1156/1156 tests passing before this slice. That is a
+pre-change baseline only; do not claim the new slice passed locally.
+
+The verified `hexin` HEAD at the start of this slice was
+`d48264bfb53d2b0d442529f58d4c2be220bbdb9a`.
+
+Added an explicit `Run in workflow runner...` action to the Workflow
+Contract Workbench. It loads the checked-in RAE2822 workflow definition and
+passes the stable contract ID to the existing WorkflowDialog. It does not
+auto-run: the user must choose the executable/base directory and press Run.
+
+The workflow process worker now retains per-step command, source directory,
+working directory, timestamps, exit code, and declared output paths.
+`capture_workflow_execution` appends immutable schema-v1 ExecutionRecords
+for launched processes. It links the contract only when the runner was opened
+from that contract action. Blocked or pre-launch steps remain in
+WorkflowRunRecord history and are not fabricated as process runs. A process
+exit code of zero does not override a failed declared-output check.
+
+The existing Contract Workbench Verification view already separates linked
+from unlinked execution history and displays revision freshness. Each step
+record now carries the parent workflow run ID as an additive optional
+invocation_id, preserving stable test_id semantics and backward compatibility.
+The local record is not a signed SLSA provenance attestation. This slice
+connects actual Workflow runs to that existing view; it does not add a second
+workflow runner.
+
+Changed files:
+- `tools/oneflow_gui/execution_capture.py`
+- `tools/oneflow_gui/workflow_dialog.py`
+- `tools/oneflow_gui/contract_workbench_dialog.py`
+- `tools/oneflow_gui/test_workflow_execution_capture.py` (new)
+- `tools/oneflow_gui/test_contract_workbench_dialog.py`
+- `tools/oneflow_gui/test_test_inventory.py`
+- `tools/oneflow_gui/test_runner.py` (explicit Python unittest registry)
+- `.github/workflows/python-tools.yml`
+- `doc/plans/verification-contract-workbench.md`
+- `doc/source/workbench_architecture.rst`
+- `tools/verification/README.md`
+
+Focused validation required:
+`python -m unittest tools.oneflow_gui.test_workflow_execution_capture`
+`python -m unittest tools.oneflow_gui.test_contract_workbench_dialog`
+`python -m unittest tools.oneflow_gui.test_workflow_repository`
+`python -m unittest tools.oneflow_gui.test_workflow_graph_runner`
+`python -m unittest tools.oneflow_gui.test_test_inventory`
+
+No local test suite was run by the assistant. The 1156/1156 result
+predates these changes. The slice remains unverified until Windows focused
+and full tests pass.
+
+Next action after validation: add comparable explicit execution linkage for
+Case contracts, using the existing case database/regression runner records.
+Do not infer a contract link from matching case names or paths alone.
+
+---
+
 ## 2026-11-02 continuation: first typed Workflow contract
 
 The user reported 1156/1156 tests passing before this slice. This is the

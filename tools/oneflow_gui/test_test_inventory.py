@@ -173,6 +173,27 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             )
         )
 
+    def test_discovers_workflow_execution_evidence_tests(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        records = discover_tests(repository_root)
+        workflow_tests = [
+            item for item in records
+            if item["source"] == "tools/oneflow_gui/test_workflow_execution_capture.py"
+        ]
+        names = {item["name"] for item in workflow_tests}
+        self.assertIn(
+            "test_captures_launched_workflow_step_with_contract_and_artifact_evidence",
+            names,
+        )
+        self.assertIn(
+            "test_does_not_record_dependency_blocked_steps_as_process_runs",
+            names,
+        )
+        self.assertIn(
+            "test_worker_preserves_source_and_staged_execution_metadata",
+            names,
+        )
+
     def test_discovers_python_execution_capture_tests(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
 

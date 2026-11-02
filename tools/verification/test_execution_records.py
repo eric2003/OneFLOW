@@ -53,6 +53,16 @@ class ExecutionRecordTest(unittest.TestCase):
         self.assertEqual(restored.contract_ids, ("runtime/gui-process-execution",))
         self.assertEqual(restored.artifacts[0].role, "log")
 
+    def test_invocation_id_round_trips_and_legacy_records_default_empty(self) -> None:
+        record = make_record(invocation_id="workflow-run-42")
+        restored = ExecutionRecord.from_dict(record.to_dict())
+        self.assertEqual(restored.invocation_id, "workflow-run-42")
+
+        legacy_data = make_record().to_dict()
+        legacy_data.pop("invocation_id")
+        legacy = ExecutionRecord.from_dict(legacy_data)
+        self.assertEqual(legacy.invocation_id, "")
+
     def test_missing_optional_metadata_is_preserved_as_unknown(self) -> None:
         record = make_record(commit="", branch="", platform="", runtime_version="")
 

@@ -1113,3 +1113,65 @@ tests. Existing CI test commands continue to execute the inventory and
 registered Python test groups; no duplicate workflow-specific CI pipeline
 was added. The user's 1156/1156 result is the pre-change baseline; this slice
 remains unverified until the focused and full local suites pass.
+
+
+## 26. Workflow execution evidence reaches the Workbench
+
+The Workflow contract now has an explicit **Run in workflow runner...** action.
+It opens the existing workflow editor/runner with the checked-in definition
+and passes the contract ID as an explicit attribution. The runner still
+requires the developer to choose the executable and graph base directory and
+to press Run; opening a contract does not execute a case.
+
+When a process is actually launched, the workflow completion path appends
+one immutable schema-v1 ExecutionRecord per launched workflow step. Each
+record retains the exact command arguments, source case directory, process
+working directory, start/finish timestamps, exit code, repository revision,
+branch, platform, Python runtime, recognized build configuration, and
+checksummed output/log artifacts. The explicit contract ID is copied into the
+record only when the run was launched from that contract's Workbench action.
+
+Dependency-blocked steps and failures before process launch remain in the
+existing WorkflowRunRecord history. They are not fabricated as process
+executions. A process that exits successfully but fails the declared-output
+check is recorded as failed even when its process exit code is zero. Runs
+launched from the general workflow manager without an explicit contract link
+remain unlinked in the Contract Workbench.
+
+The existing Verification view displays linked and unlinked execution history
+separately and compares the recorded commit with the checked-out HEAD. This
+connects a real workflow run to the declared contract without introducing a
+second workflow engine.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_workflow_execution_capture
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+python -m unittest tools.oneflow_gui.test_workflow_repository
+python -m unittest tools.oneflow_gui.test_workflow_graph_runner
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
+
+The new test module is registered in both the explicit Python unittest registry and Python Tooling CI. The user's 1156/1156
+result is the pre-change baseline; this feature slice requires its own focused
+and full-suite validation.
+
+
+### Execution identity and provenance boundary
+
+Each launched step record now carries the parent workflow's stable run ID as
+`invocation_id`. This makes the per-step records from one graph execution
+correlatable without overloading `test_id`, which remains the stable identity
+of the workflow step. Existing schema-v1 records without this optional field
+remain readable.
+
+This follows the SLSA provenance model's separation of build definition and
+run details, including invocation identity, timestamps, and output subjects:
+https://slsa.dev/spec/v1.2/provenance
+
+OneFLOW's local ExecutionRecord is a developer-facing execution log, not a
+signed SLSA attestation. It does not claim a trusted builder identity,
+complete dependency provenance, tamper resistance, or cryptographic
+attestation. Artifact hashes identify recorded files; they do not establish
+scientific correctness.

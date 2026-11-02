@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -213,6 +214,7 @@ class ContractDomainDialog(QDialog):
         self.open_case_directory_button = None
         self.open_case_references_button = None
         self.open_workflow_definition_button = None
+        self.open_workflow_runner_button = None
         if domain == "workflow":
             self.open_workflow_definition_button = QPushButton(
                 "Open workflow definition..."
@@ -223,6 +225,11 @@ class ContractDomainDialog(QDialog):
             self.open_actions_layout.addWidget(
                 self.open_workflow_definition_button
             )
+            self.open_workflow_runner_button = QPushButton(
+                "Run in workflow runner..."
+            )
+            self.open_workflow_runner_button.clicked.connect(self._run_workflow)
+            self.open_actions_layout.addWidget(self.open_workflow_runner_button)
         if domain == "case":
             self.open_case_directory_button = QPushButton("Open case directory...")
             self.open_case_directory_button.clicked.connect(self._open_case_directory)
@@ -308,6 +315,8 @@ class ContractDomainDialog(QDialog):
                 f"  Finished: {record.finished_at}; framework: {record.framework}; "
                 f"commit: {record.commit or 'unknown'}"
             )
+            if record.invocation_id:
+                lines.append(f"  Invocation: {record.invocation_id}")
             lines.append(f"  Command: {' '.join(record.command)}")
             for artifact in record.artifacts:
                 lines.append(
@@ -407,6 +416,14 @@ class ContractDomainDialog(QDialog):
                 for resolution in resolutions
             )
         )
+        if self.open_workflow_runner_button is not None:
+            definition_path = (
+                self._repository_root / summary.workflow_data.definition_path
+                if summary.workflow_data is not None else None
+            )
+            self.open_workflow_runner_button.setEnabled(
+                definition_path is not None and definition_path.is_file()
+            )
         if summary.workflow_data is not None:
             workflow = summary.workflow_data
             lines = [
@@ -558,6 +575,32 @@ class ContractDomainDialog(QDialog):
                 (summary.workflow_data.definition_path,),
                 "Workflow definition",
             )
+
+    def _run_workflow(self) -> None:
+        """Open the existing workflow runner with an explicit contract link."""
+        summary = self._current_summary()
+        if summary is None or summary.workflow_data is None:
+            return
+        definition_path = (
+            self._repository_root / summary.workflow_data.definition_path
+        ).resolve()
+        try:
+            definition_path.relative_to(self._repository_root)
+            definition = json.loads(definition_path.read_text(encoding="utf-8"))
+            from .workflow_dialog import WorkflowDialog
+            from .workflow_repository import WorkflowDefinition
+
+            workflow = WorkflowDefinition.from_dict(definition)
+            dialog = WorkflowDialog(
+                self._repository_root,
+                parent=self,
+                initial_workflow=workflow,
+                contract_ids=(summary.id,),
+            )
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as error:
+            QMessageBox.warning(self, "Cannot open workflow runner", str(error))
+            return
+        dialog.exec()
 
     def _open_case_directory(self) -> None:
         summary = self._current_summary()

@@ -32,6 +32,7 @@ from .workflow_execution import (
 from .workflow_graph_runner import run_case_graph
 from .workflow_plan import build_case_graph_plan
 from .workflow_process import run_process
+from .execution_capture import capture_workflow_execution
 from .user_data_paths import UserDataPaths
 from .workflow_repository import (
     WorkflowDefinition,
@@ -98,8 +99,12 @@ class WorkflowRunWorker(QThread):
                     raise ValueError("Case graph execution requires a base directory and run directory.")
                 plan = build_case_graph_plan(self._case_graph, self._base_directory)
                 process_records: dict[str, dict] = {}
+                source_directories = {
+                    step.case_id: step.directory for step in plan.steps
+                }
 
                 def run_case(step):
+                    case_started_at = _timestamp()
                     case_command = [str(self._executable), "r", str(step.directory)]
                     self.log_line.emit(f"Running case '{step.case_id}'")
                     self.log_line.emit("Command arguments:")
@@ -111,9 +116,20 @@ class WorkflowRunWorker(QThread):
                         on_output=self.log_line.emit,
                         is_cancelled=self._cancel.is_set,
                     )
+                    case_finished_at = _timestamp()
+                    output_artifacts = [
+                        str(step.directory / output.relative_path)
+                        for output in step.outputs
+                        if (step.directory / output.relative_path).is_file()
+                    ]
                     process_records[step.case_id] = {
                         "command": case_command,
                         "return_code": result.return_code,
+                        "started_at": case_started_at,
+                        "finished_at": case_finished_at,
+                        "source_path": str(source_directories[step.case_id]),
+                        "working_directory": str(self._executable.parent),
+                        "artifacts": output_artifacts,
                     }
                     return result.status, result.message
 
@@ -163,9 +179,15 @@ class WorkflowRunWorker(QThread):
                 step_records = [
                     {
                         "type": "multi_directory",
+                        "status": status,
                         "directories": [str(path) for path in self._directories],
                         "command": command,
                         "return_code": return_code,
+                        "started_at": started_at,
+                        "finished_at": _timestamp(),
+                        "source_path": str(self._directories[0]),
+                        "working_directory": str(self._executable.parent),
+                        "artifacts": [],
                     }
                 ]
         except (OSError, ValueError, KeyError, TypeError) as error:
@@ -196,11 +218,15 @@ class WorkflowDialog(QDialog):
         parent: QWidget | None = None,
         initial_mode: str | None = None,
         initial_workflow: WorkflowDefinition | None = None,
+        contract_ids: tuple[str, ...] = (),
     ) -> None:
         super().__init__(parent)
         self.setWindowTitle("OneFLOW Workflows")
         self.resize(900, 720)
-        self._repository_root = repository_root
+        self._repository_root = Path(repository_root).resolve()
+        self._contract_ids = tuple(contract_ids)
+        if any(not isinstance(item, str) or not item.strip() for item in self._contract_ids):
+            raise ValueError("contract_ids must contain non-empty strings")
         self._user_data_paths = UserDataPaths.discover()
         self._repository = WorkflowRepository(
             self._user_data_paths.workflow_data
@@ -728,6 +754,21 @@ class WorkflowDialog(QDialog):
             self._repository.save_run(WorkflowRunRecord.from_dict(data))
         except (OSError, ValueError) as error:
             self.log_view.appendPlainText(f"Could not persist run result: {error}")
+        try:
+            records = capture_workflow_execution(
+                data,
+                repository_root=self._repository_root,
+                records_path=self._user_data_paths.verification_execution_records,
+                contract_ids=self._contract_ids,
+            )
+            for record in records:
+                self.log_view.appendPlainText(
+                    f"EXECUTION RECORD: {record.record_id} / {record.outcome}"
+                )
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            self.log_view.appendPlainText(
+                f"WARNING: unable to persist workflow evidence: {error}"
+            )
         self.log_view.appendPlainText(data["message"])
         self._reload_history(data["workflow_id"])
 

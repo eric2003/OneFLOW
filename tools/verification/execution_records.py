@@ -84,6 +84,7 @@ class ExecutionRecord:
     artifacts: tuple[ExecutionArtifact, ...] = ()
     diagnostics: tuple[str, ...] = ()
     record_id: str = ""
+    invocation_id: str = ""
     schema_version: int = SCHEMA_VERSION
 
     def __post_init__(self) -> None:
@@ -126,6 +127,7 @@ class ExecutionRecord:
         return {
             "schema_version": self.schema_version,
             "record_id": self.record_id,
+            "invocation_id": self.invocation_id,
             "repository": self.repository,
             "commit": self.commit,
             "branch": self.branch,
@@ -185,6 +187,7 @@ class ExecutionRecord:
                 artifacts=parsed_artifacts,
                 diagnostics=_string_tuple(data.get("diagnostics", []), "diagnostics"),
                 record_id=data.get("record_id", ""),
+                invocation_id=data.get("invocation_id", ""),
                 schema_version=data["schema_version"],
             )
         except (KeyError, TypeError) as exc:
