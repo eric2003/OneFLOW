@@ -70,6 +70,27 @@ def is_python_unittest_command(command: TestCommand) -> bool:
     return len(arguments) >= 3 and arguments[1:3] == ("-m", "unittest")
 
 
+def _declared_contract_ids(
+    repository_root: Path,
+    source_path: str,
+) -> tuple[str, ...]:
+    """Resolve execution links only from exact catalog-declared Python test files."""
+    if not source_path.endswith(".py"):
+        return ()
+    try:
+        from tools.verification.contract_catalog import (
+            contract_ids_for_python_test_source,
+            load_contract_catalog,
+        )
+
+        summaries, diagnostics = load_contract_catalog(repository_root)
+        if diagnostics:
+            return ()
+        return contract_ids_for_python_test_source(summaries, source_path)
+    except (ImportError, OSError, TypeError, ValueError, AttributeError):
+        return ()
+
+
 def capture_python_unittest_execution(
     command: TestCommand,
     *,
@@ -99,13 +120,14 @@ def capture_python_unittest_execution(
         artifact_path = str(log_path.resolve())
 
     remote = _git_value(root, "remote", "get-url", "origin")
+    source_path = _unittest_source_path(command)
     record = ExecutionRecord(
         test_id="unittest-suite:" + re.sub(
             r"[^a-z0-9]+", "-", command.label.lower()
         ).strip("-"),
         framework="unittest",
         test_name=command.label,
-        source_path=_unittest_source_path(command),
+        source_path=source_path,
         command=tuple(command.arguments),
         outcome="cancelled" if cancelled else ("passed" if exit_code == 0 else "failed"),
         started_at=started_at,
@@ -118,7 +140,7 @@ def capture_python_unittest_execution(
         platform=platform.platform(),
         runtime_version="Python " + platform.python_version(),
         working_directory=str(command.working_directory.resolve()),
-        contract_ids=(),
+        contract_ids=_declared_contract_ids(root, source_path),
         artifacts=(
             ExecutionArtifact(
                 role="stdout",
