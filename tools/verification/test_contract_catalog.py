@@ -480,6 +480,65 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertTrue(resolutions[0].resolved_path.endswith("EvidenceTest.cpp"))
         self.assertIn("missing repository file", resolutions[1].diagnostic)
 
+    def test_resolves_python_unittest_declarations_without_importing_them(self) -> None:
+        from .contract_catalog import resolve_contract_evidence
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            source = root / "ProcessControlTest.py"
+            source.write_text(
+                "class ProcessControlTest(unittest.TestCase):\n"
+                "    def test_termination_contract(self):\n"
+                "        pass\n"
+                "    async def test_async_contract(self):\n"
+                "        pass\n",
+                encoding="utf-8",
+            )
+            summary = ContractSummary(
+                id="runtime/python-test-resolution",
+                source_id="python-test-resolution",
+                title="Python test resolution",
+                domain="runtime",
+                kind="test_contract",
+                overview="",
+                principle="",
+                architecture="",
+                status="implemented",
+                references=(),
+                implementation_paths=(),
+                documentation_paths=(),
+                evidence=(
+                    ContractEvidence(
+                        kind="python_test",
+                        reference="ProcessControlTest.test_termination_contract",
+                        status="linked_not_executed",
+                        scope="ProcessControlTest.py; test source.",
+                    ),
+                    ContractEvidence(
+                        kind="python_test",
+                        reference="ProcessControlTest.test_missing",
+                        status="linked_not_executed",
+                        scope="ProcessControlTest.py; test source.",
+                    ),
+                    ContractEvidence(
+                        kind="python_test",
+                        reference="ProcessControlTest.test_async_contract",
+                        status="linked_not_executed",
+                        scope="ProcessControlTest.py; test source.",
+                    ),
+                ),
+                claims=(),
+                limitations=(),
+            )
+
+            resolutions = resolve_contract_evidence(root, summary)
+
+        self.assertEqual(
+            [item.status for item in resolutions],
+            ["resolved", "stale", "resolved"],
+        )
+        self.assertIn("Python unittest declaration not found", resolutions[1].diagnostic)
+
     def test_resolves_typed_google_test_declarations(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
