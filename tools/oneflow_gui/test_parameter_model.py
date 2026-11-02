@@ -136,6 +136,7 @@ class ParameterModelTest(unittest.TestCase):
                 [item.line_number for item in model.unsupported_declarations],
                 [1, 2],
             )
+
     def test_without_task_unknown_keys_stay_unclassified(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
