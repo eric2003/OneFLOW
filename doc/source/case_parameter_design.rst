@@ -128,6 +128,35 @@ lengths, rejection when a named length has no resolver, and replacement of the d
 when the loader parses another file. These tests exercise syntax translation only. They
 do not assert runtime parameter validity, units, defaults, solver behavior, or editor
 serialization.
+First structured-editor foundation
+-----------------------------------
+
+The first implementation slice adds a Qt-independent legacy parameter document adapter
+and source-backed metadata for a small set of scalar declarations.
+
+* simu.txt: simutask selects Grid or Solve.
+* cfd.txt: maxSteps, maxTime, time_integral, and ischeme describe iteration/time controls
+  and documented numerical-method choices.
+* vismodel.txt: vismodel and visname describe the viscous-model family and named choices
+  documented by checked-in case files.
+
+parameter_document.py detects UTF-8, UTF-8 BOM, and GBK; parses scalar declaration
+value spans; and updates only changed value tokens. It retains comments (including GBK
+Chinese comments), spacing, blank lines, declaration order, and line endings. It also
+rejects a save if the file changed externally after it was loaded. ParameterSpec metadata
+is deliberately limited to keys whose meaning and choices are supported by checked-in
+configuration comments and representative cases.
+
+This is the data and serialization foundation for the structured editor UI. It does not
+yet edit arrays, nested/conditional fields, or every declaration in the control manifest.
+Unknown declarations remain untouched. The current CFD examples place task selection in
+simu.txt, iteration controls in cfd.txt, and viscous-model selection in vismodel.txt.
+No generic parameter is assigned an invented unit, range, or solver meaning.
+
+The parser tests cover typed values, GBK and UTF-8 BOM preservation, CRLF and comment
+preservation, unknown syntax preservation, no-op formatting stability, and external-edit
+conflict detection.
+
 Recommended migration sequence
 ------------------------------
 
