@@ -242,6 +242,45 @@ private:
     SimuImp & simulation_;
 };
 
+class CaseEnvironmentGuard
+{
+public:
+    explicit CaseEnvironmentGuard( SimuContext & context )
+        : context_( context )
+    {
+    }
+
+    ~CaseEnvironmentGuard() noexcept
+    {
+        if ( active_ && context_.IsEnvironmentReady() )
+        {
+            try
+            {
+                context_.TeardownCase();
+            }
+            catch ( ... )
+            {
+            }
+        }
+    }
+
+    void Teardown()
+    {
+        if ( context_.IsEnvironmentReady() )
+        {
+            context_.TeardownCase();
+        }
+        active_ = false;
+    }
+
+    CaseEnvironmentGuard( const CaseEnvironmentGuard & ) = delete;
+    CaseEnvironmentGuard & operator=( const CaseEnvironmentGuard & ) = delete;
+
+private:
+    SimuContext & context_;
+    bool active_ = true;
+};
+
 
 TEST( SimuImpCaseLifecycleIntegration,
       ProcessFinalizationReleasesContextBackendStatesBeforeRuntime )
@@ -486,6 +525,7 @@ TEST( SimuImpCaseLifecycleIntegration,
     SimuContext & context = simulation.Context();
     context.SetupProcessEnvironment();
     ProcessRuntimeGuard runtimeGuard( simulation );
+    CaseEnvironmentGuard caseGuard( context );
 
     ASSERT_TRUE( context.IsProcessEnvironmentActive() );
     ASSERT_FALSE( context.IsEnvironmentReady() );
@@ -505,7 +545,8 @@ TEST( SimuImpCaseLifecycleIntegration,
         / "results" / "io_paths.txt" ) );
 
     // Setup-only evidence: do not resolve or execute the Grid task.
-    EXPECT_NO_THROW( context.TeardownCase() );
+    // The guard retries cleanup if this explicit teardown fails.
+    EXPECT_NO_THROW( caseGuard.Teardown() );
     EXPECT_FALSE( context.IsEnvironmentReady() );
     EXPECT_TRUE( context.IsProcessEnvironmentActive() );
     EXPECT_NO_THROW( simulation.FinalizeEnvironment() );
