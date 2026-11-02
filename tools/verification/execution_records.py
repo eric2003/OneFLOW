@@ -96,6 +96,8 @@ class ExecutionRecord:
             raise ValueError("command must be a non-empty tuple of strings")
         if self.outcome not in _OUTCOMES:
             raise ValueError(f"unsupported execution outcome: {self.outcome}")
+        if self.outcome == "passed" and self.exit_code != 0:
+            raise ValueError("passed execution requires exit_code 0")
         started = _timestamp(self.started_at, "started_at")
         finished = _timestamp(self.finished_at, "finished_at")
         if finished < started:
