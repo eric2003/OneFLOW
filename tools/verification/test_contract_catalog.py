@@ -275,7 +275,7 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(consumer.inputs[0].setting, "gridFileName")
 
         issues = validate_contract_summaries(self.repository_root, [summary])
-        self.assertEqual(issues, [], "\\n".join(issues))
+        self.assertEqual(issues, [], "\n".join(issues))
 
     def test_requires_typed_payload_for_workflow_contract(self) -> None:
         definition_path = (
@@ -353,7 +353,7 @@ class ContractCatalogTest(unittest.TestCase):
 
         self.assertTrue(
             any("workflow definition steps do not match" in issue for issue in issues),
-            "\\n".join(issues),
+            "\n".join(issues),
         )
 
     def test_detects_case_output_tolerance_drift(self) -> None:
@@ -782,10 +782,10 @@ class ContractCatalogTest(unittest.TestCase):
             source.write_bytes(
                 codecs.BOM_UTF8
                 + (
-                    "OUTPUT_ABSOLUTE_TOLERANCE = 1e-8\\n"
-                    "class BomContractTest(unittest.TestCase):\\n"
-                    "    def test_bom_source(self):\\n"
-                    "        pass\\n"
+                    "OUTPUT_ABSOLUTE_TOLERANCE = 1e-8\n"
+                    "class BomContractTest(unittest.TestCase):\n"
+                    "    def test_bom_source(self):\n"
+                    "        pass\n"
                 ).encode("utf-8")
             )
 
@@ -822,7 +822,7 @@ class ContractCatalogTest(unittest.TestCase):
 
         self.assertEqual(tolerance, 1e-8)
         self.assertEqual([item.status for item in resolutions], ["resolved"])
-        self.assertEqual(issues, [], "\\n".join(issues))
+        self.assertEqual(issues, [], "\n".join(issues))
 
     def test_resolves_python_unittest_declarations_without_importing_them(self) -> None:
         from .contract_catalog import resolve_contract_evidence
