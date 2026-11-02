@@ -96,7 +96,7 @@ class ProcessControlTest(unittest.TestCase):
 
     def test_terminate_and_reap_kills_child_if_tree_termination_does_not(self) -> None:
         process = Mock()
-        process.poll.side_effect = [None, None, 0]
+        process.poll.side_effect = [None, None, None, None, None, None]
         process.wait.side_effect = [subprocess.TimeoutExpired("solver", 1.0), 0]
         runner = Mock(return_value=subprocess.CompletedProcess([], 1))
 
