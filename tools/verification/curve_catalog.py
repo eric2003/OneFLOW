@@ -992,6 +992,55 @@ principle=(
             does_not_prove="Full AUSM face flux or shock-capturing quality.",
         ),
 
+
+        TheoryEntry(
+            id="roe_dissipation_wave_coeff",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="flux / Roe dissipation",
+            title="Roe dissipation wave coefficients xi1, xi2",
+            role_tags=("flux", "Roe", "dissipation"),
+            formula_plain=(
+                "a1=|vn|, a2=|vn+c|, a3=|vn-c| (after absolute + optional Harten)\n"
+                "xi1 = (2*a1 - a2 - a3) / (2*c^2)\n"
+                "xi2 = (a2 - a3) / (2*c)\n"
+                "Used to form Roe dissipation coupling terms."
+            ),
+            formula_latex=(
+                r"a_1=|v_n|,\ a_2=|v_n+c|,\ a_3=|v_n-c|"
+                "\n"
+                r"\xi_1=\frac{2a_1-a_2-a_3}{2c^{2}},\quad "
+                r"\xi_2=\frac{a_2-a_3}{2c}"
+            ),
+            principle=(
+                "Projects absolute wave speeds into the two scalar coefficients "
+                "that weight continuity and enthalpy jumps in Roe dissipation."
+            ),
+            background=(
+                "Pure API RoeDissipationWaveCoefficients. Downstream: "
+                "RoeDissipationCouplingTerms and ApplyRoeDissipationFiveEq."
+            ),
+            references=(
+                "Roe (1981); OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/roe_dissipation_wave_coeff.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_dissipation_wave_coeff_theory.csv",
+            plot_module="plot_roe_dissipation_wave_coeff",
+            pure_apis=("RoeDissipationWaveCoefficients",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_dissipation_wave_coeff.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "xi1 = (2*a1 - a2 - a3) / (2*c*c);\n"
+                "xi2 = (a2 - a3) / (2*c);\n"
+            ),
+            proves="xi1/xi2 algebra vs pure API on an |vn| grid.",
+            does_not_prove="Full Roe flux residual or shock-capturing quality.",
+        ),
+
         TheoryEntry(
             id="ns_roe_harten",
             family="mean-flow",

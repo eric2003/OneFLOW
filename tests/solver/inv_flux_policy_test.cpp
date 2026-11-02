@@ -417,3 +417,30 @@ TEST( InvFluxPolicy, RoeAbsoluteEigenvaluesSonicPoints )
     EXPECT_DOUBLE_EQ( a2, 0.0 );
     EXPECT_DOUBLE_EQ( a3, 2.0 );
 }
+
+// Intermediate: RoeDissipationWaveCoefficients on an |vn| grid.
+// Ref: a2=3, a3=0.5, c=2 (c^2=4).
+TEST( InvFluxPolicy, RoeDissipationWaveCoefficientsCurveMatchesClosedForm )
+{
+    const Real a2 = 3.0;
+    const Real a3 = 0.5;
+    const Real c = 2.0;
+    const Real c2 = 4.0;
+    const Real a1s[] = { 0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0 };
+    for ( Real a1 : a1s )
+    {
+        Real xi1, xi2;
+        RoeDissipationWaveCoefficients( a1, a2, a3, c2, c, xi1, xi2 );
+        EXPECT_NEAR( xi1, ( 2.0 * a1 - a2 - a3 ) / ( 2.0 * c2 ), 1.0e-12 );
+        EXPECT_NEAR( xi2, ( a2 - a3 ) / ( 2.0 * c ), 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeDissipationWaveCoefficientXi2IndependentOfAbsVn )
+{
+    Real x1a, x2a, x1b, x2b;
+    RoeDissipationWaveCoefficients( 0.0, 3.0, 0.5, 4.0, 2.0, x1a, x2a );
+    RoeDissipationWaveCoefficients( 4.0, 3.0, 0.5, 4.0, 2.0, x1b, x2b );
+    EXPECT_DOUBLE_EQ( x2a, x2b );
+    EXPECT_NE( x1a, x1b );
+}
