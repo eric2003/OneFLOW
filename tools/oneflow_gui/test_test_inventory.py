@@ -174,6 +174,29 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             )
         )
 
+    def test_discovers_test_worker_execution_evidence_tests(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+
+        records = discover_tests(repository_root)
+
+        worker_tests = [
+            item for item in records
+            if item["source"] == "tools/oneflow_gui/test_test_dialog_execution_capture.py"
+        ]
+        self.assertTrue(worker_tests)
+        self.assertTrue(
+            any(
+                item["name"] == "test_worker_persists_evidence_after_unittest_process_completes"
+                for item in worker_tests
+            )
+        )
+        self.assertTrue(
+            any(
+                item["name"] == "test_process_launch_failure_does_not_create_execution_evidence"
+                for item in worker_tests
+            )
+        )
+
     def test_geometry_contracts_expose_input_expected_and_unexecuted_result(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
         records = discover_tests(repository_root)
