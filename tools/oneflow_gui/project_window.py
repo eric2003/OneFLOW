@@ -812,11 +812,23 @@ class ProjectWindow(QMainWindow):
                 evidence = QTreeWidgetItem(["Runtime consumer", "Not audited", "", ""])
                 evidence.setToolTip(0, "Absence from the curated catalog means not yet audited, not unused.")
                 item.addChild(evidence)
+        if model.unsupported_declarations:
+            unsupported_root = QTreeWidgetItem(roots[ParameterDomain.OTHER], ["Unsupported declarations", "", "", ""])
+            for declaration in model.unsupported_declarations:
+                source = f"{declaration.source_path.name}, line {declaration.line_number}"
+                unsupported_item = QTreeWidgetItem([
+                    declaration.name, declaration.raw_text, declaration.declared_type, source
+                ])
+                unsupported_item.setData(0, Qt.ItemDataRole.UserRole, declaration.source_path)
+                unsupported_item.setToolTip(0, declaration.reason)
+                unsupported_item.setToolTip(1, declaration.raw_text)
+                unsupported_root.addChild(unsupported_item)
         for root_item in roots.values():
             root_item.setExpanded(True)
         self.parameter_tree.expandToDepth(1)
         self.parameter_coverage_note.setText(
-            f"{len(model.entries)} effective scalar parameter(s); {len(model.shadowed_entries)} overridden declaration(s). "
+            f"{len(model.entries)} effective scalar parameter(s); {len(model.shadowed_entries)} overridden declaration(s); " 
+            f"{len(model.unsupported_declarations)} unsupported declaration(s). "
             "Runtime consumer links are curated source evidence; unlisted parameters are not yet audited, not unused."
         )
 
