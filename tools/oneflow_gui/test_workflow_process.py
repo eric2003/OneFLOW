@@ -60,14 +60,14 @@ class WorkflowProcessTest(unittest.TestCase):
             f"pathlib.Path({str(survived_marker)!r}).write_text('alive')"
         )
         parent_code = (
-            "import pathlib, subprocess, sys, time\\n"
-            f"subprocess.Popen([sys.executable, '-c', {child_code!r}])\\n"
-            f"started = pathlib.Path({str(started_marker)!r})\\n"
-            "deadline = time.monotonic() + 5\\n"
-            "while not started.exists() and time.monotonic() < deadline:\\n"
-            "    time.sleep(0.01)\\n"
-            "print('child-started', flush=True)\\n"
-            "time.sleep(30)\\n"
+            "import pathlib, subprocess, sys, time\n"
+            f"subprocess.Popen([sys.executable, '-c', {child_code!r}])\n"
+            f"started = pathlib.Path({str(started_marker)!r})\n"
+            "deadline = time.monotonic() + 5\n"
+            "while not started.exists() and time.monotonic() < deadline:\n"
+            "    time.sleep(0.01)\n"
+            "print('child-started', flush=True)\n"
+            "time.sleep(30)\n"
         )
         start = time.monotonic()
         result = run_process(
