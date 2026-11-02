@@ -819,3 +819,34 @@ actual command, host/platform, revision, timestamps, exit status, diagnostics,
 and artifact references, then match those records to these declared evidence
 IDs. Until that exists, the catalog correctly reports the new links as
 unexecuted regardless of local or CI results.
+
+## 29. Durable execution-record foundation
+
+The first execution-record vertical slice is implemented in
+`tools/verification/execution_records.py`. It is intentionally independent of
+Qt and does not replace `TaskRunResult` or `WorkflowRunRecord`:
+
+- task results describe GUI task scheduling and completion;
+- workflow records describe workflow runs and their editable history;
+- verification execution records describe one test invocation and the
+  provenance required to assess its evidence.
+
+Schema version 1 captures stable test identity, framework, source path and
+optional line, exact command, repository/commit/branch, configuration,
+platform/runtime version, working directory, timezone-aware timestamps,
+exit code, outcome, explicit contract IDs, diagnostics, and artifact paths
+with optional SHA-256 checksums. Optional environment data is allowed to be
+unknown; no missing field is filled by inference. A record can be current,
+stale, or unknown relative to a selected commit.
+
+The JSONL store is append-only and strict on read: malformed lines report
+their line number instead of silently losing evidence. Its default path is
+reserved under the user data root, separate from workflow history.
+
+This stage does not yet create records from runner output or render them in the
+Workbench. The next vertical slice should adapt one real Python unittest
+invocation, capturing process metadata and a log artifact, then display matching
+records for an explicitly linked contract. Only after that path is proven
+should CTest/GoogleTest and CFD regression adapters be added. A declaration,
+static source resolution, build registration, execution, and passing outcome
+must remain separate states.
