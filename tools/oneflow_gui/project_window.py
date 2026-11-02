@@ -38,6 +38,8 @@ from .application_settings import ApplicationSettings
 from .executable_discovery import executable_candidates
 from .source_editor import open_source_files
 from .parameter_document import ParameterDocument
+from .parameter_model import ParameterDomain, ParameterModel
+from .parameter_consumer_catalog import ParameterConsumerCatalog
 from .parameter_catalog_store import ParameterCatalogStore
 from .background_task_manager import start_background_task, request_background_stop
 from .background_task_registry import BackgroundTask, BackgroundTaskRegistry, TERMINAL_STATUSES
@@ -316,27 +318,32 @@ class ProjectWindow(QMainWindow):
         parameter_layout.setContentsMargins(0, 0, 0, 0)
         parameter_layout.setSpacing(6)
         parameter_heading = QHBoxLayout()
-        parameter_heading.addWidget(QLabel("Parameter files"))
+        parameter_heading.addWidget(QLabel("Unified parameters"))
         parameter_heading.addStretch(1)
-        self.modify_parameters_button = QPushButton("Modify selected...")
+        self.modify_parameters_button = QPushButton("Open source file...")
         self.modify_parameters_button.setObjectName("modifyParametersButton")
         self.modify_parameters_button.setEnabled(bool(self._project.parameter_files))
         self.modify_parameters_button.clicked.connect(self._modify_selected_parameter)
         parameter_heading.addWidget(self.modify_parameters_button)
         parameter_layout.addLayout(parameter_heading)
-        self.parameter_list = QListWidget()
-        self.parameter_list.setObjectName("parameterFileList")
-        self.parameter_list.setMinimumHeight(112)
-        for path in self._project.parameter_files:
-            item = QListWidgetItem(str(path))
-            item.setData(Qt.ItemDataRole.UserRole, path)
-            self.parameter_list.addItem(item)
-        if self.parameter_list.count():
-            self.parameter_list.setCurrentRow(0)
-        self.parameter_list.itemDoubleClicked.connect(
-            lambda _item: self._modify_selected_parameter()
+        self.parameter_tree = QTreeWidget()
+        self.parameter_tree.setObjectName("unifiedParameterTree")
+        self.parameter_tree.setHeaderLabels(["Parameter", "Value", "Type", "Source"])
+        self.parameter_tree.setMinimumHeight(190)
+        self.parameter_tree.setColumnWidth(0, 230)
+        self.parameter_tree.setColumnWidth(1, 160)
+        self.parameter_tree.setColumnWidth(2, 75)
+        self.parameter_tree.setAlternatingRowColors(True)
+        self.parameter_tree.itemDoubleClicked.connect(
+            lambda _item, _column: self._modify_selected_parameter()
         )
-        parameter_layout.addWidget(self.parameter_list)
+        parameter_layout.addWidget(self.parameter_tree)
+        self.parameter_model: ParameterModel | None = None
+        self.parameter_coverage_note = QLabel(
+            "Read-only view. Unknown keys and untraced runtime consumers are not assumed to be unused."
+        )
+        self.parameter_coverage_note.setWordWrap(True)
+        parameter_layout.addWidget(self.parameter_coverage_note)
         root.addWidget(parameter_group)
 
         executable_row = QHBoxLayout()
@@ -726,36 +733,110 @@ class ProjectWindow(QMainWindow):
             self._detached_changes_summary.setText(self.changes_summary.text())
 
     def _index_parameter_files(self) -> None:
-        """Index readable parameter files without changing their source bytes."""
+        """Index parameter files and build a manifest-ordered logical view."""
         store = ParameterCatalogStore(UserDataPaths.discover().parameter_catalog_database)
+        documents = []
         indexed = 0
         failures = []
         for path in self._project.parameter_files:
             try:
                 document = ParameterDocument.load(path)
+                documents.append(document)
                 indexed += int(store.sync_document(self._project.root, document))
             except (OSError, UnicodeError, ValueError) as error:
                 failures.append(f"{path.name}: {error}")
+        self.parameter_model = ParameterModel.from_documents(documents)
+        self._render_parameter_model()
         if failures:
             self.statusBar().showMessage(
-                f"Parameter catalog indexed {indexed} file(s); {len(failures)} file(s) need attention.", 10000
+                f"Parameter view loaded {len(documents)} file(s); {len(failures)} file(s) need attention.",
+                10000,
             )
         elif indexed:
             self.statusBar().showMessage(
-                f"Indexed {indexed} parameter-file snapshot(s) in the local catalog.", 5000
+                f"Indexed {indexed} parameter-file snapshot(s) in the local catalog.",
+                5000,
             )
 
+    def _render_parameter_model(self) -> None:
+        """Show effective declarations, overridden values, and audited consumers."""
+        self.parameter_tree.clear()
+        model = self.parameter_model
+        domains = (
+            (ParameterDomain.SHARED, "Shared"),
+            (ParameterDomain.CFD, "CFD"),
+            (ParameterDomain.GRID, "Grid"),
+            (ParameterDomain.OTHER, "Other"),
+        )
+        roots = {}
+        for domain, label in domains:
+            item = QTreeWidgetItem([label, "", "", ""])
+            self.parameter_tree.addTopLevelItem(item)
+            roots[domain] = item
+        if model is None:
+            self.parameter_coverage_note.setText("No readable parameter files were found in the control manifest.")
+            return
+        groups = {}
+        for group in model.groups:
+            group_item = QTreeWidgetItem(roots[group.domain], [group.name, "", "", ""])
+            groups[(group.domain, group.name)] = group_item
+        shadowed_by_key = {}
+        for entry in model.shadowed_entries:
+            shadowed_by_key.setdefault(entry.name.casefold(), []).append(entry)
+        consumers = ParameterConsumerCatalog()
+        for entry in model.entries:
+            parent = groups[(entry.classification.domain, entry.classification.group)]
+            source = self._parameter_source_label(entry.source_path, entry.file_order, entry.declaration_order)
+            item = QTreeWidgetItem([entry.name, entry.raw_value, entry.declared_type, source])
+            item.setData(0, Qt.ItemDataRole.UserRole, entry.source_path)
+            item.setToolTip(0, f"Effective declaration from {entry.source_path}")
+            parent.addChild(item)
+            for previous in shadowed_by_key.get(entry.name.casefold(), []):
+                previous_source = self._parameter_source_label(
+                    previous.source_path, previous.file_order, previous.declaration_order
+                )
+                shadow = QTreeWidgetItem([f"[overridden] {previous.name}", previous.raw_value, previous.declared_type, previous_source])
+                shadow.setData(0, Qt.ItemDataRole.UserRole, previous.source_path)
+                shadow.setToolTip(0, "Shadowed declaration; the later declaration is effective.")
+                item.addChild(shadow)
+            parameter_consumers = consumers.find(entry.name)
+            if parameter_consumers:
+                for consumer in parameter_consumers:
+                    evidence = QTreeWidgetItem(["Runtime consumer", consumer.symbol, consumer.read_kind.value, consumer.source_path])
+                    evidence.setToolTip(0, consumer.behavior)
+                    evidence.setToolTip(1, consumer.read_expression)
+                    evidence.setToolTip(2, consumer.applicability)
+                    evidence.setToolTip(3, consumer.evidence_note)
+                    item.addChild(evidence)
+            else:
+                evidence = QTreeWidgetItem(["Runtime consumer", "Not audited", "", ""])
+                evidence.setToolTip(0, "Absence from the curated catalog means not yet audited, not unused.")
+                item.addChild(evidence)
+        for root_item in roots.values():
+            root_item.setExpanded(True)
+        self.parameter_tree.expandToDepth(1)
+        self.parameter_coverage_note.setText(
+            f"{len(model.entries)} effective scalar parameter(s); {len(model.shadowed_entries)} overridden declaration(s). "
+            "Runtime consumer links are curated source evidence; unlisted parameters are not yet audited, not unused."
+        )
+
+    def _parameter_source_label(self, path: Path, file_order: int, declaration_order: int) -> str:
+        """Format a source path with its manifest and declaration positions."""
+        try:
+            source = path.resolve().relative_to(self._project.root.resolve()).as_posix()
+        except ValueError:
+            source = str(path)
+        return f"{source} (file {file_order + 1}, declaration {declaration_order + 1})"
+
     def _modify_selected_parameter(self) -> None:
-        """Open the selected case parameter file in the configured source editor."""
-        item = self.parameter_list.currentItem()
-        if item is None:
+        """Open the selected declaration source in the configured source editor."""
+        item = self.parameter_tree.currentItem()
+        path = item.data(0, Qt.ItemDataRole.UserRole) if item is not None else None
+        if not isinstance(path, Path):
             QMessageBox.information(
-                self, "No parameter selected", "Select a parameter file to modify."
+                self, "No parameter selected", "Select a parameter declaration to open its source file."
             )
             return
-        path = item.data(Qt.ItemDataRole.UserRole)
-        if not isinstance(path, Path):
-            path = Path(item.text())
         try:
             settings = ApplicationSettings.load()
             open_source_files(
@@ -764,10 +845,7 @@ class ProjectWindow(QMainWindow):
                 working_directory=self._project.root,
             )
         except (OSError, ValueError) as error:
-            QMessageBox.warning(
-                self, "Cannot open parameter file", str(error)
-            )
-
+            QMessageBox.warning(self, "Cannot open parameter file", str(error))
     def _choose_executable(self) -> None:
         current = self.executable_combo.currentText().strip()
         current_path = Path(current).expanduser() if current else None
