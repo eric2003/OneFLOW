@@ -110,7 +110,8 @@ class ExecutionRecordTest(unittest.TestCase):
     def test_corrupt_line_reports_its_location_without_silent_data_loss(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "records.jsonl"
-            path.write_text("{}\nnot-json\n", encoding="utf-8")
+            valid_line = json.dumps(make_record().to_dict())
+            path.write_text(valid_line + "\nnot-json\n", encoding="utf-8")
 
             with self.assertRaisesRegex(ValueError, "line 2"):
                 ExecutionRecordStore(path).list_records()
