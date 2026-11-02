@@ -89,7 +89,7 @@ class NewProjectDialog(QDialog):
             self.name_edit.setText(default_name)
         self._template_default_name = default_name
 
-    def _choose_destination(self) -> None
+    def _choose_destination(self) -> None:
         path = QFileDialog.getExistingDirectory(
             self,
             "Choose parent directory for the new project",

@@ -140,6 +140,30 @@ class ProjectTemplatesTest(unittest.TestCase):
             self.assertTrue((project.root / ".oneflow-project.json").is_file())
             self.assertTrue((source / "script" / "control.txt").is_file())
 
+    def test_missing_template_source_preserves_existing_project_on_overwrite(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repository = root / "repository"
+            repository.mkdir()
+            target = root / "projects"
+            existing = target / "LaminarFlatPlate"
+            existing.mkdir(parents=True)
+            marker = existing / "user-data.txt"
+            marker.write_text("preserve this project", encoding="utf-8")
+
+            with self.assertRaises(FileNotFoundError):
+                create_project(
+                    repository,
+                    "laminar_flat_plate",
+                    "LaminarFlatPlate",
+                    target,
+                    overwrite=True,
+                )
+
+            self.assertEqual(
+                marker.read_text(encoding="utf-8"), "preserve this project"
+            )
+
     def test_rejects_existing_destination(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

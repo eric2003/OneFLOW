@@ -142,6 +142,25 @@ def _create_rae2822_workflow(repository: Path, destination: Path, name: str) -> 
     )
 
 
+def _validate_template_sources(repository: Path, template: ProjectTemplate) -> None:
+    """Validate every required source before an overwrite can delete user data."""
+    if template.template_id == "blank":
+        return
+    if template.template_id == "laminar_flat_plate":
+        required = (repository / "test" / "cfd" / "plateuns2dslau2",)
+    elif template.template_id == "rae2822_multicase":
+        required = (
+            repository / "grid" / "mesh_workflow",
+            repository / "test" / "cfd" / "rae2822_roe_sa",
+            repository / "tools" / "oneflow_gui" / "examples" / "rae2822_multicase.json",
+        )
+    else:
+        required = (repository / str(template.source_relative_path),)
+    for source in required:
+        if not source.is_dir() and not source.is_file():
+            raise FileNotFoundError(f"Project template source not found: {source}")
+
+
 def create_project(
     repository_root: str | Path,
     template_id: str,
@@ -163,6 +182,8 @@ def create_project(
     )
     if template is None:
         raise ValueError(f"Unknown project template: {template_id}")
+
+    _validate_template_sources(repository, template)
 
     try:
         parent.relative_to(repository)
