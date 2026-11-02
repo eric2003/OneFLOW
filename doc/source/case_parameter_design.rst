@@ -232,3 +232,40 @@ Related documentation
 * :doc:`workbench_user_guide_zh` and ``tools/oneflow_gui/README.md`` describe current
   user-visible GUI behavior.
 
+
+Unified Parameter Workbench view
+-------------------------------
+
+The Project Window now consumes ``ParameterModel`` and presents one read-only
+parameter tree with four top-level domains: Shared, CFD, Grid, and Other. The
+tree is built from the parameter documents in the exact order discovered from
+``control.txt``. The manifest itself is shown as project metadata and is never
+treated as a parameter declaration.
+
+Each effective scalar row shows the parameter name, its original value token,
+declared type, and source path. The source column also records the one-based
+manifest file position and declaration position. When a key is repeated, the
+last declaration is displayed as effective and earlier declarations are shown
+as child rows labelled ``[overridden]`` with their own values and source
+locations. The model follows the runtime last-declaration-wins contract without
+discarding provenance.
+
+Unknown scalar keys remain visible. Known keys are grouped by their current
+conservative classification; keys that cannot yet be assigned to a domain
+remain under Other / Unclassified. A declaration whose syntax or type is not
+understood by the scalar parser is listed under Other / Unsupported
+declarations with its source line and an explicit limitation. Array declarations
+are therefore not silently omitted from the coverage report. These rows are
+source-navigation aids, not editable structured fields.
+
+The unified tree is intentionally read-only. Double-clicking a declaration or
+using Open source file opens its original file in the configured external
+editor. The source files remain authoritative, and the SQLite parameter catalog
+remains an index/snapshot store rather than a second source of truth.
+
+This slice does not claim that every displayed key has a confirmed runtime
+consumer, nor that a parser-recognized scalar is valid for every task. The next
+slice is to trace actual runtime consumers and applicability conditions, then
+cross-reference parameter definitions with Formula & Knowledge. Until that
+work is complete, consumer status and formula links remain unresolved rather
+than inferred from names or successful parsing.
