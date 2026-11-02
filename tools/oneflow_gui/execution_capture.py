@@ -10,7 +10,11 @@ import uuid
 from pathlib import Path
 
 from .test_runner import TestCommand
-from .execution_records import ExecutionArtifact, ExecutionRecord, ExecutionRecordStore
+from ..verification.execution_records import (
+    ExecutionArtifact,
+    ExecutionRecord,
+    ExecutionRecordStore,
+)
 
 
 def _git_value(repository_root: Path, *arguments: str) -> str:
