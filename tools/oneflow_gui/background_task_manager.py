@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 import os
 import subprocess
-import threading
 import sys
+import threading
 import time
 from dataclasses import replace
 from pathlib import Path
@@ -89,10 +89,6 @@ def start_background_task(
                 return process.pid
             break
         time.sleep(0.05)
-    try:
-        process.poll()
-    except OSError:
-        pass
     current = registry.load(task_id)
     if current.host_pid != process.pid and current.status in ACTIVE_STATUSES:
         raise RuntimeError(
