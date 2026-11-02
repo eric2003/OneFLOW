@@ -1,0 +1,3 @@
+# Combined serial regression suite for CI.
+@cpu-serial.txt
+@grid-serial.txt

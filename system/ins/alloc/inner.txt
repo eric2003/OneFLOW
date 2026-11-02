@@ -1,0 +1,18 @@
+true, dqdx       , nTEqu, all
+true, dqdy       , nTEqu, all
+true, dqdz       , nTEqu, all
+true, dtdx       , nTModel, all
+true, dtdy       , nTModel, all
+true, dtdz       , nTModel, all
+true, tempr      , nTModel, all
+true, timestep   , 1, all
+true, gama       , 1, all
+true, limiter    , nTEqu, all
+true, heatflux   , 1, all
+
+true, visl    , 1, all
+true, vist    , 1, all
+
+true, invsr, 1, uns
+true, vissr, 1, uns
+true, impsr, 1, uns

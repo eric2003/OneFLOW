@@ -1,0 +1,38 @@
+{
+  "schema": "oneflow.multizone.fixture/v1",
+  "ranks": 2,
+  "zones": [
+    { "zone": 0, "rank": 0, "owned_cells": 10, "ghost_cells": 2 },
+    { "zone": 1, "rank": 1, "owned_cells": 12, "ghost_cells": 2 }
+  ],
+  "interfaces": [
+    {
+      "source": {
+        "rank": 0, "zone": 0, "face": 3, "cell": 4,
+        "role": "OwnedCell"
+      },
+      "target": {
+        "rank": 1, "zone": 1, "face": 5, "cell": 12,
+        "role": "GhostCell"
+      },
+      "equations": 5,
+      "send_values": 5,
+      "receive_values": 5,
+      "memory_space": "HostStaged"
+    },
+    {
+      "source": {
+        "rank": 1, "zone": 1, "face": 5, "cell": 6,
+        "role": "OwnedCell"
+      },
+      "target": {
+        "rank": 0, "zone": 0, "face": 3, "cell": 10,
+        "role": "GhostCell"
+      },
+      "equations": 5,
+      "send_values": 5,
+      "receive_values": 5,
+      "memory_space": "HostStaged"
+    }
+  ]
+}

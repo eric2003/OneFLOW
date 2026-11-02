@@ -1,0 +1,108 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+
+#pragma once
+#include "Constant.h"
+#include "HXDefine.h"
+#include <vector>
+#include <string>
+#include <memory>
+#include <stdexcept>
+
+
+BeginNameSpace( ONEFLOW )
+
+#define IMPLEMENT_GRID_CLONE( TYPE ) \
+std::unique_ptr< Grid > Clone() const override { return std::make_unique< TYPE >(); }
+
+#define REGISTER_GRID( TYPE ) \
+    Grid * TYPE ## _myClass = \
+        Grid::Register( #TYPE, std::make_unique< TYPE >() );
+
+class DataBase;
+class DataBook;
+class NodeMesh;
+class InterFace;
+class SlipFace;
+class IFaceLink;
+
+class Grid
+{
+public:
+    Grid();
+    virtual ~Grid();
+public:
+    DataBase * GetDataBase();
+    const DataBase * GetDataBase() const;
+    DataBase & RequireDataBase();
+    const DataBase & RequireDataBase() const;
+public:
+    virtual std::unique_ptr< Grid > Clone() const = 0;
+public:
+    // Preferred: exclusive ownership of a registered grid prototype clone.
+    static std::unique_ptr< Grid > SafeCloneUnique( const std::string & type );
+    static Grid * Register( const std::string & type, std::unique_ptr< Grid > clone );
+public:
+    std::string name = "grid";
+    int dimension;
+    int type = 0;
+    int level = 0;
+    int id = 0;
+    int localId = 0;
+    int nNodes = 0;
+    int nFaces = 0;
+    int nCells = 0;
+    int nBFaces = 0;
+    int nIFaces = 0;
+    int volBcType = -1;
+private:
+    std::unique_ptr< DataBase > dataBase;
+public:
+    std::unique_ptr< NodeMesh > nodeMesh;
+    std::unique_ptr< InterFace > interFace;
+    std::unique_ptr< SlipFace > slipFace;
+public:
+    void BasicInit();
+    virtual void Free();
+    virtual void Init();
+public:
+    bool IsOneD() const;
+    bool IsTwoD() const;
+    bool IsThreeD() const;
+public:
+    virtual void ReadGrid ( std::fstream & file ) {};
+    virtual void WriteGrid( std::fstream & file ) {};
+    virtual void Decode( DataBook * databook ){};
+    virtual void Encode( DataBook * databook ){};
+    virtual void ReadGrid( DataBook * databook ){};
+    virtual void WriteGrid( DataBook * databook ){};
+    virtual void ModifyBcType( int bcType1, int bcType2 ) {};
+    virtual void GenerateLgMapping( IFaceLink & iFaceLink ){};
+    virtual void ReGenerateLgMapping( IFaceLink & iFaceLink ){};
+    virtual void UpdateOtherTopologyTerm( IFaceLink & iFaceLink ){};
+public:
+    virtual void GetMinMaxDistance( Real & dismin, Real & dismax ) const {};
+    virtual void CalcMetrics() {};
+};
+
+EndNameSpace

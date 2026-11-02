@@ -156,19 +156,3 @@ Related documentation
 * :doc:`workbench_user_guide_zh` and ``tools/oneflow_gui/README.md`` describe current
   user-visible GUI behavior.
 
-Lossless GUI authoring model
-----------------------------
-
-The GUI parameter reader is implemented in tools/oneflow_gui/case_parameters.py.
-It follows the ordered control.txt manifest, recognizes int, Real, and string
-declarations, and retains source positions and repeated declarations. UTF-8
-(including BOM) is detected first; GB18030 is used as the fallback for GB2312/GBK
-files. Editing replaces only the selected value span and writes using the original
-encoding, preserving comments, whitespace, and line endings. Duplicate declarations
-remain visible and editable; the default replacement targets the last occurrence,
-matching the legacy runtime database's replacement behavior.
-
-Template staging uses shutil.copytree / shutil.copy2, which copy bytes without
-decoding or encoding. A regression test verifies byte-for-byte preservation of a
-GB18030 fixture. Parameter units, ranges, choices, and applicability must be
-documented from runtime code or contracts before becoming structured controls.

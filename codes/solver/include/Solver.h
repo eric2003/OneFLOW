@@ -1,0 +1,63 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+
+#pragma once
+#include "HXDefine.h"
+#include <memory>
+
+BeginNameSpace( ONEFLOW )
+
+class Solver;
+#define IMPLEMENT_SOLVER_CLONE( TYPE ) \
+std::unique_ptr< Solver > Clone() const override { return std::make_unique< TYPE >( * this ); }
+
+#define REGISTER_SOLVER( TYPE ) \
+    Solver * TYPE ## _myClass = \
+        Solver::Register( #TYPE, std::make_unique< TYPE >() );
+
+class SolverInfo;
+
+class Solver
+{
+public:
+    Solver() = default;
+    virtual ~Solver() = default;
+public:
+    virtual std::unique_ptr< Solver > Clone() const = 0;
+public:
+    // Preferred: exclusive ownership of a registered solver prototype clone.
+    static std::unique_ptr< Solver > SafeCloneUnique( const std::string & type );
+    static Solver * Register( const std::string & type, std::unique_ptr< Solver > clone );
+    // Compatibility overload; takes ownership of clone.
+    static Solver * Register( const std::string & type, Solver * clone );
+public:
+    int solverType;   // SolverType identifier, for example NS_SOLVER.
+    int solverIndex;  // Position of this solver instance in the solver list.
+    int gridType;
+public:
+    // Called once per solver type after clone. Prefer: (1) load own resources,
+    // (2) RegisterSolverFieldInfo for name tables -- avoid touching other solvers.
+    virtual void StaticInit(){};
+};
+
+EndNameSpace

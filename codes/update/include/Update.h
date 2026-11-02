@@ -1,0 +1,54 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+
+#pragma once
+#include "HXDefine.h"
+#include <memory>
+BeginNameSpace( ONEFLOW )
+
+class FieldWrap;
+
+class Update
+{
+public:
+    Update();
+    virtual ~Update();
+public:
+    std::unique_ptr<FieldWrap> q;
+    std::unique_ptr<FieldWrap> dq;
+public:
+    virtual void UpdateFlowField( int solverType ){};
+	virtual void UpdateINsFlowField(int solverType) {};
+    virtual void DumpProbeInfo() {};
+    virtual void SolutionFix() {};
+};
+
+std::unique_ptr<Update> CreateUpdate( int solverType );
+
+
+void GetUpdateField(
+    int solverType,
+    std::unique_ptr<FieldWrap> & q,
+    std::unique_ptr<FieldWrap> & dq );
+
+EndNameSpace

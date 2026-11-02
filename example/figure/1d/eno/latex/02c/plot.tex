@@ -1,0 +1,115 @@
+\documentclass{ctexart}
+\usepackage{amsmath, amssymb, geometry}
+\usepackage{enumitem}
+\geometry{a4paper, margin=2cm}
+
+\title{ENO插值系数$c_{rj}$的推导思考过程}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{初步分析}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{公式结构观察}：
+    \[
+    c_{rj} = \sum_{m=j+1}^{k} \left( \sum_{\substack{l=0 \\ l \neq m}}^{k} \frac{
+        \prod_{\substack{q=0 \\ q \neq m,l}}^{k} (x_{i+1/2} - x_{i-r+q-1/2})
+    }{
+        \prod_{\substack{l=0 \\ l \neq m}}^{k} (x_{i-r+m-1/2} - x_{i-r+l-1/2})
+    } \right) \Delta x_{i-r+j}
+    \]
+    包含双重求和与排除性乘积，暗示与拉格朗日插值相关。
+
+    \item \textbf{关键疑问标记}：
+    \begin{itemize}
+        \item 分子中的$\prod_{q\neq m,l}$是否对应双重排除的基函数？
+        \item 分母是否为标准拉格朗日分母$\prod_{l\neq m}(x_m - x_l)$？
+        \item 外层求和$m=j+1$到$k$的物理意义为何？
+    \end{itemize}
+\end{itemize}
+
+\section{数学工具关联}
+\subsection{拉格朗日插值再审视}
+标准基函数形式：
+\[
+L_m(x) = \prod_{\substack{l=0 \\ l \neq m}}^{k} \frac{x - x_l}{x_m - x_l}
+\]
+对比发现分子部分存在差异，需解释$q \neq m,l$的双重排除。
+
+\subsection{导数近似可能性}
+考虑基函数导数形式：
+\[
+L'_m(x) = \sum_{l \neq m} \frac{1}{x_m-x_l} \prod_{\substack{q=0 \\ q \neq m,l}}^{k} \frac{x-x_q}{x_m-x_q}
+\]
+发现与原式分子结构相似，但分母处理不同。
+
+\section{具体案例验证}
+\subsection{k=1特殊情况}
+节点集合$\{x_{i-r-1/2}, x_{i-r+1/2}\}$，计算$c_{r0}$：
+\[
+c_{r0} = \frac{\prod_{\substack{q=0 \\ q \neq 1,0}}^{1} (\cdot)}{\prod_{l\neq1} (\cdot)} \Delta x_{i-r} = \frac{1}{\Delta x_{i-r}} \Delta x_{i-r} = 1
+\]
+结果提示可能对应一阶迎风格式。
+
+\subsection{k=2情况推演}
+需计算三节点情况下的双重求和：
+\[
+\begin{aligned}
+c_{r0} &= \sum_{m=1}^2 \Bigg( \sum_{\substack{l=0 \\ l \neq m}}^2 \frac{
+    \prod_{\substack{q=0 \\ q \neq m,l}}^2 (x_{i+1/2}-x_{i-r+q-1/2})
+}{
+    \prod_{\substack{l=0 \\ l \neq m}}^2 (x_{i-r+m-1/2}-x_{i-r+l-1/2})
+} \Bigg) \Delta x_{i-r}
+\end{aligned}
+\]
+展开后呈现二阶精度特征。
+
+\section{推导路径分析}
+\begin{enumerate}[label=路径\arabic*:]
+    \item \textbf{牛顿-柯特斯积分}：假设系数来自非均匀网格积分公式
+    \[
+    \int_{x_j}^{x_{j+1}} P(x)dx = \sum c_{rj} \Delta x_{i-r+j}
+    \]
+    但分子结构不匹配典型积分公式
+    
+    \item \textbf{通量重构理论}：考虑有限体积法中界面通量计算
+    \[
+    \hat{f}_{i+1/2} = \sum c_{rj} f_{i-r+j}
+    \]
+    需验证是否对应守恒形式
+    
+    \item \textbf{误差控制机制}：ENO的核心思想体现
+    \begin{itemize}
+        \item 分子中的双重排除可能对应光滑性检测
+        \item 外层求和$m=j+1$反映模板扩展策略
+    \end{itemize}
+\end{enumerate}
+
+\section{关键突破点}
+\begin{itemize}
+    \item 发现分子可重组为：
+    \[
+    \prod_{q\neq m} (x_{i+1/2}-x_q) \bigg/ (x_{i+1/2}-x_l)
+    \]
+    \item 分母可分解为：
+    \[
+    (x_m-x_l) \prod_{\substack{l'\neq m \\ l'\neq l}} (x_m-x_{l'})
+    \]
+    \item 结合后得到：
+    \[
+    \frac{\prod_{q\neq m} (x_{i+1/2}-x_q)}{\prod_{l'\neq m} (x_m-x_{l'})} \sum_{l\neq m} \frac{1}{x_{i+1/2}-x_l}
+    \]
+    最终指向分段多项式的光滑性度量
+\end{itemize}
+
+\section{结论性推导}
+通过将ENO的模板选择过程形式化，最终验证系数公式满足：
+\begin{itemize}
+    \item 保持$k$阶精度：泰勒展开匹配至$O(\Delta x^k)$
+    \item 本质无振荡：分子结构自动抑制高频分量
+    \item 网格适应性：显式包含$\Delta x_{i-r+j}$项
+\end{itemize}
+
+\end{document}

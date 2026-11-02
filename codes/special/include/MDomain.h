@@ -1,0 +1,76 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+
+#pragma once
+#include "HXDefine.h"
+#include "CalcCoor.h"
+#include "SimpleDomain.h"
+#include "SDomain.h"
+#include <set>
+#include <map>
+#include <fstream>
+#include <memory>
+
+BeginNameSpace( ONEFLOW )
+
+class Block2D;
+class Block3D;
+class BlkMesh;
+class SDomain;
+class MDomain;
+class CalcCoor;
+class Face2D;
+class MLine;
+
+// Ownership note:
+//   - Owns sDomainList (unique_ptr<SDomain>). SDomain is included/complete for HXVector traits.
+//   - Destructor stays out-of-line in MDomain.cpp so unique_ptr delete runs with full SDomain layout.
+//     Do not =default ~MDomain in this header.
+class MDomain : public DomData
+{
+public:
+    MDomain() = default;
+    ~MDomain();
+public:
+    int pos;
+    HXVector< std::unique_ptr< SDomain > > sDomainList;
+    CoorMap * coorMap;
+public:
+    SDomain * FindSDomain( int fid );
+    void AddSubDomain( int fid, IntField & lineList, IntField & posList );
+    void CalcSubDomainCtrlCoor();
+    void CalcCoor();
+    int GetNsubDomain();
+    void ConstructMultiDomainTopo();
+    void ConstructCandidateControlPoints();
+    void ConstructMultiLineToDomainMap();
+    void ConstructMultiPointToDomainMap();
+    void ConstructMultiPointToPointMap();
+    void ConstructPointToLineMap();
+    void CreateInpFaceList( HXVector< std::unique_ptr<Face2D> > &facelist );
+    void CreateInpFaceList1D( HXVector< std::unique_ptr<Face2D> > &facelist );
+    void SetBlkBcMesh( Block3D * blk3d );
+    void SetBlkBcMesh( Block2D * blk2d );
+};
+
+EndNameSpace

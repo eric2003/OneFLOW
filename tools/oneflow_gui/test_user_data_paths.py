@@ -1,0 +1,88 @@
+"""Tests for centralized user data path resolution."""
+
+from __future__ import annotations
+
+import tempfile
+import unittest
+from pathlib import Path
+
+from tools.oneflow_gui.user_data_paths import UserDataPaths
+
+
+class UserDataPathsTest(unittest.TestCase):
+    def test_default_paths_use_dot_oneflow_under_home(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            paths = UserDataPaths.discover(home=home, environ={})
+
+            self.assertEqual(paths.root, (home / ".oneflow").resolve())
+            self.assertEqual(paths.workflow_data, paths.root / "workflow-data")
+            self.assertEqual(
+                paths.workflow_definitions,
+                paths.workflow_data / "definitions",
+            )
+            self.assertEqual(paths.workflow_runs, paths.workflow_data / "runs")
+            self.assertEqual(paths.executions, paths.workflow_data / "executions")
+            self.assertEqual(paths.mesh_layout_test, paths.root / "mesh-layout-test")
+            self.assertEqual(paths.grid_layout_test, paths.mesh_layout_test / "grid")
+            self.assertEqual(paths.cfd_regression_workspace, paths.root / "cfd-regression")
+            self.assertEqual(paths.settings_file, paths.root / "settings.json")
+            self.assertEqual(paths.projects, paths.root / "projects")
+            self.assertEqual(paths.workspaces, paths.root / "workspaces")
+            self.assertEqual(paths.logs, paths.root / "logs")
+            self.assertEqual(paths.test_runs, paths.root / "test-runs")
+            self.assertEqual(paths.test_run_logs, paths.test_runs / "logs")
+            self.assertEqual(
+                paths.verification_execution_records,
+                paths.root / "verification" / "execution-records.jsonl",
+            )
+            self.assertEqual(
+                paths.contract_workbench,
+                paths.root / "contract-workbench",
+            )
+            self.assertEqual(
+                paths.contract_workbench_preview,
+                paths.contract_workbench / "preview",
+            )
+            self.assertEqual(
+                paths.mesh_layout_workspace,
+                paths.root / "mesh-layout-workspace",
+            )
+            self.assertEqual(
+                paths.mesh_layout_projects,
+                paths.mesh_layout_workspace / "projects",
+            )
+            self.assertEqual(
+                paths.mesh_layout_specifications,
+                paths.mesh_layout_workspace / "specifications",
+            )
+            self.assertEqual(
+                paths.mesh_layout_outputs,
+                paths.mesh_layout_workspace / "layouts",
+            )
+            self.assertFalse(paths.root.exists())
+
+    def test_oneflow_home_overrides_default_home(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "custom-data"
+            paths = UserDataPaths.discover(
+                home=Path(directory) / "ignored-home",
+                environ={"ONEFLOW_HOME": str(root)},
+            )
+
+            self.assertEqual(paths.root, root.resolve())
+            self.assertEqual(paths.workflow_data, root.resolve() / "workflow-data")
+            self.assertEqual(paths.test_run_logs, root.resolve() / "test-runs" / "logs")
+
+    def test_empty_override_keeps_default_home(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            paths = UserDataPaths.discover(
+                home=home,
+                environ={"ONEFLOW_HOME": "  "},
+            )
+            self.assertEqual(paths.root, (home / ".oneflow").resolve())
+
+
+if __name__ == "__main__":
+    unittest.main()

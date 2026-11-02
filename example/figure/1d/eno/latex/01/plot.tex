@@ -1,0 +1,41 @@
+\documentclass{article}
+\usepackage{amsmath}
+\begin{document}
+
+\section*{Results for different values of $k$ and $r$}
+
+\subsection*{$k=1$}
+\begin{equation}
+\begin{array}{l}
+\displaystyle v_{i+\frac{1}{2}}^{-} = c_{0} \bar{v}_{i}
+\end{array}
+\end{equation}
+
+\subsection*{$k=2$}
+\begin{equation}
+\begin{array}{l}
+\displaystyle v_{i+\frac{1}{2}}^{-} = c_{10} \bar{v}_{i-1} + c_{00} \bar{v}_{i}, \quad \text{if } r = 1 \\
+\displaystyle v_{i+\frac{1}{2}}^{-} = c_{01} \bar{v}_{i} + c_{00} \bar{v}_{i+1}, \quad \text{if } r = 0
+\end{array}
+\end{equation}
+
+\subsection*{$k=3$}
+\begin{equation}
+\begin{array}{l}
+\displaystyle v_{i+\frac{1}{2}}^{-} = c_{20} \bar{v}_{i-2} + c_{10} \bar{v}_{i-1} + c_{00} \bar{v}_{i}, \quad \text{if } r = 2 \\
+\displaystyle v_{i+\frac{1}{2}}^{-} = c_{11} \bar{v}_{i-1} + c_{10} \bar{v}_{i} + c_{01} \bar{v}_{i+1}, \quad \text{if } r = 1 \\
+\displaystyle v_{i+\frac{1}{2}}^{-} = c_{02} \bar{v}_{i} + c_{01} \bar{v}_{i+1} + c_{00} \bar{v}_{i+2}, \quad \text{if } r = 0
+\end{array}
+\end{equation}
+
+\subsection*{$k=4$}
+\begin{equation}
+\begin{array}{l}
+\displaystyle v_{i+\frac{1}{2}}^{-} = c_{30} \bar{v}_{i-3} + c_{20} \bar{v}_{i-2} + c_{10} \bar{v}_{i-1} + c_{00} \bar{v}_{i}, \quad \text{if } r = 3 \\
+\displaystyle v_{i+\frac{1}{2}}^{-} = c_{21} \bar{v}_{i-2} + c_{11} \bar{v}_{i-1} + c_{10} \bar{v}_{i} + c_{01} \bar{v}_{i+1}, \quad \text{if } r = 2 \\
+\displaystyle v_{i+\frac{1}{2}}^{-} = c_{12} \bar{v}_{i-1} + c_{11} \bar{v}_{i} + c_{10} \bar{v}_{i+1} + c_{02} \bar{v}_{i+2}, \quad \text{if } r = 1 \\
+\displaystyle v_{i+\frac{1}{2}}^{-} = c_{03} \bar{v}_{i} + c_{02} \bar{v}_{i+1} + c_{01} \bar{v}_{i+2} + c_{00} \bar{v}_{i+3}, \quad \text{if } r = 0
+\end{array}
+\end{equation}
+
+\end{document}

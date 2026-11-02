@@ -1,0 +1,63 @@
+
+# 包含 GoogleTest 模块 (只需在顶层包含一次，子目录即可直接使用)
+include(GoogleTest)
+
+if ( NOT COMMAND gtest_discover_tests )
+  message(FATAL_ERROR
+    "GoogleTest.cmake did not define gtest_discover_tests. "
+    "Check the CMake installation and ensure include(GoogleTest) "
+    "is loaded before adding tests.")
+endif()
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# 设置默认文件夹名称
+set(CMAKE_FOLDER "Tests")
+
+# L0 mesh metadata and validation tests with no solver or geometry-core dependency.
+add_subdirectory(grid_summary)
+
+# ============================================================================
+# 模块级测试路由 (使用 add_subdirectory 引入各个子目录的 CMakeLists.txt)
+# 这样顶层文件永远保持简洁，新增模块只需加一行 add_subdirectory
+# ============================================================================
+
+# 1. Hello 模块测试
+add_subdirectory(hello)
+
+# 2. ADT 模块测试
+add_subdirectory(adt)
+
+# 3. Euler 模块测试 
+add_subdirectory(euler)
+
+# 4. database 模块测试 
+add_subdirectory(database)
+
+# 5. task 模块测试 
+add_subdirectory(task)
+
+# 6. register 模块测试 
+add_subdirectory(register)
+
+# 7. main / simulation entry & TaskRegistry (phase 0+1)
+add_subdirectory(main)
+
+# 8. zone
+add_subdirectory(zone)
+
+# 9. solver
+add_subdirectory(solver)
+
+# 10. io
+add_subdirectory(io)
+
+# 11. geometry
+add_subdirectory(geometry)
+
+# 12. basic utilities
+add_subdirectory(basic)
+
+# 13. accelerator runtime lifecycle
+add_subdirectory(accel)
+

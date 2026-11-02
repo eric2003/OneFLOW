@@ -105,16 +105,6 @@ and history remain available. Settings, logs, and execution workspaces have
 separate paths under this root. Deleting a definition does not delete its
 history. The GUI displays recent run status and messages.
 
-## Case parameter editing
-
-The initial lossless reader in case_parameters.py follows script/control.txt,
-recognizes legacy int, Real, and string declarations, and preserves original
-encoding, comments, whitespace, duplicate declarations, and line endings when
-editing a value. UTF-8 is detected first; GB18030 is the fallback for GB2312/GBK.
-Template copies are byte-preserving and do not perform encoding conversion.
-Structured parameter metadata will be added only when supported by runtime code
-or documented contracts; unknown declarations remain available for raw editing.
-
 ## Architecture direction
 
 The long-term product direction is documented in both [Chinese](../../docs/ONEFLOW_WORKBENCH_ARCHITECTURE.zh-CN.md) and [English](../../docs/ONEFLOW_WORKBENCH_ARCHITECTURE.en.md). These memos describe the intended engineering-workbench boundaries and roadmap; they do not imply that all listed capabilities are implemented yet.

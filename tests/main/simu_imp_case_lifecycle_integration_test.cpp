@@ -1,0 +1,709 @@
+/*---------------------------------------------------------------------------*\\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+----------------------------------------------------------------------------*/
+
+#include "AccelBackend.h"
+#include "AccelRuntime.h"
+#include "EulerDomain.h"
+#include "SimuCaseLifecycle.h"
+#include "DataBase.h"
+#include "Prj.h"
+#include "SimuImp.h"
+#include "Simulation.h"
+#include "SimuTask.h"
+
+#include <gtest/gtest.h>
+
+#include <atomic>
+#include <chrono>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+using namespace ONEFLOW;
+
+namespace
+{
+
+class TemporaryCase
+{
+public:
+    TemporaryCase()
+    {
+        static std::atomic<unsigned int> nextId{ 0 };
+        const auto id = nextId.fetch_add( 1 );
+        const auto timestamp =
+            std::chrono::steady_clock::now().time_since_epoch().count();
+        path_ = std::filesystem::temp_directory_path()
+            / ( "oneflow_simu_imp_lifecycle_" + std::to_string( timestamp )
+                + "_" + std::to_string( id ) );
+        std::filesystem::create_directories( path_ / "script" );
+    }
+
+    ~TemporaryCase()
+    {
+        std::error_code error;
+        std::filesystem::remove_all( path_, error );
+    }
+
+    void WriteScript( const std::string & name, const std::string & contents )
+    {
+        std::ofstream output( path_ / "script" / name );
+        if ( ! output )
+        {
+            throw std::runtime_error( "unable to create case script" );
+        }
+        output << contents;
+        if ( ! output )
+        {
+            throw std::runtime_error( "unable to write case script" );
+        }
+    }
+
+    void WriteManifest( const std::string & contents )
+    {
+        std::ofstream output( path_ / "script" / "control.txt" );
+        if ( ! output )
+        {
+            throw std::runtime_error( "unable to create case manifest" );
+        }
+        output << contents;
+        if ( ! output )
+        {
+            throw std::runtime_error( "unable to write case manifest" );
+        }
+    }
+
+    std::string Directory() const
+    {
+        return path_.string();
+    }
+
+private:
+    std::filesystem::path path_;
+};
+
+struct CaseIORootSnapshot
+{
+    std::string project;
+    std::string input;
+    std::string output;
+    std::string meshInput;
+    std::string flowInput;
+    std::string meshOutput;
+    std::string flowOutput;
+};
+
+std::vector<std::string> successfulCaseMarkers;
+std::vector<int> successfulCaseDimensions;
+std::vector<CaseIORootSnapshot> successfulCaseIORoots;
+
+class CaseMarkerTask final : public ISimuTask
+{
+public:
+    void Execute( SimuContext & /*context*/ ) override
+    {
+        DataBase & database = RequireGlobalDataBase();
+        successfulCaseMarkers.push_back(
+            GetDataValue<std::string>( "case_marker", &database ) );
+        successfulCaseDimensions.push_back(
+            GetDataValue<int>( "dimension", &database ) );
+        successfulCaseIORoots.push_back( {
+            Prj::projectBaseDir,
+            Prj::GetInputBaseDir(),
+            Prj::GetOutputBaseDir(),
+            Prj::GetMeshInputBaseDir(),
+            Prj::GetFlowInputBaseDir(),
+            Prj::GetMeshOutputBaseDir(),
+            Prj::GetFlowOutputBaseDir()
+        } );
+    }
+};
+
+
+class RuntimeBoundTestState final : public EulerDomainState
+{
+public:
+    explicit RuntimeBoundTestState( bool & destroyedWhileRuntimeActive )
+        : destroyedWhileRuntimeActive_( destroyedWhileRuntimeActive )
+    {
+    }
+
+    ~RuntimeBoundTestState() override
+    {
+        destroyedWhileRuntimeActive_ =
+            AccelRuntime::Instance().IsInitialized();
+    }
+
+private:
+    bool & destroyedWhileRuntimeActive_;
+};
+
+bool failProcessBackendFinalize = false;
+int processBackendFinalizeCalls = 0;
+
+class RetryableProcessHipBackend final : public AccelBackend
+{
+public:
+    AccelBackendKind Kind() const override { return AccelBackendKind::HIP; }
+    const char * Name() const override { return "RETRYABLE_PROCESS_HIP"; }
+    bool IsAccelerator() const override { return true; }
+    bool SupportsMultiDevice() const override { return true; }
+
+    void Initialize( AccelContext & context ) override
+    {
+        context.deviceCount = 1;
+        context.selectedDevice = 0;
+    }
+
+    void Finalize() override
+    {
+        ++processBackendFinalizeCalls;
+        if ( failProcessBackendFinalize )
+        {
+            throw std::runtime_error(
+                "simulated process backend finalization failure" );
+        }
+    }
+
+    void Synchronize() override {}
+    void * Allocate( std::size_t ) override { return nullptr; }
+    void Deallocate( void * ) override {}
+    void Copy( void *, const void *, std::size_t, AccelCopyKind ) override {}
+};
+
+void SetBackendEnvironment( const char * name, const char * value )
+{
+#ifdef _WIN32
+    _putenv_s( name, value );
+#else
+    setenv( name, value, 1 );
+#endif
+}
+
+class BackendEnvironmentGuard
+{
+public:
+    explicit BackendEnvironmentGuard( const char * name ) : name_( name )
+    {
+        const char * value = std::getenv( name );
+        hadValue_ = value != nullptr;
+        if ( hadValue_ ) oldValue_ = value;
+    }
+
+    ~BackendEnvironmentGuard()
+    {
+        if ( hadValue_ )
+        {
+            SetBackendEnvironment( name_.c_str(), oldValue_.c_str() );
+        }
+        else
+        {
+#ifdef _WIN32
+            _putenv_s( name_.c_str(), "" );
+#else
+            unsetenv( name_.c_str() );
+#endif
+        }
+    }
+
+private:
+    std::string name_;
+    std::string oldValue_;
+    bool hadValue_ = false;
+};
+
+class ProcessBackendFailureGuard
+{
+public:
+    ~ProcessBackendFailureGuard()
+    {
+        failProcessBackendFinalize = false;
+    }
+};
+
+class ProcessRuntimeGuard
+{
+public:
+    explicit ProcessRuntimeGuard( SimuImp & simulation )
+        : simulation_( simulation )
+    {
+    }
+
+    ~ProcessRuntimeGuard() noexcept
+    {
+        if ( simulation_.Context().IsProcessEnvironmentActive() )
+        {
+            try
+            {
+                simulation_.FinalizeEnvironment();
+            }
+            catch ( ... )
+            {
+            }
+        }
+    }
+
+    ProcessRuntimeGuard( const ProcessRuntimeGuard & ) = delete;
+    ProcessRuntimeGuard & operator=( const ProcessRuntimeGuard & ) = delete;
+
+private:
+    SimuImp & simulation_;
+};
+
+class CaseEnvironmentGuard
+{
+public:
+    explicit CaseEnvironmentGuard( SimuContext & context )
+        : context_( context )
+    {
+    }
+
+    ~CaseEnvironmentGuard() noexcept
+    {
+        if ( active_ && context_.IsEnvironmentReady() )
+        {
+            try
+            {
+                context_.TeardownCase();
+            }
+            catch ( ... )
+            {
+            }
+        }
+    }
+
+    void Teardown()
+    {
+        if ( context_.IsEnvironmentReady() )
+        {
+            context_.TeardownCase();
+        }
+        active_ = false;
+    }
+
+    CaseEnvironmentGuard( const CaseEnvironmentGuard & ) = delete;
+    CaseEnvironmentGuard & operator=( const CaseEnvironmentGuard & ) = delete;
+
+private:
+    SimuContext & context_;
+    bool active_ = true;
+};
+
+
+TEST( SimuImpCaseLifecycleIntegration,
+      ProcessFinalizationReleasesContextBackendStatesBeforeRuntime )
+{
+    // SimuImp resolves its case path during construction. Initialize the
+    // production project environment and pass an absolute temporary path so
+    // this test does not depend on an implicit process working directory.
+    Prj::Init();
+    TemporaryCase testCase;
+    SimuImp simulation( testCase.Directory(), false );
+    SimuContext & context = simulation.Context();
+
+    context.SetupProcessEnvironment();
+    ProcessRuntimeGuard runtimeGuard( simulation );
+
+    ASSERT_TRUE( context.IsProcessEnvironmentActive() );
+    ASSERT_TRUE( AccelRuntime::Instance().IsInitialized() );
+
+    bool destroyedWhileRuntimeActive = false;
+    const EulerDomainStateKey key{
+        0, 0, 0, AccelBackendKind::CPU, -1
+    };
+    context.AccelStates().Insert(
+        key,
+        std::make_unique< RuntimeBoundTestState >(
+            destroyedWhileRuntimeActive ) );
+    ASSERT_EQ( context.AccelStates().Size(), 1u );
+
+    EXPECT_NO_THROW( simulation.FinalizeEnvironment() );
+
+    EXPECT_TRUE( destroyedWhileRuntimeActive );
+    EXPECT_EQ( context.AccelStates().Size(), 0u );
+    EXPECT_FALSE( AccelRuntime::Instance().IsInitialized() );
+    EXPECT_FALSE( context.IsProcessEnvironmentActive() );
+}
+
+TEST( SimuImpCaseLifecycleIntegration,
+      FailedAcceleratorFinalizationKeepsProcessRuntimeActiveForRetry )
+{
+    BackendEnvironmentGuard backendSetting( "ONEFLOW_ACCEL_BACKEND" );
+    ProcessBackendFailureGuard failureGuard;
+    SetBackendEnvironment( "ONEFLOW_ACCEL_BACKEND", "HIP" );
+    AccelBackendRegistry::Instance().Register(
+        AccelBackendKind::HIP,
+        []() { return std::make_unique<RetryableProcessHipBackend>(); } );
+
+    processBackendFinalizeCalls = 0;
+    failProcessBackendFinalize = false;
+
+    Prj::Init();
+    TemporaryCase testCase;
+    SimuImp simulation( testCase.Directory(), false );
+    SimuContext & context = simulation.Context();
+    context.SetupProcessEnvironment();
+    ProcessRuntimeGuard runtimeGuard( simulation );
+
+    ASSERT_TRUE( context.IsProcessEnvironmentActive() );
+    ASSERT_TRUE( AccelRuntime::Instance().IsInitialized() );
+    ASSERT_STREQ(
+        AccelRuntime::Instance().Backend().Name(),
+        "RETRYABLE_PROCESS_HIP" );
+
+    failProcessBackendFinalize = true;
+    EXPECT_THROW(
+        simulation.FinalizeEnvironment(),
+        std::runtime_error );
+
+    EXPECT_TRUE( context.IsProcessEnvironmentActive() );
+    EXPECT_TRUE( AccelRuntime::Instance().IsInitialized() );
+    EXPECT_EQ( processBackendFinalizeCalls, 1 );
+
+    failProcessBackendFinalize = false;
+    EXPECT_NO_THROW( simulation.FinalizeEnvironment() );
+
+    EXPECT_FALSE( context.IsProcessEnvironmentActive() );
+    EXPECT_FALSE( AccelRuntime::Instance().IsInitialized() );
+    EXPECT_EQ( processBackendFinalizeCalls, 2 );
+}
+
+TEST( SimuImpCaseLifecycleIntegration,
+      ProductionRuntimeContainsCpuBackendRegistration )
+{
+    EXPECT_TRUE(
+        AccelBackendRegistry::Instance().Contains( AccelBackendKind::CPU ) );
+}
+
+TEST( SimuImpCaseLifecycleIntegration,
+      FailedProductionSetupRunsRealCaseTeardownAndKeepsProcessRuntimeActive )
+{
+    TemporaryCase testCase;
+    testCase.WriteManifest(
+        "\"available.txt\";\n"
+        "\"missing.txt\";\n" );
+    testCase.WriteScript(
+        "available.txt",
+        "string partial_simulation_value = \"must_be_cleared\";\n" );
+
+    SimuImp simulation( testCase.Directory(), false );
+    SimuContext & context = simulation.Context();
+
+    // Seed context-owned state so the real TeardownCase reset is observable.
+    context.SetTask( TaskEnum::SOLVE_FIELD );
+    StringField expandedNames;
+    expandedNames.push_back( "UNsSolver" );
+    context.SetExpandedSolverNames( expandedNames );
+
+    context.SetupProcessEnvironment();
+    ProcessRuntimeGuard runtimeGuard( simulation );
+
+    ASSERT_TRUE( context.IsProcessEnvironmentActive() );
+    EXPECT_THROW( simulation.RunCase(), std::runtime_error );
+
+    // These assertions distinguish the production TeardownCase() call from
+    // the narrower configuration rollback performed by SetupCaseEnvironment().
+    EXPECT_FALSE( context.IsEnvironmentReady() );
+    EXPECT_FALSE( context.IsTaskResolved() );
+    EXPECT_FALSE( context.HasExpandedSolverNames() );
+    EXPECT_EQ( context.TaskName(), "Solve" );
+    EXPECT_TRUE( Prj::prjBaseDir.empty() );
+    EXPECT_THROW(
+        GetDataValue<std::string>(
+            "partial_simulation_value", &RequireGlobalDataBase() ),
+        std::runtime_error );
+
+    // RunCase owns per-case teardown, not process finalization.
+    EXPECT_TRUE( context.IsProcessEnvironmentActive() );
+    EXPECT_NO_THROW( simulation.FinalizeEnvironment() );
+    EXPECT_FALSE( context.IsProcessEnvironmentActive() );
+}
+
+
+TEST( SimuImpCaseLifecycleIntegration,
+      SuccessfulCasesRemainIsolatedWithinOneProcess )
+{
+    TemporaryCase firstCase;
+    TemporaryCase secondCase;
+
+    const std::filesystem::path configuredRoot =
+        std::filesystem::path( firstCase.Directory() + "_configured" );
+    const std::filesystem::path projectRoot = configuredRoot / "project";
+    const std::filesystem::path inputRoot = configuredRoot / "input";
+    const std::filesystem::path outputRoot = configuredRoot / "output";
+    const std::filesystem::path meshInputRoot = configuredRoot / "mesh-input";
+    const std::filesystem::path flowInputRoot = configuredRoot / "flow-input";
+    const std::filesystem::path meshOutputRoot = configuredRoot / "mesh-output";
+    const std::filesystem::path flowOutputRoot = configuredRoot / "flow-output";
+
+    firstCase.WriteManifest( "\"case.txt\";\n" );
+    firstCase.WriteScript(
+        "case.txt",
+        "string simutask = \"ToyModel\";\n"
+        "string case_marker = \"first_case\";\n"
+        "int dimension = 2;\n"
+        "string projectRoot = \"" + projectRoot.generic_string() + "\";\n"
+        "string inputRoot = \"" + inputRoot.generic_string() + "\";\n"
+        "string outputRoot = \"" + outputRoot.generic_string() + "\";\n"
+        "string meshInputRoot = \"" + meshInputRoot.generic_string() + "\";\n"
+        "string flowInputRoot = \"" + flowInputRoot.generic_string() + "\";\n"
+        "string meshOutputRoot = \"" + meshOutputRoot.generic_string() + "\";\n"
+        "string flowOutputRoot = \"" + flowOutputRoot.generic_string() + "\";\n"
+        "string ioPathInfoFileName = \"case_io_paths.txt\";\n" );
+
+    secondCase.WriteManifest( "\"case.txt\";\n" );
+    secondCase.WriteScript(
+        "case.txt",
+        "string simutask = \"ToyModel\";\n"
+        "string case_marker = \"second_case\";\n"
+        "int dimension = 3;\n" );
+
+    successfulCaseMarkers.clear();
+    successfulCaseDimensions.clear();
+    successfulCaseIORoots.clear();
+    TaskRegistry::Instance().Register(
+        "ToyModel",
+        []() { return std::make_unique<CaseMarkerTask>(); } );
+
+    Prj::Init();
+    SimuContext processContext( std::vector<std::string>{} );
+    const std::vector<std::string> caseDirectories{
+        firstCase.Directory(), secondCase.Directory()
+    };
+    std::vector<bool> caseStateCleared;
+    std::vector<bool> processRuntimeStayedActive;
+
+    EXPECT_NO_THROW(
+        SimuCaseLifecycleDetail::RunCasesWithProcessLifecycle(
+            [&]() { processContext.SetupProcessEnvironment(); },
+            caseDirectories,
+            [&]( const std::string & caseDirectory )
+            {
+                SimuImp caseSimulation( caseDirectory, false );
+                caseSimulation.RunCase();
+
+                const SimuContext & caseContext = caseSimulation.Context();
+                bool markerWasCleared = false;
+                try
+                {
+                    (void)GetDataValue<std::string>(
+                        "case_marker", &RequireGlobalDataBase() );
+                }
+                catch ( const std::runtime_error & )
+                {
+                    markerWasCleared = true;
+                }
+
+                caseStateCleared.push_back(
+                    ! caseContext.IsEnvironmentReady()
+                    && ! caseContext.IsTaskResolved()
+                    && ! caseContext.HasExpandedSolverNames()
+                    && Prj::prjBaseDir.empty()
+                    && markerWasCleared );
+                processRuntimeStayedActive.push_back(
+                    processContext.IsProcessEnvironmentActive() );
+            },
+            [&]() { processContext.FinalizeEnvironment(); } ) );
+
+    EXPECT_EQ(
+        successfulCaseMarkers,
+        ( std::vector<std::string>{ "first_case", "second_case" } ) );
+    EXPECT_EQ(
+        successfulCaseDimensions,
+        ( std::vector<int>{ 2, 3 } ) );
+    ASSERT_EQ( successfulCaseIORoots.size(), 2u );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].project, projectRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].input, inputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].output, outputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].meshInput, meshInputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].flowInput, flowInputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].meshOutput, meshOutputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].flowOutput, flowOutputRoot.string() ) );
+    EXPECT_TRUE( successfulCaseIORoots[ 1 ].project.empty() );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].input, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].output, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].meshInput, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].flowInput, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].meshOutput, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].flowOutput, secondCase.Directory() ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        meshOutputRoot / "case_io_paths.txt" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        flowOutputRoot / "case_io_paths.txt" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( firstCase.Directory() ) / "log" / "database.log" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( secondCase.Directory() ) / "log" / "database.log" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( secondCase.Directory() ) / "results" / "io_paths.txt" ) );
+    ASSERT_EQ( caseStateCleared.size(), 2u );
+    EXPECT_TRUE( caseStateCleared[ 0 ] );
+    EXPECT_TRUE( caseStateCleared[ 1 ] );
+    EXPECT_EQ(
+        processRuntimeStayedActive,
+        ( std::vector<bool>{ true, true } ) );
+    EXPECT_FALSE( processContext.IsProcessEnvironmentActive() );
+}
+
+
+TEST( SimuImpCaseLifecycleIntegration,
+      RepositoryRae2822ConversionCaseCanBeInitializedWithoutRunningGridTask )
+{
+#ifndef ONEFLOW_SOURCE_DIR
+    GTEST_SKIP() << "ONEFLOW_SOURCE_DIR is not configured";
+#else
+    const std::filesystem::path sourceCase =
+        std::filesystem::path( ONEFLOW_SOURCE_DIR )
+        / "test" / "grid" / "rae2822convert";
+    ASSERT_TRUE( std::filesystem::is_directory( sourceCase / "script" ) );
+
+    TemporaryCase testCase;
+    std::filesystem::copy(
+        sourceCase / "script",
+        std::filesystem::path( testCase.Directory() ) / "script",
+        std::filesystem::copy_options::recursive
+            | std::filesystem::copy_options::overwrite_existing );
+
+    Prj::Init();
+    SimuImp simulation( testCase.Directory(), false );
+    SimuContext & context = simulation.Context();
+    context.SetupProcessEnvironment();
+    ProcessRuntimeGuard runtimeGuard( simulation );
+    CaseEnvironmentGuard caseGuard( context );
+
+    ASSERT_TRUE( context.IsProcessEnvironmentActive() );
+    ASSERT_FALSE( context.IsEnvironmentReady() );
+
+    EXPECT_NO_THROW( context.SetupCaseEnvironment() );
+    ASSERT_TRUE( context.IsEnvironmentReady() );
+
+    DataBase & database = RequireGlobalDataBase();
+    EXPECT_EQ( GetDataValue<int>( "dimension", &database ), 2 );
+    EXPECT_EQ( GetDataValue<std::string>( "simutask", &database ), "Grid" );
+    EXPECT_DOUBLE_EQ( GetDataValue<Real>( "ptTol", &database ), 1.0e-10 );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( testCase.Directory() )
+        / "log" / "database.log" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( testCase.Directory() )
+        / "results" / "io_paths.txt" ) );
+
+    // Setup-only evidence: do not resolve or execute the Grid task.
+    // The guard retries cleanup if this explicit teardown fails.
+    EXPECT_NO_THROW( caseGuard.Teardown() );
+    EXPECT_FALSE( context.IsEnvironmentReady() );
+    EXPECT_TRUE( context.IsProcessEnvironmentActive() );
+    EXPECT_NO_THROW( simulation.FinalizeEnvironment() );
+    EXPECT_FALSE( context.IsProcessEnvironmentActive() );
+#endif
+}
+
+
+TEST( SimulationEntryIntegration,
+      FullSimulationEntryReadsControlFilesAndFinalizesProcessRuntime )
+{
+    TemporaryCase testCase;
+    testCase.WriteManifest(
+        "\"task.txt\";\n"
+        "\"dimension.txt\";\n" );
+    testCase.WriteScript(
+        "task.txt",
+        "string simutask = \"ToyModel\";\n"
+        "string case_marker = \"simulation_entry\";\n" );
+    testCase.WriteScript(
+        "dimension.txt",
+        "int dimension = 2;\n" );
+
+    successfulCaseMarkers.clear();
+    successfulCaseDimensions.clear();
+    TaskRegistry::Instance().Register(
+        "ToyModel",
+        []() { return std::make_unique<CaseMarkerTask>(); } );
+
+    const std::string executable = "OneFLOW.exe";
+    const std::string mode = "r";
+    const std::string caseDirectory = testCase.Directory();
+    char * arguments[] = {
+        const_cast<char *>( executable.c_str() ),
+        const_cast<char *>( mode.c_str() ),
+        const_cast<char *>( caseDirectory.c_str() )
+    };
+
+    Simulation simulation( 3, arguments );
+
+    EXPECT_EQ( simulation.Run(), 0 );
+    EXPECT_EQ(
+        successfulCaseMarkers,
+        ( std::vector<std::string>{ "simulation_entry" } ) );
+    EXPECT_EQ(
+        successfulCaseDimensions,
+        ( std::vector<int>{ 2 } ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( caseDirectory ) / "log" / "database.log" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( caseDirectory ) / "results" / "io_paths.txt" ) );
+    EXPECT_FALSE( AccelRuntime::Instance().IsInitialized() );
+    EXPECT_TRUE( Prj::prjBaseDir.empty() );
+}
+
+
+TEST( SimulationEntryIntegration,
+      FailedFullSimulationEntryTearsDownCaseAndFinalizesProcessRuntime )
+{
+    TemporaryCase testCase;
+    testCase.WriteManifest(
+        "\"available.txt\";\n"
+        "\"missing.txt\";\n" );
+    testCase.WriteScript(
+        "available.txt",
+        "string partial_simulation_value = \"must_be_cleared\";\n" );
+
+    const std::string executable = "OneFLOW.exe";
+    const std::string mode = "r";
+    const std::string caseDirectory = testCase.Directory();
+    char * arguments[] = {
+        const_cast<char *>( executable.c_str() ),
+        const_cast<char *>( mode.c_str() ),
+        const_cast<char *>( caseDirectory.c_str() )
+    };
+
+    Simulation simulation( 3, arguments );
+
+    EXPECT_EQ( simulation.Run(), EXIT_FAILURE );
+    EXPECT_FALSE( AccelRuntime::Instance().IsInitialized() );
+    EXPECT_TRUE( Prj::prjBaseDir.empty() );
+    EXPECT_THROW(
+        GetDataValue<std::string>(
+            "partial_simulation_value", &RequireGlobalDataBase() ),
+        std::runtime_error );
+}
+
+
+
+} // namespace

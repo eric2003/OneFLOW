@@ -1,0 +1,5 @@
+{
+	"beta0": "Rational(13, 12) * (v_i - 2 * v_ip1 + v_ip2)**2 + Rational(1, 4) * (3 * v_i - 4 * v_ip1 + v_ip2)**2",
+	"beta1": "Rational(13, 12) * (v_im1 - 2 * v_i + v_ip1)**2 + Rational(1, 4) * (v_im1 - v_ip1)**2",
+	"beta2": "Rational(13, 12) * (v_im2 - 2 * v_im1 + v_i)**2 + Rational(1, 4) * (v_im2 - 4 * v_im1 + 3 * v_i)**2"
+}

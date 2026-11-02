@@ -1,0 +1,139 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+
+#pragma once
+#include "HXDefine.h"
+#include "HXArray.h"
+#include "ULimiterPolicy.h"
+#include <memory>
+
+BeginNameSpace( ONEFLOW )
+
+const int ILMT_ZERO   = -1;
+const int ILMT_NO     = 0;
+const int ILMT_BARTH  = 1;
+const int ILMT_VENCAT = 2;
+
+
+class Lim
+{
+public:
+    Lim() = default;
+    ~Lim() = default;
+public:
+    RealField *q, *dqdx, *dqdy, *dqdz;
+    RealField *limiter;
+    // Owned limiter workspace (RAII).
+    std::unique_ptr<RealField> minvf;
+    std::unique_ptr<RealField> maxvf;
+    Real minv1, minv2, maxv1, maxv2;
+    Real dqdx1, dqdy1, dqdz1;
+    Real dqdx2, dqdy2, dqdz2;
+    Real lim1, lim2;
+    Real minOffsetRange, maxOffsetRange;
+};
+
+using CheckFun = bool ( * )( RealField & );
+
+class LimField
+{
+public:
+    LimField() = default;
+    virtual ~LimField() = default;
+public:
+    virtual void Init(){};
+    // Bind q/dq*/limiter field views and allocate face-side buffers.
+    void BindFieldsAndAllocFaces(
+        class UnsGrid * grid,
+        const char * qName,
+        const char * dqdxName,
+        const char * dqdyName,
+        const char * dqdzName,
+        const char * limiterName );
+    Real ModifyLimiter( Real phil, Real phir );
+    void CalcFaceValue();
+    void CalcFaceValueWeighted();
+    void GetQlQr();
+    virtual void BcQlQrFix();
+public:
+    int nEqu;
+    MRField * q;
+    MRField * dqdx, * dqdy, * dqdz;
+    MRField * limiter;
+
+    // Face-side solution buffers owned here (qf1/qf2).
+    std::unique_ptr<MRField> qf1;
+    std::unique_ptr<MRField> qf2;
+    CheckFun ckfun;
+};
+
+
+class Limiter
+{
+public:
+    Limiter() = default;
+    virtual ~Limiter() = default;
+public:
+    // Owned limiter workspace (created at construction).
+    std::unique_ptr<Lim> lim = std::make_unique<Lim>();
+    std::unique_ptr<LimField> limf;
+    int limflag;
+public:
+    bool limfIsNullPtr() const {
+        return limf == nullptr;
+    }
+    // Inject solver-specific LimField (Ns/INs/Turb) after construction.
+    void InjectLimField( std::unique_ptr< LimField > field ) {
+        limf = std::move( field );
+    }
+    int GetNEquations() const {
+        return limf->nEqu;
+    }
+public:
+    void SetInitValue();
+    void CalcLimiter();
+    // No-limiter mode fills the limiter field with one.  That fill is only
+    // skippable when the field is no longer carried by the interface exchange;
+    // otherwise the exchanged neighbours overwrite the ghosts every step.
+    bool noLimiterFieldFilled = false;
+    void CalcLimiterScalar();
+
+    void CalcZeroLimiter();
+    void CalcBarthLimiter();
+    void CalcVencatLimiter();
+    void CalcLocalBarthLimiter();
+    void CalcLocalVencatLimiter( Real regularizationEpsilon );
+    void PrepareData();
+    void BuildNeighborRangeOffsets();
+public:
+    MRField * GetLeftField() const;
+    MRField * GetRightField() const;
+public:
+    void CalcFaceValue();
+    void GetQlQr();
+    virtual void BcQlQrFix();
+};
+
+bool NoCheck( RealField & q );
+
+EndNameSpace

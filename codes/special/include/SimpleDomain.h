@@ -1,0 +1,136 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+
+#pragma once
+#include <memory>
+#include "HXDefine.h"
+#include "CalcCoor.h"
+#include <set>
+#include <map>
+#include <fstream>
+
+BeginNameSpace( ONEFLOW )
+
+class Block3D;
+class SDomain;
+class CalcCoor;
+class Face2D;
+
+class BlkF2C
+{
+public:
+    BlkF2C() = default;
+    ~BlkF2C() = default;
+public:
+    int id, type, bctype;
+    IntField cellList;
+    IntField posList;
+};
+
+class Face2D
+{
+public:
+    Face2D() = default;
+    ~Face2D() = default;
+public:
+    int face_id;
+    int bcType;
+    IntField ctrlpoints;
+    CalcCoor st, ed;
+    CalcCoor p1, p2;
+    std::unique_ptr<Face2D> t;
+public:
+    void CalcRegion();
+    void CalcStEd( CoorMap * coorMap );
+    void Set1DRegion( IntField & ctrlpoints );
+};
+
+class DomDataBasic
+{
+public:
+    DomDataBasic() = default;
+    ~DomDataBasic() = default;
+public:
+    IntField candidate_ctrlpoints;
+    IntField candidate_bcpoints;
+    IntField ctrlpoints;
+    IntField original_ctrlpoints;
+    IntField bcpointList;
+    IntField bcdimList;
+
+    int ni, nj;
+public:
+    std::map< int, IntSet > pointToDomainMap;
+    std::map< int, IntSet > pointToPointMap;
+    std::map< int, IntSet > lineToDomainMap;
+    std::map< int, IntSet > pointToLineMap;
+};
+
+class DomData : public DomDataBasic
+{
+public:
+    DomData() = default;
+    ~DomData() = default;
+public:
+    IntField & GetLinePoints( int line_id );
+    const IntField & GetLinePoints( int line_id ) const;
+    void ConstructCtrlPoint();
+    void ConstructBcPoint();
+    void CalcDimBasic( int closedCurve );
+    void CalcDim2D();
+    void CalcDim1D();
+    void CalcBcCoor( CoorMap * coorMap, int iloop );
+    void Normalize( int &d );
+    void FindBcPointList2D( IntField & bcpointList );
+    void NormalBcPointList2D( IntField & bcpointList );
+    void FindNextPoint2D( const IntField & ptList, int prev, int me, int & next, int & flag ) const;
+    bool IsBcPoint( int pt ) const;
+    bool IsCtrlPoint( int pt ) const;
+    void CalcDomainCtrlPoints( IntField & blkControlpoints, IntField & localpt );
+    void CalcDomainCtrlPoints( IntField & blk_ctrl_points );
+    void CalcDomainCtrlPoints();
+public:
+    bool IsBcLine( int line_id ) const;
+    bool IsBcLine( const IntSet & bclines, int line_id ) const;
+    void RemoveBcLineId( IntSet &bclines, int line_id );
+    void FindAllBoundaryLine( IntSet &bclines );
+    bool FindNextBcPoint( int ps, int pt, int & pnext, IntSet &bclines );
+    bool IsCornerPoints( int pt ) const;
+};
+
+void ConstructInt2Map( int sid, int tid, std::map< int, IntSet > & dataMap );
+void ConstructIntList2Map( int tid, const IntField & idList, std::map< int, IntSet > & dataMap );
+void ConstructLineToDomainMap( int tid, const IntField & idList, std::map< int, IntSet > & dataMap );
+void ConstructPointToDomainMap( int tid, const IntField & lineList, std::map< int, IntSet > & dataMap );
+void ConstructPointToPointMap( const IntField & lineList, std::map< int, IntSet > & dataMap );
+
+void ConstructPointToDomainMap( int tid, const LinkField & pointIdLink, std::map< int, IntSet > & dataMap );
+void ConstructPointToPointMap( const LinkField & pointIdLink, std::map< int, IntSet > & dataMap );
+bool InArray( int ip, const IntField & var_array );
+
+void GetPointIdLink( const IntField & lineList, LinkField & pointIdLink );
+
+void GetUnitInt( int &d );
+void GetUnitDir( CalcCoor & c );
+
+EndNameSpace

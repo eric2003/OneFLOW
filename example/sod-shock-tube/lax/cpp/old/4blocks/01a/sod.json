@@ -1,0 +1,18 @@
+{
+	"istart" : 1,
+	"total_time" : 0.10,
+	"equation" : "euler",
+	"iconservation" : 1,
+	"ifinite_volume" : 1,
+	"iviscous" : 0,
+	"nsave" : 200,
+	"idump_initial_field" : 1,
+	"scheme" :
+	{
+		"inviscid" : "lax",
+	    "reconstruction" : "weno5",
+		"viscous" : "center",
+		"time" : "rk3"
+	},
+    "grid" : "../sodshocktube1d4blocks.cgns"
+}

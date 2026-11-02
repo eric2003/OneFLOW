@@ -1,0 +1,5 @@
+CALC_METRICS    , CCreateCalcMetricsTask, 0
+SWAP_CELLCENTER , CServerUpdateInterfaceTask, 0
+FILL_WALL_STRUCT, CFillWallStructTask, 0
+READ_WALL_DIST  , CReadBinaryFileTask, 0
+WRITE_WALL_DIST , CWriteBinaryFileTask, 0

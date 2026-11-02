@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    echo "Now ls------------------"
+    ls
+    echo "cd  lib-----------------"
+    cd  lib
+    echo "ls again------------------"
+    ls
+    echo "Compile METIS Source"
+    tar xzvf metis-5.1.0eric.tar.gz
+    echo "cd metis-5.1.0eric------------------"
+    cd metis-5.1.0eric
+    echo "ls again------------------"
+    ls
+    echo "compiler is $C_COMPILER"
+    echo "make config cc=$C_COMPILER------------------"
+    make config cc=$C_COMPILER
+    echo "make ------------------"
+    make
+    echo "ls again------------------"
+    ls
+    echo "sudo make install------------------"
+    sudo make install 
+    echo "ls /usr/local------------------"
+    ls /usr/local
+fi

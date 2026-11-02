@@ -1,0 +1,47 @@
+\documentclass{ctexart}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+
+\begin{document}
+
+\section{一维标量方程的 ENO 和 weighted ENO 格式}
+
+\subsection{积分平均型格式或者有限体积型格式}
+
+将原方程在区间 $I_i$ 上积分，并整理得
+\begin{equation}
+\frac{d}{dt} \int_{x_{i-\frac{1}{2}}}^{x_{i+\frac{1}{2}}} u(x,t) dx + f\left(u\left(x_{i+\frac{1}{2}}, t\right)\right) - f\left(u\left(x_{i-\frac{1}{2}}, t\right)\right) = 0.
+\end{equation}
+\label{eq:eno1}
+
+定义函数 $u(x,t)$ 的单元平均值
+\begin{equation}
+\bar{u}_i(t) = \frac{1}{\Delta x_i} \int_{x_{i-\frac{1}{2}}}^{x_{i+\frac{1}{2}}} u(x,t) dx,
+\end{equation}
+\label{eq:eno2}
+
+则有
+\begin{equation}
+\frac{d}{dt} \bar{u}_i + \frac{1}{\Delta x_i} \left[f\left(u\left(x_{i+\frac{1}{2}, t\right)\right) - f\left(u\left(x_{i-\frac{1}{2}, t}\right)\right)\right] = 0,
+\end{equation}
+\label{eq:eno3}
+
+这里由于只有单元平均值已知，所以需要构造函数在单元边界点（半网格节点）上的值 $u_{i-1/2}, i=0,1,\cdots,N$。此时有限体积格式可写为
+\begin{equation}
+\frac{d}{dt} \bar{u}_i + \frac{1}{\Delta x_i} \left[f\left(u_{i+\frac{1}{2}}\right) - f\left(u_{i-\frac{1}{2}}\right)\right] = 0.
+\end{equation}
+\label{eq:eno4}
+
+假定周期边界条件，即假定在计算区域外的数值解是可以得到的（这也适合于具有紧致支集的问题）。对于一致网格剖分 $\Delta x_i = \Delta x$，我们可以如下构造单元节点上的函数值：
+
+\begin{enumerate}
+    \item 确定一个模板。
+    \item 构造一个多项式，设为 $p(x)$，使其满足
+    \begin{equation}
+    \frac{1}{\Delta x_j} \int_{x_{j-\frac{1}{2}}}^{x_{j+\frac{1}{2}}} p(x) dx = \bar{u}_j, \quad j = i-1, i, i+1
+    \end{equation}
+    在所选择的模板上成立。上述模板下多项式 $p(x)$ 是惟一确定的不超过二次
+\end{enumerate}
+
+\end{document}

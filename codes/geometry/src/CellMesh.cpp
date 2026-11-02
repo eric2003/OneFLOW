@@ -1,0 +1,128 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "CellMesh.h"
+#include "NodeMesh.h"
+#include "FaceMesh.h"
+#include "FaceTopo.h"
+#include "BcRecord.h"
+#include "CellTopo.h"
+#include "UnsGrid.h"
+#include "ActionState.h"
+#include "DataBook.h"
+#include "DataBaseIO.h"
+#include "HXMath.h"
+
+
+
+
+BeginNameSpace( ONEFLOW )
+
+HXSize_t CellMesh::GetNumberOfCells() const
+{ 
+    return cellTopo.GetNumberOfCells(); 
+}
+
+CellTopo & CellMesh::GetCellTopo()
+{
+    return this->cellTopo;
+}
+
+const CellTopo & CellMesh::GetCellTopo() const
+{
+    return this->cellTopo;
+}
+
+void CellMesh::AllocateMetrics( FaceMesh & faceMesh )
+{
+    HXSize_t numberOfCells = this->GetNumberOfCells();
+    HXSize_t nBFaces = faceMesh.GetNBFace();
+    HXSize_t nTCell = numberOfCells + nBFaces;
+    this->xcc.resize( nTCell );
+    this->ycc.resize( nTCell );
+    this->zcc.resize( nTCell );
+    this->vol.resize( nTCell );
+
+}
+
+void CellMesh::AllocDist()
+{
+    HXSize_t numberOfCells = this->GetNumberOfCells();
+    dist.resize( numberOfCells );
+}
+
+void CellMesh::ReadDist()
+{
+    ActionState::dataBook->MoveToBegin();
+    HXRead( ActionState::dataBook, dist );
+}
+
+void CellMesh::DumpDist()
+{
+    ActionState::dataBook->MoveToBegin();
+    HXWrite( ActionState::dataBook, dist );
+}
+
+void CellMesh::CalcCellSpan( UnsGrid & grid )
+{
+    const int nCells = static_cast< int >( this->GetNumberOfCells() );
+    this->span.resize( nCells );
+
+    // Rebuild adjacency because face-cell connectivity may have changed.
+    CalcC2f( grid );
+
+    FaceTopo & faceTopo = grid.GetFaceTopo();
+    LinkField & c2f = this->GetCellTopo().c2f;
+    IntField & lcf = faceTopo.GetLeftCells();
+    IntField & rcf = faceTopo.GetRightCells();
+
+    for ( int ic = 0; ic < nCells; ++ ic )
+    {
+        Real delta  = - LARGE;
+        Real deltaj = 0.0;
+
+        int fn = c2f[ ic ].size();
+
+        for ( int iFace = 0; iFace < fn; ++ iFace )
+        {
+            int fId = c2f[ ic ][ iFace ];
+
+            int lc = lcf[ fId ];
+            int rc = rcf[ fId ];
+
+            Real dx = xcc[ rc ] - xcc[ lc ];
+            Real dy = ycc[ rc ] - ycc[ lc ];
+            Real dz = zcc[ rc ] - zcc[ lc ];
+            deltaj = DIST( dx, dy, dz );
+            delta  = MAX( deltaj , delta );
+        }
+
+        span[ ic ] = delta;
+    }
+}
+
+void CalcCellSpan( UnsGrid & grid )
+{
+    grid.GetCellMesh().CalcCellSpan( grid );
+}
+
+EndNameSpace

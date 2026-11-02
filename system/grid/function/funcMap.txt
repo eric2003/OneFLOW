@@ -1,0 +1,7 @@
+FILL_WALL_STRUCT  , CFillWallStruct, 0
+CALC_WALL_DIST    , CCalcWallDist, 0
+READ_WALL_DIST    , CReadWallDist, 0
+WRITE_WALL_DIST   , CDumpWallDist, 0
+CALC_METRICS      , CCalcMetrics, 0
+SWAP_CELLCENTER   , CSwapCellCenter, 0
+ALLOCATE_WALL_DIST, CAllocWallDist, 0

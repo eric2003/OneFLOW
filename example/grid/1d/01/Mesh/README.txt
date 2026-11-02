@@ -1,0 +1,1 @@
+cmake .. -D CMAKE_PREFIX_PATH:PATH="C:/local/Qt/6.8.1/msvc2022_64/"

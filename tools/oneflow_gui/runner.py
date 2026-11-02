@@ -1,0 +1,212 @@
+"""Process execution service for isolated OneFLOW case workspaces."""
+
+from __future__ import annotations
+
+import queue
+import shutil
+import subprocess
+import threading
+from datetime import datetime
+from pathlib import Path
+from typing import Callable
+from uuid import uuid4
+
+from .models import CaseDefinition, CaseRunResult, RunState
+from .process_control import process_group_options, terminate_and_reap
+
+
+LogCallback = Callable[[str], None]
+
+
+def build_command(executable: Path, case_directory: Path) -> list[str]:
+    """Build the standard OneFLOW run command without shell interpolation."""
+
+    return [str(executable.resolve()), "r", str(case_directory.resolve())]
+
+
+def create_run_id() -> str:
+    """Return a sortable, collision-resistant identifier for one batch."""
+
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    return f"{timestamp}-{uuid4().hex[:8]}"
+
+
+def _copy_case_to_workspace(
+    case: CaseDefinition,
+    workspace_root: Path,
+    run_id: str,
+) -> Path:
+    """Copy source inputs so generated files never overwrite checked-in cases."""
+
+    destination = workspace_root / run_id / case.case_id
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if destination.exists():
+        raise FileExistsError(f"Case workspace already exists: {destination}")
+
+    shutil.copytree(
+        case.case_directory,
+        destination,
+        ignore=shutil.ignore_patterns("__pycache__", ".git"),
+    )
+    return destination
+
+
+def prepare_case_database_workspace(
+    cases: list[CaseDefinition],
+    workspace_root: Path,
+) -> dict[str, Path]:
+    """Refresh the whole fixed grid workspace, then stage selected cases."""
+    root = workspace_root.expanduser().resolve()
+    destinations: dict[str, Path] = {}
+    for case in cases:
+        source = case.case_directory.expanduser().resolve()
+        destination = (root / case.case_id).resolve()
+        if destination.parent != root:
+            raise ValueError(
+                "Case Database destination must be a direct child of its workspace root."
+            )
+        if source == root or root in source.parents:
+            raise ValueError(
+                f"Case source must be outside the disposable grid workspace: {source}"
+            )
+        if case.case_id in destinations:
+            raise ValueError(f"Duplicate Case Database id: {case.case_id}")
+        destinations[case.case_id] = destination
+
+    root.mkdir(parents=True, exist_ok=True)
+    for child in root.iterdir():
+        if child.is_dir() and not child.is_symlink():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
+
+    for case in cases:
+        destination = destinations[case.case_id]
+        shutil.copytree(
+            case.case_directory,
+            destination,
+            ignore=shutil.ignore_patterns("__pycache__", ".git"),
+        )
+        destinations[case.case_id] = destination
+    return destinations
+
+
+def prepare_case_directory(
+    case: CaseDefinition,
+    workspace_root: Path,
+    run_id: str,
+    execution_mode: str,
+) -> Path:
+    """Resolve the execution copy according to the user's selected location."""
+    if execution_mode == "source":
+        raise ValueError(
+            "In-place execution is disabled. Run catalog cases from a workspace copy."
+        )
+    if execution_mode == "case_database":
+        return prepare_case_database_workspace([case], workspace_root)[case.case_id]
+    if execution_mode == "case_database_prepared":
+        root = workspace_root.expanduser().resolve()
+        destination = (root / case.case_id).resolve()
+        if destination.parent != root or not destination.is_dir():
+            raise ValueError(f"Prepared Case Database directory is missing: {destination}")
+        return destination
+    if execution_mode in {"default_workspace", "custom_workspace"}:
+        return _copy_case_to_workspace(case, workspace_root, run_id)
+    raise ValueError(f"Unsupported case execution mode: {execution_mode!r}")
+
+
+def run_case(
+    case: CaseDefinition,
+    executable: Path,
+    workspace_root: Path,
+    run_id: str,
+    cancel_event: threading.Event,
+    log: LogCallback,
+    *,
+    execution_mode: str = "default_workspace",
+) -> CaseRunResult:
+    """Run one case, forward combined output, and support cooperative stopping."""
+
+    executable = executable.expanduser().resolve()
+    if not executable.is_file():
+        return CaseRunResult(
+            case.case_id, RunState.FAILED, None, workspace_root,
+            f"OneFLOW executable not found: {executable}",
+        )
+    if cancel_event.is_set():
+        return CaseRunResult(
+            case.case_id, RunState.CANCELLED, None, workspace_root,
+            "Cancelled before process launch.",
+        )
+
+    try:
+        case_workspace = prepare_case_directory(
+            case, workspace_root, run_id, execution_mode
+        )
+        command = build_command(executable, case_workspace)
+        log(f"[{case.case_id}] Command: {' '.join(command)}")
+        log(f"[{case.case_id}] Working directory: {executable.parent}")
+
+        process = subprocess.Popen(
+            command,
+            cwd=executable.parent,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            errors="replace",
+            bufsize=1,
+            **process_group_options(),
+        )
+        output_queue: queue.Queue[str | None] = queue.Queue()
+
+        def read_output() -> None:
+            """Drain the pipe on a dedicated thread to avoid blocking cancellation."""
+            assert process.stdout is not None
+            try:
+                for line in process.stdout:
+                    output_queue.put(line.rstrip("\r\n"))
+            finally:
+                process.stdout.close()
+                output_queue.put(None)
+
+        reader = threading.Thread(
+            target=read_output,
+            name=f"oneflow-output-{case.case_id}",
+            daemon=True,
+        )
+        reader.start()
+        reader_finished = False
+
+        while process.poll() is None or not reader_finished:
+            if cancel_event.is_set() and process.poll() is None:
+                log(f"[{case.case_id}] Stop requested; terminating process tree.")
+                terminate_and_reap(process)
+
+            try:
+                line = output_queue.get(timeout=0.1)
+                if line is None:
+                    reader_finished = True
+                else:
+                    log(f"[{case.case_id}] {line}")
+            except queue.Empty:
+                continue
+
+        reader.join(timeout=1.0)
+        return_code = process.returncode
+        if cancel_event.is_set():
+            state = RunState.CANCELLED
+            message = "Run cancelled."
+        elif return_code == 0:
+            state = RunState.SUCCEEDED
+            message = "Process exited successfully."
+        else:
+            state = RunState.FAILED
+            message = f"OneFLOW exited with code {return_code}."
+
+        return CaseRunResult(
+            case.case_id, state, return_code, case_workspace, message
+        )
+    except (OSError, shutil.Error, ValueError) as error:
+        return CaseRunResult(
+            case.case_id, RunState.FAILED, None, workspace_root, str(error)
+        )

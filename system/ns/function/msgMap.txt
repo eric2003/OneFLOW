@@ -1,0 +1,5 @@
+POST_PROCESS                   , CNsPostprocess, 0
+EXCHANGE_INTERFACE_DQ , CExchangeInterfaceDq, 0
+FINAL_POST_PROCESS         , CNsFinalPostprocess, 0
+INIT_SOLVER                        , CNsInitSolver, 0
+INIT_FLOWFIELD                  , CInitFlowField, 0

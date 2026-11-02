@@ -1,0 +1,105 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+#include "ConfigLoader.h"
+#include "LegacyParameterSyntax.h"
+#include "TextFileParser.h"
+#include "Word.h"
+#include "Fatal.h"
+#include <utility>
+
+namespace ONEFLOW {
+
+    void ConfigLoader::ParseFile(const std::string& fileName) {
+        TextFileParser parser;
+        parser.OpenFile(fileName, std::ios_base::in);
+        ParseFromParser(parser);
+        parser.CloseFile();
+    }
+
+    void ConfigLoader::ParseFromParser(TextFileParser& parser) {
+        document_.Clear();
+        std::string keyWordSeparator = " =\r\n\t#$,;\"";
+        parser.SetDefaultSeparator(keyWordSeparator);
+
+        while (!parser.ReachTheEndOfFile()) {
+            if (!parser.ReadNextMeaningfulLine()) break;
+
+            std::string keyWord = parser.ReadNextWord();
+            if (keyWord.empty()) continue;
+
+            std::string currentLine = parser.GetCurrentLine();
+            ParameterEntry entry;
+            entry.typeName = keyWord;
+
+            if (IsLegacyArrayParameter(currentLine)) {
+                ParseArrayParameter(parser, entry);
+            } else {
+                ParseScalarParameter(parser, entry);
+            }
+
+            if (!entry.name.empty()) {
+                document_.Add( std::move( entry ) );
+            }
+        }
+    }
+
+    void ConfigLoader::ParseScalarParameter(TextFileParser& parser, ParameterEntry& entry) {
+        std::string separator = " =\r\n\t#$,;\"";
+        entry.name = parser.ReadNextWord(separator);
+        std::string value = parser.ReadNextWord(separator);
+        entry.values.push_back(value);
+    }
+
+    void ConfigLoader::ParseArrayParameter(TextFileParser& parser, ParameterEntry& entry) {
+        std::string commSeparator = "=\r\n\t#$,;\"";
+        std::string arraySeparator = " =\r\n\t#$,;\"[]";
+
+        std::string arrayInfo = parser.ReadNextWord(commSeparator);
+        entry.name = Word::FindNextWord(arrayInfo, arraySeparator);
+        std::string arraySizeName = Word::FindNextWord(arrayInfo, arraySeparator);
+
+        // Resolve variable-based lengths through the caller's runtime context.
+        int arraySize = 0;
+        if (Word::IsDigit(arraySizeName)) {
+            arraySize = StringToDigit<int>(arraySizeName);
+        } else if (arraySizeResolver_) {
+            arraySize = arraySizeResolver_(arraySizeName);
+        } else {
+            Fatal("array size variable requires a runtime resolver: " + arraySizeName);
+        }
+
+        for (int i = 0; i < arraySize; ++i) {
+            std::string val = parser.ReadNextWord(arraySeparator);
+            // Legacy cross-line reading compatibility
+            if (val.empty()) {
+                parser.ReadNextNonEmptyLine();
+                val = parser.ReadNextWord(arraySeparator);
+                if (val.empty()) {
+                    Fatal("error in parameter file: array element missing");
+                }
+            }
+            entry.values.push_back(val);
+        }
+    }
+
+} // namespace ONEFLOW
+

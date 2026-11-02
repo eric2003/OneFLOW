@@ -1,0 +1,30 @@
+# 对流扩散方程参数配置（高级初始条件）
+
+# 全局参数
+[Global]
+xmin = -1.0
+xmax = 1.0
+total_time = 0.5
+Nx = 400
+Nt = 1000
+t0 = 0.01
+initial_condition = combined_wave
+
+# 初始条件参数
+[InitialCondition]
+beta = 100.0
+z = -0.7
+delta = 0.005
+alpha = 10.0
+a = 0.5
+
+# 物理参数
+[Physics]
+a = 1.0
+nu = 0.001
+
+# 输出设置
+[Output]
+plot_title = Combined Wave Test
+save_figure = True
+figure_name = combined_wave_result.png

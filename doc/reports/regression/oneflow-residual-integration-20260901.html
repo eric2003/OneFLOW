@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OneFLOW 回归测试与残差标准阶段性报告</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#596579; --line:#d9e0ea; --bg:#f5f7fb; --card:#fff; --blue:#155eef; --green:#087443; --amber:#9a6700; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.65 system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+    main { max-width:1080px; margin:0 auto; padding:40px 24px 64px; }
+    h1 { margin:0 0 8px; font-size:32px; line-height:1.25; }
+    h2 { margin:32px 0 12px; font-size:22px; border-bottom:1px solid var(--line); padding-bottom:6px; }
+    h3 { margin:22px 0 8px; font-size:18px; }
+    .meta { color:var(--muted); margin-bottom:24px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; box-shadow:0 2px 8px #1720330a; }
+    .label { color:var(--muted); font-size:13px; }
+    .value { display:block; font-size:22px; font-weight:700; margin-top:3px; }
+    .ok { color:var(--green); } .pending { color:var(--amber); } .scope { color:var(--blue); }
+    table { width:100%; border-collapse:collapse; background:var(--card); margin:10px 0 18px; }
+    th,td { text-align:left; vertical-align:top; border:1px solid var(--line); padding:9px 10px; }
+    th { background:#eef3fb; }
+    code { background:#eef1f6; border-radius:4px; padding:1px 4px; }
+    pre { overflow:auto; background:#172033; color:#eef3fb; border-radius:8px; padding:14px; }
+    .note { border-left:4px solid var(--blue); background:#edf4ff; padding:10px 14px; }
+    footer { margin-top:36px; color:var(--muted); font-size:13px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>OneFLOW 回归测试与残差标准阶段性报告</h1>
+  <div class="meta">阶段：回归测试统一与云端同步前检查　|　日期：2026-09-01　|　仓库：OneFLOW</div>
+
+  <div class="grid">
+    <div class="card"><span class="label">CPU 普通回归</span><span class="value ok">昆山 5/5 通过</span></div>
+    <div class="card"><span class="label">CPU 严格回归</span><span class="value ok">昆山 5/5 通过</span></div>
+    <div class="card"><span class="label">残差标准</span><span class="value scope">1 个 canonical DB</span></div>
+    <div class="card"><span class="label">当前 DCU residual</span><span class="value ok">HIP 5/5 通过</span></div>
+  </div>
+
+  <h2>1. 阶段结论</h2>
+  <p>本阶段将普通回归和高精度回归统一到同一个测试 runner、同一个五案例 suite 和同一个结构化 residual baseline。普通模式继续服务 GitHub CI；严格模式使用同一套入口，将绝对容差收紧到 <code>1e-15</code>，并启用 max-digits10 残差文本输出。</p>
+  <div class="note">CPU 证据来自昆山 <code>kshcnormal</code> 当前源码作业 JOB_ID_OMITTED：normal 与 strict 两种模式均完成 5/5。DCU/HIP 当前 residual suite 已在固定配比的昆山 DCU 节点完成；本报告只把 HIP 标记为已验证，不外推到 CUDA/KOKKOS。</div>
+
+  <h2>2. 测试架构整合</h2>
+  <table>
+    <thead><tr><th>层次</th><th>统一内容</th><th>模式差异</th></tr></thead>
+    <tbody>
+      <tr><td>案例选择</td><td><code>test/suites/cpu-serial.txt</code>，5 个既有 OneFLOW 案例</td><td>无</td></tr>
+      <tr><td>执行入口</td><td><code>test/test.py</code> → <code>RunAllTest</code> → <code>RunTest</code></td><td>无</td></tr>
+      <tr><td>残差比较</td><td><code>test/residual_db.py</code> 解析并比较同一套 <code>res.dat</code>/<code>turbres.dat</code></td><td>normal: <code>1e-8</code>；strict: <code>1e-15</code></td></tr>
+      <tr><td>标准数据</td><td><code>test/baselines/residual-baseline.json</code>，schema v3、5 cases、8 residual files</td><td>严格模式不再维护第二个 baseline</td></tr>
+      <tr><td>输出精度</td><td>保持现有 residual 文件路径和字段结构</td><td><code>ONEFLOW_RESIDUAL_TEST_OUTPUT=1</code> 时使用 max-digits10 文本</td></tr>
+      <tr><td>报告契约</td><td>Kunshan runner 为每种模式生成 <code>backend-&lt;mode&gt;.txt</code></td><td>记录 backend、mode、tolerance、result</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. 标准 residual 的形成与校验</h2>
+  <ol>
+    <li>从 suite 文件收集各案例的 <code>autotest/res.dat</code> 和 <code>autotest/turbres.dat</code>。</li>
+    <li>由 <code>build_residual_db.py</code> 生成带 schema、suite、launcher、容差策略、行列摘要和 SHA-256 的 JSON 数据库。</li>
+    <li>由 <code>verify_residual_db.py</code> 校验 baseline 自洽性、文件存在性、列名、行数、摘要和哈希。</li>
+    <li>运行时由 <code>residual_db.py</code> 做逐值比较；严格模式额外要求迭代列和行数完全一致。</li>
+  </ol>
+  <p>本地校验结果：<code>residual database OK: 5 cases, 8 files</code>；<code>git diff --check</code> 通过。旧的 <code>residual-baseline-e15.json</code> 和 <code>*.full.dat</code> 双体系已移除，避免标准与实际测试路径分叉。</p>
+
+  <h2>4. 已验证证据与边界</h2>
+  <table>
+    <thead><tr><th>项目</th><th>状态</th><th>证据/边界</th></tr></thead>
+    <tbody>
+      <tr><td>本地 standalone CPU port</td><td class="ok">通过</td><td>CMake build 与 CPU self-test PASS</td></tr>
+      <tr><td>昆山 CPU normal</td><td class="ok">通过</td><td>作业 JOB_ID_OMITTED，5 tests passed，容差 1e-8</td></tr>
+      <tr><td>昆山 CPU strict</td><td class="ok">通过</td><td>同一作业，5 tests passed，容差 1e-15</td></tr>
+      <tr><td>HIP/DCU Euler benchmark</td><td class="ok">已有历史证据</td><td>历史 DCU 节点 HIP MPI benchmark 成功；不等同于当前五案例 residual strict</td></tr>
+      <tr><td>当前 HIP/DCU residual</td><td class="ok">通过</td><td>作业 JOB_ID_OMITTED：kshdnormal、8 tasks × 1 CPU、27G、dcu:1；normal/strict 均 5/5，Slurm COMPLETED 0:0</td></tr>
+      <tr><td>CUDA/KOKKOS</td><td class="pending">未宣称验证</td><td>当前没有目标节点实测证据</td></tr>
+    </tbody>
+  </table>
+
+
+  <h2>5. 实施记录与故障闭环</h2>
+  <table>
+    <thead><tr><th>阶段</th><th>现象</th><th>判断与处理</th><th>结果</th></tr></thead>
+    <tbody>
+      <tr><td>资源请求</td><td>初次 DCU 请求被拒绝</td><td>误用了 1 task × 16 CPU、48G；按 skill 和仓库模板改为 kshdnormal、8 × 1 CPU、27G、dcu:1</td><td class="ok">资源请求通过</td></tr>
+      <tr><td>GRES 传递</td><td>QOSMinGRES，实际 GRES 为 0</td><td><code>submit-regression.sh</code> 原先没有把配置传给 <code>sbatch</code>；新增可选 <code>KUNSHAN_GRES</code></td><td class="ok">修复并推送</td></tr>
+      <tr><td>HIP headers</td><td>重复定义 malloc、free、数学函数</td><td>DTK HIP 与 <code>system ROCm fallback path</code> 混用；固定 <code>HSA_HEADER</code>，清理 module 注入的 include path</td><td class="ok">HIP smoke 编译通过</td></tr>
+      <tr><td>主工程依赖</td><td><code>cgnslib.h</code> 或 <code>filesystem</code> 缺失</td><td>补齐 MPI/CGNS/METIS；host 使用 GCC 12.2.0，并设置 C++17</td><td class="ok">主工程编译通过</td></tr>
+      <tr><td>运行时</td><td><code>python3</code> 找不到</td><td>加载 <code>apps/python/3.8.13</code>，并修正 PATH 覆盖顺序</td><td class="ok">runner 启动</td></tr>
+      <tr><td>最终验证</td><td>作业 JOB_ID_OMITTED</td><td>保存 Slurm accounting、两份 backend report 和 residual 输出</td><td class="ok">COMPLETED 0:0，双模式 5/5</td></tr>
+    </tbody>
+  </table>
+  <p>前述失败均发生在最终 residual 比较之前；只有作业 JOB_ID_OMITTED 作为 HIP/DCU residual 有效证据。DCU 节点证据不外推到 CUDA 或 KOKKOS。</p>
+
+  <h2>6. 文件级变更清单</h2>
+  <table>
+    <thead><tr><th>文件/目录</th><th>作用</th></tr></thead>
+    <tbody>
+      <tr><td><code>test/test.py</code>、<code>test/residual_db.py</code></td><td>统一 suite 执行、baseline 参数和逐值比较入口。</td></tr>
+      <tr><td><code>test/baselines/residual-baseline.json</code></td><td>唯一 canonical CPU residual 标准，含 5 cases、8 files、摘要、策略和哈希。</td></tr>
+      <tr><td><code>test/baselines/build_residual_db.py</code>、<code>verify_residual_db.py</code></td><td>标准生成与自洽性校验。</td></tr>
+      <tr><td><code>test/suites/cpu-serial.txt</code>、各案例 <code>autotest/</code></td><td>五案例集合和统一的 <code>res.dat</code>/<code>turbres.dat</code> 参考输出。</td></tr>
+      <tr><td><code>codes/residual/</code></td><td>普通/严格共用 residual 路径，严格模式提高文本有效数字。</td></tr>
+      <tr><td><code>ci/kunshan/slurm-regression.sh</code></td><td>同一 runner 顺序执行 normal 与 strict，并生成 backend report。</td></tr>
+      <tr><td><code>ci/kunshan/submit-regression.sh</code></td><td>按 profile 传递 partition、CPU、内存、时间和可选 GRES。</td></tr>
+      <tr><td><code>.github/workflows/linux.yml</code>、文档</td><td>GitHub 保留普通快速回归；记录严格模式、backend 边界和运行方式。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. 提交、远端与可复现性</h2>
+  <table>
+    <thead><tr><th>提交</th><th>内容</th><th>远端状态</th></tr></thead>
+    <tbody>
+      <tr><td><code>5b696d0c</code></td><td>回归测试、canonical residual baseline、GitHub/Kunshan runner、初版报告</td><td class="ok">已推送 origin/master</td></tr>
+      <tr><td><code>1c307af2</code></td><td>GRES 参数传递修复</td><td class="ok">已推送 origin/master</td></tr>
+      <tr><td><code>bc8ab40e</code></td><td>HIP/DCU 最终证据和报告更新</td><td class="ok">已推送 origin/master</td></tr>
+    </tbody>
+  </table>
+  <p>推送前已 fetch 并检查 <code>origin/master</code> 差异；远端 master 无需合并的代码差异。<code>the upstream repository</code> upstream 未合并、未创建 PR、未推送分支。</p>
+
+  <h2>8. 云端同步与下一阶段</h2>
+  <p>目标远端为 <code>the forked OneFLOW repository</code> 的 <code>origin</code>。本阶段提交只同步回归测试、残差标准和相关文档，不向 <code>the upstream repository</code> upstream 发起 PR。推送前已检查远端 master 差异；只有确认无冲突后才执行推送。</p>
+  <p>下一阶段将保留 HIP 的节点证据，并把相同 runner/report 契约扩展到 CUDA/KOKKOS；后两者在获得各自目标节点实测前仍不宣称已验证。</p>
+
+  <h2>9. 运行方式</h2>
+  <pre>普通快速回归（GitHub CI / 本地）：
+python3 test/test.py "mpirun -np 1" "/path/to/OneFLOW" \
+  suites/cpu-serial.txt baselines/residual-baseline.json 1e-8
+
+严格回归（昆山 CPU 队列优先）：
+ONEFLOW_RESIDUAL_TEST_OUTPUT=1 python3 test/test.py "mpirun -np 1" "/path/to/OneFLOW" \
+  suites/cpu-serial.txt baselines/residual-baseline.json 1e-15</pre>
+
+
+  <h2>10. 剩余风险</h2>
+  <ul>
+    <li>HIP residual 已在一个 Kunshan DCU 节点完成验证，仍需后续作业确认跨节点稳定性。</li>
+    <li>CUDA、KOKKOS 只有接口注册和报告契约，尚无目标节点执行证据。</li>
+    <li>strict baseline 是 CPU canonical；GPU 通过表示满足该标准，不表示硬件路径相同。</li>
+    <li>工作树仍有未提交的 Euler backend/性能实验改动，未包含在三个阶段提交内。</li>
+  </ul>
+  <footer>报告仅记录截至本阶段已获得的证据；队列资源、节点可用性和 backend 状态以实际 Slurm 作业为准。</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,38 @@
+\documentclass{ctexart}
+\usepackage{amsmath}
+
+\begin{document}
+
+\section*{牛顿-柯特斯积分公式}
+
+牛顿-柯特斯积分公式是数值积分方法中的一种，它通过多项式逼近被积函数，然后对多项式进行积分以近似原函数的积分。这种方法是由牛顿和柯特斯共同提出的，因此得名。
+
+\subsection*{专业解释}
+
+牛顿- 柯特斯积分公式基于多项式插值理论，其基本思想是：在积分区间 $[a, b]$ 上选取 $n+1$ 个点 $x_0, x_1, \ldots, x_n$，构造一个 $n$ 次插值多项式 $P_n(x)$ 来逼近被积函数 $f(x)$。然后对 $P_n(x)$ 进行积分，得到原函数积分的近似值。
+
+牛顿- 柯特斯公式的一般形式为：
+\begin{equation}
+\int_{a}^{b} f(x) dx \approx \sum_{j=0}^{n} w_j f(x_j)
+\end{equation}
+其中，$w_j$ 是权重系数，$f(x_j)$ 是函数在节点 $x_j$ 处的值。
+
+\subsection*{简单例子}
+
+\begin{enumerate}
+    \item 梯形法则：当 $n=1$ 时，牛顿-柯特斯公式退化为梯形法则：
+    \begin{equation}
+    \int_{a}^{b} f(x) dx \approx \frac{b-a}{2} [f(a) + f(b)]
+    \end{equation}
+    
+    \item 辛普森一三法则：当 $n=2$ 时，牛顿-柯特斯公式为辛普森一三法则：
+    \begin{equation}
+    \int_{a}^{b} f(x) dx \approx \frac{b-a}{6} [f(a) + 4f\left(\frac{a+b}{2}\right) + f(b)]
+    \end{equation}
+    \item 辛普森三八法则：当 $n=4$ 时，牛顿-柯特斯公式为辛普森三八法则：
+    \begin{equation}
+    \int_{a}^{b} f(x) dx \approx \frac{3(b-a)}{8} [f(a) + 3f\left(\frac{3a+b}{4}\right) + 3f\left(\frac{a+b}{2}\right) + f(b)]
+    \end{equation}
+\end{enumerate}
+
+\end{document}

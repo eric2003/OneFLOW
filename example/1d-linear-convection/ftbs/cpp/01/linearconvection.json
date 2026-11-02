@@ -1,0 +1,19 @@
+{
+	"istart" : 0,
+	"total_time" : 0.625,
+	"dt" : 0.025,
+	"equation" : "linearconvection",
+	"iconservation" : 0,
+	"ifinite_volume" : 0,
+	"iviscous" : 0,
+	"nsave" : 100,
+	"idump_initial_field" : 1,
+	"scheme" :
+	{
+		"inviscid" : "upwind1",
+	    "reconstruction" : "upwind1",
+		"viscous" : "center",
+		"time" : "rk1"
+	},
+    "grid" : "../linearconvection1d.cgns"
+}

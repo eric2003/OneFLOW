@@ -1,0 +1,213 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+
+#pragma once
+#include "HXDefine.h"
+#include "HXCgns.h"
+#include "HXLookup.h"
+#include <vector>
+#include <set>
+#include <map>
+#include <memory>
+
+
+BeginNameSpace( ONEFLOW )
+class MeshPointManager;
+class ElemFeature;
+class FaceTopo;
+class CgnsSection;
+class BcRecord;
+
+// Staged face write paths: doc/source/face_stage_pipeline.rst
+class FaceSolver
+{
+public:
+    FaceSolver();
+    ~FaceSolver();
+public:
+    FaceTopo & GetFaceTopo();
+    const FaceTopo & GetFaceTopo() const;
+    [[nodiscard]] std::unique_ptr< FaceTopo > ReleaseFaceTopo() noexcept;
+
+    // Read staged BC (bounds-checked). Writes go through SetStagedFaceBc only.
+    int GetStagedBcType( int faceId ) const;
+    int GetStagedBcNameId( int faceId ) const;
+    std::size_t GetStagedBcSlotCount() const { return faceBcTypes.size(); }
+
+    // Child-face lists (split/interface path). Grown by StageNewFace.
+    const IntField & GetChildFaceIds( int faceId ) const;
+    std::size_t GetChildFidSlotCount() const { return childFid.size(); }
+
+    // Test support only: drop last childFid entry to exercise alignment checks.
+    void DropLastChildFidEntryForTest();
+
+public:
+    bool CheckBcFace( const IntSet & bcVertex, const IntField & nodeId ) const;
+    void ScanElementFace( CgIntField & eNodeId, int eType, int eId );
+
+    // Assign BC to faces whose nodes are all in bcVertex and that still have
+    // INVALID BC type. If boundaryFacesOnly is true, also require right cell
+    // INVALID (classic boundary face). Returns how many faces were assigned.
+    int AssignBcToMatchingFaces(
+        const IntSet & bcVertex,
+        int bcType,
+        int bcNameId,
+        bool boundaryFacesOnly );
+
+    // Boundary faces only (right cell INVALID). Prefer for post-ownership BC.
+    void ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId );
+    // Match by vertex set only (CGNS BOCO path may run before ownership is final).
+    void ScanBcFaceDetail( IntSet & bcVertex, int bcType, int bcNameId );
+    void ScanInterfaceBc();
+
+    // Append staged BC of boundary faces (right cell INVALID) into bcRecord.
+    // Requires StagedBcMatchesFaceCount(). Returns number of boundary faces.
+    int AppendBoundaryBcToRecord( BcRecord & bcRecord ) const;
+
+    // Faces whose childFid list is empty (not split). Requires childFid aligned
+    // with face count (StagedBcMatchesFaceCount / StageNewFace growth).
+    int CountFacesWithoutChildren() const;
+    // Compatibility wrapper; prefer CountFacesWithoutChildren().
+    int GetNSimpleFace() const { return CountFacesWithoutChildren(); }
+
+    // Stage a newly discovered unique face: topology, face flag, and default
+    // BC slots together. Keeps faceBcTypes / faceBcNameIds / faceFlags length
+    // equal to FaceTopo face count. leftCellId may be INVALID_INDEX when the
+    // owning cell is assigned later (polygon path).
+    void StageNewFace( const IntField & faceNodes, int faceType, int leftCellId );
+
+    // Assign BC on an already staged face (bounds-checked). Sole write path
+    // for faceBcTypes / faceBcNameIds after staging.
+    void SetStagedFaceBc( int faceId, int bcType, int bcNameId );
+
+    // First cell to claim an unclaimed staged face (polygon path). Sets the
+    // claimed flag, left cell, clears right cell, and resets BC defaults via
+    // SetStagedFaceBc. Throws if faceId is out of range or already claimed.
+    void ClaimStagedFaceAsLeft( int faceId, int cellId );
+
+    // Second cell sharing a claimed face. Sets right cell only.
+    // Throws if faceId is out of range or the face is still unclaimed.
+    void AttachStagedFaceAsRight( int faceId, int cellId );
+
+    // Bind a volume element to an already staged face (traditional element
+    // path). Fills left if empty; otherwise fills right if empty and the
+    // cell is not already the left owner. No-op if both sides are set.
+    void BindCellToExistingFace( int faceId, int cellId );
+
+    // True when BC slots, childFid, face types/flags, left/right cells, and
+    // face-local positions all match the FaceTopo face count.
+    [[nodiscard]] bool StagedBcMatchesFaceCount() const;
+
+    // Face flag values used by the polygon ownership path.
+    static constexpr int kFaceUnclaimed = 0;
+    static constexpr int kFaceClaimed = 1;
+public:
+    // Safety net: resize FaceTopo cell/position arrays and FaceSolver BC/child
+    // slots to the current face count. Prefer StageNewFace, which grows all
+    // parallel arrays together; this remains for paths that only grew faces.
+    void EnsureParallelFaceArraysSized();
+
+    // Stage unique 3D polyhedral faces from CSR-style offsets/connectivity without
+    // requiring a CgnsSection. Invalid spans throw before any mutation.
+    // Each new unique face is staged with INVALID left cell (owner assigned
+    // later via ClaimStagedFaceAsLeft).
+    void StagePolyhedralFacesFromConnectivity(
+        int nElement,
+        const CgIntField & offsets,
+        const CgIntField & connectivity,
+        int faceType );
+
+    // Assign polyhedron cells to already staged faces from CSR face references.
+    // Validates spans, face id range, no duplicate face per cell, and at most
+    // two cells per face before any mutation. Uses ClaimStagedFaceAsLeft /
+    // AttachStagedFaceAsRight only.
+    void ClaimPolyhedronCellsFromConnectivity(
+        int nElement,
+        const CgIntField & offsets,
+        const CgIntField & connectivity );
+
+    void ScanPolyhedralFace( CgnsSection & cgnsSection );
+    void ScanPolyhedronElement( CgnsSection & cgnsSection );
+private:
+    // Staged BC attributes per face (aligned with FaceTopo faces).
+    // Sole write path after construction: SetStagedFaceBc / StageNewFace.
+    IntField faceBcNameIds;
+    IntField faceBcTypes;
+    // Child-face index lists (split/interface path). Prefer StageNewFace growth.
+    LinkField childFid;
+    // Dedup table for face node signatures (traditional + polygon stage paths).
+    HXLookup<int> faceLookup;
+
+    std::unique_ptr< FaceTopo > faceTopo;
+};
+
+
+// True when every node of faceNodes appears in bcVertex (BC patch vertex set).
+// Order and extras in bcVertex do not matter; empty face is vacuously true.
+bool FaceNodesContainedInVertexSet(
+    const IntSet & bcVertex,
+    const IntField & faceNodes );
+
+
+// Append BC type/name for faces with open right cell (boundary faces in
+// current face order). Returns number of boundary faces appended.
+// Requires parallel lengths of rightCells, faceBcTypes, and faceBcNameIds.
+int CollectBoundaryBcEntries(
+    const IntField & rightCells,
+    const IntField & faceBcTypes,
+    const IntField & faceBcNameIds,
+    IntField & outBcType,
+    IntField & outBcNameId );
+
+
+// Bind one cell to left/right slots of an existing face.
+// Rules (in order):
+// 1. If left is INVALID_INDEX, set left = cellId (return 0).
+// 2. Else if right is INVALID_INDEX and left != cellId, set right = cellId (return 1).
+// 3. Else leave both unchanged (return -1).
+int BindCellToFaceSides( int cellId, int & leftCell, int & rightCell );
+
+
+// Replace each INVALID_INDEX entry in faceBcTypes with fillBcType / fillNameId.
+// faceBcTypes and faceBcNameIds must have the same length. Returns how many
+// slots were filled.
+int FillUnsetStagedBcSlots(
+    IntField & faceBcTypes,
+    IntField & faceBcNameIds,
+    int fillBcType,
+    int fillNameId );
+
+// Count entries of childFid that are empty lists. Length need not match faces;
+// this is a pure list statistic.
+int CountEmptyChildFaceLists( const LinkField & childFid );
+
+
+// True when a staged face may receive a new BC from AssignBcToMatchingFaces:
+// current type is still INVALID_INDEX, and if boundaryFacesOnly then right
+// cell must be INVALID_INDEX (open boundary).
+bool IsEligibleForStagedBcAssignment(
+    int currentBcType,
+    int rightCell,
+    bool boundaryFacesOnly );
+
+EndNameSpace

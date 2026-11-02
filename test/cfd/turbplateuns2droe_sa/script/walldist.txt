@@ -1,0 +1,3 @@
+string walldist_file   =  "grid/turbplate20182dwdst.dat";
+int ireadwdst = 0;
+

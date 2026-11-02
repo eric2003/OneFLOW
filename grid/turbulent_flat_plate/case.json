@@ -1,0 +1,42 @@
+{
+  "schema": "oneflow.case",
+  "version": 1,
+  "name": "turbulent_flat_plate_mesh",
+  "kind": "structured-mesh-generation-and-inspection",
+  "parameters": {
+    "runtime": {
+      "task": "Grid",
+      "objective": 0,
+      "generationId": 4,
+      "dimension": 2,
+      "layout": "grid/turbulentFlatPlateLayout.txt",
+      "parameterFiles": [
+        "script/simu.txt",
+        "script/dimension.txt",
+        "script/tolerence.txt",
+        "script/grid.txt",
+        "script/part.txt"
+      ]
+    },
+    "inspection": {
+      "realBytes": 8,
+      "byteOrder": "little",
+      "sourceGrid": "results/turbulentFlatPlate.generated.grd",
+      "oneFlowGrid": "results/turbulentFlatPlate.ofl",
+      "gridInfo": "results/turbulentFlatPlate.info.json"
+    },
+    "expected": {
+      "zones": 1,
+      "dimension": 2,
+      "nodes": 5913,
+      "cells": 5760,
+      "faces": 11672,
+      "boundaryFaces": 304,
+      "internalFaces": 11368,
+      "boundingBox": {
+        "min": [-0.35, 0.0, 0.0],
+        "max": [2.0, 1.0, 0.0]
+      }
+    }
+  }
+}

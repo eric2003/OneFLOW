@@ -1,0 +1,95 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+
+#pragma once
+#include "HXDefine.h"
+#include "CalcCoor.h"
+#include "SimpleDomain.h"
+#include <set>
+#include <map>
+#include <fstream>
+#include <memory>
+
+BeginNameSpace( ONEFLOW )
+
+class Block3D;
+class Block2D;
+class BlkMesh;
+class SDomain;
+class MDomain;
+class CalcCoor;
+class Face2D;
+class MLine;
+
+enum class ControlPointResolution
+{
+    Resolved,
+    Progress,
+    Blocked
+};
+
+class SDomain : public DomData
+{
+public:
+    explicit SDomain( CoorMap * coorMap = nullptr );
+    ~SDomain();
+public:
+    int domain_id;
+    HXVector< std::unique_ptr< MLine > > mLineList;
+    std::unique_ptr< CoorMap > localCoorMap;
+    std::unique_ptr< CoorMap > ownedCoorMap;
+    CoorMap * coorMap;
+    RealField2D x2d, y2d, z2d;
+public:
+    void Alloc();
+    void SetDomain( int fid, IntField & lineList, IntField & posList );
+    void ConstructSDomainCtrlPoint();
+    void GetCommonPoint( const MLine * mLine1, const MLine * mLine2, int & pt ) const;
+    ControlPointResolution CalcSingleDomainCoor();
+    void SetRemainingCtrlPoint( IntField & idxList );
+public:
+    void ConstructLineToDomainMap();
+    void ConstructLineToDomainMap( std::map< int, IntSet > & lineToDomainMap );
+    void ConstructPointToDomainMap();
+    void ConstructPointToDomainMap( std::map< int, IntSet > & pointToDomainMap );
+    void ConstructPointToPointMap();
+    void ConstructPointToPointMap( std::map< int, IntSet > & pointToPointMap );
+
+    void ConstructPointToLineMap( std::map< int, IntSet > & pointToLineMap );
+    void ConstructDomainTopo();
+    void GetPointIdLink( const IntField & lineList, LinkField & pointIdLink ) const;
+public:
+    void Add( IntField &iList, IntField &jList, IntField &kList, int i, int j, int k );
+    void ConstructLocalTopoAsBlk2D();
+    void SetBlkBcMesh( Block3D * blk3d );
+    void SetBlkBcMesh( Block2D * blk2d );
+    void SetDomainBcMesh();
+    void GenerateSDomainMesh();
+    void GenerateSDomainMesh( std::fstream & file );
+public:
+    void CreateInpFaceList( HXVector< std::unique_ptr<Face2D> > &facelist );
+    void CreateInpFaceList1D( HXVector< std::unique_ptr<Face2D> > &facelist );
+};
+
+
+EndNameSpace

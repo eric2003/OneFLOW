@@ -1,0 +1,26 @@
+int gridObj = 0;
+string topoType = "u";
+int multiBlock = 0;
+
+int fileFormat = 1;
+Real gridScale = 1.0;
+Real gridTrans[3] = 0, 0, 0;
+int axis_dir = 0;
+int ignoreNoBc = 0;
+
+string gridLayoutFileName = "grid/minimalCubeLayout.txt";
+int igene = 4;
+
+int codeOfOversetGrid = 0;
+string oversetGridFileName = "grid/iBlank.ovs";
+int parallelStrategy = 1;
+
+string sourceGridType = "plot3d";
+string targetGridType = "oneflow";
+int iplot3d = 0;
+
+string sourceGridFileName = "results/minimalCube.generated.grd";
+string sourceGridBcName = "results/minimalCube.inp";
+string targetGridFileName = "results/minimalCube.ofl";
+string gridInfoFileName = "results/minimalCube.info.json";
+string patchFileName = "grid/minimalCube.patch";

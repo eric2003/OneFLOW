@@ -1,0 +1,42 @@
+{
+  "schema": "oneflow.case",
+  "version": 1,
+  "name": "two_connected_cubes_mesh",
+  "kind": "structured-mesh-generation-and-inspection",
+  "parameters": {
+    "runtime": {
+      "task": "Grid",
+      "objective": 0,
+      "generationId": 4,
+      "dimension": 3,
+      "layout": "grid/twoConnectedCubesLayout.txt",
+      "parameterFiles": [
+        "script/simu.txt",
+        "script/dimension.txt",
+        "script/tolerence.txt",
+        "script/grid.txt",
+        "script/part.txt"
+      ]
+    },
+    "inspection": {
+      "realBytes": 8,
+      "byteOrder": "little",
+      "sourceGrid": "results/twoConnectedCubes.generated.grd",
+      "oneFlowGrid": "results/twoConnectedCubes.ofl",
+      "gridInfo": "results/twoConnectedCubes.info.json"
+    },
+    "expected": {
+      "zones": 2,
+      "dimension": 3,
+      "nodes": 12,
+      "cells": 2,
+      "faces": 11,
+      "boundaryFaces": 10,
+      "internalFaces": 1,
+      "boundingBox": {
+        "min": [0.0, 0.0, 0.0],
+        "max": [2.0, 1.0, 1.0]
+      }
+    }
+  }
+}
