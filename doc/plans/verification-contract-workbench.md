@@ -772,8 +772,9 @@ Python script may start a shell command, which may start MPI and solver
 processes. Parent-only termination is not a sufficient cancellation contract.
 
 The module has focused tests for host-specific process creation options,
-Windows tree termination and fallback, completed-process handling, and a real
-POSIX parent/descendant process tree. The new test is part of the Python test
+Windows tree termination and fallback, and completed-process handling. Native
+CI exercises a real parent/descendant process tree on both POSIX and Windows;
+the Windows path uses `taskkill /T`. The new test is part of the Python test
 inventory and the Ubuntu/Windows Python tooling CI matrix.
 
 The implementation deliberately keeps platform-specific process mechanics at
