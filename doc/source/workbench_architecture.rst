@@ -111,8 +111,11 @@ This roadmap describes intended direction, not a blanket claim that all listed c
 Parameter editing
 -----------------
 
-See :doc:`case_parameter_design` for the proposed schema-backed GUI direction and
-its migration stages. Current workflow artifact overrides remain a narrower adapter.
+The Project Window now provides a read-only unified parameter view backed by
+``ParameterModel``. Source-backed structured editing remains a later migration
+stage; workflow artifact overrides remain a narrower execution adapter. See
+:doc:`case_parameter_design` for manifest ordering, provenance, parser limits,
+and the next consumer-tracing stage.
 
 
 Contract Workbench navigation and domain payloads
