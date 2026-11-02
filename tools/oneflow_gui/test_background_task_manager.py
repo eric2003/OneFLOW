@@ -47,8 +47,19 @@ class BackgroundTaskManagerTest(unittest.TestCase):
             if task.status in {"succeeded", "failed", "stopped", "lost"}:
                 break
             time.sleep(0.05)
-        self.assertEqual(self.registry.load("task-002").status, "succeeded")
-        self.assertIn("managed", self.log_file.read_text(encoding="utf-8"))
+        task = self.registry.load("task-002")
+        log_output = (
+            self.log_file.read_text(encoding="utf-8")
+            if self.log_file.is_file()
+            else "<task log was not created>"
+        )
+        self.assertEqual(
+            task.status,
+            "succeeded",
+            f"Background task ended as {task.status!r}: {task.message}\n"
+            f"Task log:\n{log_output}",
+        )
+        self.assertIn("managed", log_output)
 
     def test_stop_request_is_written_for_active_task(self) -> None:
         request_background_stop(self.root, "task-002")

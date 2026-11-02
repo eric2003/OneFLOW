@@ -6,12 +6,22 @@ import json
 import os
 import subprocess
 import sys
+import threading
 import time
 from dataclasses import replace
 from pathlib import Path
 from typing import Sequence
 
 from .background_task_registry import ACTIVE_STATUSES, BackgroundTaskRegistry, utc_now
+
+
+def _reap_host_process(process: subprocess.Popen) -> None:
+    """Wait for a detached host so its process handle is always collected."""
+    threading.Thread(
+        target=process.wait,
+        name=f"oneflow-background-host-{process.pid}",
+        daemon=True,
+    ).start()
 
 
 def start_background_task(
@@ -66,6 +76,7 @@ def start_background_task(
     else:
         options["start_new_session"] = True
     process = subprocess.Popen(host_command, **options)
+    _reap_host_process(process)
     deadline = time.monotonic() + startup_timeout
     while time.monotonic() < deadline:
         current = registry.load(task_id)
@@ -78,10 +89,6 @@ def start_background_task(
                 return process.pid
             break
         time.sleep(0.05)
-    try:
-        process.poll()
-    except OSError:
-        pass
     current = registry.load(task_id)
     if current.host_pid != process.pid and current.status in ACTIVE_STATUSES:
         raise RuntimeError(
