@@ -107,6 +107,16 @@ class UserDataPaths:
         return self.root / "logs"
 
     @property
+    def test_runs(self) -> Path:
+        """Root for durable test-run artifacts, separate from the source tree."""
+        return self.root / "test-runs"
+
+    @property
+    def test_run_logs(self) -> Path:
+        """Captured test command output, grouped separately from execution records."""
+        return self.test_runs / "logs"
+
+    @property
     def verification_execution_records(self) -> Path:
         """Append-only verification evidence, separate from workflow task history."""
         return self.root / "verification" / "execution-records.jsonl"
