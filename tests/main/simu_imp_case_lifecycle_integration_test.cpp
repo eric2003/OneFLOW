@@ -18,6 +18,7 @@ License
 #include "DataBase.h"
 #include "Prj.h"
 #include "SimuImp.h"
+#include "Simulation.h"
 #include "SimuTask.h"
 
 #include <gtest/gtest.h>
@@ -460,5 +461,53 @@ TEST( SimuImpCaseLifecycleIntegration,
         ( std::vector<bool>{ true, true } ) );
     EXPECT_FALSE( processContext.IsProcessEnvironmentActive() );
 }
+
+
+TEST( SimulationEntryIntegration,
+      FullSimulationEntryReadsControlFilesAndFinalizesProcessRuntime )
+{
+    TemporaryCase testCase;
+    testCase.WriteManifest(
+        "\"task.txt\";\n"
+        "\"dimension.txt\";\n" );
+    testCase.WriteScript(
+        "task.txt",
+        "string simutask = \"ToyModel\";\n"
+        "string case_marker = \"simulation_entry\";\n" );
+    testCase.WriteScript(
+        "dimension.txt",
+        "int dimension = 2;\n" );
+
+    successfulCaseMarkers.clear();
+    successfulCaseDimensions.clear();
+    TaskRegistry::Instance().Register(
+        "ToyModel",
+        []() { return std::make_unique<CaseMarkerTask>(); } );
+
+    const std::string executable = "OneFLOW.exe";
+    const std::string mode = "r";
+    const std::string caseDirectory = testCase.Directory();
+    char * arguments[] = {
+        const_cast<char *>( executable.c_str() ),
+        const_cast<char *>( mode.c_str() ),
+        const_cast<char *>( caseDirectory.c_str() )
+    };
+
+    Simulation simulation( 3, arguments );
+
+    EXPECT_EQ( simulation.Run(), 0 );
+    EXPECT_EQ(
+        successfulCaseMarkers,
+        ( std::vector<std::string>{ "simulation_entry" } ) );
+    EXPECT_EQ(
+        successfulCaseDimensions,
+        ( std::vector<int>{ 2 } ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( caseDirectory ) / "log" / "database.log" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( caseDirectory ) / "results" / "io_paths.txt" ) );
+    EXPECT_FALSE( AccelRuntime::Instance().IsInitialized() );
+}
+
 
 } // namespace
