@@ -254,3 +254,39 @@ The initial audited keys are:
 The catalog distinguishes required, optional, and lazy read kinds. A key absent from this curated list is not classified as unused: it is simply not audited in this slice. Likewise, a direct database read proves a consumer exists, not that the parameter affects every run or that its numerical recommendation has been verified. Conditional applicability and downstream numerical effects must be traced separately.
 
 The focused unit tests verify case-insensitive lookup, multiple read sites, lazy-read classification, behavior notes, and the unknown-key boundary. The next extension should add consumer records only after checking the corresponding hexin implementation and should link them to task/model applicability and Formula & Knowledge evidence without inferring formulas from key names.
+
+Time-integration parameter trace
+---------------------------------
+
+The consumer index also traces the pair ``time_integral`` and ``rk_stage``
+beyond their declarations. Four control initializers read ``time_integral``
+directly: ``Ctrl::Init``, ``NsCtrl::Init``, ``INsCtrl::Init``, and
+``TurbCtrl::Init``. The corresponding four initializers read ``rk_stage``
+and construct ``rk_coef[s] = 1 / (s + 1)``.
+
+``TimeIntegral::Init`` maps the selector values declared in
+``TimeIntegral.h`` as follows: ``MULTI_STAGE`` (1) selects ``RungeKutta``,
+``SIMPLE`` (3) selects ``Simple``, and the remaining values take the ``Lusgs``
+branch. The selector's ``LUSGS`` value is 2; the current dispatch code does not
+show an explicit invalid-value rejection in this function. This is a description
+of the implementation, not a recommendation to accept arbitrary values.
+
+On the finest grid, ``TimeIntegral::RungeKutta`` iterates over ``rk_coef`` and
+assigns each coefficient to ``ctrl.lhscoef`` before the residual/update task
+sequence. The context-aware path may use the resident Euler backend only when
+``EvaluateEulerRungeKuttaCapability`` accepts the solver, grid, equation count,
+inviscid scheme, explicit time-integral selection, physical terms, limiter,
+interface-exchange, and backend capability gates. Otherwise it falls back to
+the legacy task sequence. This accelerated-path gate is narrower than the
+general ``time_integral`` selector.
+
+The Formula & Knowledge entry ``time_integral_rk_stage_weight`` links the
+parameter, control initialization, stage loop, and implementation documentation.
+It intentionally has no theory curve: the current source establishes the stored
+stage-weight schedule, but does not by itself establish a complete Butcher
+tableau, formal temporal order, stability region, convergence rate, or CFD
+accuracy. Those require separate numerical analysis and case-level verification.
+
+The consumer catalog's source-audit test checks that every recorded direct read,
+consumer symbol, and named downstream behavior symbol still resolves in the
+current source tree. It does not claim to discover every consumer in the repository.

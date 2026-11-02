@@ -496,3 +496,15 @@ absolute token tolerance; residual comparison uses
 `max(abs_tol, rel_tol * scale)`, compares iteration columns exactly, and
 rejects non-finite values. These are regression-consistency rules, not
 estimates of discretization error or independent physical validation.
+
+
+## Time-integration knowledge entry
+
+Formula & Knowledge includes `time_integral_rk_stage_weight`, linking `time_integral` and `rk_stage` declarations to the four solver-control initializers, `TimeIntegral::Init`, the finest-grid stage loop, and the resident Euler backend eligibility checks. The entry has no theory curve because the current source establishes a coefficient schedule, not a complete Butcher tableau or a verified temporal order. See `doc/source/numerical/time_integral_control.rst`.
+
+Validate the source links with:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_parameter_consumer_catalog
+python -m unittest tools.verification.test_curve_catalog
+```

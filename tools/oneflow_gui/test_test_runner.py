@@ -34,6 +34,7 @@ class TestRunnerCommandTest(unittest.TestCase):
         self.assertIn("Mesh workflow tests", labels)
         self.assertIn("Workflow persistence tests", labels)
         self.assertIn("GUI test command builder tests", labels)
+        self.assertIn("Runtime parameter consumer evidence tests", labels)
         python_modules = {
             command.arguments[-1]
             for command in commands
@@ -41,6 +42,7 @@ class TestRunnerCommandTest(unittest.TestCase):
         }
         self.assertTrue({
             "tools.verification.test_curve_catalog",
+            "tools.oneflow_gui.test_parameter_consumer_catalog",
             "tools.verification.test_contract_catalog",
             "tools.verification.test_cmake_test_catalog",
             "tools.oneflow_gui.test_contract_workbench_dialog",

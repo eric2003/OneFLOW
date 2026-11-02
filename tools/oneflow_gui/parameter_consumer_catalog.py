@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
+import re
 
 
 class ConsumerReadKind(str, Enum):
@@ -28,6 +30,9 @@ class ParameterConsumer:
     behavior: str
     applicability: str
     evidence_note: str
+    behavior_source_paths: tuple[str, ...] = ()
+    behavior_symbols: tuple[str, ...] = ()
+    knowledge_ids: tuple[str, ...] = ()
 
 
 # Keep source paths repository-relative and symbols precise enough to navigate.
@@ -47,6 +52,9 @@ _CONSUMERS = (
         "Stores the selected time-integration method in Ctrl::time_integral.",
         "Global solver control initialization.",
         "Direct typed read is present in Ctrl.cpp.",
+        ("codes/solver/src/TimeIntegral.cpp", "codes/solver/src/EulerRungeKuttaCapability.cpp", "codes/solver/include/EulerRungeKuttaCapability.h"),
+        ("TimeIntegral::Init", "TimeIntegral::Relaxation", "TimeIntegral::RungeKutta", "EvaluateEulerRungeKuttaCapability"),
+        ("time_integral_rk_stage_weight",),
     ),
     ParameterConsumer(
         "time_integral", "codes/ns/src/NsCtrl.cpp", "NsCtrl::Init",
@@ -54,6 +62,63 @@ _CONSUMERS = (
         "Stores the time-integration method in the compressible Navier-Stokes control.",
         "Compressible Navier-Stokes control initialization.",
         "Direct typed read is present in NsCtrl.cpp.",
+        ("codes/solver/src/TimeIntegral.cpp", "codes/solver/src/EulerRungeKuttaCapability.cpp", "codes/solver/include/EulerRungeKuttaCapability.h"),
+        ("TimeIntegral::Init", "TimeIntegral::Relaxation", "TimeIntegral::RungeKutta", "EvaluateEulerRungeKuttaCapability"),
+        ("time_integral_rk_stage_weight",),
+    ),
+    ParameterConsumer(
+        "time_integral", "codes/ins/src/INsCtrl.cpp", "INsCtrl::Init",
+        'GetDataValue<int>("time_integral")', ConsumerReadKind.REQUIRED,
+        "Stores the time-integration selector for incompressible Navier-Stokes control.",
+        "Incompressible Navier-Stokes control initialization.",
+        "Direct typed read is present in INsCtrl.cpp.",
+        ("codes/solver/src/TimeIntegral.cpp", "codes/solver/src/EulerRungeKuttaCapability.cpp", "codes/solver/include/EulerRungeKuttaCapability.h"),
+        ("TimeIntegral::Init", "TimeIntegral::Relaxation", "TimeIntegral::RungeKutta", "EvaluateEulerRungeKuttaCapability"),
+        ("time_integral_rk_stage_weight",),
+    ),
+    ParameterConsumer(
+        "time_integral", "codes/turb/src/TurbCtrl.cpp", "TurbCtrl::Init",
+        'GetDataValue<int>("time_integral")', ConsumerReadKind.REQUIRED,
+        "Stores the time-integration selector for turbulence control.",
+        "Turbulence control initialization.",
+        "Direct typed read is present in TurbCtrl.cpp.",
+        ("codes/solver/src/TimeIntegral.cpp", "codes/solver/src/EulerRungeKuttaCapability.cpp", "codes/solver/include/EulerRungeKuttaCapability.h"),
+        ("TimeIntegral::Init", "TimeIntegral::Relaxation", "TimeIntegral::RungeKutta", "EvaluateEulerRungeKuttaCapability"),
+        ("time_integral_rk_stage_weight",),
+    ),
+    ParameterConsumer(
+        "rk_stage", "codes/global/src/Ctrl.cpp", "Ctrl::Init",
+        'GetDataValue<int>("rk_stage")', ConsumerReadKind.REQUIRED,
+        "Builds rk_coef as 1 / (stage + 1); TimeIntegral::RungeKutta consumes the coefficients.",
+        "Global solver control initialization; multi-stage integration path.",
+        "Direct read and coefficient construction are present in Ctrl.cpp.",
+        ("codes/solver/src/TimeIntegral.cpp", "codes/global/src/Ctrl.cpp", "codes/ns/src/NsCtrl.cpp", "codes/ins/src/INsCtrl.cpp", "codes/turb/src/TurbCtrl.cpp"),
+        ("Ctrl::Init", "NsCtrl::Init", "INsCtrl::Init", "TurbCtrl::Init", "TimeIntegral::RungeKutta"),
+        ("time_integral_rk_stage_weight",),
+    ),
+    ParameterConsumer(
+        "rk_stage", "codes/ns/src/NsCtrl.cpp", "NsCtrl::Init",
+        'GetDataValue<int>("rk_stage")', ConsumerReadKind.REQUIRED,
+        "Builds rk_coef as 1 / (stage + 1).",
+        "Compressible Navier-Stokes control initialization.",
+        "Direct read and coefficient construction are present in NsCtrl.cpp.",
+        (), (), ("time_integral_rk_stage_weight",),
+    ),
+    ParameterConsumer(
+        "rk_stage", "codes/ins/src/INsCtrl.cpp", "INsCtrl::Init",
+        'GetDataValue<int>("rk_stage")', ConsumerReadKind.REQUIRED,
+        "Builds rk_coef as 1 / (stage + 1).",
+        "Incompressible Navier-Stokes control initialization.",
+        "Direct read and coefficient construction are present in INsCtrl.cpp.",
+        (), (), ("time_integral_rk_stage_weight",),
+    ),
+    ParameterConsumer(
+        "rk_stage", "codes/turb/src/TurbCtrl.cpp", "TurbCtrl::Init",
+        'GetDataValue<int>("rk_stage")', ConsumerReadKind.REQUIRED,
+        "Builds rk_coef as 1 / (stage + 1).",
+        "Turbulence control initialization.",
+        "Direct read and coefficient construction are present in TurbCtrl.cpp.",
+        (), (), ("time_integral_rk_stage_weight",),
     ),
     ParameterConsumer(
         "mach_ref", "codes/ns/src/NsCom.cpp", "NsCom::Init",
@@ -111,3 +176,35 @@ class ParameterConsumerCatalog:
     def has_verified_consumer(self, parameter_name: str) -> bool:
         """Whether this curated index contains at least one verified read."""
         return bool(self.find(parameter_name))
+
+
+def validate_parameter_consumer_sources(
+    repository_root: Path,
+    catalog: ParameterConsumerCatalog | None = None,
+) -> list[str]:
+    """Check that direct reads and named downstream behavior symbols still exist."""
+    root = Path(repository_root).resolve()
+    consumer_catalog = catalog or ParameterConsumerCatalog()
+    issues: list[str] = []
+    for consumer in consumer_catalog.consumers:
+        source_path = root / consumer.source_path
+        if not source_path.is_file():
+            issues.append(f"{consumer.parameter_name}: missing consumer source: {consumer.source_path}")
+            continue
+        source = re.sub(r"\s+", "", source_path.read_text(encoding="utf-8", errors="replace"))
+        if consumer.read_expression.replace(" ", "") not in source:
+            issues.append(f"{consumer.parameter_name}: read expression not found in {consumer.source_path}")
+        if consumer.symbol.replace(" ", "") not in source:
+            issues.append(f"{consumer.parameter_name}: consumer symbol not found in {consumer.source_path}")
+        behavior_sources = []
+        for relative_path in consumer.behavior_source_paths:
+            behavior_path = root / relative_path
+            if not behavior_path.is_file():
+                issues.append(f"{consumer.parameter_name}: missing behavior source: {relative_path}")
+                continue
+            behavior_sources.append(re.sub(r"\s+", "", behavior_path.read_text(encoding="utf-8", errors="replace")))
+        combined_behavior = "\n".join(behavior_sources)
+        for symbol in consumer.behavior_symbols:
+            if symbol.replace(" ", "") not in combined_behavior:
+                issues.append(f"{consumer.parameter_name}: behavior symbol not found: {symbol}")
+    return issues

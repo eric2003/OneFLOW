@@ -272,6 +272,17 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
         self.assertIsNone(mapping["result"])
 
 
+    def test_discovers_runtime_parameter_consumer_evidence_tests(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        records = discover_tests(repository_root)
+        consumer_tests = [
+            item for item in records
+            if item["source"] == "tools/oneflow_gui/test_parameter_consumer_catalog.py"
+        ]
+        names = {item["name"] for item in consumer_tests}
+        self.assertIn("test_catalog_read_and_behavior_evidence_resolves_to_current_sources", names)
+        self.assertIn("test_rk_stage_tracks_all_solver_control_read_sites", names)
+
     def test_python_test_registry_covers_discovered_test_modules(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
 

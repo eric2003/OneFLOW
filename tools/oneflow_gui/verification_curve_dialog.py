@@ -62,11 +62,11 @@ class VerificationCurveDialog(QDialog):
         from verification.curve_catalog import list_theory_entries
         self._entries = list_theory_entries()
         self._map = {e.id: e for e in self._entries}
-        self.setWindowTitle("Contract Workbench — Formula knowledge")
+        self.setWindowTitle("Contract Workbench - Formula knowledge")
         self.resize(1180, 760)
         root = QVBoxLayout(self)
         intro = QLabel(
-            "Taxonomy: turbulence (SA/SST) and mean-flow (NS-LUSGS / NS-inviscid). "
+            "Taxonomy: turbulence (SA/SST), mean-flow (NS-LUSGS / NS-inviscid), and time integration. "
             "LaTeX preview is mathtext best-effort; full LaTeX source is always available. "
             "Paths are repository-relative."
         )
@@ -175,6 +175,24 @@ class VerificationCurveDialog(QDialog):
         for i in range(self.tree.topLevelItemCount()):
             f = walk(self.tree.topLevelItem(i))
             if f: self.tree.setCurrentItem(f); return
+
+    def select_entry(self, entry_id: str) -> bool:
+        """Select a formula entry by its stable catalog ID."""
+        if entry_id not in self._map:
+            return False
+        pending = [
+            self.tree.topLevelItem(index)
+            for index in range(self.tree.topLevelItemCount())
+        ]
+        while pending:
+            item = pending.pop()
+            if item.data(0, Qt.ItemDataRole.UserRole) == entry_id:
+                self.tree.setCurrentItem(item)
+                return True
+            pending.extend(
+                item.child(index) for index in range(item.childCount())
+            )
+        return False
 
     def _cur(self):
         it = self.tree.currentItem()

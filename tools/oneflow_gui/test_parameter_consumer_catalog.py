@@ -2,10 +2,14 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
+
+from tools.verification.curve_catalog import list_theory_entries
 
 from tools.oneflow_gui.parameter_consumer_catalog import (
     ConsumerReadKind,
     ParameterConsumerCatalog,
+    validate_parameter_consumer_sources,
 )
 
 
@@ -31,8 +35,47 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
             {
                 ("codes/global/src/Ctrl.cpp", "Ctrl::Init"),
                 ("codes/ns/src/NsCtrl.cpp", "NsCtrl::Init"),
+                ("codes/ins/src/INsCtrl.cpp", "INsCtrl::Init"),
+                ("codes/turb/src/TurbCtrl.cpp", "TurbCtrl::Init"),
             },
         )
+
+    def test_rk_stage_tracks_all_solver_control_read_sites(self):
+        consumers = self.catalog.find("rk_stage")
+
+        self.assertEqual(len(consumers), 4)
+        self.assertTrue(all(item.read_kind is ConsumerReadKind.REQUIRED for item in consumers))
+        self.assertTrue(all("1 / (stage + 1)" in item.behavior for item in consumers))
+
+    def test_time_integration_behavior_links_to_dispatch_and_capability_sources(self):
+        consumer = self.catalog.find("time_integral")[0]
+
+        self.assertIn("MULTI_STAGE", consumer.behavior)
+        self.assertIn("TimeIntegral.cpp", " ".join(consumer.behavior_source_paths))
+        self.assertIn("EvaluateEulerRungeKuttaCapability", consumer.behavior_symbols)
+        self.assertEqual(consumer.knowledge_ids, ("time_integral_rk_stage_weight",))
+        self.assertEqual(
+            self.catalog.find("rk_stage")[0].knowledge_ids,
+            ("time_integral_rk_stage_weight",),
+        )
+
+    def test_catalog_read_and_behavior_evidence_resolves_to_current_sources(self):
+        repository_root = Path(__file__).resolve().parents[2]
+
+        issues = validate_parameter_consumer_sources(repository_root)
+
+        self.assertEqual(issues, [], "\n".join(issues))
+
+    def test_parameter_knowledge_references_resolve_in_formula_catalog(self):
+        formula_ids = {entry.id for entry in list_theory_entries()}
+        referenced_ids = {
+            knowledge_id
+            for consumer in self.catalog.consumers
+            for knowledge_id in consumer.knowledge_ids
+        }
+
+        self.assertTrue(referenced_ids)
+        self.assertEqual(referenced_ids - formula_ids, set())
 
     def test_lazy_consumer_is_not_misreported_as_eager(self):
         consumers = self.catalog.find("ptTol")

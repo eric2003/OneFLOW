@@ -812,6 +812,18 @@ class ProjectWindow(QMainWindow):
                 evidence = QTreeWidgetItem(["Runtime consumer", "Not audited", "", ""])
                 evidence.setToolTip(0, "Absence from the curated catalog means not yet audited, not unused.")
                 item.addChild(evidence)
+            knowledge_ids = sorted({
+                knowledge_id
+                for consumer in parameter_consumers
+                for knowledge_id in consumer.knowledge_ids
+            })
+            for knowledge_id in knowledge_ids:
+                knowledge = QTreeWidgetItem(["Formula & Knowledge", knowledge_id, "", ""])
+                knowledge.setToolTip(
+                    0,
+                    "Open Contract Workbench > Formula & Knowledge and search for this entry ID.",
+                )
+                item.addChild(knowledge)
         if model.unsupported_declarations:
             unsupported_root = QTreeWidgetItem(roots[ParameterDomain.OTHER], ["Unsupported declarations", "", "", ""])
             for declaration in model.unsupported_declarations:
@@ -843,6 +855,19 @@ class ProjectWindow(QMainWindow):
     def _modify_selected_parameter(self) -> None:
         """Open the selected declaration source in the configured source editor."""
         item = self.parameter_tree.currentItem()
+        if item is not None and item.text(0) == "Formula & Knowledge":
+            from .verification_curve_dialog import VerificationCurveDialog
+
+            dialog = VerificationCurveDialog(self._repository_root, self)
+            if dialog.select_entry(item.text(1)):
+                dialog.exec()
+            else:
+                QMessageBox.warning(
+                    self,
+                    "Formula entry not found",
+                    f"Formula & Knowledge entry is not available: {item.text(1)}",
+                )
+            return
         path = item.data(0, Qt.ItemDataRole.UserRole) if item is not None else None
         if not isinstance(path, Path):
             QMessageBox.information(

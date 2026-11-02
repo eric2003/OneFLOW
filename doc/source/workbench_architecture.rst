@@ -197,6 +197,11 @@ Runtime parameter-consumer evidence
 
 parameter_consumer_catalog.py is the first source-backed consumer index. It deliberately lives outside the Qt presentation layer and stores a curated set of verified C++ reads. A record includes the parameter key, source path, consumer symbol, read expression, read timing (required / optional / lazy), applicability, and behavior/evidence notes.
 
-The first audited examples cover maxSteps (Iteration::Init and the step-count termination predicate), time_integral (global and NS control initialization), mach_ref (NsCom::Init and the derived const_cp), vismodel (model selection and downstream conditional behavior), ptTol (lazy initialization on first Tolerance::GetTol), and nmg (multigrid setup and smoothing normalization).
+The first audited examples cover maxSteps (Iteration::Init and the step-count termination predicate), time_integral (global, compressible-NS, incompressible-NS, and turbulence control initialization) and rk_stage (the configured stage-weight schedule), mach_ref (NsCom::Init and the derived const_cp), vismodel (model selection and downstream conditional behavior), ptTol (lazy initialization on first Tolerance::GetTol), and nmg (multigrid setup and smoothing normalization).
 
 This is intentionally not presented as whole-repository usage analysis. Absence from the catalog means not yet audited, not unused. A source-level read proves a consumer exists; it does not prove the parameter is active for every task, controls a particular numerical outcome in every configuration, or has a validated physical range. Those claims require applicability tracing and separate numerical verification. The catalog is tested independently of Qt so the evidence model can later feed the Project Window and Contract Workbench.
+
+
+The time-integration parameter trace is also exposed in Formula & Knowledge as `time_integral_rk_stage_weight`. Its source-backed description deliberately separates the legacy stage coefficient schedule from the narrower resident Euler backend capability gate; it does not claim a complete Runge-Kutta tableau or temporal-order verification. See `doc/source/numerical/time_integral_control.rst`.
+
+The Project Window also displays declared Formula & Knowledge IDs for parameters that have an explicit catalog cross-reference. The first mapping connects `time_integral` and `rk_stage` to `time_integral_rk_stage_weight`; this is a navigational reference, not evidence that the temporal method has a verified order or stability region.

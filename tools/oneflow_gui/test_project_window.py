@@ -87,7 +87,7 @@ class ProjectWindowParameterTest(unittest.TestCase):
             (script / "control.txt").write_text(
                 '"simu.txt"\n"cfd.txt"\n"override.txt"\n', encoding="ascii"
             )
-            (script / "simu.txt").write_text('string simuTask = "Solve";\nint maxSteps = 10;\n', encoding="ascii")
+            (script / "simu.txt").write_text('string simuTask = "Solve";\nint maxSteps = 10;\nint time_integral = 1;\nint rk_stage = 3;\n', encoding="ascii")
             (script / "cfd.txt").write_text("int maxSteps = 20;\n", encoding="ascii")
             (script / "override.txt").write_text("int MAXSTEPS = 30;\nReal gridTrans[3] = {0.0, 0.0, 0.0};\n", encoding="ascii")
             catalog_home = root.parent / "oneflow-user-data"
@@ -114,6 +114,23 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 )
                 self.assertEqual(consumer.text(1), "Iteration::Init")
                 self.assertIn("Iteration.cpp", consumer.text(3))
+                for parameter_name in ("time_integral", "rk_stage"):
+                    parameter_item = self._find_item(tree, parameter_name)
+                    self.assertIsNotNone(parameter_item)
+                    knowledge = self._find_item(parameter_item, "Formula & Knowledge")
+                    self.assertIsNotNone(knowledge)
+                    self.assertEqual(knowledge.text(1), "time_integral_rk_stage_weight")
+                    if parameter_name == "time_integral":
+                        tree.setCurrentItem(knowledge)
+                        with patch(
+                            "tools.oneflow_gui.verification_curve_dialog.VerificationCurveDialog"
+                        ) as dialog_type:
+                            window._modify_selected_parameter()
+                        dialog_type.assert_called_once_with(root.parent.resolve(), window)
+                        dialog_type.return_value.select_entry.assert_called_once_with(
+                            "time_integral_rk_stage_weight"
+                        )
+                        dialog_type.return_value.exec.assert_called_once()
                 unsupported = self._find_item(tree, "gridTrans")
                 self.assertIsNotNone(unsupported)
                 self.assertIn("Array declarations", unsupported.toolTip(0))

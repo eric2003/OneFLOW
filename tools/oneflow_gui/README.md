@@ -273,7 +273,7 @@ When the laminar template is selected, the suggested project name is `LaminarFla
 
 The Project Window builds a read-only Shared / CFD / Grid / Other tree from the parameter files listed by `control.txt`, preserving manifest order, declaration order, and source paths. `control.txt` remains a manifest and is not shown as a parameter. The last declaration is effective; earlier declarations remain visible as overridden child rows. Double-clicking a declaration opens its original parameter file in the configured source editor.
 
-A curated runtime-consumer child is shown for keys whose C++ read sites have been checked in `parameter_consumer_catalog.py`. The first slice covers `maxSteps`, `time_integral`, `mach_ref`, `vismodel`, `ptTol`, and `nmg`. Other keys are marked `Not audited`; absence from this index does not mean unused. Read-site evidence is not a claim of universal applicability or numerical validation.
+A curated runtime-consumer child is shown for keys whose C++ read sites have been checked in `parameter_consumer_catalog.py`. The audited slice covers `maxSteps`, `time_integral`, `rk_stage`, `mach_ref`, `vismodel`, `ptTol`, and `nmg`. The time-integration records link four solver-control readers to `TimeIntegral::Init`, the stage coefficient loop, and the specialized resident Euler backend capability gate. Both `time_integral` and `rk_stage` expose the Formula & Knowledge entry ID `time_integral_rk_stage_weight` in the Project Window. Other keys are marked `Not audited`; absence from this index does not mean unused. Read-site evidence is not a claim of universal applicability or numerical validation.
 
 Run the focused tests with:
 

@@ -25,7 +25,19 @@ class CatalogTest(unittest.TestCase):
         self.assertIn("SA", genera)
         self.assertIn("SST", genera)
         self.assertIn("NS-LUSGS", genera)
+        self.assertIn("Time integration", genera)
 
+    def test_time_integral_entry_documents_stage_schedule_without_curve_claim(self) -> None:
+        entry = next(
+            item for item in list_theory_entries()
+            if item.id == "time_integral_rk_stage_weight"
+        )
+
+        self.assertIsNone(entry.csv_relpath)
+        self.assertIsNone(entry.plot_module)
+        self.assertIn("1 / (s + 1)", entry.formula_plain)
+        self.assertIn("Butcher tableau", entry.does_not_prove)
+        self.assertIn("codes/solver/src/TimeIntegral.cpp", entry.source_relpaths)
     def test_latex_and_sketch_present(self) -> None:
         for e in list_theory_entries():
             self.assertTrue(e.formula_latex)

@@ -74,7 +74,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             doc_relpath="doc/source/numerical/sa_eddy_viscosity.rst",
             code_sketch=(
-                "// GATED SKETCH — review before use.\n"
+                "// GATED SKETCH - review before use.\n"
                 "Real SaFv1(Real chi, Real cv1Cubed) {\n"
                 "  Real chi3 = chi*chi*chi;\n"
                 "  return chi3 / (chi3 + cv1Cubed);\n"
@@ -229,7 +229,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             title="F1 blending function",
             role_tags=("closure", "blending"),
             formula_plain=(
-                "CD_kw = max(2*rho*sigw2*(gradk·gradw)/w, small)\n"
+                "CD_kw = max(2*rho*sigw2*(gradk*gradw)/w, small)\n"
                 "arg1 = min( max(sqrt(k)/(beta_star*w*d), 500*nu/(w*d^2*Re)), "
                 "4*rho*sigw2*k/(CD_kw*d^2) )\n"
                 "F1 = tanh(arg1^4)\n"
@@ -520,7 +520,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             title="fk(xk) Wilcox beta* modifier",
             role_tags=("closure", "Wilcox", "beta-star"),
             formula_plain=(
-                "xk = (grad k · grad omega) / omega^3\n"
+                "xk = (grad k * grad omega) / omega^3\n"
                 "fk = 1  if xk <= 0\n"
                 "fk = (1+680 xk^2)/(1+400 xk^2)  if xk > 0"
             ),
@@ -1255,7 +1255,7 @@ principle=(
             ),
             doc_relpath="doc/source/numerical/ausm_mach_split.rst",
             code_sketch=(
-                "// GATED SKETCH — production is inline in NsInvFluxPolicy.h\n"
+                "// GATED SKETCH - production is inline in NsInvFluxPolicy.h\n"
                 "Real FMSplit1(M,s){ return 0.5*(M + s*fabs(M)); }\n"
                 "Real FMSplit2(M,s){ return s*0.25*(M+s)*(M+s); }\n"
                 "Real FMSplit4(M,beta,s){\n"
@@ -1728,6 +1728,73 @@ principle=(
             ),
 proves="Entropy-fix pure policy tests.",
             does_not_prove="Full Roe flux shock-capturing quality.",
+        ),
+        TheoryEntry(
+            id="time_integral_rk_stage_weight",
+            family="numerical-method",
+            genus="Time integration",
+            section="explicit multi-stage control",
+            title="OneFLOW multi-stage coefficient schedule",
+            role_tags=("time-integration", "multi-stage", "solver-control"),
+            formula_plain=(
+                "N = rk_stage\n"
+                "a_s = 1 / (s + 1),  s = 0, ..., N - 1\n"
+                "ctrl.lhscoef = a_s  (on the finest grid)"
+            ),
+            formula_latex=(
+                r"N=\texttt{rk\_stage}"
+                "\n"
+                r"a_s=\frac{1}{s+1},\quad s=0,\ldots,N-1"
+                "\n"
+                r"\texttt{lhscoef}=a_s"
+            ),
+            principle=(
+                "The configured stage count determines the number of stored "
+                "stage weights. TimeIntegral::RungeKutta assigns each weight to "
+                "ctrl.lhscoef before executing that stage's residual and update tasks."
+            ),
+            background=(
+                "This documents the coefficient schedule implemented by OneFLOW. "
+                "It is not a Butcher tableau and does not establish the formal order, "
+                "stability region, or accuracy of the complete time integrator."
+            ),
+            references=(
+                "OneFLOW: codes/global/src/Ctrl.cpp and solver control Init implementations.",
+                "OneFLOW: codes/solver/src/TimeIntegral.cpp.",
+                "OneFLOW: codes/solver/src/EulerRungeKuttaCapability.cpp.",
+                "doc/source/numerical/time_integral_control.rst",
+            ),
+            csv_relpath=None,
+            plot_module=None,
+            pure_apis=(),
+            source_relpaths=(
+                "codes/global/src/Ctrl.cpp",
+                "codes/ns/src/NsCtrl.cpp",
+                "codes/ins/src/INsCtrl.cpp",
+                "codes/turb/src/TurbCtrl.cpp",
+                "codes/solver/src/TimeIntegral.cpp",
+                "codes/solver/src/EulerRungeKuttaCapability.cpp",
+                "codes/solver/include/EulerRungeKuttaCapability.h",
+            ),
+            doc_relpath="doc/source/numerical/time_integral_control.rst",
+            code_sketch=(
+                "// GATED SKETCH - mirrors the current source, not a general RK tableau.\n"
+                "for (int stage = 0; stage < rk_stage; ++stage) {\n"
+                "    rk_coef.push_back(1.0 / (stage + 1));\n"
+                "}\n"
+                "for (int stage = 0; stage < rk_coef.size(); ++stage) {\n"
+                "    ctrl.lhscoef = ctrl.rk_coef[stage];\n"
+                "    execute_residual_and_update_tasks();\n"
+                "}\n"
+            ),
+            proves=(
+                "The source-level mapping from rk_stage to the stored coefficient "
+                "sequence and finest-grid stage loop."
+            ),
+            does_not_prove=(
+                "A complete Butcher tableau, formal temporal order, stability, "
+                "convergence rate, or CFD accuracy on a physical case."
+            ),
         ),
     ]
 
