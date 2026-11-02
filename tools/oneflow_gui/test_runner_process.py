@@ -39,7 +39,7 @@ class CaseRunnerProcessTest(unittest.TestCase):
             )
             parent_code = (
                 "import pathlib, subprocess, sys, time\n"
-                f"subprocess.Popen([sys.executable, '-c', {child_code!r}])\n"
+                f"subprocess.Popen([sys.executable, '-S', '-c', {child_code!r}])\n"
                 f"started = pathlib.Path({str(started_marker)!r})\n"
                 "deadline = time.monotonic() + 5\n"
                 "while not started.exists() and time.monotonic() < deadline:\n"
@@ -64,7 +64,7 @@ class CaseRunnerProcessTest(unittest.TestCase):
             cancellation_thread.start()
             with patch(
                 "tools.oneflow_gui.runner.build_command",
-                return_value=[sys.executable, "-c", parent_code],
+                return_value=[sys.executable, "-S", "-c", parent_code],
             ):
                 result = run_case(
                     case,
