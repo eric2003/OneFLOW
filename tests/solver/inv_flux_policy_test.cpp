@@ -388,3 +388,32 @@ TEST( InvFluxPolicy, HartenEntropyFixDisabledLeavesInputs )
         EXPECT_DOUBLE_EQ( f3, 1.5 );
     }
 }
+
+// Intermediate: RoeAbsoluteEigenvalues on a vn grid with fixed sound speed.
+TEST( InvFluxPolicy, RoeAbsoluteEigenvaluesCurveMatchesClosedForm )
+{
+    const Real c = 1.0;
+    const Real vns[] = { -3.0, -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 2.0, 3.0 };
+    for ( Real vn : vns )
+    {
+        Real a1, a2, a3;
+        RoeAbsoluteEigenvalues( vn, c, a1, a2, a3 );
+        EXPECT_NEAR( a1, ABS( vn ), 1.0e-12 );
+        EXPECT_NEAR( a2, ABS( vn + c ), 1.0e-12 );
+        EXPECT_NEAR( a3, ABS( vn - c ), 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeAbsoluteEigenvaluesSonicPoints )
+{
+    // At vn = +/- c the acoustic branch hits zero before absolute value.
+    Real a1, a2, a3;
+    RoeAbsoluteEigenvalues( 1.0, 1.0, a1, a2, a3 );
+    EXPECT_DOUBLE_EQ( a1, 1.0 );
+    EXPECT_DOUBLE_EQ( a2, 2.0 );
+    EXPECT_DOUBLE_EQ( a3, 0.0 );
+    RoeAbsoluteEigenvalues( -1.0, 1.0, a1, a2, a3 );
+    EXPECT_DOUBLE_EQ( a1, 1.0 );
+    EXPECT_DOUBLE_EQ( a2, 0.0 );
+    EXPECT_DOUBLE_EQ( a3, 2.0 );
+}

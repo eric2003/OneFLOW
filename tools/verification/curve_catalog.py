@@ -933,29 +933,21 @@ def list_theory_entries() -> list[TheoryEntry]:
             section="flux / AUSM splits",
             title="AUSM Mach and pressure split (FMSplit4 / FPSplit5)",
             role_tags=("flux", "AUSM", "Mach-split"),
-                        formula_plain=(
-                "M1(M,s) = 0.5 * (M + s*|M|)\n"
-                "M2(M,s) = s * 0.25 * (M + s)^2\n"
-                "FMSplit4(M,beta,s):\n"
-                "  |M| >= 1  ->  M1(M,s)\n"
-                "  |M| <  1  ->  M2(M,s) * (1 - s*16*beta*M2(M,-s))\n"
-                "FPSplit5(M,alpha,s):\n"
-                "  |M| >= 1  ->  0.5 * (1 + s*M/|M|)\n"
-                "  |M| <  1  ->  M2(M,s) * ((2*s - M) - s*16*alpha*M*M2(M,-s))\n"
-                "s = ipn = +/-1;  beta = 1/8;  alpha = 3/16 (typical AUSM)"
+            formula_plain=(
+                "FMSplit1 = 0.5*(M + ipn*|M|)\n"
+                "FMSplit2 = ipn*0.25*(M+ipn)^2\n"
+                "FMSplit4 = FMSplit1 if |M|>=1 else "
+                "FMSplit2*(1 - ipn*16*beta*FMSplit2(M,-ipn))\n"
+                "FPSplit5 = 0.5*(1 + ipn*M/|M|) if |M|>=1 else "
+                "FMSplit2*((2*ipn-M) - ipn*16*alpha*M*FMSplit2(M,-ipn))\n"
+                "beta=1/8, alpha=3/16 typical"
             ),
-                        formula_latex=(
-                r"M_1=\frac{1}{2}(M+s|M|),\quad M_2=s\frac{1}{4}(M+s)^{2}"
+            formula_latex=(
+                r"M^{\pm}=\mathrm{FMSplit4}(M,\beta,i_{pn})"
                 "\n"
-                r"M^{\pm}_{4}=M_1\ (|M|>=1);\ "
-                r"M_2\bigl(1-s\,16\beta M_2(M,-s)\bigr)\ (|M|<1)"
-                "\n"
-                r"P^{\pm}_{5}=\frac{1}{2}(1+s M/|M|)\ (|M|>=1);\ "
-                r"M_2\bigl((2s-M)-s\,16\alpha M\,M_2(M,-s)\bigr)\ (|M|<1)"
-                "\n"
-                r"s=i_{pn}=\pm 1,\ \beta=\frac{1}{8},\ \alpha=\frac{3}{16}"
+                r"P^{\pm}=\mathrm{FPSplit5}(M,\alpha,i_{pn})"
             ),
-principle=(
+            principle=(
                 "AUSM splits mass and pressure contributions using smooth "
                 "polynomials in the subsonic range and upwind steps outside "
                 "the sonic interval."
@@ -977,19 +969,62 @@ principle=(
             doc_relpath="doc/source/numerical/ausm_mach_split.rst",
             code_sketch=(
                 "// GATED SKETCH — production is inline in NsInvFluxPolicy.h\n"
-                "Real FMSplit1(M,s){ return 0.5*(M + s*fabs(M)); }\n"
-                "Real FMSplit2(M,s){ return s*0.25*(M+s)*(M+s); }\n"
-                "Real FMSplit4(M,beta,s){\n"
-                "  if (fabs(M)>=1) return FMSplit1(M,s);\n"
-                "  return FMSplit2(M,s)*(1 - s*16*beta*FMSplit2(M,-s));\n"
-                "}\n"
-                "Real FPSplit5(M,alpha,s){\n"
-                "  if (fabs(M)>=1) return 0.5*(1 + s*M/(fabs(M)+eps));\n"
-                "  return FMSplit2(M,s)*((2*s-M) - s*16*alpha*M*FMSplit2(M,-s));\n"
+                "Real FMSplit4(Real M, Real beta, Real ipn) {\n"
+                "  if (fabs(M) >= 1) return FMSplit1(M, ipn);\n"
+                "  return FMSplit2(M, ipn) * (1 - ipn*16*beta*FMSplit2(M, -ipn));\n"
                 "}\n"
             ),
             proves="FMSplit4/FPSplit5 closed form vs pure APIs on a Mach grid.",
             does_not_prove="Full AUSM face flux or shock-capturing quality.",
+        ),
+
+
+        TheoryEntry(
+            id="roe_absolute_eigenvalues",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="flux / Roe dissipation",
+            title="Roe absolute eigenvalues |vn|, |vn+/-c|",
+            role_tags=("flux", "Roe", "eigenvalue"),
+            formula_plain=(
+                "a1 = |vn|\n"
+                "a2 = |vn + c|\n"
+                "a3 = |vn - c|\n"
+                "Inputs are relative face-normal velocity and sound speed."
+            ),
+            formula_latex=(
+                r"a_1=|v_n|,\quad a_2=|v_n+c|,\quad a_3=|v_n-c|"
+            ),
+            principle=(
+                "Roe dissipation uses absolute wave speeds. Absolute values "
+                "create V-shaped branches; sonic points make one acoustic "
+                "branch zero before the absolute value."
+            ),
+            background=(
+                "Feeds ApplyHartenEntropyFix and RoeDissipationWaveCoefficients. "
+                "Pure API RoeAbsoluteEigenvalues in NsInvFluxPolicy."
+            ),
+            references=(
+                "Roe (1981); Harten entropy fix; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/roe_absolute_eigenvalues.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_absolute_eigenvalues_theory.csv",
+            plot_module="plot_roe_absolute_eigenvalues",
+            pure_apis=("RoeAbsoluteEigenvalues",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_absolute_eigenvalues.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "void RoeAbsoluteEigenvalues(Real vn, Real c,\n"
+                "    Real& a1, Real& a2, Real& a3) {\n"
+                "  a1 = fabs(vn); a2 = fabs(vn+c); a3 = fabs(vn-c);\n"
+                "}\n"
+            ),
+            proves="Absolute eigenvalue algebra vs pure API on a vn grid.",
+            does_not_prove="Full Roe flux or entropy-fix case behavior.",
         ),
 
         TheoryEntry(
@@ -1012,18 +1047,18 @@ principle=(
             ),
             background=("Pure policy ApplyHartenEntropyFix; tests must match MAX semantics."),
             references=("Harten entropy fix; NsInvFluxPolicy tests",),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/harten_entropy_fix_theory.csv",
+            plot_module="plot_harten_entropy_fix",
             pure_apis=("ApplyHartenEntropyFix",),
             source_relpaths=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/index.rst",
+            doc_relpath="doc/source/numerical/harten_entropy_fix.rst",
             code_sketch=(
                 "// GATED SKETCH - mirror production MAX in tests.\n"
             ),
-            proves="Entropy-fix pure policy tests.",
+            proves="Harten floor algebra vs ApplyHartenEntropyFix on |vn| grid.",
             does_not_prove="Full Roe flux shock-capturing quality.",
         ),
     ]
