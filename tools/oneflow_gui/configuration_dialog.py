@@ -97,6 +97,15 @@ class ConfigurationDialog(QDialog):
         self.build_config_combo.addItems(["Debug", "Release"])
         self.build_config_combo.setCurrentText(settings.build_configuration)
         form.addRow("Build configuration", self.build_config_combo)
+
+        self.source_editor_combo = QComboBox()
+        self.source_editor_combo.addItem("Visual Studio Code (default)", "vscode")
+        self.source_editor_combo.addItem("Visual Studio 2026", "vs2026")
+        self.source_editor_combo.addItem("Visual Studio 2022", "vs2022")
+        self.source_editor_combo.addItem("Notepad++", "notepad++")
+        self.source_editor_combo.setCurrentIndex(max(0, self.source_editor_combo.findData(settings.source_editor)))
+        self.source_editor_combo.setToolTip("Used when opening source, documentation, and declared test files.")
+        form.addRow("Source file editor", self.source_editor_combo)
         layout.addLayout(form)
 
         self.build_config_combo.currentTextChanged.connect(
@@ -131,12 +140,13 @@ class ConfigurationDialog(QDialog):
     def settings(self) -> ApplicationSettings:
         return self._settings
 
-    def _current_values(self) -> tuple[str, str, str, str]:
+    def _current_values(self) -> tuple[str, str, str, str, str]:
         return (
             self.repository_root_edit.text().strip(),
             self.executable_combo.currentText().strip(),
             self.run_mode_combo.currentData(),
             self.build_config_combo.currentText(),
+            self.source_editor_combo.currentData(),
         )
 
     def _choose_repository_root(self) -> None:
@@ -216,6 +226,7 @@ class ConfigurationDialog(QDialog):
         self.run_mode_combo.setCurrentIndex(
             self.run_mode_combo.findData("single_case")
         )
+        self.source_editor_combo.setCurrentIndex(self.source_editor_combo.findData("vscode"))
         self._refresh_executable_candidates(root)
 
     def _save(self, close_dialog: bool = True) -> bool:
@@ -239,6 +250,7 @@ class ConfigurationDialog(QDialog):
             self.build_config_combo.currentText(),
             executable,
             self.run_mode_combo.currentData(),
+            self.source_editor_combo.currentData(),
         )
         try:
             settings.save()

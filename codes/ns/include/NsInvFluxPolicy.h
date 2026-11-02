@@ -35,6 +35,10 @@ void RoeAverageState(
     Real & densityMid, Real & uMid, Real & vMid, Real & wMid,
     Real & pMid, Real & hMid, Real & gamaMid );
 
+// @doc-algorithm eos
+// @doc-stage total-enthalpy
+// @doc-pure
+// @doc-formula H = h + 0.5*|u|^2
 Real TotalEnthalpy( Real internalEnthalpy, Real speedSquared );
 
 // @doc-algorithm roe-average

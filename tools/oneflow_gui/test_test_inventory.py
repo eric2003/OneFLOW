@@ -120,6 +120,82 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
                 for item in contract_tests
             )
         )
+        self.assertTrue(
+            any(
+                item["name"]
+                == "test_adapts_gui_process_execution_contract_and_resolves_python_tests"
+                for item in contract_tests
+            )
+        )
+
+    def test_discovers_verification_execution_record_tests(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+
+        records = discover_tests(repository_root)
+
+        execution_tests = [
+            item for item in records
+            if item["source"] == "tools/verification/test_execution_records.py"
+        ]
+        self.assertTrue(execution_tests)
+        self.assertTrue(
+            any(
+                item["name"] == "test_jsonl_store_appends_and_reads_multiple_records"
+                for item in execution_tests
+            )
+        )
+        self.assertTrue(
+            any(
+                item["name"] == "test_freshness_requires_exact_revision_match"
+                for item in execution_tests
+            )
+        )
+
+    def test_discovers_python_execution_capture_tests(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+
+        records = discover_tests(repository_root)
+
+        capture_tests = [
+            item for item in records
+            if item["source"] == "tools/oneflow_gui/test_execution_capture.py"
+        ]
+        self.assertTrue(capture_tests)
+        self.assertTrue(
+            any(
+                item["name"] == "test_captures_completed_unittest_command_and_log_artifact"
+                for item in capture_tests
+            )
+        )
+        self.assertTrue(
+            any(
+                item["name"] == "test_records_failed_and_cancelled_process_outcomes"
+                for item in capture_tests
+            )
+        )
+
+    def test_discovers_test_worker_execution_evidence_tests(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+
+        records = discover_tests(repository_root)
+
+        worker_tests = [
+            item for item in records
+            if item["source"] == "tools/oneflow_gui/test_test_dialog_execution_capture.py"
+        ]
+        self.assertTrue(worker_tests)
+        self.assertTrue(
+            any(
+                item["name"] == "test_worker_persists_evidence_after_unittest_process_completes"
+                for item in worker_tests
+            )
+        )
+        self.assertTrue(
+            any(
+                item["name"] == "test_process_launch_failure_does_not_create_execution_evidence"
+                for item in worker_tests
+            )
+        )
 
     def test_geometry_contracts_expose_input_expected_and_unexecuted_result(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]

@@ -86,7 +86,7 @@ for mesh input, and writes path information.
 - Resolution rules can be tested without initializing the full solver where practical.
 - Relevant integration tests and Windows/Linux CI are reported against the changed commit.
 
-**Status:** Partial. Root-setting lookup and legacy fallback selection are isolated into a tested value-object adapter. The real `SetupCaseEnvironment()` / `ReadControlInfo(caseDir)` integration path, effective `Prj` application, diagnostic output, and sequential-case behavior have focused component-integration coverage. `SetupCaseEnvironment()` now rolls back partially committed configuration, log binding, and project-root state when bootstrap fails; a test verifies rollback after the first script commits, confirms readiness remains false, and retries successfully on the same context. The production `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` path now has failure-path integration coverage. A successful two-case sequence using separate production `SimuImp` instances has been added to the production-linked integration target; it is implemented but awaits local validation. Remaining gaps include injected failures at concrete solver/device release points and multi-rank MPI.
+**Status:** Partial. Root-setting lookup and legacy fallback selection are isolated into a tested value-object adapter. The production `SetupCaseEnvironment()` / `ReadControlInfo(caseDir)` path has integration coverage for setup rollback, effective path application, diagnostic output, and sequential-case isolation. The production `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` path has failure-path coverage. The successful two-case integration now reads distinct typed `dimension` values from the real global control database and checks `log/database.log` plus `results/io_paths.txt` for each case, while verifying case-state reset and process-runtime continuity. These assertions are implemented but await local validation on the exact revision. Remaining gaps include concrete solver/device release failure injection, multi-rank MPI, and a full numerical solver run through the CLI entry point.
 
 ### R2. Trace task selection and parameter semantics
 
@@ -524,3 +524,21 @@ separately tested formulas and their production ordering, while not claiming
 to validate gradient reconstruction, mesh fields, boundary treatment, or
 full CFD convergence. Those remain the next integration-level verification
 targets.
+
+
+### 2026-11-02 - Assert typed control ingestion and case artifacts in R1 integration
+
+- Based on `hexin` HEAD `08795cabafc7d6eb54f57b1140c0ea0d0477da26`; the user reports 1126/1126 local tests passed before this slice. The baseline is not validation of the new assertions.
+- Strengthened `SuccessfulCasesRemainIsolatedWithinOneProcess`: each temporary case declares a distinct integer `dimension`; the production-registered task reads it from the global control database alongside its case marker. The test verifies the values and order, then checks the real reader's `log/database.log` and the case I/O setup's `results/io_paths.txt` for both cases.
+- This ties real control-file parsing, typed database publication, path diagnostics, task execution, per-case teardown, and process-runtime continuity into one production-linked scenario. It still does not execute a numerical CFD solver or MPI multi-rank path.
+- Validation status: implementation and documentation updated; focused integration target, full Debug CTest, and grid/CFD regression have not been run in this environment. R1 remains Partial pending exact-revision local validation and remaining resource-release failure coverage.
+
+
+### 2026-11-02 - Verify configured I/O-root isolation through production case execution
+
+- Based on the latest inspected `hexin` HEAD `55e48db07f69b07544f885bf5d0b9e1251d4b947`; the user reports 1129/1129 local tests passed before this feature slice. That result is the pre-change baseline only.
+- Extended `SuccessfulCasesRemainIsolatedWithinOneProcess` so the first case supplies distinct project, generic input/output, mesh/flow input, and mesh/flow output roots through its real control script. The registered task captures the effective `Prj` roots after production setup.
+- The second case omits optional roots. The same production task now asserts that project configuration is empty and all effective input/output roots resolve to the second case directory. This closes the gap between the lower-level bootstrap precedence test and the production `SimuImp::RunCase()` path.
+- Verified by source inspection that `tests/main/CMakeLists.txt` already registers the target with `gtest_discover_tests()`, and both `.github/workflows/windows.yml` and `.github/workflows/linux.yml` run CTest. No duplicate target or redundant CI command was added.
+- The test also checks that the first case custom diagnostics are written to its configured mesh and flow output roots, while the second case retains case-local `results/io_paths.txt`.
+- Validation status: source and documentation changes are committed together. No local MSVC build, focused CTest, full CTest, or exact-commit CI result is claimed here. Re-run the focused production target and full CTest on this exact commit. R1 remains Partial until those results are confirmed and remaining teardown-failure/MPI coverage is assessed.

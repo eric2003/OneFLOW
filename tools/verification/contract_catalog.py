@@ -7,6 +7,7 @@ geometry JSON scenarios into a small, Qt-independent summary model.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import ast
 import json
 import re
 from pathlib import Path, PureWindowsPath
@@ -21,6 +22,16 @@ class ContractEvidence:
     reference: str
     status: str
     scope: str
+
+
+@dataclass(frozen=True)
+class EvidenceResolution:
+    """Static reference resolution, kept separate from execution status."""
+
+    evidence: ContractEvidence
+    status: str
+    resolved_path: str = ""
+    diagnostic: str = ""
 
 
 @dataclass(frozen=True)
@@ -195,6 +206,17 @@ _EVIDENCE_KINDS = {
     "fixture",
     "linked_test",
     "google_test",
+    "case_suite",
+    "output_manifest",
+    "residual_baseline",
+    "analytical_reference",
+    "python_test",
+}
+
+
+_EVIDENCE_PATH_KINDS = {
+    "theory_data",
+    "fixture",
     "case_suite",
     "output_manifest",
     "residual_baseline",
@@ -406,6 +428,163 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
     )
 
 
+def _mask_cpp_non_code(source: str) -> str:
+    """Replace comments and literals with spaces while preserving line breaks."""
+    raw_string = re.compile(
+        r'R"(?P<delimiter>[^ ()\\\t\r\n]{0,16})\(.*?\)(?P=delimiter)"',
+        re.DOTALL,
+    )
+    non_code = re.compile(
+        r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'',
+        re.DOTALL,
+    )
+
+    def preserve_lines(match: re.Match[str]) -> str:
+        return "".join("\n" if character == "\n" else " " for character in match.group())
+
+    source = raw_string.sub(preserve_lines, source)
+    return non_code.sub(preserve_lines, source)
+
+
+def _linked_test_source_path(scope: str) -> str | None:
+    """Extract the leading source path from a scope with optional explanation."""
+    source_path = scope.split(";", 1)[0].strip()
+    if source_path.endswith((".cpp", ".cc", ".cxx")):
+        return source_path
+    return None
+
+
+def _python_test_source_path(scope: str) -> str | None:
+    """Extract a Python test source path from an evidence scope."""
+    source_path = scope.split(";", 1)[0].strip()
+    return source_path if source_path.endswith(".py") else None
+
+
+def _has_python_test_declaration(source: str, reference: str) -> bool:
+    """Check a unittest class/method declaration without importing the module."""
+    suite, separator, test_name = reference.partition(".")
+    if not separator or not suite or not test_name or "." in test_name:
+        return False
+    try:
+        module = ast.parse(source)
+    except SyntaxError:
+        return False
+    return any(
+        isinstance(node, ast.ClassDef)
+        and node.name == suite
+        and any(
+            isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and member.name == test_name
+            for member in node.body
+        )
+        for node in module.body
+    )
+
+
+def resolve_contract_evidence(
+    repository_root: Path,
+    summary: ContractSummary,
+) -> tuple[EvidenceResolution, ...]:
+    """Resolve declared artifact references without inferring execution results."""
+    results: list[EvidenceResolution] = []
+    for item in summary.evidence:
+        path_reference = item.kind in _EVIDENCE_PATH_KINDS
+        if item.kind == "fixture" and not (
+            "/" in item.reference
+            or "\\" in item.reference
+            or bool(PureWindowsPath(item.reference).suffix)
+        ):
+            path_reference = False
+        source_path = (
+            _python_test_source_path(item.scope)
+            if item.kind == "python_test"
+            else _linked_test_source_path(item.scope)
+            if item.kind in ("linked_test", "google_test")
+            else None
+        )
+        source_reference = source_path is not None
+        if not path_reference and not source_reference:
+            results.append(EvidenceResolution(item, "declared"))
+            continue
+
+        relative = item.reference if path_reference else source_path
+        try:
+            path = _relative_path(repository_root, relative)
+        except ValueError as exc:
+            results.append(EvidenceResolution(item, "stale", diagnostic=str(exc)))
+            continue
+        if not path.is_file():
+            results.append(
+                EvidenceResolution(
+                    item,
+                    "stale",
+                    diagnostic=f"missing repository file: {relative}",
+                )
+            )
+            continue
+
+        if item.kind == "python_test":
+            try:
+                source = path.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError) as exc:
+                results.append(
+                    EvidenceResolution(
+                        item, "stale", str(path), f"cannot read Python test source: {exc}"
+                    )
+                )
+                continue
+            if not _has_python_test_declaration(source, item.reference):
+                results.append(
+                    EvidenceResolution(
+                        item,
+                        "stale",
+                        str(path),
+                        f"Python unittest declaration not found: {item.reference}",
+                    )
+                )
+                continue
+            results.append(EvidenceResolution(item, "resolved", str(path)))
+            continue
+
+        if source_reference:
+            suite, separator, test_name = item.reference.partition(".")
+            if not separator or not suite or not test_name:
+                results.append(
+                    EvidenceResolution(
+                        item,
+                        "stale",
+                        str(path),
+                        f"invalid linked test identity: {item.reference}",
+                    )
+                )
+                continue
+            try:
+                source = _mask_cpp_non_code(path.read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError) as exc:
+                results.append(
+                    EvidenceResolution(
+                        item, "stale", str(path), f"cannot read linked test source: {exc}"
+                    )
+                )
+                continue
+            declaration = re.compile(
+                rf"\b(?:TEST(?:_F|_P)?|TYPED_TEST(?:_P)?)\s*"
+                rf"\(\s*{re.escape(suite)}\s*,\s*{re.escape(test_name)}\s*\)"
+            )
+            if not declaration.search(source):
+                results.append(
+                    EvidenceResolution(
+                        item,
+                        "stale",
+                        str(path),
+                        f"linked GoogleTest declaration not found: {item.reference}",
+                    )
+                )
+                continue
+        results.append(EvidenceResolution(item, "resolved", str(path)))
+    return tuple(results)
+
+
 def validate_contract_summaries(
     repository_root: Path,
     summaries: Iterable[ContractSummary],
@@ -419,22 +598,27 @@ def validate_contract_summaries(
         elif summary.id in seen_ids:
             issues.append(f"duplicate contract id: {summary.id}")
         seen_ids.add(summary.id)
-        declared_paths = [
+        declared_paths = list(dict.fromkeys((
             *summary.implementation_paths,
             *summary.documentation_paths,
             *(
                 item.reference
                 for item in summary.evidence
-                if item.kind in ("theory_data", "fixture", "output_manifest")
-                and "/" in item.reference
+                if item.kind in _EVIDENCE_PATH_KINDS
+                and (
+                    item.kind != "fixture"
+                    or "/" in item.reference
+                    or "\\" in item.reference
+                    or bool(PureWindowsPath(item.reference).suffix)
+                )
             ),
             *(
-                item.scope
+                _linked_test_source_path(item.scope)
                 for item in summary.evidence
                 if item.kind in ("linked_test", "google_test")
-                and item.scope.endswith((".cpp", ".cc", ".cxx"))
+                and _linked_test_source_path(item.scope) is not None
             ),
-        ]
+        )))
         if summary.case_data is not None:
             case_data = summary.case_data
             declared_paths.extend(
@@ -573,12 +757,42 @@ def validate_contract_summaries(
                         f"{case_data.residual_baseline}: {exc}"
                     )
         for item in summary.evidence:
-            if item.kind not in ("linked_test", "google_test") or not item.scope.endswith(
-                (".cpp", ".cc", ".cxx")
-            ):
+            if item.kind != "python_test":
+                continue
+            source_path_reference = _python_test_source_path(item.scope)
+            if source_path_reference is None:
+                issues.append(
+                    f"{summary.id}: Python test evidence requires a .py source path"
+                )
                 continue
             try:
-                source_path = _relative_path(repository_root, item.scope)
+                source_path = _relative_path(repository_root, source_path_reference)
+            except ValueError as exc:
+                issues.append(f"{summary.id}: {exc}")
+                continue
+            if not source_path.is_file():
+                continue
+            try:
+                source = source_path.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError) as exc:
+                issues.append(
+                    f"{summary.id}: cannot read Python test source "
+                    f"{source_path_reference}: {exc}"
+                )
+                continue
+            if not _has_python_test_declaration(source, item.reference):
+                issues.append(
+                    f"{summary.id}: Python unittest declaration not found: "
+                    f"{item.reference} in {source_path_reference}"
+                )
+        for item in summary.evidence:
+            if item.kind not in ("linked_test", "google_test"):
+                continue
+            source_path_reference = _linked_test_source_path(item.scope)
+            if source_path_reference is None:
+                continue
+            try:
+                source_path = _relative_path(repository_root, source_path_reference)
             except ValueError:
                 continue
             if not source_path.is_file():
@@ -596,9 +810,10 @@ def validate_contract_summaries(
                     f"{summary.id}: cannot read linked test source {item.scope}: {exc}"
                 )
                 continue
+            source = _mask_cpp_non_code(source)
             declaration = re.compile(
-                rf"\bTEST(?:_F|_P)?\s*\(\s*{re.escape(suite)}\s*,"
-                rf"\s*{re.escape(test_name)}\s*\)"
+                rf"\b(?:TEST(?:_F|_P)?|TYPED_TEST(?:_P)?)\s*"
+                rf"\(\s*{re.escape(suite)}\s*,\s*{re.escape(test_name)}\s*\)"
             )
             if not declaration.search(source):
                 issues.append(

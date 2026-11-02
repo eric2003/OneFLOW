@@ -188,7 +188,7 @@ The current `Simulation::RunImpl()` has three argument-count paths:
   `SimuImp` instance.
 
 For example, `OneFLOW.exe r <caseDir>` has three process arguments and follows the full
-simulation path. Case directories passed to one process are executed in command-line order; every argument entry is executed, so repeating the same path runs that case again. Each entry gets a separate ``SimuImp`` / ``SimuContext`` and case teardown, while process runtime (including MPI initialization) is initialized once and finalized after the sequence. ``SimuImp::RunCase()`` can be called repeatedly inside that process lifetime; it owns case teardown, not MPI lifecycle. ``SimuImp::Run()`` is the single-case compatibility entry point that owns one process lifecycle. If process initialization or case setup/run throws, the owning boundary attempts rollback/finalization before propagating the original failure. Both ``SimuContext::SetupCaseEnvironment()`` and the compatibility ``SetupEnvironment()`` path roll back partial case-configuration state after a bootstrap failure. ``TeardownEnvironment()`` finalizes process runtime even if case teardown throws. A failed case stops the sequence; later entries are not run. This is not parallel multi-case execution and does not itself express artifact dependencies. Focused lifecycle tests cover ordering, repeated paths, rollback only on setup failure, exception preservation, and stop-on-failure behavior. The production-linked target `tests/main/simu_imp_case_lifecycle_integration_test.cpp` also covers a successful two-case sequence: it uses the same `RunCasesWithProcessLifecycle()` orchestration as `Simulation::RunImpl()`, creates a separate `SimuImp` for each case, and substitutes a marker-only `ToyModel` task so real control-file ingestion and `TeardownCase()` execute without starting a numerical solver. The test checks that case configuration and context state are cleared after each run, that process runtime remains active between cases, and that it is finalized only after the sequence. This verifies lifecycle composition, not successful CFD solver execution or numerical correctness; the exact-commit test result remains required. The exact-commit Windows/Linux CI results remain the authority for build and test validation. Use the Workbench architecture page for the distinction between sequential multi-case runs and dependency workflows.
+simulation path. Case directories passed to one process are executed in command-line order; every argument entry is executed, so repeating the same path runs that case again. Each entry gets a separate ``SimuImp`` / ``SimuContext`` and case teardown, while process runtime (including MPI initialization) is initialized once and finalized after the sequence. ``SimuImp::RunCase()`` can be called repeatedly inside that process lifetime; it owns case teardown, not MPI lifecycle. ``SimuImp::Run()`` is the single-case compatibility entry point that owns one process lifecycle. If process initialization or case setup/run throws, the owning boundary attempts rollback/finalization before propagating the original failure. Both ``SimuContext::SetupCaseEnvironment()`` and the compatibility ``SetupEnvironment()`` path roll back partial case-configuration state after a bootstrap failure. ``TeardownEnvironment()`` finalizes process runtime even if case teardown throws. A failed case stops the sequence; later entries are not run. This is not parallel multi-case execution and does not itself express artifact dependencies. Focused lifecycle tests cover ordering, repeated paths, rollback only on setup failure, exception preservation, and stop-on-failure behavior. The production-linked target `tests/main/simu_imp_case_lifecycle_integration_test.cpp` also covers a successful two-case sequence: it uses the same `RunCasesWithProcessLifecycle()` orchestration as `Simulation::RunImpl()`, creates a separate `SimuImp` for each case, and substitutes a marker-only `ToyModel` task so real control-file ingestion and `TeardownCase()` execute without starting a numerical solver. The test checks that each case reads its own typed integer ``dimension`` value from the real global control database, that ``log/database.log`` and ``results/io_paths.txt`` are materialized for both cases, that case configuration and context state are cleared after each run, and that process runtime remains active between cases and is finalized only after the sequence. This verifies configuration ingestion and lifecycle composition, not successful CFD solver execution or numerical correctness; the exact-commit test result remains required. The exact-commit Windows/Linux CI results remain the authority for build and test validation. Use the Workbench architecture page for the distinction between sequential multi-case runs and dependency workflows.
 
 Context ownership transfer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1100,3 +1100,60 @@ retry. The test pins the runtime state transition; hardware/driver failure
 behavior still requires backend-specific validation. This follows the C++
 Core Guidelines' emphasis on invariants and meaningful exception propagation
 (E.4, E.17), while keeping destructors non-throwing (C.36/C.37).
+
+
+Repository-case setup-only evidence
+-----------------------------------
+
+The production lifecycle integration target also contains
+``SimuImpCaseLifecycleIntegration.RepositoryRae2822ConversionCaseCanBeInitializedWithoutRunningGridTask``.
+It copies the checked-in ``test/grid/rae2822convert/script`` directory into
+the test's temporary case directory, then invokes the real
+``SimuContext::SetupCaseEnvironment()`` and ``TeardownCase()`` methods.
+
+The test checks the typed ``dimension``, ``simutask``, and ``ptTol`` values
+committed by the real multi-file control reader, along with the generated
+``log/database.log`` and ``results/io_paths.txt`` diagnostics. It intentionally
+does not call ``ResolveTaskFromControl()`` or execute the ``Grid`` task.
+Generated files therefore remain in the temporary directory rather than
+polluting the checked-in reference case.
+
+This case is suitable as a control-ingestion smoke test, but not as evidence
+that grid conversion succeeds. Its ``grid.txt`` and ``part.txt`` contain
+legacy filenames that do not all correspond to the checked-in assets in this
+case directory. The test must not silently promote successful configuration
+loading into a successful mesh conversion claim.
+
+The evidence ladder remains explicit: control-reader ingestion and case setup;
+Grid task execution and output validation; mesh/topology quality checks; and
+numerical or physical validation, where applicable. Each level needs its own
+acceptance criteria and execution record.
+
+
+Sequential case I/O-root isolation
+----------------------------------
+
+The production lifecycle integration test
+``SimuImpCaseLifecycleIntegration.SuccessfulCasesRemainIsolatedWithinOneProcess``
+also verifies the effective I/O roots while each task is running. The first case
+declares distinct `projectRoot`, `inputRoot`, `outputRoot`,
+`meshInputRoot`, `flowInputRoot`, `meshOutputRoot`, and
+`flowOutputRoot` values in its real control script. The registered test task
+captures the effective `Prj` roots after `SetupCaseEnvironment()`
+has applied them.
+
+After the first case is torn down, the second case declares none of these
+optional settings. Its task must observe an empty project root and case-local
+defaults for generic, mesh, and flow input/output roots. The test also checks
+that the first case path diagnostics were written under its configured mesh
+and flow output roots, while the second case diagnostics remain under its own
+case directory.
+
+This is a production-path state-isolation check, not merely a test of the
+configuration adapter. It ties the sequence
+``control.txt -> ReadControlInfo() -> ReadCaseIOSettings() ->
+ApplyCaseIOSettings() -> task execution -> TeardownCase()``
+to an observable contract. The C++ target is registered through
+``gtest_discover_tests()``, and both Windows and Linux CI execute the
+configured CTest suite. The test does not establish multi-rank MPI behavior
+or numerical CFD correctness.

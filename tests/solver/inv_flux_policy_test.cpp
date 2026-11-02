@@ -295,3 +295,274 @@ TEST( InvFluxPolicy, IdealGasBilateralSoundSpeedsAveragesSides )
     EXPECT_NEAR( cr, std::sqrt( 1.4 ), 1.0e-12 );
     EXPECT_NEAR( cm, std::sqrt( 1.4 ), 1.0e-12 );
 }
+
+
+// Intermediate verification: AUSM FMSplit4 / FPSplit5 vs closed form on a Mach grid.
+// Proves pure inline splits in NsInvFluxPolicy.h; does not prove full AUSM face flux.
+TEST( InvFluxPolicy, FMSplit4MachCurveMatchesClosedForm )
+{
+    const Real beta = 0.125;
+    const Real ipn = 1.0;
+    const Real machs[] = { -2.0, -1.5, -1.0, -0.5, 0.0, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0 };
+    for ( Real mach : machs )
+    {
+        Real expected = 0.0;
+        if ( ABS( mach ) >= one )
+        {
+            expected = FMSplit1( mach, ipn );
+        }
+        else
+        {
+            expected = FMSplit2( mach, ipn )
+                * ( one - ipn * sixteen * beta * FMSplit2( mach, - ipn ) );
+        }
+        EXPECT_NEAR( FMSplit4( mach, beta, ipn ), expected, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, FPSplit5MachCurveMatchesClosedForm )
+{
+    const Real alpha = 0.1875;
+    const Real ipn = 1.0;
+    const Real machs[] = { -2.0, -1.5, -1.0, -0.5, 0.0, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0 };
+    for ( Real mach : machs )
+    {
+        Real expected = 0.0;
+        const Real macha = ABS( mach );
+        if ( macha >= one )
+        {
+            expected = half * ( one + ipn * mach / ( macha + SMALL ) );
+        }
+        else
+        {
+            expected = FMSplit2( mach, ipn )
+                * ( ( two * ipn - mach )
+                    - ipn * sixteen * alpha * mach * FMSplit2( mach, - ipn ) );
+        }
+        EXPECT_NEAR( FPSplit5( mach, alpha, ipn ), expected, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, FMSplit4NegativeIpnIsMirror )
+{
+    // ipn = -1 branch at M=0.5 should equal -FMSplit4(+0.5) with +ipn for mass-like split symmetry
+    const Real beta = 0.125;
+    EXPECT_NEAR(
+        FMSplit4( 0.5, beta, -1.0 ),
+        - FMSplit4( -0.5, beta, 1.0 ),
+        1.0e-12 );
+}
+
+// Intermediate: Harten floors |lambda| on an |vn| grid (enabled).
+// Ref: |vn+c|=2, |vn-c|=1.5, centropy1=0.5, centropy2=0.25 => maxEig=2, m1=1, m2=0.5.
+TEST( InvFluxPolicy, HartenEntropyFixCurveMatchesClosedForm )
+{
+    const Real absVnPlusC = 2.0;
+    const Real absVnMinusC = 1.5;
+    const Real c1 = 0.5;
+    const Real c2 = 0.25;
+    const Real absVns[] = { 0.0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 3.0 };
+    for ( Real absVn : absVns )
+    {
+        Real f1, f2, f3;
+        ApplyHartenEntropyFix(
+            absVn, absVnPlusC, absVnMinusC, c1, c2, true, f1, f2, f3 );
+        const Real maxEig = MAX( absVnPlusC, absVnMinusC );
+        const Real m1 = maxEig * c1;
+        const Real m2 = maxEig * c2;
+        EXPECT_NEAR( f1, MAX( m1, absVn ), 1.0e-12 );
+        EXPECT_NEAR( f2, MAX( m2, absVnPlusC ), 1.0e-12 );
+        EXPECT_NEAR( f3, MAX( m2, absVnMinusC ), 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, HartenEntropyFixDisabledLeavesInputs )
+{
+    const Real absVns[] = { 0.0, 0.1, 1.0, 5.0 };
+    for ( Real absVn : absVns )
+    {
+        Real f1, f2, f3;
+        ApplyHartenEntropyFix( absVn, 2.0, 1.5, 0.5, 0.25, false, f1, f2, f3 );
+        EXPECT_DOUBLE_EQ( f1, absVn );
+        EXPECT_DOUBLE_EQ( f2, 2.0 );
+        EXPECT_DOUBLE_EQ( f3, 1.5 );
+    }
+}
+
+// Intermediate: RoeAbsoluteEigenvalues on a vn grid with fixed sound speed.
+TEST( InvFluxPolicy, RoeAbsoluteEigenvaluesCurveMatchesClosedForm )
+{
+    const Real c = 1.0;
+    const Real vns[] = { -3.0, -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, 2.0, 3.0 };
+    for ( Real vn : vns )
+    {
+        Real a1, a2, a3;
+        RoeAbsoluteEigenvalues( vn, c, a1, a2, a3 );
+        EXPECT_NEAR( a1, ABS( vn ), 1.0e-12 );
+        EXPECT_NEAR( a2, ABS( vn + c ), 1.0e-12 );
+        EXPECT_NEAR( a3, ABS( vn - c ), 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeAbsoluteEigenvaluesSonicPoints )
+{
+    // At vn = +/- c the acoustic branch hits zero before absolute value.
+    Real a1, a2, a3;
+    RoeAbsoluteEigenvalues( 1.0, 1.0, a1, a2, a3 );
+    EXPECT_DOUBLE_EQ( a1, 1.0 );
+    EXPECT_DOUBLE_EQ( a2, 2.0 );
+    EXPECT_DOUBLE_EQ( a3, 0.0 );
+    RoeAbsoluteEigenvalues( -1.0, 1.0, a1, a2, a3 );
+    EXPECT_DOUBLE_EQ( a1, 1.0 );
+    EXPECT_DOUBLE_EQ( a2, 0.0 );
+    EXPECT_DOUBLE_EQ( a3, 2.0 );
+}
+
+// Intermediate: RoeDissipationWaveCoefficients on an |vn| grid.
+// Ref: a2=3, a3=0.5, c=2 (c^2=4).
+TEST( InvFluxPolicy, RoeDissipationWaveCoefficientsCurveMatchesClosedForm )
+{
+    const Real a2 = 3.0;
+    const Real a3 = 0.5;
+    const Real c = 2.0;
+    const Real c2 = 4.0;
+    const Real a1s[] = { 0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0 };
+    for ( Real a1 : a1s )
+    {
+        Real xi1, xi2;
+        RoeDissipationWaveCoefficients( a1, a2, a3, c2, c, xi1, xi2 );
+        EXPECT_NEAR( xi1, ( 2.0 * a1 - a2 - a3 ) / ( 2.0 * c2 ), 1.0e-12 );
+        EXPECT_NEAR( xi2, ( a2 - a3 ) / ( 2.0 * c ), 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeDissipationWaveCoefficientXi2IndependentOfAbsVn )
+{
+    Real x1a, x2a, x1b, x2b;
+    RoeDissipationWaveCoefficients( 0.0, 3.0, 0.5, 4.0, 2.0, x1a, x2a );
+    RoeDissipationWaveCoefficients( 4.0, 3.0, 0.5, 4.0, 2.0, x1b, x2b );
+    EXPECT_DOUBLE_EQ( x2a, x2b );
+    EXPECT_NE( x1a, x1b );
+}
+
+// Intermediate: RoeDissipationCouplingTerms on a Delta-H grid.
+// Ref: dc=2, c^2=4, xi1=0.5, xi2=0.25.
+TEST( InvFluxPolicy, RoeDissipationCouplingTermsCurveMatchesClosedForm )
+{
+    const Real dc = 2.0;
+    const Real c2 = 4.0;
+    const Real xi1 = 0.5;
+    const Real xi2 = 0.25;
+    const Real dhs[] = { -4.0, -1.0, 0.0, 0.5, 1.0, 2.0, 4.0 };
+    for ( Real dh : dhs )
+    {
+        Real t1, t2;
+        RoeDissipationCouplingTerms( dh, dc, c2, xi1, xi2, t1, t2 );
+        EXPECT_NEAR( t1, dh * xi1 + dc * xi2, 1.0e-12 );
+        EXPECT_NEAR( t2, c2 * dc * xi1 + dh * xi2, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeDissipationCouplingTerm2HasAcousticWeight )
+{
+    // term2 acoustic piece is c2*dc*xi1 independent of dh.
+    Real t1a, t2a, t1b, t2b;
+    RoeDissipationCouplingTerms( 0.0, 2.0, 4.0, 0.5, 0.25, t1a, t2a );
+    RoeDissipationCouplingTerms( 3.0, 2.0, 4.0, 0.5, 0.25, t1b, t2b );
+    EXPECT_NEAR( t2a - 0.0 * 0.25, 4.0 * 2.0 * 0.5, 1.0e-12 );
+    EXPECT_NEAR( t2b - 3.0 * 0.25, 4.0 * 2.0 * 0.5, 1.0e-12 );
+}
+
+// Intermediate: RoeAverageWeights on a density-ratio grid.
+TEST( InvFluxPolicy, RoeAverageWeightsCurveMatchesClosedForm )
+{
+    const Real rhoL = 1.0;
+    const Real rhoRs[] = { 0.25, 0.5, 1.0, 2.0, 4.0, 9.0, 16.0 };
+    for ( Real rhoR : rhoRs )
+    {
+        Real ratio = 0.0, coef = 0.0;
+        RoeAverageWeights( rhoL, rhoR, ratio, coef );
+        EXPECT_NEAR( ratio, std::sqrt( rhoR / rhoL ), 1.0e-12 );
+        EXPECT_NEAR( coef, 1.0 / ( 1.0 + ratio ), 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeAverageWeightsSymmetricAtUnitRatio )
+{
+    Real ratio = 0.0, coef = 0.0;
+    RoeAverageWeights( 2.0, 2.0, ratio, coef );
+    EXPECT_DOUBLE_EQ( ratio, 1.0 );
+    EXPECT_DOUBLE_EQ( coef, 0.5 );
+}
+
+// Intermediate: IdealGasStaticEnthalpy on a p/rho grid (gamma=1.4).
+TEST( InvFluxPolicy, IdealGasStaticEnthalpyCurveMatchesClosedForm )
+{
+    const Real gama = 1.4;
+    const Real coef = gama / ( gama - 1.0 ); // 3.5
+    const Real density = 1.0;
+    const Real pressures[] = { 0.2, 0.5, 1.0, 1.5, 2.0, 4.0 };
+    for ( Real p : pressures )
+    {
+        EXPECT_NEAR(
+            IdealGasStaticEnthalpy( density, p, gama ),
+            coef * ( p / density ),
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, IdealGasStaticEnthalpyScalesWithPressureDensity )
+{
+    // Doubling p and rho keeps h constant.
+    EXPECT_DOUBLE_EQ(
+        IdealGasStaticEnthalpy( 1.0, 2.0, 1.4 ),
+        IdealGasStaticEnthalpy( 2.0, 4.0, 1.4 ) );
+}
+
+// Intermediate: IdealGasSoundSpeed on a total-enthalpy grid (u^2=0).
+TEST( InvFluxPolicy, IdealGasSoundSpeedCurveMatchesClosedForm )
+{
+    const Real gama = 1.4;
+    const Real speedSquared = 0.0;
+    const Real Hs[] = { 0.5, 1.0, 2.0, 3.5, 4.0, 5.0 };
+    for ( Real H : Hs )
+    {
+        const Real expected = sqrt( ( gama - 1.0 ) * H );
+        EXPECT_NEAR( IdealGasSoundSpeed( gama, H, speedSquared ), expected, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, IdealGasSoundSpeedSubtractsKineticEnergy )
+{
+    // H=3.5, |u|^2=1 -> static part 3.0? Wait: H - 0.5*|u|^2 = 3.5 - 0.5 = 3.0
+    // c = sqrt(0.4 * 3.0) = sqrt(1.2)
+    EXPECT_NEAR(
+        IdealGasSoundSpeed( 1.4, 3.5, 1.0 ),
+        sqrt( 0.4 * 3.0 ),
+        1.0e-12 );
+}
+
+// Intermediate: RoePressureFromTotalEnthalpy on an H grid (rho=1, u^2=0).
+TEST( InvFluxPolicy, RoePressureFromTotalEnthalpyCurveMatchesClosedForm )
+{
+    const Real density = 1.0;
+    const Real speedSquared = 0.0;
+    const Real gama = 1.4;
+    const Real fac = ( gama - 1.0 ) / gama;
+    const Real Hs[] = { 0.5, 1.0, 2.0, 3.5, 4.0, 5.0 };
+    for ( Real H : Hs )
+    {
+        EXPECT_NEAR(
+            RoePressureFromTotalEnthalpy( density, H, speedSquared, gama ),
+            density * H * fac,
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoePressureFromTotalEnthalpyRemovesKinetic )
+{
+    EXPECT_NEAR(
+        RoePressureFromTotalEnthalpy( 2.0, 6.5, 4.0, 1.4 ),
+        2.0 * 4.5 * ( 0.4 / 1.4 ),
+        1.0e-12 );
+}

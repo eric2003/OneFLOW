@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 import subprocess
+import tempfile
 import sys
 import unittest
 from pathlib import Path
@@ -13,6 +15,7 @@ from .contract_catalog import (
     adapt_geometry_scenario,
     adapt_theory_entry,
     load_contract_catalog,
+    resolve_contract_evidence,
     validate_contract_summaries,
 )
 from .curve_catalog import list_theory_entries
@@ -89,12 +92,59 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(summary.kind, "state_transition")
         self.assertEqual(summary.status, "implemented")
         self.assertTrue(summary.architecture)
-        self.assertEqual(len(summary.evidence), 3)
+        self.assertEqual(len(summary.evidence), 8)
+        self.assertIn(
+            "SimulationEntryIntegration.FullSimulationEntryReadsControlFilesAndFinalizesProcessRuntime",
+            {item.reference for item in summary.evidence},
+        )
+        self.assertIn(
+            "SimulationEntryIntegration.FailedFullSimulationEntryTearsDownCaseAndFinalizesProcessRuntime",
+            {item.reference for item in summary.evidence},
+        )
         self.assertTrue(
             all(item.status == "linked_not_executed" for item in summary.evidence)
         )
+        resolutions = resolve_contract_evidence(self.repository_root, summary)
+        self.assertEqual(
+            [item.status for item in resolutions],
+            ["resolved"] * len(summary.evidence),
+        )
+        self.assertTrue(
+            all(
+                item.evidence.status == "linked_not_executed"
+                for item in resolutions
+            )
+        )
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\n".join(issues))
+
+    def test_adapts_gui_process_execution_contract_and_resolves_python_tests(
+        self,
+    ) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "runtime"
+            / "gui_process_execution.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+
+        summary = adapt_declared_contract(definition)
+        issues = validate_contract_summaries(self.repository_root, [summary])
+        resolutions = resolve_contract_evidence(self.repository_root, summary)
+
+        self.assertEqual(summary.id, "runtime/gui-process-execution")
+        self.assertEqual(len(summary.evidence), 7)
+        self.assertEqual(issues, [], "\n".join(issues))
+        self.assertEqual(
+            [item.status for item in resolutions],
+            ["resolved"] * len(summary.evidence),
+        )
+        self.assertTrue(
+            all(item.evidence.status == "linked_not_executed" for item in resolutions)
+        )
 
     def test_adapts_laminar_flat_plate_case_contract(self) -> None:
         definition_path = (
@@ -253,6 +303,52 @@ class ContractCatalogTest(unittest.TestCase):
         )
         self.assertEqual(issues, [], "\n".join(issues))
 
+    def test_validates_repository_paths_for_all_artifact_evidence_kinds(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "runtime"
+            / "process_lifecycle.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+        summary = replace(
+            summary,
+            evidence=summary.evidence
+            + (
+                ContractEvidence(
+                    kind="analytical_reference",
+                    reference="missing/reference-profile.dat",
+                    status="declared_not_executed",
+                    scope="Reference data is declared but not executed.",
+                ),
+                ContractEvidence(
+                    kind="residual_baseline",
+                    reference="missing/residual-baseline.json",
+                    status="declared_not_executed",
+                    scope="Residual baseline is declared but not executed.",
+                ),
+            ),
+        )
+
+        issues = validate_contract_summaries(self.repository_root, [summary])
+
+        self.assertTrue(
+            any("missing/reference-profile.dat" in issue for issue in issues),
+            "; ".join(issues),
+        )
+        self.assertTrue(
+            any("missing/residual-baseline.json" in issue for issue in issues),
+            "; ".join(issues),
+        )
+
+    def test_keeps_opaque_geometry_fixture_ids_out_of_path_validation(self) -> None:
+        summary = adapt_geometry_scenario({"id": "scenario_without_path"})
+        issues = validate_contract_summaries(self.repository_root, [summary])
+        self.assertEqual(issues, [], "; ".join(issues))
+
     def test_reports_missing_declared_output_manifest(self) -> None:
         definition_path = (
             self.repository_root
@@ -303,7 +399,11 @@ class ContractCatalogTest(unittest.TestCase):
 
         self.assertTrue(any(item.domain == "numerical" for item in summaries))
         self.assertTrue(any(item.domain == "geometry" for item in summaries))
-        self.assertTrue(any(item.domain == "runtime" for item in summaries))
+        runtime_contracts = [item for item in summaries if item.domain == "runtime"]
+        self.assertGreaterEqual(len(runtime_contracts), 2)
+        self.assertTrue(
+            any(item.id == "runtime/gui-process-execution" for item in runtime_contracts)
+        )
         case_contracts = [item for item in summaries if item.domain == "case"]
         self.assertEqual(len(case_contracts), 1)
         self.assertEqual(
@@ -313,6 +413,227 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertIsNotNone(case_contracts[0].case_data)
         self.assertEqual(len({item.id for item in summaries}), len(summaries))
         self.assertEqual(issues, (), "\n".join(issues))
+
+    def test_ignores_google_test_macro_text_in_comments_and_literals(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            source = root / "CommentedContractTest.cpp"
+            source.write_text(
+                "// TEST(FakeSuite, CommentedBehavior) {}\n"
+                "/* TEST_F(FakeSuite, BlockCommentBehavior) {} */\n"
+                'const char* text = "TEST(FakeSuite, StringBehavior) {}";\n'
+                'const char* raw = R"tag(TEST(FakeSuite, RawStringBehavior) {})tag";\n',
+                encoding="utf-8",
+            )
+            summary = ContractSummary(
+                id="runtime/commented-tests",
+                source_id="commented-tests",
+                title="Commented tests",
+                domain="runtime",
+                kind="test_contract",
+                overview="",
+                principle="",
+                architecture="",
+                status="implemented",
+                references=(),
+                implementation_paths=(),
+                documentation_paths=(),
+                evidence=(
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="FakeSuite.CommentedBehavior",
+                        status="linked_not_executed",
+                        scope="CommentedContractTest.cpp",
+                    ),
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="FakeSuite.BlockCommentBehavior",
+                        status="linked_not_executed",
+                        scope="CommentedContractTest.cpp",
+                    ),
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="FakeSuite.StringBehavior",
+                        status="linked_not_executed",
+                        scope="CommentedContractTest.cpp",
+                    ),
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="FakeSuite.RawStringBehavior",
+                        status="linked_not_executed",
+                        scope="CommentedContractTest.cpp",
+                    ),
+                ),
+                claims=(),
+                limitations=(),
+            )
+
+            issues = validate_contract_summaries(root, [summary])
+
+        self.assertEqual(len(issues), 4, "\n".join(issues))
+        self.assertTrue(
+            all("linked GoogleTest declaration not found" in issue for issue in issues),
+            "\n".join(issues),
+        )
+
+    def test_resolves_evidence_without_promoting_execution_status(self) -> None:
+        from .contract_catalog import resolve_contract_evidence
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            source = root / "EvidenceTest.cpp"
+            source.write_text("TEST(EvidenceSuite, Present) {}\n", encoding="utf-8")
+            summary = ContractSummary(
+                id="runtime/evidence-resolution",
+                source_id="evidence-resolution",
+                title="Evidence resolution",
+                domain="runtime",
+                kind="test_contract",
+                overview="",
+                principle="",
+                architecture="",
+                status="implemented",
+                references=(),
+                implementation_paths=(),
+                documentation_paths=(),
+                evidence=(
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="EvidenceSuite.Present",
+                        status="linked_not_executed",
+                        scope="EvidenceTest.cpp; synthetic test source.",
+                    ),
+                    ContractEvidence(
+                        kind="analytical_reference",
+                        reference="missing.dat",
+                        status="declared_not_executed",
+                        scope="Reference profile.",
+                    ),
+                    ContractEvidence(
+                        kind="pure_api",
+                        reference="ComputeFlux",
+                        status="declared_not_executed",
+                        scope="API name only.",
+                    ),
+                ),
+                claims=(),
+                limitations=(),
+            )
+
+            resolutions = resolve_contract_evidence(root, summary)
+
+        self.assertEqual(
+            [item.status for item in resolutions], ["resolved", "stale", "declared"]
+        )
+        self.assertEqual(
+            [item.evidence.status for item in resolutions],
+            ["linked_not_executed", "declared_not_executed", "declared_not_executed"],
+        )
+        self.assertTrue(resolutions[0].resolved_path.endswith("EvidenceTest.cpp"))
+        self.assertIn("missing repository file", resolutions[1].diagnostic)
+
+    def test_resolves_python_unittest_declarations_without_importing_them(self) -> None:
+        from .contract_catalog import resolve_contract_evidence
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            source = root / "ProcessControlTest.py"
+            source.write_text(
+                "class ProcessControlTest(unittest.TestCase):\n"
+                "    def test_termination_contract(self):\n"
+                "        pass\n"
+                "    async def test_async_contract(self):\n"
+                "        pass\n",
+                encoding="utf-8",
+            )
+            summary = ContractSummary(
+                id="runtime/python-test-resolution",
+                source_id="python-test-resolution",
+                title="Python test resolution",
+                domain="runtime",
+                kind="test_contract",
+                overview="",
+                principle="",
+                architecture="",
+                status="implemented",
+                references=(),
+                implementation_paths=(),
+                documentation_paths=(),
+                evidence=(
+                    ContractEvidence(
+                        kind="python_test",
+                        reference="ProcessControlTest.test_termination_contract",
+                        status="linked_not_executed",
+                        scope="ProcessControlTest.py; test source.",
+                    ),
+                    ContractEvidence(
+                        kind="python_test",
+                        reference="ProcessControlTest.test_missing",
+                        status="linked_not_executed",
+                        scope="ProcessControlTest.py; test source.",
+                    ),
+                    ContractEvidence(
+                        kind="python_test",
+                        reference="ProcessControlTest.test_async_contract",
+                        status="linked_not_executed",
+                        scope="ProcessControlTest.py; test source.",
+                    ),
+                ),
+                claims=(),
+                limitations=(),
+            )
+
+            resolutions = resolve_contract_evidence(root, summary)
+
+        self.assertEqual(
+            [item.status for item in resolutions],
+            ["resolved", "stale", "resolved"],
+        )
+        self.assertIn("Python unittest declaration not found", resolutions[1].diagnostic)
+
+    def test_resolves_typed_google_test_declarations(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            source = root / "TypedContractTest.cpp"
+            source.write_text(
+                "TYPED_TEST(TypedSuite, TypedBehavior) {}\n"
+                "TYPED_TEST_P(RegisteredTypedSuite, RegisteredBehavior) {}\n",
+                encoding="utf-8",
+            )
+            summary = ContractSummary(
+                id="runtime/typed-tests",
+                source_id="typed-tests",
+                title="Typed tests",
+                domain="runtime",
+                kind="test_contract",
+                overview="",
+                principle="",
+                architecture="",
+                status="implemented",
+                references=(),
+                implementation_paths=(),
+                documentation_paths=(),
+                evidence=(
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="TypedSuite.TypedBehavior",
+                        status="linked_not_executed",
+                        scope="TypedContractTest.cpp",
+                    ),
+                    ContractEvidence(
+                        kind="google_test",
+                        reference="RegisteredTypedSuite.RegisteredBehavior",
+                        status="linked_not_executed",
+                        scope="TypedContractTest.cpp",
+                    ),
+                ),
+                claims=(),
+                limitations=(),
+            )
+
+            issues = validate_contract_summaries(root, [summary])
+
+        self.assertEqual(issues, [], "; ".join(issues))
 
     def test_reports_stale_linked_test_declaration(self) -> None:
         scenario_path = (

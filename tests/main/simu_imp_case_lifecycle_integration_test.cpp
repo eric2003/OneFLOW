@@ -18,6 +18,7 @@ License
 #include "DataBase.h"
 #include "Prj.h"
 #include "SimuImp.h"
+#include "Simulation.h"
 #include "SimuTask.h"
 
 #include <gtest/gtest.h>
@@ -94,16 +95,40 @@ private:
     std::filesystem::path path_;
 };
 
+struct CaseIORootSnapshot
+{
+    std::string project;
+    std::string input;
+    std::string output;
+    std::string meshInput;
+    std::string flowInput;
+    std::string meshOutput;
+    std::string flowOutput;
+};
+
 std::vector<std::string> successfulCaseMarkers;
+std::vector<int> successfulCaseDimensions;
+std::vector<CaseIORootSnapshot> successfulCaseIORoots;
 
 class CaseMarkerTask final : public ISimuTask
 {
 public:
     void Execute( SimuContext & /*context*/ ) override
     {
+        DataBase & database = RequireGlobalDataBase();
         successfulCaseMarkers.push_back(
-            GetDataValue<std::string>(
-                "case_marker", &RequireGlobalDataBase() ) );
+            GetDataValue<std::string>( "case_marker", &database ) );
+        successfulCaseDimensions.push_back(
+            GetDataValue<int>( "dimension", &database ) );
+        successfulCaseIORoots.push_back( {
+            Prj::projectBaseDir,
+            Prj::GetInputBaseDir(),
+            Prj::GetOutputBaseDir(),
+            Prj::GetMeshInputBaseDir(),
+            Prj::GetFlowInputBaseDir(),
+            Prj::GetMeshOutputBaseDir(),
+            Prj::GetFlowOutputBaseDir()
+        } );
     }
 };
 
@@ -236,6 +261,45 @@ public:
 
 private:
     SimuImp & simulation_;
+};
+
+class CaseEnvironmentGuard
+{
+public:
+    explicit CaseEnvironmentGuard( SimuContext & context )
+        : context_( context )
+    {
+    }
+
+    ~CaseEnvironmentGuard() noexcept
+    {
+        if ( active_ && context_.IsEnvironmentReady() )
+        {
+            try
+            {
+                context_.TeardownCase();
+            }
+            catch ( ... )
+            {
+            }
+        }
+    }
+
+    void Teardown()
+    {
+        if ( context_.IsEnvironmentReady() )
+        {
+            context_.TeardownCase();
+        }
+        active_ = false;
+    }
+
+    CaseEnvironmentGuard( const CaseEnvironmentGuard & ) = delete;
+    CaseEnvironmentGuard & operator=( const CaseEnvironmentGuard & ) = delete;
+
+private:
+    SimuContext & context_;
+    bool active_ = true;
 };
 
 
@@ -375,19 +439,41 @@ TEST( SimuImpCaseLifecycleIntegration,
     TemporaryCase firstCase;
     TemporaryCase secondCase;
 
+    const std::filesystem::path configuredRoot =
+        std::filesystem::path( firstCase.Directory() + "_configured" );
+    const std::filesystem::path projectRoot = configuredRoot / "project";
+    const std::filesystem::path inputRoot = configuredRoot / "input";
+    const std::filesystem::path outputRoot = configuredRoot / "output";
+    const std::filesystem::path meshInputRoot = configuredRoot / "mesh-input";
+    const std::filesystem::path flowInputRoot = configuredRoot / "flow-input";
+    const std::filesystem::path meshOutputRoot = configuredRoot / "mesh-output";
+    const std::filesystem::path flowOutputRoot = configuredRoot / "flow-output";
+
     firstCase.WriteManifest( "\"case.txt\";\n" );
     firstCase.WriteScript(
         "case.txt",
         "string simutask = \"ToyModel\";\n"
-        "string case_marker = \"first_case\";\n" );
+        "string case_marker = \"first_case\";\n"
+        "int dimension = 2;\n"
+        "string projectRoot = \"" + projectRoot.generic_string() + "\";\n"
+        "string inputRoot = \"" + inputRoot.generic_string() + "\";\n"
+        "string outputRoot = \"" + outputRoot.generic_string() + "\";\n"
+        "string meshInputRoot = \"" + meshInputRoot.generic_string() + "\";\n"
+        "string flowInputRoot = \"" + flowInputRoot.generic_string() + "\";\n"
+        "string meshOutputRoot = \"" + meshOutputRoot.generic_string() + "\";\n"
+        "string flowOutputRoot = \"" + flowOutputRoot.generic_string() + "\";\n"
+        "string ioPathInfoFileName = \"case_io_paths.txt\";\n" );
 
     secondCase.WriteManifest( "\"case.txt\";\n" );
     secondCase.WriteScript(
         "case.txt",
         "string simutask = \"ToyModel\";\n"
-        "string case_marker = \"second_case\";\n" );
+        "string case_marker = \"second_case\";\n"
+        "int dimension = 3;\n" );
 
     successfulCaseMarkers.clear();
+    successfulCaseDimensions.clear();
+    successfulCaseIORoots.clear();
     TaskRegistry::Instance().Register(
         "ToyModel",
         []() { return std::make_unique<CaseMarkerTask>(); } );
@@ -435,6 +521,47 @@ TEST( SimuImpCaseLifecycleIntegration,
     EXPECT_EQ(
         successfulCaseMarkers,
         ( std::vector<std::string>{ "first_case", "second_case" } ) );
+    EXPECT_EQ(
+        successfulCaseDimensions,
+        ( std::vector<int>{ 2, 3 } ) );
+    ASSERT_EQ( successfulCaseIORoots.size(), 2u );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].project, projectRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].input, inputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].output, outputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].meshInput, meshInputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].flowInput, flowInputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].meshOutput, meshOutputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].flowOutput, flowOutputRoot.string() ) );
+    EXPECT_TRUE( successfulCaseIORoots[ 1 ].project.empty() );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].input, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].output, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].meshInput, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].flowInput, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].meshOutput, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].flowOutput, secondCase.Directory() ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        meshOutputRoot / "case_io_paths.txt" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        flowOutputRoot / "case_io_paths.txt" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( firstCase.Directory() ) / "log" / "database.log" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( secondCase.Directory() ) / "log" / "database.log" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( secondCase.Directory() ) / "results" / "io_paths.txt" ) );
     ASSERT_EQ( caseStateCleared.size(), 2u );
     EXPECT_TRUE( caseStateCleared[ 0 ] );
     EXPECT_TRUE( caseStateCleared[ 1 ] );
@@ -443,5 +570,140 @@ TEST( SimuImpCaseLifecycleIntegration,
         ( std::vector<bool>{ true, true } ) );
     EXPECT_FALSE( processContext.IsProcessEnvironmentActive() );
 }
+
+
+TEST( SimuImpCaseLifecycleIntegration,
+      RepositoryRae2822ConversionCaseCanBeInitializedWithoutRunningGridTask )
+{
+#ifndef ONEFLOW_SOURCE_DIR
+    GTEST_SKIP() << "ONEFLOW_SOURCE_DIR is not configured";
+#else
+    const std::filesystem::path sourceCase =
+        std::filesystem::path( ONEFLOW_SOURCE_DIR )
+        / "test" / "grid" / "rae2822convert";
+    ASSERT_TRUE( std::filesystem::is_directory( sourceCase / "script" ) );
+
+    TemporaryCase testCase;
+    std::filesystem::copy(
+        sourceCase / "script",
+        std::filesystem::path( testCase.Directory() ) / "script",
+        std::filesystem::copy_options::recursive
+            | std::filesystem::copy_options::overwrite_existing );
+
+    Prj::Init();
+    SimuImp simulation( testCase.Directory(), false );
+    SimuContext & context = simulation.Context();
+    context.SetupProcessEnvironment();
+    ProcessRuntimeGuard runtimeGuard( simulation );
+    CaseEnvironmentGuard caseGuard( context );
+
+    ASSERT_TRUE( context.IsProcessEnvironmentActive() );
+    ASSERT_FALSE( context.IsEnvironmentReady() );
+
+    EXPECT_NO_THROW( context.SetupCaseEnvironment() );
+    ASSERT_TRUE( context.IsEnvironmentReady() );
+
+    DataBase & database = RequireGlobalDataBase();
+    EXPECT_EQ( GetDataValue<int>( "dimension", &database ), 2 );
+    EXPECT_EQ( GetDataValue<std::string>( "simutask", &database ), "Grid" );
+    EXPECT_DOUBLE_EQ( GetDataValue<Real>( "ptTol", &database ), 1.0e-10 );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( testCase.Directory() )
+        / "log" / "database.log" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( testCase.Directory() )
+        / "results" / "io_paths.txt" ) );
+
+    // Setup-only evidence: do not resolve or execute the Grid task.
+    // The guard retries cleanup if this explicit teardown fails.
+    EXPECT_NO_THROW( caseGuard.Teardown() );
+    EXPECT_FALSE( context.IsEnvironmentReady() );
+    EXPECT_TRUE( context.IsProcessEnvironmentActive() );
+    EXPECT_NO_THROW( simulation.FinalizeEnvironment() );
+    EXPECT_FALSE( context.IsProcessEnvironmentActive() );
+#endif
+}
+
+
+TEST( SimulationEntryIntegration,
+      FullSimulationEntryReadsControlFilesAndFinalizesProcessRuntime )
+{
+    TemporaryCase testCase;
+    testCase.WriteManifest(
+        "\"task.txt\";\n"
+        "\"dimension.txt\";\n" );
+    testCase.WriteScript(
+        "task.txt",
+        "string simutask = \"ToyModel\";\n"
+        "string case_marker = \"simulation_entry\";\n" );
+    testCase.WriteScript(
+        "dimension.txt",
+        "int dimension = 2;\n" );
+
+    successfulCaseMarkers.clear();
+    successfulCaseDimensions.clear();
+    TaskRegistry::Instance().Register(
+        "ToyModel",
+        []() { return std::make_unique<CaseMarkerTask>(); } );
+
+    const std::string executable = "OneFLOW.exe";
+    const std::string mode = "r";
+    const std::string caseDirectory = testCase.Directory();
+    char * arguments[] = {
+        const_cast<char *>( executable.c_str() ),
+        const_cast<char *>( mode.c_str() ),
+        const_cast<char *>( caseDirectory.c_str() )
+    };
+
+    Simulation simulation( 3, arguments );
+
+    EXPECT_EQ( simulation.Run(), 0 );
+    EXPECT_EQ(
+        successfulCaseMarkers,
+        ( std::vector<std::string>{ "simulation_entry" } ) );
+    EXPECT_EQ(
+        successfulCaseDimensions,
+        ( std::vector<int>{ 2 } ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( caseDirectory ) / "log" / "database.log" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        std::filesystem::path( caseDirectory ) / "results" / "io_paths.txt" ) );
+    EXPECT_FALSE( AccelRuntime::Instance().IsInitialized() );
+    EXPECT_TRUE( Prj::prjBaseDir.empty() );
+}
+
+
+TEST( SimulationEntryIntegration,
+      FailedFullSimulationEntryTearsDownCaseAndFinalizesProcessRuntime )
+{
+    TemporaryCase testCase;
+    testCase.WriteManifest(
+        "\"available.txt\";\n"
+        "\"missing.txt\";\n" );
+    testCase.WriteScript(
+        "available.txt",
+        "string partial_simulation_value = \"must_be_cleared\";\n" );
+
+    const std::string executable = "OneFLOW.exe";
+    const std::string mode = "r";
+    const std::string caseDirectory = testCase.Directory();
+    char * arguments[] = {
+        const_cast<char *>( executable.c_str() ),
+        const_cast<char *>( mode.c_str() ),
+        const_cast<char *>( caseDirectory.c_str() )
+    };
+
+    Simulation simulation( 3, arguments );
+
+    EXPECT_EQ( simulation.Run(), EXIT_FAILURE );
+    EXPECT_FALSE( AccelRuntime::Instance().IsInitialized() );
+    EXPECT_TRUE( Prj::prjBaseDir.empty() );
+    EXPECT_THROW(
+        GetDataValue<std::string>(
+            "partial_simulation_value", &RequireGlobalDataBase() ),
+        std::runtime_error );
+}
+
+
 
 } // namespace

@@ -13,7 +13,44 @@ from pathlib import Path
 from .task_types import ExecutionLocation, TaskType, task_definition
 
 
-def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
+def format_command_arguments(arguments: tuple[str, ...] | list[str], *, platform_name: str | None = None) -> str:
+    """Render an argument vector for logs using the host command-line syntax."""
+    platform_value = (platform_name or os.name).lower()
+    if platform_value in {"nt", "windows"}:
+        return subprocess.list2cmdline(list(arguments))
+    return shlex.join(str(argument) for argument in arguments)
+
+
+def oneflow_executable_path(
+    repository_root: Path,
+    build_config: str = "Debug",
+    *,
+    platform_name: str | None = None,
+) -> Path:
+    """Return the conventional build output for the current platform."""
+    if build_config not in {"Debug", "Release"}:
+        raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
+    root = Path(repository_root).resolve()
+    platform_value = (platform_name or os.name).lower()
+    build_directory = root / "build"
+    if platform_value in {"nt", "windows"}:
+        return build_directory / "bin" / build_config / "OneFLOW.exe"
+
+    single_config_executable = build_directory / "bin" / "OneFLOW"
+    if single_config_executable.is_file():
+        return single_config_executable
+
+    multi_config_cache = build_directory / "CMakeCache.txt"
+    if multi_config_cache.is_file():
+        cache_text = multi_config_cache.read_text(encoding="utf-8", errors="replace")
+        if "CMAKE_CONFIGURATION_TYPES:" in cache_text:
+            return build_directory / "bin" / build_config / "OneFLOW"
+    return single_config_executable
+
+
+def summarize_test_output(
+    output_lines: list[str], *, include_failed_cases: bool = True
+) -> tuple[str, ...]:
     """Extract framework test counts and actionable failure details from output."""
     import re
 
@@ -49,8 +86,19 @@ def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
     if ctest_matches:
         total = sum(int(item[2]) for item in ctest_matches)
         failed = sum(int(item[1]) for item in ctest_matches)
+        skipped_block = re.search(
+            r"The following tests did not run:\s*((?:\n[ \t]+\d+\s+-[^\n]*)+)",
+            output,
+        )
+        skipped = (
+            len(re.findall(r"^\s*\d+\s+-", skipped_block.group(1), re.MULTILINE))
+            if skipped_block
+            else 0
+        )
+        passed = max(total - failed - skipped, 0)
         summary.append(
-            f"CTest cases: {total} run, {total - failed} passed, {failed} failed."
+            f"CTest cases: {total} run, {passed} passed, "
+            f"{failed} failed, {skipped} skipped."
         )
 
     failure_markers = (
@@ -71,6 +119,17 @@ def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
         ),
         None,
     )
+    failed_unittest_cases = []
+    for line in output_lines:
+        match = re.match(r"^\s*(FAIL|ERROR):\s+(.+?)\s*$", line)
+        if match:
+            case_name = match.group(2)
+            if case_name not in failed_unittest_cases:
+                failed_unittest_cases.append(case_name)
+    if failed_unittest_cases and include_failed_cases:
+        summary.append("Failed unittest cases:")
+        summary.extend(f"  - {case_name}" for case_name in failed_unittest_cases)
+
     if failure_start is not None:
         details = output_lines[failure_start:]
         summary.append("Failure details:")
@@ -78,6 +137,54 @@ def summarize_test_output(output_lines: list[str]) -> tuple[str, ...]:
         if len(details) > 120:
             summary.append(f"... {len(details) - 120} additional lines omitted.")
     return tuple(summary)
+
+
+def format_final_test_status(passed: bool, report: str) -> str:
+    """Format command and framework case counts on the final status line."""
+    import re
+
+    status = "PASS" if passed else "FAIL"
+    details: list[str] = []
+    command_counts = re.search(
+        r"Test command summary:\s*\n\s*Total: (\d+)\s*\n"
+        r"\s*Passed: (\d+)\s*\n\s*Failed: (\d+)\s*\n"
+        r"\s*Not run: (\d+)",
+        report,
+    )
+    if command_counts:
+        total, command_passed, command_failed, not_run = map(
+            int, command_counts.groups()
+        )
+        details.append(
+            f"Commands: {command_passed} passed, {command_failed} failed, "
+            f"{not_run} not run ({total} total)"
+        )
+
+    case_patterns = (
+        (
+            "Python unittest",
+            r"Python unittest cases: (\d+) run, (\d+) passed, "
+            r"(\d+) failed, (\d+) skipped\.",
+        ),
+        (
+            "CTest",
+            r"CTest cases: (\d+) run, (\d+) passed, "
+            r"(\d+) failed, (\d+) skipped\.",
+        ),
+    )
+    for label, pattern in case_patterns:
+        matches = re.findall(pattern, report)
+        if not matches:
+            continue
+        counts = [sum(int(item[index]) for item in matches) for index in range(4)]
+        total, case_passed, case_failed, skipped = counts
+        details.append(
+            f"{label}: {case_passed} passed, {case_failed} failed, "
+            f"{skipped} skipped ({total} total)"
+        )
+
+    suffix = " | " + " | ".join(details) if details else ""
+    return f"FINAL STATUS: {status}{suffix}"
 
 
 @dataclass(frozen=True, slots=True)
@@ -112,10 +219,19 @@ _PYTHON_UNIT_TESTS = (
     ("Runtime override tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_runtime_overrides")),
     ("Workflow case staging tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_case_runtime")),
     ("GUI test command builder tests", ("-m", "unittest", "tools.oneflow_gui.test_test_runner")),
+    ("Structured test diagnostic tests", ("-m", "unittest", "tools.oneflow_gui.test_test_diagnostics")),
     ("Numerical verification catalog tests", ("-m", "unittest", "tools.verification.test_curve_catalog")),
     ("Combined contract catalog tests", ("-m", "unittest", "tools.verification.test_contract_catalog")),
+    ("Verification execution record tests", ("-m", "unittest", "tools.verification.test_execution_records")),
+    ("Python execution capture tests", ("-m", "unittest", "tools.oneflow_gui.test_execution_capture")),
+    ("Test worker execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_test_dialog_execution_capture")),
+    ("CMake test catalog tests", ("-m", "unittest", "tools.verification.test_cmake_test_catalog")),
     ("Contract Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_contract_workbench_dialog")),
+    ("Source editor process tests", ("-m", "unittest", "tools.oneflow_gui.test_source_editor")),
     ("Repository test inventory discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_test_inventory")),
+    ("Executable discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_executable_discovery")),
+    ("Process control tests", ("-m", "unittest", "tools.oneflow_gui.test_process_control")),
+    ("Case runner process tests", ("-m", "unittest", "tools.oneflow_gui.test_runner_process")),
     ("Mesh layout editor document tests", ("-m", "unittest", "tests.tools.test_editor_document")),
     ("Rectangle layout compiler tests", ("-m", "unittest", "tests.tools.test_compile_rectangle")),
     ("Geometry analytic contract tests", ("-m", "unittest", "discover", "-s", "tools", "-p", "test_analytic_contracts.py")),
@@ -242,8 +358,6 @@ def build_cmake_configure_command(
         "cmake",
         "..",
         "-D",
-        "CMAKE_INSTALL_PREFIX=C:/dev/OneFLOW",
-        "-D",
         "CMAKE_BUILD_TYPE=" + build_config,
     )
     return TestCommand(f"CMake configure ({build_config})", arguments, build_directory)
@@ -264,12 +378,15 @@ def build_default_test_commands(
     python: str | None = None,
     *,
     build_config: str = "Debug",
+    platform_name: str | None = None,
 ) -> list[TestCommand]:
     """Build the selected executable when needed, then run CTest and Python tests."""
     if build_config not in {"Debug", "Release"}:
         raise ValueError(f"Unsupported CMake build configuration: {build_config!r}")
     root = Path(repository_root).resolve()
-    executable = root / "build" / "bin" / build_config / "OneFLOW.exe"
+    executable = oneflow_executable_path(
+        root, build_config, platform_name=platform_name
+    )
     commands: list[TestCommand] = []
     if not executable.is_file():
         if not cmake_build_tree_is_configured(root / "build"):

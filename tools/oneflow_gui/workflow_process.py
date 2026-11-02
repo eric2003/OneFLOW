@@ -10,6 +10,19 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from .process_control import process_group_options, terminate_and_reap
+
+
+def _process_creation_options() -> dict[str, object]:
+    """Combine process-tree isolation with the Windows no-console option."""
+    options = process_group_options()
+    if os.name == "nt":
+        options["creationflags"] = (
+            int(options.get("creationflags", 0))
+            | getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)
+        )
+    return options
+
 
 @dataclass(frozen=True, slots=True)
 class ProcessResult:
@@ -39,11 +52,7 @@ def run_process(
         text=True,
         errors="replace",
         bufsize=1,
-        **(
-            {"creationflags": subprocess.CREATE_NO_WINDOW}
-            if os.name == "nt"
-            else {}
-        ),
+        **_process_creation_options(),
     )
     output_queue: queue.Queue[str | None] = queue.Queue()
 
@@ -63,12 +72,7 @@ def run_process(
     while process.poll() is None or not reader_finished:
         if is_cancelled() and process.poll() is None:
             cancellation_requested = True
-            process.terminate()
-            try:
-                process.wait(timeout=3)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                process.wait()
+            terminate_and_reap(process)
         try:
             line = output_queue.get(timeout=0.1)
             if line is None:

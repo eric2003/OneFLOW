@@ -3,58 +3,75 @@
 from __future__ import annotations
 
 import os
+import shutil
 from pathlib import Path
-from typing import Mapping
+from typing import Callable, Mapping
 
 
 def executable_candidates(
     repository_root: Path,
     environ: Mapping[str, str] | None = None,
+    *,
+    platform_name: str | None = None,
+    path_lookup: Callable[[str, str | None], str | None] | None = None,
 ) -> list[Path]:
     """Return existing executable candidates in a predictable preference order.
 
     Repository build outputs are preferred for development. Conventional
-    installation locations are fallbacks, and no recursive filesystem search
-    is performed.
+    installation locations and PATH are fallbacks; no recursive search occurs.
     """
     environment = os.environ if environ is None else environ
     root = repository_root.expanduser().resolve()
+    platform_value = (platform_name or os.name).lower()
+    is_windows = platform_value in {"nt", "windows"}
 
-    candidates = [
-        root / "build" / "bin" / "Debug" / "OneFLOW.exe",
-        root / "build" / "bin" / "Release" / "OneFLOW.exe",
-        Path("C:/dev/OneFLOW/bin/OneFLOW.exe"),
-    ]
-
-    program_files = environment.get("ProgramFiles")
-    if program_files:
-        candidates.append(Path(program_files) / "OneFLOW" / "bin" / "OneFLOW.exe")
-
-    program_files_x86 = environment.get("ProgramFiles(x86)")
-    if program_files_x86:
-        candidates.append(
-            Path(program_files_x86) / "OneFLOW" / "bin" / "OneFLOW.exe"
+    if is_windows:
+        build_candidates = [
+            root / "build" / "bin" / "Debug" / "OneFLOW.exe",
+            root / "build" / "bin" / "Release" / "OneFLOW.exe",
+        ]
+        fallback_candidates: list[Path] = []
+        for variable in ("ProgramFiles", "ProgramFiles(x86)"):
+            directory = environment.get(variable)
+            if directory:
+                fallback_candidates.append(
+                    Path(directory) / "OneFLOW" / "bin" / "OneFLOW.exe"
+                )
+        local_app_data = environment.get("LOCALAPPDATA")
+        if local_app_data:
+            fallback_candidates.append(
+                Path(local_app_data) / "Programs" / "OneFLOW" / "bin" / "OneFLOW.exe"
+            )
+    else:
+        build_candidates = [
+            root / "build" / "bin" / "OneFLOW",
+            root / "build" / "bin" / "Debug" / "OneFLOW",
+            root / "build" / "bin" / "Release" / "OneFLOW",
+        ]
+        fallback_candidates = [
+            Path("/usr/local/bin/OneFLOW"),
+            Path("/usr/bin/OneFLOW"),
+        ]
+    executable_name = "OneFLOW.exe" if is_windows else "OneFLOW"
+    if path_lookup is None:
+        path_executable = shutil.which(
+            executable_name,
+            path=environment.get("PATH"),
         )
+    else:
+        path_executable = path_lookup(executable_name, environment.get("PATH"))
+    if path_executable:
+        fallback_candidates.append(Path(path_executable))
 
-    local_app_data = environment.get("LOCALAPPDATA")
-    if local_app_data:
-        candidates.append(
-            Path(local_app_data) / "Programs" / "OneFLOW" / "bin" / "OneFLOW.exe"
-        )
-
-    # Always expose the repository's Debug and Release slots in the UI, even
-    # before either configuration has been built. Installed fallbacks must exist.
-    build_candidates = candidates[:2]
-    fallback_candidates = candidates[2:]
     unique_candidates: list[Path] = []
     seen: set[str] = set()
     for candidate in build_candidates:
-        normalized = str(candidate).casefold()
+        normalized = os.path.normcase(str(candidate))
         if normalized not in seen:
             seen.add(normalized)
             unique_candidates.append(candidate.resolve())
     for candidate in fallback_candidates:
-        normalized = str(candidate).casefold()
+        normalized = os.path.normcase(str(candidate))
         if normalized in seen:
             continue
         seen.add(normalized)

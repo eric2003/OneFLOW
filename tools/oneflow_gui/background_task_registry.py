@@ -5,6 +5,9 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import time
+from contextlib import contextmanager
+from typing import Callable, Iterator
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -64,6 +67,7 @@ class BackgroundTaskRegistry:
     """Store task records outside the source tree using atomic JSON replacement."""
 
     SCHEMA_VERSION = 1
+    REPLACE_RETRY_DELAYS = (0.01, 0.02, 0.04, 0.08, 0.16)
 
     def __init__(self, root: Path) -> None:
         self.root = root
@@ -75,8 +79,34 @@ class BackgroundTaskRegistry:
             raise ValueError("Invalid background task ID.")
         return self.records_directory / f"{task_id}.json"
 
-    def save(self, task: BackgroundTask) -> None:
-        """Atomically persist a task record so restarts never read a partial JSON file."""
+    @contextmanager
+    def _exclusive_update(self) -> Iterator[None]:
+        """Serialize registry read-modify-write operations across processes."""
+        lock_path = self.root / ".background-task-registry.lock"
+        with lock_path.open("a+b") as stream:
+            stream.seek(0, os.SEEK_END)
+            if stream.tell() == 0:
+                stream.write(b"\0")
+                stream.flush()
+            stream.seek(0)
+            if os.name == "nt":
+                import msvcrt
+
+                msvcrt.locking(stream.fileno(), msvcrt.LK_LOCK, 1)
+            else:
+                import fcntl
+
+                fcntl.flock(stream.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                if os.name == "nt":
+                    msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    fcntl.flock(stream.fileno(), fcntl.LOCK_UN)
+
+    def _save_unlocked(self, task: BackgroundTask) -> None:
+        """Atomically persist a task record while the caller owns the registry lock."""
         path = self._path(task.task_id)
         payload = {
             "schema_version": self.SCHEMA_VERSION,
@@ -91,15 +121,28 @@ class BackgroundTaskRegistry:
                 stream.write("\n")
                 stream.flush()
                 os.fsync(stream.fileno())
-            os.replace(temporary_name, path)
+            for attempt, delay in enumerate((0.0, *self.REPLACE_RETRY_DELAYS)):
+                if delay:
+                    time.sleep(delay)
+                try:
+                    os.replace(temporary_name, path)
+                    break
+                except PermissionError:
+                    if attempt == len(self.REPLACE_RETRY_DELAYS):
+                        raise
         finally:
             try:
                 os.unlink(temporary_name)
             except FileNotFoundError:
                 pass
 
-    def load(self, task_id: str) -> BackgroundTask:
-        """Load and validate a single persisted task."""
+    def save(self, task: BackgroundTask) -> None:
+        """Serialize and atomically persist one task record."""
+        with self._exclusive_update():
+            self._save_unlocked(task)
+
+    def _load_unlocked(self, task_id: str) -> BackgroundTask:
+        """Load and validate a task while the caller owns the registry lock."""
         path = self._path(task_id)
         payload = json.loads(path.read_text(encoding="utf-8"))
         if payload.get("schema_version") != self.SCHEMA_VERSION:
@@ -108,6 +151,24 @@ class BackgroundTaskRegistry:
         if task.task_id != task_id:
             raise ValueError(f"Background task ID does not match {path}.")
         return task
+
+    def load(self, task_id: str) -> BackgroundTask:
+        """Load a complete record; atomic replacement protects readers."""
+        return self._load_unlocked(task_id)
+
+    def update(
+        self,
+        task_id: str,
+        transform: Callable[[BackgroundTask], BackgroundTask],
+    ) -> BackgroundTask:
+        """Apply a read-modify-write transition without losing concurrent updates."""
+        with self._exclusive_update():
+            current = self._load_unlocked(task_id)
+            updated = transform(current)
+            if updated.task_id != task_id:
+                raise ValueError("A background task update cannot change its ID.")
+            self._save_unlocked(updated)
+            return updated
 
     def list_tasks(self) -> list[BackgroundTask]:
         """Return task records in stable start-time order."""
@@ -124,8 +185,9 @@ class BackgroundTaskRegistry:
         return [task for task in self.list_tasks() if task.status in ACTIVE_STATUSES]
 
     def remove(self, task_id: str) -> None:
-        """Remove a record after its task has been deliberately forgotten."""
-        try:
-            self._path(task_id).unlink()
-        except FileNotFoundError:
-            pass
+        """Remove a record without racing a concurrent state transition."""
+        with self._exclusive_update():
+            try:
+                self._path(task_id).unlink()
+            except FileNotFoundError:
+                pass

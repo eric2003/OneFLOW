@@ -1347,3 +1347,24 @@ desktop shell.
 
 Latest `hexin` HEAD after this slice:
 `925a8c779b6944eecbf4f880af46730bc5e2eafb`.
+
+
+## 2026-11-02 continuation: repository CFD case setup-only integration
+
+The R1 production integration target now declares a setup-only smoke test for
+the checked-in test/grid/rae2822convert control scripts. The test copies the
+script directory to a temporary case, uses the production Context setup and
+teardown methods, asserts typed database values and generated diagnostics,
+and does not resolve or execute the Grid task. This avoids source-tree output
+pollution and keeps control ingestion separate from grid conversion.
+
+The case's grid.txt and part.txt retain legacy asset names that do not all
+match the case's checked-in files. Consequently, successful setup is not
+evidence that the Grid task or conversion output is valid. A separate task
+execution/output contract is required for that claim.
+
+CMake defines ONEFLOW_SOURCE_DIR for the production runtime integration
+test. The contract declaration links the exact GoogleTest name as
+linked_not_executed. Static catalog resolution, CMake target declaration,
+CTest discovery, actual execution, and pass outcome remain distinct evidence
+states. The assistant has not run the user's Windows build or CTest.

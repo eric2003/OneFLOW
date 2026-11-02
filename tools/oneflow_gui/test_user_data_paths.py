@@ -30,6 +30,12 @@ class UserDataPathsTest(unittest.TestCase):
             self.assertEqual(paths.projects, paths.root / "projects")
             self.assertEqual(paths.workspaces, paths.root / "workspaces")
             self.assertEqual(paths.logs, paths.root / "logs")
+            self.assertEqual(paths.test_runs, paths.root / "test-runs")
+            self.assertEqual(paths.test_run_logs, paths.test_runs / "logs")
+            self.assertEqual(
+                paths.verification_execution_records,
+                paths.root / "verification" / "execution-records.jsonl",
+            )
             self.assertEqual(
                 paths.contract_workbench,
                 paths.root / "contract-workbench",
@@ -66,6 +72,7 @@ class UserDataPathsTest(unittest.TestCase):
 
             self.assertEqual(paths.root, root.resolve())
             self.assertEqual(paths.workflow_data, root.resolve() / "workflow-data")
+            self.assertEqual(paths.test_run_logs, root.resolve() / "test-runs" / "logs")
 
     def test_empty_override_keeps_default_home(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

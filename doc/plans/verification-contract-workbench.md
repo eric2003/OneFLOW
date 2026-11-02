@@ -99,6 +99,15 @@ An evidence record should carry at least:
 
 Do not collapse these into a single green “verified” badge. A contract can have a passing unit test and still lack integration, backend, or physical validation. Display evidence by level and freshness.
 
+The Tests workbench reports two separate accounting levels. **Command counts**
+(Passed / Failed / Not run) describe launched command groups; **case counts**
+(Passed / Failed / Skipped) describe framework-reported test cases. A command
+that was never launched is not a skipped test case. Python unittest and CTest
+counts remain separate on the final status line so different frameworks are
+not silently conflated. CTest skipped cases are counted from its explicit
+"tests did not run" section; absent that section, the skipped count is zero.
+
+
 Suggested evidence ladder (not a universal strict hierarchy):
 
 1. static/schema validation;
@@ -553,3 +562,495 @@ python -m unittest tools.verification.test_contract_catalog
 
 A negative test changes a valid Runtime evidence kind to an unknown value and
 requires adaptation to reject it with an actionable error.
+
+
+## 19. Cross-domain artifact evidence path validation (2026-11-02)
+
+Artifact references now receive the same repository-root containment and
+file-existence checks across domains. The shared path-evidence vocabulary
+includes theory data, case-suite manifests, output manifests, residual
+baselines, and analytical references. Geometry fixture references are checked
+when they are path-shaped; an opaque scenario ID remains an identifier rather
+than being mistaken for a filename.
+
+The path list is deduplicated before validation so a Case payload and its
+typed evidence can refer to the same baseline or analytical file without
+duplicating diagnostics. Case-specific semantic checks remain in place:
+existence is not enough to establish suite membership, output agreement,
+residual schema, row count, or tolerance consistency.
+
+Negative tests attach missing analytical-reference and residual-baseline
+artifacts to a Runtime contract and require actionable diagnostics. A separate
+test protects opaque geometry fixture IDs from accidental path interpretation.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```
+
+The validator remains read-only and Qt-independent. It reports broken
+declarations; it does not execute evidence or promote a contract to verified.
+
+
+## 20. Typed GoogleTest declaration matching (2026-11-02)
+
+The linked GoogleTest source resolver now recognizes both ordinary and typed
+test declaration macros: `TEST`, `TEST_F`, `TEST_P`, `TYPED_TEST`, and
+`TYPED_TEST_P`. Previously the matcher accepted only the ordinary TEST
+family, so a valid typed-test link could be reported as stale.
+
+A focused test writes both typed declaration forms into a temporary C++
+source file and resolves contract evidence against that file. This avoids
+adding artificial production test declarations to the repository.
+
+The boundary remains intentionally narrow: matching a source macro establishes
+that the named declaration is present in the declared source file. It does not
+establish test-binary registration, successful compilation, test discovery at
+runtime, or execution. Those require build/test inventory and execution
+records, which remain separate evidence layers.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```
+
+
+## 21. Ignore non-code text when resolving GoogleTest declarations (2026-11-02)
+
+The linked-test source check now masks C++ line comments, block comments, ordinary string/character literals, and raw string literals before matching GoogleTest declaration macros. A declaration-shaped example in documentation text or a literal can no longer make a stale contract link appear resolved. New negative tests cover all four source forms.
+
+This is a deliberately bounded lexical check rather than a C++ parser. It establishes only that a declaration-shaped macro invocation appears in code text in the declared source file. Macro expansion, parameterized/typed suite registration, binary discovery, compilation, and execution remain outside this resolver and must be represented by later build/execution evidence.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```
+
+
+
+## 22. Separate evidence reference resolution from execution status (2026-11-02)
+
+The Qt-independent catalog now exposes `EvidenceResolution` and `resolve_contract_evidence(repository_root, summary)`. Every declared evidence item receives a static resolution state: `declared` when no supported artifact resolver applies, `resolved` when its repository file or linked GoogleTest declaration is found, and `stale` when that supported reference is invalid, missing, unreadable, or absent from the declared source.
+
+The original `ContractEvidence.status` is retained unchanged. For example, a source declaration can be `resolved` while its declaration status remains `linked_not_executed`. This deliberately avoids manufacturing a PASS result from static source inspection. The Case-specific semantic checks remain in the catalog validator; this first resolution API does not claim to validate scientific contents of analytical data or output artifacts.
+
+The Runtime Verification view now displays resolution status, declaration status, scope, resolved file, and any diagnostic separately. Linked-test scopes may append explanatory text after a semicolon; the resolver extracts and validates the leading C++ source path instead of treating the full annotated scope as a filename. Focused tests cover resolved, stale, and declaration-only evidence, verify declaration status is preserved, and assert the GUI presents both dimensions.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+```
+
+## 23. Static CMake target linkage for GoogleTest evidence (2026-11-02)
+
+Added a Qt-independent CMake test catalog that maps a resolved GoogleTest
+source path to direct `add_executable` source declarations in
+`tests/**/CMakeLists.txt`. It separately records whether the matched target
+has a `gtest_discover_tests` declaration and, when present, its
+`DISCOVERY_MODE`. The Runtime Verification view now displays the target,
+owning CMake file, target-resolution state, and discovery declaration.
+
+The state boundary is explicit:
+
+- source declaration resolved: the named GoogleTest macro was found in source;
+- target resolved: a direct CMake executable declaration lists that source;
+- CTest discovery declared: the target has a `gtest_discover_tests` declaration;
+- built, discovered at configure/test time, and executed: **not established by
+  this static resolver** and must come from actual build/CTest records.
+
+The parser deliberately does not infer target membership from variable-based
+source lists, `target_sources()`, helper functions, or generated CMake. Such
+cases remain unresolved until a configured build-system export or CMake File
+API integration can provide authoritative target metadata. This conservative
+boundary is preferable to a plausible but false green state.
+
+Tests cover positive target/discovery mapping, a target without discovery
+registration, variable-indirect source lists, unrelated files, and paths
+outside the repository. The GUI integration test checks the actual Runtime
+contract target and its PRE_TEST discovery declaration.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_cmake_test_catalog
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+```
+
+
+## 24. Structured execution diagnostics (2026-11-02)
+
+The Tests command worker now turns failed Python unittest and GoogleTest
+output into immutable `TestDiagnostic` records. The first diagnostic slice
+captures:
+
+- failed task label and test framework/identity;
+- source file and line when emitted by the framework;
+- exception type and message when present;
+- selected CMake configuration, resolved working directory, UTC start and
+  finish timestamps, and process exit code;
+- explicit contract IDs and a conservative verification-impact field.
+
+The Tests dialog renders the record as structured fields while retaining the
+raw output and command summary. Missing information is represented as unknown.
+The parser does not infer contract identity from test names or source proximity.
+The current runner supplies no automatic contract mapping, so the default
+impact is `unlinked`. If a future resolver supplies explicit contract IDs,
+the diagnostic is marked `requires_review`; a failed test is not automatically
+equivalent to disproving every claim in a contract.
+
+This slice intentionally stops before persistent execution storage and
+Verification Results aggregation. The next integration should add a versioned
+execution-record repository under the user data root, preserve command and
+per-test records, and resolve test links through stable evidence IDs. The
+Contract Workbench should then display the latest matching execution evidence
+without mutating contract declarations. Verification conclusions must be
+computed from explicit contract scope, evidence kind, run status, and freshness;
+a missing run remains unknown, not failed or passed.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_test_diagnostics
+python -m unittest tools.oneflow_gui.test_test_runner
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
+
+The assistant has not run these commands in the user's Windows environment.
+
+
+## 25. Make failed-case summaries actionable (2026-11-02)
+
+The test worker now accumulates structured diagnostics from each failed test
+command and appends a final `Failed test cases` section after the aggregate
+command counts. Each listed case includes its task label, source location,
+and concise failure cause. The original streamed framework output remains
+above the final summary and retains the full traceback/assertion detail.
+When structured records exist, the worker suppresses the older generic
+unittest name list to avoid duplicate entries.
+
+Diagnostic working-directory values are serialized with forward slashes so
+the same resolved path has a stable display representation on Windows and
+POSIX. The process still executes with the original native `Path`.
+
+A regression test now verifies the final case list includes the test identity,
+file/line, and assertion message. Another assertion compares normalized path
+representation rather than requiring a platform-specific separator.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_test_diagnostics
+python -m unittest tools.oneflow_gui.test_test_runner
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
+
+
+## 26. Cross-platform execution assumptions in the test workbench
+
+The test command layer keeps argument vectors as the source of truth and uses
+host-appropriate quoting only for human-readable logs. Windows-specific
+executable suffixes and multi-configuration output paths are selected only on
+Windows. POSIX single-configuration builds use the conventional unsuffixed
+executable under `build/bin`; POSIX multi-configuration generators are also
+recognized through their CMake cache metadata. The configure command no longer
+injects a local Windows install prefix, leaving CMake's platform default intact.
+
+This is a bounded compatibility improvement, not a claim of full Linux
+validation. Platform branches are unit-testable through an explicit platform
+parameter, while CI or a developer Linux machine must still perform a real
+configure, build, CTest, and regression run to establish runtime compatibility.
+
+## 27. Cross-platform process-tree cancellation
+
+The GUI test worker, Case Database runner, and workflow process runner now
+start each command in an isolated process group via the Qt-independent
+`tools.oneflow_gui.process_control` module. Stop terminates the whole process
+tree rather than only the direct child:
+
+- POSIX: `start_new_session=True` and process-group termination with
+  `os.killpg`;
+- Windows: `CREATE_NEW_PROCESS_GROUP` and
+  `taskkill /PID <pid> /T /F`, invoked without a shell.
+
+This closes an execution-lifecycle gap in CFD regression. The regression
+Python script may start a shell command, which may start MPI and solver
+processes. Parent-only termination is not a sufficient cancellation contract.
+
+The module has focused tests for host-specific process creation options,
+Windows tree termination and fallback, and completed-process handling. Native
+CI exercises a real parent/descendant process tree on both POSIX and Windows;
+the Windows path uses `taskkill /T`. The new test is part of the Python test
+inventory and the Ubuntu/Windows Python tooling CI matrix.
+
+The implementation deliberately keeps platform-specific process mechanics at
+the execution boundary. Solver algorithms, regression command definitions,
+and task result semantics remain independent of the host OS. MPI launcher
+behavior still requires an end-to-end stop test on each supported host.
+
+
+## 28. Link Python process tests to the shared contract catalog
+
+The Runtime domain now has a separate
+`runtime/gui-process-execution` contract for operating-system processes
+launched by the desktop workbench. It is intentionally distinct from
+`runtime/process-lifecycle`, which describes accelerator backend ownership
+and finalization inside the solver. Similar words such as *process* and
+*lifecycle* must not collapse different resource owners into one contract.
+
+The contract links the shared process-control shutdown policy and the three
+GUI execution paths to concrete Python unittest methods. The catalog recognizes
+the new `python_test` evidence kind by parsing source with Python's AST and
+checking the declared test class/method. This is static evidence resolution:
+it does not import or run the module, and it preserves the explicit
+`linked_not_executed` status. A missing or renamed method becomes stale rather
+than being silently matched by a similar test name.
+
+The catalog tests cover both successful Python test declaration resolution and
+a missing method. The contract itself is loaded and validated as part of the
+combined catalog test, and that test is now included in the Ubuntu/Windows
+Python tooling CI matrix. This makes the path from runtime claim to source test
+navigable without conflating declaration with execution evidence.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
+
+The next stage is a versioned execution-record model. It should capture the
+actual command, host/platform, revision, timestamps, exit status, diagnostics,
+and artifact references, then match those records to these declared evidence
+IDs. Until that exists, the catalog correctly reports the new links as
+unexecuted regardless of local or CI results.
+
+## 29. Durable execution-record foundation
+
+The first execution-record vertical slice is implemented in
+`tools/verification/execution_records.py`. It is intentionally independent of
+Qt and does not replace `TaskRunResult` or `WorkflowRunRecord`:
+
+- task results describe GUI task scheduling and completion;
+- workflow records describe workflow runs and their editable history;
+- verification execution records describe one test invocation and the
+  provenance required to assess its evidence.
+
+Schema version 1 captures stable test identity, framework, source path and
+optional line, exact command, repository/commit/branch, configuration,
+platform/runtime version, working directory, timezone-aware timestamps,
+exit code, outcome, explicit contract IDs, diagnostics, and artifact paths
+with optional SHA-256 checksums. Optional environment data is allowed to be
+unknown; no missing field is filled by inference. A record can be current,
+stale, or unknown relative to a selected commit.
+
+The JSONL store is append-only and strict on read: malformed lines report
+their line number instead of silently losing evidence. Its default path is
+reserved under the user data root, separate from workflow history.
+
+The first real execution adapter is now connected to
+`TestCommandWorker` for Python `unittest` commands. It persists a record only
+after a process has launched and returned, captures the exact argument vector,
+timestamps, exit code, working directory, available Git/runtime metadata, and
+a SHA-256-addressed stdout artifact. Pre-launch cancellation and process-start
+failure do not create execution records; post-launch cancellation is recorded
+as cancelled. Contract IDs remain empty until an explicit mapping is authored.
+
+This proves the persistence boundary for one framework, but the Contract
+Workbench does not yet render execution history. The next vertical slice should
+display recent records and freshness in the Workbench, while keeping static
+resolution separate from actual execution. Only after that path is proven
+should CTest/GoogleTest and CFD regression adapters be added. A declaration,
+static source resolution, build registration, execution, and passing outcome
+must remain separate states.
+
+
+## 16. Recorded execution history presentation
+
+The domain Verification tab now displays immutable execution records from the
+user-data JSONL store. The presentation has two deliberately separate groups:
+records explicitly linked through `contract_ids`, and recent unlinked records.
+Unlinked records are visible for discovery but are not attributed to the selected
+contract. Each record shows outcome, commit freshness, exact command, completion
+time, and artifact references.
+
+Freshness is compared against the current checkout's Git revision. If either
+revision is unavailable, the status remains unknown. This is a read-only
+presentation layer: it does not infer links from test names, source paths, or
+matching commands, and it does not claim that a passing run verifies the entire
+contract. The integration test exercises both linked and unlinked histories and
+current/stale revision states.
+
+
+## 17. Explicit links from Python execution records
+
+The Python unittest capture adapter now resolves contract IDs through the shared
+catalog. It links a record only when the command resolves to one exact Python
+module source file and a contract explicitly declares Python test evidence from
+that same file. Directory-wide discovery, unknown files, and catalog failures
+remain unlinked. The resolver is Qt-independent and has focused catalog and
+capture tests. This is an evidence association, not a claim that every test in
+the file was relevant to every contract or that the contract is fully verified.
+
+
+## 30. Shared Workbench page composition across engineering domains
+
+The common Workbench should standardize navigation and evidence semantics,
+not force every engineering topic into a formula-shaped record or view.
+
+### Shared page sections
+
+The proposed shared navigation vocabulary is:
+
+1. **Overview** - intent, scope, domain, kind, maturity, and concise summary.
+2. **Principle** - governing equations, invariants, ownership rules, state
+   transitions, numerical assumptions, or operational constraints.
+3. **References** - papers, standards, upstream definitions, ADRs, issues, and
+   internal design documents.
+4. **Architecture** - module boundaries, ownership, dependency direction,
+   sequence/state/dataflow diagrams, and collaboration maps.
+5. **Implementation** - production entry points, configuration, adapters,
+   data structures, and relevant symbols.
+6. **Code** - source and test navigation with clearly separated production
+   code, test code, and illustrative snippets.
+7. **Documentation** - canonical developer/user pages and generated excerpts.
+8. **Verification** - declared tests, actual runs, evidence artifacts, outcomes,
+   freshness, and explicit limitations.
+
+The navigation labels are shared, but a section is shown only when the contract
+has meaningful content for it. Missing evidence must be shown as missing; an
+inapplicable view should not become an empty placeholder.
+
+### Domain-specific visualizers
+
+A domain may provide one or more specialized visualizers without changing the
+shared envelope:
+
+| Domain / kind | Specialized visualizers |
+|---|---|
+| Numerical formula or method | Formula, derivation, theory curve, convergence plot |
+| Mesh or geometry | Topology, orientation, boundary map, mesh snapshot |
+| Runtime lifecycle | State machine, sequence diagram, ownership graph |
+| Case / CFD regression | Case setup, input inventory, run artifacts, residual and field comparisons |
+| Workflow | Dependency graph, artifact flow, failure propagation |
+| Performance | Benchmark protocol, scaling plot, profile and resource summary |
+
+A specialized visualizer is a projection of domain-owned data. It is not a new
+source of truth and must not duplicate the solver algorithm in GUI code.
+
+### Three independent status dimensions
+
+The page must distinguish:
+
+* **Intent status** - proposed, accepted, deprecated, or superseded design.
+* **Implementation status** - absent, partial, or implemented production behavior.
+* **Evidence status** - not linked, declared, resolved, executed, passed, failed,
+  stale, or blocked, with the scope and revision of the evidence.
+
+These dimensions must not collapse into one verified flag. For example, an
+implemented runtime lifecycle may have passing unit tests while still lacking
+multi-rank MPI or physical accelerator evidence.
+
+### Layout and interaction proposal
+
+The initial layout can retain the current Formula Knowledge experience as one
+specialization. A shared page should place the contract identity and status
+summary at the top, shared section navigation below it, and domain visualizers
+inside the relevant section. Architecture diagrams should link to their source
+modules and production entry points; implementation references should link to
+source files and symbols; verification entries should navigate to the exact
+test declaration and, when available, the immutable run record and artifacts.
+
+For Runtime, the Architecture view may show process and case scopes as a
+sequence/state diagram. For Case, the Principle view may explain governing
+equations and boundary conditions while the Case view shows actual inputs and
+run outputs. For Mesh, the Principle view may state orientation and incidence
+invariants while the Topology view visualizes nodes, faces, cells, and boundary
+ownership. This keeps a consistent mental model without pretending all domains
+are numerical formulas.
+
+### Migration rule
+
+Do not replace the existing Numerical or Geometry dialogs in one rewrite.
+Keep their current catalogs as authoritative inputs, continue using the
+read-only adapters, and introduce the shared shell only after the same
+navigation and evidence behavior has been exercised by at least two different
+domains. Runtime and Case are the next useful examples. The common schema should
+remain small; domain-specific payloads and visualizers should be typed and
+validated independently.
+
+### Acceptance checks
+
+* Numerical Formula/Curve behavior remains unchanged.
+* Runtime pages can render architecture and lifecycle diagrams without a
+  formula field.
+* Case pages can show physical setup, input assets, run evidence, and residual
+  comparisons without requiring a formula plot.
+* A section with no applicable content is omitted or clearly marked
+  inapplicable, never silently treated as verified.
+* Each displayed implementation or evidence link resolves to its declared
+  source; execution status is never inferred from a declaration.
+* The Qt-independent catalog and validation remain usable in CI.
+
+## 31. Selective source navigation
+
+Source-opening actions must never launch every associated file without asking.
+The shared file-opening path first resolves and deduplicates repository-relative
+files, rejects paths outside the repository, and excludes missing files. It then
+presents a selection dialog with extended selection, Select all, and
+Clear selection actions. A user can open one file, several selected files,
+or all files; Cancel opens none. The same selection behavior applies to
+implementation sources, documentation and references, and declared test
+sources. This keeps the action predictable when a contract links multiple
+production modules or tests.
+
+The Runtime contract runtime/gui-process-execution must expose its declared
+implementation paths in the Implementation / Code view and use the same
+selection action as every other contract. A regression test covers visibility
+of this action, the declared process-control source paths, selection cardinality,
+and opening only the selected file.
+
+
+
+## 32. Put source-opening actions in one visible action row
+
+The Implementation / Code source action is now part of the shared action row
+below the tabs, rather than being placed inside the Implementation page where
+it can be missed. The row order is intentional: **Open source files** first,
+then **Open documentation**, then **Open declared test sources**, followed by
+Case-specific actions when the Case domain is active. The source action always
+opens the implementation paths declared by the selected contract; it does not
+substitute the smaller set of test-evidence paths.
+
+The file picker still supports one, multiple, or all selected files. Source
+files are launched by an explicitly selected editor process rather than by the
+Windows file association for ``.py`` files; this avoids accidentally starting
+the Python interpreter and closing immediately. Configuration persists a
+source-editor preference: Visual Studio Code (default), Visual Studio 2026,
+Visual Studio 2022, Notepad++, or the system default application. Missing
+executables produce an actionable warning. Directory navigation continues to
+use the operating system file manager.
+
+
+## 2026-11-02 continuation: repository-case setup-only evidence
+
+The R1 production integration target now declares a setup-only smoke test for
+the checked-in test/grid/rae2822convert control scripts. The test copies the
+script directory to a temporary case, uses the production Context setup and
+teardown methods, asserts typed database values and generated diagnostics,
+and does not resolve or execute the Grid task. This avoids source-tree output
+pollution and keeps control ingestion separate from grid conversion.
+
+The case's grid.txt and part.txt retain legacy asset names that do not all
+match the case's checked-in files. Consequently, successful setup is not
+evidence that the Grid task or conversion output is valid. A separate task
+execution/output contract is required for that claim.
+
+The runtime contract declaration links the exact GoogleTest name as
+linked_not_executed. Static catalog resolution, CMake target declaration,
+CTest discovery, actual execution, and pass outcome remain distinct evidence
+states. The assistant has not run the user's Windows build or CTest.

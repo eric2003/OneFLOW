@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from tools.oneflow_gui.background_task_host import run_host
+from tools.oneflow_gui.background_task_manager import request_background_stop
 from tools.oneflow_gui.background_task_registry import BackgroundTask, BackgroundTaskRegistry
 
 
@@ -51,7 +52,7 @@ class BackgroundTaskHostTest(unittest.TestCase):
 
         def popen_and_request_stop(*args, **kwargs):
             process = subprocess.Popen(*args, **kwargs)
-            stop_file.write_text("stop\n", encoding="utf-8")
+            request_background_stop(self.root, "task-001")
             return process
 
         result = run_host(
@@ -67,6 +68,25 @@ class BackgroundTaskHostTest(unittest.TestCase):
         self.assertNotEqual(result, 0)
         self.assertEqual(task.status, "stopped")
         self.assertIn("stopped by request", task.message.lower())
+
+    def test_stop_request_does_not_reopen_a_terminal_task(self) -> None:
+        from dataclasses import replace
+
+        task = self.registry.update(
+            "task-001",
+            lambda current: replace(
+                current,
+                status="succeeded",
+                message="Already complete.",
+            ),
+        )
+
+        request_background_stop(self.root, task.task_id)
+
+        self.assertEqual(self.registry.load(task.task_id).status, "succeeded")
+        self.assertFalse(
+            (self.registry.records_directory / f"{task.task_id}.stop").exists()
+        )
 
     def test_host_records_nonzero_exit(self) -> None:
         result = run_host(

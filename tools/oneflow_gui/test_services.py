@@ -43,6 +43,7 @@ class DesktopServiceTest(unittest.TestCase):
             candidates = executable_candidates(
                 root,
                 {"ProgramFiles": str(install_root)},
+                platform_name="nt",
             )
             self.assertEqual(candidates[:2], [debug.resolve(), release.resolve()])
             self.assertIn(installed.resolve(), candidates)
@@ -54,7 +55,7 @@ class DesktopServiceTest(unittest.TestCase):
     def test_debug_and_release_choices_exist_before_building(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            candidates = executable_candidates(root, {})
+            candidates = executable_candidates(root, {}, platform_name="nt")
             self.assertEqual(
                 candidates[:2],
                 [

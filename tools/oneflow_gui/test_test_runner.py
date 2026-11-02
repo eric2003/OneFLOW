@@ -17,6 +17,9 @@ from tools.oneflow_gui.test_runner import (
     cmake_build_tree_is_configured,
     build_regression_command,
     build_unit_test_commands,
+    format_command_arguments,
+    format_final_test_status,
+    oneflow_executable_path,
     stage_regression_tests,
     summarize_test_output,
 )
@@ -39,8 +42,14 @@ class TestRunnerCommandTest(unittest.TestCase):
         self.assertTrue({
             "tools.verification.test_curve_catalog",
             "tools.verification.test_contract_catalog",
+            "tools.verification.test_cmake_test_catalog",
             "tools.oneflow_gui.test_contract_workbench_dialog",
+            "tools.oneflow_gui.test_source_editor",
             "tools.oneflow_gui.test_test_inventory",
+            "tools.oneflow_gui.test_test_diagnostics",
+            "tools.oneflow_gui.test_executable_discovery",
+            "tools.oneflow_gui.test_process_control",
+            "tools.oneflow_gui.test_runner_process",
         }.issubset(python_modules))
         self.assertTrue(all(command.task_type is TaskType.UNIT_TESTS for command in commands))
         self.assertFalse(any("OneFLOW.exe" in " ".join(command.arguments) for command in commands))
@@ -78,11 +87,51 @@ class TestRunnerCommandTest(unittest.TestCase):
             self.assertEqual(
                 command.arguments,
                 (
-                    "cmake", "..", "-D", "CMAKE_INSTALL_PREFIX=C:/dev/OneFLOW",
-                    "-D", "CMAKE_BUILD_TYPE=Debug",
+                    "cmake", "..", "-D", "CMAKE_BUILD_TYPE=Debug",
                 ),
             )
             self.assertEqual(command.label, "CMake configure (Debug)")
+
+    def test_linux_executable_path_uses_single_configuration_output(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            self.assertEqual(
+                oneflow_executable_path(root, "Debug", platform_name="posix"),
+                root / "build" / "bin" / "OneFLOW",
+            )
+            executable = oneflow_executable_path(root, "Release", platform_name="posix")
+            executable.parent.mkdir(parents=True)
+            executable.write_bytes(b"test")
+            commands = build_default_test_commands(
+                root, python="python-test", build_config="Release", platform_name="posix"
+            )
+            self.assertFalse(any(command.label.startswith("CMake build") for command in commands))
+
+    def test_posix_multi_configuration_generator_uses_config_subdirectory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            build = root / "build"
+            build.mkdir()
+            (build / "CMakeCache.txt").write_text(
+                "CMAKE_CONFIGURATION_TYPES:STRING=Debug;Release\n",
+                encoding="utf-8",
+            )
+            expected = build / "bin" / "Release" / "OneFLOW"
+            self.assertEqual(
+                oneflow_executable_path(root, "Release", platform_name="posix"),
+                expected,
+            )
+
+    def test_command_log_uses_platform_appropriate_quoting(self) -> None:
+        arguments = ("python", "path with spaces/test.py", "a'b")
+        self.assertEqual(
+            format_command_arguments(arguments, platform_name="posix"),
+            "python 'path with spaces/test.py' 'a'\"'\"'b'",
+        )
+        self.assertEqual(
+            format_command_arguments(("tool.exe", "path with spaces"), platform_name="nt"),
+            'tool.exe "path with spaces"',
+        )
 
     def test_release_configuration_is_used_for_cmake_configure(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -135,11 +184,18 @@ class TestRunnerCommandTest(unittest.TestCase):
     def test_default_tests_do_not_rebuild_when_selected_executable_exists(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
-            executable = root / "build" / "bin" / "Debug" / "OneFLOW.exe"
+            executable = oneflow_executable_path(root, "Debug", platform_name="nt")
             executable.parent.mkdir(parents=True)
             executable.write_bytes(b"test")
-            commands = build_default_test_commands(root, python="python-test")
-            self.assertFalse(any(command.label.startswith("CMake ") for command in commands))
+            commands = build_default_test_commands(root, python="python-test", platform_name="nt")
+            build_action_prefixes = (
+                "CMake configure (",
+                "CMake build (",
+                "CMake rebuild (",
+            )
+            self.assertFalse(
+                any(command.label.startswith(build_action_prefixes) for command in commands)
+            )
             self.assertFalse(any(command.label.startswith("C++") for command in commands))
 
     def test_ctest_is_included_only_when_build_is_configured(self) -> None:
@@ -232,7 +288,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             staged_test_directory.mkdir(parents=True)
             (staged_test_directory / "suites").mkdir()
             (staged_test_directory / "suites" / "ci-serial.txt").write_text(
-                "cfd/example\\n", encoding="utf-8"
+                "cfd/example\n", encoding="utf-8"
             )
             staged_command = build_regression_command(
                 root,
@@ -245,12 +301,34 @@ class TestRunnerCommandTest(unittest.TestCase):
             self.assertEqual(staged_command.working_directory, staged_test_directory.resolve())
             self.assertEqual(staged_command.arguments[4], "suites/ci-serial.txt")
 
+    def test_regression_command_uses_posix_mpi_and_shell_quoting(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            test_dir = root / "test"
+            (test_dir / "suites").mkdir(parents=True)
+            (test_dir / "suites" / "linux.txt").write_text("cfd/example\n", encoding="utf-8")
+            executable = root / "solver with spaces" / "OneFLOW"
+            executable.parent.mkdir(parents=True)
+            executable.write_bytes(b"test")
+
+            command = build_regression_command(
+                root,
+                executable,
+                "linux.txt",
+                python="python3",
+                platform_name="posix",
+            )
+
+            self.assertEqual(command.arguments[2], "mpirun -np 1")
+            self.assertEqual(command.arguments[3], "'" + str(executable.resolve()) + "'")
+            self.assertEqual(command.arguments[4], "suites/linux.txt")
+
     def test_regression_tests_are_copied_and_previous_workspace_is_replaced(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory) / "repo"
             (root / "test" / "suites").mkdir(parents=True)
             (root / "test" / "suites" / "cpu-serial.txt").write_text(
-                "cfd/example\\n", encoding="utf-8"
+                "cfd/example\n", encoding="utf-8"
             )
             (root / "test" / "cfd" / "example").mkdir(parents=True)
             (root / "test" / "cfd" / "example" / "config.json").write_text(
@@ -308,8 +386,24 @@ class TestRunnerCommandTest(unittest.TestCase):
             "FAILED (failures=1)",
         ])
         self.assertIn("Python unittest cases: 3 run, 2 passed, 1 failed, 0 skipped.", report)
+        self.assertIn("Failed unittest cases:", report)
+        self.assertIn(
+            "  - test_case_domain_displays_typed_case_setup_tab (sample.TestCase)",
+            report,
+        )
         self.assertIn("Failure details:", report)
         self.assertIn("AssertionError: expected label was missing", report)
+
+    def test_unittest_output_lists_every_failed_case_name(self) -> None:
+        report = summarize_test_output([
+            "FAIL: test_first (sample.FirstTest)",
+            "ERROR: test_second (sample.SecondTest)",
+            "Ran 5 tests in 0.1s",
+            "FAILED (failures=1, errors=1)",
+        ])
+        self.assertIn("2 failed", report[0])
+        self.assertIn("  - test_first (sample.FirstTest)", report)
+        self.assertIn("  - test_second (sample.SecondTest)", report)
 
     def test_ctest_output_reports_passed_and_failed_test_counts(self) -> None:
         report = summarize_test_output([
@@ -317,9 +411,46 @@ class TestRunnerCommandTest(unittest.TestCase):
             "The following tests FAILED:",
             "  2 - FaceTopologyTest (Failed)",
         ])
-        self.assertIn("CTest cases: 3 run, 2 passed, 1 failed.", report)
+        self.assertIn("CTest cases: 3 run, 2 passed, 1 failed, 0 skipped.", report)
         self.assertIn("Failure details:", report)
         self.assertIn("  2 - FaceTopologyTest (Failed)", report)
+
+    def test_ctest_output_reports_skipped_test_counts(self) -> None:
+        report = summarize_test_output([
+            "100% tests passed, 0 tests failed out of 3",
+            "The following tests did not run:",
+            "  3 - OptionalHardwareTest (Skipped)",
+        ])
+        self.assertIn("CTest cases: 3 run, 2 passed, 0 failed, 1 skipped.", report)
+
+    def test_final_status_includes_command_and_framework_case_counts(self) -> None:
+        report = "\n".join([
+            "Test command summary:",
+            "  Total: 8",
+            "  Passed: 5",
+            "  Failed: 1",
+            "  Not run: 2",
+            "Python unittest cases: 26 run, 24 passed, 1 failed, 1 skipped.",
+            "CTest cases: 10 run, 9 passed, 0 failed, 1 skipped.",
+        ])
+        status = format_final_test_status(False, report)
+        self.assertEqual(
+            status,
+            "FINAL STATUS: FAIL | Commands: 5 passed, 1 failed, 2 not run (8 total) "
+            "| Python unittest: 24 passed, 1 failed, 1 skipped (26 total) "
+            "| CTest: 9 passed, 0 failed, 1 skipped (10 total)",
+        )
+
+    def test_final_status_without_case_summary_keeps_command_counts(self) -> None:
+        status = format_final_test_status(
+            True,
+            "Test command summary:\n  Total: 2\n  Passed: 2\n"
+            "  Failed: 0\n  Not run: 0",
+        )
+        self.assertEqual(
+            status,
+            "FINAL STATUS: PASS | Commands: 2 passed, 0 failed, 0 not run (2 total)",
+        )
 
     def test_multiple_unittest_runs_aggregate_each_failure_count(self) -> None:
         report = summarize_test_output([

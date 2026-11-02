@@ -875,6 +875,238 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Sweep stability on arbitrary meshes.",
         ),
 
+
+
+
+
+
+        TheoryEntry(
+            id="effective_thermal_conductivity",
+            family="mean-flow",
+            genus="NS-viscous",
+            section="heat flux / conductivity",
+            title="Effective thermal conductivity (laminar + turbulent)",
+            role_tags=("viscous", "heat-flux", "conductivity"),
+            formula_plain=(
+                "k_eff = (mu/Pr_l + mut/Pr_t) * cp\n"
+                "     = (mu*invPr_l + mut*invPr_t) * cp"
+            ),
+            formula_latex=(
+                r"k_{\mathrm{eff}}=\left(\frac{\mu}{\mathrm{Pr}_l}+\frac{\mu_t}{\mathrm{Pr}_t}\right)c_p"
+            ),
+            principle=(
+                "Eddy-viscosity heat transport: laminar and turbulent "
+                "contributions add after division by Prandtl numbers, "
+                "then scale by specific heat to conductivity."
+            ),
+            background=(
+                "Pure API EffectiveThermalConductivity in NsVisFluxPolicy. "
+                "Downstream: ConductiveHeatFluxNormal."
+            ),
+            references=(
+                "Standard RANS heat-flux closure; OneFLOW NsVisFluxPolicy",
+                "doc/source/numerical/effective_thermal_conductivity.rst",
+            ),
+            csv_relpath="tools/verification/data/effective_thermal_conductivity_theory.csv",
+            plot_module="plot_effective_thermal_conductivity",
+            pure_apis=("EffectiveThermalConductivity",),
+            source_relpaths=(
+                "codes/ns/include/NsVisFluxPolicy.h",
+                "codes/ns/src/NsVisFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/effective_thermal_conductivity.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "k = (mu*invPrL + mut*invPrT) * cp;\n"
+            ),
+            proves="k_eff algebra vs pure API on a mut grid.",
+            does_not_prove="Full viscous face heat flux residual on a mesh.",
+        ),
+
+        TheoryEntry(
+            id="combine_inv_vis_timestep",
+            family="mean-flow",
+            genus="NS-spectrum",
+            section="time-step / inviscid-viscous combine",
+            title="Harmonic combine of inviscid and viscous time steps",
+            role_tags=("time-step", "CFL"),
+            formula_plain=(
+                "dt = dt_inv * dt_vis / (dt_inv + dt_vis)\n"
+                "Harmonic-type bound: limited by the stiffer (smaller) side"
+            ),
+            formula_latex=(
+                r"\Delta t=\frac{\Delta t_{\mathrm{inv}}\Delta t_{\mathrm{vis}}}"
+                r"{\Delta t_{\mathrm{inv}}+\Delta t_{\mathrm{vis}}}"
+            ),
+            principle=(
+                "After separate inviscid and viscous Delta-t estimates, combine "
+                "so either stiff channel reduces the final step. Equivalent to "
+                "parallel resistors / harmonic mean scaled by 1/2 when equal."
+            ),
+            background=(
+                "Pure API CombineInvAndVisTimeStep in TimeStepPolicy. Upstream: "
+                "CellTimeStepFromSpectrum on inviscid and viscous spectra."
+            ),
+            references=(
+                "Standard CFD local time-step practice; OneFLOW TimeStepPolicy",
+                "doc/source/numerical/combine_inv_vis_timestep.rst",
+            ),
+            csv_relpath="tools/verification/data/combine_inv_vis_timestep_theory.csv",
+            plot_module="plot_combine_inv_vis_timestep",
+            pure_apis=("CombineInvAndVisTimeStep",),
+            source_relpaths=(
+                "codes/ns/include/TimeStepPolicy.h",
+                "codes/ns/src/TimeStepPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/combine_inv_vis_timestep.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "dt = dtInv * dtVis / (dtInv + dtVis);\n"
+            ),
+            proves="Harmonic combine algebra vs pure API on a dt_inv grid.",
+            does_not_prove="Optimal CFL on a case mesh or spectrum accuracy.",
+        ),
+
+        TheoryEntry(
+            id="viscous_spectral_radius_model3",
+            family="mean-flow",
+            genus="NS-spectrum",
+            section="time-step / viscous spectral radius",
+            title="Viscous face spectral radius (model 3, minimal)",
+            role_tags=("time-step", "spectrum", "viscous"),
+            formula_plain=(
+                "lambda = A^2 / (Re * rho)\n"
+                "No explicit mu; cheapest viscous spectral placeholder"
+            ),
+            formula_latex=(
+                r"\lambda_{\mathrm{vis}}=\frac{A^{2}}{\mathrm{Re}\,\rho}"
+            ),
+            principle=(
+                "Minimal A^2 diffusion-scale bound with viscous magnitude "
+                "absorbed into Re. Fallback when full mu/Pr fields are unused."
+            ),
+            background=(
+                "Pure API ViscousFaceSpectralRadiusModel3. Family overview: "
+                "doc/source/numerical/viscous_spectral_radius.rst"
+            ),
+            references=(
+                "Blazek time-step chapters (motivation); OneFLOW TimeStepPolicy",
+                "doc/source/numerical/viscous_spectral_radius_model3.rst",
+            ),
+            csv_relpath="tools/verification/data/viscous_spectral_radius_model3_theory.csv",
+            plot_module="plot_viscous_spectral_radius_model3",
+            pure_apis=("ViscousFaceSpectralRadiusModel3",),
+            source_relpaths=(
+                "codes/ns/include/TimeStepPolicy.h",
+                "codes/ns/src/TimeStepPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/viscous_spectral_radius_model3.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "lambda = A*A / (Re * rho + SMALL);\n"
+            ),
+            proves="Model-3 algebra and A^2 scaling vs pure API.",
+            does_not_prove="Adequacy vs model 1 in high-mut boundary layers.",
+        ),
+
+        TheoryEntry(
+            id="viscous_spectral_radius_model2",
+            family="mean-flow",
+            genus="NS-spectrum",
+            section="time-step / viscous spectral radius",
+            title="Viscous face spectral radius (model 2, length-scale)",
+            role_tags=("time-step", "spectrum", "viscous"),
+            formula_plain=(
+                "c1 = 2 * mu_tot / (rho * d * Re)\n"
+                "lambda = 0.5 * c1 * A\n"
+                "d = cell/wall distance scale"
+            ),
+            formula_latex=(
+                r"c_1=\frac{2\mu_{\mathrm{tot}}}{\rho\,d\,\mathrm{Re}},\quad "
+                r"\lambda_{\mathrm{vis}}=\frac{1}{2} c_1 A"
+            ),
+            principle=(
+                "Uses an explicit length scale d (cell or wall distance) instead "
+                "of area-squared only. Diffusion scale nu/d^2 mapped to a face "
+                "spectral contribution proportional to A."
+            ),
+            background=(
+                "Pure API ViscousFaceSpectralRadiusModel2 in TimeStepPolicy. "
+                "Companion to model 1 (Blazek max diffusivity) and model 3 "
+                "(A^2/(Re rho) only)."
+            ),
+            references=(
+                "Blazek CFD; OneFLOW TimeStepPolicy",
+                "doc/source/numerical/viscous_spectral_radius_model2.rst",
+            ),
+            csv_relpath="tools/verification/data/viscous_spectral_radius_model2_theory.csv",
+            plot_module="plot_viscous_spectral_radius_model2",
+            pure_apis=("ViscousFaceSpectralRadiusModel2",),
+            source_relpaths=(
+                "codes/ns/include/TimeStepPolicy.h",
+                "codes/ns/src/TimeStepPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/viscous_spectral_radius_model2.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "c1 = 2*mu / (rho*d*Re + SMALL);\n"
+                "lambda = 0.5 * c1 * A;\n"
+            ),
+            proves="Model-2 algebra vs pure API on a viscosity grid; 1/d scaling.",
+            does_not_prove="Optimal choice of d on a mesh or model 1/3 equivalence.",
+        ),
+
+        TheoryEntry(
+            id="viscous_spectral_radius_model1",
+            family="mean-flow",
+            genus="NS-spectrum",
+            section="time-step / viscous spectral radius",
+            title="Viscous face spectral radius (model 1, Blazek-style)",
+            role_tags=("time-step", "spectrum", "viscous"),
+            formula_plain=(
+                "c1 = (4/3)*(mu + mut)\n"
+                "c2 = gamma*(mu/Pr_l + mut/Pr_t)\n"
+                "c3 = 2*max(c1,c2)/(Re*rho)\n"
+                "lambda = A^2 * c3"
+            ),
+            formula_latex=(
+                r"c_1=\frac{4}{3}(\mu+\mu_t),\ "
+                r"c_2=\gamma(\mu/\mathrm{Pr}_l+\mu_t/\mathrm{Pr}_t)"
+                "\n"
+                r"\lambda_{\mathrm{vis}}=A^{2}\cdot\frac{2\max(c_1,c_2)}{\mathrm{Re}\,\rho}"
+            ),
+                        principle=(
+                "Diffusion scale nu*k^2 with k~A/V yields lambda_vis ~ A^2 * nu_eff. "
+                "Model 1 takes nu_eff from max of momentum (4/3 viscosity) and energy "
+                "(gamma*mu/Pr) channels; engineering time-step bound, not exact eigenradius."
+            ),
+            background=(
+                "Pure API ViscousFaceSpectralRadiusModel1 in TimeStepPolicy. "
+                "Derivation: doc/source/numerical/viscous_spectral_radius_model1.rst "
+                "(Derivation section). Feeds viscous dt and related spectra."
+            ),
+references=(
+                "Blazek, Computational Fluid Dynamics; OneFLOW TimeStepPolicy",
+                "doc/source/numerical/viscous_spectral_radius_model1.rst",
+            ),
+            csv_relpath="tools/verification/data/viscous_spectral_radius_model1_theory.csv",
+            plot_module="plot_viscous_spectral_radius_model1",
+            pure_apis=("ViscousFaceSpectralRadiusModel1",),
+            source_relpaths=(
+                "codes/ns/include/TimeStepPolicy.h",
+                "codes/ns/src/TimeStepPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/viscous_spectral_radius_model1.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "c1 = (4.0/3.0)*(mu+mut);\n"
+                "c2 = gama*(mu*invPrL + mut*invPrT);\n"
+                "lambda = A*A * 2*max(c1,c2)/(Re*rho);\n"
+            ),
+            proves="Model-1 viscous spectral algebra vs pure API on a mut grid.",
+            does_not_prove="Full CFL time-step on a case mesh or models 2/3.",
+        ),
+
         TheoryEntry(
             id="ns_inviscid_spectrum",
             family="mean-flow",
@@ -925,6 +1157,391 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Global CFL stability on a case.",
         ),
 
+
+        TheoryEntry(
+            id="ausm_mach_split",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="flux / AUSM splits",
+            title="AUSM Mach and pressure split (FMSplit4 / FPSplit5)",
+            role_tags=("flux", "AUSM", "Mach-split"),
+                        formula_plain=(
+                "M1(M,s) = 0.5 * (M + s*|M|)\n"
+                "M2(M,s) = s * 0.25 * (M + s)^2\n"
+                "FMSplit4(M,beta,s):\n"
+                "  |M| >= 1  ->  M1(M,s)\n"
+                "  |M| <  1  ->  M2(M,s) * (1 - s*16*beta*M2(M,-s))\n"
+                "FPSplit5(M,alpha,s):\n"
+                "  |M| >= 1  ->  0.5 * (1 + s*M/|M|)\n"
+                "  |M| <  1  ->  M2(M,s) * ((2*s - M) - s*16*alpha*M*M2(M,-s))\n"
+                "s = ipn = +/-1;  beta = 1/8;  alpha = 3/16 (typical AUSM)"
+            ),
+                        formula_latex=(
+                r"M_1=\frac{1}{2}(M+s|M|),\quad M_2=s\frac{1}{4}(M+s)^{2}"
+                "\n"
+                r"M^{\pm}_{4}=M_1\ (|M|>=1);\ "
+                r"M_2\bigl(1-s\,16\beta M_2(M,-s)\bigr)\ (|M|<1)"
+                "\n"
+                r"P^{\pm}_{5}=\frac{1}{2}(1+s M/|M|)\ (|M|>=1);\ "
+                r"M_2\bigl((2s-M)-s\,16\alpha M\,M_2(M,-s)\bigr)\ (|M|<1)"
+                "\n"
+                r"s=i_{pn}=\pm 1,\ \beta=\frac{1}{8},\ \alpha=\frac{3}{16}"
+            ),
+principle=(
+                "AUSM splits mass and pressure contributions using smooth "
+                "polynomials in the subsonic range and upwind steps outside "
+                "the sonic interval."
+            ),
+            background=(
+                "Pure inline APIs in NsInvFluxPolicy.h (single definition, "
+                "ODR-safe). Locked by inv_flux_policy_test Mach-grid checks."
+            ),
+            references=(
+                "Liou AUSM family; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/ausm_mach_split.rst",
+            ),
+            csv_relpath="tools/verification/data/ausm_mach_split_theory.csv",
+            plot_module="plot_ausm_mach_split",
+            pure_apis=("FMSplit1", "FMSplit2", "FMSplit4", "FPSplit5"),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+            ),
+            doc_relpath="doc/source/numerical/ausm_mach_split.rst",
+            code_sketch=(
+                "// GATED SKETCH — production is inline in NsInvFluxPolicy.h\n"
+                "Real FMSplit1(M,s){ return 0.5*(M + s*fabs(M)); }\n"
+                "Real FMSplit2(M,s){ return s*0.25*(M+s)*(M+s); }\n"
+                "Real FMSplit4(M,beta,s){\n"
+                "  if (fabs(M)>=1) return FMSplit1(M,s);\n"
+                "  return FMSplit2(M,s)*(1 - s*16*beta*FMSplit2(M,-s));\n"
+                "}\n"
+                "Real FPSplit5(M,alpha,s){\n"
+                "  if (fabs(M)>=1) return 0.5*(1 + s*M/(fabs(M)+eps));\n"
+                "  return FMSplit2(M,s)*((2*s-M) - s*16*alpha*M*FMSplit2(M,-s));\n"
+                "}\n"
+            ),
+            proves="FMSplit4/FPSplit5 closed form vs pure APIs on a Mach grid.",
+            does_not_prove="Full AUSM face flux or shock-capturing quality.",
+        ),
+
+
+
+
+
+
+
+        TheoryEntry(
+            id="roe_pressure_from_enthalpy",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / face pressure",
+            title="Roe pressure from total enthalpy (LUSGS mode 0)",
+            role_tags=("EOS", "pressure", "LUSGS"),
+            formula_plain=(
+                "p = rho * (H - 0.5*|u|^2) * (gamma - 1) / gamma\n"
+                "LusgsFacePressureFromMode(0,...) uses this closure"
+            ),
+            formula_latex=(
+                r"p=\rho\left(H-\frac{1}{2}|u|^{2}\right)\frac{\gamma-1}{\gamma}"
+            ),
+            principle=(
+                "Recover static pressure from Roe-averaged total enthalpy by "
+                "removing kinetic energy and applying the ideal-gas factor."
+            ),
+            background=(
+                "Pure API RoePressureFromTotalEnthalpy. Selected by "
+                "LusgsFacePressureFromMode when mode==0."
+            ),
+            references=(
+                "Roe average state; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/roe_pressure_from_enthalpy.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_pressure_from_enthalpy_theory.csv",
+            plot_module="plot_roe_pressure_from_enthalpy",
+            pure_apis=("RoePressureFromTotalEnthalpy", "LusgsFacePressureFromMode"),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_pressure_from_enthalpy.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "p = rho * (H - 0.5 * speedSquared) * (gama - 1) / gama;\n"
+            ),
+            proves="Pressure-from-enthalpy algebra vs pure API on an H grid.",
+            does_not_prove="Full LUSGS residual or mode-1 Roe-weighted pressure path.",
+        ),
+
+        TheoryEntry(
+            id="ideal_gas_sound_speed",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Ideal-gas sound speed from total enthalpy",
+            role_tags=("EOS", "sound-speed"),
+            formula_plain=(
+                "c = sqrt( (gamma-1) * (H - 0.5*|u|^2) )\n"
+                "With |u|=0: c = sqrt( (gamma-1)*H )"
+            ),
+            formula_latex=(
+                r"c=\sqrt{(\gamma-1)\bigl(H-\frac{1}{2}|u|^{2}\bigr)}"
+            ),
+            principle=(
+                "Isentropic sound speed from total enthalpy after removing "
+                "kinetic energy. Used by Roe eigenvalues and time-step spectra."
+            ),
+            background=(
+                "Pure API IdealGasSoundSpeed in NsInvFluxPolicy. "
+                "Upstream: IdealGasStaticEnthalpy / TotalEnthalpy."
+            ),
+            references=(
+                "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/ideal_gas_sound_speed.rst",
+            ),
+            csv_relpath="tools/verification/data/ideal_gas_sound_speed_theory.csv",
+            plot_module="plot_ideal_gas_sound_speed",
+            pure_apis=("IdealGasSoundSpeed",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ideal_gas_sound_speed.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "c2 = (gama - 1) * (H - 0.5 * speedSquared);\n"
+                "c = sqrt(fabs(c2));\n"
+            ),
+            proves="Sound-speed algebra vs pure API on an H grid (and kinetic sample).",
+            does_not_prove="Variable-gamma gas or numerical flux case residuals.",
+        ),
+
+
+        TheoryEntry(
+            id="total_enthalpy",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Total enthalpy H = h + |u|^2/2",
+            role_tags=("EOS", "enthalpy"),
+            formula_plain=(
+                "H = h + 0.5 * |u|^2\n"
+                "Feeds Roe average, sound speed, pressure-from-H"
+            ),
+            formula_latex=(
+                r"H=h+\frac{1}{2}|u|^{2}"
+            ),
+            principle=(
+                "Total enthalpy adds kinetic energy to static enthalpy. "
+                "Central link between IdealGasStaticEnthalpy and Roe/LUSGS "
+                "face thermodynamics."
+            ),
+            background=(
+                "Pure API TotalEnthalpy in NsInvFluxPolicy. Upstream: static "
+                "enthalpy; downstream: IdealGasSoundSpeed, "
+                "RoePressureFromTotalEnthalpy."
+            ),
+            references=(
+                "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/total_enthalpy.rst",
+            ),
+            csv_relpath="tools/verification/data/total_enthalpy_theory.csv",
+            plot_module="plot_total_enthalpy",
+            pure_apis=("TotalEnthalpy",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/total_enthalpy.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "H = h + 0.5 * speedSquared;\n"
+            ),
+            proves="Total-enthalpy algebra vs pure API on a kinetic grid.",
+            does_not_prove="Full Roe average state consistency on a mesh.",
+        ),
+
+        TheoryEntry(
+            id="ideal_gas_static_enthalpy",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Ideal-gas static enthalpy h(p, rho, gamma)",
+            role_tags=("EOS", "enthalpy"),
+            formula_plain=(
+                "h = (gamma / (gamma - 1)) * (p / rho)\n"
+                "gamma = 1.4 -> slope 3.5 on the p/rho axis"
+            ),
+            formula_latex=(
+                r"h=\frac{\gamma}{\gamma-1}\frac{p}{\rho}"
+            ),
+            principle=(
+                "Calorically perfect gas static enthalpy from pressure and density. "
+                "Feeds Roe average total enthalpy and sound-speed closures."
+            ),
+            background=(
+                "Pure API IdealGasStaticEnthalpy in NsInvFluxPolicy. "
+                "Related: IdealGasSpecificInternalEnergy, IdealGasSoundSpeed."
+            ),
+            references=(
+                "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/ideal_gas_static_enthalpy.rst",
+            ),
+            csv_relpath="tools/verification/data/ideal_gas_static_enthalpy_theory.csv",
+            plot_module="plot_ideal_gas_static_enthalpy",
+            pure_apis=("IdealGasStaticEnthalpy",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ideal_gas_static_enthalpy.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "h = (gama / (gama - 1.0)) * (pressure / density);\n"
+            ),
+            proves="Static enthalpy algebra vs pure API on a p/rho grid.",
+            does_not_prove="Variable-gamma gas or real-gas thermodynamics.",
+        ),
+
+        TheoryEntry(
+            id="roe_average_weights",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="flux / Roe average",
+            title="Roe average weights (ratio, coef)",
+            role_tags=("flux", "Roe", "average"),
+            formula_plain=(
+                "ratio = sqrt(rho_R / rho_L)\n"
+                "coef  = 1 / (1 + ratio)\n"
+                "Component average: (left + right*ratio)*coef"
+            ),
+            formula_latex=(
+                r"\mathrm{ratio}=\sqrt{\rho_R/\rho_L}"
+                "\n"
+                r"\mathrm{coef}=\frac{1}{1+\mathrm{ratio}}"
+            ),
+            principle=(
+                "Density-based weights for the Roe-averaged interface state. "
+                "Equal densities give ratio=1, coef=1/2 (arithmetic mean)."
+            ),
+            background=(
+                "Pure API RoeAverageWeights. Feeds RoeAverageComponent and "
+                "RoeAverageState used by the Roe flux."
+            ),
+            references=(
+                "Roe (1981); OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/roe_average_weights.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_average_weights_theory.csv",
+            plot_module="plot_roe_average_weights",
+            pure_apis=("RoeAverageWeights", "RoeAverageComponent"),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_average_weights.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "ratio = sqrt(rhoR / rhoL);\n"
+                "coef  = 1.0 / (1.0 + ratio);\n"
+            ),
+            proves="ratio/coef algebra vs pure API on a density-ratio grid.",
+            does_not_prove="Full RoeAverageState pressure/enthalpy consistency.",
+        ),
+
+        TheoryEntry(
+            id="roe_dissipation_coupling",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="flux / Roe dissipation",
+            title="Roe dissipation coupling terms (term1, term2)",
+            role_tags=("flux", "Roe", "dissipation"),
+            formula_plain=(
+                "term1 = dh * xi1 + dc * xi2\n"
+                "term2 = c^2 * dc * xi1 + dh * xi2\n"
+                "dh = total-enthalpy jump; dc = density jump (Roe-scaled)"
+            ),
+            formula_latex=(
+                r"\mathrm{term}_1=\Delta H\,\xi_1+d_c\,\xi_2"
+                "\n"
+                r"\mathrm{term}_2=c^{2}\,d_c\,\xi_1+\Delta H\,\xi_2"
+            ),
+            principle=(
+                "Maps wave coefficients and jumps into the two scalars that "
+                "enter the five-equation Roe dissipation update."
+            ),
+            background=(
+                "Pure API RoeDissipationCouplingTerms. Upstream: xi1/xi2 from "
+                "RoeDissipationWaveCoefficients. Downstream: ApplyRoeDissipationFiveEq."
+            ),
+            references=(
+                "Roe (1981); OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/roe_dissipation_coupling.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_dissipation_coupling_theory.csv",
+            plot_module="plot_roe_dissipation_coupling",
+            pure_apis=("RoeDissipationCouplingTerms",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_dissipation_coupling.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "term1 = dh * xi1 + dc * xi2;\n"
+                "term2 = c2 * dc * xi1 + dh * xi2;\n"
+            ),
+            proves="term1/term2 algebra vs pure API on a Delta-H grid.",
+            does_not_prove="Full five-eq Roe flux residual on a case mesh.",
+        ),
+
+        TheoryEntry(
+            id="roe_dissipation_wave_coeff",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="flux / Roe dissipation",
+            title="Roe dissipation wave coefficients xi1, xi2",
+            role_tags=("flux", "Roe", "dissipation"),
+            formula_plain=(
+                "a1=|vn|, a2=|vn+c|, a3=|vn-c| (after absolute + optional Harten)\n"
+                "xi1 = (2*a1 - a2 - a3) / (2*c^2)\n"
+                "xi2 = (a2 - a3) / (2*c)\n"
+                "Used to form Roe dissipation coupling terms."
+            ),
+            formula_latex=(
+                r"a_1=|v_n|,\ a_2=|v_n+c|,\ a_3=|v_n-c|"
+                "\n"
+                r"\xi_1=\frac{2a_1-a_2-a_3}{2c^{2}},\quad "
+                r"\xi_2=\frac{a_2-a_3}{2c}"
+            ),
+            principle=(
+                "Projects absolute wave speeds into the two scalar coefficients "
+                "that weight continuity and enthalpy jumps in Roe dissipation."
+            ),
+            background=(
+                "Pure API RoeDissipationWaveCoefficients. Downstream: "
+                "RoeDissipationCouplingTerms and ApplyRoeDissipationFiveEq."
+            ),
+            references=(
+                "Roe (1981); OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/roe_dissipation_wave_coeff.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_dissipation_wave_coeff_theory.csv",
+            plot_module="plot_roe_dissipation_wave_coeff",
+            pure_apis=("RoeDissipationWaveCoefficients",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_dissipation_wave_coeff.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "xi1 = (2*a1 - a2 - a3) / (2*c*c);\n"
+                "xi2 = (a2 - a3) / (2*c);\n"
+            ),
+            proves="xi1/xi2 algebra vs pure API on an |vn| grid.",
+            does_not_prove="Full Roe flux residual or shock-capturing quality.",
+        ),
+
         TheoryEntry(
             id="ns_roe_harten",
             family="mean-flow",
@@ -932,31 +1549,50 @@ def list_theory_entries() -> list[TheoryEntry]:
             section="flux / Roe dissipation",
             title="Harten entropy fix (eigenvalue floor)",
             role_tags=("flux", "entropy-fix"),
-            formula_plain=(
-                "If enabled, floor |lambda| using max-eigenvalue * centropy factors\n"
-                "(production uses MAX macro semantics)"
+                        formula_plain=(
+                "If enabled (else identity):\n"
+                "  lambda_max = max(|vn+c|, |vn-c|)\n"
+                "  m1 = lambda_max * centropy1\n"
+                "  m2 = lambda_max * centropy2\n"
+                "  |vn|     <- max(m1, |vn|)\n"
+                "  |vn+c|   <- max(m2, |vn+c|)\n"
+                "  |vn-c|   <- max(m2, |vn-c|)\n"
+                "Uses production MAX macro semantics."
             ),
             formula_latex=(
-                r"|\lambda|\leftarrow\max(|\lambda|,m)"
-                r"\quad\text{(Harten-type floor)}"
+                r"\lambda_{\max}=\max(|v_n+c|,|v_n-c|)"
+                "\n"
+                r"m_1=\lambda_{\max} c_1,\quad m_2=\lambda_{\max} c_2"
+                "\n"
+                r"|v_n|\leftarrow\max(m_1,|v_n|),\ "
+                r"|v_n\pm c|\leftarrow\max(m_2,|v_n\pm c|)"
             ),
             principle=(
                 "Floors small Roe wave speeds to reduce expansion shocks."
             ),
-            background=("Pure policy ApplyHartenEntropyFix; tests must match MAX semantics."),
-            references=("Harten entropy fix; NsInvFluxPolicy tests",),
-            csv_relpath=None,
-            plot_module=None,
+            background=(
+                "Pure policy ApplyHartenEntropyFix. Floors are independent per "
+                "wave family after absolute eigenvalues are formed."
+            ),
+            references=(
+                "Harten entropy fix; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/harten_entropy_fix.rst",
+            ),
+                        csv_relpath="tools/verification/data/harten_entropy_fix_theory.csv",
+            plot_module="plot_harten_entropy_fix",
             pure_apis=("ApplyHartenEntropyFix",),
             source_relpaths=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/index.rst",
+            doc_relpath="doc/source/numerical/harten_entropy_fix.rst",
             code_sketch=(
                 "// GATED SKETCH - mirror production MAX in tests.\n"
+                "lambda_max = max(|vn+c|, |vn-c|);\n"
+                "m1 = lambda_max * centropy1; m2 = lambda_max * centropy2;\n"
+                "|vn| = max(m1, |vn|); |vn+/-c| = max(m2, |vn+/-c|);\n"
             ),
-            proves="Entropy-fix pure policy tests.",
+proves="Entropy-fix pure policy tests.",
             does_not_prove="Full Roe flux shock-capturing quality.",
         ),
     ]

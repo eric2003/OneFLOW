@@ -46,10 +46,12 @@ Developer resources
 
 * :doc:`test_inventory` — source-discovered test catalog, separated by framework, with input/expected/result contracts.
 * :doc:`runtime_architecture` — runtime entry points, configuration boundaries, execution flow, and refactoring rules.
+* :doc:`runtime_case_lifecycle` — production CLI-to-case execution sequence, configuration ingestion, cleanup ownership, and integration evidence.
 * :doc:`database_architecture` — parameter ownership, type-erased storage, const access, field pointer registration, and serialization contracts.
 * :doc:`evolutionary_computation_architecture` — computation-unit contracts, intermediate representations, and the long-term algorithm/dataflow evolution model.
 * :doc:`architecture_review` — whole-system CFD/CAE architecture checklist, major cross-cutting risks, and AI-assisted development review prompts.
 * :doc:`architecture_priority_roadmap` — ranked investment sequence by system-wide return, verification cost, and cross-subsystem leverage.
+* :doc:`verification_evidence_lifecycle` — how claims, tests, runs, artifacts, numerical results, and references form an auditable evidence chain.
 * `AI project context and refactoring handoff <https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_CONTEXT.md>`_ — current focus, verified findings, open gaps, and next actions for continuing work.
 * :doc:`workbench_architecture` — Workbench concepts, service boundaries, and run lifecycle.
 * `Verification Contract Workbench proposal <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/verification-contract-workbench.md>`_ — proposed shared model for numerical, geometry, runtime, workflow, and case evidence; not yet an implementation claim.
@@ -133,7 +135,9 @@ The existing reference library covers programming languages, build systems, para
    :caption: OneFLOW Design and Development
 
    architecture_review
+   verification_evidence_lifecycle
    runtime_architecture
+   runtime_case_lifecycle
    database_architecture
    evolutionary_computation_architecture
    mesh_architecture

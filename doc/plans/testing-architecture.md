@@ -120,6 +120,35 @@ The separate Repository Test Inventory remains the read-only source browser.
 This preserves a clear distinction between discovery and execution while
 making the three tests part of the normal GUI test action.
 
+## Test artifact and workspace isolation
+
+Test execution has two different path responsibilities: source access and writable
+artifacts. Python unittest commands intentionally keep the repository root as
+their working directory so package imports, repository-relative catalog paths,
+and existing command semantics remain stable. This does not make the repository
+a writable test-output directory.
+
+Writable data follows the centralized `UserDataPaths` policy:
+
+- Windows default: `%USERPROFILE%\\.oneflow`.
+- Linux and other POSIX defaults: `$HOME/.oneflow`.
+- `ONEFLOW_HOME` overrides the default on either platform.
+- GUI-captured Python unittest output is stored under
+  `test-runs/logs/<record-id>.log`.
+- Append-only execution evidence remains under
+  `verification/execution-records.jsonl`; records refer to the captured log
+  artifact rather than duplicating its contents.
+- CFD regression cases are staged under the user-data `cfd-regression/`
+  workspace, and Development Tests use their dedicated protected workspace.
+- CTest executes in the configured build tree. CMake build products belong
+  under `build/`, not the source root.
+- Short-lived unit-test fixtures should use `TemporaryDirectory` or an explicit
+  isolated workspace. Tests must not create generated files beside source files
+  merely because the repository root is their process working directory.
+
+This separation preserves reproducible imports while keeping generated data,
+logs, and execution evidence outside version-controlled source.
+
 ## Design principles and industry practices
 
 The design borrows a small set of established practices:
@@ -158,3 +187,70 @@ The three focused Contract Workbench commands validate catalog and inventory
 behavior. The command-builder test validates GUI registration. CTest validates
 the configured native suite. CFD regression remains a separate validation
 step.
+
+
+## Production runtime lifecycle integration evidence
+
+The C++ target
+`simu_imp_case_lifecycle_integration_test` is a production-linked GoogleTest
+target. It links `OneFLOW_RuntimeObjects` and is registered with
+`gtest_discover_tests()`, so each GoogleTest declaration is discovered by
+CTest rather than copied into a second hand-maintained test list.
+
+The sequential-case test verifies more than distinct database values. It
+captures the effective project and I/O roots inside the production task:
+case A configures independent roots through its control file, then case B
+omits those settings and must return to its own case-relative defaults. This
+guards against process-global `Prj` state leaking across case boundaries.
+
+Both Windows and Linux CI run the configured CTest suite. The corresponding
+CI commands are already present in
+`.github/workflows/windows.yml` and `.github/workflows/linux.yml`; adding
+a second invocation for this target would duplicate the existing suite.
+The focused local command is:
+
+```powershell
+cmake --build build --config Debug --target simu_imp_case_lifecycle_integration_test
+ctest --test-dir build -C Debug -R "SimuImpCaseLifecycleIntegration" --output-on-failure
+```
+
+A discovered or linked test is not a passing execution record. The contract
+catalog continues to label these declarations `linked_not_executed` until
+an actual run result is captured. This test proves the stated sequential
+configuration-isolation behavior only; it does not prove multi-rank MPI,
+hardware accelerator teardown, or CFD numerical correctness.
+
+
+## Detached background-task registry on Windows
+
+The detached host and the Workbench may read the same task record while the host
+publishes state transitions. Registry writes use a same-directory temporary file,
+flush it to disk, and replace the JSON record atomically so readers do not observe
+partial JSON. Windows can temporarily reject a rename/replace when another process
+has a short-lived handle on the destination (for example, an overlapping reader or
+file-system scanner). The registry therefore retries `PermissionError` a bounded
+number of times with a short increasing delay. The retry window is deliberately
+finite: a persistent access-control error still fails visibly, the previous record
+remains intact, and the temporary file is removed. Tests cover both transient
+recovery and permanent denial; the detached-host integration test remains the
+end-to-end check that a completed child process reaches a terminal task state.
+
+
+### Background task state transition serialization
+
+Atomic JSON replacement prevents partial reads, but it does not by itself prevent
+lost updates: the GUI and detached host can both read an old record and then replace
+one another's newer state. Registry state transitions therefore use a small
+cross-process exclusive lock around read-modify-write operations. The lock is held
+only while reading the current record and publishing its replacement; child-process
+execution and log I/O remain outside the critical section. Callers use the registry
+`update` operation to derive a transition from the latest persisted state, rather
+than saving a stale snapshot. Atomic replacement remains necessary for readers that
+do not take the update lock.
+
+
+### Registry deletion and terminal-state races
+
+The same registry lock also serializes record removal with updates. This gives remove and update a defined order: an update that wins first is persisted before deletion, while a removal that wins first causes a later update to fail with a missing record. Callers must not treat a removed task as a live record.
+
+A Stop request now transitions the latest active record before publishing its stop marker. A terminal task is left terminal and receives no marker. The host also guards its stop-state update so a late marker cannot reopen a terminal record. A spawned multi-process test increments one persisted counter through update and verifies that no increments are lost. This exercises the actual cross-process lock path on both Windows and POSIX CI rather than only testing sequential read-modify-write behavior.
