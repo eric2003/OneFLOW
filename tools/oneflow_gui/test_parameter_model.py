@@ -118,6 +118,22 @@ class ParameterModelTest(unittest.TestCase):
             self.assertEqual(entry.classification.domain, ParameterDomain.CFD)
             self.assertEqual(entry.classification.group, "Other")
 
+    def test_arrays_and_unrecognized_declarations_are_reported_as_unsupported(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            documents = self._documents(root, {
+                "grid.txt": "Real gridTrans[3] = {0.0, 0.0, 0.0};\\ndouble vendorScale = 2.0;\\n",
+            })
+            model = ParameterModel.from_documents(documents)
+
+            self.assertEqual(
+                [item.name for item in model.unsupported_declarations],
+                ["gridTrans", "vendorScale"],
+            )
+            self.assertIn("Array declarations", model.unsupported_declarations[0].reason)
+            self.assertIn("not supported", model.unsupported_declarations[1].reason)
+            self.assertEqual(model.unsupported_declarations[0].line_number, 1)
+            self.assertEqual(model.unsupported_declarations[1].line_number, 2)
     def test_without_task_unknown_keys_stay_unclassified(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
