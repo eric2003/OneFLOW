@@ -111,8 +111,14 @@ This roadmap describes intended direction, not a blanket claim that all listed c
 Parameter editing
 -----------------
 
-See :doc:`case_parameter_design` for the proposed schema-backed GUI direction and
-its migration stages. Current workflow artifact overrides remain a narrower adapter.
+The Project Window now builds a read-only Shared / CFD / Grid / Other tree from
+``ParameterModel`` in control-manifest order. Effective values retain source and
+declaration positions; shadowed declarations remain visible. A separate Qt-independent
+``ParameterConsumerCatalog`` adds a small set of source-verified C++ read sites and
+labels all other keys as not yet audited rather than unused. This curated evidence is
+not whole-repository static analysis and does not prove numerical applicability.
+See :doc:`case_parameter_design` for the parameter model, parser boundaries, and
+consumer-evidence policy. Current workflow artifact overrides remain a narrower adapter.
 
 
 Contract Workbench navigation and domain payloads
