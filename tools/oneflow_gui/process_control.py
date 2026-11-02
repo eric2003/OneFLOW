@@ -63,7 +63,7 @@ def terminate_and_reap(
     platform_name: str | None = None,
     command_runner: CommandRunner | None = None,
 ) -> bool:
-    """Terminate a running process tree and ensure the direct child is reaped."""
+    """Terminate a running process tree and wait for the direct child to exit."""
     if process.poll() is not None:
         return False
 
