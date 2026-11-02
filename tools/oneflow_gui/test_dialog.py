@@ -152,9 +152,7 @@ class TestCommandWorker(QThread):
                         command,
                         repository_root=command.working_directory,
                         records_path=user_paths.verification_execution_records,
-                        artifact_directory=(
-                            user_paths.verification_execution_records.parent / "logs"
-                        ),
+                        artifact_directory=user_paths.test_run_logs,
                         started_at=started_at,
                         finished_at=finished_at,
                         exit_code=return_code,
