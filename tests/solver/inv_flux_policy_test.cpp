@@ -593,3 +593,26 @@ TEST( InvFluxPolicy, IdealGasSpecificInternalEnergyScalesWithPressure )
         2.0 * IdealGasSpecificInternalEnergy( 1.0, 1.0, 1.4, 0.0 ),
         1.0e-12 );
 }
+
+// Intermediate: IdealGasSoundSpeedFromPressure on a pressure grid.
+// Ref: rho=1, gamma=1.4.
+TEST( InvFluxPolicy, IdealGasSoundSpeedFromPressureCurveMatchesClosedForm )
+{
+    const Real density = 1.0;
+    const Real gama = 1.4;
+    const Real pressures[] = { 0.25, 0.5, 1.0, 1.4, 2.0, 4.0 };
+    for ( Real p : pressures )
+    {
+        EXPECT_NEAR(
+            IdealGasSoundSpeedFromPressure( density, p, gama ),
+            sqrt( gama * p / density ),
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, IdealGasSoundSpeedFromPressureScalesWithSqrtPressure )
+{
+    const Real c1 = IdealGasSoundSpeedFromPressure( 1.0, 1.0, 1.4 );
+    const Real c4 = IdealGasSoundSpeedFromPressure( 1.0, 4.0, 1.4 );
+    EXPECT_NEAR( c4, 2.0 * c1, 1.0e-12 );
+}

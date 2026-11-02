@@ -1272,6 +1272,49 @@ principle=(
             does_not_prove="Full LUSGS residual or mode-1 Roe-weighted pressure path.",
         ),
 
+
+        TheoryEntry(
+            id="ideal_gas_sound_speed_from_pressure",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Ideal-gas sound speed from pressure c(p, rho, gamma)",
+            role_tags=("EOS", "sound-speed"),
+            formula_plain=(
+                "c = sqrt( gamma * p / rho )\n"
+                "Pressure-density form (vs total-enthalpy form)"
+            ),
+            formula_latex=(
+                r"c=\sqrt{\gamma\frac{p}{\rho}}"
+            ),
+            principle=(
+                "Isentropic sound speed from local static pressure and density. "
+                "Companion to IdealGasSoundSpeed (total-enthalpy form)."
+            ),
+            background=(
+                "Pure API IdealGasSoundSpeedFromPressure in NsInvFluxPolicy. "
+                "Related: IdealGasSoundSpeed, RoeAbsoluteEigenvalues."
+            ),
+            references=(
+                "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/ideal_gas_sound_speed_from_pressure.rst",
+            ),
+            csv_relpath="tools/verification/data/ideal_gas_sound_speed_from_pressure_theory.csv",
+            plot_module="plot_ideal_gas_sound_speed_from_pressure",
+            pure_apis=("IdealGasSoundSpeedFromPressure",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ideal_gas_sound_speed_from_pressure.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "c = sqrt(fabs(gama * pressure / density));\n"
+            ),
+            proves="c=sqrt(gamma*p/rho) vs pure API on a pressure grid.",
+            does_not_prove="Consistency with total-enthalpy form on full Roe state.",
+        ),
+
         TheoryEntry(
             id="ideal_gas_sound_speed",
             family="mean-flow",
