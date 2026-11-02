@@ -782,3 +782,40 @@ The implementation deliberately keeps platform-specific process mechanics at
 the execution boundary. Solver algorithms, regression command definitions,
 and task result semantics remain independent of the host OS. MPI launcher
 behavior still requires an end-to-end stop test on each supported host.
+
+
+## 28. Link Python process tests to the shared contract catalog
+
+The Runtime domain now has a separate
+`runtime/gui-process-execution` contract for operating-system processes
+launched by the desktop workbench. It is intentionally distinct from
+`runtime/process-lifecycle`, which describes accelerator backend ownership
+and finalization inside the solver. Similar words such as *process* and
+*lifecycle* must not collapse different resource owners into one contract.
+
+The contract links the shared process-control shutdown policy and the three
+GUI execution paths to concrete Python unittest methods. The catalog recognizes
+the new `python_test` evidence kind by parsing source with Python's AST and
+checking the declared test class/method. This is static evidence resolution:
+it does not import or run the module, and it preserves the explicit
+`linked_not_executed` status. A missing or renamed method becomes stale rather
+than being silently matched by a similar test name.
+
+The catalog tests cover both successful Python test declaration resolution and
+a missing method. The contract itself is loaded and validated as part of the
+combined catalog test, and that test is now included in the Ubuntu/Windows
+Python tooling CI matrix. This makes the path from runtime claim to source test
+navigable without conflating declaration with execution evidence.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
+
+The next stage is a versioned execution-record model. It should capture the
+actual command, host/platform, revision, timestamps, exit status, diagnostics,
+and artifact references, then match those records to these declared evidence
+IDs. Until that exists, the catalog correctly reports the new links as
+unexecuted regardless of local or CI results.
