@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication, QLabel, QListWidget, QPushButton
+from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QTreeWidget
 
 from tools.oneflow_gui.project_repository import open_project
 from tools.oneflow_gui.project_window import ProjectWindow
@@ -39,19 +39,72 @@ class ProjectWindowParameterTest(unittest.TestCase):
             try:
                 labels = [label.text() for label in window.findChildren(QLabel)]
                 self.assertNotIn("Runtime file", labels)
-                parameter_list = window.findChild(QListWidget, "parameterFileList")
-                self.assertIsNotNone(parameter_list)
-                self.assertEqual(parameter_list.count(), 1)
-                self.assertEqual(
-                    Path(parameter_list.item(0).text()),
-                    (script / "simu.txt").resolve(),
-                )
+                parameter_tree = window.findChild(QTreeWidget, "unifiedParameterTree")
+                self.assertIsNotNone(parameter_tree)
+                self.assertEqual(parameter_tree.topLevelItemCount(), 4)
+                parameter = self._find_item(parameter_tree, "simuTask")
+                self.assertIsNotNone(parameter)
+                self.assertEqual(parameter.text(1), "flow")
+                self.assertIsNone(self._find_item(parameter_tree, "control.txt"))
                 button = window.findChild(QPushButton, "modifyParametersButton")
                 self.assertIsNotNone(button)
                 self.assertTrue(button.isEnabled())
             finally:
                 window.close()
 
+    @staticmethod
+    def _find_item(tree: QTreeWidget, text: str):
+        def visit(parent):
+            for index in range(parent.childCount()):
+                child = parent.child(index)
+                if child.text(0) == text:
+                    return child
+                found = visit(child)
+                if found is not None:
+                    return found
+            return None
+
+        for index in range(tree.topLevelItemCount()):
+            root = tree.topLevelItem(index)
+            if root.text(0) == text:
+                return root
+            found = visit(root)
+            if found is not None:
+                return found
+        return None
+
+    def test_unified_view_merges_manifest_files_and_exposes_consumer_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            script = root / "script"
+            script.mkdir()
+            (script / "control.txt").write_text(
+                '"simu.txt"\n"cfd.txt"\n"override.txt"\n', encoding="ascii"
+            )
+            (script / "simu.txt").write_text('string simuTask = "Solve";\nint maxSteps = 10;\n', encoding="ascii")
+            (script / "cfd.txt").write_text("int maxSteps = 20;\n", encoding="ascii")
+            (script / "override.txt").write_text("int MAXSTEPS = 30;\n", encoding="ascii")
+            catalog_home = root.parent / "oneflow-user-data"
+            with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
+                window = ProjectWindow(open_project(root), root.parent)
+            try:
+                tree = window.findChild(QTreeWidget, "unifiedParameterTree")
+                effective = self._find_item(tree, "MAXSTEPS")
+                overridden_first = self._find_item(tree, "[overridden] maxSteps")
+                overridden_second = self._find_item(tree, "[overridden] maxSteps")
+                self.assertIsNotNone(effective)
+                self.assertEqual(effective.text(1), "30")
+                self.assertIn("file 3", effective.text(3))
+                self.assertIsNotNone(overridden_first)
+                self.assertEqual(overridden_first.text(1), "10")
+                self.assertIn("file 1", overridden_first.text(3))
+                self.assertIsNotNone(self._find_item(effective, "Runtime consumer"))
+                consumer = self._find_item(effective, "Runtime consumer")
+                self.assertEqual(consumer.text(1), "Iteration::Init")
+                self.assertIn("Iteration.cpp", consumer.text(3))
+                self.assertIsNone(self._find_item(tree, "control.txt"))
+            finally:
+                window.close()
     def test_modify_selected_parameter_uses_configured_editor(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -63,6 +116,8 @@ class ProjectWindowParameterTest(unittest.TestCase):
             with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
                 window = ProjectWindow(open_project(root), root.parent)
             try:
+                tree = window.findChild(QTreeWidget, "unifiedParameterTree")
+                tree.setCurrentItem(self._find_item(tree, "simuTask"))
                 with patch(
                     "tools.oneflow_gui.project_window.ApplicationSettings.load"
                 ) as load_settings, patch(
