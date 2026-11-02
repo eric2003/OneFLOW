@@ -69,9 +69,17 @@ class ProcessControlTest(unittest.TestCase):
         process = Mock()
         process.poll.side_effect = [None, None, 0]
         process.wait.return_value = 0
+        runner = Mock(return_value=subprocess.CompletedProcess([], 0))
 
-        self.assertTrue(terminate_and_reap(process, platform_name="nt"))
+        self.assertTrue(
+            terminate_and_reap(
+                process,
+                platform_name="nt",
+                command_runner=runner,
+            )
+        )
 
+        runner.assert_called_once()
         process.wait.assert_called_once_with(timeout=3.0)
         process.kill.assert_not_called()
 
