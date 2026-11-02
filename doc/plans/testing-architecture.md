@@ -187,3 +187,35 @@ The three focused Contract Workbench commands validate catalog and inventory
 behavior. The command-builder test validates GUI registration. CTest validates
 the configured native suite. CFD regression remains a separate validation
 step.
+
+
+## Production runtime lifecycle integration evidence
+
+The C++ target
+`simu_imp_case_lifecycle_integration_test` is a production-linked GoogleTest
+target. It links `OneFLOW_RuntimeObjects` and is registered with
+`gtest_discover_tests()`, so each GoogleTest declaration is discovered by
+CTest rather than copied into a second hand-maintained test list.
+
+The sequential-case test verifies more than distinct database values. It
+captures the effective project and I/O roots inside the production task:
+case A configures independent roots through its control file, then case B
+omits those settings and must return to its own case-relative defaults. This
+guards against process-global `Prj` state leaking across case boundaries.
+
+Both Windows and Linux CI run the configured CTest suite. The corresponding
+CI commands are already present in
+`.github/workflows/windows.yml` and `.github/workflows/linux.yml`; adding
+a second invocation for this target would duplicate the existing suite.
+The focused local command is:
+
+```powershell
+cmake --build build --config Debug --target simu_imp_case_lifecycle_integration_test
+ctest --test-dir build -C Debug -R "SimuImpCaseLifecycleIntegration" --output-on-failure
+```
+
+A discovered or linked test is not a passing execution record. The contract
+catalog continues to label these declarations `linked_not_executed` until
+an actual run result is captured. This test proves the stated sequential
+configuration-isolation behavior only; it does not prove multi-rank MPI,
+hardware accelerator teardown, or CFD numerical correctness.

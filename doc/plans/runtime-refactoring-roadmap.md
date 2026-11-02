@@ -532,3 +532,13 @@ targets.
 - Strengthened `SuccessfulCasesRemainIsolatedWithinOneProcess`: each temporary case declares a distinct integer `dimension`; the production-registered task reads it from the global control database alongside its case marker. The test verifies the values and order, then checks the real reader's `log/database.log` and the case I/O setup's `results/io_paths.txt` for both cases.
 - This ties real control-file parsing, typed database publication, path diagnostics, task execution, per-case teardown, and process-runtime continuity into one production-linked scenario. It still does not execute a numerical CFD solver or MPI multi-rank path.
 - Validation status: implementation and documentation updated; focused integration target, full Debug CTest, and grid/CFD regression have not been run in this environment. R1 remains Partial pending exact-revision local validation and remaining resource-release failure coverage.
+
+
+### 2026-11-02 - Verify configured I/O-root isolation through production case execution
+
+- Based on the latest inspected `hexin` HEAD `55e48db07f69b07544f885bf5d0b9e1251d4b947`; the user reports 1129/1129 local tests passed before this feature slice. That result is the pre-change baseline only.
+- Extended `SuccessfulCasesRemainIsolatedWithinOneProcess` so the first case supplies distinct project, generic input/output, mesh/flow input, and mesh/flow output roots through its real control script. The registered task captures the effective `Prj` roots after production setup.
+- The second case omits optional roots. The same production task now asserts that project configuration is empty and all effective input/output roots resolve to the second case directory. This closes the gap between the lower-level bootstrap precedence test and the production `SimuImp::RunCase()` path.
+- Verified by source inspection that `tests/main/CMakeLists.txt` already registers the target with `gtest_discover_tests()`, and both `.github/workflows/windows.yml` and `.github/workflows/linux.yml` run CTest. No duplicate target or redundant CI command was added.
+- The test also checks that the first case custom diagnostics are written to its configured mesh and flow output roots, while the second case retains case-local `results/io_paths.txt`.
+- Validation status: source and documentation changes are committed together. No local MSVC build, focused CTest, full CTest, or exact-commit CI result is claimed here. Re-run the focused production target and full CTest on this exact commit. R1 remains Partial until those results are confirmed and remaining teardown-failure/MPI coverage is assessed.

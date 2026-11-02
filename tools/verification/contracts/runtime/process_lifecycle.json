@@ -62,7 +62,7 @@
       "kind": "google_test",
       "reference": "SimuImpCaseLifecycleIntegration.SuccessfulCasesRemainIsolatedWithinOneProcess",
       "status": "linked_not_executed",
-      "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; runs two production SimuImp cases in one process, reads distinct typed dimension values from the real control database, verifies database and I/O diagnostic artifacts, and checks per-case reset with process-runtime continuity."
+      "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; runs two production SimuImp cases in one process. The first configures distinct project, generic input/output, mesh/flow input, and mesh/flow output roots; the task records the effective roots while executing. The second omits optional roots and must resolve every root to its own case directory, proving the first case settings do not leak. Both cases also verify typed control values, database/I/O artifacts, per-case reset, and process-runtime continuity."
     },
     {
       "kind": "google_test",
@@ -89,6 +89,7 @@
       "A failed accelerator backend finalization propagates to the caller while preserving runtime ownership and an active process lifecycle for retry.",
       "A subsequent successful finalization completes the process lifecycle.",
       "Each sequential production case reads its own typed control value and materializes its database and I/O path diagnostics before case-owned state is cleared.",
+      "Configured I/O roots are effective inside the first production task, and a following case with omitted roots uses its own case-relative defaults rather than inheriting the previous case project, input, or output roots.",
       "The public Simulation::Run entry point dispatches a full case invocation through the real multi-file control reader and task registry, materializes case artifacts, and finalizes the process runtime.",
       "A configuration failure reached through the public Simulation::Run entry point clears partially ingested case data and project bindings, reports failure, and still finalizes the process runtime.",
       "The checked-in rae2822convert control-script set can be ingested by the production case-configuration path and torn down without executing its Grid task or writing generated files into the reference case; the test fixture also attempts case teardown on early assertion exit."

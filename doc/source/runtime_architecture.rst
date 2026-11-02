@@ -1128,3 +1128,32 @@ The evidence ladder remains explicit: control-reader ingestion and case setup;
 Grid task execution and output validation; mesh/topology quality checks; and
 numerical or physical validation, where applicable. Each level needs its own
 acceptance criteria and execution record.
+
+
+Sequential case I/O-root isolation
+----------------------------------
+
+The production lifecycle integration test
+``SimuImpCaseLifecycleIntegration.SuccessfulCasesRemainIsolatedWithinOneProcess``
+also verifies the effective I/O roots while each task is running. The first case
+declares distinct `projectRoot`, `inputRoot`, `outputRoot`,
+`meshInputRoot`, `flowInputRoot`, `meshOutputRoot`, and
+`flowOutputRoot` values in its real control script. The registered test task
+captures the effective `Prj` roots after `SetupCaseEnvironment()`
+has applied them.
+
+After the first case is torn down, the second case declares none of these
+optional settings. Its task must observe an empty project root and case-local
+defaults for generic, mesh, and flow input/output roots. The test also checks
+that the first case path diagnostics were written under its configured mesh
+and flow output roots, while the second case diagnostics remain under its own
+case directory.
+
+This is a production-path state-isolation check, not merely a test of the
+configuration adapter. It ties the sequence
+``control.txt -> ReadControlInfo() -> ReadCaseIOSettings() ->
+ApplyCaseIOSettings() -> task execution -> TeardownCase()``
+to an observable contract. The C++ target is registered through
+``gtest_discover_tests()``, and both Windows and Linux CI execute the
+configured CTest suite. The test does not establish multi-rank MPI behavior
+or numerical CFD correctness.

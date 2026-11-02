@@ -95,8 +95,20 @@ private:
     std::filesystem::path path_;
 };
 
+struct CaseIORootSnapshot
+{
+    std::string project;
+    std::string input;
+    std::string output;
+    std::string meshInput;
+    std::string flowInput;
+    std::string meshOutput;
+    std::string flowOutput;
+};
+
 std::vector<std::string> successfulCaseMarkers;
 std::vector<int> successfulCaseDimensions;
+std::vector<CaseIORootSnapshot> successfulCaseIORoots;
 
 class CaseMarkerTask final : public ISimuTask
 {
@@ -108,6 +120,15 @@ public:
             GetDataValue<std::string>( "case_marker", &database ) );
         successfulCaseDimensions.push_back(
             GetDataValue<int>( "dimension", &database ) );
+        successfulCaseIORoots.push_back( {
+            Prj::projectBaseDir,
+            Prj::GetInputBaseDir(),
+            Prj::GetOutputBaseDir(),
+            Prj::GetMeshInputBaseDir(),
+            Prj::GetFlowInputBaseDir(),
+            Prj::GetMeshOutputBaseDir(),
+            Prj::GetFlowOutputBaseDir()
+        } );
     }
 };
 
@@ -418,12 +439,30 @@ TEST( SimuImpCaseLifecycleIntegration,
     TemporaryCase firstCase;
     TemporaryCase secondCase;
 
+    const std::filesystem::path configuredRoot =
+        std::filesystem::path( firstCase.Directory() + "_configured" );
+    const std::filesystem::path projectRoot = configuredRoot / "project";
+    const std::filesystem::path inputRoot = configuredRoot / "input";
+    const std::filesystem::path outputRoot = configuredRoot / "output";
+    const std::filesystem::path meshInputRoot = configuredRoot / "mesh-input";
+    const std::filesystem::path flowInputRoot = configuredRoot / "flow-input";
+    const std::filesystem::path meshOutputRoot = configuredRoot / "mesh-output";
+    const std::filesystem::path flowOutputRoot = configuredRoot / "flow-output";
+
     firstCase.WriteManifest( "\"case.txt\";\n" );
     firstCase.WriteScript(
         "case.txt",
         "string simutask = \"ToyModel\";\n"
         "string case_marker = \"first_case\";\n"
-        "int dimension = 2;\n" );
+        "int dimension = 2;\n"
+        "string projectRoot = \"" + projectRoot.generic_string() + "\";\n"
+        "string inputRoot = \"" + inputRoot.generic_string() + "\";\n"
+        "string outputRoot = \"" + outputRoot.generic_string() + "\";\n"
+        "string meshInputRoot = \"" + meshInputRoot.generic_string() + "\";\n"
+        "string flowInputRoot = \"" + flowInputRoot.generic_string() + "\";\n"
+        "string meshOutputRoot = \"" + meshOutputRoot.generic_string() + "\";\n"
+        "string flowOutputRoot = \"" + flowOutputRoot.generic_string() + "\";\n"
+        "string ioPathInfoFileName = \"case_io_paths.txt\";\n" );
 
     secondCase.WriteManifest( "\"case.txt\";\n" );
     secondCase.WriteScript(
@@ -434,6 +473,7 @@ TEST( SimuImpCaseLifecycleIntegration,
 
     successfulCaseMarkers.clear();
     successfulCaseDimensions.clear();
+    successfulCaseIORoots.clear();
     TaskRegistry::Instance().Register(
         "ToyModel",
         []() { return std::make_unique<CaseMarkerTask>(); } );
@@ -484,12 +524,42 @@ TEST( SimuImpCaseLifecycleIntegration,
     EXPECT_EQ(
         successfulCaseDimensions,
         ( std::vector<int>{ 2, 3 } ) );
+    ASSERT_EQ( successfulCaseIORoots.size(), 2u );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].project, projectRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].input, inputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].output, outputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].meshInput, meshInputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].flowInput, flowInputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].meshOutput, meshOutputRoot.string() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 0 ].flowOutput, flowOutputRoot.string() ) );
+    EXPECT_TRUE( successfulCaseIORoots[ 1 ].project.empty() );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].input, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].output, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].meshInput, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].flowInput, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].meshOutput, secondCase.Directory() ) );
+    EXPECT_TRUE( Prj::AreSameDirectoryPath(
+        successfulCaseIORoots[ 1 ].flowOutput, secondCase.Directory() ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        meshOutputRoot / "case_io_paths.txt" ) );
+    EXPECT_TRUE( std::filesystem::exists(
+        flowOutputRoot / "case_io_paths.txt" ) );
     EXPECT_TRUE( std::filesystem::exists(
         std::filesystem::path( firstCase.Directory() ) / "log" / "database.log" ) );
     EXPECT_TRUE( std::filesystem::exists(
         std::filesystem::path( secondCase.Directory() ) / "log" / "database.log" ) );
-    EXPECT_TRUE( std::filesystem::exists(
-        std::filesystem::path( firstCase.Directory() ) / "results" / "io_paths.txt" ) );
     EXPECT_TRUE( std::filesystem::exists(
         std::filesystem::path( secondCase.Directory() ) / "results" / "io_paths.txt" ) );
     ASSERT_EQ( caseStateCleared.size(), 2u );
