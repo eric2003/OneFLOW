@@ -56,8 +56,8 @@ class BackgroundTaskManagerTest(unittest.TestCase):
         self.assertEqual(
             task.status,
             "succeeded",
-            f"Background task ended as {task.status!r}: {task.message}\\n"
-            f"Task log:\\n{log_output}",
+            f"Background task ended as {task.status!r}: {task.message}\n"
+            f"Task log:\n{log_output}",
         )
         self.assertIn("managed", log_output)
 
