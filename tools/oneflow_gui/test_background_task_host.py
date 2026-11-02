@@ -69,6 +69,25 @@ class BackgroundTaskHostTest(unittest.TestCase):
         self.assertEqual(task.status, "stopped")
         self.assertIn("stopped by request", task.message.lower())
 
+    def test_stop_request_does_not_reopen_a_terminal_task(self) -> None:
+        from dataclasses import replace
+
+        task = self.registry.update(
+            "task-001",
+            lambda current: replace(
+                current,
+                status="succeeded",
+                message="Already complete.",
+            ),
+        )
+
+        request_background_stop(self.root, task.task_id)
+
+        self.assertEqual(self.registry.load(task.task_id).status, "succeeded")
+        self.assertFalse(
+            (self.registry.records_directory / f"{task.task_id}.stop").exists()
+        )
+
     def test_host_records_nonzero_exit(self) -> None:
         result = run_host(
             root=self.root,

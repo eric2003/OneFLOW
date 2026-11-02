@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import multiprocessing
 import tempfile
 from unittest.mock import patch
 import unittest
@@ -13,6 +14,18 @@ from tools.oneflow_gui.background_task_registry import (
     BackgroundTask,
     BackgroundTaskRegistry,
 )
+
+
+def _increment_task_message(root: str, task_id: str, iterations: int) -> None:
+    registry = BackgroundTaskRegistry(Path(root))
+    for _ in range(iterations):
+        registry.update(
+            task_id,
+            lambda current: replace(
+                current,
+                message=str(int(current.message or "0") + 1),
+            ),
+        )
 
 
 class BackgroundTaskRegistryTest(unittest.TestCase):
@@ -118,6 +131,48 @@ class BackgroundTaskRegistryTest(unittest.TestCase):
         self.assertEqual(updated.host_pid, 4321)
         self.assertEqual(updated.status, "stopping")
         self.assertEqual(self.registry.load(original.task_id), updated)
+
+    def test_multiprocess_updates_do_not_lose_increments(self) -> None:
+        task = replace(self.make_task(), message="0")
+        self.registry.save(task)
+        worker_count = 4
+        increments_per_worker = 15
+        context = multiprocessing.get_context("spawn")
+        workers = [
+            context.Process(
+                target=_increment_task_message,
+                args=(str(self.root), task.task_id, increments_per_worker),
+            )
+            for _ in range(worker_count)
+        ]
+
+        for worker in workers:
+            worker.start()
+        for worker in workers:
+            worker.join(15)
+
+        for worker in workers:
+            if worker.is_alive():
+                worker.terminate()
+                worker.join()
+                self.fail("A registry update worker did not finish.")
+            self.assertEqual(worker.exitcode, 0)
+
+        self.assertEqual(
+            int(self.registry.load(task.task_id).message),
+            worker_count * increments_per_worker,
+        )
+
+    def test_remove_serializes_with_updates(self) -> None:
+        task = self.make_task()
+        self.registry.save(task)
+        self.registry.update(
+            task.task_id,
+            lambda current: replace(current, message="updated"),
+        )
+        self.registry.remove(task.task_id)
+        with self.assertRaises(FileNotFoundError):
+            self.registry.load(task.task_id)
 
     def test_update_rejects_task_id_changes(self) -> None:
         original = self.make_task()

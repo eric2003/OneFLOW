@@ -247,3 +247,10 @@ execution and log I/O remain outside the critical section. Callers use the regis
 `update` operation to derive a transition from the latest persisted state, rather
 than saving a stale snapshot. Atomic replacement remains necessary for readers that
 do not take the update lock.
+
+
+### Registry deletion and terminal-state races
+
+The same registry lock also serializes record removal with updates. This gives remove and update a defined order: an update that wins first is persisted before deletion, while a removal that wins first causes a later update to fail with a missing record. Callers must not treat a removed task as a live record.
+
+A Stop request now transitions the latest active record before publishing its stop marker. A terminal task is left terminal and receives no marker. The host also guards its stop-state update so a late marker cannot reopen a terminal record. A spawned multi-process test increments one persisted counter through update and verifies that no increments are lost. This exercises the actual cross-process lock path on both Windows and POSIX CI rather than only testing sequential read-modify-write behavior.

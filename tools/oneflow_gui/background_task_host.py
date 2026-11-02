@@ -90,11 +90,15 @@ def run_host(
                     stop_requested = True
                     task = registry.update(
                         task_id,
-                        lambda current: replace(
-                            current,
-                            status="stopping",
-                            updated_at=utc_now(),
-                            message="Stop requested.",
+                        lambda current: (
+                            replace(
+                                current,
+                                status="stopping",
+                                updated_at=utc_now(),
+                                message="Stop requested.",
+                            )
+                            if current.status in {"starting", "running", "stopping"}
+                            else current
                         ),
                     )
                     if os.name == "nt":

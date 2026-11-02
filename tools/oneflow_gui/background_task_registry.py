@@ -185,8 +185,9 @@ class BackgroundTaskRegistry:
         return [task for task in self.list_tasks() if task.status in ACTIVE_STATUSES]
 
     def remove(self, task_id: str) -> None:
-        """Remove a record after its task has been deliberately forgotten."""
-        try:
-            self._path(task_id).unlink()
-        except FileNotFoundError:
-            pass
+        """Remove a record without racing a concurrent state transition."""
+        with self._exclusive_update():
+            try:
+                self._path(task_id).unlink()
+            except FileNotFoundError:
+                pass
