@@ -1168,8 +1168,8 @@ def validate_contract_summaries(
                 )
                 continue
             try:
-                source = source_path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError) as exc:
+                source = _read_python_source(source_path)
+            except (OSError, UnicodeDecodeError, SyntaxError, LookupError) as exc:
                 issues.append(
                     f"{summary.id}: cannot read linked test source {item.scope}: {exc}"
                 )
