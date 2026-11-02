@@ -125,14 +125,21 @@ class ParameterCatalogStore:
             if previous_digest == digest:
                 return False
             db.execute("DELETE FROM parameter_values WHERE file_id = ?", (file_id,))
-            db.execute(
-                "INSERT OR IGNORE INTO parameter_snapshots(file_id, sha256, encoding, captured_at) "
-                "VALUES (?, ?, ?, ?)", (file_id, digest, document.encoding, now)
-            )
-            snapshot_id = db.execute(
+            snapshot_row = db.execute(
                 "SELECT id FROM parameter_snapshots WHERE file_id = ? AND sha256 = ?",
                 (file_id, digest),
-            ).fetchone()[0]
+            ).fetchone()
+            is_new_snapshot = snapshot_row is None
+            if is_new_snapshot:
+                db.execute(
+                    "INSERT INTO parameter_snapshots(file_id, sha256, encoding, captured_at) "
+                    "VALUES (?, ?, ?, ?)", (file_id, digest, document.encoding, now)
+                )
+                snapshot_row = db.execute(
+                    "SELECT id FROM parameter_snapshots WHERE file_id = ? AND sha256 = ?",
+                    (file_id, digest),
+                ).fetchone()
+            snapshot_id = int(snapshot_row[0])
             for ordinal, item in enumerate(document.declarations):
                 values = (
                     ordinal, item.name, item.declared_type, item.raw_value,
@@ -142,10 +149,11 @@ class ParameterCatalogStore:
                     "INSERT INTO parameter_values(file_id, ordinal, name, declared_type, raw_value, parsed_json) "
                     "VALUES (?, ?, ?, ?, ?, ?)", (file_id, *values)
                 )
-                db.execute(
-                    "INSERT INTO parameter_snapshot_values(snapshot_id, ordinal, name, declared_type, raw_value, parsed_json) "
-                    "VALUES (?, ?, ?, ?, ?, ?)", (snapshot_id, *values)
-                )
+                if is_new_snapshot:
+                    db.execute(
+                        "INSERT INTO parameter_snapshot_values(snapshot_id, ordinal, name, declared_type, raw_value, parsed_json) "
+                        "VALUES (?, ?, ?, ?, ?, ?)", (snapshot_id, *values)
+                    )
             for spec in parameter_specs_for_file(document.path):
                 choices = [{"label": item.label, "value": item.value} for item in spec.choices]
                 db.execute(

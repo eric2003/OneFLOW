@@ -46,6 +46,20 @@ class ParameterCatalogStoreTest(unittest.TestCase):
             self.assertEqual(len(store.list_history(root, "script/cfd.txt")), 2)
             self.assertEqual(store.list_values(root, "script/cfd.txt")[0]["value"], 100)
 
+    def test_reverting_to_an_existing_content_hash_reuses_snapshot(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "case"
+            script = root / "script"
+            script.mkdir(parents=True)
+            path = script / "cfd.txt"
+            database = Path(temporary) / "catalog.sqlite3"
+            store = ParameterCatalogStore(database)
+            for value in (50, 100, 50):
+                path.write_text(f"int maxSteps = {value};\n", encoding="utf-8")
+                self.assertTrue(store.sync_document(root, ParameterDocument.load(path)))
+            self.assertEqual(len(store.list_history(root, "script/cfd.txt")), 2)
+            self.assertEqual(store.list_values(root, "script/cfd.txt")[0]["value"], 50)
+
     def test_rejects_file_outside_project_root(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary) / "case"
