@@ -54,7 +54,7 @@ class ProjectWindowParameterTest(unittest.TestCase):
             (script / "simu.txt").write_text('string simutask = "Grid";\nint maxSteps = 10;\n', encoding="ascii")
             (script / "dimension.txt").write_text("int dimension = 2;\n", encoding="ascii")
             (script / "cfd.txt").write_text("int maxSteps = 20;\n", encoding="ascii")
-            (script / "grid.txt").write_text("int gridObj = 1;\n", encoding="ascii")
+            (script / "grid.txt").write_text("int gridObj = 1;\nReal gridTrans[3] = {0.0, 0.0, 0.0};\ndouble vendorScale = 2.0;\n", encoding="ascii")
             catalog_home = root.parent / "oneflow-user-data"
             with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
                 window = ProjectWindow(open_project(root), root.parent)
@@ -73,6 +73,10 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 self.assertIn("file 1", overridden.text(3))
                 self.assertEqual(self._find_item(tree, "dimension").text(1), "2")
                 self.assertEqual(self._find_item(tree, "gridObj").text(1), "1")
+                unsupported_array = self._find_item(tree, "gridTrans")
+                self.assertIsNotNone(unsupported_array)
+                self.assertIn("Array declarations", unsupported_array.toolTip(0))
+                self.assertIsNotNone(self._find_item(tree, "vendorScale"))
                 self.assertIsNone(self._find_item(tree, "control.txt"))
             finally:
                 window.close()
