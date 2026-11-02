@@ -49,6 +49,18 @@ class ProjectRepositoryTest(unittest.TestCase):
 
             self.assertEqual(open_project(root).project_type, ProjectType.FLOW)
 
+    def test_detects_solve_task_as_flow_project(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            script = root / "script"
+            script.mkdir()
+            (script / "control.txt").write_text('"simu.txt";\n', encoding="utf-8")
+            (script / "simu.txt").write_text(
+                'string simutask = "Solve";\n', encoding="utf-8"
+            )
+
+            self.assertEqual(open_project(root).project_type, ProjectType.FLOW)
+
     def test_discovers_parameter_files_in_workflow_case_directories(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory) / "workflow"

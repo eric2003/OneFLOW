@@ -31,6 +31,12 @@ def available_project_templates() -> tuple[ProjectTemplate, ...]:
             None,
         ),
         ProjectTemplate(
+            "laminar_flat_plate",
+            "Laminar flat-plate boundary layer",
+            "Copy the complete plateuns2dslau2 CFD case, including its parameters, mesh, and reference results.",
+            "test/cfd/plateuns2dslau2",
+        ),
+        ProjectTemplate(
             "mesh_workflow",
             "Mesh conversion",
             "Start from the PLOT3D-to-OneFLOW mesh conversion case.",
@@ -51,13 +57,53 @@ def available_project_templates() -> tuple[ProjectTemplate, ...]:
     )
 
 
-def _copy_tree(source: Path, destination: Path) -> None:
+def _copy_tree(
+    source: Path,
+    destination: Path,
+    *,
+    excluded_directories: tuple[str, ...] = (),
+) -> None:
     if not source.is_dir():
         raise FileNotFoundError(f"Project template directory not found: {source}")
     shutil.copytree(
         source,
         destination,
-        ignore=shutil.ignore_patterns(".git", "__pycache__"),
+        ignore=shutil.ignore_patterns(".git", "__pycache__", *excluded_directories),
+    )
+
+
+def _create_laminar_flat_plate_project(
+    repository: Path, destination: Path, name: str
+) -> None:
+    """Copy the CFD case as a user-owned project, excluding regression artifacts."""
+    _copy_tree(
+        repository / "test" / "cfd" / "plateuns2dslau2",
+        destination,
+        excluded_directories=("autotest",),
+    )
+    (destination / ".oneflow-project.json").write_text(
+        json.dumps(
+            {
+                "format": "oneflow.project",
+                "version": 1,
+                "name": name,
+                "template": "laminar_flat_plate",
+                "source_case": "test/cfd/plateuns2dslau2",
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (destination / "README.md").write_text(
+        f"# {name}\n\n"
+        "This project was created from the OneFLOW laminar flat-plate "
+        "boundary-layer case (test/cfd/plateuns2dslau2). The case input "
+        "parameters, mesh, visual settings, and retained reference results "
+        "are copied into this directory. The source checkout is not used as "
+        "the project working directory. The autotest directory is intentionally "
+        "excluded; it is generated test evidence, not required case input.\n",
+        encoding="utf-8",
     )
 
 
@@ -148,6 +194,8 @@ def create_project(
     elif template.template_id == "rae2822_multicase":
         destination.mkdir()
         _create_rae2822_workflow(repository, destination, name)
+    elif template.template_id == "laminar_flat_plate":
+        _create_laminar_flat_plate_project(repository, destination, name)
     else:
         source = (repository / str(template.source_relative_path)).resolve()
         _copy_tree(source, destination)

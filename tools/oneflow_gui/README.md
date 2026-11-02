@@ -245,3 +245,18 @@ root. The source checkout remains separate from this directory.
 The Workbench does not move or overwrite existing source projects automatically;
 choose an existing project directory to open it, or create a new project under
 `.oneflow/projects`.
+
+
+## Laminar flat-plate project template
+
+**New Project...** includes **Laminar flat-plate boundary layer**. It creates a
+user-owned copy of test/cfd/plateuns2dslau2 under the selected project
+parent (by default ~/.oneflow/projects). The copy retains the case's
+script/ parameters, grid/ mesh and boundary data, results/ analytical
+reference files, and visual/ settings. No solver or mesh parameter is
+rewritten during creation. The autotest/ directory is intentionally omitted
+because it contains automated regression outputs rather than required case
+inputs. The original source case remains unchanged. The created project
+contains .oneflow-project.json metadata and a short README identifying its
+template source. The case's simutask = "Solve" is classified as a CFD/flow
+project by project discovery.

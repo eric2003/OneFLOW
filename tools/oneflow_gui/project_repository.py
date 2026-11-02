@@ -115,7 +115,7 @@ def _detect_type(runtime_file: Path | None) -> ProjectType:
     task = task_match.group(1).strip().lower()
     if task == "grid":
         return ProjectType.GRID
-    if task in {"flow", "cfd", "solver"}:
+    if task in {"flow", "cfd", "solver", "solve"}:
         return ProjectType.FLOW
     return ProjectType.UNKNOWN
 
