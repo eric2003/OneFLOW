@@ -996,6 +996,50 @@ principle=(
 
 
 
+
+        TheoryEntry(
+            id="ideal_gas_sound_speed",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Ideal-gas sound speed from total enthalpy",
+            role_tags=("EOS", "sound-speed"),
+            formula_plain=(
+                "c = sqrt( (gamma-1) * (H - 0.5*|u|^2) )\n"
+                "With |u|=0: c = sqrt( (gamma-1)*H )"
+            ),
+            formula_latex=(
+                r"c=\sqrt{(\gamma-1)\bigl(H-\frac{1}{2}|u|^{2}\bigr)}"
+            ),
+            principle=(
+                "Isentropic sound speed from total enthalpy after removing "
+                "kinetic energy. Used by Roe eigenvalues and time-step spectra."
+            ),
+            background=(
+                "Pure API IdealGasSoundSpeed in NsInvFluxPolicy. "
+                "Upstream: IdealGasStaticEnthalpy / TotalEnthalpy."
+            ),
+            references=(
+                "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/ideal_gas_sound_speed.rst",
+            ),
+            csv_relpath="tools/verification/data/ideal_gas_sound_speed_theory.csv",
+            plot_module="plot_ideal_gas_sound_speed",
+            pure_apis=("IdealGasSoundSpeed",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ideal_gas_sound_speed.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "c2 = (gama - 1) * (H - 0.5 * speedSquared);\n"
+                "c = sqrt(fabs(c2));\n"
+            ),
+            proves="Sound-speed algebra vs pure API on an H grid (and kinetic sample).",
+            does_not_prove="Variable-gamma gas or numerical flux case residuals.",
+        ),
+
         TheoryEntry(
             id="ideal_gas_static_enthalpy",
             family="mean-flow",

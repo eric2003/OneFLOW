@@ -518,3 +518,26 @@ TEST( InvFluxPolicy, IdealGasStaticEnthalpyScalesWithPressureDensity )
         IdealGasStaticEnthalpy( 1.0, 2.0, 1.4 ),
         IdealGasStaticEnthalpy( 2.0, 4.0, 1.4 ) );
 }
+
+// Intermediate: IdealGasSoundSpeed on a total-enthalpy grid (u^2=0).
+TEST( InvFluxPolicy, IdealGasSoundSpeedCurveMatchesClosedForm )
+{
+    const Real gama = 1.4;
+    const Real speedSquared = 0.0;
+    const Real Hs[] = { 0.5, 1.0, 2.0, 3.5, 4.0, 5.0 };
+    for ( Real H : Hs )
+    {
+        const Real expected = sqrt( ( gama - 1.0 ) * H );
+        EXPECT_NEAR( IdealGasSoundSpeed( gama, H, speedSquared ), expected, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, IdealGasSoundSpeedSubtractsKineticEnergy )
+{
+    // H=3.5, |u|^2=1 -> static part 3.0? Wait: H - 0.5*|u|^2 = 3.5 - 0.5 = 3.0
+    // c = sqrt(0.4 * 3.0) = sqrt(1.2)
+    EXPECT_NEAR(
+        IdealGasSoundSpeed( 1.4, 3.5, 1.0 ),
+        sqrt( 0.4 * 3.0 ),
+        1.0e-12 );
+}
