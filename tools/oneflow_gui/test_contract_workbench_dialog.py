@@ -153,6 +153,40 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_open_declared_python_test_sources_from_verification(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "runtime")
+        try:
+            contract_index = next(
+                index
+                for index, summary in enumerate(dialog._summaries)
+                if summary.id == "runtime/gui-process-execution"
+            )
+            dialog.contract_list.setCurrentRow(contract_index)
+            self.assertTrue(dialog.open_tests_button.isEnabled())
+            desktop_services = Mock()
+            with patch(
+                "tools.oneflow_gui.contract_workbench_dialog.QDesktopServices",
+                desktop_services,
+            ):
+                dialog.open_tests_button.click()
+            opened_paths = {
+                Path(call.args[0].toLocalFile()).resolve()
+                for call in desktop_services.openUrl.call_args_list
+            }
+            self.assertEqual(
+                opened_paths,
+                {
+                    (self.repository_root / path).resolve()
+                    for path in (
+                        "tools/oneflow_gui/test_process_control.py",
+                        "tools/oneflow_gui/test_runner_process.py",
+                        "tools/oneflow_gui/test_workflow_process.py",
+                    )
+                },
+            )
+        finally:
+            dialog.close()
+
     def test_execution_history_separates_explicit_links_from_unlinked_runs(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             store_path = Path(temporary) / "execution-records.jsonl"

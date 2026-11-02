@@ -875,3 +875,14 @@ presentation layer: it does not infer links from test names, source paths, or
 matching commands, and it does not claim that a passing run verifies the entire
 contract. The integration test exercises both linked and unlinked histories and
 current/stale revision states.
+
+
+## 17. Explicit links from Python execution records
+
+The Python unittest capture adapter now resolves contract IDs through the shared
+catalog. It links a record only when the command resolves to one exact Python
+module source file and a contract explicitly declares Python test evidence from
+that same file. Directory-wide discovery, unknown files, and catalog failures
+remain unlinked. The resolver is Qt-independent and has focused catalog and
+capture tests. This is an evidence association, not a claim that every test in
+the file was relevant to every contract or that the contract is fully verified.

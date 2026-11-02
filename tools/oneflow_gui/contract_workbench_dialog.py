@@ -130,8 +130,12 @@ class ContractDomainDialog(QDialog):
         self.open_source_button.clicked.connect(self._open_sources)
         self.open_docs_button = QPushButton("Open documentation...")
         self.open_docs_button.clicked.connect(self._open_documentation)
+        self.open_tests_button = QPushButton("Open declared test sources...")
+        self.open_tests_button.setEnabled(False)
+        self.open_tests_button.clicked.connect(self._open_verification_sources)
         open_layout.addWidget(self.open_source_button)
         open_layout.addWidget(self.open_docs_button)
+        open_layout.addWidget(self.open_tests_button)
         self.open_case_directory_button = None
         self.open_case_references_button = None
         if domain == "case":
@@ -308,6 +312,15 @@ class ContractDomainDialog(QDialog):
             )
         evidence_lines.extend(self._execution_history_lines(summary.id))
         self.evidence_view.setPlainText("\n".join(evidence_lines) or "No evidence declared.")
+        self.open_tests_button.setEnabled(
+            any(
+                resolution.evidence.kind
+                in ("python_test", "google_test", "linked_test")
+                and resolution.status == "resolved"
+                and bool(resolution.resolved_path)
+                for resolution in resolutions
+            )
+        )
         if summary.case_data is not None:
             case = summary.case_data
             self.case_view.setPlainText(
@@ -375,6 +388,36 @@ class ContractDomainDialog(QDialog):
                 summary.documentation_paths + summary.references,
                 "Documentation",
             )
+
+    def _open_verification_sources(self) -> None:
+        """Open only repository files resolved from declared test evidence."""
+        summary = self._current_summary()
+        if summary is None:
+            return
+        resolutions = self._resolve_contract_evidence(
+            self._repository_root, summary
+        )
+        relative_paths = []
+        for resolution in resolutions:
+            if resolution.evidence.kind not in (
+                "python_test",
+                "google_test",
+                "linked_test",
+            ):
+                continue
+            if resolution.status != "resolved" or not resolution.resolved_path:
+                continue
+            try:
+                relative = Path(resolution.resolved_path).resolve().relative_to(
+                    self._repository_root
+                )
+            except ValueError:
+                continue
+            relative_paths.append(relative.as_posix())
+        self._open_paths(
+            tuple(dict.fromkeys(relative_paths)),
+            "Verification test sources",
+        )
 
     def _open_case_directory(self) -> None:
         summary = self._current_summary()
