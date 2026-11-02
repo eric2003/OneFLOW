@@ -895,15 +895,17 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "\n"
                 r"\lambda_{\mathrm{vis}}=A^{2}\cdot\frac{2\max(c_1,c_2)}{\mathrm{Re}\,\rho}"
             ),
-            principle=(
-                "Blazek-style viscous spectral estimate taking the larger of "
-                "momentum and energy diffusivities, scaled by face area squared."
+                        principle=(
+                "Diffusion scale nu*k^2 with k~A/V yields lambda_vis ~ A^2 * nu_eff. "
+                "Model 1 takes nu_eff from max of momentum (4/3 viscosity) and energy "
+                "(gamma*mu/Pr) channels; engineering time-step bound, not exact eigenradius."
             ),
             background=(
                 "Pure API ViscousFaceSpectralRadiusModel1 in TimeStepPolicy. "
-                "Feeds viscous time-step and LUSGS viscous spectrum paths."
+                "Derivation: doc/source/numerical/viscous_spectral_radius_model1.rst "
+                "(Derivation section). Feeds viscous dt and related spectra."
             ),
-            references=(
+references=(
                 "Blazek, Computational Fluid Dynamics; OneFLOW TimeStepPolicy",
                 "doc/source/numerical/viscous_spectral_radius_model1.rst",
             ),

@@ -14,7 +14,11 @@ Real InviscidFaceSpectralRadius(
 // @doc-algorithm spectral-radius
 // @doc-stage viscous-face-model1
 // @doc-pure
-// Blazek-style viscous spectral estimate with max of momentum and energy diffusivities.
+// @doc-formula c1=(4/3)*(mu+mut); c2=gamma*(mu/Pr_l+mut/Pr_t);
+// @doc-formula lambda_vis = A^2 * 2*max(c1,c2)/(Re*rho)
+// Blazek-style viscous spectral estimate: max of momentum and energy
+// diffusivities, scaled by face area squared (time-step bound, not exact
+// Jacobian eigenvalue). See doc/source/numerical/viscous_spectral_radius_model1.rst.
 Real ViscousFaceSpectralRadiusModel1(
     Real densityMid,
     Real laminarViscosity, Real turbulentViscosity,
