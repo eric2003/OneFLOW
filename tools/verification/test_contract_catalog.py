@@ -15,6 +15,7 @@ from .contract_catalog import (
     adapt_geometry_scenario,
     adapt_theory_entry,
     load_contract_catalog,
+    resolve_contract_evidence,
     validate_contract_summaries,
 )
 from .curve_catalog import list_theory_entries
@@ -97,6 +98,32 @@ class ContractCatalogTest(unittest.TestCase):
         )
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\n".join(issues))
+
+    def test_adapts_gui_process_execution_contract_and_resolves_python_tests(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "runtime"
+            / "gui_process_execution.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+
+        summary = adapt_declared_contract(definition)
+        issues = validate_contract_summaries(self.repository_root, [summary])
+        resolutions = resolve_contract_evidence(self.repository_root, summary)
+
+        self.assertEqual(summary.id, "runtime/gui-process-execution")
+        self.assertEqual(len(summary.evidence), 7)
+        self.assertEqual(issues, [], "\\n".join(issues))
+        self.assertEqual(
+            [item.status for item in resolutions],
+            ["resolved"] * len(summary.evidence),
+        )
+        self.assertTrue(
+            all(item.evidence.status == "linked_not_executed" for item in resolutions)
+        )
 
     def test_adapts_laminar_flat_plate_case_contract(self) -> None:
         definition_path = (
@@ -351,7 +378,11 @@ class ContractCatalogTest(unittest.TestCase):
 
         self.assertTrue(any(item.domain == "numerical" for item in summaries))
         self.assertTrue(any(item.domain == "geometry" for item in summaries))
-        self.assertTrue(any(item.domain == "runtime" for item in summaries))
+        runtime_contracts = [item for item in summaries if item.domain == "runtime"]
+        self.assertGreaterEqual(len(runtime_contracts), 2)
+        self.assertTrue(
+            any(item.id == "runtime/gui-process-execution" for item in runtime_contracts)
+        )
         case_contracts = [item for item in summaries if item.domain == "case"]
         self.assertEqual(len(case_contracts), 1)
         self.assertEqual(
