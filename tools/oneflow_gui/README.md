@@ -268,3 +268,19 @@ template source. The case's simutask = "Solve" is classified as a CFD/flow
 project by project discovery.
 
 When the laminar template is selected, the suggested project name is `LaminarFlatPlate`. If that destination already exists, the dialog asks for explicit confirmation before replacement. Replacement removes the complete existing project directory and copies a fresh template; generated results and other user changes in the old directory are permanently discarded. Declining the confirmation leaves the existing project untouched.
+
+### Unified Parameter Workbench
+
+The Project Window now includes a unified, read-only parameter tree grouped as
+Shared / CFD / Grid / Other. It is built from parameter files in `control.txt`
+manifest order; `control.txt` itself is not a parameter entry. Each scalar row
+shows its value, declared type, source path, manifest file order, and declaration
+order. Duplicate keys show the effective last declaration and retain earlier
+declarations as `[overridden]` child rows with their provenance.
+
+Unknown scalar declarations remain visible. Arrays and declaration forms not
+supported by the scalar parser are listed under Other / Unsupported declarations
+with source line and reason. The tree does not claim complete runtime coverage
+and does not edit values; opening a row navigates to the original source file in
+the configured editor. Runtime consumer tracing and Formula & Knowledge
+cross-references are explicitly deferred to the next slice.
