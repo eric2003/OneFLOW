@@ -1479,3 +1479,16 @@ test. The contract declaration links the exact GoogleTest name as
 linked_not_executed. Static catalog resolution, CMake target declaration,
 CTest discovery, actual execution, and pass outcome remain distinct evidence
 states. The assistant has not run the user's Windows build or CTest.
+
+
+## 2026-11-03 continuation: formula preview layout and CFL ramp contract
+
+Based on the current `hexin` source after the 2026-11-02 integration slice:
+
+- Moved the Parameter Formula tab's preview below the symbol definitions, LaTeX source, and formula actions. The GUI test asserts the widget order so this remains an intentional layout contract.
+- Extracted `CflAtIteration` as a pure policy from `TimeStep::CalcCfl`. The caller still selects `outerSteps`, or `innerSteps` when `dualtime == 1`.
+- Added six focused GoogleTests for ramp start, interpolation, boundary, post-ramp behavior, descending schedules, and a zero-length ramp at iteration zero.
+- Added the `parameter/cfl-ramp` Contract Workbench entry and numerical documentation. The source trace distinguishes CFL scheduling from `global_dt`: the local branch uses CFL-scaled cell spectral radii; the global branch uses `ctrl.pdt`; the local-global branch reduces local steps to a common minimum. The supported HIP fast path is restricted to local inviscid stepping.
+- Added the CFL ramp to the Run Control group and updated the catalog and GUI search tests.
+
+Validation status: test declarations and source links are checked into the catalog, but they remain `linked_not_executed`. No local Windows/MSVC build, CTest, or Python GUI/catalog test run is claimed for this slice. The latest queried GitHub combined status and PR-associated workflow list did not yet expose checks for the exact final commit. Re-run the focused policy test, Contract Workbench/catalog tests, and full Debug CTest on the exact `hexin` revision before promoting execution evidence.
