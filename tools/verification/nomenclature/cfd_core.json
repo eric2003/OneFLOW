@@ -61,6 +61,12 @@
       "name": "OpenFOAM case structure",
       "url": "https://doc.openfoam.com/2312/fundamentals/case-structure/",
       "scope": "Identifies constant/polyMesh as the mesh directory and points as a mesh geometry file."
+    },
+    {
+      "id": "openfoam_turbulence_fields",
+      "name": "OpenFOAM turbulenceFields",
+      "url": "https://doc.openfoam.com/2212/tools/post-processing/function-objects/field/turbulenceFields/",
+      "scope": "Names and meanings of common turbulence model output fields, including k, epsilon, omega, nut, mut, and nuTilda."
     }
   ],
   "concepts": [
@@ -599,6 +605,339 @@
           "caveat": "The runtime read is confirmed; the exact velocity/length/viscosity convention must be traced through reference-state setup before claiming equivalence to another code's Reynolds number.",
           "source_ids": [
             "oneflow_nscom"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fluid.static_temperature",
+      "label": "Static temperature",
+      "symbol": "T",
+      "definition": "Thermodynamic static temperature of the fluid at the local state.",
+      "dimensions": {
+        "M": 0,
+        "L": 0,
+        "T": 0,
+        "Theta": 1
+      },
+      "si_unit": "K",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "Temperature",
+          "role": "flow_solution_field",
+          "relation": "exact",
+          "applicability": "CGNS static flowfield temperature.",
+          "caveat": "CGNS standardizes the physical quantity; inspect DataClass and dimensional-unit metadata before interpreting stored values.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "T",
+          "role": "solution_field",
+          "relation": "conditional",
+          "applicability": "Thermophysical solvers that expose a temperature volume field.",
+          "caveat": "The field is commonly named T; solver thermophysical formulation and field dimensions determine its interpretation.",
+          "source_ids": [
+            "openfoam_solver_fields"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fluid.molecular_viscosity",
+      "label": "Molecular (dynamic) viscosity",
+      "symbol": "mu",
+      "definition": "Dynamic viscosity of the fluid due to molecular momentum transport.",
+      "dimensions": {
+        "M": 1,
+        "L": -1,
+        "T": -1,
+        "Theta": 0
+      },
+      "si_unit": "Pa s",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "ViscosityMolecular",
+          "role": "flow_solution_field",
+          "relation": "exact",
+          "applicability": "CGNS molecular viscosity.",
+          "caveat": "CGNS standardizes the physical quantity; inspect DataClass and dimensional-unit metadata before interpreting stored values.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "mu",
+          "role": "solution_field",
+          "relation": "conditional",
+          "applicability": "Compressible or thermophysical formulations that expose molecular dynamic viscosity.",
+          "caveat": "Do not confuse molecular viscosity with turbulent or effective viscosity; field availability depends on the thermophysical model.",
+          "source_ids": [
+            "openfoam_turbulence_fields"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fluid.kinematic_viscosity",
+      "label": "Kinematic viscosity",
+      "symbol": "nu",
+      "definition": "Dynamic viscosity divided by density, nu = mu/rho.",
+      "dimensions": {
+        "M": 0,
+        "L": 2,
+        "T": -1,
+        "Theta": 0
+      },
+      "si_unit": "m^2/s",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "ViscosityKinematic",
+          "role": "flow_solution_field",
+          "relation": "exact",
+          "applicability": "CGNS kinematic viscosity.",
+          "caveat": "CGNS standardizes the physical quantity; inspect DataClass and dimensional-unit metadata before interpreting stored values.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "nu",
+          "role": "solution_field",
+          "relation": "conditional",
+          "applicability": "Incompressible formulations commonly use a kinematic molecular viscosity.",
+          "caveat": "This is molecular kinematic viscosity, not turbulent kinematic viscosity nut.",
+          "source_ids": [
+            "openfoam_turbulence_fields"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turbulence.eddy_kinematic_viscosity",
+      "label": "Kinematic eddy viscosity",
+      "symbol": "nu_t",
+      "definition": "Turbulent (eddy) kinematic viscosity used by an eddy-viscosity closure.",
+      "dimensions": {
+        "M": 0,
+        "L": 2,
+        "T": -1,
+        "Theta": 0
+      },
+      "si_unit": "m^2/s",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "ViscosityEddyKinematic",
+          "role": "flow_solution_field",
+          "relation": "exact",
+          "applicability": "CGNS kinematic eddy viscosity.",
+          "caveat": "CGNS standardizes the physical quantity; inspect DataClass and dimensional-unit metadata before interpreting stored values.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "nut",
+          "role": "solution_field",
+          "relation": "conditional",
+          "applicability": "Common incompressible turbulence-field output.",
+          "caveat": "OpenFOAM nut is turbulent kinematic viscosity; it is not molecular nu or dynamic mut.",
+          "source_ids": [
+            "openfoam_turbulence_fields"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turbulence.eddy_dynamic_viscosity",
+      "label": "Dynamic eddy viscosity",
+      "symbol": "mu_t",
+      "definition": "Turbulent (eddy) dynamic viscosity, commonly related to kinematic eddy viscosity by mu_t = rho nu_t.",
+      "dimensions": {
+        "M": 1,
+        "L": -1,
+        "T": -1,
+        "Theta": 0
+      },
+      "si_unit": "Pa s",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "ViscosityEddy",
+          "role": "flow_solution_field",
+          "relation": "exact",
+          "applicability": "CGNS dynamic eddy viscosity.",
+          "caveat": "CGNS standardizes the physical quantity; inspect DataClass and dimensional-unit metadata before interpreting stored values.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "mut",
+          "role": "solution_field",
+          "relation": "conditional",
+          "applicability": "Common compressible turbulence-field output.",
+          "caveat": "OpenFOAM mut is dynamic turbulent viscosity; do not merge with nut, which has units of kinematic viscosity.",
+          "source_ids": [
+            "openfoam_turbulence_fields"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turbulence.kinetic_energy",
+      "label": "Turbulent kinetic energy",
+      "symbol": "k",
+      "definition": "Turbulent kinetic energy per unit mass, one half of the trace of the velocity-fluctuation covariance tensor.",
+      "dimensions": {
+        "M": 0,
+        "L": 2,
+        "T": -2,
+        "Theta": 0
+      },
+      "si_unit": "m^2/s^2",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "TurbulentEnergyKinetic",
+          "role": "flow_solution_field",
+          "relation": "exact",
+          "applicability": "CGNS turbulence-model solution quantity.",
+          "caveat": "CGNS standardizes the physical quantity; inspect DataClass and dimensional-unit metadata before interpreting stored values.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "k",
+          "role": "solution_field",
+          "relation": "conditional",
+          "applicability": "Two-equation turbulence models such as k-epsilon and k-omega that expose turbulent kinetic energy.",
+          "caveat": "Field availability and dimensions depend on the selected solver and turbulence model.",
+          "source_ids": [
+            "openfoam_turbulence_fields"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turbulence.dissipation_rate",
+      "label": "Turbulent kinetic-energy dissipation rate",
+      "symbol": "epsilon",
+      "definition": "Rate of dissipation of turbulent kinetic energy per unit mass.",
+      "dimensions": {
+        "M": 0,
+        "L": 2,
+        "T": -3,
+        "Theta": 0
+      },
+      "si_unit": "m^2/s^3",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "TurbulentDissipation",
+          "role": "flow_solution_field",
+          "relation": "exact",
+          "applicability": "CGNS turbulence-model solution quantity.",
+          "caveat": "CGNS standardizes the physical quantity; inspect DataClass and dimensional-unit metadata before interpreting stored values.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "epsilon",
+          "role": "solution_field",
+          "relation": "conditional",
+          "applicability": "k-epsilon and related turbulence models that solve or expose the dissipation rate.",
+          "caveat": "Field availability and dimensions depend on the selected solver and turbulence model.",
+          "source_ids": [
+            "openfoam_turbulence_fields"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turbulence.specific_dissipation_rate",
+      "label": "Specific dissipation rate",
+      "symbol": "omega",
+      "definition": "Specific turbulence dissipation rate used by k-omega-family models; model conventions define its relationship to epsilon and k.",
+      "dimensions": {
+        "M": 0,
+        "L": 0,
+        "T": -1,
+        "Theta": 0
+      },
+      "si_unit": "1/s",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "TurbulentDissipationRate",
+          "role": "flow_solution_field",
+          "relation": "exact",
+          "applicability": "CGNS typical turbulence quantity described using epsilon/k.",
+          "caveat": "CGNS describes this identifier as epsilon/k; k-omega model omega may include model-coefficient conventions, so verify the model definition before treating them as numerically identical.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "omega",
+          "role": "solution_field",
+          "relation": "conditional",
+          "applicability": "k-omega-family turbulence models that expose specific dissipation rate.",
+          "caveat": "Do not infer universal numeric equivalence from the spelling alone; model constants and definitions matter.",
+          "source_ids": [
+            "openfoam_turbulence_fields"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turbulence.sa_modified_kinematic_viscosity",
+      "label": "Spalart-Allmaras modified kinematic viscosity",
+      "symbol": "nu_tilde",
+      "definition": "Modified viscosity working variable transported by the Spalart-Allmaras one-equation turbulence model.",
+      "dimensions": {
+        "M": 0,
+        "L": 2,
+        "T": -1,
+        "Theta": 0
+      },
+      "si_unit": "m^2/s",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "TurbulentSANuTilde",
+          "role": "flow_solution_field",
+          "relation": "exact",
+          "applicability": "Spalart-Allmaras turbulence-model solution quantity.",
+          "caveat": "CGNS standardizes the physical quantity; inspect DataClass and dimensional-unit metadata before interpreting stored values.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "nuTilda",
+          "role": "solution_field",
+          "relation": "conditional",
+          "applicability": "Spalart-Allmaras model output or related turbulence-field post-processing.",
+          "caveat": "This is the SA modified-viscosity working variable, not the physical eddy viscosity nut itself.",
+          "source_ids": [
+            "openfoam_turbulence_fields"
           ]
         }
       ]
