@@ -101,3 +101,29 @@ TEST( TurbSstResidual, SstDiagonalKAlwaysNonPositive )
     EXPECT_LE( SstDiagonalK( 1.0, 0.09, 1.0 ), 0.0 );
     EXPECT_LE( SstDiagonalK( 1.0, 0.09, 10.0 ), 0.0 );
 }
+
+// Intermediate: SstDiagonalW on an omega grid (no cross-diffusion).
+// Ref: fBeta=1, beta=0.075, rho=1, |CD|=0; dw = -0.15 * omega.
+TEST( TurbSstResidual, SstDiagonalWCurveMatchesClosedForm )
+{
+    const Real fBeta = 1.0;
+    const Real beta = 0.075;
+    const Real density = 1.0;
+    const Real omegas[] = { 0.5, 1.0, 2.0, 3.0, 5.0, 10.0 };
+    for ( Real omega : omegas )
+    {
+        EXPECT_NEAR(
+            SstDiagonalW( fBeta, beta, omega, 0.0, density ),
+            -2.0 * fBeta * beta * omega,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstResidual, SstDiagonalWAddsCrossDiffTerm )
+{
+    // -2*1*0.075*2 - 0.4/(1*2) = -0.3 - 0.2 = -0.5
+    EXPECT_NEAR(
+        SstDiagonalW( 1.0, 0.075, 2.0, 0.4, 1.0 ),
+        -0.5,
+        1.0e-12 );
+}

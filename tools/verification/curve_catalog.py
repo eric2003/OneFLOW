@@ -636,6 +636,48 @@ def list_theory_entries() -> list[TheoryEntry]:
         ),
 
 
+
+        TheoryEntry(
+            id="sst_diagonal_w",
+            family="turbulence",
+            genus="SST",
+            section="residual / omega diagonal",
+            title="SST omega residual diagonal",
+            role_tags=("turbulence", "SST", "residual"),
+            formula_plain=(
+                "dw = -2 * f_beta * beta * omega - |CD| / (rho * omega)"
+            ),
+            formula_latex=(
+                r"d_\omega=-2f_\beta\beta\omega"
+                r"-\frac{|\mathrm{CD}|}{\rho\omega}"
+            ),
+            principle=(
+                "Linearized omega-equation diagonal used by implicit updates. "
+                "Cross-diffusion adds a non-negative magnitude term when active."
+            ),
+            background=(
+                "Pure API SstDiagonalW in TurbSstPolicy. Pair with SstDiagonalK."
+            ),
+            references=(
+                "Menter SST linearization; NASA TMR SST",
+                "doc/source/numerical/sst_diagonal_w.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_diagonal_w_theory.csv",
+            plot_module="plot_sst_diagonal_w",
+            pure_apis=("SstDiagonalW",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_diagonal_w.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "dw = -2*fBeta*beta*omega - absCD/(rho*omega);\n"
+            ),
+            proves="omega diagonal algebra vs pure API; cross-diff sample.",
+            does_not_prove="Full residual Jacobian on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sst_residual_diagonal",
             family="turbulence",
