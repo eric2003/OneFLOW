@@ -141,7 +141,7 @@ class ParameterModelTest(unittest.TestCase):
                 control_text = (script / "control.txt").read_text(encoding="utf-8")
                 documents = []
                 for line in control_text.splitlines():
-                    match = re.fullmatch(r'\\s*"([^"]+)"\\s*;\\s*', line)
+                    match = re.fullmatch(r'\s*"([^"]+)"\s*;\s*', line)
                     if match:
                         documents.append(ParameterDocument.load(script / match.group(1)))
                 self.assertTrue(documents, f"No parameter documents found for {case_path}")
