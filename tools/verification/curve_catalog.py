@@ -616,8 +616,8 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             background=("See sst_omega_source.rst and TurbSstPolicy pure APIs."),
             references=("Menter SST; NASA TMR SST; sst_omega_source.rst",),
-            csv_relpath="tools/verification/data/sst_source_w_theory.csv",
-            plot_module="plot_sst_source_w",
+            csv_relpath=None,
+            plot_module=None,
             pure_apis=(
                 "SstProdwMenter",
                 "SstDissw",
@@ -671,8 +671,8 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "Menter SST linearization practice.",
                 "OneFLOW TurbSstPolicy residual section.",
             ),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/sst_diagonal_k_theory.csv",
+            plot_module="plot_sst_diagonal_k",
             pure_apis=(
                 "SstSourceK",
                 "SstSourceW",
