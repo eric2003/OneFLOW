@@ -419,3 +419,59 @@ starting point for discovering files; actual declarations and C++ consumers
 remain the evidence for adding keys. Arrays such as ``gridTrans[3]`` continue
 to be reported as unsupported by the scalar editor even when their names can
 be recognized for navigation.
+
+CFL ramp and time-step strategy: source trace
+---------------------------------------------
+
+The RAE2822 solver case declares ``cflst``, ``cfled``, ``ncfl``,
+``timestepModel``, and ``global_dt`` together, but these keys control
+different layers of the time-step process.
+
+* ``Iteration::Init`` reads ``cflst`` (ramp start), ``cfled`` (ramp end),
+  and ``ncfl`` (ramp length). It also reads ``idualtime`` when the key is
+  present; legacy files without it retain ``dualtime = 0``.
+* ``TimeStep::CalcCfl`` selects an iteration index through
+  ``CflIterationIndex``. Physical-time mode uses ``outerSteps``; dual-time
+  mode uses ``innerSteps``. ``CflAtIteration`` linearly interpolates while
+  ``iteration < ncfl`` and returns ``cfled`` afterwards:
+
+  .. math::
+
+     \mathrm{CFL}(i) = \mathrm{CFL}_{start} +
+       \frac{\mathrm{CFL}_{end} - \mathrm{CFL}_{start}}{n_{CFL}} i
+
+  The source contract is in ``TimeStepPolicy.h/.cpp``. It defines the ramp
+  schedule; it does not establish a universally optimal CFL value or a
+  convergence guarantee for a particular mesh and flow.
+* ``NsCom::Init`` reads ``timestepModel``. The unstructured solver dispatches
+  0 to local time stepping, 1 to global time stepping, and the remaining
+  branch to the local/global hybrid path (the representative case comment
+  documents 2 as ``lg``).
+* Solver control initialization reads ``global_dt`` into ``Ctrl::pdt``.
+  ``UTimeStep::CalcGlobalTimeStep`` applies this value in global mode. The
+  hybrid path computes local steps, takes their minimum, and writes that
+  value back to ``Ctrl::pdt``. Thus ``global_dt`` is not interchangeable
+  with the CFL ramp and is not the controlling value in every strategy.
+
+``currTime`` is runtime state, not a declared input parameter. The solver
+control initializers set it to zero; ``SimuIterState::Running`` compares it
+with ``maxTime`` when ``iexitflag`` selects time-based termination. When
+``iexitflag`` is zero, the outer iteration count is instead compared with
+``maxSteps``. This separates the time-step calculation from the outer-loop
+termination policy.
+
+Output cadence is another independent group. ``Iteration::Init`` loads
+``nFieldSave``, ``nVisualSave``, ``nResSave``, and ``nForceSave``. The current
+``Iteration::ResOk`` and ``Iteration::ForceOk`` implementations show that
+residual and force output cadence can be indexed by inner steps for
+``startStrategy == 2`` and by outer steps otherwise. The exact field and
+visual writer call sites remain a separate consumer-audit task; the parameter
+catalog marks them as loaded settings, not as fully traced output behavior.
+
+The Parameter runtime-consumer catalog now links the three CFL ramp inputs
+to ``Iteration::Init``, ``TimeStep::CalcCfl``, ``CflIterationIndex``, and
+``CflAtIteration``. It separately links ``timestepModel`` to the local/global
+dispatch and ``global_dt`` to its four solver-control read sites and the
+unstructured time-step strategy. These links are source evidence, not
+execution records. Units, admissible ranges, default values, and behavior
+outside the audited solver path remain unresolved until separately verified.
