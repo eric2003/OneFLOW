@@ -209,6 +209,7 @@ class ContractDomainDialog(QDialog):
         self.render_parameter_formula_button = None
         self.copy_parameter_formula_button = None
         self._parameter_formula_pixmap = QPixmap()
+        self._parameter_formula_zoom = 1.0
         if domain == "parameter":
             self.parameter_formula_page = QWidget()
             formula_layout = QVBoxLayout(self.parameter_formula_page)
@@ -233,9 +234,19 @@ class ContractDomainDialog(QDialog):
             formula_actions = QHBoxLayout()
             self.render_parameter_formula_button = QPushButton("Render formula")
             self.render_parameter_formula_button.clicked.connect(self._render_parameter_formula)
+            self.zoom_out_parameter_formula_button = QPushButton("Zoom out")
+            self.zoom_out_parameter_formula_button.clicked.connect(
+                lambda: self._change_parameter_formula_zoom(0.8)
+            )
+            self.zoom_in_parameter_formula_button = QPushButton("Zoom in")
+            self.zoom_in_parameter_formula_button.clicked.connect(
+                lambda: self._change_parameter_formula_zoom(1.25)
+            )
             self.copy_parameter_formula_button = QPushButton("Copy LaTeX")
             self.copy_parameter_formula_button.clicked.connect(self._copy_parameter_formula)
             formula_actions.addWidget(self.render_parameter_formula_button)
+            formula_actions.addWidget(self.zoom_out_parameter_formula_button)
+            formula_actions.addWidget(self.zoom_in_parameter_formula_button)
             formula_actions.addWidget(self.copy_parameter_formula_button)
             formula_actions.addStretch(1)
             formula_layout.addLayout(formula_actions)
@@ -761,18 +772,12 @@ class ContractDomainDialog(QDialog):
                 for character in summary.source_id
             )
             output_path = preview_root / f"parameter_{safe_id}_formula.png"
-            render_latex_preview_png(latex, output_path, dpi=220, fontsize=20)
+            render_latex_preview_png(latex, output_path, dpi=300, fontsize=26)
             pixmap = QPixmap(str(output_path))
             if pixmap.isNull():
                 raise RuntimeError("formula renderer did not produce a readable image")
             self._parameter_formula_pixmap = pixmap
-            self.parameter_formula_preview.setPixmap(
-                pixmap.scaled(
-                    self.parameter_formula_scroll.viewport().size(),
-                    Qt.AspectRatioMode.KeepAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation,
-                )
-            )
+            self._update_parameter_formula_preview()
             self.parameter_formula_preview.setToolTip(
                 "Rendered from the exact LaTeX source shown above."
             )
@@ -781,6 +786,34 @@ class ContractDomainDialog(QDialog):
             self.parameter_formula_preview.setText(
                 f"Formula preview unavailable ({error}). The LaTeX source remains available."
             )
+
+    def _change_parameter_formula_zoom(self, factor: float) -> None:
+        self._parameter_formula_zoom = min(
+            3.0, max(0.5, self._parameter_formula_zoom * factor)
+        )
+        self._update_parameter_formula_preview()
+
+    def _update_parameter_formula_preview(self) -> None:
+        if self._parameter_formula_pixmap.isNull():
+            return
+        viewport = self.parameter_formula_scroll.viewport().size()
+        target_width = max(
+            viewport.width(),
+            int(self._parameter_formula_pixmap.width() * self._parameter_formula_zoom),
+        )
+        target_height = max(
+            viewport.height(),
+            int(self._parameter_formula_pixmap.height() * self._parameter_formula_zoom),
+        )
+        self.parameter_formula_preview.resize(target_width, target_height)
+        self.parameter_formula_preview.setPixmap(
+            self._parameter_formula_pixmap.scaled(
+                target_width,
+                target_height,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        )
 
     @staticmethod
     def _format_analytical_reference(relative_path: str) -> str:
