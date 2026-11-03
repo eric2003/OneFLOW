@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "id": "parameter/max-time",
+  "title": "Maximum simulation time",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "implemented",
+  "overview": "Provides the time threshold used by SimuIterState::Running when ctrl.iexitflag is nonzero. Ctrl::Init reads maxTime and initializes currTime to zero. In this branch, the outer loop stops when currTime reaches or exceeds maxTime; when iexitflag is zero, the stop condition instead uses maxSteps.",
+  "principle": "maxTime is a simulation-time threshold, distinct from an iteration-count limit and from a residual-convergence criterion. Its unit and nondimensional scaling must be interpreted using the active case's time convention; the audited stop-condition code alone does not define those units.",
+  "architecture": "Ctrl::Init loads maxTime into the shared solver control state and initializes currTime. SimuIterState::Running compares those values only in the nonzero iexitflag branch. This contract records the stop-condition wiring, not the full evolution law for currTime or every solver-specific time-step policy.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/global/src/Ctrl.cpp",
+      "codes/global/src/Iteration.cpp",
+      "codes/global/include/Ctrl.h",
+      "codes/global/include/Iteration.h"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst",
+      "doc/source/numerical/time_integral_control.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "Ctrl::Init reads maxTime as a Real value and initializes currTime to zero.",
+      "When ctrl.iexitflag is nonzero, SimuIterState::Running stops when ctrl.currTime is greater than or equal to ctrl.maxTime.",
+      "When ctrl.iexitflag is zero, SimuIterState::Running uses maxSteps instead of maxTime."
+    ],
+    "does_not_prove": [
+      "The physical unit or nondimensional scale of maxTime for every solver and case.",
+      "The time-step selection or update law that advances currTime.",
+      "That maxTime is a residual-convergence criterion or guarantees a converged solution.",
+      "An admissible range or explicit positivity validation for maxTime."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "Ctrl::Init and SimuIterState::Running",
+      "status": "declared_not_executed",
+      "scope": "Source-backed time-threshold loading and outer-loop stop-condition branch; no runtime test or physical-time interpretation is implied."
+    }
+  ],
+  "group": {
+    "id": "run_control",
+    "title": "Run Control",
+    "order": 10
+  }
+}
