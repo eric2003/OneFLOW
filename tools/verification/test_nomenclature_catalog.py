@@ -72,6 +72,17 @@ class NomenclatureCatalogTest(unittest.TestCase):
                 "fluid.total_pressure",
             )
 
+    def test_oneflow_reference_parameters_map_to_standard_concepts(self):
+        mach = self.catalog.find_alias("mach_ref", system="OneFLOW")
+        reynolds = self.catalog.find_alias("reynolds", system="OneFLOW")
+
+        self.assertEqual(mach[0][0].id, "flow.mach_number")
+        self.assertEqual(mach[0][1].role, "input_parameter")
+        self.assertIn("const_cp", mach[0][1].caveat)
+        self.assertEqual(reynolds[0][0].id, "flow.reynolds_number")
+        self.assertEqual(reynolds[0][1].role, "input_parameter")
+        self.assertIn("must be traced", reynolds[0][1].caveat)
+
     def test_velocity_and_mesh_coordinate_names_are_searchable(self):
         self.assertEqual(self.catalog.find_alias("U", system="OpenFOAM")[0][0].id, "fluid.velocity")
         self.assertEqual(self.catalog.find_alias("CoordinateX", system="CGNS")[0][0].id, "mesh.coordinate")
