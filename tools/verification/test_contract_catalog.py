@@ -731,8 +731,12 @@ class ContractCatalogTest(unittest.TestCase):
                 "parameter/time_integral",
                 "parameter/rk_stage",
                 "parameter/mach_ref",
+                "parameter/max-steps",
+                "parameter/max-time",
             },
         )
+        self.assertEqual(parameters["parameter/max-steps"].group_id, "run_control")
+        self.assertEqual(parameters["parameter/max-time"].group_id, "run_control")
         self.assertIn(
             "time_integral_rk_stage_weight",
             parameters["parameter/rk_stage"].references,
