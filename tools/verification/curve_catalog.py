@@ -877,8 +877,8 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             background=("Pure APIs: LusgsSplitFaceEigenvalues, LinearizationWeights, FluxIncrementFiveEq."),
             references=("Yoon-Jameson LUSGS; NsLusgsPolicy",),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/ns_lusgs_flux_increment_theory.csv",
+            plot_module="plot_ns_lusgs_flux_increment",
             pure_apis=(
                 "LusgsSplitFaceEigenvalues",
                 "LusgsLinearizationWeights",
@@ -886,6 +886,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             source_relpaths=(
                 "codes/ns/include/NsLusgsPolicy.h",
+                "codes/ns/src/NsLusgsPolicy.cpp",
                 "codes/ns/src/NsLusgs.cpp",
             ),
             doc_relpath="doc/source/numerical/index.rst",
