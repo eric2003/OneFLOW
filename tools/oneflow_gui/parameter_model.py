@@ -23,12 +23,22 @@ class ParameterDomain(str, Enum):
     OTHER = "other"
 
 
+class ParameterApplicability(str, Enum):
+    """Task families in which a parameter is known to apply."""
+
+    BOTH = "both"
+    SOLVE = "solve"
+    GRID = "grid"
+    UNKNOWN = "unknown"
+
+
 @dataclass(frozen=True, slots=True)
 class ParameterClassification:
     """Stable, conservative classification used by Workbench presentation."""
 
     domain: ParameterDomain
     group: str
+    applicability: ParameterApplicability
 
 
 @dataclass(frozen=True, slots=True)
@@ -95,8 +105,12 @@ _CFD_GROUPS = {
     "Run control": frozenset({
         "startstrategy", "iexitflag", "maxsteps", "maxtime",
         "numberofminimumsubiterationsteps",
-        "numberofmaximumsubiterationsteps", "timestepmodel", "global_dt",
-        "idualtime", "nequ", "ntequ", "ntmodel", "machstrategy",
+        "numberofmaximumsubiterationsteps", "nequ", "ntequ", "ntmodel",
+        "machstrategy",
+    }),
+    "Time stepping": frozenset({
+        "timestepmodel", "global_dt", "idualtime", "ncfl", "cflst",
+        "cfled", "max_time_ratio", "vissrmodel", "vistimestepmodel",
     }),
     "Output": frozenset({
         "nfieldsave", "nforcesave", "nressave", "nvisualsave",
@@ -107,8 +121,7 @@ _CFD_GROUPS = {
     "Numerical methods": frozenset({
         "time_integral", "rk_stage", "lineartwostepmethods", "ischeme",
         "ivischeme", "ieigenfix", "centropy1", "centropy2", "ilim",
-        "vencat_coef", "ncfl", "cflst", "cfled", "max_time_ratio",
-        "visSRModel".casefold(), "visTimeStepModel".casefold(),
+        "vencat_coef",
         "turbulentresidualsmoothornot", "modifyturbulentresidualstrategy",
     }),
     "Flow and reference conditions": frozenset({
@@ -165,22 +178,28 @@ def _task_name(task: str | None) -> str:
     return (task or "").strip().casefold()
 
 
-def classify_parameter(name: str, task: str | None = None) -> ParameterClassification:
-    """Classify known shared/CFD/grid keys; leave uncertain keys visibly unclassified."""
+def classify_parameter(name: str) -> ParameterClassification:
+    """Classify by known parameter semantics, never by the active task alone.
+
+    Task selection describes the current run; it is not evidence of parameter
+    ownership. Unknown keys therefore remain explicitly unclassified.
+    """
     key = _normalize_key(name)
     if key in _SHARED_KEYS:
-        return ParameterClassification(ParameterDomain.SHARED, "General")
+        return ParameterClassification(
+            ParameterDomain.SHARED, "General", ParameterApplicability.BOTH
+        )
     if key in _GRID_KEY_GROUP:
-        return ParameterClassification(ParameterDomain.GRID, _GRID_KEY_GROUP[key])
+        return ParameterClassification(
+            ParameterDomain.GRID, _GRID_KEY_GROUP[key], ParameterApplicability.GRID
+        )
     if key in _CFD_KEY_GROUP:
-        return ParameterClassification(ParameterDomain.CFD, _CFD_KEY_GROUP[key])
-
-    task_key = _task_name(task)
-    if task_key in {"solve", "flow", "cfd", "solver"}:
-        return ParameterClassification(ParameterDomain.CFD, "Other")
-    if task_key == "grid":
-        return ParameterClassification(ParameterDomain.GRID, "Other")
-    return ParameterClassification(ParameterDomain.OTHER, "Unclassified")
+        return ParameterClassification(
+            ParameterDomain.CFD, _CFD_KEY_GROUP[key], ParameterApplicability.SOLVE
+        )
+    return ParameterClassification(
+        ParameterDomain.OTHER, "Unclassified", ParameterApplicability.UNKNOWN
+    )
 
 
 def _display_group_key(entry: ParameterEntry) -> tuple[ParameterDomain, str]:
@@ -259,7 +278,7 @@ class ParameterModel:
                 source_path=document.path,
                 file_order=file_order,
                 declaration_order=declaration_order,
-                classification=classify_parameter(declaration.name, task),
+                classification=classify_parameter(declaration.name),
             )
             for file_order, declaration_order, document, declaration in parsed
         )
