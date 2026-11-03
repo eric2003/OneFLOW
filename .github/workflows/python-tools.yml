@@ -112,6 +112,8 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_parameter_model
       - name: Test runtime parameter consumer evidence
         run: python -m unittest tools.oneflow_gui.test_parameter_consumer_catalog
+      - name: Test CFD nomenclature knowledge catalog
+        run: python -m unittest tools.verification.test_nomenclature_catalog
       - name: Test SQLite parameter catalog
         run: python -m unittest tools.oneflow_gui.test_parameter_catalog_store
       - name: Test mesh layout project copying

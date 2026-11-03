@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "description": "Curated, source-backed CFD terminology mappings. Names are scoped by software, role, applicability, and caveats; they are not global string aliases.",
+  "sources": [
+    {
+      "id": "cgns_sids",
+      "name": "CGNS/SIDS Appendix A",
+      "url": "https://cgns.org/standard/SIDS/appendix_a.html",
+      "scope": "Standardized data-name identifiers, physical meanings, and dimensions."
+    },
+    {
+      "id": "cgns_grid",
+      "name": "CGNS/SIDS Grid Coordinates and Flow Solution",
+      "url": "https://cgns.org/standard/SIDS/grid.html",
+      "scope": "FlowSolution GridLocation, DataClass, units, and data-array placement."
+    },
+    {
+      "id": "openfoam_kinematic_pressure",
+      "name": "OpenFOAM Kinematic Pressure",
+      "url": "https://doc.openfoam.com/2312/tools/processing/solvers/algorithm-kinematic-pressure/",
+      "scope": "Incompressible pressure field p is kinematic pressure."
+    },
+    {
+      "id": "openfoam_pressure_function",
+      "name": "OpenFOAM pressure function object",
+      "url": "https://doc.openfoam.com/2212/tools/post-processing/function-objects/field/pressure/",
+      "scope": "Pressure transformations and definitions for static, total, and coefficient fields."
+    },
+    {
+      "id": "openfoam_solver_fields",
+      "name": "OpenFOAM solver field definitions",
+      "url": "https://doc.openfoam.com/2306/tools/processing/solvers/rtm/heat-transfer/thermoFoam/",
+      "scope": "Solver input field names and field types, including U."
+    },
+    {
+      "id": "su2_config",
+      "name": "SU2 configuration template",
+      "url": "https://github.com/su2code/SU2/blob/master/config_template.cfg",
+      "scope": "Freestream input parameter spellings and descriptions."
+    },
+    {
+      "id": "fluent_fields",
+      "name": "ANSYS Fluent field variable definitions",
+      "url": "https://ansyshelp.ansys.com/public/Views/Secured/corp/v242/en/flu_ug/flu_ug_fvdefs.html",
+      "scope": "Fluent post-processing variable definitions, including gauge and absolute pressure."
+    },
+    {
+      "id": "fluent_cfdpost",
+      "name": "ANSYS CFD-Post variable mapping",
+      "url": "https://ansyshelp.ansys.com/public/Views/Secured/corp/v251/en/cfd_post/SECTION00323.html",
+      "scope": "Fluent-to-CFX field variable name mappings and availability qualifiers."
+    }
+  ],
+  "concepts": [
+    {
+      "id": "fluid.static_pressure",
+      "label": "Static pressure",
+      "symbol": "p",
+      "definition": "Thermodynamic static pressure of the moving fluid. Keep gauge representation, absolute reference, and solver-specific pressure scaling explicit.",
+      "dimensions": {
+        "M": 1,
+        "L": -1,
+        "T": -2,
+        "Theta": 0
+      },
+      "si_unit": "Pa",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "Pressure",
+          "role": "flow_solution_field",
+          "relation": "exact",
+          "applicability": "CGNS/SIDS static flowfield pressure; inspect DataClass and unit metadata before interpreting stored numbers.",
+          "caveat": "CGNS standardizes the physical quantity; the file may store dimensional or normalized values.",
+          "source_ids": [
+            "cgns_sids",
+            "cgns_grid"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "p",
+          "role": "solution_field",
+          "relation": "conditional",
+          "applicability": "Compressible solvers that store dimensional static pressure.",
+          "caveat": "The same spelling p is kinematic pressure in common incompressible solvers; inspect solver and field dimensions.",
+          "source_ids": [
+            "openfoam_kinematic_pressure",
+            "openfoam_pressure_function"
+          ]
+        },
+        {
+          "system": "ANSYS Fluent",
+          "name": "Static Pressure",
+          "role": "postprocessing_variable",
+          "relation": "conditional",
+          "applicability": "Fluent field-variable output.",
+          "caveat": "Fluent Static Pressure is gauge pressure relative to Operating Pressure, not absolute pressure.",
+          "source_ids": [
+            "fluent_fields"
+          ]
+        },
+        {
+          "system": "SU2",
+          "name": "FREESTREAM_PRESSURE",
+          "role": "input_parameter",
+          "relation": "related",
+          "applicability": "Freestream/reference input value.",
+          "caveat": "A freestream boundary/reference parameter, not a local solution field.",
+          "source_ids": [
+            "su2_config"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fluid.kinematic_pressure",
+      "label": "Kinematic pressure",
+      "symbol": "p_k",
+      "definition": "Pressure divided by density, commonly used by constant-density incompressible formulations.",
+      "dimensions": {
+        "M": 0,
+        "L": 2,
+        "T": -2,
+        "Theta": 0
+      },
+      "si_unit": "m^2/s^2",
+      "aliases": [
+        {
+          "system": "OpenFOAM",
+          "name": "p",
+          "role": "solution_field",
+          "relation": "exact",
+          "applicability": "Common incompressible solvers such as icoFoam/simpleFoam.",
+          "caveat": "Do not compare directly with dimensional pressure in Pa; convert with the applicable reference/local density as documented by the solver.",
+          "source_ids": [
+            "openfoam_kinematic_pressure",
+            "openfoam_pressure_function"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fluid.absolute_pressure",
+      "label": "Absolute pressure",
+      "symbol": "p_abs",
+      "definition": "Static pressure referenced to vacuum; in Fluent it is operating pressure plus gauge static pressure.",
+      "dimensions": {
+        "M": 1,
+        "L": -1,
+        "T": -2,
+        "Theta": 0
+      },
+      "si_unit": "Pa",
+      "aliases": [
+        {
+          "system": "ANSYS Fluent",
+          "name": "Absolute Pressure",
+          "role": "postprocessing_variable",
+          "relation": "exact",
+          "applicability": "Fluent post-processing.",
+          "caveat": "Fluent defines this as Operating Pressure plus gauge pressure.",
+          "source_ids": [
+            "fluent_fields"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fluid.total_pressure",
+      "label": "Total (stagnation) pressure",
+      "symbol": "p_0",
+      "definition": "Pressure at the stagnation state obtained by bringing the flow isentropically to rest; exact evaluation depends on thermodynamic model and frame.",
+      "dimensions": {
+        "M": 1,
+        "L": -1,
+        "T": -2,
+        "Theta": 0
+      },
+      "si_unit": "Pa",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "PressureStagnation",
+          "role": "flow_solution_field",
+          "relation": "exact",
+          "applicability": "CGNS flow-solution data.",
+          "caveat": "CGNS uses stagnation naming; rotating-frame variants are separate identifiers.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "ANSYS Fluent",
+          "name": "Total Pressure",
+          "role": "postprocessing_variable",
+          "relation": "conditional",
+          "applicability": "Fluent field variable.",
+          "caveat": "Definition depends on compressible/incompressible model and frame; distinguish relative/stationary-frame variants.",
+          "source_ids": [
+            "fluent_fields",
+            "fluent_cfdpost"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "total(p)",
+          "role": "derived_field",
+          "relation": "conditional",
+          "applicability": "Output of the pressure function object.",
+          "caveat": "Derived output, not necessarily a solver's primary stored field; pressure function-object options and reference pressure matter.",
+          "source_ids": [
+            "openfoam_pressure_function"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fluid.density",
+      "label": "Static density",
+      "symbol": "rho",
+      "definition": "Mass per unit volume of the fluid at the local thermodynamic state.",
+      "dimensions": {
+        "M": 1,
+        "L": -3,
+        "T": 0,
+        "Theta": 0
+      },
+      "si_unit": "kg/m^3",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "Density",
+          "role": "flow_solution_field",
+          "relation": "exact",
+          "applicability": "CGNS flow-solution quantity.",
+          "caveat": "CGNS file DataClass and units determine how stored values are represented.",
+          "source_ids": [
+            "cgns_sids",
+            "cgns_grid"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "rho",
+          "role": "solution_field",
+          "relation": "conditional",
+          "applicability": "Compressible or variable-density solvers.",
+          "caveat": "Some incompressible solvers use constant/reference density without a local rho field.",
+          "source_ids": [
+            "openfoam_solver_fields"
+          ]
+        },
+        {
+          "system": "ANSYS Fluent",
+          "name": "Density",
+          "role": "postprocessing_variable",
+          "relation": "exact",
+          "applicability": "Fluent fluid cell-zone variable; phase selection matters in multiphase cases.",
+          "caveat": "Fluent describes this as mass per unit volume; multiphase selection may scope the value to a phase.",
+          "source_ids": [
+            "fluent_fields"
+          ]
+        },
+        {
+          "system": "SU2",
+          "name": "FREESTREAM_DENSITY",
+          "role": "input_parameter",
+          "relation": "related",
+          "applicability": "Freestream/reference input value.",
+          "caveat": "This is a freestream input parameter, not a local density field.",
+          "source_ids": [
+            "su2_config"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fluid.velocity",
+      "label": "Velocity vector",
+      "symbol": "U",
+      "definition": "Fluid velocity vector. Components and magnitude are distinct scalar quantities; coordinate frame and grid location must be retained.",
+      "dimensions": {
+        "M": 0,
+        "L": 1,
+        "T": -1,
+        "Theta": 0
+      },
+      "si_unit": "m/s",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "VelocityX / VelocityY / VelocityZ",
+          "role": "flow_solution_components",
+          "relation": "exact",
+          "applicability": "Cartesian inertial-frame components by default; use rotating identifiers for rotating-frame quantities.",
+          "caveat": "CGNS stores vector quantities as scalar component arrays; rotating-frame components are not interchangeable.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "U",
+          "role": "solution_field",
+          "relation": "exact",
+          "applicability": "Common vector velocity field.",
+          "caveat": "Field type and location (for example volVectorField) depend on solver and mesh representation.",
+          "source_ids": [
+            "openfoam_solver_fields"
+          ]
+        },
+        {
+          "system": "ANSYS Fluent",
+          "name": "Velocity; X Velocity; Y Velocity; Z Velocity",
+          "role": "postprocessing_variable",
+          "relation": "conditional",
+          "applicability": "Velocity magnitude or components; availability depends on dimension and model.",
+          "caveat": "Relative, axial, radial, tangential, and mesh velocities are distinct quantities.",
+          "source_ids": [
+            "fluent_cfdpost"
+          ]
+        },
+        {
+          "system": "SU2",
+          "name": "FREESTREAM_VELOCITY",
+          "role": "input_parameter",
+          "relation": "related",
+          "applicability": "Freestream/reference vector input.",
+          "caveat": "A freestream input parameter, not the local solution velocity field.",
+          "source_ids": [
+            "su2_config"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mesh.coordinate",
+      "label": "Mesh coordinates",
+      "symbol": "x",
+      "definition": "Physical coordinates of mesh vertices or points. Coordinate system, units, and reference frame are part of the meaning.",
+      "dimensions": {
+        "M": 0,
+        "L": 1,
+        "T": 0,
+        "Theta": 0
+      },
+      "si_unit": "m",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "CoordinateX / CoordinateY / CoordinateZ",
+          "role": "grid_coordinate_array",
+          "relation": "exact",
+          "applicability": "Cartesian coordinates; cylindrical and auxiliary coordinate identifiers are separate.",
+          "caveat": "Coordinates are dimensional or normalized according to CGNS metadata.",
+          "source_ids": [
+            "cgns_sids",
+            "cgns_grid"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "points",
+          "role": "mesh_geometry",
+          "relation": "related",
+          "applicability": "Mesh point positions in the polyMesh geometry.",
+          "caveat": "This names mesh geometry, not a flow-solution field.",
+          "source_ids": [
+            "openfoam_solver_fields"
+          ]
+        },
+        {
+          "system": "ANSYS Fluent",
+          "name": "X Coordinate; Y Coordinate; Z Coordinate",
+          "role": "postprocessing_variable",
+          "relation": "exact",
+          "applicability": "Mesh coordinate field variables.",
+          "caveat": "Coordinate components depend on spatial dimension.",
+          "source_ids": [
+            "fluent_fields"
+          ]
+        }
+      ]
+    }
+  ]
+}

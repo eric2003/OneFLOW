@@ -39,6 +39,7 @@ Mesh and engineering workflows
 * `Grid case guide <https://github.com/eric2003/OneFLOW/blob/hexin/grid/README.md>`_ — mesh cases and conversion workflows.
 * :doc:`workbench_user_guide_zh` — Chinese user guide for the optional Workbench GUI.
 * :doc:`case_parameter_design` — case parameter files and GUI editing design.
+* :doc:`engineering_nomenclature` — source-backed cross-software CFD terminology, variable aliases, units, and semantic caveats.
 * `Workbench module reference <https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md>`_ — detailed current behavior, paths, and service tests.
 
 Developer resources
@@ -150,3 +151,4 @@ The existing reference library covers programming languages, build systems, para
    :maxdepth: 1
 
    case_parameter_design
+   engineering_nomenclature
