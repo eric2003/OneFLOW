@@ -49,6 +49,15 @@
       "scope": "Context-aware overload applies the same method dispatch; no test execution is implied."
     }
   ],
+  "examples": [
+    {
+      "title": "Time-integration method dispatch",
+      "input": "Assume the configured selector is MULTI_STAGE, SIMPLE, or an unrecognized value.",
+      "calculation": "TimeIntegral dispatch maps MULTI_STAGE to RungeKutta, SIMPLE to Simple, and all other values to Lusgs. The context-aware Relaxation overload follows the same dispatch.",
+      "result": "MULTI_STAGE selects the multi-stage path; SIMPLE selects the simple path; an unrecognized selector currently takes the Lusgs fallback.",
+      "limitations": "This describes the current dispatch behavior, not input validation, formal accuracy, stability, or eligibility for the separate resident Euler backend."
+    }
+  ],
   "group": {
     "id": "time_integration",
     "title": "Time Integration",

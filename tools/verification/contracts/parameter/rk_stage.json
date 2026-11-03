@@ -50,6 +50,15 @@
       "scope": "Implementation consumer reference; no runtime execution is implied."
     }
   ],
+  "examples": [
+    {
+      "title": "Four-stage coefficient schedule",
+      "input": "rk_stage = 4; stage indices are zero-based: s = 0, 1, 2, 3.",
+      "calculation": "Apply a_s = 1 / (s + 1): a_0 = 1, a_1 = 1/2, a_2 = 1/3, a_3 = 1/4.",
+      "result": "The configured coefficient sequence is [1, 1/2, 1/3, 1/4], which the shared RungeKutta path consumes through ctrl.lhscoef.",
+      "limitations": "This is the current source-level coefficient schedule, not a complete Butcher tableau. It does not establish formal temporal order, stability, or CFD accuracy."
+    }
+  ],
   "group": {
     "id": "time_integration",
     "title": "Time Integration",

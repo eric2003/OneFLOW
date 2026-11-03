@@ -42,6 +42,15 @@
       "scope": "Source-backed parameter read and outer-loop stop-condition branches; no test execution or convergence claim is implied."
     }
   ],
+  "examples": [
+    {
+      "title": "Iteration-count stop example",
+      "input": "iexitflag = 0, maxSteps = 1000, outerSteps = 999.",
+      "calculation": "The active branch compares outerSteps >= maxSteps. At 999 >= 1000 the condition is false; after one more outer iteration, 1000 >= 1000 is true.",
+      "result": "The loop reaches its configured iteration limit at outerSteps = 1000.",
+      "limitations": "This is a stop-condition example only. It does not imply residual convergence, a physical-time limit, or a limit on solver-specific inner iterations."
+    }
+  ],
   "group": {
     "id": "run_control",
     "title": "Run Control",

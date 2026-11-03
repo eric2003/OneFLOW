@@ -106,6 +106,15 @@
       "scope": "tests/solver/timestep_policy_test.cpp; verifies modes other than 1 retain outer-step indexing."
     }
   ],
+  "examples": [
+    {
+      "title": "Linear CFL ramp and dual-time iteration source",
+      "input": "cflst = 1, cfled = 5, ncfl = 100; outerSteps = 10, innerSteps = 40.",
+      "calculation": "For i < ncfl, CFL(i) = 1 + (5 - 1) * i / 100. Physical-time mode uses i = outerSteps = 10, giving CFL = 1.4. Dual-time mode uses i = innerSteps = 40, giving CFL = 2.6.",
+      "result": "The active schedule value is 1.4 in physical-time mode and 2.6 in dual-time mode. At i = 100 and afterward, the ramp returns the end value 5.",
+      "limitations": "CFL is a control schedule, not a physical time step. This arithmetic does not prove stability, convergence, or the complete solver's local/global time-step behavior."
+    }
+  ],
   "group": {
     "id": "run_control",
     "title": "Run Control",

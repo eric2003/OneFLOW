@@ -37,6 +37,15 @@
       "scope": "Source-backed initialization expression; no test execution or independent physical verification is implied."
     }
   ],
+  "examples": [
+    {
+      "title": "Reference-state scaling example",
+      "input": "mach_ref = 0.5 and gama_ref = 1.4.",
+      "calculation": "NsCom::Init computes const_cp = 1 / ((gama_ref - 1) * mach_ref^2) = 1 / (0.4 * 0.25) = 10.",
+      "result": "The initialization expression yields const_cp = 10 for these reference inputs.",
+      "limitations": "This evaluates the source expression only. It does not establish every downstream use or the full nondimensionalization derivation, and it does not imply local Mach is 0.5 everywhere."
+    }
+  ],
   "group": {
     "id": "compressible_flow",
     "title": "Compressible Flow",

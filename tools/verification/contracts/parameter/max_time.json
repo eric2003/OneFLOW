@@ -44,6 +44,15 @@
       "scope": "Source-backed time-threshold loading and outer-loop stop-condition branch; no runtime test or physical-time interpretation is implied."
     }
   ],
+  "examples": [
+    {
+      "title": "Physical-time stop threshold example",
+      "input": "iexitflag = 1, currTime = 0.95, maxTime = 1.0.",
+      "calculation": "The active branch compares currTime >= maxTime. At 0.95 >= 1.0 the condition is false. If the physical-time update advances currTime to 1.0, the next running check becomes true.",
+      "result": "The configured outer-loop stop threshold is 1.0 in the active case time convention.",
+      "limitations": "The example does not specify the time unit or nondimensional scale, calculate the next time step, or prove that the final step is clipped exactly to maxTime."
+    }
+  ],
   "group": {
     "id": "run_control",
     "title": "Run Control",
