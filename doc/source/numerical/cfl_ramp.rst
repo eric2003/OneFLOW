@@ -89,7 +89,8 @@ Source map
 * Time-step model dispatch and cell assembly:
   ``UTimeStep::CalcTimeStep`` in ``codes/uns/src/UTimeStep.cpp``
 * Fixed/global step input: ``Ctrl::Init`` in
-  ``codes/global/src/Ctrl.cpp``
+  ``codes/global/src/Ctrl.cpp`` and the NS-specific ``NsCtrl::Init``
+  in ``codes/ns/src/NsCtrl.cpp``
 * Tests: ``tests/solver/timestep_policy_test.cpp``
 * Contract Workbench id: ``parameter/cfl-ramp``
 
