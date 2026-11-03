@@ -181,6 +181,37 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\n".join(issues))
 
+    def test_parameter_max_steps_contract_records_stop_condition_scope(self) -> None:
+        definition_path = (
+            self.repository_root / "tools" / "verification" / "contracts"
+            / "parameter" / "max_steps.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+
+        self.assertEqual(summary.id, "parameter/max-steps")
+        self.assertEqual(summary.group_id, "run_control")
+        self.assertEqual(summary.group_title, "Run Control")
+        self.assertEqual(summary.group_order, 10)
+        self.assertIn("maxSteps", summary.overview)
+        self.assertIn("iexitflag", summary.overview)
+        self.assertEqual(
+            set(summary.implementation_paths),
+            {
+                "codes/global/src/Iteration.cpp",
+                "codes/global/include/Iteration.h",
+                "codes/global/src/Ctrl.cpp",
+            },
+        )
+        self.assertEqual(len(summary.evidence), 1)
+        self.assertEqual(summary.evidence[0].status, "declared_not_executed")
+        self.assertEqual(
+            resolve_contract_evidence(self.repository_root, summary)[0].status,
+            "declared",
+        )
+        issues = validate_contract_summaries(self.repository_root, [summary])
+        self.assertEqual(issues, [], "\\n".join(issues))
+
     def test_parameter_mach_contract_adapts_typed_formula_knowledge(self) -> None:
         definition_path = (
             self.repository_root / "tools" / "verification" / "contracts"
