@@ -361,10 +361,12 @@ for evidence of a parameter's ownership.
 * **Domain / ownership** identifies the subsystem that owns the setting:
   ``Shared``, ``CFD``, ``Grid``, or ``Other``.
 * **Functional group** describes the behavior being controlled. The initial
-  groups include ``General``, ``Run Control``, ``Time stepping``, ``Numerical
-  methods``, ``Flow and reference conditions``, ``Physical models``,
-  ``Turbulence``, ``Multigrid``, ``Wall distance``, ``Output``, ``Grid
-  definition``, ``Grid formats and files``, and ``Partitioning``.
+  groups include ``General``, ``Run Control``, ``Solver system``, ``Time
+  stepping``, ``Numerical methods``, ``Flow and reference conditions``,
+  ``Thermodynamic reference state``, ``Transport properties``, ``Boundary and
+  inflow conditions``, ``Physical models``, ``Turbulence``, ``Multigrid``,
+  ``Wall distance``, ``Output control``, ``Output files``, ``Input and output
+  files``, ``Grid definition``, ``Grid formats and files``, and ``Partitioning``.
 * **Task applicability** records whether a setting is known to apply to
   ``Both``, ``Solve``, ``Grid``, or remains ``Unknown``. This is not inferred
   from the currently selected task.
@@ -395,3 +397,25 @@ Such changes should include a source-backed rationale and focused model tests.
 Unrecognized declarations and unsupported syntax remain visible throughout
 that process; completeness is increased incrementally rather than simulated by
 assigning every key to a known category.
+
+The next catalog expansion was checked against the repository's representative
+case manifests and declarations: ``test/cfd/rae2822_roe_sa/script/control.txt``
+and ``test/grid/rae2822convert/script/control.txt``. This exposed several
+distinct concepts that should not be hidden inside broad buckets:
+
+* Solver equation counts and equation-model selectors are grouped as
+  ``Solver system``.
+* Iteration/output intervals and display/dump switches are ``Output control``;
+  result and restart filenames are ``Output files``.
+* Flow input/output roots and the grid reference are ``Input and output files``.
+* Inflow selection and wall thermal boundary settings are ``Boundary and inflow
+  conditions``.
+* Gas-state setup and dimensional reference quantities are ``Thermodynamic
+  reference state``; Prandtl and Schmidt numbers are ``Transport properties``.
+
+These groups are still an initial classification, not a declaration that every
+case-specific option has been inventoried. The manifest is the authoritative
+starting point for discovering files; actual declarations and C++ consumers
+remain the evidence for adding keys. Arrays such as ``gridTrans[3]`` continue
+to be reported as unsupported by the scalar editor even when their names can
+be recognized for navigation.
