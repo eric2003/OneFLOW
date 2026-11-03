@@ -21,6 +21,8 @@
       "codes/ns/include/TimeStepPolicy.h",
       "codes/uns/src/UTimeStep.cpp",
       "codes/uns/include/UTimeStep.h",
+      "codes/ns/src/NsCtrl.cpp",
+      "codes/ns/include/NsCtrl.h",
       "codes/ns/src/NsCom.cpp"
     ]
   },
