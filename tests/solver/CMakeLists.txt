@@ -431,3 +431,17 @@ target_include_directories(lusgs_viscous_spectrum_test PRIVATE
 target_link_libraries(lusgs_viscous_spectrum_test PRIVATE GTest::gtest_main)
 target_compile_features(lusgs_viscous_spectrum_test PRIVATE cxx_std_20)
 gtest_discover_tests(lusgs_viscous_spectrum_test DISCOVERY_MODE PRE_TEST)
+
+# Pure multi-stage RK weight schedule; header-only, no solver bootstrap.
+add_executable(time_integral_policy_test
+  time_integral_policy_test.cpp
+)
+target_include_directories(time_integral_policy_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/global/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(time_integral_policy_test PRIVATE GTest::gtest_main)
+target_compile_features(time_integral_policy_test PRIVATE cxx_std_20)
+gtest_discover_tests(time_integral_policy_test DISCOVERY_MODE PRE_TEST)
+
