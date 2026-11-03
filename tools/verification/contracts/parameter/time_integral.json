@@ -48,5 +48,10 @@
       "status": "declared_not_executed",
       "scope": "Context-aware overload applies the same method dispatch; no test execution is implied."
     }
-  ]
+  ],
+  "group": {
+    "id": "time_integration",
+    "title": "Time Integration",
+    "order": 20
+  }
 }

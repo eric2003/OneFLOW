@@ -228,3 +228,20 @@ This is intentionally not presented as whole-repository usage analysis. Absence 
 The time-integration parameter trace is also exposed in Formula & Knowledge as `time_integral_rk_stage_weight`. Its source-backed description deliberately separates the legacy stage coefficient schedule from the narrower resident Euler backend capability gate; it does not claim a complete Runge-Kutta tableau or temporal-order verification. See `doc/source/numerical/time_integral_control.rst`.
 
 The Project Window also displays declared Formula & Knowledge IDs for parameters that have an explicit catalog cross-reference. The first mapping connects `time_integral` and `rk_stage` to `time_integral_rk_stage_weight`; this is a navigational reference, not evidence that the temporal method has a verified order or stability region.
+
+
+Parameter contract grouping and discovery
+------------------------------------------
+
+Parameter contracts carry an explicit, validated group identity, display title,
+and sort order in their versioned declarations. The Parameter browser groups
+entries by this metadata and offers case-insensitive search across parameter
+identity, title, explanatory text, references, documentation, and implementation
+paths. Search filters the existing groups rather than flattening the results.
+
+Groups describe the engineering subject, not merely the source file that
+happens to read a parameter. The initial declarations distinguish Time Integration
+from Compressible Flow. Laminar and Turbulence groups should be populated only
+when source-backed parameter contracts for those models are added; a parameter
+must not be assigned to a physical model based on its name alone. Grouping is
+navigation metadata and does not imply complete parameter coverage.

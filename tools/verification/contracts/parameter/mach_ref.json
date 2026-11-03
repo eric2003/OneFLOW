@@ -35,5 +35,10 @@
       "status": "declared_not_executed",
       "scope": "Source-backed initialization expression; no test execution or independent physical verification is implied."
     }
-  ]
+  ],
+  "group": {
+    "id": "compressible_flow",
+    "title": "Compressible Flow",
+    "order": 30
+  }
 }

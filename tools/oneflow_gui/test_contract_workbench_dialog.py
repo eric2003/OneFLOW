@@ -91,6 +91,44 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_parameter_contracts_are_grouped_and_searchable(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            self.assertIsNotNone(dialog.search_edit)
+            headers = [
+                dialog.contract_list.item(index).text()
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole) is None
+            ]
+            self.assertIn("Time Integration  (2)", headers)
+            self.assertIn("Compressible Flow  (1)", headers)
+
+            dialog.search_edit.setText("mach_ref")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(visible_ids, {"parameter/mach_ref"})
+            dialog.search_edit.setText("NsCom.cpp")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(visible_ids, {"parameter/mach_ref"})
+            dialog.search_edit.clear()
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(visible_ids, {
+                "parameter/time_integral", "parameter/rk_stage", "parameter/mach_ref"
+            })
+        finally:
+            dialog.close()
+
     def test_case_domain_displays_typed_case_setup_tab(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "case")
         try:

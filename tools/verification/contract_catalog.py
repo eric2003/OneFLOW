@@ -119,6 +119,9 @@ class ContractSummary:
     limitations: tuple[str, ...]
     case_data: CaseContractData | None = None
     workflow_data: WorkflowContractData | None = None
+    group_id: str = ""
+    group_title: str = ""
+    group_order: int = 100
 
 
 def _non_empty_strings(values: Iterable[Any]) -> tuple[str, ...]:
@@ -475,6 +478,22 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
     if status not in _CONTRACT_STATUSES:
         raise ValueError(f"unsupported contract status: {status}")
 
+    raw_group = definition.get("group", {})
+    if not isinstance(raw_group, dict):
+        raise ValueError("group must be an object")
+    group_id = raw_group.get("id", "")
+    group_title = raw_group.get("title", "")
+    group_order = raw_group.get("order", 100)
+    if definition["domain"].strip() == "parameter":
+        if not isinstance(group_id, str) or not group_id.strip():
+            raise ValueError("parameter contract requires group.id")
+        if not isinstance(group_title, str) or not group_title.strip():
+            raise ValueError("parameter contract requires group.title")
+    if not isinstance(group_id, str) or not isinstance(group_title, str):
+        raise ValueError("group.id and group.title must be strings")
+    if not isinstance(group_order, int) or isinstance(group_order, bool) or group_order < 0:
+        raise ValueError("group.order must be a non-negative integer")
+
     for section_name in ("implementation", "documentation", "claims"):
         section = definition.get(section_name, {})
         if not isinstance(section, dict):
@@ -688,6 +707,9 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
         ),
         case_data=case_data,
         workflow_data=workflow_data,
+        group_id=group_id.strip(),
+        group_title=group_title.strip(),
+        group_order=group_order,
     )
 
 

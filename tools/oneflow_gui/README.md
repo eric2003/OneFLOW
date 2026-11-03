@@ -287,3 +287,11 @@ python -m unittest tools.oneflow_gui.test_parameter_model
 python -m unittest tools.oneflow_gui.test_parameter_consumer_catalog
 python -m unittest tools.oneflow_gui.test_project_window
 ```
+
+
+The Contract Workbench Parameter browser groups parameter definitions using
+validated contract metadata and supports case-insensitive search across IDs,
+titles, descriptions, references, and source/documentation paths. Group labels
+are domain concepts; they do not imply complete parameter coverage. Add
+Laminar and Turbulence groups when their source-backed parameter contracts are
+registered, rather than classifying unreviewed parameters speculatively.

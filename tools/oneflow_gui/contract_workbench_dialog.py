@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QListWidget,
     QListWidgetItem,
+    QLineEdit,
     QMessageBox,
     QPushButton,
     QPlainTextEdit,
@@ -139,6 +140,7 @@ class ContractDomainDialog(QDialog):
         self._summaries = tuple(
             item for item in summaries if item.domain == domain
         )
+        self._summary_by_id = {item.id: item for item in self._summaries}
         self._diagnostics = tuple(diagnostics)
 
         self.setWindowTitle(f"Contract Workbench - {domain.title()}")
@@ -152,13 +154,22 @@ class ContractDomainDialog(QDialog):
         intro.setWordWrap(True)
         root.addWidget(intro)
 
+        if domain == "parameter":
+            self.search_edit = QLineEdit()
+            self.search_edit.setObjectName("parameterContractSearch")
+            self.search_edit.setPlaceholderText(
+                "Search parameters by name, description, group, source, or reference..."
+            )
+            self.search_edit.textChanged.connect(self._filter_contracts)
+            root.addWidget(self.search_edit)
+        else:
+            self.search_edit = None
+
         split = QSplitter()
         self.contract_list = QListWidget()
-        self.contract_list.setMinimumWidth(280)
-        for summary in self._summaries:
-            item = QListWidgetItem(f"{summary.title}  [{summary.status}]")
-            item.setData(Qt.ItemDataRole.UserRole, summary.id)
-            self.contract_list.addItem(item)
+        self.contract_list.setObjectName("contractList")
+        self.contract_list.setMinimumWidth(300)
+        self._populate_contract_list()
         split.addWidget(self.contract_list)
 
         detail = QWidget()
@@ -258,7 +269,7 @@ class ContractDomainDialog(QDialog):
 
         self.contract_list.currentRowChanged.connect(self._select_contract)
         if self._summaries:
-            self.contract_list.setCurrentRow(0)
+            self._select_contract(self.contract_list.currentRow())
         else:
             self.heading.setText(f"No {domain} contracts are registered yet.")
             self._set_diagnostics_only()
@@ -357,16 +368,85 @@ class ContractDomainDialog(QDialog):
     def _set_diagnostics_only(self) -> None:
         self.evidence_view.setPlainText("\n".join(self._diagnostics))
 
+    def _populate_contract_list(self, query: str = "", selected_id: str = "") -> None:
+        self.contract_list.clear()
+        normalized_query = query.casefold().strip()
+        if self._domain == "parameter":
+            groups = {}
+            for summary in self._summaries:
+                searchable = " ".join((
+                    summary.id, summary.title, summary.overview,
+                    summary.principle, summary.architecture, summary.group_title,
+                    " ".join(summary.references),
+                    " ".join(summary.implementation_paths),
+                    " ".join(summary.documentation_paths),
+                )).casefold()
+                if normalized_query and normalized_query not in searchable:
+                    continue
+                group_key = summary.group_id or "ungrouped"
+                groups.setdefault(group_key, []).append(summary)
+
+            ordered_groups = sorted(
+                groups.items(),
+                key=lambda pair: (
+                    min(item.group_order for item in pair[1]),
+                    pair[1][0].group_title.casefold() or "ungrouped",
+                    pair[0],
+                ),
+            )
+            for group_key, summaries in ordered_groups:
+                group_title = summaries[0].group_title or "Other / uncategorized"
+                header = QListWidgetItem(f"{group_title}  ({len(summaries)})")
+                header.setData(Qt.ItemDataRole.UserRole, None)
+                header.setFlags(Qt.ItemFlag.ItemIsEnabled)
+                self.contract_list.addItem(header)
+                for summary in sorted(summaries, key=lambda item: item.title.casefold()):
+                    item = QListWidgetItem(f"    {summary.title}  [{summary.status}]")
+                    item.setData(Qt.ItemDataRole.UserRole, summary.id)
+                    item.setToolTip(
+                        f"{summary.id}\n{summary.overview}\n"
+                        + "\n".join(summary.implementation_paths)
+                    )
+                    self.contract_list.addItem(item)
+        else:
+            for summary in self._summaries:
+                item = QListWidgetItem(f"{summary.title}  [{summary.status}]")
+                item.setData(Qt.ItemDataRole.UserRole, summary.id)
+                self.contract_list.addItem(item)
+
+        selected_row = -1
+        for row in range(self.contract_list.count()):
+            if self.contract_list.item(row).data(Qt.ItemDataRole.UserRole) == selected_id:
+                selected_row = row
+                break
+        if selected_row < 0:
+            selected_row = next(
+                (row for row in range(self.contract_list.count())
+                 if self.contract_list.item(row).data(Qt.ItemDataRole.UserRole)),
+                -1,
+            )
+        self.contract_list.setCurrentRow(selected_row)
+
+    def _filter_contracts(self, query: str) -> None:
+        current = self.contract_list.currentItem()
+        selected_id = current.data(Qt.ItemDataRole.UserRole) if current else ""
+        self._populate_contract_list(query, selected_id or "")
+
     def _current_summary(self):
-        row = self.contract_list.currentRow()
-        if row < 0 or row >= len(self._summaries):
+        item = self.contract_list.currentItem()
+        if item is None:
             return None
-        return self._summaries[row]
+        return self._summary_by_id.get(item.data(Qt.ItemDataRole.UserRole))
 
     def _select_contract(self, row: int) -> None:
-        if row < 0 or row >= len(self._summaries):
+        if row < 0:
             return
-        summary = self._summaries[row]
+        item = self.contract_list.item(row)
+        if item is None:
+            return
+        summary = self._summary_by_id.get(item.data(Qt.ItemDataRole.UserRole))
+        if summary is None:
+            return
         self.heading.setText(f"{summary.title} | {summary.id}")
         self.overview_view.setPlainText(
             f"Domain: {summary.domain}\n"
