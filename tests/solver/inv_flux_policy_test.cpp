@@ -672,3 +672,33 @@ TEST( InvFluxPolicy, EulerConvectiveFluxEnergyIncludesGridPressureWork )
     EXPECT_NEAR( fe, 4.0, 1.0e-12 );
     EXPECT_NEAR( fr, 0.0, 1.0e-12 );
 }
+
+// Intermediate: RoeAverageComponent on a right-state grid.
+// Ref: left=1, ratio=2, coef=1/3.
+TEST( InvFluxPolicy, RoeAverageComponentCurveMatchesClosedForm )
+{
+    const Real left = 1.0;
+    const Real ratio = 2.0;
+    const Real coef = 1.0 / 3.0;
+    const Real rights[] = { 0.0, 0.5, 1.0, 2.0, 4.0, 8.0 };
+    for ( Real right : rights )
+    {
+        EXPECT_NEAR(
+            RoeAverageComponent( left, right, ratio, coef ),
+            ( left + right * ratio ) * coef,
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeAverageComponentConsistentWithWeights )
+{
+    // Density-ratio weights: r=sqrt(rhoR/rhoL), c=1/(1+r)
+    Real ratio = 0.0, coef = 0.0;
+    RoeAverageWeights( 1.0, 4.0, ratio, coef );
+    EXPECT_NEAR( ratio, 2.0, 1.0e-12 );
+    EXPECT_NEAR( coef, 1.0 / 3.0, 1.0e-12 );
+    EXPECT_NEAR(
+        RoeAverageComponent( 3.0, 9.0, ratio, coef ),
+        ( 3.0 + 9.0 * 2.0 ) / 3.0,
+        1.0e-12 );
+}

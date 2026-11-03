@@ -1818,6 +1818,50 @@ principle=(
             does_not_prove="Variable-gamma gas or real-gas thermodynamics.",
         ),
 
+
+        TheoryEntry(
+            id="roe_average_component",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="Roe average / component blend",
+            title="Roe average component (weighted mean)",
+            role_tags=("inviscid", "Roe", "average"),
+            formula_plain=(
+                "avg = (q_L + q_R * ratio) * coef\n"
+                "ratio = sqrt(rho_R/rho_L), coef = 1/(1+ratio)"
+            ),
+            formula_latex=(
+                r"\tilde{q}=(q_L+q_R\,r)\,c,\quad "
+                r"r=\sqrt{\rho_R/\rho_L},\; c=\frac{1}{1+r}"
+            ),
+            principle=(
+                "Each Roe-averaged primitive is a density-weighted blend of "
+                "left and right states using the Roe square-root weights."
+            ),
+            background=(
+                "Pure API RoeAverageComponent; weights from RoeAverageWeights. "
+                "Assembled in RoeAverageState."
+            ),
+            references=(
+                "P. L. Roe, approximate Riemann solvers; Toro Riemann solvers",
+                "doc/source/numerical/roe_average_component.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_average_component_theory.csv",
+            plot_module="plot_roe_average_component",
+            pure_apis=("RoeAverageComponent", "RoeAverageWeights"),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_average_component.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "avg = (left + right * ratio) * coef;\n"
+            ),
+            proves="Component blend algebra vs pure API; weight consistency.",
+            does_not_prove="Full Roe flux residual or entropy-fix behavior.",
+        ),
+
         TheoryEntry(
             id="roe_average_weights",
             family="mean-flow",

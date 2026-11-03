@@ -25,6 +25,7 @@ void RoeAverageWeights(
     Real densityLeft, Real densityRight,
     Real & ratio, Real & coef );
 
+// @doc-formula avg = (q_L + q_R * r) * c
 Real RoeAverageComponent(
     Real left, Real right, Real ratio, Real coef );
 
