@@ -85,6 +85,7 @@ class NomenclatureCatalogTest(unittest.TestCase):
 
     def test_velocity_and_mesh_coordinate_names_are_searchable(self):
         self.assertEqual(self.catalog.find_alias("U", system="OpenFOAM")[0][0].id, "fluid.velocity")
+        self.assertEqual(self.catalog.find_alias("VelocityX", system="CGNS")[0][0].id, "fluid.velocity")
         self.assertEqual(self.catalog.find_alias("CoordinateX", system="CGNS")[0][0].id, "mesh.coordinate")
         self.assertEqual(
             [entry.id for entry in self.catalog.search("stagnation")],
