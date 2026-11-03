@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "id": "parameter/cfl-ramp",
+  "title": "CFL ramp controls",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "implemented",
+  "overview": "cflst, cfled, and ncfl define a linear CFL schedule used by the unstructured NS time-step path. Iteration::Init loads the start CFL, end CFL, and ramp length. UTimeStep::CalcTimeStep updates the active CFL before selecting the CPU or supported HIP time-step path.",
+  "principle": "For iteration i below ncfl, CFL(i) = cflst + (cfled - cflst) * i / ncfl. At and after ncfl, CFL is cfled. The selected iteration is outerSteps normally and innerSteps when dualtime == 1. This is a control schedule, not a direct physical time-step value.",
+  "architecture": "TimeStep::CalcCfl selects the iteration counter and delegates interpolation to the pure CflAtIteration policy. In the CPU path, timestepModel 0 computes local cell time steps from CFL-scaled spectral radii, timestepModel 1 fills cells with ctrl.pdt (loaded from global_dt), and the remaining branch computes local steps then uses the minimum as a common step and writes it back to ctrl.pdt. The supported HIP path is restricted to local timestepModel 0 and currently computes the inviscid local step.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/global/src/Iteration.cpp",
+      "codes/global/include/Iteration.h",
+      "codes/ns/src/TimeStep.cpp",
+      "codes/ns/include/TimeStep.h",
+      "codes/ns/src/TimeStepPolicy.cpp",
+      "codes/ns/include/TimeStepPolicy.h",
+      "codes/uns/src/UTimeStep.cpp",
+      "codes/uns/include/UTimeStep.h",
+      "codes/ns/src/NsCom.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/numerical/cfl_ramp.rst",
+      "doc/source/numerical/index.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "Iteration::Init reads cflst and cfled as Real values and ncfl as an integer.",
+      "UTimeStep::CalcTimeStep calls CalcCfl before the CPU/HIP time-step dispatch.",
+      "TimeStep::CalcCfl selects outerSteps unless dualtime equals one, in which case it selects innerSteps.",
+      "CflAtIteration linearly interpolates from cflst to cfled while iteration is less than ncfl and returns cfled at or beyond the ramp boundary.",
+      "The CPU local time-step policy uses CFL times cell volume divided by the cell spectral radius; an enabled viscous contribution is combined with the inviscid estimate using the harmonic formula.",
+      "The global timestepModel branch fills cell time steps from ctrl.pdt, which is initialized from global_dt; the local-global branch computes a local minimum and stores it in ctrl.pdt."
+    ],
+    "does_not_prove": [
+      "An admissible range, positivity rule, or validation policy for cflst, cfled, or ncfl.",
+      "That every solver or every time integration mode uses this unstructured NS time-step path.",
+      "That a selected CFL value guarantees stability, convergence, or a particular physical accuracy.",
+      "That global_dt is derived from the CFL ramp in timestepModel 1.",
+      "That the supported HIP time-step path includes the viscous contribution."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "google_test",
+      "reference": "TimeStepPolicy.CflRampStartsAtConfiguredValue",
+      "status": "linked_not_executed",
+      "scope": "Pure policy test for the initial ramp value; declaration linkage does not imply execution."
+    },
+    {
+      "kind": "google_test",
+      "reference": "TimeStepPolicy.CflRampInterpolatesLinearly",
+      "status": "linked_not_executed",
+      "scope": "Pure policy test for an interior linear interpolation point."
+    },
+    {
+      "kind": "google_test",
+      "reference": "TimeStepPolicy.CflRampReachesEndAtRampBoundary",
+      "status": "linked_not_executed",
+      "scope": "Pure policy test for the exact ramp boundary."
+    },
+    {
+      "kind": "google_test",
+      "reference": "TimeStepPolicy.CflRampKeepsEndAfterRamp",
+      "status": "linked_not_executed",
+      "scope": "Pure policy test for iterations after the ramp."
+    },
+    {
+      "kind": "google_test",
+      "reference": "TimeStepPolicy.CflRampSupportsDescendingValues",
+      "status": "linked_not_executed",
+      "scope": "Pure policy test for a descending schedule."
+    },
+    {
+      "kind": "google_test",
+      "reference": "TimeStepPolicy.ZeroLengthCflRampUsesEndValueAtInitialIteration",
+      "status": "linked_not_executed",
+      "scope": "Pure policy test for zero ramp length at the initial iteration."
+    }
+  ],
+  "group": {
+    "id": "run_control",
+    "title": "Run Control",
+    "order": 10
+  }
+}
