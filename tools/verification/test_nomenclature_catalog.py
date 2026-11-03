@@ -124,6 +124,32 @@ class NomenclatureCatalogTest(unittest.TestCase):
         self.assertEqual(self.catalog.find_alias("nu", system="OpenFOAM")[0][1].role, "input_parameter")
         self.assertEqual(self.catalog.find_alias("mu", system="OpenFOAM")[0][1].role, "material_property")
 
+    def test_mesh_topology_names_preserve_connectivity_and_mapping_roles(self):
+        self.assertEqual(
+            self.catalog.find_alias("faces", system="OneFLOW")[0][0].id,
+            "mesh.face_node_connectivity",
+        )
+        self.assertEqual(
+            self.catalog.find_alias("owner", system="OpenFOAM")[0][0].id,
+            "mesh.face_owner_cell",
+        )
+        self.assertEqual(
+            self.catalog.find_alias("neighbour", system="OpenFOAM")[0][0].id,
+            "mesh.face_neighbour_cell",
+        )
+        self.assertEqual(
+            self.catalog.find_alias("nIFaces", system="OneFLOW")[0][0].id,
+            "mesh.interface_face_count",
+        )
+        g_i2zid = self.catalog.find_alias("gI2Zid", system="OneFLOW")
+        self.assertEqual(len(g_i2zid), 1)
+        self.assertEqual(g_i2zid[0][0].id, "mesh.interface_face_mapping")
+        self.assertIn("Interface", g_i2zid[0][1].caveat)
+        self.assertEqual(
+            self.catalog.find_alias("g2l", system="OneFLOW")[0][0].id,
+            "mesh.interface_face_mapping",
+        )
+
     def test_missing_source_reference_is_rejected(self):
         payload = {
             "schema_version": 1,
