@@ -217,17 +217,19 @@ class ContractDomainDialog(QDialog):
             self.parameter_formula_latex = QPlainTextEdit()
             self.parameter_formula_latex.setReadOnly(True)
             self.parameter_formula_latex.setStyleSheet("font-family: Consolas, monospace;")
-            formula_layout.addWidget(QLabel("Formula definitions, assumptions, and symbol meanings"))
+            formula_layout.addWidget(QLabel("Formula preview"))
+            self.parameter_formula_preview = QLabel("Select a parameter and render its formula.")
+            self.parameter_formula_preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.parameter_formula_preview.setMinimumSize(520, 260)
+            self.parameter_formula_scroll = QScrollArea()
+            self.parameter_formula_scroll.setWidgetResizable(True)
+            self.parameter_formula_scroll.setMinimumHeight(300)
+            self.parameter_formula_scroll.setWidget(self.parameter_formula_preview)
+            formula_layout.addWidget(self.parameter_formula_scroll, 5)
+            formula_layout.addWidget(QLabel("Definitions and symbol meanings"))
             formula_layout.addWidget(self.parameter_formula_text, 2)
             formula_layout.addWidget(QLabel("LaTeX source"))
             formula_layout.addWidget(self.parameter_formula_latex, 1)
-            self.parameter_formula_preview = QLabel("Render a formula to preview it.")
-            self.parameter_formula_preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.parameter_formula_scroll = QScrollArea()
-            self.parameter_formula_scroll.setWidgetResizable(True)
-            self.parameter_formula_scroll.setMinimumHeight(160)
-            self.parameter_formula_scroll.setWidget(self.parameter_formula_preview)
-            formula_layout.addWidget(self.parameter_formula_scroll, 2)
             formula_actions = QHBoxLayout()
             self.render_parameter_formula_button = QPushButton("Render formula")
             self.render_parameter_formula_button.clicked.connect(self._render_parameter_formula)
@@ -239,13 +241,14 @@ class ContractDomainDialog(QDialog):
             formula_layout.addLayout(formula_actions)
 
         self.tabs.addTab(self.overview_view, "Overview")
-        self.tabs.addTab(self.principle_view, "Principle")
-        self.tabs.addTab(self.architecture_view, "Architecture")
-        self.tabs.addTab(self.implementation_page, "Implementation / Code")
+        if domain == "parameter":
+            self.tabs.addTab(self.parameter_formula_page, "Formula")
+        else:
+            self.tabs.addTab(self.principle_view, "Principle")
+            self.tabs.addTab(self.architecture_view, "Architecture")
+            self.tabs.addTab(self.implementation_page, "Implementation / Code")
         self.tabs.addTab(self.documentation_view, "Documentation / References")
         self.tabs.addTab(self.evidence_view, "Verification")
-        if domain == "parameter":
-            self.tabs.addTab(self.parameter_formula_page, "Formula & Symbols")
         if domain == "case":
             self.tabs.addTab(self.case_view, "Case Setup")
         if domain == "workflow":
@@ -472,7 +475,7 @@ class ContractDomainDialog(QDialog):
                 header.setFlags(Qt.ItemFlag.ItemIsEnabled)
                 self.contract_list.addItem(header)
                 for summary in sorted(summaries, key=lambda item: item.title.casefold()):
-                    item = QListWidgetItem(f"    {summary.title}  [{summary.status}]")
+                    item = QListWidgetItem(f"    {summary.title}")
                     item.setData(Qt.ItemDataRole.UserRole, summary.id)
                     item.setToolTip(
                         f"{summary.id}\n{summary.overview}\n"
@@ -524,7 +527,21 @@ class ContractDomainDialog(QDialog):
             f"Kind: {summary.kind}\n"
             f"Status: {summary.status}\n\n"
             f"{summary.overview}\n\n"
-            "Claims\n------\n"
+            + (
+                "Implementation\n--------------\n"
+                + ("\n".join(summary.implementation_paths) or "Not specified.")
+                + "\n\n"
+                if summary.domain == "parameter" else ""
+            )
+            + (
+                "Principle\n---------\n" + summary.principle + "\n\n"
+                if summary.domain == "parameter" and summary.principle.strip() else ""
+            )
+            + (
+                "Architecture\n------------\n" + summary.architecture + "\n\n"
+                if summary.domain == "parameter" and summary.architecture.strip() else ""
+            )
+            + "Claims\n------\n"
             + "\n".join(f"- {claim}" for claim in summary.claims)
             + "\n\nLimitations\n-----------\n"
             + "\n".join(f"- {item}" for item in summary.limitations)
