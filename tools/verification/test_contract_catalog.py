@@ -181,6 +181,34 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\n".join(issues))
 
+    def test_parameter_mach_contract_adapts_typed_formula_knowledge(self) -> None:
+        definition_path = (
+            self.repository_root / "tools" / "verification" / "contracts"
+            / "parameter" / "mach_ref.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+
+        self.assertIsNotNone(summary.parameter_knowledge)
+        knowledge = summary.parameter_knowledge
+        self.assertEqual(len(knowledge.formulas), 4)
+        self.assertEqual(knowledge.formulas[0].id, "local_mach_definition")
+        self.assertEqual(knowledge.formulas[2].id, "freestream_mach_definition")
+        self.assertEqual(knowledge.formulas[2].symbols[0].oneflow_name, "mach_ref")
+        self.assertIn("NASA Glenn", knowledge.references[2])
+        self.assertTrue(any("local Mach" in item for item in knowledge.caveats))
+
+    def test_rejects_parameter_formula_without_latex_source(self) -> None:
+        definition_path = (
+            self.repository_root / "tools" / "verification" / "contracts"
+            / "parameter" / "mach_ref.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["knowledge"]["formulas"][0]["latex"] = ""
+
+        with self.assertRaisesRegex(ValueError, "latex must be non-empty"):
+            adapt_declared_contract(definition)
+
     def test_rejects_case_dimension_outside_supported_range(self) -> None:
         definition_path = (
             self.repository_root

@@ -6,8 +6,8 @@
   "kind": "runtime_parameter",
   "status": "implemented",
   "overview": "Reference Mach number loaded by NsCom::Init and used to derive the compressible-flow thermodynamic scaling constant const_cp = 1 / ((gama_ref - 1) * mach_ref^2).",
-  "principle": "The Mach number is a nondimensional reference quantity. In the current implementation it enters the derived constant quadratically in the denominator. This establishes the implemented dependency, but does not by itself specify admissible values, a zero-value policy, or a complete nondimensionalization contract.",
-  "architecture": "NsCom::Init reads mach_ref from the runtime parameter database and computes const_cp from gamma_ref and mach_ref. Downstream use of const_cp is a separate dependency trace and is not claimed complete by this first parameter contract.",
+  "principle": "Mach number is a nondimensional ratio of flow speed to local speed of sound. Distinguish a local field value from a free-stream/reference input: mach_ref is a reference input, not the local Mach number at every mesh point.",
+  "architecture": "NsCom::Init reads mach_ref and gama_ref from the runtime parameter database, then computes const_cp = 1 / ((gama_ref - 1) * mach_ref^2). This contract records the initialization expression but does not claim the complete downstream dependency graph of const_cp.",
   "references": [],
   "implementation": {
     "source_paths": [
@@ -19,8 +19,9 @@
   },
   "claims": {
     "proves": [
-      "NsCom::Init reads mach_ref as a Real value.",
-      "The initialization expression uses mach_ref squared in the denominator of const_cp."
+      "NsCom::Init reads mach_ref and gama_ref as Real values.",
+      "NsCom::Init computes const_cp using the square of mach_ref and gama_ref - 1.",
+      "The mathematical reference distinguishes local Mach number from free-stream/reference Mach number."
     ],
     "does_not_prove": [
       "An admissible numeric range or explicit zero-Mach validation policy.",
@@ -40,5 +41,231 @@
     "id": "compressible_flow",
     "title": "Compressible Flow",
     "order": 30
+  },
+  "knowledge": {
+    "formulas": [
+      {
+        "id": "local_mach_definition",
+        "title": "Local Mach number",
+        "role": "Standard physical definition",
+        "plain": "M = V / a,   V = |u|",
+        "latex": "M = \\\\frac{V}{a} \\\\\nV = \\\\sqrt{u^2+v^2+w^2}",
+        "assumptions": "V is the local flow-speed magnitude and a is the local thermodynamic speed of sound. This is a pointwise/local definition.",
+        "symbols": [
+          {
+            "symbol": "M",
+            "meaning": "Local Mach number; dimensionless ratio of local flow speed to local speed of sound.",
+            "notations": [
+              "Ma"
+            ],
+            "oneflow_name": "No single global variable; computed from local flow state where required.",
+            "notes": "Do not equate this field quantity directly with the input mach_ref."
+          },
+          {
+            "symbol": "V",
+            "meaning": "Magnitude of the local velocity vector.",
+            "notations": [
+              "|u|",
+              "|V|"
+            ],
+            "oneflow_name": "Derived from local velocity components; not mach_ref.",
+            "notes": "Some texts use u for velocity magnitude; others use V."
+          },
+          {
+            "symbol": "a",
+            "meaning": "Local speed of sound.",
+            "notations": [
+              "c"
+            ],
+            "oneflow_name": "No direct one-to-one mapping in this parameter contract.",
+            "notes": "The symbol c is common in some texts and software."
+          }
+        ]
+      },
+      {
+        "id": "perfect_gas_sound_speed",
+        "title": "Speed of sound for a calorically perfect ideal gas",
+        "role": "Constitutive relation under ideal-gas assumptions",
+        "plain": "a^2 = gamma R T,   a = sqrt(gamma R T)",
+        "latex": "a = \\\\sqrt{\\\\gamma R T}",
+        "assumptions": "Applies to a calorically perfect ideal gas with constant specific-heat ratio gamma. For a general fluid, a^2 = (partial p / partial rho)_s.",
+        "symbols": [
+          {
+            "symbol": "gamma",
+            "meaning": "Ratio of specific heats c_p/c_v.",
+            "notations": [
+              "γ",
+              "k"
+            ],
+            "oneflow_name": "gama_ref (reference value in this initialization path)",
+            "notes": "OneFLOW spells the identifier gama_ref; textbook notation is usually gamma or γ."
+          },
+          {
+            "symbol": "R",
+            "meaning": "Specific gas constant.",
+            "notations": [
+              "R_s",
+              "R_g"
+            ],
+            "oneflow_name": "Not mapped by this contract.",
+            "notes": "Gas-specific; do not confuse with the universal gas constant."
+          },
+          {
+            "symbol": "T",
+            "meaning": "Absolute thermodynamic temperature.",
+            "notations": [
+              "T_static"
+            ],
+            "oneflow_name": "Not mapped by this contract.",
+            "notes": "The equation uses local/static temperature unless a stagnation quantity is explicitly denoted."
+          }
+        ]
+      },
+      {
+        "id": "freestream_mach_definition",
+        "title": "Free-stream / reference Mach number",
+        "role": "Reference-condition definition",
+        "plain": "M_infinity = V_infinity / a_infinity",
+        "latex": "M_{\\\\infty} = \\\\frac{V_{\\\\infty}}{a_{\\\\infty}}",
+        "assumptions": "The subscript infinity denotes undisturbed free-stream conditions. A reference Mach number is not generally the local Mach field throughout the computational domain.",
+        "symbols": [
+          {
+            "symbol": "M_infinity",
+            "meaning": "Free-stream Mach number, used here as the physical interpretation of a reference Mach input.",
+            "notations": [
+              "M∞",
+              "Ma∞",
+              "M_ref",
+              "Ma_ref"
+            ],
+            "oneflow_name": "mach_ref",
+            "notes": "This is a semantic mapping, not a claim that all codes use this identifier."
+          },
+          {
+            "symbol": "V_infinity",
+            "meaning": "Free-stream velocity magnitude.",
+            "notations": [
+              "U∞",
+              "V∞"
+            ],
+            "oneflow_name": "Not directly represented by mach_ref alone.",
+            "notes": "A Mach number is a ratio; the input does not uniquely determine velocity without a_infinity."
+          },
+          {
+            "symbol": "a_infinity",
+            "meaning": "Free-stream speed of sound.",
+            "notations": [
+              "c∞",
+              "a_ref"
+            ],
+            "oneflow_name": "Not directly represented by mach_ref alone.",
+            "notes": "Depends on the reference thermodynamic state."
+          }
+        ]
+      },
+      {
+        "id": "oneflow_const_cp_scaling",
+        "title": "OneFLOW initialization scaling expression",
+        "role": "Source-derived implementation relation",
+        "plain": "const_cp = 1 / ((gama_ref - 1) * mach_ref^2)",
+        "latex": "\\\\mathrm{const\\\\_cp} = \\\\frac{1}{(\\\\mathrm{gama\\\\_ref}-1)\\\\,\\\\mathrm{mach\\\\_ref}^{2}}",
+        "assumptions": "This is the exact algebraic relation in NsCom::Init. The contract records the implementation expression; it does not independently establish the full nondimensionalization derivation or every downstream use of const_cp.",
+        "symbols": [
+          {
+            "symbol": "const_cp",
+            "meaning": "OneFLOW internal scaling coefficient computed during compressible NS initialization.",
+            "notations": [
+              "C_p^* (not asserted equivalent)"
+            ],
+            "oneflow_name": "const_cp",
+            "notes": "The identifier is a code variable. Do not infer it is the dimensional specific heat c_p."
+          },
+          {
+            "symbol": "gama_ref",
+            "meaning": "Reference ratio-of-specific-heats parameter read by OneFLOW.",
+            "notations": [
+              "gamma_ref",
+              "γ_ref",
+              "gamma_infinity"
+            ],
+            "oneflow_name": "gama_ref",
+            "notes": "The spelling gama_ref is the actual code identifier; common scientific notation uses γ or γ_ref."
+          },
+          {
+            "symbol": "mach_ref",
+            "meaning": "Reference Mach number input.",
+            "notations": [
+              "M∞",
+              "Ma∞",
+              "M_ref",
+              "Ma_ref"
+            ],
+            "oneflow_name": "mach_ref",
+            "notes": "This is the actual input identifier in OneFLOW."
+          }
+        ]
+      }
+    ],
+    "symbols": [
+      {
+        "symbol": "M",
+        "meaning": "Local Mach number.",
+        "notations": [
+          "Ma"
+        ],
+        "oneflow_name": "No direct global input mapping.",
+        "notes": "Pointwise field quantity."
+      },
+      {
+        "symbol": "M∞",
+        "meaning": "Free-stream/reference Mach number.",
+        "notations": [
+          "M_infinity",
+          "Ma∞",
+          "M_ref",
+          "Ma_ref"
+        ],
+        "oneflow_name": "mach_ref",
+        "notes": "Reference condition, not necessarily local Mach."
+      },
+      {
+        "symbol": "γ",
+        "meaning": "Ratio of specific heats.",
+        "notations": [
+          "gamma",
+          "k"
+        ],
+        "oneflow_name": "gama_ref",
+        "notes": "OneFLOW's spelling differs from the conventional symbol."
+      },
+      {
+        "symbol": "a",
+        "meaning": "Speed of sound.",
+        "notations": [
+          "c"
+        ],
+        "oneflow_name": "No direct mapping in this contract.",
+        "notes": "Local or reference value depends on subscript."
+      },
+      {
+        "symbol": "const_cp",
+        "meaning": "OneFLOW initialization scaling coefficient.",
+        "notations": [],
+        "oneflow_name": "const_cp",
+        "notes": "Code identifier only; physical interpretation requires tracing downstream use."
+      }
+    ],
+    "references": [
+      "Anderson, J. D., Modern Compressible Flow: With Historical Perspective, 3rd ed., McGraw-Hill, 2003, Sections 1.3 and 3.3 (local Mach number and speed of sound).",
+      "White, F. M., Fluid Mechanics, 4th ed., McGraw-Hill, 2008, Chapter 9 (compressible flow; Ma = V/a).",
+      "NASA Glenn Research Center, Role of the Mach Number: https://www1.grc.nasa.gov/beginners-guide-to-aeronautics/role-of-the-mach-number/",
+      "Engineering Handbook, 2nd ed., Chapter 36, The Mach Number and Flow Regimes: https://aghajar.okstate.edu/sites/default/files/pub-pdfs/Compressible%20FLow%20_Chapt%2036%20of%20CRC%20Handbook.pdf"
+    ],
+    "caveats": [
+      "Notation varies by author and discipline. Record aliases as common usage, not as universal standards.",
+      "Local Mach M and free-stream/reference Mach M∞ are related concepts but are not interchangeable in a spatially varying flow.",
+      "The ideal-gas sound-speed equation requires its stated thermodynamic assumptions; for real fluids use the isentropic derivative definition.",
+      "The source expression is confirmed in codes/ns/src/NsCom.cpp. Its complete physical derivation and downstream const_cp consumers remain to be audited."
+    ]
   }
 }

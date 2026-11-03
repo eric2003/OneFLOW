@@ -295,3 +295,12 @@ titles, descriptions, references, and source/documentation paths. Group labels
 are domain concepts; they do not imply complete parameter coverage. Add
 Laminar and Turbulence groups when their source-backed parameter contracts are
 registered, rather than classifying unreviewed parameters speculatively.
+
+
+Parameter contracts can also carry typed mathematical knowledge. The
+Reference Mach number entry distinguishes local Mach, free-stream/reference
+Mach, ideal-gas sound speed, and the exact OneFLOW `const_cp` initialization
+expression. The Formula & Symbols view lists term meanings, alternate textbook
+notations, OneFLOW variable mappings, references, assumptions, and caveats.
+It exposes copyable LaTeX source and an optional rendered preview using the
+existing Formula & Knowledge renderer.

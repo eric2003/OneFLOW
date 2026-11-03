@@ -245,3 +245,27 @@ from Compressible Flow. Laminar and Turbulence groups should be populated only
 when source-backed parameter contracts for those models are added; a parameter
 must not be assigned to a physical model based on its name alone. Grouping is
 navigation metadata and does not imply complete parameter coverage.
+
+
+### Parameter mathematical knowledge and notation mapping
+
+A Parameter contract may declare a typed `knowledge` payload containing
+multiple formula definitions, assumptions, term-level meanings, notation
+aliases, OneFLOW identifier mappings, references, and explicit caveats. The
+catalog validates this payload independently of execution evidence.
+
+The Mach-number example deliberately separates four relations: local
+`M = V/a`, the ideal-gas sound-speed relation, free-stream/reference
+`M_infinity = V_infinity/a_infinity`, and the exact OneFLOW initialization
+expression for `const_cp`. The first three describe physical concepts under
+their stated assumptions; the last is a source-derived code relation. The
+Workbench's Formula & Symbols tab shows the term meanings and cross-notation
+mapping, exposes the LaTeX source for copying, and can render a PNG preview
+using the same renderer as Formula & Knowledge.
+
+A symbol alias is a documented common notation, not a universal equivalence.
+In particular, local Mach number and reference/free-stream Mach number must
+not be conflated. A code identifier is an implementation name, not a canonical
+mathematical symbol. The OneFLOW source mapping is therefore explicit and
+scoped. Bibliographic references and URLs are stored with the contract, while
+assumptions and unresolved physical interpretations remain visible caveats.

@@ -99,6 +99,40 @@ class WorkflowContractData:
 
 
 @dataclass(frozen=True)
+class ParameterSymbol:
+    """A physical symbol and its implementation-specific name mapping."""
+
+    symbol: str
+    meaning: str
+    notations: tuple[str, ...]
+    oneflow_name: str
+    notes: str
+
+
+@dataclass(frozen=True)
+class ParameterFormula:
+    """A formula with assumptions and term-level interpretation."""
+
+    id: str
+    title: str
+    role: str
+    plain: str
+    latex: str
+    assumptions: str
+    symbols: tuple[ParameterSymbol, ...]
+
+
+@dataclass(frozen=True)
+class ParameterKnowledge:
+    """Curated mathematical knowledge attached to a parameter contract."""
+
+    formulas: tuple[ParameterFormula, ...]
+    symbols: tuple[ParameterSymbol, ...]
+    references: tuple[str, ...]
+    caveats: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class ContractSummary:
     """Common read-only navigation data for a verification contract."""
 
@@ -122,6 +156,7 @@ class ContractSummary:
     group_id: str = ""
     group_title: str = ""
     group_order: int = 100
+    parameter_knowledge: ParameterKnowledge | None = None
 
 
 def _non_empty_strings(values: Iterable[Any]) -> tuple[str, ...]:
@@ -549,6 +584,86 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
             "declared contract id must be namespaced by its domain"
         )
 
+    parameter_knowledge = None
+    raw_knowledge = definition.get("knowledge")
+    if raw_knowledge is not None:
+        if definition["domain"].strip() != "parameter":
+            raise ValueError("knowledge is currently supported only for parameter contracts")
+        if not isinstance(raw_knowledge, dict):
+            raise ValueError("knowledge must be an object")
+
+        def adapt_symbols(values: Any, label: str) -> tuple[ParameterSymbol, ...]:
+            if not isinstance(values, list):
+                raise ValueError(f"{label} must be an array")
+            result = []
+            for index, raw_symbol in enumerate(values):
+                if not isinstance(raw_symbol, dict):
+                    raise ValueError(f"{label}[{index}] must be an object")
+                for field in ("symbol", "meaning"):
+                    if not isinstance(raw_symbol.get(field), str) or not raw_symbol[field].strip():
+                        raise ValueError(f"{label}[{index}].{field} must be non-empty")
+                notations = raw_symbol.get("notations", [])
+                if not isinstance(notations, list) or any(
+                    not isinstance(item, str) or not item.strip() for item in notations
+                ):
+                    raise ValueError(f"{label}[{index}].notations must be an array of strings")
+                oneflow_name = raw_symbol.get("oneflow_name", "")
+                notes = raw_symbol.get("notes", "")
+                if not isinstance(oneflow_name, str) or not isinstance(notes, str):
+                    raise ValueError(f"{label}[{index}] oneflow_name and notes must be strings")
+                result.append(ParameterSymbol(
+                    symbol=raw_symbol["symbol"].strip(),
+                    meaning=raw_symbol["meaning"].strip(),
+                    notations=_non_empty_strings(notations),
+                    oneflow_name=oneflow_name.strip(),
+                    notes=notes.strip(),
+                ))
+            return tuple(result)
+
+        raw_formulas = raw_knowledge.get("formulas", [])
+        if not isinstance(raw_formulas, list):
+            raise ValueError("knowledge.formulas must be an array")
+        formulas = []
+        formula_ids = set()
+        for index, raw_formula in enumerate(raw_formulas):
+            if not isinstance(raw_formula, dict):
+                raise ValueError(f"knowledge.formulas[{index}] must be an object")
+            for field in ("id", "title", "role", "plain", "latex", "assumptions"):
+                if not isinstance(raw_formula.get(field), str) or not raw_formula[field].strip():
+                    raise ValueError(f"knowledge.formulas[{index}].{field} must be non-empty")
+            formula_id = raw_formula["id"].strip()
+            if formula_id in formula_ids:
+                raise ValueError(f"duplicate parameter formula id: {formula_id}")
+            formula_ids.add(formula_id)
+            formulas.append(ParameterFormula(
+                id=formula_id,
+                title=raw_formula["title"].strip(),
+                role=raw_formula["role"].strip(),
+                plain=raw_formula["plain"].strip(),
+                latex=raw_formula["latex"].strip(),
+                assumptions=raw_formula["assumptions"].strip(),
+                symbols=adapt_symbols(
+                    raw_formula.get("symbols", []),
+                    f"knowledge.formulas[{index}].symbols",
+                ),
+            ))
+        raw_references = raw_knowledge.get("references", [])
+        raw_caveats = raw_knowledge.get("caveats", [])
+        if not isinstance(raw_references, list) or any(
+            not isinstance(item, str) or not item.strip() for item in raw_references
+        ):
+            raise ValueError("knowledge.references must be an array of non-empty strings")
+        if not isinstance(raw_caveats, list) or any(
+            not isinstance(item, str) or not item.strip() for item in raw_caveats
+        ):
+            raise ValueError("knowledge.caveats must be an array of non-empty strings")
+        parameter_knowledge = ParameterKnowledge(
+            formulas=tuple(formulas),
+            symbols=adapt_symbols(raw_knowledge.get("symbols", []), "knowledge.symbols"),
+            references=_non_empty_strings(raw_references),
+            caveats=_non_empty_strings(raw_caveats),
+        )
+
     case_data = None
     if definition["domain"].strip() == "case":
         if definition["kind"].strip() != "cfd_regression_case":
@@ -710,6 +825,7 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
         group_id=group_id.strip(),
         group_title=group_title.strip(),
         group_order=group_order,
+        parameter_knowledge=parameter_knowledge,
     )
 
 

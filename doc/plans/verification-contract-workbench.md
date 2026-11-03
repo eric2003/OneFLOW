@@ -1297,3 +1297,31 @@ python -m unittest tools.oneflow_gui.test_parameter_consumer_catalog
 
 The exact-revision test results remain pending until the focused tests and
 full Python Tooling CI run complete.
+
+
+## 29. Parameter formulas, symbols, and implementation notation
+
+The Parameter contract schema now has an optional typed mathematical
+`knowledge` payload. Each formula has a stable ID, semantic role, plain-text
+form, LaTeX source, assumptions, and term definitions. Symbol records may
+include common alternate notations and an explicit OneFLOW identifier mapping.
+Bibliographic references and unresolved caveats remain attached to the
+parameter contract.
+
+The initial `mach_ref` knowledge separates local Mach number, ideal-gas
+speed of sound, free-stream/reference Mach number, and the exact source
+expression for `const_cp`. It intentionally does not assert that the
+reference input is the local Mach field or that the code identifier
+`const_cp` is identical to dimensional specific heat. This keeps textbook
+notation, physical meaning, and implementation naming as separate layers.
+
+The Parameter Workbench presents formula terms and symbol mappings, allows
+copying the original LaTeX source, and renders an optional PNG preview through
+the existing Formula & Knowledge LaTeX renderer. Formula display is a
+projection of the checked-in contract data; it does not create a second
+formula catalog or imply physical verification.
+
+Focused tests validate the typed formula payload, reject malformed LaTeX
+declarations, and check the GUI's formula/source/alias presentation. The
+existing catalog and Workbench CI jobs remain the authoritative validation
+path.

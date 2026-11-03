@@ -91,6 +91,39 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_mach_parameter_exposes_formula_symbols_aliases_and_latex(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            mach_row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == "parameter/mach_ref"
+            )
+            dialog.contract_list.setCurrentRow(mach_row)
+            self.assertEqual(
+                dialog.tabs.tabText(dialog.tabs.indexOf(dialog.parameter_formula_page)),
+                "Formula & Symbols",
+            )
+            formula_text = dialog.parameter_formula_text.toPlainText()
+            latex_text = dialog.parameter_formula_latex.toPlainText()
+            self.assertIn("Local Mach number", formula_text)
+            self.assertIn("Free-stream / reference Mach number", formula_text)
+            self.assertIn("gama_ref", formula_text)
+            self.assertIn("M_{\\infty}", latex_text)
+            self.assertIn("const_cp", latex_text)
+            self.assertTrue(dialog.render_parameter_formula_button.isEnabled())
+            self.assertTrue(dialog.copy_parameter_formula_button.isEnabled())
+
+            dialog.search_edit.setText("Ma_ref")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(visible_ids, {"parameter/mach_ref"})
+        finally:
+            dialog.close()
+
     def test_parameter_contracts_are_grouped_and_searchable(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
         try:

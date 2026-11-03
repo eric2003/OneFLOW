@@ -8,9 +8,10 @@ import sys
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QUrl
-from PySide6.QtGui import QDesktopServices
+from PySide6.QtGui import QDesktopServices, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QApplication,
     QDialog,
     QDialogButtonBox,
     QHBoxLayout,
@@ -21,6 +22,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QPlainTextEdit,
+    QScrollArea,
     QSplitter,
     QTabWidget,
     QVBoxLayout,
@@ -199,6 +201,42 @@ class ContractDomainDialog(QDialog):
         self.case_view.setReadOnly(True)
         self.workflow_view = QPlainTextEdit()
         self.workflow_view.setReadOnly(True)
+        self.parameter_formula_page = None
+        self.parameter_formula_text = None
+        self.parameter_formula_latex = None
+        self.parameter_formula_preview = None
+        self.parameter_formula_scroll = None
+        self.render_parameter_formula_button = None
+        self.copy_parameter_formula_button = None
+        self._parameter_formula_pixmap = QPixmap()
+        if domain == "parameter":
+            self.parameter_formula_page = QWidget()
+            formula_layout = QVBoxLayout(self.parameter_formula_page)
+            self.parameter_formula_text = QPlainTextEdit()
+            self.parameter_formula_text.setReadOnly(True)
+            self.parameter_formula_latex = QPlainTextEdit()
+            self.parameter_formula_latex.setReadOnly(True)
+            self.parameter_formula_latex.setStyleSheet("font-family: Consolas, monospace;")
+            formula_layout.addWidget(QLabel("Formula definitions, assumptions, and symbol meanings"))
+            formula_layout.addWidget(self.parameter_formula_text, 2)
+            formula_layout.addWidget(QLabel("LaTeX source"))
+            formula_layout.addWidget(self.parameter_formula_latex, 1)
+            self.parameter_formula_preview = QLabel("Render a formula to preview it.")
+            self.parameter_formula_preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.parameter_formula_scroll = QScrollArea()
+            self.parameter_formula_scroll.setWidgetResizable(True)
+            self.parameter_formula_scroll.setMinimumHeight(160)
+            self.parameter_formula_scroll.setWidget(self.parameter_formula_preview)
+            formula_layout.addWidget(self.parameter_formula_scroll, 2)
+            formula_actions = QHBoxLayout()
+            self.render_parameter_formula_button = QPushButton("Render formula")
+            self.render_parameter_formula_button.clicked.connect(self._render_parameter_formula)
+            self.copy_parameter_formula_button = QPushButton("Copy LaTeX")
+            self.copy_parameter_formula_button.clicked.connect(self._copy_parameter_formula)
+            formula_actions.addWidget(self.render_parameter_formula_button)
+            formula_actions.addWidget(self.copy_parameter_formula_button)
+            formula_actions.addStretch(1)
+            formula_layout.addLayout(formula_actions)
 
         self.tabs.addTab(self.overview_view, "Overview")
         self.tabs.addTab(self.principle_view, "Principle")
@@ -206,6 +244,8 @@ class ContractDomainDialog(QDialog):
         self.tabs.addTab(self.implementation_page, "Implementation / Code")
         self.tabs.addTab(self.documentation_view, "Documentation / References")
         self.tabs.addTab(self.evidence_view, "Verification")
+        if domain == "parameter":
+            self.tabs.addTab(self.parameter_formula_page, "Formula & Symbols")
         if domain == "case":
             self.tabs.addTab(self.case_view, "Case Setup")
         if domain == "workflow":
@@ -380,6 +420,37 @@ class ContractDomainDialog(QDialog):
                     " ".join(summary.references),
                     " ".join(summary.implementation_paths),
                     " ".join(summary.documentation_paths),
+                    *(
+                        " ".join((
+                            formula.id, formula.title, formula.role,
+                            formula.plain, formula.latex, formula.assumptions,
+                            " ".join(
+                                symbol.symbol + " " + symbol.meaning + " "
+                                + " ".join(symbol.notations) + " "
+                                + symbol.oneflow_name + " " + symbol.notes
+                                for symbol in formula.symbols
+                            ),
+                        ))
+                        for formula in (
+                            summary.parameter_knowledge.formulas
+                            if summary.parameter_knowledge else ()
+                        )
+                    ),
+                    *(
+                        " ".join((
+                            symbol.symbol, symbol.meaning,
+                            " ".join(symbol.notations), symbol.oneflow_name, symbol.notes,
+                        ))
+                        for symbol in (
+                            summary.parameter_knowledge.symbols
+                            if summary.parameter_knowledge else ()
+                        )
+                    ),
+                    *(
+                        (" ".join(summary.parameter_knowledge.references)
+                         + " " + " ".join(summary.parameter_knowledge.caveats))
+                        if summary.parameter_knowledge else "",
+                    ),
                 )).casefold()
                 if normalized_query and normalized_query not in searchable:
                     continue
@@ -460,6 +531,59 @@ class ContractDomainDialog(QDialog):
         )
         self.principle_view.setPlainText(summary.principle)
         self.architecture_view.setPlainText(summary.architecture)
+        if self.parameter_formula_text is not None:
+            knowledge = summary.parameter_knowledge
+            if knowledge is None:
+                self.parameter_formula_text.setPlainText(
+                    "No parameter-specific mathematical knowledge is registered."
+                )
+                self.parameter_formula_latex.setPlainText("")
+                self.render_parameter_formula_button.setEnabled(False)
+                self.copy_parameter_formula_button.setEnabled(False)
+                self.parameter_formula_preview.setText("No formula preview available.")
+                self.parameter_formula_preview.setPixmap(QPixmap())
+            else:
+                formula_lines = []
+                latex_lines = []
+                for formula in knowledge.formulas:
+                    formula_lines.extend((
+                        f"{formula.title} [{formula.id}]",
+                        f"Role: {formula.role}",
+                        f"Plain: {formula.plain}",
+                        f"Assumptions: {formula.assumptions}",
+                        "Terms:",
+                    ))
+                    for symbol in formula.symbols:
+                        formula_lines.append(
+                            f"  {symbol.symbol}: {symbol.meaning}; "
+                            f"other notation: {', '.join(symbol.notations) or 'not specified'}; "
+                            f"OneFLOW: {symbol.oneflow_name or 'no direct mapping'}"
+                            + (f"; {symbol.notes}" if symbol.notes else "")
+                        )
+                    formula_lines.append("")
+                    latex_lines.append(formula.latex)
+                formula_lines.extend(("Symbol mapping", "--------------"))
+                for symbol in knowledge.symbols:
+                    formula_lines.append(
+                        f"{symbol.symbol}: {symbol.meaning}; "
+                        f"other notation: {', '.join(symbol.notations) or 'not specified'}; "
+                        f"OneFLOW: {symbol.oneflow_name or 'no direct mapping'}"
+                        + (f"; {symbol.notes}" if symbol.notes else "")
+                    )
+                formula_lines.extend(("", "References", "----------"))
+                formula_lines.extend(knowledge.references)
+                formula_lines.extend(("", "Caveats", "-------"))
+                formula_lines.extend(knowledge.caveats)
+                self.parameter_formula_text.setPlainText("\n".join(formula_lines))
+                self.parameter_formula_latex.setPlainText("\n".join(latex_lines))
+                has_formula = bool(latex_lines)
+                self.render_parameter_formula_button.setEnabled(has_formula)
+                self.copy_parameter_formula_button.setEnabled(has_formula)
+                self.parameter_formula_preview.setText(
+                    "Click Render formula to generate a preview."
+                )
+                self.parameter_formula_preview.setPixmap(QPixmap())
+                self._parameter_formula_pixmap = QPixmap()
         self.implementation_view.setPlainText(
             "\n".join(summary.implementation_paths) or "No implementation paths declared."
         )
@@ -594,6 +718,51 @@ class ContractDomainDialog(QDialog):
                     self._format_analytical_reference(path)
                     for path in case.analytical_references
                 )
+            )
+
+    def _copy_parameter_formula(self) -> None:
+        if self.parameter_formula_latex is not None:
+            QApplication.clipboard().setText(
+                self.parameter_formula_latex.toPlainText()
+            )
+
+    def _render_parameter_formula(self) -> None:
+        summary = self._current_summary()
+        if summary is None or summary.parameter_knowledge is None:
+            return
+        latex = "\n".join(
+            formula.latex for formula in summary.parameter_knowledge.formulas
+        )
+        if not latex:
+            return
+        try:
+            from verification.latex_preview import render_latex_preview_png
+            preview_root = UserDataPaths.discover().contract_workbench_preview
+            preview_root.mkdir(parents=True, exist_ok=True)
+            safe_id = "".join(
+                character if character.isalnum() else "_"
+                for character in summary.source_id
+            )
+            output_path = preview_root / f"parameter_{safe_id}_formula.png"
+            render_latex_preview_png(latex, output_path, dpi=220, fontsize=20)
+            pixmap = QPixmap(str(output_path))
+            if pixmap.isNull():
+                raise RuntimeError("formula renderer did not produce a readable image")
+            self._parameter_formula_pixmap = pixmap
+            self.parameter_formula_preview.setPixmap(
+                pixmap.scaled(
+                    self.parameter_formula_scroll.viewport().size(),
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            )
+            self.parameter_formula_preview.setToolTip(
+                "Rendered from the exact LaTeX source shown above."
+            )
+        except Exception as error:
+            self._parameter_formula_pixmap = QPixmap()
+            self.parameter_formula_preview.setText(
+                f"Formula preview unavailable ({error}). The LaTeX source remains available."
             )
 
     @staticmethod
