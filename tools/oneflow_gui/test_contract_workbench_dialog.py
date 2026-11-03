@@ -125,7 +125,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("gama_ref", formula_text)
             self.assertIn("M_{\\infty}", latex_text)
             self.assertIn("const_cp", formula_text)
-            self.assertIn(r"\mathrm\_cp", latex_text)
+            self.assertIn(r"\mathrm{const\_cp}", latex_text)
             self.assertTrue(dialog.render_parameter_formula_button.isEnabled())
             self.assertTrue(dialog.copy_parameter_formula_button.isEnabled())
 
