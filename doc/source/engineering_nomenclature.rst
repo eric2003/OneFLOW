@@ -104,4 +104,5 @@ Reference sources
 * SU2 configuration template: https://github.com/su2code/SU2/blob/master/config_template.cfg
 * ANSYS Fluent field variable definitions: https://ansyshelp.ansys.com/public/Views/Secured/corp/v242/en/flu_ug/flu_ug_fvdefs.html
 * ANSYS CFD-Post variable mapping: https://ansyshelp.ansys.com/public/Views/Secured/corp/v251/en/cfd_post/SECTION00323.html
+* OpenFOAM polyMesh description: https://www.openfoam.com/documentation/user-guide/4-mesh-generation-and-conversion/4.1-mesh-description
 * OpenFOAM turbulenceFields: https://doc.openfoam.com/2212/tools/post-processing/function-objects/field/turbulenceFields/
