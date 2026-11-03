@@ -35,6 +35,9 @@ Initial covered concepts
 
 * Mach number: CGNS Mach; SU2 MACH_NUMBER; OneFLOW mach_ref; Fluent Mach Number. Reference inputs and local post-processing fields are different roles.
 * Reynolds number: CGNS Reynolds; SU2 REYNOLDS_NUMBER; OneFLOW reynolds. The OneFLOW read site is recorded, while its exact reference-scale convention remains a trace item.
+* Static temperature: CGNS Temperature; OpenFOAM T. Preserve the distinction between thermodynamic temperature and temperature-like model inputs.
+* Molecular and kinematic viscosity: CGNS ViscosityMolecular and ViscosityKinematic; OpenFOAM mu and nu where exposed. Their dimensions differ and must not be interchanged.
+* Turbulence closure fields: CGNS TurbulentEnergyKinetic, TurbulentDissipation, TurbulentDissipationRate, TurbulentSANuTilde; OpenFOAM k, epsilon, omega, nut, mut, and nuTilda. Model and dimensional conventions remain part of each mapping.
 
 Use in OneFLOW
 --------------
@@ -61,3 +64,4 @@ Reference sources
 * SU2 configuration template: https://github.com/su2code/SU2/blob/master/config_template.cfg
 * ANSYS Fluent field variable definitions: https://ansyshelp.ansys.com/public/Views/Secured/corp/v242/en/flu_ug/flu_ug_fvdefs.html
 * ANSYS CFD-Post variable mapping: https://ansyshelp.ansys.com/public/Views/Secured/corp/v251/en/cfd_post/SECTION00323.html
+* OpenFOAM turbulenceFields: https://doc.openfoam.com/2212/tools/post-processing/function-objects/field/turbulenceFields/
