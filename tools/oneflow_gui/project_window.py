@@ -328,11 +328,12 @@ class ProjectWindow(QMainWindow):
         parameter_layout.addLayout(parameter_heading)
         self.parameter_tree = QTreeWidget()
         self.parameter_tree.setObjectName("unifiedParameterTree")
-        self.parameter_tree.setHeaderLabels(["Parameter", "Value", "Type", "Source"])
+        self.parameter_tree.setHeaderLabels(["Parameter", "Value", "Type", "Source", "Applies to"])
         self.parameter_tree.setMinimumHeight(190)
         self.parameter_tree.setColumnWidth(0, 230)
         self.parameter_tree.setColumnWidth(1, 160)
         self.parameter_tree.setColumnWidth(2, 75)
+        self.parameter_tree.setColumnWidth(4, 90)
         self.parameter_tree.setAlternatingRowColors(True)
         self.parameter_tree.itemDoubleClicked.connect(
             lambda _item, _column: self._modify_selected_parameter()
@@ -770,7 +771,7 @@ class ProjectWindow(QMainWindow):
         )
         roots = {}
         for domain, label in domains:
-            item = QTreeWidgetItem([label, "", "", ""])
+            item = QTreeWidgetItem([label, "", "", "", ""])
             self.parameter_tree.addTopLevelItem(item)
             roots[domain] = item
         if model is None:
@@ -778,7 +779,7 @@ class ProjectWindow(QMainWindow):
             return
         groups = {}
         for group in model.groups:
-            group_item = QTreeWidgetItem(roots[group.domain], [group.name, "", "", ""])
+            group_item = QTreeWidgetItem(roots[group.domain], [group.name, "", "", "", ""])
             groups[(group.domain, group.name)] = group_item
         shadowed_by_key = {}
         for entry in model.shadowed_entries:
@@ -787,16 +788,17 @@ class ProjectWindow(QMainWindow):
         for entry in model.entries:
             parent = groups[(entry.classification.domain, entry.classification.group)]
             source = self._parameter_source_label(entry.source_path, entry.file_order, entry.declaration_order)
-            item = QTreeWidgetItem([entry.name, str(entry.value), entry.declared_type, source])
+            item = QTreeWidgetItem([entry.name, str(entry.value), entry.declared_type, source, entry.classification.applicability.value.title()])
             item.setData(0, Qt.ItemDataRole.UserRole, entry.source_path)
             item.setToolTip(0, f"Effective declaration from {entry.source_path}")
+            item.setToolTip(4, f"Task applicability: {entry.classification.applicability.value}; domain: {entry.classification.domain.value}; group: {entry.classification.group}")
             item.setToolTip(1, f"Original source value: {entry.raw_value}")
             parent.addChild(item)
             for previous in shadowed_by_key.get(entry.name.casefold(), []):
                 previous_source = self._parameter_source_label(
                     previous.source_path, previous.file_order, previous.declaration_order
                 )
-                shadow = QTreeWidgetItem([f"[overridden] {previous.name}", str(previous.value), previous.declared_type, previous_source])
+                shadow = QTreeWidgetItem([f"[overridden] {previous.name}", str(previous.value), previous.declared_type, previous_source, previous.classification.applicability.value.title()])
                 shadow.setData(0, Qt.ItemDataRole.UserRole, previous.source_path)
                 shadow.setToolTip(0, "Shadowed declaration; the later declaration is effective.")
                 shadow.setToolTip(1, f"Original source value: {previous.raw_value}")
@@ -804,14 +806,14 @@ class ProjectWindow(QMainWindow):
             parameter_consumers = consumers.find(entry.name)
             if parameter_consumers:
                 for consumer in parameter_consumers:
-                    evidence = QTreeWidgetItem(["Runtime consumer", consumer.symbol, consumer.read_kind.value, consumer.source_path])
+                    evidence = QTreeWidgetItem(["Runtime consumer", consumer.symbol, consumer.read_kind.value, consumer.source_path, ""])
                     evidence.setToolTip(0, consumer.behavior)
                     evidence.setToolTip(1, consumer.read_expression)
                     evidence.setToolTip(2, consumer.applicability)
                     evidence.setToolTip(3, consumer.evidence_note)
                     item.addChild(evidence)
             else:
-                evidence = QTreeWidgetItem(["Runtime consumer", "Not audited", "", ""])
+                evidence = QTreeWidgetItem(["Runtime consumer", "Not audited", "", "", ""])
                 evidence.setToolTip(0, "Absence from the curated catalog means not yet audited, not unused.")
                 item.addChild(evidence)
             knowledge_ids = sorted({
@@ -820,18 +822,18 @@ class ProjectWindow(QMainWindow):
                 for knowledge_id in consumer.knowledge_ids
             })
             for knowledge_id in knowledge_ids:
-                knowledge = QTreeWidgetItem(["Formula & Knowledge", knowledge_id, "", ""])
+                knowledge = QTreeWidgetItem(["Formula & Knowledge", knowledge_id, "", "", ""])
                 knowledge.setToolTip(
                     0,
                     "Open Contract Workbench > Formula & Knowledge and search for this entry ID.",
                 )
                 item.addChild(knowledge)
         if model.unsupported_declarations:
-            unsupported_root = QTreeWidgetItem(roots[ParameterDomain.OTHER], ["Unsupported declarations", "", "", ""])
+            unsupported_root = QTreeWidgetItem(roots[ParameterDomain.OTHER], ["Unsupported declarations", "", "", "", ""])
             for declaration in model.unsupported_declarations:
                 source = f"{declaration.source_path.name}, line {declaration.line_number}"
                 unsupported_item = QTreeWidgetItem([
-                    declaration.name, declaration.raw_text, declaration.declared_type, source
+                    declaration.name, declaration.raw_text, declaration.declared_type, source, "Unknown"
                 ])
                 unsupported_item.setData(0, Qt.ItemDataRole.UserRole, declaration.source_path)
                 unsupported_item.setToolTip(0, declaration.reason)
