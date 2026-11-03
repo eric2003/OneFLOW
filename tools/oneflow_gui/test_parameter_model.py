@@ -87,6 +87,45 @@ class ParameterModelTest(unittest.TestCase):
                 for entry in model.entries
             ))
 
+
+    def test_audited_cfd_case_settings_use_distinct_functional_groups(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            documents = self._documents(root, {
+                "simu.txt": 'string simutask = "Solve";\\n',
+                "cfd.txt": (
+                    "int nEqu = 5;\\n"
+                    "int nFieldSave = 50;\\n"
+                    'string flowFile = "restart/flow.dat";\\n'
+                    'string flowInputRoot = "default";\\n'
+                    "int inflowType = 0;\\n"
+                    "Real twall_dim = 300.0;\\n"
+                    "Real gama_ref = 1.4;\\n"
+                    "Real prl = 0.72;\\n"
+                    "int lusgsFacePressureMode = 0;\\n"
+                ),
+            })
+            model = ParameterModel.from_documents(documents)
+
+            expected_groups = {
+                "nEqu": "Solver system",
+                "nFieldSave": "Output control",
+                "flowFile": "Output files",
+                "flowInputRoot": "Input and output files",
+                "inflowType": "Boundary and inflow conditions",
+                "twall_dim": "Boundary and inflow conditions",
+                "gama_ref": "Thermodynamic reference state",
+                "prl": "Transport properties",
+                "lusgsFacePressureMode": "Numerical methods",
+            }
+            for key, expected_group in expected_groups.items():
+                with self.subTest(parameter=key):
+                    self.assertEqual(model.get(key).classification.group, expected_group)
+                    self.assertEqual(
+                        model.get(key).classification.applicability,
+                        ParameterApplicability.SOLVE,
+                    )
+
     def test_last_declaration_wins_and_shadowed_sources_remain_visible(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
