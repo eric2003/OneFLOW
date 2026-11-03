@@ -224,12 +224,12 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(summary.group_id, "run_control")
         self.assertEqual(summary.group_title, "Run Control")
         self.assertIn("codes/ns/include/TimeStepPolicy.h", summary.implementation_paths)
-        self.assertEqual(len(summary.evidence), 6)
+        self.assertEqual(len(summary.evidence), 9)
         self.assertTrue(
             all(item.status == "linked_not_executed" for item in summary.evidence)
         )
         resolutions = resolve_contract_evidence(self.repository_root, summary)
-        self.assertEqual([item.status for item in resolutions], ["resolved"] * 6)
+        self.assertEqual([item.status for item in resolutions], ["resolved"] * len(summary.evidence))
         self.assertTrue(
             all(
                 item.evidence.status == "linked_not_executed"
