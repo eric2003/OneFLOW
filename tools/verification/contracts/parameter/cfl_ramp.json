@@ -13,6 +13,8 @@
     "source_paths": [
       "codes/global/src/Iteration.cpp",
       "codes/global/include/Iteration.h",
+      "codes/global/src/Ctrl.cpp",
+      "codes/global/include/Ctrl.h",
       "codes/ns/src/TimeStep.cpp",
       "codes/ns/include/TimeStep.h",
       "codes/ns/src/TimeStepPolicy.cpp",
