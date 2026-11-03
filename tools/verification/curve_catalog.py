@@ -1397,6 +1397,49 @@ references=(
 
 
 
+
+        TheoryEntry(
+            id="relative_face_normal_velocity",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="face kinematics / relative velocity",
+            title="Relative face normal velocity vn = u·n - vg",
+            role_tags=("inviscid", "face", "ALE"),
+            formula_plain=(
+                "vn_rel = xfn*u + yfn*v + zfn*w - vfn\n"
+                "Grid speed vfn supports moving-mesh / ALE faces"
+            ),
+            formula_latex=(
+                r"v_n=\mathbf{u}\cdot\mathbf{n}-v_g"
+            ),
+            principle=(
+                "Relative normal velocity at a face is absolute velocity "
+                "projected on the face normal minus the face grid speed."
+            ),
+            background=(
+                "Pure API RelativeFaceNormalVelocity in NsInvFluxPolicy. "
+                "Upstream of FaceMachNumber and Euler/Roe/AUSM face fluxes."
+            ),
+            references=(
+                "Arbitrary Lagrangian-Eulerian / moving-mesh FV formulations",
+                "doc/source/numerical/relative_face_normal_velocity.rst",
+            ),
+            csv_relpath="tools/verification/data/relative_face_normal_velocity_theory.csv",
+            plot_module="plot_relative_face_normal_velocity",
+            pure_apis=("RelativeFaceNormalVelocity",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/relative_face_normal_velocity.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "vn = xfn*u + yfn*v + zfn*w - vfn;\n"
+            ),
+            proves="vn algebra vs pure API on a grid-speed sample.",
+            does_not_prove="Full ALE residual or mesh-motion coupling.",
+        ),
+
         TheoryEntry(
             id="face_mach_number",
             family="mean-flow",
@@ -1996,13 +2039,12 @@ proves="Entropy-fix pure policy tests.",
                 "OneFLOW: codes/global/src/Ctrl.cpp and solver control Init implementations.",
                 "OneFLOW: codes/solver/src/TimeIntegral.cpp.",
                 "OneFLOW: codes/solver/src/EulerRungeKuttaCapability.cpp.",
-                "doc/source/numerical/time_integral_rk_stage_weight.rst",
+                "doc/source/numerical/time_integral_control.rst",
             ),
-            csv_relpath="tools/verification/data/time_integral_rk_stage_weight_theory.csv",
-            plot_module="plot_time_integral_rk_stage_weight",
-            pure_apis=("RungeKuttaStageWeight",),
+            csv_relpath=None,
+            plot_module=None,
+            pure_apis=(),
             source_relpaths=(
-                "codes/global/include/TimeIntegralPolicy.h",
                 "codes/global/src/Ctrl.cpp",
                 "codes/ns/src/NsCtrl.cpp",
                 "codes/ins/src/INsCtrl.cpp",
@@ -2011,7 +2053,7 @@ proves="Entropy-fix pure policy tests.",
                 "codes/solver/src/EulerRungeKuttaCapability.cpp",
                 "codes/solver/include/EulerRungeKuttaCapability.h",
             ),
-            doc_relpath="doc/source/numerical/time_integral_rk_stage_weight.rst",
+            doc_relpath="doc/source/numerical/time_integral_control.rst",
             code_sketch=(
                 "// GATED SKETCH - mirrors the current source, not a general RK tableau.\n"
                 "for (int stage = 0; stage < rk_stage; ++stage) {\n"

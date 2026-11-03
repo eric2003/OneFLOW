@@ -635,3 +635,26 @@ TEST( InvFluxPolicy, FaceMachNumberInverselyScalesWithSoundSpeed )
         2.0 * FaceMachNumber( 3.0, 3.0 ),
         1.0e-12 );
 }
+
+// Intermediate: RelativeFaceNormalVelocity on a grid-speed grid.
+// Ref: n=(1,0,0), u=(2,0,0); vn = 2 - vfn.
+TEST( InvFluxPolicy, RelativeFaceNormalVelocityCurveMatchesClosedForm )
+{
+    const Real vfns[] = { -1.0, -0.5, 0.0, 0.5, 1.0, 2.0 };
+    for ( Real vfn : vfns )
+    {
+        EXPECT_NEAR(
+            RelativeFaceNormalVelocity( 1.0, 0.0, 0.0, vfn, 2.0, 0.0, 0.0 ),
+            2.0 - vfn,
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RelativeFaceNormalVelocityUsesFullNormal )
+{
+    // n=(0,1,0), u=(0,3,0), vfn=1 => vn=2
+    EXPECT_NEAR(
+        RelativeFaceNormalVelocity( 0.0, 1.0, 0.0, 1.0, 0.0, 3.0, 0.0 ),
+        2.0,
+        1.0e-12 );
+}
