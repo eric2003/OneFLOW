@@ -1911,6 +1911,50 @@ principle=(
         ),
 
 
+
+        TheoryEntry(
+            id="roe_continuity_normal_jump",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="Roe dissipation / continuity jump",
+            title="Roe continuity normal jump",
+            role_tags=("inviscid", "Roe", "dissipation"),
+            formula_plain=(
+                "jump = vn * dqRho - nx*dqRhoU - ny*dqRhoV - nz*dqRhoW\n"
+                "     = vn * Delta(rho) - n · Delta(rho u)"
+            ),
+            formula_latex=(
+                r"J_{\rho}=v_n\Delta\rho-\mathbf{n}\cdot\Delta(\rho\mathbf{u})"
+            ),
+            principle=(
+                "Continuity contribution to Roe dissipation uses the "
+                "relative normal velocity times density jump minus the "
+                "projected momentum jump."
+            ),
+            background=(
+                "Pure API RoeContinuityNormalJump in NsInvFluxPolicy. "
+                "Part of Roe wave-strength assembly."
+            ),
+            references=(
+                "Roe approximate Riemann solver; Toro Riemann solvers",
+                "doc/source/numerical/roe_continuity_normal_jump.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_continuity_normal_jump_theory.csv",
+            plot_module="plot_roe_continuity_normal_jump",
+            pure_apis=("RoeContinuityNormalJump",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_continuity_normal_jump.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "J = vn*dqRho - nx*dqU - ny*dqV - nz*dqW;\n"
+            ),
+            proves="Continuity jump algebra vs pure API.",
+            does_not_prove="Full Roe residual or entropy-fix interaction.",
+        ),
+
         TheoryEntry(
             id="roe_average_component",
             family="mean-flow",

@@ -759,3 +759,28 @@ TEST( InvFluxPolicy, IdealGasConservativeToPrimSubtractsKinetic )
     EXPECT_NEAR( u, 2.0, 1.0e-12 );
     EXPECT_NEAR( p, 1.0, 1.0e-12 );
 }
+
+// Intermediate: RoeContinuityNormalJump on a momentum-jump grid.
+// Ref: vn=2, n=(1,0,0), dqRho=3, dqV=dqW=0; jump = 6 - dqU.
+TEST( InvFluxPolicy, RoeContinuityNormalJumpCurveMatchesClosedForm )
+{
+    const Real dqUs[] = { -2.0, -1.0, 0.0, 1.0, 3.0, 6.0 };
+    for ( Real dqU : dqUs )
+    {
+        EXPECT_NEAR(
+            RoeContinuityNormalJump(
+                2.0, 1.0, 0.0, 0.0, 3.0, dqU, 0.0, 0.0 ),
+            6.0 - dqU,
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeContinuityNormalJumpUsesFullNormal )
+{
+    // vn=0, n=(0,1,0), dqRho=0, dqV=5 => jump = -5
+    EXPECT_NEAR(
+        RoeContinuityNormalJump(
+            0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 5.0, 0.0 ),
+        -5.0,
+        1.0e-12 );
+}
