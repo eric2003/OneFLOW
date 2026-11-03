@@ -161,6 +161,35 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_implementation_file_selection_shows_bounded_source_excerpt(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            cfl_row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == "parameter/cfl-ramp"
+            )
+            dialog.contract_list.setCurrentRow(cfl_row)
+            paths = [
+                dialog.implementation_file_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.implementation_file_list.count())
+            ]
+            self.assertIn("codes/ns/src/TimeStepPolicy.cpp", paths)
+            source_row = paths.index("codes/ns/src/TimeStepPolicy.cpp")
+            dialog.implementation_file_list.setCurrentRow(source_row)
+            preview = dialog.implementation_view.toPlainText()
+            self.assertIn("CflAtIteration", preview)
+            self.assertIn("Lines 1-", dialog.implementation_source_label.text())
+            self.assertLessEqual(len(preview.splitlines()), 80)
+            self.assertTrue(dialog.next_implementation_chunk_button.isEnabled())
+            dialog.next_implementation_chunk_button.click()
+            self.assertIn("Lines 81-", dialog.implementation_source_label.text())
+            self.assertIn("81  ", dialog.implementation_view.toPlainText())
+            dialog.previous_implementation_chunk_button.click()
+            self.assertIn("Lines 1-", dialog.implementation_source_label.text())
+        finally:
+            dialog.close()
+
     def test_parameter_contracts_are_grouped_and_searchable(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
         try:

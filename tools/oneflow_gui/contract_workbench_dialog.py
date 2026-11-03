@@ -186,11 +186,55 @@ class ContractDomainDialog(QDialog):
         self.principle_view.setReadOnly(True)
         self.architecture_view = QPlainTextEdit()
         self.architecture_view.setReadOnly(True)
-        self.implementation_view = QPlainTextEdit()
-        self.implementation_view.setReadOnly(True)
         self.implementation_page = QWidget()
         implementation_layout = QVBoxLayout(self.implementation_page)
-        implementation_layout.addWidget(self.implementation_view, 1)
+        implementation_intro = QLabel(
+            "Select a source file to inspect a bounded, read-only code excerpt. "
+            "Use the source editor action below to open the complete file."
+        )
+        implementation_intro.setWordWrap(True)
+        implementation_layout.addWidget(implementation_intro)
+        implementation_split = QSplitter()
+        self.implementation_file_list = QListWidget()
+        self.implementation_file_list.setObjectName("implementationFileList")
+        self.implementation_file_list.setMinimumWidth(220)
+        self.implementation_file_list.currentRowChanged.connect(
+            self._preview_implementation_source
+        )
+        implementation_split.addWidget(self.implementation_file_list)
+        implementation_preview = QWidget()
+        implementation_preview_layout = QVBoxLayout(implementation_preview)
+        self.implementation_source_label = QLabel("Select a source file")
+        self.implementation_source_label.setObjectName("implementationSourceLabel")
+        implementation_preview_layout.addWidget(self.implementation_source_label)
+        self.implementation_view = QPlainTextEdit()
+        self.implementation_view.setObjectName("implementationCodePreview")
+        self.implementation_view.setReadOnly(True)
+        self.implementation_view.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
+        self.implementation_view.setStyleSheet(
+            "font-family: Consolas, 'Courier New', monospace;"
+        )
+        implementation_preview_layout.addWidget(self.implementation_view, 1)
+        implementation_navigation = QHBoxLayout()
+        self.previous_implementation_chunk_button = QPushButton("Previous 80 lines")
+        self.previous_implementation_chunk_button.clicked.connect(
+            lambda: self._change_implementation_chunk(-80)
+        )
+        self.next_implementation_chunk_button = QPushButton("Next 80 lines")
+        self.next_implementation_chunk_button.clicked.connect(
+            lambda: self._change_implementation_chunk(80)
+        )
+        implementation_navigation.addWidget(self.previous_implementation_chunk_button)
+        implementation_navigation.addWidget(self.next_implementation_chunk_button)
+        implementation_navigation.addStretch(1)
+        implementation_preview_layout.addLayout(implementation_navigation)
+        implementation_split.addWidget(implementation_preview)
+        implementation_split.setStretchFactor(0, 1)
+        implementation_split.setStretchFactor(1, 4)
+        implementation_layout.addWidget(implementation_split, 1)
+        self._implementation_paths: tuple[str, ...] = ()
+        self._implementation_start_line = 1
+        self._implementation_chunk_size = 80
         self.open_source_button = QPushButton("Open source files...")
         self.open_source_button.clicked.connect(self._open_sources)
         self.documentation_view = QPlainTextEdit()
@@ -559,6 +603,23 @@ class ContractDomainDialog(QDialog):
         )
         self.principle_view.setPlainText(summary.principle)
         self.architecture_view.setPlainText(summary.architecture)
+        self._implementation_paths = tuple(dict.fromkeys(summary.implementation_paths))
+        self._implementation_start_line = 1
+        self.implementation_file_list.clear()
+        for relative_path in self._implementation_paths:
+            file_item = QListWidgetItem(relative_path)
+            file_item.setData(Qt.ItemDataRole.UserRole, relative_path)
+            self.implementation_file_list.addItem(file_item)
+        self.implementation_file_list.setCurrentRow(
+            0 if self._implementation_paths else -1
+        )
+        if not self._implementation_paths:
+            self.implementation_source_label.setText("No implementation files declared")
+            self.implementation_view.setPlainText(
+                "No implementation paths are declared for this contract."
+            )
+            self.previous_implementation_chunk_button.setEnabled(False)
+            self.next_implementation_chunk_button.setEnabled(False)
         if summary.domain == "parameter":
             if summary.examples:
                 example_blocks = []
@@ -881,6 +942,62 @@ class ContractDomainDialog(QDialog):
         except (OSError, ValueError) as error:
             QMessageBox.warning(self, f"{label}: unable to launch editor",
                 f"Editor: {settings.source_editor}\n{error}\n\nChoose another editor in OneFLOW Configuration.")
+
+    def _preview_implementation_source(self, row: int) -> None:
+        """Display one bounded source excerpt without opening an external editor."""
+        item = self.implementation_file_list.item(row) if row >= 0 else None
+        if item is None:
+            return
+        relative_path = item.data(Qt.ItemDataRole.UserRole)
+        candidate = (self._repository_root / relative_path).resolve()
+        try:
+            candidate.relative_to(self._repository_root)
+        except ValueError:
+            self.implementation_source_label.setText("Rejected unsafe source path")
+            self.implementation_view.setPlainText("The source path escapes the repository root.")
+            return
+        if not candidate.is_file():
+            self.implementation_source_label.setText(f"{relative_path} — file not found")
+            self.implementation_view.setPlainText("The declared source file does not exist.")
+            return
+        try:
+            source_lines = candidate.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeError) as error:
+            self.implementation_source_label.setText(f"{relative_path} — unable to read")
+            self.implementation_view.setPlainText(str(error))
+            return
+        self._implementation_start_line = max(
+            1, min(self._implementation_start_line, max(1, len(source_lines)))
+        )
+        self._render_implementation_chunk(relative_path, source_lines)
+
+    def _render_implementation_chunk(
+        self, relative_path: str, source_lines: list[str]
+    ) -> None:
+        total_lines = len(source_lines)
+        start = self._implementation_start_line
+        end = min(total_lines, start + self._implementation_chunk_size - 1)
+        numbered_lines = [
+            f"{line_number:>5}  {source_lines[line_number - 1]}"
+            for line_number in range(start, end + 1)
+        ]
+        self.implementation_source_label.setText(
+            f"{relative_path}  |  Lines {start}-{end} of {total_lines}"
+        )
+        self.implementation_view.setPlainText(
+            "\n".join(numbered_lines) if numbered_lines else "(empty source file)"
+        )
+        self.previous_implementation_chunk_button.setEnabled(start > 1)
+        self.next_implementation_chunk_button.setEnabled(end < total_lines)
+
+    def _change_implementation_chunk(self, offset: int) -> None:
+        item = self.implementation_file_list.currentItem()
+        if item is None:
+            return
+        self._implementation_start_line = max(
+            1, self._implementation_start_line + offset
+        )
+        self._preview_implementation_source(self.implementation_file_list.currentRow())
 
     def _open_sources(self) -> None:
         summary = self._current_summary()

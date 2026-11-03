@@ -71,6 +71,8 @@ Development Tests 使用固定的用户数据测试工作目录，并在每批�
 
 Contract Workbench
 ------------------
+Implementation / Code 页支持在工作台内部预览源码：左侧选择实现文件，右侧显示带行号的只读局部代码，每页最多 80 行，可继续查看前后代码段。完整文件仍可通过“Open source files...”在配置的外部编辑器中打开。预览只读取仓库根目录内的声明文件，不修改源码。当前实现按文件定位；函数声明与定义的符号级联动作为后续扩展。
+
 
 Formula & Knowledge 的导航现在将 **Implementation** 和 **Code sketch** 分开：
 Implementation 显示真实生产源码路径、纯函数 API 和对应文档；Code sketch
