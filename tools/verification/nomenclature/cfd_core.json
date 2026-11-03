@@ -55,6 +55,12 @@
       "name": "OneFLOW Navier-Stokes common-state initialization",
       "url": "https://github.com/eric2003/OneFLOW/blob/hexin/codes/ns/src/NsCom.cpp",
       "scope": "Direct runtime reads of reynolds and mach_ref in NsCom initialization."
+    },
+    {
+      "id": "openfoam_case_structure",
+      "name": "OpenFOAM case structure",
+      "url": "https://doc.openfoam.com/2312/fundamentals/case-structure/",
+      "scope": "Identifies constant/polyMesh as the mesh directory and points as a mesh geometry file."
     }
   ],
   "concepts": [
@@ -318,7 +324,7 @@
         },
         {
           "system": "ANSYS Fluent",
-          "name": "Velocity; X Velocity; Y Velocity; Z Velocity",
+          "name": "Velocity Magnitude",
           "role": "postprocessing_variable",
           "relation": "conditional",
           "applicability": "Velocity magnitude or components; availability depends on dimension and model.",
@@ -359,6 +365,39 @@
           "source_ids": [
             "cgns_sids"
           ]
+        },
+        {
+          "system": "ANSYS Fluent",
+          "name": "X Velocity",
+          "role": "postprocessing_variable",
+          "relation": "conditional",
+          "applicability": "Velocity magnitude or components; availability depends on dimension and model.",
+          "caveat": "Relative, axial, radial, tangential, and mesh velocities are distinct quantities.",
+          "source_ids": [
+            "fluent_cfdpost"
+          ]
+        },
+        {
+          "system": "ANSYS Fluent",
+          "name": "Y Velocity",
+          "role": "postprocessing_variable",
+          "relation": "conditional",
+          "applicability": "Velocity magnitude or components; availability depends on dimension and model.",
+          "caveat": "Relative, axial, radial, tangential, and mesh velocities are distinct quantities.",
+          "source_ids": [
+            "fluent_cfdpost"
+          ]
+        },
+        {
+          "system": "ANSYS Fluent",
+          "name": "Z Velocity",
+          "role": "postprocessing_variable",
+          "relation": "conditional",
+          "applicability": "Velocity magnitude or components; availability depends on dimension and model.",
+          "caveat": "Relative, axial, radial, tangential, and mesh velocities are distinct quantities.",
+          "source_ids": [
+            "fluent_cfdpost"
+          ]
         }
       ]
     },
@@ -395,12 +434,12 @@
           "applicability": "Mesh point positions in the polyMesh geometry.",
           "caveat": "This names mesh geometry, not a flow-solution field.",
           "source_ids": [
-            "openfoam_solver_fields"
+            "openfoam_case_structure"
           ]
         },
         {
           "system": "ANSYS Fluent",
-          "name": "X Coordinate; Y Coordinate; Z Coordinate",
+          "name": "X Coordinate",
           "role": "postprocessing_variable",
           "relation": "exact",
           "applicability": "Mesh coordinate field variables.",
@@ -431,6 +470,28 @@
           "source_ids": [
             "cgns_sids",
             "cgns_grid"
+          ]
+        },
+        {
+          "system": "ANSYS Fluent",
+          "name": "Y Coordinate",
+          "role": "postprocessing_variable",
+          "relation": "exact",
+          "applicability": "Mesh coordinate field variables.",
+          "caveat": "Coordinate components depend on spatial dimension.",
+          "source_ids": [
+            "fluent_fields"
+          ]
+        },
+        {
+          "system": "ANSYS Fluent",
+          "name": "Z Coordinate",
+          "role": "postprocessing_variable",
+          "relation": "exact",
+          "applicability": "Mesh coordinate field variables.",
+          "caveat": "Coordinate components depend on spatial dimension.",
+          "source_ids": [
+            "fluent_fields"
           ]
         }
       ]
