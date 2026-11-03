@@ -151,6 +151,26 @@ TEST( VisFluxPolicy, ProjectStressMomentumFluxUsesFullNormal )
     EXPECT_NEAR( fz, 7.0, 1.0e-12 );
 }
 
+// Intermediate: ConductiveHeatFluxNormal on a temperature-gradient grid.
+// Ref: k=2.5; q_n = k * dT_dn.
+TEST( VisFluxPolicy, ConductiveHeatFluxNormalCurveMatchesClosedForm )
+{
+    const Real k = 2.5;
+    const Real grads[] = { -4.0, -1.0, 0.0, 0.5, 1.0, 2.0, 4.0 };
+    for ( Real dT : grads )
+    {
+        EXPECT_NEAR( ConductiveHeatFluxNormal( k, dT ), k * dT, 1.0e-12 );
+    }
+}
+
+TEST( VisFluxPolicy, ConductiveHeatFluxNormalLinearInConductivity )
+{
+    EXPECT_NEAR(
+        ConductiveHeatFluxNormal( 4.0, 1.5 ),
+        2.0 * ConductiveHeatFluxNormal( 2.0, 1.5 ),
+        1.0e-12 );
+}
+
 // Intermediate: ViscousEnergyFlux on a heat-flux grid.
 // Ref: u=(1,0,0), f_m=(2,0,0) => work = 2; E = 2 + qn.
 TEST( VisFluxPolicy, ViscousEnergyFluxCurveMatchesClosedForm )
@@ -167,7 +187,6 @@ TEST( VisFluxPolicy, ViscousEnergyFluxCurveMatchesClosedForm )
 
 TEST( VisFluxPolicy, ViscousEnergyFluxIncludesAllWorkComponents )
 {
-    // u=(1,2,3), f_m=(4,5,6), qn=7 => 1*4+2*5+3*6+7 = 4+10+18+7 = 39
     EXPECT_NEAR(
         ViscousEnergyFlux( 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 ),
         39.0,

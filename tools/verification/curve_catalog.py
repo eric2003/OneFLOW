@@ -904,6 +904,7 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
         TheoryEntry(
             id="viscous_energy_flux",
             family="mean-flow",
@@ -923,11 +924,10 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "plus conductive heat flux through the face."
             ),
             background=(
-                "Pure API ViscousEnergyFlux in NsVisFluxPolicy. Upstream: "
-                "ProjectStressMomentumFlux and ConductiveHeatFluxNormal."
+                "Pure API ViscousEnergyFlux in NsVisFluxPolicy."
             ),
             references=(
-                "Compressible NS energy equation viscous terms; OneFLOW NsVisFluxPolicy",
+                "Compressible NS energy equation viscous terms",
                 "doc/source/numerical/viscous_energy_flux.rst",
             ),
             csv_relpath="tools/verification/data/viscous_energy_flux_theory.csv",
@@ -938,12 +938,52 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/ns/src/NsVisFluxPolicy.cpp",
             ),
             doc_relpath="doc/source/numerical/viscous_energy_flux.rst",
+            code_sketch="// GATED SKETCH\nE = u*fmx + v*fmy + w*fmz + qn;\n",
+            proves="Energy-flux algebra vs pure API.",
+            does_not_prove="Full viscous residual on a case mesh.",
+        ),
+
+        TheoryEntry(
+            id="conductive_heat_flux_normal",
+            family="mean-flow",
+            genus="NS-viscous",
+            section="heat flux / conduction",
+            title="Conductive heat flux normal q_n = k * dT/dn",
+            role_tags=("viscous", "heat-flux"),
+            formula_plain=(
+                "q_n = k_eff * (dT/dn)\n"
+                "Feeds ViscousEnergyFlux as the heat term"
+            ),
+            formula_latex=(
+                r"q_n=k\,\partial_n T"
+            ),
+            principle=(
+                "Fourier conduction through a face: heat flux is conductivity "
+                "times the normal temperature gradient."
+            ),
+            background=(
+                "Pure API ConductiveHeatFluxNormal in NsVisFluxPolicy. "
+                "Upstream: EffectiveThermalConductivity. Downstream: "
+                "ViscousEnergyFlux."
+            ),
+            references=(
+                "Fourier heat conduction; compressible NS energy equation",
+                "doc/source/numerical/conductive_heat_flux_normal.rst",
+            ),
+            csv_relpath="tools/verification/data/conductive_heat_flux_normal_theory.csv",
+            plot_module="plot_conductive_heat_flux_normal",
+            pure_apis=("ConductiveHeatFluxNormal",),
+            source_relpaths=(
+                "codes/ns/include/NsVisFluxPolicy.h",
+                "codes/ns/src/NsVisFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/conductive_heat_flux_normal.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
-                "E = u*fmx + v*fmy + w*fmz + qn;\n"
+                "qn = k * dTdn;\n"
             ),
-            proves="Energy-flux algebra vs pure API on a q_n grid.",
-            does_not_prove="Full viscous residual on a case mesh.",
+            proves="q_n algebra vs pure API on a gradient grid.",
+            does_not_prove="Wall heat-transfer coefficients on a case mesh.",
         ),
 
         TheoryEntry(
