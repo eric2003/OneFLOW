@@ -1,37 +1,50 @@
 Euler convective face flux
 ==========================
 
-Physical (non-dissipative) Euler flux on a face appears in Roe, AUSM-family and
-related schemes before upwind dissipation is added. The formula is shared; only
-the dissipation terms differ by scheme.
+Purpose
+-------
 
-Pipeline role
--------------
-
-.. code-block:: text
-
-   left/right primitives
-        |
-        +--> vn_rel = n·v - v_fn
-        +--> F_phys = EulerConvectiveFlux(rho, v, p, h, vn_rel, n, v_fn)
-        |
-        +--> scheme-specific dissipation (Roe matrix, AUSM splits, ...)
-        +--> DepositOrientedFaceFlux into residual
+Evaluate the inviscid (Euler) face flux for a given relative normal velocity
+and thermodynamic state.
 
 Formula
 -------
 
 .. math::
 
-   v_n^{\mathrm{rel}} = \mathbf{n}\cdot\mathbf{v} - v_{fn}
+   \mathbf{F}^c
+   =\rho v_n
+   \begin{bmatrix}
+   1 \\ \mathbf{u} \\ H
+   \end{bmatrix}
+   +
+   p
+   \begin{bmatrix}
+   0 \\ \mathbf{n} \\ v_g
+   \end{bmatrix}
 
-.. math::
+Source map
+----------
 
-   \mathbf{F} = \dot{m}
-   \begin{bmatrix} 1 \\ u \\ v \\ w \\ h \end{bmatrix}
-   + p
-   \begin{bmatrix} 0 \\ n_x \\ n_y \\ n_z \\ v_{fn} \end{bmatrix},
-   \quad \dot{m} = \rho\, v_n^{\mathrm{rel}}
+* ``EulerConvectiveFlux`` in ``NsInvFluxPolicy``
+* Upstream: ``RelativeFaceNormalVelocity``, total enthalpy
+* Tests: ``tests/solver/inv_flux_policy_test.cpp``
+* Theory table: ``tools/verification/data/euler_convective_flux_theory.csv``
+* Contract Workbench id: ``euler_convective_flux``
 
-Pure APIs: ``RelativeFaceNormalVelocity``, ``EulerConvectiveFlux``
-(``NsInvFluxPolicy.h``). Tests: ``inv_flux_policy_test``.
+.. image:: figures/euler_convective_flux_theory.png
+   :alt: Euler convective flux vs vn
+   :width: 520
+
+What this proves / does not prove
+---------------------------------
+
+**Proves:** Euler face flux algebra matches the pure API on a \(v_n\) grid.
+
+**Does not prove:** Riemann solver (Roe/AUSM) residual quality on a case.
+
+References
+----------
+
+* Standard finite-volume Euler flux; Blazek CFD.
+* Related: :doc:`relative_face_normal_velocity`, :doc:`face_mach_number`.

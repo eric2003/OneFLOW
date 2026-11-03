@@ -636,25 +636,39 @@ TEST( InvFluxPolicy, FaceMachNumberInverselyScalesWithSoundSpeed )
         1.0e-12 );
 }
 
-// Intermediate: RelativeFaceNormalVelocity on a grid-speed grid.
-// Ref: n=(1,0,0), u=(2,0,0); vn = 2 - vfn.
-TEST( InvFluxPolicy, RelativeFaceNormalVelocityCurveMatchesClosedForm )
+// Intermediate: EulerConvectiveFlux on a vn grid.
+// Ref: rho=1.2, u=2, v=w=0, p=3, h=10, n=(1,0,0), vfn=0.
+TEST( InvFluxPolicy, EulerConvectiveFluxCurveMatchesClosedForm )
 {
-    const Real vfns[] = { -1.0, -0.5, 0.0, 0.5, 1.0, 2.0 };
-    for ( Real vfn : vfns )
+    const Real rho = 1.2;
+    const Real u = 2.0;
+    const Real p = 3.0;
+    const Real h = 10.0;
+    const Real vns[] = { -2.0, -1.0, 0.0, 0.5, 1.0, 2.0 };
+    for ( Real vn : vns )
     {
-        EXPECT_NEAR(
-            RelativeFaceNormalVelocity( 1.0, 0.0, 0.0, vfn, 2.0, 0.0, 0.0 ),
-            2.0 - vfn,
-            1.0e-12 );
+        Real fr, fx, fy, fz, fe;
+        EulerConvectiveFlux(
+            rho, u, 0.0, 0.0, p, h,
+            vn, 1.0, 0.0, 0.0, 0.0,
+            fr, fx, fy, fz, fe );
+        const Real mass = rho * vn;
+        EXPECT_NEAR( fr, mass, 1.0e-12 );
+        EXPECT_NEAR( fx, mass * u + p, 1.0e-12 );
+        EXPECT_NEAR( fy, 0.0, 1.0e-12 );
+        EXPECT_NEAR( fz, 0.0, 1.0e-12 );
+        EXPECT_NEAR( fe, mass * h, 1.0e-12 );
     }
 }
 
-TEST( InvFluxPolicy, RelativeFaceNormalVelocityUsesFullNormal )
+TEST( InvFluxPolicy, EulerConvectiveFluxEnergyIncludesGridPressureWork )
 {
-    // n=(0,1,0), u=(0,3,0), vfn=1 => vn=2
-    EXPECT_NEAR(
-        RelativeFaceNormalVelocity( 0.0, 1.0, 0.0, 1.0, 0.0, 3.0, 0.0 ),
-        2.0,
-        1.0e-12 );
+    // vn=0, vfn=1, p=4 => fe = vfn*p = 4
+    Real fr, fx, fy, fz, fe;
+    EulerConvectiveFlux(
+        1.0, 0.0, 0.0, 0.0, 4.0, 9.0,
+        0.0, 1.0, 0.0, 0.0, 1.0,
+        fr, fx, fy, fz, fe );
+    EXPECT_NEAR( fe, 4.0, 1.0e-12 );
+    EXPECT_NEAR( fr, 0.0, 1.0e-12 );
 }

@@ -6,11 +6,11 @@
 BeginNameSpace( ONEFLOW )
 
 // @doc-algorithm euler-convective-flux
-// @doc-formula vn = u·n - vg
 Real RelativeFaceNormalVelocity(
     Real xfn, Real yfn, Real zfn, Real vfn,
     Real u, Real v, Real w );
 
+// @doc-formula F = rho*vn*[1,u,H] + p*[0,n,vg]
 void EulerConvectiveFlux(
     Real rho, Real u, Real v, Real w, Real p, Real h,
     Real vnRel,

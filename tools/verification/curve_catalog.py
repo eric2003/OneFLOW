@@ -1399,45 +1399,50 @@ references=(
 
 
         TheoryEntry(
-            id="relative_face_normal_velocity",
+            id="euler_convective_flux",
             family="mean-flow",
             genus="NS-inviscid",
-            section="face kinematics / relative velocity",
-            title="Relative face normal velocity vn = u·n - vg",
-            role_tags=("inviscid", "face", "ALE"),
+            section="face flux / Euler convective",
+            title="Euler convective face flux",
+            role_tags=("inviscid", "flux", "Euler"),
             formula_plain=(
-                "vn_rel = xfn*u + yfn*v + zfn*w - vfn\n"
-                "Grid speed vfn supports moving-mesh / ALE faces"
+                "mass = rho * vn\n"
+                "f_rho = mass\n"
+                "f_m = mass * u + n * p\n"
+                "f_E = mass * h + vg * p"
             ),
             formula_latex=(
-                r"v_n=\mathbf{u}\cdot\mathbf{n}-v_g"
+                r"\mathbf{F}^c=\rho v_n\begin{bmatrix}1\\ \mathbf{u}\\ H\end{bmatrix}"
+                r"+p\begin{bmatrix}0\\ \mathbf{n}\\ v_g\end{bmatrix}"
             ),
             principle=(
-                "Relative normal velocity at a face is absolute velocity "
-                "projected on the face normal minus the face grid speed."
+                "Inviscid face flux is mass flux times transported quantities "
+                "plus pressure acting on the face; energy includes grid-speed "
+                "pressure work for ALE consistency."
             ),
             background=(
-                "Pure API RelativeFaceNormalVelocity in NsInvFluxPolicy. "
-                "Upstream of FaceMachNumber and Euler/Roe/AUSM face fluxes."
+                "Pure API EulerConvectiveFlux in NsInvFluxPolicy. Building "
+                "block for Roe/AUSM residual assembly."
             ),
             references=(
-                "Arbitrary Lagrangian-Eulerian / moving-mesh FV formulations",
-                "doc/source/numerical/relative_face_normal_velocity.rst",
+                "Blazek CFD; standard FV Euler flux",
+                "doc/source/numerical/euler_convective_flux.rst",
             ),
-            csv_relpath="tools/verification/data/relative_face_normal_velocity_theory.csv",
-            plot_module="plot_relative_face_normal_velocity",
-            pure_apis=("RelativeFaceNormalVelocity",),
+            csv_relpath="tools/verification/data/euler_convective_flux_theory.csv",
+            plot_module="plot_euler_convective_flux",
+            pure_apis=("EulerConvectiveFlux",),
             source_relpaths=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/relative_face_normal_velocity.rst",
+            doc_relpath="doc/source/numerical/euler_convective_flux.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
-                "vn = xfn*u + yfn*v + zfn*w - vfn;\n"
+                "mass = rho * vn;\n"
+                "f_rho = mass; f_m = mass*u + n*p; f_E = mass*h + vg*p;\n"
             ),
-            proves="vn algebra vs pure API on a grid-speed sample.",
-            does_not_prove="Full ALE residual or mesh-motion coupling.",
+            proves="Euler face flux algebra vs pure API on a vn grid.",
+            does_not_prove="Full residual on a mesh or Riemann solver quality.",
         ),
 
         TheoryEntry(
@@ -2039,12 +2044,13 @@ proves="Entropy-fix pure policy tests.",
                 "OneFLOW: codes/global/src/Ctrl.cpp and solver control Init implementations.",
                 "OneFLOW: codes/solver/src/TimeIntegral.cpp.",
                 "OneFLOW: codes/solver/src/EulerRungeKuttaCapability.cpp.",
-                "doc/source/numerical/time_integral_control.rst",
+                "doc/source/numerical/time_integral_rk_stage_weight.rst",
             ),
-            csv_relpath=None,
-            plot_module=None,
-            pure_apis=(),
+            csv_relpath="tools/verification/data/time_integral_rk_stage_weight_theory.csv",
+            plot_module="plot_time_integral_rk_stage_weight",
+            pure_apis=("RungeKuttaStageWeight",),
             source_relpaths=(
+                "codes/global/include/TimeIntegralPolicy.h",
                 "codes/global/src/Ctrl.cpp",
                 "codes/ns/src/NsCtrl.cpp",
                 "codes/ins/src/INsCtrl.cpp",
@@ -2053,7 +2059,7 @@ proves="Entropy-fix pure policy tests.",
                 "codes/solver/src/EulerRungeKuttaCapability.cpp",
                 "codes/solver/include/EulerRungeKuttaCapability.h",
             ),
-            doc_relpath="doc/source/numerical/time_integral_control.rst",
+            doc_relpath="doc/source/numerical/time_integral_rk_stage_weight.rst",
             code_sketch=(
                 "// GATED SKETCH - mirrors the current source, not a general RK tableau.\n"
                 "for (int stage = 0; stage < rk_stage; ++stage) {\n"
