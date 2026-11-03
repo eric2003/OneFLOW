@@ -464,14 +464,17 @@ Output cadence is another independent group. ``Iteration::Init`` loads
 ``nFieldSave``, ``nVisualSave``, ``nResSave``, and ``nForceSave``. The current
 ``Iteration::ResOk`` and ``Iteration::ForceOk`` implementations show that
 residual and force output cadence can be indexed by inner steps for
-``startStrategy == 2`` and by outer steps otherwise. The exact field and
-visual writer call sites remain a separate consumer-audit task; the parameter
-catalog marks them as loaded settings, not as fully traced output behavior.
+``startStrategy == 2`` and by outer steps otherwise. Representative NS,
+incompressible NS, turbulence, and multigrid paths use ``nFieldSave`` to
+schedule restart output; NS and incompressible NS paths use ``nVisualSave``
+to schedule visualization tasks. This is a source-audited slice, not proof
+that every solver and every output backend has identical scheduling semantics.
 
 The Parameter runtime-consumer catalog now links the three CFL ramp inputs
 to ``Iteration::Init``, ``TimeStep::CalcCfl``, ``CflIterationIndex``, and
 ``CflAtIteration``. It separately links ``timestepModel`` to the local/global
-dispatch and ``global_dt`` to its four solver-control read sites and the
-unstructured time-step strategy. These links are source evidence, not
+dispatch, ``global_dt`` to its four solver-control read sites and the
+unstructured time-step strategy, and the output intervals to their iteration
+and representative solver scheduling consumers. These links are source evidence, not
 execution records. Units, admissible ranges, default values, and behavior
 outside the audited solver path remain unresolved until separately verified.
