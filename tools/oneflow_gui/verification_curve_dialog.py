@@ -118,6 +118,8 @@ class VerificationCurveDialog(QDialog):
         ll.addWidget(self.latex_scroll)
 
         self.principle = QPlainTextEdit(); self.principle.setReadOnly(True)
+        self.implementation = QPlainTextEdit(); self.implementation.setReadOnly(True)
+        self.examples = QPlainTextEdit(); self.examples.setReadOnly(True)
         self.refs = QPlainTextEdit(); self.refs.setReadOnly(True)
         self.doc_view = QPlainTextEdit(); self.doc_view.setReadOnly(True)
         self.sketch_view = QPlainTextEdit(); self.sketch_view.setReadOnly(True)
@@ -137,6 +139,8 @@ class VerificationCurveDialog(QDialog):
         self.tabs.addTab(self.overview, "Overview")
         self.tabs.addTab(latex_page, "Formula")
         self.tabs.addTab(self.principle, "Principle")
+        self.tabs.addTab(self.implementation, "Implementation")
+        self.tabs.addTab(self.examples, "Examples")
         self.tabs.addTab(self.refs, "References")
         self.tabs.addTab(self.doc_view, "Sphinx excerpt")
         self.tabs.addTab(sk, "Code sketch")
@@ -218,6 +222,21 @@ class VerificationCurveDialog(QDialog):
         self.formula_plain.setPlainText(_plain(e))
         self.formula_latex.setPlainText(_latex(e))
         self.principle.setPlainText(f"Principle\n---------\n{e.principle}\n\nBackground\n----------\n{e.background}\n")
+        self.implementation.setPlainText(
+            "Production implementation\n-------------------------\n"
+            + ("\n".join(_sources(e)) or "No production source paths declared.")
+            + "\n\nPure APIs\n---------\n"
+            + ("\n".join(e.pure_apis) or "No pure API is declared for this entry.")
+            + "\n\nDocumentation\n-------------\n"
+            + (e.doc_relpath or "No documentation path declared.")
+            + "\n\nCode sketches are illustrative only; use the source files above as authority."
+        )
+        self.examples.setPlainText(
+            "\\n\\n".join(e.examples)
+            if e.examples else
+            "No worked example is registered for this entry yet.\\n"
+            "Examples must be tied to the declared formula and state their limits."
+        )
         self.refs.setPlainText("\n".join(f"- {r}" for r in e.references))
         self.doc_view.setPlainText(read_doc_excerpt(self._repository_root, e))
         self.sketch_view.setPlainText(_sketch(e))

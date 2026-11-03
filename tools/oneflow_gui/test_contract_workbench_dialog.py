@@ -19,6 +19,7 @@ from tools.verification.execution_records import (
     ExecutionRecordStore,
 )
 
+from tools.oneflow_gui.verification_curve_dialog import VerificationCurveDialog
 from tools.oneflow_gui.contract_workbench_dialog import (
     ContractDomainDialog,
     ContractWorkbenchDialog,
@@ -678,6 +679,31 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+
+
+    def test_formula_workbench_has_separate_implementation_and_examples_tabs(self) -> None:
+        dialog = VerificationCurveDialog(self.repository_root)
+        try:
+            names = [
+                dialog.tabs.tabText(index)
+                for index in range(dialog.tabs.count())
+            ]
+            self.assertIn("Implementation", names)
+            self.assertIn("Examples", names)
+            self.assertIn("Code sketch", names)
+            self.assertNotEqual(
+                dialog.tabs.indexOf(dialog.implementation),
+                dialog.tabs.indexOf(dialog.sketch_view),
+            )
+            self.assertTrue(dialog.select_entry("time_integral_rk_stage_weight"))
+            self.assertIn(
+                "codes/solver/src/TimeIntegral.cpp",
+                dialog.implementation.toPlainText(),
+            )
+            self.assertIn("rk_stage = 4", dialog.examples.toPlainText())
+            self.assertIn("not a complete Butcher tableau", dialog.examples.toPlainText())
+        finally:
+            dialog.close()
 
 if __name__ == "__main__":
     unittest.main()

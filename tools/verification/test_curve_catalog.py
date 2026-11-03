@@ -38,6 +38,9 @@ class CatalogTest(unittest.TestCase):
         self.assertIn("1 / (s + 1)", entry.formula_plain)
         self.assertIn("Butcher tableau", entry.does_not_prove)
         self.assertIn("codes/solver/src/TimeIntegral.cpp", entry.source_relpaths)
+        self.assertTrue(entry.examples)
+        self.assertIn("rk_stage = 4", entry.examples[0])
+        self.assertIn("not a complete Butcher", entry.examples[0])
     def test_latex_and_sketch_present(self) -> None:
         for e in list_theory_entries():
             self.assertTrue(e.formula_latex)

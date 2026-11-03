@@ -28,6 +28,7 @@ class TheoryEntry:
     code_sketch: str
     proves: str
     does_not_prove: str
+    examples: tuple[str, ...] = ()
 
 
 def list_theory_entries() -> list[TheoryEntry]:
@@ -82,6 +83,12 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             proves="Closed-form fv1 vs SaFv1.",
             does_not_prove="Full residual or experimental Cf.",
+            examples=(
+                "Input: chi = 7.1 and cv1 = 7.1.\n"
+                "Calculation: fv1 = chi^3 / (chi^3 + cv1^3) = 1 / 2.\n"
+                "Result: fv1 = 0.5, so mu_t = 0.5 * rho * nu_tilde.\n"
+                "Limit: this checks the damping function only, not a wall-resolved CFD solution.",
+            ),
         ),
         TheoryEntry(
             id="sa_fv2_chi",
@@ -1794,6 +1801,15 @@ proves="Entropy-fix pure policy tests.",
             does_not_prove=(
                 "A complete Butcher tableau, formal temporal order, stability, "
                 "convergence rate, or CFD accuracy on a physical case."
+            ),
+            examples=(
+                "Input: rk_stage = 4.\n"
+                "Schedule: a_s = 1 / (s + 1), for s = 0, 1, 2, 3.\n"
+                "Coefficients: [1, 1/2, 1/3, 1/4].\n"
+                "Execution: TimeIntegral::RungeKutta assigns each coefficient to ctrl.lhscoef "
+                "before the corresponding residual/update stage.\n"
+                "Limit: this is the implemented coefficient schedule, not a complete Butcher "
+                "tableau and not evidence of formal order or stability.",
             ),
         ),
     ]
