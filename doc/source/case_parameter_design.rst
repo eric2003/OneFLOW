@@ -350,3 +350,48 @@ interpreted together with the case's time convention and solver configuration.
 Both ``maxSteps`` and ``maxTime`` appear in the **Run Control** group. They are
 alternative outer-loop termination controls selected by ``iexitflag``; neither
 is a residual-based convergence criterion.
+
+Evolving parameter classification policy
+----------------------------------------
+
+The logical parameter model classifies parameters along independent axes. These
+axes are deliberately separate so that the current task selector is not mistaken
+for evidence of a parameter's ownership.
+
+* **Domain / ownership** identifies the subsystem that owns the setting:
+  ``Shared``, ``CFD``, ``Grid``, or ``Other``.
+* **Functional group** describes the behavior being controlled. The initial
+  groups include ``General``, ``Run Control``, ``Time stepping``, ``Numerical
+  methods``, ``Flow and reference conditions``, ``Physical models``,
+  ``Turbulence``, ``Multigrid``, ``Wall distance``, ``Output``, ``Grid
+  definition``, ``Grid formats and files``, and ``Partitioning``.
+* **Task applicability** records whether a setting is known to apply to
+  ``Both``, ``Solve``, ``Grid``, or remains ``Unknown``. This is not inferred
+  from the currently selected task.
+* **Source provenance** remains attached to each declaration: source file,
+  manifest/declaration order, and any shadowed declaration are preserved.
+
+A known key is assigned only when the current catalog has semantic evidence
+for that assignment. An unknown key is retained under ``Other /
+Unclassified`` with applicability ``Unknown``; it is not promoted to CFD merely
+because ``simutask`` currently selects ``Solve``. Source-file location may help
+guide a later audit, but a filename alone is not treated as proof of ownership.
+
+The first classification refinement separates **Time stepping** from
+**Numerical methods**. ``global_dt``, ``timestepModel``, ``idualtime``,
+``ncfl``, ``cflst``, ``cfled``, and the currently catalogued time-step model
+selectors belong to the time-stepping group. The time-integration selector
+(``time_integral``), Runge-Kutta stage count (``rk_stage``), and spatial
+discretization selectors remain under Numerical methods. This is a navigation
+and semantic grouping decision; it does not assert that CFL values, global
+time-step settings, and local/global time-step algorithms are interchangeable.
+Their formulas, units, defaults, validation ranges, and runtime effects must
+continue to be audited independently.
+
+Classification is intentionally versionable. As source consumers and real case
+files are audited, a key may move between groups or domains, and a new group may
+be introduced when it represents a distinct physical or numerical concept.
+Such changes should include a source-backed rationale and focused model tests.
+Unrecognized declarations and unsupported syntax remain visible throughout
+that process; completeness is increased incrementally rather than simulated by
+assigning every key to a known category.
