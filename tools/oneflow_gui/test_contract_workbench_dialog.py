@@ -202,7 +202,9 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 for index in range(dialog.contract_list.count())
                 if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
             }
-            self.assertEqual(visible_ids, {"parameter/mach_ref"})
+            self.assertEqual(
+                visible_ids, {"parameter/mach_ref", "parameter/cfl-ramp"}
+            )
             dialog.search_edit.clear()
             visible_ids = {
                 dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
