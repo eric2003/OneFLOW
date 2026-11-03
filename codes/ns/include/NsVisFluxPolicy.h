@@ -22,6 +22,10 @@ void StokesStressTensor(
 // @doc-algorithm stokes-stress
 // @doc-stage momentum-flux
 // @doc-pure
+// @doc-algorithm viscous-flux
+// @doc-stage project-stress
+// @doc-pure
+// @doc-formula f_m = tau · n
 void ProjectStressMomentumFlux(
     Real xfn, Real yfn, Real zfn,
     Real txx, Real tyy, Real tzz,

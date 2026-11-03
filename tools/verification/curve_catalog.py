@@ -902,6 +902,50 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+        TheoryEntry(
+            id="project_stress_momentum_flux",
+            family="mean-flow",
+            genus="NS-viscous",
+            section="stress / face projection",
+            title="Project Stokes stress onto face normal (momentum flux)",
+            role_tags=("viscous", "stress", "flux"),
+            formula_plain=(
+                "f_mx = nx*txx + ny*txy + nz*txz\n"
+                "f_my = nx*txy + ny*tyy + nz*tyz\n"
+                "f_mz = nx*txz + ny*tyz + nz*tzz"
+            ),
+            formula_latex=(
+                r"\mathbf{f}_m=\boldsymbol{\tau}\cdot\mathbf{n}"
+            ),
+            principle=(
+                "Maps the Stokes stress tensor to the viscous momentum flux "
+                "through a face by contraction with the face normal."
+            ),
+            background=(
+                "Pure API ProjectStressMomentumFlux in NsVisFluxPolicy. "
+                "Upstream: StokesStressTensor. Downstream: ViscousEnergyFlux."
+            ),
+            references=(
+                "Standard FV viscous flux assembly; OneFLOW NsVisFluxPolicy",
+                "doc/source/numerical/project_stress_momentum_flux.rst",
+            ),
+            csv_relpath="tools/verification/data/project_stress_momentum_flux_theory.csv",
+            plot_module="plot_project_stress_momentum_flux",
+            pure_apis=("ProjectStressMomentumFlux",),
+            source_relpaths=(
+                "codes/ns/include/NsVisFluxPolicy.h",
+                "codes/ns/src/NsVisFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/project_stress_momentum_flux.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "fmx = nx*txx + ny*txy + nz*txz;\n"
+            ),
+            proves="tau·n algebra vs pure API on an nx grid.",
+            does_not_prove="Full viscous residual assembly on a mesh.",
+        ),
+
         TheoryEntry(
             id="stokes_stress_pure_shear",
             family="mean-flow",

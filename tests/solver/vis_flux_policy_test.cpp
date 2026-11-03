@@ -117,3 +117,36 @@ TEST( VisFluxPolicy, StokesStressTensorBulkStrainHasFourThirds )
     EXPECT_NEAR( tyy, 3.0 * ( 0.0 - two3rd ), 1.0e-12 );
     EXPECT_NEAR( tzz, 3.0 * ( 0.0 - two3rd ), 1.0e-12 );
 }
+
+// Intermediate: ProjectStressMomentumFlux on an nx grid.
+// Ref stress: txx=2, txy=3, txz=4, others 0; n=(nx,0,0).
+TEST( VisFluxPolicy, ProjectStressMomentumFluxCurveMatchesClosedForm )
+{
+    const Real txx = 2.0, tyy = 0.0, tzz = 0.0;
+    const Real txy = 3.0, txz = 4.0, tyz = 0.0;
+    const Real nxs[] = { -1.0, -0.5, 0.0, 0.25, 0.5, 1.0 };
+    for ( Real nx : nxs )
+    {
+        Real fx, fy, fz;
+        ProjectStressMomentumFlux(
+            nx, 0.0, 0.0,
+            txx, tyy, tzz, txy, txz, tyz,
+            fx, fy, fz );
+        EXPECT_NEAR( fx, nx * txx, 1.0e-12 );
+        EXPECT_NEAR( fy, nx * txy, 1.0e-12 );
+        EXPECT_NEAR( fz, nx * txz, 1.0e-12 );
+    }
+}
+
+TEST( VisFluxPolicy, ProjectStressMomentumFluxUsesFullNormal )
+{
+    Real fx, fy, fz;
+    ProjectStressMomentumFlux(
+        0.0, 1.0, 0.0,
+        0.0, 5.0, 0.0, 0.0, 0.0, 7.0,
+        fx, fy, fz );
+    // n=(0,1,0): fy = tyy = 5, fz = tyz = 7, fx = txy = 0
+    EXPECT_NEAR( fx, 0.0, 1.0e-12 );
+    EXPECT_NEAR( fy, 5.0, 1.0e-12 );
+    EXPECT_NEAR( fz, 7.0, 1.0e-12 );
+}
