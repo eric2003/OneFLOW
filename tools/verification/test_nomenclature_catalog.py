@@ -95,17 +95,17 @@ class NomenclatureCatalogTest(unittest.TestCase):
 
     def test_temperature_viscosity_and_turbulence_names_preserve_dimensions(self):
         expected = {
-            ("Temperature", "CGNS"): ("fluid.static_temperature", (("M", 0), ("L", 0), ("T", 0), ("Theta", 1))),
-            ("ViscosityMolecular", "CGNS"): ("fluid.molecular_viscosity", (("L", -1), ("M", 1), ("T", -1), ("Theta", 0))),
-            ("ViscosityKinematic", "CGNS"): ("fluid.kinematic_viscosity", (("L", 2), ("M", 0), ("T", -1), ("Theta", 0))),
-            ("TurbulentEnergyKinetic", "CGNS"): ("turbulence.kinetic_energy", (("L", 2), ("M", 0), ("T", -2), ("Theta", 0))),
-            ("TurbulentDissipation", "CGNS"): ("turbulence.dissipation_rate", (("L", 2), ("M", 0), ("T", -3), ("Theta", 0))),
+            ("Temperature", "CGNS"): ("fluid.static_temperature", {"M": 0, "L": 0, "T": 0, "Theta": 1}),
+            ("ViscosityMolecular", "CGNS"): ("fluid.molecular_viscosity", {"L": -1, "M": 1, "T": -1, "Theta": 0}),
+            ("ViscosityKinematic", "CGNS"): ("fluid.kinematic_viscosity", {"L": 2, "M": 0, "T": -1, "Theta": 0}),
+            ("TurbulentEnergyKinetic", "CGNS"): ("turbulence.kinetic_energy", {"L": 2, "M": 0, "T": -2, "Theta": 0}),
+            ("TurbulentDissipation", "CGNS"): ("turbulence.dissipation_rate", {"L": 2, "M": 0, "T": -3, "Theta": 0}),
         }
         for (name, system), (concept_id, dimensions) in expected.items():
             matches = self.catalog.find_alias(name, system=system)
             self.assertEqual(len(matches), 1)
             self.assertEqual(matches[0][0].id, concept_id)
-            self.assertEqual(matches[0][0].dimensions, dimensions)
+            self.assertEqual(dict(matches[0][0].dimensions), dimensions)
 
     def test_openfoam_turbulence_fields_are_model_scoped(self):
         expected = {
