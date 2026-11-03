@@ -33,6 +33,9 @@ Initial covered concepts
 * Velocity vector: CGNS VelocityX/Y/Z; OpenFOAM U; Fluent velocity components. Frame, component, and location matter.
 * Mesh coordinates: CGNS CoordinateX/Y/Z; OpenFOAM points. Mesh geometry is distinct from a flow field.
 
+* Mach number: CGNS Mach; SU2 MACH_NUMBER; OneFLOW mach_ref; Fluent Mach Number. Reference inputs and local post-processing fields are different roles.
+* Reynolds number: CGNS Reynolds; SU2 REYNOLDS_NUMBER; OneFLOW reynolds. The OneFLOW read site is recorded, while its exact reference-scale convention remains a trace item.
+
 Use in OneFLOW
 --------------
 
