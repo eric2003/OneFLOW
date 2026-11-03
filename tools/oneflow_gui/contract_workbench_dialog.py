@@ -610,9 +610,12 @@ class ContractDomainDialog(QDialog):
             file_item = QListWidgetItem(relative_path)
             file_item.setData(Qt.ItemDataRole.UserRole, relative_path)
             self.implementation_file_list.addItem(file_item)
-        self.implementation_file_list.setCurrentRow(
-            0 if self._implementation_paths else -1
-        )
+        first_implementation_row = 0 if self._implementation_paths else -1
+        self.implementation_file_list.setCurrentRow(first_implementation_row)
+        if first_implementation_row >= 0:
+            # Do not rely only on currentRowChanged: the first row may already
+            # be current when items are populated, leaving the preview untouched.
+            self._preview_implementation_source(first_implementation_row)
         if not self._implementation_paths:
             self.implementation_source_label.setText("No implementation files declared")
             self.implementation_view.setPlainText(

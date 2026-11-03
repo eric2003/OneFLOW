@@ -169,6 +169,26 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_parameter_workbench_initially_previews_first_implementation_file(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            first_item = dialog.implementation_file_list.item(0)
+            self.assertIsNotNone(first_item)
+            first_path = first_item.data(Qt.ItemDataRole.UserRole)
+            self.assertEqual(dialog.implementation_file_list.currentRow(), 0)
+            self.assertIn(first_path, dialog.implementation_source_label.text())
+            self.assertTrue(dialog.implementation_view.toPlainText().strip())
+            self.assertNotIn(
+                "Select a source file",
+                dialog.implementation_view.toPlainText(),
+            )
+            source_lines = (self.repository_root / first_path).read_text(
+                encoding="utf-8"
+            ).splitlines()
+            self.assertIn(source_lines[0], dialog.implementation_view.toPlainText())
+        finally:
+            dialog.close()
+
     def test_implementation_file_selection_shows_bounded_source_excerpt(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
         try:
