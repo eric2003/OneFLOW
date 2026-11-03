@@ -67,8 +67,10 @@ RAE2822 Roe-SA CFD case
    ``NsCom.cpp`` and ``NsCtrl.cpp`` for flow controls, ``TurbCom.cpp`` and
    ``TurbCtrl.cpp`` for turbulence, ``Multigrid.cpp`` for multigrid controls, and
    ``MultiBlock.cpp`` for grid and wall-distance paths. Representative declared keys
-   include ``time_integral``, ``rk_stage``, ``reynolds``, ``mach_ref``, ``vismodel``,
-   ``inflow_intensity``, ``ref_sa``, ``turb_cfl_ratio``, ``nmg``, and ``mgCycleType``.
+   include ``time_integral``, ``rk_stage``, ``timestepModel``,
+   ``global_dt``, ``cflst``, ``cfled``, ``ncfl``, ``max_time_ratio``,
+   ``reynolds``, ``mach_ref``, ``vismodel``, ``inflow_intensity``,
+   ``ref_sa``, ``turb_cfl_ratio``, ``nmg``, and ``mgCycleType``.
 
 These source references confirm that representative parameters reach implementation
 code. They do not classify every key in the two database dumps. Some settings are
