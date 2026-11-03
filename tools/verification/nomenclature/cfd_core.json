@@ -67,6 +67,18 @@
       "name": "OpenFOAM turbulenceFields",
       "url": "https://doc.openfoam.com/2212/tools/post-processing/function-objects/field/turbulenceFields/",
       "scope": "Names and meanings of common turbulence model output fields, including k, epsilon, omega, nut, mut, and nuTilda."
+    },
+    {
+      "id": "openfoam_incompressible_viscosity",
+      "name": "OpenFOAM Lid-driven cavity tutorial",
+      "url": "https://www.openfoam.com/documentation/tutorial-guide/2-incompressible-flow/2.1-lid-driven-cavity-flow",
+      "scope": "Kinematic viscosity nu as an incompressible transport property in transportProperties."
+    },
+    {
+      "id": "openfoam_dynamic_viscosity",
+      "name": "OpenFOAM Tabulated transport model",
+      "url": "https://doc.openfoam.com/2212/tools/processing/models/thermophysical/transport/rtm/tabulated/",
+      "scope": "Dynamic viscosity mu and its temperature/pressure-dependent transport-property table."
     }
   ],
   "concepts": [
@@ -673,12 +685,12 @@
         {
           "system": "OpenFOAM",
           "name": "mu",
-          "role": "solution_field",
+          "role": "material_property",
           "relation": "conditional",
-          "applicability": "Compressible or thermophysical formulations that expose molecular dynamic viscosity.",
-          "caveat": "Do not confuse molecular viscosity with turbulent or effective viscosity; field availability depends on the thermophysical model.",
+          "applicability": "Thermophysical transport models that specify dynamic viscosity.",
+          "caveat": "OpenFOAM mu is dynamic molecular viscosity in the transport model; distinguish it from turbulent mut and effective muEff.",
           "source_ids": [
-            "openfoam_turbulence_fields"
+            "openfoam_dynamic_viscosity"
           ]
         }
       ]
@@ -710,12 +722,12 @@
         {
           "system": "OpenFOAM",
           "name": "nu",
-          "role": "solution_field",
+          "role": "input_parameter",
           "relation": "conditional",
-          "applicability": "Incompressible formulations commonly use a kinematic molecular viscosity.",
-          "caveat": "This is molecular kinematic viscosity, not turbulent kinematic viscosity nut.",
+          "applicability": "Incompressible Newtonian transportProperties input.",
+          "caveat": "OpenFOAM nu is a kinematic-viscosity transport property, not necessarily a spatial solution field.",
           "source_ids": [
-            "openfoam_turbulence_fields"
+            "openfoam_incompressible_viscosity"
           ]
         }
       ]
