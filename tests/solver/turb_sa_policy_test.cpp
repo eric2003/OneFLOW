@@ -209,3 +209,27 @@ TEST( TurbSaPolicy, SaProductionVanishesWhenFt2IsOne )
 {
     EXPECT_NEAR( SaProduction( 0.1355, 1.0, 3.0, 10.0 ), 0.0, 1.0e-12 );
 }
+
+// Intermediate: SaDestruction on a nu_tilde_rs grid.
+// Ref: cw1k=3, fw=0.5, cb1=0.1355, ft2=0.2.
+TEST( TurbSaPolicy, SaDestructionCurveMatchesClosedForm )
+{
+    const Real cw1k = 3.0;
+    const Real fw = 0.5;
+    const Real cb1 = 0.1355;
+    const Real ft2 = 0.2;
+    const Real nus[] = { 0.0, 0.1, 0.4, 1.0, 2.0, 5.0 };
+    for ( Real nu : nus )
+    {
+        EXPECT_NEAR(
+            SaDestruction( cw1k, fw, cb1, ft2, nu ),
+            ( cw1k * fw - cb1 * ft2 ) * nu,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaDestructionCanBeNegativeWhenFt2Dominates )
+{
+    // cw1k*fw = 0.1, cb1*ft2 = 0.1355 => negative prefactor
+    EXPECT_LT( SaDestruction( 0.2, 0.5, 0.1355, 1.0, 1.0 ), 0.0 );
+}

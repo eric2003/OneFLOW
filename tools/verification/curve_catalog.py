@@ -180,6 +180,47 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Skin friction or full-case CFD.",
         ),
 
+
+        TheoryEntry(
+            id="sa_destruction",
+            family="turbulence",
+            genus="SA",
+            section="source / destruction",
+            title="SA destruction term D",
+            role_tags=("turbulence", "SA", "source"),
+            formula_plain=(
+                "D = (cw1k * fw - cb1 * ft2) * nu_tilde_rs"
+            ),
+            formula_latex=(
+                r"D=\bigl(c_{w1}f_w-c_{b1}f_{t2}\bigr)\tilde{\nu}_{rs}"
+            ),
+            principle=(
+                "SA wall destruction balances production away from the wall. "
+                "fw is the wall destruction function; ft2 is the optional trip."
+            ),
+            background=(
+                "Pure API SaDestruction in TurbSaPolicy. Feeds SaSourceResidual."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_destruction.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_destruction_theory.csv",
+            plot_module="plot_sa_destruction",
+            pure_apis=("SaDestruction",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_destruction.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "D = (cw1k * fw - cb1 * ft2) * nu_tilde_rs;\n"
+            ),
+            proves="Destruction algebra vs pure API on a nu_rs grid.",
+            does_not_prove="Full SA residual or near-wall case accuracy.",
+        ),
+
         TheoryEntry(
             id="sa_production",
             family="turbulence",
