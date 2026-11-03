@@ -96,6 +96,20 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
         self.assertTrue(all("Ctrl::pdt" in item.behavior for item in global_steps))
         self.assertTrue(all("UTimeStep::CalcGlobalTimeStep" in item.behavior_symbols for item in global_steps))
 
+
+    def test_output_frequency_parameters_link_to_scheduler_consumers(self):
+        for key, symbol in (
+            ("nFieldSave", "kDumpRestartTaskName"),
+            ("nVisualSave", "kVisualizationTaskName"),
+            ("nResSave", "Iteration::ResOk"),
+            ("nForceSave", "Iteration::ForceOk"),
+        ):
+            with self.subTest(parameter=key):
+                consumers = self.catalog.find(key)
+                self.assertEqual(len(consumers), 1)
+                self.assertEqual(consumers[0].source_path, "codes/global/src/Iteration.cpp")
+                self.assertIn(symbol, consumers[0].behavior_symbols)
+
     def test_catalog_read_and_behavior_evidence_resolves_to_current_sources(self):
         repository_root = Path(__file__).resolve().parents[2]
 
