@@ -629,6 +629,30 @@ class ContractCatalogTest(unittest.TestCase):
             text=True,
         )
 
+    def test_loads_source_backed_parameter_contracts(self) -> None:
+        summaries, issues = load_contract_catalog(self.repository_root)
+        parameters = {
+            item.id: item for item in summaries if item.domain == "parameter"
+        }
+
+        self.assertEqual(
+            set(parameters),
+            {
+                "parameter/time_integral",
+                "parameter/rk_stage",
+                "parameter/mach_ref",
+            },
+        )
+        self.assertIn(
+            "time_integral_rk_stage_weight",
+            parameters["parameter/rk_stage"].references,
+        )
+        self.assertIn(
+            "codes/ns/src/NsCom.cpp",
+            parameters["parameter/mach_ref"].implementation_paths,
+        )
+        self.assertEqual(issues, (), "\\n".join(issues))
+
     def test_loads_complete_combined_catalog_without_reference_errors(self) -> None:
         summaries, issues = load_contract_catalog(self.repository_root)
 

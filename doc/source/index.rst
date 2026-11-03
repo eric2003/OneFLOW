@@ -53,7 +53,7 @@ Developer resources
 * :doc:`architecture_priority_roadmap` — ranked investment sequence by system-wide return, verification cost, and cross-subsystem leverage.
 * :doc:`verification_evidence_lifecycle` — how claims, tests, runs, artifacts, numerical results, and references form an auditable evidence chain.
 * `AI project context and refactoring handoff <https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_CONTEXT.md>`_ — current focus, verified findings, open gaps, and next actions for continuing work.
-* :doc:`workbench_architecture` — Workbench concepts, service boundaries, and run lifecycle.
+* :doc:`workbench_architecture` — Workbench concepts, service boundaries, run lifecycle, and shared Parameter contracts.
 * `Verification Contract Workbench proposal <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/verification-contract-workbench.md>`_ — proposed shared model for numerical, geometry, runtime, workflow, and case evidence; not yet an implementation claim.
 * `Regression test guide <https://github.com/eric2003/OneFLOW/blob/hexin/test/README.md>`_ — CFD and grid regression checks.
 * `Documentation organization plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ — document ownership and consolidation status.

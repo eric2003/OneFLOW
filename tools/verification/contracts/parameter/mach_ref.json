@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "parameter/mach_ref",
+  "title": "Reference Mach number",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "implemented",
+  "overview": "Reference Mach number loaded by NsCom::Init and used to derive the compressible-flow thermodynamic scaling constant const_cp = 1 / ((gama_ref - 1) * mach_ref^2).",
+  "principle": "The Mach number is a nondimensional reference quantity. In the current implementation it enters the derived constant quadratically in the denominator. This establishes the implemented dependency, but does not by itself specify admissible values, a zero-value policy, or a complete nondimensionalization contract.",
+  "architecture": "NsCom::Init reads mach_ref from the runtime parameter database and computes const_cp from gamma_ref and mach_ref. Downstream use of const_cp is a separate dependency trace and is not claimed complete by this first parameter contract.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/ns/src/NsCom.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": []
+  },
+  "claims": {
+    "proves": [
+      "NsCom::Init reads mach_ref as a Real value.",
+      "The initialization expression uses mach_ref squared in the denominator of const_cp."
+    ],
+    "does_not_prove": [
+      "An admissible numeric range or explicit zero-Mach validation policy.",
+      "All downstream consumers of const_cp.",
+      "Physical correctness or accuracy of a particular simulation."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "NsCom::Init mach_ref read and const_cp derivation",
+      "status": "declared_not_executed",
+      "scope": "Source-backed initialization expression; no test execution or independent physical verification is implied."
+    }
+  ]
+}

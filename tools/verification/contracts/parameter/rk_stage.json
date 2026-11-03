@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "id": "parameter/rk_stage",
+  "title": "Runge-Kutta stage count",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "implemented",
+  "overview": "Controls the number of configured stages used to build the legacy Runge-Kutta stage coefficient schedule. The current source constructs coefficients a_s = 1/(s+1), which are consumed by TimeIntegral::RungeKutta through the solver control state.",
+  "principle": "For configured stage index s starting at zero, the implementation assigns a_s = 1/(s+1). This describes the code's stage-weight schedule only. It is not a complete Butcher tableau and does not establish formal temporal order or stability properties.",
+  "architecture": "The parameter is read in the global, compressible Navier-Stokes, incompressible Navier-Stokes, and turbulence control initializers. The shared time-integration implementation consumes the resulting coefficient vector. The selected time_integral method and the resident Euler backend capability gate remain separate decisions.",
+  "references": [
+    "time_integral_rk_stage_weight"
+  ],
+  "implementation": {
+    "source_paths": [
+      "codes/global/src/Ctrl.cpp",
+      "codes/ns/src/NsCtrl.cpp",
+      "codes/ins/src/INsCtrl.cpp",
+      "codes/turb/src/TurbCtrl.cpp",
+      "codes/solver/src/TimeIntegral.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/numerical/time_integral_control.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The listed control initializers read rk_stage and build stage coefficients using 1/(s+1).",
+      "The shared RungeKutta path consumes the configured stage coefficients."
+    ],
+    "does_not_prove": [
+      "A complete Runge-Kutta Butcher tableau.",
+      "Formal temporal order, stability region, or error estimate.",
+      "CFD convergence or accuracy for a particular case."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "Ctrl::Init rk_stage coefficient construction",
+      "status": "declared_not_executed",
+      "scope": "Source-backed coefficient construction; this declaration is not a test result."
+    },
+    {
+      "kind": "pure_api",
+      "reference": "TimeIntegral::RungeKutta",
+      "status": "declared_not_executed",
+      "scope": "Implementation consumer reference; no runtime execution is implied."
+    }
+  ]
+}

@@ -192,6 +192,29 @@ attestations and do not claim trusted-builder or complete-dependency
 guarantees.
 
 
+Parameter contracts in the Contract Workbench
+-----------------------------------------------
+
+The Parameter domain reuses the shared contract catalog and the existing
+source-backed parameter consumer index. It currently exposes a curated first
+slice: `time_integral`, `rk_stage`, and `mach_ref`. Each declaration links
+to implementation source paths and, where supported by evidence, related
+Formula & Knowledge IDs.
+
+A Parameter contract describes the meaning and implementation of a parameter;
+a Project Parameter Instance describes the effective value in one concrete
+case, including its source file and override order. These are separate models.
+The Contract Workbench is read-only and does not replace the Project Window
+parameter editor or rewrite legacy parameter files.
+
+Consumer coverage is deliberately conservative. A listed consumer is a
+source-backed read, not proof that the parameter applies to every solver task.
+An unlisted parameter is not considered unused. Declared source evidence is
+not an executed test result, and a formula cross-reference does not establish
+numerical order, stability, or physical validity. Future work can add typed
+constraints and Case-instance links without changing this ownership boundary.
+
+
 Runtime parameter-consumer evidence
 -----------------------------------
 

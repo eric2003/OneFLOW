@@ -13,6 +13,11 @@ These actions resolve repository-relative paths and do not run the case.
 The home page's **Contract Workbench...** button opens the cross-domain contract
 navigator. Current domain entry points are:
 
+- **Parameter** browses source-backed parameter definition contracts,
+  including runtime consumers, implementation paths, related Formula &
+  Knowledge IDs, and declared verification evidence. The first contracts cover
+  `time_integral`, `rk_stage`, and `mach_ref`; this is a curated first slice,
+  not an exhaustive parameter inventory.
 - **Formula & Knowledge** opens the existing Verification Curves browser,
   retaining its formula, principle, references, documentation, code sketch,
   and theory-curve views.

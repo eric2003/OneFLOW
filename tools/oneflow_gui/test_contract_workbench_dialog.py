@@ -10,6 +10,7 @@ from unittest.mock import Mock, patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
 from tools.verification.execution_records import (
@@ -35,15 +36,58 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         try:
             self.assertEqual(
                 set(dialog.domain_buttons),
-                {"formula", "geometry", "case", "runtime", "workflow"},
+                {"formula", "geometry", "parameter", "case", "runtime", "workflow"},
             )
             self.assertEqual(
                 dialog.domain_buttons["formula"].text(),
                 "Formula & Knowledge",
             )
+            self.assertEqual(dialog.domain_buttons["parameter"].text(), "Parameter")
             self.assertEqual(dialog.domain_buttons["case"].text(), "Case")
             self.assertEqual(dialog.domain_buttons["runtime"].text(), "Runtime")
             self.assertEqual(dialog.domain_buttons["workflow"].text(), "Workflow")
+        finally:
+            dialog.close()
+
+    def test_parameter_domain_lists_source_backed_parameter_contracts(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            contract_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+            }
+            self.assertTrue(
+                {
+                    "parameter/time_integral",
+                    "parameter/rk_stage",
+                    "parameter/mach_ref",
+                }.issubset(contract_ids)
+            )
+            dialog.contract_list.setCurrentRow(
+                next(
+                    index
+                    for index in range(dialog.contract_list.count())
+                    if dialog.contract_list.item(index).data(256)
+                    == "parameter/rk_stage"
+                )
+            )
+            self.assertIn("parameter/rk_stage", dialog.heading.text())
+            self.assertIn(
+                "time_integral_rk_stage_weight",
+                dialog.documentation_view.toPlainText(),
+            )
+            self.assertIn("Ctrl.cpp", dialog.implementation_view.toPlainText())
+            self.assertIn("declared_not_executed", dialog.evidence_view.toPlainText())
+            self.assertTrue(dialog.open_related_formula_button.isEnabled())
+            with patch(
+                "tools.oneflow_gui.verification_curve_dialog.VerificationCurveDialog"
+            ) as formula_dialog_type:
+                formula_dialog_type.return_value.select_entry.return_value = True
+                dialog._open_related_formula()
+            formula_dialog_type.return_value.select_entry.assert_called_once_with(
+                "time_integral_rk_stage_weight"
+            )
+            formula_dialog_type.return_value.exec.assert_called_once()
         finally:
             dialog.close()
 

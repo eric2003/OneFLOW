@@ -211,6 +211,15 @@ class ContractDomainDialog(QDialog):
         self.open_actions_layout.addWidget(self.open_source_button)
         self.open_actions_layout.addWidget(self.open_docs_button)
         self.open_actions_layout.addWidget(self.open_tests_button)
+        self.open_related_formula_button = None
+        if domain == "parameter":
+            self.open_related_formula_button = QPushButton(
+                "Open related Formula & Knowledge..."
+            )
+            self.open_related_formula_button.clicked.connect(
+                self._open_related_formula
+            )
+            self.open_actions_layout.addWidget(self.open_related_formula_button)
         self.open_case_directory_button = None
         self.open_case_references_button = None
         self.open_workflow_definition_button = None
@@ -444,6 +453,8 @@ class ContractDomainDialog(QDialog):
             self.open_workflow_runner_button.setEnabled(
                 definition_path is not None and definition_path.is_file()
             )
+        if self.open_related_formula_button is not None:
+            self.open_related_formula_button.setEnabled(bool(summary.references))
         if summary.workflow_data is not None:
             workflow = summary.workflow_data
             lines = [
@@ -625,6 +636,23 @@ class ContractDomainDialog(QDialog):
             return
         dialog.exec()
 
+    def _open_related_formula(self) -> None:
+        summary = self._current_summary()
+        if summary is None or not summary.references:
+            return
+        from .verification_curve_dialog import VerificationCurveDialog
+
+        dialog = VerificationCurveDialog(self._repository_root, self)
+        for entry_id in summary.references:
+            if dialog.select_entry(entry_id):
+                dialog.exec()
+                return
+        QMessageBox.information(
+            self,
+            "Formula & Knowledge",
+            "No related formula entry is currently available in the knowledge catalog.",
+        )
+
     def _open_case_directory(self) -> None:
         summary = self._current_summary()
         if summary is None or summary.case_data is None:
@@ -694,6 +722,12 @@ class ContractWorkbenchDialog(QDialog):
                 self._open_geometry,
             ),
             (
+                "parameter",
+                "Parameter",
+                "Parameter definitions, runtime consumers, constraints, formula links and verification evidence.",
+                self._open_parameter,
+            ),
+            (
                 "case",
                 "Case",
                 "CFD case setup, suite membership, input files, output manifests and regression evidence.",
@@ -760,6 +794,9 @@ class ContractWorkbenchDialog(QDialog):
         from .geometry_contract_dialog import GeometryContractDialog
 
         GeometryContractDialog(self._repository_root, self).exec()
+
+    def _open_parameter(self) -> None:
+        ContractDomainDialog(self._repository_root, "parameter", self).exec()
 
     def _open_case(self) -> None:
         ContractDomainDialog(self._repository_root, "case", self).exec()

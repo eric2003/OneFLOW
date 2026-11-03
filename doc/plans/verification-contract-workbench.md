@@ -1261,3 +1261,39 @@ Focused tests cover typed policy adaptation, runner-tolerance drift,
 baseline-relative-tolerance drift, and rejection of a permissive NaN policy.
 The existing Python Tooling test inventory and CI commands already include
 the contract catalog and Workbench modules, so no duplicate CI lane is needed.
+
+
+## 28. Parameter contracts enter the shared Workbench
+
+The Parameter domain is now a first-class entry in the Contract Workbench
+domain hub. It uses the existing versioned contract declarations and shared
+read-only domain browser rather than creating a second parameter-specific
+contract store.
+
+The initial source-backed declarations are:
+
+- `parameter/time_integral`: selected integration-method dispatch and
+  references to the four control readers plus the shared time-integration
+  implementation;
+- `parameter/rk_stage`: stage-count input and the existing
+  `time_integral_rk_stage_weight` Formula & Knowledge entry;
+- `parameter/mach_ref`: reference Mach input and the derived
+  `const_cp = 1 / ((gama_ref - 1) * mach_ref^2)` initialization expression.
+
+These contracts separate parameter definition from a concrete project's
+effective parameter instance. They do not replace the Project Window parser,
+editor, encoding preservation, declaration-order handling, or override model.
+The catalog is intentionally curated: missing entries mean not yet audited,
+not unused. Source declarations and Formula Knowledge links are not execution
+or numerical verification evidence.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+python -m unittest tools.oneflow_gui.test_parameter_consumer_catalog
+```
+
+The exact-revision test results remain pending until the focused tests and
+full Python Tooling CI run complete.
