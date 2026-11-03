@@ -59,25 +59,23 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 window.close()
 
     @staticmethod
-    def _find_item(tree: QTreeWidget, text: str):
-        def visit(parent):
-            for index in range(parent.childCount()):
-                child = parent.child(index)
-                if child.text(0) == text:
-                    return child
-                found = visit(child)
+    def _find_item(parent, text: str):
+        def visit(item):
+            if item.text(0) == text:
+                return item
+            for index in range(item.childCount()):
+                found = visit(item.child(index))
                 if found is not None:
                     return found
             return None
 
-        for index in range(tree.topLevelItemCount()):
-            root = tree.topLevelItem(index)
-            if root.text(0) == text:
-                return root
-            found = visit(root)
-            if found is not None:
-                return found
-        return None
+        if isinstance(parent, QTreeWidget):
+            for index in range(parent.topLevelItemCount()):
+                found = visit(parent.topLevelItem(index))
+                if found is not None:
+                    return found
+            return None
+        return visit(parent)
 
     def test_unified_view_merges_manifest_files_and_exposes_consumer_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

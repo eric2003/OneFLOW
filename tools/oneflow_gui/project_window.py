@@ -787,17 +787,19 @@ class ProjectWindow(QMainWindow):
         for entry in model.entries:
             parent = groups[(entry.classification.domain, entry.classification.group)]
             source = self._parameter_source_label(entry.source_path, entry.file_order, entry.declaration_order)
-            item = QTreeWidgetItem([entry.name, entry.raw_value, entry.declared_type, source])
+            item = QTreeWidgetItem([entry.name, str(entry.value), entry.declared_type, source])
             item.setData(0, Qt.ItemDataRole.UserRole, entry.source_path)
             item.setToolTip(0, f"Effective declaration from {entry.source_path}")
+            item.setToolTip(1, f"Original source value: {entry.raw_value}")
             parent.addChild(item)
             for previous in shadowed_by_key.get(entry.name.casefold(), []):
                 previous_source = self._parameter_source_label(
                     previous.source_path, previous.file_order, previous.declaration_order
                 )
-                shadow = QTreeWidgetItem([f"[overridden] {previous.name}", previous.raw_value, previous.declared_type, previous_source])
+                shadow = QTreeWidgetItem([f"[overridden] {previous.name}", str(previous.value), previous.declared_type, previous_source])
                 shadow.setData(0, Qt.ItemDataRole.UserRole, previous.source_path)
                 shadow.setToolTip(0, "Shadowed declaration; the later declaration is effective.")
+                shadow.setToolTip(1, f"Original source value: {previous.raw_value}")
                 item.addChild(shadow)
             parameter_consumers = consumers.find(entry.name)
             if parameter_consumers:
