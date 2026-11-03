@@ -428,6 +428,49 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "the complete SST closure or its wall behavior.",
             ),
         ),
+
+        TheoryEntry(
+            id="sst_dissk_standard",
+            family="turbulence",
+            genus="SST",
+            section="source / k dissipation",
+            title="SST standard k dissipation eps",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "eps = f_beta_star * beta_star * rho * k * omega"
+            ),
+            formula_latex=(
+                r"\varepsilon=f_{\beta^*}\beta^*\,\rho\,k\,\omega"
+            ),
+            principle=(
+                "Standard SST/k-omega destruction of turbulent kinetic energy. "
+                "f_beta* is a Wilcox-style compressibility or low-Re modifier "
+                "when enabled (often 1)."
+            ),
+            background=(
+                "Pure API SstDisskStandard in TurbSstPolicy. Used with "
+                "SstLimitProdk and SstSourceK for the k equation source."
+            ),
+            references=(
+                "Menter SST; Wilcox k-omega; NASA TMR SST",
+                "doc/source/numerical/sst_dissk_standard.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_dissk_standard_theory.csv",
+            plot_module="plot_sst_dissk_standard",
+            pure_apis=("SstDisskStandard",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_dissk_standard.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "eps = fBetas * betas * density * k * omega;\n"
+            ),
+            proves="k-dissipation algebra vs pure API on an omega grid.",
+            does_not_prove="Full SST k residual on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sst_k_source",
             family="turbulence",

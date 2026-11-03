@@ -79,3 +79,29 @@ TEST( TurbSstPolicy, F1Arg1CurveMatchesClosedForm )
         EXPECT_NEAR( SstF1FromArg1( a ), expected, 1.0e-12 );
     }
 }
+
+// Intermediate: SstDisskStandard on an omega grid.
+// Ref: fBetas=1, betas=0.09, rho=1, k=2; eps = 0.18 * omega.
+TEST( TurbSstPolicy, SstDisskStandardCurveMatchesClosedForm )
+{
+    const Real fBetas = 1.0;
+    const Real betas = 0.09;
+    const Real density = 1.0;
+    const Real k = 2.0;
+    const Real omegas[] = { 0.5, 1.0, 2.0, 3.0, 5.0, 10.0 };
+    for ( Real omega : omegas )
+    {
+        EXPECT_NEAR(
+            SstDisskStandard( fBetas, betas, density, k, omega ),
+            fBetas * betas * density * k * omega,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstDisskStandardLinearInKineticEnergy )
+{
+    EXPECT_NEAR(
+        SstDisskStandard( 1.0, 0.09, 1.0, 4.0, 2.0 ),
+        2.0 * SstDisskStandard( 1.0, 0.09, 1.0, 2.0, 2.0 ),
+        1.0e-12 );
+}
