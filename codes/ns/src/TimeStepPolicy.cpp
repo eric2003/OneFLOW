@@ -3,6 +3,17 @@
 
 BeginNameSpace( ONEFLOW )
 
+Real CflAtIteration(
+    Real startCfl, Real endCfl, int rampSteps, int iteration )
+{
+    if ( iteration < rampSteps )
+    {
+        const Real delta = ( endCfl - startCfl ) / rampSteps;
+        return startCfl + delta * iteration;
+    }
+    return endCfl;
+}
+
 Real InviscidFaceSpectralRadius(
     Real vnRelMid, Real soundSpeedMid, Real faceArea )
 {
