@@ -1690,6 +1690,50 @@ principle=(
 
 
 
+
+        TheoryEntry(
+            id="ideal_gas_conservative_to_prim",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Ideal-gas conservative to prim map",
+            role_tags=("EOS", "primitive"),
+            formula_plain=(
+                "rho = |q_rho|\n"
+                "u = q_mom / rho\n"
+                "p = (gamma-1) * (q_rhoE - 0.5*rho*|u|^2)"
+            ),
+            formula_latex=(
+                r"p=(\gamma-1)\bigl(\rho e-\tfrac12\rho|u|^{2}\bigr)"
+            ),
+            principle=(
+                "Inverse of IdealGasPrimToConservative: recover primitives "
+                "from conserved density, momentum, and total energy."
+            ),
+            background=(
+                "Pure API IdealGasConservativeToPrim in NsInvFluxPolicy. "
+                "Pair with IdealGasPrimToConservative for round-trip tests."
+            ),
+            references=(
+                "Standard ideal-gas FV variable conversion",
+                "doc/source/numerical/ideal_gas_conservative_to_prim.rst",
+            ),
+            csv_relpath="tools/verification/data/ideal_gas_conservative_to_prim_theory.csv",
+            plot_module="plot_ideal_gas_conservative_to_prim",
+            pure_apis=("IdealGasConservativeToPrim",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ideal_gas_conservative_to_prim.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "p = (gama-1)*(qRhoE - 0.5*rho*|u|^2);\n"
+            ),
+            proves="Cons-to-prim algebra on energy grid; kinetic subtraction.",
+            does_not_prove="Robustness at near-vacuum or negative pressure.",
+        ),
+
         TheoryEntry(
             id="ideal_gas_prim_to_conservative",
             family="mean-flow",

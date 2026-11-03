@@ -731,3 +731,31 @@ TEST( InvFluxPolicy, IdealGasPrimToConservativeAddsKineticEnergy )
     EXPECT_NEAR( qu, 2.0, 1.0e-12 );
     EXPECT_NEAR( qe, 4.5, 1.0e-12 );
 }
+
+// Intermediate: IdealGasConservativeToPrim on an energy grid (rest gas).
+// Ref: qRho=1, mom=0, gamma=1.4 => p = (gamma-1)*qRhoE.
+TEST( InvFluxPolicy, IdealGasConservativeToPrimCurveMatchesClosedForm )
+{
+    const Real gama = 1.4;
+    const Real energies[] = { 0.5, 1.0, 2.5, 4.0, 5.0 };
+    for ( Real qe : energies )
+    {
+        Real rho, u, v, w, p;
+        IdealGasConservativeToPrim(
+            1.0, 0.0, 0.0, 0.0, qe, gama, rho, u, v, w, p );
+        EXPECT_NEAR( rho, 1.0, 1.0e-12 );
+        EXPECT_NEAR( u, 0.0, 1.0e-12 );
+        EXPECT_NEAR( p, ( gama - 1.0 ) * qe, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, IdealGasConservativeToPrimSubtractsKinetic )
+{
+    // qRho=1, qRhoU=2 => u=2, |u|^2=4
+    // qRhoE=4.5 => reint = 4.5 - 0.5*1*4 = 2.5 => p = 0.4*2.5 = 1
+    Real rho, u, v, w, p;
+    IdealGasConservativeToPrim(
+        1.0, 2.0, 0.0, 0.0, 4.5, 1.4, rho, u, v, w, p );
+    EXPECT_NEAR( u, 2.0, 1.0e-12 );
+    EXPECT_NEAR( p, 1.0, 1.0e-12 );
+}
