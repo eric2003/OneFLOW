@@ -34,16 +34,11 @@ BeginNameSpace( ONEFLOW )
 
 void TimeStep::CalcCfl()
 {
-    int iter = Iteration::outerSteps;
-
-    // Dual-time stepping advances the CFL schedule on inner iterations.
-    if ( Iteration::dualtime == 1 )
-    {
-        iter = Iteration::innerSteps;
-    }
+    const int iteration = CflIterationIndex(
+        Iteration::outerSteps, Iteration::innerSteps, Iteration::dualtime );
 
     Iteration::cfl = CflAtIteration(
-        Iteration::cflst, Iteration::cfled, Iteration::ncfl, iter );
+        Iteration::cflst, Iteration::cfled, Iteration::ncfl, iteration );
 }
 
 void TimeStep::CalcFaceInvSpec()

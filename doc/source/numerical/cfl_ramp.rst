@@ -13,8 +13,11 @@ CFL schedule
 
 ``Iteration::Init`` reads the three values from the runtime parameter
 database. ``UTimeStep::CalcTimeStep`` calls ``CalcCfl()`` before selecting
-the CPU or supported HIP path. ``TimeStep::CalcCfl`` uses
-``outerSteps`` normally and ``innerSteps`` when ``dualtime == 1``.
+the CPU or supported HIP path. ``Iteration::Init`` also loads the optional ``idualtime`` parameter into
+``Iteration::dualtime`` (defaulting to zero when older parameter files omit
+it). ``TimeStep::CalcCfl`` selects ``outerSteps`` for physical-time stepping
+and ``innerSteps`` when ``idualtime == 1``. The selected index is delegated
+to the pure ``CflIterationIndex`` policy.
 
 The pure policy is:
 
@@ -98,7 +101,8 @@ What this proves / does not prove
 ---------------------------------
 
 **Proves:** source-level parameter loading, iteration-counter selection,
-linear interpolation, pure-policy test declarations, and the current
+linear interpolation, dual-time iteration-index selection, pure-policy test
+coverage, and the current
 unstructured NS time-step dispatch and formulas.
 
 **Does not prove:** that the linked tests have run, that every solver uses

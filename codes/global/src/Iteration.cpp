@@ -62,6 +62,16 @@ void Iteration::Init()
     Iteration::innerSteps = 0;
     Iteration::outerSteps = 0;
 
+    // CFL ramp indexing follows the configured physical/dual-time mode.
+    // Older parameter files without idualtime retain physical-time behavior.
+    Iteration::dualtime = 0;
+    DataEntry * dualTimeEntry =
+        ONEFLOW::GetGlobalDataBase()->RequireDataPara().FindDataEntry( "idualtime" );
+    if ( dualTimeEntry != nullptr )
+    {
+        Iteration::dualtime = GetDataValue< int >( "idualtime" );
+    }
+
     Iteration::cflst = GetDataValue< Real >( "cflst" );
     Iteration::cfled = GetDataValue< Real >( "cfled" );
     Iteration::ncfl  = GetDataValue< int >( "ncfl" );

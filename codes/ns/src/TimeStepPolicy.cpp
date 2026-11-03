@@ -14,6 +14,11 @@ Real CflAtIteration(
     return endCfl;
 }
 
+int CflIterationIndex( int outerSteps, int innerSteps, int dualTime )
+{
+    return dualTime == 1 ? innerSteps : outerSteps;
+}
+
 Real InviscidFaceSpectralRadius(
     Real vnRelMid, Real soundSpeedMid, Real faceArea )
 {

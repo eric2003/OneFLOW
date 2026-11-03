@@ -38,6 +38,21 @@ TEST( TimeStepPolicy, ZeroLengthCflRampUsesEndValueAtInitialIteration )
     EXPECT_DOUBLE_EQ( CflAtIteration( 0.1, 1.0, 0, 0 ), 1.0 );
 }
 
+TEST( TimeStepPolicy, CflIterationUsesOuterStepForPhysicalTimeStepping )
+{
+    EXPECT_EQ( CflIterationIndex( 7, 3, 0 ), 7 );
+}
+
+TEST( TimeStepPolicy, CflIterationUsesInnerStepForDualTimeStepping )
+{
+    EXPECT_EQ( CflIterationIndex( 7, 3, 1 ), 3 );
+}
+
+TEST( TimeStepPolicy, CflIterationTreatsNonDualModeAsPhysicalTimeStepping )
+{
+    EXPECT_EQ( CflIterationIndex( 7, 3, 2 ), 7 );
+}
+
 TEST( TimeStepPolicy, InviscidFaceSpectralRadiusMatchesFormula )
 {
     EXPECT_DOUBLE_EQ(
