@@ -196,7 +196,7 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(knowledge.formulas[2].id, "freestream_mach_definition")
         self.assertEqual(knowledge.formulas[2].symbols[0].oneflow_name, "mach_ref")
         self.assertIn("NASA Glenn", knowledge.references[2])
-        self.assertTrue(any("local Mach" in item for item in knowledge.caveats))
+        self.assertTrue(any("Local Mach" in item for item in knowledge.caveats))
 
     def test_rejects_parameter_formula_without_latex_source(self) -> None:
         definition_path = (
