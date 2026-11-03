@@ -429,6 +429,48 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
         ),
 
+
+        TheoryEntry(
+            id="sst_limit_prodk",
+            family="turbulence",
+            genus="SST",
+            section="source / k production limiter",
+            title="SST k-production limiter",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "P_k <- min(P_k, pklim * eps)"
+            ),
+            formula_latex=(
+                r"P_k\leftarrow\min(P_k,\,p_{k\lim}\,\varepsilon)"
+            ),
+            principle=(
+                "Menter-style production limiter prevents excessive P_k relative "
+                "to dissipation, improving robustness in stagnation regions."
+            ),
+            background=(
+                "Pure API SstLimitProdk in TurbSstPolicy. eps from "
+                "SstDisskStandard (or DES variant)."
+            ),
+            references=(
+                "Menter SST production limiter; NASA TMR SST",
+                "doc/source/numerical/sst_limit_prodk.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_limit_prodk_theory.csv",
+            plot_module="plot_sst_limit_prodk",
+            pure_apis=("SstLimitProdk",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_limit_prodk.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "P = min(P, pklim * eps);\n"
+            ),
+            proves="Limiter algebra vs pure API; composition with SstDisskStandard.",
+            does_not_prove="Full SST k residual on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sst_dissk_standard",
             family="turbulence",

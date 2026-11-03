@@ -105,3 +105,27 @@ TEST( TurbSstPolicy, SstDisskStandardLinearInKineticEnergy )
         2.0 * SstDisskStandard( 1.0, 0.09, 1.0, 2.0, 2.0 ),
         1.0e-12 );
 }
+
+// Intermediate: SstLimitProdk on a production grid.
+// Ref: pklim=2, eps=3 => cap=6.
+TEST( TurbSstPolicy, SstLimitProdkCurveMatchesClosedForm )
+{
+    const Real pklim = 2.0;
+    const Real eps = 3.0;
+    const Real cap = pklim * eps;
+    const Real prods[] = { 0.0, 1.0, 3.0, 6.0, 8.0, 12.0 };
+    for ( Real p : prods )
+    {
+        EXPECT_NEAR(
+            SstLimitProdk( p, pklim, eps ),
+            ( p < cap ? p : cap ),
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstLimitProdkUsesDissipationFromSstDisskStandard )
+{
+    const Real eps = SstDisskStandard( 1.0, 0.09, 1.0, 2.0, 3.0 );
+    // eps = 0.54; pklim=10 => cap=5.4; production 20 limited to 5.4
+    EXPECT_NEAR( SstLimitProdk( 20.0, 10.0, eps ), 10.0 * eps, 1.0e-12 );
+}
