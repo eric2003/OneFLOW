@@ -45,6 +45,7 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 parameter = self._find_item(parameter_tree, "simuTask")
                 self.assertIsNotNone(parameter)
                 self.assertEqual(parameter.text(1), "flow")
+                self.assertEqual(parameter.text(4), "Both")
                 runtime = next(
                     parameter.child(index)
                     for index in range(parameter.childCount())
@@ -96,6 +97,7 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 effective = self._find_item(tree, "MAXSTEPS")
                 self.assertIsNotNone(effective)
                 self.assertEqual(effective.text(1), "30")
+                self.assertEqual(effective.text(4), "Solve")
                 self.assertIn("file 3", effective.text(3))
                 overridden = [
                     effective.child(index)
@@ -131,6 +133,7 @@ class ProjectWindowParameterTest(unittest.TestCase):
                         dialog_type.return_value.exec.assert_called_once()
                 unsupported = self._find_item(tree, "gridTrans")
                 self.assertIsNotNone(unsupported)
+                self.assertEqual(unsupported.text(4), "Unknown")
                 self.assertIn("Array declarations", unsupported.toolTip(0))
                 self.assertIsNone(self._find_item(tree, "control.txt"))
             finally:
