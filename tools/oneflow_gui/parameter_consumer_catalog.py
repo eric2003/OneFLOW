@@ -49,7 +49,7 @@ _CONSUMERS = (
     ParameterConsumer(
         "time_integral", "codes/global/src/Ctrl.cpp", "Ctrl::Init",
         'GetDataValue<int>("time_integral")', ConsumerReadKind.REQUIRED,
-        "Stores the selected time-integration method in Ctrl::time_integral.",
+        "Stores the selected method in Ctrl::time_integral. TimeIntegral::Init dispatches MULTI_STAGE to RungeKutta and SIMPLE to Simple; all other values fall back to Lusgs. The context-aware Relaxation overload applies the same dispatch.",
         "Global solver control initialization.",
         "Direct typed read is present in Ctrl.cpp.",
         ("codes/solver/src/TimeIntegral.cpp", "codes/solver/src/EulerRungeKuttaCapability.cpp", "codes/solver/include/EulerRungeKuttaCapability.h"),
@@ -59,7 +59,7 @@ _CONSUMERS = (
     ParameterConsumer(
         "time_integral", "codes/ns/src/NsCtrl.cpp", "NsCtrl::Init",
         'GetDataValue<int>("time_integral")', ConsumerReadKind.REQUIRED,
-        "Stores the time-integration method in the compressible Navier-Stokes control.",
+        "Stores the selected method in Ctrl::time_integral. TimeIntegral::Init dispatches MULTI_STAGE to RungeKutta and SIMPLE to Simple; all other values fall back to Lusgs. The context-aware Relaxation overload applies the same dispatch.",
         "Compressible Navier-Stokes control initialization.",
         "Direct typed read is present in NsCtrl.cpp.",
         ("codes/solver/src/TimeIntegral.cpp", "codes/solver/src/EulerRungeKuttaCapability.cpp", "codes/solver/include/EulerRungeKuttaCapability.h"),
@@ -69,7 +69,7 @@ _CONSUMERS = (
     ParameterConsumer(
         "time_integral", "codes/ins/src/INsCtrl.cpp", "INsCtrl::Init",
         'GetDataValue<int>("time_integral")', ConsumerReadKind.REQUIRED,
-        "Stores the time-integration selector for incompressible Navier-Stokes control.",
+        "Stores the selected method in Ctrl::time_integral. TimeIntegral::Init dispatches MULTI_STAGE to RungeKutta and SIMPLE to Simple; all other values fall back to Lusgs. The context-aware Relaxation overload applies the same dispatch.",
         "Incompressible Navier-Stokes control initialization.",
         "Direct typed read is present in INsCtrl.cpp.",
         ("codes/solver/src/TimeIntegral.cpp", "codes/solver/src/EulerRungeKuttaCapability.cpp", "codes/solver/include/EulerRungeKuttaCapability.h"),
@@ -79,7 +79,7 @@ _CONSUMERS = (
     ParameterConsumer(
         "time_integral", "codes/turb/src/TurbCtrl.cpp", "TurbCtrl::Init",
         'GetDataValue<int>("time_integral")', ConsumerReadKind.REQUIRED,
-        "Stores the time-integration selector for turbulence control.",
+        "Stores the selected method in Ctrl::time_integral. TimeIntegral::Init dispatches MULTI_STAGE to RungeKutta and SIMPLE to Simple; all other values fall back to Lusgs. The context-aware Relaxation overload applies the same dispatch.",
         "Turbulence control initialization.",
         "Direct typed read is present in TurbCtrl.cpp.",
         ("codes/solver/src/TimeIntegral.cpp", "codes/solver/src/EulerRungeKuttaCapability.cpp", "codes/solver/include/EulerRungeKuttaCapability.h"),
