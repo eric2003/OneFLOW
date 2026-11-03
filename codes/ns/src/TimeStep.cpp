@@ -41,13 +41,8 @@ void TimeStep::CalcCfl()
         iter = Iteration::innerSteps;
     }
 
-    Iteration::cfl = Iteration::cfled;
-
-    if ( iter < Iteration::ncfl )
-    {
-        Real delta = ( Iteration::cfled - Iteration::cflst ) / Iteration::ncfl;
-        Iteration::cfl = Iteration::cflst + delta * iter;
-    }
+    Iteration::cfl = CflAtIteration(
+        Iteration::cflst, Iteration::cfled, Iteration::ncfl, iter );
 }
 
 void TimeStep::CalcFaceInvSpec()
