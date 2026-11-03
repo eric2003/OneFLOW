@@ -868,7 +868,7 @@ class ContractCatalogTest(unittest.TestCase):
 
     def test_parameter_examples_are_structured_and_rendered_for_all_contracts(self) -> None:
         summaries, issues = load_contract_catalog(self.repository_root)
-        self.assertEqual(issues, [], "\\n".join(issues))
+        self.assertFalse(issues, "\\n".join(issues))
         parameter_summaries = {
             item.id: item for item in summaries if item.domain == "parameter"
         }
