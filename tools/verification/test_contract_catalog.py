@@ -223,7 +223,7 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(summary.id, "parameter/cfl-ramp")
         self.assertEqual(summary.group_id, "run_control")
         self.assertEqual(summary.group_title, "Run Control")
-        self.assertIn("CflAtIteration", summary.implementation_paths[5])
+        self.assertIn("codes/ns/include/TimeStepPolicy.h", summary.implementation_paths)
         self.assertEqual(len(summary.evidence), 6)
         self.assertTrue(
             all(item.status == "linked_not_executed" for item in summary.evidence)
