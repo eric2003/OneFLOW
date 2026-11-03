@@ -49,7 +49,7 @@
         "title": "Local Mach number",
         "role": "Standard physical definition",
         "plain": "M = V / a,   V = |u|",
-        "latex": "M = \\\\frac{V}{a} \\\\\nV = \\\\sqrt{u^2+v^2+w^2}",
+        "latex": "M = \\frac{V}{a}\nV = \\sqrt{u^2+v^2+w^2}",
         "assumptions": "V is the local flow-speed magnitude and a is the local thermodynamic speed of sound. This is a pointwise/local definition.",
         "symbols": [
           {
@@ -87,7 +87,7 @@
         "title": "Speed of sound for a calorically perfect ideal gas",
         "role": "Constitutive relation under ideal-gas assumptions",
         "plain": "a^2 = gamma R T,   a = sqrt(gamma R T)",
-        "latex": "a = \\\\sqrt{\\\\gamma R T}",
+        "latex": "a = \\sqrt{\\gamma R T}",
         "assumptions": "Applies to a calorically perfect ideal gas with constant specific-heat ratio gamma. For a general fluid, a^2 = (partial p / partial rho)_s.",
         "symbols": [
           {
@@ -97,8 +97,8 @@
               "γ",
               "k"
             ],
-            "oneflow_name": "gama_ref (reference value in this initialization path)",
-            "notes": "OneFLOW spells the identifier gama_ref; textbook notation is usually gamma or γ."
+            "oneflow_name": "gama_ref only for the configured reference state; not a local-field mapping",
+            "notes": "OneFLOW spells the identifier gama_ref; textbook notation is usually gamma or γ. Do not map a local gamma field to this reference input."
           },
           {
             "symbol": "R",
@@ -126,7 +126,7 @@
         "title": "Free-stream / reference Mach number",
         "role": "Reference-condition definition",
         "plain": "M_infinity = V_infinity / a_infinity",
-        "latex": "M_{\\\\infty} = \\\\frac{V_{\\\\infty}}{a_{\\\\infty}}",
+        "latex": "M_{\\infty} = \\frac{V_{\\infty}}{a_{\\infty}}",
         "assumptions": "The subscript infinity denotes undisturbed free-stream conditions. A reference Mach number is not generally the local Mach field throughout the computational domain.",
         "symbols": [
           {
@@ -168,7 +168,7 @@
         "title": "OneFLOW initialization scaling expression",
         "role": "Source-derived implementation relation",
         "plain": "const_cp = 1 / ((gama_ref - 1) * mach_ref^2)",
-        "latex": "\\\\mathrm{const\\\\_cp} = \\\\frac{1}{(\\\\mathrm{gama\\\\_ref}-1)\\\\,\\\\mathrm{mach\\\\_ref}^{2}}",
+        "latex": "\\mathrm{const\\_cp} = \\frac{1}{(\\mathrm{gama\\_ref}-1)\\,\\mathrm{mach\\_ref}^{2}}",
         "assumptions": "This is the exact algebraic relation in NsCom::Init. The contract records the implementation expression; it does not independently establish the full nondimensionalization derivation or every downstream use of const_cp.",
         "symbols": [
           {
