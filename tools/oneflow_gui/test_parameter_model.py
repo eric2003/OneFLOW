@@ -7,6 +7,7 @@ from pathlib import Path
 
 from tools.oneflow_gui.parameter_document import ParameterDocument
 from tools.oneflow_gui.parameter_model import (
+    ParameterApplicability,
     ParameterDomain,
     ParameterModel,
 )
@@ -45,10 +46,13 @@ class ParameterModelTest(unittest.TestCase):
             self.assertEqual(model.get("global_dt").value, 0.001)
             self.assertEqual(model.get("visname").value, "1eq-sa")
             self.assertEqual(model.get("dimension").classification.domain, ParameterDomain.SHARED)
+            self.assertEqual(model.get("dimension").classification.applicability, ParameterApplicability.BOTH)
             self.assertEqual(model.get("maxSteps").classification.domain, ParameterDomain.CFD)
+            self.assertEqual(model.get("maxSteps").classification.applicability, ParameterApplicability.SOLVE)
+            self.assertEqual(model.get("global_dt").classification.group, "Time stepping")
             self.assertEqual(
                 {group.name for group in model.groups},
-                {"General", "Run control", "Flow and reference conditions", "Physical models"},
+                {"General", "Run control", "Time stepping", "Flow and reference conditions", "Physical models"},
             )
             self.assertEqual([document.path.read_bytes() for document in documents], before)
 
@@ -115,8 +119,9 @@ class ParameterModelTest(unittest.TestCase):
             self.assertIsNotNone(entry)
             self.assertEqual(entry.value, 2.5)
             self.assertEqual(entry.declared_type, "real")
-            self.assertEqual(entry.classification.domain, ParameterDomain.CFD)
-            self.assertEqual(entry.classification.group, "Other")
+            self.assertEqual(entry.classification.domain, ParameterDomain.OTHER)
+            self.assertEqual(entry.classification.group, "Unclassified")
+            self.assertEqual(entry.classification.applicability, ParameterApplicability.UNKNOWN)
 
     def test_arrays_and_unrecognized_scalar_types_are_reported_as_unsupported(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -148,6 +153,7 @@ class ParameterModelTest(unittest.TestCase):
 
             self.assertEqual(entry.classification.domain, ParameterDomain.OTHER)
             self.assertEqual(entry.classification.group, "Unclassified")
+            self.assertEqual(entry.classification.applicability, ParameterApplicability.UNKNOWN)
 
 
 if __name__ == "__main__":
