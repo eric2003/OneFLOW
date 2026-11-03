@@ -105,39 +105,50 @@ _CFD_GROUPS = {
     "Run control": frozenset({
         "startstrategy", "iexitflag", "maxsteps", "maxtime",
         "numberofminimumsubiterationsteps",
-        "numberofmaximumsubiterationsteps", "nequ", "ntequ", "ntmodel",
-        "machstrategy",
+        "numberofmaximumsubiterationsteps",
     }),
+    "Solver system": frozenset({"nequ", "ntequ", "ntmodel"}),
     "Time stepping": frozenset({
         "timestepmodel", "global_dt", "idualtime", "ncfl", "cflst",
         "cfled", "max_time_ratio", "vissrmodel", "vistimestepmodel",
     }),
-    "Output": frozenset({
+    "Output control": frozenset({
         "nfieldsave", "nforcesave", "nressave", "nvisualsave",
-        "addvisualizationsteps", "showfield", "idump", "flowfile",
-        "aerofile", "resfile", "wallaerofile", "heatfluxfile",
+        "addvisualizationsteps", "showfield", "idump",
+    }),
+    "Output files": frozenset({
+        "flowfile", "aerofile", "resfile", "wallaerofile", "heatfluxfile",
         "visualfile", "turbresfile", "turbflowfile",
+    }),
+    "Input and output files": frozenset({
+        "flowinputroot", "flowoutputroot", "gridfilename",
     }),
     "Numerical methods": frozenset({
         "time_integral", "rk_stage", "lineartwostepmethods", "ischeme",
         "ivischeme", "ieigenfix", "centropy1", "centropy2", "ilim",
-        "vencat_coef",
+        "vencat_coef", "lusgsfacepressuremode",
         "turbulentresidualsmoothornot", "modifyturbulentresidualstrategy",
     }),
     "Flow and reference conditions": frozenset({
         "mach_ref", "aoa_degree", "sideslip_degree", "reynolds", "lref",
-        "aref", "xref", "yref", "zref", "elevation", "twall_dim",
-        "dref_dim", "tref_dim", "pref_dim", "vref_dim", "reylref_dim",
-        "gama_ref", "prl", "prt", "schmidtl", "schmidtt",
+        "aref", "xref", "yref", "zref",
+    }),
+    "Thermodynamic reference state": frozenset({
+        "gasinfostrategy", "machstrategy", "elevation", "dref_dim",
+        "tref_dim", "pref_dim", "vref_dim", "reylref_dim", "gama_ref",
+    }),
+    "Transport properties": frozenset({"prl", "prt", "schmidtl", "schmidtt"}),
+    "Boundary and inflow conditions": frozenset({
+        "inflowtype", "manufacturedinflowtype", "inflowvelocity",
+        "isowallbc", "twall_dim",
     }),
     "Physical models": frozenset({
-        "vismodel", "visname", "chemmodel", "gasinfostrategy",
-        "gasmodelfile", "transition_model", "des_model", "easm_model",
-        "inflowtype", "manufacturedinflowtype", "isowallbc",
-        "inflow_intensity", "inflow_viscosity", "inflowvelocity",
+        "vismodel", "visname", "chemmodel", "gasmodelfile",
+        "transition_model", "des_model", "easm_model",
     }),
     "Turbulence": frozenset({
         "turbulentrelaxationcoefficient", "turbulentsourcemodel",
+        "inflow_intensity", "inflow_viscosity",
         "mgturbulentviscosity", "mgfactor", "mgturbfactor",
         "coefficientofsades", "coefficientofsstdeske",
         "coefficientofsstdeskw", "numberofanisotropicstress",
