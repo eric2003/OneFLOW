@@ -121,6 +121,8 @@ class NomenclatureCatalogTest(unittest.TestCase):
             self.assertEqual(len(matches), 1)
             self.assertEqual(matches[0][0].id, concept_id)
             self.assertEqual(matches[0][1].relation, "conditional")
+        self.assertEqual(self.catalog.find_alias("nu", system="OpenFOAM")[0][1].role, "input_parameter")
+        self.assertEqual(self.catalog.find_alias("mu", system="OpenFOAM")[0][1].role, "material_property")
 
     def test_missing_source_reference_is_rejected(self):
         payload = {
