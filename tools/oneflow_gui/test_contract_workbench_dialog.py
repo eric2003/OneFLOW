@@ -102,7 +102,21 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             dialog.contract_list.setCurrentRow(mach_row)
             self.assertEqual(
                 dialog.tabs.tabText(dialog.tabs.indexOf(dialog.parameter_formula_page)),
-                "Formula & Symbols",
+                "Formula",
+            )
+            tab_names = [
+                dialog.tabs.tabText(index) for index in range(dialog.tabs.count())
+            ]
+            self.assertEqual(tab_names[:2], ["Overview", "Formula"])
+            self.assertNotIn("Principle", tab_names)
+            self.assertNotIn("Architecture", tab_names)
+            self.assertNotIn("Implementation / Code", tab_names)
+            self.assertIn("NsCom.cpp", dialog.overview_view.toPlainText())
+            self.assertNotIn("[implemented]", dialog.contract_list.item(mach_row).text())
+            self.assertTrue(dialog.zoom_in_parameter_formula_button.isEnabled())
+            self.assertTrue(dialog.zoom_out_parameter_formula_button.isEnabled())
+            self.assertGreaterEqual(
+                dialog.parameter_formula_scroll.minimumHeight(), 300
             )
             formula_text = dialog.parameter_formula_text.toPlainText()
             latex_text = dialog.parameter_formula_latex.toPlainText()
