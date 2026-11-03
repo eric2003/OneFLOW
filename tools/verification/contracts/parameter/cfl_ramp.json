@@ -50,37 +50,37 @@
       "kind": "google_test",
       "reference": "TimeStepPolicy.CflRampStartsAtConfiguredValue",
       "status": "linked_not_executed",
-      "scope": "Pure policy test for the initial ramp value; declaration linkage does not imply execution."
+      "scope": "tests/solver/timestep_policy_test.cpp; Pure policy test for the initial ramp value; declaration linkage does not imply execution."
     },
     {
       "kind": "google_test",
       "reference": "TimeStepPolicy.CflRampInterpolatesLinearly",
       "status": "linked_not_executed",
-      "scope": "Pure policy test for an interior linear interpolation point."
+      "scope": "tests/solver/timestep_policy_test.cpp; Pure policy test for an interior linear interpolation point."
     },
     {
       "kind": "google_test",
       "reference": "TimeStepPolicy.CflRampReachesEndAtRampBoundary",
       "status": "linked_not_executed",
-      "scope": "Pure policy test for the exact ramp boundary."
+      "scope": "tests/solver/timestep_policy_test.cpp; Pure policy test for the exact ramp boundary."
     },
     {
       "kind": "google_test",
       "reference": "TimeStepPolicy.CflRampKeepsEndAfterRamp",
       "status": "linked_not_executed",
-      "scope": "Pure policy test for iterations after the ramp."
+      "scope": "tests/solver/timestep_policy_test.cpp; Pure policy test for iterations after the ramp."
     },
     {
       "kind": "google_test",
       "reference": "TimeStepPolicy.CflRampSupportsDescendingValues",
       "status": "linked_not_executed",
-      "scope": "Pure policy test for a descending schedule."
+      "scope": "tests/solver/timestep_policy_test.cpp; Pure policy test for a descending schedule."
     },
     {
       "kind": "google_test",
       "reference": "TimeStepPolicy.ZeroLengthCflRampUsesEndValueAtInitialIteration",
       "status": "linked_not_executed",
-      "scope": "Pure policy test for zero ramp length at the initial iteration."
+      "scope": "tests/solver/timestep_policy_test.cpp; Pure policy test for zero ramp length at the initial iteration."
     }
   ],
   "group": {
