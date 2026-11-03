@@ -118,6 +118,20 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertGreaterEqual(
                 dialog.parameter_formula_scroll.minimumHeight(), 300
             )
+            formula_layout = dialog.parameter_formula_page.layout()
+            preview_label = dialog.parameter_formula_page.findChild(
+                type(dialog.parameter_formula_preview),
+                "parameterFormulaPreviewLabel",
+            )
+            self.assertIsNotNone(preview_label)
+            self.assertLess(
+                formula_layout.indexOf(dialog.parameter_formula_latex),
+                formula_layout.indexOf(preview_label),
+            )
+            self.assertLess(
+                formula_layout.indexOf(preview_label),
+                formula_layout.indexOf(dialog.parameter_formula_scroll),
+            )
             formula_text = dialog.parameter_formula_text.toPlainText()
             latex_text = dialog.parameter_formula_latex.toPlainText()
             self.assertIn("Local Mach number", formula_text)
