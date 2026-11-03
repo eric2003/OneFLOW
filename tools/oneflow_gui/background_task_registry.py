@@ -80,7 +80,7 @@ class BackgroundTaskRegistry:
         return self.records_directory / f"{task_id}.json"
 
     @contextmanager
-    def _exclusive_update(self) -> Iterator[None]:
+    def _exclusive_access(self) -> Iterator[None]:
         """Serialize registry read-modify-write operations across processes."""
         lock_path = self.root / ".background-task-registry.lock"
         with lock_path.open("a+b") as stream:
@@ -138,7 +138,7 @@ class BackgroundTaskRegistry:
 
     def save(self, task: BackgroundTask) -> None:
         """Serialize and atomically persist one task record."""
-        with self._exclusive_update():
+        with self._exclusive_access():
             self._save_unlocked(task)
 
     def _load_unlocked(self, task_id: str) -> BackgroundTask:
@@ -154,7 +154,8 @@ class BackgroundTaskRegistry:
 
     def load(self, task_id: str) -> BackgroundTask:
         """Load a complete record; atomic replacement protects readers."""
-        return self._load_unlocked(task_id)
+        with self._exclusive_access():
+            return self._load_unlocked(task_id)
 
     def update(
         self,
@@ -162,7 +163,7 @@ class BackgroundTaskRegistry:
         transform: Callable[[BackgroundTask], BackgroundTask],
     ) -> BackgroundTask:
         """Apply a read-modify-write transition without losing concurrent updates."""
-        with self._exclusive_update():
+        with self._exclusive_access():
             current = self._load_unlocked(task_id)
             updated = transform(current)
             if updated.task_id != task_id:
@@ -186,7 +187,7 @@ class BackgroundTaskRegistry:
 
     def remove(self, task_id: str) -> None:
         """Remove a record without racing a concurrent state transition."""
-        with self._exclusive_update():
+        with self._exclusive_access():
             try:
                 self._path(task_id).unlink()
             except FileNotFoundError:
