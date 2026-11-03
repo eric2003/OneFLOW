@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "parameter/max-steps",
+  "title": "Maximum iteration steps",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "implemented",
+  "overview": "Sets the outer-iteration limit used by SimuIterState::Running when iexitflag is zero. Iteration::Init reads maxSteps and copies it to maxIterSteps. When iexitflag is nonzero, the running condition is based on currTime and maxTime instead; maxSteps is not the active stop condition in that branch.",
+  "principle": "maxSteps is an iteration-count limit, not a physical time limit or a convergence criterion. The stop condition is selected by iexitflag: the iteration-count branch compares outerSteps with maxSteps, while the time-controlled branch compares currTime with maxTime.",
+  "architecture": "Iteration::Init loads maxSteps into the shared Iteration state. SimuIterState::Running evaluates the stop condition using ctrl.iexitflag. This contract records the current outer-loop stop behavior and does not infer residual convergence or inner-iteration limits.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/global/src/Iteration.cpp",
+      "codes/global/include/Iteration.h",
+      "codes/global/src/Ctrl.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "Iteration::Init reads maxSteps as an integer and assigns the value to Iteration::maxIterSteps.",
+      "When ctrl.iexitflag is zero, SimuIterState::Running stops when Iteration::outerSteps is greater than or equal to Iteration::maxSteps.",
+      "When ctrl.iexitflag is nonzero, SimuIterState::Running uses ctrl.currTime and ctrl.maxTime instead of maxSteps."
+    ],
+    "does_not_prove": [
+      "That maxSteps is a residual-convergence criterion.",
+      "That maxSteps controls inner iterations or every solver-specific sub-iteration.",
+      "An admissible range, positivity check, or defaulting policy for the input parameter.",
+      "That a run reaches a converged or physically accurate solution before the configured stop condition."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "Iteration::Init and SimuIterState::Running",
+      "status": "declared_not_executed",
+      "scope": "Source-backed parameter read and outer-loop stop-condition branches; no test execution or convergence claim is implied."
+    }
+  ],
+  "group": {
+    "id": "run_control",
+    "title": "Run Control",
+    "order": 10
+  }
+}
