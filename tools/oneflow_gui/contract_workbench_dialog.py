@@ -256,6 +256,7 @@ class ContractDomainDialog(QDialog):
         self.tabs.addTab(self.overview_view, "Overview")
         if domain == "parameter":
             self.tabs.addTab(self.parameter_formula_page, "Formula")
+            self.tabs.addTab(self.implementation_page, "Implementation / Code")
         else:
             self.tabs.addTab(self.principle_view, "Principle")
             self.tabs.addTab(self.architecture_view, "Architecture")
@@ -540,12 +541,6 @@ class ContractDomainDialog(QDialog):
             f"Kind: {summary.kind}\n"
             f"Status: {summary.status}\n\n"
             f"{summary.overview}\n\n"
-            + (
-                "Implementation\n--------------\n"
-                + ("\n".join(summary.implementation_paths) or "Not specified.")
-                + "\n\n"
-                if summary.domain == "parameter" else ""
-            )
             + (
                 "Principle\n---------\n" + summary.principle + "\n\n"
                 if summary.domain == "parameter" and summary.principle.strip() else ""
