@@ -77,7 +77,7 @@
           "role": "flow_solution_field",
           "relation": "exact",
           "applicability": "CGNS/SIDS static flowfield pressure; inspect DataClass and unit metadata before interpreting stored numbers.",
-          "caveat": "CGNS standardizes the physical quantity; the file may store dimensional or normalized values.",
+          "caveat": "CGNS standardizes the physical quantity; the file may store dimensional or normalized values according to DataClass, DimensionalUnits, and conversion metadata.",
           "source_ids": [
             "cgns_sids",
             "cgns_grid"
@@ -137,7 +137,7 @@
           "name": "p",
           "role": "solution_field",
           "relation": "exact",
-          "applicability": "Common incompressible solvers such as icoFoam/simpleFoam.",
+          "applicability": "Kinematic pressure in common incompressible solvers such as icoFoam/simpleFoam.",
           "caveat": "Do not compare directly with dimensional pressure in Pa; convert with the applicable reference/local density as documented by the solver.",
           "source_ids": [
             "openfoam_kinematic_pressure",
@@ -296,7 +296,7 @@
       "aliases": [
         {
           "system": "CGNS",
-          "name": "VelocityX / VelocityY / VelocityZ",
+          "name": "VelocityX",
           "role": "flow_solution_components",
           "relation": "exact",
           "applicability": "Cartesian inertial-frame components by default; use rotating identifiers for rotating-frame quantities.",
@@ -337,6 +337,28 @@
           "source_ids": [
             "su2_config"
           ]
+        },
+        {
+          "system": "CGNS",
+          "name": "VelocityY",
+          "role": "flow_solution_components",
+          "relation": "exact",
+          "applicability": "Cartesian inertial-frame components by default; use rotating identifiers for rotating-frame quantities.",
+          "caveat": "CGNS stores vector quantities as scalar component arrays; rotating-frame components are not interchangeable.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "CGNS",
+          "name": "VelocityZ",
+          "role": "flow_solution_components",
+          "relation": "exact",
+          "applicability": "Cartesian inertial-frame components by default; use rotating identifiers for rotating-frame quantities.",
+          "caveat": "CGNS stores vector quantities as scalar component arrays; rotating-frame components are not interchangeable.",
+          "source_ids": [
+            "cgns_sids"
+          ]
         }
       ]
     },
@@ -355,7 +377,7 @@
       "aliases": [
         {
           "system": "CGNS",
-          "name": "CoordinateX / CoordinateY / CoordinateZ",
+          "name": "CoordinateX",
           "role": "grid_coordinate_array",
           "relation": "exact",
           "applicability": "Cartesian coordinates; cylindrical and auxiliary coordinate identifiers are separate.",
@@ -385,6 +407,30 @@
           "caveat": "Coordinate components depend on spatial dimension.",
           "source_ids": [
             "fluent_fields"
+          ]
+        },
+        {
+          "system": "CGNS",
+          "name": "CoordinateY",
+          "role": "grid_coordinate_array",
+          "relation": "exact",
+          "applicability": "Cartesian coordinates; cylindrical and auxiliary coordinate identifiers are separate.",
+          "caveat": "Coordinates are dimensional or normalized according to CGNS metadata.",
+          "source_ids": [
+            "cgns_sids",
+            "cgns_grid"
+          ]
+        },
+        {
+          "system": "CGNS",
+          "name": "CoordinateZ",
+          "role": "grid_coordinate_array",
+          "relation": "exact",
+          "applicability": "Cartesian coordinates; cylindrical and auxiliary coordinate identifiers are separate.",
+          "caveat": "Coordinates are dimensional or normalized according to CGNS metadata.",
+          "source_ids": [
+            "cgns_sids",
+            "cgns_grid"
           ]
         }
       ]
