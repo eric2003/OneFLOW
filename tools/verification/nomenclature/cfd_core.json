@@ -79,6 +79,24 @@
       "name": "OpenFOAM Tabulated transport model",
       "url": "https://doc.openfoam.com/2212/tools/processing/models/thermophysical/transport/rtm/tabulated/",
       "scope": "Dynamic viscosity mu and its temperature/pressure-dependent transport-property table."
+    },
+    {
+      "id": "oneflow_face_topology",
+      "name": "OneFLOW FaceTopo interface",
+      "url": "https://github.com/eric2003/OneFLOW/blob/hexin/codes/geometry/include/FaceTopo.h",
+      "scope": "Face-node connectivity, face-side cell relations, face counts, and topology rebuild API."
+    },
+    {
+      "id": "oneflow_interface_link",
+      "name": "OneFLOW IFaceLink interface",
+      "url": "https://github.com/eric2003/OneFLOW/blob/hexin/codes/geometry/include/IFaceLink.h",
+      "scope": "Local/global interface-face maps and their inverse-map alignment invariants."
+    },
+    {
+      "id": "oneflow_interface",
+      "name": "OneFLOW InterFace interface",
+      "url": "https://github.com/eric2003/OneFLOW/blob/hexin/codes/geometry/include/InterFace.h",
+      "scope": "Per-zone interface-face counts, neighbor-zone IDs, remote local-face IDs, and local-cell IDs."
     }
   ],
   "concepts": [
@@ -950,6 +968,191 @@
           "caveat": "This is the SA modified-viscosity working variable, not the physical eddy viscosity nut itself.",
           "source_ids": [
             "openfoam_turbulence_fields"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mesh.face_node_connectivity",
+      "label": "Face-to-node connectivity",
+      "symbol": "faces[f]",
+      "definition": "Ordered node or point IDs defining each mesh face. Ordering carries orientation and is not interchangeable with an unordered set when normals or flux directions are required.",
+      "dimensions": {
+        "M": 0,
+        "L": 0,
+        "T": 0,
+        "Theta": 0
+      },
+      "si_unit": "1",
+      "aliases": [
+        {
+          "system": "OneFLOW",
+          "name": "faces",
+          "role": "face_to_node_connectivity",
+          "relation": "exact",
+          "applicability": "FaceTopo face connectivity; each row stores the node IDs of one face.",
+          "caveat": "The row ordering is topological data and must remain aligned with face-indexed cell and boundary metadata.",
+          "source_ids": [
+            "oneflow_face_topology"
+          ]
+        },
+        {
+          "system": "OpenFOAM",
+          "name": "faces",
+          "role": "face_to_point_connectivity",
+          "relation": "conditional",
+          "applicability": "polyMesh face list, where each face is an ordered list of mesh-point labels.",
+          "caveat": "OpenFOAM uses point labels and stores owner/neighbour relations separately; do not treat the face list as a complete cell adjacency record.",
+          "source_ids": [
+            "openfoam_case_structure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mesh.face_owner_cell",
+      "label": "Face owner (left) cell",
+      "symbol": "owner(f)",
+      "definition": "The primary real cell incident to a face in a face-based finite-volume representation. OneFLOW's left-cell relation plays this role under its face orientation convention.",
+      "dimensions": {
+        "M": 0,
+        "L": 0,
+        "T": 0,
+        "Theta": 0
+      },
+      "si_unit": "1",
+      "aliases": [
+        {
+          "system": "OpenFOAM",
+          "name": "owner",
+          "role": "face_owner_cell_id",
+          "relation": "exact",
+          "applicability": "polyMesh owner addressing for each face.",
+          "caveat": "Owner is an addressing relation, not a physical cell property; face orientation and ordering conventions still matter.",
+          "source_ids": [
+            "openfoam_case_structure"
+          ]
+        },
+        {
+          "system": "OneFLOW",
+          "name": "leftCells",
+          "role": "face_owner_cell_id",
+          "relation": "conditional",
+          "applicability": "FaceTopo left-cell array exposed through GetLeftCells().",
+          "caveat": "Interpret together with rightCells and the solver normal convention; do not infer geometric left from the variable name alone.",
+          "source_ids": [
+            "oneflow_face_topology"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mesh.face_neighbour_cell",
+      "label": "Face neighbour (right) cell",
+      "symbol": "neighbour(f)",
+      "definition": "The second cell incident to an internal face. Boundary faces have no second real cell before OneFLOW boundary ghost-cell normalization.",
+      "dimensions": {
+        "M": 0,
+        "L": 0,
+        "T": 0,
+        "Theta": 0
+      },
+      "si_unit": "1",
+      "aliases": [
+        {
+          "system": "OpenFOAM",
+          "name": "neighbour",
+          "role": "face_neighbour_cell_id",
+          "relation": "conditional",
+          "applicability": "polyMesh neighbour addressing for internal faces.",
+          "caveat": "Boundary faces are represented through boundary-patch ranges rather than a second real-cell neighbour entry.",
+          "source_ids": [
+            "openfoam_case_structure"
+          ]
+        },
+        {
+          "system": "OneFLOW",
+          "name": "rightCells",
+          "role": "face_neighbour_cell_id",
+          "relation": "conditional",
+          "applicability": "FaceTopo right-cell array exposed through GetRightCells().",
+          "caveat": "INVALID_INDEX marks a boundary face before ghost normalization; after NormalizeBc(), boundary right-cell IDs refer to local ghost cells, not physical neighbour cells.",
+          "source_ids": [
+            "oneflow_face_topology"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mesh.interface_face_count",
+      "label": "Interface face count",
+      "symbol": "nIFaces",
+      "definition": "Number of local faces participating in a zone interface or interface-pair communication relation. This is a count, not a global face ID or a connectivity map.",
+      "dimensions": {
+        "M": 0,
+        "L": 0,
+        "T": 0,
+        "Theta": 0
+      },
+      "si_unit": "1",
+      "aliases": [
+        {
+          "system": "OneFLOW",
+          "name": "nIFaces",
+          "role": "interface_face_count",
+          "relation": "exact",
+          "applicability": "InterFace and InterfacePair counts for the local zone or a particular neighbour pair.",
+          "caveat": "The per-pair count may be smaller than the total interface count for a zone; inspect whether the value belongs to InterFace or InterfacePair.",
+          "source_ids": [
+            "oneflow_interface"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mesh.interface_face_mapping",
+      "label": "Cross-zone interface face mapping",
+      "symbol": "l2g / gI2Zid / g2l",
+      "definition": "Bidirectional correspondence between each zone's local interface-face IDs and global interface-face IDs, including the participating zone and local-face IDs for each global interface face.",
+      "dimensions": {
+        "M": 0,
+        "L": 0,
+        "T": 0,
+        "Theta": 0
+      },
+      "si_unit": "1",
+      "aliases": [
+        {
+          "system": "OneFLOW",
+          "name": "l2g",
+          "role": "zone_local_to_global_interface_face_map",
+          "relation": "exact",
+          "applicability": "l2g[zone][localFace] gives the global interface-face ID.",
+          "caveat": "The zone index is part of the key; this is not a generic local-to-global mesh-node map.",
+          "source_ids": [
+            "oneflow_interface_link"
+          ]
+        },
+        {
+          "system": "OneFLOW",
+          "name": "gI2Zid",
+          "role": "global_interface_face_to_zone_ids",
+          "relation": "exact",
+          "applicability": "gI2Zid[globalFace][slot] gives participating zone IDs.",
+          "caveat": "The I in gI2Zid means Interface. Slot positions must align with g2l rows; this is not an index-to-zone-ID map detached from interface semantics.",
+          "source_ids": [
+            "oneflow_interface_link"
+          ]
+        },
+        {
+          "system": "OneFLOW",
+          "name": "g2l",
+          "role": "global_interface_face_to_local_face_ids",
+          "relation": "exact",
+          "applicability": "g2l[globalFace][slot] gives the corresponding local interface-face ID for each participating zone.",
+          "caveat": "Rows must remain positionally aligned with gI2Zid; both are inverse-side mapping tables.",
+          "source_ids": [
+            "oneflow_interface_link"
           ]
         }
       ]
