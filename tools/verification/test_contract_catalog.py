@@ -212,6 +212,33 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\\n".join(issues))
 
+    def test_parameter_cfl_ramp_contract_records_source_and_test_links(self) -> None:
+        definition_path = (
+            self.repository_root / "tools" / "verification" / "contracts"
+            / "parameter" / "cfl_ramp.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+
+        self.assertEqual(summary.id, "parameter/cfl-ramp")
+        self.assertEqual(summary.group_id, "run_control")
+        self.assertEqual(summary.group_title, "Run Control")
+        self.assertIn("CflAtIteration", summary.implementation_paths[5])
+        self.assertEqual(len(summary.evidence), 6)
+        self.assertTrue(
+            all(item.status == "linked_not_executed" for item in summary.evidence)
+        )
+        resolutions = resolve_contract_evidence(self.repository_root, summary)
+        self.assertEqual([item.status for item in resolutions], ["resolved"] * 6)
+        self.assertTrue(
+            all(
+                item.evidence.status == "linked_not_executed"
+                for item in resolutions
+            )
+        )
+        issues = validate_contract_summaries(self.repository_root, [summary])
+        self.assertEqual(issues, [], "\\n".join(issues))
+
     def test_parameter_max_steps_contract_records_stop_condition_scope(self) -> None:
         definition_path = (
             self.repository_root / "tools" / "verification" / "contracts"
@@ -733,10 +760,12 @@ class ContractCatalogTest(unittest.TestCase):
                 "parameter/mach_ref",
                 "parameter/max-steps",
                 "parameter/max-time",
+                "parameter/cfl-ramp",
             },
         )
         self.assertEqual(parameters["parameter/max-steps"].group_id, "run_control")
         self.assertEqual(parameters["parameter/max-time"].group_id, "run_control")
+        self.assertEqual(parameters["parameter/cfl-ramp"].group_id, "run_control")
         self.assertIn(
             "time_integral_rk_stage_weight",
             parameters["parameter/rk_stage"].references,
