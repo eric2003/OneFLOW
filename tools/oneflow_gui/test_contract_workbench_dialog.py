@@ -185,7 +185,9 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             source_lines = (self.repository_root / first_path).read_text(
                 encoding="utf-8"
             ).splitlines()
-            self.assertIn(source_lines[0], dialog.implementation_view.toPlainText())
+            preview = dialog.implementation_view.toPlainText()
+            self.assertIn(f"{1:>5}  {source_lines[0]}", preview)
+            self.assertNotIn(first_path, preview)
         finally:
             dialog.close()
 

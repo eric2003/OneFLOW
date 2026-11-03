@@ -694,9 +694,6 @@ class ContractDomainDialog(QDialog):
                 )
                 self.parameter_formula_preview.setPixmap(QPixmap())
                 self._parameter_formula_pixmap = QPixmap()
-        self.implementation_view.setPlainText(
-            "\n".join(summary.implementation_paths) or "No implementation paths declared."
-        )
         self.open_source_button.setEnabled(bool(summary.implementation_paths))
         self.documentation_view.setPlainText(
             "References\n----------\n"
