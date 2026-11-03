@@ -279,6 +279,13 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             proves="F1 / Blend algebra vs pure APIs.",
             does_not_prove="Full SST case accuracy.",
+            examples=(
+                "Input: arg1 = 1, phi1 = 2, and phi2 = 1 (dimensionless illustrative values).\\n"
+                "Calculation: F1 = tanh(arg1^4) = tanh(1) = 0.761594; "
+                "phi = F1*phi1 + (1-F1)*phi2 = 1.761594.\\n"
+                "Result: the blend is weighted toward the inner-state value phi1 for this input.\\n"
+                "Limit: this evaluates the blending algebra only; it does not derive arg1 from a mesh flow state or establish full SST case accuracy.",
+            ),
         ),
         TheoryEntry(
             id="sst_f2_eddy",

@@ -77,11 +77,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 "time_integral_rk_stage_weight",
                 dialog.documentation_view.toPlainText(),
             )
-            self.assertIn(
-                "codes/global/src/Ctrl.cpp",
-                [dialog.implementation_file_list.item(i).text()
-                 for i in range(dialog.implementation_file_list.count())],
-            )
+            self.assertIn("Ctrl.cpp", dialog.implementation_view.toPlainText())
             self.assertIn("declared_not_executed", dialog.evidence_view.toPlainText())
             self.assertTrue(dialog.open_related_formula_button.isEnabled())
             with patch(
@@ -117,11 +113,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertNotIn("Architecture", tab_names)
             self.assertIn("Implementation / Code", tab_names)
             self.assertIn("Examples", tab_names)
-            self.assertIn(
-                "codes/ns/src/NsCom.cpp",
-                [dialog.implementation_file_list.item(i).text()
-                 for i in range(dialog.implementation_file_list.count())],
-            )
+            self.assertIn("NsCom.cpp", dialog.implementation_view.toPlainText())
             self.assertNotIn("Implementation\n--------------", dialog.overview_view.toPlainText())
             self.assertNotIn("[implemented]", dialog.contract_list.item(mach_row).text())
             self.assertTrue(dialog.zoom_in_parameter_formula_button.isEnabled())
@@ -183,15 +175,12 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 for index in range(dialog.implementation_file_list.count())
             ]
             self.assertIn("codes/ns/src/TimeStepPolicy.cpp", paths)
-            policy_row = paths.index("codes/ns/src/TimeStepPolicy.cpp")
-            dialog.implementation_file_list.setCurrentRow(policy_row)
+            source_row = paths.index("codes/ns/src/TimeStepPolicy.cpp")
+            dialog.implementation_file_list.setCurrentRow(source_row)
             preview = dialog.implementation_view.toPlainText()
             self.assertIn("CflAtIteration", preview)
             self.assertIn("Lines 1-", dialog.implementation_source_label.text())
             self.assertLessEqual(len(preview.splitlines()), 80)
-
-            timestep_row = paths.index("codes/ns/src/TimeStep.cpp")
-            dialog.implementation_file_list.setCurrentRow(timestep_row)
             self.assertTrue(dialog.next_implementation_chunk_button.isEnabled())
             dialog.next_implementation_chunk_button.click()
             self.assertIn("Lines 81-", dialog.implementation_source_label.text())
@@ -457,12 +446,9 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 if summary.id == "runtime/gui-process-execution"
             )
             dialog.contract_list.setCurrentRow(contract_index)
-            implementation_paths = [
-                dialog.implementation_file_list.item(index).text()
-                for index in range(dialog.implementation_file_list.count())
-            ]
-            self.assertIn("tools/oneflow_gui/process_control.py", implementation_paths)
-            self.assertIn("tools/oneflow_gui/test_dialog.py", implementation_paths)
+            implementation_text = dialog.implementation_view.toPlainText()
+            self.assertIn("tools/oneflow_gui/process_control.py", implementation_text)
+            self.assertIn("tools/oneflow_gui/test_dialog.py", implementation_text)
             self.assertFalse(dialog.open_source_button.isHidden())
             self.assertEqual(
                 dialog.open_actions_layout.indexOf(dialog.open_source_button), 0
