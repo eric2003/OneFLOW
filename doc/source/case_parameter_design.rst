@@ -369,7 +369,9 @@ for evidence of a parameter's ownership.
   files``, ``Grid definition``, ``Grid formats and files``, and ``Partitioning``.
 * **Task applicability** records whether a setting is known to apply to
   ``Both``, ``Solve``, ``Grid``, or remains ``Unknown``. This is not inferred
-  from the currently selected task.
+  from the currently selected task. ``Solve`` identifies the top-level solver
+  task family; it does not claim that every solver model or physical regime
+  consumes the parameter.
 * **Source provenance** remains attached to each declaration: source file,
   manifest/declaration order, and any shadowed declaration are preserved.
 
