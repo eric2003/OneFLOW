@@ -133,6 +133,17 @@ class ParameterKnowledge:
 
 
 @dataclass(frozen=True)
+class ContractExample:
+    """A worked parameter example with explicit input and interpretation limits."""
+
+    title: str
+    input: str
+    calculation: str
+    result: str
+    limitations: str
+
+
+@dataclass(frozen=True)
 class ContractSummary:
     """Common read-only navigation data for a verification contract."""
 
@@ -157,6 +168,7 @@ class ContractSummary:
     group_title: str = ""
     group_order: int = 100
     parameter_knowledge: ParameterKnowledge | None = None
+    examples: tuple[ContractExample, ...] = ()
 
 
 def _non_empty_strings(values: Iterable[Any]) -> tuple[str, ...]:
@@ -549,6 +561,19 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
         if not isinstance(value, list):
             raise ValueError(f"{field_name} must be an array")
 
+    raw_examples = definition.get("examples", [])
+    if not isinstance(raw_examples, list):
+        raise ValueError("examples must be an array")
+    examples = []
+    for index, item in enumerate(raw_examples):
+        if not isinstance(item, dict):
+            raise ValueError(f"examples[{index}] must be an object")
+        fields = ("title", "input", "calculation", "result", "limitations")
+        for field in fields:
+            if not isinstance(item.get(field), str) or not item[field].strip():
+                raise ValueError(f"examples[{index}].{field} must be a non-empty string")
+        examples.append(ContractExample(**{field: item[field].strip() for field in fields}))
+
     evidence_items = []
     for index, item in enumerate(definition.get("verification", [])):
         if not isinstance(item, dict):
@@ -826,6 +851,7 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
         group_title=group_title.strip(),
         group_order=group_order,
         parameter_knowledge=parameter_knowledge,
+        examples=tuple(examples),
     )
 
 

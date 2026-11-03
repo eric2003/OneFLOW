@@ -865,6 +865,25 @@ class ContractCatalogTest(unittest.TestCase):
             "\n".join(issues),
         )
 
+
+    def test_parameter_examples_are_structured_and_rendered_for_all_contracts(self) -> None:
+        summaries, issues = load_contract_catalog(self.repository_root)
+        self.assertEqual(issues, [], "\\n".join(issues))
+        parameter_summaries = {
+            item.id: item for item in summaries if item.domain == "parameter"
+        }
+        self.assertEqual(len(parameter_summaries), 6)
+        self.assertTrue(all(item.examples for item in parameter_summaries.values()))
+        for contract_id, summary in parameter_summaries.items():
+            with self.subTest(contract_id=contract_id):
+                self.assertTrue(summary.examples)
+                for example in summary.examples:
+                    self.assertTrue(example.title)
+                    self.assertTrue(example.input)
+                    self.assertTrue(example.calculation)
+                    self.assertTrue(example.result)
+                    self.assertTrue(example.limitations)
+
     def test_resolves_evidence_without_promoting_execution_status(self) -> None:
         from .contract_catalog import resolve_contract_evidence
 

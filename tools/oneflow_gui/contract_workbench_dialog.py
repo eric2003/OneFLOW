@@ -197,6 +197,8 @@ class ContractDomainDialog(QDialog):
         self.documentation_view.setReadOnly(True)
         self.evidence_view = QPlainTextEdit()
         self.evidence_view.setReadOnly(True)
+        self.examples_view = QPlainTextEdit()
+        self.examples_view.setReadOnly(True)
         self.case_view = QPlainTextEdit()
         self.case_view.setReadOnly(True)
         self.workflow_view = QPlainTextEdit()
@@ -257,6 +259,7 @@ class ContractDomainDialog(QDialog):
         if domain == "parameter":
             self.tabs.addTab(self.parameter_formula_page, "Formula")
             self.tabs.addTab(self.implementation_page, "Implementation / Code")
+            self.tabs.addTab(self.examples_view, "Examples")
         else:
             self.tabs.addTab(self.principle_view, "Principle")
             self.tabs.addTab(self.architecture_view, "Architecture")
@@ -556,6 +559,24 @@ class ContractDomainDialog(QDialog):
         )
         self.principle_view.setPlainText(summary.principle)
         self.architecture_view.setPlainText(summary.architecture)
+        if summary.domain == "parameter":
+            if summary.examples:
+                example_blocks = []
+                for index, example in enumerate(summary.examples, start=1):
+                    example_blocks.append(
+                        f"{index}. {example.title}\n"
+                        f"{'=' * (len(str(index)) + len(example.title) + 3)}\n"
+                        f"Input\n-----\n{example.input}\n\n"
+                        f"Calculation\n-----------\n{example.calculation}\n\n"
+                        f"Result\n------\n{example.result}\n\n"
+                        f"Limitations\n-----------\n{example.limitations}"
+                    )
+                self.examples_view.setPlainText("\n\n".join(example_blocks))
+            else:
+                self.examples_view.setPlainText(
+                    "No reviewed worked example is registered for this parameter.\n"
+                    "Add a source-backed example with input, calculation, result, and limitations."
+                )
         if self.parameter_formula_text is not None:
             knowledge = summary.parameter_knowledge
             if knowledge is None:
