@@ -71,6 +71,17 @@ Development Tests 使用固定的用户数据测试工作目录，并在每批�
 
 Contract Workbench
 ------------------
+
+Formula & Knowledge 的导航现在将 **Implementation** 和 **Code sketch** 分开：
+Implementation 显示真实生产源码路径、纯函数 API 和对应文档；Code sketch
+仅用于辅助理解，不能替代生产实现。新增 **Examples** 标签页，示例包含输入、
+计算过程、结果和适用边界。目前先加入 SA 的 ``fv1``、SST 的 ``F1``，以及
+OneFLOW 多阶段时间推进系数序列示例。对于尚未整理示例的条目会明确显示
+尚无示例，不会用推测数据填充。多阶段示例只解释当前实现的
+``a_s = 1/(s+1)`` 系数安排，不将其误称为完整 Butcher tableau 或形式阶数证明。
+
+Contract Workbench
+------------------
 Case 领域还提供两个文件入口：**Open case directory...** 打开算例目录；
 **Open suite and references...** 打开 Suite 清单、残差基线和保留的解析参考数据。
 这些操作只定位已有文件，不会启动求解器，也不会修改基线。

@@ -125,7 +125,8 @@ class VerificationCurveDialog(QDialog):
         self.sketch_view = QPlainTextEdit(); self.sketch_view.setReadOnly(True)
         self.sketch_view.setStyleSheet("font-family: Consolas, monospace;")
         self.allow_sketch = QCheckBox("Gated sketch: I will not auto-write production")
-        sk = QWidget(); skl = QVBoxLayout(sk); skl.addWidget(self.allow_sketch); skl.addWidget(self.sketch_view, 1)
+        sk = QWidget(); self.sketch_page = sk
+        skl = QVBoxLayout(sk); skl.addWidget(self.allow_sketch); skl.addWidget(self.sketch_view, 1)
         self.copy_sk = QPushButton("Copy sketch"); self.copy_sk.setEnabled(False)
         self.allow_sketch.toggled.connect(self.copy_sk.setEnabled)
         self.copy_sk.clicked.connect(lambda: self.allow_sketch.isChecked() and QApplication.clipboard().setText(self.sketch_view.toPlainText()))
@@ -232,9 +233,9 @@ class VerificationCurveDialog(QDialog):
             + "\n\nCode sketches are illustrative only; use the source files above as authority."
         )
         self.examples.setPlainText(
-            "\\n\\n".join(e.examples)
+            "\n\n".join(e.examples)
             if e.examples else
-            "No worked example is registered for this entry yet.\\n"
+            "No worked example is registered for this entry yet.\n"
             "Examples must be tied to the declared formula and state their limits."
         )
         self.refs.setPlainText("\n".join(f"- {r}" for r in e.references))

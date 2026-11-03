@@ -41,6 +41,11 @@ class CatalogTest(unittest.TestCase):
         self.assertTrue(entry.examples)
         self.assertIn("rk_stage = 4", entry.examples[0])
         self.assertIn("not a complete Butcher", entry.examples[0])
+    def test_representative_entries_have_worked_examples(self) -> None:
+        entries = {item.id: item for item in list_theory_entries()}
+        for entry_id in ("sa_fv1_chi", "sst_f1", "time_integral_rk_stage_weight"):
+            self.assertTrue(entries[entry_id].examples, entry_id)
+
     def test_latex_and_sketch_present(self) -> None:
         for e in list_theory_entries():
             self.assertTrue(e.formula_latex)

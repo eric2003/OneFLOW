@@ -328,6 +328,13 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "production-option rate selection, and shared laminar-ratio cap."
             ),
             does_not_prove="Wall-resolved SST validation or full mu_t field.",
+            examples=(
+                "Input: arg1 = 1.\n"
+                "Calculation: F1 = tanh(arg1^4) = tanh(1).\n"
+                "Result: F1 is approximately 0.761594.\n"
+                "Interpretation: the blend is continuous; this one point does not validate "
+                "the complete SST closure or its wall behavior.",
+            ),
         ),
         TheoryEntry(
             id="sst_k_source",

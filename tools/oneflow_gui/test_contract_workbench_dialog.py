@@ -693,7 +693,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("Code sketch", names)
             self.assertNotEqual(
                 dialog.tabs.indexOf(dialog.implementation),
-                dialog.tabs.indexOf(dialog.sketch_view),
+                dialog.tabs.indexOf(dialog.sketch_page),
             )
             self.assertTrue(dialog.select_entry("time_integral_rk_stage_weight"))
             self.assertIn(

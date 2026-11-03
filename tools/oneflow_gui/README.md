@@ -289,6 +289,15 @@ python -m unittest tools.oneflow_gui.test_project_window
 ```
 
 
+The Formula & Knowledge browser now keeps **Implementation** separate from
+**Code sketch**: Implementation lists the production source paths, pure APIs,
+and canonical documentation path; Code sketch remains explicitly illustrative.
+The **Examples** tab contains worked input/calculation/result/limitation records
+for representative SA, SST, and multi-stage time-integration entries. Entries
+without a reviewed example say so explicitly rather than showing a fabricated
+sample. The multi-stage example documents the current ``1/(s+1)`` coefficient
+schedule and does not claim a complete Butcher tableau or formal order.
+
 The Contract Workbench Parameter browser groups parameter definitions using
 validated contract metadata and supports case-insensitive search across IDs,
 titles, descriptions, references, and source/documentation paths. Group labels
