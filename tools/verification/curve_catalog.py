@@ -637,6 +637,50 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+        TheoryEntry(
+            id="sst_cross_diff_menter",
+            family="turbulence",
+            genus="SST",
+            section="source / cross diffusion",
+            title="SST Menter cross-diffusion CD",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "CD = 2 * (1 - F1) * rho * sigw2 * (grad k · grad omega) / omega"
+            ),
+            formula_latex=(
+                r"\mathrm{CD}=2(1-F_1)\rho\sigma_{\omega2}"
+                r"\frac{\nabla k\cdot\nabla\omega}{\omega}"
+            ),
+            principle=(
+                "Cross-diffusion blends Wilcox and k-epsilon behaviors. "
+                "It is active in the outer layer (F1 near 0) and vanishes "
+                "near walls when F1 approaches 1."
+            ),
+            background=(
+                "Pure API SstCrossDiffMenter in TurbSstPolicy. Feeds "
+                "SstSourceW and SstDiagonalW."
+            ),
+            references=(
+                "Menter SST (1994); NASA TMR SST",
+                "doc/source/numerical/sst_cross_diff_menter.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_cross_diff_menter_theory.csv",
+            plot_module="plot_sst_cross_diff_menter",
+            pure_apis=("SstCrossDiffMenter",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_cross_diff_menter.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "CD = 2*(1-F1)*rho*sigw2*cross/omega;\n"
+            ),
+            proves="Cross-diffusion algebra vs pure API; F1=1 vanishing.",
+            does_not_prove="Full SST residual field or F1 construction accuracy.",
+        ),
+
         TheoryEntry(
             id="sst_diagonal_w",
             family="turbulence",

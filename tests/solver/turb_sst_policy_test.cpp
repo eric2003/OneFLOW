@@ -153,3 +153,29 @@ TEST( TurbSstPolicy, SstDisswQuadraticInOmega )
     const Real d2 = SstDissw( 1.0, 0.075, 1.0, 4.0 );
     EXPECT_NEAR( d2, 4.0 * d1, 1.0e-12 );
 }
+
+// Intermediate: SstCrossDiffMenter on an omega grid.
+// Ref: F1=0, rho=1, sigw2=0.856, cross=1; CD = 1.712 / omega.
+TEST( TurbSstPolicy, SstCrossDiffMenterCurveMatchesClosedForm )
+{
+    const Real f1 = 0.0;
+    const Real density = 1.0;
+    const Real sigw2 = 0.856;
+    const Real cross = 1.0;
+    const Real omegas[] = { 0.5, 1.0, 2.0, 4.0, 8.0 };
+    for ( Real omega : omegas )
+    {
+        EXPECT_NEAR(
+            SstCrossDiffMenter( f1, density, sigw2, cross, omega ),
+            2.0 * ( 1.0 - f1 ) * density * sigw2 * cross / omega,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstCrossDiffMenterVanishesWhenF1IsOne )
+{
+    EXPECT_NEAR(
+        SstCrossDiffMenter( 1.0, 1.0, 0.856, 10.0, 2.0 ),
+        0.0,
+        1.0e-12 );
+}
