@@ -39,6 +39,46 @@ Initial covered concepts
 * Molecular and kinematic viscosity: CGNS ViscosityMolecular and ViscosityKinematic; OpenFOAM mu and nu where exposed. Their dimensions differ and must not be interchanged.
 * Turbulence closure fields: CGNS TurbulentEnergyKinetic, TurbulentDissipation, TurbulentDissipationRate, TurbulentSANuTilde; OpenFOAM k, epsilon, omega, nut, mut, and nuTilda. Model and dimensional conventions remain part of each mapping.
 
+Mesh-topology terminology
+--------------------------
+
+Mesh terminology needs the same semantic discipline as physical-field names.
+A face is a topological entity with ordered point/node connectivity; an owner
+and neighbour are incidence relations from that face to cells. They are not
+synonyms for the face itself.
+
+* Face connectivity: OneFLOW ``FaceTopo::faces`` and OpenFOAM
+  ``polyMesh/faces`` both represent ordered face-point connectivity.
+  OpenFOAM stores owner/neighbour addressing separately.
+* Face owner: OpenFOAM ``owner`` corresponds to OneFLOW's left-cell
+  relation, exposed by ``FaceTopo::GetLeftCells()``. The exact orientation
+  convention must still be checked at the algorithm boundary.
+* Face neighbour: OpenFOAM ``neighbour`` corresponds to OneFLOW's
+  right-cell relation for internal faces. In OneFLOW, ``INVALID_INDEX``
+  marks a boundary before ``UnsGrid::NormalizeBc()``; after normalization,
+  the right-cell slot can hold a local ghost-cell ID. That ghost is not a
+  second physical cell in the imported mesh.
+* Interface-face count: ``InterFace::nIFaces`` and
+  ``InterfacePair::nIFaces`` are counts. The pair count is scoped to one
+  neighbour relation and need not equal the zone-wide count.
+* Cross-zone mapping: ``IFaceLink::l2g`` maps zone-local interface faces
+  to global interface-face IDs; ``gI2Zid`` and ``g2l`` are aligned
+  inverse-side rows listing participating zones and their local face IDs.
+  The ``I`` in ``gI2Zid`` means **Interface**. The slot index in
+  ``gI2Zid`` and ``g2l`` is shared, so their row lengths must match.
+
+These mappings are intentionally not all marked as global aliases. A generic
+cell, element, face, facet, point, or vertex can denote different entities
+depending on mesh dimension, file format, and algorithm. In particular,
+CGNS element sections, OpenFOAM polyMesh addressing, and VTK unstructured-cell
+connectivity have different storage models. The catalog records only mappings
+whose code role can be verified, and keeps topology IDs separate from counts,
+ghost-cell IDs, and geometric coordinates.
+
+The executable code anchors are ``FaceTopo.h``, ``IFaceLink.h``, and
+``InterFace.h``. The broader topology invariants and cache-rebuild contract
+are documented in ``GRID_TOPOLOGY.md`` and ``grid_topology.rst``.
+
 Use in OneFLOW
 --------------
 
