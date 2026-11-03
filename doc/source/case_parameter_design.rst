@@ -290,3 +290,29 @@ accuracy. Those require separate numerical analysis and case-level verification.
 The consumer catalog's source-audit test checks that every recorded direct read,
 consumer symbol, and named downstream behavior symbol still resolves in the
 current source tree. It does not claim to discover every consumer in the repository.
+
+Maximum iteration steps
+-----------------------
+
+The parameter contract ``parameter/max-steps`` documents ``maxSteps`` as an
+outer-iteration limit, not as a convergence tolerance or a physical time
+limit.
+
+``Iteration::Init`` reads ``maxSteps`` as an integer and copies it to both
+``Iteration::maxSteps`` and ``Iteration::maxIterSteps``. The actual stop
+condition is selected in ``SimuIterState::Running``:
+
+* when ``ctrl.iexitflag == 0``, the loop stops once
+  ``Iteration::outerSteps >= Iteration::maxSteps``;
+* when ``ctrl.iexitflag != 0``, the loop instead stops when
+  ``ctrl.currTime >= ctrl.maxTime``.
+
+Consequently, changing ``maxSteps`` does not establish a time limit, a
+residual-convergence target, or a bound on every inner/sub-iteration. The
+current source path also does not establish an admissible input range or an
+explicit positivity check. Those policies should be documented only after
+their actual parser, setup, and runtime validation paths are traced.
+
+The Contract Workbench places this parameter in the **Run Control** group.
+Its evidence is source-declared and marked ``declared_not_executed``; it is
+not a recorded test result or a claim that a case converges within the limit.
