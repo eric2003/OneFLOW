@@ -94,17 +94,17 @@ class ParameterModelTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             documents = self._documents(root, {
-                "simu.txt": 'string simutask = "Solve";\\n',
+                "simu.txt": 'string simutask = "Solve";\n',
                 "cfd.txt": (
-                    "int nEqu = 5;\\n"
-                    "int nFieldSave = 50;\\n"
-                    'string flowFile = "restart/flow.dat";\\n'
-                    'string flowInputRoot = "default";\\n'
-                    "int inflowType = 0;\\n"
-                    "Real twall_dim = 300.0;\\n"
-                    "Real gama_ref = 1.4;\\n"
-                    "Real prl = 0.72;\\n"
-                    "int lusgsFacePressureMode = 0;\\n"
+                    "int nEqu = 5;\n"
+                    "int nFieldSave = 50;\n"
+                    'string flowFile = "restart/flow.dat";\n'
+                    'string flowInputRoot = "default";\n'
+                    "int inflowType = 0;\n"
+                    "Real twall_dim = 300.0;\n"
+                    "Real gama_ref = 1.4;\n"
+                    "Real prl = 0.72;\n"
+                    "int lusgsFacePressureMode = 0;\n"
                 ),
             })
             model = ParameterModel.from_documents(documents)
