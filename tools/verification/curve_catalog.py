@@ -179,6 +179,49 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="fw(r) vs SaG/SaFw.",
             does_not_prove="Skin friction or full-case CFD.",
         ),
+
+        TheoryEntry(
+            id="sa_production",
+            family="turbulence",
+            genus="SA",
+            section="source / production",
+            title="SA production term P",
+            role_tags=("turbulence", "SA", "source"),
+            formula_plain=(
+                "P = cb1 * (1 - ft2) * S_tilde * nu_tilde"
+            ),
+            formula_latex=(
+                r"P=c_{b1}(1-f_{t2})\tilde{S}\,\tilde{\nu}"
+            ),
+            principle=(
+                "SA turbulence production is proportional to the modified "
+                "strain rate and working variable, reduced by the optional "
+                "ft2 trip term."
+            ),
+            background=(
+                "Pure API SaProduction in TurbSaPolicy. Feeds SaSourceResidual "
+                "with destruction and limited diffusion."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_production.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_production_theory.csv",
+            plot_module="plot_sa_production",
+            pure_apis=("SaProduction",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_production.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "P = cb1 * (1 - ft2) * S_tilde * nu_tilde;\n"
+            ),
+            proves="Production algebra vs pure API on a nu_tilde grid.",
+            does_not_prove="Full SA residual on a wall-bounded case.",
+        ),
+
         TheoryEntry(
             id="sa_source_residual",
             family="turbulence",
