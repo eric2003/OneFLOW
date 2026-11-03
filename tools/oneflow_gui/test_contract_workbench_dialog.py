@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QEvent, Qt
 from PySide6.QtWidgets import QApplication
 
 from tools.verification.execution_records import (
@@ -31,6 +31,36 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.application = QApplication.instance() or QApplication([])
         cls.repository_root = Path(__file__).resolve().parents[2]
+
+    def setUp(self) -> None:
+        self._preexisting_top_level_widgets = set(
+            self.application.topLevelWidgets()
+        )
+
+    def tearDown(self) -> None:
+        """Destroy widgets created by this test before the next test starts."""
+        created_widgets = (
+            set(self.application.topLevelWidgets())
+            - self._preexisting_top_level_widgets
+        )
+
+        def has_created_ancestor(widget) -> bool:
+            parent = widget.parentWidget()
+            while parent is not None:
+                if parent in created_widgets:
+                    return True
+                parent = parent.parentWidget()
+            return False
+
+        for widget in created_widgets:
+            widget.close()
+
+        for widget in created_widgets:
+            if not has_created_ancestor(widget):
+                widget.deleteLater()
+
+        QApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        self.application.processEvents()
 
     def test_domain_hub_exposes_current_contract_domains(self) -> None:
         dialog = ContractWorkbenchDialog(self.repository_root)
