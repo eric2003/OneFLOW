@@ -5,6 +5,39 @@
 
 using namespace ONEFLOW;
 
+
+TEST( TimeStepPolicy, CflRampStartsAtConfiguredValue )
+{
+    EXPECT_DOUBLE_EQ( CflAtIteration( 0.1, 1.0, 10, 0 ), 0.1 );
+}
+
+TEST( TimeStepPolicy, CflRampInterpolatesLinearly )
+{
+    const Real expected = 0.1 + ( 1.0 - 0.1 ) * 5.0 / 10.0;
+    EXPECT_NEAR( CflAtIteration( 0.1, 1.0, 10, 5 ), expected, 1.0e-12 );
+}
+
+TEST( TimeStepPolicy, CflRampReachesEndAtRampBoundary )
+{
+    EXPECT_DOUBLE_EQ( CflAtIteration( 0.1, 1.0, 10, 10 ), 1.0 );
+}
+
+TEST( TimeStepPolicy, CflRampKeepsEndAfterRamp )
+{
+    EXPECT_DOUBLE_EQ( CflAtIteration( 0.1, 1.0, 10, 20 ), 1.0 );
+}
+
+TEST( TimeStepPolicy, CflRampSupportsDescendingValues )
+{
+    const Real expected = 0.9 + ( 0.1 - 0.9 ) * 5.0 / 10.0;
+    EXPECT_NEAR( CflAtIteration( 0.9, 0.1, 10, 5 ), expected, 1.0e-12 );
+}
+
+TEST( TimeStepPolicy, ZeroLengthCflRampUsesEndValueAtInitialIteration )
+{
+    EXPECT_DOUBLE_EQ( CflAtIteration( 0.1, 1.0, 0, 0 ), 1.0 );
+}
+
 TEST( TimeStepPolicy, InviscidFaceSpectralRadiusMatchesFormula )
 {
     EXPECT_DOUBLE_EQ(
