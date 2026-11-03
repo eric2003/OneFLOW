@@ -225,6 +225,43 @@ _CONSUMERS = (
         ("codes/uns/src/UTimeStep.cpp",),
         ("UTimeStep::CalcGlobalTimeStep", "UTimeStep::CalcLgTimeStep"),
     ),
+
+    ParameterConsumer(
+        "nFieldSave", "codes/global/src/Iteration.cpp", "Iteration::Init",
+        'GetDataValue<int>("nFieldSave")', ConsumerReadKind.REQUIRED,
+        "Loads the field/restart output interval. Representative NS, incompressible NS, turbulence, and multigrid paths schedule restart output using outer-step or solver-specific iteration checks.",
+        "Solver output scheduling; exact behavior depends on solver path and start strategy.",
+        "The value is loaded in Iteration.cpp and used by solver implementation task scheduling.",
+        ("codes/ns/src/NsSolverImp.cpp", "codes/ins/src/INsSolverImp.cpp", "codes/turb/src/TurbSolverImp.cpp", "codes/multigrid/src/Multigrid.cpp"),
+        ("kDumpRestartTaskName",),
+    ),
+    ParameterConsumer(
+        "nVisualSave", "codes/global/src/Iteration.cpp", "Iteration::Init",
+        'GetDataValue<int>("nVisualSave")', ConsumerReadKind.REQUIRED,
+        "Loads the visualization output interval. Representative compressible and incompressible NS paths schedule visualization tasks using this interval.",
+        "Solver output scheduling; exact behavior depends on solver path and start strategy.",
+        "The value is loaded in Iteration.cpp and used by NS solver implementation task scheduling.",
+        ("codes/ns/src/NsSolverImp.cpp", "codes/ins/src/INsSolverImp.cpp"),
+        ("kVisualizationTaskName", "kDumpPressureCoeffTaskName"),
+    ),
+    ParameterConsumer(
+        "nResSave", "codes/global/src/Iteration.cpp", "Iteration::Init",
+        'GetDataValue<int>("nResSave")', ConsumerReadKind.REQUIRED,
+        "Loads the residual output interval. Iteration::ResOk uses innerSteps when startStrategy == 2 and outerSteps otherwise.",
+        "Global iteration output scheduling.",
+        "Direct read and interval predicate are present in Iteration.cpp.",
+        ("codes/global/src/Iteration.cpp",),
+        ("Iteration::ResOk",),
+    ),
+    ParameterConsumer(
+        "nForceSave", "codes/global/src/Iteration.cpp", "Iteration::Init",
+        'GetDataValue<int>("nForceSave")', ConsumerReadKind.REQUIRED,
+        "Loads the force output interval. Iteration::ForceOk uses innerSteps when startStrategy == 2 and outerSteps otherwise.",
+        "Global iteration output scheduling.",
+        "Direct read and interval predicate are present in Iteration.cpp.",
+        ("codes/global/src/Iteration.cpp",),
+        ("Iteration::ForceOk",),
+    ),
 )
 
 
