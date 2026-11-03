@@ -1912,6 +1912,52 @@ principle=(
 
 
 
+
+        TheoryEntry(
+            id="roe_total_enthalpy_jump",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="Roe dissipation / enthalpy jump",
+            title="Roe total-enthalpy jump",
+            role_tags=("inviscid", "Roe", "dissipation"),
+            formula_plain=(
+                "ae = gamma-1\n"
+                "af = 0.5*ae*|u|^2\n"
+                "dh = -ae*(u·dq_mom - dqE) + af*dqRho"
+            ),
+            formula_latex=(
+                r"dh=-(\gamma-1)\bigl(\mathbf{u}\cdot\Delta(\rho\mathbf{u})"
+                r"-\Delta(\rho e)\bigr)"
+                r"+\tfrac12(\gamma-1)|u|^{2}\,\Delta\rho"
+            ),
+            principle=(
+                "Enthalpy-related jump used in Roe dissipation coupling. "
+                "Rest mid-state reduces to dh=(gamma-1)*Delta(rho e)."
+            ),
+            background=(
+                "Pure API RoeTotalEnthalpyJump in NsInvFluxPolicy. "
+                "Feeds RoeDissipationCouplingTerms."
+            ),
+            references=(
+                "Roe approximate Riemann solver; Toro Riemann solvers",
+                "doc/source/numerical/roe_total_enthalpy_jump.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_total_enthalpy_jump_theory.csv",
+            plot_module="plot_roe_total_enthalpy_jump",
+            pure_apis=("RoeTotalEnthalpyJump",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_total_enthalpy_jump.rst",
+            code_sketch=(
+                "// GATED SKETCH rest mid-state\n"
+                "dh = (gama-1)*dqE;\n"
+            ),
+            proves="Enthalpy-jump algebra vs pure API on energy and kinetic samples.",
+            does_not_prove="Full Roe residual or entropy-fix behavior.",
+        ),
+
         TheoryEntry(
             id="roe_continuity_normal_jump",
             family="mean-flow",

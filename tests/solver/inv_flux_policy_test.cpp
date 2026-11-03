@@ -784,3 +784,30 @@ TEST( InvFluxPolicy, RoeContinuityNormalJumpUsesFullNormal )
         -5.0,
         1.0e-12 );
 }
+
+// Intermediate: RoeTotalEnthalpyJump on an energy-jump grid (rest mid-state).
+// Ref: u=v=w=0, gamma=1.4, dqRho=dqMom=0; dh = (gamma-1)*dqE.
+TEST( InvFluxPolicy, RoeTotalEnthalpyJumpCurveMatchesClosedForm )
+{
+    const Real gama = 1.4;
+    const Real dqEs[] = { -2.0, -1.0, 0.0, 0.5, 1.0, 2.0 };
+    for ( Real dqE : dqEs )
+    {
+        EXPECT_NEAR(
+            RoeTotalEnthalpyJump(
+                0.0, 0.0, 0.0, gama, 0.0, 0.0, 0.0, 0.0, dqE ),
+            ( gama - 1.0 ) * dqE,
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeTotalEnthalpyJumpIncludesKineticDensityTerm )
+{
+    // u=1, gama=1.4, dqRho=2, dqMom=0, dqE=0
+    // af = 0.5*(0.4)*1 = 0.2; dh = 0.2*2 = 0.4
+    EXPECT_NEAR(
+        RoeTotalEnthalpyJump(
+            1.0, 0.0, 0.0, 1.4, 2.0, 0.0, 0.0, 0.0, 0.0 ),
+        0.4,
+        1.0e-12 );
+}
