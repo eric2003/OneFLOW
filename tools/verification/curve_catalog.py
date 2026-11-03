@@ -903,6 +903,49 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+        TheoryEntry(
+            id="viscous_energy_flux",
+            family="mean-flow",
+            genus="NS-viscous",
+            section="energy / viscous flux",
+            title="Viscous energy flux (stress work + heat)",
+            role_tags=("viscous", "energy", "flux"),
+            formula_plain=(
+                "E_vis = u*f_mx + v*f_my + w*f_mz + q_n\n"
+                "     = u · f_m + q_n"
+            ),
+            formula_latex=(
+                r"E_{\mathrm{vis}}=\mathbf{u}\cdot\mathbf{f}_m+q_n"
+            ),
+            principle=(
+                "Viscous energy face flux is the power of viscous stresses "
+                "plus conductive heat flux through the face."
+            ),
+            background=(
+                "Pure API ViscousEnergyFlux in NsVisFluxPolicy. Upstream: "
+                "ProjectStressMomentumFlux and ConductiveHeatFluxNormal."
+            ),
+            references=(
+                "Compressible NS energy equation viscous terms; OneFLOW NsVisFluxPolicy",
+                "doc/source/numerical/viscous_energy_flux.rst",
+            ),
+            csv_relpath="tools/verification/data/viscous_energy_flux_theory.csv",
+            plot_module="plot_viscous_energy_flux",
+            pure_apis=("ViscousEnergyFlux",),
+            source_relpaths=(
+                "codes/ns/include/NsVisFluxPolicy.h",
+                "codes/ns/src/NsVisFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/viscous_energy_flux.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "E = u*fmx + v*fmy + w*fmz + qn;\n"
+            ),
+            proves="Energy-flux algebra vs pure API on a q_n grid.",
+            does_not_prove="Full viscous residual on a case mesh.",
+        ),
+
         TheoryEntry(
             id="project_stress_momentum_flux",
             family="mean-flow",

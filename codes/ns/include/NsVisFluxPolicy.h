@@ -35,6 +35,10 @@ void ProjectStressMomentumFlux(
 // @doc-algorithm stokes-stress
 // @doc-stage energy-flux
 // @doc-pure
+// @doc-algorithm viscous-flux
+// @doc-stage energy
+// @doc-pure
+// @doc-formula E_vis = u·f_m + q_n
 Real ViscousEnergyFlux(
     Real u, Real v, Real w,
     Real fluxMx, Real fluxMy, Real fluxMz,

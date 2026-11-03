@@ -150,3 +150,26 @@ TEST( VisFluxPolicy, ProjectStressMomentumFluxUsesFullNormal )
     EXPECT_NEAR( fy, 5.0, 1.0e-12 );
     EXPECT_NEAR( fz, 7.0, 1.0e-12 );
 }
+
+// Intermediate: ViscousEnergyFlux on a heat-flux grid.
+// Ref: u=(1,0,0), f_m=(2,0,0) => work = 2; E = 2 + qn.
+TEST( VisFluxPolicy, ViscousEnergyFluxCurveMatchesClosedForm )
+{
+    const Real qns[] = { -4.0, -1.0, 0.0, 1.0, 2.5, 5.0 };
+    for ( Real qn : qns )
+    {
+        EXPECT_NEAR(
+            ViscousEnergyFlux( 1.0, 0.0, 0.0, 2.0, 0.0, 0.0, qn ),
+            2.0 + qn,
+            1.0e-12 );
+    }
+}
+
+TEST( VisFluxPolicy, ViscousEnergyFluxIncludesAllWorkComponents )
+{
+    // u=(1,2,3), f_m=(4,5,6), qn=7 => 1*4+2*5+3*6+7 = 4+10+18+7 = 39
+    EXPECT_NEAR(
+        ViscousEnergyFlux( 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 ),
+        39.0,
+        1.0e-12 );
+}
