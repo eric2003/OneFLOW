@@ -162,7 +162,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 for index in range(dialog.contract_list.count())
                 if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole) is None
             ]
-            self.assertIn("Run Control  (2)", headers)
+            self.assertIn("Run Control  (3)", headers)
             self.assertIn("Time Integration  (2)", headers)
             self.assertIn("Compressible Flow  (1)", headers)
 
@@ -211,7 +211,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             }
             self.assertEqual(visible_ids, {
                 "parameter/time_integral", "parameter/rk_stage", "parameter/mach_ref",
-                "parameter/max-steps", "parameter/max-time"
+                "parameter/max-steps", "parameter/max-time", "parameter/cfl-ramp"
             })
         finally:
             dialog.close()
