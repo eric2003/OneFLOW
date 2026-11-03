@@ -49,6 +49,12 @@
       "name": "ANSYS CFD-Post variable mapping",
       "url": "https://ansyshelp.ansys.com/public/Views/Secured/corp/v251/en/cfd_post/SECTION00323.html",
       "scope": "Fluent-to-CFX field variable name mappings and availability qualifiers."
+    },
+    {
+      "id": "oneflow_nscom",
+      "name": "OneFLOW Navier-Stokes common-state initialization",
+      "url": "https://github.com/eric2003/OneFLOW/blob/hexin/codes/ns/src/NsCom.cpp",
+      "scope": "Direct runtime reads of reynolds and mach_ref in NsCom initialization."
     }
   ],
   "concepts": [
@@ -379,6 +385,113 @@
           "caveat": "Coordinate components depend on spatial dimension.",
           "source_ids": [
             "fluent_fields"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "flow.mach_number",
+      "label": "Mach number",
+      "symbol": "M",
+      "definition": "Ratio of flow speed to local speed of sound; reference/freestream Mach parameters must be distinguished from a local field.",
+      "dimensions": {
+        "M": 0,
+        "L": 0,
+        "T": 0,
+        "Theta": 0
+      },
+      "si_unit": "1",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "Mach",
+          "role": "reference_state_parameter",
+          "relation": "exact",
+          "applicability": "CGNS ReferenceState nondimensional parameter.",
+          "caveat": "Reference-state value; not necessarily a spatially varying solution field.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "SU2",
+          "name": "MACH_NUMBER",
+          "role": "input_parameter",
+          "relation": "exact",
+          "applicability": "Freestream Mach number configuration.",
+          "caveat": "Freestream configuration value, not a local Mach field.",
+          "source_ids": [
+            "su2_config"
+          ]
+        },
+        {
+          "system": "OneFLOW",
+          "name": "mach_ref",
+          "role": "input_parameter",
+          "relation": "conditional",
+          "applicability": "Read by NsCom initialization as the reference Mach number.",
+          "caveat": "The code uses it in const_cp = 1 / ((gama_ref - 1) * mach_ref^2); this is a reference parameter, not a local Mach field.",
+          "source_ids": [
+            "oneflow_nscom"
+          ]
+        },
+        {
+          "system": "ANSYS Fluent",
+          "name": "Mach Number",
+          "role": "postprocessing_variable",
+          "relation": "exact",
+          "applicability": "Local post-processing field variable where the model supports it.",
+          "caveat": "Distinguish local Mach field from a freestream/reference Mach input.",
+          "source_ids": [
+            "fluent_fields"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "flow.reynolds_number",
+      "label": "Reynolds number",
+      "symbol": "Re",
+      "definition": "Dimensionless ratio of inertial to viscous effects, based on specified velocity, length, and viscosity scales.",
+      "dimensions": {
+        "M": 0,
+        "L": 0,
+        "T": 0,
+        "Theta": 0
+      },
+      "si_unit": "1",
+      "aliases": [
+        {
+          "system": "CGNS",
+          "name": "Reynolds",
+          "role": "reference_state_parameter",
+          "relation": "exact",
+          "applicability": "CGNS ReferenceState nondimensional parameter.",
+          "caveat": "The associated velocity, length, and viscosity scales are separately identified.",
+          "source_ids": [
+            "cgns_sids"
+          ]
+        },
+        {
+          "system": "SU2",
+          "name": "REYNOLDS_NUMBER",
+          "role": "input_parameter",
+          "relation": "exact",
+          "applicability": "Freestream Reynolds number configuration.",
+          "caveat": "The value is based on the freestream values and the configured Reynolds length.",
+          "source_ids": [
+            "su2_config"
+          ]
+        },
+        {
+          "system": "OneFLOW",
+          "name": "reynolds",
+          "role": "input_parameter",
+          "relation": "conditional",
+          "applicability": "Read by NsCom initialization.",
+          "caveat": "The runtime read is confirmed; the exact velocity/length/viscosity convention must be traced through reference-state setup before claiming equivalence to another code's Reynolds number.",
+          "source_ids": [
+            "oneflow_nscom"
           ]
         }
       ]
