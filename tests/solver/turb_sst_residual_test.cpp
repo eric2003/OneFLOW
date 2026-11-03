@@ -57,6 +57,29 @@ TEST( TurbSstResidual, SstSourceKAssembledFromDissipationAndLimiter )
     EXPECT_NEAR( SstSourceK( pLim, eps ), pLim - eps, 1.0e-12 );
 }
 
+// Intermediate: SstSourceW on a cross-diffusion grid.
+// Ref: Pw=4, Dw=1; Sw = 3 + CD.
+TEST( TurbSstResidual, SstSourceWCurveMatchesClosedForm )
+{
+    const Real prodw = 4.0;
+    const Real dissw = 1.0;
+    const Real cds[] = { -1.0, -0.5, 0.0, 0.5, 1.0, 2.0 };
+    for ( Real cd : cds )
+    {
+        EXPECT_NEAR(
+            SstSourceW( prodw, dissw, cd ),
+            prodw - dissw + cd,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstResidual, SstSourceWAssembledFromDissw )
+{
+    const Real Dw = SstDissw( 1.0, 0.075, 1.0, 2.0 );
+    // Dw = 0.3; Pw=1, CD=0 => Sw = 0.7
+    EXPECT_NEAR( SstSourceW( 1.0, Dw, 0.0 ), 1.0 - Dw, 1.0e-12 );
+}
+
 // Intermediate: SstDiagonalK on an omega grid.
 // Ref: fBetas=1, betas=0.09; dk = -0.18 * omega.
 TEST( TurbSstResidual, SstDiagonalKCurveMatchesClosedForm )
