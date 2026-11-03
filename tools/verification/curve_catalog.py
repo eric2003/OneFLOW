@@ -1118,6 +1118,50 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Full viscous face heat flux residual on a mesh.",
         ),
 
+
+        TheoryEntry(
+            id="cell_time_step_from_spectrum",
+            family="mean-flow",
+            genus="NS-spectrum",
+            section="time-step / spectrum to dt",
+            title="Cell time step from spectral radius",
+            role_tags=("time-step", "CFL", "spectrum"),
+            formula_plain=(
+                "dt = CFL * cellVolume / spectralRadius\n"
+                "Maps inviscid/viscous spectra to a local time step"
+            ),
+            formula_latex=(
+                r"\Delta t=\frac{\mathrm{CFL}\,V}{\lambda}"
+            ),
+            principle=(
+                "CFL-limited local time step: larger spectral radius forces a "
+                "smaller step. Upstream spectra are inviscid and viscous face "
+                "estimates; downstream may combine inv/vis steps."
+            ),
+            background=(
+                "Pure API CellTimeStepFromSpectrum in TimeStepPolicy. "
+                "Related: CombineInvAndVisTimeStep, viscous spectral models."
+            ),
+            references=(
+                "Standard FV CFL condition; Blazek time-step chapters",
+                "doc/source/numerical/cell_time_step_from_spectrum.rst",
+            ),
+            csv_relpath="tools/verification/data/cell_time_step_from_spectrum_theory.csv",
+            plot_module="plot_cell_time_step_from_spectrum",
+            pure_apis=("CellTimeStepFromSpectrum",),
+            source_relpaths=(
+                "codes/ns/include/TimeStepPolicy.h",
+                "codes/ns/src/TimeStepPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/cell_time_step_from_spectrum.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "dt = cfl * cellVolume / spectralRadius;\n"
+            ),
+            proves="dt=CFL*V/lambda algebra and 1/lambda, linear-V scaling.",
+            does_not_prove="Optimal CFL on a production mesh.",
+        ),
+
         TheoryEntry(
             id="combine_inv_vis_timestep",
             family="mean-flow",

@@ -228,3 +228,17 @@ TEST( TimeStepPolicy, CombineInvAndVisTimeStepIsBoundedByMin )
     EXPECT_LT( c, 5.0 );
     EXPECT_NEAR( c, 1.875, 1.0e-12 );
 }
+
+TEST( TimeStepPolicy, CellTimeStepFromSpectrumInverselyScalesWithLambda )
+{
+    const Real a = CellTimeStepFromSpectrum( 1.0, 4.0, 1.0 );
+    const Real b = CellTimeStepFromSpectrum( 1.0, 4.0, 2.0 );
+    EXPECT_NEAR( a, 2.0 * b, 1.0e-12 );
+}
+
+TEST( TimeStepPolicy, CellTimeStepFromSpectrumLinearInVolume )
+{
+    const Real a = CellTimeStepFromSpectrum( 0.5, 2.0, 1.0 );
+    const Real b = CellTimeStepFromSpectrum( 0.5, 4.0, 1.0 );
+    EXPECT_NEAR( b, 2.0 * a, 1.0e-12 );
+}
