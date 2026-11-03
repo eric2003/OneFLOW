@@ -125,7 +125,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("gama_ref", formula_text)
             self.assertIn("M_{\\infty}", latex_text)
             self.assertIn("const_cp", formula_text)
-            self.assertIn(r"\mathrm{const\_cp}", latex_text)
+            self.assertIn(r"\\mathrm{const\\_cp}", latex_text)
             self.assertTrue(dialog.render_parameter_formula_button.isEnabled())
             self.assertTrue(dialog.copy_parameter_formula_button.isEnabled())
 
@@ -152,41 +152,34 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("Time Integration  (2)", headers)
             self.assertIn("Compressible Flow  (1)", headers)
 
+            def visible_contract_ids() -> set[str]:
+                return {
+                    dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                    for index in range(dialog.contract_list.count())
+                    if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                }
+
             dialog.search_edit.setText("mach_ref")
-            visible_ids = {
-                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
-                for index in range(dialog.contract_list.count())
-                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
-            }
-            self.assertEqual(visible_ids, {"parameter/mach_ref"})
-            dialog.search_edit.setText("maxSteps")
-            visible_ids = {
-                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
-                for index in range(dialog.contract_list.count())
-                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
-            }
-            self.assertEqual(visible_ids, {"parameter/max-steps"})
+            self.assertEqual(visible_contract_ids(), {"parameter/mach_ref"})
+
+            dialog.search_edit.setText("Maximum iteration steps")
+            self.assertEqual(visible_contract_ids(), {"parameter/max-steps"})
+
+            dialog.search_edit.setText("Maximum simulation time")
+            self.assertEqual(visible_contract_ids(), {"parameter/max-time"})
+
+            # Full-text search also finds cross-references between related controls.
             dialog.search_edit.setText("maxTime")
-            visible_ids = {
-                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
-                for index in range(dialog.contract_list.count())
-                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
-            }
-            self.assertEqual(visible_ids, {"parameter/max-time"})
+            self.assertEqual(
+                visible_contract_ids(),
+                {"parameter/max-steps", "parameter/max-time"},
+            )
+
             dialog.search_edit.setText("NsCom.cpp")
-            visible_ids = {
-                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
-                for index in range(dialog.contract_list.count())
-                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
-            }
-            self.assertEqual(visible_ids, {"parameter/mach_ref"})
+            self.assertEqual(visible_contract_ids(), {"parameter/mach_ref"})
+
             dialog.search_edit.clear()
-            visible_ids = {
-                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
-                for index in range(dialog.contract_list.count())
-                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
-            }
-            self.assertEqual(visible_ids, {
+            self.assertEqual(visible_contract_ids(), {
                 "parameter/time_integral", "parameter/rk_stage", "parameter/mach_ref",
                 "parameter/max-steps", "parameter/max-time"
             })
