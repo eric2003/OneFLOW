@@ -288,8 +288,8 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             background=("See sa_source.rst for coefficient mapping in CalcSrcSa."),
             references=("NASA TMR SA; OneFLOW sa_source.rst",),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/sa_source_residual_theory.csv",
+            plot_module="plot_sa_source_residual",
             pure_apis=(
                 "SaProduction",
                 "SaDestruction",
@@ -299,6 +299,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             source_relpaths=(
                 "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
                 "codes/turb/src/TurbCom.cpp",
             ),
             doc_relpath="doc/source/numerical/sa_source.rst",

@@ -233,3 +233,31 @@ TEST( TurbSaPolicy, SaDestructionCanBeNegativeWhenFt2Dominates )
     // cw1k*fw = 0.1, cb1*ft2 = 0.1355 => negative prefactor
     EXPECT_LT( SaDestruction( 0.2, 0.5, 0.1355, 1.0, 1.0 ), 0.0 );
 }
+
+// Intermediate: SaSourceResidual on a diffusion grid.
+// Ref: P=0.13008, D=0.58916; S = P - D + Diff.
+TEST( TurbSaPolicy, SaSourceResidualCurveMatchesClosedForm )
+{
+    const Real P = 0.13008;
+    const Real D = 0.58916;
+    const Real diffs[] = { 0.0, 0.1, 0.1625, 0.5, 1.0 };
+    for ( Real diff : diffs )
+    {
+        EXPECT_NEAR(
+            SaSourceResidual( P, D, diff ),
+            P - D + diff,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaSourceResidualAssembledFromPieces )
+{
+    const Real P = SaProduction( 0.1355, 0.2, 3.0, 0.4 );
+    const Real D = SaDestruction( 3.0, 0.5, 0.1355, 0.2, 0.4 );
+    const Real Diff = SaLimitedDiffusion(
+        SaDiffusion( 1.3, 0.25, 0.5 ), 0.5, P );
+    EXPECT_NEAR(
+        SaSourceResidual( P, D, Diff ),
+        P - D + Diff,
+        1.0e-12 );
+}
