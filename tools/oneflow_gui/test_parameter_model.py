@@ -1,6 +1,7 @@
 """Tests for the logical CFD/grid parameter model."""
 from __future__ import annotations
 
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +11,7 @@ from tools.oneflow_gui.parameter_model import (
     ParameterApplicability,
     ParameterDomain,
     ParameterModel,
+    classify_parameter,
 )
 
 
@@ -125,6 +127,35 @@ class ParameterModelTest(unittest.TestCase):
                         model.get(key).classification.applicability,
                         ParameterApplicability.SOLVE,
                     )
+
+
+    def test_representative_case_manifests_have_no_unclassified_declarations(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        case_paths = (
+            Path("test/cfd/rae2822_roe_sa"),
+            Path("test/grid/rae2822convert"),
+        )
+        for case_path in case_paths:
+            with self.subTest(case=str(case_path)):
+                script = repository_root / case_path / "script"
+                control_text = (script / "control.txt").read_text(encoding="utf-8")
+                documents = []
+                for line in control_text.splitlines():
+                    match = re.fullmatch(r'\\s*"([^"]+)"\\s*;\\s*', line)
+                    if match:
+                        documents.append(ParameterDocument.load(script / match.group(1)))
+                self.assertTrue(documents, f"No parameter documents found for {case_path}")
+                model = ParameterModel.from_documents(documents)
+
+                unclassified = [
+                    entry.name for entry in model.entries
+                    if entry.classification.domain == ParameterDomain.OTHER
+                ]
+                unclassified.extend(
+                    declaration.name for declaration in model.unsupported_declarations
+                    if classify_parameter(declaration.name).domain == ParameterDomain.OTHER
+                )
+                self.assertEqual(unclassified, [])
 
     def test_last_declaration_wins_and_shadowed_sources_remain_visible(self):
         with tempfile.TemporaryDirectory() as temporary:
