@@ -316,3 +316,22 @@ their actual parser, setup, and runtime validation paths are traced.
 The Contract Workbench places this parameter in the **Run Control** group.
 Its evidence is source-declared and marked ``declared_not_executed``; it is
 not a recorded test result or a claim that a case converges within the limit.
+
+Maximum simulation time
+-----------------------
+
+The related parameter contract ``parameter/max-time`` records the time-based
+outer-loop stop condition. ``Ctrl::Init`` reads ``maxTime`` as a ``Real`` and
+initializes ``currTime`` to zero. In ``SimuIterState::Running``, the comparison
+``currTime >= maxTime`` is active when ``iexitflag`` is nonzero. When
+``iexitflag`` is zero, the loop instead uses the ``maxSteps`` iteration limit.
+
+The audited code establishes this comparison but does not, by itself, define
+the physical unit or nondimensional scale of ``maxTime`` for every solver and
+case. Nor does it establish how each solver advances ``currTime`` or guarantee
+residual convergence by the time threshold. The parameter should therefore be
+interpreted together with the case's time convention and solver configuration.
+
+Both ``maxSteps`` and ``maxTime`` appear in the **Run Control** group. They are
+alternative outer-loop termination controls selected by ``iexitflag``; neither
+is a residual-based convergence criterion.
