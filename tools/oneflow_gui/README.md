@@ -289,6 +289,14 @@ python -m unittest tools.oneflow_gui.test_project_window
 ```
 
 
+The Parameter Contract browser now includes a dedicated **Examples** tab alongside
+Formula and Implementation / Code. All six current parameter contracts have structured
+worked examples: maxSteps and maxTime stop conditions, time_integral dispatch, the
+four-stage rk_stage schedule, CFL ramp indexing in physical-time and dual-time modes,
+and mach_ref reference-state scaling. Each example separates input, calculation,
+result, and limitations; arithmetic examples are not presented as solver execution or
+numerical-accuracy evidence.
+
 The Formula & Knowledge browser now keeps **Implementation** separate from
 **Code sketch**: Implementation lists the production source paths, pure APIs,
 and canonical documentation path; Code sketch remains explicitly illustrative.

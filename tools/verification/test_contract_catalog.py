@@ -210,7 +210,7 @@ class ContractCatalogTest(unittest.TestCase):
             "declared",
         )
         issues = validate_contract_summaries(self.repository_root, [summary])
-        self.assertEqual(issues, [], "\\n".join(issues))
+        self.assertEqual(issues, [], "\n".join(issues))
 
     def test_parameter_cfl_ramp_contract_records_source_and_test_links(self) -> None:
         definition_path = (

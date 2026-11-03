@@ -76,7 +76,11 @@ Formula & Knowledge 的导航现在将 **Implementation** 和 **Code sketch** �
 Implementation 显示真实生产源码路径、纯函数 API 和对应文档；Code sketch
 仅用于辅助理解，不能替代生产实现。新增 **Examples** 标签页，示例包含输入、
 计算过程、结果和适用边界。目前先加入 SA 的 ``fv1``、SST 的 ``F1``，以及
-OneFLOW 多阶段时间推进系数序列示例。对于尚未整理示例的条目会明确显示
+OneFLOW 多阶段时间推进系数序列示例。**Parameter** 领域也有独立的 **Examples** 标签页，
+当前六个参数契约均提供结构化算例：maxSteps 的迭代停止分支、maxTime 的物理时间阈值、
+time_integral 的方法分派、rk_stage 的四阶段系数、CFL ramp 的双时间索引以及
+mach_ref 的参考状态缩放。每个例子分别列出输入、计算、结果和限制；这些数值演算
+用于解释参数语义，不会冒充求解器运行结果或数值精度验证。对于尚未整理示例的条目会明确显示
 尚无示例，不会用推测数据填充。多阶段示例只解释当前实现的
 ``a_s = 1/(s+1)`` 系数安排，不将其误称为完整 Butcher tableau 或形式阶数证明。
 
