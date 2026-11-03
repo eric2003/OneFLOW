@@ -702,3 +702,32 @@ TEST( InvFluxPolicy, RoeAverageComponentConsistentWithWeights )
         ( 3.0 + 9.0 * 2.0 ) / 3.0,
         1.0e-12 );
 }
+
+// Intermediate: IdealGasPrimToConservative on a pressure grid (rest gas).
+// Ref: rho=1, u=v=w=0, gamma=1.4 => qRhoE = p/(gamma-1).
+TEST( InvFluxPolicy, IdealGasPrimToConservativeCurveMatchesClosedForm )
+{
+    const Real density = 1.0;
+    const Real gama = 1.4;
+    const Real pressures[] = { 0.5, 1.0, 1.4, 2.0, 4.0 };
+    for ( Real p : pressures )
+    {
+        Real qr, qu, qv, qw, qe;
+        IdealGasPrimToConservative(
+            density, 0.0, 0.0, 0.0, p, gama, qr, qu, qv, qw, qe );
+        EXPECT_NEAR( qr, density, 1.0e-12 );
+        EXPECT_NEAR( qu, 0.0, 1.0e-12 );
+        EXPECT_NEAR( qe, p / ( gama - 1.0 ), 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, IdealGasPrimToConservativeAddsKineticEnergy )
+{
+    // rho=1, u=2, p=1, gamma=1.4
+    // e_int = 1/0.4 + 0.5*4 = 2.5+2 = 4.5
+    Real qr, qu, qv, qw, qe;
+    IdealGasPrimToConservative(
+        1.0, 2.0, 0.0, 0.0, 1.0, 1.4, qr, qu, qv, qw, qe );
+    EXPECT_NEAR( qu, 2.0, 1.0e-12 );
+    EXPECT_NEAR( qe, 4.5, 1.0e-12 );
+}

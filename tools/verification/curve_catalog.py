@@ -1689,6 +1689,54 @@ principle=(
 
 
 
+
+        TheoryEntry(
+            id="ideal_gas_prim_to_conservative",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Ideal-gas prim to conservative map",
+            role_tags=("EOS", "conservative"),
+            formula_plain=(
+                "q_rho = rho\n"
+                "q_mom = rho * u\n"
+                "q_rhoE = rho * ( p/(rho*(gamma-1)) + |u|^2/2 )"
+            ),
+            formula_latex=(
+                r"\mathbf{q}=\begin{bmatrix}\rho\\ \rho\mathbf{u}\\ "
+                r"\rho\bigl(\frac{p}{\rho(\gamma-1)}+\frac12|u|^{2}\bigr)"
+                r"\end{bmatrix}"
+            ),
+            principle=(
+                "Maps primitive thermodynamic/kinematic state to conserved "
+                "variables for the ideal-gas five-equation system."
+            ),
+            background=(
+                "Pure API IdealGasPrimToConservative; uses "
+                "IdealGasSpecificInternalEnergy. Inverse: "
+                "IdealGasConservativeToPrim."
+            ),
+            references=(
+                "Standard ideal-gas FV variable conversion",
+                "doc/source/numerical/ideal_gas_prim_to_conservative.rst",
+            ),
+            csv_relpath="tools/verification/data/ideal_gas_prim_to_conservative_theory.csv",
+            plot_module="plot_ideal_gas_prim_to_conservative",
+            pure_apis=("IdealGasPrimToConservative",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ideal_gas_prim_to_conservative.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "em = p/(rho*(g-1)) + 0.5*|u|^2;\n"
+                "qRhoE = rho * em;\n"
+            ),
+            proves="Prim-to-cons algebra on pressure and kinetic samples.",
+            does_not_prove="Variable-gamma gas or multi-species mixture.",
+        ),
+
         TheoryEntry(
             id="ideal_gas_specific_internal_energy",
             family="mean-flow",
