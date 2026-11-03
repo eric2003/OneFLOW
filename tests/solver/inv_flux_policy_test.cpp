@@ -616,3 +616,22 @@ TEST( InvFluxPolicy, IdealGasSoundSpeedFromPressureScalesWithSqrtPressure )
     const Real c4 = IdealGasSoundSpeedFromPressure( 1.0, 4.0, 1.4 );
     EXPECT_NEAR( c4, 2.0 * c1, 1.0e-12 );
 }
+
+// Intermediate: FaceMachNumber on a vn grid (sound speed fixed).
+TEST( InvFluxPolicy, FaceMachNumberCurveMatchesClosedForm )
+{
+    const Real c = 1.5;
+    const Real vns[] = { -3.0, -1.5, 0.0, 0.75, 1.5, 3.0 };
+    for ( Real vn : vns )
+    {
+        EXPECT_NEAR( FaceMachNumber( vn, c ), vn / c, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, FaceMachNumberInverselyScalesWithSoundSpeed )
+{
+    EXPECT_NEAR(
+        FaceMachNumber( 3.0, 1.5 ),
+        2.0 * FaceMachNumber( 3.0, 3.0 ),
+        1.0e-12 );
+}

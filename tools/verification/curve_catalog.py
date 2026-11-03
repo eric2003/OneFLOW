@@ -1353,6 +1353,49 @@ references=(
         ),
 
 
+
+        TheoryEntry(
+            id="face_mach_number",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="face kinematics / Mach",
+            title="Face Mach number M = vn / c",
+            role_tags=("inviscid", "Mach", "AUSM"),
+            formula_plain=(
+                "M = vn_rel / soundSpeed\n"
+                "Used by AUSM-type mass/pressure splits at faces"
+            ),
+            formula_latex=(
+                r"M=\frac{v_n}{c}"
+            ),
+            principle=(
+                "Relative normal Mach number at a face. Sign indicates inflow "
+                "or outflow relative to the face normal orientation."
+            ),
+            background=(
+                "Pure API FaceMachNumber in NsInvFluxPolicy. Consumers include "
+                "AUSM face reconstructions in NsInvFlux."
+            ),
+            references=(
+                "AUSM family (Liou); OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/face_mach_number.rst",
+            ),
+            csv_relpath="tools/verification/data/face_mach_number_theory.csv",
+            plot_module="plot_face_mach_number",
+            pure_apis=("FaceMachNumber",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/face_mach_number.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "M = vnRel / soundSpeed;\n"
+            ),
+            proves="M=vn/c algebra vs pure API on a vn grid.",
+            does_not_prove="Full AUSM flux residual or entropy-fix interaction.",
+        ),
+
         TheoryEntry(
             id="ausm_mach_split",
             family="mean-flow",
