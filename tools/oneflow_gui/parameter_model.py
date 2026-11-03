@@ -174,8 +174,6 @@ def _normalize_key(name: str) -> str:
     return name.casefold()
 
 
-def _task_name(task: str | None) -> str:
-    return (task or "").strip().casefold()
 
 
 def classify_parameter(name: str) -> ParameterClassification:
