@@ -76,6 +76,7 @@ Real FaceNormalDot(
 // @doc-stage nondim-coefficient
 // @doc-pure
 // @doc-formula coeff = - (1/Re) * A
+// @doc-formula coef = -A/Re
 Real ViscousFaceFluxCoefficient( Real invReynolds, Real faceArea );
 
 // @doc-algorithm spectral-radius

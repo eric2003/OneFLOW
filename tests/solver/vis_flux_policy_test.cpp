@@ -192,3 +192,26 @@ TEST( VisFluxPolicy, ViscousEnergyFluxIncludesAllWorkComponents )
         39.0,
         1.0e-12 );
 }
+
+// Intermediate: ViscousFaceFluxCoefficient on a face-area grid.
+// Ref: invReynolds=0.01; coef = -invRe * A.
+TEST( VisFluxPolicy, ViscousFaceFluxCoefficientCurveMatchesClosedForm )
+{
+    const Real invRe = 0.01;
+    const Real areas[] = { 0.5, 1.0, 2.0, 4.0, 8.0 };
+    for ( Real A : areas )
+    {
+        EXPECT_NEAR(
+            ViscousFaceFluxCoefficient( invRe, A ),
+            -invRe * A,
+            1.0e-12 );
+    }
+}
+
+TEST( VisFluxPolicy, ViscousFaceFluxCoefficientLinearInInvReynolds )
+{
+    EXPECT_NEAR(
+        ViscousFaceFluxCoefficient( 0.2, 3.0 ),
+        2.0 * ViscousFaceFluxCoefficient( 0.1, 3.0 ),
+        1.0e-12 );
+}

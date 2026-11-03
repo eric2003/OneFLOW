@@ -943,6 +943,49 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Full viscous residual on a case mesh.",
         ),
 
+
+        TheoryEntry(
+            id="viscous_face_flux_coefficient",
+            family="mean-flow",
+            genus="NS-viscous",
+            section="flux scaling / Reynolds",
+            title="Viscous face flux coefficient (-A/Re)",
+            role_tags=("viscous", "flux", "Reynolds"),
+            formula_plain=(
+                "coef = - invReynolds * faceArea\n"
+                "Scales Stokes/heat face fluxes into residual units"
+            ),
+            formula_latex=(
+                r"\mathrm{coef}=-\frac{A}{\mathrm{Re}}"
+            ),
+            principle=(
+                "Non-dimensional NS places 1/Re on viscous fluxes. The face "
+                "coefficient multiplies stress/heat contributions before "
+                "deposition to cells."
+            ),
+            background=(
+                "Pure API ViscousFaceFluxCoefficient in NsVisFluxPolicy."
+            ),
+            references=(
+                "Non-dimensional compressible NS; OneFLOW NsVisFluxPolicy",
+                "doc/source/numerical/viscous_face_flux_coefficient.rst",
+            ),
+            csv_relpath="tools/verification/data/viscous_face_flux_coefficient_theory.csv",
+            plot_module="plot_viscous_face_flux_coefficient",
+            pure_apis=("ViscousFaceFluxCoefficient",),
+            source_relpaths=(
+                "codes/ns/include/NsVisFluxPolicy.h",
+                "codes/ns/src/NsVisFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/viscous_face_flux_coefficient.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "coef = - invReynolds * faceArea;\n"
+            ),
+            proves="coef=-A/Re algebra vs pure API on an area grid.",
+            does_not_prove="Full viscous residual magnitude on a mesh.",
+        ),
+
         TheoryEntry(
             id="conductive_heat_flux_normal",
             family="mean-flow",
@@ -1116,50 +1159,6 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             proves="k_eff algebra vs pure API on a mut grid.",
             does_not_prove="Full viscous face heat flux residual on a mesh.",
-        ),
-
-
-        TheoryEntry(
-            id="cell_time_step_from_spectrum",
-            family="mean-flow",
-            genus="NS-spectrum",
-            section="time-step / spectrum to dt",
-            title="Cell time step from spectral radius",
-            role_tags=("time-step", "CFL", "spectrum"),
-            formula_plain=(
-                "dt = CFL * cellVolume / spectralRadius\n"
-                "Maps inviscid/viscous spectra to a local time step"
-            ),
-            formula_latex=(
-                r"\Delta t=\frac{\mathrm{CFL}\,V}{\lambda}"
-            ),
-            principle=(
-                "CFL-limited local time step: larger spectral radius forces a "
-                "smaller step. Upstream spectra are inviscid and viscous face "
-                "estimates; downstream may combine inv/vis steps."
-            ),
-            background=(
-                "Pure API CellTimeStepFromSpectrum in TimeStepPolicy. "
-                "Related: CombineInvAndVisTimeStep, viscous spectral models."
-            ),
-            references=(
-                "Standard FV CFL condition; Blazek time-step chapters",
-                "doc/source/numerical/cell_time_step_from_spectrum.rst",
-            ),
-            csv_relpath="tools/verification/data/cell_time_step_from_spectrum_theory.csv",
-            plot_module="plot_cell_time_step_from_spectrum",
-            pure_apis=("CellTimeStepFromSpectrum",),
-            source_relpaths=(
-                "codes/ns/include/TimeStepPolicy.h",
-                "codes/ns/src/TimeStepPolicy.cpp",
-            ),
-            doc_relpath="doc/source/numerical/cell_time_step_from_spectrum.rst",
-            code_sketch=(
-                "// GATED SKETCH\n"
-                "dt = cfl * cellVolume / spectralRadius;\n"
-            ),
-            proves="dt=CFL*V/lambda algebra and 1/lambda, linear-V scaling.",
-            does_not_prove="Optimal CFL on a production mesh.",
         ),
 
         TheoryEntry(
