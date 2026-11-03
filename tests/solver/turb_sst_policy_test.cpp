@@ -129,3 +129,27 @@ TEST( TurbSstPolicy, SstLimitProdkUsesDissipationFromSstDisskStandard )
     // eps = 0.54; pklim=10 => cap=5.4; production 20 limited to 5.4
     EXPECT_NEAR( SstLimitProdk( 20.0, 10.0, eps ), 10.0 * eps, 1.0e-12 );
 }
+
+// Intermediate: SstDissw on an omega grid.
+// Ref: fBeta=1, beta=0.075, rho=1; Dw = 0.075 * omega^2.
+TEST( TurbSstPolicy, SstDisswCurveMatchesClosedForm )
+{
+    const Real fBeta = 1.0;
+    const Real beta = 0.075;
+    const Real density = 1.0;
+    const Real omegas[] = { 0.5, 1.0, 2.0, 3.0, 5.0, 10.0 };
+    for ( Real omega : omegas )
+    {
+        EXPECT_NEAR(
+            SstDissw( fBeta, beta, density, omega ),
+            fBeta * beta * density * omega * omega,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstDisswQuadraticInOmega )
+{
+    const Real d1 = SstDissw( 1.0, 0.075, 1.0, 2.0 );
+    const Real d2 = SstDissw( 1.0, 0.075, 1.0, 4.0 );
+    EXPECT_NEAR( d2, 4.0 * d1, 1.0e-12 );
+}

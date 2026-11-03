@@ -533,9 +533,9 @@ def list_theory_entries() -> list[TheoryEntry]:
             principle=("k residual ~ production minus dissipation with limiter."),
             background=("Pure APIs isolate production options and limiter."),
             references=("Menter SST; OneFLOW sst_k_source.rst",),
-            csv_relpath="tools/verification/data/sst_source_k_theory.csv",
-            plot_module="plot_sst_source_k",
-            pure_apis=("SstProdkBoussinesq", "SstDisskStandard", "SstLimitProdk", "SstSourceK"),
+            csv_relpath=None,
+            plot_module=None,
+            pure_apis=("SstProdkBoussinesq", "SstDisskStandard", "SstLimitProdk"),
             source_relpaths=(
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
@@ -550,6 +550,48 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="k source algebra vs pure APIs.",
             does_not_prove="Two-equation field quality.",
         ),
+
+        TheoryEntry(
+            id="sst_dissw",
+            family="turbulence",
+            genus="SST",
+            section="source / omega dissipation",
+            title="SST omega dissipation Dw",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "Dw = f_beta * beta * rho * omega^2"
+            ),
+            formula_latex=(
+                r"D_\omega=f_\beta\,\beta\,\rho\,\omega^{2}"
+            ),
+            principle=(
+                "SST/k-omega destruction of specific dissipation rate. "
+                "f_beta is a Wilcox-style modifier when enabled (often 1)."
+            ),
+            background=(
+                "Pure API SstDissw in TurbSstPolicy. Feeds SstSourceW with "
+                "production and cross-diffusion."
+            ),
+            references=(
+                "Menter SST; Wilcox k-omega; NASA TMR SST",
+                "doc/source/numerical/sst_dissw.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_dissw_theory.csv",
+            plot_module="plot_sst_dissw",
+            pure_apis=("SstDissw",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_dissw.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Dw = fBeta * beta * density * omega * omega;\n"
+            ),
+            proves="omega-dissipation algebra vs pure API on an omega grid.",
+            does_not_prove="Full SST omega residual on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sst_omega_source",
             family="turbulence",
