@@ -236,11 +236,11 @@ class ContractDomainDialog(QDialog):
             self.render_parameter_formula_button.clicked.connect(self._render_parameter_formula)
             self.zoom_out_parameter_formula_button = QPushButton("Zoom out")
             self.zoom_out_parameter_formula_button.clicked.connect(
-                lambda: self._change_parameter_formula_zoom(0.8)
+                self._zoom_parameter_formula_out
             )
             self.zoom_in_parameter_formula_button = QPushButton("Zoom in")
             self.zoom_in_parameter_formula_button.clicked.connect(
-                lambda: self._change_parameter_formula_zoom(1.25)
+                self._zoom_parameter_formula_in
             )
             self.copy_parameter_formula_button = QPushButton("Copy LaTeX")
             self.copy_parameter_formula_button.clicked.connect(self._copy_parameter_formula)
@@ -786,6 +786,12 @@ class ContractDomainDialog(QDialog):
             self.parameter_formula_preview.setText(
                 f"Formula preview unavailable ({error}). The LaTeX source remains available."
             )
+
+    def _zoom_parameter_formula_in(self) -> None:
+        self._change_parameter_formula_zoom(1.25)
+
+    def _zoom_parameter_formula_out(self) -> None:
+        self._change_parameter_formula_zoom(0.8)
 
     def _change_parameter_formula_zoom(self, factor: float) -> None:
         self._parameter_formula_zoom = min(
