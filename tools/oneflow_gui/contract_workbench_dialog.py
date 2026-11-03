@@ -33,6 +33,11 @@ from .application_settings import ApplicationSettings
 from .source_editor import open_source_files
 from .user_data_paths import UserDataPaths
 
+from .parameter_consumer_catalog import (
+    ParameterConsumerCatalog,
+    validate_parameter_consumer_sources,
+)
+
 
 def _ensure_tools_on_path(repository_root: Path) -> None:
     tools_root = (repository_root / "tools").resolve()
@@ -144,6 +149,9 @@ class ContractDomainDialog(QDialog):
         )
         self._summary_by_id = {item.id: item for item in self._summaries}
         self._diagnostics = tuple(diagnostics)
+        self._parameter_consumer_catalog = (
+            ParameterConsumerCatalog() if domain == "parameter" else None
+        )
 
         self.setWindowTitle(f"Contract Workbench - {domain.title()}")
         self.resize(1120, 740)
@@ -243,6 +251,8 @@ class ContractDomainDialog(QDialog):
         self.evidence_view.setReadOnly(True)
         self.examples_view = QPlainTextEdit()
         self.examples_view.setReadOnly(True)
+        self.runtime_consumers_view = QPlainTextEdit()
+        self.runtime_consumers_view.setReadOnly(True)
         self.case_view = QPlainTextEdit()
         self.case_view.setReadOnly(True)
         self.workflow_view = QPlainTextEdit()
@@ -303,6 +313,7 @@ class ContractDomainDialog(QDialog):
         if domain == "parameter":
             self.tabs.addTab(self.parameter_formula_page, "Formula")
             self.tabs.addTab(self.implementation_page, "Implementation / Code")
+            self.tabs.addTab(self.runtime_consumers_view, "Runtime Consumers")
             self.tabs.addTab(self.examples_view, "Examples")
         else:
             self.tabs.addTab(self.principle_view, "Principle")
@@ -573,6 +584,60 @@ class ContractDomainDialog(QDialog):
             return None
         return self._summary_by_id.get(item.data(Qt.ItemDataRole.UserRole))
 
+    def _populate_parameter_consumers(self, parameter_name: str, consumers) -> None:
+        """Show audited source reads without implying complete consumer discovery."""
+        if not consumers:
+            self.runtime_consumers_view.setPlainText(
+                f"No audited runtime consumer is registered for {parameter_name}.\n\n"
+                "This means the parameter is outside the current curated audit slice; "
+                "it does not prove that the parameter is unused. Trace task, solver, "
+                "model, and lazy-read conditions before drawing that conclusion."
+            )
+            return
+
+        catalog = ParameterConsumerCatalog(consumers=tuple(consumers))
+        issues = validate_parameter_consumer_sources(self._repository_root, catalog)
+        lines = [
+            f"Parameter: {parameter_name}",
+            f"Audited read sites: {len(consumers)}",
+            "",
+            "Evidence boundary",
+            "-----------------",
+            "The source check confirms that recorded read expressions, consumer symbols, "
+            "and named downstream symbols still exist. It does not prove that a run "
+            "entered the path or that the parameter changed a numerical result.",
+            "",
+        ]
+        for index, consumer in enumerate(consumers, start=1):
+            consumer_issues = [
+                issue for issue in issues
+                if issue.startswith(f"{consumer.parameter_name}:")
+            ]
+            lines.extend((
+                f"{index}. {consumer.symbol} [{consumer.read_kind.value}]",
+                f"   Direct read: {consumer.read_expression}",
+                f"   Source: {consumer.source_path}",
+                f"   Applicability: {consumer.applicability}",
+                f"   Behavior: {consumer.behavior}",
+                f"   Evidence: {consumer.evidence_note}",
+                "   Source audit: "
+                + ("FAILED" if consumer_issues else "references resolved"),
+            ))
+            for path in consumer.behavior_source_paths:
+                lines.append(f"   Downstream source: {path}")
+            if consumer.behavior_symbols:
+                lines.append(
+                    "   Downstream symbols: " + ", ".join(consumer.behavior_symbols)
+                )
+            if consumer.knowledge_ids:
+                lines.append(
+                    "   Formula & Knowledge: " + ", ".join(consumer.knowledge_ids)
+                )
+            lines.extend(f"   Audit issue: {issue}" for issue in consumer_issues)
+            lines.append("")
+        self.runtime_consumers_view.setPlainText("\n".join(lines).rstrip())
+
+
     def _select_contract(self, row: int) -> None:
         if row < 0:
             return
@@ -603,7 +668,21 @@ class ContractDomainDialog(QDialog):
         )
         self.principle_view.setPlainText(summary.principle)
         self.architecture_view.setPlainText(summary.architecture)
-        self._implementation_paths = tuple(dict.fromkeys(summary.implementation_paths))
+        parameter_key = summary.parameter_key or summary.source_id
+        consumer_records = (
+            self._parameter_consumer_catalog.find(parameter_key)
+            if self._parameter_consumer_catalog is not None else ()
+        )
+        if summary.domain == "parameter":
+            self._populate_parameter_consumers(parameter_key, consumer_records)
+        consumer_paths = tuple(
+            path
+            for consumer in consumer_records
+            for path in (consumer.source_path, *consumer.behavior_source_paths)
+        )
+        self._implementation_paths = tuple(dict.fromkeys(
+            (*summary.implementation_paths, *consumer_paths)
+        ))
         self._implementation_start_line = 1
         self.implementation_file_list.clear()
         for relative_path in self._implementation_paths:

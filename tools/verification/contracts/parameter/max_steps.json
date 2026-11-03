@@ -55,5 +55,6 @@
     "id": "run_control",
     "title": "Run Control",
     "order": 10
-  }
+  },
+  "parameter_key": "maxSteps"
 }

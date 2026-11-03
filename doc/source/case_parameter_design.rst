@@ -289,6 +289,19 @@ stage-weight schedule, but does not by itself establish a complete Butcher
 tableau, formal temporal order, stability region, convergence rate, or CFD
 accuracy. Those require separate numerical analysis and case-level verification.
 
+The contract schema also distinguishes the stable navigation ID from the
+legacy runtime key. For example, ``parameter/max-steps`` is the Workbench
+contract ID while ``parameter_key`` is ``maxSteps``, the exact key read by
+``GetDataValue<int>``. This explicit mapping avoids guessing camel-case runtime
+identifiers from human-readable slugs.
+
+The Parameter contract view exposes these records in a dedicated **Runtime
+Consumers** tab. It displays audited read sites, read timing, applicability,
+behavior notes, downstream source/symbol links, and related Formula & Knowledge
+IDs. Consumer source paths are also added to the implementation file navigator.
+The source audit checks recorded paths and symbols; it is not a runtime execution
+record. A parameter without an entry is marked not yet audited, never unused.
+
 The consumer catalog's source-audit test checks that every recorded direct read,
 consumer symbol, and named downstream behavior symbol still resolves in the
 current source tree. It does not claim to discover every consumer in the repository.

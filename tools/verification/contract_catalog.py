@@ -169,6 +169,7 @@ class ContractSummary:
     group_order: int = 100
     parameter_knowledge: ParameterKnowledge | None = None
     examples: tuple[ContractExample, ...] = ()
+    parameter_key: str = ""
 
 
 def _non_empty_strings(values: Iterable[Any]) -> tuple[str, ...]:
@@ -604,6 +605,12 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
 
     contract_id = definition["id"].strip()
     domain_prefix, separator, source_id = contract_id.partition("/")
+    raw_parameter_key = definition.get("parameter_key", "")
+    if not isinstance(raw_parameter_key, str):
+        raise ValueError("parameter_key must be a string")
+    if raw_parameter_key.strip() and definition["domain"].strip() != "parameter":
+        raise ValueError("parameter_key is only valid on parameter contracts")
+
     if not separator or not source_id or domain_prefix != definition["domain"].strip():
         raise ValueError(
             "declared contract id must be namespaced by its domain"
@@ -852,6 +859,7 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
         group_order=group_order,
         parameter_knowledge=parameter_knowledge,
         examples=tuple(examples),
+        parameter_key=raw_parameter_key.strip(),
     )
 
 

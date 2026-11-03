@@ -199,6 +199,66 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_parameter_runtime_consumer_tab_shows_audited_read_and_behavior(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == "parameter/rk_stage"
+            )
+            dialog.contract_list.setCurrentRow(row)
+            tab_names = [
+                dialog.tabs.tabText(index) for index in range(dialog.tabs.count())
+            ]
+            self.assertIn("Runtime Consumers", tab_names)
+            consumer_text = dialog.runtime_consumers_view.toPlainText()
+            self.assertIn("Audited read sites: 4", consumer_text)
+            self.assertIn("Ctrl::Init", consumer_text)
+            self.assertIn('GetDataValue<int>("rk_stage")', consumer_text)
+            self.assertIn("1 / (stage + 1)", consumer_text)
+            self.assertIn("references resolved", consumer_text)
+            self.assertIn("does not prove that a run entered the path", consumer_text)
+            implementation_paths = {
+                dialog.implementation_file_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.implementation_file_list.count())
+            }
+            self.assertIn("codes/global/src/Ctrl.cpp", implementation_paths)
+            self.assertIn("codes/solver/src/TimeIntegral.cpp", implementation_paths)
+        finally:
+            dialog.close()
+
+    def test_hyphenated_parameter_contract_uses_explicit_runtime_key(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == "parameter/max-steps"
+            )
+            dialog.contract_list.setCurrentRow(row)
+            consumer_text = dialog.runtime_consumers_view.toPlainText()
+            self.assertIn("Parameter: maxSteps", consumer_text)
+            self.assertIn("Iteration::Init", consumer_text)
+            self.assertIn('GetDataValue<int>("maxSteps")', consumer_text)
+        finally:
+            dialog.close()
+
+    def test_parameter_without_audited_consumer_is_not_labelled_unused(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == "parameter/max-time"
+            )
+            dialog.contract_list.setCurrentRow(row)
+            consumer_text = dialog.runtime_consumers_view.toPlainText()
+            self.assertIn("No audited runtime consumer is registered", consumer_text)
+            self.assertIn("does not prove that the parameter is unused", consumer_text)
+        finally:
+            dialog.close()
+
     def test_parameter_workbench_initially_previews_first_implementation_file(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
         try:
