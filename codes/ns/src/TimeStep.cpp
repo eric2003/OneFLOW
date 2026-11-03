@@ -36,6 +36,7 @@ void TimeStep::CalcCfl()
 {
     int iter = Iteration::outerSteps;
 
+    // Dual-time stepping advances the CFL schedule on inner iterations.
     if ( Iteration::dualtime == 1 )
     {
         iter = Iteration::innerSteps;
