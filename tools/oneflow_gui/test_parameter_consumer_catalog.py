@@ -59,6 +59,43 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
             ("time_integral_rk_stage_weight",),
         )
 
+
+    def test_cfl_ramp_parameters_link_to_iteration_index_and_schedule(self):
+        for key, phrase in (
+            ("cflst", "starting value"),
+            ("cfled", "ending value"),
+            ("ncfl", "ramp length"),
+        ):
+            with self.subTest(parameter=key):
+                consumers = self.catalog.find(key)
+                self.assertEqual(len(consumers), 1)
+                consumer = consumers[0]
+                self.assertEqual(consumer.source_path, "codes/global/src/Iteration.cpp")
+                self.assertEqual(consumer.symbol, "Iteration::Init")
+                self.assertIn(phrase, consumer.behavior)
+                self.assertIn("CflAtIteration", consumer.behavior_symbols)
+                self.assertIn("CflIterationIndex", consumer.behavior_symbols)
+
+    def test_time_step_strategy_and_global_dt_are_traced_separately(self):
+        strategy = self.catalog.find("timestepModel")
+        self.assertEqual(len(strategy), 1)
+        self.assertIn("0 local, 1 global", strategy[0].behavior)
+        self.assertIn("UTimeStep::CalcLgTimeStep", strategy[0].behavior_symbols)
+
+        global_steps = self.catalog.find("global_dt")
+        self.assertEqual(len(global_steps), 4)
+        self.assertEqual(
+            {item.source_path for item in global_steps},
+            {
+                "codes/global/src/Ctrl.cpp",
+                "codes/ns/src/NsCtrl.cpp",
+                "codes/ins/src/INsCtrl.cpp",
+                "codes/turb/src/TurbCtrl.cpp",
+            },
+        )
+        self.assertTrue(all("Ctrl::pdt" in item.behavior for item in global_steps))
+        self.assertTrue(all("UTimeStep::CalcGlobalTimeStep" in item.behavior_symbols for item in global_steps))
+
     def test_catalog_read_and_behavior_evidence_resolves_to_current_sources(self):
         repository_root = Path(__file__).resolve().parents[2]
 
