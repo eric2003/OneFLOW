@@ -1573,6 +1573,48 @@ def list_theory_entries() -> list[TheoryEntry]:
         ),
 
 
+
+        TheoryEntry(
+            id="wilcox_xk_from_cross_term",
+            family="turbulence",
+            genus="Wilcox",
+            section="closure / xk from cross-diffusion",
+            title="Wilcox xk from cross-term",
+            role_tags=("turbulence", "Wilcox", "closure"),
+            formula_plain=(
+                "xk = crossTerm / omega^3"
+            ),
+            formula_latex=(
+                r"x_k=\frac{\mathrm{CD}}{\omega^{3}}"
+            ),
+            principle=(
+                "Forms the dimensionless cross-diffusion parameter used by "
+                "the Wilcox f_beta* / f_k closure family."
+            ),
+            background=(
+                "Pure API WilcoxXkFromCrossTerm in TurbSstPolicy. Downstream: "
+                "WilcoxFkFromXk."
+            ),
+            references=(
+                "Wilcox k-omega model variants; NASA TMR",
+                "doc/source/numerical/wilcox_xk_from_cross_term.rst",
+            ),
+            csv_relpath="tools/verification/data/wilcox_xk_from_cross_term_theory.csv",
+            plot_module="plot_wilcox_xk_from_cross_term",
+            pure_apis=("WilcoxXkFromCrossTerm",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/wilcox_xk_from_cross_term.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "xk = crossTerm / (omega * omega * omega);\n"
+            ),
+            proves="xk algebra vs pure API; composition with WilcoxFkFromXk.",
+            does_not_prove="Full Wilcox residual field on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sst_cross_diff_wilcox",
             family="turbulence",
