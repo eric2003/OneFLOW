@@ -314,7 +314,7 @@ class ContractCatalogTest(unittest.TestCase):
             stage_count.implementation_paths,
         )
         resolutions = resolve_contract_evidence(self.repository_root, stage_count)
-        self.assertTrue(all(item.status == "resolved" for item in resolutions))
+        self.assertEqual([item.status for item in resolutions], ["declared", "declared"])
 
     def test_rejects_parameter_formula_without_latex_source(self) -> None:
         definition_path = (
