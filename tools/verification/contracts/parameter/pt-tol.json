@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "parameter/pt-tol",
+  "title": "ptTol",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "proposed",
+  "overview": "The key ptTol is declared in the legacy Case parameter configuration. This entry records its shared or geometry-related role; runtime read sites and downstream semantics require an explicit source audit.",
+  "principle": "This entry records the parameter key and its observed context. A complete semantic definition, admissible range, default policy, and verification evidence have not yet been established here.",
+  "architecture": "The key is loaded from a parameter document referenced by control.txt. The parameter inventory does not assert a universal runtime consumer or numerical validity.",
+  "references": [],
+  "implementation": {
+    "source_paths": []
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The key ptTol is declared in the listed Case configuration."
+    ],
+    "does_not_prove": [
+      "A complete production-code consumer chain.",
+      "An admissible range, unit, default policy, or numerical validation."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "case_suite",
+      "reference": "test/cfd/plateuns2dslau2",
+      "status": "fixture_available",
+      "scope": "Declaration inventory only. Also observed in: test/cfd/plateuns2dslau2, test/grid/rae2822convert. Runtime execution is not implied."
+    }
+  ],
+  "group": {
+    "id": "geometry_tolerance",
+    "title": "Geometry Tolerance",
+    "order": 5
+  },
+  "parameter_key": "ptTol"
+}
