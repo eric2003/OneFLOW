@@ -261,3 +261,27 @@ TEST( TurbSaPolicy, SaSourceResidualAssembledFromPieces )
         P - D + Diff,
         1.0e-12 );
 }
+
+// Intermediate: SaDiffusion on a |grad nu|^2 grid.
+// Ref: cb2OverSigma=1.3, invRe=0.5; Diff = 0.65 * g2.
+TEST( TurbSaPolicy, SaDiffusionCurveMatchesClosedForm )
+{
+    const Real cb2OverSigma = 1.3;
+    const Real invRe = 0.5;
+    const Real g2s[] = { 0.0, 0.25, 1.0, 2.0, 4.0 };
+    for ( Real g2 : g2s )
+    {
+        EXPECT_NEAR(
+            SaDiffusion( cb2OverSigma, g2, invRe ),
+            cb2OverSigma * g2 * invRe,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaDiffusionLinearInInvReynolds )
+{
+    EXPECT_NEAR(
+        SaDiffusion( 1.3, 0.25, 1.0 ),
+        2.0 * SaDiffusion( 1.3, 0.25, 0.5 ),
+        1.0e-12 );
+}

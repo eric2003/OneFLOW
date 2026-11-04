@@ -181,6 +181,49 @@ def list_theory_entries() -> list[TheoryEntry]:
         ),
 
 
+
+        TheoryEntry(
+            id="sa_diffusion",
+            family="turbulence",
+            genus="SA",
+            section="source / diffusion",
+            title="SA diffusion source term",
+            role_tags=("turbulence", "SA", "source"),
+            formula_plain=(
+                "Diff = (cb2/sigma) * |grad nu_tilde|^2 * invRe"
+            ),
+            formula_latex=(
+                r"D_{\mathrm{diff}}"
+                r"=\frac{c_{b2}}{\sigma}|\nabla\tilde{\nu}|^{2}/\mathrm{Re}"
+            ),
+            principle=(
+                "SA non-conservative diffusion contribution proportional to "
+                "the squared gradient of the working variable."
+            ),
+            background=(
+                "Pure API SaDiffusion in TurbSaPolicy. Downstream: "
+                "SaLimitedDiffusion then SaSourceResidual."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_diffusion.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_diffusion_theory.csv",
+            plot_module="plot_sa_diffusion",
+            pure_apis=("SaDiffusion",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_diffusion.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Diff = cb2OverSigma * gradNuSquared * invRe;\n"
+            ),
+            proves="Diffusion algebra vs pure API on a |grad nu|^2 grid.",
+            does_not_prove="Full SA residual or limiter interaction on a case.",
+        ),
+
         TheoryEntry(
             id="sa_destruction",
             family="turbulence",
