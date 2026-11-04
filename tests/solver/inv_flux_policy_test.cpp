@@ -846,3 +846,29 @@ TEST( InvFluxPolicy, RoeAverageStateEqualSidesIsIdentity )
     EXPECT_NEAR( uMid, 0.5, 1.0e-12 );
     EXPECT_NEAR( pMid, 101325.0, 1.0e-6 );
 }
+
+// Intermediate: RelativeFaceNormalVelocity on a velocity grid.
+// Ref: n=(1,0,0), vfn=0.5; vn = u - 0.5.
+TEST( InvFluxPolicy, RelativeFaceNormalVelocityCurveMatchesClosedForm )
+{
+    const Real xfn = 1.0, yfn = 0.0, zfn = 0.0, vfn = 0.5;
+    const Real us[] = { -2.0, -0.5, 0.0, 0.5, 1.0, 2.0 };
+    for ( Real u : us )
+    {
+        EXPECT_NEAR(
+            RelativeFaceNormalVelocity( xfn, yfn, zfn, vfn, u, 0.0, 0.0 ),
+            u - vfn,
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RelativeFaceNormalVelocityUsesAllNormalComponents )
+{
+    // n=(1/sqrt(2), 1/sqrt(2), 0), u=(1,1,0), vfn=0
+    // vn = sqrt(2)
+    const Real s = 0.7071067811865476;
+    EXPECT_NEAR(
+        RelativeFaceNormalVelocity( s, s, 0.0, 0.0, 1.0, 1.0, 0.0 ),
+        s + s,
+        1.0e-12 );
+}

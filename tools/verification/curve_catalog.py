@@ -2847,6 +2847,49 @@ references=(
             does_not_prove="Full residual on a mesh or Riemann solver quality.",
         ),
 
+
+        TheoryEntry(
+            id="relative_face_normal_velocity",
+            family="mean-flow",
+            genus="NS",
+            section="kinematics / relative face-normal velocity",
+            title="Relative face-normal velocity",
+            role_tags=("NS", "kinematics", "flux"),
+            formula_plain=(
+                "vn_rel = xfn*u + yfn*v + zfn*w - vfn"
+            ),
+            formula_latex=(
+                r"v_n=\mathbf{n}\cdot\mathbf{u}-v_g"
+            ),
+            principle=(
+                "Fluid velocity projected on the face normal, minus grid "
+                "face speed, for ALE / moving-mesh relative fluxes."
+            ),
+            background=(
+                "Pure API RelativeFaceNormalVelocity in NsInvFluxPolicy. "
+                "Upstream of EulerConvectiveFlux, FaceMachNumber, Roe "
+                "eigenvalues."
+            ),
+            references=(
+                "Standard finite-volume face kinematics; ALE relative velocity",
+                "doc/source/numerical/relative_face_normal_velocity.rst",
+            ),
+            csv_relpath="tools/verification/data/relative_face_normal_velocity_theory.csv",
+            plot_module="plot_relative_face_normal_velocity",
+            pure_apis=("RelativeFaceNormalVelocity",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/relative_face_normal_velocity.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "vn = n·u - v_grid;\n"
+            ),
+            proves="Relative normal-velocity algebra vs pure API.",
+            does_not_prove="Full flux residual or mesh-motion coupling on a case.",
+        ),
+
         TheoryEntry(
             id="face_mach_number",
             family="mean-flow",
