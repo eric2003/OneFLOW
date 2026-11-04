@@ -859,6 +859,11 @@ class ContractCatalogTest(unittest.TestCase):
             for contract_id, item in parameters.items()
             if item.status != "proposed"
         }
+        proposed_parameters = {
+            contract_id: item
+            for contract_id, item in parameters.items()
+            if item.status == "proposed"
+        }
         self.assertEqual(
             set(source_backed_parameters),
             {
