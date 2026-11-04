@@ -363,6 +363,24 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_proposed_parameter_entries_remain_visible_without_fake_source_preview(self):
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == "parameter/gama-ref"
+            )
+            dialog.contract_list.setCurrentRow(row)
+            self.assertEqual(dialog.implementation_file_list.count(), 0)
+            self.assertIn("No implementation files declared",
+                          dialog.implementation_source_label.text())
+            self.assertIn("No audited runtime consumer",
+                          dialog.runtime_consumers_view.toPlainText())
+            self.assertIn("Status: proposed", dialog.overview_view.toPlainText())
+        finally:
+            dialog.close()
+
     def test_implementation_file_selection_shows_bounded_source_excerpt(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
         try:
@@ -404,11 +422,11 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 for index in range(dialog.contract_list.count())
                 if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole) is None
             ]
-            self.assertIn("Run Control  (2)", headers)
-            self.assertIn("Time stepping  (4)", headers)
+            self.assertIn("Run Control  (6)", headers)
+            self.assertIn("Time stepping  (7)", headers)
             self.assertIn("Time Integration  (2)", headers)
             self.assertIn("Compressible Flow  (1)", headers)
-            self.assertIn("Turbulence  (3)", headers)
+            self.assertIn("Turbulence  (22)", headers)
             self.assertIn("Turbulence Inflow Conditions  (2)", headers)
 
             dialog.search_edit.setText("turb_cfl_ratio")

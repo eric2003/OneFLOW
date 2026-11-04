@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -527,8 +528,16 @@ class ContractDomainDialog(QDialog):
                         if summary.parameter_knowledge else "",
                     ),
                 )).casefold()
-                if normalized_query and normalized_query not in searchable:
-                    continue
+                if normalized_query:
+                    if re.fullmatch(r"[a-z_][a-z0-9_]*", normalized_query):
+                        token_pattern = (
+                            r"(?<![a-z0-9_])" + re.escape(normalized_query)
+                            + r"(?![a-z0-9_])"
+                        )
+                        if re.search(token_pattern, searchable) is None:
+                            continue
+                    elif normalized_query not in searchable:
+                        continue
                 group_key = summary.group_id or "ungrouped"
                 groups.setdefault(group_key, []).append(summary)
 
@@ -566,11 +575,30 @@ class ContractDomainDialog(QDialog):
                 selected_row = row
                 break
         if selected_row < 0:
+            candidate_ids = set()
+            if self._domain == "parameter":
+                for summary in self._summaries:
+                    parameter_key = summary.parameter_key or summary.source_id
+                    has_consumers = (
+                        self._parameter_consumer_catalog is not None
+                        and bool(self._parameter_consumer_catalog.find(parameter_key))
+                    )
+                    if summary.implementation_paths or has_consumers:
+                        candidate_ids.add(summary.id)
             selected_row = next(
-                (row for row in range(self.contract_list.count())
-                 if self.contract_list.item(row).data(Qt.ItemDataRole.UserRole)),
+                (
+                    row for row in range(self.contract_list.count())
+                    if self.contract_list.item(row).data(Qt.ItemDataRole.UserRole)
+                    in candidate_ids
+                ),
                 -1,
             )
+            if selected_row < 0:
+                selected_row = next(
+                    (row for row in range(self.contract_list.count())
+                     if self.contract_list.item(row).data(Qt.ItemDataRole.UserRole)),
+                    -1,
+                )
         self.contract_list.setCurrentRow(selected_row)
 
     def _filter_contracts(self, query: str) -> None:
