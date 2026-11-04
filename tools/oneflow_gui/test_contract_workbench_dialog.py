@@ -138,7 +138,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             dialog.contract_list.setCurrentRow(row)
             self.assertIn("idualtime", dialog.overview_view.toPlainText())
             consumer_text = dialog.runtime_consumers_view.toPlainText()
-            self.assertIn("Optional", consumer_text)
+            self.assertIn("[optional]", consumer_text)
             self.assertIn('FindDataEntry("idualtime")', consumer_text)
             self.assertIn("CflIterationIndex", consumer_text)
         finally:

@@ -64,7 +64,7 @@
         "title": "CFL schedule index selection",
         "role": "Source-derived counter selection",
         "plain": "i = outerSteps when idualtime != 1; i = innerSteps when idualtime == 1",
-        "latex": "i=\\begin{cases}n_{outer},&\\mathrm{idualtime}\\ne1\\\\n_{inner},&\\mathrm{idualtime}=1\\end{cases}",
+        "latex": "i=n_{outer}\\ (\\mathrm{idualtime}\\ne1),\\quad i=n_{inner}\\ (\\mathrm{idualtime}=1)",
         "assumptions": "This is the CflIterationIndex policy for the audited NS time-step path. Missing input defaults to zero during Iteration::Init.",
         "symbols": [
           {
