@@ -249,7 +249,7 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(summary.id, "parameter/dual-time-index")
         self.assertEqual(summary.parameter_key, "idualtime")
         self.assertEqual(summary.group_id, "time_stepping")
-        self.assertIn("defaults to zero", summary.overview)
+        self.assertIn("default to zero", summary.overview)
         self.assertTrue(summary.parameter_knowledge.formulas)
         self.assertEqual(
             validate_contract_summaries(self.repository_root, [summary]), []
