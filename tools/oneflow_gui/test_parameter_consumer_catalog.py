@@ -112,6 +112,24 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
                 self.assertIn(detail, consumer.behavior)
                 self.assertIn("TurbCom::InitInflow", consumer.behavior_symbols)
 
+    def test_turbulence_cfl_ratio_scales_unsteady_spectrum_time_step(self):
+        consumers = self.catalog.find("turb_cfl_ratio")
+
+        self.assertEqual(len(consumers), 1)
+        consumer = consumers[0]
+        self.assertEqual(consumer.source_path, "codes/turb/src/TurbCom.cpp")
+        self.assertEqual(consumer.symbol, "TurbCom::Init")
+        self.assertIn("local time-step", consumer.behavior)
+        self.assertIn("dual-time", consumer.behavior)
+        self.assertEqual(
+            consumer.behavior_source_paths,
+            ("codes/uturb/src/UTurbSpectrum.cpp",),
+        )
+        self.assertEqual(
+            consumer.behavior_symbols,
+            ("UTurbSpectrum::CalcUnsteadySpectrum",),
+        )
+
     def test_output_frequency_parameters_link_to_scheduler_consumers(self):
         for key, symbol in (
             ("nFieldSave", "kDumpRestartTaskName"),

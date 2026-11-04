@@ -527,3 +527,32 @@ unstructured time-step strategy, and the output intervals to their iteration
 and representative solver scheduling consumers. These links are source evidence, not
 execution records. Units, admissible ranges, default values, and behavior
 outside the audited solver path remain unresolved until separately verified.
+
+
+Turbulence CFL ratio: unsteady spectrum scaling
+------------------------------------------------
+
+The parameter ``turb_cfl_ratio`` is read as a ``Real`` in
+``TurbCom::Init``. Its downstream use is narrower than a global CFL
+controller: ``UTurbSpectrum::CalcUnsteadySpectrum`` multiplies the
+selected per-cell time-step by this ratio before assembling the implicit
+unsteady contribution to the turbulence equations.
+
+For the single-time-step branch (``idualtime == 0``), the code forms
+
+.. math::
+
+   t_s = \Delta t_{turb} \, r_{turb}, \qquad
+   S_{unsteady} = \frac{sp_2}{t_s} V,
+
+where ``r_turb`` is ``turb_cfl_ratio``, ``V`` is cell volume,
+and ``sp_2`` is the time-integration coefficient. In dual-time mode,
+the turbulence time-step is scaled in the same way, while the physical-time
+term ``sp_2 / pdt1`` is added separately. Therefore this parameter is not
+the same control as the mean-flow CFL ramp (``cflst/cfled/ncfl``) or
+the solver time-step strategy (``timestepModel``).
+
+The current source audit establishes the read and the two assembly branches.
+It does not establish a universal recommended value, admissible range,
+default, or numerical stability guarantee; those remain unverified until
+case-level sensitivity and convergence studies are recorded.

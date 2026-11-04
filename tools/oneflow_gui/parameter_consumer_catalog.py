@@ -246,6 +246,15 @@ _CONSUMERS = (
         ("TurbCom::InitInflow",),
     ),
     ParameterConsumer(
+        "turb_cfl_ratio", "codes/turb/src/TurbCom.cpp", "TurbCom::Init",
+        'GetDataValue<Real>("turb_cfl_ratio")', ConsumerReadKind.REQUIRED,
+        "Scales the turbulence-equation local time-step used in the unsteady spectral contribution. UTurbSpectrum::CalcUnsteadySpectrum multiplies the selected flow/turbulence time-step by turb_cfl_ratio before forming the implicit unsteady term; the dual-time branch also includes the physical-time contribution through ctrl.pdt1.",
+        "Unstructured turbulence spectrum assembly; single-step and dual-time branches.",
+        "Direct typed read is present in TurbCom.cpp; both single-step and dual-time uses are present in UTurbSpectrum.cpp.",
+        ("codes/uturb/src/UTurbSpectrum.cpp",),
+        ("UTurbSpectrum::CalcUnsteadySpectrum",),
+    ),
+    ParameterConsumer(
         "nFieldSave", "codes/global/src/Iteration.cpp", "Iteration::Init",
         'GetDataValue<int>("nFieldSave")', ConsumerReadKind.REQUIRED,
         "Loads the field/restart output interval. Representative NS, incompressible NS, turbulence, and multigrid paths schedule restart output using outer-step or solver-specific iteration checks.",
