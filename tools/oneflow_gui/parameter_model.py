@@ -146,9 +146,11 @@ _CFD_GROUPS = {
         "vismodel", "visname", "chemmodel", "gasmodelfile",
         "transition_model", "des_model", "easm_model",
     }),
+    "Turbulence inflow conditions": frozenset({
+        "inflow_intensity", "inflow_viscosity",
+    }),
     "Turbulence": frozenset({
         "turbulentrelaxationcoefficient", "turbulentsourcemodel",
-        "inflow_intensity", "inflow_viscosity",
         "mgturbulentviscosity", "mgfactor", "mgturbfactor",
         "coefficientofsades", "coefficientofsstdeske",
         "coefficientofsstdeskw", "numberofanisotropicstress",
