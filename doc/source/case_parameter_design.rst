@@ -650,8 +650,8 @@ tree are related views, but they have different responsibilities:
 * The runtime database remains the authority for the values consumed by a
   particular run. A catalog definition is not itself a runtime assignment.
 
-At the current inventory checkpoint, the declared Parameter contracts cover
-14 source-audited keys or grouped controls:
+At the current inventory checkpoint, the declared Parameter catalog contains
+14 source-audited contract entries covering 16 individual runtime keys:
 
 * Run control: ``maxSteps``, ``maxTime``.
 * Time stepping: ``cflst``, ``cfled``, ``ncfl`` (one ramp contract),
