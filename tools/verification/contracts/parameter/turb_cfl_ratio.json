@@ -54,7 +54,7 @@
         "title": "Turbulence unsteady spectrum scaling",
         "role": "OneFLOW source-derived implementation relation",
         "plain": "dt_scaled = dt_turb * turb_cfl_ratio; S = (sp2 / dt_scaled) V",
-        "latex": "\\\\Delta t_s = \\\\Delta t_{turb} \\\\, r_{turb}\\nS = \\\\frac{sp_2}{\\\\Delta t_s} V",
+        "latex": "\\Delta t_s = \\Delta t_{turb} \\, r_{turb}; \\quad S = \\frac{sp_2}{\\Delta t_s} V",
         "assumptions": "Single-time-step branch in UTurbSpectrum::CalcUnsteadySpectrum.",
         "symbols": [
           {

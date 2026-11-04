@@ -556,3 +556,27 @@ The current source audit establishes the read and the two assembly branches.
 It does not establish a universal recommended value, admissible range,
 default, or numerical stability guarantee; those remain unverified until
 case-level sensitivity and convergence studies are recorded.
+
+
+Spalart-Allmaras production limiter and viscosity-ratio audit
+-------------------------------------------------------------
+
+The ``rprod`` input is read by ``TurbCom::Init`` and passed along the
+Spalart-Allmaras source-term path to ``SaLimitedDiffusion``. The policy
+implementation in ``TurbSaPolicy.cpp`` is
+
+.. math::
+
+   D_{lim} = \min(r_{prod} P, D),
+
+where ``P`` and ``D`` are the production and diffusion contributions passed
+by the SA source assembly. This documents the implementation relation only.
+The current audit does not establish a recommended value, admissible range,
+or applicability to SST and other turbulence models.
+
+The ``max_vis_ratio`` input is also read by ``TurbCom::Init``, but its
+downstream numerical use and intended meaning have not yet been established.
+It is registered in the Parameter Contract Workbench as partially verified
+so that the confirmed read remains discoverable without presenting an
+unverified interpretation as fact. Units, default, range, and downstream
+consumers remain open audit items.
