@@ -24,7 +24,6 @@ F_1=\tanh(arg_1^4)
             render_latex_preview_png(body, out)
             self.assertTrue(out.is_file())
 
-
     def test_parameter_contract_latex_uses_single_command_escapes(self) -> None:
         import json
 
@@ -45,7 +44,7 @@ F_1=\tanh(arg_1^4)
                 if contract_name == "inflow_intensity":
                     self.assertEqual(
                         formulas[0]["latex"],
-                        r"k_e = \\frac{3}{2} (0.01 I)^2",
+                        r"k_e = \frac{3}{2} (0.01 I)^2",
                     )
                 for formula in formulas:
                     latex = formula["latex"]
