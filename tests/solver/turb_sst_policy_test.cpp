@@ -418,3 +418,26 @@ TEST( TurbSstPolicy, SstBlendingArg1SelectsViscousWhenLargerThanKe )
     // max(0.1, 0.5)=0.5; min(0.5, 2)=0.5
     EXPECT_NEAR( SstBlendingArg1( 0.1, 0.5, 2.0 ), 0.5, 1.0e-12 );
 }
+
+// Intermediate: SstCrossDiffScalar on an omega grid.
+// Ref: rho=1, sigw2=0.5, cross=2; CD = 2/omega.
+TEST( TurbSstPolicy, SstCrossDiffScalarCurveMatchesClosedForm )
+{
+    const Real density = 1.0;
+    const Real sigw2 = 0.5;
+    const Real cross = 2.0;
+    const Real omegas[] = { 0.5, 1.0, 2.0, 4.0, 8.0 };
+    for ( Real omega : omegas )
+    {
+        EXPECT_NEAR(
+            SstCrossDiffScalar( density, sigw2, cross, omega ),
+            2.0 * density * sigw2 * cross / omega,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstCrossDiffScalarFeedsCdkwFloor )
+{
+    const Real raw = SstCrossDiffScalar( 1.0, 0.5, 2.0, 1.0 ); // 2.0
+    EXPECT_NEAR( SstCdkwWithFloor( raw, 1.0e-20 ), 2.0, 1.0e-12 );
+}

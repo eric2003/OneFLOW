@@ -822,6 +822,50 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+        TheoryEntry(
+            id="sst_cross_diff_scalar",
+            family="turbulence",
+            genus="SST",
+            section="closure / F1 cross-diffusion scalar",
+            title="SST cross-diffusion scalar (F1 path)",
+            role_tags=("turbulence", "SST", "closure"),
+            formula_plain=(
+                "CD = 2 * rho * sigw2 * crossTerm / omega"
+            ),
+            formula_latex=(
+                r"\mathrm{CD}=2\rho\sigma_{\omega2}"
+                r"\frac{\nabla k\cdot\nabla\omega}{\omega}"
+            ),
+            principle=(
+                "Unblended cross-diffusion scalar used when constructing the "
+                "F1 blending argument (before CDKW floor)."
+            ),
+            background=(
+                "Pure API SstCrossDiffScalar in TurbSstPolicy. Downstream: "
+                "SstCdkwWithFloor, SstBlendingArg1. Distinct from "
+                "SstCrossDiffMenter (which multiplies by 1-F1)."
+            ),
+            references=(
+                "Menter SST F1 construction; NASA TMR SST",
+                "doc/source/numerical/sst_cross_diff_scalar.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_cross_diff_scalar_theory.csv",
+            plot_module="plot_sst_cross_diff_scalar",
+            pure_apis=("SstCrossDiffScalar",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_cross_diff_scalar.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "CD = 2 * density * sigw2 * cross / omega;\n"
+            ),
+            proves="Cross-diff scalar algebra vs pure API; composition with CDKW floor.",
+            does_not_prove="Full F1 field accuracy on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sst_blending_arg1",
             family="turbulence",
