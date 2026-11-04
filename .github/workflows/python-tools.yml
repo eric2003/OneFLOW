@@ -112,6 +112,8 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_parameter_document
       - name: Test logical CFD and grid parameter model
         run: python -m unittest tools.oneflow_gui.test_parameter_model
+      - name: Test file-independent Case parameter resolution
+        run: python -m unittest tools.oneflow_gui.test_parameter_resolution
       - name: Test runtime parameter consumer evidence
         run: python -m unittest tools.oneflow_gui.test_parameter_consumer_catalog
       - name: Test CFD nomenclature knowledge catalog
