@@ -220,6 +220,49 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Assembled production residual on a mesh.",
         ),
 
+
+        TheoryEntry(
+            id="sa_s_bar",
+            family="turbulence",
+            genus="SA",
+            section="closure / modified strain intermediate",
+            title="SA S-bar intermediate",
+            role_tags=("turbulence", "SA", "closure"),
+            formula_plain=(
+                "sBar = rs * fv2"
+            ),
+            formula_latex=(
+                r"\bar{S}=r_s f_{v2}"
+            ),
+            principle=(
+                "Intermediate strain correction formed from the wall-scaled "
+                "working-variable measure and fv2, before assembling the "
+                "modified strain rate used in production."
+            ),
+            background=(
+                "Pure API SaSBar in TurbSaPolicy. Upstream: SaFv2. Downstream: "
+                "SaModifiedStrainRate."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_s_bar.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_s_bar_theory.csv",
+            plot_module="plot_sa_s_bar",
+            pure_apis=("SaSBar",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_s_bar.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "sBar = rs * fv2;\n"
+            ),
+            proves="S-bar algebra vs pure API; composition with SaFv2.",
+            does_not_prove="Full modified-strain / production field on a case.",
+        ),
+
         TheoryEntry(
             id="sa_r_ratio",
             family="turbulence",

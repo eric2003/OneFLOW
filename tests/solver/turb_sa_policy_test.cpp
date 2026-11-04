@@ -375,3 +375,24 @@ TEST( TurbSaPolicy, SaRRatioScalesInverselyWithModifiedStrain )
     // rs=2, S=1 => r=2; S=2 => r=1
     EXPECT_NEAR( SaRRatio( 2.0, 2.0 ), 1.0, 1.0e-12 );
 }
+
+// Intermediate: SaSBar on an rs grid.
+// Ref: fv2=0.5; sBar = 0.5 * rs.
+TEST( TurbSaPolicy, SaSBarCurveMatchesClosedForm )
+{
+    const Real fv2 = 0.5;
+    const Real rss[] = { 0.0, 0.5, 1.0, 2.0, 5.0 };
+    for ( Real rs : rss )
+    {
+        EXPECT_NEAR( SaSBar( rs, fv2 ), rs * fv2, 1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaSBarComposedFromFv2 )
+{
+    // use SaFv2 path: chi=1, fv1 from chi
+    const Real chi = 1.0;
+    const Real fv1 = SaFv1( chi, 7.1 * 7.1 * 7.1 );
+    const Real fv2 = SaFv2( chi, fv1 );
+    EXPECT_NEAR( SaSBar( 2.0, fv2 ), 2.0 * fv2, 1.0e-12 );
+}
