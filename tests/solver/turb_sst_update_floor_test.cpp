@@ -69,3 +69,22 @@ TEST( SstUpdateFloor, SstDensityScaledUpdateInverselyScalesWithDensity )
         2.0 * SstDensityScaledUpdate( 0.0, 4.0, 2.0 ),
         1.0e-12 );
 }
+
+// Intermediate: SstFloorKineticEnergy on a k grid.
+// Ref: floor=1e-8; floored = max(k, 1e-8).
+TEST( SstUpdateFloor, SstFloorKineticEnergyCurveMatchesClosedForm )
+{
+    const Real floorValue = 1.0e-8;
+    const Real ks[] = { 0.0, 1.0e-10, 1.0e-8, 1.0e-6, 1.0 };
+    for ( Real k : ks )
+    {
+        const Real expected = ( k > floorValue ) ? k : floorValue;
+        EXPECT_NEAR( SstFloorKineticEnergy( k, floorValue ), expected, 1.0e-20 );
+    }
+}
+
+TEST( SstUpdateFloor, SstFloorKineticEnergyNeverBelowFloor )
+{
+    EXPECT_GE( SstFloorKineticEnergy( -1.0, 1.0e-8 ), 1.0e-8 );
+    EXPECT_GE( SstFloorKineticEnergy( 0.0, 1.0e-8 ), 1.0e-8 );
+}

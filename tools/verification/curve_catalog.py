@@ -695,6 +695,48 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Full nonlinear update / floor interaction on a case.",
         ),
 
+
+        TheoryEntry(
+            id="sst_floor_kinetic_energy",
+            family="turbulence",
+            genus="SST",
+            section="update / positivity floor",
+            title="SST k floor",
+            role_tags=("turbulence", "SST", "update"),
+            formula_plain=(
+                "k = max(k, k_min)"
+            ),
+            formula_latex=(
+                r"k\leftarrow\max(k,k_{\min})"
+            ),
+            principle=(
+                "Enforces a positive lower bound on turbulent kinetic energy "
+                "to avoid unphysical negative values after the update."
+            ),
+            background=(
+                "Pure API SstFloorKineticEnergy in TurbSstPolicy. Pair with "
+                "SstFloorOmega and SstDensityScaledUpdate."
+            ),
+            references=(
+                "SST solver robustness practice; NASA TMR SST",
+                "doc/source/numerical/sst_floor_kinetic_energy.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_floor_kinetic_energy_theory.csv",
+            plot_module="plot_sst_floor_kinetic_energy",
+            pure_apis=("SstFloorKineticEnergy",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_floor_kinetic_energy.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "k = max(k, kMin);\n"
+            ),
+            proves="k-floor algebra vs pure API on a k grid.",
+            does_not_prove="Optimal k_min or case stability margins.",
+        ),
+
         TheoryEntry(
             id="sst_floor_omega",
             family="turbulence",
