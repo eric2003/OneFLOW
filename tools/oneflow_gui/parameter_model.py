@@ -151,7 +151,6 @@ _CFD_GROUPS = {
     }),
     "Turbulence": frozenset({
         "turbulentrelaxationcoefficient", "turbulentsourcemodel",
-        "mgturbulentviscosity", "mgfactor", "mgturbfactor",
         "coefficientofsades", "coefficientofsstdeske",
         "coefficientofsstdeskw", "numberofanisotropicstress",
         "coefficientofminimumturbulentquantity", "ref_sa", "ref_sst",
@@ -164,6 +163,7 @@ _CFD_GROUPS = {
         "nmg", "nmgpresmoothingsteps", "nmgpostsmoothingsteps",
         "nmgsmoothingsteps", "mgprolongationmethod", "mgcycletype",
         "mgiterMode".casefold(), "mglaminarviscosity",
+        "mgturbulentviscosity", "mgfactor", "mgturbfactor",
     }),
     "Wall distance": frozenset({"walldist_file", "ireadwdst"}),
 }
