@@ -114,6 +114,8 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_parameter_model
       - name: Test file-independent Case parameter resolution
         run: python -m unittest tools.oneflow_gui.test_parameter_resolution
+      - name: Test declarative Case profiles
+        run: python -m unittest tools.oneflow_gui.test_case_profile
       - name: Test runtime parameter consumer evidence
         run: python -m unittest tools.oneflow_gui.test_parameter_consumer_catalog
       - name: Test CFD nomenclature knowledge catalog

@@ -102,3 +102,32 @@ with effective-source routing; missing-key rejection; duplicate override
 rejection; preview without mutation; and external-edit detection before
 application. These tests exercise the GUI-side resolution boundary, not the
 production C++ parser or a complete CFD run.
+
+Versioned Case profiles
+-----------------------
+
+The first profile layer is implemented in ``case_profile.py``. A profile is a
+versioned declaration of intent, source Case, purpose, logical-key overrides,
+maturity, and limitations. It is deliberately independent of the source
+parameter filenames. ``resolve_case_profile`` delegates to the common
+parameter resolver; it does not introduce a second file-editing mechanism.
+
+Two initial flat-plate profiles are provided:
+
+* ``laminar-flat-plate-regression-50.json`` requests ``maxSteps = 50``
+  for short regression checks.
+* ``laminar-flat-plate-production-35000.json`` requests
+  ``maxSteps = 35000`` for a production-length run configuration.
+
+Both are marked ``proposed``. The production profile changes only the
+iteration limit; it does not claim that a fresh 35,000-step simulation has
+been run, converged, or numerically validated. In particular, the existing
+``plateuns2dslau2_34950_35000`` case is a separate continuation/restart
+scenario and must not be treated as evidence for a fresh production run.
+
+Profiles are starting points, not rigid solver schemas. Future profile
+composition must account for task, equation system, model compatibility,
+grid and boundary requirements, restart state, output policy, and explicit
+overrides. Incompatible combinations should be diagnosed rather than silently
+merged. Each authoring path (template, GUI, import, workflow, batch study)
+must converge on the same resolver and production validation pipeline.
