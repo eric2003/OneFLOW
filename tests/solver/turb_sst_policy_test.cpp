@@ -398,3 +398,23 @@ TEST( TurbSstPolicy, SstCdkwWithFloorNeverBelowFloor )
     EXPECT_GE( SstCdkwWithFloor( -1.0, 1.0e-20 ), 1.0e-20 );
     EXPECT_GE( SstCdkwWithFloor( 0.0, 1.0e-20 ), 1.0e-20 );
 }
+
+// Intermediate: SstBlendingArg1 on a cross-diff-term grid.
+// Ref: tKe=1, tVis=0.5 => max=1; arg1 = min(1, tCD).
+TEST( TurbSstPolicy, SstBlendingArg1CurveMatchesClosedForm )
+{
+    const Real tKe = 1.0;
+    const Real tVis = 0.5;
+    const Real tcds[] = { 0.0, 0.5, 1.0, 2.0, 10.0 };
+    for ( Real tcd : tcds )
+    {
+        const Real expected = ( tcd < 1.0 ) ? tcd : 1.0;
+        EXPECT_NEAR( SstBlendingArg1( tKe, tVis, tcd ), expected, 1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstBlendingArg1SelectsViscousWhenLargerThanKe )
+{
+    // max(0.1, 0.5)=0.5; min(0.5, 2)=0.5
+    EXPECT_NEAR( SstBlendingArg1( 0.1, 0.5, 2.0 ), 0.5, 1.0e-12 );
+}

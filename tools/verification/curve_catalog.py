@@ -821,6 +821,48 @@ def list_theory_entries() -> list[TheoryEntry]:
         ),
 
 
+
+        TheoryEntry(
+            id="sst_blending_arg1",
+            family="turbulence",
+            genus="SST",
+            section="closure / F1 argument",
+            title="SST F1 blending argument",
+            role_tags=("turbulence", "SST", "closure"),
+            formula_plain=(
+                "arg1 = min(max(termSqrtKe, termViscous), termCrossDiff)"
+            ),
+            formula_latex=(
+                r"\arg_1=\min(\max(t_k,t_\nu),t_{CD})"
+            ),
+            principle=(
+                "Combines length-scale, viscous and cross-diffusion terms "
+                "into the argument of the F1 blending function."
+            ),
+            background=(
+                "Pure API SstBlendingArg1 in TurbSstPolicy. Downstream: "
+                "SstF1FromArg1. Upstream floors: SstCdkwWithFloor."
+            ),
+            references=(
+                "Menter SST (1994); NASA TMR SST",
+                "doc/source/numerical/sst_blending_arg1.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_blending_arg1_theory.csv",
+            plot_module="plot_sst_blending_arg1",
+            pure_apis=("SstBlendingArg1",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_blending_arg1.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "arg1 = min(max(tKe, tVis), tCD);\n"
+            ),
+            proves="arg1 algebra vs pure API on a tCD grid.",
+            does_not_prove="Full F1 field accuracy on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sst_cdkw_with_floor",
             family="turbulence",
