@@ -27,6 +27,28 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
         self.assertIn("GetDataValue", consumers[0].read_expression)
         self.assertIn("termination", consumers[0].behavior)
 
+    def test_max_time_links_time_threshold_to_outer_loop_termination(self):
+        consumers = self.catalog.find("maxTime")
+
+        self.assertEqual(len(consumers), 1)
+        consumer = consumers[0]
+        self.assertEqual(consumer.source_path, "codes/global/src/Ctrl.cpp")
+        self.assertEqual(consumer.symbol, "Ctrl::Init")
+        self.assertEqual(
+            consumer.read_expression,
+            'GetDataValue<Real>("maxTime")',
+        )
+        self.assertIn("currTime to zero", consumer.behavior)
+        self.assertIn("iexitflag != 0", consumer.behavior)
+        self.assertEqual(
+            consumer.behavior_source_paths,
+            ("codes/global/src/Iteration.cpp",),
+        )
+        self.assertEqual(
+            consumer.behavior_symbols,
+            ("SimuIterState::Running",),
+        )
+
     def test_parameter_can_have_multiple_runtime_read_sites(self):
         consumers = self.catalog.find("time_integral")
 
