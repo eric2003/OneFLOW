@@ -866,6 +866,49 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+        TheoryEntry(
+            id="sst_gradient_dot_product",
+            family="turbulence",
+            genus="SST",
+            section="closure / gradient dot product",
+            title="SST gradient dot product",
+            role_tags=("turbulence", "SST", "closure"),
+            formula_plain=(
+                "dot = dkx*dwx + dky*dwy + dkz*dwz"
+            ),
+            formula_latex=(
+                r"\nabla k\cdot\nabla\omega"
+                r"=(\partial_i k)(\partial_i\omega)"
+            ),
+            principle=(
+                "Forms the scalar cross-gradient product that feeds "
+                "cross-diffusion measures for F1 and omega source terms."
+            ),
+            background=(
+                "Pure API SstGradientDotProduct in TurbSstPolicy. Downstream: "
+                "SstCrossDiffScalar, SstCrossDiffMenter, WilcoxXkFromCrossTerm."
+            ),
+            references=(
+                "Menter SST cross-diffusion; NASA TMR SST",
+                "doc/source/numerical/sst_gradient_dot_product.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_gradient_dot_product_theory.csv",
+            plot_module="plot_sst_gradient_dot_product",
+            pure_apis=("SstGradientDotProduct",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_gradient_dot_product.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "dot = dkx*dwx + dky*dwy + dkz*dwz;\n"
+            ),
+            proves="Dot-product algebra vs pure API; composition with CD scalar.",
+            does_not_prove="Full residual field or gradient reconstruction accuracy.",
+        ),
+
         TheoryEntry(
             id="sst_cross_diff_scalar",
             family="turbulence",

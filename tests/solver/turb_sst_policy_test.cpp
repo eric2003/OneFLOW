@@ -441,3 +441,26 @@ TEST( TurbSstPolicy, SstCrossDiffScalarFeedsCdkwFloor )
     const Real raw = SstCrossDiffScalar( 1.0, 0.5, 2.0, 1.0 ); // 2.0
     EXPECT_NEAR( SstCdkwWithFloor( raw, 1.0e-20 ), 2.0, 1.0e-12 );
 }
+
+// Intermediate: SstGradientDotProduct on a dwx grid.
+// Ref: dk=(1,0,0), dw=(s,0,0); dot = s.
+TEST( TurbSstPolicy, SstGradientDotProductCurveMatchesClosedForm )
+{
+    const Real dwxs[] = { -2.0, -1.0, 0.0, 1.0, 2.0, 5.0 };
+    for ( Real s : dwxs )
+    {
+        EXPECT_NEAR(
+            SstGradientDotProduct( 1.0, 0.0, 0.0, s, 0.0, 0.0 ),
+            s,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstGradientDotProductFeedsCrossDiffScalar )
+{
+    const Real cross = SstGradientDotProduct( 1.0, 0.0, 0.0, 2.0, 0.0, 0.0 );
+    EXPECT_NEAR(
+        SstCrossDiffScalar( 1.0, 0.5, cross, 1.0 ),
+        2.0 * 1.0 * 0.5 * cross / 1.0,
+        1.0e-12 );
+}
