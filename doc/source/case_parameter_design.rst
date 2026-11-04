@@ -72,8 +72,34 @@ RAE2822 Roe-SA CFD case
    ``reynolds``, ``mach_ref``, ``vismodel``, ``inflow_intensity``,
    ``ref_sa``, ``turb_cfl_ratio``, ``nmg``, and ``mgCycleType``.
 
+Representative case inventory
+-----------------------------
+
+The manifest-driven classification test now loads all parameter files listed by
+the following checked-in cases, rather than validating only one CFD case and
+one grid case:
+
+* ``test/cfd/plateuns2dslau2``: laminar flat plate with SLAU2;
+* ``test/cfd/turbplateuns2droe_sa``: turbulent flat plate with Roe-SA;
+* ``test/cfd/rae2822_roe_sa``: transonic airfoil with Roe-SA;
+* ``test/cfd/m6wingroe_sa``: three-dimensional wing with Roe-SA;
+* ``test/grid/rae2822convert``: grid conversion and partitioning.
+
+The inventory test fails if any scalar or unsupported declaration name in
+these manifests is assigned to ``Other / Unclassified``. It also pins selected
+functional distinctions: turbulence inflow inputs are separated from model
+controls; physical inflow and wall thermal conditions remain separate from
+turbulence inflow; output cadence is separate from result/restart filenames;
+and solver sub-iteration limits remain run-control parameters.
+
+This is a growing representative corpus, not a claim that all ``test/`` cases,
+all optional solver modes, or all legacy configuration files have been
+enumerated. New case families should be added when their manifests introduce
+new keys or materially different applicability. Existing classifications may
+be refined as source consumers and case comments provide stronger evidence.
+
 These source references confirm that representative parameters reach implementation
-code. They do not classify every key in the two database dumps. Some settings are
+code. They do not classify every key in every repository case manifest. Some settings are
 conditional on task, model, or file format; some may be defaults, compatibility fields,
 derived values, or historical leftovers. Establishing whether a parameter is unused
 requires tracing its read path and conditions, not searching for one exact spelling
@@ -364,7 +390,7 @@ for evidence of a parameter's ownership.
   groups include ``General``, ``Run Control``, ``Solver system``, ``Time
   stepping``, ``Numerical methods``, ``Flow and reference conditions``,
   ``Thermodynamic reference state``, ``Transport properties``, ``Boundary and
-  inflow conditions``, ``Physical models``, ``Turbulence``, ``Multigrid``,
+  inflow conditions``, ``Physical models``, ``Turbulence inflow conditions``, ``Turbulence``, ``Multigrid``,
   ``Wall distance``, ``Output control``, ``Output files``, ``Input and output
   files``, ``Grid definition``, ``Grid formats and files``, and ``Partitioning``.
 * **Task applicability** records whether a setting is known to apply to
