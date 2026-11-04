@@ -15,10 +15,10 @@ class LatexPreviewTest(unittest.TestCase):
         self.assertNotIn(r"\mathrm", out)
 
     def test_sanitize_preserves_latex_spacing_commands(self) -> None:
-        source = r"x \\quad y + \\frac{a}{b}"
+        source = r"x \quad y + \frac{a}{b}"
         sanitized = sanitize_for_mathtext(source)
-        self.assertIn(r"\\quad", sanitized)
-        self.assertIn(r"\\frac", sanitized)
+        self.assertIn(r"\quad", sanitized)
+        self.assertIn(r"\frac", sanitized)
 
     def test_render_does_not_raise_on_full_latex(self) -> None:
         body = r"""
