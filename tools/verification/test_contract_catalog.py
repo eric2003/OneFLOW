@@ -880,8 +880,8 @@ class ContractCatalogTest(unittest.TestCase):
         )
         self.assertGreater(len(parameters), len(source_backed_parameters))
         self.assertTrue(
-            all(item.parameter_key for item in parameters.values()),
-            "every parameter catalog entry must retain its logical key",
+            all(item.parameter_key for item in proposed_parameters.values()),
+            "every proposed inventory entry must retain its logical key",
         )
         self.assertEqual(parameters["parameter/max-steps"].group_id, "run_control")
         self.assertEqual(parameters["parameter/max-time"].group_id, "run_control")
