@@ -78,6 +78,47 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Transition prediction quality on a case mesh.",
         ),
 
+
+        TheoryEntry(
+            id="sa_under_relaxed_update",
+            family="turbulence",
+            genus="SA",
+            section="update / under-relaxation",
+            title="SA under-relaxed update",
+            role_tags=("turbulence", "SA", "update"),
+            formula_plain=(
+                "q = (1-alpha)*qOld + alpha*(qOld+deltaQ) = qOld + alpha*deltaQ"
+            ),
+            formula_latex=(
+                r"q=q_0+\alpha\Delta q"
+            ),
+            principle=(
+                "Under-relaxation blends the explicit update with the old "
+                "working variable to improve nonlinear stability."
+            ),
+            background=(
+                "Pure API SaUnderRelaxedUpdate in TurbSaPolicy."
+            ),
+            references=(
+                "Common CFD under-relaxation practice; SA solver update path",
+                "doc/source/numerical/sa_under_relaxed_update.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_under_relaxed_update_theory.csv",
+            plot_module="plot_sa_under_relaxed_update",
+            pure_apis=("SaUnderRelaxedUpdate",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_under_relaxed_update.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "q = qOld + alpha * deltaQ;\n"
+            ),
+            proves="Under-relaxation algebra vs pure API on an alpha grid.",
+            does_not_prove="Optimal alpha or case convergence behavior.",
+        ),
+
         TheoryEntry(
             id="sa_eddy_viscosity",
             family="turbulence",
