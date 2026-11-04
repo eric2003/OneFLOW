@@ -514,7 +514,7 @@ not every two-equation turbulence initialization path. In that branch,
 
    k_e = \frac{3}{2}\,(0.01 I)^2
 
-and recomputes ``kwoo = k_e * (cmu * Re * rho_ref) / mutoo`.
+and recomputes ``kwoo = k_e * (cmu * Re * rho_ref) / mutoo``.
 For non-positive intensity it keeps the initial viscosity-based ``k_e``
 and obtains the empirical intensity through ``trans.CalcIntensity``.
 The source's ``0.01`` scaling is recorded literally; this does not establish

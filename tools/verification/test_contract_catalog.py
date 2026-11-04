@@ -914,6 +914,13 @@ class ContractCatalogTest(unittest.TestCase):
         )
         self.assertTrue(max_viscosity.parameter_knowledge)
         self.assertIn("min(", max_viscosity.parameter_knowledge.formulas[0].plain)
+        evidence_resolutions = resolve_contract_evidence(
+            self.repository_root, max_viscosity
+        )
+        self.assertEqual(
+            [item.status for item in evidence_resolutions],
+            ["resolved", "resolved"],
+        )
 
         for contract_id in (
             "parameter/inflow_intensity",
