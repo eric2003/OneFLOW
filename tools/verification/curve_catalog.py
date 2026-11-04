@@ -431,6 +431,48 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+        TheoryEntry(
+            id="sst_prodk_strain_only",
+            family="turbulence",
+            genus="SST",
+            section="source / k production",
+            title="SST strain-only k production Pk",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "Pk = mut * S2 * invReynolds"
+            ),
+            formula_latex=(
+                r"P_k=\mu_t S^{2}/\mathrm{Re}"
+            ),
+            principle=(
+                "Simplified production using only strain-rate magnitude, "
+                "without divergence correction. Alternate to Boussinesq form."
+            ),
+            background=(
+                "Pure API SstProdkStrainOnly in TurbSstPolicy. Pair with "
+                "SstProdkBoussinesq and SstProdkVorticity options."
+            ),
+            references=(
+                "SST production-option variants; NASA TMR SST",
+                "doc/source/numerical/sst_prodk_strain_only.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_prodk_strain_only_theory.csv",
+            plot_module="plot_sst_prodk_strain_only",
+            pure_apis=("SstProdkStrainOnly",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_prodk_strain_only.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Pk = mut * S2 * invRe;\n"
+            ),
+            proves="Strain-only Pk algebra vs pure API on an S2 grid.",
+            does_not_prove="Which production option is best for a case.",
+        ),
+
         TheoryEntry(
             id="sst_prodk_boussinesq",
             family="turbulence",

@@ -229,3 +229,27 @@ TEST( TurbSstPolicy, SstProdkBoussinesqSubtractsDivergenceTerm )
         -4.0,
         1.0e-12 );
 }
+
+// Intermediate: SstProdkStrainOnly on a strain-rate-squared grid.
+// Ref: mut=2, invRe=0.5; Pk = S2.
+TEST( TurbSstPolicy, SstProdkStrainOnlyCurveMatchesClosedForm )
+{
+    const Real mut = 2.0;
+    const Real invRe = 0.5;
+    const Real s2s[] = { 0.0, 0.5, 1.0, 2.0, 4.0, 8.0 };
+    for ( Real s2 : s2s )
+    {
+        EXPECT_NEAR(
+            SstProdkStrainOnly( mut, s2, invRe ),
+            mut * s2 * invRe,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstProdkStrainOnlyLinearInEddyViscosity )
+{
+    EXPECT_NEAR(
+        SstProdkStrainOnly( 4.0, 3.0, 0.5 ),
+        2.0 * SstProdkStrainOnly( 2.0, 3.0, 0.5 ),
+        1.0e-12 );
+}
