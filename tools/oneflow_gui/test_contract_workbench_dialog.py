@@ -126,6 +126,24 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_dual_time_selector_is_registered_in_parameter_domain(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            contract_id = "parameter/dual-time-index"
+            row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == contract_id
+            )
+            dialog.contract_list.setCurrentRow(row)
+            self.assertIn("idualtime", dialog.overview_view.toPlainText())
+            consumer_text = dialog.runtime_consumers_view.toPlainText()
+            self.assertIn("Optional", consumer_text)
+            self.assertIn('FindDataEntry("idualtime")', consumer_text)
+            self.assertIn("CflIterationIndex", consumer_text)
+        finally:
+            dialog.close()
+
     def test_mach_parameter_exposes_formula_symbols_aliases_and_latex(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
         try:

@@ -523,6 +523,19 @@ a universal external unit convention, valid range, or recommended value.
 The non-transition two-equation initialization follows a separate
 ``ref_sst``/default path.
 
+The optional dual-time selector is also exposed as its own Parameter contract:
+parameter/dual-time-index (runtime key idualtime). The existing parameter/cfl-ramp
+contract remains the combined algorithm entry for cflst, cfled, and ncfl, while
+timestepModel and global_dt remain separately source-audited within that time-step
+strategy trace. This avoids treating a selector for the CFL iteration counter as
+equivalent to the time-step strategy or the physical time-step input.
+
+Iteration::Init checks for idualtime before reading it. If the declaration is
+absent, Iteration::dualtime remains zero; when it is one, the CFL schedule uses
+innerSteps rather than outerSteps. The consumer catalog records this as an optional
+read, not a required parameter. This does not prove every solver path implements
+dual-time stepping or establish a temporal accuracy order.
+
 The consumer catalog now links both keys to the direct typed reads and the
 ``TurbCom::InitInflow`` implementation. This is code-path evidence, not a
 claim that every turbulence model uses the same inflow closure.

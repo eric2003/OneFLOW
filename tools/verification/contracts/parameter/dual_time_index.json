@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "id": "parameter/dual-time-index",
+  "title": "Dual-time CFL iteration index",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "implemented",
+  "overview": "idualtime is an optional integer selector read by Iteration::Init. Missing entries retain Iteration::dualtime = 0; value 1 selects innerSteps rather than outerSteps when evaluating the CFL ramp.",
+  "principle": "The schedule index is outerSteps for physical-time indexing and innerSteps when idualtime == 1. This selector changes which iteration counter drives the CFL schedule; it does not itself define the physical-time integration method or a physical time increment.",
+  "architecture": "Iteration::Init checks FindDataEntry(\"idualtime\") before reading the integer value. TimeStep::CalcCfl passes the selected mode to CflIterationIndex. The combined schedule is parameter/cfl-ramp.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/global/src/Iteration.cpp",
+      "codes/global/include/Iteration.h",
+      "codes/ns/src/TimeStep.cpp",
+      "codes/ns/src/TimeStepPolicy.cpp",
+      "codes/ns/include/TimeStepPolicy.h"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/numerical/cfl_ramp.rst",
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The input is optional and defaults to zero when absent.",
+      "The value 1 selects innerSteps for the CFL schedule; non-dual mode uses outerSteps."
+    ],
+    "does_not_prove": [
+      "That every solver supports dual-time stepping.",
+      "That idualtime selects a particular time_integral algorithm or guarantees a physical-time accuracy order."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "CflIterationIndex",
+      "status": "declared_not_executed",
+      "scope": "Source-backed counter-selection policy; declaration does not imply test execution."
+    }
+  ],
+  "examples": [
+    {
+      "title": "Physical-time versus dual-time indexing",
+      "input": "outerSteps = 10, innerSteps = 40.",
+      "calculation": "With idualtime = 0, the schedule index is 10. With idualtime = 1, the schedule index is 40.",
+      "result": "The same CFL schedule can advance according to a different iteration counter.",
+      "limitations": "This does not define how currTime is advanced or prove that a selected solver path uses dual-time stepping."
+    }
+  ],
+  "group": {
+    "id": "time_stepping",
+    "title": "Time stepping",
+    "order": 20
+  },
+  "parameter_key": "idualtime",
+  "knowledge": {
+    "formulas": [
+      {
+        "id": "dual_time_cfl_index",
+        "title": "CFL schedule index selection",
+        "role": "Source-derived counter selection",
+        "plain": "i = outerSteps when idualtime != 1; i = innerSteps when idualtime == 1",
+        "latex": "i=\\begin{cases}n_{outer},&\\mathrm{idualtime}\\ne1\\\\n_{inner},&\\mathrm{idualtime}=1\\end{cases}",
+        "assumptions": "This is the CflIterationIndex policy for the audited NS time-step path. Missing input defaults to zero during Iteration::Init.",
+        "symbols": [
+          {
+            "symbol": "idualtime",
+            "meaning": "Optional dual-time CFL index selector",
+            "oneflow_name": "idualtime"
+          },
+          {
+            "symbol": "n_outer",
+            "meaning": "Outer iteration counter"
+          },
+          {
+            "symbol": "n_inner",
+            "meaning": "Inner iteration counter"
+          }
+        ]
+      }
+    ],
+    "symbols": [],
+    "references": [],
+    "caveats": [
+      "This selector governs CFL schedule indexing, not the full dual-time algorithm.",
+      "Missing parameter defaults to physical-time indexing."
+    ]
+  }
+}

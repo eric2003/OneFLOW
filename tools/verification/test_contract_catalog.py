@@ -239,6 +239,22 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\\n".join(issues))
 
+    def test_dual_time_index_parameter_contract_records_optional_default(self) -> None:
+        path = (
+            self.repository_root / "tools" / "verification" / "contracts"
+            / "parameter" / "dual_time_index.json"
+        )
+        definition = json.loads(path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+        self.assertEqual(summary.id, "parameter/dual-time-index")
+        self.assertEqual(summary.parameter_key, "idualtime")
+        self.assertEqual(summary.group_id, "time_stepping")
+        self.assertIn("defaults to zero", summary.overview)
+        self.assertTrue(summary.parameter_knowledge.formulas)
+        self.assertEqual(
+            validate_contract_summaries(self.repository_root, [summary]), []
+        )
+
     def test_parameter_max_steps_contract_records_stop_condition_scope(self) -> None:
         definition_path = (
             self.repository_root / "tools" / "verification" / "contracts"

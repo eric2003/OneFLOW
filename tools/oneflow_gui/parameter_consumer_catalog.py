@@ -165,6 +165,15 @@ _CONSUMERS = (
     ),
 
     ParameterConsumer(
+        "idualtime", "codes/global/src/Iteration.cpp", "Iteration::Init",
+        'FindDataEntry("idualtime")', ConsumerReadKind.OPTIONAL,
+        "Optionally loads the dual-time selector into Iteration::dualtime. Missing entries retain the default value 0. TimeStep::CalcCfl uses the outer-step index for physical-time mode and the inner-step index when dualtime == 1.",
+        "CFL ramp iteration indexing; optional compatibility input.",
+        "The guarded FindDataEntry read and default-zero behavior are present in Iteration.cpp.",
+        ("codes/ns/src/TimeStep.cpp", "codes/ns/src/TimeStepPolicy.cpp", "codes/ns/include/TimeStepPolicy.h"),
+        ("TimeStep::CalcCfl", "CflIterationIndex"),
+    ),
+    ParameterConsumer(
         "cflst", "codes/global/src/Iteration.cpp", "Iteration::Init",
         'GetDataValue<Real>("cflst")', ConsumerReadKind.REQUIRED,
         "Loads the starting value of the CFL ramp. TimeStep::CalcCfl selects the ramp index and CflAtIteration evaluates the schedule.",

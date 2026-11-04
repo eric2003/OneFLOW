@@ -82,6 +82,18 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
         )
 
 
+    def test_dual_time_selector_is_optional_and_controls_cfl_index(self):
+        consumers = self.catalog.find("idualtime")
+        self.assertEqual(len(consumers), 1)
+        consumer = consumers[0]
+        self.assertEqual(consumer.read_kind, ConsumerReadKind.OPTIONAL)
+        self.assertEqual(consumer.source_path, "codes/global/src/Iteration.cpp")
+        self.assertEqual(consumer.symbol, "Iteration::Init")
+        self.assertEqual(consumer.read_expression, 'FindDataEntry("idualtime")')
+        self.assertIn("default value 0", consumer.behavior)
+        self.assertIn("inner-step index", consumer.behavior)
+        self.assertIn("CflIterationIndex", consumer.behavior_symbols)
+
     def test_cfl_ramp_parameters_link_to_iteration_index_and_schedule(self):
         for key, phrase in (
             ("cflst", "starting value"),
