@@ -335,3 +335,24 @@ TEST( TurbSaPolicy, SaEddyViscosityComposedFromFv1 )
         1.0 * 2.0 * fv1,
         1.0e-12 );
 }
+
+// Intermediate: SaFt2 on a chi grid (enabled).
+// Ref: ct3=1.2, ct4=0.5; ft2 = 1.2 * exp(-0.5 * chi^2).
+TEST( TurbSaPolicy, SaFt2CurveMatchesClosedForm )
+{
+    const Real ct3 = 1.2;
+    const Real ct4 = 0.5;
+    const Real chis[] = { 0.0, 0.5, 1.0, 2.0, 3.0 };
+    for ( Real chi : chis )
+    {
+        EXPECT_NEAR(
+            SaFt2( chi, ct3, ct4, true ),
+            ct3 * std::exp( - ct4 * chi * chi ),
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaFt2DecaysWithChiSquared )
+{
+    EXPECT_GT( SaFt2( 0.0, 1.2, 0.5, true ), SaFt2( 2.0, 1.2, 0.5, true ) );
+}

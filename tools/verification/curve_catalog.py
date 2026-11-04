@@ -35,6 +35,49 @@ def list_theory_entries() -> list[TheoryEntry]:
     return [
         # ========== SA ==========
 
+
+        TheoryEntry(
+            id="sa_ft2",
+            family="turbulence",
+            genus="SA",
+            section="closure / trip function",
+            title="SA trip function ft2",
+            role_tags=("turbulence", "SA", "closure"),
+            formula_plain=(
+                "ft2 = 0 if disabled; else ct3 * exp(-ct4 * chi^2)"
+            ),
+            formula_latex=(
+                r"f_{t2}=c_{t3}\,e^{-c_{t4}\chi^{2}}"
+                r"\quad(\text{enabled})"
+            ),
+            principle=(
+                "Optional trip term that reduces production and adjusts "
+                "destruction near laminar/transition regions."
+            ),
+            background=(
+                "Pure API SaFt2 in TurbSaPolicy. Feeds SaProduction and "
+                "SaDestruction when the trip flag is on."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_ft2.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_ft2_theory.csv",
+            plot_module="plot_sa_ft2",
+            pure_apis=("SaFt2",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_ft2.rst",
+            code_sketch=(
+                "// GATED SKETCH enabled\n"
+                "ft2 = ct3 * exp(-ct4 * chi * chi);\n"
+            ),
+            proves="ft2 algebra vs pure API on a chi grid; disabled path returns 0.",
+            does_not_prove="Transition prediction quality on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sa_eddy_viscosity",
             family="turbulence",
