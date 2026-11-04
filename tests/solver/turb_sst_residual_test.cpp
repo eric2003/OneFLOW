@@ -127,3 +127,22 @@ TEST( TurbSstResidual, SstDiagonalWAddsCrossDiffTerm )
         -0.5,
         1.0e-12 );
 }
+
+// Intermediate: SstNegativeSourcePart on a source grid.
+// n = 0.5 * (S - |S|) = min(S, 0).
+TEST( TurbSstResidual, SstNegativeSourcePartCurveMatchesClosedForm )
+{
+    const Real sources[] = { -4.0, -1.0, 0.0, 1.0, 3.0, 10.0 };
+    for ( Real s : sources )
+    {
+        const Real expected = ( s < 0.0 ) ? s : 0.0;
+        EXPECT_NEAR( SstNegativeSourcePart( s ), expected, 1.0e-12 );
+    }
+}
+
+TEST( TurbSstResidual, SstNegativeSourcePartFromSourceK )
+{
+    const Real sk = SstSourceK( 1.0, 3.0 ); // -2
+    EXPECT_NEAR( SstNegativeSourcePart( sk ), -2.0, 1.0e-12 );
+    EXPECT_NEAR( SstNegativeSourcePart( SstSourceK( 5.0, 1.0 ) ), 0.0, 1.0e-12 );
+}

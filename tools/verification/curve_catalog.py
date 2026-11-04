@@ -1233,6 +1233,48 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Full SST residual field or F1 construction accuracy.",
         ),
 
+
+        TheoryEntry(
+            id="sst_negative_source_part",
+            family="turbulence",
+            genus="SST",
+            section="residual / negative source part",
+            title="SST negative source part",
+            role_tags=("turbulence", "SST", "residual"),
+            formula_plain=(
+                "n = 0.5 * (S - |S|) = min(S, 0)"
+            ),
+            formula_latex=(
+                r"n=\min(S,0)"
+            ),
+            principle=(
+                "Extracts only the non-positive part of a source residual for "
+                "implicit linearization / diagonal contributions."
+            ),
+            background=(
+                "Pure API SstNegativeSourcePart in TurbSstPolicy. Used with "
+                "SstSourceK / SstSourceW residual assembly."
+            ),
+            references=(
+                "Menter SST linearization practice",
+                "doc/source/numerical/sst_negative_source_part.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_negative_source_part_theory.csv",
+            plot_module="plot_sst_negative_source_part",
+            pure_apis=("SstNegativeSourcePart",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_negative_source_part.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "n = (S < 0) ? S : 0;\n"
+            ),
+            proves="Negative-part algebra vs pure API; composition with SstSourceK.",
+            does_not_prove="Full residual Jacobian on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sst_diagonal_w",
             family="turbulence",
