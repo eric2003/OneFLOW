@@ -3403,6 +3403,55 @@ principle=(
             does_not_prove="Full Roe residual or entropy-fix interaction.",
         ),
 
+
+        TheoryEntry(
+            id="roe_average_state",
+            family="mean-flow",
+            genus="NS",
+            section="flux / Roe average state",
+            title="Roe average state",
+            role_tags=("NS", "Roe", "flux"),
+            formula_plain=(
+                "rho_m = sqrt(rhoL*rhoR); "
+                "phi_m = (phiL + phiR*ratio)*coef; "
+                "ratio=sqrt(rhoR/rhoL); coef=1/(1+ratio)"
+            ),
+            formula_latex=(
+                r"\rho_m=\sqrt{\rho_L\rho_R},\quad"
+                r"\phi_m=(\phi_L+\phi_R r)/(1+r),\ "
+                r"r=\sqrt{\rho_R/\rho_L}"
+            ),
+            principle=(
+                "Assembles the Roe mid-face state from left/right primitives "
+                "using geometric density mean and density-weighted component "
+                "averages."
+            ),
+            background=(
+                "Pure API RoeAverageState in NsInvFluxPolicy. Builds on "
+                "RoeAverageWeights and RoeAverageComponent."
+            ),
+            references=(
+                "Roe (1981); standard CFD Roe average",
+                "doc/source/numerical/roe_average_state.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_average_state_theory.csv",
+            plot_module="plot_roe_average_state",
+            pure_apis=("RoeAverageState", "RoeAverageWeights", "RoeAverageComponent"),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_average_state.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "ratio = sqrt(rhoR/rhoL); coef = 1/(1+ratio);\n"
+                "rho_m = sqrt(rhoL*rhoR);\n"
+                "phi_m = (phiL + phiR*ratio)*coef;\n"
+            ),
+            proves="Roe mid-state algebra vs pure API on a density-ratio grid.",
+            does_not_prove="Full Roe flux residual or entropy-fix interaction.",
+        ),
+
         TheoryEntry(
             id="roe_average_component",
             family="mean-flow",
