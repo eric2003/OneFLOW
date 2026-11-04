@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "parameter/monitor-maximum-turbulent-viscosity-coefficient",
+  "title": "monitorMaximumTurbulentViscosityCoefficient",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "proposed",
+  "overview": "The legacy Case configuration declares monitorMaximumTurbulentViscosityCoefficient. It is included in the Turbulence group because of its role in the observed configuration. The exact runtime read sites and downstream behavior have not yet been audited for this entry.",
+  "principle": "This entry records the parameter key and its observed configuration context. Its physical meaning, numerical semantics, units, admissible range, and default policy remain to be established from production code and authoritative numerical references.",
+  "architecture": "The key is declared in parameter files loaded through control.txt in the listed representative Cases. This catalog entry does not assert that every solver path consumes it, that the value is required, or that the selected setting has been validated.",
+  "references": [],
+  "implementation": {
+    "source_paths": []
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The key monitorMaximumTurbulentViscosityCoefficient is declared in the listed Case parameter configuration inventory."
+    ],
+    "does_not_prove": [
+      "A verified production-code consumer or complete downstream call chain.",
+      "A physical formula, unit, default, admissible range, or compatibility rule.",
+      "That a Case using this setting has passed numerical verification or regression validation."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "case_suite",
+      "reference": "test/cfd/plateuns2dslau2",
+      "status": "fixture_available",
+      "scope": "Declaration inventory only. Observed in: test/cfd/plateuns2dslau2, test/cfd/m6wingroe_sa, test/cfd/rae2822_roe_sa, test/cfd/turbplateuns2droe_sa. No production runtime execution or numerical verification is implied."
+    }
+  ],
+  "group": {
+    "id": "turbulence",
+    "title": "Turbulence",
+    "order": 80
+  },
+  "parameter_key": "monitorMaximumTurbulentViscosityCoefficient"
+}

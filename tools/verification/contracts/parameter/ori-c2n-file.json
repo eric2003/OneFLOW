@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "parameter/ori-c2n-file",
+  "title": "ori_c2n_file",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "proposed",
+  "overview": "The legacy Case configuration declares ori_c2n_file. It is included in the Grid Partitioning group because of its role in the observed configuration. The exact runtime read sites and downstream behavior have not yet been audited for this entry.",
+  "principle": "This entry records the parameter key and its observed configuration context. Its physical meaning, numerical semantics, units, admissible range, and default policy remain to be established from production code and authoritative numerical references.",
+  "architecture": "The key is declared in parameter files loaded through control.txt in the listed representative Cases. This catalog entry does not assert that every solver path consumes it, that the value is required, or that the selected setting has been validated.",
+  "references": [],
+  "implementation": {
+    "source_paths": []
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The key ori_c2n_file is declared in the listed Case parameter configuration inventory."
+    ],
+    "does_not_prove": [
+      "A verified production-code consumer or complete downstream call chain.",
+      "A physical formula, unit, default, admissible range, or compatibility rule.",
+      "That a Case using this setting has passed numerical verification or regression validation."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "case_suite",
+      "reference": "test/grid/rae2822convert",
+      "status": "fixture_available",
+      "scope": "Declaration inventory only. Observed in: test/grid/rae2822convert. No production runtime execution or numerical verification is implied."
+    }
+  ],
+  "group": {
+    "id": "grid_partitioning",
+    "title": "Grid Partitioning",
+    "order": 130
+  },
+  "parameter_key": "ori_c2n_file"
+}
