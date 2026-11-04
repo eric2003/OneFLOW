@@ -105,6 +105,9 @@ class ParameterModelTest(unittest.TestCase):
                     "Real inflowVelocity = 0.5;\n"
                     "Real inflow_intensity = 0.5;\n"
                     "Real inflow_viscosity = 0.01;\n"
+                    "Real turb_cfl_ratio = 1.0;\n"
+                    "Real rprod = 0.5;\n"
+                    "Real max_vis_ratio = 1.0e5;\n"
                     "Real twall_dim = 300.0;\n"
                     "Real gama_ref = 1.4;\n"
                     "Real prl = 0.72;\n"
@@ -131,6 +134,9 @@ class ParameterModelTest(unittest.TestCase):
                 "twall_dim": "Boundary and inflow conditions",
                 "inflow_intensity": "Turbulence inflow conditions",
                 "inflow_viscosity": "Turbulence inflow conditions",
+                "turb_cfl_ratio": "Turbulence",
+                "rprod": "Turbulence",
+                "max_vis_ratio": "Turbulence",
                 "gama_ref": "Thermodynamic reference state",
                 "prl": "Transport properties",
                 "numberOfMinimumSubIterationSteps": "Run control",

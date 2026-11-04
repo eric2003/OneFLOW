@@ -357,7 +357,16 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("Run Control  (3)", headers)
             self.assertIn("Time Integration  (2)", headers)
             self.assertIn("Compressible Flow  (1)", headers)
+            self.assertIn("Turbulence  (3)", headers)
+            self.assertIn("Turbulence Inflow Conditions  (2)", headers)
 
+            dialog.search_edit.setText("turb_cfl_ratio")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(visible_ids, {"parameter/turb_cfl_ratio"})
             dialog.search_edit.setText("mach_ref")
             visible_ids = {
                 dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
