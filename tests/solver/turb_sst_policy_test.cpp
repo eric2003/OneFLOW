@@ -379,3 +379,22 @@ TEST( TurbSstPolicy, SstBlendIsConvexCombination )
         EXPECT_LE( b, 8.0 );
     }
 }
+
+// Intermediate: SstCdkwWithFloor on a cross-diffusion grid.
+// Ref: floor=1e-20; floored = max(CD, 1e-20).
+TEST( TurbSstPolicy, SstCdkwWithFloorCurveMatchesClosedForm )
+{
+    const Real floorValue = 1.0e-20;
+    const Real cds[] = { 0.0, 1.0e-30, 1.0e-20, 1.0e-10, 1.0 };
+    for ( Real cd : cds )
+    {
+        const Real expected = ( cd > floorValue ) ? cd : floorValue;
+        EXPECT_NEAR( SstCdkwWithFloor( cd, floorValue ), expected, 1.0e-30 );
+    }
+}
+
+TEST( TurbSstPolicy, SstCdkwWithFloorNeverBelowFloor )
+{
+    EXPECT_GE( SstCdkwWithFloor( -1.0, 1.0e-20 ), 1.0e-20 );
+    EXPECT_GE( SstCdkwWithFloor( 0.0, 1.0e-20 ), 1.0e-20 );
+}

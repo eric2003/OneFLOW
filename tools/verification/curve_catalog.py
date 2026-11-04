@@ -820,6 +820,48 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="F1 construction accuracy or full residual field.",
         ),
 
+
+        TheoryEntry(
+            id="sst_cdkw_with_floor",
+            family="turbulence",
+            genus="SST",
+            section="closure / F1 CDKW floor",
+            title="SST CDKW floor",
+            role_tags=("turbulence", "SST", "closure"),
+            formula_plain=(
+                "CD = max(crossDiff, floorValue)"
+            ),
+            formula_latex=(
+                r"\mathrm{CD}\leftarrow\max(\mathrm{CD},\mathrm{CD}_{\min})"
+            ),
+            principle=(
+                "Floors the cross-diffusion measure used in the F1 blending "
+                "argument so the min/max combination remains well-defined."
+            ),
+            background=(
+                "Pure API SstCdkwWithFloor in TurbSstPolicy. Upstream: "
+                "SstCrossDiffScalar / Menter CD. Downstream: SstBlendingArg1."
+            ),
+            references=(
+                "Menter SST F1 construction; NASA TMR SST",
+                "doc/source/numerical/sst_cdkw_with_floor.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_cdkw_with_floor_theory.csv",
+            plot_module="plot_sst_cdkw_with_floor",
+            pure_apis=("SstCdkwWithFloor",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_cdkw_with_floor.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "CD = max(crossDiff, floorValue);\n"
+            ),
+            proves="CDKW floor algebra vs pure API on a CD grid.",
+            does_not_prove="Full F1 field accuracy on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sst_f1",
             family="turbulence",
