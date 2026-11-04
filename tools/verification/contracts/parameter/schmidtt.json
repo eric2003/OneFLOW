@@ -5,9 +5,9 @@
   "domain": "parameter",
   "kind": "runtime_parameter",
   "status": "proposed",
-  "overview": "The legacy Case configuration declares schmidtt. It is included in the Transport Properties group because of its role in the observed configuration. The exact runtime read sites and downstream behavior have not yet been audited for this entry.",
-  "principle": "This entry records the parameter key and its observed configuration context. Its physical meaning, numerical semantics, units, admissible range, and default policy remain to be established from production code and authoritative numerical references.",
-  "architecture": "The key is declared in parameter files loaded through control.txt in the listed representative Cases. This catalog entry does not assert that every solver path consumes it, that the value is required, or that the selected setting has been validated.",
+  "overview": "schmidtt was identified in the representative Case parameter inventory and is grouped under Transport Properties. Its exact runtime consumer and downstream behavior have not yet been audited.",
+  "principle": "This entry preserves the legacy parameter key and its observed functional grouping. Its physical or numerical meaning, units, admissible range, and default policy must be established from production implementation and authoritative references; none are inferred from the key name.",
+  "architecture": "This is a declaration-inventory entry. The exact per-Case declaration location, production read sites, and downstream call chain remain to be audited. Presence in this catalog does not establish that the setting is required or consumed by every solver path.",
   "references": [],
   "implementation": {
     "source_paths": []
@@ -19,22 +19,15 @@
   },
   "claims": {
     "proves": [
-      "The key schmidtt is declared in the listed Case parameter configuration inventory."
+      "The key schmidtt was identified during the representative Case parameter inventory."
     ],
     "does_not_prove": [
+      "An exact per-Case declaration/source mapping.",
       "A verified production-code consumer or complete downstream call chain.",
-      "A physical formula, unit, default, admissible range, or compatibility rule.",
-      "That a Case using this setting has passed numerical verification or regression validation."
+      "A physical formula, unit, default, admissible range, or numerical validation."
     ]
   },
-  "verification": [
-    {
-      "kind": "case_suite",
-      "reference": "test/cfd/plateuns2dslau2",
-      "status": "fixture_available",
-      "scope": "Declaration inventory only. Observed in: test/cfd/plateuns2dslau2, test/cfd/m6wingroe_sa, test/cfd/rae2822_roe_sa, test/cfd/turbplateuns2droe_sa. No production runtime execution or numerical verification is implied."
-    }
-  ],
+  "verification": [],
   "group": {
     "id": "transport_properties",
     "title": "Transport Properties",

@@ -5,9 +5,9 @@
   "domain": "parameter",
   "kind": "runtime_parameter",
   "status": "proposed",
-  "overview": "The key dimension is declared in the legacy Case parameter configuration. This entry records its shared or geometry-related role; runtime read sites and downstream semantics require an explicit source audit.",
-  "principle": "This entry records the parameter key and its observed context. A complete semantic definition, admissible range, default policy, and verification evidence have not yet been established here.",
-  "architecture": "The key is loaded from a parameter document referenced by control.txt. The parameter inventory does not assert a universal runtime consumer or numerical validity.",
+  "overview": "dimension is a shared or geometry-related key identified in the representative Case parameter inventory. Its runtime consumer and downstream behavior have not yet been audited.",
+  "principle": "This entry preserves the key and grouping only. Its semantic definition, units, admissible range, and default policy require source-level confirmation.",
+  "architecture": "This is a declaration-inventory entry. Presence in the catalog does not establish that the setting is required or consumed by every solver path.",
   "references": [],
   "implementation": {
     "source_paths": []
@@ -19,21 +19,14 @@
   },
   "claims": {
     "proves": [
-      "The key dimension is declared in the listed Case configuration."
+      "The key dimension was identified during the representative Case parameter inventory."
     ],
     "does_not_prove": [
-      "A complete production-code consumer chain.",
-      "An admissible range, unit, default policy, or numerical validation."
+      "A verified production-code consumer or complete downstream call chain.",
+      "A physical formula, unit, default, admissible range, or numerical validation."
     ]
   },
-  "verification": [
-    {
-      "kind": "case_suite",
-      "reference": "test/cfd/plateuns2dslau2",
-      "status": "fixture_available",
-      "scope": "Declaration inventory only. Also observed in: test/cfd/plateuns2dslau2, test/grid/rae2822convert. Runtime execution is not implied."
-    }
-  ],
+  "verification": [],
   "group": {
     "id": "general",
     "title": "General",
