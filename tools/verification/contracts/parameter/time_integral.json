@@ -74,7 +74,7 @@
         "title": "OneFLOW time-integration method dispatch",
         "role": "Source-derived discrete algorithm-selection rule",
         "plain": "D(m) = RungeKutta if m = MULTI_STAGE; Simple if m = SIMPLE; Lusgs otherwise",
-        "latex": "D(m)=\\begin{cases}\\mathrm{RungeKutta},&m=\\mathrm{MULTI\\_STAGE}\\ (1)\\\\\\mathrm{Simple},&m=\\mathrm{SIMPLE}\\ (3)\\\\\\mathrm{Lusgs},&\\mathrm{otherwise}\\end{cases}",
+        "latex": "D(m)=\\mathrm{RungeKutta}\\ (m=1),\\quad D(m)=\\mathrm{Simple}\\ (m=3),\\quad D(m)=\\mathrm{Lusgs}\\ (\\mathrm{otherwise})",
         "assumptions": "Describes TimeIntegral::Init and context-aware TimeIntegral::Relaxation. MULTI_STAGE=1, LUSGS=2, SIMPLE=3 are declared in TimeIntegral.h. The fallback branch handles every value other than MULTI_STAGE and SIMPLE; it is not input validation.",
         "symbols": [
           {
