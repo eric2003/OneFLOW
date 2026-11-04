@@ -239,7 +239,7 @@ _CONSUMERS = (
     ParameterConsumer(
         "inflow_viscosity", "codes/turb/src/TurbCom.cpp", "TurbCom::Init",
         'GetDataValue<Real>("inflow_viscosity")', ConsumerReadKind.REQUIRED,
-        "Loads the turbulence inflow eddy-viscosity ratio. The two-equation inflow initializer uses it to derive the reference k and omega values.",
+        "Loads the turbulence inflow eddy viscosity. The two-equation inflow initializer uses it as mutoo to derive the reference k and omega values together with Reynolds number and reference density.",
         "Turbulence inflow initialization for the two-equation model.",
         "The value is read during TurbCom initialization and consumed by TurbCom::InitInflow.",
         ("codes/turb/src/TurbCom.cpp",),
