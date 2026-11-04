@@ -455,7 +455,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
             }
             self.assertEqual(
-                visible_ids, {"parameter/cfl-ramp", "parameter/time-step-strategy"}
+                visible_ids, {"parameter/cfl-ramp", "parameter/time-step-strategy", "parameter/turb_cfl_ratio"}
             )
             dialog.search_edit.setText("global_dt")
             visible_ids = {
