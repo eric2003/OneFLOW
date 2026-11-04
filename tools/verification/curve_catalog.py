@@ -34,6 +34,48 @@ class TheoryEntry:
 def list_theory_entries() -> list[TheoryEntry]:
     return [
         # ========== SA ==========
+
+        TheoryEntry(
+            id="sa_eddy_viscosity",
+            family="turbulence",
+            genus="SA",
+            section="closure / eddy viscosity",
+            title="SA eddy viscosity",
+            role_tags=("turbulence", "SA", "closure"),
+            formula_plain=(
+                "mut = density * nu_tilde * fv1"
+            ),
+            formula_latex=(
+                r"\mu_t=\rho\,\tilde{\nu}\,f_{v1}"
+            ),
+            principle=(
+                "Final SA turbulent viscosity from density, working variable "
+                "and the fv1 wall-damping function."
+            ),
+            background=(
+                "Pure API SaEddyViscosity in TurbSaPolicy. Upstream: SaChi, "
+                "SaFv1. Full pipeline: SaComputeEddyViscosity."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_eddy_viscosity.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_eddy_viscosity_theory.csv",
+            plot_module="plot_sa_eddy_viscosity",
+            pure_apis=("SaEddyViscosity",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_eddy_viscosity.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "mut = density * nu_tilde * fv1;\n"
+            ),
+            proves="Eddy-viscosity algebra vs pure API; composition with SaFv1.",
+            does_not_prove="Full capped SaComputeEddyViscosity pipeline on a case.",
+        ),
+
         TheoryEntry(
             id="sa_fv1_chi",
             family="turbulence",

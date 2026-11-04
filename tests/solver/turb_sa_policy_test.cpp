@@ -309,3 +309,29 @@ TEST( TurbSaPolicy, SaLimitedDiffusionUsesSaDiffusionInput )
     // rprod*P = 0.5*0.1 = 0.05 < 0.1625 => limited to 0.05
     EXPECT_NEAR( SaLimitedDiffusion( raw, 0.5, 0.1 ), 0.05, 1.0e-12 );
 }
+
+// Intermediate: SaEddyViscosity on a nu_tilde grid.
+// Ref: rho=1.2, fv1=0.8; mut = 0.96 * nu.
+TEST( TurbSaPolicy, SaEddyViscosityCurveMatchesClosedForm )
+{
+    const Real density = 1.2;
+    const Real fv1 = 0.8;
+    const Real nus[] = { 0.0, 0.25, 0.5, 1.0, 2.0, 5.0 };
+    for ( Real nu : nus )
+    {
+        EXPECT_NEAR(
+            SaEddyViscosity( density, nu, fv1 ),
+            density * nu * fv1,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaEddyViscosityComposedFromFv1 )
+{
+    const Real chi = SaChi( 2.0, 0.5 );
+    const Real fv1 = SaFv1( chi, 7.1 * 7.1 * 7.1 );
+    EXPECT_NEAR(
+        SaEddyViscosity( 1.0, 2.0, fv1 ),
+        1.0 * 2.0 * fv1,
+        1.0e-12 );
+}
