@@ -190,8 +190,8 @@ class ContractCatalogTest(unittest.TestCase):
         summary = adapt_declared_contract(definition)
 
         self.assertEqual(summary.id, "parameter/max-time")
-        self.assertEqual(summary.group_id, "run_control")
-        self.assertEqual(summary.group_title, "Run Control")
+        self.assertEqual(summary.group_id, "time_stepping")
+        self.assertEqual(summary.group_title, "Time stepping")
         self.assertIn("currTime", summary.overview)
         self.assertIn("maxSteps", summary.overview)
         self.assertEqual(
