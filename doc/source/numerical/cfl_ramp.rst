@@ -101,12 +101,23 @@ does not show a final-step clip to `maxTime`. The actual accumulation cadence
 is therefore coupled to `startStrategy` and should not be generalized to
 every solver without tracing its run loop.
 
-There is a separate unresolved state-lifecycle question: `ctrl.pdt1` is
-read as a denominator in `TimeIntegration::CalcSrcCoeff` and in the
-unsteady implicit-spectrum terms, but a repository-wide source search on the
-current branch found no assignment to `ctrl.pdt1`. Its intended role and
-update point must be established before treating it as a valid previous-step
-interval or changing the time-integration algorithm.
+Previous-step interval bootstrap and remaining lifecycle gap
+------------------------------------------------------------
+
+`Ctrl::Init` now seeds `ctrl.pdt1 = ctrl.pdt` immediately after loading
+`global_dt`. This gives the first history-dependent unsteady calculation a
+nonzero previous-step interval when the configured step is valid.
+`TimeIntegration::CalcSrcCoeff` uses `pdt1` in the source coefficients;
+the dual-time implicit spectrum also uses it when `idualtime != 0`.
+
+This is only an initialization seed. The current source tree still has no
+subsequent assignment that shifts the accepted current interval into
+`pdt1` when `pdt` changes. In particular, `UTimeStep::CalcLgTimeStep`
+can replace `pdt` with the minimum local step, while the history interval
+remains unchanged. Do not treat variable-step dual-time integration as
+verified until the physical-step boundary and history rotation are made
+explicit and tested. The present change removes the zero-initialized startup
+state; it does not claim to solve variable-step history management.
 
 Source map
 ----------

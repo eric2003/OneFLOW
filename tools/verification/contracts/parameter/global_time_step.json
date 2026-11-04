@@ -7,7 +7,7 @@
   "status": "implemented",
   "overview": "global_dt is read by solver control initialization and loaded into Ctrl::pdt. The global time-step strategy uses this configured value; the local/global hybrid strategy later replaces pdt with the minimum computed local step.",
   "principle": "For the global strategy, the cell time-step field is filled from pdt initialized by global_dt. This is an input time increment in the active case/solver convention; its dimensional or nondimensional unit is not established universally by the audited source.",
-  "architecture": "Ctrl::Init and the NS, incompressible NS, and turbulence control initializers load global_dt. UTimeStep::CalcGlobalTimeStep applies ctrl.pdt; UTimeStep::CalcLgTimeStep computes local values, takes the minimum, and stores it back into ctrl.pdt. This input is independent of the CFL ramp. MG::Run advances ctrl.currTime by ctrl.pdt: startStrategy 2 or 3 does so before each inner solve while incrementing both counters; the other branch does so once before its inner loop. This is a run-loop accumulator update, not a proof that every solver uses the same timing cadence.",
+  "architecture": "Ctrl::Init and the NS, incompressible NS, and turbulence control initializers load global_dt. UTimeStep::CalcGlobalTimeStep applies ctrl.pdt; UTimeStep::CalcLgTimeStep computes local values, takes the minimum, and stores it back into ctrl.pdt. This input is independent of the CFL ramp. MG::Run advances ctrl.currTime by ctrl.pdt: startStrategy 2 or 3 does so before each inner solve while incrementing both counters; the other branch does so once before its inner loop. This is a run-loop accumulator update, not a proof that every solver uses the same timing cadence. Ctrl::Init seeds ctrl.pdt1 from the configured initial ctrl.pdt so the first previous-step denominator is nonzero when global_dt is valid. TimeIntegration::CalcSrcCoeff and the dual-time implicit spectrum consume pdt1. No subsequent history-shift assignment was found; this seed does not establish variable-step correctness.",
   "references": [],
   "implementation": {
     "source_paths": [
@@ -16,7 +16,12 @@
       "codes/ins/src/INsCtrl.cpp",
       "codes/turb/src/TurbCtrl.cpp",
       "codes/uns/src/UTimeStep.cpp",
-      "codes/multigrid/src/Multigrid.cpp"
+      "codes/multigrid/src/Multigrid.cpp",
+      "codes/unsteady/src/TimeIntegration.cpp",
+      "codes/uns/src/UNsSpectrum.cpp",
+      "codes/uins/src/UINsSpectrum.cpp",
+      "codes/uturb/src/UTurbSpectrum.cpp",
+      "codes/usolver/src/UUnsteady.cpp"
     ]
   },
   "documentation": {
@@ -30,14 +35,15 @@
       "Four solver-control initializers read global_dt into Ctrl::pdt.",
       "The global strategy applies pdt as a common cell time step.",
       "The local/global hybrid branch replaces pdt with the minimum local time step.",
-      "In MG::Run, currTime is incremented by pdt at the start-strategy-specific update site."
+      "In MG::Run, currTime is incremented by pdt at the start-strategy-specific update site.",
+      "Ctrl::Init seeds pdt1 from pdt at startup."
     ],
     "does_not_prove": [
       "A universal unit or nondimensional scale for global_dt.",
       "That global_dt is derived from cflst/cfled/ncfl.",
       "That the configured value is used unchanged by the hybrid strategy.",
       "That the chosen value guarantees stability or accuracy.",
-      "That pdt1 is initialized or updated as a previous-step interval; the audited current source search finds reads of ctrl.pdt1 but no assignment to it."
+      "That pdt1 is advanced to the accepted previous physical time step after pdt changes, particularly in local/global hybrid stepping."
     ]
   },
   "verification": [
@@ -45,7 +51,7 @@
       "kind": "pure_api",
       "reference": "UTimeStep::CalcGlobalTimeStep and UTimeStep::CalcLgTimeStep",
       "status": "declared_not_executed",
-      "scope": "Source-backed input and strategy behavior; no numerical run is claimed. The MG::Run time-accumulator update is source-audited only; no physical-time integration run is claimed."
+      "scope": "Source-backed input and strategy behavior; no numerical run is claimed. The MG::Run time-accumulator update is source-audited only; no physical-time integration run is claimed. Startup previous-step seeding is source-backed; variable-step history advancement and numerical dual-time integration remain unverified."
     }
   ],
   "examples": [
@@ -106,6 +112,31 @@
             "meaning": "Current shared time increment"
           }
         ]
+      },
+      {
+        "id": "previous_time_step_bootstrap",
+        "title": "Previous-step interval bootstrap",
+        "role": "Source-derived startup initialization",
+        "plain": "pdt1 = pdt = global_dt at Ctrl initialization",
+        "latex": "\\Delta t_{-1}=\\Delta t_0=\\Delta t_{configured}",
+        "assumptions": "This is the startup seed only. It is not a variable-step history update rule.",
+        "symbols": [
+          {
+            "symbol": "Delta t_-1",
+            "meaning": "Previous-step interval used by history-dependent unsteady terms",
+            "oneflow_name": "pdt1"
+          },
+          {
+            "symbol": "Delta t_0",
+            "meaning": "Initial configured time interval",
+            "oneflow_name": "pdt"
+          },
+          {
+            "symbol": "Delta t_configured",
+            "meaning": "Configured global_dt value",
+            "oneflow_name": "global_dt"
+          }
+        ]
       }
     ],
     "symbols": [],
@@ -113,7 +144,7 @@
     "caveats": [
       "Units and nondimensional scaling depend on the active case/solver convention.",
       "Do not conflate global_dt with the CFL ramp or the final hybrid pdt.",
-      "pdt1 is used as a denominator by unsteady source/spectrum terms, but no assignment to ctrl.pdt1 was found in the current source-tree search. Its intended previous-step lifecycle remains unresolved."
+      "pdt1 is seeded from pdt at Ctrl initialization, but no subsequent history-shift assignment was found. Variable-step dual-time use is therefore not established."
     ]
   }
 }

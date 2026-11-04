@@ -89,6 +89,9 @@ void Ctrl::Init()
     }
 
     pdt = GetDataValue< Real >( "global_dt" );
+    // Seed the first previous-step interval; variable-step history updates
+    // must advance this value when the physical time step changes.
+    pdt1 = pdt;
     maxTime = GetDataValue< Real >( "maxTime" );
     iexitflag = GetDataValue< int >( "iexitflag" );
     currTime = 0.0;

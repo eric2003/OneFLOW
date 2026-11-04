@@ -213,6 +213,37 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\n".join(issues))
 
+    def test_global_time_step_seeds_previous_step_interval(self) -> None:
+        source_path = (
+            self.repository_root
+            / "codes"
+            / "global"
+            / "src"
+            / "Ctrl.cpp"
+        )
+        source = source_path.read_text(encoding="utf-8")
+        initialization = source.split(
+            'pdt = GetDataValue< Real >( "global_dt" );', 1
+        )[1]
+        self.assertIn("pdt1 = pdt;", initialization.split("maxTime", 1)[0])
+
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "parameter"
+            / "global_time_step.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        self.assertTrue(
+            any("variable-step" in item for item in definition["claims"]["does_not_prove"])
+        )
+        self.assertIn(
+            "codes/unsteady/src/TimeIntegration.cpp",
+            definition["implementation"]["source_paths"],
+        )
+
     def test_parameter_cfl_ramp_contract_records_source_and_test_links(self) -> None:
         definition_path = (
             self.repository_root / "tools" / "verification" / "contracts"
