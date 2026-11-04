@@ -901,7 +901,7 @@ class ContractCatalogTest(unittest.TestCase):
 
     def test_turbulence_parameter_contracts_preserve_audited_scope(self) -> None:
         summaries, issues = load_contract_catalog(self.repository_root)
-        self.assertEqual(issues, [], "\\n".join(issues))
+        self.assertEqual(issues, (), "\\n".join(issues))
         parameters = {
             item.id: item for item in summaries if item.domain == "parameter"
         }
