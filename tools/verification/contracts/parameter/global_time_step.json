@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "id": "parameter/global-time-step",
+  "title": "Configured global time step",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "implemented",
+  "overview": "global_dt is read by solver control initialization and loaded into Ctrl::pdt. The global time-step strategy uses this configured value; the local/global hybrid strategy later replaces pdt with the minimum computed local step.",
+  "principle": "For the global strategy, the cell time-step field is filled from pdt initialized by global_dt. This is an input time increment in the active case/solver convention; its dimensional or nondimensional unit is not established universally by the audited source.",
+  "architecture": "Ctrl::Init and the NS, incompressible NS, and turbulence control initializers load global_dt. UTimeStep::CalcGlobalTimeStep applies ctrl.pdt; UTimeStep::CalcLgTimeStep computes local values, takes the minimum, and stores it back into ctrl.pdt. This input is independent of the CFL ramp.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/global/src/Ctrl.cpp",
+      "codes/ns/src/NsCtrl.cpp",
+      "codes/ins/src/INsCtrl.cpp",
+      "codes/turb/src/TurbCtrl.cpp",
+      "codes/uns/src/UTimeStep.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/numerical/cfl_ramp.rst",
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "Four solver-control initializers read global_dt into Ctrl::pdt.",
+      "The global strategy applies pdt as a common cell time step.",
+      "The local/global hybrid branch replaces pdt with the minimum local time step."
+    ],
+    "does_not_prove": [
+      "A universal unit or nondimensional scale for global_dt.",
+      "That global_dt is derived from cflst/cfled/ncfl.",
+      "That the configured value is used unchanged by the hybrid strategy.",
+      "That the chosen value guarantees stability or accuracy."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "UTimeStep::CalcGlobalTimeStep and UTimeStep::CalcLgTimeStep",
+      "status": "declared_not_executed",
+      "scope": "Source-backed input and strategy behavior; no numerical run is claimed."
+    }
+  ],
+  "examples": [
+    {
+      "title": "Global versus hybrid strategy",
+      "input": "global_dt = 0.001; timestepModel = 1 or 2.",
+      "calculation": "With mode 1, Ctrl::pdt starts from 0.001 and is applied as the common step. With mode 2, local steps are computed and their minimum replaces Ctrl::pdt.",
+      "result": "global_dt is the configured seed for global stepping, not the final hybrid step in general.",
+      "limitations": "The example does not establish units, nondimensional scale, or a stable step for a particular mesh and flow."
+    }
+  ],
+  "group": {
+    "id": "time_stepping",
+    "title": "Time stepping",
+    "order": 20
+  },
+  "parameter_key": "global_dt",
+  "knowledge": {
+    "formulas": [
+      {
+        "id": "global_time_step_state",
+        "title": "Global time-step state",
+        "role": "Source-derived initialization and hybrid update",
+        "plain": "pdt = global_dt at initialization; hybrid mode updates pdt = min_c(Delta t_c)",
+        "latex": "pdt\\leftarrow\\mathrm{global\\_dt},\\quad pdt\\leftarrow\\min_c(\\Delta t_c)\\ \\mathrm{in\\ hybrid\\ mode}",
+        "assumptions": "The first relation is the configured input initialization. The second is the audited local/global hybrid reduction; they are not simultaneously immutable.",
+        "symbols": [
+          {
+            "symbol": "global_dt",
+            "meaning": "Configured global time-step input",
+            "oneflow_name": "global_dt"
+          },
+          {
+            "symbol": "pdt",
+            "meaning": "Mutable shared time-step state"
+          },
+          {
+            "symbol": "Delta t_c",
+            "meaning": "Computed local cell time step"
+          }
+        ]
+      }
+    ],
+    "symbols": [],
+    "references": [],
+    "caveats": [
+      "Units and nondimensional scaling depend on the active case/solver convention.",
+      "Do not conflate global_dt with the CFL ramp or the final hybrid pdt."
+    ]
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "parameter/time-step-strategy",
+  "title": "Time-step strategy selector",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "implemented",
+  "overview": "timestepModel selects the time-step strategy in the audited unstructured Navier-Stokes path. The implementation uses 0 for local, 1 for global, and the remaining branch for local/global hybrid stepping; representative case comments label value 2 as lg.",
+  "principle": "The selector dispatches cell time-step construction: local keeps per-cell values; global fills cells from ctrl.pdt; the hybrid branch computes local values and replaces them with their minimum as a common step.",
+  "architecture": "NsCom::Init reads timestepModel. UTimeStep::CalcTimeStep dispatches the CPU path and gates the supported HIP path to local mode 0. The hybrid fallback is broader than the documented case value 2; it is not a strict enum validator.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/ns/src/NsCom.cpp",
+      "codes/uns/src/UTimeStep.cpp",
+      "codes/uns/include/UTimeStep.h"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/numerical/cfl_ramp.rst",
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The audited unstructured path dispatches 0 to local, 1 to global, and all other values to the local/global hybrid branch.",
+      "The supported HIP path is gated to local mode 0."
+    ],
+    "does_not_prove": [
+      "That every solver or backend supports all strategies.",
+      "That invalid selector values are rejected; the fallback branch handles all remaining values.",
+      "That a selected strategy guarantees stability or convergence."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "UTimeStep::CalcTimeStep",
+      "status": "declared_not_executed",
+      "scope": "Source-level strategy dispatch; no end-to-end solver run is claimed."
+    }
+  ],
+  "examples": [
+    {
+      "title": "Strategy dispatch",
+      "input": "timestepModel = 0, 1, or 2.",
+      "calculation": "0 selects local cell steps; 1 selects the configured global step; 2 enters the local/global hybrid fallback.",
+      "result": "The three documented case modes map to distinct time-step construction paths.",
+      "limitations": "The implementation's final else branch accepts every value other than 0 and 1; this is not validation of the value 2 only."
+    }
+  ],
+  "group": {
+    "id": "time_stepping",
+    "title": "Time stepping",
+    "order": 20
+  },
+  "parameter_key": "timestepModel",
+  "knowledge": {
+    "formulas": [
+      {
+        "id": "time_step_strategy_dispatch",
+        "title": "Time-step strategy dispatch",
+        "role": "Source-derived branch selection",
+        "plain": "S(m) = local if m = 0; global if m = 1; local-global otherwise",
+        "latex": "S(m)=\\mathrm{local}\\ (m=0),\\quad S(m)=\\mathrm{global}\\ (m=1),\\quad S(m)=\\mathrm{local\\text{-}global}\\ (\\mathrm{otherwise})",
+        "assumptions": "Describes the audited unstructured UTimeStep::CalcTimeStep dispatch. The final else branch is broader than the documented case value 2.",
+        "symbols": [
+          {
+            "symbol": "m",
+            "meaning": "Time-step strategy selector",
+            "oneflow_name": "timestepModel"
+          }
+        ]
+      }
+    ],
+    "symbols": [],
+    "references": [],
+    "caveats": [
+      "The supported HIP path is currently restricted to local mode 0.",
+      "The selector is not validated as a closed enumeration by the dispatch branch."
+    ]
+  }
+}

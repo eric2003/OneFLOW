@@ -523,6 +523,8 @@ a universal external unit convention, valid range, or recommended value.
 The non-transition two-equation initialization follows a separate
 ``ref_sst``/default path.
 
+The time-step strategy and configured global step are also exposed as independent Parameter contracts: parameter/time-step-strategy (timestepModel) and parameter/global-time-step (global_dt). The six inputs are therefore represented by four searchable Parameter entries: the grouped parameter/cfl-ramp schedule (cflst, cfled, ncfl), plus idualtime, timestepModel, and global_dt as separate controls.
+
 The optional dual-time selector is also exposed as its own Parameter contract:
 parameter/dual-time-index (runtime key idualtime). The existing parameter/cfl-ramp
 contract remains the combined algorithm entry for cflst, cfled, and ncfl, while

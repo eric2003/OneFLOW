@@ -255,6 +255,22 @@ class ContractCatalogTest(unittest.TestCase):
             validate_contract_summaries(self.repository_root, [summary]), []
         )
 
+    def test_time_step_strategy_and_global_step_have_independent_contracts(self) -> None:
+        summaries, issues = load_contract_catalog(self.repository_root)
+        self.assertEqual(issues, (), "\\n".join(issues))
+        parameters = {item.id: item for item in summaries if item.domain == "parameter"}
+        expected = {
+            "parameter/time-step-strategy": "timestepModel",
+            "parameter/global-time-step": "global_dt",
+        }
+        for contract_id, key in expected.items():
+            with self.subTest(contract=contract_id):
+                summary = parameters[contract_id]
+                self.assertEqual(summary.parameter_key, key)
+                self.assertEqual(summary.group_id, "time_stepping")
+                self.assertTrue(summary.parameter_knowledge.formulas)
+                self.assertEqual(validate_contract_summaries(self.repository_root, [summary]), [])
+
     def test_parameter_max_steps_contract_records_stop_condition_scope(self) -> None:
         definition_path = (
             self.repository_root / "tools" / "verification" / "contracts"

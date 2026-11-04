@@ -144,6 +144,29 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_time_step_strategy_and_global_dt_have_parameter_entries(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            expected = {
+                "parameter/time-step-strategy": "timestepModel",
+                "parameter/global-time-step": "global_dt",
+            }
+            contract_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+            }
+            self.assertTrue(set(expected).issubset(contract_ids))
+            for contract_id, key in expected.items():
+                row = next(
+                    index for index in range(dialog.contract_list.count())
+                    if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                    == contract_id
+                )
+                dialog.contract_list.setCurrentRow(row)
+                self.assertIn(key, dialog.overview_view.toPlainText())
+        finally:
+            dialog.close()
+
     def test_mach_parameter_exposes_formula_symbols_aliases_and_latex(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
         try:
