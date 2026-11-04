@@ -287,6 +287,35 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertIn("NASA Glenn", knowledge.references[2])
         self.assertTrue(any("Local Mach" in item for item in knowledge.caveats))
 
+    def test_time_integration_parameters_adapt_typed_knowledge(self) -> None:
+        summaries, issues = load_contract_catalog(self.repository_root)
+        self.assertEqual(issues, (), "\\n".join(issues))
+        parameters = {
+            item.id: item for item in summaries if item.domain == "parameter"
+        }
+
+        selector = parameters["parameter/time_integral"]
+        self.assertEqual(selector.parameter_key, "time_integral")
+        self.assertEqual(
+            selector.parameter_knowledge.formulas[0].id,
+            "time_integral_method_dispatch",
+        )
+        self.assertIn("MULTI_STAGE", selector.parameter_knowledge.formulas[0].plain)
+        self.assertIn("SIMPLE", selector.parameter_knowledge.formulas[0].plain)
+        self.assertIn("TimeIntegral::Simple", selector.parameter_knowledge.caveats[1])
+
+        stage_count = parameters["parameter/rk_stage"]
+        self.assertEqual(stage_count.parameter_key, "rk_stage")
+        formula = stage_count.parameter_knowledge.formulas[0]
+        self.assertEqual(formula.id, "oneflow_rk_stage_weight_schedule")
+        self.assertIn("1 / (s + 1)", formula.plain)
+        self.assertIn(
+            "codes/global/include/TimeIntegralPolicy.h",
+            stage_count.implementation_paths,
+        )
+        resolutions = resolve_contract_evidence(self.repository_root, stage_count)
+        self.assertTrue(all(item.status == "resolved" for item in resolutions))
+
     def test_rejects_parameter_formula_without_latex_source(self) -> None:
         definition_path = (
             self.repository_root / "tools" / "verification" / "contracts"

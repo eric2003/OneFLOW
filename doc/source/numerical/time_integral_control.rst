@@ -51,6 +51,31 @@ These values are the coefficient schedule currently consumed by this code
 path. They must not be mistaken for a complete Butcher tableau or used alone
 to infer formal temporal order or stability.
 
+Parameter vocabulary and knowledge mapping
+----------------------------------------
+
+The configuration key ``time_integral`` is a discrete method selector. Its
+common descriptive aliases are "time-integration method", "time integrator",
+and "temporal scheme selector". These are vocabulary aliases, not separate
+OneFLOW keys. The selector values are declared in ``TimeIntegral.h``:
+``MULTI_STAGE = 1``, ``LUSGS = 2``, and ``SIMPLE = 3``. The dispatch chooses
+RungeKutta for ``MULTI_STAGE``, ``Simple`` for ``SIMPLE``, and Lusgs for every
+other value. The OneFLOW ``SIMPLE`` label names ``TimeIntegral::Simple``; it
+must not be conflated with the SIMPLE pressure-velocity coupling algorithm.
+
+The key ``rk_stage`` is commonly described as "number of Runge-Kutta stages"
+or "stage count". The coefficient schedule is ``a_s = 1/(s+1)`` for
+zero-based stage indices. These descriptive names are not asserted to be
+CGNS-standard parameter names: CGNS defines CFD data-model and field
+nomenclature, and no direct standardized equivalent for these OneFLOW
+control keys is claimed here.
+
+The Parameter Workbench exposes these as separate records: ``time_integral``
+selects the algorithm path, while ``rk_stage`` sizes the legacy coefficient
+schedule used by that path. Their shared Formula & Knowledge reference
+``time_integral_rk_stage_weight`` is a navigation and theory link, not proof
+of a complete Butcher tableau or temporal order.
+
 Resident Euler backend eligibility
 ----------------------------------
 

@@ -9,7 +9,8 @@
   "principle": "For configured stage index s starting at zero, the implementation assigns a_s = 1/(s+1). This describes the code's stage-weight schedule only. It is not a complete Butcher tableau and does not establish formal temporal order or stability properties.",
   "architecture": "The parameter is read in the global, compressible Navier-Stokes, incompressible Navier-Stokes, and turbulence control initializers. The shared time-integration implementation consumes the resulting coefficient vector. The selected time_integral method and the resident Euler backend capability gate remain separate decisions.",
   "references": [
-    "time_integral_rk_stage_weight"
+    "time_integral_rk_stage_weight",
+    "doc/source/numerical/time_integral_control.rst"
   ],
   "implementation": {
     "source_paths": [
@@ -17,7 +18,9 @@
       "codes/ns/src/NsCtrl.cpp",
       "codes/ins/src/INsCtrl.cpp",
       "codes/turb/src/TurbCtrl.cpp",
-      "codes/solver/src/TimeIntegral.cpp"
+      "codes/solver/src/TimeIntegral.cpp",
+      "codes/global/include/TimeIntegralPolicy.h",
+      "tests/solver/time_integral_policy_test.cpp"
     ]
   },
   "documentation": {
@@ -63,5 +66,105 @@
     "id": "time_integration",
     "title": "Time Integration",
     "order": 20
+  },
+  "parameter_key": "rk_stage",
+  "knowledge": {
+    "formulas": [
+      {
+        "id": "oneflow_rk_stage_weight_schedule",
+        "title": "OneFLOW Runge-Kutta stage-weight schedule",
+        "role": "Source-derived coefficient construction used by the legacy multi-stage path",
+        "plain": "N = rk_stage; a_s = 1 / (s + 1), s = 0, ..., N - 1",
+        "latex": "N=\\mathrm{rk\\_stage},\\qquad a_s=\\frac{1}{s+1},\\quad s=0,\\ldots,N-1",
+        "assumptions": "N is read by solver control initializers; stage indices are zero-based. RungeKuttaStageWeight implements the coefficient expression. The coefficients are stored as ctrl.rk_coef and assigned to ctrl.lhscoef in the finest-grid RungeKutta stage loop.",
+        "symbols": [
+          {
+            "symbol": "N",
+            "meaning": "Configured number of multi-stage coefficient entries.",
+            "notations": [
+              "number of Runge-Kutta stages",
+              "RK stage count",
+              "stage count"
+            ],
+            "oneflow_name": "rk_stage",
+            "notes": "Descriptive terminology, not a claimed cross-solver configuration standard."
+          },
+          {
+            "symbol": "s",
+            "meaning": "Zero-based stage index.",
+            "notations": [
+              "stage index",
+              "RK stage"
+            ],
+            "oneflow_name": "stage / loop index",
+            "notes": "The vector is populated for integer indices zero through N-1."
+          },
+          {
+            "symbol": "a_s",
+            "meaning": "OneFLOW stage coefficient for index s.",
+            "notations": [
+              "stage weight",
+              "Runge-Kutta stage coefficient"
+            ],
+            "oneflow_name": "rk_coef[s]; ctrl.lhscoef",
+            "notes": "Consumed by the legacy multi-stage path; not by itself a Butcher tableau coefficient set."
+          }
+        ]
+      }
+    ],
+    "symbols": [
+      {
+        "symbol": "rk_stage",
+        "meaning": "Configured number of Runge-Kutta stage coefficient entries.",
+        "notations": [
+          "number of RK stages",
+          "stage count",
+          "multi-stage count"
+        ],
+        "oneflow_name": "rk_stage",
+        "notes": "Read by Ctrl, NsCtrl, INsCtrl, and TurbCtrl."
+      },
+      {
+        "symbol": "a_s",
+        "meaning": "OneFLOW stage-weight schedule value.",
+        "notations": [
+          "stage coefficient",
+          "stage weight"
+        ],
+        "oneflow_name": "RungeKuttaStageWeight(s)",
+        "notes": "The source helper returns 1/(s+1)."
+      },
+      {
+        "symbol": "rk_coef",
+        "meaning": "Stored vector of stage weights.",
+        "notations": [
+          "RK coefficient vector"
+        ],
+        "oneflow_name": "ctrl.rk_coef",
+        "notes": "Built during control initialization and consumed by TimeIntegral::RungeKutta."
+      },
+      {
+        "symbol": "lhscoef",
+        "meaning": "Active coefficient assigned for the current Runge-Kutta stage.",
+        "notations": [
+          "active stage coefficient"
+        ],
+        "oneflow_name": "ctrl.lhscoef",
+        "notes": "Finest-grid legacy stage loop assigns rk_coef[stage]; coarse-grid execution uses a separate single-stage coefficient of 1.0."
+      }
+    ],
+    "references": [
+      "codes/global/include/TimeIntegralPolicy.h",
+      "tests/solver/time_integral_policy_test.cpp",
+      "codes/solver/src/TimeIntegral.cpp",
+      "doc/source/numerical/time_integral_control.rst",
+      "time_integral_rk_stage_weight"
+    ],
+    "caveats": [
+      "This is the OneFLOW source-level coefficient schedule, not a complete Butcher tableau.",
+      "The formula alone does not establish formal temporal order, a stability region, local truncation error, convergence rate, or CFD accuracy.",
+      "The resident Euler backend is a narrower capability decision and is not implied by rk_stage or time_integral alone.",
+      "The common terms 'number of RK stages' and 'stage count' are descriptive aliases, not asserted CGNS standard parameter names."
+    ]
   }
 }
