@@ -499,6 +499,24 @@ schedule restart output; NS and incompressible NS paths use ``nVisualSave``
 to schedule visualization tasks. This is a source-audited slice, not proof
 that every solver and every output backend has identical scheduling semantics.
 
+Turbulence inflow inputs have a separate functional group from general
+turbulence-model controls. ``TurbCom::Init`` reads ``inflow_intensity`` and
+``inflow_viscosity``; ``TurbCom::InitInflow`` consumes them in the
+two-equation inflow path. A positive intensity sets
+
+.. math::
+
+   k_e = 1.5\,(0.01 I)^2
+
+where ``I`` is ``inflow_intensity``. A non-positive intensity takes the
+empirical fallback path instead. ``inflow_viscosity`` is used as the input
+eddy viscosity ``mutoo`` to derive the reference ``k`` and ``omega`` values
+with Reynolds number and reference density. This behavior is specific to the
+two-equation branch; it should not be generalized to every turbulence model.
+
+The consumer catalog now links both keys to the direct typed reads and the
+``TurbCom::InitInflow`` implementation. This is code-path evidence, not a
+claim that every turbulence model uses the same inflow closure.
 The Parameter runtime-consumer catalog now links the three CFL ramp inputs
 to ``Iteration::Init``, ``TimeStep::CalcCfl``, ``CflIterationIndex``, and
 ``CflAtIteration``. It separately links ``timestepModel`` to the local/global
