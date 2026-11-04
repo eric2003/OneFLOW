@@ -303,3 +303,27 @@ TEST( TurbSstPolicy, SstProdwWilcoxLinearInOmegaOverK )
         2.0 * SstProdwWilcox( 0.52, 2.0, 1.0, 1.0 ),
         1.0e-12 );
 }
+
+// Intermediate: SstDisskDes on a kinetic-energy grid.
+// Ref: fBetas=1, rho=1, L=2; eps = 0.5 * k * sqrt(k).
+TEST( TurbSstPolicy, SstDisskDesCurveMatchesClosedForm )
+{
+    const Real fBetas = 1.0;
+    const Real density = 1.0;
+    const Real lengthScale = 2.0;
+    const Real ks[] = { 0.25, 1.0, 4.0, 9.0 };
+    for ( Real k : ks )
+    {
+        EXPECT_NEAR(
+            SstDisskDes( fBetas, density, k, lengthScale ),
+            fBetas * density * k * std::sqrt( k ) / lengthScale,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstDisskDesInverselyScalesWithLength )
+{
+    const Real e1 = SstDisskDes( 1.0, 1.0, 4.0, 2.0 );
+    const Real e2 = SstDisskDes( 1.0, 1.0, 4.0, 4.0 );
+    EXPECT_NEAR( e1, 2.0 * e2, 1.0e-12 );
+}

@@ -600,6 +600,49 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Full SST k residual on a case mesh.",
         ),
 
+
+        TheoryEntry(
+            id="sst_dissk_des",
+            family="turbulence",
+            genus="SST",
+            section="source / k dissipation DES",
+            title="SST DES k dissipation",
+            role_tags=("turbulence", "SST", "DES", "source"),
+            formula_plain=(
+                "eps = f_beta_star * rho * k * sqrt(k) / L"
+            ),
+            formula_latex=(
+                r"\varepsilon_{\mathrm{DES}}"
+                r"=f_{\beta^*}\rho\,k^{3/2}/L"
+            ),
+            principle=(
+                "DES replaces the standard omega-based k destruction with a "
+                "length-scale form based on local filter/wall distance measure L."
+            ),
+            background=(
+                "Pure API SstDisskDes in TurbSstPolicy. Alternate to "
+                "SstDisskStandard for DES-mode branches."
+            ),
+            references=(
+                "Spalart DES; Menter SST-DES variants; NASA TMR",
+                "doc/source/numerical/sst_dissk_des.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_dissk_des_theory.csv",
+            plot_module="plot_sst_dissk_des",
+            pure_apis=("SstDisskDes",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_dissk_des.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "eps = fBetas * density * k * sqrt(k) / L;\n"
+            ),
+            proves="DES dissipation algebra vs pure API on a k grid.",
+            does_not_prove="Full DES residual or length-scale construction.",
+        ),
+
         TheoryEntry(
             id="sst_dissk_standard",
             family="turbulence",
