@@ -23,7 +23,7 @@ class LatexPreviewTest(unittest.TestCase):
     def test_render_does_not_raise_on_full_latex(self) -> None:
         body = r"""
 F_1=\tanh(arg_1^4)
-\mathrm{arg}_1=\min\Big(\max(\cdots),\,\cdots\Big)
+\mathsf{arg}_1=\min\Big(\max(\cdots),\,\cdots\Big)
 """
         with tempfile.TemporaryDirectory() as td:
             out = Path(td) / "x.png"
@@ -53,7 +53,7 @@ F_1=\tanh(arg_1^4)
                             r"k_e = \frac{3}{2} (0.01 I)^2",
                         )
                     self.assertNotIn(
-                        "\\\\",
+                        chr(92) * 2,
                         latex,
                         "LaTeX commands must start with one backslash.",
                     )
@@ -62,6 +62,35 @@ F_1=\tanh(arg_1^4)
                         render_latex_preview_png(latex, output)
                         self.assertTrue(output.is_file())
                         self.assertGreater(output.stat().st_size, 0)
+
+
+
+    def test_time_step_strategy_formula_uses_balanced_multiline_labels(self) -> None:
+        import json
+
+        contract_path = (
+            Path(__file__).resolve().parent
+            / "contracts"
+            / "parameter"
+            / "time_step_strategy.json"
+        )
+        definition = json.loads(contract_path.read_text(encoding="utf-8"))
+        formula = definition["knowledge"]["formulas"][0]
+        latex = formula["latex"]
+        self.assertEqual(
+            latex.splitlines(),
+            [
+                r"S(m)=\mathsf{local},\quad m=0",
+                r"S(m)=\mathsf{global},\quad m=1",
+                r"S(m)=\mathsf{local-global},\quad \mathsf{otherwise}",
+            ],
+        )
+        self.assertNotIn(r"\text{-}", latex)
+        with tempfile.TemporaryDirectory() as td:
+            output = Path(td) / "time-step-strategy.png"
+            render_latex_preview_png(latex, output, fontsize=26)
+            self.assertTrue(output.is_file())
+            self.assertGreater(output.stat().st_size, 0)
 
 
 if __name__ == "__main__":

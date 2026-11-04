@@ -80,6 +80,34 @@ The supported HIP fast path is currently gated to local time stepping
 (``timestepModel == 0``) and computes the inviscid local step. Do not
 interpret it as evidence that the HIP path has the CPU viscous combination.
 
+Physical-time accumulation and stopping
+----------------------------------------
+
+`Ctrl::Init` initializes `ctrl.pdt` from `global_dt` and sets
+`ctrl.currTime` to zero. In the audited `MG::Run` implementation,
+`ctrl.currTime += ctrl.pdt` is the actual accumulator update. Its placement
+depends on `startStrategy`:
+
+* For `startStrategy == 2` or `3`, the increment occurs inside the inner
+  loop before `SolveInnerIter`; both `outerSteps` and `innerSteps` are
+  incremented there.
+* In the other branch, the increment occurs once per outer-loop pass before
+  the inner convergence loop.
+
+`SimuIterState::Running` chooses the stop condition: `outerSteps >= maxSteps`
+when `iexitflag == 0`; otherwise `currTime >= maxTime`. Since the time
+increment occurs before the next outer-loop running check, the audited path
+does not show a final-step clip to `maxTime`. The actual accumulation cadence
+is therefore coupled to `startStrategy` and should not be generalized to
+every solver without tracing its run loop.
+
+There is a separate unresolved state-lifecycle question: `ctrl.pdt1` is
+read as a denominator in `TimeIntegration::CalcSrcCoeff` and in the
+unsteady implicit-spectrum terms, but a repository-wide source search on the
+current branch found no assignment to `ctrl.pdt1`. Its intended role and
+update point must be established before treating it as a valid previous-step
+interval or changing the time-integration algorithm.
+
 Source map
 ----------
 

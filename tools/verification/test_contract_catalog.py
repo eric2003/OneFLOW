@@ -201,6 +201,7 @@ class ContractCatalogTest(unittest.TestCase):
                 "codes/global/src/Iteration.cpp",
                 "codes/global/include/Ctrl.h",
                 "codes/global/include/Iteration.h",
+                "codes/multigrid/src/Multigrid.cpp",
             },
         )
         self.assertEqual(len(summary.evidence), 1)
@@ -269,6 +270,15 @@ class ContractCatalogTest(unittest.TestCase):
                 self.assertEqual(summary.parameter_key, key)
                 self.assertEqual(summary.group_id, "time_stepping")
                 self.assertTrue(summary.parameter_knowledge.formulas)
+                if contract_id == "parameter/global-time-step":
+                    self.assertIn("MG::Run", summary.architecture)
+                    self.assertIn(
+                        "codes/multigrid/src/Multigrid.cpp",
+                        summary.implementation_paths,
+                    )
+                    self.assertTrue(
+                        any("pdt1" in item for item in summary.limitations)
+                    )
                 self.assertEqual(validate_contract_summaries(self.repository_root, [summary]), [])
 
     def test_parameter_max_steps_contract_records_stop_condition_scope(self) -> None:

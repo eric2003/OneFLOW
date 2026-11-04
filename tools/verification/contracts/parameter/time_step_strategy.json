@@ -63,7 +63,7 @@
         "title": "Time-step strategy dispatch",
         "role": "Source-derived branch selection",
         "plain": "S(m) = local if m = 0; global if m = 1; local-global otherwise",
-        "latex": "S(m)=\\mathrm{local}\\ (m=0),\\quad S(m)=\\mathrm{global}\\ (m=1),\\quad S(m)=\\mathrm{local\\text{-}global}\\ (\\mathrm{otherwise})",
+        "latex": "S(m)=\\mathsf{local},\\quad m=0\nS(m)=\\mathsf{global},\\quad m=1\nS(m)=\\mathsf{local-global},\\quad \\mathsf{otherwise}",
         "assumptions": "Describes the audited unstructured UTimeStep::CalcTimeStep dispatch. The final else branch is broader than the documented case value 2.",
         "symbols": [
           {

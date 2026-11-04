@@ -7,7 +7,7 @@
   "status": "implemented",
   "overview": "global_dt is read by solver control initialization and loaded into Ctrl::pdt. The global time-step strategy uses this configured value; the local/global hybrid strategy later replaces pdt with the minimum computed local step.",
   "principle": "For the global strategy, the cell time-step field is filled from pdt initialized by global_dt. This is an input time increment in the active case/solver convention; its dimensional or nondimensional unit is not established universally by the audited source.",
-  "architecture": "Ctrl::Init and the NS, incompressible NS, and turbulence control initializers load global_dt. UTimeStep::CalcGlobalTimeStep applies ctrl.pdt; UTimeStep::CalcLgTimeStep computes local values, takes the minimum, and stores it back into ctrl.pdt. This input is independent of the CFL ramp.",
+  "architecture": "Ctrl::Init and the NS, incompressible NS, and turbulence control initializers load global_dt. UTimeStep::CalcGlobalTimeStep applies ctrl.pdt; UTimeStep::CalcLgTimeStep computes local values, takes the minimum, and stores it back into ctrl.pdt. This input is independent of the CFL ramp. MG::Run advances ctrl.currTime by ctrl.pdt: startStrategy 2 or 3 does so before each inner solve while incrementing both counters; the other branch does so once before its inner loop. This is a run-loop accumulator update, not a proof that every solver uses the same timing cadence.",
   "references": [],
   "implementation": {
     "source_paths": [
@@ -15,7 +15,8 @@
       "codes/ns/src/NsCtrl.cpp",
       "codes/ins/src/INsCtrl.cpp",
       "codes/turb/src/TurbCtrl.cpp",
-      "codes/uns/src/UTimeStep.cpp"
+      "codes/uns/src/UTimeStep.cpp",
+      "codes/multigrid/src/Multigrid.cpp"
     ]
   },
   "documentation": {
@@ -28,13 +29,15 @@
     "proves": [
       "Four solver-control initializers read global_dt into Ctrl::pdt.",
       "The global strategy applies pdt as a common cell time step.",
-      "The local/global hybrid branch replaces pdt with the minimum local time step."
+      "The local/global hybrid branch replaces pdt with the minimum local time step.",
+      "In MG::Run, currTime is incremented by pdt at the start-strategy-specific update site."
     ],
     "does_not_prove": [
       "A universal unit or nondimensional scale for global_dt.",
       "That global_dt is derived from cflst/cfled/ncfl.",
       "That the configured value is used unchanged by the hybrid strategy.",
-      "That the chosen value guarantees stability or accuracy."
+      "That the chosen value guarantees stability or accuracy.",
+      "That pdt1 is initialized or updated as a previous-step interval; the audited current source search finds reads of ctrl.pdt1 but no assignment to it."
     ]
   },
   "verification": [
@@ -42,7 +45,7 @@
       "kind": "pure_api",
       "reference": "UTimeStep::CalcGlobalTimeStep and UTimeStep::CalcLgTimeStep",
       "status": "declared_not_executed",
-      "scope": "Source-backed input and strategy behavior; no numerical run is claimed."
+      "scope": "Source-backed input and strategy behavior; no numerical run is claimed. The MG::Run time-accumulator update is source-audited only; no physical-time integration run is claimed."
     }
   ],
   "examples": [
@@ -84,13 +87,33 @@
             "meaning": "Computed local cell time step"
           }
         ]
+      },
+      {
+        "id": "run_loop_time_accumulator",
+        "title": "Run-loop time accumulator update",
+        "role": "Source-derived time accumulator update",
+        "plain": "currTime_new = currTime_old + pdt at each MG::Run update site",
+        "latex": "t_{curr}^{new}=t_{curr}^{old}+pdt",
+        "assumptions": "This relation describes each explicit currTime increment in MG::Run. startStrategy 2 or 3 increments before each inner solve; the other branch increments once before the inner loop.",
+        "symbols": [
+          {
+            "symbol": "t_curr",
+            "meaning": "Current accumulated simulation time",
+            "oneflow_name": "currTime"
+          },
+          {
+            "symbol": "pdt",
+            "meaning": "Current shared time increment"
+          }
+        ]
       }
     ],
     "symbols": [],
     "references": [],
     "caveats": [
       "Units and nondimensional scaling depend on the active case/solver convention.",
-      "Do not conflate global_dt with the CFL ramp or the final hybrid pdt."
+      "Do not conflate global_dt with the CFL ramp or the final hybrid pdt.",
+      "pdt1 is used as a denominator by unsteady source/spectrum terms, but no assignment to ctrl.pdt1 was found in the current source-tree search. Its intended previous-step lifecycle remains unresolved."
     ]
   }
 }
