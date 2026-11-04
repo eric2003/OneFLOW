@@ -47,6 +47,17 @@ _CONSUMERS = (
         "Direct typed read and termination predicate are present in Iteration.cpp.",
     ),
     ParameterConsumer(
+        "maxTime", "codes/global/src/Ctrl.cpp", "Ctrl::Init",
+        'GetDataValue<Real>("maxTime")', ConsumerReadKind.REQUIRED,
+        "Loads the simulation-time stop threshold into Ctrl::maxTime and initializes "
+        "currTime to zero. SimuIterState::Running compares currTime >= maxTime when "
+        "iexitflag != 0; otherwise the outer loop uses maxSteps.",
+        "Solver run initialization; time-based outer-loop termination mode.",
+        "Direct typed read and time-threshold predicate are present in Ctrl.cpp and Iteration.cpp.",
+        ("codes/global/src/Iteration.cpp",),
+        ("SimuIterState::Running",),
+    ),
+    ParameterConsumer(
         "time_integral", "codes/global/src/Ctrl.cpp", "Ctrl::Init",
         'GetDataValue<int>("time_integral")', ConsumerReadKind.REQUIRED,
         "Stores the selected method in Ctrl::time_integral. TimeIntegral::Init dispatches MULTI_STAGE to RungeKutta and SIMPLE to Simple; all other values fall back to Lusgs. The context-aware Relaxation overload applies the same dispatch.",
@@ -154,6 +165,15 @@ _CONSUMERS = (
     ),
 
     ParameterConsumer(
+        "idualtime", "codes/global/src/Iteration.cpp", "Iteration::Init",
+        'FindDataEntry("idualtime")', ConsumerReadKind.OPTIONAL,
+        "Optionally loads the dual-time selector into Iteration::dualtime. Missing entries retain the default value 0. TimeStep::CalcCfl uses the outer-step index for physical-time mode and the inner-step index when dualtime == 1.",
+        "CFL ramp iteration indexing; optional compatibility input.",
+        "The guarded FindDataEntry read and default-zero behavior are present in Iteration.cpp.",
+        ("codes/ns/src/TimeStep.cpp", "codes/ns/src/TimeStepPolicy.cpp", "codes/ns/include/TimeStepPolicy.h"),
+        ("TimeStep::CalcCfl", "CflIterationIndex"),
+    ),
+    ParameterConsumer(
         "cflst", "codes/global/src/Iteration.cpp", "Iteration::Init",
         'GetDataValue<Real>("cflst")', ConsumerReadKind.REQUIRED,
         "Loads the starting value of the CFL ramp. TimeStep::CalcCfl selects the ramp index and CflAtIteration evaluates the schedule.",
@@ -226,6 +246,50 @@ _CONSUMERS = (
         ("UTimeStep::CalcGlobalTimeStep", "UTimeStep::CalcLgTimeStep"),
     ),
 
+
+    ParameterConsumer(
+        "inflow_intensity", "codes/turb/src/TurbCom.cpp", "TurbCom::Init",
+        'GetDataValue<Real>("inflow_intensity")', ConsumerReadKind.REQUIRED,
+        "Loads the turbulence inflow intensity. In the two-equation inflow initializer, a positive value sets k_e = 1.5*(0.01*intensity)^2; non-positive values use the empirical intensity fallback.",
+        "Turbulence inflow initialization for the two-equation model.",
+        "The value is read during TurbCom initialization and consumed by TurbCom::InitInflow.",
+        ("codes/turb/src/TurbCom.cpp",),
+        ("TurbCom::InitInflow",),
+    ),
+    ParameterConsumer(
+        "inflow_viscosity", "codes/turb/src/TurbCom.cpp", "TurbCom::Init",
+        'GetDataValue<Real>("inflow_viscosity")', ConsumerReadKind.REQUIRED,
+        "Loads the turbulence inflow eddy viscosity. The two-equation inflow initializer uses it as mutoo to derive the reference k and omega values together with Reynolds number and reference density.",
+        "Turbulence inflow initialization for the two-equation model.",
+        "The value is read during TurbCom initialization and consumed by TurbCom::InitInflow.",
+        ("codes/turb/src/TurbCom.cpp",),
+        ("TurbCom::InitInflow",),
+    ),
+    ParameterConsumer(
+        "turb_cfl_ratio", "codes/turb/src/TurbCom.cpp", "TurbCom::Init",
+        'GetDataValue<Real>("turb_cfl_ratio")', ConsumerReadKind.REQUIRED,
+        "Scales the turbulence-equation local time-step used in the unsteady spectral contribution. UTurbSpectrum::CalcUnsteadySpectrum multiplies the selected flow/turbulence time-step by turb_cfl_ratio before forming the implicit unsteady term; the dual-time branch also includes the physical-time contribution through ctrl.pdt1.",
+        "Unstructured turbulence spectrum assembly; single-step and dual-time branches.",
+        "Direct typed read is present in TurbCom.cpp; both single-step and dual-time uses are present in UTurbSpectrum.cpp.",
+        ("codes/uturb/src/UTurbSpectrum.cpp",),
+        ("UTurbSpectrum::CalcUnsteadySpectrum",),
+    ),
+    ParameterConsumer(
+        "max_vis_ratio", "codes/turb/src/TurbCom.cpp", "TurbCom::Init",
+        'GetDataValue<Real>("max_vis_ratio")', ConsumerReadKind.REQUIRED,
+        "Loads max_vis_ratio into the turbulence common-state object. The downstream numerical use and intended physical meaning have not yet been established by this audit.",
+        "Turbulence initialization; downstream effect not yet audited.",
+        "The typed read is present in TurbCom::Init; no downstream consumer is claimed here.",
+    ),
+    ParameterConsumer(
+        "rprod", "codes/turb/src/TurbCom.cpp", "TurbCom::Init",
+        'GetDataValue<Real>("rprod")', ConsumerReadKind.REQUIRED,
+        "Supplies the production multiplier in the Spalart-Allmaras limited-diffusion policy: SaLimitedDiffusion returns min(rprod * production, diffusion). The audited call is in the SA source-term path.",
+        "Spalart-Allmaras turbulence source-term assembly.",
+        "Direct typed read, call site, and policy implementation are present in TurbCom.cpp and TurbSaPolicy.cpp.",
+        ("codes/turb/src/TurbCom.cpp", "codes/turb/src/TurbSaPolicy.cpp"),
+        ("SaLimitedDiffusion",),
+    ),
     ParameterConsumer(
         "nFieldSave", "codes/global/src/Iteration.cpp", "Iteration::Init",
         'GetDataValue<int>("nFieldSave")', ConsumerReadKind.REQUIRED,

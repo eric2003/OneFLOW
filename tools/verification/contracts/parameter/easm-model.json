@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "parameter/easm-model",
+  "title": "easm_model",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "proposed",
+  "overview": "easm_model was identified in the representative Case parameter inventory and is grouped under Physical Models. Its exact runtime consumer and downstream behavior have not yet been audited.",
+  "principle": "This entry preserves the legacy parameter key and its observed functional grouping. Its physical or numerical meaning, units, admissible range, and default policy must be established from production implementation and authoritative references; none are inferred from the key name.",
+  "architecture": "This is a declaration-inventory entry. The exact per-Case declaration location, production read sites, and downstream call chain remain to be audited. Presence in this catalog does not establish that the setting is required or consumed by every solver path.",
+  "references": [],
+  "implementation": {
+    "source_paths": []
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The key easm_model was identified during the representative Case parameter inventory."
+    ],
+    "does_not_prove": [
+      "An exact per-Case declaration/source mapping.",
+      "A verified production-code consumer or complete downstream call chain.",
+      "A physical formula, unit, default, admissible range, or numerical validation."
+    ]
+  },
+  "verification": [],
+  "group": {
+    "id": "physical_models",
+    "title": "Physical Models",
+    "order": 75
+  },
+  "parameter_key": "easm_model"
+}

@@ -8,7 +8,10 @@
   "overview": "Selects the time-integration method stored in Ctrl::time_integral. The global solver dispatch maps MULTI_STAGE to RungeKutta, SIMPLE to Simple, and every other value to Lusgs. The context-aware Relaxation overload applies the same dispatch.",
   "principle": "This is a discrete algorithm-selection parameter, not a continuous physical coefficient. Its meaning is defined by the dispatch branches that consume the stored selector. Unsupported or unrecognized values currently follow the Lusgs fallback branch; this declaration does not redefine that compatibility behavior as input validation.",
   "architecture": "The value is read by Ctrl::Init, NsCtrl::Init, INsCtrl::Init, and TurbCtrl::Init. The shared TimeIntegral implementation owns the method dispatch. Euler resident-backend eligibility is a separate capability decision and must not be conflated with selecting the RungeKutta method.",
-  "references": [],
+  "references": [
+    "time_integral_rk_stage_weight",
+    "doc/source/numerical/time_integral_control.rst"
+  ],
   "implementation": {
     "source_paths": [
       "codes/global/src/Ctrl.cpp",
@@ -62,5 +65,112 @@
     "id": "time_integration",
     "title": "Time Integration",
     "order": 20
+  },
+  "parameter_key": "time_integral",
+  "knowledge": {
+    "formulas": [
+      {
+        "id": "time_integral_method_dispatch",
+        "title": "OneFLOW time-integration method dispatch",
+        "role": "Source-derived discrete algorithm-selection rule",
+        "plain": "D(m) = RungeKutta if m = MULTI_STAGE; Simple if m = SIMPLE; Lusgs otherwise",
+        "latex": "D(m)=\\mathrm{RungeKutta}\\ (m=1),\\quad D(m)=\\mathrm{Simple}\\ (m=3),\\quad D(m)=\\mathrm{Lusgs}\\ (\\mathrm{otherwise})",
+        "assumptions": "Describes TimeIntegral::Init and context-aware TimeIntegral::Relaxation. MULTI_STAGE=1, LUSGS=2, SIMPLE=3 are declared in TimeIntegral.h. The fallback branch handles every value other than MULTI_STAGE and SIMPLE; it is not input validation.",
+        "symbols": [
+          {
+            "symbol": "m",
+            "meaning": "Configured discrete time-integration selector.",
+            "notations": [
+              "time integration method",
+              "time integrator selector",
+              "temporal scheme selector"
+            ],
+            "oneflow_name": "time_integral",
+            "notes": "An integer selector, not a physical coefficient."
+          },
+          {
+            "symbol": "MULTI_STAGE",
+            "meaning": "Selector constant (1) that chooses OneFLOW's RungeKutta path.",
+            "notations": [
+              "Runge-Kutta",
+              "explicit multi-stage"
+            ],
+            "oneflow_name": "MULTI_STAGE",
+            "notes": "This dispatch label does not establish formal RK order."
+          },
+          {
+            "symbol": "SIMPLE",
+            "meaning": "Selector constant (3) that chooses TimeIntegral::Simple.",
+            "notations": [
+              "simple time integration"
+            ],
+            "oneflow_name": "SIMPLE",
+            "notes": "Do not confuse with the SIMPLE pressure-velocity algorithm used in incompressible CFD."
+          },
+          {
+            "symbol": "LUSGS",
+            "meaning": "Declared selector constant (2) and method used by dispatch fallback.",
+            "notations": [
+              "LU-SGS",
+              "lower-upper symmetric Gauss-Seidel"
+            ],
+            "oneflow_name": "LUSGS",
+            "notes": "The final branch also handles all values other than MULTI_STAGE and SIMPLE; it does not validate that the input equals 2."
+          }
+        ]
+      }
+    ],
+    "symbols": [
+      {
+        "symbol": "time_integral",
+        "meaning": "OneFLOW discrete time-integration method selector.",
+        "notations": [
+          "time integration method",
+          "time integrator selector"
+        ],
+        "oneflow_name": "time_integral",
+        "notes": "Integer selector read by solver control initializers."
+      },
+      {
+        "symbol": "MULTI_STAGE",
+        "meaning": "Selects the RungeKutta path.",
+        "notations": [
+          "Runge-Kutta",
+          "multi-stage"
+        ],
+        "oneflow_name": "MULTI_STAGE",
+        "notes": "Value 1."
+      },
+      {
+        "symbol": "SIMPLE",
+        "meaning": "Selects TimeIntegral::Simple.",
+        "notations": [
+          "simple integration"
+        ],
+        "oneflow_name": "SIMPLE",
+        "notes": "Value 3; distinct from the SIMPLE pressure-velocity algorithm."
+      },
+      {
+        "symbol": "LUSGS",
+        "meaning": "Named selector constant and fallback method.",
+        "notations": [
+          "LU-SGS"
+        ],
+        "oneflow_name": "LUSGS",
+        "notes": "Value 2; unknown values also currently enter the fallback branch."
+      }
+    ],
+    "references": [
+      "codes/solver/include/TimeIntegral.h",
+      "codes/solver/src/TimeIntegral.cpp",
+      "doc/source/numerical/time_integral_control.rst",
+      "time_integral_rk_stage_weight"
+    ],
+    "caveats": [
+      "The selector chooses an implementation path; it does not establish temporal order, stability region, or accuracy.",
+      "The SIMPLE label here means OneFLOW's TimeIntegral::Simple method, not the SIMPLE pressure-velocity coupling algorithm.",
+      "Resident Euler backend eligibility is a separate capability gate inside the RungeKutta path.",
+      "The fallback branch is observed compatibility behavior, not a recommended way to accept invalid selector values."
+    ]
   }
 }

@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "parameter/rprod",
+  "parameter_key": "rprod",
+  "title": "Spalart–Allmaras diffusion limiter ratio",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "partially_verified",
+  "overview": "A Real input passed to the Spalart–Allmaras limited-diffusion policy. The policy returns the minimum of rprod times production and the diffusion contribution.",
+  "principle": "The source implementation is diff_limited = min(rprod * production, diffusion). This is a source-term limiter relation; the name alone does not establish a universal physical interpretation or recommended value.",
+  "architecture": "TurbCom::Init reads rprod. The SA source-term path calls SaLimitedDiffusion, implemented in TurbSaPolicy.cpp. Applicability is limited to the audited SA path.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/turb/src/TurbCom.cpp",
+      "codes/turb/src/TurbSaPolicy.cpp",
+      "codes/turb/include/TurbSaPolicy.h"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "TurbCom::Init reads rprod as Real.",
+      "The audited SA source-term path passes rprod to SaLimitedDiffusion.",
+      "SaLimitedDiffusion returns min(rprod * production, diffusion)."
+    ],
+    "does_not_prove": [
+      "That the limiter is used by SST or other turbulence models.",
+      "An admissible range, default, or recommended value.",
+      "A numerical stability or accuracy guarantee."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "SaLimitedDiffusion",
+      "status": "declared_not_executed",
+      "scope": "Declaration linkage is not a record of execution or numerical validation."
+    }
+  ],
+  "examples": [
+    {
+      "title": "SA limited-diffusion selection (matches the pure-policy test)",
+      "input": "Diffusion contribution D = 0.4; rprod = 0.5; production contribution P = 0.3.",
+      "calculation": "The production-based candidate is rprod * P = 0.5 * 0.3 = 0.15. SaLimitedDiffusion returns min(0.15, 0.4) = 0.15.",
+      "result": "The limited diffusion contribution is 0.15. If D = 0.1 with the same rprod and P, the policy instead returns 0.1.",
+      "limitations": "These are arithmetic checks of the SA helper relation, consistent with TurbSaPolicy.SaLimitedDiffusionSelectsTheSmallerContribution. They are not a full transport-equation or CFD run, and do not establish applicability to SST, a recommended value, or a valid range."
+    }
+  ],
+  "group": {
+    "id": "turbulence",
+    "title": "Turbulence",
+    "order": 70
+  },
+  "knowledge": {
+    "formulas": [
+      {
+        "id": "sa_limited_diffusion",
+        "title": "SA limited-diffusion policy",
+        "role": "OneFLOW source-derived implementation relation",
+        "plain": "diff_limited = min(rprod * production, diffusion)",
+        "latex": "D_{lim} = \\min(r_{prod} P, D)",
+        "assumptions": "Exact algebraic policy implemented by SaLimitedDiffusion.",
+        "symbols": [
+          {
+            "symbol": "rprod",
+            "meaning": "Multiplier applied to the production term in the diffusion limiter.",
+            "notations": [
+              "r_prod"
+            ],
+            "oneflow_name": "rprod",
+            "notes": "No universal range or default is established."
+          },
+          {
+            "symbol": "P",
+            "meaning": "SA production contribution passed to the limiter.",
+            "notations": [
+              "production"
+            ],
+            "oneflow_name": "prod",
+            "notes": "SA source-term context."
+          },
+          {
+            "symbol": "D",
+            "meaning": "Diffusion contribution passed to the limiter.",
+            "notations": [
+              "diffusion"
+            ],
+            "oneflow_name": "diff",
+            "notes": "The policy returns the smaller value."
+          }
+        ]
+      }
+    ],
+    "symbols": [],
+    "references": [],
+    "caveats": [
+      "The formula documents the audited source branch; it is not a universal model identity or a recommended parameter setting."
+    ]
+  }
+}

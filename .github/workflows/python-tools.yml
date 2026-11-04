@@ -72,8 +72,8 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_background_task_manager tools.oneflow_gui.test_background_task_host
       - name: Test case queue worker
         run: python -m unittest tools.oneflow_gui.test_main_window
-      - name: Test GUI test command builder
-        run: python -m unittest tools.oneflow_gui.test_test_runner
+      - name: Test GUI test command builder and registry consistency
+        run: python -m unittest tools.oneflow_gui.test_test_runner tools.oneflow_gui.test_test_inventory
       - name: Test cross-platform executable discovery
         run: python -m unittest tools.oneflow_gui.test_executable_discovery
       - name: Test process tree lifecycle
@@ -82,6 +82,8 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_runner_process
       - name: Test verification contract catalog
         run: python -m unittest tools.verification.test_contract_catalog
+      - name: Test LaTeX formula preview
+        run: python -m unittest tools.verification.test_latex_preview
       - name: Test Formula and Knowledge catalog
         run: python -m unittest tools.verification.test_curve_catalog
       - name: Test Contract Workbench dialog
@@ -96,8 +98,6 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_workflow_execution_capture
       - name: Test worker execution evidence integration
         run: python -m unittest tools.oneflow_gui.test_test_dialog_execution_capture
-      - name: Test workbench test inventory
-        run: python -m unittest tools.oneflow_gui.test_test_inventory
       - name: Test user data paths
         run: python -m unittest tools.oneflow_gui.test_user_data_paths
       - name: Test application settings
@@ -110,6 +110,10 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_parameter_document
       - name: Test logical CFD and grid parameter model
         run: python -m unittest tools.oneflow_gui.test_parameter_model
+      - name: Test file-independent Case parameter resolution
+        run: python -m unittest tools.oneflow_gui.test_parameter_resolution
+      - name: Test declarative Case profiles
+        run: python -m unittest tools.oneflow_gui.test_case_profile
       - name: Test runtime parameter consumer evidence
         run: python -m unittest tools.oneflow_gui.test_parameter_consumer_catalog
       - name: Test CFD nomenclature knowledge catalog

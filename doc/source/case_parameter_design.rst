@@ -72,8 +72,36 @@ RAE2822 Roe-SA CFD case
    ``reynolds``, ``mach_ref``, ``vismodel``, ``inflow_intensity``,
    ``ref_sa``, ``turb_cfl_ratio``, ``nmg``, and ``mgCycleType``.
 
+Representative case inventory
+-----------------------------
+
+The manifest-driven classification test now loads all parameter files listed by
+the following checked-in cases, rather than validating only one CFD case and
+one grid case:
+
+* ``test/cfd/plateuns2dslau2``: laminar flat plate with SLAU2;
+* ``test/cfd/turbplateuns2droe_sa``: turbulent flat plate with Roe-SA;
+* ``test/cfd/rae2822_roe_sa``: transonic airfoil with Roe-SA;
+* ``test/cfd/m6wingroe_sa``: three-dimensional wing with Roe-SA;
+* ``test/grid/rae2822convert``: grid conversion and partitioning.
+
+The inventory test fails if any scalar or unsupported declaration name in
+these manifests is assigned to ``Other / Unclassified``. It also pins selected
+functional distinctions: turbulence inflow inputs are separated from model
+controls; physical inflow and wall thermal conditions remain separate from
+turbulence inflow; output cadence is separate from result/restart filenames;
+solver sub-iteration limits remain run-control parameters; and all ``mg*``
+settings, including turbulence-viscosity switches and factors, are grouped
+under ``Multigrid`` rather than split across physics groups.
+
+This is a growing representative corpus, not a claim that all ``test/`` cases,
+all optional solver modes, or all legacy configuration files have been
+enumerated. New case families should be added when their manifests introduce
+new keys or materially different applicability. Existing classifications may
+be refined as source consumers and case comments provide stronger evidence.
+
 These source references confirm that representative parameters reach implementation
-code. They do not classify every key in the two database dumps. Some settings are
+code. They do not classify every key in every repository case manifest. Some settings are
 conditional on task, model, or file format; some may be defaults, compatibility fields,
 derived values, or historical leftovers. Establishing whether a parameter is unused
 requires tracing its read path and conditions, not searching for one exact spelling
@@ -247,6 +275,7 @@ The Qt-independent parameter_consumer_catalog.py records a small set of source-l
 The initial audited keys are:
 
 * maxSteps — required read in Iteration::Init. It initializes the iteration limit; SimuIterState::Running applies it when iexitflag == 0.
+* maxTime — required read in Ctrl::Init. It initializes the simulation-time threshold and currTime; SimuIterState::Running applies it when iexitflag != 0, as the alternative to maxSteps.
 * time_integral — required reads in Ctrl::Init and NsCtrl::Init. These are distinct initialization paths, not duplicate declarations.
 * mach_ref — required read in NsCom::Init and used with gama_ref to derive const_cp.
 * vismodel — required read in VisModel::Init. The selected model subsequently gates viscous/turbulence validation and wall-distance behavior.
@@ -364,7 +393,8 @@ for evidence of a parameter's ownership.
   groups include ``General``, ``Run Control``, ``Solver system``, ``Time
   stepping``, ``Numerical methods``, ``Flow and reference conditions``,
   ``Thermodynamic reference state``, ``Transport properties``, ``Boundary and
-  inflow conditions``, ``Physical models``, ``Turbulence``, ``Multigrid``,
+  inflow conditions``, ``Physical models``, ``Turbulence inflow conditions``,
+  ``Turbulence``, ``Multigrid``,
   ``Wall distance``, ``Output control``, ``Output files``, ``Input and output
   files``, ``Grid definition``, ``Grid formats and files``, and ``Partitioning``.
 * **Task applicability** records whether a setting is known to apply to
@@ -472,6 +502,45 @@ schedule restart output; NS and incompressible NS paths use ``nVisualSave``
 to schedule visualization tasks. This is a source-audited slice, not proof
 that every solver and every output backend has identical scheduling semantics.
 
+Turbulence inflow inputs have a separate functional group from general
+turbulence-model controls. ``TurbCom::Init`` reads ``inflow_intensity`` and
+``inflow_viscosity``. Their audited consumer is the
+``transition_model == ITReGama`` branch inside ``TurbCom::InitInflow``,
+not every two-equation turbulence initialization path. In that branch,
+``inflow_viscosity`` supplies ``mutoo``; the initializer first forms
+``k_e = mutoo * kwoo / (cmu * Re * rho_ref)``. For positive
+``inflow_intensity``, it replaces ``k_e`` with
+
+.. math::
+
+   k_e = \frac{3}{2}\,(0.01 I)^2
+
+and recomputes ``kwoo = k_e * (cmu * Re * rho_ref) / mutoo``.
+For non-positive intensity it keeps the initial viscosity-based ``k_e``
+and obtains the empirical intensity through ``trans.CalcIntensity``.
+The source's ``0.01`` scaling is recorded literally; this does not establish
+a universal external unit convention, valid range, or recommended value.
+The non-transition two-equation initialization follows a separate
+``ref_sst``/default path.
+
+The time-step strategy and configured global step are also exposed as independent Parameter contracts: parameter/time-step-strategy (timestepModel) and parameter/global-time-step (global_dt). The six inputs are therefore represented by four searchable Parameter entries: the grouped parameter/cfl-ramp schedule (cflst, cfled, ncfl), plus idualtime, timestepModel, and global_dt as separate controls.
+
+The optional dual-time selector is also exposed as its own Parameter contract:
+parameter/dual-time-index (runtime key idualtime). The existing parameter/cfl-ramp
+contract remains the combined algorithm entry for cflst, cfled, and ncfl, while
+timestepModel and global_dt remain separately source-audited within that time-step
+strategy trace. This avoids treating a selector for the CFL iteration counter as
+equivalent to the time-step strategy or the physical time-step input.
+
+Iteration::Init checks for idualtime before reading it. If the declaration is
+absent, Iteration::dualtime remains zero; when it is one, the CFL schedule uses
+innerSteps rather than outerSteps. The consumer catalog records this as an optional
+read, not a required parameter. This does not prove every solver path implements
+dual-time stepping or establish a temporal accuracy order.
+
+The consumer catalog now links both keys to the direct typed reads and the
+``TurbCom::InitInflow`` implementation. This is code-path evidence, not a
+claim that every turbulence model uses the same inflow closure.
 The Parameter runtime-consumer catalog now links the three CFL ramp inputs
 to ``Iteration::Init``, ``TimeStep::CalcCfl``, ``CflIterationIndex``, and
 ``CflAtIteration``. It separately links ``timestepModel`` to the local/global
@@ -480,3 +549,182 @@ unstructured time-step strategy, and the output intervals to their iteration
 and representative solver scheduling consumers. These links are source evidence, not
 execution records. Units, admissible ranges, default values, and behavior
 outside the audited solver path remain unresolved until separately verified.
+
+
+Turbulence CFL ratio: unsteady spectrum scaling
+------------------------------------------------
+
+The parameter ``turb_cfl_ratio`` is read as a ``Real`` in
+``TurbCom::Init``. Its downstream use is narrower than a global CFL
+controller: ``UTurbSpectrum::CalcUnsteadySpectrum`` multiplies the
+selected per-cell time-step by this ratio before assembling the implicit
+unsteady contribution to the turbulence equations.
+
+For the single-time-step branch (``idualtime == 0``), the code forms
+
+.. math::
+
+   t_s = \Delta t_{turb} \, r_{turb}, \qquad
+   S_{unsteady} = \frac{sp_2}{t_s} V,
+
+where ``r_turb`` is ``turb_cfl_ratio``, ``V`` is cell volume,
+and ``sp_2`` is the time-integration coefficient. In dual-time mode,
+the turbulence time-step is scaled in the same way, while the physical-time
+term ``sp_2 / pdt1`` is added separately. Therefore this parameter is not
+the same control as the mean-flow CFL ramp (``cflst/cfled/ncfl``) or
+the solver time-step strategy (``timestepModel``).
+
+The current source audit establishes the read and the two assembly branches.
+It does not establish a universal recommended value, admissible range,
+default, or numerical stability guarantee; those remain unverified until
+case-level sensitivity and convergence studies are recorded.
+
+
+Spalart-Allmaras production limiter and viscosity-ratio audit
+-------------------------------------------------------------
+
+The ``rprod`` input is read by ``TurbCom::Init`` and passed along the
+Spalart-Allmaras source-term path to ``SaLimitedDiffusion``. The policy
+implementation in ``TurbSaPolicy.cpp`` is
+
+.. math::
+
+   D_{lim} = \min(r_{prod} P, D),
+
+where ``P`` and ``D`` are the production and diffusion contributions passed
+by the SA source assembly. This documents the implementation relation only.
+The current audit does not establish a recommended value, admissible range,
+or applicability to SST and other turbulence models.
+
+The ``max_vis_ratio`` input is read by ``TurbCom::Init`` and passed
+through ``TurbSrcFlux`` to both the SA and SST eddy-viscosity calculations.
+The shared ``TurbCappedEddyViscosity`` policy returns
+
+.. math::
+
+   \mu_t = \min(\mu_{t,\mathrm{uncapped}}, r_{\mu,\max} \mu_l),
+
+where ``r_{\mu,\max}`` is ``max_vis_ratio`` and ``\mu_l`` is
+the local laminar viscosity. Pure-policy tests cover applying the cap and
+preserving an uncapped value below it. These tests do not establish a
+recommended value, admissible range, or end-to-end CFD accuracy.
+
+
+Parameter worked examples and evidence scope
+--------------------------------------------
+
+Each parameter contract now carries at least one structured worked example
+with an explicit input, calculation, result, and limitations. The examples
+are explanatory source-derived arithmetic or pure-policy checks, not
+completed CFD case executions. In particular:
+
+* ``turb_cfl_ratio`` demonstrates how the scaled turbulence time step
+  changes the implicit unsteady spectrum coefficient;
+* ``rprod`` follows the minimum-selection rule in
+  ``SaLimitedDiffusion`` and its pure-policy unit test;
+* ``max_vis_ratio`` follows the shared SA/SST eddy-viscosity cap and its
+  pure-policy tests;
+* ``inflow_intensity`` and ``inflow_viscosity`` are restricted to the
+  audited ``ITReGama`` transition-inflow branch.
+
+A worked example is explanatory evidence only. A linked test declaration,
+a hand calculation, a parsed parameter value, and a full solver run are
+different evidence types and must not be promoted into one another. Parameter
+defaults, valid ranges, dimensional conventions, and case-level sensitivity
+remain open wherever the contract explicitly says they are not yet verified.
+
+Parameter catalog completeness and Case-template readiness
+-----------------------------------------------------------
+
+The Parameter entry in Contract Workbench and the Project Window parameter
+tree are related views, but they have different responsibilities:
+
+* The Project Window tree shows declarations found in the opened Case's ordered
+  ``control.txt`` manifest. It preserves source files, declaration order,
+  effective values, and overridden declarations. It is case-local.
+* The Contract Workbench Parameter catalog is a repository-level knowledge
+  index. Each contract has a stable ID and an explicit ``parameter_key``
+  mapping to the legacy runtime key. It can describe source consumers,
+  formulas, aliases, examples, and evidence independently of one Case's
+  current values.
+* The runtime database remains the authority for the values consumed by a
+  particular run. A catalog definition is not itself a runtime assignment.
+
+At the current inventory checkpoint, the Parameter contract directory
+contains 150 entries covering 152 individual parameter keys. The original
+14 source-audited contracts cover 16 keys (the CFL ramp contract groups
+``cflst``, ``cfled``, and ``ncfl``). A further 136 entries were added
+from a declaration inventory of five representative CFD Cases and one Grid
+Case. These new entries are deliberately marked ``proposed``: they establish
+names and functional groups in Contract Workbench, but do not claim a verified
+runtime consumer, formula, unit, default, admissible range, or numerical
+validation.
+
+The current directory contains 150 JSON contract definitions. The 14
+source-audited entries retain their existing source mappings and knowledge;
+the 136 proposed entries are inventory placeholders intended to make the
+full set navigable and auditable. Proposed entries intentionally have no
+fabricated implementation path or verification result. In particular,
+``gridTrans`` is represented in the catalog but its array declaration is
+still reported by the scalar Project Window parser as unsupported; catalog
+presence does not imply that the editor can safely rewrite it.
+
+The inventory groups include run control, solver system, time stepping,
+output control and files, numerical methods, flow/reference conditions,
+thermodynamic state, transport properties, boundary/inflow conditions,
+physical models, turbulence, multigrid, wall distance, grid definition,
+grid formats/files, and grid partitioning. Shared task/dimension and geometry
+tolerance entries are also included. The exact runtime key spelling is
+preserved as ``parameter_key``.
+
+This is a meaningful increase in Parameter Workbench coverage, not proof of
+repository-wide completeness. The first inventory pass is based on the
+representative Case set; it does not yet enumerate every Case manifest or every
+``GetDataValue``/optional/lazy consumer in production code. A parameter
+entry being present in the catalog does not guarantee that its consumer has
+been audited or that its formula, units, default, and valid range are known.
+Unknown declarations and array declarations must remain visible rather than
+being silently discarded.
+
+The next inventory pass must enumerate declarations from every repository
+Case manifest and cross-check them against production parameter reads. It
+must also distinguish:
+
+* a key declared in a Case file;
+* a key directly read by production code;
+* a key whose downstream behavior has been traced;
+* a key with a documented physical or numerical definition;
+* a key with a tested admissible range or default;
+* a key validated by a representative executable Case.
+
+These are independent facts. The inventory should preserve the exact spelling
+of the runtime key, declaration type, source file, manifest order, aliases,
+classification, and evidence state. A missing consumer audit means
+``not_yet_audited``, not unused. A key with no known formula remains a
+parameter entry with an explicit explanation, not an invented equation.
+
+Case parameter-file generation is a later consumer of this catalog, not a
+shortcut around it. A generated Case should be assembled from a compatible
+profile of task, dimension, solver/equation system, physical models, grid,
+boundary conditions, and numerical methods. The generator must:
+
+#. start from a known Case template or an explicitly versioned parameter
+   profile, preserving required legacy file syntax and the ordered manifest;
+#. include only parameters applicable to the selected task and model, while
+   retaining required defaults and dependencies;
+#. report unresolved required values, unsupported arrays, unknown keys, and
+   conflicting declarations before writing files;
+#. preserve existing file encoding and formatting where editing an existing
+   Case; never rewrite source-tree examples in place;
+#. validate the generated manifest and parameter documents with the production
+   parser, then run a real setup/initialization smoke test;
+#. record the generated profile version, source Case, parameter provenance,
+   validation result, and any user modifications.
+
+A generated file is therefore a candidate Case configuration until the
+production reader accepts it. Successful parsing is not proof of a stable
+simulation, numerical accuracy, or physical validity. The first usable
+profiles should be derived from existing, understood Cases (for example,
+laminar flat plate and RAE2822 Roe-SA), with small, explicit differences
+recorded against their source profiles. Arbitrary combinations of individually
+known parameters must not be treated as a valid solver configuration.

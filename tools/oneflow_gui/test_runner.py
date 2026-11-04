@@ -209,6 +209,8 @@ _PYTHON_UNIT_TESTS = (
     ("Project window tests", ("-m", "unittest", "tools.oneflow_gui.test_project_window")),
     ("Parameter document tests", ("-m", "unittest", "tools.oneflow_gui.test_parameter_document")),
     ("Logical parameter model tests", ("-m", "unittest", "tools.oneflow_gui.test_parameter_model")),
+    ("File-independent parameter resolution tests", ("-m", "unittest", "tools.oneflow_gui.test_parameter_resolution")),
+    ("Declarative Case profile tests", ("-m", "unittest", "tools.oneflow_gui.test_case_profile")),
     ("Runtime parameter consumer evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_parameter_consumer_catalog")),
     ("CFD nomenclature knowledge tests", ("-m", "unittest", "tools.verification.test_nomenclature_catalog")),
     ("Parameter catalog database tests", ("-m", "unittest", "tools.oneflow_gui.test_parameter_catalog_store")),

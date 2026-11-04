@@ -27,6 +27,28 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
         self.assertIn("GetDataValue", consumers[0].read_expression)
         self.assertIn("termination", consumers[0].behavior)
 
+    def test_max_time_links_time_threshold_to_outer_loop_termination(self):
+        consumers = self.catalog.find("maxTime")
+
+        self.assertEqual(len(consumers), 1)
+        consumer = consumers[0]
+        self.assertEqual(consumer.source_path, "codes/global/src/Ctrl.cpp")
+        self.assertEqual(consumer.symbol, "Ctrl::Init")
+        self.assertEqual(
+            consumer.read_expression,
+            'GetDataValue<Real>("maxTime")',
+        )
+        self.assertIn("currTime to zero", consumer.behavior)
+        self.assertIn("iexitflag != 0", consumer.behavior)
+        self.assertEqual(
+            consumer.behavior_source_paths,
+            ("codes/global/src/Iteration.cpp",),
+        )
+        self.assertEqual(
+            consumer.behavior_symbols,
+            ("SimuIterState::Running",),
+        )
+
     def test_parameter_can_have_multiple_runtime_read_sites(self):
         consumers = self.catalog.find("time_integral")
 
@@ -59,6 +81,18 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
             ("time_integral_rk_stage_weight",),
         )
 
+
+    def test_dual_time_selector_is_optional_and_controls_cfl_index(self):
+        consumers = self.catalog.find("idualtime")
+        self.assertEqual(len(consumers), 1)
+        consumer = consumers[0]
+        self.assertEqual(consumer.read_kind, ConsumerReadKind.OPTIONAL)
+        self.assertEqual(consumer.source_path, "codes/global/src/Iteration.cpp")
+        self.assertEqual(consumer.symbol, "Iteration::Init")
+        self.assertEqual(consumer.read_expression, 'FindDataEntry("idualtime")')
+        self.assertIn("default value 0", consumer.behavior)
+        self.assertIn("inner-step index", consumer.behavior)
+        self.assertIn("CflIterationIndex", consumer.behavior_symbols)
 
     def test_cfl_ramp_parameters_link_to_iteration_index_and_schedule(self):
         for key, phrase in (
@@ -96,6 +130,57 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
         self.assertTrue(all("Ctrl::pdt" in item.behavior for item in global_steps))
         self.assertTrue(all("UTimeStep::CalcGlobalTimeStep" in item.behavior_symbols for item in global_steps))
 
+
+
+    def test_turbulence_inflow_parameters_link_to_inflow_initialization(self):
+        for key, detail in (
+            ("inflow_intensity", "k_e = 1.5"),
+            ("inflow_viscosity", "eddy viscosity"),
+        ):
+            with self.subTest(parameter=key):
+                consumers = self.catalog.find(key)
+                self.assertEqual(len(consumers), 1)
+                consumer = consumers[0]
+                self.assertEqual(consumer.source_path, "codes/turb/src/TurbCom.cpp")
+                self.assertEqual(consumer.symbol, "TurbCom::Init")
+                self.assertIn(detail, consumer.behavior)
+                self.assertIn("TurbCom::InitInflow", consumer.behavior_symbols)
+
+    def test_turbulence_cfl_ratio_scales_unsteady_spectrum_time_step(self):
+        consumers = self.catalog.find("turb_cfl_ratio")
+
+        self.assertEqual(len(consumers), 1)
+        consumer = consumers[0]
+        self.assertEqual(consumer.source_path, "codes/turb/src/TurbCom.cpp")
+        self.assertEqual(consumer.symbol, "TurbCom::Init")
+        self.assertIn("local time-step", consumer.behavior)
+        self.assertIn("dual-time", consumer.behavior)
+        self.assertEqual(
+            consumer.behavior_source_paths,
+            ("codes/uturb/src/UTurbSpectrum.cpp",),
+        )
+        self.assertEqual(
+            consumer.behavior_symbols,
+            ("UTurbSpectrum::CalcUnsteadySpectrum",),
+        )
+
+    def test_sa_production_limiter_parameter_links_to_policy(self):
+        consumers = self.catalog.find("rprod")
+        self.assertEqual(len(consumers), 1)
+        consumer = consumers[0]
+        self.assertEqual(consumer.symbol, "TurbCom::Init")
+        self.assertIn("min(rprod * production, diffusion)", consumer.behavior)
+        self.assertIn("TurbSaPolicy.cpp", " ".join(consumer.behavior_source_paths))
+        self.assertIn("SaLimitedDiffusion", consumer.behavior_symbols)
+
+    def test_max_vis_ratio_records_read_without_inventing_downstream_semantics(self):
+        consumers = self.catalog.find("max_vis_ratio")
+        self.assertEqual(len(consumers), 1)
+        consumer = consumers[0]
+        self.assertEqual(consumer.symbol, "TurbCom::Init")
+        self.assertIn("not yet been established", consumer.behavior)
+        self.assertEqual(consumer.behavior_source_paths, ())
+        self.assertEqual(consumer.behavior_symbols, ())
 
     def test_output_frequency_parameters_link_to_scheduler_consumers(self):
         for key, symbol in (

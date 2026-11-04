@@ -126,6 +126,47 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_dual_time_selector_is_registered_in_parameter_domain(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            contract_id = "parameter/dual-time-index"
+            row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == contract_id
+            )
+            dialog.contract_list.setCurrentRow(row)
+            self.assertIn("idualtime", dialog.overview_view.toPlainText())
+            consumer_text = dialog.runtime_consumers_view.toPlainText()
+            self.assertIn("[optional]", consumer_text)
+            self.assertIn('FindDataEntry("idualtime")', consumer_text)
+            self.assertIn("CflIterationIndex", consumer_text)
+        finally:
+            dialog.close()
+
+    def test_time_step_strategy_and_global_dt_have_parameter_entries(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            expected = {
+                "parameter/time-step-strategy": "timestepModel",
+                "parameter/global-time-step": "global_dt",
+            }
+            contract_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+            }
+            self.assertTrue(set(expected).issubset(contract_ids))
+            for contract_id, key in expected.items():
+                row = next(
+                    index for index in range(dialog.contract_list.count())
+                    if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                    == contract_id
+                )
+                dialog.contract_list.setCurrentRow(row)
+                self.assertIn(key, dialog.overview_view.toPlainText())
+        finally:
+            dialog.close()
+
     def test_mach_parameter_exposes_formula_symbols_aliases_and_latex(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
         try:
@@ -244,7 +285,39 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
-    def test_parameter_without_audited_consumer_is_not_labelled_unused(self) -> None:
+    def test_turbulence_parameters_are_registered_in_parameter_contract_workbench(self):
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            expected = {
+                "parameter/turb_cfl_ratio": ("Parameter: turb_cfl_ratio", "UTurbSpectrum::CalcUnsteadySpectrum"),
+                "parameter/rprod": ("Parameter: rprod", "SaLimitedDiffusion"),
+                "parameter/inflow_intensity": ("Parameter: inflow_intensity", "TurbCom::InitInflow"),
+                "parameter/inflow_viscosity": ("Parameter: inflow_viscosity", "TurbCom::InitInflow"),
+            }
+            for contract_id, expected_text in expected.items():
+                with self.subTest(contract=contract_id):
+                    row = next(
+                        index for index in range(dialog.contract_list.count())
+                        if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole) == contract_id
+                    )
+                    dialog.contract_list.setCurrentRow(row)
+                    consumer_text = dialog.runtime_consumers_view.toPlainText()
+                    self.assertIn(expected_text[0], consumer_text)
+                    self.assertIn(expected_text[1], consumer_text)
+                    self.assertTrue(dialog.implementation_file_list.count())
+                    self.assertTrue(dialog.implementation_view.toPlainText().strip())
+
+            max_vis_row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole) == "parameter/max_vis_ratio"
+            )
+            dialog.contract_list.setCurrentRow(max_vis_row)
+            self.assertIn("Parameter: max_vis_ratio", dialog.runtime_consumers_view.toPlainText())
+            self.assertIn("downstream numerical use", dialog.runtime_consumers_view.toPlainText())
+        finally:
+            dialog.close()
+
+    def test_max_time_parameter_shows_audited_runtime_consumer(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
         try:
             row = next(
@@ -254,8 +327,17 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             )
             dialog.contract_list.setCurrentRow(row)
             consumer_text = dialog.runtime_consumers_view.toPlainText()
-            self.assertIn("No audited runtime consumer is registered", consumer_text)
-            self.assertIn("does not prove that the parameter is unused", consumer_text)
+            self.assertIn("Parameter: maxTime", consumer_text)
+            self.assertIn("Ctrl::Init", consumer_text)
+            self.assertIn('GetDataValue<Real>("maxTime")', consumer_text)
+            self.assertIn("SimuIterState::Running", consumer_text)
+            self.assertIn("references resolved", consumer_text)
+            implementation_paths = {
+                dialog.implementation_file_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.implementation_file_list.count())
+            }
+            self.assertIn("codes/global/src/Ctrl.cpp", implementation_paths)
+            self.assertIn("codes/global/src/Iteration.cpp", implementation_paths)
         finally:
             dialog.close()
 
@@ -322,10 +404,20 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 for index in range(dialog.contract_list.count())
                 if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole) is None
             ]
-            self.assertIn("Run Control  (3)", headers)
+            self.assertIn("Run Control  (6)", headers)
+            self.assertIn("Time stepping  (7)", headers)
             self.assertIn("Time Integration  (2)", headers)
             self.assertIn("Compressible Flow  (1)", headers)
+            self.assertIn("Turbulence  (22)", headers)
+            self.assertIn("Turbulence Inflow Conditions  (2)", headers)
 
+            dialog.search_edit.setText("turb_cfl_ratio")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(visible_ids, {"parameter/turb_cfl_ratio"})
             dialog.search_edit.setText("mach_ref")
             visible_ids = {
                 dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
@@ -347,6 +439,33 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
             }
             self.assertEqual(visible_ids, {"parameter/max-time"})
+            dialog.search_edit.setText("idualtime")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(
+                visible_ids, {"parameter/cfl-ramp", "parameter/dual-time-index"}
+            )
+            dialog.search_edit.setText("timestepModel")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(
+                visible_ids, {"parameter/cfl-ramp", "parameter/time-step-strategy", "parameter/turb_cfl_ratio"}
+            )
+            dialog.search_edit.setText("global_dt")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(
+                visible_ids, {"parameter/cfl-ramp", "parameter/global-time-step"}
+            )
             dialog.search_edit.setText("maxTime")
             visible_ids = {
                 dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
@@ -363,7 +482,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
             }
             self.assertEqual(
-                visible_ids, {"parameter/mach_ref", "parameter/cfl-ramp"}
+                visible_ids, {"parameter/mach_ref", "parameter/cfl-ramp", "parameter/time-step-strategy"}
             )
             dialog.search_edit.clear()
             visible_ids = {
@@ -371,10 +490,9 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 for index in range(dialog.contract_list.count())
                 if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
             }
-            self.assertEqual(visible_ids, {
-                "parameter/time_integral", "parameter/rk_stage", "parameter/mach_ref",
-                "parameter/max-steps", "parameter/max-time", "parameter/cfl-ramp"
-            })
+            expected_ids = {summary.id for summary in dialog._summaries}
+            self.assertEqual(visible_ids, expected_ids)
+            self.assertIn("parameter/gama-ref", visible_ids)
         finally:
             dialog.close()
 

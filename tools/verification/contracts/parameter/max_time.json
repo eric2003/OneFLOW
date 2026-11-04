@@ -7,14 +7,15 @@
   "status": "implemented",
   "overview": "Provides the time threshold used by SimuIterState::Running when ctrl.iexitflag is nonzero. Ctrl::Init reads maxTime and initializes currTime to zero. In this branch, the outer loop stops when currTime reaches or exceeds maxTime; when iexitflag is zero, the stop condition instead uses maxSteps.",
   "principle": "maxTime is a simulation-time threshold, distinct from an iteration-count limit and from a residual-convergence criterion. Its unit and nondimensional scaling must be interpreted using the active case's time convention; the audited stop-condition code alone does not define those units.",
-  "architecture": "Ctrl::Init loads maxTime into the shared solver control state and initializes currTime. SimuIterState::Running compares those values only in the nonzero iexitflag branch. This contract records the stop-condition wiring, not the full evolution law for currTime or every solver-specific time-step policy.",
+  "architecture": "Ctrl::Init loads maxTime into the shared solver control state and initializes currTime. MG::Run increments currTime by ctrl.pdt at strategy-specific update sites. SimuIterState::Running compares those values only in the nonzero iexitflag branch. The check occurs at the outer-loop running test; the audited update path does not clip the increment to maxTime.",
   "references": [],
   "implementation": {
     "source_paths": [
       "codes/global/src/Ctrl.cpp",
       "codes/global/src/Iteration.cpp",
       "codes/global/include/Ctrl.h",
-      "codes/global/include/Iteration.h"
+      "codes/global/include/Iteration.h",
+      "codes/multigrid/src/Multigrid.cpp"
     ]
   },
   "documentation": {
@@ -27,13 +28,15 @@
     "proves": [
       "Ctrl::Init reads maxTime as a Real value and initializes currTime to zero.",
       "When ctrl.iexitflag is nonzero, SimuIterState::Running stops when ctrl.currTime is greater than or equal to ctrl.maxTime.",
-      "When ctrl.iexitflag is zero, SimuIterState::Running uses maxSteps instead of maxTime."
+      "When ctrl.iexitflag is zero, SimuIterState::Running uses maxSteps instead of maxTime.",
+      "MG::Run increments currTime by ctrl.pdt; the placement is per inner solve for startStrategy 2 or 3 and once per outer-loop pass in the other branch."
     ],
     "does_not_prove": [
       "The physical unit or nondimensional scale of maxTime for every solver and case.",
       "The time-step selection or update law that advances currTime.",
       "That maxTime is a residual-convergence criterion or guarantees a converged solution.",
-      "An admissible range or explicit positivity validation for maxTime."
+      "An admissible range or explicit positivity validation for maxTime.",
+      "That the final pdt increment is clipped to stop exactly at maxTime."
     ]
   },
   "verification": [
@@ -41,7 +44,7 @@
       "kind": "pure_api",
       "reference": "Ctrl::Init and SimuIterState::Running",
       "status": "declared_not_executed",
-      "scope": "Source-backed time-threshold loading and outer-loop stop-condition branch; no runtime test or physical-time interpretation is implied."
+      "scope": "Source-backed loading, run-loop time accumulation, and outer-loop stop-condition branch; no runtime time-integration test or exact final-time guarantee is implied."
     }
   ],
   "examples": [
@@ -50,7 +53,7 @@
       "input": "iexitflag = 1, currTime = 0.95, maxTime = 1.0.",
       "calculation": "The active branch compares currTime >= maxTime. At 0.95 >= 1.0 the condition is false. If the physical-time update advances currTime to 1.0, the next running check becomes true.",
       "result": "The configured outer-loop stop threshold is 1.0 in the active case time convention.",
-      "limitations": "The example does not specify the time unit or nondimensional scale, calculate the next time step, or prove that the final step is clipped exactly to maxTime."
+      "limitations": "The example does not specify the time unit or nondimensional scale, calculate the next time step, or prove that the final increment is clipped exactly to maxTime; the current MG::Run update can pass the threshold before the next stop check."
     }
   ],
   "group": {

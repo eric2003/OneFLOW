@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "parameter/ori-uns-file",
+  "title": "ori_uns_file",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "proposed",
+  "overview": "ori_uns_file was identified in the representative Case parameter inventory and is grouped under Partitioning. Its exact runtime consumer and downstream behavior have not yet been audited.",
+  "principle": "This entry preserves the legacy parameter key and its observed functional grouping. Its physical or numerical meaning, units, admissible range, and default policy must be established from production implementation and authoritative references; none are inferred from the key name.",
+  "architecture": "This is a declaration-inventory entry. The exact per-Case declaration location, production read sites, and downstream call chain remain to be audited. Presence in this catalog does not establish that the setting is required or consumed by every solver path.",
+  "references": [],
+  "implementation": {
+    "source_paths": []
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The key ori_uns_file was identified during the representative Case parameter inventory."
+    ],
+    "does_not_prove": [
+      "An exact per-Case declaration/source mapping.",
+      "A verified production-code consumer or complete downstream call chain.",
+      "A physical formula, unit, default, admissible range, or numerical validation."
+    ]
+  },
+  "verification": [],
+  "group": {
+    "id": "grid_partitioning",
+    "title": "Partitioning",
+    "order": 130
+  },
+  "parameter_key": "ori_uns_file"
+}

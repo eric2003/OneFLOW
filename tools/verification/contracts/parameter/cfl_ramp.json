@@ -116,8 +116,8 @@
     }
   ],
   "group": {
-    "id": "run_control",
-    "title": "Run Control",
-    "order": 10
+    "id": "time_stepping",
+    "title": "Time stepping",
+    "order": 20
   }
 }

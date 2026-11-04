@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "profile_id": "laminar-flat-plate-production-35000",
+  "title": "Laminar flat plate — production length (35,000 steps)",
+  "source_case": "test/cfd/plateuns2dslau2",
+  "run_purpose": "production",
+  "maturity": "proposed",
+  "description": "Derive from the baseline laminar flat-plate Case and request 35,000 solver steps through the logical maxSteps key.",
+  "overrides": [
+    {
+      "key": "maxSteps",
+      "value": 35000,
+      "source": "production-35000"
+    }
+  ],
+  "limitations": [
+    "This profile changes maxSteps only; it does not certify the grid, boundary conditions, physical model, restart state, convergence, or final solution.",
+    "The 34,950-to-35,000 continuation case is a separate restart-oriented scenario and is not evidence that a fresh 35,000-step run has been numerically validated.",
+    "Runtime acceleration and performance tuning are outside this profile's correctness claim."
+  ]
+}

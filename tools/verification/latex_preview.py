@@ -41,7 +41,12 @@ def sanitize_for_mathtext(latex_line: str) -> str:
         (r"\\,", " "),
     ]
     for pat, rep in replacements:
-        s = re.sub(pat, rep, s)
+        if r"\1" in rep:
+            s = re.sub(pat, rep, s)
+        else:
+            # Regex replacement strings interpret backslashes as escapes.
+            # Preserve LaTeX commands literally when no capture is needed.
+            s = re.sub(pat, lambda _match, value=rep: value, s)
     # Display-style fractions look better in preview
     if r"\frac" in s and not s.lstrip().startswith(r"\displaystyle"):
         s = r"\displaystyle " + s

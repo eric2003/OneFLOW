@@ -201,6 +201,7 @@ class ContractCatalogTest(unittest.TestCase):
                 "codes/global/src/Iteration.cpp",
                 "codes/global/include/Ctrl.h",
                 "codes/global/include/Iteration.h",
+                "codes/multigrid/src/Multigrid.cpp",
             },
         )
         self.assertEqual(len(summary.evidence), 1)
@@ -212,6 +213,37 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\n".join(issues))
 
+    def test_global_time_step_seeds_previous_step_interval(self) -> None:
+        source_path = (
+            self.repository_root
+            / "codes"
+            / "global"
+            / "src"
+            / "Ctrl.cpp"
+        )
+        source = source_path.read_text(encoding="utf-8")
+        initialization = source.split(
+            'pdt = GetDataValue< Real >( "global_dt" );', 1
+        )[1]
+        self.assertIn("pdt1 = pdt;", initialization.split("maxTime", 1)[0])
+
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "parameter"
+            / "global_time_step.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        self.assertTrue(
+            any("pdt changes" in item for item in definition["claims"]["does_not_prove"])
+        )
+        self.assertIn(
+            "codes/unsteady/src/TimeIntegration.cpp",
+            definition["implementation"]["source_paths"],
+        )
+
     def test_parameter_cfl_ramp_contract_records_source_and_test_links(self) -> None:
         definition_path = (
             self.repository_root / "tools" / "verification" / "contracts"
@@ -221,8 +253,8 @@ class ContractCatalogTest(unittest.TestCase):
         summary = adapt_declared_contract(definition)
 
         self.assertEqual(summary.id, "parameter/cfl-ramp")
-        self.assertEqual(summary.group_id, "run_control")
-        self.assertEqual(summary.group_title, "Run Control")
+        self.assertEqual(summary.group_id, "time_stepping")
+        self.assertEqual(summary.group_title, "Time stepping")
         self.assertIn("codes/ns/include/TimeStepPolicy.h", summary.implementation_paths)
         self.assertEqual(len(summary.evidence), 9)
         self.assertTrue(
@@ -238,6 +270,47 @@ class ContractCatalogTest(unittest.TestCase):
         )
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\\n".join(issues))
+
+    def test_dual_time_index_parameter_contract_records_optional_default(self) -> None:
+        path = (
+            self.repository_root / "tools" / "verification" / "contracts"
+            / "parameter" / "dual_time_index.json"
+        )
+        definition = json.loads(path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+        self.assertEqual(summary.id, "parameter/dual-time-index")
+        self.assertEqual(summary.parameter_key, "idualtime")
+        self.assertEqual(summary.group_id, "time_stepping")
+        self.assertIn("default to zero", summary.overview)
+        self.assertTrue(summary.parameter_knowledge.formulas)
+        self.assertEqual(
+            validate_contract_summaries(self.repository_root, [summary]), []
+        )
+
+    def test_time_step_strategy_and_global_step_have_independent_contracts(self) -> None:
+        summaries, issues = load_contract_catalog(self.repository_root)
+        self.assertEqual(issues, (), "\\n".join(issues))
+        parameters = {item.id: item for item in summaries if item.domain == "parameter"}
+        expected = {
+            "parameter/time-step-strategy": "timestepModel",
+            "parameter/global-time-step": "global_dt",
+        }
+        for contract_id, key in expected.items():
+            with self.subTest(contract=contract_id):
+                summary = parameters[contract_id]
+                self.assertEqual(summary.parameter_key, key)
+                self.assertEqual(summary.group_id, "time_stepping")
+                self.assertTrue(summary.parameter_knowledge.formulas)
+                if contract_id == "parameter/global-time-step":
+                    self.assertIn("MG::Run", summary.architecture)
+                    self.assertIn(
+                        "codes/multigrid/src/Multigrid.cpp",
+                        summary.implementation_paths,
+                    )
+                    self.assertTrue(
+                        any("pdt1" in item for item in summary.limitations)
+                    )
+                self.assertEqual(validate_contract_summaries(self.repository_root, [summary]), [])
 
     def test_parameter_max_steps_contract_records_stop_condition_scope(self) -> None:
         definition_path = (
@@ -286,6 +359,35 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(knowledge.formulas[2].symbols[0].oneflow_name, "mach_ref")
         self.assertIn("NASA Glenn", knowledge.references[2])
         self.assertTrue(any("Local Mach" in item for item in knowledge.caveats))
+
+    def test_time_integration_parameters_adapt_typed_knowledge(self) -> None:
+        summaries, issues = load_contract_catalog(self.repository_root)
+        self.assertEqual(issues, (), "\\n".join(issues))
+        parameters = {
+            item.id: item for item in summaries if item.domain == "parameter"
+        }
+
+        selector = parameters["parameter/time_integral"]
+        self.assertEqual(selector.parameter_key, "time_integral")
+        self.assertEqual(
+            selector.parameter_knowledge.formulas[0].id,
+            "time_integral_method_dispatch",
+        )
+        self.assertIn("MULTI_STAGE", selector.parameter_knowledge.formulas[0].plain)
+        self.assertIn("SIMPLE", selector.parameter_knowledge.formulas[0].plain)
+        self.assertIn("TimeIntegral::Simple", selector.parameter_knowledge.caveats[1])
+
+        stage_count = parameters["parameter/rk_stage"]
+        self.assertEqual(stage_count.parameter_key, "rk_stage")
+        formula = stage_count.parameter_knowledge.formulas[0]
+        self.assertEqual(formula.id, "oneflow_rk_stage_weight_schedule")
+        self.assertIn("1 / (s + 1)", formula.plain)
+        self.assertIn(
+            "codes/global/include/TimeIntegralPolicy.h",
+            stage_count.implementation_paths,
+        )
+        resolutions = resolve_contract_evidence(self.repository_root, stage_count)
+        self.assertEqual([item.status for item in resolutions], ["declared", "declared"])
 
     def test_rejects_parameter_formula_without_latex_source(self) -> None:
         definition_path = (
@@ -752,8 +854,18 @@ class ContractCatalogTest(unittest.TestCase):
             item.id: item for item in summaries if item.domain == "parameter"
         }
 
+        source_backed_parameters = {
+            contract_id: item
+            for contract_id, item in parameters.items()
+            if item.status != "proposed"
+        }
+        proposed_parameters = {
+            contract_id: item
+            for contract_id, item in parameters.items()
+            if item.status == "proposed"
+        }
         self.assertEqual(
-            set(parameters),
+            set(source_backed_parameters),
             {
                 "parameter/time_integral",
                 "parameter/rk_stage",
@@ -761,11 +873,24 @@ class ContractCatalogTest(unittest.TestCase):
                 "parameter/max-steps",
                 "parameter/max-time",
                 "parameter/cfl-ramp",
+                "parameter/dual-time-index",
+                "parameter/time-step-strategy",
+                "parameter/global-time-step",
+                "parameter/turb_cfl_ratio",
+                "parameter/rprod",
+                "parameter/max_vis_ratio",
+                "parameter/inflow_intensity",
+                "parameter/inflow_viscosity",
             },
+        )
+        self.assertGreater(len(parameters), len(source_backed_parameters))
+        self.assertTrue(
+            all(item.parameter_key for item in proposed_parameters.values()),
+            "every proposed inventory entry must retain its logical key",
         )
         self.assertEqual(parameters["parameter/max-steps"].group_id, "run_control")
         self.assertEqual(parameters["parameter/max-time"].group_id, "run_control")
-        self.assertEqual(parameters["parameter/cfl-ramp"].group_id, "run_control")
+        self.assertEqual(parameters["parameter/cfl-ramp"].group_id, "time_stepping")
         self.assertIn(
             "time_integral_rk_stage_weight",
             parameters["parameter/rk_stage"].references,
@@ -872,9 +997,35 @@ class ContractCatalogTest(unittest.TestCase):
         parameter_summaries = {
             item.id: item for item in summaries if item.domain == "parameter"
         }
-        self.assertEqual(len(parameter_summaries), 6)
-        self.assertTrue(all(item.examples for item in parameter_summaries.values()))
-        for contract_id, summary in parameter_summaries.items():
+        source_backed_parameters = {
+            contract_id: summary
+            for contract_id, summary in parameter_summaries.items()
+            if summary.status != "proposed"
+        }
+        proposed_parameters = {
+            contract_id: summary
+            for contract_id, summary in parameter_summaries.items()
+            if summary.status == "proposed"
+        }
+        self.assertEqual(len(source_backed_parameters), 14)
+        self.assertGreater(len(proposed_parameters), 0)
+        self.assertTrue(
+            all(not item.implementation_paths and not item.evidence
+                for item in proposed_parameters.values()),
+            "proposed inventory entries must not claim source or execution evidence",
+        )
+        missing_examples = [
+            contract_id
+            for contract_id, summary in source_backed_parameters.items()
+            if not summary.examples
+        ]
+        self.assertEqual(
+            missing_examples,
+            [],
+            "parameter contracts without worked examples: "
+            + ", ".join(sorted(missing_examples)),
+        )
+        for contract_id, summary in source_backed_parameters.items():
             with self.subTest(contract_id=contract_id):
                 self.assertTrue(summary.examples)
                 for example in summary.examples:
@@ -883,6 +1034,37 @@ class ContractCatalogTest(unittest.TestCase):
                     self.assertTrue(example.calculation)
                     self.assertTrue(example.result)
                     self.assertTrue(example.limitations)
+
+    def test_turbulence_parameter_contracts_preserve_audited_scope(self) -> None:
+        summaries, issues = load_contract_catalog(self.repository_root)
+        self.assertEqual(issues, (), "\\n".join(issues))
+        parameters = {
+            item.id: item for item in summaries if item.domain == "parameter"
+        }
+
+        max_viscosity = parameters["parameter/max_vis_ratio"]
+        self.assertIn("TurbCappedEddyViscosity", max_viscosity.overview)
+        self.assertIn(
+            "codes/turb/src/TurbViscosityPolicy.cpp",
+            max_viscosity.implementation_paths,
+        )
+        self.assertTrue(max_viscosity.parameter_knowledge)
+        self.assertIn("min(", max_viscosity.parameter_knowledge.formulas[0].plain)
+        evidence_resolutions = resolve_contract_evidence(
+            self.repository_root, max_viscosity
+        )
+        self.assertEqual(
+            [item.status for item in evidence_resolutions],
+            ["resolved", "resolved"],
+        )
+
+        for contract_id in (
+            "parameter/inflow_intensity",
+            "parameter/inflow_viscosity",
+        ):
+            with self.subTest(contract_id=contract_id):
+                self.assertIn("ITReGama", parameters[contract_id].principle)
+                self.assertTrue(parameters[contract_id].examples)
 
     def test_resolves_evidence_without_promoting_execution_status(self) -> None:
         from .contract_catalog import resolve_contract_evidence
