@@ -650,34 +650,36 @@ tree are related views, but they have different responsibilities:
 * The runtime database remains the authority for the values consumed by a
   particular run. A catalog definition is not itself a runtime assignment.
 
-At the current inventory checkpoint, the declared Parameter catalog contains
-14 source-audited contract entries covering 16 individual runtime keys:
+At the current inventory checkpoint, the Parameter contract directory
+contains 148 entries covering 150 individual parameter keys. The original
+14 source-audited contracts cover 16 keys (the CFL ramp contract groups
+``cflst``, ``cfled``, and ``ncfl``). A further 134 entries were added
+from a declaration inventory of five representative CFD Cases and one Grid
+Case. These new entries are deliberately marked ``proposed``: they establish
+names and functional groups in Contract Workbench, but do not claim a verified
+runtime consumer, formula, unit, default, admissible range, or numerical
+validation.
 
-* Run control: ``maxSteps``, ``maxTime``.
-* Time stepping: ``cflst``, ``cfled``, ``ncfl`` (one ramp contract),
-  ``idualtime``, ``timestepModel``, and ``global_dt``.
-* Time integration: ``time_integral`` and ``rk_stage``.
-* Flow reference: ``mach_ref``.
-* Turbulence: ``turb_cfl_ratio``, ``rprod``, and ``max_vis_ratio``.
-* Turbulence inflow: ``inflow_intensity`` and ``inflow_viscosity``.
+The inventory groups include run control, solver system, time stepping,
+output control and files, numerical methods, flow/reference conditions,
+thermodynamic state, transport properties, boundary/inflow conditions,
+physical models, turbulence, multigrid, wall distance, grid definition,
+grid formats/files, and grid partitioning. Shared task/dimension and geometry
+tolerance entries are also included. The exact runtime key spelling is
+preserved as ``parameter_key``.
 
-The count is 14 contracts, not 14 individual scalar keys: the CFL ramp
-contract represents three keys. These contracts have source-backed descriptions
-and structured examples, but their evidence status must still be read
-individually. A declared test link is not an execution result, and a worked
-example is not a CFD case validation.
-
-The Project Window classifier already contains additional groups and keys
-discovered from representative CFD and grid cases. That broader classification
-must not be confused with a complete repository-wide Parameter contract
-catalog. In particular, a key being classified in the Project Window does not
-yet guarantee that it has a dedicated Contract Workbench entry, a verified
-runtime consumer, a formula, a documented unit, or a validated default.
+This is a meaningful increase in Parameter Workbench coverage, not proof of
+repository-wide completeness. The first inventory pass is based on the
+representative Case set; it does not yet enumerate every Case manifest or every
+``GetDataValue``/optional/lazy consumer in production code. A parameter
+entry being present in the catalog does not guarantee that its consumer has
+been audited or that its formula, units, default, and valid range are known.
 Unknown declarations and array declarations must remain visible rather than
 being silently discarded.
 
 The next inventory pass must enumerate declarations from every repository
-Case manifest, not just a hand-picked sample. It must also distinguish:
+Case manifest and cross-check them against production parameter reads. It
+must also distinguish:
 
 * a key declared in a Case file;
 * a key directly read by production code;
