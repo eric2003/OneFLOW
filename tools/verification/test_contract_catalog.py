@@ -761,6 +761,11 @@ class ContractCatalogTest(unittest.TestCase):
                 "parameter/max-steps",
                 "parameter/max-time",
                 "parameter/cfl-ramp",
+                "parameter/turb_cfl_ratio",
+                "parameter/rprod",
+                "parameter/max_vis_ratio",
+                "parameter/inflow_intensity",
+                "parameter/inflow_viscosity",
             },
         )
         self.assertEqual(parameters["parameter/max-steps"].group_id, "run_control")
@@ -872,7 +877,7 @@ class ContractCatalogTest(unittest.TestCase):
         parameter_summaries = {
             item.id: item for item in summaries if item.domain == "parameter"
         }
-        self.assertEqual(len(parameter_summaries), 6)
+        self.assertEqual(len(parameter_summaries), 11)
         self.assertTrue(all(item.examples for item in parameter_summaries.values()))
         for contract_id, summary in parameter_summaries.items():
             with self.subTest(contract_id=contract_id):
