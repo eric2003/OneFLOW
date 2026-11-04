@@ -894,6 +894,48 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Full SST residual or Wilcox production branch.",
         ),
 
+
+        TheoryEntry(
+            id="sst_cross_diff_wilcox",
+            family="turbulence",
+            genus="SST",
+            section="source / cross diffusion",
+            title="SST Wilcox cross-diffusion CD",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "CD = sigd * rho * max(crossTerm, 0) / omega"
+            ),
+            formula_latex=(
+                r"\mathrm{CD}_W=\sigma_d\rho\frac{\max(\nabla k\cdot\nabla\omega,0)}{\omega}"
+            ),
+            principle=(
+                "Wilcox cross-diffusion activates only for positive "
+                "grad-k · grad-omega and does not use the F1 blend factor."
+            ),
+            background=(
+                "Pure API SstCrossDiffWilcox in TurbSstPolicy. Alternate to "
+                "SstCrossDiffMenter."
+            ),
+            references=(
+                "Wilcox k-omega cross-diffusion; NASA TMR",
+                "doc/source/numerical/sst_cross_diff_wilcox.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_cross_diff_wilcox_theory.csv",
+            plot_module="plot_sst_cross_diff_wilcox",
+            pure_apis=("SstCrossDiffWilcox",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_cross_diff_wilcox.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "CD = sigd * density * max(cross, 0) / omega;\n"
+            ),
+            proves="Wilcox CD algebra vs pure API; negative cross clamp.",
+            does_not_prove="Full residual field or Menter/Wilcox switch logic.",
+        ),
+
         TheoryEntry(
             id="sst_cross_diff_menter",
             family="turbulence",

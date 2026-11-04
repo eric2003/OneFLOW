@@ -327,3 +327,28 @@ TEST( TurbSstPolicy, SstDisskDesInverselyScalesWithLength )
     const Real e2 = SstDisskDes( 1.0, 1.0, 4.0, 4.0 );
     EXPECT_NEAR( e1, 2.0 * e2, 1.0e-12 );
 }
+
+// Intermediate: SstCrossDiffWilcox on an omega grid.
+// Ref: sigd=0.5, rho=1, cross=2; CD = 1/omega.
+TEST( TurbSstPolicy, SstCrossDiffWilcoxCurveMatchesClosedForm )
+{
+    const Real sigd = 0.5;
+    const Real density = 1.0;
+    const Real cross = 2.0;
+    const Real omegas[] = { 0.5, 1.0, 2.0, 4.0, 8.0 };
+    for ( Real omega : omegas )
+    {
+        EXPECT_NEAR(
+            SstCrossDiffWilcox( sigd, density, cross, omega ),
+            sigd * density * cross / omega,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstCrossDiffWilcoxClampsNegativeCrossTerm )
+{
+    EXPECT_NEAR(
+        SstCrossDiffWilcox( 0.5, 1.0, -10.0, 2.0 ),
+        0.0,
+        1.0e-12 );
+}
