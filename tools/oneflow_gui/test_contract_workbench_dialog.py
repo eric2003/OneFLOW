@@ -412,10 +412,22 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 for index in range(dialog.contract_list.count())
                 if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
             }
-            self.assertEqual(visible_ids, {
-                "parameter/time_integral", "parameter/rk_stage", "parameter/mach_ref",
-                "parameter/max-steps", "parameter/max-time", "parameter/cfl-ramp"
-            })
+            self.assertEqual(
+                visible_ids,
+                {
+                    "parameter/time_integral",
+                    "parameter/rk_stage",
+                    "parameter/mach_ref",
+                    "parameter/max-steps",
+                    "parameter/max-time",
+                    "parameter/cfl-ramp",
+                    "parameter/turb_cfl_ratio",
+                    "parameter/rprod",
+                    "parameter/max_vis_ratio",
+                    "parameter/inflow_intensity",
+                    "parameter/inflow_viscosity",
+                },
+            )
         finally:
             dialog.close()
 
