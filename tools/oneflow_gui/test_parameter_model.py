@@ -161,6 +161,7 @@ class ParameterModelTest(unittest.TestCase):
         repository_root = Path(__file__).resolve().parents[2]
         case_paths = (
             Path("test/cfd/plateuns2dslau2"),
+            Path("test/cfd/plateuns2dslau2_34950_35000"),
             Path("test/cfd/turbplateuns2droe_sa"),
             Path("test/cfd/rae2822_roe_sa"),
             Path("test/cfd/m6wingroe_sa"),
