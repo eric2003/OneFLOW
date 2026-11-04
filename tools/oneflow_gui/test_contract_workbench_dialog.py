@@ -276,7 +276,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
-    def test_parameter_without_audited_consumer_is_not_labelled_unused(self) -> None:
+    def test_max_time_parameter_shows_audited_runtime_consumer(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
         try:
             row = next(
@@ -286,8 +286,17 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             )
             dialog.contract_list.setCurrentRow(row)
             consumer_text = dialog.runtime_consumers_view.toPlainText()
-            self.assertIn("No audited runtime consumer is registered", consumer_text)
-            self.assertIn("does not prove that the parameter is unused", consumer_text)
+            self.assertIn("Parameter: maxTime", consumer_text)
+            self.assertIn("Ctrl::Init", consumer_text)
+            self.assertIn('GetDataValue<Real>("maxTime")', consumer_text)
+            self.assertIn("SimuIterState::Running", consumer_text)
+            self.assertIn("references resolved", consumer_text)
+            implementation_paths = {
+                dialog.implementation_file_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.implementation_file_list.count())
+            }
+            self.assertIn("codes/global/src/Ctrl.cpp", implementation_paths)
+            self.assertIn("codes/global/src/Iteration.cpp", implementation_paths)
         finally:
             dialog.close()
 
