@@ -237,7 +237,7 @@ class ContractCatalogTest(unittest.TestCase):
         )
         definition = json.loads(definition_path.read_text(encoding="utf-8"))
         self.assertTrue(
-            any("variable-step" in item for item in definition["claims"]["does_not_prove"])
+            any("pdt changes" in item for item in definition["claims"]["does_not_prove"])
         )
         self.assertIn(
             "codes/unsteady/src/TimeIntegration.cpp",
