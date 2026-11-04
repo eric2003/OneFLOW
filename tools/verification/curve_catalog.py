@@ -182,6 +182,48 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+        TheoryEntry(
+            id="sa_limited_diffusion",
+            family="turbulence",
+            genus="SA",
+            section="source / limited diffusion",
+            title="SA limited diffusion",
+            role_tags=("turbulence", "SA", "source"),
+            formula_plain=(
+                "D_lim = min(rprod * P, Diff)"
+            ),
+            formula_latex=(
+                r"D_{\mathrm{lim}}=\min(r_p P,\,D_{\mathrm{diff}})"
+            ),
+            principle=(
+                "Caps the non-conservative diffusion contribution relative to "
+                "production to improve robustness."
+            ),
+            background=(
+                "Pure API SaLimitedDiffusion in TurbSaPolicy. Upstream: "
+                "SaDiffusion, SaProduction. Downstream: SaSourceResidual."
+            ),
+            references=(
+                "Spalart-Allmaras implementation practice; NASA TMR SA",
+                "doc/source/numerical/sa_limited_diffusion.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_limited_diffusion_theory.csv",
+            plot_module="plot_sa_limited_diffusion",
+            pure_apis=("SaLimitedDiffusion",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_limited_diffusion.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "D_lim = min(rprod * P, Diff);\n"
+            ),
+            proves="Limiter algebra vs pure API; composition with SaDiffusion.",
+            does_not_prove="Full SA residual field on a wall-bounded case.",
+        ),
+
         TheoryEntry(
             id="sa_diffusion",
             family="turbulence",

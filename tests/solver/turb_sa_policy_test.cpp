@@ -285,3 +285,27 @@ TEST( TurbSaPolicy, SaDiffusionLinearInInvReynolds )
         2.0 * SaDiffusion( 1.3, 0.25, 0.5 ),
         1.0e-12 );
 }
+
+// Intermediate: SaLimitedDiffusion on a diffusion grid.
+// Ref: rprod=0.5, P=0.4 => cap=0.2.
+TEST( TurbSaPolicy, SaLimitedDiffusionCurveMatchesClosedForm )
+{
+    const Real rprod = 0.5;
+    const Real production = 0.4;
+    const Real cap = rprod * production;
+    const Real diffs[] = { 0.0, 0.05, 0.1, 0.2, 0.4, 1.0 };
+    for ( Real d : diffs )
+    {
+        EXPECT_NEAR(
+            SaLimitedDiffusion( d, rprod, production ),
+            ( d < cap ? d : cap ),
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaLimitedDiffusionUsesSaDiffusionInput )
+{
+    const Real raw = SaDiffusion( 1.3, 0.25, 0.5 ); // 0.1625
+    // rprod*P = 0.5*0.1 = 0.05 < 0.1625 => limited to 0.05
+    EXPECT_NEAR( SaLimitedDiffusion( raw, 0.5, 0.1 ), 0.05, 1.0e-12 );
+}
