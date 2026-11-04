@@ -101,9 +101,17 @@ class ParameterModelTest(unittest.TestCase):
                     'string flowFile = "restart/flow.dat";\n'
                     'string flowInputRoot = "default";\n'
                     "int inflowType = 0;\n"
+                    "int manufacturedInflowType = 1;\n"
+                    "Real inflowVelocity = 0.5;\n"
+                    "Real inflow_intensity = 0.5;\n"
+                    "Real inflow_viscosity = 0.01;\n"
                     "Real twall_dim = 300.0;\n"
                     "Real gama_ref = 1.4;\n"
                     "Real prl = 0.72;\n"
+                    "int numberOfMinimumSubIterationSteps = 1;\n"
+                    "int numberOfMaximumSubIterationSteps = 2;\n"
+                    'string turbresFile = "results/turbres.dat";\n'
+                    'string turbflowFile = "restart/turbflow.dat";\n'
                     "int lusgsFacePressureMode = 0;\n"
                 ),
             })
@@ -115,9 +123,17 @@ class ParameterModelTest(unittest.TestCase):
                 "flowFile": "Output files",
                 "flowInputRoot": "Input and output files",
                 "inflowType": "Boundary and inflow conditions",
+                "manufacturedInflowType": "Boundary and inflow conditions",
+                "inflowVelocity": "Boundary and inflow conditions",
                 "twall_dim": "Boundary and inflow conditions",
+                "inflow_intensity": "Turbulence inflow conditions",
+                "inflow_viscosity": "Turbulence inflow conditions",
                 "gama_ref": "Thermodynamic reference state",
                 "prl": "Transport properties",
+                "numberOfMinimumSubIterationSteps": "Run control",
+                "numberOfMaximumSubIterationSteps": "Run control",
+                "turbresFile": "Output files",
+                "turbflowFile": "Output files",
                 "lusgsFacePressureMode": "Numerical methods",
             }
             for key, expected_group in expected_groups.items():
@@ -132,7 +148,10 @@ class ParameterModelTest(unittest.TestCase):
     def test_representative_case_manifests_have_no_unclassified_declarations(self):
         repository_root = Path(__file__).resolve().parents[2]
         case_paths = (
+            Path("test/cfd/plateuns2dslau2"),
+            Path("test/cfd/turbplateuns2droe_sa"),
             Path("test/cfd/rae2822_roe_sa"),
+            Path("test/cfd/m6wingroe_sa"),
             Path("test/grid/rae2822convert"),
         )
         for case_path in case_paths:
