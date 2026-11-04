@@ -226,6 +226,25 @@ _CONSUMERS = (
         ("UTimeStep::CalcGlobalTimeStep", "UTimeStep::CalcLgTimeStep"),
     ),
 
+
+    ParameterConsumer(
+        "inflow_intensity", "codes/turb/src/TurbCom.cpp", "TurbCom::Init",
+        'GetDataValue<Real>("inflow_intensity")', ConsumerReadKind.REQUIRED,
+        "Loads the turbulence inflow intensity. In the two-equation inflow initializer, a positive value sets k_e = 1.5*(0.01*intensity)^2; non-positive values use the empirical intensity fallback.",
+        "Turbulence inflow initialization for the two-equation model.",
+        "The value is read during TurbCom initialization and consumed by TurbCom::InitInflow.",
+        ("codes/turb/src/TurbCom.cpp",),
+        ("TurbCom::InitInflow",),
+    ),
+    ParameterConsumer(
+        "inflow_viscosity", "codes/turb/src/TurbCom.cpp", "TurbCom::Init",
+        'GetDataValue<Real>("inflow_viscosity")', ConsumerReadKind.REQUIRED,
+        "Loads the turbulence inflow eddy-viscosity ratio. The two-equation inflow initializer uses it to derive the reference k and omega values.",
+        "Turbulence inflow initialization for the two-equation model.",
+        "The value is read during TurbCom initialization and consumed by TurbCom::InitInflow.",
+        ("codes/turb/src/TurbCom.cpp",),
+        ("TurbCom::InitInflow",),
+    ),
     ParameterConsumer(
         "nFieldSave", "codes/global/src/Iteration.cpp", "Iteration::Init",
         'GetDataValue<int>("nFieldSave")', ConsumerReadKind.REQUIRED,
