@@ -651,14 +651,23 @@ tree are related views, but they have different responsibilities:
   particular run. A catalog definition is not itself a runtime assignment.
 
 At the current inventory checkpoint, the Parameter contract directory
-contains 148 entries covering 150 individual parameter keys. The original
+contains 150 entries covering 152 individual parameter keys. The original
 14 source-audited contracts cover 16 keys (the CFL ramp contract groups
-``cflst``, ``cfled``, and ``ncfl``). A further 134 entries were added
+``cflst``, ``cfled``, and ``ncfl``). A further 136 entries were added
 from a declaration inventory of five representative CFD Cases and one Grid
 Case. These new entries are deliberately marked ``proposed``: they establish
 names and functional groups in Contract Workbench, but do not claim a verified
 runtime consumer, formula, unit, default, admissible range, or numerical
 validation.
+
+The current directory contains 150 JSON contract definitions. The 14
+source-audited entries retain their existing source mappings and knowledge;
+the 136 proposed entries are inventory placeholders intended to make the
+full set navigable and auditable. Proposed entries intentionally have no
+fabricated implementation path or verification result. In particular,
+``gridTrans`` is represented in the catalog but its array declaration is
+still reported by the scalar Project Window parser as unsupported; catalog
+presence does not imply that the editor can safely rewrite it.
 
 The inventory groups include run control, solver system, time stepping,
 output control and files, numerical methods, flow/reference conditions,
