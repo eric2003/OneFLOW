@@ -79,6 +79,49 @@ def list_theory_entries() -> list[TheoryEntry]:
         ),
 
 
+
+        TheoryEntry(
+            id="sa_working_variable_upper_bound",
+            family="turbulence",
+            genus="SA",
+            section="update / working-variable bound",
+            title="SA working-variable upper bound",
+            role_tags=("turbulence", "SA", "update"),
+            formula_plain=(
+                "nu_max = rmax * mu_laminar / (rho * fv1)"
+            ),
+            formula_latex=(
+                r"\tilde{\nu}_{\max}"
+                r"=r_{\max}\frac{\mu_\ell}{\rho f_{v1}}"
+            ),
+            principle=(
+                "Caps the SA working variable so the implied eddy viscosity "
+                "ratio stays below a prescribed maximum."
+            ),
+            background=(
+                "Pure API SaWorkingVariableUpperBound in TurbSaPolicy. Pair "
+                "with SaNonNegativeWorkingVariable and SaUnderRelaxedUpdate."
+            ),
+            references=(
+                "SA solver robustness practice; NASA TMR SA",
+                "doc/source/numerical/sa_working_variable_upper_bound.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_working_variable_upper_bound_theory.csv",
+            plot_module="plot_sa_working_variable_upper_bound",
+            pure_apis=("SaWorkingVariableUpperBound",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_working_variable_upper_bound.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "nu_max = rmax * mu / (rho * fv1);\n"
+            ),
+            proves="Upper-bound algebra vs pure API on an fv1 grid.",
+            does_not_prove="Optimal rmax or full update pipeline on a case.",
+        ),
+
         TheoryEntry(
             id="sa_under_relaxed_update",
             family="turbulence",
