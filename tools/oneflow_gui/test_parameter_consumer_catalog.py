@@ -101,7 +101,7 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
     def test_turbulence_inflow_parameters_link_to_inflow_initialization(self):
         for key, detail in (
             ("inflow_intensity", "k_e = 1.5"),
-            ("inflow_viscosity", "eddy-viscosity ratio"),
+            ("inflow_viscosity", "eddy viscosity"),
         ):
             with self.subTest(parameter=key):
                 consumers = self.catalog.find(key)
