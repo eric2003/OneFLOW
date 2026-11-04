@@ -47,6 +47,17 @@ _CONSUMERS = (
         "Direct typed read and termination predicate are present in Iteration.cpp.",
     ),
     ParameterConsumer(
+        "maxTime", "codes/global/src/Ctrl.cpp", "Ctrl::Init",
+        'GetDataValue<Real>("maxTime")', ConsumerReadKind.REQUIRED,
+        "Loads the simulation-time stop threshold into Ctrl::maxTime and initializes "
+        "currTime to zero. SimuIterState::Running compares currTime >= maxTime when "
+        "iexitflag != 0; otherwise the outer loop uses maxSteps.",
+        "Solver run initialization; time-based outer-loop termination mode.",
+        "Direct typed read and time-threshold predicate are present in Ctrl.cpp and Iteration.cpp.",
+        ("codes/global/src/Iteration.cpp",),
+        ("SimuIterState::Running",),
+    ),
+    ParameterConsumer(
         "time_integral", "codes/global/src/Ctrl.cpp", "Ctrl::Init",
         'GetDataValue<int>("time_integral")', ConsumerReadKind.REQUIRED,
         "Stores the selected method in Ctrl::time_integral. TimeIntegral::Init dispatches MULTI_STAGE to RungeKutta and SIMPLE to Simple; all other values fall back to Lusgs. The context-aware Relaxation overload applies the same dispatch.",
