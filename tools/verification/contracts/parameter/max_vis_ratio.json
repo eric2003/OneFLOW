@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "parameter/max_vis_ratio",
+  "parameter_key": "max_vis_ratio",
+  "title": "Maximum viscosity ratio (audit pending)",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "partially_verified",
+  "overview": "A Real parameter read by TurbCom::Init. Its intended definition, downstream numerical use, units, default, and valid range have not yet been established by the current source audit.",
+  "principle": "No physical or numerical meaning is assigned from the identifier alone. The workbench records the confirmed read site while keeping downstream behavior explicitly unaudited.",
+  "architecture": "TurbCom::Init reads max_vis_ratio into the turbulence common-state object. No downstream consumer is registered in the curated catalog. This is an audit gap, not proof that the value is unused.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/turb/src/TurbCom.cpp",
+      "codes/turb/include/TurbCom.h"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "TurbCom::Init reads max_vis_ratio as Real."
+    ],
+    "does_not_prove": [
+      "The physical meaning of max_vis_ratio.",
+      "Any downstream use beyond loading into the common-state object.",
+      "Units, default, admissible range, or numerical effect."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "TurbCom::Init max_vis_ratio read",
+      "status": "declared_not_executed",
+      "scope": "Only the typed read is confirmed; semantic and downstream audit is pending."
+    }
+  ],
+  "examples": [],
+  "group": {
+    "id": "turbulence",
+    "title": "Turbulence",
+    "order": 70
+  }
+}

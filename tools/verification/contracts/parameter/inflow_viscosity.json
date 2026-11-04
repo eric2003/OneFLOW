@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "id": "parameter/inflow_viscosity",
+  "parameter_key": "inflow_viscosity",
+  "title": "Turbulence inflow eddy viscosity",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "partially_verified",
+  "overview": "Supplies the inflow eddy-viscosity quantity mutoo in the audited two-equation turbulence inflow initialization path. It participates with Reynolds number and reference density in deriving inflow turbulence variables.",
+  "principle": "The source computes k_e = mutoo * kwoo / (cmu * Reynolds * rho_ref). When positive inflow intensity is supplied, it recomputes k_e from intensity and derives kwoo from mutoo and the same reference factors.",
+  "architecture": "TurbCom::Init reads inflow_viscosity. TurbCom::InitInflow assigns mutoo = inflow_viscosity and uses it in the two-equation branch. Dimensional convention and valid range remain unresolved.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/turb/src/TurbCom.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "TurbCom::Init reads inflow_viscosity as Real.",
+      "The two-equation inflow initializer assigns mutoo = inflow_viscosity.",
+      "The initializer combines mutoo, Reynolds number, reference density, and model constants to derive inflow turbulence variables."
+    ],
+    "does_not_prove": [
+      "That the relation applies to the one-equation SA branch.",
+      "The dimensional unit convention or admissible range.",
+      "A universal default or measured boundary-condition accuracy."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "TurbCom::InitInflow",
+      "status": "declared_not_executed",
+      "scope": "Declaration linkage is not a record of execution or numerical validation."
+    }
+  ],
+  "examples": [],
+  "group": {
+    "id": "turbulence_inflow",
+    "title": "Turbulence Inflow Conditions",
+    "order": 65
+  },
+  "knowledge": {
+    "formulas": [
+      {
+        "id": "turbulence_inflow_viscosity_relation",
+        "title": "Inflow eddy-viscosity relation",
+        "role": "OneFLOW source-derived implementation relation",
+        "plain": "k_e = mutoo kwoo / (cmu Re rho_ref)",
+        "latex": "k_e = \\\\frac{\\\\mu_{t,\\\\infty} \\, k_{\\\\omega,\\\\infty}}{c_\\\\mu \\, Re \\, \\\\rho_{ref}}",
+        "assumptions": "Initial relation in the two-equation branch of TurbCom::InitInflow; positive intensity subsequently recomputes k_e and kwoo.",
+        "symbols": [
+          {
+            "symbol": "mutoo",
+            "meaning": "Configured inflow eddy-viscosity quantity.",
+            "notations": [
+              "inflow_viscosity"
+            ],
+            "oneflow_name": "inflow_viscosity",
+            "notes": "Dimensional convention is not established."
+          },
+          {
+            "symbol": "Re",
+            "meaning": "Reference Reynolds number used by the inflow initializer.",
+            "notations": [
+              "reynolds"
+            ],
+            "oneflow_name": "reynolds",
+            "notes": "Reference quantity in this expression."
+          },
+          {
+            "symbol": "rho_ref",
+            "meaning": "Reference inflow density.",
+            "notations": [
+              "ref_density"
+            ],
+            "oneflow_name": "nscom.inflow[ IDX::IR ]",
+            "notes": "Read from the flow inflow state."
+          }
+        ]
+      }
+    ],
+    "symbols": [],
+    "references": [],
+    "caveats": [
+      "The formula documents the audited source branch; it is not a universal model identity or a recommended parameter setting."
+    ]
+  }
+}

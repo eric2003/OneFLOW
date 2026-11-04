@@ -130,6 +130,24 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
             ("UTurbSpectrum::CalcUnsteadySpectrum",),
         )
 
+    def test_sa_production_limiter_parameter_links_to_policy(self):
+        consumers = self.catalog.find("rprod")
+        self.assertEqual(len(consumers), 1)
+        consumer = consumers[0]
+        self.assertEqual(consumer.symbol, "TurbCom::Init")
+        self.assertIn("min(rprod * production, diffusion)", consumer.behavior)
+        self.assertIn("TurbSaPolicy.cpp", " ".join(consumer.behavior_source_paths))
+        self.assertIn("SaLimitedDiffusion", consumer.behavior_symbols)
+
+    def test_max_vis_ratio_records_read_without_inventing_downstream_semantics(self):
+        consumers = self.catalog.find("max_vis_ratio")
+        self.assertEqual(len(consumers), 1)
+        consumer = consumers[0]
+        self.assertEqual(consumer.symbol, "TurbCom::Init")
+        self.assertIn("not yet been established", consumer.behavior)
+        self.assertEqual(consumer.behavior_source_paths, ())
+        self.assertEqual(consumer.behavior_symbols, ())
+
     def test_output_frequency_parameters_link_to_scheduler_consumers(self):
         for key, symbol in (
             ("nFieldSave", "kDumpRestartTaskName"),

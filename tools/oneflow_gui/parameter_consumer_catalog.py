@@ -255,6 +255,22 @@ _CONSUMERS = (
         ("UTurbSpectrum::CalcUnsteadySpectrum",),
     ),
     ParameterConsumer(
+        "max_vis_ratio", "codes/turb/src/TurbCom.cpp", "TurbCom::Init",
+        'GetDataValue<Real>("max_vis_ratio")', ConsumerReadKind.REQUIRED,
+        "Loads max_vis_ratio into the turbulence common-state object. The downstream numerical use and intended physical meaning have not yet been established by this audit.",
+        "Turbulence initialization; downstream effect not yet audited.",
+        "The typed read is present in TurbCom::Init; no downstream consumer is claimed here.",
+    ),
+    ParameterConsumer(
+        "rprod", "codes/turb/src/TurbCom.cpp", "TurbCom::Init",
+        'GetDataValue<Real>("rprod")', ConsumerReadKind.REQUIRED,
+        "Supplies the production multiplier in the Spalart-Allmaras limited-diffusion policy: SaLimitedDiffusion returns min(rprod * production, diffusion). The audited call is in the SA source-term path.",
+        "Spalart-Allmaras turbulence source-term assembly.",
+        "Direct typed read, call site, and policy implementation are present in TurbCom.cpp and TurbSaPolicy.cpp.",
+        ("codes/turb/src/TurbCom.cpp", "codes/turb/src/TurbSaPolicy.cpp"),
+        ("SaLimitedDiffusion",),
+    ),
+    ParameterConsumer(
         "nFieldSave", "codes/global/src/Iteration.cpp", "Iteration::Init",
         'GetDataValue<int>("nFieldSave")', ConsumerReadKind.REQUIRED,
         "Loads the field/restart output interval. Representative NS, incompressible NS, turbulence, and multigrid paths schedule restart output using outer-step or solver-specific iteration checks.",

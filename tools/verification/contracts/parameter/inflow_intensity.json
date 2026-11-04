@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "id": "parameter/inflow_intensity",
+  "parameter_key": "inflow_intensity",
+  "title": "Turbulence inflow intensity",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "partially_verified",
+  "overview": "Controls turbulence intensity used by the two-equation turbulence inflow initializer. Positive values directly set inflow turbulent kinetic energy; non-positive values select an empirical fallback.",
+  "principle": "For positive intensity I, the source computes k_e = 1.5 (0.01 I)^2. For non-positive input, it uses an empirical intensity fallback. This is an inflow condition, not the local turbulence intensity field throughout the domain.",
+  "architecture": "TurbCom::Init reads inflow_intensity. TurbCom::InitInflow uses it in the two-equation branch together with inflow_viscosity, reference density, Reynolds number, and model constants.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/turb/src/TurbCom.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "TurbCom::Init reads inflow_intensity as Real.",
+      "In the two-equation inflow branch, positive values set k_e = 1.5 * (0.01 * inflow_intensity)^2.",
+      "Non-positive values use the empirical intensity fallback."
+    ],
+    "does_not_prove": [
+      "That the same formula applies to the one-equation SA branch.",
+      "A universal unit convention, admissible range, or recommended value.",
+      "A measured inflow-boundary accuracy guarantee."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "TurbCom::InitInflow",
+      "status": "declared_not_executed",
+      "scope": "Declaration linkage is not a record of execution or numerical validation."
+    }
+  ],
+  "examples": [],
+  "group": {
+    "id": "turbulence_inflow",
+    "title": "Turbulence Inflow Conditions",
+    "order": 65
+  },
+  "knowledge": {
+    "formulas": [
+      {
+        "id": "turbulence_inflow_intensity_to_k",
+        "title": "Inflow intensity to turbulent kinetic energy",
+        "role": "OneFLOW source-derived implementation relation",
+        "plain": "k_e = 1.5 (0.01 I)^2",
+        "latex": "k_e = \\\\frac{3}{2} (0.01 I)^2",
+        "assumptions": "Positive inflow_intensity branch in TurbCom::InitInflow for the two-equation model path.",
+        "symbols": [
+          {
+            "symbol": "I",
+            "meaning": "Configured turbulence inflow intensity.",
+            "notations": [
+              "inflow_intensity"
+            ],
+            "oneflow_name": "inflow_intensity",
+            "notes": "The source multiplies by 0.01 before squaring."
+          },
+          {
+            "symbol": "k_e",
+            "meaning": "Inflow turbulent kinetic energy assigned by initialization.",
+            "notations": [
+              "k_infinity"
+            ],
+            "oneflow_name": "inflow[ IKE ]",
+            "notes": "Contextual mapping for this code path."
+          }
+        ]
+      }
+    ],
+    "symbols": [],
+    "references": [],
+    "caveats": [
+      "The formula documents the audited source branch; it is not a universal model identity or a recommended parameter setting."
+    ]
+  }
+}

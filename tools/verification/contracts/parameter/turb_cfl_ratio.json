@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "id": "parameter/turb_cfl_ratio",
+  "parameter_key": "turb_cfl_ratio",
+  "title": "Turbulence time-step ratio",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "partially_verified",
+  "overview": "Scales the per-cell turbulence time step used in the unsteady spectral contribution assembled by UTurbSpectrum::CalcUnsteadySpectrum. This is a turbulence-equation control, not the mean-flow CFL ramp.",
+  "principle": "The turbulence time-step is multiplied by turb_cfl_ratio before it enters the implicit unsteady term. In dual-time mode the physical-time contribution is added separately.",
+  "architecture": "TurbCom::Init reads the Real parameter. UTurbSpectrum::CalcUnsteadySpectrum applies it in both single-time-step and dual-time branches. It is separate from cflst/cfled/ncfl and timestepModel.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/turb/src/TurbCom.cpp",
+      "codes/uturb/src/UTurbSpectrum.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "TurbCom::Init reads turb_cfl_ratio as Real.",
+      "UTurbSpectrum::CalcUnsteadySpectrum multiplies the turbulence time step by turb_cfl_ratio in both branches.",
+      "The dual-time branch adds the physical-time contribution separately."
+    ],
+    "does_not_prove": [
+      "A universal default or admissible range.",
+      "A stability or convergence guarantee.",
+      "Measured sensitivity across all turbulence models."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "UTurbSpectrum::CalcUnsteadySpectrum",
+      "status": "declared_not_executed",
+      "scope": "Declaration linkage is not a record of execution or numerical validation."
+    }
+  ],
+  "examples": [],
+  "group": {
+    "id": "turbulence",
+    "title": "Turbulence",
+    "order": 70
+  },
+  "knowledge": {
+    "formulas": [
+      {
+        "id": "turbulence_unsteady_spectrum_scaling",
+        "title": "Turbulence unsteady spectrum scaling",
+        "role": "OneFLOW source-derived implementation relation",
+        "plain": "dt_scaled = dt_turb * turb_cfl_ratio; S = (sp2 / dt_scaled) V",
+        "latex": "\\\\Delta t_s = \\\\Delta t_{turb} \\\\, r_{turb}\\nS = \\\\frac{sp_2}{\\\\Delta t_s} V",
+        "assumptions": "Single-time-step branch in UTurbSpectrum::CalcUnsteadySpectrum.",
+        "symbols": [
+          {
+            "symbol": "r_turb",
+            "meaning": "Turbulence time-step scaling ratio.",
+            "notations": [
+              "turb_cfl_ratio"
+            ],
+            "oneflow_name": "turb_cfl_ratio",
+            "notes": "Default and range are not established."
+          },
+          {
+            "symbol": "V",
+            "meaning": "Cell volume.",
+            "notations": [
+              "cell volume"
+            ],
+            "oneflow_name": "ug.cvol",
+            "notes": "Multiplies the implicit unsteady contribution."
+          }
+        ]
+      }
+    ],
+    "symbols": [],
+    "references": [],
+    "caveats": [
+      "The formula documents the audited source branch; it is not a universal model identity or a recommended parameter setting."
+    ]
+  }
+}

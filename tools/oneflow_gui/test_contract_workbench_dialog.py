@@ -244,6 +244,38 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_turbulence_parameters_are_registered_in_parameter_contract_workbench(self):
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            expected = {
+                "parameter/turb_cfl_ratio": ("Parameter: turb_cfl_ratio", "UTurbSpectrum::CalcUnsteadySpectrum"),
+                "parameter/rprod": ("Parameter: rprod", "SaLimitedDiffusion"),
+                "parameter/inflow_intensity": ("Parameter: inflow_intensity", "TurbCom::InitInflow"),
+                "parameter/inflow_viscosity": ("Parameter: inflow_viscosity", "TurbCom::InitInflow"),
+            }
+            for contract_id, expected_text in expected.items():
+                with self.subTest(contract=contract_id):
+                    row = next(
+                        index for index in range(dialog.contract_list.count())
+                        if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole) == contract_id
+                    )
+                    dialog.contract_list.setCurrentRow(row)
+                    consumer_text = dialog.runtime_consumers_view.toPlainText()
+                    self.assertIn(expected_text[0], consumer_text)
+                    self.assertIn(expected_text[1], consumer_text)
+                    self.assertTrue(dialog.implementation_file_list.count())
+                    self.assertTrue(dialog.implementation_view.toPlainText().strip())
+
+            max_vis_row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole) == "parameter/max_vis_ratio"
+            )
+            dialog.contract_list.setCurrentRow(max_vis_row)
+            self.assertIn("Parameter: max_vis_ratio", dialog.runtime_consumers_view.toPlainText())
+            self.assertIn("downstream numerical use", dialog.runtime_consumers_view.toPlainText())
+        finally:
+            dialog.close()
+
     def test_parameter_without_audited_consumer_is_not_labelled_unused(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
         try:
