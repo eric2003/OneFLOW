@@ -6,9 +6,9 @@
   "domain": "parameter",
   "kind": "runtime_parameter",
   "status": "partially_verified",
-  "overview": "Controls turbulence intensity used by the two-equation turbulence inflow initializer. Positive values directly set inflow turbulent kinetic energy; non-positive values select an empirical fallback.",
-  "principle": "For positive intensity I, the source computes k_e = 1.5 (0.01 I)^2. For non-positive input, it uses an empirical intensity fallback. This is an inflow condition, not the local turbulence intensity field throughout the domain.",
-  "architecture": "TurbCom::Init reads inflow_intensity. TurbCom::InitInflow uses it in the two-equation branch together with inflow_viscosity, reference density, Reynolds number, and model constants.",
+  "overview": "Controls the turbulence intensity used by the transition-model inflow initializer. In the ITReGama branch, positive values set inflow turbulent kinetic energy from the source-scaled intensity; non-positive values use an empirical fallback based on the initial k-omega state.",
+  "principle": "Only when transition_model == ITReGama, positive I selects k_e = 1.5 * (0.01 I)^2. Non-positive I retains the viscosity/Reynolds-based k_e and obtains TUoo from trans.CalcIntensity. This is an inflow initialization branch, not a domain-wide turbulence-intensity field.",
+  "architecture": "TurbCom::Init reads inflow_intensity. TurbCom::InitInflow consumes it only inside the ITReGama branch; positive values also recompute the initialized omega-like variable using inflow_viscosity, cmu, Reynolds number, and reference density.",
   "references": [],
   "implementation": {
     "source_paths": [
@@ -23,12 +23,13 @@
   "claims": {
     "proves": [
       "TurbCom::Init reads inflow_intensity as Real.",
-      "In the two-equation inflow branch, positive values set k_e = 1.5 * (0.01 * inflow_intensity)^2.",
-      "Non-positive values use the empirical intensity fallback."
+      "TurbCom::InitInflow tests inflow_intensity only inside the ITReGama transition-inflow branch.",
+      "For positive intensity in that branch, the source sets k_e = 1.5 * (0.01 * inflow_intensity)^2.",
+      "For non-positive intensity in that branch, the source uses trans.CalcIntensity(1.0, keoo) as the empirical fallback."
     ],
     "does_not_prove": [
-      "That the same formula applies to the one-equation SA branch.",
-      "A universal unit convention, admissible range, or recommended value.",
+      "That this parameter controls inflow for every turbulence model or the non-transition two-equation branch.",
+      "A universal external unit convention, admissible range, or recommended value.",
       "A measured inflow-boundary accuracy guarantee."
     ]
   },
@@ -40,7 +41,15 @@
       "scope": "Declaration linkage is not a record of execution or numerical validation."
     }
   ],
-  "examples": [],
+  "examples": [
+    {
+      "title": "Positive transition-inflow intensity to k (worked arithmetic)",
+      "input": "transition_model = ITReGama; inflow_intensity = 0.5.",
+      "calculation": "The positive-intensity branch evaluates k_e = 3/2 * (0.01 * 0.5)^2 = 1.5 * 0.005^2 = 0.0000375.",
+      "result": "The initialized inflow turbulent kinetic energy is k_e = 3.75e-5 in the source's working units. The branch then recomputes the omega-like inflow variable using inflow_viscosity and the reference factors.",
+      "limitations": "This is a hand calculation of the ITReGama source branch, not a solver run. The 0.01 scaling is recorded as implemented; no universal unit convention, valid range, or boundary-condition accuracy is inferred."
+    }
+  ],
   "group": {
     "id": "turbulence_inflow",
     "title": "Turbulence Inflow Conditions",
@@ -54,7 +63,7 @@
         "role": "OneFLOW source-derived implementation relation",
         "plain": "k_e = 1.5 (0.01 I)^2",
         "latex": "k_e = \\frac{3}{2} (0.01 I)^2",
-        "assumptions": "Positive inflow_intensity branch in TurbCom::InitInflow for the two-equation model path.",
+        "assumptions": "Positive inflow_intensity branch inside transition_model == ITReGama in TurbCom::InitInflow; this is not the general two-equation initialization branch.",
         "symbols": [
           {
             "symbol": "I",
@@ -80,7 +89,8 @@
     "symbols": [],
     "references": [],
     "caveats": [
-      "The formula documents the audited source branch; it is not a universal model identity or a recommended parameter setting."
+      "The formula is conditional on the ITReGama inflow branch and positive input.",
+      "The source multiplies the configured value by 0.01; this record does not infer a universal external unit convention or recommended value."
     ]
   }
 }

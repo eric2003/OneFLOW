@@ -42,7 +42,15 @@
       "scope": "Declaration linkage is not a record of execution or numerical validation."
     }
   ],
-  "examples": [],
+  "examples": [
+    {
+      "title": "SA limited-diffusion selection (matches the pure-policy test)",
+      "input": "Diffusion contribution D = 0.4; rprod = 0.5; production contribution P = 0.3.",
+      "calculation": "The production-based candidate is rprod * P = 0.5 * 0.3 = 0.15. SaLimitedDiffusion returns min(0.15, 0.4) = 0.15.",
+      "result": "The limited diffusion contribution is 0.15. If D = 0.1 with the same rprod and P, the policy instead returns 0.1.",
+      "limitations": "These are arithmetic checks of the SA helper relation, consistent with TurbSaPolicy.SaLimitedDiffusionSelectsTheSmallerContribution. They are not a full transport-equation or CFD run, and do not establish applicability to SST, a recommended value, or a valid range."
+    }
+  ],
   "group": {
     "id": "turbulence",
     "title": "Turbulence",

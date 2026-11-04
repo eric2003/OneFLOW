@@ -503,22 +503,24 @@ that every solver and every output backend has identical scheduling semantics.
 
 Turbulence inflow inputs have a separate functional group from general
 turbulence-model controls. ``TurbCom::Init`` reads ``inflow_intensity`` and
-``inflow_viscosity``; ``TurbCom::InitInflow`` consumes them in the
-two-equation inflow path. A positive intensity sets
+``inflow_viscosity``. Their audited consumer is the
+``transition_model == ITReGama`` branch inside ``TurbCom::InitInflow``,
+not every two-equation turbulence initialization path. In that branch,
+``inflow_viscosity`` supplies ``mutoo``; the initializer first forms
+``k_e = mutoo * kwoo / (cmu * Re * rho_ref)``. For positive
+``inflow_intensity``, it replaces ``k_e`` with
 
 .. math::
 
    k_e = \frac{3}{2}\,(0.01 I)^2
 
-where ``I`` is ``inflow_intensity``. The implementation scales the
-configured value by ``0.01`` before squaring it. A non-positive intensity
-takes the empirical fallback path instead. The formula is specific to the
-positive-intensity branch of the two-equation inflow initializer; it does not
-establish a universal turbulence-intensity unit convention or a recommended
-input value. ``inflow_viscosity`` is used as the input
-eddy viscosity ``mutoo`` to derive the reference ``k`` and ``omega`` values
-with Reynolds number and reference density. This behavior is specific to the
-two-equation branch; it should not be generalized to every turbulence model.
+and recomputes ``kwoo = k_e * (cmu * Re * rho_ref) / mutoo`.
+For non-positive intensity it keeps the initial viscosity-based ``k_e``
+and obtains the empirical intensity through ``trans.CalcIntensity``.
+The source's ``0.01`` scaling is recorded literally; this does not establish
+a universal external unit convention, valid range, or recommended value.
+The non-transition two-equation initialization follows a separate
+``ref_sst``/default path.
 
 The consumer catalog now links both keys to the direct typed reads and the
 ``TurbCom::InitInflow`` implementation. This is code-path evidence, not a
@@ -578,9 +580,39 @@ by the SA source assembly. This documents the implementation relation only.
 The current audit does not establish a recommended value, admissible range,
 or applicability to SST and other turbulence models.
 
-The ``max_vis_ratio`` input is also read by ``TurbCom::Init``, but its
-downstream numerical use and intended meaning have not yet been established.
-It is registered in the Parameter Contract Workbench as partially verified
-so that the confirmed read remains discoverable without presenting an
-unverified interpretation as fact. Units, default, range, and downstream
-consumers remain open audit items.
+The ``max_vis_ratio`` input is read by ``TurbCom::Init`` and passed
+through ``TurbSrcFlux`` to both the SA and SST eddy-viscosity calculations.
+The shared ``TurbCappedEddyViscosity`` policy returns
+
+.. math::
+
+   \mu_t = \min(\mu_{t,\mathrm{uncapped}}, r_{\mu,\max} \mu_l),
+
+where ``r_{\mu,\max}`` is ``max_vis_ratio`` and ``\mu_l`` is
+the local laminar viscosity. Pure-policy tests cover applying the cap and
+preserving an uncapped value below it. These tests do not establish a
+recommended value, admissible range, or end-to-end CFD accuracy.
+
+
+Parameter worked examples and evidence scope
+--------------------------------------------
+
+Each parameter contract now carries at least one structured worked example
+with an explicit input, calculation, result, and limitations. The examples
+are explanatory source-derived arithmetic or pure-policy checks, not
+completed CFD case executions. In particular:
+
+* ``turb_cfl_ratio`` demonstrates how the scaled turbulence time step
+  changes the implicit unsteady spectrum coefficient;
+* ``rprod`` follows the minimum-selection rule in
+  ``SaLimitedDiffusion`` and its pure-policy unit test;
+* ``max_vis_ratio`` follows the shared SA/SST eddy-viscosity cap and its
+  pure-policy tests;
+* ``inflow_intensity`` and ``inflow_viscosity`` are restricted to the
+  audited ``ITReGama`` transition-inflow branch.
+
+A worked example is explanatory evidence only. A linked test declaration,
+a hand calculation, a parsed parameter value, and a full solver run are
+different evidence types and must not be promoted into one another. Parameter
+defaults, valid ranges, dimensional conventions, and case-level sensitivity
+remain open wherever the contract explicitly says they are not yet verified.

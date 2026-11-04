@@ -6,9 +6,9 @@
   "domain": "parameter",
   "kind": "runtime_parameter",
   "status": "partially_verified",
-  "overview": "Supplies the inflow eddy-viscosity quantity mutoo in the audited two-equation turbulence inflow initialization path. It participates with Reynolds number and reference density in deriving inflow turbulence variables.",
-  "principle": "The source computes k_e = mutoo * kwoo / (cmu * Reynolds * rho_ref). When positive inflow intensity is supplied, it recomputes k_e from intensity and derives kwoo from mutoo and the same reference factors.",
-  "architecture": "TurbCom::Init reads inflow_viscosity. TurbCom::InitInflow assigns mutoo = inflow_viscosity and uses it in the two-equation branch. Dimensional convention and valid range remain unresolved.",
+  "overview": "Supplies mutoo, the inflow eddy-viscosity quantity used by the ITReGama transition-inflow initializer. It sets the initial k relation and, when positive inflow_intensity is supplied, participates in deriving the omega-like inflow variable.",
+  "principle": "Inside transition_model == ITReGama, the initializer starts with kwoo = 1 and mutoo = inflow_viscosity, then forms k_e = mutoo * kwoo / (cmu * Re * rho_ref). If inflow_intensity is positive, k_e is replaced by the intensity formula and kwoo is recomputed as k_e * (cmu * Re * rho_ref) / mutoo.",
+  "architecture": "TurbCom::Init reads inflow_viscosity. TurbCom::InitInflow assigns mutoo = inflow_viscosity only in the ITReGama transition-inflow branch. The non-transition two-equation initialization uses a separate default/ref_sst path; do not conflate these paths.",
   "references": [],
   "implementation": {
     "source_paths": [
@@ -23,11 +23,12 @@
   "claims": {
     "proves": [
       "TurbCom::Init reads inflow_viscosity as Real.",
-      "The two-equation inflow initializer assigns mutoo = inflow_viscosity.",
-      "The initializer combines mutoo, Reynolds number, reference density, and model constants to derive inflow turbulence variables."
+      "Inside the ITReGama branch, TurbCom::InitInflow assigns mutoo = inflow_viscosity.",
+      "The initial k_e is computed from mutoo, kwoo, cmu, Reynolds number, and reference density.",
+      "For positive inflow_intensity, the initializer recomputes kwoo from the intensity-derived k_e and the same reference factors."
     ],
     "does_not_prove": [
-      "That the relation applies to the one-equation SA branch.",
+      "That inflow_viscosity controls the non-transition two-equation branch, which uses a separate ref_sst/default initialization path.",
       "The dimensional unit convention or admissible range.",
       "A universal default or measured boundary-condition accuracy."
     ]
@@ -40,7 +41,15 @@
       "scope": "Declaration linkage is not a record of execution or numerical validation."
     }
   ],
-  "examples": [],
+  "examples": [
+    {
+      "title": "Transition-inflow viscosity with positive intensity (worked algebra)",
+      "input": "transition_model = ITReGama; inflow_viscosity = 0.01; inflow_intensity = 0.5; define Q = cmu * Reynolds * rho_ref = 100 for this illustrative arithmetic.",
+      "calculation": "The intensity branch gives k_e = 3.75e-5. It then computes kwoo = k_e * Q / mutoo = 3.75e-5 * 100 / 0.01 = 0.375. Without positive intensity, the initial relation would instead give k_e = mutoo / Q = 0.01 / 100 = 1.0e-4 with kwoo = 1.",
+      "result": "For the stated illustrative factors, the positive-intensity branch yields k_e = 3.75e-5 and kwoo = 0.375; the fallback initialization starts from k_e = 1.0e-4 and kwoo = 1.",
+      "limitations": "Q is an explicitly illustrative product, not a measured case value. This is hand arithmetic for the ITReGama branch, not a solver run. Units, valid range, and the physical suitability of the chosen values remain unverified."
+    }
+  ],
   "group": {
     "id": "turbulence_inflow",
     "title": "Turbulence Inflow Conditions",
@@ -54,7 +63,7 @@
         "role": "OneFLOW source-derived implementation relation",
         "plain": "k_e = mutoo kwoo / (cmu Re rho_ref)",
         "latex": "k_e = \\frac{\\mu_{t,\\infty} \\, k_{\\omega,\\infty}}{c_\\mu \\, Re \\, \\rho_{ref}}",
-        "assumptions": "Initial relation in the two-equation branch of TurbCom::InitInflow; positive intensity subsequently recomputes k_e and kwoo.",
+        "assumptions": "ITReGama transition-inflow branch in TurbCom::InitInflow; kwoo starts at 1 and positive inflow_intensity subsequently overwrites k_e and recomputes kwoo.",
         "symbols": [
           {
             "symbol": "mutoo",
@@ -89,7 +98,8 @@
     "symbols": [],
     "references": [],
     "caveats": [
-      "The formula documents the audited source branch; it is not a universal model identity or a recommended parameter setting."
+      "The relation is conditional on ITReGama transition-inflow initialization.",
+      "The code's dimensional convention for inflow_viscosity and the admissible input range are not established by this source relation."
     ]
   }
 }

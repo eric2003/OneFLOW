@@ -41,7 +41,15 @@
       "scope": "Declaration linkage is not a record of execution or numerical validation."
     }
   ],
-  "examples": [],
+  "examples": [
+    {
+      "title": "Single-time-step turbulence spectrum scaling (worked arithmetic)",
+      "input": "Cell turbulence time step = 0.02; turb_cfl_ratio = 0.5; sp2 = 1; cell volume V = 2.",
+      "calculation": "The scaled turbulence time step is ts = 0.02 * 0.5 = 0.01. The single-time-step branch assembles S = (sp2 / ts) * V = (1 / 0.01) * 2 = 200.",
+      "result": "The illustrative implicit unsteady contribution for this cell is 200 in the source's assembled coefficient units.",
+      "limitations": "This evaluates the source expression only. The time-step, integration coefficient, and cell volume are illustrative inputs; it does not execute the solver, establish a recommended ratio, or prove stability/convergence."
+    }
+  ],
   "group": {
     "id": "turbulence",
     "title": "Turbulence",

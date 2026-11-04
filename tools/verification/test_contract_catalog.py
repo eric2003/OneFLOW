@@ -878,7 +878,17 @@ class ContractCatalogTest(unittest.TestCase):
             item.id: item for item in summaries if item.domain == "parameter"
         }
         self.assertEqual(len(parameter_summaries), 11)
-        self.assertTrue(all(item.examples for item in parameter_summaries.values()))
+        missing_examples = [
+            contract_id
+            for contract_id, summary in parameter_summaries.items()
+            if not summary.examples
+        ]
+        self.assertEqual(
+            missing_examples,
+            [],
+            "parameter contracts without worked examples: "
+            + ", ".join(sorted(missing_examples)),
+        )
         for contract_id, summary in parameter_summaries.items():
             with self.subTest(contract_id=contract_id):
                 self.assertTrue(summary.examples)
@@ -888,6 +898,30 @@ class ContractCatalogTest(unittest.TestCase):
                     self.assertTrue(example.calculation)
                     self.assertTrue(example.result)
                     self.assertTrue(example.limitations)
+
+    def test_turbulence_parameter_contracts_preserve_audited_scope(self) -> None:
+        summaries, issues = load_contract_catalog(self.repository_root)
+        self.assertEqual(issues, [], "\\n".join(issues))
+        parameters = {
+            item.id: item for item in summaries if item.domain == "parameter"
+        }
+
+        max_viscosity = parameters["parameter/max_vis_ratio"]
+        self.assertIn("TurbCappedEddyViscosity", max_viscosity.overview)
+        self.assertIn(
+            "codes/turb/src/TurbViscosityPolicy.cpp",
+            max_viscosity.implementation_paths,
+        )
+        self.assertTrue(max_viscosity.parameter_knowledge)
+        self.assertIn("min(", max_viscosity.parameter_knowledge.formulas[0].plain)
+
+        for contract_id in (
+            "parameter/inflow_intensity",
+            "parameter/inflow_viscosity",
+        ):
+            with self.subTest(contract_id=contract_id):
+                self.assertIn("ITReGama", parameters[contract_id].principle)
+                self.assertTrue(parameters[contract_id].examples)
 
     def test_resolves_evidence_without_promoting_execution_status(self) -> None:
         from .contract_catalog import resolve_contract_evidence

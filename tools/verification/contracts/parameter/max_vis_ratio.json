@@ -2,18 +2,22 @@
   "schema_version": 1,
   "id": "parameter/max_vis_ratio",
   "parameter_key": "max_vis_ratio",
-  "title": "Maximum viscosity ratio (audit pending)",
+  "title": "Maximum eddy-viscosity ratio",
   "domain": "parameter",
   "kind": "runtime_parameter",
   "status": "partially_verified",
-  "overview": "A Real parameter read by TurbCom::Init. Its intended definition, downstream numerical use, units, default, and valid range have not yet been established by the current source audit.",
-  "principle": "No physical or numerical meaning is assigned from the identifier alone. The workbench records the confirmed read site while keeping downstream behavior explicitly unaudited.",
-  "architecture": "TurbCom::Init reads max_vis_ratio into the turbulence common-state object. No downstream consumer is registered in the curated catalog. This is an audit gap, not proof that the value is unused.",
+  "overview": "Caps the modeled eddy viscosity relative to the local laminar viscosity through the shared TurbCappedEddyViscosity policy. The cap is used by the audited SA and SST eddy-viscosity calculations.",
+  "principle": "The source policy returns mu_t = min(mu_t_uncapped, max_vis_ratio * mu_l). The ratio is dimensionless when both viscosities use the same convention. This is a numerical upper bound, not a turbulence-model closure formula.",
+  "architecture": "TurbCom::Init reads max_vis_ratio. TurbSrcFlux passes it into both SaComputeEddyViscosity and SstComputeEddyViscosity; each uses TurbCappedEddyViscosity from TurbViscosityPolicy.cpp. The shared policy is also directly unit-tested.",
   "references": [],
   "implementation": {
     "source_paths": [
       "codes/turb/src/TurbCom.cpp",
-      "codes/turb/include/TurbCom.h"
+      "codes/turb/src/TurbSrcFlux.cpp",
+      "codes/turb/src/TurbSaPolicy.cpp",
+      "codes/turb/src/TurbSstPolicy.cpp",
+      "codes/turb/src/TurbViscosityPolicy.cpp",
+      "codes/turb/include/TurbViscosityPolicy.h"
     ]
   },
   "documentation": {
@@ -23,26 +27,101 @@
   },
   "claims": {
     "proves": [
-      "TurbCom::Init reads max_vis_ratio as Real."
+      "TurbCom::Init reads max_vis_ratio as Real.",
+      "The SA and SST cell-viscosity paths pass max_vis_ratio to the shared viscosity-cap policy.",
+      "TurbCappedEddyViscosity returns min(eddyViscosity, laminarViscosity * maxViscosityRatio).",
+      "The shared policy has unit tests for applying the cap and preserving values below the cap."
     ],
     "does_not_prove": [
-      "The physical meaning of max_vis_ratio.",
-      "Any downstream use beyond loading into the common-state object.",
-      "Units, default, admissible range, or numerical effect."
+      "A universally recommended value or admissible range for every flow and turbulence model.",
+      "That the selected cap is physically appropriate for every mesh, Reynolds number, or turbulence closure.",
+      "A stability, convergence, or accuracy guarantee for a complete CFD simulation."
     ]
   },
   "verification": [
     {
-      "kind": "pure_api",
-      "reference": "TurbCom::Init max_vis_ratio read",
-      "status": "declared_not_executed",
-      "scope": "Only the typed read is confirmed; semantic and downstream audit is pending."
+      "kind": "google_test",
+      "reference": "TurbViscosityPolicy.CapsEddyViscosityAtLaminarRatio",
+      "status": "linked_not_executed",
+      "scope": "tests/solver/turb_viscosity_policy_test.cpp; pure shared-policy test; catalog linkage is not a record that this test ran in the current session."
+    },
+    {
+      "kind": "google_test",
+      "reference": "TurbViscosityPolicy.PreservesEddyViscosityBelowLaminarRatio",
+      "status": "linked_not_executed",
+      "scope": "tests/solver/turb_viscosity_policy_test.cpp; pure shared-policy test; catalog linkage is not a record that this test ran in the current session."
     }
   ],
-  "examples": [],
+  "examples": [
+    {
+      "title": "Apply the maximum eddy-viscosity ratio cap (matches the pure-policy test)",
+      "input": "Uncapped eddy viscosity mu_t = 100; laminar viscosity mu_l = 2; max_vis_ratio = 10.",
+      "calculation": "The cap is mu_t,max = 2 * 10 = 20. The policy returns min(100, 20) = 20.",
+      "result": "The returned eddy viscosity is 20. If the uncapped value is 5 with the same laminar viscosity and ratio, the policy preserves 5 because it is below the cap.",
+      "limitations": "This is the shared algebraic policy tested by TurbViscosityPolicy. It does not determine an appropriate max_vis_ratio for a physical case or establish full SA/SST solution accuracy."
+    }
+  ],
   "group": {
     "id": "turbulence",
     "title": "Turbulence",
     "order": 70
+  },
+  "knowledge": {
+    "formulas": [
+      {
+        "id": "maximum_eddy_viscosity_ratio",
+        "title": "Eddy-viscosity ratio cap",
+        "role": "OneFLOW source-derived shared policy relation",
+        "plain": "mu_t = min(mu_t_uncapped, max_vis_ratio * mu_l)",
+        "latex": "\\mu_t = \\min\\left(\\mu_{t,\\mathrm{uncapped}}, r_{\\mu,\\max} \\mu_l\\right)",
+        "assumptions": "Applied after the uncapped SA or SST eddy viscosity has been computed; both viscosity inputs use the same source convention.",
+        "symbols": [
+          {
+            "symbol": "mu_t",
+            "meaning": "Capped modeled eddy viscosity.",
+            "notations": [
+              "eddy viscosity",
+              "turbulent dynamic viscosity"
+            ],
+            "oneflow_name": "vist",
+            "notes": "The returned value is stored as the turbulent viscosity field."
+          },
+          {
+            "symbol": "mu_t,uncapped",
+            "meaning": "Modeled eddy viscosity before the ratio cap.",
+            "notations": [
+              "uncapped eddy viscosity"
+            ],
+            "oneflow_name": "result.uncappedEddyViscosity",
+            "notes": "Computed by the selected turbulence closure."
+          },
+          {
+            "symbol": "r_mu,max",
+            "meaning": "Configured maximum ratio of modeled to laminar viscosity.",
+            "notations": [
+              "max_vis_ratio",
+              "maximum eddy viscosity ratio"
+            ],
+            "oneflow_name": "max_vis_ratio",
+            "notes": "The cap is dimensionless when both viscosities share units."
+          },
+          {
+            "symbol": "mu_l",
+            "meaning": "Local laminar viscosity.",
+            "notations": [
+              "laminar viscosity",
+              "molecular viscosity"
+            ],
+            "oneflow_name": "visl",
+            "notes": "Used as the scale for the upper bound."
+          }
+        ]
+      }
+    ],
+    "symbols": [],
+    "references": [],
+    "caveats": [
+      "The cap is a numerical policy shared by the audited SA and SST paths; a test of the policy does not establish a recommended case value or end-to-end CFD accuracy."
+    ]
   }
 }
