@@ -90,7 +90,9 @@ these manifests is assigned to ``Other / Unclassified``. It also pins selected
 functional distinctions: turbulence inflow inputs are separated from model
 controls; physical inflow and wall thermal conditions remain separate from
 turbulence inflow; output cadence is separate from result/restart filenames;
-and solver sub-iteration limits remain run-control parameters.
+solver sub-iteration limits remain run-control parameters; and all ``mg*``
+settings, including turbulence-viscosity switches and factors, are grouped
+under ``Multigrid`` rather than split across physics groups.
 
 This is a growing representative corpus, not a claim that all ``test/`` cases,
 all optional solver modes, or all legacy configuration files have been
