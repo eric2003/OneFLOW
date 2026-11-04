@@ -278,3 +278,29 @@ TEST( TurbSstPolicy, SstProdkVorticitySubtractsDivergenceTerm )
         -4.0,
         1.0e-12 );
 }
+
+// Intermediate: SstProdwWilcox on a Pk grid.
+// Ref: alphaw=0.52, omega=2, k=1; Pw = 1.04 * Pk.
+TEST( TurbSstPolicy, SstProdwWilcoxCurveMatchesClosedForm )
+{
+    const Real alphaw = 0.52;
+    const Real omega = 2.0;
+    const Real k = 1.0;
+    const Real pks[] = { 0.0, 0.5, 1.0, 2.0, 5.0 };
+    for ( Real pk : pks )
+    {
+        EXPECT_NEAR(
+            SstProdwWilcox( alphaw, omega, k, pk ),
+            alphaw * omega / k * pk,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstProdwWilcoxLinearInOmegaOverK )
+{
+    // double omega => double Pw at fixed Pk
+    EXPECT_NEAR(
+        SstProdwWilcox( 0.52, 4.0, 1.0, 1.0 ),
+        2.0 * SstProdwWilcox( 0.52, 2.0, 1.0, 1.0 ),
+        1.0e-12 );
+}
