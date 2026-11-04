@@ -653,6 +653,48 @@ def list_theory_entries() -> list[TheoryEntry]:
         # ========== SST ==========
 
 
+
+        TheoryEntry(
+            id="sst_density_scaled_update",
+            family="turbulence",
+            genus="SST",
+            section="update / density-scaled increment",
+            title="SST density-scaled update",
+            role_tags=("turbulence", "SST", "update"),
+            formula_plain=(
+                "q = q0 + deltaQ / density"
+            ),
+            formula_latex=(
+                r"q=q_0+\Delta q/\rho"
+            ),
+            principle=(
+                "Converts a density-weighted residual increment into a "
+                "primitive-variable update for k or omega."
+            ),
+            background=(
+                "Pure API SstDensityScaledUpdate in TurbSstPolicy. Often "
+                "followed by SstFloorOmega / SstFloorKineticEnergy."
+            ),
+            references=(
+                "SST solver update practice",
+                "doc/source/numerical/sst_density_scaled_update.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_density_scaled_update_theory.csv",
+            plot_module="plot_sst_density_scaled_update",
+            pure_apis=("SstDensityScaledUpdate",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_density_scaled_update.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "q = q0 + deltaQ / density;\n"
+            ),
+            proves="Density-scaled update algebra vs pure API on a deltaQ grid.",
+            does_not_prove="Full nonlinear update / floor interaction on a case.",
+        ),
+
         TheoryEntry(
             id="sst_floor_omega",
             family="turbulence",

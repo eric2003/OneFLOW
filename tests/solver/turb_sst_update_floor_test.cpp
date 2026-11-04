@@ -45,3 +45,27 @@ TEST( SstUpdateFloor, SstFloorOmegaNeverBelowFloor )
     EXPECT_GE( SstFloorOmega( -1.0, 0.05 ), 0.05 );
     EXPECT_GE( SstFloorOmega( 0.0, 0.05 ), 0.05 );
 }
+
+// Intermediate: SstDensityScaledUpdate on a deltaQ grid.
+// Ref: q0=1, density=2; q = 1 + deltaQ/2.
+TEST( SstUpdateFloor, SstDensityScaledUpdateCurveMatchesClosedForm )
+{
+    const Real q0 = 1.0;
+    const Real density = 2.0;
+    const Real dqs[] = { -4.0, -1.0, 0.0, 2.0, 4.0 };
+    for ( Real dq : dqs )
+    {
+        EXPECT_NEAR(
+            SstDensityScaledUpdate( q0, dq, density ),
+            q0 + dq / density,
+            1.0e-12 );
+    }
+}
+
+TEST( SstUpdateFloor, SstDensityScaledUpdateInverselyScalesWithDensity )
+{
+    EXPECT_NEAR(
+        SstDensityScaledUpdate( 0.0, 4.0, 1.0 ),
+        2.0 * SstDensityScaledUpdate( 0.0, 4.0, 2.0 ),
+        1.0e-12 );
+}
