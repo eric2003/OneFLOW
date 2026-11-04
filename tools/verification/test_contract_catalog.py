@@ -854,8 +854,13 @@ class ContractCatalogTest(unittest.TestCase):
             item.id: item for item in summaries if item.domain == "parameter"
         }
 
+        source_backed_parameters = {
+            contract_id: item
+            for contract_id, item in parameters.items()
+            if item.status != "proposed"
+        }
         self.assertEqual(
-            set(parameters),
+            set(source_backed_parameters),
             {
                 "parameter/time_integral",
                 "parameter/rk_stage",
@@ -872,6 +877,11 @@ class ContractCatalogTest(unittest.TestCase):
                 "parameter/inflow_intensity",
                 "parameter/inflow_viscosity",
             },
+        )
+        self.assertGreater(len(parameters), len(source_backed_parameters))
+        self.assertTrue(
+            all(item.parameter_key for item in parameters.values()),
+            "every parameter catalog entry must retain its logical key",
         )
         self.assertEqual(parameters["parameter/max-steps"].group_id, "run_control")
         self.assertEqual(parameters["parameter/max-time"].group_id, "run_control")
@@ -982,10 +992,26 @@ class ContractCatalogTest(unittest.TestCase):
         parameter_summaries = {
             item.id: item for item in summaries if item.domain == "parameter"
         }
-        self.assertEqual(len(parameter_summaries), 14)
+        source_backed_parameters = {
+            contract_id: summary
+            for contract_id, summary in parameter_summaries.items()
+            if summary.status != "proposed"
+        }
+        proposed_parameters = {
+            contract_id: summary
+            for contract_id, summary in parameter_summaries.items()
+            if summary.status == "proposed"
+        }
+        self.assertEqual(len(source_backed_parameters), 14)
+        self.assertGreater(len(proposed_parameters), 0)
+        self.assertTrue(
+            all(not item.implementation_paths and not item.evidence
+                for item in proposed_parameters.values()),
+            "proposed inventory entries must not claim source or execution evidence",
+        )
         missing_examples = [
             contract_id
-            for contract_id, summary in parameter_summaries.items()
+            for contract_id, summary in source_backed_parameters.items()
             if not summary.examples
         ]
         self.assertEqual(
@@ -994,7 +1020,7 @@ class ContractCatalogTest(unittest.TestCase):
             "parameter contracts without worked examples: "
             + ", ".join(sorted(missing_examples)),
         )
-        for contract_id, summary in parameter_summaries.items():
+        for contract_id, summary in source_backed_parameters.items():
             with self.subTest(contract_id=contract_id):
                 self.assertTrue(summary.examples)
                 for example in summary.examples:
