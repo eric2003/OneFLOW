@@ -25,5 +25,40 @@ F_1=\tanh(arg_1^4)
             self.assertTrue(out.is_file())
 
 
+    def test_parameter_contract_latex_uses_single_command_escapes(self) -> None:
+        import json
+
+        contracts_root = (
+            Path(__file__).resolve().parent
+            / "contracts"
+            / "parameter"
+        )
+        for contract_name in ("inflow_intensity", "inflow_viscosity", "rprod"):
+            with self.subTest(contract=contract_name):
+                definition = json.loads(
+                    (contracts_root / f"{contract_name}.json").read_text(
+                        encoding="utf-8"
+                    )
+                )
+                formulas = definition["knowledge"]["formulas"]
+                self.assertTrue(formulas)
+                if contract_name == "inflow_intensity":
+                    self.assertEqual(
+                        formulas[0]["latex"],
+                        r"k_e = \\frac{3}{2} (0.01 I)^2",
+                    )
+                for formula in formulas:
+                    latex = formula["latex"]
+                    self.assertNotIn(
+                        "\\\\", latex,
+                        "LaTeX commands must start with one backslash.",
+                    )
+                    with tempfile.TemporaryDirectory() as td:
+                        output = Path(td) / "formula.png"
+                        render_latex_preview_png(latex, output)
+                        self.assertTrue(output.is_file())
+                        self.assertGreater(output.stat().st_size, 0)
+
+
 if __name__ == "__main__":
     unittest.main()

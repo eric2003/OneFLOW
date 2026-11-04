@@ -55,7 +55,7 @@
         "title": "SA limited-diffusion policy",
         "role": "OneFLOW source-derived implementation relation",
         "plain": "diff_limited = min(rprod * production, diffusion)",
-        "latex": "D_{lim} = \\\\min(r_{prod} P, D)",
+        "latex": "D_{lim} = \\min(r_{prod} P, D)",
         "assumptions": "Exact algebraic policy implemented by SaLimitedDiffusion.",
         "symbols": [
           {

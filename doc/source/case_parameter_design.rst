@@ -508,10 +508,14 @@ two-equation inflow path. A positive intensity sets
 
 .. math::
 
-   k_e = 1.5\,(0.01 I)^2
+   k_e = \frac{3}{2}\,(0.01 I)^2
 
-where ``I`` is ``inflow_intensity``. A non-positive intensity takes the
-empirical fallback path instead. ``inflow_viscosity`` is used as the input
+where ``I`` is ``inflow_intensity``. The implementation scales the
+configured value by ``0.01`` before squaring it. A non-positive intensity
+takes the empirical fallback path instead. The formula is specific to the
+positive-intensity branch of the two-equation inflow initializer; it does not
+establish a universal turbulence-intensity unit convention or a recommended
+input value. ``inflow_viscosity`` is used as the input
 eddy viscosity ``mutoo`` to derive the reference ``k`` and ``omega`` values
 with Reynolds number and reference density. This behavior is specific to the
 two-equation branch; it should not be generalized to every turbulence model.

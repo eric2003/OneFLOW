@@ -53,7 +53,7 @@
         "title": "Inflow eddy-viscosity relation",
         "role": "OneFLOW source-derived implementation relation",
         "plain": "k_e = mutoo kwoo / (cmu Re rho_ref)",
-        "latex": "k_e = \\\\frac{\\\\mu_{t,\\\\infty} \\, k_{\\\\omega,\\\\infty}}{c_\\\\mu \\, Re \\, \\\\rho_{ref}}",
+        "latex": "k_e = \\frac{\\mu_{t,\\infty} \\, k_{\\omega,\\infty}}{c_\\mu \\, Re \\, \\rho_{ref}}",
         "assumptions": "Initial relation in the two-equation branch of TurbCom::InitInflow; positive intensity subsequently recomputes k_e and kwoo.",
         "symbols": [
           {
