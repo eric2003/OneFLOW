@@ -275,6 +275,7 @@ The Qt-independent parameter_consumer_catalog.py records a small set of source-l
 The initial audited keys are:
 
 * maxSteps — required read in Iteration::Init. It initializes the iteration limit; SimuIterState::Running applies it when iexitflag == 0.
+* maxTime — required read in Ctrl::Init. It initializes the simulation-time threshold and currTime; SimuIterState::Running applies it when iexitflag != 0, as the alternative to maxSteps.
 * time_integral — required reads in Ctrl::Init and NsCtrl::Init. These are distinct initialization paths, not duplicate declarations.
 * mach_ref — required read in NsCom::Init and used with gama_ref to derive const_cp.
 * vismodel — required read in VisModel::Init. The selected model subsequently gates viscous/turbulence validation and wall-distance behavior.
