@@ -32,24 +32,23 @@ F_1=\tanh(arg_1^4)
             / "contracts"
             / "parameter"
         )
-        for contract_name in ("inflow_intensity", "inflow_viscosity", "rprod"):
+        for contract_path in sorted(contracts_root.glob("*.json")):
+            contract_name = contract_path.stem
             with self.subTest(contract=contract_name):
                 definition = json.loads(
-                    (contracts_root / f"{contract_name}.json").read_text(
-                        encoding="utf-8"
-                    )
+                    contract_path.read_text(encoding="utf-8")
                 )
-                formulas = definition["knowledge"]["formulas"]
-                self.assertTrue(formulas)
-                if contract_name == "inflow_intensity":
-                    self.assertEqual(
-                        formulas[0]["latex"],
-                        r"k_e = \frac{3}{2} (0.01 I)^2",
-                    )
+                formulas = definition.get("knowledge", {}).get("formulas", [])
                 for formula in formulas:
                     latex = formula["latex"]
+                    if contract_name == "inflow_intensity":
+                        self.assertEqual(
+                            latex,
+                            r"k_e = \frac{3}{2} (0.01 I)^2",
+                        )
                     self.assertNotIn(
-                        "\\\\", latex,
+                        "\\\\",
+                        latex,
                         "LaTeX commands must start with one backslash.",
                     )
                     with tempfile.TemporaryDirectory() as td:
