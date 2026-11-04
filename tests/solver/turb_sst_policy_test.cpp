@@ -253,3 +253,28 @@ TEST( TurbSstPolicy, SstProdkStrainOnlyLinearInEddyViscosity )
         2.0 * SstProdkStrainOnly( 2.0, 3.0, 0.5 ),
         1.0e-12 );
 }
+
+// Intermediate: SstProdkVorticity on a vorticity-squared grid (div=0).
+// Ref: mut=2, invRe=1, rho=1, k=1, div=0; Pk = 2 * W2.
+TEST( TurbSstPolicy, SstProdkVorticityCurveMatchesClosedForm )
+{
+    const Real mut = 2.0;
+    const Real invRe = 1.0;
+    const Real w2s[] = { 0.0, 0.5, 1.0, 2.0, 4.0 };
+    for ( Real w2 : w2s )
+    {
+        EXPECT_NEAR(
+            SstProdkVorticity( mut, w2, invRe, 1.0, 1.0, 0.0 ),
+            mut * w2 * invRe,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstProdkVorticitySubtractsDivergenceTerm )
+{
+    // mut=0, div=3, rho=1, k=2 => Pk = -2/3 * 1 * 2 * 3 = -4
+    EXPECT_NEAR(
+        SstProdkVorticity( 0.0, 0.0, 1.0, 1.0, 2.0, 3.0 ),
+        -4.0,
+        1.0e-12 );
+}

@@ -432,6 +432,50 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+        TheoryEntry(
+            id="sst_prodk_vorticity",
+            family="turbulence",
+            genus="SST",
+            section="source / k production",
+            title="SST vorticity-based k production Pk",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "Pk = mut * Omega2 * invRe - 2/3 * rho * k * div"
+            ),
+            formula_latex=(
+                r"P_k=\mu_t\Omega^{2}/\mathrm{Re}"
+                r"-\tfrac23\rho k(\nabla\cdot u)"
+            ),
+            principle=(
+                "Production estimated from vorticity magnitude instead of "
+                "strain rate, with the same divergence correction as the "
+                "Boussinesq form."
+            ),
+            background=(
+                "Pure API SstProdkVorticity in TurbSstPolicy. Third Pk option "
+                "alongside Boussinesq and strain-only."
+            ),
+            references=(
+                "SST production-option variants; NASA TMR SST",
+                "doc/source/numerical/sst_prodk_vorticity.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_prodk_vorticity_theory.csv",
+            plot_module="plot_sst_prodk_vorticity",
+            pure_apis=("SstProdkVorticity",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_prodk_vorticity.rst",
+            code_sketch=(
+                "// GATED SKETCH div=0\n"
+                "Pk = mut * Omega2 * invRe;\n"
+            ),
+            proves="Vorticity Pk algebra vs pure API; divergence sample.",
+            does_not_prove="Which production option is best for a case.",
+        ),
+
         TheoryEntry(
             id="sst_prodk_strain_only",
             family="turbulence",
