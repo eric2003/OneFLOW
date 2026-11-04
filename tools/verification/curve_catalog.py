@@ -652,6 +652,48 @@ def list_theory_entries() -> list[TheoryEntry]:
         ),
         # ========== SST ==========
 
+
+        TheoryEntry(
+            id="sst_floor_omega",
+            family="turbulence",
+            genus="SST",
+            section="update / positivity floor",
+            title="SST omega floor",
+            role_tags=("turbulence", "SST", "update"),
+            formula_plain=(
+                "omega = max(omega, omega_min)"
+            ),
+            formula_latex=(
+                r"\omega\leftarrow\max(\omega,\omega_{\min})"
+            ),
+            principle=(
+                "Enforces a positive lower bound on specific dissipation to "
+                "avoid division by zero and unphysical negative values."
+            ),
+            background=(
+                "Pure API SstFloorOmega in TurbSstPolicy. Pair with "
+                "SstFloorKineticEnergy."
+            ),
+            references=(
+                "SST solver robustness practice; NASA TMR SST",
+                "doc/source/numerical/sst_floor_omega.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_floor_omega_theory.csv",
+            plot_module="plot_sst_floor_omega",
+            pure_apis=("SstFloorOmega",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_floor_omega.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "omega = max(omega, omegaMin);\n"
+            ),
+            proves="Floor algebra vs pure API on an omega grid.",
+            does_not_prove="Optimal omega_min or case stability margins.",
+        ),
+
         TheoryEntry(
             id="sst_blend",
             family="turbulence",
