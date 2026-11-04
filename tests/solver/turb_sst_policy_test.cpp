@@ -352,3 +352,30 @@ TEST( TurbSstPolicy, SstCrossDiffWilcoxClampsNegativeCrossTerm )
         0.0,
         1.0e-12 );
 }
+
+// Intermediate: SstBlend on an F1 grid.
+// Ref: v1=4, v2=8; blend = 8 - 4*F1.
+TEST( TurbSstPolicy, SstBlendCurveMatchesClosedForm )
+{
+    const Real v1 = 4.0;
+    const Real v2 = 8.0;
+    const Real f1s[] = { 0.0, 0.25, 0.5, 0.75, 1.0 };
+    for ( Real f1 : f1s )
+    {
+        EXPECT_NEAR(
+            SstBlend( f1, v1, v2 ),
+            f1 * v1 + ( 1.0 - f1 ) * v2,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstBlendIsConvexCombination )
+{
+    // for F1 in [0,1], blend stays between endpoints
+    for ( Real f1 : { 0.1, 0.5, 0.9 } )
+    {
+        const Real b = SstBlend( f1, 4.0, 8.0 );
+        EXPECT_GE( b, 4.0 );
+        EXPECT_LE( b, 8.0 );
+    }
+}

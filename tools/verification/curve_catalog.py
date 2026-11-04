@@ -608,6 +608,49 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Mesh residual or experiment.",
         ),
         # ========== SST ==========
+
+        TheoryEntry(
+            id="sst_blend",
+            family="turbulence",
+            genus="SST",
+            section="closure / coefficient blend",
+            title="SST coefficient blend",
+            role_tags=("turbulence", "SST", "closure"),
+            formula_plain=(
+                "phi = F1 * phi1 + (1 - F1) * phi2"
+            ),
+            formula_latex=(
+                r"\phi=F_1\phi_1+(1-F_1)\phi_2"
+            ),
+            principle=(
+                "Convex combination of inner (Wilcox/k-omega) and outer "
+                "(k-epsilon) model coefficients driven by the F1 blending "
+                "function."
+            ),
+            background=(
+                "Pure API SstBlend in TurbSstPolicy. Used for beta, sigma, "
+                "alpha_w and related SST constants."
+            ),
+            references=(
+                "Menter SST (1994); NASA TMR SST",
+                "doc/source/numerical/sst_blend.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_blend_theory.csv",
+            plot_module="plot_sst_blend",
+            pure_apis=("SstBlend",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_blend.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "phi = F1 * phi1 + (1 - F1) * phi2;\n"
+            ),
+            proves="Blend algebra and convexity on an F1 grid.",
+            does_not_prove="F1 construction accuracy or full residual field.",
+        ),
+
         TheoryEntry(
             id="sst_f1",
             family="turbulence",
