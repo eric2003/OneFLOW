@@ -430,6 +430,49 @@ def list_theory_entries() -> list[TheoryEntry]:
         ),
 
 
+
+        TheoryEntry(
+            id="sst_prodk_boussinesq",
+            family="turbulence",
+            genus="SST",
+            section="source / k production",
+            title="SST Boussinesq k production Pk",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "Pk = mut * (S2 - 2/3 div^2) / Re - 2/3 * rho * k * div"
+            ),
+            formula_latex=(
+                r"P_k=\mu_t\bigl(S^{2}-\tfrac23(\nabla\cdot u)^{2}\bigr)/\mathrm{Re}"
+                r"-\tfrac23\rho k(\nabla\cdot u)"
+            ),
+            principle=(
+                "Boussinesq production from eddy viscosity and mean strain, "
+                "with divergence corrections for compressible flow."
+            ),
+            background=(
+                "Pure API SstProdkBoussinesq in TurbSstPolicy. Alternatives: "
+                "SstProdkStrainOnly, SstProdkVorticity. Downstream: SstLimitProdk."
+            ),
+            references=(
+                "Menter SST; standard Boussinesq production forms",
+                "doc/source/numerical/sst_prodk_boussinesq.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_prodk_boussinesq_theory.csv",
+            plot_module="plot_sst_prodk_boussinesq",
+            pure_apis=("SstProdkBoussinesq",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_prodk_boussinesq.rst",
+            code_sketch=(
+                "// GATED SKETCH div=0\n"
+                "Pk = mut * S2 * invRe;\n"
+            ),
+            proves="Boussinesq Pk algebra vs pure API; divergence sample.",
+            does_not_prove="Full SST residual or limiter interaction on a case.",
+        ),
+
         TheoryEntry(
             id="sst_limit_prodk",
             family="turbulence",

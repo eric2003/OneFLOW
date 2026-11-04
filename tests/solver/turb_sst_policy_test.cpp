@@ -204,3 +204,28 @@ TEST( TurbSstPolicy, SstProdwMenterLinearInProdk )
     const Real p2 = SstProdwMenter( 0.44, 1.0, 0.1, 2.0, 1.0 );
     EXPECT_NEAR( p2, 2.0 * p1, 1.0e-12 );
 }
+
+// Intermediate: SstProdkBoussinesq on a strain-rate-squared grid (div=0).
+// Ref: mut=2, invRe=1, rho=1, k=1, div=0; Pk = 2 * S2.
+TEST( TurbSstPolicy, SstProdkBoussinesqCurveMatchesClosedForm )
+{
+    const Real mut = 2.0;
+    const Real invRe = 1.0;
+    const Real s2s[] = { 0.0, 0.5, 1.0, 2.0, 4.0 };
+    for ( Real s2 : s2s )
+    {
+        EXPECT_NEAR(
+            SstProdkBoussinesq( mut, s2, 0.0, invRe, 1.0, 1.0 ),
+            mut * s2 * invRe,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstProdkBoussinesqSubtractsDivergenceTerm )
+{
+    // mut=0, div=3, rho=1, k=2 => Pk = -2/3 * 1 * 2 * 3 = -4
+    EXPECT_NEAR(
+        SstProdkBoussinesq( 0.0, 0.0, 3.0, 1.0, 1.0, 2.0 ),
+        -4.0,
+        1.0e-12 );
+}
