@@ -97,6 +97,21 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
         self.assertTrue(all("UTimeStep::CalcGlobalTimeStep" in item.behavior_symbols for item in global_steps))
 
 
+
+    def test_turbulence_inflow_parameters_link_to_inflow_initialization(self):
+        for key, detail in (
+            ("inflow_intensity", "k_e = 1.5"),
+            ("inflow_viscosity", "eddy-viscosity ratio"),
+        ):
+            with self.subTest(parameter=key):
+                consumers = self.catalog.find(key)
+                self.assertEqual(len(consumers), 1)
+                consumer = consumers[0]
+                self.assertEqual(consumer.source_path, "codes/turb/src/TurbCom.cpp")
+                self.assertEqual(consumer.symbol, "TurbCom::Init")
+                self.assertIn(detail, consumer.behavior)
+                self.assertIn("TurbCom::InitInflow", consumer.behavior_symbols)
+
     def test_output_frequency_parameters_link_to_scheduler_consumers(self):
         for key, symbol in (
             ("nFieldSave", "kDumpRestartTaskName"),
