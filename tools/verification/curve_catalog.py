@@ -638,6 +638,48 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+        TheoryEntry(
+            id="sst_prodw_menter",
+            family="turbulence",
+            genus="SST",
+            section="source / omega production",
+            title="SST Menter omega production Pw",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "Pw = alphaw * rho / mut * Pk * Re"
+            ),
+            formula_latex=(
+                r"P_\omega=\alpha_\omega\frac{\rho}{\mu_t}P_k\,\mathrm{Re}"
+            ),
+            principle=(
+                "Menter form converts limited k-production into omega "
+                "production using eddy viscosity scaling."
+            ),
+            background=(
+                "Pure API SstProdwMenter in TurbSstPolicy. Feeds SstSourceW. "
+                "Wilcox form SstProdwWilcox is an alternate branch."
+            ),
+            references=(
+                "Menter SST (1994); NASA TMR SST",
+                "doc/source/numerical/sst_prodw_menter.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_prodw_menter_theory.csv",
+            plot_module="plot_sst_prodw_menter",
+            pure_apis=("SstProdwMenter",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_prodw_menter.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Pw = alphaw * density / mut * Pk * reynolds;\n"
+            ),
+            proves="Menter Pw algebra vs pure API on a Pk grid.",
+            does_not_prove="Full SST residual or Wilcox production branch.",
+        ),
+
         TheoryEntry(
             id="sst_cross_diff_menter",
             family="turbulence",

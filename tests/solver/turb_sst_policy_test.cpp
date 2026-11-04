@@ -179,3 +179,28 @@ TEST( TurbSstPolicy, SstCrossDiffMenterVanishesWhenF1IsOne )
         0.0,
         1.0e-12 );
 }
+
+// Intermediate: SstProdwMenter on a Pk grid.
+// Ref: alphaw=0.44, rho=1, mut=0.1, Re=1; Pw = 4.4 * Pk.
+TEST( TurbSstPolicy, SstProdwMenterCurveMatchesClosedForm )
+{
+    const Real alphaw = 0.44;
+    const Real density = 1.0;
+    const Real mut = 0.1;
+    const Real reynolds = 1.0;
+    const Real pks[] = { 0.0, 0.5, 1.0, 2.0, 5.0 };
+    for ( Real pk : pks )
+    {
+        EXPECT_NEAR(
+            SstProdwMenter( alphaw, density, mut, pk, reynolds ),
+            alphaw * density / mut * pk * reynolds,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstProdwMenterLinearInProdk )
+{
+    const Real p1 = SstProdwMenter( 0.44, 1.0, 0.1, 1.0, 1.0 );
+    const Real p2 = SstProdwMenter( 0.44, 1.0, 0.1, 2.0, 1.0 );
+    EXPECT_NEAR( p2, 2.0 * p1, 1.0e-12 );
+}
