@@ -39,6 +39,7 @@ Mesh and engineering workflows
 * `Grid case guide <https://github.com/eric2003/OneFLOW/blob/hexin/grid/README.md>`_ — mesh cases and conversion workflows.
 * :doc:`workbench_user_guide_zh` — Chinese user guide for the optional Workbench GUI.
 * :doc:`case_parameter_design` — case parameter files and GUI editing design.
+* :doc:`engineering_nomenclature` — source-backed cross-software CFD terminology, variable aliases, units, and semantic caveats.
 * `Workbench module reference <https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md>`_ — detailed current behavior, paths, and service tests.
 
 Developer resources
@@ -53,7 +54,7 @@ Developer resources
 * :doc:`architecture_priority_roadmap` — ranked investment sequence by system-wide return, verification cost, and cross-subsystem leverage.
 * :doc:`verification_evidence_lifecycle` — how claims, tests, runs, artifacts, numerical results, and references form an auditable evidence chain.
 * `AI project context and refactoring handoff <https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_CONTEXT.md>`_ — current focus, verified findings, open gaps, and next actions for continuing work.
-* :doc:`workbench_architecture` — Workbench concepts, service boundaries, and run lifecycle.
+* :doc:`workbench_architecture` — Workbench concepts, service boundaries, run lifecycle, and shared Parameter contracts.
 * `Verification Contract Workbench proposal <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/verification-contract-workbench.md>`_ — proposed shared model for numerical, geometry, runtime, workflow, and case evidence; not yet an implementation claim.
 * `Regression test guide <https://github.com/eric2003/OneFLOW/blob/hexin/test/README.md>`_ — CFD and grid regression checks.
 * `Documentation organization plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ — document ownership and consolidation status.
@@ -150,3 +151,4 @@ The existing reference library covers programming languages, build systems, para
    :maxdepth: 1
 
    case_parameter_design
+   engineering_nomenclature

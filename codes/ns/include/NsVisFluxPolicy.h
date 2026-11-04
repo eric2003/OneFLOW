@@ -7,6 +7,10 @@ BeginNameSpace( ONEFLOW )
 // @doc-algorithm stokes-stress
 // @doc-stage tensor
 // @doc-pure
+// @doc-algorithm viscous-stress
+// @doc-stage stokes-tensor
+// @doc-pure
+// @doc-formula tau_ij = mu*(dui/dxj+duj/dxi - (2/3) d_ij div u)
 void StokesStressTensor(
     Real viscosity,
     Real dudx, Real dudy, Real dudz,
@@ -18,6 +22,10 @@ void StokesStressTensor(
 // @doc-algorithm stokes-stress
 // @doc-stage momentum-flux
 // @doc-pure
+// @doc-algorithm viscous-flux
+// @doc-stage project-stress
+// @doc-pure
+// @doc-formula f_m = tau · n
 void ProjectStressMomentumFlux(
     Real xfn, Real yfn, Real zfn,
     Real txx, Real tyy, Real tzz,
@@ -27,6 +35,10 @@ void ProjectStressMomentumFlux(
 // @doc-algorithm stokes-stress
 // @doc-stage energy-flux
 // @doc-pure
+// @doc-algorithm viscous-flux
+// @doc-stage energy
+// @doc-pure
+// @doc-formula E_vis = u·f_m + q_n
 Real ViscousEnergyFlux(
     Real u, Real v, Real w,
     Real fluxMx, Real fluxMy, Real fluxMz,
@@ -64,6 +76,7 @@ Real FaceNormalDot(
 // @doc-stage nondim-coefficient
 // @doc-pure
 // @doc-formula coeff = - (1/Re) * A
+// @doc-formula coef = -A/Re
 Real ViscousFaceFluxCoefficient( Real invReynolds, Real faceArea );
 
 // @doc-algorithm spectral-radius

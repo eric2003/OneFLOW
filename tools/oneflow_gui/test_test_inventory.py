@@ -128,6 +128,28 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             )
         )
 
+    def test_discovers_workflow_contract_and_workbench_tests(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+
+        records = discover_tests(repository_root)
+        expected = {
+            (
+                "tools/verification/test_contract_catalog.py",
+                "test_adapts_rae2822_dependency_workflow_contract",
+            ),
+            (
+                "tools/verification/test_contract_catalog.py",
+                "test_detects_workflow_definition_drift",
+            ),
+            (
+                "tools/oneflow_gui/test_contract_workbench_dialog.py",
+                "test_workflow_domain_displays_typed_graph_and_definition_navigation",
+            ),
+        }
+        discovered = {(item["source"], item["name"]) for item in records}
+
+        self.assertTrue(expected.issubset(discovered), sorted(expected - discovered))
+
     def test_discovers_verification_execution_record_tests(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
 
@@ -149,6 +171,27 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
                 item["name"] == "test_freshness_requires_exact_revision_match"
                 for item in execution_tests
             )
+        )
+
+    def test_discovers_workflow_execution_evidence_tests(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        records = discover_tests(repository_root)
+        workflow_tests = [
+            item for item in records
+            if item["source"] == "tools/oneflow_gui/test_workflow_execution_capture.py"
+        ]
+        names = {item["name"] for item in workflow_tests}
+        self.assertIn(
+            "test_captures_launched_workflow_step_with_contract_and_artifact_evidence",
+            names,
+        )
+        self.assertIn(
+            "test_does_not_record_dependency_blocked_steps_as_process_runs",
+            names,
+        )
+        self.assertIn(
+            "test_worker_preserves_source_and_staged_execution_metadata",
+            names,
         )
 
     def test_discovers_python_execution_capture_tests(self) -> None:
@@ -228,6 +271,17 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
         self.assertEqual(mapping["expected"]["outputNodeIdsUnchanged"], [[[90]]])
         self.assertIsNone(mapping["result"])
 
+
+    def test_discovers_runtime_parameter_consumer_evidence_tests(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        records = discover_tests(repository_root)
+        consumer_tests = [
+            item for item in records
+            if item["source"] == "tools/oneflow_gui/test_parameter_consumer_catalog.py"
+        ]
+        names = {item["name"] for item in consumer_tests}
+        self.assertIn("test_catalog_read_and_behavior_evidence_resolves_to_current_sources", names)
+        self.assertIn("test_rk_stage_tracks_all_solver_control_read_sites", names)
 
     def test_python_test_registry_covers_discovered_test_modules(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]

@@ -64,3 +64,36 @@ TEST( LusgsPolicy, LinearizationWeightsMoreSamples )
     EXPECT_NEAR( x1, 0.0, 1.0e-12 );
     EXPECT_NEAR( x2, 4.0 / 6.0, 1.0e-12 );
 }
+
+// Intermediate: LusgsFluxIncrementFiveEq density component on a dqRho grid.
+// Ref: lmd1=2, term1=term2=0, A=3; dfRho = 6*dqRho.
+TEST( LusgsPolicy, FluxIncrementCurveMatchesClosedForm )
+{
+    const Real dqRs[] = { -2.0, -1.0, 0.0, 0.5, 1.0, 2.0 };
+    for ( Real dqR : dqRs )
+    {
+        Real fr, fx, fy, fz, fe;
+        LusgsFluxIncrementFiveEq(
+            2.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0,
+            1.0, 0.0, 0.0, 3.0,
+            dqR, 0.0, 0.0, 0.0, 0.0,
+            fr, fx, fy, fz, fe );
+        EXPECT_NEAR( fr, 6.0 * dqR, 1.0e-12 );
+        EXPECT_NEAR( fx, 0.0, 1.0e-12 );
+    }
+}
+
+TEST( LusgsPolicy, FluxIncrementMomentumUsesNormalTerm2 )
+{
+    // lmd1=0, term1=0, term2=2, n=(1,0,0), A=1, dq=0 => dfMx = xfn*term2*A = 2
+    Real fr, fx, fy, fz, fe;
+    LusgsFluxIncrementFiveEq(
+        0.0, 0.0, 2.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        1.0, 0.0, 0.0, 1.0,
+        0.0, 0.0, 0.0, 0.0, 0.0,
+        fr, fx, fy, fz, fe );
+    EXPECT_NEAR( fx, 2.0, 1.0e-12 );
+    EXPECT_NEAR( fr, 0.0, 1.0e-12 );
+}

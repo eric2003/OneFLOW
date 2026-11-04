@@ -4,6 +4,21 @@
 
 BeginNameSpace( ONEFLOW )
 
+// @doc-algorithm cfl-ramp
+// @doc-stage iteration-cfl
+// @doc-pure
+// @doc-formula CFL(i) = CFL_start + (CFL_end - CFL_start) * i / nCFL
+// Returns CFL_end once iteration reaches the configured ramp length.
+Real CflAtIteration(
+    Real startCfl, Real endCfl, int rampSteps, int iteration );
+
+// @doc-algorithm cfl-ramp
+// @doc-stage iteration-index
+// @doc-pure
+// Selects the outer iteration for physical-time stepping and the inner
+// iteration for dual-time stepping.
+int CflIterationIndex( int outerSteps, int innerSteps, int dualTime );
+
 // @doc-algorithm spectral-radius
 // @doc-stage inviscid-face
 // @doc-pure

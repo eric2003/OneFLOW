@@ -52,6 +52,15 @@ class BackgroundTaskRegistryTest(unittest.TestCase):
         self.assertEqual(restarted_registry.load(task.task_id), task)
         self.assertEqual(restarted_registry.list_tasks(), [task])
 
+    def test_load_serializes_reads_with_registry_writes(self) -> None:
+        task = self.make_task()
+        self.registry.save(task)
+
+        with patch.object(self.registry, "_exclusive_access") as registry_lock:
+            self.assertEqual(self.registry.load(task.task_id), task)
+
+        registry_lock.assert_called_once_with()
+
     def test_save_replaces_record_without_leaving_temporary_files(self) -> None:
         task = self.make_task()
         self.registry.save(task)

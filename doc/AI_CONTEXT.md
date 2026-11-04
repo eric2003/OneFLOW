@@ -1,3 +1,114 @@
+## 2026-11-02 continuation: workflow execution evidence linkage
+
+The user reported 1156/1156 tests passing before this slice. That is a
+pre-change baseline only; do not claim the new slice passed locally.
+
+The verified `hexin` HEAD at the start of this slice was
+`d48264bfb53d2b0d442529f58d4c2be220bbdb9a`.
+
+Added an explicit `Run in workflow runner...` action to the Workflow
+Contract Workbench. It loads the checked-in RAE2822 workflow definition and
+passes the stable contract ID to the existing WorkflowDialog. It does not
+auto-run: the user must choose the executable/base directory and press Run.
+
+The workflow process worker now retains per-step command, source directory,
+working directory, timestamps, exit code, and declared output paths.
+`capture_workflow_execution` appends immutable schema-v1 ExecutionRecords
+for launched processes. It links the contract only when the runner was opened
+from that contract action. Blocked or pre-launch steps remain in
+WorkflowRunRecord history and are not fabricated as process runs. A process
+exit code of zero does not override a failed declared-output check.
+
+The existing Contract Workbench Verification view already separates linked
+from unlinked execution history and displays revision freshness. Each step
+record now carries the parent workflow run ID as an additive optional
+invocation_id, preserving stable test_id semantics and backward compatibility.
+The local record is not a signed SLSA provenance attestation. This slice
+connects actual Workflow runs to that existing view; it does not add a second
+workflow runner.
+
+Changed files:
+- `tools/oneflow_gui/execution_capture.py`
+- `tools/oneflow_gui/workflow_dialog.py`
+- `tools/oneflow_gui/contract_workbench_dialog.py`
+- `tools/oneflow_gui/test_workflow_execution_capture.py` (new)
+- `tools/oneflow_gui/test_contract_workbench_dialog.py`
+- `tools/oneflow_gui/test_test_inventory.py`
+- `tools/oneflow_gui/test_runner.py` (explicit Python unittest registry)
+- `.github/workflows/python-tools.yml`
+- `doc/plans/verification-contract-workbench.md`
+- `doc/source/workbench_architecture.rst`
+- `tools/verification/README.md`
+
+Focused validation required:
+`python -m unittest tools.oneflow_gui.test_workflow_execution_capture`
+`python -m unittest tools.oneflow_gui.test_contract_workbench_dialog`
+`python -m unittest tools.oneflow_gui.test_workflow_repository`
+`python -m unittest tools.oneflow_gui.test_workflow_graph_runner`
+`python -m unittest tools.oneflow_gui.test_test_inventory`
+
+No local test suite was run by the assistant. The 1156/1156 result
+predates these changes. The slice remains unverified until Windows focused
+and full tests pass.
+
+Next action after validation: add comparable explicit execution linkage for
+Case contracts, using the existing case database/regression runner records.
+Do not infer a contract link from matching case names or paths alone.
+
+---
+
+## 2026-11-02 continuation: first typed Workflow contract
+
+The user reported 1156/1156 tests passing before this slice. This is the
+pre-change baseline only; no local test result is claimed for the changes
+below.
+
+Inspected the actual `hexin` HEAD:
+`e8369e5b09cfab84cb88c324df3b62a6b33731df`.
+
+Added the first Workflow-domain contract using the checked-in
+`tools/oneflow_gui/examples/rae2822_multicase.json` example. The typed payload
+records the mesh producer, Roe-SA consumer, direct dependency, stable artifact
+ID, producer output path, and consumer `gridFileName` parameter binding.
+
+The Qt-independent catalog now validates safe relative paths, unique step and
+artifact IDs, producer resolution, direct dependency edges, and consistency
+between the typed payload and the checked-in workflow definition. It does not
+duplicate topological sorting or runner behavior. Those remain owned by the
+existing workflow planning and graph execution services.
+
+The Contract Workbench domain hub now exposes Workflow. Its Workflow Graph tab
+shows the declared steps and artifact bindings and provides read-only access to
+the source definition. Linked Python plan/runner tests remain
+`linked_not_executed`; no workflow or CFD execution is inferred.
+
+Changed files:
+- `tools/verification/contract_catalog.py`
+- `tools/verification/test_contract_catalog.py`
+- `tools/verification/contracts/workflow/rae2822_grid_to_solver.json`
+- `tools/oneflow_gui/contract_workbench_dialog.py`
+- `tools/oneflow_gui/test_contract_workbench_dialog.py`
+- `tools/oneflow_gui/test_test_inventory.py`
+- `doc/plans/verification-contract-workbench.md`
+- `doc/source/workbench_architecture.rst`
+
+Focused validation required:
+`python -m unittest tools.verification.test_contract_catalog`
+`python -m unittest tools.oneflow_gui.test_contract_workbench_dialog`
+`python -m unittest tools.oneflow_gui.test_workflow_plan`
+`python -m unittest tools.oneflow_gui.test_workflow_graph_runner`
+`python -m unittest tools.oneflow_gui.test_test_inventory`
+
+The assistant has not run the Windows test suite. The 1156/1156 result
+predates this slice. The workflow contract is implemented but unverified until
+these focused tests and the full suite pass on the resulting revision.
+
+Next single action: validate this slice on Windows, then add execution-record
+linkage only when a real workflow run can retain exact revision, command,
+configuration, outcome, and artifact references. Do not add a generic runner.
+
+---
+
 # AI and Developer Project Context
 
 ## 2026-11-01 continuation: first typed CFD Case contract
@@ -1368,3 +1479,16 @@ test. The contract declaration links the exact GoogleTest name as
 linked_not_executed. Static catalog resolution, CMake target declaration,
 CTest discovery, actual execution, and pass outcome remain distinct evidence
 states. The assistant has not run the user's Windows build or CTest.
+
+
+## 2026-11-03 continuation: formula preview layout and CFL ramp contract
+
+Based on the current `hexin` source after the 2026-11-02 integration slice:
+
+- Moved the Parameter Formula tab's preview below the symbol definitions, LaTeX source, and formula actions. The GUI test asserts the widget order so this remains an intentional layout contract.
+- Extracted `CflAtIteration` as a pure policy from `TimeStep::CalcCfl`. The caller still selects `outerSteps`, or `innerSteps` when `dualtime == 1`.
+- Added six focused GoogleTests for ramp start, interpolation, boundary, post-ramp behavior, descending schedules, and a zero-length ramp at iteration zero.
+- Added the `parameter/cfl-ramp` Contract Workbench entry and numerical documentation. The source trace distinguishes CFL scheduling from `global_dt`: the local branch uses CFL-scaled cell spectral radii; the global branch uses `ctrl.pdt`; the local-global branch reduces local steps to a common minimum. The supported HIP fast path is restricted to local inviscid stepping.
+- Added the CFL ramp to the Run Control group and updated the catalog and GUI search tests.
+
+Validation status: test declarations and source links are checked into the catalog, but they remain `linked_not_executed`. No local Windows/MSVC build, CTest, or Python GUI/catalog test run is claimed for this slice. The latest queried GitHub combined status and PR-associated workflow list did not yet expose checks for the exact final commit. Re-run the focused policy test, Contract Workbench/catalog tests, and full Debug CTest on the exact `hexin` revision before promoting execution evidence.

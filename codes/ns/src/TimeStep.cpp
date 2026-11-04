@@ -34,20 +34,11 @@ BeginNameSpace( ONEFLOW )
 
 void TimeStep::CalcCfl()
 {
-    int iter = Iteration::outerSteps;
+    const int iteration = CflIterationIndex(
+        Iteration::outerSteps, Iteration::innerSteps, Iteration::dualtime );
 
-    if ( Iteration::dualtime == 1 )
-    {
-        iter = Iteration::innerSteps;
-    }
-
-    Iteration::cfl = Iteration::cfled;
-
-    if ( iter < Iteration::ncfl )
-    {
-        Real delta = ( Iteration::cfled - Iteration::cflst ) / Iteration::ncfl;
-        Iteration::cfl = Iteration::cflst + delta * iter;
-    }
+    Iteration::cfl = CflAtIteration(
+        Iteration::cflst, Iteration::cfled, Iteration::ncfl, iteration );
 }
 
 void TimeStep::CalcFaceInvSpec()

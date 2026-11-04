@@ -34,6 +34,11 @@ class UserDataPaths:
         return self.root / "settings.json"
 
     @property
+    def parameter_catalog_database(self) -> Path:
+        """SQLite index and immutable snapshots of parsed case parameters."""
+        return self.root / "parameter-catalog.sqlite3"
+
+    @property
     def projects(self) -> Path:
         """Default parent for user-created projects and workspace definitions."""
         return self.root / "projects"

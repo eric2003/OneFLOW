@@ -25,6 +25,30 @@ class CatalogTest(unittest.TestCase):
         self.assertIn("SA", genera)
         self.assertIn("SST", genera)
         self.assertIn("NS-LUSGS", genera)
+        self.assertIn("Time integration", genera)
+
+    def test_time_integral_entry_documents_stage_schedule_with_theory_curve(self) -> None:
+        entry = next(
+            item for item in list_theory_entries()
+            if item.id == "time_integral_rk_stage_weight"
+        )
+
+        # After RungeKuttaStageWeight extraction, the schedule is locked by a
+        # pure-API theory curve (still not a classical Butcher tableau claim).
+        self.assertIsNotNone(entry.csv_relpath)
+        self.assertIsNotNone(entry.plot_module)
+        self.assertIn("RungeKuttaStageWeight", entry.pure_apis)
+        self.assertIn("1 / (s + 1)", entry.formula_plain)
+        self.assertIn("Butcher", entry.does_not_prove)
+        self.assertIn("codes/global/include/TimeIntegralPolicy.h", entry.source_relpaths)
+        self.assertIn("codes/solver/src/TimeIntegral.cpp", entry.source_relpaths)
+        self.assertTrue(entry.examples)
+        self.assertIn("rk_stage = 4", entry.examples[0])
+        self.assertIn("not a complete Butcher", entry.examples[0])
+    def test_representative_entries_have_worked_examples(self) -> None:
+        entries = {item.id: item for item in list_theory_entries()}
+        for entry_id in ("sa_fv1_chi", "sst_f1", "time_integral_rk_stage_weight"):
+            self.assertTrue(entries[entry_id].examples, entry_id)
 
     def test_latex_and_sketch_present(self) -> None:
         for e in list_theory_entries():

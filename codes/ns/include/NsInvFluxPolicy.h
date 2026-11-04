@@ -10,6 +10,7 @@ Real RelativeFaceNormalVelocity(
     Real xfn, Real yfn, Real zfn, Real vfn,
     Real u, Real v, Real w );
 
+// @doc-formula F = rho*vn*[1,u,H] + p*[0,n,vg]
 void EulerConvectiveFlux(
     Real rho, Real u, Real v, Real w, Real p, Real h,
     Real vnRel,
@@ -24,6 +25,7 @@ void RoeAverageWeights(
     Real densityLeft, Real densityRight,
     Real & ratio, Real & coef );
 
+// @doc-formula avg = (q_L + q_R * r) * c
 Real RoeAverageComponent(
     Real left, Real right, Real ratio, Real coef );
 

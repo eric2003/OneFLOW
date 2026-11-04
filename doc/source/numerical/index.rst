@@ -46,6 +46,8 @@ Numerical analysis is a branch of mathematics that solves continuous problems us
    turb_farfield_bc
    sa_under_relax
    lusgs_viscous_spectrum
+   time_integral_control
+   cfl_ramp
 
    viscous_spectral_radius
    viscous_spectral_radius_model1

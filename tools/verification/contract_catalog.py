@@ -9,7 +9,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 import ast
 import json
+import math
 import re
+import tokenize
 from pathlib import Path, PureWindowsPath
 from typing import Any, Iterable
 
@@ -51,6 +53,94 @@ class CaseContractData:
     residual_baseline: str
     analytical_references: tuple[str, ...]
     residual_absolute_tolerance: float
+    output_absolute_tolerance: float
+    residual_relative_tolerance: float
+    residual_nan_policy: str
+
+
+@dataclass(frozen=True)
+class WorkflowArtifactInput:
+    """A workflow step's declared artifact input binding."""
+
+    artifact_id: str
+    setting: str
+    parameter_file: str
+
+
+@dataclass(frozen=True)
+class WorkflowArtifactOutput:
+    """A workflow step's declared artifact output."""
+
+    artifact_id: str
+    path: str
+    parameter_file: str = ""
+    setting: str = ""
+
+
+@dataclass(frozen=True)
+class WorkflowStepData:
+    """One case node in a dependency workflow."""
+
+    case_id: str
+    directory: str
+    depends_on: tuple[str, ...]
+    inputs: tuple[WorkflowArtifactInput, ...]
+    outputs: tuple[WorkflowArtifactOutput, ...]
+
+
+@dataclass(frozen=True)
+class WorkflowContractData:
+    """Typed view of a declared dependency workflow."""
+
+    workflow_id: str
+    definition_path: str
+    execution_mode: str
+    steps: tuple[WorkflowStepData, ...]
+
+
+@dataclass(frozen=True)
+class ParameterSymbol:
+    """A physical symbol and its implementation-specific name mapping."""
+
+    symbol: str
+    meaning: str
+    notations: tuple[str, ...]
+    oneflow_name: str
+    notes: str
+
+
+@dataclass(frozen=True)
+class ParameterFormula:
+    """A formula with assumptions and term-level interpretation."""
+
+    id: str
+    title: str
+    role: str
+    plain: str
+    latex: str
+    assumptions: str
+    symbols: tuple[ParameterSymbol, ...]
+
+
+@dataclass(frozen=True)
+class ParameterKnowledge:
+    """Curated mathematical knowledge attached to a parameter contract."""
+
+    formulas: tuple[ParameterFormula, ...]
+    symbols: tuple[ParameterSymbol, ...]
+    references: tuple[str, ...]
+    caveats: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ContractExample:
+    """A worked parameter example with explicit input and interpretation limits."""
+
+    title: str
+    input: str
+    calculation: str
+    result: str
+    limitations: str
 
 
 @dataclass(frozen=True)
@@ -73,6 +163,13 @@ class ContractSummary:
     claims: tuple[str, ...]
     limitations: tuple[str, ...]
     case_data: CaseContractData | None = None
+    workflow_data: WorkflowContractData | None = None
+    group_id: str = ""
+    group_title: str = ""
+    group_order: int = 100
+    parameter_knowledge: ParameterKnowledge | None = None
+    examples: tuple[ContractExample, ...] = ()
+    parameter_key: str = ""
 
 
 def _non_empty_strings(values: Iterable[Any]) -> tuple[str, ...]:
@@ -202,6 +299,7 @@ def adapt_geometry_scenario(
 
 _EVIDENCE_KINDS = {
     "pure_api",
+    "workflow_definition",
     "theory_data",
     "fixture",
     "linked_test",
@@ -216,6 +314,7 @@ _EVIDENCE_KINDS = {
 
 _EVIDENCE_PATH_KINDS = {
     "theory_data",
+    "workflow_definition",
     "fixture",
     "case_suite",
     "output_manifest",
@@ -246,6 +345,153 @@ _CONTRACT_STATUSES = {
     "deprecated",
     "fixture_only",
 }
+
+
+def _safe_relative_workflow_path(value: Any, label: str) -> str:
+    """Require a relative path without parent traversal."""
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{label} must be a non-empty relative path")
+    value = value.strip()
+    path = Path(value)
+    windows_path = PureWindowsPath(value)
+    if (
+        path.is_absolute()
+        or windows_path.is_absolute()
+        or ".." in path.parts
+        or ".." in windows_path.parts
+    ):
+        raise ValueError(f"{label} must stay within its declared root")
+    return value
+
+
+def _adapt_workflow_steps(values: Any) -> tuple[WorkflowStepData, ...]:
+    """Adapt the case-graph shape used by the Workflow contract."""
+    if not isinstance(values, list) or not values:
+        raise ValueError("workflow.steps must be a non-empty array")
+    steps = []
+    for index, raw_step in enumerate(values):
+        if not isinstance(raw_step, dict):
+            raise ValueError(f"workflow.steps[{index}] must be an object")
+        case_id = raw_step.get("id")
+        if not isinstance(case_id, str) or not case_id.strip():
+            raise ValueError(f"workflow.steps[{index}].id must be non-empty")
+        directory = _safe_relative_workflow_path(
+            raw_step.get("directory"), f"workflow.steps[{index}].directory"
+        )
+        dependencies = raw_step.get("depends_on", [])
+        if not isinstance(dependencies, list) or any(
+            not isinstance(item, str) or not item.strip() for item in dependencies
+        ):
+            raise ValueError(
+                f"workflow.steps[{index}].depends_on must be an array of non-empty strings"
+            )
+        raw_inputs = raw_step.get("inputs", [])
+        raw_outputs = raw_step.get("outputs", [])
+        if not isinstance(raw_inputs, list) or not isinstance(raw_outputs, list):
+            raise ValueError(
+                f"workflow.steps[{index}].inputs and outputs must be arrays"
+            )
+        inputs = []
+        for input_index, item in enumerate(raw_inputs):
+            if not isinstance(item, dict):
+                raise ValueError(
+                    f"workflow.steps[{index}].inputs[{input_index}] must be an object"
+                )
+            artifact_id = item.get("artifact")
+            setting = item.get("setting")
+            if not isinstance(artifact_id, str) or not artifact_id.strip():
+                raise ValueError("workflow input artifact must be non-empty")
+            if not isinstance(setting, str) or not setting.strip():
+                raise ValueError("workflow input setting must be non-empty")
+            parameter_file = _safe_relative_workflow_path(
+                item.get("parameter_file"), f"workflow input {artifact_id} parameter_file"
+            )
+            inputs.append(
+                WorkflowArtifactInput(artifact_id.strip(), setting.strip(), parameter_file)
+            )
+        outputs = []
+        for output_index, item in enumerate(raw_outputs):
+            if not isinstance(item, dict):
+                raise ValueError(
+                    f"workflow.steps[{index}].outputs[{output_index}] must be an object"
+                )
+            artifact_id = item.get("id")
+            if not isinstance(artifact_id, str) or not artifact_id.strip():
+                raise ValueError("workflow output id must be non-empty")
+            artifact_path = _safe_relative_workflow_path(
+                item.get("path"), f"workflow output {artifact_id} path"
+            )
+            parameter_file = item.get("parameter_file", "")
+            setting = item.get("setting", "")
+            if bool(parameter_file) != bool(setting):
+                raise ValueError(
+                    f"workflow output {artifact_id} must declare parameter_file and setting together"
+                )
+            if parameter_file:
+                parameter_file = _safe_relative_workflow_path(
+                    parameter_file, f"workflow output {artifact_id} parameter_file"
+                )
+            if not isinstance(setting, str):
+                raise ValueError(f"workflow output {artifact_id} setting must be a string")
+            outputs.append(
+                WorkflowArtifactOutput(
+                    artifact_id.strip(), artifact_path, parameter_file, setting.strip()
+                )
+            )
+        steps.append(
+            WorkflowStepData(
+                case_id.strip(),
+                directory,
+                tuple(item.strip() for item in dependencies),
+                tuple(inputs),
+                tuple(outputs),
+            )
+        )
+    step_ids = [step.case_id for step in steps]
+    if len(set(step_ids)) != len(step_ids):
+        raise ValueError("workflow step ids must be unique")
+    if any(
+        dependency not in set(step_ids)
+        for step in steps
+        for dependency in step.depends_on
+    ):
+        raise ValueError("workflow dependency references an unknown step")
+    producers = {}
+    for step in steps:
+        for output in step.outputs:
+            if output.artifact_id in producers:
+                raise ValueError(
+                    f"workflow artifact id is declared more than once: {output.artifact_id}"
+                )
+            producers[output.artifact_id] = step.case_id
+    for step in steps:
+        for item in step.inputs:
+            producer_id = producers.get(item.artifact_id)
+            if producer_id is None:
+                raise ValueError(
+                    f"workflow input references unknown artifact: {item.artifact_id}"
+                )
+            if producer_id == step.case_id or producer_id not in step.depends_on:
+                raise ValueError(
+                    f"workflow consumer {step.case_id} must depend directly on producer {producer_id}"
+                )
+    return tuple(steps)
+
+
+def _workflow_steps_from_definition(
+    definition: dict[str, Any],
+) -> tuple[WorkflowStepData, ...]:
+    """Read the supported single case-graph block from a workflow definition."""
+    raw_steps = definition.get("steps")
+    if not isinstance(raw_steps, list):
+        raise ValueError("workflow definition steps must be an array")
+    graphs = [
+        item for item in raw_steps
+        if isinstance(item, dict) and item.get("type") == "case_graph"
+    ]
+    if len(graphs) != 1:
+        raise ValueError("workflow definition must contain exactly one case_graph step")
+    return _adapt_workflow_steps(graphs[0].get("cases"))
 
 
 def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
@@ -280,6 +526,22 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
     if status not in _CONTRACT_STATUSES:
         raise ValueError(f"unsupported contract status: {status}")
 
+    raw_group = definition.get("group", {})
+    if not isinstance(raw_group, dict):
+        raise ValueError("group must be an object")
+    group_id = raw_group.get("id", "")
+    group_title = raw_group.get("title", "")
+    group_order = raw_group.get("order", 100)
+    if definition["domain"].strip() == "parameter":
+        if not isinstance(group_id, str) or not group_id.strip():
+            raise ValueError("parameter contract requires group.id")
+        if not isinstance(group_title, str) or not group_title.strip():
+            raise ValueError("parameter contract requires group.title")
+    if not isinstance(group_id, str) or not isinstance(group_title, str):
+        raise ValueError("group.id and group.title must be strings")
+    if not isinstance(group_order, int) or isinstance(group_order, bool) or group_order < 0:
+        raise ValueError("group.order must be a non-negative integer")
+
     for section_name in ("implementation", "documentation", "claims"):
         section = definition.get(section_name, {})
         if not isinstance(section, dict):
@@ -299,6 +561,19 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
     for field_name, value in sequence_fields:
         if not isinstance(value, list):
             raise ValueError(f"{field_name} must be an array")
+
+    raw_examples = definition.get("examples", [])
+    if not isinstance(raw_examples, list):
+        raise ValueError("examples must be an array")
+    examples = []
+    for index, item in enumerate(raw_examples):
+        if not isinstance(item, dict):
+            raise ValueError(f"examples[{index}] must be an object")
+        fields = ("title", "input", "calculation", "result", "limitations")
+        for field in fields:
+            if not isinstance(item.get(field), str) or not item[field].strip():
+                raise ValueError(f"examples[{index}].{field} must be a non-empty string")
+        examples.append(ContractExample(**{field: item[field].strip() for field in fields}))
 
     evidence_items = []
     for index, item in enumerate(definition.get("verification", [])):
@@ -330,9 +605,95 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
 
     contract_id = definition["id"].strip()
     domain_prefix, separator, source_id = contract_id.partition("/")
+    raw_parameter_key = definition.get("parameter_key", "")
+    if not isinstance(raw_parameter_key, str):
+        raise ValueError("parameter_key must be a string")
+    if raw_parameter_key.strip() and definition["domain"].strip() != "parameter":
+        raise ValueError("parameter_key is only valid on parameter contracts")
+
     if not separator or not source_id or domain_prefix != definition["domain"].strip():
         raise ValueError(
             "declared contract id must be namespaced by its domain"
+        )
+
+    parameter_knowledge = None
+    raw_knowledge = definition.get("knowledge")
+    if raw_knowledge is not None:
+        if definition["domain"].strip() != "parameter":
+            raise ValueError("knowledge is currently supported only for parameter contracts")
+        if not isinstance(raw_knowledge, dict):
+            raise ValueError("knowledge must be an object")
+
+        def adapt_symbols(values: Any, label: str) -> tuple[ParameterSymbol, ...]:
+            if not isinstance(values, list):
+                raise ValueError(f"{label} must be an array")
+            result = []
+            for index, raw_symbol in enumerate(values):
+                if not isinstance(raw_symbol, dict):
+                    raise ValueError(f"{label}[{index}] must be an object")
+                for field in ("symbol", "meaning"):
+                    if not isinstance(raw_symbol.get(field), str) or not raw_symbol[field].strip():
+                        raise ValueError(f"{label}[{index}].{field} must be non-empty")
+                notations = raw_symbol.get("notations", [])
+                if not isinstance(notations, list) or any(
+                    not isinstance(item, str) or not item.strip() for item in notations
+                ):
+                    raise ValueError(f"{label}[{index}].notations must be an array of strings")
+                oneflow_name = raw_symbol.get("oneflow_name", "")
+                notes = raw_symbol.get("notes", "")
+                if not isinstance(oneflow_name, str) or not isinstance(notes, str):
+                    raise ValueError(f"{label}[{index}] oneflow_name and notes must be strings")
+                result.append(ParameterSymbol(
+                    symbol=raw_symbol["symbol"].strip(),
+                    meaning=raw_symbol["meaning"].strip(),
+                    notations=_non_empty_strings(notations),
+                    oneflow_name=oneflow_name.strip(),
+                    notes=notes.strip(),
+                ))
+            return tuple(result)
+
+        raw_formulas = raw_knowledge.get("formulas", [])
+        if not isinstance(raw_formulas, list):
+            raise ValueError("knowledge.formulas must be an array")
+        formulas = []
+        formula_ids = set()
+        for index, raw_formula in enumerate(raw_formulas):
+            if not isinstance(raw_formula, dict):
+                raise ValueError(f"knowledge.formulas[{index}] must be an object")
+            for field in ("id", "title", "role", "plain", "latex", "assumptions"):
+                if not isinstance(raw_formula.get(field), str) or not raw_formula[field].strip():
+                    raise ValueError(f"knowledge.formulas[{index}].{field} must be non-empty")
+            formula_id = raw_formula["id"].strip()
+            if formula_id in formula_ids:
+                raise ValueError(f"duplicate parameter formula id: {formula_id}")
+            formula_ids.add(formula_id)
+            formulas.append(ParameterFormula(
+                id=formula_id,
+                title=raw_formula["title"].strip(),
+                role=raw_formula["role"].strip(),
+                plain=raw_formula["plain"].strip(),
+                latex=raw_formula["latex"].strip(),
+                assumptions=raw_formula["assumptions"].strip(),
+                symbols=adapt_symbols(
+                    raw_formula.get("symbols", []),
+                    f"knowledge.formulas[{index}].symbols",
+                ),
+            ))
+        raw_references = raw_knowledge.get("references", [])
+        raw_caveats = raw_knowledge.get("caveats", [])
+        if not isinstance(raw_references, list) or any(
+            not isinstance(item, str) or not item.strip() for item in raw_references
+        ):
+            raise ValueError("knowledge.references must be an array of non-empty strings")
+        if not isinstance(raw_caveats, list) or any(
+            not isinstance(item, str) or not item.strip() for item in raw_caveats
+        ):
+            raise ValueError("knowledge.caveats must be an array of non-empty strings")
+        parameter_knowledge = ParameterKnowledge(
+            formulas=tuple(formulas),
+            symbols=adapt_symbols(raw_knowledge.get("symbols", []), "knowledge.symbols"),
+            references=_non_empty_strings(raw_references),
+            caveats=_non_empty_strings(raw_caveats),
         )
 
     case_data = None
@@ -353,12 +714,47 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
         for field in required_case_strings:
             if not isinstance(raw_case.get(field), str) or not raw_case[field].strip():
                 raise ValueError(f"case.{field} must be a non-empty string")
-        for field in ("dimension", "max_steps"):
-            if not isinstance(raw_case.get(field), int) or isinstance(raw_case[field], bool) or raw_case[field] <= 0:
-                raise ValueError(f"case.{field} must be a positive integer")
+        dimension = raw_case.get("dimension")
+        if not isinstance(dimension, int) or isinstance(dimension, bool) or dimension not in (1, 2, 3):
+            raise ValueError("case.dimension must be 1, 2, or 3")
+        max_steps = raw_case.get("max_steps")
+        if not isinstance(max_steps, int) or isinstance(max_steps, bool) or max_steps <= 0:
+            raise ValueError("case.max_steps must be a positive integer")
         tolerance = raw_case.get("residual_absolute_tolerance")
-        if not isinstance(tolerance, (int, float)) or isinstance(tolerance, bool) or tolerance < 0:
-            raise ValueError("case.residual_absolute_tolerance must be non-negative")
+        if (
+            not isinstance(tolerance, (int, float))
+            or isinstance(tolerance, bool)
+            or not math.isfinite(tolerance)
+            or tolerance < 0
+        ):
+            raise ValueError(
+                "case.residual_absolute_tolerance must be finite and non-negative"
+            )
+        output_tolerance = raw_case.get("output_absolute_tolerance")
+        if (
+            not isinstance(output_tolerance, (int, float))
+            or isinstance(output_tolerance, bool)
+            or not math.isfinite(output_tolerance)
+            or output_tolerance < 0
+        ):
+            raise ValueError(
+                "case.output_absolute_tolerance must be finite and non-negative"
+            )
+        residual_relative_tolerance = raw_case.get("residual_relative_tolerance")
+        if (
+            not isinstance(residual_relative_tolerance, (int, float))
+            or isinstance(residual_relative_tolerance, bool)
+            or not math.isfinite(residual_relative_tolerance)
+            or residual_relative_tolerance < 0
+        ):
+            raise ValueError(
+                "case.residual_relative_tolerance must be finite and non-negative"
+            )
+        residual_nan_policy = raw_case.get("residual_nan_policy")
+        if residual_nan_policy != "reject":
+            raise ValueError("case.residual_nan_policy must be reject")
+        for field in ("suite", "path", "residual_baseline"):
+            _safe_relative_workflow_path(raw_case[field], f"case.{field}")
         case_arrays = {}
         for field in (
             "input_paths",
@@ -372,6 +768,10 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
             ):
                 raise ValueError(f"case.{field} must be an array of non-empty strings")
             case_arrays[field] = _non_empty_strings(values)
+            if len(set(case_arrays[field])) != len(case_arrays[field]):
+                raise ValueError(f"case.{field} must not contain duplicate paths")
+            for value in case_arrays[field]:
+                _safe_relative_workflow_path(value, f"case.{field} entry")
         if (
             not case_arrays["input_paths"]
             or not case_arrays["comparison_outputs"]
@@ -390,16 +790,44 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
             suite=raw_case["suite"].strip(),
             case_path=raw_case["path"].strip(),
             solver=raw_case["solver"].strip(),
-            dimension=raw_case["dimension"],
+            dimension=dimension,
             flow_model=raw_case["flow_model"].strip(),
             flux_scheme=raw_case["flux_scheme"].strip(),
-            max_steps=raw_case["max_steps"],
+            max_steps=max_steps,
             input_paths=case_arrays["input_paths"],
             comparison_outputs=case_arrays["comparison_outputs"],
             residual_outputs=case_arrays["residual_outputs"],
             residual_baseline=raw_case["residual_baseline"].strip(),
             analytical_references=case_arrays["analytical_references"],
             residual_absolute_tolerance=float(tolerance),
+            output_absolute_tolerance=float(output_tolerance),
+            residual_relative_tolerance=float(residual_relative_tolerance),
+            residual_nan_policy=residual_nan_policy,
+        )
+
+    workflow_data = None
+    if definition["domain"].strip() == "workflow":
+        if definition["kind"].strip() != "dependency_workflow":
+            raise ValueError(
+                "workflow domain currently requires kind dependency_workflow"
+            )
+        raw_workflow = definition.get("workflow")
+        if not isinstance(raw_workflow, dict):
+            raise ValueError("workflow contract requires a workflow object")
+        workflow_id = raw_workflow.get("workflow_id")
+        if not isinstance(workflow_id, str) or not workflow_id.strip():
+            raise ValueError("workflow.workflow_id must be a non-empty string")
+        definition_path = _safe_relative_workflow_path(
+            raw_workflow.get("definition_path"), "workflow.definition_path"
+        )
+        execution_mode = raw_workflow.get("execution_mode")
+        if execution_mode != "dependency_graph":
+            raise ValueError("workflow.execution_mode must be dependency_graph")
+        workflow_data = WorkflowContractData(
+            workflow_id.strip(),
+            definition_path,
+            execution_mode,
+            _adapt_workflow_steps(raw_workflow.get("steps")),
         )
 
     return ContractSummary(
@@ -425,6 +853,13 @@ def adapt_declared_contract(definition: dict[str, Any]) -> ContractSummary:
             definition.get("claims", {}).get("does_not_prove", ())
         ),
         case_data=case_data,
+        workflow_data=workflow_data,
+        group_id=group_id.strip(),
+        group_title=group_title.strip(),
+        group_order=group_order,
+        parameter_knowledge=parameter_knowledge,
+        examples=tuple(examples),
+        parameter_key=raw_parameter_key.strip(),
     )
 
 
@@ -458,6 +893,48 @@ def _python_test_source_path(scope: str) -> str | None:
     """Extract a Python test source path from an evidence scope."""
     source_path = scope.split(";", 1)[0].strip()
     return source_path if source_path.endswith(".py") else None
+
+
+def _read_python_source(path: Path) -> str:
+    """Read Python source using PEP 263 encoding detection, including UTF-8 BOM."""
+    with tokenize.open(path) as source_file:
+        return source_file.read()
+
+
+def _read_python_numeric_constant(
+    repository_root: Path,
+    relative_path: str,
+    constant_name: str,
+) -> float:
+    """Read a numeric module constant without importing executable test code."""
+    path = _relative_path(repository_root, relative_path)
+    source = _read_python_source(path)
+    module = ast.parse(source, filename=str(path))
+    for node in module.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        if not any(
+            isinstance(target, ast.Name) and target.id == constant_name
+            for target in node.targets
+        ):
+            continue
+        try:
+            value = ast.literal_eval(node.value)
+        except (ValueError, TypeError) as exc:
+            raise ValueError(
+                f"{relative_path}: {constant_name} must be a numeric literal"
+            ) from exc
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(value)
+            or value < 0
+        ):
+            raise ValueError(
+                f"{relative_path}: {constant_name} must be finite and non-negative"
+            )
+        return float(value)
+    raise ValueError(f"{relative_path}: missing numeric constant {constant_name}")
 
 
 def _has_python_test_declaration(source: str, reference: str) -> bool:
@@ -525,8 +1002,8 @@ def resolve_contract_evidence(
 
         if item.kind == "python_test":
             try:
-                source = path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError) as exc:
+                source = _read_python_source(path)
+            except (OSError, UnicodeDecodeError, SyntaxError, LookupError) as exc:
                 results.append(
                     EvidenceResolution(
                         item, "stale", str(path), f"cannot read Python test source: {exc}"
@@ -619,6 +1096,8 @@ def validate_contract_summaries(
                 and _linked_test_source_path(item.scope) is not None
             ),
         )))
+        if summary.workflow_data is not None:
+            declared_paths.append(summary.workflow_data.definition_path)
         if summary.case_data is not None:
             case_data = summary.case_data
             declared_paths.extend(
@@ -664,6 +1143,21 @@ def validate_contract_summaries(
                     f"{summary.id}: missing case directory: {case_data.case_path}"
                 )
             if case_path is not None and case_path.is_dir():
+                try:
+                    runner_tolerance = _read_python_numeric_constant(
+                        repository_root,
+                        "test/test.py",
+                        "FLOAT_ABS_TOLERANCE",
+                    )
+                    if runner_tolerance != case_data.output_absolute_tolerance:
+                        issues.append(
+                            f"{summary.id}: output tolerance does not match "
+                            "test/test.py FLOAT_ABS_TOLERANCE"
+                        )
+                except (OSError, SyntaxError, ValueError) as exc:
+                    issues.append(
+                        f"{summary.id}: cannot validate output comparison policy: {exc}"
+                    )
                 compare_path = case_path / "autotest" / "compare.txt"
                 if not compare_path.is_file():
                     issues.append(
@@ -751,6 +1245,20 @@ def validate_contract_summaries(
                             f"{summary.id}: residual tolerance does not match "
                             f"{case_data.residual_baseline}"
                         )
+                    baseline_relative_tolerance = comparison.get(
+                        "relative_tolerance"
+                    )
+                    if baseline_relative_tolerance != case_data.residual_relative_tolerance:
+                        issues.append(
+                            f"{summary.id}: residual relative tolerance does not match "
+                            f"{case_data.residual_baseline}"
+                        )
+                    baseline_nan_policy = comparison.get("nan_policy")
+                    if baseline_nan_policy != case_data.residual_nan_policy:
+                        issues.append(
+                            f"{summary.id}: residual NaN policy does not match "
+                            f"{case_data.residual_baseline}"
+                        )
                 except (OSError, UnicodeDecodeError, ValueError, TypeError) as exc:
                     issues.append(
                         f"{summary.id}: cannot validate residual baseline "
@@ -773,8 +1281,8 @@ def validate_contract_summaries(
             if not source_path.is_file():
                 continue
             try:
-                source = source_path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError) as exc:
+                source = _read_python_source(source_path)
+            except (OSError, UnicodeDecodeError, SyntaxError, LookupError) as exc:
                 issues.append(
                     f"{summary.id}: cannot read Python test source "
                     f"{source_path_reference}: {exc}"
@@ -785,6 +1293,34 @@ def validate_contract_summaries(
                     f"{summary.id}: Python unittest declaration not found: "
                     f"{item.reference} in {source_path_reference}"
                 )
+        if summary.workflow_data is not None:
+            workflow_data = summary.workflow_data
+            try:
+                definition_path = _relative_path(
+                    repository_root, workflow_data.definition_path
+                )
+            except ValueError as exc:
+                issues.append(f"{summary.id}: {exc}")
+                definition_path = None
+            if definition_path is not None and definition_path.is_file():
+                try:
+                    source_definition = json.loads(
+                        definition_path.read_text(encoding="utf-8")
+                    )
+                    if source_definition.get("workflow_id") != workflow_data.workflow_id:
+                        issues.append(
+                            f"{summary.id}: workflow id does not match its definition"
+                        )
+                    source_steps = _workflow_steps_from_definition(source_definition)
+                    if source_steps != workflow_data.steps:
+                        issues.append(
+                            f"{summary.id}: workflow definition steps do not match typed workflow payload"
+                        )
+                except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+                    issues.append(
+                        f"{summary.id}: cannot validate workflow definition: {exc}"
+                    )
+
         for item in summary.evidence:
             if item.kind not in ("linked_test", "google_test"):
                 continue
@@ -804,8 +1340,8 @@ def validate_contract_summaries(
                 )
                 continue
             try:
-                source = source_path.read_text(encoding="utf-8")
-            except (OSError, UnicodeDecodeError) as exc:
+                source = _read_python_source(source_path)
+            except (OSError, UnicodeDecodeError, SyntaxError, LookupError) as exc:
                 issues.append(
                     f"{summary.id}: cannot read linked test source {item.scope}: {exc}"
                 )

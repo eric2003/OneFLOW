@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "parameter/time_integral",
+  "title": "Time integration method selector",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "implemented",
+  "overview": "Selects the time-integration method stored in Ctrl::time_integral. The global solver dispatch maps MULTI_STAGE to RungeKutta, SIMPLE to Simple, and every other value to Lusgs. The context-aware Relaxation overload applies the same dispatch.",
+  "principle": "This is a discrete algorithm-selection parameter, not a continuous physical coefficient. Its meaning is defined by the dispatch branches that consume the stored selector. Unsupported or unrecognized values currently follow the Lusgs fallback branch; this declaration does not redefine that compatibility behavior as input validation.",
+  "architecture": "The value is read by Ctrl::Init, NsCtrl::Init, INsCtrl::Init, and TurbCtrl::Init. The shared TimeIntegral implementation owns the method dispatch. Euler resident-backend eligibility is a separate capability decision and must not be conflated with selecting the RungeKutta method.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/global/src/Ctrl.cpp",
+      "codes/ns/src/NsCtrl.cpp",
+      "codes/ins/src/INsCtrl.cpp",
+      "codes/turb/src/TurbCtrl.cpp",
+      "codes/solver/src/TimeIntegral.cpp",
+      "codes/solver/src/EulerRungeKuttaCapability.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/numerical/time_integral_control.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The four listed control initializers read the selector.",
+      "TimeIntegral::Init and the context-aware Relaxation overload dispatch MULTI_STAGE, SIMPLE, and fallback values as described."
+    ],
+    "does_not_prove": [
+      "The selected method's temporal order or stability region.",
+      "That every solver configuration can use the resident Euler RungeKutta backend.",
+      "Numerical accuracy or physical validity of a particular case."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "TimeIntegral::Init",
+      "status": "declared_not_executed",
+      "scope": "Source-backed dispatch declaration; source links are listed under Implementation. No test execution is implied."
+    },
+    {
+      "kind": "pure_api",
+      "reference": "TimeIntegral::Relaxation",
+      "status": "declared_not_executed",
+      "scope": "Context-aware overload applies the same method dispatch; no test execution is implied."
+    }
+  ],
+  "examples": [
+    {
+      "title": "Time-integration method dispatch",
+      "input": "Assume the configured selector is MULTI_STAGE, SIMPLE, or an unrecognized value.",
+      "calculation": "TimeIntegral dispatch maps MULTI_STAGE to RungeKutta, SIMPLE to Simple, and all other values to Lusgs. The context-aware Relaxation overload follows the same dispatch.",
+      "result": "MULTI_STAGE selects the multi-stage path; SIMPLE selects the simple path; an unrecognized selector currently takes the Lusgs fallback.",
+      "limitations": "This describes the current dispatch behavior, not input validation, formal accuracy, stability, or eligibility for the separate resident Euler backend."
+    }
+  ],
+  "group": {
+    "id": "time_integration",
+    "title": "Time Integration",
+    "order": 20
+  }
+}

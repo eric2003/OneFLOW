@@ -31,6 +31,12 @@ def available_project_templates() -> tuple[ProjectTemplate, ...]:
             None,
         ),
         ProjectTemplate(
+            "laminar_flat_plate",
+            "Laminar flat-plate boundary layer",
+            "Copy the complete plateuns2dslau2 CFD case, including its parameters, mesh, and reference results.",
+            "test/cfd/plateuns2dslau2",
+        ),
+        ProjectTemplate(
             "mesh_workflow",
             "Mesh conversion",
             "Start from the PLOT3D-to-OneFLOW mesh conversion case.",
@@ -51,13 +57,53 @@ def available_project_templates() -> tuple[ProjectTemplate, ...]:
     )
 
 
-def _copy_tree(source: Path, destination: Path) -> None:
+def _copy_tree(
+    source: Path,
+    destination: Path,
+    *,
+    excluded_directories: tuple[str, ...] = (),
+) -> None:
     if not source.is_dir():
         raise FileNotFoundError(f"Project template directory not found: {source}")
     shutil.copytree(
         source,
         destination,
-        ignore=shutil.ignore_patterns(".git", "__pycache__"),
+        ignore=shutil.ignore_patterns(".git", "__pycache__", *excluded_directories),
+    )
+
+
+def _create_laminar_flat_plate_project(
+    repository: Path, destination: Path, name: str
+) -> None:
+    """Copy the CFD case as a user-owned project, excluding regression artifacts."""
+    _copy_tree(
+        repository / "test" / "cfd" / "plateuns2dslau2",
+        destination,
+        excluded_directories=("autotest",),
+    )
+    (destination / ".oneflow-project.json").write_text(
+        json.dumps(
+            {
+                "format": "oneflow.project",
+                "version": 1,
+                "name": name,
+                "template": "laminar_flat_plate",
+                "source_case": "test/cfd/plateuns2dslau2",
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (destination / "README.md").write_text(
+        f"# {name}\n\n"
+        "This project was created from the OneFLOW laminar flat-plate "
+        "boundary-layer case (test/cfd/plateuns2dslau2). The case input "
+        "parameters, mesh, visual settings, and retained reference results "
+        "are copied into this directory. The source checkout is not used as "
+        "the project working directory. The autotest directory is intentionally "
+        "excluded; it is generated test evidence, not required case input.\n",
+        encoding="utf-8",
     )
 
 
@@ -96,11 +142,32 @@ def _create_rae2822_workflow(repository: Path, destination: Path, name: str) -> 
     )
 
 
+def _validate_template_sources(repository: Path, template: ProjectTemplate) -> None:
+    """Validate every required source before an overwrite can delete user data."""
+    if template.template_id == "blank":
+        return
+    if template.template_id == "laminar_flat_plate":
+        required = (repository / "test" / "cfd" / "plateuns2dslau2",)
+    elif template.template_id == "rae2822_multicase":
+        required = (
+            repository / "grid" / "mesh_workflow",
+            repository / "test" / "cfd" / "rae2822_roe_sa",
+            repository / "tools" / "oneflow_gui" / "examples" / "rae2822_multicase.json",
+        )
+    else:
+        required = (repository / str(template.source_relative_path),)
+    for source in required:
+        if not source.is_dir() and not source.is_file():
+            raise FileNotFoundError(f"Project template source not found: {source}")
+
+
 def create_project(
     repository_root: str | Path,
     template_id: str,
     project_name: str,
     parent_directory: str | Path,
+    *,
+    overwrite: bool = False,
 ) -> ProjectDefinition:
     """Create a project from a template without writing into the source checkout."""
     repository = Path(repository_root).expanduser().resolve()
@@ -116,6 +183,8 @@ def create_project(
     if template is None:
         raise ValueError(f"Unknown project template: {template_id}")
 
+    _validate_template_sources(repository, template)
+
     try:
         parent.relative_to(repository)
     except ValueError:
@@ -127,8 +196,13 @@ def create_project(
     if destination == repository or repository in destination.parents:
         raise ValueError("New projects must be created outside the OneFLOW source repository.")
     parent.mkdir(parents=True, exist_ok=True)
-    if destination.exists():
-        raise FileExistsError(f"Project directory already exists: {destination}")
+    if destination.exists() or destination.is_symlink():
+        if not overwrite:
+            raise FileExistsError(f"Project directory already exists: {destination}")
+        if destination.is_symlink() or not destination.is_dir():
+            destination.unlink()
+        else:
+            shutil.rmtree(destination)
 
     if template.template_id == "blank":
         destination.mkdir()
@@ -148,6 +222,8 @@ def create_project(
     elif template.template_id == "rae2822_multicase":
         destination.mkdir()
         _create_rae2822_workflow(repository, destination, name)
+    elif template.template_id == "laminar_flat_plate":
+        _create_laminar_flat_plate_project(repository, destination, name)
     else:
         source = (repository / str(template.source_relative_path)).resolve()
         _copy_tree(source, destination)

@@ -442,3 +442,69 @@ test is registered, built, or passed.
 The next integration step is to invoke these tests through the existing typed
 test runner. The Workbench must not create a second subprocess lifecycle or
 silently infer commands from arbitrary contract text.
+
+
+## Workflow execution evidence
+
+The existing workflow runner records real process executions in the shared
+append-only verification store at
+`~/.oneflow/verification/execution-records.jsonl` (or under
+`ONEFLOW_HOME`). A workflow launched from a Workflow contract in the
+Contract Workbench carries that contract's stable ID into each launched-step
+record. Runs launched elsewhere remain unlinked.
+
+One record is written per launched process, with its exact argument vector,
+source case, working directory, revision, platform/configuration metadata,
+outcome, and checksummed output/log files. Dependency-blocked cases are kept
+in workflow run history and are not presented as process executions.
+
+
+## Case contract declaration invariants
+
+Case contract adaptation validates the declared setup before repository
+resolution: dimensions are restricted to 1-D, 2-D, or 3-D; iteration counts
+must be positive; residual tolerances must be finite and non-negative; and
+suite, case, baseline, input, output, and analytical-reference paths must be
+relative and remain within the repository namespace. Repeated path declarations
+are rejected rather than silently collapsed.
+
+These checks protect the contract boundary from malformed or ambiguous
+metadata. They do not validate the physical correctness of a case, execute the
+solver, or establish that expected output values are scientifically valid.
+The focused cases are part of the existing Python contract catalog test module,
+which is discovered by the Python test inventory and run by Python Tooling CI.
+
+Run:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+```
+
+
+## Case comparison policy traceability
+
+Case contracts carry separate policies for ordinary output files and residual
+histories. The output absolute tolerance is checked against the
+`FLOAT_ABS_TOLERANCE` constant in `test/test.py`, parsed from the source AST
+without importing the executable test runner. Residual absolute/relative
+tolerances and the NaN policy are checked against the selected residual
+baseline database.
+
+This keeps declaration, implementation, and baseline policy aligned without
+making the Workbench execute CFD cases. Ordinary text comparison uses an
+absolute token tolerance; residual comparison uses
+`max(abs_tol, rel_tol * scale)`, compares iteration columns exactly, and
+rejects non-finite values. These are regression-consistency rules, not
+estimates of discretization error or independent physical validation.
+
+
+## Time-integration knowledge entry
+
+Formula & Knowledge includes `time_integral_rk_stage_weight`, linking `time_integral` and `rk_stage` declarations to the four solver-control initializers, `TimeIntegral::Init`, the finest-grid stage loop, and the resident Euler backend eligibility checks. The entry has no theory curve because the current source establishes a coefficient schedule, not a complete Butcher tableau or a verified temporal order. See `doc/source/numerical/time_integral_control.rst`.
+
+Validate the source links with:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_parameter_consumer_catalog
+python -m unittest tools.verification.test_curve_catalog
+```

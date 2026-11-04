@@ -84,6 +84,7 @@ class ExecutionRecord:
     artifacts: tuple[ExecutionArtifact, ...] = ()
     diagnostics: tuple[str, ...] = ()
     record_id: str = ""
+    invocation_id: str = ""
     schema_version: int = SCHEMA_VERSION
 
     def __post_init__(self) -> None:
@@ -126,6 +127,7 @@ class ExecutionRecord:
         return {
             "schema_version": self.schema_version,
             "record_id": self.record_id,
+            "invocation_id": self.invocation_id,
             "repository": self.repository,
             "commit": self.commit,
             "branch": self.branch,
@@ -185,6 +187,7 @@ class ExecutionRecord:
                 artifacts=parsed_artifacts,
                 diagnostics=_string_tuple(data.get("diagnostics", []), "diagnostics"),
                 record_id=data.get("record_id", ""),
+                invocation_id=data.get("invocation_id", ""),
                 schema_version=data["schema_version"],
             )
         except (KeyError, TypeError) as exc:
@@ -195,6 +198,28 @@ class ExecutionRecord:
         if not self.commit or not current_commit:
             return "unknown"
         return "current" if self.commit == current_commit else "stale"
+
+
+def group_execution_records(
+    records: tuple[ExecutionRecord, ...] | list[ExecutionRecord],
+) -> tuple[tuple[str, tuple[ExecutionRecord, ...]], ...]:
+    """Group workflow-step records by invocation while preserving first-seen order.
+
+    Records without an invocation ID remain independent legacy executions; they
+    are never merged based on timestamps, commands, or test names.
+    """
+    groups: dict[tuple[str, str], list[ExecutionRecord]] = {}
+    for index, record in enumerate(records):
+        key = (
+            ("invocation", record.invocation_id)
+            if record.invocation_id
+            else ("legacy", str(index))
+        )
+        groups.setdefault(key, []).append(record)
+    return tuple(
+        (key[1] if key[0] == "invocation" else "", tuple(items))
+        for key, items in groups.items()
+    )
 
 
 class ExecutionRecordStore:

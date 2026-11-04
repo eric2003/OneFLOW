@@ -28,6 +28,7 @@ class TheoryEntry:
     code_sketch: str
     proves: str
     does_not_prove: str
+    examples: tuple[str, ...] = ()
 
 
 def list_theory_entries() -> list[TheoryEntry]:
@@ -74,7 +75,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             doc_relpath="doc/source/numerical/sa_eddy_viscosity.rst",
             code_sketch=(
-                "// GATED SKETCH — review before use.\n"
+                "// GATED SKETCH - review before use.\n"
                 "Real SaFv1(Real chi, Real cv1Cubed) {\n"
                 "  Real chi3 = chi*chi*chi;\n"
                 "  return chi3 / (chi3 + cv1Cubed);\n"
@@ -82,6 +83,12 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             proves="Closed-form fv1 vs SaFv1.",
             does_not_prove="Full residual or experimental Cf.",
+            examples=(
+                "Input: chi = 7.1 and cv1 = 7.1.\n"
+                "Calculation: fv1 = chi^3 / (chi^3 + cv1^3) = 1 / 2.\n"
+                "Result: fv1 = 0.5, so mu_t = 0.5 * rho * nu_tilde.\n"
+                "Limit: this checks the damping function only, not a wall-resolved CFD solution.",
+            ),
         ),
         TheoryEntry(
             id="sa_fv2_chi",
@@ -172,6 +179,90 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="fw(r) vs SaG/SaFw.",
             does_not_prove="Skin friction or full-case CFD.",
         ),
+
+
+        TheoryEntry(
+            id="sa_destruction",
+            family="turbulence",
+            genus="SA",
+            section="source / destruction",
+            title="SA destruction term D",
+            role_tags=("turbulence", "SA", "source"),
+            formula_plain=(
+                "D = (cw1k * fw - cb1 * ft2) * nu_tilde_rs"
+            ),
+            formula_latex=(
+                r"D=\bigl(c_{w1}f_w-c_{b1}f_{t2}\bigr)\tilde{\nu}_{rs}"
+            ),
+            principle=(
+                "SA wall destruction balances production away from the wall. "
+                "fw is the wall destruction function; ft2 is the optional trip."
+            ),
+            background=(
+                "Pure API SaDestruction in TurbSaPolicy. Feeds SaSourceResidual."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_destruction.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_destruction_theory.csv",
+            plot_module="plot_sa_destruction",
+            pure_apis=("SaDestruction",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_destruction.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "D = (cw1k * fw - cb1 * ft2) * nu_tilde_rs;\n"
+            ),
+            proves="Destruction algebra vs pure API on a nu_rs grid.",
+            does_not_prove="Full SA residual or near-wall case accuracy.",
+        ),
+
+        TheoryEntry(
+            id="sa_production",
+            family="turbulence",
+            genus="SA",
+            section="source / production",
+            title="SA production term P",
+            role_tags=("turbulence", "SA", "source"),
+            formula_plain=(
+                "P = cb1 * (1 - ft2) * S_tilde * nu_tilde"
+            ),
+            formula_latex=(
+                r"P=c_{b1}(1-f_{t2})\tilde{S}\,\tilde{\nu}"
+            ),
+            principle=(
+                "SA turbulence production is proportional to the modified "
+                "strain rate and working variable, reduced by the optional "
+                "ft2 trip term."
+            ),
+            background=(
+                "Pure API SaProduction in TurbSaPolicy. Feeds SaSourceResidual "
+                "with destruction and limited diffusion."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_production.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_production_theory.csv",
+            plot_module="plot_sa_production",
+            pure_apis=("SaProduction",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_production.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "P = cb1 * (1 - ft2) * S_tilde * nu_tilde;\n"
+            ),
+            proves="Production algebra vs pure API on a nu_tilde grid.",
+            does_not_prove="Full SA residual on a wall-bounded case.",
+        ),
+
         TheoryEntry(
             id="sa_source_residual",
             family="turbulence",
@@ -197,8 +288,8 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             background=("See sa_source.rst for coefficient mapping in CalcSrcSa."),
             references=("NASA TMR SA; OneFLOW sa_source.rst",),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/sa_source_residual_theory.csv",
+            plot_module="plot_sa_source_residual",
             pure_apis=(
                 "SaProduction",
                 "SaDestruction",
@@ -208,6 +299,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             source_relpaths=(
                 "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
                 "codes/turb/src/TurbCom.cpp",
             ),
             doc_relpath="doc/source/numerical/sa_source.rst",
@@ -229,7 +321,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             title="F1 blending function",
             role_tags=("closure", "blending"),
             formula_plain=(
-                "CD_kw = max(2*rho*sigw2*(gradk·gradw)/w, small)\n"
+                "CD_kw = max(2*rho*sigw2*(gradk*gradw)/w, small)\n"
                 "arg1 = min( max(sqrt(k)/(beta_star*w*d), 500*nu/(w*d^2*Re)), "
                 "4*rho*sigw2*k/(CD_kw*d^2) )\n"
                 "F1 = tanh(arg1^4)\n"
@@ -272,6 +364,13 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             proves="F1 / Blend algebra vs pure APIs.",
             does_not_prove="Full SST case accuracy.",
+            examples=(
+                "Input: arg1 = 1, phi1 = 2, and phi2 = 1 (dimensionless illustrative values).\\n"
+                "Calculation: F1 = tanh(arg1^4) = tanh(1) = 0.761594; "
+                "phi = F1*phi1 + (1-F1)*phi2 = 1.761594.\\n"
+                "Result: the blend is weighted toward the inner-state value phi1 for this input.\\n"
+                "Limit: this evaluates the blending algebra only; it does not derive arg1 from a mesh flow state or establish full SST case accuracy.",
+            ),
         ),
         TheoryEntry(
             id="sst_f2_eddy",
@@ -321,7 +420,99 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "production-option rate selection, and shared laminar-ratio cap."
             ),
             does_not_prove="Wall-resolved SST validation or full mu_t field.",
+            examples=(
+                "Input: arg1 = 1.\n"
+                "Calculation: F1 = tanh(arg1^4) = tanh(1).\n"
+                "Result: F1 is approximately 0.761594.\n"
+                "Interpretation: the blend is continuous; this one point does not validate "
+                "the complete SST closure or its wall behavior.",
+            ),
         ),
+
+
+        TheoryEntry(
+            id="sst_limit_prodk",
+            family="turbulence",
+            genus="SST",
+            section="source / k production limiter",
+            title="SST k-production limiter",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "P_k <- min(P_k, pklim * eps)"
+            ),
+            formula_latex=(
+                r"P_k\leftarrow\min(P_k,\,p_{k\lim}\,\varepsilon)"
+            ),
+            principle=(
+                "Menter-style production limiter prevents excessive P_k relative "
+                "to dissipation, improving robustness in stagnation regions."
+            ),
+            background=(
+                "Pure API SstLimitProdk in TurbSstPolicy. eps from "
+                "SstDisskStandard (or DES variant)."
+            ),
+            references=(
+                "Menter SST production limiter; NASA TMR SST",
+                "doc/source/numerical/sst_limit_prodk.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_limit_prodk_theory.csv",
+            plot_module="plot_sst_limit_prodk",
+            pure_apis=("SstLimitProdk",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_limit_prodk.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "P = min(P, pklim * eps);\n"
+            ),
+            proves="Limiter algebra vs pure API; composition with SstDisskStandard.",
+            does_not_prove="Full SST k residual on a case mesh.",
+        ),
+
+        TheoryEntry(
+            id="sst_dissk_standard",
+            family="turbulence",
+            genus="SST",
+            section="source / k dissipation",
+            title="SST standard k dissipation eps",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "eps = f_beta_star * beta_star * rho * k * omega"
+            ),
+            formula_latex=(
+                r"\varepsilon=f_{\beta^*}\beta^*\,\rho\,k\,\omega"
+            ),
+            principle=(
+                "Standard SST/k-omega destruction of turbulent kinetic energy. "
+                "f_beta* is a Wilcox-style compressibility or low-Re modifier "
+                "when enabled (often 1)."
+            ),
+            background=(
+                "Pure API SstDisskStandard in TurbSstPolicy. Used with "
+                "SstLimitProdk and SstSourceK for the k equation source."
+            ),
+            references=(
+                "Menter SST; Wilcox k-omega; NASA TMR SST",
+                "doc/source/numerical/sst_dissk_standard.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_dissk_standard_theory.csv",
+            plot_module="plot_sst_dissk_standard",
+            pure_apis=("SstDisskStandard",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_dissk_standard.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "eps = fBetas * betas * density * k * omega;\n"
+            ),
+            proves="k-dissipation algebra vs pure API on an omega grid.",
+            does_not_prove="Full SST k residual on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sst_k_source",
             family="turbulence",
@@ -342,8 +533,8 @@ def list_theory_entries() -> list[TheoryEntry]:
             principle=("k residual ~ production minus dissipation with limiter."),
             background=("Pure APIs isolate production options and limiter."),
             references=("Menter SST; OneFLOW sst_k_source.rst",),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/sst_source_k_theory.csv",
+            plot_module="plot_sst_source_k",
             pure_apis=("SstProdkBoussinesq", "SstDisskStandard", "SstLimitProdk"),
             source_relpaths=(
                 "codes/turb/include/TurbSstPolicy.h",
@@ -359,6 +550,48 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="k source algebra vs pure APIs.",
             does_not_prove="Two-equation field quality.",
         ),
+
+        TheoryEntry(
+            id="sst_dissw",
+            family="turbulence",
+            genus="SST",
+            section="source / omega dissipation",
+            title="SST omega dissipation Dw",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "Dw = f_beta * beta * rho * omega^2"
+            ),
+            formula_latex=(
+                r"D_\omega=f_\beta\,\beta\,\rho\,\omega^{2}"
+            ),
+            principle=(
+                "SST/k-omega destruction of specific dissipation rate. "
+                "f_beta is a Wilcox-style modifier when enabled (often 1)."
+            ),
+            background=(
+                "Pure API SstDissw in TurbSstPolicy. Feeds SstSourceW with "
+                "production and cross-diffusion."
+            ),
+            references=(
+                "Menter SST; Wilcox k-omega; NASA TMR SST",
+                "doc/source/numerical/sst_dissw.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_dissw_theory.csv",
+            plot_module="plot_sst_dissw",
+            pure_apis=("SstDissw",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_dissw.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Dw = fBeta * beta * density * omega * omega;\n"
+            ),
+            proves="omega-dissipation algebra vs pure API on an omega grid.",
+            does_not_prove="Full SST omega residual on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sst_omega_source",
             family="turbulence",
@@ -383,8 +616,8 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             background=("See sst_omega_source.rst and TurbSstPolicy pure APIs."),
             references=("Menter SST; NASA TMR SST; sst_omega_source.rst",),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/sst_source_w_theory.csv",
+            plot_module="plot_sst_source_w",
             pure_apis=(
                 "SstProdwMenter",
                 "SstDissw",
@@ -402,6 +635,92 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Full SST residual on a case.",
         ),
 
+
+
+
+        TheoryEntry(
+            id="sst_cross_diff_menter",
+            family="turbulence",
+            genus="SST",
+            section="source / cross diffusion",
+            title="SST Menter cross-diffusion CD",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "CD = 2 * (1 - F1) * rho * sigw2 * (grad k · grad omega) / omega"
+            ),
+            formula_latex=(
+                r"\mathrm{CD}=2(1-F_1)\rho\sigma_{\omega2}"
+                r"\frac{\nabla k\cdot\nabla\omega}{\omega}"
+            ),
+            principle=(
+                "Cross-diffusion blends Wilcox and k-epsilon behaviors. "
+                "It is active in the outer layer (F1 near 0) and vanishes "
+                "near walls when F1 approaches 1."
+            ),
+            background=(
+                "Pure API SstCrossDiffMenter in TurbSstPolicy. Feeds "
+                "SstSourceW and SstDiagonalW."
+            ),
+            references=(
+                "Menter SST (1994); NASA TMR SST",
+                "doc/source/numerical/sst_cross_diff_menter.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_cross_diff_menter_theory.csv",
+            plot_module="plot_sst_cross_diff_menter",
+            pure_apis=("SstCrossDiffMenter",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_cross_diff_menter.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "CD = 2*(1-F1)*rho*sigw2*cross/omega;\n"
+            ),
+            proves="Cross-diffusion algebra vs pure API; F1=1 vanishing.",
+            does_not_prove="Full SST residual field or F1 construction accuracy.",
+        ),
+
+        TheoryEntry(
+            id="sst_diagonal_w",
+            family="turbulence",
+            genus="SST",
+            section="residual / omega diagonal",
+            title="SST omega residual diagonal",
+            role_tags=("turbulence", "SST", "residual"),
+            formula_plain=(
+                "dw = -2 * f_beta * beta * omega - |CD| / (rho * omega)"
+            ),
+            formula_latex=(
+                r"d_\omega=-2f_\beta\beta\omega"
+                r"-\frac{|\mathrm{CD}|}{\rho\omega}"
+            ),
+            principle=(
+                "Linearized omega-equation diagonal used by implicit updates. "
+                "Cross-diffusion adds a non-negative magnitude term when active."
+            ),
+            background=(
+                "Pure API SstDiagonalW in TurbSstPolicy. Pair with SstDiagonalK."
+            ),
+            references=(
+                "Menter SST linearization; NASA TMR SST",
+                "doc/source/numerical/sst_diagonal_w.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_diagonal_w_theory.csv",
+            plot_module="plot_sst_diagonal_w",
+            pure_apis=("SstDiagonalW",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_diagonal_w.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "dw = -2*fBeta*beta*omega - absCD/(rho*omega);\n"
+            ),
+            proves="omega diagonal algebra vs pure API; cross-diff sample.",
+            does_not_prove="Full residual Jacobian on a case mesh.",
+        ),
 
         TheoryEntry(
             id="sst_residual_diagonal",
@@ -438,8 +757,8 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "Menter SST linearization practice.",
                 "OneFLOW TurbSstPolicy residual section.",
             ),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/sst_diagonal_k_theory.csv",
+            plot_module="plot_sst_diagonal_k",
             pure_apis=(
                 "SstSourceK",
                 "SstSourceW",
@@ -520,7 +839,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             title="fk(xk) Wilcox beta* modifier",
             role_tags=("closure", "Wilcox", "beta-star"),
             formula_plain=(
-                "xk = (grad k · grad omega) / omega^3\n"
+                "xk = (grad k * grad omega) / omega^3\n"
                 "fk = 1  if xk <= 0\n"
                 "fk = (1+680 xk^2)/(1+400 xk^2)  if xk > 0"
             ),
@@ -856,8 +1175,8 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             background=("Pure APIs: LusgsSplitFaceEigenvalues, LinearizationWeights, FluxIncrementFiveEq."),
             references=("Yoon-Jameson LUSGS; NsLusgsPolicy",),
-            csv_relpath=None,
-            plot_module=None,
+            csv_relpath="tools/verification/data/ns_lusgs_flux_increment_theory.csv",
+            plot_module="plot_ns_lusgs_flux_increment",
             pure_apis=(
                 "LusgsSplitFaceEigenvalues",
                 "LusgsLinearizationWeights",
@@ -865,6 +1184,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             source_relpaths=(
                 "codes/ns/include/NsLusgsPolicy.h",
+                "codes/ns/src/NsLusgsPolicy.cpp",
                 "codes/ns/src/NsLusgs.cpp",
             ),
             doc_relpath="doc/source/numerical/index.rst",
@@ -879,6 +1199,223 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+
+
+
+
+        TheoryEntry(
+            id="viscous_energy_flux",
+            family="mean-flow",
+            genus="NS-viscous",
+            section="energy / viscous flux",
+            title="Viscous energy flux (stress work + heat)",
+            role_tags=("viscous", "energy", "flux"),
+            formula_plain=(
+                "E_vis = u*f_mx + v*f_my + w*f_mz + q_n\n"
+                "     = u · f_m + q_n"
+            ),
+            formula_latex=(
+                r"E_{\mathrm{vis}}=\mathbf{u}\cdot\mathbf{f}_m+q_n"
+            ),
+            principle=(
+                "Viscous energy face flux is the power of viscous stresses "
+                "plus conductive heat flux through the face."
+            ),
+            background=(
+                "Pure API ViscousEnergyFlux in NsVisFluxPolicy."
+            ),
+            references=(
+                "Compressible NS energy equation viscous terms",
+                "doc/source/numerical/viscous_energy_flux.rst",
+            ),
+            csv_relpath="tools/verification/data/viscous_energy_flux_theory.csv",
+            plot_module="plot_viscous_energy_flux",
+            pure_apis=("ViscousEnergyFlux",),
+            source_relpaths=(
+                "codes/ns/include/NsVisFluxPolicy.h",
+                "codes/ns/src/NsVisFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/viscous_energy_flux.rst",
+            code_sketch="// GATED SKETCH\nE = u*fmx + v*fmy + w*fmz + qn;\n",
+            proves="Energy-flux algebra vs pure API.",
+            does_not_prove="Full viscous residual on a case mesh.",
+        ),
+
+
+        TheoryEntry(
+            id="viscous_face_flux_coefficient",
+            family="mean-flow",
+            genus="NS-viscous",
+            section="flux scaling / Reynolds",
+            title="Viscous face flux coefficient (-A/Re)",
+            role_tags=("viscous", "flux", "Reynolds"),
+            formula_plain=(
+                "coef = - invReynolds * faceArea\n"
+                "Scales Stokes/heat face fluxes into residual units"
+            ),
+            formula_latex=(
+                r"\mathrm{coef}=-\frac{A}{\mathrm{Re}}"
+            ),
+            principle=(
+                "Non-dimensional NS places 1/Re on viscous fluxes. The face "
+                "coefficient multiplies stress/heat contributions before "
+                "deposition to cells."
+            ),
+            background=(
+                "Pure API ViscousFaceFluxCoefficient in NsVisFluxPolicy."
+            ),
+            references=(
+                "Non-dimensional compressible NS; OneFLOW NsVisFluxPolicy",
+                "doc/source/numerical/viscous_face_flux_coefficient.rst",
+            ),
+            csv_relpath="tools/verification/data/viscous_face_flux_coefficient_theory.csv",
+            plot_module="plot_viscous_face_flux_coefficient",
+            pure_apis=("ViscousFaceFluxCoefficient",),
+            source_relpaths=(
+                "codes/ns/include/NsVisFluxPolicy.h",
+                "codes/ns/src/NsVisFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/viscous_face_flux_coefficient.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "coef = - invReynolds * faceArea;\n"
+            ),
+            proves="coef=-A/Re algebra vs pure API on an area grid.",
+            does_not_prove="Full viscous residual magnitude on a mesh.",
+        ),
+
+        TheoryEntry(
+            id="conductive_heat_flux_normal",
+            family="mean-flow",
+            genus="NS-viscous",
+            section="heat flux / conduction",
+            title="Conductive heat flux normal q_n = k * dT/dn",
+            role_tags=("viscous", "heat-flux"),
+            formula_plain=(
+                "q_n = k_eff * (dT/dn)\n"
+                "Feeds ViscousEnergyFlux as the heat term"
+            ),
+            formula_latex=(
+                r"q_n=k\,\partial_n T"
+            ),
+            principle=(
+                "Fourier conduction through a face: heat flux is conductivity "
+                "times the normal temperature gradient."
+            ),
+            background=(
+                "Pure API ConductiveHeatFluxNormal in NsVisFluxPolicy. "
+                "Upstream: EffectiveThermalConductivity. Downstream: "
+                "ViscousEnergyFlux."
+            ),
+            references=(
+                "Fourier heat conduction; compressible NS energy equation",
+                "doc/source/numerical/conductive_heat_flux_normal.rst",
+            ),
+            csv_relpath="tools/verification/data/conductive_heat_flux_normal_theory.csv",
+            plot_module="plot_conductive_heat_flux_normal",
+            pure_apis=("ConductiveHeatFluxNormal",),
+            source_relpaths=(
+                "codes/ns/include/NsVisFluxPolicy.h",
+                "codes/ns/src/NsVisFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/conductive_heat_flux_normal.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "qn = k * dTdn;\n"
+            ),
+            proves="q_n algebra vs pure API on a gradient grid.",
+            does_not_prove="Wall heat-transfer coefficients on a case mesh.",
+        ),
+
+        TheoryEntry(
+            id="project_stress_momentum_flux",
+            family="mean-flow",
+            genus="NS-viscous",
+            section="stress / face projection",
+            title="Project Stokes stress onto face normal (momentum flux)",
+            role_tags=("viscous", "stress", "flux"),
+            formula_plain=(
+                "f_mx = nx*txx + ny*txy + nz*txz\n"
+                "f_my = nx*txy + ny*tyy + nz*tyz\n"
+                "f_mz = nx*txz + ny*tyz + nz*tzz"
+            ),
+            formula_latex=(
+                r"\mathbf{f}_m=\boldsymbol{\tau}\cdot\mathbf{n}"
+            ),
+            principle=(
+                "Maps the Stokes stress tensor to the viscous momentum flux "
+                "through a face by contraction with the face normal."
+            ),
+            background=(
+                "Pure API ProjectStressMomentumFlux in NsVisFluxPolicy. "
+                "Upstream: StokesStressTensor. Downstream: ViscousEnergyFlux."
+            ),
+            references=(
+                "Standard FV viscous flux assembly; OneFLOW NsVisFluxPolicy",
+                "doc/source/numerical/project_stress_momentum_flux.rst",
+            ),
+            csv_relpath="tools/verification/data/project_stress_momentum_flux_theory.csv",
+            plot_module="plot_project_stress_momentum_flux",
+            pure_apis=("ProjectStressMomentumFlux",),
+            source_relpaths=(
+                "codes/ns/include/NsVisFluxPolicy.h",
+                "codes/ns/src/NsVisFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/project_stress_momentum_flux.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "fmx = nx*txx + ny*txy + nz*txz;\n"
+            ),
+            proves="tau·n algebra vs pure API on an nx grid.",
+            does_not_prove="Full viscous residual assembly on a mesh.",
+        ),
+
+        TheoryEntry(
+            id="stokes_stress_pure_shear",
+            family="mean-flow",
+            genus="NS-viscous",
+            section="stress / Stokes tensor",
+            title="Stokes stress tensor (pure shear and bulk sample)",
+            role_tags=("viscous", "stress"),
+            formula_plain=(
+                "div*2/3 = (2/3)*(du/dx+dv/dy+dw/dz)\n"
+                "txx = mu*(2*du/dx - div*2/3), ...\n"
+                "txy = mu*(du/dy + dv/dx), ...\n"
+                "Pure shear du/dy=1: txy=mu"
+            ),
+            formula_latex=(
+                r"\tau_{ij}=\mu\left(\partial_i u_j+\partial_j u_i"
+                r"-\frac{2}{3}\delta_{ij}\nabla\cdot\mathbf{u}\right)"
+            ),
+            principle=(
+                "Newtonian Stokes stress for NS viscous fluxes. Pure shear "
+                "isolates off-diagonal viscosity; bulk strain exercises the "
+                "2/3 divergence correction."
+            ),
+            background=(
+                "Pure API StokesStressTensor in NsVisFluxPolicy. Downstream: "
+                "ProjectStressMomentumFlux, ViscousEnergyFlux."
+            ),
+            references=(
+                "Standard Newtonian fluid constitutive law; OneFLOW NsVisFluxPolicy",
+                "doc/source/numerical/stokes_stress_pure_shear.rst",
+            ),
+            csv_relpath="tools/verification/data/stokes_stress_pure_shear_theory.csv",
+            plot_module="plot_stokes_stress_pure_shear",
+            pure_apis=("StokesStressTensor",),
+            source_relpaths=(
+                "codes/ns/include/NsVisFluxPolicy.h",
+                "codes/ns/src/NsVisFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/stokes_stress_pure_shear.rst",
+            code_sketch=(
+                "// GATED SKETCH pure shear\n"
+                "txy = mu * (dudy + dvdx);\n"
+            ),
+            proves="Pure-shear txy=mu and bulk 4/3 sample vs pure API.",
+            does_not_prove="Full viscous face residual on a mesh.",
+        ),
 
         TheoryEntry(
             id="effective_thermal_conductivity",
@@ -1158,6 +1695,97 @@ references=(
         ),
 
 
+
+
+        TheoryEntry(
+            id="euler_convective_flux",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="face flux / Euler convective",
+            title="Euler convective face flux",
+            role_tags=("inviscid", "flux", "Euler"),
+            formula_plain=(
+                "mass = rho * vn\n"
+                "f_rho = mass\n"
+                "f_m = mass * u + n * p\n"
+                "f_E = mass * h + vg * p"
+            ),
+            formula_latex=(
+                r"\mathbf{F}^c=\rho v_n\begin{bmatrix}1\\ \mathbf{u}\\ H\end{bmatrix}"
+                r"+p\begin{bmatrix}0\\ \mathbf{n}\\ v_g\end{bmatrix}"
+            ),
+            principle=(
+                "Inviscid face flux is mass flux times transported quantities "
+                "plus pressure acting on the face; energy includes grid-speed "
+                "pressure work for ALE consistency."
+            ),
+            background=(
+                "Pure API EulerConvectiveFlux in NsInvFluxPolicy. Building "
+                "block for Roe/AUSM residual assembly."
+            ),
+            references=(
+                "Blazek CFD; standard FV Euler flux",
+                "doc/source/numerical/euler_convective_flux.rst",
+            ),
+            csv_relpath="tools/verification/data/euler_convective_flux_theory.csv",
+            plot_module="plot_euler_convective_flux",
+            pure_apis=("EulerConvectiveFlux",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/euler_convective_flux.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "mass = rho * vn;\n"
+                "f_rho = mass; f_m = mass*u + n*p; f_E = mass*h + vg*p;\n"
+            ),
+            proves="Euler face flux algebra vs pure API on a vn grid.",
+            does_not_prove="Full residual on a mesh or Riemann solver quality.",
+        ),
+
+        TheoryEntry(
+            id="face_mach_number",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="face kinematics / Mach",
+            title="Face Mach number M = vn / c",
+            role_tags=("inviscid", "Mach", "AUSM"),
+            formula_plain=(
+                "M = vn_rel / soundSpeed\n"
+                "Used by AUSM-type mass/pressure splits at faces"
+            ),
+            formula_latex=(
+                r"M=\frac{v_n}{c}"
+            ),
+            principle=(
+                "Relative normal Mach number at a face. Sign indicates inflow "
+                "or outflow relative to the face normal orientation."
+            ),
+            background=(
+                "Pure API FaceMachNumber in NsInvFluxPolicy. Consumers include "
+                "AUSM face reconstructions in NsInvFlux."
+            ),
+            references=(
+                "AUSM family (Liou); OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/face_mach_number.rst",
+            ),
+            csv_relpath="tools/verification/data/face_mach_number_theory.csv",
+            plot_module="plot_face_mach_number",
+            pure_apis=("FaceMachNumber",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/face_mach_number.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "M = vnRel / soundSpeed;\n"
+            ),
+            proves="M=vn/c algebra vs pure API on a vn grid.",
+            does_not_prove="Full AUSM flux residual or entropy-fix interaction.",
+        ),
+
         TheoryEntry(
             id="ausm_mach_split",
             family="mean-flow",
@@ -1208,7 +1836,7 @@ principle=(
             ),
             doc_relpath="doc/source/numerical/ausm_mach_split.rst",
             code_sketch=(
-                "// GATED SKETCH — production is inline in NsInvFluxPolicy.h\n"
+                "// GATED SKETCH - production is inline in NsInvFluxPolicy.h\n"
                 "Real FMSplit1(M,s){ return 0.5*(M + s*fabs(M)); }\n"
                 "Real FMSplit2(M,s){ return s*0.25*(M+s)*(M+s); }\n"
                 "Real FMSplit4(M,beta,s){\n"
@@ -1272,6 +1900,49 @@ principle=(
             does_not_prove="Full LUSGS residual or mode-1 Roe-weighted pressure path.",
         ),
 
+
+        TheoryEntry(
+            id="ideal_gas_sound_speed_from_pressure",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Ideal-gas sound speed from pressure c(p, rho, gamma)",
+            role_tags=("EOS", "sound-speed"),
+            formula_plain=(
+                "c = sqrt( gamma * p / rho )\n"
+                "Pressure-density form (vs total-enthalpy form)"
+            ),
+            formula_latex=(
+                r"c=\sqrt{\gamma\frac{p}{\rho}}"
+            ),
+            principle=(
+                "Isentropic sound speed from local static pressure and density. "
+                "Companion to IdealGasSoundSpeed (total-enthalpy form)."
+            ),
+            background=(
+                "Pure API IdealGasSoundSpeedFromPressure in NsInvFluxPolicy. "
+                "Related: IdealGasSoundSpeed, RoeAbsoluteEigenvalues."
+            ),
+            references=(
+                "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/ideal_gas_sound_speed_from_pressure.rst",
+            ),
+            csv_relpath="tools/verification/data/ideal_gas_sound_speed_from_pressure_theory.csv",
+            plot_module="plot_ideal_gas_sound_speed_from_pressure",
+            pure_apis=("IdealGasSoundSpeedFromPressure",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ideal_gas_sound_speed_from_pressure.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "c = sqrt(fabs(gama * pressure / density));\n"
+            ),
+            proves="c=sqrt(gamma*p/rho) vs pure API on a pressure grid.",
+            does_not_prove="Consistency with total-enthalpy form on full Roe state.",
+        ),
+
         TheoryEntry(
             id="ideal_gas_sound_speed",
             family="mean-flow",
@@ -1315,6 +1986,142 @@ principle=(
             does_not_prove="Variable-gamma gas or numerical flux case residuals.",
         ),
 
+
+
+
+
+        TheoryEntry(
+            id="ideal_gas_conservative_to_prim",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Ideal-gas conservative to prim map",
+            role_tags=("EOS", "primitive"),
+            formula_plain=(
+                "rho = |q_rho|\n"
+                "u = q_mom / rho\n"
+                "p = (gamma-1) * (q_rhoE - 0.5*rho*|u|^2)"
+            ),
+            formula_latex=(
+                r"p=(\gamma-1)\bigl(\rho e-\tfrac12\rho|u|^{2}\bigr)"
+            ),
+            principle=(
+                "Inverse of IdealGasPrimToConservative: recover primitives "
+                "from conserved density, momentum, and total energy."
+            ),
+            background=(
+                "Pure API IdealGasConservativeToPrim in NsInvFluxPolicy. "
+                "Pair with IdealGasPrimToConservative for round-trip tests."
+            ),
+            references=(
+                "Standard ideal-gas FV variable conversion",
+                "doc/source/numerical/ideal_gas_conservative_to_prim.rst",
+            ),
+            csv_relpath="tools/verification/data/ideal_gas_conservative_to_prim_theory.csv",
+            plot_module="plot_ideal_gas_conservative_to_prim",
+            pure_apis=("IdealGasConservativeToPrim",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ideal_gas_conservative_to_prim.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "p = (gama-1)*(qRhoE - 0.5*rho*|u|^2);\n"
+            ),
+            proves="Cons-to-prim algebra on energy grid; kinetic subtraction.",
+            does_not_prove="Robustness at near-vacuum or negative pressure.",
+        ),
+
+        TheoryEntry(
+            id="ideal_gas_prim_to_conservative",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Ideal-gas prim to conservative map",
+            role_tags=("EOS", "conservative"),
+            formula_plain=(
+                "q_rho = rho\n"
+                "q_mom = rho * u\n"
+                "q_rhoE = rho * ( p/(rho*(gamma-1)) + |u|^2/2 )"
+            ),
+            formula_latex=(
+                r"\mathbf{q}=\begin{bmatrix}\rho\\ \rho\mathbf{u}\\ "
+                r"\rho\bigl(\frac{p}{\rho(\gamma-1)}+\frac12|u|^{2}\bigr)"
+                r"\end{bmatrix}"
+            ),
+            principle=(
+                "Maps primitive thermodynamic/kinematic state to conserved "
+                "variables for the ideal-gas five-equation system."
+            ),
+            background=(
+                "Pure API IdealGasPrimToConservative; uses "
+                "IdealGasSpecificInternalEnergy. Inverse: "
+                "IdealGasConservativeToPrim."
+            ),
+            references=(
+                "Standard ideal-gas FV variable conversion",
+                "doc/source/numerical/ideal_gas_prim_to_conservative.rst",
+            ),
+            csv_relpath="tools/verification/data/ideal_gas_prim_to_conservative_theory.csv",
+            plot_module="plot_ideal_gas_prim_to_conservative",
+            pure_apis=("IdealGasPrimToConservative",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ideal_gas_prim_to_conservative.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "em = p/(rho*(g-1)) + 0.5*|u|^2;\n"
+                "qRhoE = rho * em;\n"
+            ),
+            proves="Prim-to-cons algebra on pressure and kinetic samples.",
+            does_not_prove="Variable-gamma gas or multi-species mixture.",
+        ),
+
+        TheoryEntry(
+            id="ideal_gas_specific_internal_energy",
+            family="mean-flow",
+            genus="NS-EOS",
+            section="thermodynamics / ideal gas",
+            title="Ideal-gas specific energy e(p, rho, |u|^2, gamma)",
+            role_tags=("EOS", "energy"),
+            formula_plain=(
+                "e = p / (rho * (gamma - 1)) + 0.5 * |u|^2\n"
+                "Feeds conservative energy and total enthalpy paths"
+            ),
+            formula_latex=(
+                r"e=\frac{p}{\rho(\gamma-1)}+\frac{1}{2}|u|^{2}"
+            ),
+            principle=(
+                "Calorically perfect gas specific total energy: thermal part "
+                "from equation of state plus kinetic energy."
+            ),
+            background=(
+                "Pure API IdealGasSpecificInternalEnergy in NsInvFluxPolicy. "
+                "Related: IdealGasStaticEnthalpy, TotalEnthalpy, "
+                "IdealGasPrimToConservative."
+            ),
+            references=(
+                "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
+                "doc/source/numerical/ideal_gas_specific_internal_energy.rst",
+            ),
+            csv_relpath="tools/verification/data/ideal_gas_specific_internal_energy_theory.csv",
+            plot_module="plot_ideal_gas_specific_internal_energy",
+            pure_apis=("IdealGasSpecificInternalEnergy",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/ideal_gas_specific_internal_energy.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "e = (p/rho)/(gama-1) + 0.5*speedSquared;\n"
+            ),
+            proves="Specific-energy algebra vs pure API on a kinetic grid.",
+            does_not_prove="Variable-gamma gas or full conservative residual.",
+        ),
 
         TheoryEntry(
             id="total_enthalpy",
@@ -1400,6 +2207,140 @@ principle=(
             ),
             proves="Static enthalpy algebra vs pure API on a p/rho grid.",
             does_not_prove="Variable-gamma gas or real-gas thermodynamics.",
+        ),
+
+
+
+
+        TheoryEntry(
+            id="roe_total_enthalpy_jump",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="Roe dissipation / enthalpy jump",
+            title="Roe total-enthalpy jump",
+            role_tags=("inviscid", "Roe", "dissipation"),
+            formula_plain=(
+                "ae = gamma-1\n"
+                "af = 0.5*ae*|u|^2\n"
+                "dh = -ae*(u·dq_mom - dqE) + af*dqRho"
+            ),
+            formula_latex=(
+                r"dh=-(\gamma-1)\bigl(\mathbf{u}\cdot\Delta(\rho\mathbf{u})"
+                r"-\Delta(\rho e)\bigr)"
+                r"+\tfrac12(\gamma-1)|u|^{2}\,\Delta\rho"
+            ),
+            principle=(
+                "Enthalpy-related jump used in Roe dissipation coupling. "
+                "Rest mid-state reduces to dh=(gamma-1)*Delta(rho e)."
+            ),
+            background=(
+                "Pure API RoeTotalEnthalpyJump in NsInvFluxPolicy. "
+                "Feeds RoeDissipationCouplingTerms."
+            ),
+            references=(
+                "Roe approximate Riemann solver; Toro Riemann solvers",
+                "doc/source/numerical/roe_total_enthalpy_jump.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_total_enthalpy_jump_theory.csv",
+            plot_module="plot_roe_total_enthalpy_jump",
+            pure_apis=("RoeTotalEnthalpyJump",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_total_enthalpy_jump.rst",
+            code_sketch=(
+                "// GATED SKETCH rest mid-state\n"
+                "dh = (gama-1)*dqE;\n"
+            ),
+            proves="Enthalpy-jump algebra vs pure API on energy and kinetic samples.",
+            does_not_prove="Full Roe residual or entropy-fix behavior.",
+        ),
+
+        TheoryEntry(
+            id="roe_continuity_normal_jump",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="Roe dissipation / continuity jump",
+            title="Roe continuity normal jump",
+            role_tags=("inviscid", "Roe", "dissipation"),
+            formula_plain=(
+                "jump = vn * dqRho - nx*dqRhoU - ny*dqRhoV - nz*dqRhoW\n"
+                "     = vn * Delta(rho) - n · Delta(rho u)"
+            ),
+            formula_latex=(
+                r"J_{\rho}=v_n\Delta\rho-\mathbf{n}\cdot\Delta(\rho\mathbf{u})"
+            ),
+            principle=(
+                "Continuity contribution to Roe dissipation uses the "
+                "relative normal velocity times density jump minus the "
+                "projected momentum jump."
+            ),
+            background=(
+                "Pure API RoeContinuityNormalJump in NsInvFluxPolicy. "
+                "Part of Roe wave-strength assembly."
+            ),
+            references=(
+                "Roe approximate Riemann solver; Toro Riemann solvers",
+                "doc/source/numerical/roe_continuity_normal_jump.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_continuity_normal_jump_theory.csv",
+            plot_module="plot_roe_continuity_normal_jump",
+            pure_apis=("RoeContinuityNormalJump",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_continuity_normal_jump.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "J = vn*dqRho - nx*dqU - ny*dqV - nz*dqW;\n"
+            ),
+            proves="Continuity jump algebra vs pure API.",
+            does_not_prove="Full Roe residual or entropy-fix interaction.",
+        ),
+
+        TheoryEntry(
+            id="roe_average_component",
+            family="mean-flow",
+            genus="NS-inviscid",
+            section="Roe average / component blend",
+            title="Roe average component (weighted mean)",
+            role_tags=("inviscid", "Roe", "average"),
+            formula_plain=(
+                "avg = (q_L + q_R * ratio) * coef\n"
+                "ratio = sqrt(rho_R/rho_L), coef = 1/(1+ratio)"
+            ),
+            formula_latex=(
+                r"\tilde{q}=(q_L+q_R\,r)\,c,\quad "
+                r"r=\sqrt{\rho_R/\rho_L},\; c=\frac{1}{1+r}"
+            ),
+            principle=(
+                "Each Roe-averaged primitive is a density-weighted blend of "
+                "left and right states using the Roe square-root weights."
+            ),
+            background=(
+                "Pure API RoeAverageComponent; weights from RoeAverageWeights. "
+                "Assembled in RoeAverageState."
+            ),
+            references=(
+                "P. L. Roe, approximate Riemann solvers; Toro Riemann solvers",
+                "doc/source/numerical/roe_average_component.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_average_component_theory.csv",
+            plot_module="plot_roe_average_component",
+            pure_apis=("RoeAverageComponent", "RoeAverageWeights"),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_average_component.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "avg = (left + right * ratio) * coef;\n"
+            ),
+            proves="Component blend algebra vs pure API; weight consistency.",
+            does_not_prove="Full Roe flux residual or entropy-fix behavior.",
         ),
 
         TheoryEntry(
@@ -1594,6 +2535,83 @@ principle=(
             ),
 proves="Entropy-fix pure policy tests.",
             does_not_prove="Full Roe flux shock-capturing quality.",
+        ),
+        TheoryEntry(
+            id="time_integral_rk_stage_weight",
+            family="numerical-method",
+            genus="Time integration",
+            section="explicit multi-stage control",
+            title="OneFLOW multi-stage coefficient schedule",
+            role_tags=("time-integration", "multi-stage", "solver-control"),
+            formula_plain=(
+                "N = rk_stage\n"
+                "a_s = 1 / (s + 1),  s = 0, ..., N - 1\n"
+                "ctrl.lhscoef = a_s  (on the finest grid)"
+            ),
+            formula_latex=(
+                r"N=\texttt{rk\_stage}"
+                "\n"
+                r"a_s=\frac{1}{s+1},\quad s=0,\ldots,N-1"
+                "\n"
+                r"\texttt{lhscoef}=a_s"
+            ),
+            principle=(
+                "The configured stage count determines the number of stored "
+                "stage weights. TimeIntegral::RungeKutta assigns each weight to "
+                "ctrl.lhscoef before executing that stage's residual and update tasks."
+            ),
+            background=(
+                "This documents the coefficient schedule implemented by OneFLOW. "
+                "It is not a Butcher tableau and does not establish the formal order, "
+                "stability region, or accuracy of the complete time integrator."
+            ),
+            references=(
+                "OneFLOW: codes/global/src/Ctrl.cpp and solver control Init implementations.",
+                "OneFLOW: codes/solver/src/TimeIntegral.cpp.",
+                "OneFLOW: codes/solver/src/EulerRungeKuttaCapability.cpp.",
+                "doc/source/numerical/time_integral_rk_stage_weight.rst",
+            ),
+            csv_relpath="tools/verification/data/time_integral_rk_stage_weight_theory.csv",
+            plot_module="plot_time_integral_rk_stage_weight",
+            pure_apis=("RungeKuttaStageWeight",),
+            source_relpaths=(
+                "codes/global/include/TimeIntegralPolicy.h",
+                "codes/global/src/Ctrl.cpp",
+                "codes/ns/src/NsCtrl.cpp",
+                "codes/ins/src/INsCtrl.cpp",
+                "codes/turb/src/TurbCtrl.cpp",
+                "codes/solver/src/TimeIntegral.cpp",
+                "codes/solver/src/EulerRungeKuttaCapability.cpp",
+                "codes/solver/include/EulerRungeKuttaCapability.h",
+            ),
+            doc_relpath="doc/source/numerical/time_integral_rk_stage_weight.rst",
+            code_sketch=(
+                "// GATED SKETCH - mirrors the current source, not a general RK tableau.\n"
+                "for (int stage = 0; stage < rk_stage; ++stage) {\n"
+                "    rk_coef.push_back(1.0 / (stage + 1));\n"
+                "}\n"
+                "for (int stage = 0; stage < rk_coef.size(); ++stage) {\n"
+                "    ctrl.lhscoef = ctrl.rk_coef[stage];\n"
+                "    execute_residual_and_update_tasks();\n"
+                "}\n"
+            ),
+            proves=(
+                "The source-level mapping from rk_stage to the stored coefficient "
+                "sequence and finest-grid stage loop."
+            ),
+            does_not_prove=(
+                "A complete Butcher tableau, formal temporal order, stability, "
+                "convergence rate, or CFD accuracy on a physical case."
+            ),
+            examples=(
+                "Input: rk_stage = 4.\n"
+                "Schedule: a_s = 1 / (s + 1), for s = 0, 1, 2, 3.\n"
+                "Coefficients: [1, 1/2, 1/3, 1/4].\n"
+                "Execution: TimeIntegral::RungeKutta assigns each coefficient to ctrl.lhscoef "
+                "before the corresponding residual/update stage.\n"
+                "Limit: this is the implemented coefficient schedule, not a complete Butcher "
+                "tableau and not evidence of formal order or stability.",
+            ),
         ),
     ]
 

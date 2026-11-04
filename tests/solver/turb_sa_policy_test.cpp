@@ -187,3 +187,77 @@ TEST( TurbSaPolicy, CompleteCellClosureAppliesSharedViscosityCap )
     EXPECT_GT( result.uncappedEddyViscosity, 1.0 );
     EXPECT_DOUBLE_EQ( result.eddyViscosity, 1.0 );
 }
+
+// Intermediate: SaProduction on a nu_tilde grid.
+// Ref: cb1=0.1355, ft2=0.2, S=3 => P = 0.3252 * nu_tilde.
+TEST( TurbSaPolicy, SaProductionCurveMatchesClosedForm )
+{
+    const Real cb1 = 0.1355;
+    const Real ft2 = 0.2;
+    const Real S = 3.0;
+    const Real nus[] = { 0.0, 0.1, 0.4, 1.0, 2.0, 5.0 };
+    for ( Real nu : nus )
+    {
+        EXPECT_NEAR(
+            SaProduction( cb1, ft2, S, nu ),
+            cb1 * ( 1.0 - ft2 ) * S * nu,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaProductionVanishesWhenFt2IsOne )
+{
+    EXPECT_NEAR( SaProduction( 0.1355, 1.0, 3.0, 10.0 ), 0.0, 1.0e-12 );
+}
+
+// Intermediate: SaDestruction on a nu_tilde_rs grid.
+// Ref: cw1k=3, fw=0.5, cb1=0.1355, ft2=0.2.
+TEST( TurbSaPolicy, SaDestructionCurveMatchesClosedForm )
+{
+    const Real cw1k = 3.0;
+    const Real fw = 0.5;
+    const Real cb1 = 0.1355;
+    const Real ft2 = 0.2;
+    const Real nus[] = { 0.0, 0.1, 0.4, 1.0, 2.0, 5.0 };
+    for ( Real nu : nus )
+    {
+        EXPECT_NEAR(
+            SaDestruction( cw1k, fw, cb1, ft2, nu ),
+            ( cw1k * fw - cb1 * ft2 ) * nu,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaDestructionCanBeNegativeWhenFt2Dominates )
+{
+    // cw1k*fw = 0.1, cb1*ft2 = 0.1355 => negative prefactor
+    EXPECT_LT( SaDestruction( 0.2, 0.5, 0.1355, 1.0, 1.0 ), 0.0 );
+}
+
+// Intermediate: SaSourceResidual on a diffusion grid.
+// Ref: P=0.13008, D=0.58916; S = P - D + Diff.
+TEST( TurbSaPolicy, SaSourceResidualCurveMatchesClosedForm )
+{
+    const Real P = 0.13008;
+    const Real D = 0.58916;
+    const Real diffs[] = { 0.0, 0.1, 0.1625, 0.5, 1.0 };
+    for ( Real diff : diffs )
+    {
+        EXPECT_NEAR(
+            SaSourceResidual( P, D, diff ),
+            P - D + diff,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaSourceResidualAssembledFromPieces )
+{
+    const Real P = SaProduction( 0.1355, 0.2, 3.0, 0.4 );
+    const Real D = SaDestruction( 3.0, 0.5, 0.1355, 0.2, 0.4 );
+    const Real Diff = SaLimitedDiffusion(
+        SaDiffusion( 1.3, 0.25, 0.5 ), 0.5, P );
+    EXPECT_NEAR(
+        SaSourceResidual( P, D, Diff ),
+        P - D + Diff,
+        1.0e-12 );
+}

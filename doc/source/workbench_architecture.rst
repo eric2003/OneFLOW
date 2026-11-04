@@ -111,8 +111,14 @@ This roadmap describes intended direction, not a blanket claim that all listed c
 Parameter editing
 -----------------
 
-See :doc:`case_parameter_design` for the proposed schema-backed GUI direction and
-its migration stages. Current workflow artifact overrides remain a narrower adapter.
+The Project Window now builds a read-only Shared / CFD / Grid / Other tree from
+``ParameterModel`` in control-manifest order. Effective values retain source and
+declaration positions; shadowed declarations remain visible. A separate Qt-independent
+``ParameterConsumerCatalog`` adds a small set of source-verified C++ read sites and
+labels all other keys as not yet audited rather than unused. This curated evidence is
+not whole-repository static analysis and does not prove numerical applicability.
+See :doc:`case_parameter_design` for the parameter model, parser boundaries, and
+consumer-evidence policy. Current workflow artifact overrides remain a narrower adapter.
 
 
 Contract Workbench navigation and domain payloads
@@ -134,3 +140,132 @@ A declaration or source link is not an execution result. A recorded run must ret
 its revision, command, configuration, platform, outcome, and artifact references;
 freshness and outcome are separate properties. A stale passing run remains a
 historical pass, not current verification.
+
+
+Workflow contract view
+----------------------
+
+The Contract Workbench includes a Workflow domain for declared dependency
+graphs. Its typed view shows case nodes, direct dependency edges, producer
+artifact paths, and consumer parameter bindings. The view is read-only and
+links to the checked-in workflow definition and existing plan/runner tests.
+
+Catalog validation checks that the typed graph agrees with the source
+definition and that artifact consumers name a direct producer dependency.
+Topological ordering, cycle detection, runtime staging, output checks, and
+failure propagation remain owned by the existing workflow planning and
+execution services. A declared graph or linked test is not an execution
+record; the Workbench must not infer a successful workflow run from static
+catalog validation.
+
+
+Workflow execution evidence
+---------------------------
+
+The Workflow contract can be opened in the existing workflow runner through
+an explicit Workbench action. The action passes the contract ID into the
+runner; it does not launch a process. The developer still selects the
+executable and base directory and starts the run explicitly.
+
+After real process execution, the runner appends one ExecutionRecord per
+launched step. Records contain the actual command, source case, process
+working directory, timestamps, exit code, repository revision, branch,
+platform/runtime metadata, explicit contract attribution, and checksummed
+output/log artifacts. Dependency-blocked steps and pre-launch failures remain
+in workflow history but are not represented as launched processes.
+
+The Contract Workbench Verification view displays explicitly linked runs
+separately from unlinked history and labels revision freshness independently
+from the recorded outcome. A successful process exit does not override a
+failed declared-output check.
+
+
+Each step-level ExecutionRecord also carries the parent workflow's
+`invocation_id`, allowing records to be grouped back into one graph run
+without changing the stable workflow-step `test_id`. This is an additive,
+optional schema-v1 field so existing records remain readable.
+
+The design borrows the SLSA provenance separation of build definition and
+run details, including invocation identity, timestamps, and output subjects
+(https://slsa.dev/spec/v1.2/provenance). OneFLOW's local records are not signed
+attestations and do not claim trusted-builder or complete-dependency
+guarantees.
+
+
+Parameter contracts in the Contract Workbench
+-----------------------------------------------
+
+The Parameter domain reuses the shared contract catalog and the existing
+source-backed parameter consumer index. It currently exposes a curated first
+slice: `time_integral`, `rk_stage`, and `mach_ref`. Each declaration links
+to implementation source paths and, where supported by evidence, related
+Formula & Knowledge IDs.
+
+A Parameter contract describes the meaning and implementation of a parameter;
+a Project Parameter Instance describes the effective value in one concrete
+case, including its source file and override order. These are separate models.
+The Contract Workbench is read-only and does not replace the Project Window
+parameter editor or rewrite legacy parameter files.
+
+Consumer coverage is deliberately conservative. A listed consumer is a
+source-backed read, not proof that the parameter applies to every solver task.
+An unlisted parameter is not considered unused. Declared source evidence is
+not an executed test result, and a formula cross-reference does not establish
+numerical order, stability, or physical validity. Future work can add typed
+constraints and Case-instance links without changing this ownership boundary.
+
+
+Runtime parameter-consumer evidence
+-----------------------------------
+
+parameter_consumer_catalog.py is the first source-backed consumer index. It deliberately lives outside the Qt presentation layer and stores a curated set of verified C++ reads. A record includes the parameter key, source path, consumer symbol, read expression, read timing (required / optional / lazy), applicability, and behavior/evidence notes.
+
+The first audited examples cover maxSteps (Iteration::Init and the step-count termination predicate), time_integral (global, compressible-NS, incompressible-NS, and turbulence control initialization) and rk_stage (the configured stage-weight schedule), mach_ref (NsCom::Init and the derived const_cp), vismodel (model selection and downstream conditional behavior), ptTol (lazy initialization on first Tolerance::GetTol), and nmg (multigrid setup and smoothing normalization).
+
+This is intentionally not presented as whole-repository usage analysis. Absence from the catalog means not yet audited, not unused. A source-level read proves a consumer exists; it does not prove the parameter is active for every task, controls a particular numerical outcome in every configuration, or has a validated physical range. Those claims require applicability tracing and separate numerical verification. The catalog is tested independently of Qt so the evidence model can later feed the Project Window and Contract Workbench.
+
+
+The time-integration parameter trace is also exposed in Formula & Knowledge as `time_integral_rk_stage_weight`. Its source-backed description deliberately separates the legacy stage coefficient schedule from the narrower resident Euler backend capability gate; it does not claim a complete Runge-Kutta tableau or temporal-order verification. See `doc/source/numerical/time_integral_control.rst`.
+
+The Project Window also displays declared Formula & Knowledge IDs for parameters that have an explicit catalog cross-reference. The first mapping connects `time_integral` and `rk_stage` to `time_integral_rk_stage_weight`; this is a navigational reference, not evidence that the temporal method has a verified order or stability region.
+
+
+Parameter contract grouping and discovery
+------------------------------------------
+
+Parameter contracts carry an explicit, validated group identity, display title,
+and sort order in their versioned declarations. The Parameter browser groups
+entries by this metadata and offers case-insensitive search across parameter
+identity, title, explanatory text, references, documentation, and implementation
+paths. Search filters the existing groups rather than flattening the results.
+
+Groups describe the engineering subject, not merely the source file that
+happens to read a parameter. The initial declarations distinguish Time Integration
+from Compressible Flow. Laminar and Turbulence groups should be populated only
+when source-backed parameter contracts for those models are added; a parameter
+must not be assigned to a physical model based on its name alone. Grouping is
+navigation metadata and does not imply complete parameter coverage.
+
+
+### Parameter mathematical knowledge and notation mapping
+
+A Parameter contract may declare a typed `knowledge` payload containing
+multiple formula definitions, assumptions, term-level meanings, notation
+aliases, OneFLOW identifier mappings, references, and explicit caveats. The
+catalog validates this payload independently of execution evidence.
+
+The Mach-number example deliberately separates four relations: local
+`M = V/a`, the ideal-gas sound-speed relation, free-stream/reference
+`M_infinity = V_infinity/a_infinity`, and the exact OneFLOW initialization
+expression for `const_cp`. The first three describe physical concepts under
+their stated assumptions; the last is a source-derived code relation. The
+Workbench's Formula & Symbols tab shows the term meanings and cross-notation
+mapping, exposes the LaTeX source for copying, and can render a PNG preview
+using the same renderer as Formula & Knowledge.
+
+A symbol alias is a documented common notation, not a universal equivalence.
+In particular, local Mach number and reference/free-stream Mach number must
+not be conflated. A code identifier is an implementation name, not a canonical
+mathematical symbol. The OneFLOW source mapping is therefore explicit and
+scoped. Bibliographic references and URLs are stored with the contract, while
+assumptions and unresolved physical interpretations remain visible caveats.

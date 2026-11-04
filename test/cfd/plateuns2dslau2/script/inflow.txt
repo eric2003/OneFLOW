@@ -32,5 +32,5 @@ Real prt      =  0.90;
 Real schmidtl =  0.5;
 Real schmidtt =  0.5;
 string gasModelFile  =  "gasmodel/air5s11r.dat"
-int  isowallbc  =  0;     // 0 ¾øÈÈ±Ú 1 µÈÎÂ±Ú
+int  isowallbc  =  0;     // 0 - adiabatic wall; 1 - isothermal wall
 Real twall_dim  =  300.0; // K

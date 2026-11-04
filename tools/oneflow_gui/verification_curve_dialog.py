@@ -62,11 +62,11 @@ class VerificationCurveDialog(QDialog):
         from verification.curve_catalog import list_theory_entries
         self._entries = list_theory_entries()
         self._map = {e.id: e for e in self._entries}
-        self.setWindowTitle("Contract Workbench — Formula knowledge")
+        self.setWindowTitle("Contract Workbench - Formula knowledge")
         self.resize(1180, 760)
         root = QVBoxLayout(self)
         intro = QLabel(
-            "Taxonomy: turbulence (SA/SST) and mean-flow (NS-LUSGS / NS-inviscid). "
+            "Taxonomy: turbulence (SA/SST), mean-flow (NS-LUSGS / NS-inviscid), and time integration. "
             "LaTeX preview is mathtext best-effort; full LaTeX source is always available. "
             "Paths are repository-relative."
         )
@@ -118,12 +118,15 @@ class VerificationCurveDialog(QDialog):
         ll.addWidget(self.latex_scroll)
 
         self.principle = QPlainTextEdit(); self.principle.setReadOnly(True)
+        self.implementation = QPlainTextEdit(); self.implementation.setReadOnly(True)
+        self.examples = QPlainTextEdit(); self.examples.setReadOnly(True)
         self.refs = QPlainTextEdit(); self.refs.setReadOnly(True)
         self.doc_view = QPlainTextEdit(); self.doc_view.setReadOnly(True)
         self.sketch_view = QPlainTextEdit(); self.sketch_view.setReadOnly(True)
         self.sketch_view.setStyleSheet("font-family: Consolas, monospace;")
         self.allow_sketch = QCheckBox("Gated sketch: I will not auto-write production")
-        sk = QWidget(); skl = QVBoxLayout(sk); skl.addWidget(self.allow_sketch); skl.addWidget(self.sketch_view, 1)
+        sk = QWidget(); self.sketch_page = sk
+        skl = QVBoxLayout(sk); skl.addWidget(self.allow_sketch); skl.addWidget(self.sketch_view, 1)
         self.copy_sk = QPushButton("Copy sketch"); self.copy_sk.setEnabled(False)
         self.allow_sketch.toggled.connect(self.copy_sk.setEnabled)
         self.copy_sk.clicked.connect(lambda: self.allow_sketch.isChecked() and QApplication.clipboard().setText(self.sketch_view.toPlainText()))
@@ -137,6 +140,8 @@ class VerificationCurveDialog(QDialog):
         self.tabs.addTab(self.overview, "Overview")
         self.tabs.addTab(latex_page, "Formula")
         self.tabs.addTab(self.principle, "Principle")
+        self.tabs.addTab(self.implementation, "Implementation")
+        self.tabs.addTab(self.examples, "Examples")
         self.tabs.addTab(self.refs, "References")
         self.tabs.addTab(self.doc_view, "Sphinx excerpt")
         self.tabs.addTab(sk, "Code sketch")
@@ -176,6 +181,24 @@ class VerificationCurveDialog(QDialog):
             f = walk(self.tree.topLevelItem(i))
             if f: self.tree.setCurrentItem(f); return
 
+    def select_entry(self, entry_id: str) -> bool:
+        """Select a formula entry by its stable catalog ID."""
+        if entry_id not in self._map:
+            return False
+        pending = [
+            self.tree.topLevelItem(index)
+            for index in range(self.tree.topLevelItemCount())
+        ]
+        while pending:
+            item = pending.pop()
+            if item.data(0, Qt.ItemDataRole.UserRole) == entry_id:
+                self.tree.setCurrentItem(item)
+                return True
+            pending.extend(
+                item.child(index) for index in range(item.childCount())
+            )
+        return False
+
     def _cur(self):
         it = self.tree.currentItem()
         if not it: return None
@@ -200,6 +223,21 @@ class VerificationCurveDialog(QDialog):
         self.formula_plain.setPlainText(_plain(e))
         self.formula_latex.setPlainText(_latex(e))
         self.principle.setPlainText(f"Principle\n---------\n{e.principle}\n\nBackground\n----------\n{e.background}\n")
+        self.implementation.setPlainText(
+            "Production implementation\n-------------------------\n"
+            + ("\n".join(_sources(e)) or "No production source paths declared.")
+            + "\n\nPure APIs\n---------\n"
+            + ("\n".join(e.pure_apis) or "No pure API is declared for this entry.")
+            + "\n\nDocumentation\n-------------\n"
+            + (e.doc_relpath or "No documentation path declared.")
+            + "\n\nCode sketches are illustrative only; use the source files above as authority."
+        )
+        self.examples.setPlainText(
+            "\n\n".join(e.examples)
+            if e.examples else
+            "No worked example is registered for this entry yet.\n"
+            "Examples must be tied to the declared formula and state their limits."
+        )
         self.refs.setPlainText("\n".join(f"- {r}" for r in e.references))
         self.doc_view.setPlainText(read_doc_excerpt(self._repository_root, e))
         self.sketch_view.setPlainText(_sketch(e))

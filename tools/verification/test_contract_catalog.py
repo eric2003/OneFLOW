@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+import codecs
 import json
 import subprocess
 import tempfile
@@ -10,6 +11,7 @@ from pathlib import Path
 
 from .contract_catalog import (
     ContractEvidence,
+    _read_python_numeric_constant,
     ContractSummary,
     adapt_declared_contract,
     adapt_geometry_scenario,
@@ -116,7 +118,7 @@ class ContractCatalogTest(unittest.TestCase):
             )
         )
         issues = validate_contract_summaries(self.repository_root, [summary])
-        self.assertEqual(issues, [], "\n".join(issues))
+        self.assertEqual(issues, [], "\\\\n".join(issues))
 
     def test_adapts_gui_process_execution_contract_and_resolves_python_tests(
         self,
@@ -172,9 +174,359 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(case_data.residual_outputs, ("results/res.dat",))
         self.assertEqual(len(case_data.analytical_references), 3)
         self.assertEqual(case_data.residual_absolute_tolerance, 1e-15)
+        self.assertEqual(case_data.output_absolute_tolerance, 1e-8)
+        self.assertEqual(case_data.residual_relative_tolerance, 0.0)
+        self.assertEqual(case_data.residual_nan_policy, "reject")
 
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\n".join(issues))
+
+    def test_parameter_max_time_contract_records_time_stop_condition(self) -> None:
+        definition_path = (
+            self.repository_root / "tools" / "verification" / "contracts"
+            / "parameter" / "max_time.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+
+        self.assertEqual(summary.id, "parameter/max-time")
+        self.assertEqual(summary.group_id, "run_control")
+        self.assertEqual(summary.group_title, "Run Control")
+        self.assertIn("currTime", summary.overview)
+        self.assertIn("maxSteps", summary.overview)
+        self.assertEqual(
+            set(summary.implementation_paths),
+            {
+                "codes/global/src/Ctrl.cpp",
+                "codes/global/src/Iteration.cpp",
+                "codes/global/include/Ctrl.h",
+                "codes/global/include/Iteration.h",
+            },
+        )
+        self.assertEqual(len(summary.evidence), 1)
+        self.assertEqual(summary.evidence[0].status, "declared_not_executed")
+        self.assertEqual(
+            resolve_contract_evidence(self.repository_root, summary)[0].status,
+            "declared",
+        )
+        issues = validate_contract_summaries(self.repository_root, [summary])
+        self.assertEqual(issues, [], "\n".join(issues))
+
+    def test_parameter_cfl_ramp_contract_records_source_and_test_links(self) -> None:
+        definition_path = (
+            self.repository_root / "tools" / "verification" / "contracts"
+            / "parameter" / "cfl_ramp.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+
+        self.assertEqual(summary.id, "parameter/cfl-ramp")
+        self.assertEqual(summary.group_id, "run_control")
+        self.assertEqual(summary.group_title, "Run Control")
+        self.assertIn("codes/ns/include/TimeStepPolicy.h", summary.implementation_paths)
+        self.assertEqual(len(summary.evidence), 9)
+        self.assertTrue(
+            all(item.status == "linked_not_executed" for item in summary.evidence)
+        )
+        resolutions = resolve_contract_evidence(self.repository_root, summary)
+        self.assertEqual([item.status for item in resolutions], ["resolved"] * len(summary.evidence))
+        self.assertTrue(
+            all(
+                item.evidence.status == "linked_not_executed"
+                for item in resolutions
+            )
+        )
+        issues = validate_contract_summaries(self.repository_root, [summary])
+        self.assertEqual(issues, [], "\\n".join(issues))
+
+    def test_parameter_max_steps_contract_records_stop_condition_scope(self) -> None:
+        definition_path = (
+            self.repository_root / "tools" / "verification" / "contracts"
+            / "parameter" / "max_steps.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+
+        self.assertEqual(summary.id, "parameter/max-steps")
+        self.assertEqual(summary.group_id, "run_control")
+        self.assertEqual(summary.group_title, "Run Control")
+        self.assertEqual(summary.group_order, 10)
+        self.assertIn("maxSteps", summary.overview)
+        self.assertIn("iexitflag", summary.overview)
+        self.assertEqual(
+            set(summary.implementation_paths),
+            {
+                "codes/global/src/Iteration.cpp",
+                "codes/global/include/Iteration.h",
+                "codes/global/src/Ctrl.cpp",
+            },
+        )
+        self.assertEqual(len(summary.evidence), 1)
+        self.assertEqual(summary.evidence[0].status, "declared_not_executed")
+        self.assertEqual(
+            resolve_contract_evidence(self.repository_root, summary)[0].status,
+            "declared",
+        )
+        issues = validate_contract_summaries(self.repository_root, [summary])
+        self.assertEqual(issues, [], "\\n".join(issues))
+
+    def test_parameter_mach_contract_adapts_typed_formula_knowledge(self) -> None:
+        definition_path = (
+            self.repository_root / "tools" / "verification" / "contracts"
+            / "parameter" / "mach_ref.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+
+        self.assertIsNotNone(summary.parameter_knowledge)
+        knowledge = summary.parameter_knowledge
+        self.assertEqual(len(knowledge.formulas), 4)
+        self.assertEqual(knowledge.formulas[0].id, "local_mach_definition")
+        self.assertEqual(knowledge.formulas[2].id, "freestream_mach_definition")
+        self.assertEqual(knowledge.formulas[2].symbols[0].oneflow_name, "mach_ref")
+        self.assertIn("NASA Glenn", knowledge.references[2])
+        self.assertTrue(any("Local Mach" in item for item in knowledge.caveats))
+
+    def test_rejects_parameter_formula_without_latex_source(self) -> None:
+        definition_path = (
+            self.repository_root / "tools" / "verification" / "contracts"
+            / "parameter" / "mach_ref.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["knowledge"]["formulas"][0]["latex"] = ""
+
+        with self.assertRaisesRegex(ValueError, "latex must be non-empty"):
+            adapt_declared_contract(definition)
+
+    def test_rejects_case_dimension_outside_supported_range(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["dimension"] = 4
+
+        with self.assertRaisesRegex(ValueError, "dimension must be 1, 2, or 3"):
+            adapt_declared_contract(definition)
+
+    def test_rejects_non_finite_case_residual_tolerance(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["residual_absolute_tolerance"] = float("nan")
+
+        with self.assertRaisesRegex(ValueError, "finite and non-negative"):
+            adapt_declared_contract(definition)
+
+    def test_rejects_case_paths_that_escape_repository_root(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["input_paths"][0] = "../outside/control.txt"
+
+        with self.assertRaisesRegex(ValueError, "must stay within its declared root"):
+            adapt_declared_contract(definition)
+
+    def test_rejects_duplicate_case_output_declarations(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["comparison_outputs"].append(
+            definition["case"]["comparison_outputs"][0]
+        )
+
+        with self.assertRaisesRegex(ValueError, "comparison_outputs must not contain duplicate"):
+            adapt_declared_contract(definition)
+
+    def test_adapts_rae2822_dependency_workflow_contract(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "workflow"
+            / "rae2822_grid_to_solver.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+
+        summary = adapt_declared_contract(definition)
+
+        self.assertEqual(summary.id, "workflow/rae2822-grid-to-solver")
+        self.assertEqual(summary.domain, "workflow")
+        self.assertEqual(summary.kind, "dependency_workflow")
+        self.assertIsNotNone(summary.workflow_data)
+        workflow = summary.workflow_data
+        self.assertEqual(workflow.workflow_id, "rae2822-grid-to-solver")
+        self.assertEqual(workflow.execution_mode, "dependency_graph")
+        self.assertEqual(
+            [step.case_id for step in workflow.steps],
+            ["rae2822grid", "rae2822_roe_sa"],
+        )
+        producer, consumer = workflow.steps
+        self.assertEqual(producer.outputs[0].artifact_id, "rae2822_grid")
+        self.assertEqual(producer.outputs[0].path, "results/rae2822_2d.ofl")
+        self.assertEqual(consumer.depends_on, ("rae2822grid",))
+        self.assertEqual(consumer.inputs[0].artifact_id, "rae2822_grid")
+        self.assertEqual(consumer.inputs[0].setting, "gridFileName")
+
+        issues = validate_contract_summaries(self.repository_root, [summary])
+        self.assertEqual(issues, [], "\n".join(issues))
+
+    def test_requires_typed_payload_for_workflow_contract(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "workflow"
+            / "rae2822_grid_to_solver.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition.pop("workflow")
+
+        with self.assertRaisesRegex(ValueError, "requires a workflow object"):
+            adapt_declared_contract(definition)
+
+    def test_rejects_workflow_input_without_direct_artifact_dependency(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "workflow"
+            / "rae2822_grid_to_solver.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["workflow"]["steps"][1]["depends_on"] = []
+
+        with self.assertRaisesRegex(ValueError, "must depend directly"):
+            adapt_declared_contract(definition)
+
+    def test_detects_workflow_definition_drift(self) -> None:
+        from .contract_catalog import WorkflowContractData
+
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "workflow"
+            / "rae2822_grid_to_solver.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+        source_path = (
+            self.repository_root
+            / "tools"
+            / "oneflow_gui"
+            / "examples"
+            / "rae2822_multicase.json"
+        )
+        source_definition = json.loads(source_path.read_text(encoding="utf-8"))
+        source_definition["steps"][0]["cases"][1]["directory"] = "stale-case"
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "workflow.json").write_text(
+                json.dumps(source_definition), encoding="utf-8"
+            )
+            workflow = WorkflowContractData(
+                summary.workflow_data.workflow_id,
+                "workflow.json",
+                summary.workflow_data.execution_mode,
+                summary.workflow_data.steps,
+            )
+            isolated = replace(
+                summary,
+                references=(),
+                implementation_paths=(),
+                documentation_paths=(),
+                evidence=(),
+                workflow_data=workflow,
+            )
+            issues = validate_contract_summaries(root, [isolated])
+
+        self.assertTrue(
+            any("workflow definition steps do not match" in issue for issue in issues),
+            "\\\\n".join(issues),
+        )
+
+    def test_detects_case_output_tolerance_drift(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["output_absolute_tolerance"] = 1e-7
+        summary = adapt_declared_contract(definition)
+
+        issues = validate_contract_summaries(self.repository_root, [summary])
+
+        self.assertTrue(
+            any("output tolerance does not match" in issue for issue in issues),
+            "\n".join(issues),
+        )
+
+    def test_detects_case_residual_relative_tolerance_drift(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["residual_relative_tolerance"] = 1e-12
+        summary = adapt_declared_contract(definition)
+
+        issues = validate_contract_summaries(self.repository_root, [summary])
+
+        self.assertTrue(
+            any("residual relative tolerance does not match" in issue for issue in issues),
+            "\n".join(issues),
+        )
+
+    def test_rejects_case_residual_nan_policy_other_than_reject(self) -> None:
+        definition_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "case"
+            / "laminar_flat_plate_slau2.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        definition["case"]["residual_nan_policy"] = "allow"
+
+        with self.assertRaisesRegex(ValueError, "residual_nan_policy must be reject"):
+            adapt_declared_contract(definition)
 
     def test_detects_case_residual_tolerance_drift(self) -> None:
         definition_path = (
@@ -394,6 +746,36 @@ class ContractCatalogTest(unittest.TestCase):
             text=True,
         )
 
+    def test_loads_source_backed_parameter_contracts(self) -> None:
+        summaries, issues = load_contract_catalog(self.repository_root)
+        parameters = {
+            item.id: item for item in summaries if item.domain == "parameter"
+        }
+
+        self.assertEqual(
+            set(parameters),
+            {
+                "parameter/time_integral",
+                "parameter/rk_stage",
+                "parameter/mach_ref",
+                "parameter/max-steps",
+                "parameter/max-time",
+                "parameter/cfl-ramp",
+            },
+        )
+        self.assertEqual(parameters["parameter/max-steps"].group_id, "run_control")
+        self.assertEqual(parameters["parameter/max-time"].group_id, "run_control")
+        self.assertEqual(parameters["parameter/cfl-ramp"].group_id, "run_control")
+        self.assertIn(
+            "time_integral_rk_stage_weight",
+            parameters["parameter/rk_stage"].references,
+        )
+        self.assertIn(
+            "codes/ns/src/NsCom.cpp",
+            parameters["parameter/mach_ref"].implementation_paths,
+        )
+        self.assertEqual(issues, (), "\\n".join(issues))
+
     def test_loads_complete_combined_catalog_without_reference_errors(self) -> None:
         summaries, issues = load_contract_catalog(self.repository_root)
 
@@ -406,6 +788,13 @@ class ContractCatalogTest(unittest.TestCase):
         )
         case_contracts = [item for item in summaries if item.domain == "case"]
         self.assertEqual(len(case_contracts), 1)
+        workflow_contracts = [
+            item for item in summaries if item.domain == "workflow"
+        ]
+        self.assertEqual(len(workflow_contracts), 1)
+        self.assertEqual(
+            workflow_contracts[0].id, "workflow/rae2822-grid-to-solver"
+        )
         self.assertEqual(
             case_contracts[0].id,
             "case/laminar-flat-plate-slau2",
@@ -476,6 +865,25 @@ class ContractCatalogTest(unittest.TestCase):
             "\n".join(issues),
         )
 
+
+    def test_parameter_examples_are_structured_and_rendered_for_all_contracts(self) -> None:
+        summaries, issues = load_contract_catalog(self.repository_root)
+        self.assertFalse(issues, "\\n".join(issues))
+        parameter_summaries = {
+            item.id: item for item in summaries if item.domain == "parameter"
+        }
+        self.assertEqual(len(parameter_summaries), 6)
+        self.assertTrue(all(item.examples for item in parameter_summaries.values()))
+        for contract_id, summary in parameter_summaries.items():
+            with self.subTest(contract_id=contract_id):
+                self.assertTrue(summary.examples)
+                for example in summary.examples:
+                    self.assertTrue(example.title)
+                    self.assertTrue(example.input)
+                    self.assertTrue(example.calculation)
+                    self.assertTrue(example.result)
+                    self.assertTrue(example.limitations)
+
     def test_resolves_evidence_without_promoting_execution_status(self) -> None:
         from .contract_catalog import resolve_contract_evidence
 
@@ -531,6 +939,56 @@ class ContractCatalogTest(unittest.TestCase):
         )
         self.assertTrue(resolutions[0].resolved_path.endswith("EvidenceTest.cpp"))
         self.assertIn("missing repository file", resolutions[1].diagnostic)
+
+
+    def test_reads_python_sources_with_utf8_bom(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            source = root / "BomContractTest.py"
+            source.write_bytes(
+                codecs.BOM_UTF8
+                + (
+                    "OUTPUT_ABSOLUTE_TOLERANCE = 1e-8\n"
+                    "class BomContractTest(unittest.TestCase):\n"
+                    "    def test_bom_source(self):\n"
+                    "        pass\n"
+                ).encode("utf-8")
+            )
+
+            tolerance = _read_python_numeric_constant(
+                root, "BomContractTest.py", "OUTPUT_ABSOLUTE_TOLERANCE"
+            )
+            summary = ContractSummary(
+                id="runtime/python-bom-source",
+                source_id="python-bom-source",
+                title="Python BOM source",
+                domain="runtime",
+                kind="test_contract",
+                overview="",
+                principle="",
+                architecture="",
+                status="implemented",
+                references=(),
+                implementation_paths=(),
+                documentation_paths=(),
+                evidence=(
+                    ContractEvidence(
+                        kind="python_test",
+                        reference="BomContractTest.test_bom_source",
+                        status="linked_not_executed",
+                        scope="BomContractTest.py; UTF-8 BOM regression fixture.",
+                    ),
+                ),
+                claims=(),
+                limitations=(),
+            )
+
+            resolutions = resolve_contract_evidence(root, summary)
+            issues = validate_contract_summaries(root, [summary])
+
+        self.assertEqual(tolerance, 1e-8)
+        self.assertEqual([item.status for item in resolutions], ["resolved"])
+        self.assertEqual(issues, [], "\n".join(issues))
 
     def test_resolves_python_unittest_declarations_without_importing_them(self) -> None:
         from .contract_catalog import resolve_contract_evidence

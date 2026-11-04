@@ -65,7 +65,10 @@
       "test/cfd/plateuns2dslau2/results/u.blasius",
       "test/cfd/plateuns2dslau2/results/v.blasius"
     ],
-    "residual_absolute_tolerance": 1e-15
+    "residual_absolute_tolerance": 1e-15,
+    "output_absolute_tolerance": 1e-8,
+    "residual_relative_tolerance": 0.0,
+    "residual_nan_policy": "reject"
   },
   "verification": [
     {

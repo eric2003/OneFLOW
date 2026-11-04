@@ -21,6 +21,13 @@ https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md
 
 **Run mode** 设置保存在用户设置文件中。选择 **Multi-case run** 或 **Dependency workflow** 后打开 **Saved Workflows...**，会自动创建对应模式的新工作流草稿；**Run single case** 不会创建工作流草稿，单算例从 **Project > Open Project...** 进入。
 
+参数统一视图
+------------
+
+打开项目后，ProjectWindow 根据 control.txt 中列出的文件顺序读取参数文件，显示 Shared、CFD、Grid 和 Other 四个分类。control.txt 只作为加载清单，不会作为普通参数显示。参数行保留原始值、声明类型、来源文件、manifest 文件顺序和文件内声明顺序。数组声明和标量解析器暂不支持的声明形式会显示在 Other / Unsupported declarations 中，并附带来源行和限制说明；该扫描不代表已识别全部历史语法。
+
+同名参数按后声明覆盖先声明处理；有效声明下方保留所有被覆盖声明及其来源。部分已核对的参数还会显示 Runtime consumer 子项，包括消费函数、读取时机和 C++ 源文件。消费者目录目前是经过源码核对的有限清单；显示 Not audited 或未列出消费者表示尚未追踪，不表示参数无用。参数视图只读，双击参数可在配置的外部编辑器中打开原始文件。 对于已经建立公式知识关联的参数，还会显示 Formula & Knowledge 条目 ID；例如 time_integral 和 rk_stage 关联 time_integral_rk_stage_weight。该关联用于导航，不代表时间离散阶数或稳定性已经得到验证。
+
 项目和单算例
 ------------
 
@@ -64,6 +71,23 @@ Development Tests 使用固定的用户数据测试工作目录，并在每批�
 
 Contract Workbench
 ------------------
+Implementation / Code 页支持在工作台内部预览源码：左侧选择实现文件，右侧显示带行号的只读局部代码，每页最多 80 行，可继续查看前后代码段。完整文件仍可通过“Open source files...”在配置的外部编辑器中打开。预览只读取仓库根目录内的声明文件，不修改源码。当前实现按文件定位；函数声明与定义的符号级联动作为后续扩展。
+
+
+Formula & Knowledge 的导航现在将 **Implementation** 和 **Code sketch** 分开：
+Implementation 显示真实生产源码路径、纯函数 API 和对应文档；Code sketch
+仅用于辅助理解，不能替代生产实现。新增 **Examples** 标签页，示例包含输入、
+计算过程、结果和适用边界。目前先加入 SA 的 ``fv1``、SST 的 ``F1``，以及
+OneFLOW 多阶段时间推进系数序列示例。**Parameter** 领域也有独立的 **Examples** 标签页，
+当前六个参数契约均提供结构化算例：maxSteps 的迭代停止分支、maxTime 的物理时间阈值、
+time_integral 的方法分派、rk_stage 的四阶段系数、CFL ramp 的双时间索引以及
+mach_ref 的参考状态缩放。每个例子分别列出输入、计算、结果和限制；这些数值演算
+用于解释参数语义，不会冒充求解器运行结果或数值精度验证。对于尚未整理示例的条目会明确显示
+尚无示例，不会用推测数据填充。多阶段示例只解释当前实现的
+``a_s = 1/(s+1)`` 系数安排，不将其误称为完整 Butcher tableau 或形式阶数证明。
+
+Contract Workbench
+------------------
 Case 领域还提供两个文件入口：**Open case directory...** 打开算例目录；
 **Open suite and references...** 打开 Suite 清单、残差基线和保留的解析参考数据。
 这些操作只定位已有文件，不会启动求解器，也不会修改基线。
@@ -98,3 +122,21 @@ Contract Workbench 展示证据声明和验证范围，不负责执行求解器�
 Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动求解器进程。case、工作流、运行记录和任务结果等服务尽量保持 Qt 无关并有独立测试。项目发现、case catalog、工作流定义、运行副本和运行历史各自有不同职责。
 
 后续可完善项是：让工作流定义与 .ofw 定义共享一个持久化模型，减少两种格式之间的重复。详细架构约束见 doc/source/workbench_architecture.rst；GUI 模块、服务和测试索引见 tools/oneflow_gui/README.md。
+
+参数运行时消费者追踪：第一批证据
+--------------------------------
+
+新增 parameter_consumer_catalog.py，作为 Qt 无关的运行时消费者证据目录。它不是全仓库自动扫描器，而是经过当前 hexin C++ 源码核对的一组明确记录。每条记录包含参数名、源文件、消费函数、读取表达式、读取时机、适用条件以及行为说明。
+
+第一批核对的参数包括：
+
+* maxSteps：Iteration::Init 必需读取；在 iexitflag == 0 时，SimuIterState::Running 使用它作为外迭代终止上限。
+* time_integral：分别在 Ctrl::Init 和 NsCtrl::Init 中读取，属于不同控制初始化路径。
+* mach_ref：由 NsCom::Init 读取，并与 gama_ref 一起用于计算 const_cp。
+* vismodel：由 VisModel::Init 读取，后续影响黏性模型检查和壁面距离处理分支。
+* ptTol：不是简单的启动时立即读取，而是在首次调用 Tolerance::GetTol 时通过 Tolerance::Init 延迟读取。
+* nmg：由 MG::Init 读取；当值不大于 1 时，程序会调整前、后平滑步数。
+
+读取时机区分为 required、optional 和 lazy。参数不在当前目录中，只表示尚未完成追踪，不能据此判定参数无用。代码中存在读取语句，也不代表该参数对所有任务都生效，更不代表其物理意义、推荐范围和数值效果已经验证。
+
+新增独立单元测试，覆盖大小写无关查询、多处消费者、延迟读取和未知参数边界。后续逐步扩充时，必须先核对 hexin 中的真实代码路径，再补充适用模型、公式依据和验证证据；不能仅凭参数名称推断公式。

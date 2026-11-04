@@ -566,3 +566,248 @@ TEST( InvFluxPolicy, RoePressureFromTotalEnthalpyRemovesKinetic )
         2.0 * 4.5 * ( 0.4 / 1.4 ),
         1.0e-12 );
 }
+
+// Intermediate: IdealGasSpecificInternalEnergy on a kinetic grid.
+// Ref: rho=1, p=1, gamma=1.4 -> e_int = 2.5.
+TEST( InvFluxPolicy, IdealGasSpecificInternalEnergyCurveMatchesClosedForm )
+{
+    const Real density = 1.0;
+    const Real pressure = 1.0;
+    const Real gama = 1.4;
+    const Real eInt = ( pressure / density ) / ( gama - 1.0 );
+    const Real u2s[] = { 0.0, 1.0, 2.0, 4.0, 8.0, 16.0 };
+    for ( Real u2 : u2s )
+    {
+        EXPECT_NEAR(
+            IdealGasSpecificInternalEnergy( density, pressure, gama, u2 ),
+            eInt + 0.5 * u2,
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, IdealGasSpecificInternalEnergyScalesWithPressure )
+{
+    // Double p at fixed rho and u=0 doubles e_int.
+    EXPECT_NEAR(
+        IdealGasSpecificInternalEnergy( 1.0, 2.0, 1.4, 0.0 ),
+        2.0 * IdealGasSpecificInternalEnergy( 1.0, 1.0, 1.4, 0.0 ),
+        1.0e-12 );
+}
+
+// Intermediate: IdealGasSoundSpeedFromPressure on a pressure grid.
+// Ref: rho=1, gamma=1.4.
+TEST( InvFluxPolicy, IdealGasSoundSpeedFromPressureCurveMatchesClosedForm )
+{
+    const Real density = 1.0;
+    const Real gama = 1.4;
+    const Real pressures[] = { 0.25, 0.5, 1.0, 1.4, 2.0, 4.0 };
+    for ( Real p : pressures )
+    {
+        EXPECT_NEAR(
+            IdealGasSoundSpeedFromPressure( density, p, gama ),
+            sqrt( gama * p / density ),
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, IdealGasSoundSpeedFromPressureScalesWithSqrtPressure )
+{
+    const Real c1 = IdealGasSoundSpeedFromPressure( 1.0, 1.0, 1.4 );
+    const Real c4 = IdealGasSoundSpeedFromPressure( 1.0, 4.0, 1.4 );
+    EXPECT_NEAR( c4, 2.0 * c1, 1.0e-12 );
+}
+
+// Intermediate: FaceMachNumber on a vn grid (sound speed fixed).
+TEST( InvFluxPolicy, FaceMachNumberCurveMatchesClosedForm )
+{
+    const Real c = 1.5;
+    const Real vns[] = { -3.0, -1.5, 0.0, 0.75, 1.5, 3.0 };
+    for ( Real vn : vns )
+    {
+        EXPECT_NEAR( FaceMachNumber( vn, c ), vn / c, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, FaceMachNumberInverselyScalesWithSoundSpeed )
+{
+    EXPECT_NEAR(
+        FaceMachNumber( 3.0, 1.5 ),
+        2.0 * FaceMachNumber( 3.0, 3.0 ),
+        1.0e-12 );
+}
+
+// Intermediate: EulerConvectiveFlux on a vn grid.
+// Ref: rho=1.2, u=2, v=w=0, p=3, h=10, n=(1,0,0), vfn=0.
+TEST( InvFluxPolicy, EulerConvectiveFluxCurveMatchesClosedForm )
+{
+    const Real rho = 1.2;
+    const Real u = 2.0;
+    const Real p = 3.0;
+    const Real h = 10.0;
+    const Real vns[] = { -2.0, -1.0, 0.0, 0.5, 1.0, 2.0 };
+    for ( Real vn : vns )
+    {
+        Real fr, fx, fy, fz, fe;
+        EulerConvectiveFlux(
+            rho, u, 0.0, 0.0, p, h,
+            vn, 1.0, 0.0, 0.0, 0.0,
+            fr, fx, fy, fz, fe );
+        const Real mass = rho * vn;
+        EXPECT_NEAR( fr, mass, 1.0e-12 );
+        EXPECT_NEAR( fx, mass * u + p, 1.0e-12 );
+        EXPECT_NEAR( fy, 0.0, 1.0e-12 );
+        EXPECT_NEAR( fz, 0.0, 1.0e-12 );
+        EXPECT_NEAR( fe, mass * h, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, EulerConvectiveFluxEnergyIncludesGridPressureWork )
+{
+    // vn=0, vfn=1, p=4 => fe = vfn*p = 4
+    Real fr, fx, fy, fz, fe;
+    EulerConvectiveFlux(
+        1.0, 0.0, 0.0, 0.0, 4.0, 9.0,
+        0.0, 1.0, 0.0, 0.0, 1.0,
+        fr, fx, fy, fz, fe );
+    EXPECT_NEAR( fe, 4.0, 1.0e-12 );
+    EXPECT_NEAR( fr, 0.0, 1.0e-12 );
+}
+
+// Intermediate: RoeAverageComponent on a right-state grid.
+// Ref: left=1, ratio=2, coef=1/3.
+TEST( InvFluxPolicy, RoeAverageComponentCurveMatchesClosedForm )
+{
+    const Real left = 1.0;
+    const Real ratio = 2.0;
+    const Real coef = 1.0 / 3.0;
+    const Real rights[] = { 0.0, 0.5, 1.0, 2.0, 4.0, 8.0 };
+    for ( Real right : rights )
+    {
+        EXPECT_NEAR(
+            RoeAverageComponent( left, right, ratio, coef ),
+            ( left + right * ratio ) * coef,
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeAverageComponentConsistentWithWeights )
+{
+    // Density-ratio weights: r=sqrt(rhoR/rhoL), c=1/(1+r)
+    Real ratio = 0.0, coef = 0.0;
+    RoeAverageWeights( 1.0, 4.0, ratio, coef );
+    EXPECT_NEAR( ratio, 2.0, 1.0e-12 );
+    EXPECT_NEAR( coef, 1.0 / 3.0, 1.0e-12 );
+    EXPECT_NEAR(
+        RoeAverageComponent( 3.0, 9.0, ratio, coef ),
+        ( 3.0 + 9.0 * 2.0 ) / 3.0,
+        1.0e-12 );
+}
+
+// Intermediate: IdealGasPrimToConservative on a pressure grid (rest gas).
+// Ref: rho=1, u=v=w=0, gamma=1.4 => qRhoE = p/(gamma-1).
+TEST( InvFluxPolicy, IdealGasPrimToConservativeCurveMatchesClosedForm )
+{
+    const Real density = 1.0;
+    const Real gama = 1.4;
+    const Real pressures[] = { 0.5, 1.0, 1.4, 2.0, 4.0 };
+    for ( Real p : pressures )
+    {
+        Real qr, qu, qv, qw, qe;
+        IdealGasPrimToConservative(
+            density, 0.0, 0.0, 0.0, p, gama, qr, qu, qv, qw, qe );
+        EXPECT_NEAR( qr, density, 1.0e-12 );
+        EXPECT_NEAR( qu, 0.0, 1.0e-12 );
+        EXPECT_NEAR( qe, p / ( gama - 1.0 ), 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, IdealGasPrimToConservativeAddsKineticEnergy )
+{
+    // rho=1, u=2, p=1, gamma=1.4
+    // e_int = 1/0.4 + 0.5*4 = 2.5+2 = 4.5
+    Real qr, qu, qv, qw, qe;
+    IdealGasPrimToConservative(
+        1.0, 2.0, 0.0, 0.0, 1.0, 1.4, qr, qu, qv, qw, qe );
+    EXPECT_NEAR( qu, 2.0, 1.0e-12 );
+    EXPECT_NEAR( qe, 4.5, 1.0e-12 );
+}
+
+// Intermediate: IdealGasConservativeToPrim on an energy grid (rest gas).
+// Ref: qRho=1, mom=0, gamma=1.4 => p = (gamma-1)*qRhoE.
+TEST( InvFluxPolicy, IdealGasConservativeToPrimCurveMatchesClosedForm )
+{
+    const Real gama = 1.4;
+    const Real energies[] = { 0.5, 1.0, 2.5, 4.0, 5.0 };
+    for ( Real qe : energies )
+    {
+        Real rho, u, v, w, p;
+        IdealGasConservativeToPrim(
+            1.0, 0.0, 0.0, 0.0, qe, gama, rho, u, v, w, p );
+        EXPECT_NEAR( rho, 1.0, 1.0e-12 );
+        EXPECT_NEAR( u, 0.0, 1.0e-12 );
+        EXPECT_NEAR( p, ( gama - 1.0 ) * qe, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, IdealGasConservativeToPrimSubtractsKinetic )
+{
+    // qRho=1, qRhoU=2 => u=2, |u|^2=4
+    // qRhoE=4.5 => reint = 4.5 - 0.5*1*4 = 2.5 => p = 0.4*2.5 = 1
+    Real rho, u, v, w, p;
+    IdealGasConservativeToPrim(
+        1.0, 2.0, 0.0, 0.0, 4.5, 1.4, rho, u, v, w, p );
+    EXPECT_NEAR( u, 2.0, 1.0e-12 );
+    EXPECT_NEAR( p, 1.0, 1.0e-12 );
+}
+
+// Intermediate: RoeContinuityNormalJump on a momentum-jump grid.
+// Ref: vn=2, n=(1,0,0), dqRho=3, dqV=dqW=0; jump = 6 - dqU.
+TEST( InvFluxPolicy, RoeContinuityNormalJumpCurveMatchesClosedForm )
+{
+    const Real dqUs[] = { -2.0, -1.0, 0.0, 1.0, 3.0, 6.0 };
+    for ( Real dqU : dqUs )
+    {
+        EXPECT_NEAR(
+            RoeContinuityNormalJump(
+                2.0, 1.0, 0.0, 0.0, 3.0, dqU, 0.0, 0.0 ),
+            6.0 - dqU,
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeContinuityNormalJumpUsesFullNormal )
+{
+    // vn=0, n=(0,1,0), dqRho=0, dqV=5 => jump = -5
+    EXPECT_NEAR(
+        RoeContinuityNormalJump(
+            0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 5.0, 0.0 ),
+        -5.0,
+        1.0e-12 );
+}
+
+// Intermediate: RoeTotalEnthalpyJump on an energy-jump grid (rest mid-state).
+// Ref: u=v=w=0, gamma=1.4, dqRho=dqMom=0; dh = (gamma-1)*dqE.
+TEST( InvFluxPolicy, RoeTotalEnthalpyJumpCurveMatchesClosedForm )
+{
+    const Real gama = 1.4;
+    const Real dqEs[] = { -2.0, -1.0, 0.0, 0.5, 1.0, 2.0 };
+    for ( Real dqE : dqEs )
+    {
+        EXPECT_NEAR(
+            RoeTotalEnthalpyJump(
+                0.0, 0.0, 0.0, gama, 0.0, 0.0, 0.0, 0.0, dqE ),
+            ( gama - 1.0 ) * dqE,
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeTotalEnthalpyJumpIncludesKineticDensityTerm )
+{
+    // u=1, gama=1.4, dqRho=2, dqMom=0, dqE=0
+    // af = 0.5*(0.4)*1 = 0.2; dh = 0.2*2 = 0.4
+    EXPECT_NEAR(
+        RoeTotalEnthalpyJump(
+            1.0, 0.0, 0.0, 1.4, 2.0, 0.0, 0.0, 0.0, 0.0 ),
+        0.4,
+        1.0e-12 );
+}

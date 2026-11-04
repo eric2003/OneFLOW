@@ -5,6 +5,54 @@
 
 using namespace ONEFLOW;
 
+
+TEST( TimeStepPolicy, CflRampStartsAtConfiguredValue )
+{
+    EXPECT_DOUBLE_EQ( CflAtIteration( 0.1, 1.0, 10, 0 ), 0.1 );
+}
+
+TEST( TimeStepPolicy, CflRampInterpolatesLinearly )
+{
+    const Real expected = 0.1 + ( 1.0 - 0.1 ) * 5.0 / 10.0;
+    EXPECT_NEAR( CflAtIteration( 0.1, 1.0, 10, 5 ), expected, 1.0e-12 );
+}
+
+TEST( TimeStepPolicy, CflRampReachesEndAtRampBoundary )
+{
+    EXPECT_DOUBLE_EQ( CflAtIteration( 0.1, 1.0, 10, 10 ), 1.0 );
+}
+
+TEST( TimeStepPolicy, CflRampKeepsEndAfterRamp )
+{
+    EXPECT_DOUBLE_EQ( CflAtIteration( 0.1, 1.0, 10, 20 ), 1.0 );
+}
+
+TEST( TimeStepPolicy, CflRampSupportsDescendingValues )
+{
+    const Real expected = 0.9 + ( 0.1 - 0.9 ) * 5.0 / 10.0;
+    EXPECT_NEAR( CflAtIteration( 0.9, 0.1, 10, 5 ), expected, 1.0e-12 );
+}
+
+TEST( TimeStepPolicy, ZeroLengthCflRampUsesEndValueAtInitialIteration )
+{
+    EXPECT_DOUBLE_EQ( CflAtIteration( 0.1, 1.0, 0, 0 ), 1.0 );
+}
+
+TEST( TimeStepPolicy, CflIterationUsesOuterStepForPhysicalTimeStepping )
+{
+    EXPECT_EQ( CflIterationIndex( 7, 3, 0 ), 7 );
+}
+
+TEST( TimeStepPolicy, CflIterationUsesInnerStepForDualTimeStepping )
+{
+    EXPECT_EQ( CflIterationIndex( 7, 3, 1 ), 3 );
+}
+
+TEST( TimeStepPolicy, CflIterationTreatsNonDualModeAsPhysicalTimeStepping )
+{
+    EXPECT_EQ( CflIterationIndex( 7, 3, 2 ), 7 );
+}
+
 TEST( TimeStepPolicy, InviscidFaceSpectralRadiusMatchesFormula )
 {
     EXPECT_DOUBLE_EQ(
@@ -179,4 +227,18 @@ TEST( TimeStepPolicy, CombineInvAndVisTimeStepIsBoundedByMin )
     EXPECT_LT( c, 3.0 );
     EXPECT_LT( c, 5.0 );
     EXPECT_NEAR( c, 1.875, 1.0e-12 );
+}
+
+TEST( TimeStepPolicy, CellTimeStepFromSpectrumInverselyScalesWithLambda )
+{
+    const Real a = CellTimeStepFromSpectrum( 1.0, 4.0, 1.0 );
+    const Real b = CellTimeStepFromSpectrum( 1.0, 4.0, 2.0 );
+    EXPECT_NEAR( a, 2.0 * b, 1.0e-12 );
+}
+
+TEST( TimeStepPolicy, CellTimeStepFromSpectrumLinearInVolume )
+{
+    const Real a = CellTimeStepFromSpectrum( 0.5, 2.0, 1.0 );
+    const Real b = CellTimeStepFromSpectrum( 0.5, 4.0, 1.0 );
+    EXPECT_NEAR( b, 2.0 * a, 1.0e-12 );
 }

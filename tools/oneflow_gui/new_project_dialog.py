@@ -54,6 +54,11 @@ class NewProjectDialog(QDialog):
 
         self.name_edit = QLineEdit()
         self.name_edit.setPlaceholderText("e.g. my_mesh_project")
+        self._template_default_name = ""
+        self.template_combo.currentIndexChanged.connect(
+            self._update_default_project_name
+        )
+        self._update_default_project_name()
         form.addRow("Project name", self.name_edit)
 
         destination_row = QHBoxLayout()
@@ -76,6 +81,14 @@ class NewProjectDialog(QDialog):
         actions.addWidget(cancel_button)
         layout.addLayout(actions)
 
+    def _update_default_project_name(self) -> None:
+        template_id = self.template_combo.currentData()
+        default_name = "LaminarFlatPlate" if template_id == "laminar_flat_plate" else ""
+        current_name = self.name_edit.text().strip()
+        if not current_name or current_name == self._template_default_name:
+            self.name_edit.setText(default_name)
+        self._template_default_name = default_name
+
     def _choose_destination(self) -> None:
         path = QFileDialog.getExistingDirectory(
             self,
@@ -86,12 +99,36 @@ class NewProjectDialog(QDialog):
             self.destination_edit.setText(path)
 
     def _create_project(self) -> None:
+        template_id = self.template_combo.currentData()
+        project_name = self.name_edit.text()
+        parent_directory = Path(self.destination_edit.text()).expanduser()
+        destination = parent_directory / project_name.strip()
+        overwrite = False
+
+        if destination.exists() or destination.is_symlink():
+            answer = QMessageBox.question(
+                self,
+                "Replace existing project?",
+                "The project folder already exists:\n\n"
+                + str(destination)
+                + "\n\nReplacing it will permanently delete the entire existing "
+                "project folder and then copy the template into a new folder. "
+                "All existing files and results in that project will be lost.\n\n"
+                "Do you want to replace it?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+            overwrite = True
+
         try:
             self.project = create_project(
                 self._repository_root,
-                self.template_combo.currentData(),
-                self.name_edit.text(),
-                self.destination_edit.text(),
+                template_id,
+                project_name,
+                parent_directory,
+                overwrite=overwrite,
             )
         except (OSError, ValueError) as error:
             QMessageBox.warning(self, "Cannot create project", str(error))

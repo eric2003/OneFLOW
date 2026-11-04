@@ -17,6 +17,7 @@ class ProjectTemplatesTest(unittest.TestCase):
     def test_lists_blank_and_existing_mesh_templates(self) -> None:
         template_ids = {item.template_id for item in available_project_templates()}
         self.assertIn("blank", template_ids)
+        self.assertIn("laminar_flat_plate", template_ids)
         self.assertIn("mesh_workflow", template_ids)
         self.assertIn("minimal_rectangle", template_ids)
         self.assertIn("rae2822_multicase", template_ids)
@@ -38,6 +39,53 @@ class ProjectTemplatesTest(unittest.TestCase):
             self.assertEqual(metadata["name"], "MyProject")
             self.assertTrue((project.root / "README.md").is_file())
 
+    def test_copies_laminar_flat_plate_case_without_autotest_or_source_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repository = root / "repository"
+            source = repository / "test" / "cfd" / "plateuns2dslau2"
+            files = {
+                "script/control.txt": '"simu.txt";\n',
+                "script/simu.txt": 'string simutask = "Solve";\n',
+                "script/dimension.txt": "int dimension = 2;\n",
+                "script/inflow.txt": "Real reynolds = 2.0e5;\n",
+                "grid/plate20182d.ofl": "mesh-data\n",
+                "grid/ns_bc.txt": "boundary-data\n",
+                "results/cf.blasius": "reference-data\n",
+                "results/u.blasius": "velocity-reference\n",
+                "results/v.blasius": "normal-velocity-reference\n",
+                "visual/visual.dat": "visual-settings\n",
+                "autotest/compare.txt": "regression-output\n",
+            }
+            for relative_path, content in files.items():
+                path = source / relative_path
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(content, encoding="utf-8")
+            target = root / "user-data" / "projects"
+
+            project = create_project(
+                repository, "laminar_flat_plate", "LaminarPlate", target
+            )
+
+            self.assertEqual(project.root, (target / "LaminarPlate").resolve())
+            for relative_path, content in files.items():
+                copied = project.root / relative_path
+                if relative_path.startswith("autotest/"):
+                    self.assertFalse(copied.exists())
+                else:
+                    self.assertEqual(copied.read_text(encoding="utf-8"), content)
+                    self.assertEqual(
+                        (source / relative_path).read_text(encoding="utf-8"),
+                        content,
+                    )
+            metadata = json.loads(
+                (project.root / ".oneflow-project.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(metadata["template"], "laminar_flat_plate")
+            self.assertEqual(metadata["source_case"], "test/cfd/plateuns2dslau2")
+            self.assertTrue((project.root / "README.md").is_file())
+            self.assertFalse((project.root / "autotest").exists())
+
     def test_copies_template_without_modifying_source(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -56,6 +104,64 @@ class ProjectTemplatesTest(unittest.TestCase):
             self.assertEqual(
                 (source / "case.json").read_text(encoding="utf-8"),
                 '{"task": "Grid"}\n',
+            )
+
+    def test_overwrites_existing_project_by_removing_it_before_copy(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repository = root / "repository"
+            source = repository / "test" / "cfd" / "plateuns2dslau2"
+            (source / "script").mkdir(parents=True)
+            (source / "script" / "control.txt").write_text(
+                '"simu.txt";\n', encoding="utf-8"
+            )
+            (source / "script" / "simu.txt").write_text(
+                'string simutask = "Solve";\n', encoding="utf-8"
+            )
+            target = root / "projects"
+            existing = target / "LaminarFlatPlate"
+            (existing / "old-results").mkdir(parents=True)
+            (existing / "old-results" / "stale.dat").write_text(
+                "stale user output", encoding="utf-8"
+            )
+            (existing / "user-note.txt").write_text(
+                "must be removed on explicit overwrite", encoding="utf-8"
+            )
+
+            project = create_project(
+                repository, "laminar_flat_plate", "LaminarFlatPlate", target,
+                overwrite=True,
+            )
+
+            self.assertTrue((project.root / "script" / "control.txt").is_file())
+            self.assertTrue((project.root / "script" / "simu.txt").is_file())
+            self.assertFalse((project.root / "old-results").exists())
+            self.assertFalse((project.root / "user-note.txt").exists())
+            self.assertTrue((project.root / ".oneflow-project.json").is_file())
+            self.assertTrue((source / "script" / "control.txt").is_file())
+
+    def test_missing_template_source_preserves_existing_project_on_overwrite(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repository = root / "repository"
+            repository.mkdir()
+            target = root / "projects"
+            existing = target / "LaminarFlatPlate"
+            existing.mkdir(parents=True)
+            marker = existing / "user-data.txt"
+            marker.write_text("preserve this project", encoding="utf-8")
+
+            with self.assertRaises(FileNotFoundError):
+                create_project(
+                    repository,
+                    "laminar_flat_plate",
+                    "LaminarFlatPlate",
+                    target,
+                    overwrite=True,
+                )
+
+            self.assertEqual(
+                marker.read_text(encoding="utf-8"), "preserve this project"
             )
 
     def test_rejects_existing_destination(self) -> None:

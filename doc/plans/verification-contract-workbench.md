@@ -1054,3 +1054,274 @@ The runtime contract declaration links the exact GoogleTest name as
 linked_not_executed. Static catalog resolution, CMake target declaration,
 CTest discovery, actual execution, and pass outcome remain distinct evidence
 states. The assistant has not run the user's Windows build or CTest.
+
+
+## 25. First typed Workflow-domain contract (2026-11-02)
+
+The first Workflow-domain slice uses the checked-in RAE2822 grid-to-solver
+example:
+
+`tools/oneflow_gui/examples/rae2822_multicase.json`
+
+The declared contract
+`tools/verification/contracts/workflow/rae2822_grid_to_solver.json`
+captures its two case nodes, the direct producer-consumer dependency, the
+stable `rae2822_grid` artifact ID, the producer output path, and the
+consumer's `gridFileName` binding in `script/cfd.txt`.
+
+### Typed graph payload and consistency
+
+The shared immutable `ContractSummary` now optionally carries
+`WorkflowContractData`, composed of typed step, input-binding, and
+output-artifact records. This remains a domain-specific extension; no
+workflow-only fields were added to numerical, geometry, case, or runtime
+contracts.
+
+The catalog checks:
+- unique workflow step IDs and output artifact IDs;
+- non-empty, root-relative case directories, artifact paths, and parameter
+  file paths without parent traversal;
+- every consumer input resolves to a declared producer artifact;
+- every consumer declares a direct dependency on that producer;
+- the typed graph payload matches the checked-in source workflow definition.
+
+The catalog does not reimplement topological sorting, cycle detection, runtime
+staging, process execution, or artifact existence checks. Those remain owned
+by the existing workflow plan and graph runner. Their Python tests are linked
+as `linked_not_executed` evidence until an actual execution record is attached.
+
+### Workbench presentation
+
+The domain hub now exposes Workflow. Its Workflow Graph tab presents the
+producer and consumer steps, dependency edge, artifact path, and parameter
+binding. A read-only action opens the exact workflow definition; the existing
+Verification tab links the plan and runner tests. This is a presentation of
+declared intent, not a claim that the example has been executed.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+python -m unittest tools.oneflow_gui.test_workflow_plan
+python -m unittest tools.oneflow_gui.test_workflow_graph_runner
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
+
+The test inventory now asserts discovery of the new catalog and Workbench
+tests. Existing CI test commands continue to execute the inventory and
+registered Python test groups; no duplicate workflow-specific CI pipeline
+was added. The user's 1156/1156 result is the pre-change baseline; this slice
+remains unverified until the focused and full local suites pass.
+
+
+## 26. Workflow execution evidence reaches the Workbench
+
+The Workflow contract now has an explicit **Run in workflow runner...** action.
+It opens the existing workflow editor/runner with the checked-in definition
+and passes the contract ID as an explicit attribution. The runner still
+requires the developer to choose the executable and graph base directory and
+to press Run; opening a contract does not execute a case.
+
+When a process is actually launched, the workflow completion path appends
+one immutable schema-v1 ExecutionRecord per launched workflow step. Each
+record retains the exact command arguments, source case directory, process
+working directory, start/finish timestamps, exit code, repository revision,
+branch, platform, Python runtime, recognized build configuration, and
+checksummed output/log artifacts. The explicit contract ID is copied into the
+record only when the run was launched from that contract's Workbench action.
+
+Dependency-blocked steps and failures before process launch remain in the
+existing WorkflowRunRecord history. They are not fabricated as process
+executions. A process that exits successfully but fails the declared-output
+check is recorded as failed even when its process exit code is zero. Runs
+launched from the general workflow manager without an explicit contract link
+remain unlinked in the Contract Workbench.
+
+The existing Verification view displays linked and unlinked execution history
+separately and compares the recorded commit with the checked-out HEAD. This
+connects a real workflow run to the declared contract without introducing a
+second workflow engine.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_workflow_execution_capture
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+python -m unittest tools.oneflow_gui.test_workflow_repository
+python -m unittest tools.oneflow_gui.test_workflow_graph_runner
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
+
+The new test module is registered in both the explicit Python unittest registry and Python Tooling CI. The user's 1156/1156
+result is the pre-change baseline; this feature slice requires its own focused
+and full-suite validation.
+
+
+### Execution identity and provenance boundary
+
+Each launched step record now carries the parent workflow's stable run ID as
+`invocation_id`. This makes the per-step records from one graph execution
+correlatable without overloading `test_id`, which remains the stable identity
+of the workflow step. Existing schema-v1 records without this optional field
+remain readable.
+
+This follows the SLSA provenance model's separation of build definition and
+run details, including invocation identity, timestamps, and output subjects:
+https://slsa.dev/spec/v1.2/provenance
+
+OneFLOW's local ExecutionRecord is a developer-facing execution log, not a
+signed SLSA attestation. It does not claim a trusted builder identity,
+complete dependency provenance, tamper resistance, or cryptographic
+attestation. Artifact hashes identify recorded files; they do not establish
+scientific correctness.
+
+
+## 27. Present workflow execution evidence by invocation
+
+Per-step execution records are intentionally retained as the immutable unit of
+process evidence. The shared `invocation_id` identifies the parent graph run;
+the Workbench now groups records with the same ID and presents a concise
+invocation summary (step count and aggregate outcome) before the individual
+step details.
+
+Aggregation is conservative: any failed step makes the invocation failed;
+otherwise blocked or cancelled steps retain those outcomes; the invocation is
+shown as passed only when every recorded step passed. Legacy records without an
+invocation ID remain independent and are never correlated by timestamp,
+command text, or test name. This avoids inventing relationships for older
+schema-v1 records.
+
+The grouping policy lives in the Qt-independent execution-record module and
+has unit coverage for interleaved records, multiple invocations, and legacy
+records. The Workbench test verifies that a two-step workflow is rendered as
+one invocation with both step records retained. This is a presentation and
+traceability improvement; it does not change workflow execution, scheduling,
+or the authoritative WorkflowRunRecord history.
+
+
+## 16. Case contract declaration integrity
+
+The first Case contract exposed a useful boundary: a versioned declaration is
+still untrusted input to the catalog. Before resolving repository files or
+presenting a case in the Workbench, the typed adapter now enforces these
+invariants:
+
+- dimension is exactly 1, 2, or 3;
+- maximum iteration count is a positive integer;
+- residual absolute tolerance is finite and non-negative (NaN and infinity
+  are invalid);
+- suite, case directory, residual baseline, input, comparison-output, and
+  analytical-reference paths are relative and contain no parent traversal;
+- each declared path list contains no duplicate entries.
+
+This is schema/domain validation, not solver validation. It prevents malformed
+metadata from being interpreted inconsistently across Windows and POSIX path
+semantics. The repository resolver still checks whether source-owned files
+exist, while the regression runner remains responsible for executing the
+solver and comparing generated results.
+
+The checks are covered by focused unit tests for unsupported dimensions,
+non-finite tolerance, path traversal, and duplicate output declarations.
+They run in the existing Python Tooling CI through the discovered
+tools.verification.test_contract_catalog module; no parallel runner or new
+CI execution path is introduced.
+
+The boundary follows a common secure-input practice: validate structure and
+domain invariants before resolving paths or acting on declarations, while
+keeping declaration validation, execution evidence, numerical verification,
+and physical validation as separate claims.
+
+
+## 17. Case comparison policy is part of the contract
+
+The Case payload now makes the two comparison paths explicit:
+
+- `output_absolute_tolerance` describes the ordinary text-output comparator
+  in `test/test.py` (`FLOAT_ABS_TOLERANCE`);
+- `residual_absolute_tolerance` and
+  `residual_relative_tolerance` describe the residual database comparator;
+- `residual_nan_policy` is explicit and currently must be `reject`.
+
+The catalog parses the runner's numeric constant from its Python AST rather
+than importing `test/test.py`, because importing a test runner can configure
+logging, parse arguments, or launch work. It compares the declaration with the
+actual runner constant and with the baseline JSON's residual tolerances and
+NaN policy. The Workbench displays the policies in Case Setup.
+
+The residual comparison is scale-aware:
+`|a-r| <= max(abs_tol, rel_tol * max(|a|, |r|))`. Iteration and sub-iteration
+columns are compared exactly; non-finite values are rejected. The ordinary
+text comparator uses an absolute tolerance for numeric tokens and exact
+matching for non-numeric tokens. These policies establish reproducible
+regression consistency only; they are not numerical error estimates,
+grid-convergence evidence, or independent physical validation.
+
+Focused tests cover typed policy adaptation, runner-tolerance drift,
+baseline-relative-tolerance drift, and rejection of a permissive NaN policy.
+The existing Python Tooling test inventory and CI commands already include
+the contract catalog and Workbench modules, so no duplicate CI lane is needed.
+
+
+## 28. Parameter contracts enter the shared Workbench
+
+The Parameter domain is now a first-class entry in the Contract Workbench
+domain hub. It uses the existing versioned contract declarations and shared
+read-only domain browser rather than creating a second parameter-specific
+contract store.
+
+The initial source-backed declarations are:
+
+- `parameter/time_integral`: selected integration-method dispatch and
+  references to the four control readers plus the shared time-integration
+  implementation;
+- `parameter/rk_stage`: stage-count input and the existing
+  `time_integral_rk_stage_weight` Formula & Knowledge entry;
+- `parameter/mach_ref`: reference Mach input and the derived
+  `const_cp = 1 / ((gama_ref - 1) * mach_ref^2)` initialization expression.
+
+These contracts separate parameter definition from a concrete project's
+effective parameter instance. They do not replace the Project Window parser,
+editor, encoding preservation, declaration-order handling, or override model.
+The catalog is intentionally curated: missing entries mean not yet audited,
+not unused. Source declarations and Formula Knowledge links are not execution
+or numerical verification evidence.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.verification.test_contract_catalog
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+python -m unittest tools.oneflow_gui.test_parameter_consumer_catalog
+```
+
+The exact-revision test results remain pending until the focused tests and
+full Python Tooling CI run complete.
+
+
+## 29. Parameter formulas, symbols, and implementation notation
+
+The Parameter contract schema now has an optional typed mathematical
+`knowledge` payload. Each formula has a stable ID, semantic role, plain-text
+form, LaTeX source, assumptions, and term definitions. Symbol records may
+include common alternate notations and an explicit OneFLOW identifier mapping.
+Bibliographic references and unresolved caveats remain attached to the
+parameter contract.
+
+The initial `mach_ref` knowledge separates local Mach number, ideal-gas
+speed of sound, free-stream/reference Mach number, and the exact source
+expression for `const_cp`. It intentionally does not assert that the
+reference input is the local Mach field or that the code identifier
+`const_cp` is identical to dimensional specific heat. This keeps textbook
+notation, physical meaning, and implementation naming as separate layers.
+
+The Parameter Workbench presents formula terms and symbol mappings, allows
+copying the original LaTeX source, and renders an optional PNG preview through
+the existing Formula & Knowledge LaTeX renderer. Formula display is a
+projection of the checked-in contract data; it does not create a second
+formula catalog or imply physical verification.
+
+Focused tests validate the typed formula payload, reject malformed LaTeX
+declarations, and check the GUI's formula/source/alias presentation. The
+existing catalog and Workbench CI jobs remain the authoritative validation
+path.

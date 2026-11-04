@@ -2,9 +2,12 @@
 
 For the user-manual entry in the main OneFLOW documentation, see [OneFLOW Workbench User Guide](../../doc/source/workbench_user_guide_zh.rst). This README remains the detailed module-level reference for current UI behavior and service tests. The architecture overview is [Workbench Architecture](../../doc/source/workbench_architecture.rst). Case parameter file ownership, runtime database limitations, and the proposed schema-backed editor are documented in [Case Parameter Design](../../doc/source/case_parameter_design.rst).
 
-The desktop application starts with a minimal Workbench home containing a single **Project** button. Open it to access **New Project...**, **Open Project...**, **Open Multi-Case Workspace...**, **Create Multi-Case Workspace...**, **Run History...**, and **Saved Workflows...** in a vertical list. The home page places **Tests...**, **Repository Test Inventory...**, **Contract Workbench...**, **Mesh Layout Editor...**, **Background Tasks...**, and **Configuration...** as separate vertical buttons directly below **Project**. **New Project...** creates a project from a template in a user-selected workspace directory; the initial templates are Blank project, Mesh conversion (`grid/mesh_workflow`), Mesh generation (`grid/minimal_rectangle`), and RAE2822 grid and CFD workflow. The RAE2822 template copies the mesh-conversion case and Roe-SA solver case into one workspace and includes `workflow.json`, which declares the generated-grid artifact and the solver dependency. Existing templates are copied and never edited in the source tree. The Blank project includes `.oneflow-project.json` metadata and a README. **Open Project** accepts any existing directory, including projects outside the repository and projects not registered in the built-in case catalog. The project window identifies Grid or CFD/flow projects where possible; unknown projects can still be opened. Projects inside the OneFLOW source repository must be copied to a workspace before running, and copy destinations must remain outside the source repository. User projects outside the repository can still be run in place or copied to a workspace. **Development Tests**, **Unit Tests**, and **CFD/Grid Regression** are task types with different execution strategies. The **Tests** entry groups unit tests, CFD/grid regression, and Development Tests. Development Tests is opt-in and unchecked by default. Its **Select cases...** dialog starts with all catalog cases selected, so checking Development Tests and pressing **Run** is enough; open the selector only to change the selection. Cases are copied to the fixed protected test workspace before each batch, and per-case results remain visible in the Tests dialog. The **Configuration...** dialog stores a **Run mode** preference with **Run single case**, **Multi-case run**, and **Dependency workflow** values. When **Saved Workflows...** opens, **Multi-case run** and **Dependency workflow** create a matching new draft; **Run single case** leaves the saved-workflow list unchanged. Use **Open Project...** for a single project. A versioned `.ofw` workspace file records case directories, execution mode, and dependency edges; use **Project > Open Multi-Case Workspace...** or **Project > Create Multi-Case Workspace...** to edit it. The `.ofw` editor can open the existing Saved Workflows runner through **Save and Run...**; artifact handoff still requires a full graph definition in Saved Workflows. Project discovery, catalog definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
+The desktop application starts with a minimal Workbench home containing a single **Project** button. Open it to access **New Project...**, **Open Project...**, **Open Multi-Case Workspace...**, **Create Multi-Case Workspace...**, **Run History...**, and **Saved Workflows...** in a vertical list. The home page places **Tests...**, **Repository Test Inventory...**, **Contract Workbench...**, **Mesh Layout Editor...**, **Background Tasks...**, and **Configuration...** as separate vertical buttons directly below **Project**. **New Project...** creates a project from a template in a user-selected workspace directory; the initial templates are Blank project, Mesh conversion (`grid/mesh_workflow`), Mesh generation (`grid/minimal_rectangle`), and RAE2822 grid and CFD workflow. The RAE2822 template copies the mesh-conversion case and Roe-SA solver case into one workspace and includes `workflow.json`, which declares the generated-grid artifact and the solver dependency. Existing templates are copied and never edited in the source tree. The Blank project includes `.oneflow-project.json` metadata and a README. **Open Project** accepts any existing directory, including projects outside the repository and projects not registered in the built-in case catalog. The project window identifies Grid or CFD/flow projects where possible; unknown projects can still be opened. The project overview lists the discovered parameter files in a selectable list. Select a file and choose **Modify selected...**, or double-click it, to open it with the configured source editor (VS Code by default). The runtime parameter file is already part of this list and is not displayed as a separate row. Opening a project indexes supported scalar declarations into `%USERPROFILE%\\.oneflow\\parameter-catalog.sqlite3` (or `ONEFLOW_HOME`). SQLite stores project/file identity, detected encoding, typed values, source hashes, schema metadata, and immutable content snapshots. Legacy parameter files remain authoritative; indexing never rewrites them. Projects inside the OneFLOW source repository must be copied to a workspace before running, and copy destinations must remain outside the source repository. User projects outside the repository can still be run in place or copied to a workspace. **Development Tests**, **Unit Tests**, and **CFD/Grid Regression** are task types with different execution strategies. The **Tests** entry groups unit tests, CFD/grid regression, and Development Tests. Development Tests is opt-in and unchecked by default. Its **Select cases...** dialog starts with all catalog cases selected, so checking Development Tests and pressing **Run** is enough; open the selector only to change the selection. Cases are copied to the fixed protected test workspace before each batch, and per-case results remain visible in the Tests dialog. The **Configuration...** dialog stores a **Run mode** preference with **Run single case**, **Multi-case run**, and **Dependency workflow** values. When **Saved Workflows...** opens, **Multi-case run** and **Dependency workflow** create a matching new draft; **Run single case** leaves the saved-workflow list unchanged. Use **Open Project...** for a single project. A versioned `.ofw` workspace file records case directories, execution mode, and dependency edges; use **Project > Open Multi-Case Workspace...** or **Project > Create Multi-Case Workspace...** to edit it. The `.ofw` editor can open the existing Saved Workflows runner through **Save and Run...**; artifact handoff still requires a full graph definition in Saved Workflows. Project discovery, catalog definitions, workflow definitions, run workspaces, and run history have distinct responsibilities.
 
 ## Contract Workbench
+
+The **Implementation / Code** tab includes an in-workbench source browser. Select a declared implementation path in the left list to preview a read-only excerpt (80 lines per page) with source line numbers and its repository-relative path. Use **Next 80 lines** and **Previous 80 lines** to inspect longer files; **Open source files...** remains available for the complete file in the configured external editor. Preview paths are resolved under the repository root and files are never modified by this view. The current first slice is file-level navigation; symbol-level declaration/definition mapping is a later extension.
+
 Case contracts also expose direct artifact navigation: **Open case directory...**
 opens the declared case folder, while **Open suite and references...** opens
 the suite manifest, residual baseline, and retained analytical reference files.
@@ -13,6 +16,11 @@ These actions resolve repository-relative paths and do not run the case.
 The home page's **Contract Workbench...** button opens the cross-domain contract
 navigator. Current domain entry points are:
 
+- **Parameter** browses source-backed parameter definition contracts,
+  including runtime consumers, implementation paths, related Formula &
+  Knowledge IDs, and declared verification evidence. The first contracts cover
+  `time_integral`, `rk_stage`, and `mach_ref`; this is a curated first slice,
+  not an exhaustive parameter inventory.
 - **Formula & Knowledge** opens the existing Verification Curves browser,
   retaining its formula, principle, references, documentation, code sketch,
   and theory-curve views.
@@ -120,9 +128,12 @@ The long-term product direction is documented in both [Chinese](../../docs/ONEFL
 - `workflow_plan.py`: converts a case graph into a dependency-ordered plan and binds named producer artifacts to consumer settings. Each output can declare its producer `parameter_file` and `setting`, allowing the workflow to configure the actual output path as well as the consumer input. Artifact paths are relative to the producer case, so `grid/...`, `results/...`, and other nested directories use the same contract.
 - `workflow_graph_runner.py`: stages every case under a run-specific workspace, executes cases in dependency order through an injected callback, resolves declared artifact inputs against staged producer outputs, blocks consumers with missing inputs or unsuccessful dependencies, and lets independent cases continue.
 - `workspace_workflow_adapter.py`: converts `.ofw` definitions into an unsaved Saved Workflows draft while keeping path resolution and execution-mode mapping independent of Qt.
+- `parameter_document.py`: lossless, Qt-independent parser/writer for scalar declarations in legacy case parameter files; preserves source bytes, comments, and line endings.
+- `parameter_model.py`: combines multiple parameter documents into one logical CFD/Grid model, retaining source-file provenance, shared keys, semantic groups, and last-declaration-wins diagnostics.
 - `workflow_runtime_overrides.py`: applies string settings to a parameter file in a run-specific case copy, preserving existing declaration comments.
 - `workflow_case_runtime.py`: copies one case into the workflow run directory, creates configured output directories, applies producer output settings, and applies declared artifact bindings to staged consumer parameter files. The graph runner uses this service and is called by the project runner, background project runner, and Saved Workflows dialog. The dialog shares graph execution but owns its own worker and run-history updates.
 - `examples/rae2822_multicase.json`: example dependency contract for a workspace whose base directory contains `rae2822grid` and `rae2822_roe_sa`. It configures the producer to write `results/rae2822_2d.ofl` and binds the solver to that exact artifact. Select `D:\\OneFLOWWorkspace\\workdir2026\\multicases` as the base directory for the user's local workspace.
+- `tools.oneflow_gui.test_parameter_model`: shared, CFD, and Grid grouping across files, duplicate-key semantics, conservative unknown-key handling, and classification coverage against the representative RAE2822 CFD and grid manifests.
 - `test_workflow_case_runtime.py`: tests staged grid binding and preservation of source case files.
 - `test_workflow_runtime_overrides.py`: tests existing setting replacement, missing `sourceGridCaseDir` injection, quoting, and invalid setting names.
 - `test_workflow_graph_runner.py`: tests isolated staging, staged producer-consumer artifact handoff, execution order, independent branches, failure propagation, cancellation, and missing output files.
@@ -193,6 +204,8 @@ suite:
 - `tools.oneflow_gui.test_test_inventory`: C++/Python test discovery,
   explicit scenario linkage, and the rule that discovery never fabricates
   execution results.
+- `tools.oneflow_gui.test_project_window`: project parameter-file listing,
+  runtime-file de-duplication, and configured source-editor launch behavior.
 
 The architecture and rationale are documented in
 [OneFLOW Testing Architecture](../../doc/plans/testing-architecture.md).
@@ -209,6 +222,7 @@ python -m unittest tools.oneflow_gui.test_application_settings
 python -m unittest tools.oneflow_gui.test_workspace_workflow_adapter
 python -m unittest tools.oneflow_gui.test_workspace_repository
 python -m unittest tools.oneflow_gui.test_workspace_dialog
+python -m unittest tools.oneflow_gui.test_project_window
 python -m unittest tools.oneflow_gui.test_workflow_repository
 python -m unittest tools.oneflow_gui.test_workflow_execution
 python -m unittest tools.oneflow_gui.test_workflow_dependencies
@@ -245,3 +259,68 @@ root. The source checkout remains separate from this directory.
 The Workbench does not move or overwrite existing source projects automatically;
 choose an existing project directory to open it, or create a new project under
 `.oneflow/projects`.
+
+
+## Laminar flat-plate project template
+
+**New Project...** includes **Laminar flat-plate boundary layer**. It creates a
+user-owned copy of test/cfd/plateuns2dslau2 under the selected project
+parent (by default ~/.oneflow/projects). The copy retains the case's
+script/ parameters, grid/ mesh and boundary data, results/ analytical
+reference files, and visual/ settings. No solver or mesh parameter is
+rewritten during creation. The autotest/ directory is intentionally omitted
+because it contains automated regression outputs rather than required case
+inputs. The original source case remains unchanged. The created project
+contains .oneflow-project.json metadata and a short README identifying its
+template source. The case's simutask = "Solve" is classified as a CFD/flow
+project by project discovery.
+
+When the laminar template is selected, the suggested project name is `LaminarFlatPlate`. If that destination already exists, the dialog asks for explicit confirmation before replacement. Replacement removes the complete existing project directory and copies a fresh template; generated results and other user changes in the old directory are permanently discarded. Declining the confirmation leaves the existing project untouched.
+
+## Unified parameter and runtime-consumer view
+
+The Project Window builds a read-only Shared / CFD / Grid / Other tree from the parameter files listed by `control.txt`, preserving manifest order, declaration order, and source paths. Each domain is subdivided into semantic groups; the `Applies to` column independently reports `Both`, `Solve`, `Grid`, or `Unknown`. A selected task is not used as evidence to force an unknown key into CFD or Grid. `control.txt` remains a manifest and is not shown as a parameter. The last declaration is effective; earlier declarations remain visible as overridden child rows. Double-clicking a declaration opens its original parameter file in the configured source editor.
+
+A curated runtime-consumer child is shown for keys whose C++ read sites have been checked in `parameter_consumer_catalog.py`. The audited slice covers `maxSteps`, `time_integral`, `rk_stage`, `mach_ref`, `vismodel`, `ptTol`, `nmg`, `cflst`, `cfled`, `ncfl`, `timestepModel`, `global_dt`, `nFieldSave`, `nVisualSave`, `nResSave`, and `nForceSave`. The time-integration records link four solver-control readers to `TimeIntegral::Init`, the stage coefficient loop, and the specialized resident Euler backend capability gate. The CFL records link the ramp inputs to `Iteration::Init`, the physical/dual-time iteration index, and the linear ramp policy. The time-step strategy record distinguishes local, global, and hybrid dispatch; `global_dt` is traced to `Ctrl::pdt` and its strategy-specific use. Output cadence links cover the iteration predicates and representative solver scheduling sites. `currTime` is runtime state, not a parameter declaration. Both `time_integral` and `rk_stage` expose the Formula & Knowledge entry ID `time_integral_rk_stage_weight` in the Project Window. Other keys are marked `Not audited`; absence from this index does not mean unused. Read-site evidence is not a claim of universal applicability or numerical validation.
+
+Run the focused tests with:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_parameter_model
+python -m unittest tools.oneflow_gui.test_parameter_consumer_catalog
+python -m unittest tools.oneflow_gui.test_project_window
+```
+
+
+The Parameter Contract browser now includes a dedicated **Examples** tab alongside
+Formula and Implementation / Code. All six current parameter contracts have structured
+worked examples: maxSteps and maxTime stop conditions, time_integral dispatch, the
+four-stage rk_stage schedule, CFL ramp indexing in physical-time and dual-time modes,
+and mach_ref reference-state scaling. Each example separates input, calculation,
+result, and limitations; arithmetic examples are not presented as solver execution or
+numerical-accuracy evidence.
+
+The Formula & Knowledge browser now keeps **Implementation** separate from
+**Code sketch**: Implementation lists the production source paths, pure APIs,
+and canonical documentation path; Code sketch remains explicitly illustrative.
+The **Examples** tab contains worked input/calculation/result/limitation records
+for representative SA, SST, and multi-stage time-integration entries. Entries
+without a reviewed example say so explicitly rather than showing a fabricated
+sample. The multi-stage example documents the current ``1/(s+1)`` coefficient
+schedule and does not claim a complete Butcher tableau or formal order.
+
+The Contract Workbench Parameter browser groups parameter definitions using
+validated contract metadata and supports case-insensitive search across IDs,
+titles, descriptions, references, and source/documentation paths. Group labels
+are domain concepts; they do not imply complete parameter coverage. Add
+Laminar and Turbulence groups when their source-backed parameter contracts are
+registered, rather than classifying unreviewed parameters speculatively.
+
+
+Parameter contracts can also carry typed mathematical knowledge. The
+Reference Mach number entry distinguishes local Mach, free-stream/reference
+Mach, ideal-gas sound speed, and the exact OneFLOW `const_cp` initialization
+expression. The Formula & Symbols view lists term meanings, alternate textbook
+notations, OneFLOW variable mappings, references, assumptions, and caveats.
+It exposes copyable LaTeX source and an optional rendered preview using the
+existing Formula & Knowledge renderer.

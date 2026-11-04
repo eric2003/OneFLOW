@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 #include "Ctrl.h"
 #include "DataBase.h"
+#include "TimeIntegralPolicy.h"
 
 BeginNameSpace( ONEFLOW )
 
@@ -84,8 +85,7 @@ void Ctrl::Init()
     rk_stage = GetDataValue< int >( "rk_stage" );
     for ( int i = 0; i < rk_stage; ++ i )
     {
-        Real coef = 1.0 / ( i + 1 );
-        rk_coef.push_back( coef );
+        rk_coef.push_back( RungeKuttaStageWeight( i ) );
     }
 
     pdt = GetDataValue< Real >( "global_dt" );

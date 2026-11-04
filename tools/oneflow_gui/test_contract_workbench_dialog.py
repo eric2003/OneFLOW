@@ -10,6 +10,7 @@ from unittest.mock import Mock, patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
+from PySide6.QtCore import QEvent, Qt
 from PySide6.QtWidgets import QApplication
 
 from tools.verification.execution_records import (
@@ -18,6 +19,7 @@ from tools.verification.execution_records import (
     ExecutionRecordStore,
 )
 
+from tools.oneflow_gui.verification_curve_dialog import VerificationCurveDialog
 from tools.oneflow_gui.contract_workbench_dialog import (
     ContractDomainDialog,
     ContractWorkbenchDialog,
@@ -30,19 +32,349 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         cls.application = QApplication.instance() or QApplication([])
         cls.repository_root = Path(__file__).resolve().parents[2]
 
+    def setUp(self) -> None:
+        self._preexisting_top_level_widgets = set(
+            self.application.topLevelWidgets()
+        )
+
+    def tearDown(self) -> None:
+        """Destroy widgets created by this test before the next test starts."""
+        created_widgets = (
+            set(self.application.topLevelWidgets())
+            - self._preexisting_top_level_widgets
+        )
+
+        def has_created_ancestor(widget) -> bool:
+            parent = widget.parentWidget()
+            while parent is not None:
+                if parent in created_widgets:
+                    return True
+                parent = parent.parentWidget()
+            return False
+
+        for widget in created_widgets:
+            widget.close()
+
+        for widget in created_widgets:
+            if not has_created_ancestor(widget):
+                widget.deleteLater()
+
+        QApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        self.application.processEvents()
+
     def test_domain_hub_exposes_current_contract_domains(self) -> None:
         dialog = ContractWorkbenchDialog(self.repository_root)
         try:
             self.assertEqual(
                 set(dialog.domain_buttons),
-                {"formula", "geometry", "case", "runtime"},
+                {"formula", "geometry", "parameter", "case", "runtime", "workflow"},
             )
             self.assertEqual(
                 dialog.domain_buttons["formula"].text(),
                 "Formula & Knowledge",
             )
+            self.assertEqual(dialog.domain_buttons["parameter"].text(), "Parameter")
             self.assertEqual(dialog.domain_buttons["case"].text(), "Case")
             self.assertEqual(dialog.domain_buttons["runtime"].text(), "Runtime")
+            self.assertEqual(dialog.domain_buttons["workflow"].text(), "Workflow")
+        finally:
+            dialog.close()
+
+    def test_parameter_domain_lists_source_backed_parameter_contracts(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            contract_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+            }
+            self.assertTrue(
+                {
+                    "parameter/time_integral",
+                    "parameter/rk_stage",
+                    "parameter/mach_ref",
+                }.issubset(contract_ids)
+            )
+            dialog.contract_list.setCurrentRow(
+                next(
+                    index
+                    for index in range(dialog.contract_list.count())
+                    if dialog.contract_list.item(index).data(256)
+                    == "parameter/rk_stage"
+                )
+            )
+            self.assertIn("parameter/rk_stage", dialog.heading.text())
+            self.assertIn(
+                "time_integral_rk_stage_weight",
+                dialog.documentation_view.toPlainText(),
+            )
+            self.assertIn(
+                "codes/global/src/Ctrl.cpp",
+                [dialog.implementation_file_list.item(i).text()
+                 for i in range(dialog.implementation_file_list.count())],
+            )
+            self.assertIn("declared_not_executed", dialog.evidence_view.toPlainText())
+            self.assertTrue(dialog.open_related_formula_button.isEnabled())
+            with patch(
+                "tools.oneflow_gui.verification_curve_dialog.VerificationCurveDialog"
+            ) as formula_dialog_type:
+                formula_dialog_type.return_value.select_entry.return_value = True
+                dialog._open_related_formula()
+            formula_dialog_type.return_value.select_entry.assert_called_once_with(
+                "time_integral_rk_stage_weight"
+            )
+            formula_dialog_type.return_value.exec.assert_called_once()
+        finally:
+            dialog.close()
+
+    def test_mach_parameter_exposes_formula_symbols_aliases_and_latex(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            mach_row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == "parameter/mach_ref"
+            )
+            dialog.contract_list.setCurrentRow(mach_row)
+            self.assertEqual(
+                dialog.tabs.tabText(dialog.tabs.indexOf(dialog.parameter_formula_page)),
+                "Formula",
+            )
+            tab_names = [
+                dialog.tabs.tabText(index) for index in range(dialog.tabs.count())
+            ]
+            self.assertEqual(tab_names[:2], ["Overview", "Formula"])
+            self.assertNotIn("Principle", tab_names)
+            self.assertNotIn("Architecture", tab_names)
+            self.assertIn("Implementation / Code", tab_names)
+            self.assertIn("Examples", tab_names)
+            self.assertIn(
+                "codes/ns/src/NsCom.cpp",
+                [dialog.implementation_file_list.item(i).text()
+                 for i in range(dialog.implementation_file_list.count())],
+            )
+            self.assertNotIn("Implementation\n--------------", dialog.overview_view.toPlainText())
+            self.assertNotIn("[implemented]", dialog.contract_list.item(mach_row).text())
+            self.assertTrue(dialog.zoom_in_parameter_formula_button.isEnabled())
+            self.assertTrue(dialog.zoom_out_parameter_formula_button.isEnabled())
+            self.assertGreaterEqual(
+                dialog.parameter_formula_scroll.minimumHeight(), 300
+            )
+            formula_layout = dialog.parameter_formula_page.layout()
+            preview_label = dialog.parameter_formula_page.findChild(
+                type(dialog.parameter_formula_preview),
+                "parameterFormulaPreviewLabel",
+            )
+            self.assertIsNotNone(preview_label)
+            self.assertLess(
+                formula_layout.indexOf(dialog.parameter_formula_latex),
+                formula_layout.indexOf(preview_label),
+            )
+            self.assertLess(
+                formula_layout.indexOf(preview_label),
+                formula_layout.indexOf(dialog.parameter_formula_scroll),
+            )
+            formula_text = dialog.parameter_formula_text.toPlainText()
+            latex_text = dialog.parameter_formula_latex.toPlainText()
+            self.assertIn("Local Mach number", formula_text)
+            self.assertIn("Free-stream / reference Mach number", formula_text)
+            self.assertIn("gama_ref", formula_text)
+            self.assertIn("M_{\\infty}", latex_text)
+            self.assertIn("const_cp", formula_text)
+            self.assertIn(r"\mathrm{const\_cp}", latex_text)
+            example_text = dialog.examples_view.toPlainText()
+            self.assertIn("Reference-state scaling example", example_text)
+            self.assertIn("mach_ref = 0.5", example_text)
+            self.assertIn("const_cp = 10", example_text)
+            self.assertIn("does not establish downstream physical accuracy", example_text)
+            self.assertTrue(dialog.render_parameter_formula_button.isEnabled())
+            self.assertTrue(dialog.copy_parameter_formula_button.isEnabled())
+
+            dialog.search_edit.setText("Ma_ref")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(visible_ids, {"parameter/mach_ref"})
+        finally:
+            dialog.close()
+
+    def test_parameter_runtime_consumer_tab_shows_audited_read_and_behavior(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == "parameter/rk_stage"
+            )
+            dialog.contract_list.setCurrentRow(row)
+            tab_names = [
+                dialog.tabs.tabText(index) for index in range(dialog.tabs.count())
+            ]
+            self.assertIn("Runtime Consumers", tab_names)
+            consumer_text = dialog.runtime_consumers_view.toPlainText()
+            self.assertIn("Audited read sites: 4", consumer_text)
+            self.assertIn("Ctrl::Init", consumer_text)
+            self.assertIn('GetDataValue<int>("rk_stage")', consumer_text)
+            self.assertIn("1 / (stage + 1)", consumer_text)
+            self.assertIn("references resolved", consumer_text)
+            self.assertIn("does not prove that a run entered the path", consumer_text)
+            implementation_paths = {
+                dialog.implementation_file_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.implementation_file_list.count())
+            }
+            self.assertIn("codes/global/src/Ctrl.cpp", implementation_paths)
+            self.assertIn("codes/solver/src/TimeIntegral.cpp", implementation_paths)
+        finally:
+            dialog.close()
+
+    def test_hyphenated_parameter_contract_uses_explicit_runtime_key(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == "parameter/max-steps"
+            )
+            dialog.contract_list.setCurrentRow(row)
+            consumer_text = dialog.runtime_consumers_view.toPlainText()
+            self.assertIn("Parameter: maxSteps", consumer_text)
+            self.assertIn("Iteration::Init", consumer_text)
+            self.assertIn('GetDataValue<int>("maxSteps")', consumer_text)
+        finally:
+            dialog.close()
+
+    def test_parameter_without_audited_consumer_is_not_labelled_unused(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == "parameter/max-time"
+            )
+            dialog.contract_list.setCurrentRow(row)
+            consumer_text = dialog.runtime_consumers_view.toPlainText()
+            self.assertIn("No audited runtime consumer is registered", consumer_text)
+            self.assertIn("does not prove that the parameter is unused", consumer_text)
+        finally:
+            dialog.close()
+
+    def test_parameter_workbench_initially_previews_first_implementation_file(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            first_item = dialog.implementation_file_list.item(0)
+            self.assertIsNotNone(first_item)
+            first_path = first_item.data(Qt.ItemDataRole.UserRole)
+            self.assertEqual(dialog.implementation_file_list.currentRow(), 0)
+            self.assertIn(first_path, dialog.implementation_source_label.text())
+            self.assertTrue(dialog.implementation_view.toPlainText().strip())
+            self.assertNotIn(
+                "Select a source file",
+                dialog.implementation_view.toPlainText(),
+            )
+            source_lines = (self.repository_root / first_path).read_text(
+                encoding="utf-8"
+            ).splitlines()
+            preview = dialog.implementation_view.toPlainText()
+            self.assertIn(f"{1:>5}  {source_lines[0]}", preview)
+            self.assertNotIn(first_path, preview)
+        finally:
+            dialog.close()
+
+    def test_implementation_file_selection_shows_bounded_source_excerpt(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            cfl_row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == "parameter/cfl-ramp"
+            )
+            dialog.contract_list.setCurrentRow(cfl_row)
+            paths = [
+                dialog.implementation_file_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.implementation_file_list.count())
+            ]
+            self.assertIn("codes/ns/src/TimeStepPolicy.cpp", paths)
+            policy_row = paths.index("codes/ns/src/TimeStepPolicy.cpp")
+            dialog.implementation_file_list.setCurrentRow(policy_row)
+            preview = dialog.implementation_view.toPlainText()
+            self.assertIn("CflAtIteration", preview)
+            self.assertIn("Lines 1-", dialog.implementation_source_label.text())
+            self.assertLessEqual(len(preview.splitlines()), 80)
+
+            timestep_row = paths.index("codes/ns/src/TimeStep.cpp")
+            dialog.implementation_file_list.setCurrentRow(timestep_row)
+            self.assertTrue(dialog.next_implementation_chunk_button.isEnabled())
+            dialog.next_implementation_chunk_button.click()
+            self.assertIn("Lines 81-", dialog.implementation_source_label.text())
+            self.assertIn("81  ", dialog.implementation_view.toPlainText())
+            dialog.previous_implementation_chunk_button.click()
+            self.assertIn("Lines 1-", dialog.implementation_source_label.text())
+        finally:
+            dialog.close()
+
+    def test_parameter_contracts_are_grouped_and_searchable(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            self.assertIsNotNone(dialog.search_edit)
+            headers = [
+                dialog.contract_list.item(index).text()
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole) is None
+            ]
+            self.assertIn("Run Control  (3)", headers)
+            self.assertIn("Time Integration  (2)", headers)
+            self.assertIn("Compressible Flow  (1)", headers)
+
+            dialog.search_edit.setText("mach_ref")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(visible_ids, {"parameter/mach_ref"})
+            dialog.search_edit.setText("Maximum iteration steps")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(visible_ids, {"parameter/max-steps"})
+            dialog.search_edit.setText("Maximum simulation time")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(visible_ids, {"parameter/max-time"})
+            dialog.search_edit.setText("maxTime")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(
+                visible_ids, {"parameter/max-steps", "parameter/max-time"}
+            )
+            dialog.search_edit.setText("NsCom.cpp")
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(
+                visible_ids, {"parameter/mach_ref", "parameter/cfl-ramp"}
+            )
+            dialog.search_edit.clear()
+            visible_ids = {
+                dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(visible_ids, {
+                "parameter/time_integral", "parameter/rk_stage", "parameter/mach_ref",
+                "parameter/max-steps", "parameter/max-time", "parameter/cfl-ramp"
+            })
         finally:
             dialog.close()
 
@@ -52,6 +384,9 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertGreaterEqual(dialog.contract_list.count(), 1)
             self.assertEqual(dialog.tabs.tabText(dialog.tabs.count() - 1), "Case Setup")
             self.assertIn("SLAU2", dialog.case_view.toPlainText())
+            self.assertIn("Output absolute tolerance: 1e-08", dialog.case_view.toPlainText())
+            self.assertIn("Residual relative tolerance: 0", dialog.case_view.toPlainText())
+            self.assertIn("Residual NaN policy: reject", dialog.case_view.toPlainText())
             self.assertIn("Blasius", dialog.case_view.toPlainText())
             case_text = dialog.case_view.toPlainText()
             self.assertIn(
@@ -112,6 +447,76 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_workflow_domain_displays_typed_graph_and_definition_navigation(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "workflow")
+        try:
+            contract_index = next(
+                index
+                for index, summary in enumerate(dialog._summaries)
+                if summary.id == "workflow/rae2822-grid-to-solver"
+            )
+            dialog.contract_list.setCurrentRow(contract_index)
+            self.assertEqual(
+                dialog.tabs.tabText(dialog.tabs.count() - 1), "Workflow Graph"
+            )
+            graph_text = dialog.workflow_view.toPlainText()
+            self.assertIn("rae2822-grid-to-solver", graph_text)
+            self.assertIn(
+                "Produces: rae2822_grid -> results/rae2822_2d.ofl", graph_text
+            )
+            self.assertIn(
+                "Consumes: rae2822_grid -> gridFileName in script/cfd.txt",
+                graph_text,
+            )
+            self.assertIn("Depends on: rae2822grid", graph_text)
+            self.assertIsNotNone(dialog.open_workflow_definition_button)
+            self.assertTrue(dialog.open_workflow_definition_button.isEnabled())
+            self.assertIsNotNone(dialog.open_workflow_runner_button)
+            self.assertTrue(dialog.open_workflow_runner_button.isEnabled())
+            self.assertTrue(dialog.open_tests_button.isEnabled())
+
+            definition_path = "tools/oneflow_gui/examples/rae2822_multicase.json"
+            with patch(
+                "tools.oneflow_gui.contract_workbench_dialog.RepositoryFileSelectionDialog"
+            ) as selection_type:
+                selection = selection_type.return_value
+                selection.exec.return_value = 1
+                selection.selected_paths = (definition_path,)
+                with patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.ApplicationSettings.load",
+                    return_value=Mock(source_editor="vscode"),
+                ), patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.open_source_files"
+                ) as open_files:
+                    dialog._open_workflow_definition()
+            open_files.assert_called_once_with(
+                "vscode",
+                ((self.repository_root / definition_path).resolve(),),
+                working_directory=self.repository_root,
+            )
+        finally:
+            dialog.close()
+
+    def test_workflow_runner_receives_explicit_contract_link(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "workflow")
+        try:
+            contract_index = next(
+                index for index, summary in enumerate(dialog._summaries)
+                if summary.id == "workflow/rae2822-grid-to-solver"
+            )
+            dialog.contract_list.setCurrentRow(contract_index)
+            with patch("tools.oneflow_gui.workflow_dialog.WorkflowDialog") as runner_type:
+                runner_type.return_value.exec.return_value = 0
+                dialog._run_workflow()
+            runner_type.assert_called_once()
+            args, kwargs = runner_type.call_args
+            self.assertEqual(args[0], self.repository_root)
+            self.assertEqual(kwargs["contract_ids"], ("workflow/rae2822-grid-to-solver",))
+            self.assertEqual(kwargs["initial_workflow"].workflow_id, "rae2822-grid-to-solver")
+            self.assertEqual(kwargs["initial_workflow"].steps[0]["type"], "case_graph")
+        finally:
+            dialog.close()
+
     def test_runtime_verification_shows_resolution_separately_from_declaration(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
         try:
@@ -164,9 +569,12 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 if summary.id == "runtime/gui-process-execution"
             )
             dialog.contract_list.setCurrentRow(contract_index)
-            implementation_text = dialog.implementation_view.toPlainText()
-            self.assertIn("tools/oneflow_gui/process_control.py", implementation_text)
-            self.assertIn("tools/oneflow_gui/test_dialog.py", implementation_text)
+            implementation_paths = [
+                dialog.implementation_file_list.item(index).text()
+                for index in range(dialog.implementation_file_list.count())
+            ]
+            self.assertIn("tools/oneflow_gui/process_control.py", implementation_paths)
+            self.assertIn("tools/oneflow_gui/test_dialog.py", implementation_paths)
             self.assertFalse(dialog.open_source_button.isHidden())
             self.assertEqual(
                 dialog.open_actions_layout.indexOf(dialog.open_source_button), 0
@@ -373,6 +781,47 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             finally:
                 dialog.close()
 
+    def test_execution_history_groups_workflow_steps_by_invocation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            store = ExecutionRecordStore(Path(temporary) / "execution-records.jsonl")
+            common = {
+                "framework": "workflow",
+                "source_path": "tools/oneflow_gui/workflow_dialog.py",
+                "command": ("python", "-m", "tools.oneflow_gui"),
+                "outcome": "passed",
+                "started_at": "2026-11-02T01:00:00+08:00",
+                "finished_at": "2026-11-02T01:00:01+08:00",
+                "exit_code": 0,
+                "commit": "current-sha",
+                "branch": "hexin",
+                "contract_ids": ("workflow/rae2822-grid-to-solver",),
+                "invocation_id": "workflow-run-42",
+            }
+            store.append(ExecutionRecord(
+                **common, test_id="workflow:grid", test_name="Grid.run"
+            ))
+            store.append(ExecutionRecord(
+                **common, test_id="workflow:solver", test_name="Solver.run"
+            ))
+            dialog = ContractDomainDialog(
+                self.repository_root, "workflow",
+                execution_records_path=store.path,
+                current_commit="current-sha",
+            )
+            try:
+                index = next(
+                    index for index, summary in enumerate(dialog._summaries)
+                    if summary.id == "workflow/rae2822-grid-to-solver"
+                )
+                dialog.contract_list.setCurrentRow(index)
+                evidence = dialog.evidence_view.toPlainText()
+                self.assertIn(
+                    "Invocation group: workflow-run-42 (2 steps; PASSED)", evidence
+                )
+                self.assertLess(evidence.index("Grid.run"), evidence.index("Solver.run"))
+            finally:
+                dialog.close()
+
     def test_runtime_domain_uses_shared_contract_navigation(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
         try:
@@ -392,6 +841,31 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+
+
+    def test_formula_workbench_has_separate_implementation_and_examples_tabs(self) -> None:
+        dialog = VerificationCurveDialog(self.repository_root)
+        try:
+            names = [
+                dialog.tabs.tabText(index)
+                for index in range(dialog.tabs.count())
+            ]
+            self.assertIn("Implementation", names)
+            self.assertIn("Examples", names)
+            self.assertIn("Code sketch", names)
+            self.assertNotEqual(
+                dialog.tabs.indexOf(dialog.implementation),
+                dialog.tabs.indexOf(dialog.sketch_page),
+            )
+            self.assertTrue(dialog.select_entry("time_integral_rk_stage_weight"))
+            self.assertIn(
+                "codes/solver/src/TimeIntegral.cpp",
+                dialog.implementation.toPlainText(),
+            )
+            self.assertIn("rk_stage = 4", dialog.examples.toPlainText())
+            self.assertIn("not a complete Butcher tableau", dialog.examples.toPlainText())
+        finally:
+            dialog.close()
 
 if __name__ == "__main__":
     unittest.main()
