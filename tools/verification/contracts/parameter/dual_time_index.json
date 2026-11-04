@@ -5,7 +5,7 @@
   "domain": "parameter",
   "kind": "runtime_parameter",
   "status": "implemented",
-  "overview": "idualtime is an optional integer selector read by Iteration::Init. Missing entries retain Iteration::dualtime = 0; value 1 selects innerSteps rather than outerSteps when evaluating the CFL ramp.",
+  "overview": "idualtime is an optional integer selector read by Iteration::Init. Missing entries default to zero, retaining Iteration::dualtime = 0; value 1 selects innerSteps rather than outerSteps when evaluating the CFL ramp.",
   "principle": "The schedule index is outerSteps for physical-time indexing and innerSteps when idualtime == 1. This selector changes which iteration counter drives the CFL schedule; it does not itself define the physical-time integration method or a physical time increment.",
   "architecture": "Iteration::Init checks FindDataEntry(\"idualtime\") before reading the integer value. TimeStep::CalcCfl passes the selected mode to CflIterationIndex. The combined schedule is parameter/cfl-ramp.",
   "references": [],

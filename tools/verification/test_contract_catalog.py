@@ -190,8 +190,8 @@ class ContractCatalogTest(unittest.TestCase):
         summary = adapt_declared_contract(definition)
 
         self.assertEqual(summary.id, "parameter/max-time")
-        self.assertEqual(summary.group_id, "time_stepping")
-        self.assertEqual(summary.group_title, "Time stepping")
+        self.assertEqual(summary.group_id, "run_control")
+        self.assertEqual(summary.group_title, "Run Control")
         self.assertIn("currTime", summary.overview)
         self.assertIn("maxSteps", summary.overview)
         self.assertEqual(
@@ -221,8 +221,8 @@ class ContractCatalogTest(unittest.TestCase):
         summary = adapt_declared_contract(definition)
 
         self.assertEqual(summary.id, "parameter/cfl-ramp")
-        self.assertEqual(summary.group_id, "run_control")
-        self.assertEqual(summary.group_title, "Run Control")
+        self.assertEqual(summary.group_id, "time_stepping")
+        self.assertEqual(summary.group_title, "Time stepping")
         self.assertIn("codes/ns/include/TimeStepPolicy.h", summary.implementation_paths)
         self.assertEqual(len(summary.evidence), 9)
         self.assertTrue(
@@ -822,6 +822,9 @@ class ContractCatalogTest(unittest.TestCase):
                 "parameter/max-steps",
                 "parameter/max-time",
                 "parameter/cfl-ramp",
+                "parameter/dual-time-index",
+                "parameter/time-step-strategy",
+                "parameter/global-time-step",
                 "parameter/turb_cfl_ratio",
                 "parameter/rprod",
                 "parameter/max_vis_ratio",
@@ -938,7 +941,7 @@ class ContractCatalogTest(unittest.TestCase):
         parameter_summaries = {
             item.id: item for item in summaries if item.domain == "parameter"
         }
-        self.assertEqual(len(parameter_summaries), 11)
+        self.assertEqual(len(parameter_summaries), 14)
         missing_examples = [
             contract_id
             for contract_id, summary in parameter_summaries.items()
