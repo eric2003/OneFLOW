@@ -117,11 +117,10 @@ class ParameterDocument:
     def get(self, key: str) -> ParameterDeclaration | None:
         return next((item for item in reversed(self.declarations) if item.name == key), None)
 
-    def save(self, updates: dict[str, Any]) -> bool:
+    def render_updates(self, updates: dict[str, Any]) -> bytes:
+        """Render validated token replacements without touching the source file."""
         if not updates:
-            return False
-        if self.path.read_bytes() != self.original_bytes:
-            raise RuntimeError(f"{self.path.name} changed outside the Workbench; reload before saving.")
+            return self.original_bytes
         replacements = []
         for key, value in updates.items():
             item = self.get(key)
@@ -131,14 +130,30 @@ class ParameterDocument:
             if token != item.raw_value:
                 replacements.append((item.value_start, item.value_end, token))
         if not replacements:
-            return False
+            return self.original_bytes
         text = self.text
         for start, end, token in sorted(replacements, reverse=True):
             text = text[:start] + token + text[end:]
-        raw = text.encode(self.encoding)
-        self.path.write_bytes(raw)
+        return text.encode(self.encoding)
+
+    def mark_saved(self, raw: bytes) -> None:
+        """Update the in-memory snapshot after the corresponding bytes are durable."""
+        text = raw.decode(self.encoding)
         self.original_bytes, self.text = raw, text
         self.declarations = self._parse(text)
+
+    def save(self, updates: dict[str, Any]) -> bool:
+        if not updates:
+            return False
+        if self.path.read_bytes() != self.original_bytes:
+            raise RuntimeError(
+                f"{self.path.name} changed outside the Workbench; reload before saving."
+            )
+        raw = self.render_updates(updates)
+        if raw == self.original_bytes:
+            return False
+        self.path.write_bytes(raw)
+        self.mark_saved(raw)
         return True
 
 

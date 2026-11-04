@@ -88,6 +88,59 @@ class ParameterResolutionTest(unittest.TestCase):
                     ParameterOverride("MAXSTEPS", 200),
                 ])
 
+    def test_multi_file_apply_updates_each_owning_document(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            documents = self._documents(root, {
+                "run.txt": "int maxSteps = 50;\\n",
+                "time.txt": "Real global_dt = 0.001;\\n",
+            })
+            plan = resolve_parameter_overrides(
+                documents, {"maxSteps": 35000, "global_dt": 0.002}
+            )
+
+            plan.apply()
+
+            self.assertEqual(documents[0].get("maxSteps").value, 35000)
+            self.assertEqual(documents[1].get("global_dt").value, 0.002)
+            self.assertEqual(
+                documents[0].path.read_text(encoding="utf-8"),
+                "int maxSteps = 35000;\\n",
+            )
+            self.assertEqual(
+                documents[1].path.read_text(encoding="utf-8"),
+                "Real global_dt = 0.002;\\n",
+            )
+
+    def test_multi_file_write_failure_rolls_back_prior_replacements(self):
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            documents = self._documents(root, {
+                "run.txt": "int maxSteps = 50;\\n",
+                "time.txt": "Real global_dt = 0.001;\\n",
+            })
+            plan = resolve_parameter_overrides(
+                documents, {"maxSteps": 35000, "global_dt": 0.002}
+            )
+            original = [document.path.read_bytes() for document in documents]
+
+            with patch(
+                "tools.oneflow_gui.parameter_resolution.os.replace",
+                side_effect=[None, OSError("simulated second-file replacement failure"), None],
+            ):
+                with self.assertRaisesRegex(RuntimeError, "rolled back"):
+                    plan.apply()
+
+            self.assertEqual(
+                [document.path.read_bytes() for document in documents], original
+            )
+            self.assertEqual(
+                [document.original_bytes for document in documents], original
+            )
+            self.assertEqual(list(root.glob(".*.oneflow-tmp")), [])
+
     def test_external_change_is_detected_before_any_file_is_written(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
