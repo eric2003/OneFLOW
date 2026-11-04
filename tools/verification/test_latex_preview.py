@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from latex_preview import render_latex_preview_png, sanitize_for_mathtext
+from .latex_preview import render_latex_preview_png, sanitize_for_mathtext
 
 
 class LatexPreviewTest(unittest.TestCase):
