@@ -632,3 +632,88 @@ a hand calculation, a parsed parameter value, and a full solver run are
 different evidence types and must not be promoted into one another. Parameter
 defaults, valid ranges, dimensional conventions, and case-level sensitivity
 remain open wherever the contract explicitly says they are not yet verified.
+
+Parameter catalog completeness and Case-template readiness
+-----------------------------------------------------------
+
+The Parameter entry in Contract Workbench and the Project Window parameter
+tree are related views, but they have different responsibilities:
+
+* The Project Window tree shows declarations found in the opened Case's ordered
+  ``control.txt`` manifest. It preserves source files, declaration order,
+  effective values, and overridden declarations. It is case-local.
+* The Contract Workbench Parameter catalog is a repository-level knowledge
+  index. Each contract has a stable ID and an explicit ``parameter_key``
+  mapping to the legacy runtime key. It can describe source consumers,
+  formulas, aliases, examples, and evidence independently of one Case's
+  current values.
+* The runtime database remains the authority for the values consumed by a
+  particular run. A catalog definition is not itself a runtime assignment.
+
+At the current inventory checkpoint, the declared Parameter contracts cover
+14 source-audited keys or grouped controls:
+
+* Run control: ``maxSteps``, ``maxTime``.
+* Time stepping: ``cflst``, ``cfled``, ``ncfl`` (one ramp contract),
+  ``idualtime``, ``timestepModel``, and ``global_dt``.
+* Time integration: ``time_integral`` and ``rk_stage``.
+* Flow reference: ``mach_ref``.
+* Turbulence: ``turb_cfl_ratio``, ``rprod``, and ``max_vis_ratio``.
+* Turbulence inflow: ``inflow_intensity`` and ``inflow_viscosity``.
+
+The count is 14 contracts, not 14 individual scalar keys: the CFL ramp
+contract represents three keys. These contracts have source-backed descriptions
+and structured examples, but their evidence status must still be read
+individually. A declared test link is not an execution result, and a worked
+example is not a CFD case validation.
+
+The Project Window classifier already contains additional groups and keys
+discovered from representative CFD and grid cases. That broader classification
+must not be confused with a complete repository-wide Parameter contract
+catalog. In particular, a key being classified in the Project Window does not
+yet guarantee that it has a dedicated Contract Workbench entry, a verified
+runtime consumer, a formula, a documented unit, or a validated default.
+Unknown declarations and array declarations must remain visible rather than
+being silently discarded.
+
+The next inventory pass must enumerate declarations from every repository
+Case manifest, not just a hand-picked sample. It must also distinguish:
+
+* a key declared in a Case file;
+* a key directly read by production code;
+* a key whose downstream behavior has been traced;
+* a key with a documented physical or numerical definition;
+* a key with a tested admissible range or default;
+* a key validated by a representative executable Case.
+
+These are independent facts. The inventory should preserve the exact spelling
+of the runtime key, declaration type, source file, manifest order, aliases,
+classification, and evidence state. A missing consumer audit means
+``not_yet_audited``, not unused. A key with no known formula remains a
+parameter entry with an explicit explanation, not an invented equation.
+
+Case parameter-file generation is a later consumer of this catalog, not a
+shortcut around it. A generated Case should be assembled from a compatible
+profile of task, dimension, solver/equation system, physical models, grid,
+boundary conditions, and numerical methods. The generator must:
+
+#. start from a known Case template or an explicitly versioned parameter
+   profile, preserving required legacy file syntax and the ordered manifest;
+#. include only parameters applicable to the selected task and model, while
+   retaining required defaults and dependencies;
+#. report unresolved required values, unsupported arrays, unknown keys, and
+   conflicting declarations before writing files;
+#. preserve existing file encoding and formatting where editing an existing
+   Case; never rewrite source-tree examples in place;
+#. validate the generated manifest and parameter documents with the production
+   parser, then run a real setup/initialization smoke test;
+#. record the generated profile version, source Case, parameter provenance,
+   validation result, and any user modifications.
+
+A generated file is therefore a candidate Case configuration until the
+production reader accepts it. Successful parsing is not proof of a stable
+simulation, numerical accuracy, or physical validity. The first usable
+profiles should be derived from existing, understood Cases (for example,
+laminar flat plate and RAE2822 Roe-SA), with small, explicit differences
+recorded against their source profiles. Arbitrary combinations of individually
+known parameters must not be treated as a valid solver configuration.
