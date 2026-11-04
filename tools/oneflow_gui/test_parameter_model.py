@@ -110,6 +110,9 @@ class ParameterModelTest(unittest.TestCase):
                     "Real prl = 0.72;\n"
                     "int numberOfMinimumSubIterationSteps = 1;\n"
                     "int numberOfMaximumSubIterationSteps = 2;\n"
+                    "int mgTurbulentViscosity = 0;\n"
+                    "Real mgFactor = 0.5;\n"
+                    "Real mgTurbFactor = 0.5;\n"
                     'string turbresFile = "results/turbres.dat";\n'
                     'string turbflowFile = "restart/turbflow.dat";\n'
                     "int lusgsFacePressureMode = 0;\n"
@@ -132,6 +135,9 @@ class ParameterModelTest(unittest.TestCase):
                 "prl": "Transport properties",
                 "numberOfMinimumSubIterationSteps": "Run control",
                 "numberOfMaximumSubIterationSteps": "Run control",
+                "mgTurbulentViscosity": "Multigrid",
+                "mgFactor": "Multigrid",
+                "mgTurbFactor": "Multigrid",
                 "turbresFile": "Output files",
                 "turbflowFile": "Output files",
                 "lusgsFacePressureMode": "Numerical methods",
