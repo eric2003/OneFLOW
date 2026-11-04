@@ -219,6 +219,47 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="fv2 / strain vs pure APIs.",
             does_not_prove="Assembled production residual on a mesh.",
         ),
+
+        TheoryEntry(
+            id="sa_r_ratio",
+            family="turbulence",
+            genus="SA",
+            section="closure / wall destruction ratio",
+            title="SA r-ratio",
+            role_tags=("turbulence", "SA", "closure"),
+            formula_plain=(
+                "r = min(rs / modifiedStrain, 10)"
+            ),
+            formula_latex=(
+                r"r=\min\!\left(\frac{r_s}{\tilde{S}},\,10\right)"
+            ),
+            principle=(
+                "Normalized ratio that feeds the SA wall-destruction function "
+                "fw through g(r). Clamped at 10 for numerical robustness."
+            ),
+            background=(
+                "Pure API SaRRatio in TurbSaPolicy. Downstream: SaG, SaFw."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_r_ratio.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_r_ratio_theory.csv",
+            plot_module="plot_sa_r_ratio",
+            pure_apis=("SaRRatio",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_r_ratio.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "r = min(rs / S, 10);\n"
+            ),
+            proves="r-ratio algebra and clamp vs pure API.",
+            does_not_prove="Full fw destruction on a wall-bounded case.",
+        ),
+
         TheoryEntry(
             id="sa_fw_r",
             family="turbulence",

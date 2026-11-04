@@ -356,3 +356,22 @@ TEST( TurbSaPolicy, SaFt2DecaysWithChiSquared )
 {
     EXPECT_GT( SaFt2( 0.0, 1.2, 0.5, true ), SaFt2( 2.0, 1.2, 0.5, true ) );
 }
+
+// Intermediate: SaRRatio on an rs grid at fixed modified strain.
+// Ref: S=1; r = min(rs, 10).
+TEST( TurbSaPolicy, SaRRatioCurveMatchesClosedForm )
+{
+    const Real S = 1.0;
+    const Real rss[] = { 0.0, 1.0, 5.0, 10.0, 20.0, 100.0 };
+    for ( Real rs : rss )
+    {
+        const Real expected = ( rs / S < 10.0 ) ? ( rs / S ) : 10.0;
+        EXPECT_NEAR( SaRRatio( rs, S ), expected, 1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaRRatioScalesInverselyWithModifiedStrain )
+{
+    // rs=2, S=1 => r=2; S=2 => r=1
+    EXPECT_NEAR( SaRRatio( 2.0, 2.0 ), 1.0, 1.0e-12 );
+}
