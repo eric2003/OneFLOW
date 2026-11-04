@@ -298,7 +298,6 @@ TEST( TurbSstPolicy, SstProdwWilcoxCurveMatchesClosedForm )
 
 TEST( TurbSstPolicy, SstProdwWilcoxLinearInOmegaOverK )
 {
-    // double omega => double Pw at fixed Pk
     EXPECT_NEAR(
         SstProdwWilcox( 0.52, 4.0, 1.0, 1.0 ),
         2.0 * SstProdwWilcox( 0.52, 2.0, 1.0, 1.0 ),
