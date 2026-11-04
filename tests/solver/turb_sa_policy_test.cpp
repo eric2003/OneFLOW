@@ -396,3 +396,21 @@ TEST( TurbSaPolicy, SaSBarComposedFromFv2 )
     const Real fv2 = SaFv2( chi, fv1 );
     EXPECT_NEAR( SaSBar( 2.0, fv2 ), 2.0 * fv2, 1.0e-12 );
 }
+
+// Intermediate: SaNegativePart on an x grid.
+// n = -0.5*(x - |x|) = max(-x, 0)  (non-negative magnitude).
+TEST( TurbSaPolicy, SaNegativePartCurveMatchesClosedForm )
+{
+    const Real xs[] = { -4.0, -1.0, 0.0, 1.0, 3.0 };
+    for ( Real x : xs )
+    {
+        const Real expected = ( x < 0.0 ) ? ( - x ) : 0.0;
+        EXPECT_NEAR( SaNegativePart( x ), expected, 1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaNegativePartDiffersFromSstSignedForm )
+{
+    // SA returns magnitude (>=0); SST SstNegativeSourcePart returns signed min(S,0).
+    EXPECT_NEAR( SaNegativePart( -2.0 ), 2.0, 1.0e-12 );
+}

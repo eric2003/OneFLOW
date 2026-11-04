@@ -601,6 +601,49 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Full SA residual on a wall-bounded case.",
         ),
 
+
+        TheoryEntry(
+            id="sa_negative_part",
+            family="turbulence",
+            genus="SA",
+            section="residual / negative-part magnitude",
+            title="SA negative-part magnitude",
+            role_tags=("turbulence", "SA", "residual"),
+            formula_plain=(
+                "n = -0.5 * (x - |x|) = max(-x, 0)"
+            ),
+            formula_latex=(
+                r"n=\max(-x,0)"
+            ),
+            principle=(
+                "Extracts the magnitude of the negative part of a residual "
+                "contribution. Unlike SstNegativeSourcePart, the SA form "
+                "returns a non-negative magnitude."
+            ),
+            background=(
+                "Pure API SaNegativePart in TurbSaPolicy. Compare with "
+                "SstNegativeSourcePart (signed min(S,0))."
+            ),
+            references=(
+                "SA residual linearization practice",
+                "doc/source/numerical/sa_negative_part.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_negative_part_theory.csv",
+            plot_module="plot_sa_negative_part",
+            pure_apis=("SaNegativePart",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_negative_part.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "n = (x < 0) ? -x : 0;\n"
+            ),
+            proves="Negative-part magnitude algebra vs pure API.",
+            does_not_prove="Full residual Jacobian on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sa_source_residual",
             family="turbulence",
