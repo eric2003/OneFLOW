@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QEvent, Qt
 from PySide6.QtWidgets import QApplication
 
 from tools.verification.execution_records import (
@@ -32,6 +32,15 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         cls.application = QApplication.instance() or QApplication([])
         cls.repository_root = Path(__file__).resolve().parents[2]
 
+    def _close_dialog(self, dialog) -> None:
+        """Delete only the dialog owned by the current test, before its wrappers go stale."""
+        dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
+        dialog.close()
+        self.application.sendPostedEvents(
+            dialog, QEvent.Type.DeferredDelete
+        )
+        self.application.processEvents()
+
     def test_domain_hub_exposes_current_contract_domains(self) -> None:
         dialog = ContractWorkbenchDialog(self.repository_root)
         try:
@@ -48,7 +57,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertEqual(dialog.domain_buttons["runtime"].text(), "Runtime")
             self.assertEqual(dialog.domain_buttons["workflow"].text(), "Workflow")
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_parameter_domain_lists_source_backed_parameter_contracts(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
@@ -94,7 +103,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             )
             formula_dialog_type.return_value.exec.assert_called_once()
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_dual_time_selector_is_registered_in_parameter_domain(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
@@ -112,7 +121,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn('FindDataEntry("idualtime")', consumer_text)
             self.assertIn("CflIterationIndex", consumer_text)
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_time_step_strategy_and_global_dt_have_parameter_entries(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
@@ -135,7 +144,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 dialog.contract_list.setCurrentRow(row)
                 self.assertIn(key, dialog.overview_view.toPlainText())
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_mach_parameter_exposes_formula_symbols_aliases_and_latex(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
@@ -208,7 +217,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             }
             self.assertEqual(visible_ids, {"parameter/mach_ref"})
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_parameter_runtime_consumer_tab_shows_audited_read_and_behavior(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
@@ -237,7 +246,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("codes/global/src/Ctrl.cpp", implementation_paths)
             self.assertIn("codes/solver/src/TimeIntegral.cpp", implementation_paths)
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_hyphenated_parameter_contract_uses_explicit_runtime_key(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
@@ -253,7 +262,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("Iteration::Init", consumer_text)
             self.assertIn('GetDataValue<int>("maxSteps")', consumer_text)
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_turbulence_parameters_are_registered_in_parameter_contract_workbench(self):
         dialog = ContractDomainDialog(self.repository_root, "parameter")
@@ -285,7 +294,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("Parameter: max_vis_ratio", dialog.runtime_consumers_view.toPlainText())
             self.assertIn("downstream numerical use", dialog.runtime_consumers_view.toPlainText())
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_max_time_parameter_shows_audited_runtime_consumer(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
@@ -309,7 +318,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("codes/global/src/Ctrl.cpp", implementation_paths)
             self.assertIn("codes/global/src/Iteration.cpp", implementation_paths)
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_parameter_workbench_initially_previews_first_implementation_file(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
@@ -331,7 +340,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn(f"{1:>5}  {source_lines[0]}", preview)
             self.assertNotIn(first_path, preview)
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_implementation_file_selection_shows_bounded_source_excerpt(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
@@ -363,7 +372,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             dialog.previous_implementation_chunk_button.click()
             self.assertIn("Lines 1-", dialog.implementation_source_label.text())
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_parameter_contracts_are_grouped_and_searchable(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
@@ -464,7 +473,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertEqual(visible_ids, expected_ids)
             self.assertIn("parameter/gama-ref", visible_ids)
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_case_domain_displays_typed_case_setup_tab(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "case")
@@ -533,7 +542,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 working_directory=self.repository_root,
             )
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_workflow_domain_displays_typed_graph_and_definition_navigation(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "workflow")
@@ -583,7 +592,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 working_directory=self.repository_root,
             )
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_workflow_runner_receives_explicit_contract_link(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "workflow")
@@ -603,7 +612,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertEqual(kwargs["initial_workflow"].workflow_id, "rae2822-grid-to-solver")
             self.assertEqual(kwargs["initial_workflow"].steps[0]["type"], "case_graph")
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_runtime_verification_shows_resolution_separately_from_declaration(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
@@ -626,7 +635,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("CTest discovery declaration: registered", evidence_text)
             self.assertIn("CTest discovery mode: PRE_TEST", evidence_text)
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_gui_process_contract_displays_python_test_declarations(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
@@ -646,7 +655,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("Declaration: linked_not_executed", evidence_text)
             self.assertIn("Resolved file:", evidence_text)
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_gui_process_contract_exposes_implementation_sources(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
@@ -678,7 +687,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertEqual(dialog.open_source_button.text(), "Open source files...")
             self.assertTrue(dialog.open_source_button.isEnabled())
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_file_selection_supports_single_multiple_and_select_all(self) -> None:
         from tools.oneflow_gui.contract_workbench_dialog import (
@@ -716,7 +725,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 {"src/one.cpp", "src/two.cpp", "src/three.cpp"},
             )
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_open_sources_opens_only_selected_files(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
@@ -742,7 +751,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 ((self.repository_root / "tools/oneflow_gui/process_control.py").resolve(),),
                 working_directory=self.repository_root)
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_open_paths_reports_editor_launch_failures(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
@@ -766,7 +775,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             warning.assert_called_once()
             self.assertIn("VS Code executable was not found", warning.call_args.args[2])
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_open_declared_python_test_sources_from_verification(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
@@ -802,7 +811,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 working_directory=self.repository_root,
             )
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
     def test_execution_history_separates_explicit_links_from_unlinked_runs(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -867,7 +876,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 self.assertIn("STALE", unlinked_section)
                 self.assertIn("not attributed to this contract", text)
             finally:
-                dialog.close()
+                self._close_dialog(dialog)
 
     def test_execution_history_groups_workflow_steps_by_invocation(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -908,7 +917,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 )
                 self.assertLess(evidence.index("Grid.run"), evidence.index("Solver.run"))
             finally:
-                dialog.close()
+                self._close_dialog(dialog)
 
     def test_runtime_domain_uses_shared_contract_navigation(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
@@ -927,7 +936,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIsNone(dialog.open_case_directory_button)
             self.assertIsNone(dialog.open_case_references_button)
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
 
 
@@ -953,7 +962,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("rk_stage = 4", dialog.examples.toPlainText())
             self.assertIn("not a complete Butcher tableau", dialog.examples.toPlainText())
         finally:
-            dialog.close()
+            self._close_dialog(dialog)
 
 if __name__ == "__main__":
     unittest.main()
