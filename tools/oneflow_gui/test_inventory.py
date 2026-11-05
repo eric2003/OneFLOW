@@ -12,6 +12,10 @@ import re
 from pathlib import Path
 from typing import Any
 
+from tools.verification.cmake_test_catalog import (
+    discover_cmake_test_targets_by_source,
+)
+
 CPP_TEST_PATTERN = re.compile(
     r"\b(TEST|TEST_F|TEST_P)\s*\(\s*([A-Za-z_][A-Za-z_0-9]*)\s*,"
     r"\s*([A-Za-z_][A-Za-z_0-9]*)\s*\)"
@@ -42,7 +46,11 @@ def _scenario_links(repository_root: Path) -> dict[tuple[str, str, str], dict[st
     return links
 
 
-def _cpp_tests(repository_root: Path, links: dict) -> list[dict[str, Any]]:
+def _cpp_tests(
+    repository_root: Path,
+    links: dict,
+    cmake_targets_by_source: dict,
+) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
     test_root = repository_root / "tests"
     if not test_root.is_dir():
@@ -56,21 +64,39 @@ def _cpp_tests(repository_root: Path, links: dict) -> list[dict[str, Any]]:
             macro, suite, name = match.groups()
             identity = ("GoogleTest", suite, name)
             link = links.get(identity, {})
+            source_relative = path.relative_to(repository_root).as_posix()
+            cmake_targets = cmake_targets_by_source.get(source_relative, ())
+            if not cmake_targets:
+                ctest_registration = "target_not_found"
+            elif any(item.discovery_declared for item in cmake_targets):
+                ctest_registration = "declared"
+            else:
+                ctest_registration = "not_declared"
             records.append({
                 "id": f"gtest:{suite}.{name}",
                 "framework": "GoogleTest",
                 "suite": suite,
                 "name": name,
                 "kind": macro,
-                "source": path.relative_to(repository_root).as_posix(),
+                "source": source_relative,
                 "line": source.count("\n", 0, match.start()) + 1,
+                "cmakeTargets": [
+                    {
+                        "target": item.target,
+                        "cmakeFile": item.cmake_file,
+                        "discoveryDeclared": item.discovery_declared,
+                        "discoveryMode": item.discovery_mode,
+                    }
+                    for item in cmake_targets
+                ],
+                "ctestDiscoveryDeclaration": ctest_registration,
                 "discovery": "source",
                 "scenarioId": link.get("scenarioId"),
                 "scenarioRole": link.get("scenarioRole"),
                 "input": link.get("input"),
                 "expected": link.get("expected"),
                 "result": None,
-                "execution": "CTest target; per-test filtering depends on target registration",
+                "execution": "CTest target; per-test filtering depends on configured discovery",
             })
     return records
 
@@ -222,7 +248,8 @@ def discover_tests(repository_root: Path) -> list[dict[str, Any]]:
     """
     root = repository_root.resolve()
     links = _scenario_links(root)
-    records = _cpp_tests(root, links) + _python_tests(root)
+    cmake_targets_by_source = discover_cmake_test_targets_by_source(root)
+    records = _cpp_tests(root, links, cmake_targets_by_source) + _python_tests(root)
     return sorted(records, key=lambda item: (
         item["framework"], item["source"], item["line"], item["name"]
     ))

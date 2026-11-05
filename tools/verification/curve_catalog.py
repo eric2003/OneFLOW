@@ -34,6 +34,175 @@ class TheoryEntry:
 def list_theory_entries() -> list[TheoryEntry]:
     return [
         # ========== SA ==========
+
+
+        TheoryEntry(
+            id="sa_ft2",
+            family="turbulence",
+            genus="SA",
+            section="closure / trip function",
+            title="SA trip function ft2",
+            role_tags=("turbulence", "SA", "closure"),
+            formula_plain=(
+                "ft2 = 0 if disabled; else ct3 * exp(-ct4 * chi^2)"
+            ),
+            formula_latex=(
+                r"f_{t2}=c_{t3}\,e^{-c_{t4}\chi^{2}}"
+                r"\quad(\text{enabled})"
+            ),
+            principle=(
+                "Optional trip term that reduces production and adjusts "
+                "destruction near laminar/transition regions."
+            ),
+            background=(
+                "Pure API SaFt2 in TurbSaPolicy. Feeds SaProduction and "
+                "SaDestruction when the trip flag is on."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_ft2.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_ft2_theory.csv",
+            plot_module="plot_sa_ft2",
+            pure_apis=("SaFt2",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_ft2.rst",
+            code_sketch=(
+                "// GATED SKETCH enabled\n"
+                "ft2 = ct3 * exp(-ct4 * chi * chi);\n"
+            ),
+            proves="ft2 algebra vs pure API on a chi grid; disabled path returns 0.",
+            does_not_prove="Transition prediction quality on a case mesh.",
+        ),
+
+
+
+        TheoryEntry(
+            id="sa_working_variable_upper_bound",
+            family="turbulence",
+            genus="SA",
+            section="update / working-variable bound",
+            title="SA working-variable upper bound",
+            role_tags=("turbulence", "SA", "update"),
+            formula_plain=(
+                "nu_max = rmax * mu_laminar / (rho * fv1)"
+            ),
+            formula_latex=(
+                r"\tilde{\nu}_{\max}"
+                r"=r_{\max}\frac{\mu_\ell}{\rho f_{v1}}"
+            ),
+            principle=(
+                "Caps the SA working variable so the implied eddy viscosity "
+                "ratio stays below a prescribed maximum."
+            ),
+            background=(
+                "Pure API SaWorkingVariableUpperBound in TurbSaPolicy. Pair "
+                "with SaNonNegativeWorkingVariable and SaUnderRelaxedUpdate."
+            ),
+            references=(
+                "SA solver robustness practice; NASA TMR SA",
+                "doc/source/numerical/sa_working_variable_upper_bound.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_working_variable_upper_bound_theory.csv",
+            plot_module="plot_sa_working_variable_upper_bound",
+            pure_apis=("SaWorkingVariableUpperBound",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_working_variable_upper_bound.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "nu_max = rmax * mu / (rho * fv1);\n"
+            ),
+            proves="Upper-bound algebra vs pure API on an fv1 grid.",
+            does_not_prove="Optimal rmax or full update pipeline on a case.",
+        ),
+
+        TheoryEntry(
+            id="sa_under_relaxed_update",
+            family="turbulence",
+            genus="SA",
+            section="update / under-relaxation",
+            title="SA under-relaxed update",
+            role_tags=("turbulence", "SA", "update"),
+            formula_plain=(
+                "q = (1-alpha)*qOld + alpha*(qOld+deltaQ) = qOld + alpha*deltaQ"
+            ),
+            formula_latex=(
+                r"q=q_0+\alpha\Delta q"
+            ),
+            principle=(
+                "Under-relaxation blends the explicit update with the old "
+                "working variable to improve nonlinear stability."
+            ),
+            background=(
+                "Pure API SaUnderRelaxedUpdate in TurbSaPolicy."
+            ),
+            references=(
+                "Common CFD under-relaxation practice; SA solver update path",
+                "doc/source/numerical/sa_under_relaxed_update.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_under_relaxed_update_theory.csv",
+            plot_module="plot_sa_under_relaxed_update",
+            pure_apis=("SaUnderRelaxedUpdate",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_under_relaxed_update.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "q = qOld + alpha * deltaQ;\n"
+            ),
+            proves="Under-relaxation algebra vs pure API on an alpha grid.",
+            does_not_prove="Optimal alpha or case convergence behavior.",
+        ),
+
+        TheoryEntry(
+            id="sa_eddy_viscosity",
+            family="turbulence",
+            genus="SA",
+            section="closure / eddy viscosity",
+            title="SA eddy viscosity",
+            role_tags=("turbulence", "SA", "closure"),
+            formula_plain=(
+                "mut = density * nu_tilde * fv1"
+            ),
+            formula_latex=(
+                r"\mu_t=\rho\,\tilde{\nu}\,f_{v1}"
+            ),
+            principle=(
+                "Final SA turbulent viscosity from density, working variable "
+                "and the fv1 wall-damping function."
+            ),
+            background=(
+                "Pure API SaEddyViscosity in TurbSaPolicy. Upstream: SaChi, "
+                "SaFv1. Full pipeline: SaComputeEddyViscosity."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_eddy_viscosity.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_eddy_viscosity_theory.csv",
+            plot_module="plot_sa_eddy_viscosity",
+            pure_apis=("SaEddyViscosity",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_eddy_viscosity.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "mut = density * nu_tilde * fv1;\n"
+            ),
+            proves="Eddy-viscosity algebra vs pure API; composition with SaFv1.",
+            does_not_prove="Full capped SaComputeEddyViscosity pipeline on a case.",
+        ),
+
         TheoryEntry(
             id="sa_fv1_chi",
             family="turbulence",
@@ -134,6 +303,90 @@ def list_theory_entries() -> list[TheoryEntry]:
             proves="fv2 / strain vs pure APIs.",
             does_not_prove="Assembled production residual on a mesh.",
         ),
+
+
+        TheoryEntry(
+            id="sa_s_bar",
+            family="turbulence",
+            genus="SA",
+            section="closure / modified strain intermediate",
+            title="SA S-bar intermediate",
+            role_tags=("turbulence", "SA", "closure"),
+            formula_plain=(
+                "sBar = rs * fv2"
+            ),
+            formula_latex=(
+                r"\bar{S}=r_s f_{v2}"
+            ),
+            principle=(
+                "Intermediate strain correction formed from the wall-scaled "
+                "working-variable measure and fv2, before assembling the "
+                "modified strain rate used in production."
+            ),
+            background=(
+                "Pure API SaSBar in TurbSaPolicy. Upstream: SaFv2. Downstream: "
+                "SaModifiedStrainRate."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_s_bar.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_s_bar_theory.csv",
+            plot_module="plot_sa_s_bar",
+            pure_apis=("SaSBar",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_s_bar.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "sBar = rs * fv2;\n"
+            ),
+            proves="S-bar algebra vs pure API; composition with SaFv2.",
+            does_not_prove="Full modified-strain / production field on a case.",
+        ),
+
+        TheoryEntry(
+            id="sa_r_ratio",
+            family="turbulence",
+            genus="SA",
+            section="closure / wall destruction ratio",
+            title="SA r-ratio",
+            role_tags=("turbulence", "SA", "closure"),
+            formula_plain=(
+                "r = min(rs / modifiedStrain, 10)"
+            ),
+            formula_latex=(
+                r"r=\min\!\left(\frac{r_s}{\tilde{S}},\,10\right)"
+            ),
+            principle=(
+                "Normalized ratio that feeds the SA wall-destruction function "
+                "fw through g(r). Clamped at 10 for numerical robustness."
+            ),
+            background=(
+                "Pure API SaRRatio in TurbSaPolicy. Downstream: SaG, SaFw."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_r_ratio.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_r_ratio_theory.csv",
+            plot_module="plot_sa_r_ratio",
+            pure_apis=("SaRRatio",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_r_ratio.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "r = min(rs / S, 10);\n"
+            ),
+            proves="r-ratio algebra and clamp vs pure API.",
+            does_not_prove="Full fw destruction on a wall-bounded case.",
+        ),
+
         TheoryEntry(
             id="sa_fw_r",
             family="turbulence",
@@ -180,6 +433,91 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Skin friction or full-case CFD.",
         ),
 
+
+
+
+        TheoryEntry(
+            id="sa_limited_diffusion",
+            family="turbulence",
+            genus="SA",
+            section="source / limited diffusion",
+            title="SA limited diffusion",
+            role_tags=("turbulence", "SA", "source"),
+            formula_plain=(
+                "D_lim = min(rprod * P, Diff)"
+            ),
+            formula_latex=(
+                r"D_{\mathrm{lim}}=\min(r_p P,\,D_{\mathrm{diff}})"
+            ),
+            principle=(
+                "Caps the non-conservative diffusion contribution relative to "
+                "production to improve robustness."
+            ),
+            background=(
+                "Pure API SaLimitedDiffusion in TurbSaPolicy. Upstream: "
+                "SaDiffusion, SaProduction. Downstream: SaSourceResidual."
+            ),
+            references=(
+                "Spalart-Allmaras implementation practice; NASA TMR SA",
+                "doc/source/numerical/sa_limited_diffusion.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_limited_diffusion_theory.csv",
+            plot_module="plot_sa_limited_diffusion",
+            pure_apis=("SaLimitedDiffusion",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_limited_diffusion.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "D_lim = min(rprod * P, Diff);\n"
+            ),
+            proves="Limiter algebra vs pure API; composition with SaDiffusion.",
+            does_not_prove="Full SA residual field on a wall-bounded case.",
+        ),
+
+        TheoryEntry(
+            id="sa_diffusion",
+            family="turbulence",
+            genus="SA",
+            section="source / diffusion",
+            title="SA diffusion source term",
+            role_tags=("turbulence", "SA", "source"),
+            formula_plain=(
+                "Diff = (cb2/sigma) * |grad nu_tilde|^2 * invRe"
+            ),
+            formula_latex=(
+                r"D_{\mathrm{diff}}"
+                r"=\frac{c_{b2}}{\sigma}|\nabla\tilde{\nu}|^{2}/\mathrm{Re}"
+            ),
+            principle=(
+                "SA non-conservative diffusion contribution proportional to "
+                "the squared gradient of the working variable."
+            ),
+            background=(
+                "Pure API SaDiffusion in TurbSaPolicy. Downstream: "
+                "SaLimitedDiffusion then SaSourceResidual."
+            ),
+            references=(
+                "Spalart-Allmaras model; NASA TMR SA",
+                "doc/source/numerical/sa_diffusion.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_diffusion_theory.csv",
+            plot_module="plot_sa_diffusion",
+            pure_apis=("SaDiffusion",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_diffusion.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Diff = cb2OverSigma * gradNuSquared * invRe;\n"
+            ),
+            proves="Diffusion algebra vs pure API on a |grad nu|^2 grid.",
+            does_not_prove="Full SA residual or limiter interaction on a case.",
+        ),
 
         TheoryEntry(
             id="sa_destruction",
@@ -263,6 +601,49 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Full SA residual on a wall-bounded case.",
         ),
 
+
+        TheoryEntry(
+            id="sa_negative_part",
+            family="turbulence",
+            genus="SA",
+            section="residual / negative-part magnitude",
+            title="SA negative-part magnitude",
+            role_tags=("turbulence", "SA", "residual"),
+            formula_plain=(
+                "n = -0.5 * (x - |x|) = max(-x, 0)"
+            ),
+            formula_latex=(
+                r"n=\max(-x,0)"
+            ),
+            principle=(
+                "Extracts the magnitude of the negative part of a residual "
+                "contribution. Unlike SstNegativeSourcePart, the SA form "
+                "returns a non-negative magnitude."
+            ),
+            background=(
+                "Pure API SaNegativePart in TurbSaPolicy. Compare with "
+                "SstNegativeSourcePart (signed min(S,0))."
+            ),
+            references=(
+                "SA residual linearization practice",
+                "doc/source/numerical/sa_negative_part.rst",
+            ),
+            csv_relpath="tools/verification/data/sa_negative_part_theory.csv",
+            plot_module="plot_sa_negative_part",
+            pure_apis=("SaNegativePart",),
+            source_relpaths=(
+                "codes/turb/include/TurbSaPolicy.h",
+                "codes/turb/src/TurbSaPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sa_negative_part.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "n = (x < 0) ? -x : 0;\n"
+            ),
+            proves="Negative-part magnitude algebra vs pure API.",
+            does_not_prove="Full residual Jacobian on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sa_source_residual",
             family="turbulence",
@@ -313,6 +694,346 @@ def list_theory_entries() -> list[TheoryEntry]:
             does_not_prove="Mesh residual or experiment.",
         ),
         # ========== SST ==========
+
+
+
+        TheoryEntry(
+            id="sst_density_scaled_update",
+            family="turbulence",
+            genus="SST",
+            section="update / density-scaled increment",
+            title="SST density-scaled update",
+            role_tags=("turbulence", "SST", "update"),
+            formula_plain=(
+                "q = q0 + deltaQ / density"
+            ),
+            formula_latex=(
+                r"q=q_0+\Delta q/\rho"
+            ),
+            principle=(
+                "Converts a density-weighted residual increment into a "
+                "primitive-variable update for k or omega."
+            ),
+            background=(
+                "Pure API SstDensityScaledUpdate in TurbSstPolicy. Often "
+                "followed by SstFloorOmega / SstFloorKineticEnergy."
+            ),
+            references=(
+                "SST solver update practice",
+                "doc/source/numerical/sst_density_scaled_update.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_density_scaled_update_theory.csv",
+            plot_module="plot_sst_density_scaled_update",
+            pure_apis=("SstDensityScaledUpdate",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_density_scaled_update.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "q = q0 + deltaQ / density;\n"
+            ),
+            proves="Density-scaled update algebra vs pure API on a deltaQ grid.",
+            does_not_prove="Full nonlinear update / floor interaction on a case.",
+        ),
+
+
+        TheoryEntry(
+            id="sst_floor_kinetic_energy",
+            family="turbulence",
+            genus="SST",
+            section="update / positivity floor",
+            title="SST k floor",
+            role_tags=("turbulence", "SST", "update"),
+            formula_plain=(
+                "k = max(k, k_min)"
+            ),
+            formula_latex=(
+                r"k\leftarrow\max(k,k_{\min})"
+            ),
+            principle=(
+                "Enforces a positive lower bound on turbulent kinetic energy "
+                "to avoid unphysical negative values after the update."
+            ),
+            background=(
+                "Pure API SstFloorKineticEnergy in TurbSstPolicy. Pair with "
+                "SstFloorOmega and SstDensityScaledUpdate."
+            ),
+            references=(
+                "SST solver robustness practice; NASA TMR SST",
+                "doc/source/numerical/sst_floor_kinetic_energy.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_floor_kinetic_energy_theory.csv",
+            plot_module="plot_sst_floor_kinetic_energy",
+            pure_apis=("SstFloorKineticEnergy",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_floor_kinetic_energy.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "k = max(k, kMin);\n"
+            ),
+            proves="k-floor algebra vs pure API on a k grid.",
+            does_not_prove="Optimal k_min or case stability margins.",
+        ),
+
+        TheoryEntry(
+            id="sst_floor_omega",
+            family="turbulence",
+            genus="SST",
+            section="update / positivity floor",
+            title="SST omega floor",
+            role_tags=("turbulence", "SST", "update"),
+            formula_plain=(
+                "omega = max(omega, omega_min)"
+            ),
+            formula_latex=(
+                r"\omega\leftarrow\max(\omega,\omega_{\min})"
+            ),
+            principle=(
+                "Enforces a positive lower bound on specific dissipation to "
+                "avoid division by zero and unphysical negative values."
+            ),
+            background=(
+                "Pure API SstFloorOmega in TurbSstPolicy. Pair with "
+                "SstFloorKineticEnergy."
+            ),
+            references=(
+                "SST solver robustness practice; NASA TMR SST",
+                "doc/source/numerical/sst_floor_omega.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_floor_omega_theory.csv",
+            plot_module="plot_sst_floor_omega",
+            pure_apis=("SstFloorOmega",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_floor_omega.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "omega = max(omega, omegaMin);\n"
+            ),
+            proves="Floor algebra vs pure API on an omega grid.",
+            does_not_prove="Optimal omega_min or case stability margins.",
+        ),
+
+        TheoryEntry(
+            id="sst_blend",
+            family="turbulence",
+            genus="SST",
+            section="closure / coefficient blend",
+            title="SST coefficient blend",
+            role_tags=("turbulence", "SST", "closure"),
+            formula_plain=(
+                "phi = F1 * phi1 + (1 - F1) * phi2"
+            ),
+            formula_latex=(
+                r"\phi=F_1\phi_1+(1-F_1)\phi_2"
+            ),
+            principle=(
+                "Convex combination of inner (Wilcox/k-omega) and outer "
+                "(k-epsilon) model coefficients driven by the F1 blending "
+                "function."
+            ),
+            background=(
+                "Pure API SstBlend in TurbSstPolicy. Used for beta, sigma, "
+                "alpha_w and related SST constants."
+            ),
+            references=(
+                "Menter SST (1994); NASA TMR SST",
+                "doc/source/numerical/sst_blend.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_blend_theory.csv",
+            plot_module="plot_sst_blend",
+            pure_apis=("SstBlend",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_blend.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "phi = F1 * phi1 + (1 - F1) * phi2;\n"
+            ),
+            proves="Blend algebra and convexity on an F1 grid.",
+            does_not_prove="F1 construction accuracy or full residual field.",
+        ),
+
+
+
+
+
+        TheoryEntry(
+            id="sst_gradient_dot_product",
+            family="turbulence",
+            genus="SST",
+            section="closure / gradient dot product",
+            title="SST gradient dot product",
+            role_tags=("turbulence", "SST", "closure"),
+            formula_plain=(
+                "dot = dkx*dwx + dky*dwy + dkz*dwz"
+            ),
+            formula_latex=(
+                r"\nabla k\cdot\nabla\omega"
+                r"=(\partial_i k)(\partial_i\omega)"
+            ),
+            principle=(
+                "Forms the scalar cross-gradient product that feeds "
+                "cross-diffusion measures for F1 and omega source terms."
+            ),
+            background=(
+                "Pure API SstGradientDotProduct in TurbSstPolicy. Downstream: "
+                "SstCrossDiffScalar, SstCrossDiffMenter, WilcoxXkFromCrossTerm."
+            ),
+            references=(
+                "Menter SST cross-diffusion; NASA TMR SST",
+                "doc/source/numerical/sst_gradient_dot_product.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_gradient_dot_product_theory.csv",
+            plot_module="plot_sst_gradient_dot_product",
+            pure_apis=("SstGradientDotProduct",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_gradient_dot_product.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "dot = dkx*dwx + dky*dwy + dkz*dwz;\n"
+            ),
+            proves="Dot-product algebra vs pure API; composition with CD scalar.",
+            does_not_prove="Full residual field or gradient reconstruction accuracy.",
+        ),
+
+        TheoryEntry(
+            id="sst_cross_diff_scalar",
+            family="turbulence",
+            genus="SST",
+            section="closure / F1 cross-diffusion scalar",
+            title="SST cross-diffusion scalar (F1 path)",
+            role_tags=("turbulence", "SST", "closure"),
+            formula_plain=(
+                "CD = 2 * rho * sigw2 * crossTerm / omega"
+            ),
+            formula_latex=(
+                r"\mathrm{CD}=2\rho\sigma_{\omega2}"
+                r"\frac{\nabla k\cdot\nabla\omega}{\omega}"
+            ),
+            principle=(
+                "Unblended cross-diffusion scalar used when constructing the "
+                "F1 blending argument (before CDKW floor)."
+            ),
+            background=(
+                "Pure API SstCrossDiffScalar in TurbSstPolicy. Downstream: "
+                "SstCdkwWithFloor, SstBlendingArg1. Distinct from "
+                "SstCrossDiffMenter (which multiplies by 1-F1)."
+            ),
+            references=(
+                "Menter SST F1 construction; NASA TMR SST",
+                "doc/source/numerical/sst_cross_diff_scalar.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_cross_diff_scalar_theory.csv",
+            plot_module="plot_sst_cross_diff_scalar",
+            pure_apis=("SstCrossDiffScalar",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_cross_diff_scalar.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "CD = 2 * density * sigw2 * cross / omega;\n"
+            ),
+            proves="Cross-diff scalar algebra vs pure API; composition with CDKW floor.",
+            does_not_prove="Full F1 field accuracy on a case mesh.",
+        ),
+
+        TheoryEntry(
+            id="sst_blending_arg1",
+            family="turbulence",
+            genus="SST",
+            section="closure / F1 argument",
+            title="SST F1 blending argument",
+            role_tags=("turbulence", "SST", "closure"),
+            formula_plain=(
+                "arg1 = min(max(termSqrtKe, termViscous), termCrossDiff)"
+            ),
+            formula_latex=(
+                r"\arg_1=\min(\max(t_k,t_\nu),t_{CD})"
+            ),
+            principle=(
+                "Combines length-scale, viscous and cross-diffusion terms "
+                "into the argument of the F1 blending function."
+            ),
+            background=(
+                "Pure API SstBlendingArg1 in TurbSstPolicy. Downstream: "
+                "SstF1FromArg1. Upstream floors: SstCdkwWithFloor."
+            ),
+            references=(
+                "Menter SST (1994); NASA TMR SST",
+                "doc/source/numerical/sst_blending_arg1.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_blending_arg1_theory.csv",
+            plot_module="plot_sst_blending_arg1",
+            pure_apis=("SstBlendingArg1",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_blending_arg1.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "arg1 = min(max(tKe, tVis), tCD);\n"
+            ),
+            proves="arg1 algebra vs pure API on a tCD grid.",
+            does_not_prove="Full F1 field accuracy on a case mesh.",
+        ),
+
+        TheoryEntry(
+            id="sst_cdkw_with_floor",
+            family="turbulence",
+            genus="SST",
+            section="closure / F1 CDKW floor",
+            title="SST CDKW floor",
+            role_tags=("turbulence", "SST", "closure"),
+            formula_plain=(
+                "CD = max(crossDiff, floorValue)"
+            ),
+            formula_latex=(
+                r"\mathrm{CD}\leftarrow\max(\mathrm{CD},\mathrm{CD}_{\min})"
+            ),
+            principle=(
+                "Floors the cross-diffusion measure used in the F1 blending "
+                "argument so the min/max combination remains well-defined."
+            ),
+            background=(
+                "Pure API SstCdkwWithFloor in TurbSstPolicy. Upstream: "
+                "SstCrossDiffScalar / Menter CD. Downstream: SstBlendingArg1."
+            ),
+            references=(
+                "Menter SST F1 construction; NASA TMR SST",
+                "doc/source/numerical/sst_cdkw_with_floor.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_cdkw_with_floor_theory.csv",
+            plot_module="plot_sst_cdkw_with_floor",
+            pure_apis=("SstCdkwWithFloor",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_cdkw_with_floor.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "CD = max(crossDiff, floorValue);\n"
+            ),
+            proves="CDKW floor algebra vs pure API on a CD grid.",
+            does_not_prove="Full F1 field accuracy on a case mesh.",
+        ),
+
         TheoryEntry(
             id="sst_f1",
             family="turbulence",
@@ -430,6 +1151,135 @@ def list_theory_entries() -> list[TheoryEntry]:
         ),
 
 
+
+
+
+        TheoryEntry(
+            id="sst_prodk_vorticity",
+            family="turbulence",
+            genus="SST",
+            section="source / k production",
+            title="SST vorticity-based k production Pk",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "Pk = mut * Omega2 * invRe - 2/3 * rho * k * div"
+            ),
+            formula_latex=(
+                r"P_k=\mu_t\Omega^{2}/\mathrm{Re}"
+                r"-\tfrac23\rho k(\nabla\cdot u)"
+            ),
+            principle=(
+                "Production estimated from vorticity magnitude instead of "
+                "strain rate, with the same divergence correction as the "
+                "Boussinesq form."
+            ),
+            background=(
+                "Pure API SstProdkVorticity in TurbSstPolicy. Third Pk option "
+                "alongside Boussinesq and strain-only."
+            ),
+            references=(
+                "SST production-option variants; NASA TMR SST",
+                "doc/source/numerical/sst_prodk_vorticity.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_prodk_vorticity_theory.csv",
+            plot_module="plot_sst_prodk_vorticity",
+            pure_apis=("SstProdkVorticity",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_prodk_vorticity.rst",
+            code_sketch=(
+                "// GATED SKETCH div=0\n"
+                "Pk = mut * Omega2 * invRe;\n"
+            ),
+            proves="Vorticity Pk algebra vs pure API; divergence sample.",
+            does_not_prove="Which production option is best for a case.",
+        ),
+
+        TheoryEntry(
+            id="sst_prodk_strain_only",
+            family="turbulence",
+            genus="SST",
+            section="source / k production",
+            title="SST strain-only k production Pk",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "Pk = mut * S2 * invReynolds"
+            ),
+            formula_latex=(
+                r"P_k=\mu_t S^{2}/\mathrm{Re}"
+            ),
+            principle=(
+                "Simplified production using only strain-rate magnitude, "
+                "without divergence correction. Alternate to Boussinesq form."
+            ),
+            background=(
+                "Pure API SstProdkStrainOnly in TurbSstPolicy. Pair with "
+                "SstProdkBoussinesq and SstProdkVorticity options."
+            ),
+            references=(
+                "SST production-option variants; NASA TMR SST",
+                "doc/source/numerical/sst_prodk_strain_only.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_prodk_strain_only_theory.csv",
+            plot_module="plot_sst_prodk_strain_only",
+            pure_apis=("SstProdkStrainOnly",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_prodk_strain_only.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Pk = mut * S2 * invRe;\n"
+            ),
+            proves="Strain-only Pk algebra vs pure API on an S2 grid.",
+            does_not_prove="Which production option is best for a case.",
+        ),
+
+        TheoryEntry(
+            id="sst_prodk_boussinesq",
+            family="turbulence",
+            genus="SST",
+            section="source / k production",
+            title="SST Boussinesq k production Pk",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "Pk = mut * (S2 - 2/3 div^2) / Re - 2/3 * rho * k * div"
+            ),
+            formula_latex=(
+                r"P_k=\mu_t\bigl(S^{2}-\tfrac23(\nabla\cdot u)^{2}\bigr)/\mathrm{Re}"
+                r"-\tfrac23\rho k(\nabla\cdot u)"
+            ),
+            principle=(
+                "Boussinesq production from eddy viscosity and mean strain, "
+                "with divergence corrections for compressible flow."
+            ),
+            background=(
+                "Pure API SstProdkBoussinesq in TurbSstPolicy. Alternatives: "
+                "SstProdkStrainOnly, SstProdkVorticity. Downstream: SstLimitProdk."
+            ),
+            references=(
+                "Menter SST; standard Boussinesq production forms",
+                "doc/source/numerical/sst_prodk_boussinesq.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_prodk_boussinesq_theory.csv",
+            plot_module="plot_sst_prodk_boussinesq",
+            pure_apis=("SstProdkBoussinesq",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_prodk_boussinesq.rst",
+            code_sketch=(
+                "// GATED SKETCH div=0\n"
+                "Pk = mut * S2 * invRe;\n"
+            ),
+            proves="Boussinesq Pk algebra vs pure API; divergence sample.",
+            does_not_prove="Full SST residual or limiter interaction on a case.",
+        ),
+
         TheoryEntry(
             id="sst_limit_prodk",
             family="turbulence",
@@ -469,6 +1319,49 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             proves="Limiter algebra vs pure API; composition with SstDisskStandard.",
             does_not_prove="Full SST k residual on a case mesh.",
+        ),
+
+
+        TheoryEntry(
+            id="sst_dissk_des",
+            family="turbulence",
+            genus="SST",
+            section="source / k dissipation DES",
+            title="SST DES k dissipation",
+            role_tags=("turbulence", "SST", "DES", "source"),
+            formula_plain=(
+                "eps = f_beta_star * rho * k * sqrt(k) / L"
+            ),
+            formula_latex=(
+                r"\varepsilon_{\mathrm{DES}}"
+                r"=f_{\beta^*}\rho\,k^{3/2}/L"
+            ),
+            principle=(
+                "DES replaces the standard omega-based k destruction with a "
+                "length-scale form based on local filter/wall distance measure L."
+            ),
+            background=(
+                "Pure API SstDisskDes in TurbSstPolicy. Alternate to "
+                "SstDisskStandard for DES-mode branches."
+            ),
+            references=(
+                "Spalart DES; Menter SST-DES variants; NASA TMR",
+                "doc/source/numerical/sst_dissk_des.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_dissk_des_theory.csv",
+            plot_module="plot_sst_dissk_des",
+            pure_apis=("SstDisskDes",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_dissk_des.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "eps = fBetas * density * k * sqrt(k) / L;\n"
+            ),
+            proves="DES dissipation algebra vs pure API on a k grid.",
+            does_not_prove="Full DES residual or length-scale construction.",
         ),
 
         TheoryEntry(
@@ -638,6 +1531,174 @@ def list_theory_entries() -> list[TheoryEntry]:
 
 
 
+
+
+        TheoryEntry(
+            id="sst_prodw_wilcox",
+            family="turbulence",
+            genus="SST",
+            section="source / omega production",
+            title="SST Wilcox omega production Pw",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "Pw = alphaw * omega / k * Pk"
+            ),
+            formula_latex=(
+                r"P_\omega=\alpha_\omega\frac{\omega}{k}P_k"
+            ),
+            principle=(
+                "Wilcox-style omega production scales limited k-production by "
+                "omega/k rather than density/eddy-viscosity."
+            ),
+            background=(
+                "Pure API SstProdwWilcox in TurbSstPolicy. Alternate to "
+                "SstProdwMenter. Feeds SstSourceW."
+            ),
+            references=(
+                "Wilcox k-omega; Menter SST production options; NASA TMR",
+                "doc/source/numerical/sst_prodw_wilcox.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_prodw_wilcox_theory.csv",
+            plot_module="plot_sst_prodw_wilcox",
+            pure_apis=("SstProdwWilcox",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_prodw_wilcox.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Pw = alphaw * omega / k * Pk;\n"
+            ),
+            proves="Wilcox Pw algebra vs pure API on a Pk grid.",
+            does_not_prove="Full SST residual or Menter branch equivalence.",
+        ),
+
+        TheoryEntry(
+            id="sst_prodw_menter",
+            family="turbulence",
+            genus="SST",
+            section="source / omega production",
+            title="SST Menter omega production Pw",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "Pw = alphaw * rho / mut * Pk * Re"
+            ),
+            formula_latex=(
+                r"P_\omega=\alpha_\omega\frac{\rho}{\mu_t}P_k\,\mathrm{Re}"
+            ),
+            principle=(
+                "Menter form converts limited k-production into omega "
+                "production using eddy viscosity scaling."
+            ),
+            background=(
+                "Pure API SstProdwMenter in TurbSstPolicy. Feeds SstSourceW. "
+                "Wilcox form SstProdwWilcox is an alternate branch."
+            ),
+            references=(
+                "Menter SST (1994); NASA TMR SST",
+                "doc/source/numerical/sst_prodw_menter.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_prodw_menter_theory.csv",
+            plot_module="plot_sst_prodw_menter",
+            pure_apis=("SstProdwMenter",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_prodw_menter.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "Pw = alphaw * density / mut * Pk * reynolds;\n"
+            ),
+            proves="Menter Pw algebra vs pure API on a Pk grid.",
+            does_not_prove="Full SST residual or Wilcox production branch.",
+        ),
+
+
+
+        TheoryEntry(
+            id="wilcox_xk_from_cross_term",
+            family="turbulence",
+            genus="Wilcox",
+            section="closure / xk from cross-diffusion",
+            title="Wilcox xk from cross-term",
+            role_tags=("turbulence", "Wilcox", "closure"),
+            formula_plain=(
+                "xk = crossTerm / omega^3"
+            ),
+            formula_latex=(
+                r"x_k=\frac{\mathrm{CD}}{\omega^{3}}"
+            ),
+            principle=(
+                "Forms the dimensionless cross-diffusion parameter used by "
+                "the Wilcox f_beta* / f_k closure family."
+            ),
+            background=(
+                "Pure API WilcoxXkFromCrossTerm in TurbSstPolicy. Downstream: "
+                "WilcoxFkFromXk."
+            ),
+            references=(
+                "Wilcox k-omega model variants; NASA TMR",
+                "doc/source/numerical/wilcox_xk_from_cross_term.rst",
+            ),
+            csv_relpath="tools/verification/data/wilcox_xk_from_cross_term_theory.csv",
+            plot_module="plot_wilcox_xk_from_cross_term",
+            pure_apis=("WilcoxXkFromCrossTerm",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/wilcox_xk_from_cross_term.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "xk = crossTerm / (omega * omega * omega);\n"
+            ),
+            proves="xk algebra vs pure API; composition with WilcoxFkFromXk.",
+            does_not_prove="Full Wilcox residual field on a case mesh.",
+        ),
+
+        TheoryEntry(
+            id="sst_cross_diff_wilcox",
+            family="turbulence",
+            genus="SST",
+            section="source / cross diffusion",
+            title="SST Wilcox cross-diffusion CD",
+            role_tags=("turbulence", "SST", "source"),
+            formula_plain=(
+                "CD = sigd * rho * max(crossTerm, 0) / omega"
+            ),
+            formula_latex=(
+                r"\mathrm{CD}_W=\sigma_d\rho\frac{\max(\nabla k\cdot\nabla\omega,0)}{\omega}"
+            ),
+            principle=(
+                "Wilcox cross-diffusion activates only for positive "
+                "grad-k · grad-omega and does not use the F1 blend factor."
+            ),
+            background=(
+                "Pure API SstCrossDiffWilcox in TurbSstPolicy. Alternate to "
+                "SstCrossDiffMenter."
+            ),
+            references=(
+                "Wilcox k-omega cross-diffusion; NASA TMR",
+                "doc/source/numerical/sst_cross_diff_wilcox.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_cross_diff_wilcox_theory.csv",
+            plot_module="plot_sst_cross_diff_wilcox",
+            pure_apis=("SstCrossDiffWilcox",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_cross_diff_wilcox.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "CD = sigd * density * max(cross, 0) / omega;\n"
+            ),
+            proves="Wilcox CD algebra vs pure API; negative cross clamp.",
+            does_not_prove="Full residual field or Menter/Wilcox switch logic.",
+        ),
+
         TheoryEntry(
             id="sst_cross_diff_menter",
             family="turbulence",
@@ -679,6 +1740,48 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             proves="Cross-diffusion algebra vs pure API; F1=1 vanishing.",
             does_not_prove="Full SST residual field or F1 construction accuracy.",
+        ),
+
+
+        TheoryEntry(
+            id="sst_negative_source_part",
+            family="turbulence",
+            genus="SST",
+            section="residual / negative source part",
+            title="SST negative source part",
+            role_tags=("turbulence", "SST", "residual"),
+            formula_plain=(
+                "n = 0.5 * (S - |S|) = min(S, 0)"
+            ),
+            formula_latex=(
+                r"n=\min(S,0)"
+            ),
+            principle=(
+                "Extracts only the non-positive part of a source residual for "
+                "implicit linearization / diagonal contributions."
+            ),
+            background=(
+                "Pure API SstNegativeSourcePart in TurbSstPolicy. Used with "
+                "SstSourceK / SstSourceW residual assembly."
+            ),
+            references=(
+                "Menter SST linearization practice",
+                "doc/source/numerical/sst_negative_source_part.rst",
+            ),
+            csv_relpath="tools/verification/data/sst_negative_source_part_theory.csv",
+            plot_module="plot_sst_negative_source_part",
+            pure_apis=("SstNegativeSourcePart",),
+            source_relpaths=(
+                "codes/turb/include/TurbSstPolicy.h",
+                "codes/turb/src/TurbSstPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/sst_negative_source_part.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "n = (S < 0) ? S : 0;\n"
+            ),
+            proves="Negative-part algebra vs pure API; composition with SstSourceK.",
+            does_not_prove="Full residual Jacobian on a case mesh.",
         ),
 
         TheoryEntry(
@@ -1744,6 +2847,49 @@ references=(
             does_not_prove="Full residual on a mesh or Riemann solver quality.",
         ),
 
+
+        TheoryEntry(
+            id="relative_face_normal_velocity",
+            family="mean-flow",
+            genus="NS",
+            section="kinematics / relative face-normal velocity",
+            title="Relative face-normal velocity",
+            role_tags=("NS", "kinematics", "flux"),
+            formula_plain=(
+                "vn_rel = xfn*u + yfn*v + zfn*w - vfn"
+            ),
+            formula_latex=(
+                r"v_n=\mathbf{n}\cdot\mathbf{u}-v_g"
+            ),
+            principle=(
+                "Fluid velocity projected on the face normal, minus grid "
+                "face speed, for ALE / moving-mesh relative fluxes."
+            ),
+            background=(
+                "Pure API RelativeFaceNormalVelocity in NsInvFluxPolicy. "
+                "Upstream of EulerConvectiveFlux, FaceMachNumber, Roe "
+                "eigenvalues."
+            ),
+            references=(
+                "Standard finite-volume face kinematics; ALE relative velocity",
+                "doc/source/numerical/relative_face_normal_velocity.rst",
+            ),
+            csv_relpath="tools/verification/data/relative_face_normal_velocity_theory.csv",
+            plot_module="plot_relative_face_normal_velocity",
+            pure_apis=("RelativeFaceNormalVelocity",),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/relative_face_normal_velocity.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "vn = n·u - v_grid;\n"
+            ),
+            proves="Relative normal-velocity algebra vs pure API.",
+            does_not_prove="Full flux residual or mesh-motion coupling on a case.",
+        ),
+
         TheoryEntry(
             id="face_mach_number",
             family="mean-flow",
@@ -2298,6 +3444,55 @@ principle=(
             ),
             proves="Continuity jump algebra vs pure API.",
             does_not_prove="Full Roe residual or entropy-fix interaction.",
+        ),
+
+
+        TheoryEntry(
+            id="roe_average_state",
+            family="mean-flow",
+            genus="NS",
+            section="flux / Roe average state",
+            title="Roe average state",
+            role_tags=("NS", "Roe", "flux"),
+            formula_plain=(
+                "rho_m = sqrt(rhoL*rhoR); "
+                "phi_m = (phiL + phiR*ratio)*coef; "
+                "ratio=sqrt(rhoR/rhoL); coef=1/(1+ratio)"
+            ),
+            formula_latex=(
+                r"\rho_m=\sqrt{\rho_L\rho_R},\quad"
+                r"\phi_m=(\phi_L+\phi_R r)/(1+r),\ "
+                r"r=\sqrt{\rho_R/\rho_L}"
+            ),
+            principle=(
+                "Assembles the Roe mid-face state from left/right primitives "
+                "using geometric density mean and density-weighted component "
+                "averages."
+            ),
+            background=(
+                "Pure API RoeAverageState in NsInvFluxPolicy. Builds on "
+                "RoeAverageWeights and RoeAverageComponent."
+            ),
+            references=(
+                "Roe (1981); standard CFD Roe average",
+                "doc/source/numerical/roe_average_state.rst",
+            ),
+            csv_relpath="tools/verification/data/roe_average_state_theory.csv",
+            plot_module="plot_roe_average_state",
+            pure_apis=("RoeAverageState", "RoeAverageWeights", "RoeAverageComponent"),
+            source_relpaths=(
+                "codes/ns/include/NsInvFluxPolicy.h",
+                "codes/ns/src/NsInvFluxPolicy.cpp",
+            ),
+            doc_relpath="doc/source/numerical/roe_average_state.rst",
+            code_sketch=(
+                "// GATED SKETCH\n"
+                "ratio = sqrt(rhoR/rhoL); coef = 1/(1+ratio);\n"
+                "rho_m = sqrt(rhoL*rhoR);\n"
+                "phi_m = (phiL + phiR*ratio)*coef;\n"
+            ),
+            proves="Roe mid-state algebra vs pure API on a density-ratio grid.",
+            does_not_prove="Full Roe flux residual or entropy-fix interaction.",
         ),
 
         TheoryEntry(

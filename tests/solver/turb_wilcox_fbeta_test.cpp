@@ -107,3 +107,27 @@ TEST( WilcoxFbeta, VortexStretchingCrossTerms )
             0.0, 0.0, 0.0, 2.0, 0.0, 0.0 ),
         4.0 );
 }
+
+// Intermediate: WilcoxXkFromCrossTerm on an omega grid.
+// Ref: cross=8; xk = 8 / omega^3.
+TEST( TurbWilcoxFbeta, WilcoxXkFromCrossTermCurveMatchesClosedForm )
+{
+    const Real cross = 8.0;
+    const Real omegas[] = { 0.5, 1.0, 2.0, 4.0 };
+    for ( Real omega : omegas )
+    {
+        EXPECT_NEAR(
+            WilcoxXkFromCrossTerm( cross, omega ),
+            cross / ( omega * omega * omega ),
+            1.0e-12 );
+    }
+}
+
+TEST( TurbWilcoxFbeta, WilcoxXkFeedsFk )
+{
+    const Real xk = WilcoxXkFromCrossTerm( 8.0, 2.0 ); // 1.0
+    EXPECT_NEAR( xk, 1.0, 1.0e-12 );
+    const Real xk2 = xk * xk;
+    const Real expected = ( 1.0 + 680.0 * xk2 ) / ( 1.0 + 400.0 * xk2 );
+    EXPECT_NEAR( WilcoxFkFromXk( xk ), expected, 1.0e-12 );
+}

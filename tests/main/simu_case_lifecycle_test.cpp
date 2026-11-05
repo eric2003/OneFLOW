@@ -186,12 +186,12 @@ TEST( SimuCaseLifecycleTest, FinalizesSingleCaseProcessAfterExecutionFailure )
 TEST( SimuCaseLifecycleTest, RunsMultipleCasesInCommandLineOrder )
 {
     const std::vector< std::string > caseDirs = {
-        "d:\\OneFLOWWorkspace\\workdir2026\\grid\\minimal_cube\\",
-        "d:\\OneFLOWWorkspace\\workdir2026\\grid\\mesh_workflow\\",
-        "d:\\OneFLOWWorkspace\\workdir2026\\grid\\minimal_rectangle\\",
-        "d:\\OneFLOWWorkspace\\workdir2026\\rae2822grid\\",
-        "d:\\OneFLOWWorkspace\\workdir2026\\rae2822_roe_sa\\",
-        "d:\\OneFLOWWorkspace\\workdir2026\\platescript\\"
+        "workspace/grid/minimal_cube",
+        "workspace/grid/mesh_workflow",
+        "workspace/grid/minimal_rectangle",
+        "workspace/rae2822grid",
+        "workspace/rae2822_roe_sa",
+        "workspace/platescript"
     };
     std::vector< std::string > events;
 
@@ -209,7 +209,7 @@ TEST( SimuCaseLifecycleTest, RunsMultipleCasesInCommandLineOrder )
 
 TEST( SimuCaseLifecycleTest, RunsRepeatedCasePathsMoreThanOnce )
 {
-    const std::string caseDir = "d:\\OneFLOWWorkspace\\workdir2026\\rae2822grid\\";
+    const std::string caseDir = "workspace/rae2822grid";
     const std::vector< std::string > caseDirs = { caseDir, caseDir };
     std::vector< std::string > events;
 

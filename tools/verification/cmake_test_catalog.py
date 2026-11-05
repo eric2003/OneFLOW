@@ -19,7 +19,7 @@ class CMakeTestTarget:
     target: str
     cmake_file: str
     source_file: str
-    discovery_registered: bool
+    discovery_declared: bool
     discovery_mode: str = ""
 
 
@@ -101,29 +101,22 @@ def _source_path(token: str, cmake_directory: Path, repository_root: Path) -> Pa
         return None
 
 
-def discover_cmake_test_targets(
+def discover_cmake_test_targets_by_source(
     repository_root: Path,
-    source_file: str,
-) -> tuple[CMakeTestTarget, ...]:
-    """Find direct add_executable source mappings and CTest discovery declarations.
+) -> dict[str, tuple[CMakeTestTarget, ...]]:
+    """Map every directly declared GoogleTest source to its CMake target.
 
+    This is a static source mapping. It reports target declarations and
+    gtest_discover_tests declarations; it does not evaluate CMake conditions, configure, or run CTest.
     Sources supplied through variables, target_sources(), functions, or
-    generated lists are intentionally not guessed by this static reader.
+    generated lists are intentionally not guessed by this reader.
     """
     root = repository_root.resolve()
-    requested = Path(source_file)
-    if requested.is_absolute():
-        try:
-            requested = requested.resolve().relative_to(root)
-        except ValueError:
-            return ()
-    requested_path = (root / requested).resolve()
-
     targets: dict[str, tuple[Path, set[Path]]] = {}
     discovery: dict[str, str] = {}
     tests_root = root / "tests"
     if not tests_root.is_dir():
-        return ()
+        return {}
 
     for cmake_path in sorted(tests_root.rglob("CMakeLists.txt")):
         try:
@@ -153,23 +146,45 @@ def discover_cmake_test_targets(
                         break
                 discovery[arguments[0]] = mode
 
-    matches = []
+    by_source: dict[str, list[CMakeTestTarget]] = {}
     for target, (cmake_path, sources) in sorted(targets.items()):
-        if requested_path not in sources:
-            continue
         try:
             cmake_relative = cmake_path.relative_to(root).as_posix()
-            source_relative = requested_path.relative_to(root).as_posix()
         except ValueError:
             continue
         mode = discovery.get(target, "")
-        matches.append(
-            CMakeTestTarget(
-                target=target,
-                cmake_file=cmake_relative,
-                source_file=source_relative,
-                discovery_registered=target in discovery,
-                discovery_mode=mode,
+        for source_path in sources:
+            try:
+                source_relative = source_path.relative_to(root).as_posix()
+            except ValueError:
+                continue
+            by_source.setdefault(source_relative, []).append(
+                CMakeTestTarget(
+                    target=target,
+                    cmake_file=cmake_relative,
+                    source_file=source_relative,
+                    discovery_declared=target in discovery,
+                    discovery_mode=mode,
+                )
             )
-        )
-    return tuple(matches)
+    return {
+        source: tuple(records)
+        for source, records in sorted(by_source.items())
+    }
+
+
+def discover_cmake_test_targets(
+    repository_root: Path,
+    source_file: str,
+) -> tuple[CMakeTestTarget, ...]:
+    """Find direct add_executable source mappings and declared CTest discovery commands."""
+    root = repository_root.resolve()
+    requested = Path(source_file)
+    if requested.is_absolute():
+        try:
+            requested = requested.resolve().relative_to(root)
+        except ValueError:
+            return ()
+    return discover_cmake_test_targets_by_source(root).get(
+        requested.as_posix(), ()
+    )

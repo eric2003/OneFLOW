@@ -23,6 +23,11 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             )
             scenario_dir = root / "tools" / "geometry_workbench" / "scenarios"
             scenario_dir.mkdir(parents=True)
+            (root / "tests" / "geometry" / "CMakeLists.txt").write_text(
+                "add_executable(example_test ExampleTest.cpp)\n"
+                "gtest_discover_tests(example_test DISCOVERY_MODE PRE_TEST)\n",
+                encoding="utf-8",
+            )
             (scenario_dir / "identity.json").write_text(
                 json.dumps({
                     "id": "identity",
@@ -46,6 +51,10 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             self.assertEqual(record["scenarioId"], "identity")
             self.assertEqual(record["input"], {"candidateIds": [3, 5]})
             self.assertEqual(record["expected"], {"registeredIds": [5]})
+            self.assertEqual(record["ctestDiscoveryDeclaration"], "declared")
+            self.assertEqual(record["cmakeTargets"][0]["target"], "example_test")
+            self.assertTrue(record["cmakeTargets"][0]["discoveryDeclared"])
+            self.assertEqual(record["cmakeTargets"][0]["discoveryMode"], "PRE_TEST")
             self.assertIsNone(record["result"])
 
     def test_unlinked_test_has_no_fabricated_input_or_expected(self) -> None:
@@ -62,6 +71,8 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             self.assertIsNone(record["expected"])
             self.assertIsNone(record["result"])
             self.assertEqual(record["discovery"], "source")
+            self.assertEqual(record["ctestDiscoveryDeclaration"], "target_not_found")
+            self.assertEqual(record["cmakeTargets"], [])
 
     def test_discovers_python_unittest_methods(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -103,6 +114,30 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             self.assertEqual(len(first), 2)
 
 
+
+    def test_production_lifecycle_integration_test_has_discovery_declaration(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        records = discover_tests(repository_root)
+        lifecycle_tests = [
+            item for item in records
+            if item["source"] == "tests/main/simu_imp_case_lifecycle_integration_test.cpp"
+        ]
+
+        self.assertTrue(lifecycle_tests)
+        self.assertTrue(
+            all(item["ctestDiscoveryDeclaration"] == "declared" for item in lifecycle_tests)
+        )
+        self.assertTrue(
+            all(
+                any(
+                    target["target"] == "simu_imp_case_lifecycle_integration_test"
+                    and target["discoveryDeclared"]
+                    and target["discoveryMode"] == "PRE_TEST"
+                    for target in item["cmakeTargets"]
+                )
+                for item in lifecycle_tests
+            )
+        )
 
     def test_discovers_contract_catalog_tests_for_workbench(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]

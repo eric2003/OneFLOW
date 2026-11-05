@@ -179,3 +179,288 @@ TEST( TurbSstPolicy, SstCrossDiffMenterVanishesWhenF1IsOne )
         0.0,
         1.0e-12 );
 }
+
+// Intermediate: SstProdwMenter on a Pk grid.
+// Ref: alphaw=0.44, rho=1, mut=0.1, Re=1; Pw = 4.4 * Pk.
+TEST( TurbSstPolicy, SstProdwMenterCurveMatchesClosedForm )
+{
+    const Real alphaw = 0.44;
+    const Real density = 1.0;
+    const Real mut = 0.1;
+    const Real reynolds = 1.0;
+    const Real pks[] = { 0.0, 0.5, 1.0, 2.0, 5.0 };
+    for ( Real pk : pks )
+    {
+        EXPECT_NEAR(
+            SstProdwMenter( alphaw, density, mut, pk, reynolds ),
+            alphaw * density / mut * pk * reynolds,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstProdwMenterLinearInProdk )
+{
+    const Real p1 = SstProdwMenter( 0.44, 1.0, 0.1, 1.0, 1.0 );
+    const Real p2 = SstProdwMenter( 0.44, 1.0, 0.1, 2.0, 1.0 );
+    EXPECT_NEAR( p2, 2.0 * p1, 1.0e-12 );
+}
+
+// Intermediate: SstProdkBoussinesq on a strain-rate-squared grid (div=0).
+// Ref: mut=2, invRe=1, rho=1, k=1, div=0; Pk = 2 * S2.
+TEST( TurbSstPolicy, SstProdkBoussinesqCurveMatchesClosedForm )
+{
+    const Real mut = 2.0;
+    const Real invRe = 1.0;
+    const Real s2s[] = { 0.0, 0.5, 1.0, 2.0, 4.0 };
+    for ( Real s2 : s2s )
+    {
+        EXPECT_NEAR(
+            SstProdkBoussinesq( mut, s2, 0.0, invRe, 1.0, 1.0 ),
+            mut * s2 * invRe,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstProdkBoussinesqSubtractsDivergenceTerm )
+{
+    // mut=0, div=3, rho=1, k=2 => Pk = -2/3 * 1 * 2 * 3 = -4
+    EXPECT_NEAR(
+        SstProdkBoussinesq( 0.0, 0.0, 3.0, 1.0, 1.0, 2.0 ),
+        -4.0,
+        1.0e-12 );
+}
+
+// Intermediate: SstProdkStrainOnly on a strain-rate-squared grid.
+// Ref: mut=2, invRe=0.5; Pk = S2.
+TEST( TurbSstPolicy, SstProdkStrainOnlyCurveMatchesClosedForm )
+{
+    const Real mut = 2.0;
+    const Real invRe = 0.5;
+    const Real s2s[] = { 0.0, 0.5, 1.0, 2.0, 4.0, 8.0 };
+    for ( Real s2 : s2s )
+    {
+        EXPECT_NEAR(
+            SstProdkStrainOnly( mut, s2, invRe ),
+            mut * s2 * invRe,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstProdkStrainOnlyLinearInEddyViscosity )
+{
+    EXPECT_NEAR(
+        SstProdkStrainOnly( 4.0, 3.0, 0.5 ),
+        2.0 * SstProdkStrainOnly( 2.0, 3.0, 0.5 ),
+        1.0e-12 );
+}
+
+// Intermediate: SstProdkVorticity on a vorticity-squared grid (div=0).
+// Ref: mut=2, invRe=1, rho=1, k=1, div=0; Pk = 2 * W2.
+TEST( TurbSstPolicy, SstProdkVorticityCurveMatchesClosedForm )
+{
+    const Real mut = 2.0;
+    const Real invRe = 1.0;
+    const Real w2s[] = { 0.0, 0.5, 1.0, 2.0, 4.0 };
+    for ( Real w2 : w2s )
+    {
+        EXPECT_NEAR(
+            SstProdkVorticity( mut, w2, invRe, 1.0, 1.0, 0.0 ),
+            mut * w2 * invRe,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstProdkVorticitySubtractsDivergenceTerm )
+{
+    // mut=0, div=3, rho=1, k=2 => Pk = -2/3 * 1 * 2 * 3 = -4
+    EXPECT_NEAR(
+        SstProdkVorticity( 0.0, 0.0, 1.0, 1.0, 2.0, 3.0 ),
+        -4.0,
+        1.0e-12 );
+}
+
+// Intermediate: SstProdwWilcox on a Pk grid.
+// Ref: alphaw=0.52, omega=2, k=1; Pw = 1.04 * Pk.
+TEST( TurbSstPolicy, SstProdwWilcoxCurveMatchesClosedForm )
+{
+    const Real alphaw = 0.52;
+    const Real omega = 2.0;
+    const Real k = 1.0;
+    const Real pks[] = { 0.0, 0.5, 1.0, 2.0, 5.0 };
+    for ( Real pk : pks )
+    {
+        EXPECT_NEAR(
+            SstProdwWilcox( alphaw, omega, k, pk ),
+            alphaw * omega / k * pk,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstProdwWilcoxLinearInOmegaOverK )
+{
+    EXPECT_NEAR(
+        SstProdwWilcox( 0.52, 4.0, 1.0, 1.0 ),
+        2.0 * SstProdwWilcox( 0.52, 2.0, 1.0, 1.0 ),
+        1.0e-12 );
+}
+
+// Intermediate: SstDisskDes on a kinetic-energy grid.
+// Ref: fBetas=1, rho=1, L=2; eps = 0.5 * k * sqrt(k).
+TEST( TurbSstPolicy, SstDisskDesCurveMatchesClosedForm )
+{
+    const Real fBetas = 1.0;
+    const Real density = 1.0;
+    const Real lengthScale = 2.0;
+    const Real ks[] = { 0.25, 1.0, 4.0, 9.0 };
+    for ( Real k : ks )
+    {
+        EXPECT_NEAR(
+            SstDisskDes( fBetas, density, k, lengthScale ),
+            fBetas * density * k * std::sqrt( k ) / lengthScale,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstDisskDesInverselyScalesWithLength )
+{
+    const Real e1 = SstDisskDes( 1.0, 1.0, 4.0, 2.0 );
+    const Real e2 = SstDisskDes( 1.0, 1.0, 4.0, 4.0 );
+    EXPECT_NEAR( e1, 2.0 * e2, 1.0e-12 );
+}
+
+// Intermediate: SstCrossDiffWilcox on an omega grid.
+// Ref: sigd=0.5, rho=1, cross=2; CD = 1/omega.
+TEST( TurbSstPolicy, SstCrossDiffWilcoxCurveMatchesClosedForm )
+{
+    const Real sigd = 0.5;
+    const Real density = 1.0;
+    const Real cross = 2.0;
+    const Real omegas[] = { 0.5, 1.0, 2.0, 4.0, 8.0 };
+    for ( Real omega : omegas )
+    {
+        EXPECT_NEAR(
+            SstCrossDiffWilcox( sigd, density, cross, omega ),
+            sigd * density * cross / omega,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstCrossDiffWilcoxClampsNegativeCrossTerm )
+{
+    EXPECT_NEAR(
+        SstCrossDiffWilcox( 0.5, 1.0, -10.0, 2.0 ),
+        0.0,
+        1.0e-12 );
+}
+
+// Intermediate: SstBlend on an F1 grid.
+// Ref: v1=4, v2=8; blend = 8 - 4*F1.
+TEST( TurbSstPolicy, SstBlendCurveMatchesClosedForm )
+{
+    const Real v1 = 4.0;
+    const Real v2 = 8.0;
+    const Real f1s[] = { 0.0, 0.25, 0.5, 0.75, 1.0 };
+    for ( Real f1 : f1s )
+    {
+        EXPECT_NEAR(
+            SstBlend( f1, v1, v2 ),
+            f1 * v1 + ( 1.0 - f1 ) * v2,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstBlendIsConvexCombination )
+{
+    // for F1 in [0,1], blend stays between endpoints
+    for ( Real f1 : { 0.1, 0.5, 0.9 } )
+    {
+        const Real b = SstBlend( f1, 4.0, 8.0 );
+        EXPECT_GE( b, 4.0 );
+        EXPECT_LE( b, 8.0 );
+    }
+}
+
+// Intermediate: SstCdkwWithFloor on a cross-diffusion grid.
+// Ref: floor=1e-20; floored = max(CD, 1e-20).
+TEST( TurbSstPolicy, SstCdkwWithFloorCurveMatchesClosedForm )
+{
+    const Real floorValue = 1.0e-20;
+    const Real cds[] = { 0.0, 1.0e-30, 1.0e-20, 1.0e-10, 1.0 };
+    for ( Real cd : cds )
+    {
+        const Real expected = ( cd > floorValue ) ? cd : floorValue;
+        EXPECT_NEAR( SstCdkwWithFloor( cd, floorValue ), expected, 1.0e-30 );
+    }
+}
+
+TEST( TurbSstPolicy, SstCdkwWithFloorNeverBelowFloor )
+{
+    EXPECT_GE( SstCdkwWithFloor( -1.0, 1.0e-20 ), 1.0e-20 );
+    EXPECT_GE( SstCdkwWithFloor( 0.0, 1.0e-20 ), 1.0e-20 );
+}
+
+// Intermediate: SstBlendingArg1 on a cross-diff-term grid.
+// Ref: tKe=1, tVis=0.5 => max=1; arg1 = min(1, tCD).
+TEST( TurbSstPolicy, SstBlendingArg1CurveMatchesClosedForm )
+{
+    const Real tKe = 1.0;
+    const Real tVis = 0.5;
+    const Real tcds[] = { 0.0, 0.5, 1.0, 2.0, 10.0 };
+    for ( Real tcd : tcds )
+    {
+        const Real expected = ( tcd < 1.0 ) ? tcd : 1.0;
+        EXPECT_NEAR( SstBlendingArg1( tKe, tVis, tcd ), expected, 1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstBlendingArg1SelectsViscousWhenLargerThanKe )
+{
+    // max(0.1, 0.5)=0.5; min(0.5, 2)=0.5
+    EXPECT_NEAR( SstBlendingArg1( 0.1, 0.5, 2.0 ), 0.5, 1.0e-12 );
+}
+
+// Intermediate: SstCrossDiffScalar on an omega grid.
+// Ref: rho=1, sigw2=0.5, cross=2; CD = 2/omega.
+TEST( TurbSstPolicy, SstCrossDiffScalarCurveMatchesClosedForm )
+{
+    const Real density = 1.0;
+    const Real sigw2 = 0.5;
+    const Real cross = 2.0;
+    const Real omegas[] = { 0.5, 1.0, 2.0, 4.0, 8.0 };
+    for ( Real omega : omegas )
+    {
+        EXPECT_NEAR(
+            SstCrossDiffScalar( density, sigw2, cross, omega ),
+            2.0 * density * sigw2 * cross / omega,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstCrossDiffScalarFeedsCdkwFloor )
+{
+    const Real raw = SstCrossDiffScalar( 1.0, 0.5, 2.0, 1.0 ); // 2.0
+    EXPECT_NEAR( SstCdkwWithFloor( raw, 1.0e-20 ), 2.0, 1.0e-12 );
+}
+
+// Intermediate: SstGradientDotProduct on a dwx grid.
+// Ref: dk=(1,0,0), dw=(s,0,0); dot = s.
+TEST( TurbSstPolicy, SstGradientDotProductCurveMatchesClosedForm )
+{
+    const Real dwxs[] = { -2.0, -1.0, 0.0, 1.0, 2.0, 5.0 };
+    for ( Real s : dwxs )
+    {
+        EXPECT_NEAR(
+            SstGradientDotProduct( 1.0, 0.0, 0.0, s, 0.0, 0.0 ),
+            s,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSstPolicy, SstGradientDotProductFeedsCrossDiffScalar )
+{
+    const Real cross = SstGradientDotProduct( 1.0, 0.0, 0.0, 2.0, 0.0, 0.0 );
+    EXPECT_NEAR(
+        SstCrossDiffScalar( 1.0, 0.5, cross, 1.0 ),
+        2.0 * 1.0 * 0.5 * cross / 1.0,
+        1.0e-12 );
+}

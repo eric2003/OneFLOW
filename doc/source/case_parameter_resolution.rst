@@ -30,15 +30,19 @@ Resolution boundary
 * the resolver produces a side-effect-free plan containing old value, new
   value, declared type, override origin, and actual source path;
 * the plan can be previewed before it is applied;
-* application checks all target documents for external edits before writing
-  any of them, then delegates token replacement to the lossless document
-  writer.
+* application renders every target file before writing, stages replacements
+  beside their source files, and checks for external edits before replacement;
+* if a later replacement fails, earlier replacements are rolled back from
+  their original bytes before the plan reports failure.
 
 The first slice deliberately updates existing declarations only. It rejects
 missing keys and duplicate requests instead of silently inventing a file,
 inserting a declaration with guessed syntax, or choosing an arbitrary target.
 The writer retains comments, spacing, encoding, line endings, and unrelated
-declarations. A later schema-backed operation can add a new parameter only
+declarations. Multi-file replacement is not a single filesystem transaction:
+the plan stages all files and performs best-effort rollback if an individual
+replace fails. The GUI must report an incomplete rollback distinctly if the
+filesystem also rejects restoration. A later schema-backed operation can add a new parameter only
 when its type, serialization rule, applicability, manifest placement, and
 runtime semantics are known.
 
@@ -100,7 +104,8 @@ Initial tests
 ``run-control.txt``; case-insensitive logical lookup; duplicate declarations
 with effective-source routing; missing-key rejection; duplicate override
 rejection; preview without mutation; and external-edit detection before
-application. These tests exercise the GUI-side resolution boundary, not the
+application, successful updates across two files, and rollback when the second
+file replacement is forced to fail. These tests exercise the GUI-side resolution boundary, not the
 production C++ parser or a complete CFD run.
 
 Versioned Case profiles

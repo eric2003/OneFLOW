@@ -235,6 +235,7 @@ _PYTHON_UNIT_TESTS = (
     ("Workflow execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_execution_capture")),
     ("Test worker execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_test_dialog_execution_capture")),
     ("CMake test catalog tests", ("-m", "unittest", "tools.verification.test_cmake_test_catalog")),
+    ("Configured CTest discovery tests", ("-m", "unittest", "tools.verification.test_ctest_discovery")),
     ("Contract Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_contract_workbench_dialog")),
     ("Source editor process tests", ("-m", "unittest", "tools.oneflow_gui.test_source_editor")),
     ("Repository test inventory discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_test_inventory")),

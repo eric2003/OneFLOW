@@ -801,7 +801,7 @@ class ContractDomainDialog(QDialog):
                 )
                 self.parameter_formula_preview.setPixmap(QPixmap())
                 self._parameter_formula_pixmap = QPixmap()
-        self.open_source_button.setEnabled(bool(summary.implementation_paths))
+        self.open_source_button.setEnabled(bool(self._implementation_paths))
         self.documentation_view.setPlainText(
             "References\n----------\n"
             + "\n".join(summary.references)
@@ -840,9 +840,9 @@ class ContractDomainDialog(QDialog):
                         evidence_lines.append(
                             f"  Build target: {target.target}"
                             f"\n  CMake: {target.cmake_file}"
-                            f"\n  Build declaration: target_resolved"
+                            f"\n  CMake source mapping: target_resolved"
                             f"\n  CTest discovery declaration: "
-                            f"{'registered' if target.discovery_registered else 'not_registered'}"
+                            f"{'declared' if target.discovery_declared else 'not_declared'}"
                         )
                         if target.discovery_mode:
                             evidence_lines.append(
@@ -1109,7 +1109,7 @@ class ContractDomainDialog(QDialog):
     def _open_sources(self) -> None:
         summary = self._current_summary()
         if summary is not None:
-            self._open_paths(summary.implementation_paths, "Implementation")
+            self._open_paths(self._implementation_paths, "Implementation")
 
     def _open_documentation(self) -> None:
         summary = self._current_summary()

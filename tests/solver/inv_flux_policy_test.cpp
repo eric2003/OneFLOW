@@ -811,3 +811,64 @@ TEST( InvFluxPolicy, RoeTotalEnthalpyJumpIncludesKineticDensityTerm )
         0.4,
         1.0e-12 );
 }
+
+// Intermediate: RoeAverageState on a right-density grid.
+// Ref: rhoL=1, uL=0, uR=2; densityMid=sqrt(rhoL*rhoR),
+// uMid = (uL + uR*ratio)*coef with ratio=sqrt(rhoR/rhoL).
+TEST( InvFluxPolicy, RoeAverageStateCurveMatchesClosedForm )
+{
+    const Real rhoL = 1.0;
+    const Real rhoRs[] = { 0.25, 1.0, 4.0, 9.0 };
+    for ( Real rhoR : rhoRs )
+    {
+        Real densityMid = 0.0, uMid = 0.0, vMid = 0.0, wMid = 0.0;
+        Real pMid = 0.0, hMid = 0.0, gamaMid = 0.0;
+        RoeAverageState(
+            rhoL, 0.0, 0.0, 0.0, 1.0, 3.0, 1.4,
+            rhoR, 2.0, 0.0, 0.0, 1.0, 3.0, 1.4,
+            densityMid, uMid, vMid, wMid, pMid, hMid, gamaMid );
+        EXPECT_NEAR( densityMid, std::sqrt( rhoL * rhoR ), 1.0e-12 );
+        const Real ratio = std::sqrt( rhoR / rhoL );
+        const Real coef = 1.0 / ( 1.0 + ratio );
+        EXPECT_NEAR( uMid, ( 0.0 + 2.0 * ratio ) * coef, 1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RoeAverageStateEqualSidesIsIdentity )
+{
+    Real densityMid = 0.0, uMid = 0.0, vMid = 0.0, wMid = 0.0;
+    Real pMid = 0.0, hMid = 0.0, gamaMid = 0.0;
+    RoeAverageState(
+        1.2, 0.5, 0.1, -0.2, 101325.0, 3.0e5, 1.4,
+        1.2, 0.5, 0.1, -0.2, 101325.0, 3.0e5, 1.4,
+        densityMid, uMid, vMid, wMid, pMid, hMid, gamaMid );
+    EXPECT_NEAR( densityMid, 1.2, 1.0e-12 );
+    EXPECT_NEAR( uMid, 0.5, 1.0e-12 );
+    EXPECT_NEAR( pMid, 101325.0, 1.0e-6 );
+}
+
+// Intermediate: RelativeFaceNormalVelocity on a velocity grid.
+// Ref: n=(1,0,0), vfn=0.5; vn = u - 0.5.
+TEST( InvFluxPolicy, RelativeFaceNormalVelocityCurveMatchesClosedForm )
+{
+    const Real xfn = 1.0, yfn = 0.0, zfn = 0.0, vfn = 0.5;
+    const Real us[] = { -2.0, -0.5, 0.0, 0.5, 1.0, 2.0 };
+    for ( Real u : us )
+    {
+        EXPECT_NEAR(
+            RelativeFaceNormalVelocity( xfn, yfn, zfn, vfn, u, 0.0, 0.0 ),
+            u - vfn,
+            1.0e-12 );
+    }
+}
+
+TEST( InvFluxPolicy, RelativeFaceNormalVelocityUsesAllNormalComponents )
+{
+    // n=(1/sqrt(2), 1/sqrt(2), 0), u=(1,1,0), vfn=0
+    // vn = sqrt(2)
+    const Real s = 0.7071067811865476;
+    EXPECT_NEAR(
+        RelativeFaceNormalVelocity( s, s, 0.0, 0.0, 1.0, 1.0, 0.0 ),
+        s + s,
+        1.0e-12 );
+}

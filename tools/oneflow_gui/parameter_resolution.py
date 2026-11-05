@@ -7,6 +7,9 @@ the document that owns the effective declaration.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
+import tempfile
+from pathlib import Path
 from typing import Any, Iterable, Mapping
 
 from .parameter_document import ParameterDocument
@@ -54,15 +57,77 @@ class ParameterResolutionPlan:
         )
 
     def apply(self) -> tuple[ResolvedParameterChange, ...]:
-        """Apply only after all target documents pass an external-edit preflight."""
-        for document, _ in self._document_updates:
+        """Stage all files, replace them, and roll back earlier replacements on failure."""
+        prepared: list[tuple[ParameterDocument, bytes]] = []
+        for document, updates in self._document_updates:
             if document.path.read_bytes() != document.original_bytes:
                 raise RuntimeError(
                     f"{document.path.name} changed outside the Workbench; "
                     "reload before applying the Case parameter plan."
                 )
-        for document, updates in self._document_updates:
-            document.save(dict(updates))
+            rendered = document.render_updates(dict(updates))
+            if rendered != document.original_bytes:
+                prepared.append((document, rendered))
+
+        staged: list[tuple[ParameterDocument, Path, bytes]] = []
+        committed: list[tuple[ParameterDocument, bytes]] = []
+        temporary_paths: list[Path] = []
+
+        def stage(path: Path, content: bytes) -> Path:
+            descriptor, temporary_name = tempfile.mkstemp(
+                prefix=f".{path.name}.",
+                suffix=".oneflow-tmp",
+                dir=path.parent,
+            )
+            temporary_path = Path(temporary_name)
+            temporary_paths.append(temporary_path)
+            with os.fdopen(descriptor, "wb") as stream:
+                stream.write(content)
+                stream.flush()
+                os.fsync(stream.fileno())
+            return temporary_path
+
+        try:
+            for document, rendered in prepared:
+                staged.append((document, stage(document.path, rendered), rendered))
+
+            for document, temporary_path, rendered in staged:
+                if document.path.read_bytes() != document.original_bytes:
+                    raise RuntimeError(
+                        f"{document.path.name} changed during Case parameter staging; "
+                        "reload before applying the plan."
+                    )
+                os.replace(temporary_path, document.path)
+                committed.append((document, document.original_bytes))
+
+        except Exception as error:
+            rollback_errors = []
+            for document, original in reversed(committed):
+                try:
+                    rollback_path = stage(document.path, original)
+                    os.replace(rollback_path, document.path)
+                except OSError as rollback_error:
+                    rollback_errors.append(f"{document.path.name}: {rollback_error}")
+            if rollback_errors:
+                raise RuntimeError(
+                    "Case parameter update failed and rollback was incomplete: "
+                    + "; ".join(rollback_errors)
+                ) from error
+            if committed:
+                raise RuntimeError(
+                    "Case parameter update failed; all earlier file replacements "
+                    "were rolled back."
+                ) from error
+            raise
+        finally:
+            for temporary_path in temporary_paths:
+                try:
+                    temporary_path.unlink(missing_ok=True)
+                except OSError:
+                    pass
+
+        for document, rendered in prepared:
+            document.mark_saved(rendered)
         return self.changes
 
 
@@ -90,6 +155,8 @@ def resolve_parameter_overrides(
     updates_by_path: dict[str, tuple[ParameterDocument, dict[str, Any]]] = {}
 
     documents_by_path = {str(document.path): document for document in document_list}
+    if len(documents_by_path) != len(document_list):
+        raise ValueError("A parameter document path was loaded more than once.")
     for override in requested:
         normalized = override.key.casefold()
         if normalized in seen:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Relative face normal velocity vs grid speed."""
+"""Relative face-normal velocity vs fluid velocity."""
 from __future__ import annotations
 import argparse, csv, sys
 from pathlib import Path
@@ -23,21 +23,22 @@ def main() -> None:
     xs, ys = [], []
     with args.csv.open(newline="", encoding="ascii") as fh:
         for row in csv.DictReader(fh):
-            xs.append(float(row["vfn"]))
+            xs.append(float(row["u"]))
             ys.append(float(row["vn_rel"]))
     fig, ax = plt.subplots(figsize=(7.2, 4.4))
-    ax.plot(xs, ys, lw=2.0, label=r"$v_n=\mathbf{u}\cdot\mathbf{n}-v_g$")
+    ax.plot(xs, ys, lw=2.0, label=r"$v_n=\mathbf{n}\cdot\mathbf{u}-v_g$")
+    ax.axhline(0.0, color="0.5", ls=":", lw=1)
     if apply_theory_style:
         apply_theory_style(
             ax,
-            xlabel=r"grid speed $v_g$ (vfn)",
+            xlabel=r"$u$ (fluid, aligned with $\mathbf{n}$)",
             ylabel=r"$v_n$ relative",
-            title=r"Relative face normal velocity",
-            subtitle=r"ref $\mathbf{n}=(1,0,0)$, $\mathbf{u}=(2,0,0)$: $v_n=2-v_g$",
+            title=r"Relative face-normal velocity",
+            subtitle=r"ref $\mathbf{n}=(1,0,0)$, $v_g=0.5$: $v_n=u-0.5$",
         )
     else:
-        ax.set_xlabel(r"vfn")
-        ax.set_ylabel(r"vn_rel")
+        ax.set_xlabel(r"u")
+        ax.set_ylabel(r"vn")
         ax.grid(True, alpha=0.35)
         ax.legend(loc="best")
     args.out.parent.mkdir(parents=True, exist_ok=True)

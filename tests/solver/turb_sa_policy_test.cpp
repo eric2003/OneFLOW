@@ -261,3 +261,156 @@ TEST( TurbSaPolicy, SaSourceResidualAssembledFromPieces )
         P - D + Diff,
         1.0e-12 );
 }
+
+// Intermediate: SaDiffusion on a |grad nu|^2 grid.
+// Ref: cb2OverSigma=1.3, invRe=0.5; Diff = 0.65 * g2.
+TEST( TurbSaPolicy, SaDiffusionCurveMatchesClosedForm )
+{
+    const Real cb2OverSigma = 1.3;
+    const Real invRe = 0.5;
+    const Real g2s[] = { 0.0, 0.25, 1.0, 2.0, 4.0 };
+    for ( Real g2 : g2s )
+    {
+        EXPECT_NEAR(
+            SaDiffusion( cb2OverSigma, g2, invRe ),
+            cb2OverSigma * g2 * invRe,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaDiffusionLinearInInvReynolds )
+{
+    EXPECT_NEAR(
+        SaDiffusion( 1.3, 0.25, 1.0 ),
+        2.0 * SaDiffusion( 1.3, 0.25, 0.5 ),
+        1.0e-12 );
+}
+
+// Intermediate: SaLimitedDiffusion on a diffusion grid.
+// Ref: rprod=0.5, P=0.4 => cap=0.2.
+TEST( TurbSaPolicy, SaLimitedDiffusionCurveMatchesClosedForm )
+{
+    const Real rprod = 0.5;
+    const Real production = 0.4;
+    const Real cap = rprod * production;
+    const Real diffs[] = { 0.0, 0.05, 0.1, 0.2, 0.4, 1.0 };
+    for ( Real d : diffs )
+    {
+        EXPECT_NEAR(
+            SaLimitedDiffusion( d, rprod, production ),
+            ( d < cap ? d : cap ),
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaLimitedDiffusionUsesSaDiffusionInput )
+{
+    const Real raw = SaDiffusion( 1.3, 0.25, 0.5 ); // 0.1625
+    // rprod*P = 0.5*0.1 = 0.05 < 0.1625 => limited to 0.05
+    EXPECT_NEAR( SaLimitedDiffusion( raw, 0.5, 0.1 ), 0.05, 1.0e-12 );
+}
+
+// Intermediate: SaEddyViscosity on a nu_tilde grid.
+// Ref: rho=1.2, fv1=0.8; mut = 0.96 * nu.
+TEST( TurbSaPolicy, SaEddyViscosityCurveMatchesClosedForm )
+{
+    const Real density = 1.2;
+    const Real fv1 = 0.8;
+    const Real nus[] = { 0.0, 0.25, 0.5, 1.0, 2.0, 5.0 };
+    for ( Real nu : nus )
+    {
+        EXPECT_NEAR(
+            SaEddyViscosity( density, nu, fv1 ),
+            density * nu * fv1,
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaEddyViscosityComposedFromFv1 )
+{
+    const Real chi = SaChi( 2.0, 0.5 );
+    const Real fv1 = SaFv1( chi, 7.1 * 7.1 * 7.1 );
+    EXPECT_NEAR(
+        SaEddyViscosity( 1.0, 2.0, fv1 ),
+        1.0 * 2.0 * fv1,
+        1.0e-12 );
+}
+
+// Intermediate: SaFt2 on a chi grid (enabled).
+// Ref: ct3=1.2, ct4=0.5; ft2 = 1.2 * exp(-0.5 * chi^2).
+TEST( TurbSaPolicy, SaFt2CurveMatchesClosedForm )
+{
+    const Real ct3 = 1.2;
+    const Real ct4 = 0.5;
+    const Real chis[] = { 0.0, 0.5, 1.0, 2.0, 3.0 };
+    for ( Real chi : chis )
+    {
+        EXPECT_NEAR(
+            SaFt2( chi, ct3, ct4, true ),
+            ct3 * std::exp( - ct4 * chi * chi ),
+            1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaFt2DecaysWithChiSquared )
+{
+    EXPECT_GT( SaFt2( 0.0, 1.2, 0.5, true ), SaFt2( 2.0, 1.2, 0.5, true ) );
+}
+
+// Intermediate: SaRRatio on an rs grid at fixed modified strain.
+// Ref: S=1; r = min(rs, 10).
+TEST( TurbSaPolicy, SaRRatioCurveMatchesClosedForm )
+{
+    const Real S = 1.0;
+    const Real rss[] = { 0.0, 1.0, 5.0, 10.0, 20.0, 100.0 };
+    for ( Real rs : rss )
+    {
+        const Real expected = ( rs / S < 10.0 ) ? ( rs / S ) : 10.0;
+        EXPECT_NEAR( SaRRatio( rs, S ), expected, 1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaRRatioScalesInverselyWithModifiedStrain )
+{
+    // rs=2, S=1 => r=2; S=2 => r=1
+    EXPECT_NEAR( SaRRatio( 2.0, 2.0 ), 1.0, 1.0e-12 );
+}
+
+// Intermediate: SaSBar on an rs grid.
+// Ref: fv2=0.5; sBar = 0.5 * rs.
+TEST( TurbSaPolicy, SaSBarCurveMatchesClosedForm )
+{
+    const Real fv2 = 0.5;
+    const Real rss[] = { 0.0, 0.5, 1.0, 2.0, 5.0 };
+    for ( Real rs : rss )
+    {
+        EXPECT_NEAR( SaSBar( rs, fv2 ), rs * fv2, 1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaSBarComposedFromFv2 )
+{
+    // use SaFv2 path: chi=1, fv1 from chi
+    const Real chi = 1.0;
+    const Real fv1 = SaFv1( chi, 7.1 * 7.1 * 7.1 );
+    const Real fv2 = SaFv2( chi, fv1 );
+    EXPECT_NEAR( SaSBar( 2.0, fv2 ), 2.0 * fv2, 1.0e-12 );
+}
+
+// Intermediate: SaNegativePart on an x grid.
+// n = -0.5*(x - |x|) = max(-x, 0)  (non-negative magnitude).
+TEST( TurbSaPolicy, SaNegativePartCurveMatchesClosedForm )
+{
+    const Real xs[] = { -4.0, -1.0, 0.0, 1.0, 3.0 };
+    for ( Real x : xs )
+    {
+        const Real expected = ( x < 0.0 ) ? ( - x ) : 0.0;
+        EXPECT_NEAR( SaNegativePart( x ), expected, 1.0e-12 );
+    }
+}
+
+TEST( TurbSaPolicy, SaNegativePartDiffersFromSstSignedForm )
+{
+    // SA returns magnitude (>=0); SST SstNegativeSourcePart returns signed min(S,0).
+    EXPECT_NEAR( SaNegativePart( -2.0 ), 2.0, 1.0e-12 );
+}

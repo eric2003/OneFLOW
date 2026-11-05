@@ -16,6 +16,38 @@ The first step is read-only discovery in tools/oneflow_gui/test_inventory.py:
 * Each record includes a stable ID, framework, suite, name, source location,
   discovery method, execution hint, and separate input, expected and result
   fields.
+* GoogleTest records are also mapped to direct CMake add_executable source
+  declarations and statically observed gtest_discover_tests command
+  declarations. The field is named ``ctestDiscoveryDeclaration``: values are
+  ``declared``, ``not_declared``, or ``target_not_found``. This deliberately
+  does not claim that CMake executed the command or that CTest currently lists
+  the test. The reader does not evaluate CMake conditionals, functions,
+  variables, target_sources(), or generated lists. It is a source-level
+  navigation hint only; configured-build evidence must come from CTest itself.
+  Sources supplied indirectly are intentionally not guessed.
+
+A configured build can be inspected with ``ctest --test-dir <build-dir> -N --show-only=json-v1`` (and ``-C Debug`` or ``-C Release`` for
+multi-configuration generators). This is the next evidence layer: it reports
+the tests that the configured build would run, without executing them. It
+must not be conflated with the source-level declaration above.
+
+The reusable implementation is ``tools/verification/ctest_discovery.py``.
+It invokes CTest from the selected build directory with ``-N
+--show-only=json-v1`` (and optional ``-C Debug`` / ``-C Release``). The
+``-N`` option is essential: this is discovery only, not execution. The
+parser validates the ``ctestInfo`` document, version, test names, optional
+commands and properties, and backtrace graph indices. It resolves source file
+and line information through parent nodes when necessary. Missing optional
+commands or backtrace metadata remain unknown rather than being fabricated.
+
+The collector distinguishes a missing build directory, missing CTest
+executable, command failure, timeout, invalid JSON, invalid schema, and
+successful discovery. It retains the command, build directory, configuration,
+return code, stdout and stderr in the result object. This is an in-memory
+discovery snapshot, not a persistent execution record; it does not populate
+per-test pass/fail results. The parser and command boundary are covered by
+``tools/verification/test_ctest_discovery.py``.
+
 * Scenario JSON is linked by explicit framework/suite/name identity. Only the
   linked contract test receives that scenario's input and expected tables.
   An integration test can link to the scenario without incorrectly inheriting
