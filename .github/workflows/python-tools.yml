@@ -80,6 +80,8 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_process_control
       - name: Test case runner process lifecycle
         run: python -m unittest tools.oneflow_gui.test_runner_process
+      - name: Test configured CTest discovery parser
+        run: python -m unittest tools.verification.test_ctest_discovery
       - name: Test verification contract catalog
         run: python -m unittest tools.verification.test_contract_catalog
       - name: Test LaTeX formula preview
