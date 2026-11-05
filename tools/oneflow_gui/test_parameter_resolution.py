@@ -92,8 +92,8 @@ class ParameterResolutionTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             documents = self._documents(root, {
-                "run.txt": "int maxSteps = 50;\\n",
-                "time.txt": "Real global_dt = 0.001;\\n",
+                "run.txt": "int maxSteps = 50;\n",
+                "time.txt": "Real global_dt = 0.001;\n",
             })
             plan = resolve_parameter_overrides(
                 documents, {"maxSteps": 35000, "global_dt": 0.002}
@@ -105,11 +105,11 @@ class ParameterResolutionTest(unittest.TestCase):
             self.assertEqual(documents[1].get("global_dt").value, 0.002)
             self.assertEqual(
                 documents[0].path.read_text(encoding="utf-8"),
-                "int maxSteps = 35000;\\n",
+                "int maxSteps = 35000;\n",
             )
             self.assertEqual(
                 documents[1].path.read_text(encoding="utf-8"),
-                "Real global_dt = 0.002;\\n",
+                "Real global_dt = 0.002;\n",
             )
 
     def test_multi_file_write_failure_rolls_back_prior_replacements(self):
@@ -118,8 +118,8 @@ class ParameterResolutionTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             documents = self._documents(root, {
-                "run.txt": "int maxSteps = 50;\\n",
-                "time.txt": "Real global_dt = 0.001;\\n",
+                "run.txt": "int maxSteps = 50;\n",
+                "time.txt": "Real global_dt = 0.001;\n",
             })
             plan = resolve_parameter_overrides(
                 documents, {"maxSteps": 35000, "global_dt": 0.002}
