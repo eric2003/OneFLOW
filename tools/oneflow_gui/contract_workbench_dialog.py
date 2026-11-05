@@ -840,9 +840,9 @@ class ContractDomainDialog(QDialog):
                         evidence_lines.append(
                             f"  Build target: {target.target}"
                             f"\n  CMake: {target.cmake_file}"
-                            f"\n  Build declaration: target_resolved"
+                            f"\n  CMake source mapping: target_resolved"
                             f"\n  CTest discovery declaration: "
-                            f"{'registered' if target.discovery_registered else 'not_registered'}"
+                            f"{'declared' if target.discovery_declared else 'not_declared'}"
                         )
                         if target.discovery_mode:
                             evidence_lines.append(

@@ -29,7 +29,10 @@ The lifecycle is intentionally layered:
    declared source / test / case / reference
               |
               v
-   static resolution and build registration
+   static source / CMake declaration resolution
+              |
+              v
+   configured-build CTest discovery
               |
               v
    executed run + revision + configuration
@@ -55,15 +58,18 @@ Evidence states and their meaning
    * - Layer
      - What it establishes
      - What it does not establish
-   * - Declared
+   * - Contract-declared
      - A contract names a source, test, case, or reference.
      - That the path exists or the item was executed.
    * - Resolved
      - A supported static resolver found the declared artifact or source declaration.
      - Build success, test discovery, or runtime success.
-   * - Registered
-     - Build/test metadata declares the test target or test discovery mechanism.
-     - That the current build contains the test or that it ran.
+   * - CMake-declared
+     - Source-level CMake parsing finds a target and a gtest_discover_tests() declaration.
+     - That CMake executed the declaration or that CTest lists the test.
+   * - Discovered
+     - The configured build tree's CTest JSON lists the test for the selected configuration.
+     - That the test was executed or passed.
    * - Executed
      - A run record identifies command, revision, platform, outcome, and artifacts.
      - That the numerical result is scientifically accurate.
@@ -74,6 +80,9 @@ Evidence states and their meaning
      - Evidence was produced from the revision being assessed.
      - That the test scope is adequate or the acceptance criteria are valid.
 
+CTest's ``--show-only=json-v1`` is the configured-build discovery source;
+it lists tests without executing them and provides command/configuration and
+backtrace metadata. The source-level CMake parser is only a navigation hint.
 The Workbench keeps these layers separate. A passing test record must not
 promote an entire contract to verified unless the contract's full claim set
 and verification obligations have been evaluated.
