@@ -115,7 +115,7 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
 
 
 
-    def test_production_lifecycle_integration_test_is_ctest_discoverable(self) -> None:
+    def test_production_lifecycle_integration_test_has_discovery_declaration(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
         records = discover_tests(repository_root)
         lifecycle_tests = [
@@ -324,7 +324,7 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
         audit = audit_python_test_registry(repository_root)
 
         self.assertTrue(audit["discovered"])
-        self.assertTrue(audit["declared"])
+        self.assertTrue(audit["registered"])
         self.assertTrue(audit["excluded"])
         self.assertEqual(audit["unregistered"], ())
         self.assertEqual(audit["stale_exclusions"], ())

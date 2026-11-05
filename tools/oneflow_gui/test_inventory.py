@@ -234,7 +234,7 @@ def audit_python_test_registry(
     stale_exclusions = set(exclusion_reasons).difference(discovered)
     return {
         "discovered": tuple(sorted(discovered)),
-        "declared": tuple(sorted(discovered.intersection(registered))),
+        "registered": tuple(sorted(discovered.intersection(registered))),
         "excluded": tuple(sorted(excluded)),
         "unregistered": tuple(sorted(unregistered)),
         "stale_exclusions": tuple(sorted(stale_exclusions)),

@@ -121,7 +121,7 @@ class ContractCatalogTest(unittest.TestCase):
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\\\\n".join(issues))
 
-    def test_process_lifecycle_contract_tests_have_ctest_discovery(self) -> None:
+    def test_process_lifecycle_contract_tests_declare_ctest_discovery(self) -> None:
         definition_path = (
             self.repository_root / "tools" / "verification" / "contracts"
             / "runtime" / "process_lifecycle.json"
