@@ -16,6 +16,13 @@ The first step is read-only discovery in tools/oneflow_gui/test_inventory.py:
 * Each record includes a stable ID, framework, suite, name, source location,
   discovery method, execution hint, and separate input, expected and result
   fields.
+* GoogleTest records are also mapped to direct CMake add_executable source
+  declarations and gtest_discover_tests registration. The inventory
+  distinguishes a registered CTest target, a target without discovery
+  registration, and a source with no statically recognized target. This is a
+  static CMake-source audit; it does not configure, build, or execute tests.
+  Sources supplied indirectly through CMake variables or generated lists are
+  intentionally not guessed.
 * Scenario JSON is linked by explicit framework/suite/name identity. Only the
   linked contract test receives that scenario's input and expected tables.
   An integration test can link to the scenario without incorrectly inheriting

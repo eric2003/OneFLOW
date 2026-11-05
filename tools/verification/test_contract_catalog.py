@@ -21,6 +21,7 @@ from .contract_catalog import (
     validate_contract_summaries,
 )
 from .curve_catalog import list_theory_entries
+from .cmake_test_catalog import discover_cmake_test_targets_by_source
 
 
 class ContractCatalogTest(unittest.TestCase):
@@ -119,6 +120,38 @@ class ContractCatalogTest(unittest.TestCase):
         )
         issues = validate_contract_summaries(self.repository_root, [summary])
         self.assertEqual(issues, [], "\\\\n".join(issues))
+
+    def test_process_lifecycle_contract_tests_have_ctest_discovery(self) -> None:
+        definition_path = (
+            self.repository_root / "tools" / "verification" / "contracts"
+            / "runtime" / "process_lifecycle.json"
+        )
+        definition = json.loads(definition_path.read_text(encoding="utf-8"))
+        summary = adapt_declared_contract(definition)
+        targets_by_source = discover_cmake_test_targets_by_source(self.repository_root)
+
+        google_tests = [item for item in summary.evidence if item.kind == "google_test"]
+        self.assertEqual(len(google_tests), 8)
+        for evidence in google_tests:
+            with self.subTest(test=evidence.reference):
+                source_path = evidence.scope.split(";", 1)[0].strip()
+                targets = targets_by_source.get(source_path, ())
+                self.assertTrue(targets, f"No CMake target maps {source_path}")
+                self.assertTrue(
+                    any(
+                        item.discovery_registered and item.discovery_mode == "PRE_TEST"
+                        for item in targets
+                    ),
+                    f"{evidence.reference} is not discoverable by CTest",
+                )
+                if source_path == "tests/main/simu_imp_case_lifecycle_integration_test.cpp":
+                    self.assertTrue(
+                        any(
+                            item.target == "simu_imp_case_lifecycle_integration_test"
+                            for item in targets
+                        ),
+                        f"{evidence.reference} is not mapped to the production integration target",
+                    )
 
     def test_adapts_gui_process_execution_contract_and_resolves_python_tests(
         self,
