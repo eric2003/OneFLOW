@@ -26,11 +26,11 @@ The first step is read-only discovery in tools/oneflow_gui/test_inventory.py:
   navigation hint only; configured-build evidence must come from CTest itself.
   Sources supplied indirectly are intentionally not guessed.
 
-A configured build can be inspected with ``ctest --test-dir <build-dir>
--N --show-only=json-v1`` (and ``-C Debug`` or ``-C Release`` for
+A configured build can be inspected with ``ctest --test-dir <build-dir> -N --show-only=json-v1`` (and ``-C Debug`` or ``-C Release`` for
 multi-configuration generators). This is the next evidence layer: it reports
 the tests that the configured build would run, without executing them. It
 must not be conflated with the source-level declaration above.
+
 * Scenario JSON is linked by explicit framework/suite/name identity. Only the
   linked contract test receives that scenario's input and expected tables.
   An integration test can link to the scenario without incorrectly inheriting
