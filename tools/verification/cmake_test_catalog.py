@@ -19,7 +19,7 @@ class CMakeTestTarget:
     target: str
     cmake_file: str
     source_file: str
-    discovery_registered: bool
+    discovery_declared: bool
     discovery_mode: str = ""
 
 
@@ -107,7 +107,7 @@ def discover_cmake_test_targets_by_source(
     """Map every directly declared GoogleTest source to its CMake target.
 
     This is a static source mapping. It reports target declarations and
-    gtest_discover_tests registration; it does not configure or run CTest.
+    gtest_discover_tests declarations; it does not evaluate CMake conditions, configure, or run CTest.
     Sources supplied through variables, target_sources(), functions, or
     generated lists are intentionally not guessed by this reader.
     """
@@ -163,7 +163,7 @@ def discover_cmake_test_targets_by_source(
                     target=target,
                     cmake_file=cmake_relative,
                     source_file=source_relative,
-                    discovery_registered=target in discovery,
+                    discovery_declared=target in discovery,
                     discovery_mode=mode,
                 )
             )
@@ -177,7 +177,7 @@ def discover_cmake_test_targets(
     repository_root: Path,
     source_file: str,
 ) -> tuple[CMakeTestTarget, ...]:
-    """Find direct add_executable source mappings and CTest discovery declarations."""
+    """Find direct add_executable source mappings and declared CTest discovery commands."""
     root = repository_root.resolve()
     requested = Path(source_file)
     if requested.is_absolute():

@@ -28,7 +28,7 @@ class CMakeTestCatalogTest(unittest.TestCase):
             self.assertEqual(len(records), 1)
             self.assertEqual(records[0].target, "lifecycle_test")
             self.assertEqual(records[0].cmake_file, "tests/runtime/CMakeLists.txt")
-            self.assertTrue(records[0].discovery_registered)
+            self.assertTrue(records[0].discovery_declared)
             self.assertEqual(records[0].discovery_mode, "PRE_TEST")
 
     def test_does_not_infer_discovery_from_executable_declaration(self) -> None:
@@ -46,7 +46,7 @@ class CMakeTestCatalogTest(unittest.TestCase):
 
             self.assertEqual(len(records), 1)
             self.assertEqual(records[0].target, "sample_test")
-            self.assertFalse(records[0].discovery_registered)
+            self.assertFalse(records[0].discovery_declared)
             self.assertEqual(records[0].discovery_mode, "")
 
     def test_does_not_match_unrelated_or_variable_indirect_source(self) -> None:

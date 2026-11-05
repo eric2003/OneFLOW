@@ -68,10 +68,10 @@ def _cpp_tests(
             cmake_targets = cmake_targets_by_source.get(source_relative, ())
             if not cmake_targets:
                 ctest_registration = "target_not_found"
-            elif any(item.discovery_registered for item in cmake_targets):
-                ctest_registration = "registered"
+            elif any(item.discovery_declared for item in cmake_targets):
+                ctest_registration = "declared"
             else:
-                ctest_registration = "discovery_not_registered"
+                ctest_registration = "not_declared"
             records.append({
                 "id": f"gtest:{suite}.{name}",
                 "framework": "GoogleTest",
@@ -84,19 +84,19 @@ def _cpp_tests(
                     {
                         "target": item.target,
                         "cmakeFile": item.cmake_file,
-                        "discoveryRegistered": item.discovery_registered,
+                        "discoveryDeclared": item.discovery_declared,
                         "discoveryMode": item.discovery_mode,
                     }
                     for item in cmake_targets
                 ],
-                "ctestRegistration": ctest_registration,
+                "ctestDiscoveryDeclaration": ctest_registration,
                 "discovery": "source",
                 "scenarioId": link.get("scenarioId"),
                 "scenarioRole": link.get("scenarioRole"),
                 "input": link.get("input"),
                 "expected": link.get("expected"),
                 "result": None,
-                "execution": "CTest target; per-test filtering depends on target registration",
+                "execution": "CTest target; per-test filtering depends on configured discovery",
             })
     return records
 
@@ -234,7 +234,7 @@ def audit_python_test_registry(
     stale_exclusions = set(exclusion_reasons).difference(discovered)
     return {
         "discovered": tuple(sorted(discovered)),
-        "registered": tuple(sorted(discovered.intersection(registered))),
+        "declared": tuple(sorted(discovered.intersection(registered))),
         "excluded": tuple(sorted(excluded)),
         "unregistered": tuple(sorted(unregistered)),
         "stale_exclusions": tuple(sorted(stale_exclusions)),

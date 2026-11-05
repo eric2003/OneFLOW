@@ -51,9 +51,9 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             self.assertEqual(record["scenarioId"], "identity")
             self.assertEqual(record["input"], {"candidateIds": [3, 5]})
             self.assertEqual(record["expected"], {"registeredIds": [5]})
-            self.assertEqual(record["ctestRegistration"], "registered")
+            self.assertEqual(record["ctestDiscoveryDeclaration"], "declared")
             self.assertEqual(record["cmakeTargets"][0]["target"], "example_test")
-            self.assertTrue(record["cmakeTargets"][0]["discoveryRegistered"])
+            self.assertTrue(record["cmakeTargets"][0]["discoveryDeclared"])
             self.assertEqual(record["cmakeTargets"][0]["discoveryMode"], "PRE_TEST")
             self.assertIsNone(record["result"])
 
@@ -71,7 +71,7 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             self.assertIsNone(record["expected"])
             self.assertIsNone(record["result"])
             self.assertEqual(record["discovery"], "source")
-            self.assertEqual(record["ctestRegistration"], "target_not_found")
+            self.assertEqual(record["ctestDiscoveryDeclaration"], "target_not_found")
             self.assertEqual(record["cmakeTargets"], [])
 
     def test_discovers_python_unittest_methods(self) -> None:
@@ -125,13 +125,13 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
 
         self.assertTrue(lifecycle_tests)
         self.assertTrue(
-            all(item["ctestRegistration"] == "registered" for item in lifecycle_tests)
+            all(item["ctestDiscoveryDeclaration"] == "declared" for item in lifecycle_tests)
         )
         self.assertTrue(
             all(
                 any(
                     target["target"] == "simu_imp_case_lifecycle_integration_test"
-                    and target["discoveryRegistered"]
+                    and target["discoveryDeclared"]
                     and target["discoveryMode"] == "PRE_TEST"
                     for target in item["cmakeTargets"]
                 )
@@ -324,7 +324,7 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
         audit = audit_python_test_registry(repository_root)
 
         self.assertTrue(audit["discovered"])
-        self.assertTrue(audit["registered"])
+        self.assertTrue(audit["declared"])
         self.assertTrue(audit["excluded"])
         self.assertEqual(audit["unregistered"], ())
         self.assertEqual(audit["stale_exclusions"], ())

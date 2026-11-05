@@ -139,7 +139,7 @@ class ContractCatalogTest(unittest.TestCase):
                 self.assertTrue(targets, f"No CMake target maps {source_path}")
                 self.assertTrue(
                     any(
-                        item.discovery_registered and item.discovery_mode == "PRE_TEST"
+                        item.discovery_declared and item.discovery_mode == "PRE_TEST"
                         for item in targets
                     ),
                     f"{evidence.reference} is not discoverable by CTest",
