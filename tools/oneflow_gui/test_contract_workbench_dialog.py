@@ -248,6 +248,40 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             self._close_dialog(dialog)
 
+    def test_open_sources_includes_audited_parameter_consumer_paths(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "parameter")
+        try:
+            row = next(
+                index for index in range(dialog.contract_list.count())
+                if dialog.contract_list.item(index).data(Qt.ItemDataRole.UserRole)
+                == "parameter/rk_stage"
+            )
+            dialog.contract_list.setCurrentRow(row)
+            self.assertTrue(dialog.open_source_button.isEnabled())
+            with patch(
+                "tools.oneflow_gui.contract_workbench_dialog.RepositoryFileSelectionDialog"
+            ) as selection_type:
+                selection = selection_type.return_value
+                selection.exec.return_value = 1
+                selection.selected_paths = ("codes/solver/src/TimeIntegral.cpp",)
+                with patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.ApplicationSettings.load",
+                    return_value=Mock(source_editor="vscode"),
+                ), patch(
+                    "tools.oneflow_gui.contract_workbench_dialog.open_source_files"
+                ) as open_files:
+                    dialog._open_sources()
+                available_paths = selection_type.call_args.args[0]
+            self.assertIn("codes/global/src/Ctrl.cpp", available_paths)
+            self.assertIn("codes/solver/src/TimeIntegral.cpp", available_paths)
+            open_files.assert_called_once_with(
+                "vscode",
+                ((self.repository_root / "codes/solver/src/TimeIntegral.cpp").resolve(),),
+                working_directory=self.repository_root,
+            )
+        finally:
+            self._close_dialog(dialog)
+
     def test_hyphenated_parameter_contract_uses_explicit_runtime_key(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
         try:

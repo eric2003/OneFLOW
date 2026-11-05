@@ -801,7 +801,7 @@ class ContractDomainDialog(QDialog):
                 )
                 self.parameter_formula_preview.setPixmap(QPixmap())
                 self._parameter_formula_pixmap = QPixmap()
-        self.open_source_button.setEnabled(bool(summary.implementation_paths))
+        self.open_source_button.setEnabled(bool(self._implementation_paths))
         self.documentation_view.setPlainText(
             "References\n----------\n"
             + "\n".join(summary.references)
@@ -1109,7 +1109,7 @@ class ContractDomainDialog(QDialog):
     def _open_sources(self) -> None:
         summary = self._current_summary()
         if summary is not None:
-            self._open_paths(summary.implementation_paths, "Implementation")
+            self._open_paths(self._implementation_paths, "Implementation")
 
     def _open_documentation(self) -> None:
         summary = self._current_summary()

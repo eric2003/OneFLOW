@@ -207,6 +207,12 @@ case, including its source file and override order. These are separate models.
 The Contract Workbench is read-only and does not replace the Project Window
 parameter editor or rewrite legacy parameter files.
 
+The Implementation / Code preview and the Open source files action use the same
+deduplicated path set: contract-declared implementation files plus audited runtime
+ read sites and their declared downstream behavior sources. This keeps source
+ navigation consistent with the Runtime Consumers evidence tab; it does not imply
+ that every linked path is executed for every Case.
+
 Consumer coverage is deliberately conservative. A listed consumer is a
 source-backed read, not proof that the parameter applies to every solver task.
 An unlisted parameter is not considered unused. Declared source evidence is
