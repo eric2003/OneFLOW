@@ -196,10 +196,10 @@ Parameter contracts in the Contract Workbench
 -----------------------------------------------
 
 The Parameter domain reuses the shared contract catalog and the existing
-source-backed parameter consumer index. It currently exposes a curated first
-slice: `time_integral`, `rk_stage`, and `mach_ref`. Each declaration links
-to implementation source paths and, where supported by evidence, related
-Formula & Knowledge IDs.
+source-backed parameter consumer index. At this revision the index contains
+32 audited runtime read-site records across 23 logical parameter keys. Each
+declaration links to implementation source paths and, where supported by
+evidence, related Formula & Knowledge IDs.
 
 A Parameter contract describes the meaning and implementation of a parameter;
 a Project Parameter Instance describes the effective value in one concrete
@@ -209,7 +209,7 @@ parameter editor or rewrite legacy parameter files.
 
 The Implementation / Code preview and the Open source files action use the same
 deduplicated path set: contract-declared implementation files plus audited runtime
- read sites and their declared downstream behavior sources. This keeps source
+read sites and their declared downstream behavior sources. This keeps source
  navigation consistent with the Runtime Consumers evidence tab; it does not imply
  that every linked path is executed for every Case.
 
@@ -226,7 +226,7 @@ Runtime parameter-consumer evidence
 
 parameter_consumer_catalog.py is the first source-backed consumer index. It deliberately lives outside the Qt presentation layer and stores a curated set of verified C++ reads. A record includes the parameter key, source path, consumer symbol, read expression, read timing (required / optional / lazy), applicability, and behavior/evidence notes.
 
-The first audited examples cover maxSteps (Iteration::Init and the step-count termination predicate), time_integral (global, compressible-NS, incompressible-NS, and turbulence control initialization) and rk_stage (the configured stage-weight schedule), mach_ref (NsCom::Init and the derived const_cp), vismodel (model selection and downstream conditional behavior), ptTol (lazy initialization on first Tolerance::GetTol), and nmg (multigrid setup and smoothing normalization).
+Representative audited examples cover maxSteps and maxTime (outer-loop termination), time_integral and rk_stage (time-integration dispatch and stage weights), mach_ref (the derived compressible-flow reference constant), vismodel (model selection), ptTol (lazy geometric-tolerance initialization), and nmg (multigrid setup). Additional groups cover dual-time/CFL indexing, local/global time-step selection, turbulence inflow and SA production limiting, and output scheduling.
 
 This is intentionally not presented as whole-repository usage analysis. Absence from the catalog means not yet audited, not unused. A source-level read proves a consumer exists; it does not prove the parameter is active for every task, controls a particular numerical outcome in every configuration, or has a validated physical range. Those claims require applicability tracing and separate numerical verification. The catalog is tested independently of Qt so the evidence model can later feed the Project Window and Contract Workbench.
 
