@@ -676,6 +676,31 @@ class ContractDomainDialog(QDialog):
         self.runtime_consumers_view.setPlainText("\n".join(lines).rstrip())
 
 
+    def _load_documentation_text(self, paths: tuple[str, ...]) -> str:
+        """Show the actual repository documentation behind declared paths."""
+        if not paths:
+            return "No documentation pages declared."
+
+        sections: list[str] = []
+        root = self._repository_root.resolve()
+        for relative in paths:
+            sections.extend((f"Documentation: {relative}", "=" * (16 + len(relative)), ""))
+            candidate = (root / relative).resolve()
+            try:
+                candidate.relative_to(root)
+            except ValueError:
+                sections.append("Not loaded: path escapes the repository root.")
+                sections.append("")
+                continue
+            try:
+                content = candidate.read_text(encoding="utf-8")
+            except (OSError, UnicodeError) as error:
+                sections.append(f"Not loaded: {type(error).__name__}: {error}")
+                sections.append("")
+                continue
+            sections.append(content.rstrip())
+            sections.append("")
+        return "\\n".join(sections).rstrip()
     def _select_contract(self, row: int) -> None:
         if row < 0:
             return
@@ -808,8 +833,7 @@ class ContractDomainDialog(QDialog):
             "\n".join(summary.references) or "No references declared."
         )
         self.documentation_view.setPlainText(
-            "\n".join(summary.documentation_paths)
-            or "No documentation pages declared."
+            self._load_documentation_text(summary.documentation_paths)
         )
         implementation_lines = [
             "Implementation source paths",
