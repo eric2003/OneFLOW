@@ -43,6 +43,13 @@ def sample_snapshot() -> dict:
 
 
 class MeshSnapshotContractTest(unittest.TestCase):
+    def test_square_example_fixture_satisfies_contract(self) -> None:
+        import json
+        from pathlib import Path
+
+        fixture = Path(__file__).parent / "examples" / "square_snapshot.json"
+        validate_snapshot(json.loads(fixture.read_text(encoding="utf-8")))
+
     def test_accepts_sparse_source_node_and_cell_ids(self) -> None:
         validate_snapshot(sample_snapshot())
 
