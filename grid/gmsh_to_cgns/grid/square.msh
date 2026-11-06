@@ -6,13 +6,31 @@ $PhysicalNames
 1 1 "outer_boundary"
 2 2 "fluid_domain"
 $EndPhysicalNames
+$Entities
+4 4 1 0
+1 0 0 0 0
+2 1 0 0 0
+3 1 1 0 0
+4 0 1 0 0
+1 0 0 0 1 0 0 1 1 2 1 2
+2 1 0 0 1 1 0 1 1 2 2 3
+3 0 1 0 1 1 0 1 1 2 3 4
+4 0 0 0 0 1 0 1 1 2 4 1
+1 0 0 0 1 1 0 1 2 4 1 2 3 4
+$EndEntities
 $Nodes
-1 4 10 40
-2 1 0 4
-10 20 30 40
+4 4 10 40
+0 1 0 1
+10
 0 0 0
+0 2 0 1
+20
 1 0 0
+0 3 0 1
+30
 1 1 0
+0 4 0 1
+40
 0 1 0
 $EndNodes
 $Elements
@@ -22,7 +40,7 @@ $Elements
 2 20 30
 3 30 40
 4 40 10
-2 2 2 2
+2 1 2 2
 5 10 20 30
 6 10 30 40
 $EndElements
