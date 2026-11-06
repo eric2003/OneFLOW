@@ -8,6 +8,8 @@
 #include <vector>
 
 #ifdef ENABLE_CGNS
+using namespace ONEFLOW;
+
 namespace {
 std::filesystem::path MakeTemporaryCaseDirectory() {
     const auto stamp = std::chrono::steady_clock::now().time_since_epoch().count();
