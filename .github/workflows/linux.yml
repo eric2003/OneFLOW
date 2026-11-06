@@ -174,4 +174,3 @@ jobs:
         run: |
           python3 test/run_optional_gmsh_grid_regression.py --executable "${{ github.workspace }}/Run/bin/OneFLOW"
         shell: bash
-        shell: bash
