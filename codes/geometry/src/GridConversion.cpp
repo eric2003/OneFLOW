@@ -28,6 +28,7 @@ License
 #include "Boundary.h"
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <sstream>
 #include <map>
 #include <unordered_set>
