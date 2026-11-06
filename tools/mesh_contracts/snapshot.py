@@ -97,8 +97,11 @@ def validate_snapshot(snapshot: dict[str, Any]) -> None:
         _require(face_id not in face_ids, f"duplicate face id: {face_id}")
         face_ids.add(face_id)
         node_refs = face.get("nodeIds")
-        _require(isinstance(node_refs, list) and len(node_refs) >= 2, f"faces[{index}].nodeIds must contain at least two node IDs")
-        _require(all(type(ref) is int and ref in node_ids for ref in node_refs), f"faces[{index}].nodeIds contains an unknown node ID")
+        minimum_face_nodes = 1 if dimension == 1 else (2 if dimension == 2 else 3)
+        _require(isinstance(node_refs, list) and len(node_refs) >= minimum_face_nodes,
+                 f"faces[{index}].nodeIds has too few nodes for mesh dimension {dimension}")
+        _require(all(type(ref) is int and ref in node_ids for ref in node_refs),
+                 f"faces[{index}].nodeIds contains an unknown node ID")
         _require(len(set(node_refs)) == len(node_refs), f"faces[{index}].nodeIds contains duplicate node IDs")
         owner = face.get("ownerCellId")
         neighbour = face.get("neighbourCellId")
