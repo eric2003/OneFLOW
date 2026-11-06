@@ -180,6 +180,87 @@ It is not part of CTest, Python unittest, the regular CFD/grid suites, or
 GitHub Actions. The Case is copied to a temporary workspace before execution;
 the repository's sample input remains unchanged.
 
+Gmsh API integration and cross-platform policy
+----------------------------------------------
+
+The current MSH reader does not link to Gmsh. This remains the preferred
+baseline for importing existing mesh files: it keeps OneFLOW builds
+self-contained, avoids a runtime Gmsh dependency, and makes the file-format
+contract directly testable.
+
+If OneFLOW later needs to create geometry, generate meshes, query CAD entities
+or invoke Gmsh algorithms in-process, the official Gmsh SDK can be integrated
+as an optional dependency. The SDK is distributed for Windows, Linux and
+macOS and contains the shared library, headers and language bindings. This
+does not require separate platform-specific OneFLOW API implementations:
+the same adapter source can call the same Gmsh API on each platform.
+
+The platform-specific pieces are the SDK artifact and its build/runtime
+properties:
+
+* Windows: Gmsh DLL plus its import library and headers; the DLL must be
+  discoverable at runtime.
+* Linux: Gmsh shared object plus headers; the shared library and its
+  dependent libraries must be discoverable by the dynamic loader.
+* macOS: Gmsh dynamic library plus headers and the platform loader/rpath
+  configuration.
+
+Compiler ABI is a separate concern from operating-system portability. The
+native Gmsh C++ API may require an ABI-compatible compiler toolchain. The
+Gmsh SDK documents a gmsh.h_cwrap compatibility header that exposes the
+C++-style API through the C API for toolchains that cannot use the native
+C++ ABI. For a long-lived multi-compiler project such as OneFLOW, the
+preferred integration boundary is therefore the stable C API (or the
+official C-API-backed wrapper), hidden behind a small OneFLOW-owned adapter.
+Do not expose Gmsh types in public OneFLOW geometry headers.
+
+The future integration should follow these rules:
+
+#. Keep Gmsh support optional and disabled by default. Reading an existing
+   MSH file must continue to work without the Gmsh SDK.
+#. Add a dedicated CMake option (for example
+   ONEFLOW_ENABLE_GMSH_API) only when an actual API-backed feature is
+   implemented. Resolve the SDK through an explicit GMSH_ROOT hint and
+   imported target; do not hard-code Visual Studio, GCC or installation paths.
+#. Compile one shared adapter implementation. Platform-specific CMake logic
+   should only select the SDK library/import library and runtime search path.
+#. Keep SDK version checks and API capability checks in the adapter, not in
+   solver or GUI code.
+#. Convert Gmsh-owned data immediately into the format-neutral OneFLOW mesh
+   representation. No Gmsh handles, pointers, entity classes or containers
+   should leak into solver-facing mesh types.
+#. Test both configurations: API disabled (the default, no Gmsh installation
+   required) and API enabled (with an SDK explicitly supplied). CI should
+   never download or require the SDK unless that build variant is deliberately
+   selected.
+
+This leads to a clean separation:
+
+.. code-block:: text
+
+   Optional Gmsh SDK (Windows DLL / Linux SO / macOS dylib)
+                         |
+                 Gmsh API adapter
+                 (one C++ source)
+                         |
+                Format-neutral mesh
+                         |
+             OneFLOW geometry / mesh core
+
+The standalone gmsh executable is another valid integration option when
+OneFLOW only needs to launch meshing scripts or exchange files. It avoids
+linking Gmsh into the OneFLOW process, at the cost of process management and
+file-based exchange. The ONELAB socket interface is an option for interactive
+parameter exchange. These are separate deployment choices, not reasons to
+duplicate OneFLOW's geometry implementation by platform.
+
+References for the API and SDK
+------------------------------
+
+* `Gmsh API and SDK installation <https://gmsh.info/doc/texinfo/gmsh.html#Installing-and-running-Gmsh-on-your-computer>`_
+* `Gmsh API reference <https://gmsh.info/doc/texinfo/gmsh.html#Gmsh-application-programming-interface>`_
+* `Gmsh SDK ABI notes <https://github.com/gmsh-project/gmsh/blob/master/doc/SDK.txt>`_
+
 References
 ----------
 
