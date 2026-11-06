@@ -14,7 +14,7 @@ corresponding CGNS `BCType_t` values. Unrecognized names remain
 `BCTypeUserDefined`; names are never guessed from geometry or position. The writer reuses
 OneFLOW's Su2Grid::FillSU2CgnsZone() and CgnsFactory / CgnsZbase paths.
 The bundled square sample writes four nodes, two TRI_3 cells, four BAR_2
-boundary elements, and one named boundary record.
+boundary elements, and four named BC_t records.
 
 ## Parameters
 

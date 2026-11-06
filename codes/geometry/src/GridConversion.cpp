@@ -333,6 +333,15 @@ namespace
         return static_cast< int >( CGNS_ENUMV( BCTypeUserDefined ) );
     }
 
+    const char * CgnsBcTypeName( int bcType )
+    {
+        if ( bcType == static_cast< int >( CGNS_ENUMV( BCInflow ) ) ) return "BCInflow";
+        if ( bcType == static_cast< int >( CGNS_ENUMV( BCOutflow ) ) ) return "BCOutflow";
+        if ( bcType == static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) ) ) return "BCSymmetryPlane";
+        if ( bcType == static_cast< int >( CGNS_ENUMV( BCFarfield ) ) ) return "BCFarfield";
+        return "BCTypeUserDefined";
+    }
+
     Su2Grid BuildSu2GridFromGmsh( const GmshMesh & mesh, int & cellDimension )
     {
         if ( mesh.nodes.empty() || mesh.elements.empty() )
@@ -572,6 +581,31 @@ namespace
         if ( ! markdownReport )
             throw std::runtime_error( "Cannot create Gmsh Markdown report: " + markdownReportPath.string() );
         markdownReport << GmshMeshReportToMarkdown( parsedMesh, target.filename().string() );
+        markdownReport << "\n## CGNS Boundary Condition Mapping\n\n"
+                       << "| Physical Group | CGNS BCType_t |\n|---|---|\n";
+        std::map< std::pair<int, long long>, std::string > boundaryPhysicalGroups;
+        for ( const GmshElement & element : parsedMesh.elements )
+        {
+            if ( element.entityDimension != cellDimension - 1 ) continue;
+            const auto entity = parsedMesh.entityPhysicalTags.find(
+                std::make_pair( element.entityDimension, element.entityTag ) );
+            if ( entity == parsedMesh.entityPhysicalTags.end() ) continue;
+            for ( long long physicalTag : entity->second )
+            {
+                const auto groupKey = std::make_pair( element.entityDimension, physicalTag );
+                const auto name = parsedMesh.physicalNames.find( groupKey );
+                boundaryPhysicalGroups[groupKey] = name == parsedMesh.physicalNames.end()
+                    ? "PhysicalGroup_" + std::to_string( groupKey.first ) + "_" +
+                      std::to_string( groupKey.second )
+                    : name->second;
+            }
+        }
+        for ( const auto & group : boundaryPhysicalGroups )
+        {
+            const int bcType = GmshPhysicalNameToCgnsBcType( group.second );
+            markdownReport << "| " << group.second << " | "
+                           << CgnsBcTypeName( bcType ) << " |\n";
+        }
         if ( ! markdownReport )
             throw std::runtime_error( "Failed writing Gmsh Markdown report: " + markdownReportPath.string() );
 

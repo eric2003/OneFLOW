@@ -58,6 +58,10 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
         EXPECT_NE(markdown.find("outer boundary"), std::string::npos);
         EXPECT_NE(markdown.find("BAR_2"), std::string::npos);
         EXPECT_NE(markdown.find("CGNS writer completed successfully"), std::string::npos);
+        EXPECT_NE(markdown.find("| inflow | BCInflow |"), std::string::npos);
+        EXPECT_NE(markdown.find("| outflow | BCOutflow |"), std::string::npos);
+        EXPECT_NE(markdown.find("| symmetry | BCSymmetryPlane |"), std::string::npos);
+        EXPECT_NE(markdown.find("| farfield | BCFarfield |"), std::string::npos);
     }
 
     int fileId = -1;
