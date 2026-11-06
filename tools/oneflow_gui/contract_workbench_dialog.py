@@ -1324,6 +1324,12 @@ class ContractWorkbenchDialog(QDialog):
                 self._open_geometry,
             ),
             (
+                "mesh",
+                "Mesh",
+                "Mesh interchange contracts, topology, boundary groups and conversion evidence.",
+                self._open_mesh,
+            ),
+            (
                 "parameter",
                 "Parameter",
                 "Parameter definitions, runtime consumers, constraints, formula links and verification evidence.",
@@ -1396,6 +1402,11 @@ class ContractWorkbenchDialog(QDialog):
         from .geometry_contract_dialog import GeometryContractDialog
 
         GeometryContractDialog(self._repository_root, self).exec()
+
+    def _open_mesh(self) -> None:
+        from .mesh_contract_dialog import MeshContractDialog
+
+        MeshContractDialog(self._repository_root, self).exec()
 
     def _open_parameter(self) -> None:
         ContractDomainDialog(self._repository_root, "parameter", self).exec()
