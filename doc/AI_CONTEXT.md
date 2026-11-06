@@ -1,3 +1,57 @@
+## 2026-11-06 continuation: Case Contract Workbench residual runner linkage
+
+The user reported 1259/1259 tests passing before this slice. That is a
+pre-change baseline only; do not claim the new slice passed locally.
+
+The verified `hexin` HEAD at the start of this slice was
+`9f8b35753db804e6acaab24ec3007f30aa9749ab`.
+
+Wired the Case Contract Workbench action **Run in case runner...** so it opens
+`CaseContractRunDialog` with an explicit `contract_ids=(summary.id,)` link.
+The dialog launches the residual runner (`test/test.py`) for the single case
+declared by the contract, then calls `capture_case_execution`.
+
+Pure helpers live in `tools/oneflow_gui/case_contract_run.py`:
+
+- suite entry mapping from repository-relative case paths;
+- residual-runner argv construction;
+- single-case suite file preparation;
+- subprocess launch + durable log + explicit contract capture.
+
+Contract links are never inferred from case names or directory paths. A zero
+process exit code is treated as residual/file success only when the residual
+runner itself returns success; capture still records comparison failure
+semantics via the Case execution capture boundary.
+
+Changed files:
+
+- `tools/oneflow_gui/case_contract_run.py` (new)
+- `tools/oneflow_gui/case_contract_run_dialog.py` (new)
+- `tools/oneflow_gui/contract_workbench_dialog.py`
+- `tools/oneflow_gui/test_case_contract_run.py` (new)
+- `tools/oneflow_gui/test_contract_workbench_dialog.py`
+- `tools/oneflow_gui/test_runner.py`
+- `doc/AI_CONTEXT.md`
+
+Focused validation required:
+
+```
+python -m unittest tools.oneflow_gui.test_case_contract_run
+python -m unittest tools.oneflow_gui.test_case_execution_capture
+python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+python -m unittest tools.oneflow_gui.test_test_inventory
+```
+
+No full CFD residual suite was executed by the assistant. The 1259/1259 result
+predates these changes. Validate focused tests and full local suite on Windows
+before treating the Workbench action as production evidence.
+
+Next action after validation: optionally surface linked Case ExecutionRecords
+in the Case Verification tab with the same linked/unlinked split already used
+for Workflow, without adding a second runner.
+
+---
+
 ## 2026-11-06 continuation: Case contract execution evidence linkage
 
 The user reported 1259/1259 tests passing before this slice. That is a

@@ -349,6 +349,7 @@ class ContractDomainDialog(QDialog):
             self.open_actions_layout.addWidget(self.open_related_formula_button)
         self.open_case_directory_button = None
         self.open_case_references_button = None
+        self.open_case_runner_button = None
         self.open_workflow_definition_button = None
         self.open_workflow_runner_button = None
         if domain == "workflow":
@@ -371,8 +372,11 @@ class ContractDomainDialog(QDialog):
             self.open_case_directory_button.clicked.connect(self._open_case_directory)
             self.open_case_references_button = QPushButton("Open suite and references...")
             self.open_case_references_button.clicked.connect(self._open_case_references)
+            self.open_case_runner_button = QPushButton("Run in case runner...")
+            self.open_case_runner_button.clicked.connect(self._run_case)
             self.open_actions_layout.addWidget(self.open_case_directory_button)
             self.open_actions_layout.addWidget(self.open_case_references_button)
+            self.open_actions_layout.addWidget(self.open_case_runner_button)
         self.open_actions_layout.addStretch(1)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.accept)
@@ -1232,6 +1236,32 @@ class ContractDomainDialog(QDialog):
             + summary.case_data.analytical_references,
             "Case references",
         )
+
+    def _run_case(self) -> None:
+        """Open the residual Case runner with an explicit contract link."""
+        summary = self._current_summary()
+        if summary is None or summary.case_data is None:
+            return
+        case = summary.case_data
+        try:
+            from .case_contract_run_dialog import CaseContractRunDialog
+
+            dialog = CaseContractRunDialog(
+                self._repository_root,
+                contract_id=summary.id,
+                case_path=case.case_path,
+                suite=case.suite,
+                residual_baseline=case.residual_baseline,
+                residual_absolute_tolerance=case.residual_absolute_tolerance,
+                comparison_outputs=tuple(case.comparison_outputs),
+                case_id=Path(case.case_path).name,
+                parent=self,
+                contract_ids=(summary.id,),
+            )
+        except (OSError, ValueError, TypeError) as error:
+            QMessageBox.warning(self, "Cannot open case runner", str(error))
+            return
+        dialog.exec()
 
 
 class ContractWorkbenchDialog(QDialog):

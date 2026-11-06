@@ -234,6 +234,7 @@ _PYTHON_UNIT_TESTS = (
     ("Python execution capture tests", ("-m", "unittest", "tools.oneflow_gui.test_execution_capture")),
     ("Workflow execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_execution_capture")),
     ("Case execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_case_execution_capture")),
+    ("Case contract residual runner tests", ("-m", "unittest", "tools.oneflow_gui.test_case_contract_run")),
     ("Test worker execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_test_dialog_execution_capture")),
     ("CMake test catalog tests", ("-m", "unittest", "tools.verification.test_cmake_test_catalog")),
     ("Configured CTest discovery tests", ("-m", "unittest", "tools.verification.test_ctest_discovery")),

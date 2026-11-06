@@ -648,6 +648,43 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             self._close_dialog(dialog)
 
+    def test_case_domain_exposes_case_runner_action(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "case")
+        try:
+            contract_index = next(
+                index
+                for index, summary in enumerate(dialog._summaries)
+                if summary.id == "case/laminar-flat-plate-slau2"
+            )
+            dialog.contract_list.setCurrentRow(contract_index)
+            self.assertIsNotNone(dialog.open_case_runner_button)
+            self.assertTrue(dialog.open_case_runner_button.isEnabled())
+        finally:
+            self._close_dialog(dialog)
+
+    def test_case_runner_receives_explicit_contract_link(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "case")
+        try:
+            contract_index = next(
+                index
+                for index, summary in enumerate(dialog._summaries)
+                if summary.id == "case/laminar-flat-plate-slau2"
+            )
+            dialog.contract_list.setCurrentRow(contract_index)
+            with patch(
+                "tools.oneflow_gui.case_contract_run_dialog.CaseContractRunDialog"
+            ) as runner_type:
+                runner_type.return_value.exec.return_value = 0
+                dialog._run_case()
+            runner_type.assert_called_once()
+            _args, kwargs = runner_type.call_args
+            self.assertEqual(kwargs["contract_ids"], ("case/laminar-flat-plate-slau2",))
+            self.assertEqual(kwargs["contract_id"], "case/laminar-flat-plate-slau2")
+            self.assertEqual(kwargs["case_path"], "test/cfd/plateuns2dslau2")
+            self.assertIn("cpu-serial", kwargs["suite"])
+        finally:
+            self._close_dialog(dialog)
+
     def test_runtime_verification_shows_resolution_separately_from_declaration(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "runtime")
         try:
