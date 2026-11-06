@@ -260,11 +260,11 @@ TEST( GmshGridConversionTest, Msh2AsciiWritesExplicitPlaceholderArtifact )
     EXPECT_NO_THROW( ConvertGrid( config, root.string() ) );
 
     std::ifstream output( root / "results" / "square.cgns" );
-    const std::string text( std::istreambuf_iterator<char>( output ), std::istreambuf_iterator<char>() );
-    EXPECT_NE( text.find( "ONEFLOW_CGNS_PLACEHOLDER 1" ), std::string::npos );
-    EXPECT_NE( text.find( "status=NOT_A_CGNS_FILE" ), std::string::npos );
-    EXPECT_NE( text.find( "node_count=4" ), std::string::npos );
-    EXPECT_NE( text.find( "element_count=2" ), std::string::npos );
+    const std::string outputText{ std::istreambuf_iterator<char>( output ), std::istreambuf_iterator<char>() };
+    EXPECT_NE( outputText.find( "ONEFLOW_CGNS_PLACEHOLDER 1" ), std::string::npos );
+    EXPECT_NE( outputText.find( "status=NOT_A_CGNS_FILE" ), std::string::npos );
+    EXPECT_NE( outputText.find( "node_count=4" ), std::string::npos );
+    EXPECT_NE( outputText.find( "element_count=2" ), std::string::npos );
     std::filesystem::remove_all( root );
 }
 
