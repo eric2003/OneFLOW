@@ -307,7 +307,7 @@ class TestRunnerDialog(QDialog):
         )
         self.gmsh_case_check.setChecked(False)
         self.gmsh_case_check.setToolTip(
-            "Run the experimental Gmsh MSH 2.x Case from a temporary copy. "
+            "Run the experimental Gmsh MSH 4.1 Case (or legacy 2.x) from a temporary copy. "
             "The generated .cgns file is an explicitly marked placeholder, not a CGNS file."
         )
         layout.addWidget(self.gmsh_case_check)
