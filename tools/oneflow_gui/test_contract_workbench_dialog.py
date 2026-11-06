@@ -69,6 +69,8 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertEqual(tab_names, ["Overview", "Principle", "Reference", "Architecture", "Implementation", "Code", "Documentation", "Topology", "Verification / Evidence"])
             self.assertIn("NOT RUN", dialog.validation_view.toPlainText())
             self.assertIn("does not execute", dialog.conversion_view.toPlainText())
+            self.assertIn("MeshSnapshot v1", dialog.tabs.widget(6).toPlainText())
+            self.assertIn("validate_snapshot", dialog.tabs.widget(5).toPlainText())
             self.assertEqual([dialog.entity_selector.itemText(i) for i in range(dialog.entity_selector.count())], ["Nodes", "Cells", "Faces", "Groups"])
         finally:
             self._close_dialog(dialog)
