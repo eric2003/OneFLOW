@@ -5,7 +5,11 @@ from __future__ import annotations
 import copy
 import unittest
 
-from .snapshot import MeshSnapshotError, validate_snapshot
+TOOLS = __import__('pathlib').Path(__file__).resolve().parents[1]
+if str(TOOLS) not in __import__('sys').path:
+    __import__('sys').path.insert(0, str(TOOLS))
+
+from mesh_contracts.snapshot import MeshSnapshotError, validate_snapshot
 
 
 def sample_snapshot() -> dict:
