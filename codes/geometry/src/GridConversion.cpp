@@ -27,6 +27,7 @@ License
 #include "Plot3D.h"
 #include "Boundary.h"
 #include <filesystem>
+#include <cmath>
 #include <fstream>
 #include <iterator>
 #include <sstream>
@@ -201,10 +202,12 @@ namespace
             for ( long long i = 0; i < blockNodes; ++i )
             {
                 for ( int axis = 0; axis < 3; ++axis )
-                    (void)nextReal( pos, "node coordinate" );
-                if ( parametric )
-                    for ( long long axis = 0; axis < entityDim; ++axis )
-                        (void)nextReal( pos, "parametric node coordinate" );
+                if ( ! std::isfinite( nextReal( pos, "node coordinate" ) ) )
+                    throw std::runtime_error( "Non-finite Gmsh node coordinate" );
+            if ( parametric )
+                for ( long long axis = 0; axis < entityDim; ++axis )
+                    if ( ! std::isfinite( nextReal( pos, "parametric node coordinate" ) ) )
+                        throw std::runtime_error( "Non-finite Gmsh parametric coordinate" );
             }
             observedNodes += blockNodes;
         }
@@ -307,7 +310,7 @@ namespace
                 {
                     summary.versionMajor = 2;
                     summary.versionMinor = static_cast< int >( ( version - 2.0 ) * 10.0 + 0.5 );
-                    summary.versionText = line.substr( 0, line.find( ' ' ) );
+                    summary.versionText = line.substr( 0, line.find_first_of( " \t" ) );
                     // Keep the established MSH 2.x line parser below.
                     std::istringstream oldLines( content );
                     while ( std::getline( oldLines, line ) )
