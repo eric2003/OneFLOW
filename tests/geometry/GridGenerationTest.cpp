@@ -278,16 +278,16 @@ TEST( GmshGridConversionTest, Msh41AsciiSupportsSparseNodeTagsAndElementBlocks )
     std::filesystem::create_directories( root / "grid" );
     {
         std::ofstream mesh( root / "grid" / "square.msh", std::ios::binary );
-        mesh << "$MeshFormat\\n4.1 0 8\\n$EndMeshFormat\\n"
-             << "$Nodes\\n4 4 10 40\\n"
-             << "1 2 0 4\\n"
-             << "10 20 30 40\\n"
-             << "0 0 0\\n1 0 0\\n1 1 0\\n0 1 0\\n"
-             << "$EndNodes\\n"
-             << "$Elements\\n1 2 100 101\\n"
-             << "2 1 2 2\\n"
-             << "100 10 20 30\\n101 10 30 40\\n"
-             << "$EndElements\\n";
+        mesh << "$MeshFormat\n4.1 0 8\n$EndMeshFormat\n"
+             << "$Nodes\n4 4 10 40\n"
+             << "1 2 0 4\n"
+             << "10 20 30 40\n"
+             << "0 0 0\n1 0 0\n1 1 0\n0 1 0\n"
+             << "$EndNodes\n"
+             << "$Elements\n1 2 100 101\n"
+             << "2 1 2 2\n"
+             << "100 10 20 30\n101 10 30 40\n"
+             << "$EndElements\n";
     }
 
     GridConfig config;
@@ -318,10 +318,10 @@ TEST( GmshGridConversionTest, Msh41RejectsUnknownNodeReferences )
     std::filesystem::create_directories( root / "grid" );
     {
         std::ofstream mesh( root / "grid" / "invalid.msh" );
-        mesh << "$MeshFormat\\n4.1 0 8\\n$EndMeshFormat\\n"
-             << "$Nodes\\n1 3 1 3\\n1 2 0 3\\n1 2 3\\n"
-             << "0 0 0\\n1 0 0\\n0 1 0\\n$EndNodes\\n"
-             << "$Elements\\n1 1 1 1\\n2 1 2 1\\n1 1 2 99\\n$EndElements\\n";
+        mesh << "$MeshFormat\n4.1 0 8\n$EndMeshFormat\n"
+             << "$Nodes\n1 3 1 3\n1 2 0 3\n1 2 3\n"
+             << "0 0 0\n1 0 0\n0 1 0\n$EndNodes\n"
+             << "$Elements\n1 1 1 1\n2 1 2 1\n1 1 2 99\n$EndElements\n";
     }
     GridConfig config;
     config.sourceType = GridFileType::Gmsh;
