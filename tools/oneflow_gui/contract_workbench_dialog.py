@@ -1457,9 +1457,7 @@ class ContractWorkbenchDialog(QDialog):
         GeometryContractDialog(self._repository_root, self).exec()
 
     def _open_mesh(self) -> None:
-        from .mesh_contract_dialog import MeshContractDialog
-
-        MeshContractDialog(self._repository_root, self).exec()
+        ContractDomainDialog(self._repository_root, "mesh", self).exec()
 
     def _open_parameter(self) -> None:
         ContractDomainDialog(self._repository_root, "parameter", self).exec()
