@@ -167,6 +167,22 @@ GoogleTest, Python tests, grid checks, and CFD regressions remain authoritative 
 
 Runtime lifecycle contracts can link to state-transition/integration tests and runtime architecture docs. Workflow contracts can link to versioned workflow definitions, validation results, run records, and artifacts. These are natural next domains after the numerical and geometry examples.
 
+## 8A. Shared information architecture decision
+
+The common navigation is now defined in
+`doc/source/contract_workbench_information_architecture.rst` and linked from
+the Sphinx index and Chinese Workbench guide. The GUI Contract Workbench
+exposes Overview, Principle, Reference, Architecture, Implementation, Code,
+Documentation and Verification / Evidence across typed contract domains.
+Domain-specific visualizers remain separate (Formula, Runtime Consumers,
+Examples, Case Setup, Workflow Graph, Geometry topology explorer, and future
+Mesh / Algorithm views).
+
+This is a navigation and presentation milestone, not completion of every
+domain payload. Existing Formula and geometry sources remain authoritative;
+the migration must not duplicate their data. Empty content remains explicit,
+and evidence declaration must remain distinct from execution outcome.
+
 ## 9. Recommended staged implementation
 
 ### Stage 0 — inventory and semantics (no schema migration)
