@@ -35,14 +35,6 @@
       "Placeholder .cgns output is a legal CGNS file."
     ]
   },
-  "verification": [
-    {
-      "kind": "python_test",
-      "reference": "tools.mesh_contracts.test_snapshot",
-      "status": "declared_not_executed",
-      "scope": "tools/mesh_contracts/test_snapshot.py; neutral snapshot checks only, not the experimental Gmsh Case."
-    }
-  ],
   "group": {
     "id": "mesh_formats",
     "title": "Interchange Formats",

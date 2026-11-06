@@ -35,14 +35,6 @@
       "Complete high-order, partitioned or moving-mesh preservation."
     ]
   },
-  "verification": [
-    {
-      "kind": "python_test",
-      "reference": "tools.mesh_contracts.test_snapshot",
-      "status": "declared_not_executed",
-      "scope": "tools/mesh_contracts/test_snapshot.py; validates manifest invariants, not runtime export."
-    }
-  ],
   "group": {
     "id": "mesh_core",
     "title": "Mesh Core Concepts",
