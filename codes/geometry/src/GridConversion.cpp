@@ -326,8 +326,6 @@ namespace
         grid.ndim = cellDimension;
         grid.nPoin = static_cast< int >( mesh.nodes.size() );
         grid.nZone = 1;
-        grid.mmark.nMarker = 0;
-        grid.mmark.CreateMarkerList( 0 );
         grid.xN.reserve( mesh.nodes.size() );
         grid.yN.reserve( mesh.nodes.size() );
         grid.zN.reserve( mesh.nodes.size() );
@@ -337,11 +335,11 @@ namespace
             grid.yN.push_back( node.coordinates[ 1 ] );
             grid.zN.push_back( node.coordinates[ 2 ] );
         }
+        std::map< std::pair<int, long long>, std::vector< std::pair<int, IntField> > > boundaryGroups;
         for ( const GmshElement & element : mesh.elements )
         {
-            // Lower-dimensional elements remain in the source model and report
-            // until Physical Groups are mapped into CGNS boundary sections.
-            if ( element.entityDimension != cellDimension ) continue;
+            if ( element.entityDimension != cellDimension &&
+                 element.entityDimension != cellDimension - 1 ) continue;
             const int vtkType = GmshToVtkCellType( element.type );
             IntField connectivity;
             connectivity.reserve( element.nodeTags.size() );
@@ -349,14 +347,48 @@ namespace
             {
                 const auto iter = mesh.nodeTagToIndex.find( nodeTag );
                 if ( iter == mesh.nodeTagToIndex.end() )
-                    throw std::runtime_error( "Gmsh cell references an unmapped source node tag" );
+                    throw std::runtime_error( "Gmsh element references an unmapped source node tag" );
                 if ( iter->second > static_cast< size_t >( std::numeric_limits< int >::max() ) )
                     throw std::runtime_error( "Gmsh node index exceeds OneFLOW index range" );
                 connectivity.push_back( static_cast< int >( iter->second ) );
             }
-            grid.elems.push_back( std::move( connectivity ) );
-            grid.elemVTKType.push_back( vtkType );
-            grid.elemId.push_back( static_cast< int >( grid.elemId.size() + 1 ) );
+            if ( element.entityDimension == cellDimension )
+            {
+                grid.elems.push_back( std::move( connectivity ) );
+                grid.elemVTKType.push_back( vtkType );
+                grid.elemId.push_back( static_cast< int >( grid.elemId.size() + 1 ) );
+                continue;
+            }
+            const auto entity = mesh.entityPhysicalTags.find(
+                std::make_pair(element.entityDimension, element.entityTag));
+            if (entity == mesh.entityPhysicalTags.end()) continue;
+            for (long long physicalTag : entity->second)
+            {
+                const auto groupKey = std::make_pair(element.entityDimension, physicalTag);
+                boundaryGroups[groupKey].push_back(std::make_pair(vtkType, connectivity));
+            }
+        }
+        grid.mmark.CreateMarkerList(static_cast<int>(boundaryGroups.size()));
+        grid.mmark.nMarker = static_cast<int>(boundaryGroups.size());
+        int markerIndex = 0;
+        for (const auto & group : boundaryGroups)
+        {
+            Marker & marker = grid.mmark.markerList[markerIndex++];
+            const auto name = mesh.physicalNames.find(group.first);
+            marker.name = name == mesh.physicalNames.end()
+                ? "PhysicalGroup_" + std::to_string(group.first.first) + "_" +
+                  std::to_string(group.first.second)
+                : name->second;
+            if (marker.name.size() > 32)
+                throw std::runtime_error("Gmsh physical group name exceeds the CGNS 32-character limit: " + marker.name);
+            marker.bcName = "GmshPhysicalGroup";
+            marker.cgns_bcType = static_cast<int>(CGNS_ENUMV(BCTypeUserDefined));
+            for (const auto & boundaryElement : group.second)
+            {
+                marker.eTypes.push_back(boundaryElement.first);
+                marker.elems.push_back(boundaryElement.second);
+            }
+            marker.nElem = static_cast<int>(marker.elems.size());
         }
         if ( grid.elems.empty() )
             throw std::runtime_error( "Gmsh mesh contains no supported top-dimensional cells" );

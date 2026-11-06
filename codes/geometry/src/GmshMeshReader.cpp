@@ -1,6 +1,7 @@
 #include "GmshMeshReader.h"
 #include <algorithm>
 #include <cmath>
+#include <cctype>
 #include <limits>
 #include <iomanip>
 #include <map>
@@ -33,7 +34,28 @@ int nodeCount(int t) {
 class Reader {
  std::vector<std::string> t;
 public:
- explicit Reader(const std::string& s){std::istringstream in(s);std::string x;while(in>>x)t.push_back(x);}
+ explicit Reader(const std::string& s) {
+  for (std::size_t p=0; p<s.size();) {
+   while (p<s.size() && std::isspace(static_cast<unsigned char>(s[p]))) ++p;
+   if (p==s.size()) break;
+   std::string token;
+   if (s[p]=='"') {
+    ++p;
+    bool closed=false;
+    while (p<s.size()) {
+     char c=s[p++];
+     if (c=='"') { closed=true; break; }
+     if (c=='\\' && p<s.size()) c=s[p++];
+     token.push_back(c);
+    }
+    if (!closed) throw std::runtime_error("Unterminated quoted Gmsh string");
+   } else {
+    while (p<s.size() && !std::isspace(static_cast<unsigned char>(s[p]))) token.push_back(s[p++]);
+   }
+   t.push_back(std::move(token));
+  }
+ }
+ bool hasSection(const std::string& s) const { for(const auto& x:t) if(x==s) return true; return false; }
  std::size_t section(const std::string& s)const{for(std::size_t i=0;i<t.size();++i)if(t[i]==s)return i+1;throw std::runtime_error("Missing Gmsh section "+s);}
  std::string next(std::size_t& p,const std::string& f)const{if(p>=t.size())throw std::runtime_error("Truncated Gmsh "+f);return t[p++];}
  long long i(std::size_t& p,const std::string& f)const{return integer(next(p,f),f);}
@@ -46,6 +68,47 @@ GmshMesh ReadGmsh41AsciiMesh(const std::string& content) {
  double version=r.r(p,"version"); long long binary=r.i(p,"file type"),size=r.i(p,"data size");
  if(version<4.1||version>=4.2||binary!=0||(size!=4&&size!=8))throw std::runtime_error("Expected MSH 4.1 ASCII");
  r.end(p,"$EndMeshFormat");m.version="4.1";
+ if (r.hasSection("$PhysicalNames")) {
+  p=r.section("$PhysicalNames");
+  const long long count=r.i(p,"physical name count");
+  if(count<0) throw std::runtime_error("Invalid Gmsh physical name count");
+  for(long long i=0;i<count;++i) {
+   const long long dim=r.i(p,"physical name dimension");
+   const long long tag=r.i(p,"physical name tag");
+   const std::string name=r.next(p,"physical name");
+   if(dim<0||dim>3||tag<1||name.empty()) throw std::runtime_error("Invalid Gmsh physical name");
+   if(!m.physicalNames.emplace(std::make_pair(static_cast<int>(dim),tag),name).second)
+    throw std::runtime_error("Duplicate Gmsh physical name");
+  }
+  r.end(p,"$EndPhysicalNames");
+ }
+ if (r.hasSection("$Entities")) {
+  p=r.section("$Entities");
+  long long counts[4];
+  for(int dim=0;dim<4;++dim) { counts[dim]=r.i(p,"entity count"); if(counts[dim]<0) throw std::runtime_error("Invalid Gmsh entity count"); }
+  for(int dim=0;dim<4;++dim) for(long long i=0;i<counts[dim];++i) {
+   const long long tag=r.i(p,"entity tag");
+   if(tag<1) throw std::runtime_error("Invalid Gmsh entity tag");
+   const int coordinateCount=dim==0?3:6;
+   for(int axis=0;axis<coordinateCount;++axis) (void)r.r(p,"entity bounding coordinate");
+   const long long physicalCount=r.i(p,"entity physical tag count");
+   if(physicalCount<0) throw std::runtime_error("Invalid Gmsh entity physical tag count");
+   std::vector<long long> tags;
+   for(long long j=0;j<physicalCount;++j) {
+    const long long physicalTag=r.i(p,"entity physical tag");
+    if(physicalTag<1) throw std::runtime_error("Invalid Gmsh entity physical tag");
+    tags.push_back(physicalTag);
+   }
+   if(dim>0) {
+    const long long boundaryCount=r.i(p,"entity boundary count");
+    if(boundaryCount<0) throw std::runtime_error("Invalid Gmsh entity boundary count");
+    for(long long j=0;j<boundaryCount;++j) (void)r.i(p,"bounding entity tag");
+   }
+   if(!m.entityPhysicalTags.emplace(std::make_pair(dim,tag),std::move(tags)).second)
+    throw std::runtime_error("Duplicate Gmsh entity");
+  }
+  r.end(p,"$EndEntities");
+ }
  std::unordered_set<long long> nodeIds;p=r.section("$Nodes");
  long long nb=r.i(p,"node blocks"),nn=r.i(p,"node count"),nmin=r.i(p,"minimum node tag"),nmax=r.i(p,"maximum node tag");
  if(nb<0||nn<1||nmin<1||nmax<nmin)throw std::runtime_error("Invalid Gmsh node header");
@@ -81,6 +144,7 @@ GmshMeshReadReport BuildGmshMeshReadReport(const GmshMesh& mesh) {
     report.version = mesh.version;
     report.nodeCount = mesh.nodes.size();
     report.elementCount = mesh.elements.size();
+    report.physicalGroupCount = mesh.physicalNames.size();
     if (!mesh.nodes.empty()) {
         report.minimumNodeTag = mesh.nodes.front().tag;
         report.maximumNodeTag = mesh.nodes.front().tag;
@@ -160,6 +224,7 @@ std::string GmshMeshReadReportToJson(const GmshMeshReadReport& report) {
         << "  \"format_version\": \"" << report.version << "\",\n"
         << "  \"node_count\": " << report.nodeCount << ",\n"
         << "  \"element_count\": " << report.elementCount << ",\n"
+        << "  \"physical_group_count\": " << report.physicalGroupCount << ",\n"
         << "  \"node_tag_range\": [" << report.minimumNodeTag << ", "
         << report.maximumNodeTag << "],\n"
         << "  \"element_tag_range\": [" << report.minimumElementTag << ", "
@@ -192,7 +257,7 @@ std::string GmshMeshReadReportToJson(const GmshMeshReadReport& report) {
         << "    \"node_references\": \"PASS\",\n"
         << "    \"finite_coordinates\": \"PASS\",\n"
         << "    \"connectivity_arity\": \"PASS\",\n"
-        << "    \"physical_groups\": \"NOT_YET_PARSED\",\n"
+        << "    \"physical_groups\": \"PARSED\",\n"
         << "    \"cgns_round_trip\": \"NOT_YET_AVAILABLE\"\n"
         << "  }\n"
         << "}\n";

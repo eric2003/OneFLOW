@@ -95,5 +95,10 @@ TEST(GmshMeshReaderTest, ReadsBundledSquareMshFileAndBuildsDiagnosticReport) {
 
     const std::string json = ONEFLOW::GmshMeshReadReportToJson(report);
     EXPECT_NE(json.find("\"status\": \"READ_SUCCESS\""), std::string::npos);
-    EXPECT_NE(json.find("\"physical_groups\": \"NOT_YET_PARSED\""), std::string::npos);
+    EXPECT_NE(json.find("\"physical_groups\": \"PARSED\""), std::string::npos);
+    EXPECT_NE(json.find("\"physical_group_count\": 2"), std::string::npos);
+    ASSERT_EQ(mesh.physicalNames.size(), 2u);
+    EXPECT_EQ(mesh.physicalNames.at({1, 1}), "outer boundary");
+    ASSERT_EQ(mesh.entityPhysicalTags.size(), 9u);
+    EXPECT_EQ(mesh.entityPhysicalTags.at({1, 3}), (std::vector<long long>{1}));
 }

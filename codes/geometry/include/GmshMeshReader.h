@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 namespace ONEFLOW {
 struct GmshNode { long long tag{0}; std::array<double,3> coordinates{}; int entityDimension{0}; long long entityTag{0}; std::vector<double> parametricCoordinates; };
@@ -13,11 +14,14 @@ struct GmshMesh {
     std::vector<GmshElement> elements;
     // Maps sparse source tags to stable zero-based positions in nodes.
     std::map<long long, std::size_t> nodeTagToIndex;
+    std::map<std::pair<int, long long>, std::string> physicalNames;
+    std::map<std::pair<int, long long>, std::vector<long long>> entityPhysicalTags;
 };
 struct GmshMeshReadReport {
     std::string version;
     std::size_t nodeCount{0};
     std::size_t elementCount{0};
+    std::size_t physicalGroupCount{0};
     long long minimumNodeTag{0};
     long long maximumNodeTag{0};
     long long minimumElementTag{0};

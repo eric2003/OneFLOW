@@ -67,7 +67,7 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
 
     int sectionCount = 0;
     ASSERT_EQ(cg_nsections(fileId, 1, 1, &sectionCount), CG_OK);
-    ASSERT_EQ(sectionCount, 1);
+    ASSERT_EQ(sectionCount, 2);
     char sectionName[33] = {};
     ElementType_t elementType = TRI_3;
     cgsize_t start = 0;
@@ -101,6 +101,40 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
     EXPECT_DOUBLE_EQ(y[1], 0.0);
     EXPECT_DOUBLE_EQ(y[2], 1.0);
     EXPECT_DOUBLE_EQ(y[3], 1.0);
+
+    char boundarySectionName[33] = {};
+    ElementType_t boundaryType = NODE;
+    cgsize_t boundaryStart = 0;
+    cgsize_t boundaryEnd = 0;
+    ASSERT_EQ(cg_section_read(fileId, 1, 1, 2, boundarySectionName,
+                              &boundaryType, &boundaryStart, &boundaryEnd,
+                              &boundaryCount, &parentFlag), CG_OK);
+    EXPECT_EQ(boundaryType, BAR_2);
+    EXPECT_EQ(boundaryStart, 3);
+    EXPECT_EQ(boundaryEnd, 6);
+
+    int bocoCount = 0;
+    ASSERT_EQ(cg_nbocos(fileId, 1, 1, &bocoCount), CG_OK);
+    ASSERT_EQ(bocoCount, 1);
+    char bocoName[33] = {};
+    BCType_t bocoType = BCTypeNull;
+    PointSetType_t pointSetType = PointSetTypeNull;
+    cgsize_t pointCount = 0;
+    cgsize_t normalIndex[3] = {};
+    cgsize_t normalListSize = 0;
+    DataType_t normalDataType = DataTypeNull;
+    int dataSetCount = 0;
+    ASSERT_EQ(cg_boco_info(fileId, 1, 1, 1, bocoName, &bocoType,
+                           &pointSetType, &pointCount, normalIndex,
+                           &normalListSize, &normalDataType, &dataSetCount), CG_OK);
+    EXPECT_STREQ(bocoName, "outer boundary");
+    EXPECT_EQ(bocoType, BCTypeUserDefined);
+    EXPECT_EQ(pointSetType, PointList);
+    EXPECT_EQ(pointCount, 4);
+    cgsize_t boundaryElements[4] = {};
+    ASSERT_EQ(cg_boco_read(fileId, 1, 1, 1, boundaryElements, nullptr), CG_OK);
+    EXPECT_EQ(std::vector<cgsize_t>(boundaryElements, boundaryElements + 4),
+              (std::vector<cgsize_t>{3, 4, 5, 6}));
     EXPECT_EQ(cg_close(fileId), CG_OK);
 
     std::filesystem::remove_all(caseDirectory);
