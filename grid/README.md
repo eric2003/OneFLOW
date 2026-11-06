@@ -50,7 +50,7 @@ duplicate parameter values in the catalog.
 | `two_connected_cubes` | Generate two adjacent 3D blocks with one shared interface face | `case.json`, `script/control.txt` |
 | `two_connected_squares` | Generate two adjacent 2D blocks with one shared interface edge; carries the current grid options in the versioned profile | `case.json`, `script/control.txt` |
 | `mesh_workflow` | Convert the RAE 2822 Plot3D grid to OneFLOW format and write a metadata summary | `script/control.txt`, parameter files, `tools/validate_case.py` |
-| `gmsh_to_cgns` | Bootstrap ASCII Gmsh MSH 2.x input and explicitly marked CGNS-placeholder output | `script/control.txt`, `grid/square.msh`, `README.md` |
+| `gmsh_to_cgns` | Bootstrap ASCII Gmsh MSH 2.x input and explicitly marked CGNS-placeholder output | `script/control.txt`, `grid/square.msh`, `README.md` | Its parameter-driven execution is covered by the opt-in temporary-workspace regression `test/run_optional_gmsh_grid_regression.py`.
 | `laminar_flat_plate` | Reference two-block flat-plate mesh with 85 wall-normal points | `case.json`, `grid/laminarFlatPlateLayout.txt` |
 | `laminar_flat_plate_10_edges` | Two-block laminar flat plate with ten geometric line segments and 41 points across the first 0.02 near-wall region | `case.json`, `grid/laminarFlatPlate10EdgeLayout.txt` |
 | `turbulent_flat_plate` | Flat-plate mesh variant with 81 wall-normal points and updated expected topology counts | `case.json`, `grid/turbulentFlatPlateLayout.txt` |
