@@ -30,11 +30,13 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
 
     const std::filesystem::path caseDirectory = MakeTemporaryCaseDirectory();
     const std::filesystem::path input = caseDirectory / "square.msh";
-    const std::filesystem::path output = caseDirectory / "square.cgns";
+    const std::filesystem::path resultDirectory = caseDirectory / "result";
+    std::filesystem::create_directories(resultDirectory);
+    const std::filesystem::path output = resultDirectory / "square.cgns";
     const std::filesystem::path report =
-        caseDirectory / "square.gmsh-read-report.json";
+        resultDirectory / "square.gmsh-read-report.json";
     const std::filesystem::path markdownReport =
-        caseDirectory / "square.gmsh-report.md";
+        resultDirectory / "square.gmsh-report.md";
     std::filesystem::copy_file(source, input);
 
     ONEFLOW::GridConfig config;
@@ -134,7 +136,7 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
     BCType_t bocoType = BCTypeNull;
     PointSetType_t pointSetType = PointSetTypeNull;
     cgsize_t pointCount = 0;
-    cgsize_t normalIndex[3] = {};
+    int normalIndex[3] = {};
     cgsize_t normalListSize = 0;
     DataType_t normalDataType = DataTypeNull;
     int dataSetCount = 0;

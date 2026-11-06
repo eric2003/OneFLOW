@@ -528,8 +528,14 @@ namespace
         int cellDimension = 0;
         WriteGmshMeshAsCgns( parsedMesh, cellDimension, target );
 
-        std::filesystem::path jsonReportPath = target;
-        jsonReportPath.replace_extension( ".gmsh-read-report.json" );
+        // Reports belong to the case result area, not beside source files or
+        // in the repository. Keep this output local to the conversion case.
+        const std::filesystem::path resultDirectory =
+            std::filesystem::path( caseDir ) / "result";
+        std::filesystem::create_directories( resultDirectory );
+        const std::string reportStem = target.stem().string();
+        const std::filesystem::path jsonReportPath =
+            resultDirectory / ( reportStem + ".gmsh-read-report.json" );
         std::ofstream jsonReport( jsonReportPath, std::ios::trunc );
         if ( ! jsonReport )
             throw std::runtime_error( "Cannot create Gmsh JSON report: " + jsonReportPath.string() );
@@ -537,8 +543,8 @@ namespace
         if ( ! jsonReport )
             throw std::runtime_error( "Failed writing Gmsh JSON report: " + jsonReportPath.string() );
 
-        std::filesystem::path markdownReportPath = target;
-        markdownReportPath.replace_extension( ".gmsh-report.md" );
+        const std::filesystem::path markdownReportPath =
+            resultDirectory / ( reportStem + ".gmsh-report.md" );
         std::ofstream markdownReport( markdownReportPath, std::ios::trunc );
         if ( ! markdownReport )
             throw std::runtime_error( "Cannot create Gmsh Markdown report: " + markdownReportPath.string() );
