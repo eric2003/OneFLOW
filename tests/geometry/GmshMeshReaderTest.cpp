@@ -96,14 +96,22 @@ TEST(GmshMeshReaderTest, ReadsBundledSquareMshFileAndBuildsDiagnosticReport) {
     const std::string json = ONEFLOW::GmshMeshReadReportToJson(report);
     EXPECT_NE(json.find("\"status\": \"READ_SUCCESS\""), std::string::npos);
     EXPECT_NE(json.find("\"physical_groups\": \"PARSED\""), std::string::npos);
-    EXPECT_NE(json.find("\"physical_group_count\": 2"), std::string::npos);
-    ASSERT_EQ(mesh.physicalNames.size(), 2u);
-    EXPECT_EQ(mesh.physicalNames.at({1, 1}), "outer boundary");
+    EXPECT_NE(json.find("\"physical_group_count\": 5"), std::string::npos);
+    ASSERT_EQ(mesh.physicalNames.size(), 5u);
+    EXPECT_EQ(mesh.physicalNames.at({1, 1}), "inflow");
+    EXPECT_EQ(mesh.physicalNames.at({1, 2}), "outflow");
+    EXPECT_EQ(mesh.physicalNames.at({1, 3}), "symmetry");
+    EXPECT_EQ(mesh.physicalNames.at({1, 4}), "farfield");
+    EXPECT_EQ(mesh.physicalNames.at({2, 5}), "fluid_domain");
     ASSERT_EQ(mesh.entityPhysicalTags.size(), 9u);
-    EXPECT_EQ(mesh.entityPhysicalTags.at({1, 3}), (std::vector<long long>{1}));
+    EXPECT_EQ(mesh.entityPhysicalTags.at({1, 1}), (std::vector<long long>{3}));
+    EXPECT_EQ(mesh.entityPhysicalTags.at({1, 2}), (std::vector<long long>{2}));
+    EXPECT_EQ(mesh.entityPhysicalTags.at({1, 3}), (std::vector<long long>{4}));
+    EXPECT_EQ(mesh.entityPhysicalTags.at({1, 4}), (std::vector<long long>{1}));
+    EXPECT_EQ(mesh.entityPhysicalTags.at({2, 1}), (std::vector<long long>{5}));
     const std::string markdown = GmshMeshReportToMarkdown(mesh, "square.cgns");
     EXPECT_NE(markdown.find("## Overall Summary"), std::string::npos);
     EXPECT_NE(markdown.find("## Geometric Entities"), std::string::npos);
-    EXPECT_NE(markdown.find("outer boundary"), std::string::npos);
+    EXPECT_NE(markdown.find("inflow"), std::string::npos);
     EXPECT_NE(markdown.find("4 nodes, 6 elements"), std::string::npos);
 }
