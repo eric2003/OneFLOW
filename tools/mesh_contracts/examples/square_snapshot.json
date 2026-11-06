@@ -1,0 +1,132 @@
+{
+  "schema": "oneflow.mesh-snapshot",
+  "schemaVersion": 1,
+  "dimension": 2,
+  "nodes": [
+    {
+      "id": 10,
+      "coordinates": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": 20,
+      "coordinates": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": 30,
+      "coordinates": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": 40,
+      "coordinates": [
+        0,
+        1
+      ]
+    }
+  ],
+  "cells": [
+    {
+      "id": 100,
+      "type": "triangle3",
+      "nodeIds": [
+        10,
+        20,
+        30
+      ]
+    },
+    {
+      "id": 200,
+      "type": "triangle3",
+      "nodeIds": [
+        10,
+        30,
+        40
+      ]
+    }
+  ],
+  "faces": [
+    {
+      "id": 1,
+      "nodeIds": [
+        10,
+        20
+      ],
+      "ownerCellId": 100,
+      "neighbourCellId": null
+    },
+    {
+      "id": 2,
+      "nodeIds": [
+        20,
+        30
+      ],
+      "ownerCellId": 100,
+      "neighbourCellId": null
+    },
+    {
+      "id": 3,
+      "nodeIds": [
+        30,
+        10
+      ],
+      "ownerCellId": 100,
+      "neighbourCellId": 200
+    },
+    {
+      "id": 4,
+      "nodeIds": [
+        30,
+        40
+      ],
+      "ownerCellId": 200,
+      "neighbourCellId": null
+    },
+    {
+      "id": 5,
+      "nodeIds": [
+        40,
+        10
+      ],
+      "ownerCellId": 200,
+      "neighbourCellId": null
+    }
+  ],
+  "groups": [
+    {
+      "id": "fluid",
+      "name": "Fluid",
+      "kind": "region",
+      "memberKind": "cell",
+      "dimension": 2,
+      "memberIds": [
+        100,
+        200
+      ]
+    },
+    {
+      "id": "wall",
+      "name": "Wall",
+      "kind": "boundary",
+      "memberKind": "face",
+      "dimension": 1,
+      "memberIds": [
+        1,
+        2,
+        4,
+        5
+      ]
+    }
+  ],
+  "provenance": {
+    "sourceFormat": "oneflow.mesh-snapshot-example",
+    "sourceFile": "square_snapshot.json"
+  }
+}
