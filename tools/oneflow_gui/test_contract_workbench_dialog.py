@@ -46,16 +46,30 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         try:
             self.assertEqual(
                 set(dialog.domain_buttons),
-                {"formula", "geometry", "parameter", "case", "runtime", "workflow"},
+                {"formula", "geometry", "mesh", "parameter", "case", "runtime", "workflow"},
             )
             self.assertEqual(
                 dialog.domain_buttons["formula"].text(),
                 "Formula & Knowledge",
             )
+            self.assertEqual(dialog.domain_buttons["mesh"].text(), "Mesh")
             self.assertEqual(dialog.domain_buttons["parameter"].text(), "Parameter")
             self.assertEqual(dialog.domain_buttons["case"].text(), "Case")
             self.assertEqual(dialog.domain_buttons["runtime"].text(), "Runtime")
             self.assertEqual(dialog.domain_buttons["workflow"].text(), "Workflow")
+        finally:
+            self._close_dialog(dialog)
+
+    def test_mesh_domain_exposes_topology_and_separate_evidence(self) -> None:
+        from tools.oneflow_gui.mesh_contract_dialog import MeshContractDialog
+
+        dialog = MeshContractDialog(self.repository_root)
+        try:
+            tab_names = [dialog.tabs.tabText(i) for i in range(dialog.tabs.count())]
+            self.assertEqual(tab_names, ["Overview", "Principle", "Reference", "Architecture", "Implementation", "Code", "Documentation", "Topology", "Verification / Evidence"])
+            self.assertIn("NOT RUN", dialog.validation_view.toPlainText())
+            self.assertIn("does not execute", dialog.conversion_view.toPlainText())
+            self.assertEqual([dialog.entity_selector.itemText(i) for i in range(dialog.entity_selector.count())], ["Nodes", "Cells", "Faces", "Groups"])
         finally:
             self._close_dialog(dialog)
 
