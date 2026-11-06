@@ -369,14 +369,17 @@ std::string GmshMeshReportToMarkdown(
     };
     std::map<std::pair<int, std::string>, std::size_t> cgnsBoundaryCounts;
     for (const auto& element : mesh.elements) {
-        if (element.entityDimension == dimension - 1)
+        if (element.entityDimension != dimension - 1) continue;
+        const auto entity = mesh.entityPhysicalTags.find(
+            {element.entityDimension, element.entityTag});
+        if (entity != mesh.entityPhysicalTags.end() && !entity->second.empty())
             ++cgnsBoundaryCounts[{element.type, cgnsElementTypeName(element.type)}];
     }
-    out << "\\n## CGNS Boundary Element Sections\\n\\n"
-        << "| Gmsh type | CGNS section type | Count |\\n|---:|---|---:|\\n";
+    out << "\n## CGNS Boundary Element Sections\n\n"
+        << "| Gmsh type | CGNS section type | Count |\n|---:|---|---:|\n";
     for (const auto& item : cgnsBoundaryCounts)
         out << "| " << item.first.first << " | " << item.first.second
-            << " | " << item.second << " |\\n";
+            << " | " << item.second << " |\n";
 
     const std::size_t limit = 30;
     out << "\n## Nodes ($Nodes)\n\nSource node tags are identifiers, not dense array indices. Original tags are retained while an internal index map is built.\n\n";

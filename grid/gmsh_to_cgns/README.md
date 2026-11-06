@@ -65,7 +65,7 @@ path; high-order cells and periodic/partition metadata are not yet converted.
 For MSH 4.1 ASCII input, the conversion entry point writes two companion
 reports under the Case `results/` directory: `*.gmsh-read-report.json` for
 machine-readable diagnostics and `*.gmsh-report.md` for a human-readable
-English inspection report. The Markdown report includes the overall summary,
+English inspection report. Both reports are written to the Case-local `results/` directory, independently of the CGNS target filename. The Markdown report includes the overall summary,
 physical groups, geometric entities, element-type counts, node and element
 previews, coordinate bounds, TRI_3 area and XY orientation statistics, CGNS
 output status, and current limitations. Markdown is the reviewable source
