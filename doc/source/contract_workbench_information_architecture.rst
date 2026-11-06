@@ -201,4 +201,3 @@ Related documents
 * :doc:`mesh_architecture`
 * :doc:`gmsh_interface`
 * :doc:`case_parameter_design`
-* :doc:`../plans/verification-contract-workbench`
