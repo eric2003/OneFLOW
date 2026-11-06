@@ -40,9 +40,11 @@ def validate_snapshot(snapshot: dict[str, Any]) -> None:
 
     nodes = snapshot.get("nodes")
     cells = snapshot.get("cells")
+    faces = snapshot.get("faces")
     groups = snapshot.get("groups")
     _require(isinstance(nodes, list) and nodes, "nodes must be a non-empty array")
     _require(isinstance(cells, list), "cells must be an array")
+    _require(isinstance(faces, list), "faces must be an array")
     _require(isinstance(groups, list), "groups must be an array")
 
     node_ids: set[int] = set()
@@ -74,6 +76,23 @@ def validate_snapshot(snapshot: dict[str, Any]) -> None:
                  f"cells[{index}].nodeIds contains an unknown node ID")
         _require(len(set(node_refs)) == len(node_refs), f"cells[{index}].nodeIds contains duplicate node IDs")
 
+    face_ids: set[int] = set()
+    for index, face in enumerate(faces):
+        _require(isinstance(face, dict), f"faces[{index}] must be an object")
+        face_id = face.get("id")
+        _require(type(face_id) is int and face_id > 0, f"faces[{index}].id must be a positive integer")
+        _require(face_id not in face_ids, f"duplicate face id: {face_id}")
+        face_ids.add(face_id)
+        node_refs = face.get("nodeIds")
+        _require(isinstance(node_refs, list) and len(node_refs) >= 2, f"faces[{index}].nodeIds must contain at least two node IDs")
+        _require(all(type(ref) is int and ref in node_ids for ref in node_refs), f"faces[{index}].nodeIds contains an unknown node ID")
+        _require(len(set(node_refs)) == len(node_refs), f"faces[{index}].nodeIds contains duplicate node IDs")
+        owner = face.get("ownerCellId")
+        neighbour = face.get("neighbourCellId")
+        _require(type(owner) is int and owner in cell_ids, f"faces[{index}].ownerCellId must reference an existing cell")
+        _require(neighbour is None or (type(neighbour) is int and neighbour in cell_ids), f"faces[{index}].neighbourCellId must be null or reference an existing cell")
+        _require(neighbour != owner, f"faces[{index}] owner and neighbour must differ")
+
     group_ids: set[str] = set()
     for index, group in enumerate(groups):
         _require(isinstance(group, dict), f"groups[{index}] must be an object")
@@ -86,12 +105,18 @@ def validate_snapshot(snapshot: dict[str, Any]) -> None:
         group_dimension = group.get("dimension")
         _require(type(group_dimension) is int and 0 <= group_dimension <= dimension,
                  f"groups[{index}].dimension is outside the mesh dimension")
+        member_kind = group.get("memberKind")
+        _require(member_kind in ("cell", "face"), f"groups[{index}].memberKind must be cell or face")
+        if group["kind"] == "region":
+            _require(member_kind == "cell", f"groups[{index}] region members must be cells")
+        else:
+            _require(member_kind == "face", f"groups[{index}] boundary/interface members must be faces")
         members = group.get("memberIds")
         _require(isinstance(members, list), f"groups[{index}].memberIds must be an array")
-        _require(all(type(member) is int for member in members),
-                 f"groups[{index}].memberIds must contain integer cell IDs")
+        _require(all(type(member) is int for member in members), f"groups[{index}].memberIds must contain integer IDs")
         _require(len(set(members)) == len(members), f"groups[{index}].memberIds contains duplicates")
-        _require(set(members).issubset(cell_ids), f"groups[{index}].memberIds contains an unknown cell ID")
+        available_ids = cell_ids if member_kind == "cell" else face_ids
+        _require(set(members).issubset(available_ids), f"groups[{index}].memberIds contains an unknown {member_kind} ID")
         _require(isinstance(group.get("name"), str) and group["name"].strip(),
                  f"groups[{index}].name must be non-empty")
 
