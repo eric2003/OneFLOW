@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "GridConversion.h"
+#include "GmshMeshReader.h"
 #include "CgnsFactory.h"
 #include "GridMediator.h"
 #include "Su2Grid.h"
@@ -320,6 +321,8 @@ namespace
                 if ( version >= 4.1 && version < 4.2 )
                 {
                     summary = ReadGmsh41Ascii( content );
+                    const GmshMesh mesh = ReadGmsh41AsciiMesh( content );
+                    if ( static_cast<long long>(mesh.nodes.size()) != summary.nodeCount || static_cast<long long>(mesh.elements.size()) != summary.elementCount ) throw std::runtime_error("Gmsh value reader count mismatch");
                 }
                 else if ( version >= 2.0 && version < 3.0 )
                 {

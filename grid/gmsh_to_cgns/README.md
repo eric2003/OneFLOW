@@ -42,3 +42,8 @@ engineering steps are to introduce a format-neutral mesh snapshot, preserve
 entity and physical-group semantics as named boundaries/regions, and then
 implement a real CGNS writer with semantic round-trip validation. No Gmsh API
 is used; the reader depends only on the MSH file format.
+
+
+## MSH 4.1 reader progress
+
+The C++ reader now materializes node coordinates, source node and element IDs, geometric entity ownership, element types, and ordered connectivity in a GmshMesh value model. A focused GTest covers the square-mesh shape and malformed references. The conversion entry point invokes this reader and cross-checks its counts. The value model is not yet mapped into UnsGrid or a CGNS zone; MSH 2.x remains on the validation-only path.

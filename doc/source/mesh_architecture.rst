@@ -353,3 +353,9 @@ The Workbench search covers titles, descriptions, source paths and references.
 Each catalog entry links source files, maintained documentation and declared
 evidence. A declared test is not a recorded execution result; a format entry
 marked proposed does not imply a production reader or writer exists.
+
+
+Gmsh reader implementation milestone
+------------------------------------
+
+The MSH 4.1 reader now materializes coordinates, source IDs, geometric entity ownership, element types, and ordered connectivity in a C++ GmshMesh value model. A focused GTest exercises the checked-in square mesh shape and malformed references. The conversion entry point invokes the reader and checks its counts against the existing summary. This is not yet a transfer into UnsGrid or a CGNS zone; the next code step is that mapping, not additional format catalog work.
