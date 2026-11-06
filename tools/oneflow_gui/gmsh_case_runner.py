@@ -49,7 +49,9 @@ def run_case(executable: Path, repository_root: Path) -> int:
             "status=NOT_A_CGNS_FILE",
             "source_format=gmsh_msh_ascii",
             "node_count=4",
-            "element_count=2",
+            "gmsh_version=4.1",
+            "element_count=6",
+            "element_type_counts=1:4,2:2",
         )
         missing = [marker for marker in required_markers if marker not in content]
         if missing:
