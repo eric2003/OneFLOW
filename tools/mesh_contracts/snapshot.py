@@ -14,6 +14,16 @@ class MeshSnapshotError(ValueError):
     """Raised when a MeshSnapshot violates its declared contract."""
 
 
+_ELEMENT_DIMENSION = {
+    "line2": 1,
+    "triangle3": 2,
+    "quad4": 2,
+    "tetra4": 3,
+    "hexa8": 3,
+    "prism6": 3,
+    "pyramid5": 3,
+}
+
 _ELEMENT_ARITY = {
     "line2": 2,
     "triangle3": 3,
@@ -68,7 +78,10 @@ def validate_snapshot(snapshot: dict[str, Any]) -> None:
         _require(cell_id not in cell_ids, f"duplicate cell id: {cell_id}")
         cell_ids.add(cell_id)
         cell_type = cell.get("type")
-        _require(cell_type in _ELEMENT_ARITY, f"cells[{index}].type is unsupported: {cell_type}")
+        _require(isinstance(cell_type, str) and cell_type in _ELEMENT_ARITY,
+                 f"cells[{index}].type is unsupported: {cell_type}")
+        _require(_ELEMENT_DIMENSION[cell_type] == dimension,
+                 f"cells[{index}].type dimension does not match mesh dimension")
         node_refs = cell.get("nodeIds")
         _require(isinstance(node_refs, list) and len(node_refs) == _ELEMENT_ARITY[cell_type],
                  f"cells[{index}].nodeIds has invalid arity for {cell_type}")
@@ -105,6 +118,12 @@ def validate_snapshot(snapshot: dict[str, Any]) -> None:
         group_dimension = group.get("dimension")
         _require(type(group_dimension) is int and 0 <= group_dimension <= dimension,
                  f"groups[{index}].dimension is outside the mesh dimension")
+        if group["kind"] == "region":
+            _require(group_dimension == dimension,
+                     f"groups[{index}] region dimension must equal mesh dimension")
+        else:
+            _require(group_dimension == dimension - 1,
+                     f"groups[{index}] boundary/interface dimension must be mesh dimension minus one")
         member_kind = group.get("memberKind")
         _require(member_kind in ("cell", "face"), f"groups[{index}].memberKind must be cell or face")
         if group["kind"] == "region":
