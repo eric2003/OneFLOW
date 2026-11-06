@@ -70,6 +70,12 @@ class MeshSnapshotContractTest(unittest.TestCase):
         with self.assertRaisesRegex(MeshSnapshotError, "finite numbers"):
             validate_snapshot(snapshot)
 
+    def test_rejects_cell_type_dimension_mismatch(self) -> None:
+        snapshot = sample_snapshot()
+        snapshot["cells"][0]["type"] = "tetra4"
+        with self.assertRaisesRegex(MeshSnapshotError, "type dimension"):
+            validate_snapshot(snapshot)
+
     def test_rejects_invalid_cell_arity(self) -> None:
         snapshot = sample_snapshot()
         snapshot["cells"][0]["nodeIds"].pop()
