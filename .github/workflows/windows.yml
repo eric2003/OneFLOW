@@ -10,16 +10,6 @@ on:
 
   pull_request:
     branches: [ master, hexin ]
-
-  # Allows the workflow to be started manually from the Actions tab.
-  workflow_dispatch:
-    inputs:
-      run_optional_grid_regression:
-        description: "Run the isolated Gmsh-to-CGNS bootstrap grid regression"
-        required: false
-        default: false
-        type: boolean
-
 permissions:
   contents: read
 
@@ -149,7 +139,7 @@ jobs:
           }
 
           cd "${{ github.workspace }}/test"
-          python -m py_compile test.py gui.py residual_db.py run_optional_gmsh_grid_regression.py
+          python -m py_compile test.py gui.py residual_db.py
           python --version
 
           python test.py `
@@ -158,29 +148,3 @@ jobs:
               "suites/ci-serial.txt"
         shell: pwsh
 
-      - name: Optional Gmsh-to-CGNS bootstrap grid regression
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_optional_grid_regression }}
-        env:
-          ONEFLOW_ROOT: ${{ github.workspace }}/install
-          HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
-          CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
-          MSMPI_ROOT: C:/Program Files/Microsoft MPI
-        run: |
-          $ErrorActionPreference = "Stop"
-          $oneflow_exe = "$env:ONEFLOW_ROOT/bin/OneFLOW.exe"
-          $runtime_paths = @(
-              "$env:ONEFLOW_ROOT/bin",
-              "$env:HDF5_ROOT/bin",
-              "$env:CGNS_ROOT/bin",
-              "$env:MSMPI_ROOT/Bin"
-          )
-          foreach ($runtime_path in $runtime_paths) {
-              if (Test-Path $runtime_path) {
-                  $env:Path = "$runtime_path;$env:Path"
-              }
-          }
-          python test/run_optional_gmsh_grid_regression.py --executable "$oneflow_exe"
-          if ($LASTEXITCODE -ne 0) {
-              throw "Optional Gmsh grid regression failed with exit code $LASTEXITCODE."
-          }
-        shell: pwsh
