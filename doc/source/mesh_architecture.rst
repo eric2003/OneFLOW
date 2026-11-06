@@ -160,6 +160,21 @@ topology content.
 
 The Topology tab displays Nodes, Cells, Faces, and Groups from a loaded
 MeshSnapshot JSON artifact. It is an inspection view, not a topology editor.
+
+The Code tab now previews the current Python contract validator and the C++
+Gmsh conversion implementation directly from the repository. The preview is
+bounded for large source files; the full paths remain available for opening in
+the configured source editor. The Documentation tab displays the contents of
+this architecture page and the Gmsh interface page rather than showing only
+their filenames. These are read-only source-backed views, not duplicated
+Workbench-owned documentation.
+
+The current Gmsh C++ reader still validates and summarizes MSH 4.1 records;
+it does not yet export the parsed node coordinates and element connectivity
+into MeshSnapshot. Therefore, loading the bundled JSON fixture demonstrates
+the topology browser, but it is not evidence that the Gmsh parser has populated
+that fixture. The next adapter milestone is a C++ value-based snapshot
+exporter, followed by a GUI action that consumes its generated artifact.
 The bundled `tools/mesh_contracts/examples/square_snapshot.json` is a small
 manual fixture for checking the UI.
 
