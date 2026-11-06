@@ -287,12 +287,12 @@ namespace
         bool hasFormat = false;
         while ( std::getline( lines, line ) )
         {
-            if ( ! line.empty() && line.back() == '\\r' ) line.pop_back();
+            if ( ! line.empty() && line.back() == '\r' ) line.pop_back();
             if ( line == "$MeshFormat" )
             {
                 if ( ! std::getline( lines, line ) )
                     throw std::runtime_error( "Truncated Gmsh format header" );
-                if ( ! line.empty() && line.back() == '\\r' ) line.pop_back();
+                if ( ! line.empty() && line.back() == '\r' ) line.pop_back();
                 std::istringstream row( line );
                 double version = 0.0;
                 int fileType = -1, dataSize = 0;
@@ -311,7 +311,7 @@ namespace
                     std::istringstream oldLines( content );
                     while ( std::getline( oldLines, line ) )
                     {
-                        if ( ! line.empty() && line.back() == '\\r' ) line.pop_back();
+                        if ( ! line.empty() && line.back() == '\r' ) line.pop_back();
                         if ( line == "$Nodes" )
                         {
                             if ( ! std::getline( oldLines, line ) ) throw std::runtime_error( "Truncated Gmsh nodes section" );
@@ -363,11 +363,11 @@ namespace
         output << "ONEFLOW_CGNS_PLACEHOLDER 1\\n"
                << "status=NOT_A_CGNS_FILE\\n"
                << "source_format=gmsh_msh_ascii\\n"
-               << "gmsh_version=" << summary.versionText << "\\n"
-               << "node_count=" << summary.nodeCount << "\\n"
-               << "element_count=" << summary.elementCount << "\\n";
+               << "gmsh_version=" << summary.versionText << "\n"
+               << "node_count=" << summary.nodeCount << "\n"
+               << "element_count=" << summary.elementCount << "\n";
         if ( ! summary.elementTypeCounts.empty() )
-            output << "element_type_counts=" << summary.elementTypeCounts << "\\n";
+            output << "element_type_counts=" << summary.elementTypeCounts << "\n";
         output << "geometry_entities_and_physical_groups=not_yet_preserved\\n";
         if ( ! output ) throw std::runtime_error( "Failed writing placeholder output: " + target.string() );
     }
