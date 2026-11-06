@@ -47,7 +47,7 @@ def run_case(executable: Path, repository_root: Path) -> int:
         required_markers = (
             "ONEFLOW_CGNS_PLACEHOLDER 1",
             "status=NOT_A_CGNS_FILE",
-            "source_format=gmsh_msh_2_ascii",
+            "source_format=gmsh_msh_ascii",
             "node_count=4",
             "element_count=2",
         )
