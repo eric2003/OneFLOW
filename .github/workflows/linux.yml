@@ -12,6 +12,12 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      run_optional_grid_regression:
+        description: "Run the isolated Gmsh-to-CGNS bootstrap grid regression"
+        required: false
+        default: false
+        type: boolean
   
 permissions:
   contents: read
@@ -160,4 +166,12 @@ jobs:
           python --version
           #python test.py " " " " linux
           python test.py "mpirun -np 1" "OneFLOW" "suites/ci-serial.txt" "baselines/residual-baseline.json" "1e-8"
+        
+      - name: Optional Gmsh-to-CGNS bootstrap grid regression
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_optional_grid_regression }}
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/Run/lib
+        run: |
+          python3 test/run_optional_gmsh_grid_regression.py --executable "${{ github.workspace }}/Run/bin/OneFLOW"
+        shell: bash
         shell: bash
