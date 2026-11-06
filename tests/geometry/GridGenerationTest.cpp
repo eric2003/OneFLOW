@@ -245,10 +245,10 @@ TEST( GmshGridConversionTest, Msh2AsciiWritesExplicitPlaceholderArtifact )
     std::filesystem::create_directories( root / "grid" );
     std::filesystem::create_directories( root / "results" );
     {
-        std::ofstream mesh( root / "grid" / "square.msh" );
-        mesh << "$MeshFormat\n2.2 0 8\n$EndMeshFormat\n"
-             << "$Nodes\n4\n1 0 0 0\n2 1 0 0\n3 1 1 0\n4 0 1 0\n$EndNodes\n"
-             << "$Elements\n2\n1 2 2 1 1 1 2 3\n2 2 2 1 1 1 3 4\n$EndElements\n";
+        std::ofstream mesh( root / "grid" / "square.msh", std::ios::binary );
+        mesh << "$MeshFormat\r\n2.2 0 8\r\n$EndMeshFormat\r\n"
+             << "$Nodes\r\n4\r\n1 0 0 0\r\n2 1 0 0\r\n3 1 1 0\r\n4 0 1 0\r\n$EndNodes\r\n"
+             << "$Elements\r\n2\r\n1 2 2 1 1 1 2 3\r\n2 2 2 1 1 1 3 4\r\n$EndElements\r\n";
     }
 
     GridConfig config;
@@ -273,7 +273,7 @@ TEST( GmshGridConversionTest, RejectsBinaryMsh2 )
     const auto root = std::filesystem::temp_directory_path() / ("oneflow_gmsh_binary_test_" + std::to_string( std::chrono::steady_clock::now().time_since_epoch().count() ));
     std::filesystem::remove_all( root );
     std::filesystem::create_directories( root / "grid" );
-    { std::ofstream mesh( root / "grid" / "binary.msh" ); mesh << "$MeshFormat\n2.2 1 8\n$EndMeshFormat\n"; }
+    { std::ofstream mesh( root / "grid" / "binary.msh", std::ios::binary ); mesh << "$MeshFormat\r\n2.2 1 8\r\n$EndMeshFormat\r\n"; }
     GridConfig config;
     config.sourceType = GridFileType::Gmsh;
     config.targetType = GridFileType::CGNS;
