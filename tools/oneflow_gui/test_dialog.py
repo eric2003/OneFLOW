@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
@@ -301,6 +302,16 @@ class TestRunnerDialog(QDialog):
         self.regression_check.setChecked(False)
         layout.addWidget(self.regression_check)
 
+        self.gmsh_case_check = QCheckBox(
+            "Experimental Gmsh-to-CGNS Case (manual)"
+        )
+        self.gmsh_case_check.setChecked(False)
+        self.gmsh_case_check.setToolTip(
+            "Run the experimental Gmsh MSH 4.1 Case (or legacy 2.x) from a temporary copy. "
+            "The generated .cgns file is an explicitly marked placeholder, not a CGNS file."
+        )
+        layout.addWidget(self.gmsh_case_check)
+
         form = QFormLayout()
         self.executable_combo = QComboBox()
         self.executable_combo.setEditable(True)
@@ -430,6 +441,35 @@ class TestRunnerDialog(QDialog):
             except (OSError, ValueError) as error:
                 QMessageBox.warning(self, "Cannot start regression", str(error))
                 return
+        if self.gmsh_case_check.isChecked():
+            executable = self.executable_combo.currentText().strip()
+            try:
+                if not executable:
+                    raise ValueError("Select a OneFLOW executable for the Gmsh Case.")
+                executable_path = Path(executable).expanduser().resolve()
+                if not executable_path.is_file():
+                    raise FileNotFoundError(
+                        f"OneFLOW executable not found: {executable_path}"
+                    )
+                commands.append(
+                    TestCommand(
+                        "Experimental Gmsh-to-CGNS Case",
+                        (
+                            sys.executable,
+                            "-m",
+                            "tools.oneflow_gui.gmsh_case_runner",
+                            "--repository-root",
+                            str(self._repository_root),
+                            "--executable",
+                            str(executable_path),
+                        ),
+                        self._repository_root,
+                        task_type=TaskType.CFD_GRID_REGRESSION,
+                    )
+                )
+            except (OSError, ValueError) as error:
+                QMessageBox.warning(self, "Cannot start Gmsh Case", str(error))
+                return
         run_database = self.case_database_check.isChecked()
         if run_database and not self._database_cases:
             QMessageBox.information(
@@ -440,7 +480,7 @@ class TestRunnerDialog(QDialog):
         if not commands and not run_database:
             QMessageBox.information(
                 self, "No tests selected",
-                "Select CTest, Python Unit Tests, CFD regression, or Development Tests.",
+                "Select CTest, Python Unit Tests, CFD regression, the experimental Gmsh Case, or Development Tests.",
             )
             return
 

@@ -76,6 +76,7 @@ enum class GridFileType
     CGNS,
     OneFLOW,
     Gridgen,
+    Gmsh,
     Unknown
 };
 
@@ -211,6 +212,7 @@ inline bool EqualIgnoreCase( std::string_view a, std::string_view b ) noexcept
     if ( grid_types_detail::EqualIgnoreCase( name, "cgns" ) )    return GridFileType::CGNS;
     if ( grid_types_detail::EqualIgnoreCase( name, "oneflow" ) ) return GridFileType::OneFLOW;
     if ( grid_types_detail::EqualIgnoreCase( name, "gridgen" ) ) return GridFileType::Gridgen;
+    if ( grid_types_detail::EqualIgnoreCase( name, "gmsh" ) ) return GridFileType::Gmsh;
     return GridFileType::Unknown;
 }
 
@@ -223,6 +225,7 @@ inline bool EqualIgnoreCase( std::string_view a, std::string_view b ) noexcept
         case GridFileType::CGNS:    return "cgns";
         case GridFileType::OneFLOW: return "oneflow";
         case GridFileType::Gridgen: return "gridgen";
+        case GridFileType::Gmsh:    return "gmsh";
         default:                    return "unknown";
     }
 }

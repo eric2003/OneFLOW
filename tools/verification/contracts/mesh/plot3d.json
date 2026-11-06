@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "id": "mesh/plot3d",
+  "title": "Plot3D structured grid format",
+  "domain": "mesh",
+  "kind": "mesh_interchange_format",
+  "status": "proposed",
+  "overview": "Plot3D is a family of structured-grid conventions used in CFD. Files may contain one or multiple blocks, dimensions and coordinate arrays; variants differ in ASCII/binary encoding, precision, record markers and optional iblank data.",
+  "principle": "Plot3D stores structured index-space connectivity implicitly. Neighbours are inferred from i-j-k ordering and block dimensions rather than explicit element connectivity. Point count Np=ni*nj*nk; for a non-degenerate 3-D block, Nc=(ni-1)(nj-1)(nk-1). Preserve dimensions, ordering, precision and blanking semantics.",
+  "architecture": "Plot3D reader -> structured block model -> structured MeshSnapshot/zone representation -> explicit conversion to unstructured cells only when required. Preserve native structured topology where possible.",
+  "references": [
+    "NASA Plot3D reference: https://www.grc.nasa.gov/www/wind/valid/plot3d.html",
+    "tools/verification/contracts/parameter/iplot3d.json",
+    "doc/source/mesh_architecture.rst"
+  ],
+  "implementation": {
+    "source_paths": [
+      "codes/geometry/src/GridConversion.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/mesh_architecture.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "Catalog records Plot3D as a planned structured-grid adapter and distinguishes implicit topology from unstructured connectivity."
+    ],
+    "does_not_prove": [
+      "A production Plot3D reader or writer is implemented.",
+      "All ASCII/binary, endian, precision and Fortran record variants are supported.",
+      "Boundary conditions or interfaces can be inferred from coordinates alone."
+    ]
+  },
+  "verification": [],
+  "group": {
+    "id": "mesh_formats",
+    "title": "Interchange Formats",
+    "order": 20
+  }
+}

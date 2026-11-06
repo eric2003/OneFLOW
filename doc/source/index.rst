@@ -34,6 +34,7 @@ Mesh and engineering workflows
 ------------------------------
 
 * :doc:`mesh_architecture` — mesh information levels, snapshots, and format adapters.
+* :doc:`gmsh_interface` — Gmsh MSH 4.1-first input adapter, version support, semantic mapping, and conversion validation.
 * :doc:`grid_topology` — topology contracts, boundary normalization, and derived connectivity.
 * :doc:`face_stage_pipeline` — staged face write path, BC export, reorder contract, identity vs orientation.
 * `Grid case guide <https://github.com/eric2003/OneFLOW/blob/hexin/grid/README.md>`_ — mesh cases and conversion workflows.
@@ -56,6 +57,7 @@ Developer resources
 * :doc:`verification_evidence_lifecycle` — how claims, tests, runs, artifacts, numerical results, and references form an auditable evidence chain.
 * `AI project context and refactoring handoff <https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_CONTEXT.md>`_ — current focus, verified findings, open gaps, and next actions for continuing work.
 * :doc:`workbench_architecture` — Workbench concepts, service boundaries, run lifecycle, and shared Parameter contracts.
+* :doc:`contract_workbench_information_architecture` — shared Contract Workbench navigation with typed Formula, Case, Runtime, Workflow, Mesh, Geometry, and Algorithm knowledge.
 * `Verification Contract Workbench proposal <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/verification-contract-workbench.md>`_ — proposed shared model for numerical, geometry, runtime, workflow, and case evidence; not yet an implementation claim.
 * `Regression test guide <https://github.com/eric2003/OneFLOW/blob/hexin/test/README.md>`_ — CFD and grid regression checks.
 * `Documentation organization plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ — document ownership and consolidation status.
@@ -143,9 +145,11 @@ The existing reference library covers programming languages, build systems, para
    database_architecture
    evolutionary_computation_architecture
    mesh_architecture
+   gmsh_interface
    grid_topology
    face_stage_pipeline
    workbench_architecture
+   contract_workbench_information_architecture
 
 .. toctree::
    :hidden:

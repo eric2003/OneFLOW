@@ -71,7 +71,7 @@ Development Tests 使用固定的用户数据测试工作目录，并在每批�
 
 Contract Workbench
 ------------------
-Implementation / Code 页支持在工作台内部预览源码：左侧选择实现文件，右侧显示带行号的只读局部代码，每页最多 80 行，可继续查看前后代码段。完整文件仍可通过“Open source files...”在配置的外部编辑器中打开。预览只读取仓库根目录内的声明文件，不修改源码。当前实现按文件定位；函数声明与定义的符号级联动作为后续扩展。
+Implementation 页说明实现流程、数据结构和已登记的源码入口；Code 页支持在工作台内部预览真实源码：左侧选择实现文件，右侧显示带行号的只读局部代码，每页最多 80 行，可继续查看前后代码段。完整文件仍可通过“Open source files...”在配置的外部编辑器中打开。预览只读取仓库根目录内的声明文件，不修改源码。当前实现按文件定位；函数声明与定义的符号级联动作为后续扩展。
 
 
 Formula & Knowledge 的导航现在将 **Implementation** 和 **Code sketch** 分开：
@@ -100,7 +100,20 @@ Case 领域还提供两个文件入口：**Open case directory...** 打开算例
 * **Case**：浏览类型化 CFD Case 契约，查看算例所属 Suite、求解器、物理模型、数值格式、输入网格、输出比较清单、残差基线和分析参考数据。
 * **Runtime**：浏览进程生命周期、资源所有权、状态转换、实现代码和测试证据。
 
-Formula、Geometry 继续使用已有领域工具；Case 和 Runtime 使用统一 Contract Catalog 的只读视图。各领域共享 Overview、Principle、Architecture、Implementation / Code、Documentation / References、Verification 等导航，但领域数据保持类型化，不要求所有领域都具有公式或曲线。
+各领域现在采用统一的信息导航，但不统一成公式数据模型。通用章节为：
+
+* **Overview**：是什么、解决什么问题、当前状态和适用范围。
+* **Principle**：物理、数学、算法或工程设计依据。
+* **Reference**：论文、标准、软件手册、外部实现和内部设计决策。
+* **Architecture**：模块位置、依赖边界、数据流、生命周期和交互关系。
+* **Implementation**：算法步骤、数据结构、配置、所有权和运行过程。
+* **Code**：真实源码路径、调用链、关键代码片段和相关测试。
+* **Documentation**：用户手册、开发文档和设计说明。
+* **Verification / Evidence**：测试、运行命令、平台/版本、结果产物、证据范围和未验证事项。
+
+领域自身的数据结构和专用视图仍然不同：Formula Knowledge 可展示公式、符号和曲线；Case 展示物理设置、网格和比较基线；Runtime 展示状态机、资源所有权和故障处理；Workflow 展示依赖图、产物输入输出和运行历史；Mesh / Geometry 展示实体、拓扑、边界、区域和质量；Algorithm 展示离散方法、数据依赖、稳定性、守恒性和收敛证据。Formula、Curve、Case Setup、Workflow Graph、Mesh View 都是领域专用视图，不是所有领域必须具备的通用标签页。
+
+当前统一标签页只是导航结构，不代表每个领域的数据都已完整。没有登记的内容应明确显示未声明；关联测试不代表测试已经执行；通过单元测试也不能直接证明物理精度。完整的信息架构、领域矩阵和证据规则见 :doc:`contract_workbench_information_architecture`。
 
 Contract Workbench 展示证据声明和验证范围，不负责执行求解器或测试，也不会因为关联了一个测试名称就显示 PASS。Case 中保留的 Blasius 参考数据如果尚未被回归程序自动比较，会明确标记为“已声明、未自动比较”。Workflow 和 Performance 入口将在对应契约和证据模型有实际内容后再加入。
 

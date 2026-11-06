@@ -86,6 +86,28 @@ Python and C++/Qt
 
 Use languages according to responsibility and evidence, not a predetermined rewrite plan. Python can support workflow persistence, orchestration, tests, diagnostics, and reports. Qt provides desktop interaction; C++ may be appropriate for measured visualization or native-integration needs. Both sides should share stable, versioned data contracts rather than maintaining competing project state.
 
+Contract Workbench information architecture
+--------------------------------------------
+
+The Contract Workbench uses shared navigation without imposing a formula-centric
+data model on other domains. Every typed domain uses Overview, Principle,
+Reference, Architecture, Implementation, Code, Documentation and
+Verification / Evidence. Formula, Case Setup, Workflow Graph, Runtime
+Consumers, Mesh View and other focused pages are domain-specific visualizers
+and appear only when the domain has the corresponding typed data.
+
+The shared navigation is not evidence that every tab is complete. Missing
+content must remain explicitly undeclared, and linked tests must not be shown
+as passed unless execution evidence exists. The domain payloads retain their
+own semantics: formulas contain equations and symbols; Cases contain physical
+setup and comparison policy; Runtime contains state transitions and resource
+ownership; Workflow contains dependencies and artifact bindings; Mesh contains
+topology and boundary semantics; Algorithms contain discretization and
+numerical properties.
+
+See :doc:`contract_workbench_information_architecture` for the section
+responsibilities, domain matrix, evidence semantics and migration rules.
+
 Current implementation and known gaps
 --------------------------------------
 

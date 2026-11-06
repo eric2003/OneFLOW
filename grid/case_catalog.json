@@ -51,6 +51,14 @@
       "layout": null
     },
     {
+      "id": "gmsh_to_cgns",
+      "title": "Gmsh to CGNS Bootstrap",
+      "directory": "grid/gmsh_to_cgns",
+      "runtimeConfig": "script/control.txt",
+      "profile": null,
+      "layout": null
+    },
+    {
       "id": "laminar_flat_plate",
       "title": "Laminar Flat Plate",
       "directory": "grid/laminar_flat_plate",

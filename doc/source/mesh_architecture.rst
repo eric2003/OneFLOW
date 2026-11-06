@@ -88,6 +88,110 @@ L0 summary output is the first practical step. It is metadata only: it does not 
 
 JSON is suitable for manifests and small metadata. Large numeric arrays may need compact typed payloads. JSON-library types should remain inside serialization adapters rather than leaking into the canonical mesh model.
 
+MeshSnapshot v1 interchange contract
+--------------------------------------
+
+The first executable interchange contract is available in
+`tools/mesh_contracts/snapshot.py`. It is deliberately a tooling-side
+manifest validator, not a replacement for the production C++ mesh container
+or a claim that runtime export is complete.
+
+The version-1 neutral data shape contains:
+
+* dimensioned nodes with positive IDs and finite coordinates;
+* cells with a declared element type and ordered node IDs;
+* faces with ordered node IDs, an owner cell, and an optional neighbour cell;
+* named region groups over cells and boundary/interface groups over faces;
+* source-format provenance.
+
+The validator accepts sparse source IDs: identity is not inferred from array
+position. It rejects duplicate IDs, invalid coordinate dimensions, non-finite
+coordinates, unsupported element arity/dimension, dangling connectivity,
+invalid face ownership, and group membership that crosses entity kinds.
+Connectivity order is retained; it is not sorted or normalized.
+
+The current contract does **not** establish geometric validity, cell closure,
+face orientation against the solver convention, complete cell-to-face
+incidence, boundary-condition meaning, partition/ghost semantics, or
+round-trip fidelity. A Gmsh Physical Group name is not itself a OneFLOW
+boundary condition. The adapter must preserve its name, dimension and
+membership first; a separate explicit mapping contract must assign solver
+semantics. The current manifest also does not carry source CAD entity identity
+or arbitrary high-order element interpolation nodes.
+
+Run the focused contract tests from the repository root:
+
+.. code-block:: bash
+
+   python -m unittest tools.mesh_contracts.test_snapshot -v
+
+The same tests are included in Linux and Windows Python CI. They validate the
+manifest contract only; they are not an experimental Gmsh Case regression.
+The latter remains a GUI manual test and is intentionally excluded from
+automatic GitHub execution.
+
+The intended adapter flow is:
+
+.. code-block:: text
+
+   Gmsh MSH 4.1 / Plot3D / SU2 / CGNS
+                    |
+             format-specific reader
+                    |
+          MeshSnapshot v1 validation
+                    |
+          explicit semantic mapping
+                    |
+             OneFLOW Mesh Core
+
+A future production C++ snapshot should implement the same semantics without
+making the Python validator or JSON representation a runtime dependency.
+The first C++ adapter should be read-only and value-based; it should not expose
+Gmsh handles or let format-specific IDs leak into solver-owned identity.
+
+Mesh Contract Workbench
+------------------------
+
+The GUI exposes Mesh as a domain independent of Formula Knowledge:
+`Contract Workbench -> Mesh`. It uses the shared information architecture
+(Overview, Principle, Reference, Architecture, Implementation, Code,
+Documentation, Verification / Evidence) while retaining mesh-specific
+topology content.
+
+The Topology tab displays Nodes, Cells, Faces, and Groups from a loaded
+MeshSnapshot JSON artifact. It is an inspection view, not a topology editor.
+
+The Code tab now previews the current Python contract validator and the C++
+Gmsh conversion implementation directly from the repository. The preview is
+bounded for large source files; the full paths remain available for opening in
+the configured source editor. The Documentation tab displays the contents of
+this architecture page and the Gmsh interface page rather than showing only
+their filenames. These are read-only source-backed views, not duplicated
+Workbench-owned documentation.
+
+The current Gmsh C++ reader still validates and summarizes MSH 4.1 records;
+it does not yet export the parsed node coordinates and element connectivity
+into MeshSnapshot. Therefore, loading the bundled JSON fixture demonstrates
+the topology browser, but it is not evidence that the Gmsh parser has populated
+that fixture. The next adapter milestone is a C++ value-based snapshot
+exporter, followed by a GUI action that consumes its generated artifact.
+The bundled `tools/mesh_contracts/examples/square_snapshot.json` is a small
+manual fixture for checking the UI.
+
+Evidence is intentionally split into two independent panels:
+
+* **MeshSnapshot contract validation** reports whether the loaded manifest
+  satisfies the currently implemented schema checks.
+* **Format conversion execution** remains NOT RUN unless a real converter
+  execution record is supplied. Opening or validating JSON never counts as
+  running Gmsh, CGNS, or a OneFLOW conversion.
+
+The current Python validator is a first-stage tooling check. It is not a
+second production mesh implementation. The target remains a read-only,
+value-based C++ MeshSnapshot exported from the OneFLOW runtime mesh, with
+format-specific adapters on the boundary. No Python data structure should
+become a solver runtime dependency.
+
 Spatial search and point-location boundary
 --------------------------------------------
 
@@ -204,3 +308,54 @@ Detailed design and audit notes remain under the documentation engineering area 
 * `doc/architecture/`: dated architecture audits and stable design notes.
 * `doc/plans/oneflow-documentation-consolidation-plan.md`: consolidation inventory and next steps.
 * Root-level `GRID_TOPOLOGY.md`, `MESH_DATA_AND_VISUALIZATION.md`, and the older top-level `docs/` mesh notes remain source material for the content review; they are not separate destinations for new documentation.
+
+
+Mesh Knowledge catalog
+----------------------
+
+Mesh in Contract Workbench is a grouped knowledge catalog rather than one
+static conversion page. Versioned entries live under
+`tools/verification/contracts/mesh/` and use the shared contract envelope:
+overview, principle, references, architecture, implementation, code,
+documentation, claims, limitations and verification evidence.
+
+The initial catalog separates **Mesh Core Concepts** from **Interchange
+Formats**. Core concepts cover identity, coordinates, ordered connectivity,
+faces, adjacency, boundaries, regions, physical groups, units, provenance
+and quality. Format entries cover Gmsh MSH, Plot3D structured grids and CGNS.
+A separate topology inspector remains available for inspecting a loaded
+MeshSnapshot fixture; it is not the primary Mesh knowledge interface.
+
+The dependency direction is:
+
+.. code-block:: text
+
+   Gmsh / Plot3D / CGNS specifications
+                  |
+          format knowledge records
+                  |
+        format-specific adapters
+                  |
+       neutral OneFLOW MeshSnapshot
+                  |
+           OneFLOW Mesh Core
+                  |
+       solver / visualization / writers
+
+The Mesh Core vocabulary is the stable center. Formats are boundary contracts
+with different capabilities. A structured Plot3D block is not an unstructured
+Gmsh element block; CGNS zones, sections, boundary types and connectivity must
+not be flattened into anonymous cells. Conversion can preserve coordinates
+while losing high-order interpolation, units, group labels or interfaces.
+Those losses must be declared and verified rather than silently discarded.
+
+The Workbench search covers titles, descriptions, source paths and references.
+Each catalog entry links source files, maintained documentation and declared
+evidence. A declared test is not a recorded execution result; a format entry
+marked proposed does not imply a production reader or writer exists.
+
+
+Gmsh reader implementation milestone
+------------------------------------
+
+The MSH 4.1 reader now materializes coordinates, source IDs, geometric entity ownership, element types, and ordered connectivity in a C++ GmshMesh value model. A focused GTest exercises the checked-in square mesh shape and malformed references. The conversion entry point invokes the reader and checks its counts against the existing summary. This is not yet a transfer into UnsGrid or a CGNS zone; the next code step is that mapping, not additional format catalog work.

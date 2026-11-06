@@ -252,3 +252,128 @@ def capture_workflow_execution(
     for record in records:
         store.append(record)
     return tuple(records)
+
+
+def capture_case_execution(
+    run_data: dict,
+    *,
+    repository_root: Path,
+    records_path: Path,
+    contract_ids: tuple[str, ...] = (),
+) -> tuple[ExecutionRecord, ...]:
+    """Persist evidence for one CFD/grid case launched by the residual runner.
+
+    Only records that were actually launched become ExecutionRecords. A process
+    exit code of zero does not override failed file or residual comparison.
+    Contract links are accepted only when the caller passes them explicitly
+    (typically from a Case Contract Workbench action); they are never inferred
+    from case names or directory paths alone.
+    """
+    root = Path(repository_root).resolve()
+    command = run_data.get("command")
+    if not isinstance(command, (list, tuple)) or not command:
+        return ()
+    if any(not isinstance(part, str) or not part for part in command):
+        raise ValueError("case run command is invalid")
+
+    status = run_data.get("status")
+    if status not in {"succeeded", "failed", "cancelled", "timeout"}:
+        return ()
+
+    return_code = run_data.get("return_code")
+    if return_code is not None and (
+        isinstance(return_code, bool) or not isinstance(return_code, int)
+    ):
+        raise ValueError("case run return_code is invalid")
+
+    files_ok = run_data.get("files_ok")
+    residual_ok = run_data.get("residual_ok")
+    required_outputs_ok = run_data.get("required_outputs_ok")
+
+    # Exit code zero is necessary but not sufficient.
+    comparison_failed = (
+        files_ok is False
+        or residual_ok is False
+        or required_outputs_ok is False
+    )
+    if status == "cancelled":
+        outcome = "cancelled"
+    elif status == "timeout":
+        outcome = "failed"
+    elif status == "succeeded" and return_code == 0 and not comparison_failed:
+        outcome = "passed"
+    else:
+        outcome = "failed"
+
+    case_id = str(run_data.get("case_id") or run_data.get("case_name") or "case")
+    suite = str(run_data.get("suite") or "")
+    test_id = f"case:{suite}:{case_id}" if suite else f"case:{case_id}"
+    test_name = f"{suite} / {case_id}" if suite else case_id
+
+    executable = str(run_data.get("executable") or "")
+    configuration = Path(executable).parent.name if executable else ""
+    if configuration not in {"Debug", "Release", "RelWithDebInfo", "MinSizeRel"}:
+        configuration = str(run_data.get("configuration") or "")
+
+    repository = _repository_name(_git_value(root, "remote", "get-url", "origin"))
+    commit = _git_value(root, "rev-parse", "HEAD")
+    branch = _git_value(root, "branch", "--show-current")
+
+    artifacts = []
+    log_path = str(run_data.get("log_path") or "")
+    if log_path:
+        log_artifact = _file_artifact("case-log", log_path)
+        if log_artifact is not None:
+            artifacts.append(log_artifact)
+
+    raw_artifacts = run_data.get("artifacts", [])
+    if not isinstance(raw_artifacts, list):
+        raise ValueError("case run artifacts must be an array")
+    for artifact_path in raw_artifacts:
+        if not isinstance(artifact_path, str) or not artifact_path.strip():
+            raise ValueError("case run artifact path is invalid")
+        artifact = _file_artifact("case-output", artifact_path)
+        if artifact is not None:
+            artifacts.append(artifact)
+
+    residual_baseline = str(run_data.get("residual_baseline") or "")
+    if residual_baseline:
+        baseline_artifact = _file_artifact("residual-baseline", residual_baseline)
+        if baseline_artifact is not None:
+            artifacts.append(baseline_artifact)
+
+    diagnostics: list[str] = []
+    for reason in run_data.get("failure_reasons", []) or []:
+        if isinstance(reason, str) and reason.strip():
+            diagnostics.append(reason.strip())
+    message = run_data.get("message")
+    if isinstance(message, str) and message.strip() and outcome != "passed":
+        diagnostics.append(message.strip())
+
+    record = ExecutionRecord(
+        test_id=test_id,
+        framework="OneFLOW Case Regression",
+        test_name=test_name,
+        source_path=str(
+            run_data.get("source_path") or "test/test.py"
+        ),
+        command=tuple(command),
+        outcome=outcome,
+        started_at=str(run_data.get("started_at") or ""),
+        finished_at=str(run_data.get("finished_at") or ""),
+        exit_code=return_code,
+        repository=repository,
+        commit=commit,
+        branch=branch,
+        configuration=configuration,
+        platform=platform.platform(),
+        runtime_version="Python " + platform.python_version(),
+        working_directory=str(run_data.get("working_directory") or ""),
+        contract_ids=contract_ids,
+        artifacts=tuple(artifacts),
+        diagnostics=tuple(diagnostics),
+        invocation_id=str(run_data.get("run_id") or run_data.get("invocation_id") or ""),
+    )
+    store = ExecutionRecordStore(Path(records_path))
+    store.append(record)
+    return (record,)

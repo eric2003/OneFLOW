@@ -135,15 +135,17 @@ def main() -> int:
         "targetGridType",
         "gridLayoutFileName",
         "sourceGridFileName",
-        "sourceGridBcName",
         "targetGridFileName",
         "gridInfoFileName",
     )
     for name in required_grid_strings:
         if not strings.get(name):
             errors.append(f"Missing required grid parameter: {name}")
+    if strings.get("sourceGridType", "").lower() in {"plot3d", "su2"}:
+        if not strings.get("sourceGridBcName"):
+            errors.append("Missing required grid parameter: sourceGridBcName")
 
-    supported_grid_types = {"plot3d", "su2", "cgns", "oneflow", "gridgen"}
+    supported_grid_types = {"plot3d", "su2", "cgns", "oneflow", "gridgen", "gmsh"}
     for name in ("sourceGridType", "targetGridType"):
         value = strings.get(name, "").lower()
         if value and value not in supported_grid_types:
@@ -157,6 +159,7 @@ def main() -> int:
         "plot3d": {"oneflow", "cgns"},
         "su2": {"oneflow"},
         "cgns": {"oneflow", "cgns"},
+        "gmsh": {"cgns"},
     }
     source_type = strings.get("sourceGridType", "").lower()
     target_type = strings.get("targetGridType", "").lower()
@@ -182,6 +185,8 @@ def main() -> int:
         source_case_dir = case_dir
 
     input_names = ("sourceGridFileName", "sourceGridBcName")
+    if source_type == "gmsh":
+        input_names = ("sourceGridFileName",)
     for name in input_names:
         value = strings.get(name)
         if value:

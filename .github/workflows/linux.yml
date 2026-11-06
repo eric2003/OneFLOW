@@ -9,9 +9,6 @@ on:
     branches: [ master, hexin ]
   pull_request:
     branches: [ master, hexin ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
   
 permissions:
   contents: read
@@ -135,6 +132,7 @@ jobs:
           ctest --output-on-failure
           python -m unittest discover -s ../tools -p 'test_mesh_workflow.py'
           python -m unittest discover -s ../tools/mesh_export -p 'test_*.py'
+          python -m unittest discover -s ../tools/mesh_contracts -p 'test_*.py'
         shell: bash        
       - name: Run OneFLOW Regression Tests
         env:
@@ -160,4 +158,4 @@ jobs:
           python --version
           #python test.py " " " " linux
           python test.py "mpirun -np 1" "OneFLOW" "suites/ci-serial.txt" "baselines/residual-baseline.json" "1e-8"
-        shell: bash
+        

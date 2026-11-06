@@ -10,10 +10,6 @@ on:
 
   pull_request:
     branches: [ master, hexin ]
-
-  # Allows the workflow to be started manually from the Actions tab.
-  workflow_dispatch:
-
 permissions:
   contents: read
 
@@ -95,6 +91,7 @@ jobs:
           }
 
           python -m unittest discover -s ../tools/mesh_export -p "test_*.py"
+          python -m unittest discover -s ../tools/mesh_contracts -p "test_*.py"
           if ($LASTEXITCODE -ne 0) {
               throw "Mesh export tests failed with exit code $LASTEXITCODE."
           }
@@ -151,3 +148,4 @@ jobs:
               "$oneflow_exe" `
               "suites/ci-serial.txt"
         shell: pwsh
+

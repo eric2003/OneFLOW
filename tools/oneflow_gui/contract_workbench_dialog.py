@@ -165,11 +165,11 @@ class ContractDomainDialog(QDialog):
         intro.setWordWrap(True)
         root.addWidget(intro)
 
-        if domain == "parameter":
+        if domain in {"parameter", "mesh"}:
             self.search_edit = QLineEdit()
             self.search_edit.setObjectName("parameterContractSearch")
             self.search_edit.setPlaceholderText(
-                "Search parameters by name, description, group, source, or reference..."
+                "Search mesh formats, concepts, sources, or references..." if domain == "mesh" else "Search parameters by name, description, group, source, or reference..."
             )
             self.search_edit.textChanged.connect(self._filter_contracts)
             root.addWidget(self.search_edit)
@@ -246,8 +246,12 @@ class ContractDomainDialog(QDialog):
         self._implementation_chunk_size = 80
         self.open_source_button = QPushButton("Open source files...")
         self.open_source_button.clicked.connect(self._open_sources)
+        self.reference_view = QPlainTextEdit()
+        self.reference_view.setReadOnly(True)
         self.documentation_view = QPlainTextEdit()
         self.documentation_view.setReadOnly(True)
+        self.implementation_view_summary = QPlainTextEdit()
+        self.implementation_view_summary.setReadOnly(True)
         self.evidence_view = QPlainTextEdit()
         self.evidence_view.setReadOnly(True)
         self.examples_view = QPlainTextEdit()
@@ -258,6 +262,11 @@ class ContractDomainDialog(QDialog):
         self.case_view.setReadOnly(True)
         self.workflow_view = QPlainTextEdit()
         self.workflow_view.setReadOnly(True)
+        self.mesh_knowledge_view = None
+        if domain == "mesh":
+            self.mesh_knowledge_view = QPlainTextEdit()
+            self.mesh_knowledge_view.setReadOnly(True)
+            self.mesh_knowledge_view.setObjectName("meshKnowledgeView")
         self.parameter_formula_page = None
         self.parameter_formula_text = None
         self.parameter_formula_latex = None
@@ -310,18 +319,22 @@ class ContractDomainDialog(QDialog):
             self.parameter_formula_scroll.setWidget(self.parameter_formula_preview)
             formula_layout.addWidget(self.parameter_formula_scroll, 5)
 
+        # Shared information architecture. Domain-specific views are appended
+        # only when their typed payload provides meaningful content.
         self.tabs.addTab(self.overview_view, "Overview")
+        self.tabs.addTab(self.principle_view, "Principle")
+        self.tabs.addTab(self.reference_view, "Reference")
+        self.tabs.addTab(self.architecture_view, "Architecture")
+        self.tabs.addTab(self.implementation_view_summary, "Implementation")
+        self.tabs.addTab(self.implementation_page, "Code")
+        self.tabs.addTab(self.documentation_view, "Documentation")
+        self.tabs.addTab(self.evidence_view, "Verification / Evidence")
+        if domain == "mesh":
+            self.tabs.addTab(self.mesh_knowledge_view, "Mesh Knowledge")
         if domain == "parameter":
             self.tabs.addTab(self.parameter_formula_page, "Formula")
-            self.tabs.addTab(self.implementation_page, "Implementation / Code")
             self.tabs.addTab(self.runtime_consumers_view, "Runtime Consumers")
             self.tabs.addTab(self.examples_view, "Examples")
-        else:
-            self.tabs.addTab(self.principle_view, "Principle")
-            self.tabs.addTab(self.architecture_view, "Architecture")
-            self.tabs.addTab(self.implementation_page, "Implementation / Code")
-        self.tabs.addTab(self.documentation_view, "Documentation / References")
-        self.tabs.addTab(self.evidence_view, "Verification")
         if domain == "case":
             self.tabs.addTab(self.case_view, "Case Setup")
         if domain == "workflow":
@@ -339,6 +352,11 @@ class ContractDomainDialog(QDialog):
         self.open_actions_layout.addWidget(self.open_docs_button)
         self.open_actions_layout.addWidget(self.open_tests_button)
         self.open_related_formula_button = None
+        self.open_mesh_topology_button = None
+        if domain == "mesh":
+            self.open_mesh_topology_button = QPushButton("Open topology inspector...")
+            self.open_mesh_topology_button.clicked.connect(self._open_mesh_topology)
+            self.open_actions_layout.addWidget(self.open_mesh_topology_button)
         if domain == "parameter":
             self.open_related_formula_button = QPushButton(
                 "Open related Formula & Knowledge..."
@@ -349,6 +367,7 @@ class ContractDomainDialog(QDialog):
             self.open_actions_layout.addWidget(self.open_related_formula_button)
         self.open_case_directory_button = None
         self.open_case_references_button = None
+        self.open_case_runner_button = None
         self.open_workflow_definition_button = None
         self.open_workflow_runner_button = None
         if domain == "workflow":
@@ -371,8 +390,11 @@ class ContractDomainDialog(QDialog):
             self.open_case_directory_button.clicked.connect(self._open_case_directory)
             self.open_case_references_button = QPushButton("Open suite and references...")
             self.open_case_references_button.clicked.connect(self._open_case_references)
+            self.open_case_runner_button = QPushButton("Run in case runner...")
+            self.open_case_runner_button.clicked.connect(self._run_case)
             self.open_actions_layout.addWidget(self.open_case_directory_button)
             self.open_actions_layout.addWidget(self.open_case_references_button)
+            self.open_actions_layout.addWidget(self.open_case_runner_button)
         self.open_actions_layout.addStretch(1)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.accept)
@@ -487,7 +509,7 @@ class ContractDomainDialog(QDialog):
     def _populate_contract_list(self, query: str = "", selected_id: str = "") -> None:
         self.contract_list.clear()
         normalized_query = query.casefold().strip()
-        if self._domain == "parameter":
+        if self._domain in {"parameter", "mesh"}:
             groups = {}
             for summary in self._summaries:
                 searchable = " ".join((
@@ -666,6 +688,32 @@ class ContractDomainDialog(QDialog):
         self.runtime_consumers_view.setPlainText("\n".join(lines).rstrip())
 
 
+    def _load_documentation_text(self, paths: tuple[str, ...]) -> str:
+        """Show the actual repository documentation behind declared paths."""
+        if not paths:
+            return "No documentation pages declared."
+
+        sections: list[str] = []
+        root = self._repository_root.resolve()
+        for relative in paths:
+            sections.extend((f"Documentation: {relative}", "=" * (16 + len(relative)), ""))
+            candidate = (root / relative).resolve()
+            try:
+                candidate.relative_to(root)
+            except ValueError:
+                sections.append("Not loaded: path escapes the repository root.")
+                sections.append("")
+                continue
+            try:
+                content = candidate.read_text(encoding="utf-8")
+            except (OSError, UnicodeError) as error:
+                sections.append(f"Not loaded: {type(error).__name__}: {error}")
+                sections.append("")
+                continue
+            sections.append(content.rstrip())
+            sections.append("")
+        return "\n".join(sections).rstrip()
+
     def _select_contract(self, row: int) -> None:
         if row < 0:
             return
@@ -681,21 +729,25 @@ class ContractDomainDialog(QDialog):
             f"Kind: {summary.kind}\n"
             f"Status: {summary.status}\n\n"
             f"{summary.overview}\n\n"
-            + (
-                "Principle\n---------\n" + summary.principle + "\n\n"
-                if summary.domain == "parameter" and summary.principle.strip() else ""
-            )
-            + (
-                "Architecture\n------------\n" + summary.architecture + "\n\n"
-                if summary.domain == "parameter" and summary.architecture.strip() else ""
-            )
             + "Claims\n------\n"
-            + "\n".join(f"- {claim}" for claim in summary.claims)
+            + ("\n".join(f"- {claim}" for claim in summary.claims) or "No claims declared.")
             + "\n\nLimitations\n-----------\n"
-            + "\n".join(f"- {item}" for item in summary.limitations)
+            + ("\n".join(f"- {item}" for item in summary.limitations) or "No limitations declared.")
         )
         self.principle_view.setPlainText(summary.principle)
         self.architecture_view.setPlainText(summary.architecture)
+        if self.mesh_knowledge_view is not None:
+            lines = [
+                "CORE CONCEPTS", "=============", summary.overview, "",
+                "PRINCIPLE AND FORMULAE", "======================", summary.principle, "",
+                "FORMAT / IMPLEMENTATION MAPPING", "===============================", summary.architecture, "",
+                "CLAIMS AND LIMITATIONS", "======================",
+                *(f"- {item}" for item in summary.claims),
+                *(f"- NOT PROVEN: {item}" for item in summary.limitations), "",
+                "REFERENCES", "==========",
+                *(f"- {item}" for item in summary.references),
+            ]
+            self.mesh_knowledge_view.setPlainText("\n".join(lines))
         parameter_key = summary.parameter_key or summary.source_id
         consumer_records = (
             self._parameter_consumer_catalog.find(parameter_key)
@@ -802,11 +854,37 @@ class ContractDomainDialog(QDialog):
                 self.parameter_formula_preview.setPixmap(QPixmap())
                 self._parameter_formula_pixmap = QPixmap()
         self.open_source_button.setEnabled(bool(self._implementation_paths))
+        self.reference_view.setPlainText(
+            "\n".join(summary.references) or "No references declared."
+        )
         self.documentation_view.setPlainText(
-            "References\n----------\n"
-            + "\n".join(summary.references)
-            + "\n\nDocumentation\n-------------\n"
-            + "\n".join(summary.documentation_paths)
+            self._load_documentation_text(summary.documentation_paths)
+        )
+        implementation_lines = [
+            "Implementation source paths",
+            "---------------------------",
+            *(f"- {path}" for path in summary.implementation_paths),
+        ]
+        if summary.workflow_data is not None:
+            implementation_lines.extend((
+                "",
+                "Workflow execution mode",
+                "-----------------------",
+                summary.workflow_data.execution_mode,
+            ))
+        if summary.case_data is not None:
+            implementation_lines.extend((
+                "",
+                "Case execution context",
+                "----------------------",
+                f"Suite: {summary.case_data.suite}",
+                f"Case: {summary.case_data.case_path}",
+                f"Solver: {summary.case_data.solver}",
+            ))
+        self.implementation_view_summary.setPlainText(
+            "\n".join(implementation_lines)
+            if summary.implementation_paths or summary.workflow_data or summary.case_data
+            else "No implementation details declared."
         )
         resolutions = self._resolve_contract_evidence(
             self._repository_root, summary
@@ -1183,6 +1261,10 @@ class ContractDomainDialog(QDialog):
             return
         dialog.exec()
 
+    def _open_mesh_topology(self) -> None:
+        from .mesh_contract_dialog import MeshContractDialog
+        MeshContractDialog(self._repository_root, self).exec()
+
     def _open_related_formula(self) -> None:
         summary = self._current_summary()
         if summary is None or not summary.references:
@@ -1233,6 +1315,32 @@ class ContractDomainDialog(QDialog):
             "Case references",
         )
 
+    def _run_case(self) -> None:
+        """Open the residual Case runner with an explicit contract link."""
+        summary = self._current_summary()
+        if summary is None or summary.case_data is None:
+            return
+        case = summary.case_data
+        try:
+            from .case_contract_run_dialog import CaseContractRunDialog
+
+            dialog = CaseContractRunDialog(
+                self._repository_root,
+                contract_id=summary.id,
+                case_path=case.case_path,
+                suite=case.suite,
+                residual_baseline=case.residual_baseline,
+                residual_absolute_tolerance=case.residual_absolute_tolerance,
+                comparison_outputs=tuple(case.comparison_outputs),
+                case_id=Path(case.case_path).name,
+                parent=self,
+                contract_ids=(summary.id,),
+            )
+        except (OSError, ValueError, TypeError) as error:
+            QMessageBox.warning(self, "Cannot open case runner", str(error))
+            return
+        dialog.exec()
+
 
 class ContractWorkbenchDialog(QDialog):
     """Domain launcher for the shared Contract Workbench experience."""
@@ -1267,6 +1375,12 @@ class ContractWorkbenchDialog(QDialog):
                 "Geometry",
                 "Topology invariants, geometry scenarios, fixtures and linked C++ tests.",
                 self._open_geometry,
+            ),
+            (
+                "mesh",
+                "Mesh",
+                "Mesh interchange contracts, topology, boundary groups and conversion evidence.",
+                self._open_mesh,
             ),
             (
                 "parameter",
@@ -1341,6 +1455,9 @@ class ContractWorkbenchDialog(QDialog):
         from .geometry_contract_dialog import GeometryContractDialog
 
         GeometryContractDialog(self._repository_root, self).exec()
+
+    def _open_mesh(self) -> None:
+        ContractDomainDialog(self._repository_root, "mesh", self).exec()
 
     def _open_parameter(self) -> None:
         ContractDomainDialog(self._repository_root, "parameter", self).exec()

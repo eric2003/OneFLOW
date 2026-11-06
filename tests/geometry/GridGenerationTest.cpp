@@ -60,6 +60,8 @@ TEST( GridTypesTest, ParseGridFileTypeCaseInsensitive )
     EXPECT_EQ( ParseGridFileType( "su2" ), GridFileType::SU2 );
     EXPECT_EQ( ParseGridFileType( "CGNS" ), GridFileType::CGNS );
     EXPECT_EQ( ParseGridFileType( "oneflow" ), GridFileType::OneFLOW );
+    EXPECT_EQ( ParseGridFileType( "gmsh" ), GridFileType::Gmsh );
+    EXPECT_EQ( ParseGridFileType( "GMSH" ), GridFileType::Gmsh );
     EXPECT_EQ( ParseGridFileType( "not-a-format" ), GridFileType::Unknown );
 }
 
@@ -69,6 +71,7 @@ TEST( GridTypesTest, ToStringRoundTripTokens )
     EXPECT_EQ( ToString( GridFileType::SU2 ), "su2" );
     EXPECT_EQ( ToString( GridFileType::CGNS ), "cgns" );
     EXPECT_EQ( ToString( GridFileType::OneFLOW ), "oneflow" );
+    EXPECT_EQ( ToString( GridFileType::Gmsh ), "gmsh" );
 
     EXPECT_EQ( ToString( GridObjective::GenerateClassic ), "GenerateClassic" );
     EXPECT_EQ( ToString( GridOp::CalcMetrics ), "CALC_METRICS" );
@@ -227,3 +230,5 @@ TEST( GridTypesTest, ParseGridTopology )
     EXPECT_EQ( ParseGridTopology( "structured" ), GridTopology::Structured );
     EXPECT_EQ( ParseGridTopology( "other" ), GridTopology::Unknown );
 }
+
+

@@ -37,6 +37,16 @@ test/
 - Do not create a new dated report for every regression run. CI run evidence
   belongs in workflow artifacts; durable conclusions update the stable report.
 
+The regular `ci-serial.txt` suite covers the established CFD residual
+cases and the existing Plot3D grid conversion. The experimental Gmsh bootstrap
+is deliberately not part of CTest, Python unittest, the standard regression
+suites, or GitHub Actions. It is exposed only as a manual option in the GUI's
+OneFLOW Tests dialog. The GUI runner copies `grid/gmsh_to_cgns` to a system
+temporary directory, invokes the normal Case entry point, and checks the
+explicit placeholder marker and mesh counts. The checked-in Case is never
+modified. This is an early parameter-ingestion and conversion-path check;
+the generated `.cgns` artifact is not a standards-compliant CGNS file.
+
 ## CPU regression baseline
 
 The canonical CFD residual baseline contains the five existing OneFLOW CFD
