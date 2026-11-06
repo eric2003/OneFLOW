@@ -259,12 +259,15 @@ TEST( GmshGridConversionTest, Msh2AsciiWritesExplicitPlaceholderArtifact )
     config.targetFile = "results/square.cgns";
     EXPECT_NO_THROW( ConvertGrid( config, root.string() ) );
 
-    std::ifstream output( root / "results" / "square.cgns" );
-    const std::string outputText{ std::istreambuf_iterator<char>( output ), std::istreambuf_iterator<char>() };
-    EXPECT_NE( outputText.find( "ONEFLOW_CGNS_PLACEHOLDER 1" ), std::string::npos );
-    EXPECT_NE( outputText.find( "status=NOT_A_CGNS_FILE" ), std::string::npos );
-    EXPECT_NE( outputText.find( "node_count=4" ), std::string::npos );
-    EXPECT_NE( outputText.find( "element_count=2" ), std::string::npos );
+    {
+        std::ifstream output( root / "results" / "square.cgns" );
+        ASSERT_TRUE( output ) << "Expected placeholder output file to exist";
+        const std::string outputText{ std::istreambuf_iterator<char>( output ), std::istreambuf_iterator<char>() };
+        EXPECT_NE( outputText.find( "ONEFLOW_CGNS_PLACEHOLDER 1" ), std::string::npos );
+        EXPECT_NE( outputText.find( "status=NOT_A_CGNS_FILE" ), std::string::npos );
+        EXPECT_NE( outputText.find( "node_count=4" ), std::string::npos );
+        EXPECT_NE( outputText.find( "element_count=2" ), std::string::npos );
+    }
     std::filesystem::remove_all( root );
 }
 
