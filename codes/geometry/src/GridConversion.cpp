@@ -27,6 +27,7 @@ License
 #include "Plot3D.h"
 #include "Boundary.h"
 #include <filesystem>
+#include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <iterator>
