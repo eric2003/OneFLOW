@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 import unittest
 
-from mesh_contracts.snapshot import MeshSnapshotError, validate_snapshot
+from .snapshot import MeshSnapshotError, validate_snapshot
 
 
 def sample_snapshot() -> dict:
@@ -23,8 +23,16 @@ def sample_snapshot() -> dict:
             {"id": 100, "type": "triangle3", "nodeIds": [10, 20, 30]},
             {"id": 200, "type": "triangle3", "nodeIds": [10, 30, 40]},
         ],
+        "faces": [
+            {"id": 1, "nodeIds": [10, 20], "ownerCellId": 100, "neighbourCellId": None},
+            {"id": 2, "nodeIds": [20, 30], "ownerCellId": 100, "neighbourCellId": None},
+            {"id": 3, "nodeIds": [30, 10], "ownerCellId": 100, "neighbourCellId": 200},
+            {"id": 4, "nodeIds": [30, 40], "ownerCellId": 200, "neighbourCellId": None},
+            {"id": 5, "nodeIds": [40, 10], "ownerCellId": 200, "neighbourCellId": None},
+        ],
         "groups": [
-            {"id": "fluid", "name": "Fluid", "kind": "region", "dimension": 2, "memberIds": [100, 200]},
+            {"id": "fluid", "name": "Fluid", "kind": "region", "memberKind": "cell", "dimension": 2, "memberIds": [100, 200]},
+            {"id": "wall", "name": "Wall", "kind": "boundary", "memberKind": "face", "dimension": 1, "memberIds": [1, 2, 4, 5]},
         ],
         "provenance": {"sourceFormat": "gmsh-msh-4.1-ascii"},
     }
@@ -68,6 +76,18 @@ class MeshSnapshotContractTest(unittest.TestCase):
         snapshot = sample_snapshot()
         snapshot["groups"][0]["memberIds"].append(999)
         with self.assertRaisesRegex(MeshSnapshotError, "unknown cell ID"):
+            validate_snapshot(snapshot)
+
+    def test_rejects_face_with_unknown_owner_cell(self) -> None:
+        snapshot = sample_snapshot()
+        snapshot["faces"][0]["ownerCellId"] = 999
+        with self.assertRaisesRegex(MeshSnapshotError, "ownerCellId"):
+            validate_snapshot(snapshot)
+
+    def test_boundary_group_references_faces_not_cells(self) -> None:
+        snapshot = sample_snapshot()
+        snapshot["groups"][1]["memberIds"] = [100]
+        with self.assertRaisesRegex(MeshSnapshotError, "unknown face ID"):
             validate_snapshot(snapshot)
 
     def test_rejects_duplicate_group_ids(self) -> None:
