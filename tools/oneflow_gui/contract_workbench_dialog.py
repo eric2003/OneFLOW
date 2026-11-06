@@ -700,7 +700,8 @@ class ContractDomainDialog(QDialog):
                 continue
             sections.append(content.rstrip())
             sections.append("")
-        return "\\n".join(sections).rstrip()
+        return "\n".join(sections).rstrip()
+
     def _select_contract(self, row: int) -> None:
         if row < 0:
             return
