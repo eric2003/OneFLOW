@@ -116,8 +116,22 @@ class MeshContractDialog(QDialog):
 
         self.tabs = QTabWidget()
         for name, description in self._DOMAIN_TEXT.items():
+            if name == "Code":
+                description = self._read_repository_files(
+                    ("tools/mesh_contracts/snapshot.py", "codes/geometry/src/GridConversion.cpp"),
+                    max_chars=24000,
+                )
+            elif name == "Documentation":
+                description = self._read_repository_files(
+                    ("doc/source/mesh_architecture.rst", "doc/source/gmsh_interface.rst")
+                )
             view = QPlainTextEdit(description)
             view.setReadOnly(True)
+            view.setLineWrapMode(
+                QPlainTextEdit.LineWrapMode.NoWrap
+                if name == "Code"
+                else QPlainTextEdit.LineWrapMode.WidgetWidth
+            )
             self.tabs.addTab(view, name)
 
         topology_page = QWidget()
@@ -158,6 +172,28 @@ class MeshContractDialog(QDialog):
         close_button.clicked.connect(self.accept)
         root.addWidget(close_button)
 
+    def _read_repository_files(
+        self, paths: tuple[str, ...], *, max_chars: int | None = None
+    ) -> str:
+        """Read declared source/documentation files without allowing root escape."""
+        root = self._repository_root.resolve()
+        sections: list[str] = []
+        for relative in paths:
+            sections.extend((f"File: {relative}", "=" * (6 + len(relative)), ""))
+            candidate = (root / relative).resolve()
+            try:
+                candidate.relative_to(root)
+                content = candidate.read_text(encoding="utf-8")
+            except (ValueError, OSError, UnicodeError) as error:
+                sections.append(f"Unavailable: {type(error).__name__}: {error}")
+                sections.append("")
+                continue
+            if max_chars is not None and len(content) > max_chars:
+                content = content[:max_chars] + "\n\n[Preview truncated; open the source file for the complete content.]"
+            sections.append(content.rstrip())
+            sections.append("")
+        return "\n".join(sections).rstrip()
+
     def _open_snapshot(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
             self,
@@ -185,13 +221,13 @@ class MeshContractDialog(QDialog):
         self._snapshot = payload
         self.snapshot_path_label.setText(str(path))
         self.validation_view.setPlainText(
-            "PASSED — MeshSnapshot schema and declared invariants validated.\\n"
-            f"Dimension: {payload['dimension']}\\n"
-            f"Nodes: {len(payload['nodes'])}\\n"
-            f"Cells: {len(payload['cells'])}\\n"
-            f"Faces: {len(payload['faces'])}\\n"
-            f"Groups: {len(payload['groups'])}\\n"
-            f"Source: {payload['provenance']['sourceFormat']}\\n\\n"
+            "PASSED — MeshSnapshot schema and declared invariants validated.\n"
+            f"Dimension: {payload['dimension']}\n"
+            f"Nodes: {len(payload['nodes'])}\n"
+            f"Cells: {len(payload['cells'])}\n"
+            f"Faces: {len(payload['faces'])}\n"
+            f"Groups: {len(payload['groups'])}\n"
+            f"Source: {payload['provenance']['sourceFormat']}\n\n"
             "This result validates the manifest only; it does not prove geometric "
             "quality, face orientation, complete incidence, boundary-condition "
             "semantics, or converter correctness."
