@@ -151,3 +151,28 @@ jobs:
               "$oneflow_exe" `
               "suites/ci-serial.txt"
         shell: pwsh
+
+      - name: Optional Gmsh-to-CGNS bootstrap grid regression
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_optional_grid_regression }}
+        env:
+          ONEFLOW_ROOT: ${{ github.workspace }}/install
+          HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
+          CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $oneflow_exe = "$env:ONEFLOW_ROOT/bin/OneFLOW.exe"
+          $runtime_paths = @(
+              "$env:ONEFLOW_ROOT/bin",
+              "$env:HDF5_ROOT/bin",
+              "$env:CGNS_ROOT/bin"
+          )
+          foreach ($runtime_path in $runtime_paths) {
+              if (Test-Path $runtime_path) {
+                  $env:Path = "$runtime_path;$env:Path"
+              }
+          }
+          python test/run_optional_gmsh_grid_regression.py --executable "$oneflow_exe"
+          if ($LASTEXITCODE -ne 0) {
+              throw "Optional Gmsh grid regression failed with exit code $LASTEXITCODE."
+          }
+        shell: pwsh
