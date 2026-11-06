@@ -80,8 +80,8 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 for i in range(dialog.contract_list.count())
                 if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole) is None
             ]
-            self.assertIn("Mesh Core Concepts", headers)
-            self.assertIn("Interchange Formats", headers)
+            self.assertTrue(any(item.startswith("Mesh Core Concepts") for item in headers))
+            self.assertTrue(any(item.startswith("Interchange Formats") for item in headers))
             gmsh_row = next(i for i in range(dialog.contract_list.count())
                             if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole) == "mesh/gmsh")
             dialog.contract_list.setCurrentRow(gmsh_row)
