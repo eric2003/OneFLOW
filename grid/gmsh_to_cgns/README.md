@@ -7,9 +7,11 @@ ASCII MSH 2.x path. Binary MSH and MSH 4.0 are not currently supported.
 MSH 4.1 ASCII conversion writes a real CGNS unstructured Zone for supported
 first-order top-dimensional cells. It also maps first-order elements from
 the immediately lower dimension through Gmsh Entities and Physical Names
-into CGNS boundary element sections and BC_t point lists. Physical group
-names are retained with BCTypeUserDefined; they are not inferred to be
-solver-specific wall, inlet, or outlet conditions. The writer reuses
+into CGNS boundary element sections and BC_t point lists. The conversion recognizes
+explicit Physical Group names `inflow`, `outflow`, `symmetry` (also accepts
+the legacy misspelling `symmtry`), and `farfield`, mapping them to the
+corresponding CGNS `BCType_t` values. Unrecognized names remain
+`BCTypeUserDefined`; names are never guessed from geometry or position. The writer reuses
 OneFLOW's Su2Grid::FillSU2CgnsZone() and CgnsFactory / CgnsZbase paths.
 The bundled square sample writes four nodes, two TRI_3 cells, four BAR_2
 boundary elements, and one named boundary record.
@@ -85,5 +87,67 @@ coordinate, cell-section, boundary-section and BC_t data.
 - Maps first-order LINE_2, TRI_3, QUAD_4, TETRA_4, HEXA_8, PENTA_6 and PYRA_5 top-dimensional cells.
 - Preserves source node ordering and maps sparse node tags before CGNS one-based numbering.
 - Writes coordinates, top-dimensional cell sections, supported codimension-one boundary sections, BC_t point lists, and a read-report sidecar.
-- Preserves physical group names as CGNS boundary labels with BCTypeUserDefined; no solver boundary condition is inferred.
+- Maps the explicit names inflow, outflow, symmetry/symmtry, and farfield to CGNS BCInflow, BCOutflow, BCSymmetryPlane, and BCFarfield. Other names remain BCTypeUserDefined.
 - MSH 2.x is parsed but not yet materialized for CGNS output. High-order cells, periodicity, and partition metadata are not yet mapped.
+
+
+## Boundary semantic mapping
+
+The current two-dimensional square fixture defines four separate curve
+Physical Groups. Their names are the explicit semantic contract consumed by
+the conversion adapter:
+
+| Physical Group | Geometric edge | CGNS BCType_t |
+|---|---|---|
+| `inflow` | Left | `BCInflow` |
+| `outflow` | Right | `BCOutflow` |
+| `symmetry` | Bottom | `BCSymmetryPlane` |
+| `farfield` | Top | `BCFarfield` |
+
+The converter does not infer these labels from coordinates. If a group has an
+unrecognized name, its CGNS type remains `BCTypeUserDefined`. The original
+Physical Group name is retained as the BC_t name. This is a format conversion
+mapping only; flow values and solver-specific boundary state data are not
+created by this mapping.
+
+
+## Small-mesh example and test strategy
+
+Keep this directory as the manual, end-to-end Case. Grow its examples as
+small, focused MSH fixtures rather than large CFD meshes. A proposed layout is:
+
+```text
+grid/gmsh_to_cgns/
+  grid/square.msh                 # current 2-D conversion + four BC semantics
+  examples/
+    read_only/                    # parser coverage; no CGNS writer required
+    convert_2d/                   # TRI_3 and QUAD_4
+    convert_3d/                   # TETRA_4, HEXA_8, PENTA_6, PYRA_5
+    higher_order_read_only/       # TRI_6, TETRA_10, etc.; parse only initially
+    invalid/                      # malformed references and unsupported cases
+```
+
+Use the smallest topology that proves each contract: one triangle for a basic
+read, a four-node square for 2-D boundary semantics, one tetrahedron with four
+triangular faces for 3-D boundary handling, and one cell per additional volume
+family. High-order fixtures should initially verify parsing and ordered node
+connectivity only; conversion tests must expect a clear unsupported-element
+diagnostic until high-order CGNS mapping is implemented.
+
+Separate the automated checks into three layers:
+
+1. **Reader tests**: format/version, sparse node tags, entity ownership,
+   Physical Group membership, element type and node count, ordered
+   connectivity, and malformed-input diagnostics. These tests do not require
+   CGNS.
+2. **Conversion round-trip tests**: write a temporary CGNS file, reopen it
+   through the CGNS API, and compare Base/Zone dimensions, coordinates,
+   element sections, connectivity, BC_t names, BCType_t values, and point lists.
+   Keep fixtures tiny and deterministic so these tests are suitable for CI.
+3. **Manual Case tests**: exercise the complete Case entry point, result
+   reports, and GUI workflow. Do not make large or experimental GUI Cases
+   prerequisites for the fast parser unit tests.
+
+Each fixture should state the exact capability it proves and its expected
+node/element/section counts. Avoid one oversized mesh that mixes many
+features: separate tiny fixtures make failures local and diagnostics clear.

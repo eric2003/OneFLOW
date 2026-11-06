@@ -33,6 +33,7 @@ License
 #include <filesystem>
 #include <algorithm>
 #include <cmath>
+#include <cctype>
 #include <fstream>
 #include <iterator>
 #include <sstream>
@@ -310,6 +311,28 @@ namespace
         }
     }
 
+    int GmshPhysicalNameToCgnsBcType( const std::string & physicalName )
+    {
+        std::string key;
+        for ( unsigned char ch : physicalName )
+        {
+            if ( std::isalnum( ch ) )
+                key.push_back( static_cast< char >( std::tolower( ch ) ) );
+        }
+
+        if ( key == "inflow" )
+            return static_cast< int >( CGNS_ENUMV( BCInflow ) );
+        if ( key == "outflow" )
+            return static_cast< int >( CGNS_ENUMV( BCOutflow ) );
+        if ( key == "symmetry" || key == "symmetryplane" ||
+             key == "symmtry" || key == "symmtryplane" )
+            return static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) );
+        if ( key == "farfield" )
+            return static_cast< int >( CGNS_ENUMV( BCFarfield ) );
+
+        return static_cast< int >( CGNS_ENUMV( BCTypeUserDefined ) );
+    }
+
     Su2Grid BuildSu2GridFromGmsh( const GmshMesh & mesh, int & cellDimension )
     {
         if ( mesh.nodes.empty() || mesh.elements.empty() )
@@ -382,7 +405,7 @@ namespace
             if (marker.name.size() > 32)
                 throw std::runtime_error("Gmsh physical group name exceeds the CGNS 32-character limit: " + marker.name);
             marker.bcName = "GmshPhysicalGroup";
-            marker.cgns_bcType = static_cast<int>(CGNS_ENUMV(BCTypeUserDefined));
+            marker.cgns_bcType = GmshPhysicalNameToCgnsBcType( marker.name );
             for (const auto & boundaryElement : group.second)
             {
                 marker.eTypes.push_back(boundaryElement.first);

@@ -434,3 +434,29 @@ The existing SU2-to-OneFLOW runtime path still requests zero-based internal
 normalization. This distinction is explicit in the FillSU2CgnsZone option
 so the same zone-population logic can serve both runtime ingestion and file
 writing without corrupting CGNS element IDs.
+
+
+Gmsh Physical Group boundary semantics
+--------------------------------------
+
+The bundled two-dimensional Gmsh conversion Case now uses four named curve
+Physical Groups: `inflow` on the left edge, `outflow` on the right edge,
+`symmetry` on the bottom edge, and `farfield` on the top edge. The
+conversion adapter maps these explicit names to CGNS `BCInflow`,
+`BCOutflow`, `BCSymmetryPlane`, and `BCFarfield`, respectively. The
+historical misspelling `symmtry` is accepted as an input alias, while
+`symmetry` is the canonical sample spelling.
+
+This is a name-based semantic mapping, not geometric inference. Unrecognized
+Physical Group names remain `BCTypeUserDefined`; the converter does not
+invent a wall/inlet/outlet classification from edge coordinates. The
+round-trip test independently reads all four BC_t records and verifies both
+their CGNS type and the edge connectivity referenced by each PointList.
+
+Small Gmsh fixtures should be organized by the capability they prove:
+parser-only meshes, supported first-order 2-D and 3-D conversion meshes,
+higher-order read-only meshes, and malformed/unsupported inputs. Use one
+cell (or the minimum connected patch needed) per element family. Reader
+tests should not depend on CGNS; conversion tests should write to a temporary
+directory and independently reopen the result with the CGNS API; the manual
+Case should remain the end-to-end GUI and report-generation path.

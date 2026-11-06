@@ -3,6 +3,7 @@
 #include "GridTypes.h"
 #include "HXCgns.h"
 #include <chrono>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -131,26 +132,62 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
 
     int bocoCount = 0;
     ASSERT_EQ(cg_nbocos(fileId, 1, 1, &bocoCount), CG_OK);
-    ASSERT_EQ(bocoCount, 1);
-    char bocoName[33] = {};
-    BCType_t bocoType = BCTypeNull;
-    PointSetType_t pointSetType = PointSetTypeNull;
-    cgsize_t pointCount = 0;
-    int normalIndex[3] = {};
-    cgsize_t normalListSize = 0;
-    DataType_t normalDataType = DataTypeNull;
-    int dataSetCount = 0;
-    ASSERT_EQ(cg_boco_info(fileId, 1, 1, 1, bocoName, &bocoType,
-                           &pointSetType, &pointCount, normalIndex,
-                           &normalListSize, &normalDataType, &dataSetCount), CG_OK);
-    EXPECT_STREQ(bocoName, "outer boundary");
-    EXPECT_EQ(bocoType, BCTypeUserDefined);
-    EXPECT_EQ(pointSetType, PointList);
-    EXPECT_EQ(pointCount, 4);
-    cgsize_t boundaryElements[4] = {};
-    ASSERT_EQ(cg_boco_read(fileId, 1, 1, 1, boundaryElements, nullptr), CG_OK);
-    EXPECT_EQ(std::vector<cgsize_t>(boundaryElements, boundaryElements + 4),
-              (std::vector<cgsize_t>{3, 4, 5, 6}));
+    ASSERT_EQ(bocoCount, 4);
+    cgsize_t boundaryConnectivity[8] = {};
+    ASSERT_EQ(cg_elements_read(fileId, 1, 1, 2, boundaryConnectivity, nullptr), CG_OK);
+
+    struct ExpectedBoundary
+    {
+        const char * name;
+        BCType_t type;
+        cgsize_t nodeA;
+        cgsize_t nodeB;
+    };
+    const std::vector<ExpectedBoundary> expectedBoundaries{
+        {"inflow", BCInflow, 4, 1},
+        {"outflow", BCOutflow, 2, 3},
+        {"symmetry", BCSymmetryPlane, 1, 2},
+        {"farfield", BCFarfield, 3, 4}
+    };
+    std::vector<cgsize_t> observedBoundaryElementIds;
+    for (int bocoIndex = 1; bocoIndex <= bocoCount; ++bocoIndex)
+    {
+        char bocoName[33] = {};
+        BCType_t bocoType = BCTypeNull;
+        PointSetType_t pointSetType = PointSetTypeNull;
+        cgsize_t pointCount = 0;
+        int normalIndex[3] = {};
+        cgsize_t normalListSize = 0;
+        DataType_t normalDataType = DataTypeNull;
+        int dataSetCount = 0;
+        ASSERT_EQ(cg_boco_info(fileId, 1, 1, bocoIndex, bocoName, &bocoType,
+                               &pointSetType, &pointCount, normalIndex,
+                               &normalListSize, &normalDataType, &dataSetCount), CG_OK);
+        ASSERT_EQ(pointSetType, PointList);
+        ASSERT_EQ(pointCount, 1);
+        cgsize_t boundaryElementId = 0;
+        ASSERT_EQ(cg_boco_read(fileId, 1, 1, bocoIndex, &boundaryElementId, nullptr), CG_OK);
+        observedBoundaryElementIds.push_back(boundaryElementId);
+
+        const auto expected = std::find_if(
+            expectedBoundaries.begin(), expectedBoundaries.end(),
+            [bocoName](const ExpectedBoundary & item) {
+                return std::string(item.name) == bocoName;
+            });
+        ASSERT_NE(expected, expectedBoundaries.end()) << "Unexpected BC_t name: " << bocoName;
+        EXPECT_EQ(bocoType, expected->type);
+        ASSERT_GE(boundaryElementId, 3);
+        ASSERT_LE(boundaryElementId, 6);
+        const std::size_t connectivityOffset =
+            static_cast<std::size_t>(boundaryElementId - 3) * 2;
+        const cgsize_t node0 = boundaryConnectivity[connectivityOffset];
+        const cgsize_t node1 = boundaryConnectivity[connectivityOffset + 1];
+        EXPECT_EQ(std::minmax(node0, node1),
+                  std::minmax(expected->nodeA, expected->nodeB))
+            << "Boundary group does not reference its expected geometric edge: " << bocoName;
+    }
+    std::sort(observedBoundaryElementIds.begin(), observedBoundaryElementIds.end());
+    EXPECT_EQ(observedBoundaryElementIds, (std::vector<cgsize_t>{3, 4, 5, 6}));
     EXPECT_EQ(cg_close(fileId), CG_OK);
 
     std::filesystem::remove_all(caseDirectory);
