@@ -271,6 +271,68 @@ TEST( GmshGridConversionTest, Msh2AsciiWritesExplicitPlaceholderArtifact )
     std::filesystem::remove_all( root );
 }
 
+TEST( GmshGridConversionTest, Msh41AsciiSupportsSparseNodeTagsAndElementBlocks )
+{
+    const auto root = std::filesystem::temp_directory_path() / ("oneflow_gmsh41_test_" + std::to_string( std::chrono::steady_clock::now().time_since_epoch().count() ));
+    std::filesystem::remove_all( root );
+    std::filesystem::create_directories( root / "grid" );
+    {
+        std::ofstream mesh( root / "grid" / "square.msh", std::ios::binary );
+        mesh << "$MeshFormat\\n4.1 0 8\\n$EndMeshFormat\\n"
+             << "$Nodes\\n4 4 10 40\\n"
+             << "1 2 0 4\\n"
+             << "10 20 30 40\\n"
+             << "0 0 0\\n1 0 0\\n1 1 0\\n0 1 0\\n"
+             << "$EndNodes\\n"
+             << "$Elements\\n1 2 100 101\\n"
+             << "2 1 2 2\\n"
+             << "100 10 20 30\\n101 10 30 40\\n"
+             << "$EndElements\\n";
+    }
+
+    GridConfig config;
+    config.sourceType = GridFileType::Gmsh;
+    config.targetType = GridFileType::CGNS;
+    config.sourceCaseDir = root.string();
+    config.sourceFile = "grid/square.msh";
+    config.targetFile = "results/square.cgns";
+    EXPECT_NO_THROW( ConvertGrid( config, root.string() ) );
+
+    {
+        std::ifstream output( root / "results" / "square.cgns" );
+        ASSERT_TRUE( output );
+        const std::string outputText{ std::istreambuf_iterator<char>( output ), std::istreambuf_iterator<char>() };
+        EXPECT_NE( outputText.find( "gmsh_version=4.1" ), std::string::npos );
+        EXPECT_NE( outputText.find( "node_count=4" ), std::string::npos );
+        EXPECT_NE( outputText.find( "element_count=2" ), std::string::npos );
+        EXPECT_NE( outputText.find( "element_type_counts=2:2" ), std::string::npos );
+        EXPECT_NE( outputText.find( "geometry_entities_and_physical_groups=not_yet_preserved" ), std::string::npos );
+    }
+    std::filesystem::remove_all( root );
+}
+
+TEST( GmshGridConversionTest, Msh41RejectsUnknownNodeReferences )
+{
+    const auto root = std::filesystem::temp_directory_path() / ("oneflow_gmsh41_invalid_test_" + std::to_string( std::chrono::steady_clock::now().time_since_epoch().count() ));
+    std::filesystem::remove_all( root );
+    std::filesystem::create_directories( root / "grid" );
+    {
+        std::ofstream mesh( root / "grid" / "invalid.msh" );
+        mesh << "$MeshFormat\\n4.1 0 8\\n$EndMeshFormat\\n"
+             << "$Nodes\\n1 3 1 3\\n1 2 0 3\\n1 2 3\\n"
+             << "0 0 0\\n1 0 0\\n0 1 0\\n$EndNodes\\n"
+             << "$Elements\\n1 1 1 1\\n2 1 2 1\\n1 1 2 99\\n$EndElements\\n";
+    }
+    GridConfig config;
+    config.sourceType = GridFileType::Gmsh;
+    config.targetType = GridFileType::CGNS;
+    config.sourceCaseDir = root.string();
+    config.sourceFile = "grid/invalid.msh";
+    config.targetFile = "results/out.cgns";
+    EXPECT_THROW( ConvertGrid( config, root.string() ), std::runtime_error );
+    std::filesystem::remove_all( root );
+}
+
 TEST( GmshGridConversionTest, RejectsBinaryMsh2 )
 {
     const auto root = std::filesystem::temp_directory_path() / ("oneflow_gmsh_binary_test_" + std::to_string( std::chrono::steady_clock::now().time_since_epoch().count() ));
