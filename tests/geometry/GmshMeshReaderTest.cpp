@@ -3,6 +3,9 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <iterator>
+#include <sstream>
 namespace {
 const std::string mesh=R"MSH($MeshFormat
 4.1 0 8
@@ -55,4 +58,42 @@ TEST(GmshMeshReaderTest, RejectsUnknownNodeReferences) {
 TEST(GmshMeshReaderTest, RejectsUnsupportedElementTypes) {
  auto bad=mesh;auto p=bad.find("2 1 2 2");ASSERT_NE(p,std::string::npos);bad.replace(p,7,"2 1 99 2");
  EXPECT_THROW(ONEFLOW::ReadGmsh41AsciiMesh(bad),std::runtime_error);
+}
+
+
+TEST(GmshMeshReaderTest, ReadsBundledSquareMshFileAndBuildsDiagnosticReport) {
+    const std::string path =
+        std::string(ONEFLOW_SOURCE_DIR) + "/grid/gmsh_to_cgns/grid/square.msh";
+    std::ifstream input(path);
+    ASSERT_TRUE(input.good()) << path;
+    const std::string content{
+        std::istreambuf_iterator<char>(input),
+        std::istreambuf_iterator<char>()
+    };
+    const auto mesh = ONEFLOW::ReadGmsh41AsciiMesh(content);
+    ASSERT_EQ(mesh.nodes.size(), 4u);
+    ASSERT_EQ(mesh.elements.size(), 6u);
+    ASSERT_EQ(mesh.nodeTagToIndex.size(), 4u);
+    EXPECT_EQ(mesh.nodeTagToIndex.at(10), 0u);
+    EXPECT_EQ(mesh.nodeTagToIndex.at(40), 3u);
+    EXPECT_EQ(mesh.nodes.at(mesh.nodeTagToIndex.at(30)).tag, 30);
+
+    const auto report = ONEFLOW::BuildGmshMeshReadReport(mesh);
+    EXPECT_EQ(report.nodeCount, 4u);
+    EXPECT_EQ(report.elementCount, 6u);
+    EXPECT_EQ(report.elementTypeCounts.at(1), 4u);
+    EXPECT_EQ(report.elementTypeCounts.at(2), 2u);
+    EXPECT_EQ(report.triangleCount, 2u);
+    EXPECT_EQ(report.degenerateTriangleCount, 0u);
+    EXPECT_EQ(report.positiveXYTriangleCount, 2u);
+    EXPECT_DOUBLE_EQ(report.minimumCoordinates[0], 0.0);
+    EXPECT_DOUBLE_EQ(report.maximumCoordinates[0], 1.0);
+    EXPECT_DOUBLE_EQ(report.minimumCoordinates[1], 0.0);
+    EXPECT_DOUBLE_EQ(report.maximumCoordinates[1], 1.0);
+    EXPECT_DOUBLE_EQ(report.minimumTriangleArea, 0.5);
+    EXPECT_DOUBLE_EQ(report.maximumTriangleArea, 0.5);
+
+    const std::string json = ONEFLOW::GmshMeshReadReportToJson(report);
+    EXPECT_NE(json.find("\"status\": \"READ_SUCCESS\""), std::string::npos);
+    EXPECT_NE(json.find("\"physical_groups\": \"NOT_YET_PARSED\""), std::string::npos);
 }

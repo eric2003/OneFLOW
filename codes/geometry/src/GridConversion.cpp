@@ -39,6 +39,7 @@ License
 #include <vector>
 #include <stdexcept>
 #include <string>
+#include <iostream>
 
 BeginNameSpace( ONEFLOW )
 
@@ -322,7 +323,28 @@ namespace
                 {
                     summary = ReadGmsh41Ascii( content );
                     const GmshMesh mesh = ReadGmsh41AsciiMesh( content );
-                    if ( static_cast<long long>(mesh.nodes.size()) != summary.nodeCount || static_cast<long long>(mesh.elements.size()) != summary.elementCount ) throw std::runtime_error("Gmsh value reader count mismatch");
+                    if ( static_cast<long long>(mesh.nodes.size()) != summary.nodeCount ||
+                         static_cast<long long>(mesh.elements.size()) != summary.elementCount )
+                        throw std::runtime_error( "Gmsh value reader count mismatch" );
+
+                    const GmshMeshReadReport report = BuildGmshMeshReadReport( mesh );
+                    if ( ! target.parent_path().empty() )
+                        std::filesystem::create_directories( target.parent_path() );
+                    std::filesystem::path reportPath = target;
+                    reportPath.replace_extension( ".gmsh-read-report.json" );
+                    std::ofstream reportOutput( reportPath, std::ios::trunc );
+                    if ( ! reportOutput )
+                        throw std::runtime_error( "Cannot create Gmsh read report: " + reportPath.string() );
+                    reportOutput << GmshMeshReadReportToJson( report );
+                    if ( ! reportOutput )
+                        throw std::runtime_error( "Failed writing Gmsh read report: " + reportPath.string() );
+
+                    std::cout << "Gmsh MSH " << report.version << " read successfully: "
+                              << report.nodeCount << " nodes, " << report.elementCount
+                              << " elements; TRI_3=" << report.triangleCount
+                              << ", degenerate TRI_3=" << report.degenerateTriangleCount
+                              << std::endl;
+                    std::cout << "Gmsh read report: " << reportPath.string() << std::endl;
                 }
                 else if ( version >= 2.0 && version < 3.0 )
                 {

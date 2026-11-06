@@ -47,3 +47,18 @@ is used; the reader depends only on the MSH file format.
 ## MSH 4.1 reader progress
 
 The C++ reader now materializes node coordinates, source node and element IDs, geometric entity ownership, element types, and ordered connectivity in a GmshMesh value model. A focused GTest covers the square-mesh shape and malformed references. The conversion entry point invokes this reader and cross-checks its counts. The value model is not yet mapped into UnsGrid or a CGNS zone; MSH 2.x remains on the validation-only path.
+
+
+## Read diagnostics
+
+For MSH 4.1 ASCII input, the conversion entry point now writes a companion
+`*.gmsh-read-report.json` next to the configured output. The console reports
+the parsed node/element totals and TRI_3 geometry summary. The report includes
+source tag ranges, coordinate bounds, element-type counts, TRI_3 area and XY
+orientation statistics, and explicit validation states.
+
+`READ_SUCCESS` means the reader accepted the file structure, preserved the
+source node tags and ordered connectivity, and passed its structural checks.
+It does not mean that Physical Groups have been mapped or that a CGNS file
+has been produced. The current `.cgns` output remains a clearly marked
+non-CGNS placeholder until the existing OneFLOW CGNS Zone path is connected.

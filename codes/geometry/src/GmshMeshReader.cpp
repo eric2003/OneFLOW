@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <iomanip>
+#include <map>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_set>
@@ -53,7 +55,8 @@ GmshMesh ReadGmsh41AsciiMesh(const std::string& content) {
   if(dim<0||dim>3||ent<1||(param!=0&&param!=1)||count<0)throw std::runtime_error("Invalid Gmsh node block");
   std::vector<long long> ids;ids.reserve(static_cast<std::size_t>(count));
   for(long long k=0;k<count;++k){long long id=r.i(p,"node tag");if(id<1||!nodeIds.insert(id).second)throw std::runtime_error("Duplicate or invalid Gmsh node tag");ids.push_back(id);omin=std::min(omin,id);omax=std::max(omax,id);}
-  for(long long k=0;k<count;++k){GmshNode n;n.tag=ids[static_cast<std::size_t>(k)];n.entityDimension=static_cast<int>(dim);n.entityTag=ent;for(double& x:n.coordinates)x=r.r(p,"coordinate");for(long long a=0;a<(param?dim:0);++a)n.parametricCoordinates.push_back(r.r(p,"parametric coordinate"));m.nodes.push_back(std::move(n));}
+  for(long long k=0;k<count;++k){GmshNode n;n.tag=ids[static_cast<std::size_t>(k)];n.entityDimension=static_cast<int>(dim);n.entityTag=ent;for(double& x:n.coordinates)x=r.r(p,"coordinate");for(long long a=0;a<(param?dim:0);++a)n.parametricCoordinates.push_back(r.r(p,"parametric coordinate"));m.nodeTagToIndex.emplace(n.tag, m.nodes.size());
+   m.nodes.push_back(std::move(n));}
  }
  if(static_cast<long long>(m.nodes.size())!=nn||omin!=nmin||omax!=nmax)throw std::runtime_error("Gmsh node totals or tag range mismatch");r.end(p,"$EndNodes");
  std::unordered_set<long long> elemIds;p=r.section("$Elements");
@@ -69,3 +72,132 @@ GmshMesh ReadGmsh41AsciiMesh(const std::string& content) {
  if(static_cast<long long>(m.elements.size())!=ne||oeMin!=emin||oeMax!=emax)throw std::runtime_error("Gmsh element totals or tag range mismatch");r.end(p,"$EndElements");return m;
 }
 }
+
+
+namespace ONEFLOW {
+
+GmshMeshReadReport BuildGmshMeshReadReport(const GmshMesh& mesh) {
+    GmshMeshReadReport report;
+    report.version = mesh.version;
+    report.nodeCount = mesh.nodes.size();
+    report.elementCount = mesh.elements.size();
+    if (!mesh.nodes.empty()) {
+        report.minimumNodeTag = mesh.nodes.front().tag;
+        report.maximumNodeTag = mesh.nodes.front().tag;
+        report.minimumCoordinates = mesh.nodes.front().coordinates;
+        report.maximumCoordinates = mesh.nodes.front().coordinates;
+        for (const GmshNode& node : mesh.nodes) {
+            report.minimumNodeTag = std::min(report.minimumNodeTag, node.tag);
+            report.maximumNodeTag = std::max(report.maximumNodeTag, node.tag);
+            for (std::size_t axis = 0; axis < 3; ++axis) {
+                report.minimumCoordinates[axis] =
+                    std::min(report.minimumCoordinates[axis], node.coordinates[axis]);
+                report.maximumCoordinates[axis] =
+                    std::max(report.maximumCoordinates[axis], node.coordinates[axis]);
+            }
+        }
+    }
+    if (!mesh.elements.empty()) {
+        report.minimumElementTag = mesh.elements.front().tag;
+        report.maximumElementTag = mesh.elements.front().tag;
+        for (const GmshElement& element : mesh.elements) {
+            report.minimumElementTag = std::min(report.minimumElementTag, element.tag);
+            report.maximumElementTag = std::max(report.maximumElementTag, element.tag);
+            ++report.elementTypeCounts[element.type];
+            if (element.type != 2 || element.nodeTags.size() != 3) continue;
+            ++report.triangleCount;
+            const auto a = mesh.nodeTagToIndex.find(element.nodeTags[0]);
+            const auto b = mesh.nodeTagToIndex.find(element.nodeTags[1]);
+            const auto c = mesh.nodeTagToIndex.find(element.nodeTags[2]);
+            if (a == mesh.nodeTagToIndex.end() ||
+                b == mesh.nodeTagToIndex.end() ||
+                c == mesh.nodeTagToIndex.end()) {
+                throw std::runtime_error("Cannot report TRI_3 with unresolved node tag");
+            }
+            const auto& p0 = mesh.nodes[a->second].coordinates;
+            const auto& p1 = mesh.nodes[b->second].coordinates;
+            const auto& p2 = mesh.nodes[c->second].coordinates;
+            const double ux = p1[0] - p0[0];
+            const double uy = p1[1] - p0[1];
+            const double uz = p1[2] - p0[2];
+            const double vx = p2[0] - p0[0];
+            const double vy = p2[1] - p0[1];
+            const double vz = p2[2] - p0[2];
+            const double cx = uy * vz - uz * vy;
+            const double cy = uz * vx - ux * vz;
+            const double cz = ux * vy - uy * vx;
+            const double area = 0.5 * std::sqrt(cx * cx + cy * cy + cz * cz);
+            const double signedXYArea = 0.5 * (ux * vy - uy * vx);
+            const double scale = std::max({
+                report.maximumCoordinates[0] - report.minimumCoordinates[0],
+                report.maximumCoordinates[1] - report.minimumCoordinates[1],
+                report.maximumCoordinates[2] - report.minimumCoordinates[2]
+            });
+            const double areaTolerance =
+                64.0 * std::numeric_limits<double>::epsilon() * scale * scale;
+            if (area <= areaTolerance) ++report.degenerateTriangleCount;
+            if (signedXYArea > areaTolerance) ++report.positiveXYTriangleCount;
+            else if (signedXYArea < -areaTolerance) ++report.negativeXYTriangleCount;
+            if (report.triangleCount == 1) {
+                report.minimumTriangleArea = area;
+                report.maximumTriangleArea = area;
+            } else {
+                report.minimumTriangleArea = std::min(report.minimumTriangleArea, area);
+                report.maximumTriangleArea = std::max(report.maximumTriangleArea, area);
+            }
+        }
+    }
+    return report;
+}
+
+std::string GmshMeshReadReportToJson(const GmshMeshReadReport& report) {
+    std::ostringstream out;
+    out << std::setprecision(17);
+    out << "{\n"
+        << "  \"schema\": \"oneflow.gmsh-read-report\",\n"
+        << "  \"schema_version\": 1,\n"
+        << "  \"status\": \"READ_SUCCESS\",\n"
+        << "  \"format_version\": \"" << report.version << "\",\n"
+        << "  \"node_count\": " << report.nodeCount << ",\n"
+        << "  \"element_count\": " << report.elementCount << ",\n"
+        << "  \"node_tag_range\": [" << report.minimumNodeTag << ", "
+        << report.maximumNodeTag << "],\n"
+        << "  \"element_tag_range\": [" << report.minimumElementTag << ", "
+        << report.maximumElementTag << "],\n"
+        << "  \"coordinate_bounds\": {\n"
+        << "    \"minimum\": [" << report.minimumCoordinates[0] << ", "
+        << report.minimumCoordinates[1] << ", " << report.minimumCoordinates[2] << "],\n"
+        << "    \"maximum\": [" << report.maximumCoordinates[0] << ", "
+        << report.maximumCoordinates[1] << ", " << report.maximumCoordinates[2] << "]\n"
+        << "  },\n"
+        << "  \"element_type_counts\": {";
+    bool first = true;
+    for (const auto& entry : report.elementTypeCounts) {
+        if (!first) out << ",";
+        out << "\n    \"" << entry.first << "\": " << entry.second;
+        first = false;
+    }
+    if (!first) out << "\n  ";
+    out << "},\n"
+        << "  \"tri_3_geometry\": {\n"
+        << "    \"count\": " << report.triangleCount << ",\n"
+        << "    \"degenerate_count\": " << report.degenerateTriangleCount << ",\n"
+        << "    \"positive_xy_orientation_count\": " << report.positiveXYTriangleCount << ",\n"
+        << "    \"negative_xy_orientation_count\": " << report.negativeXYTriangleCount << ",\n"
+        << "    \"minimum_area\": " << report.minimumTriangleArea << ",\n"
+        << "    \"maximum_area\": " << report.maximumTriangleArea << "\n"
+        << "  },\n"
+        << "  \"validation\": {\n"
+        << "    \"unique_source_tags\": \"PASS\",\n"
+        << "    \"node_references\": \"PASS\",\n"
+        << "    \"finite_coordinates\": \"PASS\",\n"
+        << "    \"connectivity_arity\": \"PASS\",\n"
+        << "    \"physical_groups\": \"NOT_YET_PARSED\",\n"
+        << "    \"cgns_round_trip\": \"NOT_YET_AVAILABLE\"\n"
+        << "  }\n"
+        << "}\n";
+    return out.str();
+}
+
+
+} // namespace ONEFLOW

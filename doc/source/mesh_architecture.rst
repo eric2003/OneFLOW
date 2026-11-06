@@ -359,3 +359,28 @@ Gmsh reader implementation milestone
 ------------------------------------
 
 The MSH 4.1 reader now materializes coordinates, source IDs, geometric entity ownership, element types, and ordered connectivity in a C++ GmshMesh value model. A focused GTest exercises the checked-in square mesh shape and malformed references. The conversion entry point invokes the reader and checks its counts against the existing summary. This is not yet a transfer into UnsGrid or a CGNS zone; the next code step is that mapping, not additional format catalog work.
+
+
+Gmsh MSH 4.1 read diagnostics
+-----------------------------
+
+The production C++ reader now maintains an explicit source-node-tag to
+zero-based node-position map while retaining each original Gmsh tag. This
+makes sparse source IDs safe for subsequent connectivity conversion without
+confusing identity with storage position.
+
+For a successfully parsed MSH 4.1 ASCII mesh, the conversion entry point
+writes a companion `*.gmsh-read-report.json`. The report contains source tag
+ranges, coordinate bounds, element-type counts, and TRI_3 geometric checks.
+Triangle area is computed from the three-dimensional cross-product magnitude;
+the signed XY projection is reported separately as an orientation diagnostic.
+A negative XY orientation is not automatically treated as a read failure.
+Degenerate triangles are counted using a scale-relative floating-point
+threshold.
+
+The report's `READ_SUCCESS` status means only that the current reader's
+structural checks passed. Physical groups, entity membership, solver boundary
+semantics, and CGNS round-trip validation remain explicitly unimplemented.
+The bundled `grid/gmsh_to_cgns/grid/square.msh` is read by a GTest through the
+same C++ reader, so the test validates the checked-in sample rather than only
+a synthetic in-memory string.
