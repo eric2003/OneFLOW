@@ -34,6 +34,7 @@ Mesh and engineering workflows
 ------------------------------
 
 * :doc:`mesh_architecture` — mesh information levels, snapshots, and format adapters.
+* :doc:`gmsh_interface` — Gmsh MSH 4.1-first input adapter, version support, semantic mapping, and conversion validation.
 * :doc:`grid_topology` — topology contracts, boundary normalization, and derived connectivity.
 * :doc:`face_stage_pipeline` — staged face write path, BC export, reorder contract, identity vs orientation.
 * `Grid case guide <https://github.com/eric2003/OneFLOW/blob/hexin/grid/README.md>`_ — mesh cases and conversion workflows.
@@ -143,6 +144,7 @@ The existing reference library covers programming languages, build systems, para
    database_architecture
    evolutionary_computation_architecture
    mesh_architecture
+   gmsh_interface
    grid_topology
    face_stage_pipeline
    workbench_architecture
