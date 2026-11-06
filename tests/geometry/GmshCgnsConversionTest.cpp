@@ -30,20 +30,20 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
 
     const std::filesystem::path caseDirectory = MakeTemporaryCaseDirectory();
     const std::filesystem::path input = caseDirectory / "square.msh";
-    const std::filesystem::path resultDirectory = caseDirectory / "result";
-    std::filesystem::create_directories(resultDirectory);
-    const std::filesystem::path output = resultDirectory / "square.cgns";
+    const std::filesystem::path resultsDirectory = caseDirectory / "results";
+    std::filesystem::create_directories(resultsDirectory);
+    const std::filesystem::path output = resultsDirectory / "square.cgns";
     const std::filesystem::path report =
-        resultDirectory / "square.gmsh-read-report.json";
+        resultsDirectory / "square.gmsh-read-report.json";
     const std::filesystem::path markdownReport =
-        resultDirectory / "square.gmsh-report.md";
+        resultsDirectory / "square.gmsh-report.md";
     std::filesystem::copy_file(source, input);
 
     ONEFLOW::GridConfig config;
     config.sourceType = ONEFLOW::GridFileType::Gmsh;
     config.targetType = ONEFLOW::GridFileType::CGNS;
     config.sourceFile = input.filename().string();
-    config.targetFile = (std::filesystem::path("result") / output.filename()).string();
+    config.targetFile = (std::filesystem::path("results") / output.filename()).string();
     ONEFLOW::ConvertGrid(config, caseDirectory.string());
 
     ASSERT_TRUE(std::filesystem::is_regular_file(output));

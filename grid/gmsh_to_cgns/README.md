@@ -63,7 +63,7 @@ path; high-order cells and periodic/partition metadata are not yet converted.
 ## Read diagnostics
 
 For MSH 4.1 ASCII input, the conversion entry point writes two companion
-reports next to the configured output: `*.gmsh-read-report.json` for
+reports under the Case `results/` directory: `*.gmsh-read-report.json` for
 machine-readable diagnostics and `*.gmsh-report.md` for a human-readable
 English inspection report. The Markdown report includes the overall summary,
 physical groups, geometric entities, element-type counts, node and element

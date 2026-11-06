@@ -531,7 +531,7 @@ namespace
         // Reports belong to the case result area, not beside source files or
         // in the repository. Keep this output local to the conversion case.
         const std::filesystem::path resultDirectory =
-            std::filesystem::path( caseDir ) / "result";
+            std::filesystem::path( caseDir ) / "results";
         std::filesystem::create_directories( resultDirectory );
         const std::string reportStem = target.stem().string();
         const std::filesystem::path jsonReportPath =

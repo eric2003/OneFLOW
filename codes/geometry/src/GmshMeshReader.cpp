@@ -355,6 +355,29 @@ std::string GmshMeshReportToMarkdown(
     for (const auto& item : report.elementTypeCounts)
         out << "| " << item.first << " | " << GmshElementTypeName(item.first) << " | " << item.second << " |\n";
 
+    auto cgnsElementTypeName = [](int type) -> const char* {
+        switch (type) {
+            case 1: return "BAR_2";
+            case 2: return "TRI_3";
+            case 3: return "QUAD_4";
+            case 4: return "TETRA_4";
+            case 5: return "HEXA_8";
+            case 6: return "PENTA_6";
+            case 7: return "PYRA_5";
+            default: return "UNSUPPORTED";
+        }
+    };
+    std::map<std::pair<int, std::string>, std::size_t> cgnsBoundaryCounts;
+    for (const auto& element : mesh.elements) {
+        if (element.entityDimension == dimension - 1)
+            ++cgnsBoundaryCounts[{element.type, cgnsElementTypeName(element.type)}];
+    }
+    out << "\\n## CGNS Boundary Element Sections\\n\\n"
+        << "| Gmsh type | CGNS section type | Count |\\n|---:|---|---:|\\n";
+    for (const auto& item : cgnsBoundaryCounts)
+        out << "| " << item.first.first << " | " << item.first.second
+            << " | " << item.second << " |\\n";
+
     const std::size_t limit = 30;
     out << "\n## Nodes ($Nodes)\n\nSource node tags are identifiers, not dense array indices. Original tags are retained while an internal index map is built.\n\n";
     out << "| Source tag | X | Y | Z | Entity (dimension:tag) |\n|---:|---:|---:|---:|---|\n";
