@@ -691,18 +691,10 @@ class ContractDomainDialog(QDialog):
             f"Kind: {summary.kind}\n"
             f"Status: {summary.status}\n\n"
             f"{summary.overview}\n\n"
-            + (
-                "Principle\n---------\n" + summary.principle + "\n\n"
-                if summary.domain == "parameter" and summary.principle.strip() else ""
-            )
-            + (
-                "Architecture\n------------\n" + summary.architecture + "\n\n"
-                if summary.domain == "parameter" and summary.architecture.strip() else ""
-            )
             + "Claims\n------\n"
-            + "\n".join(f"- {claim}" for claim in summary.claims)
+            + ("\n".join(f"- {claim}" for claim in summary.claims) or "No claims declared.")
             + "\n\nLimitations\n-----------\n"
-            + "\n".join(f"- {item}" for item in summary.limitations)
+            + ("\n".join(f"- {item}" for item in summary.limitations) or "No limitations declared.")
         )
         self.principle_view.setPlainText(summary.principle)
         self.architecture_view.setPlainText(summary.architecture)
