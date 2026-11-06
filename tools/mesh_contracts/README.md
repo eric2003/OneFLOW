@@ -32,3 +32,15 @@ python -m unittest tools.mesh_contracts.test_snapshot -v
 The next production step is to implement a C++ value snapshot from the runtime
 mesh and adapt Gmsh / Plot3D / SU2 readers to this contract without exposing
 format-specific types in Mesh Core.
+
+
+## Inspect in the GUI
+
+Open **Contract Workbench -> Mesh -> Open MeshSnapshot JSON...** and select
+`examples/square_snapshot.json`. The fixture contains four nodes, two
+triangles, five explicit faces, one region and one boundary group. It is a
+small contract/UI fixture, not a Gmsh conversion result and not a production
+Mesh Core export.
+
+The GUI reports MeshSnapshot validation separately from conversion execution.
+Loading this fixture must not mark any converter as executed.
