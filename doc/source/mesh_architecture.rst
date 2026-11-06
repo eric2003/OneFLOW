@@ -88,6 +88,67 @@ L0 summary output is the first practical step. It is metadata only: it does not 
 
 JSON is suitable for manifests and small metadata. Large numeric arrays may need compact typed payloads. JSON-library types should remain inside serialization adapters rather than leaking into the canonical mesh model.
 
+MeshSnapshot v1 interchange contract
+--------------------------------------
+
+The first executable interchange contract is available in
+`tools/mesh_contracts/snapshot.py`. It is deliberately a tooling-side
+manifest validator, not a replacement for the production C++ mesh container
+or a claim that runtime export is complete.
+
+The version-1 neutral data shape contains:
+
+* dimensioned nodes with positive IDs and finite coordinates;
+* cells with a declared element type and ordered node IDs;
+* faces with ordered node IDs, an owner cell, and an optional neighbour cell;
+* named region groups over cells and boundary/interface groups over faces;
+* source-format provenance.
+
+The validator accepts sparse source IDs: identity is not inferred from array
+position. It rejects duplicate IDs, invalid coordinate dimensions, non-finite
+coordinates, unsupported element arity/dimension, dangling connectivity,
+invalid face ownership, and group membership that crosses entity kinds.
+Connectivity order is retained; it is not sorted or normalized.
+
+The current contract does **not** establish geometric validity, cell closure,
+face orientation against the solver convention, complete cell-to-face
+incidence, boundary-condition meaning, partition/ghost semantics, or
+round-trip fidelity. A Gmsh Physical Group name is not itself a OneFLOW
+boundary condition. The adapter must preserve its name, dimension and
+membership first; a separate explicit mapping contract must assign solver
+semantics. The current manifest also does not carry source CAD entity identity
+or arbitrary high-order element interpolation nodes.
+
+Run the focused contract tests from the repository root:
+
+.. code-block:: bash
+
+   python -m unittest tools.mesh_contracts.test_snapshot -v
+
+The same tests are included in Linux and Windows Python CI. They validate the
+manifest contract only; they are not an experimental Gmsh Case regression.
+The latter remains a GUI manual test and is intentionally excluded from
+automatic GitHub execution.
+
+The intended adapter flow is:
+
+.. code-block:: text
+
+   Gmsh MSH 4.1 / Plot3D / SU2 / CGNS
+                    |
+             format-specific reader
+                    |
+          MeshSnapshot v1 validation
+                    |
+          explicit semantic mapping
+                    |
+             OneFLOW Mesh Core
+
+A future production C++ snapshot should implement the same semantics without
+making the Python validator or JSON representation a runtime dependency.
+The first C++ adapter should be read-only and value-based; it should not expose
+Gmsh handles or let format-specific IDs leak into solver-owned identity.
+
 Spatial search and point-location boundary
 --------------------------------------------
 
