@@ -60,6 +60,8 @@ TEST( GridTypesTest, ParseGridFileTypeCaseInsensitive )
     EXPECT_EQ( ParseGridFileType( "su2" ), GridFileType::SU2 );
     EXPECT_EQ( ParseGridFileType( "CGNS" ), GridFileType::CGNS );
     EXPECT_EQ( ParseGridFileType( "oneflow" ), GridFileType::OneFLOW );
+    EXPECT_EQ( ParseGridFileType( "gmsh" ), GridFileType::Gmsh );
+    EXPECT_EQ( ParseGridFileType( "GMSH" ), GridFileType::Gmsh );
     EXPECT_EQ( ParseGridFileType( "not-a-format" ), GridFileType::Unknown );
 }
 
@@ -69,6 +71,7 @@ TEST( GridTypesTest, ToStringRoundTripTokens )
     EXPECT_EQ( ToString( GridFileType::SU2 ), "su2" );
     EXPECT_EQ( ToString( GridFileType::CGNS ), "cgns" );
     EXPECT_EQ( ToString( GridFileType::OneFLOW ), "oneflow" );
+    EXPECT_EQ( ToString( GridFileType::Gmsh ), "gmsh" );
 
     EXPECT_EQ( ToString( GridObjective::GenerateClassic ), "GenerateClassic" );
     EXPECT_EQ( ToString( GridOp::CalcMetrics ), "CALC_METRICS" );
@@ -226,4 +229,65 @@ TEST( GridTypesTest, ParseGridTopology )
     EXPECT_EQ( ParseGridTopology( "s" ), GridTopology::Structured );
     EXPECT_EQ( ParseGridTopology( "structured" ), GridTopology::Structured );
     EXPECT_EQ( ParseGridTopology( "other" ), GridTopology::Unknown );
+}
+
+
+#include "GridConversion.h"
+#include <chrono>
+#include <filesystem>
+#include <fstream>
+#include <iterator>
+
+TEST( GmshGridConversionTest, Msh2AsciiWritesExplicitPlaceholderArtifact )
+{
+    const auto root = std::filesystem::temp_directory_path() / ("oneflow_gmsh_placeholder_test_" + std::to_string( std::chrono::steady_clock::now().time_since_epoch().count() ));
+    std::filesystem::remove_all( root );
+    std::filesystem::create_directories( root / "grid" );
+    std::filesystem::create_directories( root / "results" );
+    {
+        std::ofstream mesh( root / "grid" / "square.msh" );
+        mesh << "$MeshFormat\n2.2 0 8\n$EndMeshFormat\n"
+             << "$Nodes\n4\n1 0 0 0\n2 1 0 0\n3 1 1 0\n4 0 1 0\n$EndNodes\n"
+             << "$Elements\n2\n1 2 2 1 1 1 2 3\n2 2 2 1 1 1 3 4\n$EndElements\n";
+    }
+
+    GridConfig config;
+    config.sourceType = GridFileType::Gmsh;
+    config.targetType = GridFileType::CGNS;
+    config.sourceCaseDir = root.string();
+    config.sourceFile = "grid/square.msh";
+    config.targetFile = "results/square.cgns";
+    EXPECT_NO_THROW( ConvertGrid( config, root.string() ) );
+
+    std::ifstream output( root / "results" / "square.cgns" );
+    const std::string text( std::istreambuf_iterator<char>( output ), std::istreambuf_iterator<char>() );
+    EXPECT_NE( text.find( "ONEFLOW_CGNS_PLACEHOLDER 1" ), std::string::npos );
+    EXPECT_NE( text.find( "status=NOT_A_CGNS_FILE" ), std::string::npos );
+    EXPECT_NE( text.find( "node_count=4" ), std::string::npos );
+    EXPECT_NE( text.find( "element_count=2" ), std::string::npos );
+    std::filesystem::remove_all( root );
+}
+
+TEST( GmshGridConversionTest, RejectsBinaryMsh2 )
+{
+    const auto root = std::filesystem::temp_directory_path() / ("oneflow_gmsh_binary_test_" + std::to_string( std::chrono::steady_clock::now().time_since_epoch().count() ));
+    std::filesystem::remove_all( root );
+    std::filesystem::create_directories( root / "grid" );
+    { std::ofstream mesh( root / "grid" / "binary.msh" ); mesh << "$MeshFormat\n2.2 1 8\n$EndMeshFormat\n"; }
+    GridConfig config;
+    config.sourceType = GridFileType::Gmsh;
+    config.targetType = GridFileType::CGNS;
+    config.sourceCaseDir = root.string();
+    config.sourceFile = "grid/binary.msh";
+    config.targetFile = "results/out.cgns";
+    EXPECT_THROW( ConvertGrid( config, root.string() ), std::runtime_error );
+    std::filesystem::remove_all( root );
+}
+
+TEST( GmshGridConversionTest, RejectsGmshToOneFlowUntilMeshModelExists )
+{
+    GridConfig config;
+    config.sourceType = GridFileType::Gmsh;
+    config.targetType = GridFileType::OneFLOW;
+    EXPECT_THROW( ConvertGrid( config, "." ), std::invalid_argument );
 }
