@@ -202,6 +202,7 @@ _PYTHON_UNIT_TESTS = (
     ("Mesh workflow tests", ("-m", "unittest", "discover", "-s", "tools", "-p", "test_mesh_workflow.py")),
     ("Mesh export tests", ("-m", "unittest", "discover", "-s", "tools/mesh_export", "-p", "test_*.py")),
     ("Mesh case catalog tests", ("tools/test_mesh_cases.py",)),
+    ("MeshSnapshot contract tests", ("-m", "unittest", "tools.mesh_contracts.test_snapshot")),
     ("Flat-plate layout compiler tests", ("-m", "unittest", "tests.tools.test_compile_flat_plate")),
     ("Explicit layout topology tests", ("-m", "unittest", "tests.tools.test_layout_topology")),
     ("Desktop service tests", ("-m", "unittest", "tools.oneflow_gui.test_services")),
