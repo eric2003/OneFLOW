@@ -1,3 +1,62 @@
+## 2026-11-06 continuation: Case contract execution evidence linkage
+
+The user reported 1259/1259 tests passing before this slice. That is a
+pre-change baseline only; do not claim the new slice passed locally.
+
+The verified `hexin` HEAD at the start of this slice was
+`3809c0bce0ffc0bd0e0c934ea33e4db502ec7294`.
+
+Added `capture_case_execution` as the Case-domain counterpart of
+`capture_workflow_execution`. It accepts an explicit residual-runner style
+run payload (command, return code, files_ok / residual_ok /
+required_outputs_ok, working directory, timestamps, optional artifacts and
+residual baseline path) and appends a single schema-v1 ExecutionRecord.
+
+Contract links are accepted only when the caller passes `contract_ids`
+explicitly. Matching case names, directory paths, or residual baseline
+entries never create a contract link. A process exit code of zero does not
+override a failed file or residual comparison.
+
+Focused unit coverage lives in
+`tools/oneflow_gui/test_case_execution_capture.py` and exercises:
+
+- successful launch with explicit contract ID and hashed artifacts;
+- refusal to record unlaunched / skipped cases;
+- comparison failure recorded as failed even when exit code is zero;
+- empty contract_ids remaining empty (no name/path inference).
+
+This slice does not yet wire a Contract Workbench "Run in case runner..."
+action or modify `test/test.py`. The capture function is the durable
+evidence boundary; UI and residual-runner integration follow after local
+validation of this capture contract.
+
+Changed files:
+
+- `tools/oneflow_gui/execution_capture.py`
+- `tools/oneflow_gui/test_case_execution_capture.py` (new)
+- `tools/oneflow_gui/test_runner.py` (register Case execution evidence tests)
+- `doc/AI_CONTEXT.md`
+
+Focused validation required:
+
+```
+python -m unittest tools.oneflow_gui.test_case_execution_capture
+python -m unittest tools.oneflow_gui.test_test_inventory
+python -m unittest tools.oneflow_gui.test_workflow_execution_capture
+python -m unittest tools.verification.test_contract_catalog
+```
+
+No local full suite was run by the assistant. The 1259/1259 result
+predates these changes. The slice remains unverified until focused tests
+and full Windows/Debug CTest pass.
+
+Next action after validation: wire an explicit Case Contract Workbench
+action that launches the residual runner (or reuses the existing case
+database runner) and passes the stable Case contract ID into
+`capture_case_execution`. Do not infer the link from case names or paths.
+
+---
+
 ## 2026-11-02 continuation: workflow execution evidence linkage
 
 The user reported 1156/1156 tests passing before this slice. That is a
