@@ -246,8 +246,12 @@ class ContractDomainDialog(QDialog):
         self._implementation_chunk_size = 80
         self.open_source_button = QPushButton("Open source files...")
         self.open_source_button.clicked.connect(self._open_sources)
+        self.reference_view = QPlainTextEdit()
+        self.reference_view.setReadOnly(True)
         self.documentation_view = QPlainTextEdit()
         self.documentation_view.setReadOnly(True)
+        self.implementation_view_summary = QPlainTextEdit()
+        self.implementation_view_summary.setReadOnly(True)
         self.evidence_view = QPlainTextEdit()
         self.evidence_view.setReadOnly(True)
         self.examples_view = QPlainTextEdit()
@@ -310,18 +314,20 @@ class ContractDomainDialog(QDialog):
             self.parameter_formula_scroll.setWidget(self.parameter_formula_preview)
             formula_layout.addWidget(self.parameter_formula_scroll, 5)
 
+        # Shared information architecture. Domain-specific views are appended
+        # only when their typed payload provides meaningful content.
         self.tabs.addTab(self.overview_view, "Overview")
+        self.tabs.addTab(self.principle_view, "Principle")
+        self.tabs.addTab(self.reference_view, "Reference")
+        self.tabs.addTab(self.architecture_view, "Architecture")
+        self.tabs.addTab(self.implementation_view_summary, "Implementation")
+        self.tabs.addTab(self.implementation_page, "Code")
+        self.tabs.addTab(self.documentation_view, "Documentation")
+        self.tabs.addTab(self.evidence_view, "Verification / Evidence")
         if domain == "parameter":
             self.tabs.addTab(self.parameter_formula_page, "Formula")
-            self.tabs.addTab(self.implementation_page, "Implementation / Code")
             self.tabs.addTab(self.runtime_consumers_view, "Runtime Consumers")
             self.tabs.addTab(self.examples_view, "Examples")
-        else:
-            self.tabs.addTab(self.principle_view, "Principle")
-            self.tabs.addTab(self.architecture_view, "Architecture")
-            self.tabs.addTab(self.implementation_page, "Implementation / Code")
-        self.tabs.addTab(self.documentation_view, "Documentation / References")
-        self.tabs.addTab(self.evidence_view, "Verification")
         if domain == "case":
             self.tabs.addTab(self.case_view, "Case Setup")
         if domain == "workflow":
@@ -806,11 +812,38 @@ class ContractDomainDialog(QDialog):
                 self.parameter_formula_preview.setPixmap(QPixmap())
                 self._parameter_formula_pixmap = QPixmap()
         self.open_source_button.setEnabled(bool(self._implementation_paths))
+        self.reference_view.setPlainText(
+            "\n".join(summary.references) or "No references declared."
+        )
         self.documentation_view.setPlainText(
-            "References\n----------\n"
-            + "\n".join(summary.references)
-            + "\n\nDocumentation\n-------------\n"
-            + "\n".join(summary.documentation_paths)
+            "\n".join(summary.documentation_paths)
+            or "No documentation pages declared."
+        )
+        implementation_lines = [
+            "Implementation source paths",
+            "---------------------------",
+            *(f"- {path}" for path in summary.implementation_paths),
+        ]
+        if summary.workflow_data is not None:
+            implementation_lines.extend((
+                "",
+                "Workflow execution mode",
+                "-----------------------",
+                summary.workflow_data.execution_mode,
+            ))
+        if summary.case_data is not None:
+            implementation_lines.extend((
+                "",
+                "Case execution context",
+                "----------------------",
+                f"Suite: {summary.case_data.suite}",
+                f"Case: {summary.case_data.case_path}",
+                f"Solver: {summary.case_data.solver}",
+            ))
+        self.implementation_view_summary.setPlainText(
+            "\n".join(implementation_lines)
+            if summary.implementation_paths or summary.workflow_data or summary.case_data
+            else "No implementation details declared."
         )
         resolutions = self._resolve_contract_evidence(
             self._repository_root, summary
