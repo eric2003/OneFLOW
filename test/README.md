@@ -38,23 +38,14 @@ test/
   belongs in workflow artifacts; durable conclusions update the stable report.
 
 The regular `ci-serial.txt` suite covers the established CFD residual
-cases and the existing Plot3D grid conversion. The Gmsh bootstrap is kept as
-an opt-in grid-format regression because its current `.cgns` output is only an
-explicitly marked placeholder, not a CGNS file.
-
-Run it locally from the repository root after building OneFLOW:
-
-```bash
-python test/run_optional_gmsh_grid_regression.py --executable /path/to/OneFLOW
-```
-
-The runner copies `grid/gmsh_to_cgns` to a system temporary directory, invokes
-the normal Case entry point, and checks the output marker and mesh counts. It
-never writes generated artifacts into the checked-in Case. Both GitHub Actions
-workflows expose the same check through the manual
-`run_optional_grid_regression` input; normal push/PR CI remains unchanged.
-This validates parameter ingestion and the end-to-end bootstrap path, not
-CGNS interoperability.
+cases and the existing Plot3D grid conversion. The experimental Gmsh bootstrap
+is deliberately not part of CTest, Python unittest, the standard regression
+suites, or GitHub Actions. It is exposed only as a manual option in the GUI's
+OneFLOW Tests dialog. The GUI runner copies `grid/gmsh_to_cgns` to a system
+temporary directory, invokes the normal Case entry point, and checks the
+explicit placeholder marker and mesh counts. The checked-in Case is never
+modified. This is an early parameter-ingestion and conversion-path check;
+the generated `.cgns` artifact is not a standards-compliant CGNS file.
 
 ## CPU regression baseline
 
