@@ -324,8 +324,7 @@ namespace
             return static_cast< int >( CGNS_ENUMV( BCInflow ) );
         if ( key == "outflow" )
             return static_cast< int >( CGNS_ENUMV( BCOutflow ) );
-        if ( key == "symmetry" || key == "symmetryplane" ||
-             key == "symmtry" || key == "symmtryplane" )
+        if ( key == "symmetry" || key == "symmetryplane" )
             return static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) );
         if ( key == "farfield" )
             return static_cast< int >( CGNS_ENUMV( BCFarfield ) );

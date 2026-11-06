@@ -8,8 +8,7 @@ MSH 4.1 ASCII conversion writes a real CGNS unstructured Zone for supported
 first-order top-dimensional cells. It also maps first-order elements from
 the immediately lower dimension through Gmsh Entities and Physical Names
 into CGNS boundary element sections and BC_t point lists. The conversion recognizes
-explicit Physical Group names `inflow`, `outflow`, `symmetry` (also accepts
-the legacy misspelling `symmtry`), and `farfield`, mapping them to the
+explicit Physical Group names `inflow`, `outflow`, `symmetry`, and `farfield`, mapping them to the
 corresponding CGNS `BCType_t` values. Unrecognized names remain
 `BCTypeUserDefined`; names are never guessed from geometry or position. The writer reuses
 OneFLOW's Su2Grid::FillSU2CgnsZone() and CgnsFactory / CgnsZbase paths.
@@ -87,7 +86,7 @@ coordinate, cell-section, boundary-section and BC_t data.
 - Maps first-order LINE_2, TRI_3, QUAD_4, TETRA_4, HEXA_8, PENTA_6 and PYRA_5 top-dimensional cells.
 - Preserves source node ordering and maps sparse node tags before CGNS one-based numbering.
 - Writes coordinates, top-dimensional cell sections, supported codimension-one boundary sections, BC_t point lists, and a read-report sidecar.
-- Maps the explicit names inflow, outflow, symmetry/symmtry, and farfield to CGNS BCInflow, BCOutflow, BCSymmetryPlane, and BCFarfield. Other names remain BCTypeUserDefined.
+- Maps the explicit names inflow, outflow, symmetry, and farfield to CGNS BCInflow, BCOutflow, BCSymmetryPlane, and BCFarfield. Other names remain BCTypeUserDefined.
 - MSH 2.x is parsed but not yet materialized for CGNS output. High-order cells, periodicity, and partition metadata are not yet mapped.
 
 

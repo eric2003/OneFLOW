@@ -443,9 +443,8 @@ The bundled two-dimensional Gmsh conversion Case now uses four named curve
 Physical Groups: `inflow` on the left edge, `outflow` on the right edge,
 `symmetry` on the bottom edge, and `farfield` on the top edge. The
 conversion adapter maps these explicit names to CGNS `BCInflow`,
-`BCOutflow`, `BCSymmetryPlane`, and `BCFarfield`, respectively. The
-historical misspelling `symmtry` is accepted as an input alias, while
-`symmetry` is the canonical sample spelling.
+`BCOutflow`, `BCSymmetryPlane`, and `BCFarfield`, respectively. The canonical input spelling is `symmetry`; misspellings are not treated as
+standard boundary-condition aliases.
 
 This is a name-based semantic mapping, not geometric inference. Unrecognized
 Physical Group names remain `BCTypeUserDefined`; the converter does not
