@@ -32,6 +32,7 @@ License
 #include <iterator>
 #include <sstream>
 #include <map>
+#include <limits>
 #include <unordered_set>
 #include <vector>
 #include <stdexcept>
@@ -180,6 +181,8 @@ namespace
             throw std::runtime_error( "Invalid Gmsh 4.1 node section header" );
 
         long long observedNodes = 0;
+        long long observedMinNodeTag = std::numeric_limits< long long >::max();
+        long long observedMaxNodeTag = 0;
         for ( long long block = 0; block < nodeBlocks; ++block )
         {
             const long long entityDim = nextInteger( pos, "node entity dimension" );
@@ -190,28 +193,34 @@ namespace
                  ( parametric != 0 && parametric != 1 ) || blockNodes < 0 )
                 throw std::runtime_error( "Invalid Gmsh 4.1 node block header" );
 
-            std::vector< long long > tags;
-            tags.reserve( static_cast< std::size_t >( blockNodes ) );
             for ( long long i = 0; i < blockNodes; ++i )
             {
                 const long long tag = nextInteger( pos, "node tag" );
                 if ( tag < 1 || ! nodeTags.insert( tag ).second )
                     throw std::runtime_error( "Invalid or duplicate Gmsh node tag" );
-                tags.push_back( tag );
+                observedMinNodeTag = std::min( observedMinNodeTag, tag );
+                observedMaxNodeTag = std::max( observedMaxNodeTag, tag );
             }
             for ( long long i = 0; i < blockNodes; ++i )
             {
                 for ( int axis = 0; axis < 3; ++axis )
-                if ( ! std::isfinite( nextReal( pos, "node coordinate" ) ) )
-                    throw std::runtime_error( "Non-finite Gmsh node coordinate" );
-            if ( parametric )
-                for ( long long axis = 0; axis < entityDim; ++axis )
-                    if ( ! std::isfinite( nextReal( pos, "parametric node coordinate" ) ) )
-                        throw std::runtime_error( "Non-finite Gmsh parametric coordinate" );
+                {
+                    if ( ! std::isfinite( nextReal( pos, "node coordinate" ) ) )
+                        throw std::runtime_error( "Non-finite Gmsh node coordinate" );
+                }
+                if ( parametric )
+                {
+                    for ( long long axis = 0; axis < entityDim; ++axis )
+                    {
+                        if ( ! std::isfinite( nextReal( pos, "parametric node coordinate" ) ) )
+                            throw std::runtime_error( "Non-finite Gmsh parametric coordinate" );
+                    }
+                }
             }
             observedNodes += blockNodes;
         }
-        if ( observedNodes != summary.nodeCount )
+        if ( observedNodes != summary.nodeCount ||
+             observedMinNodeTag != minNodeTag || observedMaxNodeTag != maxNodeTag )
             throw std::runtime_error( "Gmsh 4.1 node block total does not match node count" );
         if ( pos >= tokens.size() || tokens[ pos ] != "$EndNodes" )
             throw std::runtime_error( "Malformed Gmsh 4.1 $Nodes section terminator" );
@@ -228,6 +237,8 @@ namespace
         std::map< int, long long > elementTypes;
         std::unordered_set< long long > elementTags;
         long long observedElements = 0;
+        long long observedMinElementTag = std::numeric_limits< long long >::max();
+        long long observedMaxElementTag = 0;
         for ( long long block = 0; block < elementBlocks; ++block )
         {
             const long long entityDim = nextInteger( pos, "element entity dimension" );
@@ -242,6 +253,8 @@ namespace
                 const long long elementTag = nextInteger( pos, "element tag" );
                 if ( elementTag < 1 || ! elementTags.insert( elementTag ).second )
                     throw std::runtime_error( "Invalid or duplicate Gmsh element tag" );
+                observedMinElementTag = std::min( observedMinElementTag, elementTag );
+                observedMaxElementTag = std::max( observedMaxElementTag, elementTag );
                 for ( int node = 0; node < nodesPerElement; ++node )
                 {
                     const long long nodeTag = nextInteger( pos, "element node tag" );
@@ -252,8 +265,9 @@ namespace
                 ++elementTypes[ type ];
             }
         }
-        if ( observedElements != summary.elementCount )
-            throw std::runtime_error( "Gmsh 4.1 element block total does not match element count" );
+        if ( observedElements != summary.elementCount ||
+             observedMinElementTag != minElementTag || observedMaxElementTag != maxElementTag )
+            throw std::runtime_error( "Gmsh 4.1 element block totals or tag range do not match the section header" );
         if ( pos >= tokens.size() || tokens[ pos ] != "$EndElements" )
             throw std::runtime_error( "Malformed Gmsh 4.1 $Elements section terminator" );
 
