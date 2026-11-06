@@ -162,10 +162,15 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             tab_names = [
                 dialog.tabs.tabText(index) for index in range(dialog.tabs.count())
             ]
-            self.assertEqual(tab_names[:2], ["Overview", "Formula"])
-            self.assertNotIn("Principle", tab_names)
-            self.assertNotIn("Architecture", tab_names)
-            self.assertIn("Implementation / Code", tab_names)
+            self.assertEqual(
+                tab_names[:8],
+                [
+                    "Overview", "Principle", "Reference", "Architecture",
+                    "Implementation", "Code", "Documentation",
+                    "Verification / Evidence",
+                ],
+            )
+            self.assertIn("Formula", tab_names)
             self.assertIn("Examples", tab_names)
             self.assertIn(
                 "codes/ns/src/NsCom.cpp",
@@ -1001,8 +1006,9 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("Overview", tab_names)
             self.assertIn("Principle", tab_names)
             self.assertIn("Architecture", tab_names)
-            self.assertIn("Implementation / Code", tab_names)
-            self.assertIn("Verification", tab_names)
+            self.assertIn("Implementation", tab_names)
+            self.assertIn("Code", tab_names)
+            self.assertIn("Verification / Evidence", tab_names)
             self.assertNotIn("Case Setup", tab_names)
             self.assertIsNone(dialog.open_case_directory_button)
             self.assertIsNone(dialog.open_case_references_button)
