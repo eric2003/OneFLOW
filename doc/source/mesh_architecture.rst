@@ -308,3 +308,48 @@ Detailed design and audit notes remain under the documentation engineering area 
 * `doc/architecture/`: dated architecture audits and stable design notes.
 * `doc/plans/oneflow-documentation-consolidation-plan.md`: consolidation inventory and next steps.
 * Root-level `GRID_TOPOLOGY.md`, `MESH_DATA_AND_VISUALIZATION.md`, and the older top-level `docs/` mesh notes remain source material for the content review; they are not separate destinations for new documentation.
+
+
+Mesh Knowledge catalog
+----------------------
+
+Mesh in Contract Workbench is a grouped knowledge catalog rather than one
+static conversion page. Versioned entries live under
+`tools/verification/contracts/mesh/` and use the shared contract envelope:
+overview, principle, references, architecture, implementation, code,
+documentation, claims, limitations and verification evidence.
+
+The initial catalog separates **Mesh Core Concepts** from **Interchange
+Formats**. Core concepts cover identity, coordinates, ordered connectivity,
+faces, adjacency, boundaries, regions, physical groups, units, provenance
+and quality. Format entries cover Gmsh MSH, Plot3D structured grids and CGNS.
+A separate topology inspector remains available for inspecting a loaded
+MeshSnapshot fixture; it is not the primary Mesh knowledge interface.
+
+The dependency direction is:
+
+.. code-block:: text
+
+   Gmsh / Plot3D / CGNS specifications
+                  |
+          format knowledge records
+                  |
+        format-specific adapters
+                  |
+       neutral OneFLOW MeshSnapshot
+                  |
+           OneFLOW Mesh Core
+                  |
+       solver / visualization / writers
+
+The Mesh Core vocabulary is the stable center. Formats are boundary contracts
+with different capabilities. A structured Plot3D block is not an unstructured
+Gmsh element block; CGNS zones, sections, boundary types and connectivity must
+not be flattened into anonymous cells. Conversion can preserve coordinates
+while losing high-order interpolation, units, group labels or interfaces.
+Those losses must be declared and verified rather than silently discarded.
+
+The Workbench search covers titles, descriptions, source paths and references.
+Each catalog entry links source files, maintained documentation and declared
+evidence. A declared test is not a recorded execution result; a format entry
+marked proposed does not imply a production reader or writer exists.

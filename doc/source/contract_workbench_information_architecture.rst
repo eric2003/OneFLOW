@@ -92,11 +92,16 @@ typed payload and may add focused views:
      - Steps, dependencies, artifact contracts, input/output bindings,
        scheduling and failure propagation.
      - Workflow graph, run history, artifact lineage and diagnostics.
-   * - Mesh / Geometry
-     - Entities, topology, coordinate geometry, connectivity, boundaries,
-       regions, identity, orientation and mesh validity invariants.
-     - Mesh view, topology table, boundary map, quality metrics, conversion
-       report and round-trip comparison.
+   * - Mesh
+     - Format-neutral entities and topology, coordinates, connectivity,
+       boundaries, regions, identity, orientation and quality; plus Gmsh,
+       Plot3D, CGNS and future adapter semantics.
+     - Grouped Mesh Knowledge catalog, topology inspector, format mapping,
+       boundary map, quality metrics and round-trip comparison.
+   * - Geometry
+     - Geometric entities, CAD topology, construction history and geometry-to-mesh
+       association.
+     - Geometry scenarios, entity graph, topology fixtures and geometry checks.
    * - Algorithm
      - Mathematical model, discretization, data dependencies, algorithm
        stages, complexity, stability/conservation properties and assumptions.

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "mesh/core-concepts",
+  "title": "Mesh Core concepts",
+  "domain": "mesh",
+  "kind": "mesh_concept",
+  "status": "partially_verified",
+  "overview": "Format-neutral mesh vocabulary: coordinates, entity identity, ordered element connectivity, faces, adjacency, boundary and region groups, coordinate conventions and provenance. Format readers translate into this vocabulary without leaking source-library handles into solver-owned data.",
+  "principle": "Identity differs from storage position; connectivity order carries orientation; geometric entities differ from mesh entities; physical labels remain metadata until an explicit mapping assigns solver meaning. Canonical source data must be separated from derived caches. Cell measure V_K = integral_K dV; face measure A_f = integral_f dA. For x=x(xi), J=det(partial x/partial xi); a valid local mapping requires non-singular J and consistent orientation.",
+  "architecture": "Format reader -> validated value snapshot -> semantic mapping -> Mesh Core. Coordinates and source connectivity are canonical. Face incidence, normals, measures, centers, adjacency and search structures are derived and require explicit rebuild rules.",
+  "references": [
+    "CGNS SIDS: https://cgns.github.io/CGNS_docs_current/sids/",
+    "Gmsh Reference Manual: https://gmsh.info/doc/texinfo/gmsh.html",
+    "doc/source/mesh_architecture.rst"
+  ],
+  "implementation": {
+    "source_paths": [
+      "tools/mesh_contracts/snapshot.py",
+      "codes/geometry/src/GridConversion.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/mesh_architecture.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "MeshSnapshot v1 defines dimensioned nodes, ordered cells, owner/neighbour faces, typed groups and provenance.",
+      "Architecture distinguishes canonical mesh data from derived caches."
+    ],
+    "does_not_prove": [
+      "Production C++ snapshot export from every runtime mesh path.",
+      "Automatic boundary-condition inference from physical group names.",
+      "Complete high-order, partitioned or moving-mesh preservation."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "python_test",
+      "reference": "tools.mesh_contracts.test_snapshot",
+      "status": "declared_not_executed",
+      "scope": "tools/mesh_contracts/test_snapshot.py; validates manifest invariants, not runtime export."
+    }
+  ],
+  "group": {
+    "id": "mesh_core",
+    "title": "Mesh Core Concepts",
+    "order": 10
+  }
+}

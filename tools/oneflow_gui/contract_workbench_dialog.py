@@ -165,11 +165,11 @@ class ContractDomainDialog(QDialog):
         intro.setWordWrap(True)
         root.addWidget(intro)
 
-        if domain == "parameter":
+        if domain in {"parameter", "mesh"}:
             self.search_edit = QLineEdit()
             self.search_edit.setObjectName("parameterContractSearch")
             self.search_edit.setPlaceholderText(
-                "Search parameters by name, description, group, source, or reference..."
+                "Search mesh formats, concepts, sources, or references..." if domain == "mesh" else "Search parameters by name, description, group, source, or reference..."
             )
             self.search_edit.textChanged.connect(self._filter_contracts)
             root.addWidget(self.search_edit)
@@ -262,6 +262,11 @@ class ContractDomainDialog(QDialog):
         self.case_view.setReadOnly(True)
         self.workflow_view = QPlainTextEdit()
         self.workflow_view.setReadOnly(True)
+        self.mesh_knowledge_view = None
+        if domain == "mesh":
+            self.mesh_knowledge_view = QPlainTextEdit()
+            self.mesh_knowledge_view.setReadOnly(True)
+            self.mesh_knowledge_view.setObjectName("meshKnowledgeView")
         self.parameter_formula_page = None
         self.parameter_formula_text = None
         self.parameter_formula_latex = None
@@ -324,6 +329,8 @@ class ContractDomainDialog(QDialog):
         self.tabs.addTab(self.implementation_page, "Code")
         self.tabs.addTab(self.documentation_view, "Documentation")
         self.tabs.addTab(self.evidence_view, "Verification / Evidence")
+        if domain == "mesh":
+            self.tabs.addTab(self.mesh_knowledge_view, "Mesh Knowledge")
         if domain == "parameter":
             self.tabs.addTab(self.parameter_formula_page, "Formula")
             self.tabs.addTab(self.runtime_consumers_view, "Runtime Consumers")
@@ -345,6 +352,11 @@ class ContractDomainDialog(QDialog):
         self.open_actions_layout.addWidget(self.open_docs_button)
         self.open_actions_layout.addWidget(self.open_tests_button)
         self.open_related_formula_button = None
+        self.open_mesh_topology_button = None
+        if domain == "mesh":
+            self.open_mesh_topology_button = QPushButton("Open topology inspector...")
+            self.open_mesh_topology_button.clicked.connect(self._open_mesh_topology)
+            self.open_actions_layout.addWidget(self.open_mesh_topology_button)
         if domain == "parameter":
             self.open_related_formula_button = QPushButton(
                 "Open related Formula & Knowledge..."
@@ -497,7 +509,7 @@ class ContractDomainDialog(QDialog):
     def _populate_contract_list(self, query: str = "", selected_id: str = "") -> None:
         self.contract_list.clear()
         normalized_query = query.casefold().strip()
-        if self._domain == "parameter":
+        if self._domain in {"parameter", "mesh"}:
             groups = {}
             for summary in self._summaries:
                 searchable = " ".join((
@@ -724,6 +736,18 @@ class ContractDomainDialog(QDialog):
         )
         self.principle_view.setPlainText(summary.principle)
         self.architecture_view.setPlainText(summary.architecture)
+        if self.mesh_knowledge_view is not None:
+            lines = [
+                "CORE CONCEPTS", "=============", summary.overview, "",
+                "PRINCIPLE AND FORMULAE", "======================", summary.principle, "",
+                "FORMAT / IMPLEMENTATION MAPPING", "===============================", summary.architecture, "",
+                "CLAIMS AND LIMITATIONS", "======================",
+                *(f"- {item}" for item in summary.claims),
+                *(f"- NOT PROVEN: {item}" for item in summary.limitations), "",
+                "REFERENCES", "==========",
+                *(f"- {item}" for item in summary.references),
+            ]
+            self.mesh_knowledge_view.setPlainText("\n".join(lines))
         parameter_key = summary.parameter_key or summary.source_id
         consumer_records = (
             self._parameter_consumer_catalog.find(parameter_key)
@@ -1236,6 +1260,10 @@ class ContractDomainDialog(QDialog):
             QMessageBox.warning(self, "Cannot open workflow runner", str(error))
             return
         dialog.exec()
+
+    def _open_mesh_topology(self) -> None:
+        from .mesh_contract_dialog import MeshContractDialog
+        MeshContractDialog(self._repository_root, self).exec()
 
     def _open_related_formula(self) -> None:
         summary = self._current_summary()

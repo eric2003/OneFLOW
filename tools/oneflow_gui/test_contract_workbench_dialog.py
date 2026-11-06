@@ -60,6 +60,44 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             self._close_dialog(dialog)
 
+    def test_mesh_domain_uses_grouped_source_backed_knowledge_catalog(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "mesh")
+        try:
+            self.assertIsNotNone(dialog.search_edit)
+            names = [dialog.tabs.tabText(i) for i in range(dialog.tabs.count())]
+            for name in ("Overview", "Principle", "Reference", "Architecture",
+                         "Implementation", "Code", "Documentation",
+                         "Verification / Evidence", "Mesh Knowledge"):
+                self.assertIn(name, names)
+            ids = {
+                dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole)
+                for i in range(dialog.contract_list.count())
+                if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertTrue({"mesh/core-concepts", "mesh/gmsh", "mesh/plot3d", "mesh/cgns"}.issubset(ids))
+            headers = [
+                dialog.contract_list.item(i).text()
+                for i in range(dialog.contract_list.count())
+                if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole) is None
+            ]
+            self.assertIn("Mesh Core Concepts", headers)
+            self.assertIn("Interchange Formats", headers)
+            gmsh_row = next(i for i in range(dialog.contract_list.count())
+                            if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole) == "mesh/gmsh")
+            dialog.contract_list.setCurrentRow(gmsh_row)
+            self.assertIn("MSH 4.1", dialog.mesh_knowledge_view.toPlainText())
+            self.assertIn("Physical Groups", dialog.mesh_knowledge_view.toPlainText())
+            self.assertTrue(dialog.open_mesh_topology_button.isEnabled())
+            dialog.search_edit.setText("plot3d")
+            filtered = {
+                dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole)
+                for i in range(dialog.contract_list.count())
+                if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertEqual(filtered, {"mesh/plot3d"})
+        finally:
+            self._close_dialog(dialog)
+
     def test_mesh_domain_exposes_topology_and_separate_evidence(self) -> None:
         from tools.oneflow_gui.mesh_contract_dialog import MeshContractDialog
 

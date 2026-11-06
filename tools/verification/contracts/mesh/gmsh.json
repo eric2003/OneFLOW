@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "mesh/gmsh",
+  "title": "Gmsh MSH format",
+  "domain": "mesh",
+  "kind": "mesh_interchange_format",
+  "status": "partially_verified",
+  "overview": "Gmsh is a mesh generator and MSH interchange format. OneFLOW currently targets ASCII MSH 4.1 first, with MSH 2.2 ASCII compatibility as a secondary format. The adapter must preserve node and element tags, ordering, entity dimensions/tags, physical names and memberships.",
+  "principle": "MSH separates geometric entities from physical groups. MSH 4.1 stores nodes and elements in entity blocks; tags are sparse identities, not dense offsets. $MeshFormat declares version and encoding; $PhysicalNames stores dimension-tagged names; $Entities associates entities and physical groups; $Nodes and $Elements store entity blocks. A physical group is not a OneFLOW boundary-condition type.",
+  "architecture": "MSH parser -> format-owned entity blocks, node/element tags and physical memberships -> neutral MeshSnapshot -> explicit semantic mapping -> Mesh Core. File parsing remains independent of the optional Gmsh SDK.",
+  "references": [
+    "Gmsh MSH file format: https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format",
+    "Gmsh API: https://gmsh.info/doc/texinfo/gmsh.html#Gmsh-API",
+    "doc/source/gmsh_interface.rst"
+  ],
+  "implementation": {
+    "source_paths": [
+      "codes/geometry/src/GridConversion.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/gmsh_interface.rst",
+      "doc/source/mesh_architecture.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "Current C++ reader validates and summarizes supported ASCII MSH 4.1 records.",
+      "Knowledge distinguishes entity blocks, sparse tags and physical-group semantics."
+    ],
+    "does_not_prove": [
+      "Full MSH 4.1 MeshSnapshot export.",
+      "Binary MSH and all high-order element families are supported.",
+      "Placeholder .cgns output is a legal CGNS file."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "python_test",
+      "reference": "tools.mesh_contracts.test_snapshot",
+      "status": "declared_not_executed",
+      "scope": "tools/mesh_contracts/test_snapshot.py; neutral snapshot checks only, not the experimental Gmsh Case."
+    }
+  ],
+  "group": {
+    "id": "mesh_formats",
+    "title": "Interchange Formats",
+    "order": 20
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "mesh/cgns",
+  "title": "CGNS mesh and data model",
+  "domain": "mesh",
+  "kind": "mesh_interchange_format",
+  "status": "proposed",
+  "overview": "CGNS is a CFD data standard and library ecosystem. Its SIDS model organizes bases, zones, grid coordinates, element sections, boundary conditions, zone connectivity, units and optional solution fields. A valid CGNS file is not a renamed or text-wrapped mesh file.",
+  "principle": "CGNS carries more than coordinates and connectivity. Zone type/dimensions, element sections, BC nodes, connectivity and dimensional units contribute semantics. CGNSBase_t groups zones; Zone_t declares structured/unstructured topology; GridCoordinates_t stores coordinates; Elements_t stores element sections; BC_t and ZoneGridConnectivity_t carry boundary/interface meaning.",
+  "architecture": "OneFLOW Mesh Core -> CGNS adapter -> CGNS Mid-Level Library / HDF5 or ADF backend. Reader maps Base/Zone/Elements/BC/ZoneGridConnectivity and units into neutral entities plus retained metadata; unsupported semantics are reported as losses.",
+  "references": [
+    "CGNS SIDS: https://cgns.github.io/CGNS_docs_current/sids/",
+    "CGNS Mid-Level Library: https://cgns.github.io/CGNS_docs_current/midlevel/",
+    "https://cgns.github.io/"
+  ],
+  "implementation": {
+    "source_paths": [
+      "codes/geometry/src/GridConversion.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/cgns.rst",
+      "doc/source/mesh_architecture.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "Architecture identifies the future CGNS adapter boundary and major CGNS mesh nodes to preserve."
+    ],
+    "does_not_prove": [
+      "Current placeholder .cgns output is a CGNS file.",
+      "A production CGNS reader/writer is implemented or linked.",
+      "All zone, BC, connectivity, units and high-order semantics are preserved."
+    ]
+  },
+  "verification": [],
+  "group": {
+    "id": "mesh_formats",
+    "title": "Interchange Formats",
+    "order": 20
+  }
+}
