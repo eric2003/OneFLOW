@@ -121,6 +121,7 @@ class MeshContractDialog(QDialog):
             self.tabs.addTab(view, name)
 
         topology_page = QWidget()
+        self.topology_page = topology_page
         topology_layout = QVBoxLayout(topology_page)
         self.entity_selector = QComboBox()
         self.entity_selector.addItems(["Nodes", "Cells", "Faces", "Groups"])
@@ -193,7 +194,7 @@ class MeshContractDialog(QDialog):
             "semantics, or converter correctness."
         )
         self._show_entity_table(self.entity_selector.currentText())
-        self.tabs.setCurrentIndex(self.tabs.indexOf(self.tabs.widget(7)) if False else self.tabs.indexOf(self.topology_table.parentWidget().parentWidget()))
+        self.tabs.setCurrentWidget(self.topology_page)
 
     def _show_entity_table(self, entity: str) -> None:
         if self._snapshot is None:
