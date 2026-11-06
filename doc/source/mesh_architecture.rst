@@ -149,6 +149,34 @@ making the Python validator or JSON representation a runtime dependency.
 The first C++ adapter should be read-only and value-based; it should not expose
 Gmsh handles or let format-specific IDs leak into solver-owned identity.
 
+Mesh Contract Workbench
+------------------------
+
+The GUI exposes Mesh as a domain independent of Formula Knowledge:
+`Contract Workbench -> Mesh`. It uses the shared information architecture
+(Overview, Principle, Reference, Architecture, Implementation, Code,
+Documentation, Verification / Evidence) while retaining mesh-specific
+topology content.
+
+The Topology tab displays Nodes, Cells, Faces, and Groups from a loaded
+MeshSnapshot JSON artifact. It is an inspection view, not a topology editor.
+The bundled `tools/mesh_contracts/examples/square_snapshot.json` is a small
+manual fixture for checking the UI.
+
+Evidence is intentionally split into two independent panels:
+
+* **MeshSnapshot contract validation** reports whether the loaded manifest
+  satisfies the currently implemented schema checks.
+* **Format conversion execution** remains NOT RUN unless a real converter
+  execution record is supplied. Opening or validating JSON never counts as
+  running Gmsh, CGNS, or a OneFLOW conversion.
+
+The current Python validator is a first-stage tooling check. It is not a
+second production mesh implementation. The target remains a read-only,
+value-based C++ MeshSnapshot exported from the OneFLOW runtime mesh, with
+format-specific adapters on the boundary. No Python data structure should
+become a solver runtime dependency.
+
 Spatial search and point-location boundary
 --------------------------------------------
 
