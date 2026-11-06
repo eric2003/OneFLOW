@@ -91,6 +91,7 @@ jobs:
           }
 
           python -m unittest discover -s ../tools/mesh_export -p "test_*.py"
+          python -m unittest discover -s ../tools/mesh_contracts -p "test_*.py"
           if ($LASTEXITCODE -ne 0) {
               throw "Mesh export tests failed with exit code $LASTEXITCODE."
           }
