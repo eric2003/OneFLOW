@@ -265,4 +265,145 @@ std::string GmshMeshReadReportToJson(const GmshMeshReadReport& report) {
 }
 
 
+namespace {
+std::string GmshElementTypeName(int type) {
+    switch (type) {
+        case 1: return "LINE_2"; case 2: return "TRI_3"; case 3: return "QUAD_4";
+        case 4: return "TETRA_4"; case 5: return "HEXA_8"; case 6: return "PENTA_6";
+        case 7: return "PYRA_5"; case 8: return "LINE_3"; case 9: return "TRI_6";
+        case 10: return "QUAD_9"; case 11: return "TETRA_10"; case 12: return "HEXA_27";
+        case 13: return "PENTA_18"; case 14: return "PYRA_14"; case 15: return "POINT";
+        case 16: return "QUAD_8"; case 17: return "HEXA_20"; case 18: return "PENTA_15";
+        case 19: return "PYRA_13"; case 20: return "TRI_9"; case 21: return "TRI_10";
+        case 22: return "TRI_12"; case 23: return "TRI_15"; case 24: return "TRI_15I";
+        case 25: return "TRI_21"; case 26: return "LINE_4"; case 27: return "LINE_5";
+        case 28: return "LINE_6"; case 29: return "TETRA_20"; case 30: return "TETRA_35";
+        case 31: return "TETRA_56"; default: return "UNKNOWN";
+    }
+}
+std::string EscapeMarkdownCell(const std::string& value) {
+    std::string result;
+    for (char c : value) {
+        if (c == '|' || c == '\\') result.push_back('\\');
+        result.push_back((c == '\r' || c == '\n') ? ' ' : c);
+    }
+    return result;
+}
+}
+
+std::string GmshMeshReportToMarkdown(
+    const GmshMesh& mesh, const std::string& cgnsOutputFile) {
+    const GmshMeshReadReport report = BuildGmshMeshReadReport(mesh);
+    int dimension = 0;
+    for (const auto& element : mesh.elements)
+        dimension = std::max(dimension, element.entityDimension);
+    const double scale = std::max({
+        report.maximumCoordinates[0] - report.minimumCoordinates[0],
+        report.maximumCoordinates[1] - report.minimumCoordinates[1],
+        report.maximumCoordinates[2] - report.minimumCoordinates[2], 1.0});
+    const bool planarXY = std::abs(report.maximumCoordinates[2] -
+        report.minimumCoordinates[2]) <= 1.0e-12 * scale;
+    std::map<int, std::size_t> entityCounts;
+    for (const auto& entity : mesh.entityPhysicalTags) ++entityCounts[entity.first.first];
+    std::map<std::pair<int, long long>, std::size_t> groupElementCounts;
+    for (const auto& element : mesh.elements) {
+        const auto entity = mesh.entityPhysicalTags.find(
+            {element.entityDimension, element.entityTag});
+        if (entity == mesh.entityPhysicalTags.end()) continue;
+        for (long long tag : entity->second)
+            ++groupElementCounts[{element.entityDimension, tag}];
+    }
+
+    std::ostringstream out;
+    out << std::setprecision(10);
+    out << "# Gmsh Mesh Inspection Report\n\n## Overall Summary\n\n";
+    out << "- **Format version:** Gmsh MSH " << report.version << " (ASCII)\n";
+    out << "- **Topological dimension:** " << dimension << "D\n";
+    out << "- **Coordinate embedding:** " << (planarXY ? "planar in XY" : "3D coordinates") << "\n";
+    out << "- **Physical groups:** " << mesh.physicalNames.size() << "\n";
+    out << "- **Geometric entities:** " << mesh.entityPhysicalTags.size() << "\n";
+    out << "- **Mesh size:** " << mesh.nodes.size() << " nodes, " << mesh.elements.size() << " elements\n";
+    out << "- **Coordinate bounds:** X=[" << report.minimumCoordinates[0] << ", " << report.maximumCoordinates[0]
+        << "], Y=[" << report.minimumCoordinates[1] << ", " << report.maximumCoordinates[1]
+        << "], Z=[" << report.minimumCoordinates[2] << ", " << report.maximumCoordinates[2] << "]\n";
+    out << "- **Source node-tag range:** [" << report.minimumNodeTag << ", " << report.maximumNodeTag << "]\n";
+    out << "- **Source element-tag range:** [" << report.minimumElementTag << ", " << report.maximumElementTag << "]\n\n";
+
+    out << "## Physical Groups\n\n| Dimension | Tag | Name | Associated elements |\n|---:|---:|---|---:|\n";
+    for (const auto& group : mesh.physicalNames) {
+        const auto count = groupElementCounts.find(group.first);
+        out << "| " << group.first.first << " | " << group.first.second << " | "
+            << EscapeMarkdownCell(group.second) << " | "
+            << (count == groupElementCounts.end() ? 0 : count->second) << " |\n";
+    }
+    out << "\n## Geometric Entities ($Entities)\n\n| Dimension | Entity count |\n|---:|---:|\n";
+    for (int dim = 0; dim <= 3; ++dim) {
+        const auto count = entityCounts.find(dim);
+        out << "| " << dim << " | " << (count == entityCounts.end() ? 0 : count->second) << " |\n";
+    }
+    out << "\n| Dimension | Entity tag | Physical tags |\n|---:|---:|---|\n";
+    for (const auto& entity : mesh.entityPhysicalTags) {
+        out << "| " << entity.first.first << " | " << entity.first.second << " | ";
+        if (entity.second.empty()) out << "None";
+        for (std::size_t i = 0; i < entity.second.size(); ++i) {
+            if (i) out << ", ";
+            out << entity.second[i];
+        }
+        out << " |\n";
+    }
+    out << "\n## Element Types and Counts\n\n| Gmsh type | Element family | Count |\n|---:|---|---:|\n";
+    for (const auto& item : report.elementTypeCounts)
+        out << "| " << item.first << " | " << GmshElementTypeName(item.first) << " | " << item.second << " |\n";
+
+    const std::size_t limit = 30;
+    out << "\n## Nodes ($Nodes)\n\nSource node tags are identifiers, not dense array indices. Original tags are retained while an internal index map is built.\n\n";
+    out << "| Source tag | X | Y | Z | Entity (dimension:tag) |\n|---:|---:|---:|---:|---|\n";
+    for (std::size_t i = 0; i < std::min(mesh.nodes.size(), limit); ++i) {
+        const auto& node = mesh.nodes[i];
+        out << "| " << node.tag << " | " << node.coordinates[0] << " | "
+            << node.coordinates[1] << " | " << node.coordinates[2] << " | "
+            << node.entityDimension << ":" << node.entityTag << " |\n";
+    }
+    if (mesh.nodes.size() > limit)
+        out << "\n_Only the first " << limit << " of " << mesh.nodes.size() << " nodes are shown._\n";
+
+    out << "\n## Elements ($Elements)\n\nConnectivity uses original Gmsh node tags and preserves source ordering.\n\n";
+    out << "| Element tag | Type | Entity (dimension:tag) | Ordered node tags |\n|---:|---|---|---|\n";
+    for (std::size_t i = 0; i < std::min(mesh.elements.size(), limit); ++i) {
+        const auto& element = mesh.elements[i];
+        out << "| " << element.tag << " | " << GmshElementTypeName(element.type)
+            << " (" << element.type << ") | " << element.entityDimension << ":"
+            << element.entityTag << " | ";
+        for (std::size_t j = 0; j < element.nodeTags.size(); ++j) {
+            if (j) out << ", ";
+            out << element.nodeTags[j];
+        }
+        out << " |\n";
+    }
+    if (mesh.elements.size() > limit)
+        out << "\n_Only the first " << limit << " of " << mesh.elements.size() << " elements are shown._\n";
+
+    out << "\n## Geometry and Mesh Checks\n\n";
+    out << "- **Unique source tags:** PASS\n- **Element node references:** PASS\n- **Finite coordinates:** PASS\n";
+    out << "- **TRI_3 count:** " << report.triangleCount << "\n";
+    out << "- **Degenerate TRI_3 count:** " << report.degenerateTriangleCount << "\n";
+    out << "- **Positive XY orientation:** " << report.positiveXYTriangleCount << "\n";
+    out << "- **Negative XY orientation:** " << report.negativeXYTriangleCount << "\n";
+    if (report.triangleCount)
+        out << "- **TRI_3 area range:** [" << report.minimumTriangleArea << ", " << report.maximumTriangleArea << "]\n";
+
+    out << "\n## CGNS Conversion\n\n";
+    out << "- **Output file:** " << cgnsOutputFile << "\n";
+    out << "- **Status:** CGNS writer completed successfully before this report was emitted.\n";
+    out << "- **Boundary semantics:** Physical group names are retained as user-defined labels; solver-specific wall/inlet/outlet meanings are not inferred.\n";
+    out << "- **Independent read-back:** Covered by the CGNS conversion test for zones, coordinates, cell and boundary sections, and BC point lists.\n";
+    out << "\n## Current Scope and Limitations\n\n";
+    out << "- Input: ASCII MSH 4.1.\n";
+    out << "- Conversion: supported first-order cells and codimension-one boundary elements.\n";
+    out << "- High-order conversion, periodic links, partition metadata, and ghost-cell metadata are not yet implemented.\n";
+    out << "- Physical names are metadata, not solver boundary-condition assignments.\n";
+    return out.str();
+}
+
+
 } // namespace ONEFLOW

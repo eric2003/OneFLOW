@@ -101,4 +101,9 @@ TEST(GmshMeshReaderTest, ReadsBundledSquareMshFileAndBuildsDiagnosticReport) {
     EXPECT_EQ(mesh.physicalNames.at({1, 1}), "outer boundary");
     ASSERT_EQ(mesh.entityPhysicalTags.size(), 9u);
     EXPECT_EQ(mesh.entityPhysicalTags.at({1, 3}), (std::vector<long long>{1}));
+    const std::string markdown = GmshMeshReportToMarkdown(mesh, "square.cgns");
+    EXPECT_NE(markdown.find("## Overall Summary"), std::string::npos);
+    EXPECT_NE(markdown.find("## Geometric Entities"), std::string::npos);
+    EXPECT_NE(markdown.find("outer boundary"), std::string::npos);
+    EXPECT_NE(markdown.find("4 nodes, 6 elements"), std::string::npos);
 }

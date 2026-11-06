@@ -39,4 +39,5 @@ struct GmshMeshReadReport {
 GmshMesh ReadGmsh41AsciiMesh(const std::string& content);
 GmshMeshReadReport BuildGmshMeshReadReport(const GmshMesh& mesh);
 std::string GmshMeshReadReportToJson(const GmshMeshReadReport& report);
+std::string GmshMeshReportToMarkdown(const GmshMesh& mesh, const std::string& cgnsOutputFile);
 }

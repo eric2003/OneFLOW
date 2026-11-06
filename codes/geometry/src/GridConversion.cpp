@@ -462,24 +462,9 @@ namespace
                          static_cast<long long>(parsedMesh.elements.size()) != summary.elementCount )
                         throw std::runtime_error( "Gmsh value reader count mismatch" );
                     hasMaterializedMesh = true;
-                    const GmshMeshReadReport report = BuildGmshMeshReadReport( parsedMesh );
+                    (void)BuildGmshMeshReadReport( parsedMesh );
                     if ( ! target.parent_path().empty() )
                         std::filesystem::create_directories( target.parent_path() );
-                    std::filesystem::path reportPath = target;
-                    reportPath.replace_extension( ".gmsh-read-report.json" );
-                    std::ofstream reportOutput( reportPath, std::ios::trunc );
-                    if ( ! reportOutput )
-                        throw std::runtime_error( "Cannot create Gmsh read report: " + reportPath.string() );
-                    reportOutput << GmshMeshReadReportToJson( report );
-                    if ( ! reportOutput )
-                        throw std::runtime_error( "Failed writing Gmsh read report: " + reportPath.string() );
-
-                    std::cout << "Gmsh MSH " << report.version << " read successfully: "
-                              << report.nodeCount << " nodes, " << report.elementCount
-                              << " elements; TRI_3=" << report.triangleCount
-                              << ", degenerate TRI_3=" << report.degenerateTriangleCount
-                              << std::endl;
-                    std::cout << "Gmsh read report: " << reportPath.string() << std::endl;
                 }
                 else if ( version >= 2.0 && version < 3.0 )
                 {
@@ -542,6 +527,30 @@ namespace
                 "MSH 2.x input is validated but not yet materialized for CGNS conversion" );
         int cellDimension = 0;
         WriteGmshMeshAsCgns( parsedMesh, cellDimension, target );
+
+        std::filesystem::path jsonReportPath = target;
+        jsonReportPath.replace_extension( ".gmsh-read-report.json" );
+        std::ofstream jsonReport( jsonReportPath, std::ios::trunc );
+        if ( ! jsonReport )
+            throw std::runtime_error( "Cannot create Gmsh JSON report: " + jsonReportPath.string() );
+        jsonReport << GmshMeshReadReportToJson( BuildGmshMeshReadReport( parsedMesh ) );
+        if ( ! jsonReport )
+            throw std::runtime_error( "Failed writing Gmsh JSON report: " + jsonReportPath.string() );
+
+        std::filesystem::path markdownReportPath = target;
+        markdownReportPath.replace_extension( ".gmsh-report.md" );
+        std::ofstream markdownReport( markdownReportPath, std::ios::trunc );
+        if ( ! markdownReport )
+            throw std::runtime_error( "Cannot create Gmsh Markdown report: " + markdownReportPath.string() );
+        markdownReport << GmshMeshReportToMarkdown( parsedMesh, target.filename().string() );
+        if ( ! markdownReport )
+            throw std::runtime_error( "Failed writing Gmsh Markdown report: " + markdownReportPath.string() );
+
+        std::cout << "Gmsh MSH 4.1 conversion completed: "
+                  << parsedMesh.nodes.size() << " nodes, "
+                  << parsedMesh.elements.size() << " elements." << std::endl;
+        std::cout << "Gmsh reports: " << jsonReportPath.string()
+                  << " and " << markdownReportPath.string() << std::endl;
     }
 
     void ConvertGmsh( const GridConfig & config, const std::string & caseDir )

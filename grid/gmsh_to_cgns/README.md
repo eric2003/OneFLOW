@@ -43,10 +43,10 @@ system temporary directory before invoking the standard Case entry point, so
 the checked-in Case is not modified.
 
 The current milestone is an input-format adapter prototype. The next
-engineering steps are to introduce a format-neutral mesh snapshot, preserve
-entity and physical-group semantics as named boundaries/regions, and then
-implement a real CGNS writer with semantic round-trip validation. No Gmsh API
-is used; the reader depends only on the MSH file format.
+engineering steps are to introduce a format-neutral mesh snapshot, extend
+three-dimensional and higher-order conversion coverage, and validate
+round-trip semantics against additional real-world meshes. No Gmsh API is
+used; the reader depends only on the MSH file format.
 
 
 ## MSH 4.1 reader progress
@@ -62,11 +62,15 @@ path; high-order cells and periodic/partition metadata are not yet converted.
 
 ## Read diagnostics
 
-For MSH 4.1 ASCII input, the conversion entry point now writes a companion
-`*.gmsh-read-report.json` next to the configured output. The console reports
-the parsed node/element totals and TRI_3 geometry summary. The report includes
-source tag ranges, coordinate bounds, element-type counts, TRI_3 area and XY
-orientation statistics, and explicit validation states.
+For MSH 4.1 ASCII input, the conversion entry point writes two companion
+reports next to the configured output: `*.gmsh-read-report.json` for
+machine-readable diagnostics and `*.gmsh-report.md` for a human-readable
+English inspection report. The Markdown report includes the overall summary,
+physical groups, geometric entities, element-type counts, node and element
+previews, coordinate bounds, TRI_3 area and XY orientation statistics, CGNS
+output status, and current limitations. Markdown is the reviewable source
+artifact; PDF can be generated from it when an archival or publication copy
+is needed.
 
 `READ_SUCCESS` means the reader accepted the file structure, preserved the
 source node tags and ordered connectivity, and passed its structural checks.
