@@ -165,36 +165,40 @@ class MeshContractDialog(QDialog):
             str(self._repository_root),
             "MeshSnapshot JSON (*.json);;All files (*)",
         )
-        if not path:
-            return
+        if path:
+            self._load_snapshot_file(Path(path))
+
+    def _load_snapshot_file(self, path: Path) -> bool:
+        """Load and validate one manifest, keeping validation separate from conversion."""
         try:
-            payload = json.loads(Path(path).read_text(encoding="utf-8"))
+            payload = json.loads(path.read_text(encoding="utf-8"))
             self._validate_snapshot(payload)
         except (OSError, UnicodeError, json.JSONDecodeError, self._snapshot_error) as exc:
             self._snapshot = None
-            self.snapshot_path_label.setText(path)
+            self.snapshot_path_label.setText(str(path))
             self.validation_view.setPlainText(f"FAILED — {type(exc).__name__}: {exc}")
             self.topology_summary.setText("Snapshot is unavailable because validation failed.")
             self.topology_table.setRowCount(0)
             self.topology_table.setColumnCount(0)
-            self.tabs.setCurrentIndex(self.tabs.count() - 1)
-            return
+            self.tabs.setCurrentWidget(self.tabs.widget(self.tabs.count() - 1))
+            return False
         self._snapshot = payload
-        self.snapshot_path_label.setText(path)
+        self.snapshot_path_label.setText(str(path))
         self.validation_view.setPlainText(
-            "PASSED — MeshSnapshot schema and declared invariants validated.\n"
-            f"Dimension: {payload['dimension']}\n"
-            f"Nodes: {len(payload['nodes'])}\n"
-            f"Cells: {len(payload['cells'])}\n"
-            f"Faces: {len(payload['faces'])}\n"
-            f"Groups: {len(payload['groups'])}\n"
-            f"Source: {payload['provenance']['sourceFormat']}\n\n"
+            "PASSED — MeshSnapshot schema and declared invariants validated.\\n"
+            f"Dimension: {payload['dimension']}\\n"
+            f"Nodes: {len(payload['nodes'])}\\n"
+            f"Cells: {len(payload['cells'])}\\n"
+            f"Faces: {len(payload['faces'])}\\n"
+            f"Groups: {len(payload['groups'])}\\n"
+            f"Source: {payload['provenance']['sourceFormat']}\\n\\n"
             "This result validates the manifest only; it does not prove geometric "
             "quality, face orientation, complete incidence, boundary-condition "
             "semantics, or converter correctness."
         )
         self._show_entity_table(self.entity_selector.currentText())
         self.tabs.setCurrentWidget(self.topology_page)
+        return True
 
     def _show_entity_table(self, entity: str) -> None:
         if self._snapshot is None:
