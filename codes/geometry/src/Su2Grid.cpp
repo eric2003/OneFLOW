@@ -443,7 +443,7 @@ void Su2Grid::Su2ToOneFlowGrid( const GridConfig & config, const std::string & c
     ONEFLOW::Su2ToOneFlowGrid( *this );
 }
 
-void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
+void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone, bool convertToInnerDataStandard )
 {
     const int nNodes = this->xN.size();
     const int nCells = this->nElem;
@@ -455,6 +455,26 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
     NodeMesh & nodeMesh = cgnsCoor.RequireNodeMesh();
 
     nodeMesh.SetCoordinates( this->xN, this->yN, this->zN );
+
+    cgnsZone.zoneName = "Zone1";
+    cgnsZone.isize[ 0 ] = nNodes;
+    cgnsZone.isize[ 1 ] = nCells;
+    cgnsZone.isize[ 2 ] = 0;
+
+    if ( ! convertToInnerDataStandard )
+    {
+        cgnsCoor.nCoor = 3;
+        cgnsCoor.coorNameList[ 0 ] = "CoordinateX";
+        cgnsCoor.coorNameList[ 1 ] = "CoordinateY";
+        cgnsCoor.coorNameList[ 2 ] = "CoordinateZ";
+        for ( int iCoor = 0; iCoor < 3; ++ iCoor )
+        {
+            cgnsCoor.typeList[ iCoor ] = RealDouble;
+            cgnsCoor.nNodeList[ iCoor ] = nNodes;
+            cgnsCoor.Alloc( iCoor, nNodes, RealDouble );
+        }
+        cgnsCoor.SetAllCoorData();
+    }
     
     SecMarkerManager volSec;
 
@@ -542,7 +562,10 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone )
 
     cgnsZone.cgnsZoneType = Unstructured;
 
-    cgnsZone.ConvertToInnerDataStandard();
+    if ( convertToInnerDataStandard )
+    {
+        cgnsZone.ConvertToInnerDataStandard();
+    }
 
 }
 

@@ -384,3 +384,27 @@ semantics, and CGNS round-trip validation remain explicitly unimplemented.
 The bundled `grid/gmsh_to_cgns/grid/square.msh` is read by a GTest through the
 same C++ reader, so the test validates the checked-in sample rather than only
 a synthetic in-memory string.
+
+
+Gmsh-to-CGNS first Zone
+-----------------------
+
+The first production output path maps MSH 4.1 ASCII top-dimensional,
+first-order cells into the existing Su2Grid value container and reuses
+Su2Grid::FillSU2CgnsZone() to populate OneFLOW's CGNS zone model.
+CgnsFactory::WriteCgnsFile() serializes the prepared base and zone through
+the existing CGNS writer. The Gmsh reader itself has no dependency on the
+Gmsh SDK or CGNS library.
+
+For the bundled square sample, the intended semantic result is four nodes,
+two TRI_3 cells, and ordered connectivity [1, 2, 3] and [1, 3, 4]. The writer
+emits three coordinate arrays and one homogeneous TRI_3 section. It does not
+yet emit the four lower-dimensional LINE_2 elements as CGNS boundary
+sections. Those are retained in the source mesh and read report, pending
+PhysicalNames / Entities parsing and explicit boundary-group mapping.
+
+The CGNS output path keeps connectivity one-based until CGNS serialization.
+The existing SU2-to-OneFLOW runtime path still requests zero-based internal
+normalization. This distinction is explicit in the FillSU2CgnsZone option
+so the same zone-population logic can serve both runtime ingestion and file
+writing without corrupting CGNS element IDs.

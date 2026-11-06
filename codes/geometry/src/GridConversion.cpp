@@ -23,6 +23,9 @@ License
 #include "GridConversion.h"
 #include "GmshMeshReader.h"
 #include "CgnsFactory.h"
+#include "CgnsZbase.h"
+#include "CgnsBase.h"
+#include "CgnsZone.h"
 #include "GridMediator.h"
 #include "Su2Grid.h"
 #include "Plot3D.h"
@@ -37,6 +40,7 @@ License
 #include <limits>
 #include <unordered_set>
 #include <vector>
+#include <utility>
 #include <stdexcept>
 #include <string>
 #include <iostream>
@@ -286,7 +290,104 @@ namespace
         return summary;
     }
 
-    void ConvertGmshToCgnsPlaceholder(
+
+    int GmshToVtkCellType( int gmshType )
+    {
+        switch ( gmshType )
+        {
+            case 1: return VTK_TYPE::LINE;
+            case 2: return VTK_TYPE::TRIANGLE;
+            case 3: return VTK_TYPE::QUADRILATERAL;
+            case 4: return VTK_TYPE::TETRAHEDRON;
+            case 5: return VTK_TYPE::HEXAHEDRON;
+            case 6: return VTK_TYPE::PRISM;
+            case 7: return VTK_TYPE::PYRAMID;
+            default:
+                throw std::runtime_error(
+                    "Gmsh-to-CGNS conversion currently supports first-order "
+                    "LINE_2, TRI_3, QUAD_4, TETRA_4, HEXA_8, PENTA_6 and PYRA_5 cells; "
+                    "unsupported Gmsh element type " + std::to_string( gmshType ) );
+        }
+    }
+
+    Su2Grid BuildSu2GridFromGmsh( const GmshMesh & mesh, int & cellDimension )
+    {
+        if ( mesh.nodes.empty() || mesh.elements.empty() )
+            throw std::runtime_error( "Gmsh mesh has no nodes or elements" );
+        cellDimension = 0;
+        for ( const GmshElement & element : mesh.elements )
+            cellDimension = std::max( cellDimension, element.entityDimension );
+        if ( cellDimension < 1 || cellDimension > 3 )
+            throw std::runtime_error( "Gmsh mesh has no supported cell dimension" );
+        if ( mesh.nodes.size() > static_cast< size_t >( std::numeric_limits< int >::max() ) )
+            throw std::runtime_error( "Gmsh node count exceeds OneFLOW index range" );
+
+        Su2Grid grid;
+        grid.ndim = cellDimension;
+        grid.nPoin = static_cast< int >( mesh.nodes.size() );
+        grid.nZone = 1;
+        grid.mmark.nMarker = 0;
+        grid.mmark.CreateMarkerList( 0 );
+        grid.xN.reserve( mesh.nodes.size() );
+        grid.yN.reserve( mesh.nodes.size() );
+        grid.zN.reserve( mesh.nodes.size() );
+        for ( const GmshNode & node : mesh.nodes )
+        {
+            grid.xN.push_back( node.coordinates[ 0 ] );
+            grid.yN.push_back( node.coordinates[ 1 ] );
+            grid.zN.push_back( node.coordinates[ 2 ] );
+        }
+        for ( const GmshElement & element : mesh.elements )
+        {
+            // Lower-dimensional elements remain in the source model and report
+            // until Physical Groups are mapped into CGNS boundary sections.
+            if ( element.entityDimension != cellDimension ) continue;
+            const int vtkType = GmshToVtkCellType( element.type );
+            IntField connectivity;
+            connectivity.reserve( element.nodeTags.size() );
+            for ( long long nodeTag : element.nodeTags )
+            {
+                const auto iter = mesh.nodeTagToIndex.find( nodeTag );
+                if ( iter == mesh.nodeTagToIndex.end() )
+                    throw std::runtime_error( "Gmsh cell references an unmapped source node tag" );
+                if ( iter->second > static_cast< size_t >( std::numeric_limits< int >::max() ) )
+                    throw std::runtime_error( "Gmsh node index exceeds OneFLOW index range" );
+                connectivity.push_back( static_cast< int >( iter->second ) );
+            }
+            grid.elems.push_back( std::move( connectivity ) );
+            grid.elemVTKType.push_back( vtkType );
+            grid.elemId.push_back( static_cast< int >( grid.elemId.size() + 1 ) );
+        }
+        if ( grid.elems.empty() )
+            throw std::runtime_error( "Gmsh mesh contains no supported top-dimensional cells" );
+        if ( grid.elems.size() > static_cast< size_t >( std::numeric_limits< int >::max() ) )
+            throw std::runtime_error( "Gmsh cell count exceeds OneFLOW index range" );
+        grid.nElem = static_cast< int >( grid.elems.size() );
+        return grid;
+    }
+
+    void WriteGmshMeshAsCgns(
+        const GmshMesh & mesh,
+        int & cellDimension,
+        const std::filesystem::path & target )
+    {
+        Su2Grid grid = BuildSu2GridFromGmsh( mesh, cellDimension );
+        CgnsFactory factory;
+        CgnsZbase & cgnsZbase = *factory.cgnsZbase;
+        cgnsZbase.nBases = 1;
+        cgnsZbase.InitCgnsBase();
+        CgnsBase * cgnsBase = cgnsZbase.GetCgnsBase( 0 );
+        cgnsBase->baseName = "Base";
+        cgnsBase->celldim = cellDimension;
+        cgnsBase->phydim = 3;
+        cgnsBase->nZones = 1;
+        cgnsBase->AllocateAllCgnsZones();
+        CgnsZone * cgnsZone = cgnsBase->GetCgnsZone( 0 );
+        grid.FillSU2CgnsZone( *cgnsZone, false );
+        factory.WriteCgnsFile( target.string() );
+    }
+
+    void ConvertGmshToCgns(
         const GridConfig & config,
         const std::string & caseDir )
     {
@@ -305,6 +406,8 @@ namespace
         std::istringstream lines( content );
         std::string line;
         GmshMeshSummary summary;
+        GmshMesh parsedMesh;
+        bool hasMaterializedMesh = false;
         bool hasFormat = false;
         while ( std::getline( lines, line ) )
         {
@@ -322,12 +425,12 @@ namespace
                 if ( version >= 4.1 && version < 4.2 )
                 {
                     summary = ReadGmsh41Ascii( content );
-                    const GmshMesh mesh = ReadGmsh41AsciiMesh( content );
-                    if ( static_cast<long long>(mesh.nodes.size()) != summary.nodeCount ||
-                         static_cast<long long>(mesh.elements.size()) != summary.elementCount )
+                    parsedMesh = ReadGmsh41AsciiMesh( content );
+                    if ( static_cast<long long>(parsedMesh.nodes.size()) != summary.nodeCount ||
+                         static_cast<long long>(parsedMesh.elements.size()) != summary.elementCount )
                         throw std::runtime_error( "Gmsh value reader count mismatch" );
-
-                    const GmshMeshReadReport report = BuildGmshMeshReadReport( mesh );
+                    hasMaterializedMesh = true;
+                    const GmshMeshReadReport report = BuildGmshMeshReadReport( parsedMesh );
                     if ( ! target.parent_path().empty() )
                         std::filesystem::create_directories( target.parent_path() );
                     std::filesystem::path reportPath = target;
@@ -400,27 +503,20 @@ namespace
         if ( ! hasFormat || summary.nodeCount < 1 || summary.elementCount < 1 )
             throw std::runtime_error( "Gmsh input requires valid $MeshFormat, $Nodes and $Elements sections" );
 
-        if ( ! target.parent_path().empty() ) std::filesystem::create_directories( target.parent_path() );
-        std::ofstream output( target, std::ios::trunc );
-        if ( ! output ) throw std::runtime_error( "Cannot create placeholder output: " + target.string() );
-        // This deliberately marked text artifact is NOT a standards-compliant CGNS file.
-        output << "ONEFLOW_CGNS_PLACEHOLDER 1\n"
-               << "status=NOT_A_CGNS_FILE\n"
-               << "source_format=gmsh_msh_ascii\n"
-               << "gmsh_version=" << summary.versionText << "\n"
-               << "node_count=" << summary.nodeCount << "\n"
-               << "element_count=" << summary.elementCount << "\n";
-        if ( ! summary.elementTypeCounts.empty() )
-            output << "element_type_counts=" << summary.elementTypeCounts << "\n";
-        output << "geometry_entities_and_physical_groups=not_yet_preserved\n";
-        if ( ! output ) throw std::runtime_error( "Failed writing placeholder output: " + target.string() );
+        if ( ! target.parent_path().empty() )
+            std::filesystem::create_directories( target.parent_path() );
+        if ( ! hasMaterializedMesh )
+            throw std::runtime_error(
+                "MSH 2.x input is validated but not yet materialized for CGNS conversion" );
+        int cellDimension = 0;
+        WriteGmshMeshAsCgns( parsedMesh, cellDimension, target );
     }
 
     void ConvertGmsh( const GridConfig & config, const std::string & caseDir )
     {
         if ( config.targetType != GridFileType::CGNS )
             throw std::invalid_argument( "Initial Gmsh conversion supports targetGridType = cgns only" );
-        ConvertGmshToCgnsPlaceholder( config, caseDir );
+        ConvertGmshToCgns( config, caseDir );
     }
 
     void ConvertPlot3DToOneFLOW(
