@@ -73,6 +73,25 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         finally:
             self._close_dialog(dialog)
 
+    def test_mesh_domain_loads_snapshot_and_populates_topology_without_conversion(self) -> None:
+        from tools.oneflow_gui.mesh_contract_dialog import MeshContractDialog
+
+        dialog = MeshContractDialog(self.repository_root)
+        try:
+            fixture = self.repository_root / "tools" / "mesh_contracts" / "examples" / "square_snapshot.json"
+            self.assertTrue(dialog._load_snapshot_file(fixture))
+            self.assertIn("PASSED", dialog.validation_view.toPlainText())
+            self.assertIn("NOT RUN", dialog.conversion_view.toPlainText())
+            self.assertEqual(dialog.topology_table.rowCount(), 4)
+            dialog.entity_selector.setCurrentText("Cells")
+            self.assertEqual(dialog.topology_table.rowCount(), 2)
+            dialog.entity_selector.setCurrentText("Faces")
+            self.assertEqual(dialog.topology_table.rowCount(), 5)
+            dialog.entity_selector.setCurrentText("Groups")
+            self.assertEqual(dialog.topology_table.rowCount(), 2)
+        finally:
+            self._close_dialog(dialog)
+
     def test_parameter_domain_lists_source_backed_parameter_contracts(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "parameter")
         try:
