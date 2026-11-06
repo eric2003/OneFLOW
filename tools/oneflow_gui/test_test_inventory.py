@@ -323,6 +323,10 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
 
         audit = audit_python_test_registry(repository_root)
 
+        self.assertIn(
+            "tools/mesh_contracts/test_snapshot.py",
+            audit["registered"],
+        )
         self.assertTrue(audit["discovered"])
         self.assertTrue(audit["registered"])
         self.assertTrue(audit["excluded"])
