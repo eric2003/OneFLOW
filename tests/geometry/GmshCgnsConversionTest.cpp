@@ -43,7 +43,7 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
     config.sourceType = ONEFLOW::GridFileType::Gmsh;
     config.targetType = ONEFLOW::GridFileType::CGNS;
     config.sourceFile = input.filename().string();
-    config.targetFile = output.filename().string();
+    config.targetFile = (std::filesystem::path("result") / output.filename()).string();
     ONEFLOW::ConvertGrid(config, caseDirectory.string());
 
     ASSERT_TRUE(std::filesystem::is_regular_file(output));
