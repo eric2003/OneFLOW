@@ -161,7 +161,7 @@ jobs:
           #ldd ${{env.prefix}}/bin/OneFLOW
           OneFLOW
           cd "${{ github.workspace }}/test"
-          python -m py_compile test.py gui.py residual_db.py
+          python -m py_compile test.py gui.py residual_db.py run_optional_gmsh_grid_regression.py
           ls
           python --version
           #python test.py " " " " linux
