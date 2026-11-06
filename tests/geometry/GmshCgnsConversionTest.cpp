@@ -55,7 +55,7 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
         const std::string markdown{std::istreambuf_iterator<char>(reportInput),
                                    std::istreambuf_iterator<char>()};
         EXPECT_NE(markdown.find("## Physical Groups"), std::string::npos);
-        EXPECT_NE(markdown.find("outer boundary"), std::string::npos);
+        EXPECT_NE(markdown.find("fluid_domain"), std::string::npos);
         EXPECT_NE(markdown.find("BAR_2"), std::string::npos);
         EXPECT_NE(markdown.find("CGNS writer completed successfully"), std::string::npos);
         EXPECT_NE(markdown.find("| inflow | BCInflow |"), std::string::npos);
