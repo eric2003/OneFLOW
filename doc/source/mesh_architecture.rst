@@ -355,23 +355,48 @@ evidence. A declared test is not a recorded execution result; a format entry
 marked proposed does not imply a production reader or writer exists.
 
 
-Gmsh reader implementation milestone
-------------------------------------
+Gmsh reader and conversion implementation milestone
+----------------------------------------------------
 
-The MSH 4.1 reader now materializes coordinates, source IDs, geometric entity ownership, element types, and ordered connectivity in a C++ GmshMesh value model. A focused GTest exercises the checked-in square mesh shape and malformed references. The conversion entry point invokes the reader and checks its counts against the existing summary. This is not yet a transfer into UnsGrid or a CGNS zone; the next code step is that mapping, not additional format catalog work.
+The MSH 4.1 ASCII reader materializes coordinates, sparse source IDs,
+geometric entity ownership, physical names, element types, and ordered
+connectivity in a C++ GmshMesh value model. The conversion path maps
+top-dimensional first-order cells into the existing Su2Grid value container
+and reuses the production CGNS zone writer. The bundled square mesh is now
+written as a real unstructured CGNS zone and independently reopened through
+the CGNS API in a focused GTest.
+
+The conversion test verifies the Base and Zone dimensions, node and cell
+counts, ordered TRI_3 connectivity, coordinate arrays, the BAR_2 boundary
+section, and the BC_t PointList. The test also checks the generated
+human-readable report. This validates a real file round trip rather than a
+placeholder or a successful writer call alone.
 
 
-Gmsh MSH 4.1 read diagnostics
------------------------------
+Gmsh MSH 4.1 read and conversion reports
+----------------------------------------
 
-The production C++ reader now maintains an explicit source-node-tag to
+The production C++ reader maintains an explicit source-node-tag to
 zero-based node-position map while retaining each original Gmsh tag. This
-makes sparse source IDs safe for subsequent connectivity conversion without
-confusing identity with storage position.
+makes sparse source IDs safe for connectivity conversion without confusing
+identity with storage position.
 
-For a successfully parsed MSH 4.1 ASCII mesh, the conversion entry point
-writes a companion `*.gmsh-read-report.json`. The report contains source tag
-ranges, coordinate bounds, element-type counts, and TRI_3 geometric checks.
+After a successful CGNS write, the conversion entry point writes two
+case-local reports under `results/`:
+
+* `*.gmsh-read-report.json`: machine-readable source tag ranges, coordinate
+  bounds, element-type counts, and geometry checks.
+* `*.gmsh-report.md`: an English inspection report covering physical groups,
+  geometric entities, element and node previews, connectivity, coordinate
+  bounds, and geometry checks.
+
+The Markdown report distinguishes Gmsh input element types from the CGNS
+boundary section types produced by conversion. For example, a two-dimensional
+Gmsh `LINE_2` boundary is represented as a CGNS `BAR_2` section. This
+boundary-section inventory is based on codimension-one elements associated
+with Physical Groups, matching the conversion path; it does not invent
+solver-specific wall, inlet, or outlet semantics.
+
 Triangle area is computed from the three-dimensional cross-product magnitude;
 the signed XY projection is reported separately as an orientation diagnostic.
 A negative XY orientation is not automatically treated as a read failure.
@@ -380,10 +405,9 @@ threshold.
 
 The report's `READ_SUCCESS` status means that the reader's structural checks
 passed and that the declared PhysicalNames and Entities sections were parsed
-when present. The report includes the physical-name count. It does not assign
-solver boundary semantics. The bundled `grid/gmsh_to_cgns/grid/square.msh`
-is read by a GTest through the same C++ reader, so the test validates the
-checked-in sample rather than only a synthetic in-memory string.
+when present. It does not by itself claim that CGNS conversion succeeded:
+the reports are emitted only after the CGNS writer returns successfully, and
+the independent CGNS read-back test verifies the generated file.
 
 
 Gmsh-to-CGNS first Zone
