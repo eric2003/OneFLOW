@@ -232,8 +232,3 @@ TEST( GridTypesTest, ParseGridTopology )
 }
 
 
-#include "GridConversion.h"
-#include <chrono>
-#include <filesystem>
-#include <fstream>
-#include <iterator>
