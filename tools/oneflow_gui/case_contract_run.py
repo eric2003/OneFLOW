@@ -44,7 +44,7 @@ def build_case_runner_command(
     """Build the argv for test/test.py for a single-case residual run."""
     command: list[str] = [
         python_executable,
-        str(test_script),
+        test_script.as_posix(),
         mpi_cmd,
         oneflow_executable,
         str(suite_file),
