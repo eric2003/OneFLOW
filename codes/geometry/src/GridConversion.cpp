@@ -360,15 +360,15 @@ namespace
         std::ofstream output( target, std::ios::trunc );
         if ( ! output ) throw std::runtime_error( "Cannot create placeholder output: " + target.string() );
         // This deliberately marked text artifact is NOT a standards-compliant CGNS file.
-        output << "ONEFLOW_CGNS_PLACEHOLDER 1\\n"
-               << "status=NOT_A_CGNS_FILE\\n"
-               << "source_format=gmsh_msh_ascii\\n"
+        output << "ONEFLOW_CGNS_PLACEHOLDER 1\n"
+               << "status=NOT_A_CGNS_FILE\n"
+               << "source_format=gmsh_msh_ascii\n"
                << "gmsh_version=" << summary.versionText << "\n"
                << "node_count=" << summary.nodeCount << "\n"
                << "element_count=" << summary.elementCount << "\n";
         if ( ! summary.elementTypeCounts.empty() )
             output << "element_type_counts=" << summary.elementTypeCounts << "\n";
-        output << "geometry_entities_and_physical_groups=not_yet_preserved\\n";
+        output << "geometry_entities_and_physical_groups=not_yet_preserved\n";
         if ( ! output ) throw std::runtime_error( "Failed writing placeholder output: " + target.string() );
     }
 
