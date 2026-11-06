@@ -4,13 +4,15 @@ This is an experimental, GUI-only manual Case for the Gmsh input adapter.
 The primary sample is ASCII MSH 4.1; the C++ reader also retains the legacy
 ASCII MSH 2.x path. Binary MSH and MSH 4.0 are not currently supported.
 
-MSH 4.1 ASCII conversion now writes a real CGNS unstructured Zone for
-first-order top-dimensional cells. The writer reuses OneFLOW's
-Su2Grid::FillSU2CgnsZone() data-population path and CgnsFactory /
-CgnsZbase serialization path. The bundled square sample writes two TRI_3
-cells and four nodes. Lower-dimensional Gmsh elements are not yet written as
-CGNS boundary sections; Physical Groups and Entities are the next mapping
-stage.
+MSH 4.1 ASCII conversion writes a real CGNS unstructured Zone for supported
+first-order top-dimensional cells. It also maps first-order elements from
+the immediately lower dimension through Gmsh Entities and Physical Names
+into CGNS boundary element sections and BC_t point lists. Physical group
+names are retained with BCTypeUserDefined; they are not inferred to be
+solver-specific wall, inlet, or outlet conditions. The writer reuses
+OneFLOW's Su2Grid::FillSU2CgnsZone() and CgnsFactory / CgnsZbase paths.
+The bundled square sample writes four nodes, two TRI_3 cells, four BAR_2
+boundary elements, and one named boundary record.
 
 ## Parameters
 
@@ -28,10 +30,10 @@ string targetGridType = "cgns";
 - MSH 2.x ASCII: legacy line-oriented nodes and elements.
 - Reject binary input, unsupported MSH revisions, unsupported element types,
   duplicate/non-positive tags, and element references to unknown nodes.
-- Node coordinates and element connectivity are parsed and validated, but
-  are not yet transferred into OneFLOW's canonical mesh model.
-- `$Entities`, `$PhysicalNames`, physical groups, periodicity, partition and
-  ghost metadata are not yet preserved. Their mapping is a required next stage.
+- Node coordinates, ordered connectivity, sparse source tags, entity ownership,
+  `$Entities`, and quoted `$PhysicalNames` are parsed into the GmshMesh value model.
+- Entity-to-physical-group membership is retained and used for lower-dimensional
+  boundary elements. Periodicity, partition and ghost metadata are not yet mapped.
 
 ## Manual execution
 
@@ -49,7 +51,13 @@ is used; the reader depends only on the MSH file format.
 
 ## MSH 4.1 reader progress
 
-The C++ reader now materializes node coordinates, source node and element IDs, geometric entity ownership, element types, and ordered connectivity in a GmshMesh value model. A focused GTest covers the square-mesh shape and malformed references. The conversion entry point invokes this reader and cross-checks its counts. The MSH 4.1 first-order top-dimensional cell data is now mapped through the existing Su2Grid-to-CgnsZone population path and written through CgnsFactory. The current stage omits lower-dimensional boundary elements and Physical Groups; MSH 2.x remains on the validation-only path.
+The C++ reader materializes node coordinates, source node and element IDs,
+geometric entity ownership, physical names, entity-to-physical-group membership,
+element types, and ordered connectivity. Quoted physical names may contain
+spaces. The conversion path maps top-dimensional cells and first-order
+codimension-one physical-group elements through the existing
+Su2Grid-to-CgnsZone population path. MSH 2.x remains on the validation-only
+path; high-order cells and periodic/partition metadata are not yet converted.
 
 
 ## Read diagnostics
@@ -62,9 +70,9 @@ orientation statistics, and explicit validation states.
 
 `READ_SUCCESS` means the reader accepted the file structure, preserved the
 source node tags and ordered connectivity, and passed its structural checks.
-It does not mean that Physical Groups have been mapped or that a CGNS file
-has been produced. The current `.cgns` output remains a clearly marked
-non-CGNS placeholder until the existing OneFLOW CGNS Zone path is connected.
+It does not by itself guarantee that conversion succeeded. The companion
+CGNS conversion test independently reopens the output and checks zone,
+coordinate, cell-section, boundary-section and BC_t data.
 
 
 ## Current CGNS conversion scope
@@ -72,6 +80,6 @@ non-CGNS placeholder until the existing OneFLOW CGNS Zone path is connected.
 - Writes a standards-based unstructured CGNS Base and Zone for MSH 4.1 ASCII.
 - Maps first-order LINE_2, TRI_3, QUAD_4, TETRA_4, HEXA_8, PENTA_6 and PYRA_5 top-dimensional cells.
 - Preserves source node ordering and maps sparse node tags before CGNS one-based numbering.
-- Writes coordinates, cell sections and a read-report sidecar.
-- Lower-dimensional elements, PhysicalNames, Entities, and CGNS BC_t records are not yet emitted. No Physical Group name is inferred as a solver BC.
-- MSH 2.x is parsed but not yet materialized for CGNS output. High-order cells are not yet mapped.
+- Writes coordinates, top-dimensional cell sections, supported codimension-one boundary sections, BC_t point lists, and a read-report sidecar.
+- Preserves physical group names as CGNS boundary labels with BCTypeUserDefined; no solver boundary condition is inferred.
+- MSH 2.x is parsed but not yet materialized for CGNS output. High-order cells, periodicity, and partition metadata are not yet mapped.

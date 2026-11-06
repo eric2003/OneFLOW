@@ -378,12 +378,12 @@ A negative XY orientation is not automatically treated as a read failure.
 Degenerate triangles are counted using a scale-relative floating-point
 threshold.
 
-The report's `READ_SUCCESS` status means only that the current reader's
-structural checks passed. Physical groups, entity membership, solver boundary
-semantics, and CGNS round-trip validation remain explicitly unimplemented.
-The bundled `grid/gmsh_to_cgns/grid/square.msh` is read by a GTest through the
-same C++ reader, so the test validates the checked-in sample rather than only
-a synthetic in-memory string.
+The report's `READ_SUCCESS` status means that the reader's structural checks
+passed and that the declared PhysicalNames and Entities sections were parsed
+when present. The report includes the physical-name count. It does not assign
+solver boundary semantics. The bundled `grid/gmsh_to_cgns/grid/square.msh`
+is read by a GTest through the same C++ reader, so the test validates the
+checked-in sample rather than only a synthetic in-memory string.
 
 
 Gmsh-to-CGNS first Zone
@@ -396,12 +396,14 @@ CgnsFactory::WriteCgnsFile() serializes the prepared base and zone through
 the existing CGNS writer. The Gmsh reader itself has no dependency on the
 Gmsh SDK or CGNS library.
 
-For the bundled square sample, the intended semantic result is four nodes,
-two TRI_3 cells, and ordered connectivity [1, 2, 3] and [1, 3, 4]. The writer
-emits three coordinate arrays and one homogeneous TRI_3 section. It does not
-yet emit the four lower-dimensional LINE_2 elements as CGNS boundary
-sections. Those are retained in the source mesh and read report, pending
-PhysicalNames / Entities parsing and explicit boundary-group mapping.
+For the bundled square sample, the semantic result is four nodes, two TRI_3
+cells, four BAR_2 boundary elements, and ordered volume connectivity
+[1, 2, 3] and [1, 3, 4]. The four lower-dimensional LINE_2 elements are
+grouped through their curve-entity physical tags and written as a CGNS
+boundary section. The matching BC_t point list references the boundary
+element IDs after the volume-cell range. Its name is preserved from
+PhysicalNames and its type is BCTypeUserDefined; this is a label, not a
+solver boundary-condition assignment.
 
 The CGNS output path keeps connectivity one-based until CGNS serialization.
 The existing SU2-to-OneFLOW runtime path still requests zero-based internal
