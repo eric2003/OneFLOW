@@ -22,7 +22,6 @@ function(oneflow_discover_module_sources module_root source_var header_var inclu
         "${_module_root}/*.cpp"
         "${_module_root}/*.h"
         "${_module_root}/*.hpp"
-        "${_module_root}/*.hh"
     )
 
     set(_sources)
