@@ -29,7 +29,7 @@ class ProjectWindowParameterTest(unittest.TestCase):
             (script / "control.txt").write_text('"simu.txt"\n', encoding="ascii")
             (script / "simu.txt").write_text('string simuTask = "flow";\n', encoding="ascii")
 
-            catalog_home = root.parent / "oneflow-user-data"
+            catalog_home = root / "oneflow-user-data"
             with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
                 window = ProjectWindow(
                     open_project(root),
@@ -220,7 +220,9 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 self.assertIsNotNone(task)
                 self.assertIn("script/control.txt", task.text(3))
                 self.assertEqual(task.text(1), "Grid")
-                self.assertEqual(self._find_item(tree, "dimension").text(1), "2")
+                dimension = self._find_item(tree, "dimension")
+                self.assertIsNotNone(dimension)
+                self.assertEqual(dimension.text(1), "2")
             finally:
                 window.close()
 
