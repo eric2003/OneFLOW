@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "mesh/stl-planar-to-gmsh",
+  "title": "Planar STL boundary extraction and Gmsh 2D generation",
+  "domain": "mesh",
+  "kind": "mesh_generation_pipeline",
+  "status": "prototype",
+  "overview": "Reads a triangulated STL region in the XY plane, reconstructs one closed boundary loop, assigns named boundary groups from a JSON sidecar, and writes Gmsh geometry. Gmsh remains an optional external executable.",
+  "principle": "STL facets carry coordinates and triangle topology, not standard CFD boundary-condition semantics. Singly incident triangle edges form the outer boundary; a sidecar explicitly maps every boundary edge to a named Gmsh Physical Curve. Physical names require a separate mapping to OneFLOW BC semantics.",
+  "architecture": "ASCII/Binary STL -> vertex welding and XY topology validation -> single closed boundary loop -> sidecar edge-to-physical-name mapping -> Gmsh .geo -> optional Gmsh CLI -> MSH -> existing Gmsh import and CGNS conversion path.",
+  "references": [
+    "Gmsh transfinite meshes: https://gmsh.info/doc/texinfo/gmsh.html#t6",
+    "Gmsh MSH physical groups: https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format",
+    "doc/source/stl_to_gmsh_2d.rst"
+  ],
+  "implementation": {
+    "source_paths": [
+      "tools/stl_to_gmsh/stl_to_gmsh.py",
+      "tools/stl_to_gmsh/data/square.stl",
+      "tools/stl_to_gmsh/data/square.boundary.json"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "tools/stl_to_gmsh/README.md",
+      "doc/source/stl_to_gmsh_2d.rst",
+      "doc/source/gmsh_interface.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "ASCII and binary STL triangle records can be read and a planar square fixture yields one four-edge boundary loop.",
+      "Every outer edge can be assigned to a named Gmsh Physical Curve and the generated geometry can request one quadrilateral cell."
+    ],
+    "does_not_prove": [
+      "Gmsh CLI has been executed or the emitted MSH contains exactly one quadrilateral element.",
+      "Generated MSH has been converted through CGNS into a OneFLOW native grid.",
+      "Boundary names are automatically translated into OneFLOW solver boundary-condition types.",
+      "Arbitrary plane orientations, holes, multiple components, curved reconstruction or general multi-cell meshing are supported."
+    ]
+  },
+  "verification": [],
+  "group": {
+    "id": "mesh_generation",
+    "title": "Mesh Generation",
+    "order": 30
+  }
+}

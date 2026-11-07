@@ -270,3 +270,9 @@ References
   mesh generator with built-in pre- and post-processing facilities*,
   International Journal for Numerical Methods in Engineering, 79(11),
   1309-1331, 2009.
+
+
+Planar STL geometry generation
+------------------------------
+
+The first-stage planar STL generator is documented in doc:stl_to_gmsh_2d. It extracts one closed XY boundary loop and writes Gmsh geometry without linking the Gmsh SDK. Since STL has no standard CFD boundary-condition fields, a JSON sidecar assigns each extracted edge to a named Physical Curve such as Inlet, Outlet, Symmetry or Farfield. These names are mesh metadata and require explicit mapping to OneFLOW boundary semantics. The current square fixture tests geometry generation only; it does not yet prove MSH-to-CGNS-to-OneFLOW conversion.
