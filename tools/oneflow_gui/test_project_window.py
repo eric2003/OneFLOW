@@ -110,7 +110,7 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 overridden = [
                     effective.child(index)
                     for index in range(effective.childCount())
-                    if effective.child(index).text(0) == "[overridden] maxSteps"
+                    if effective.child(index).text(0).casefold() == "[overridden] maxsteps"
                 ]
                 self.assertEqual([item.text(1) for item in overridden], ["20", "30"])
                 self.assertIn("file 1", overridden[0].text(3))
