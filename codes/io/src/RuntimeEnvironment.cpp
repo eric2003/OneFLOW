@@ -152,7 +152,7 @@ Json QueryCgnsDependency()
     cg_get_cgns_version_string(&versionString);
 
     std::string value;
-    if (versionString != nullptr && versionString[0] != '\\0')
+    if (versionString != nullptr && versionString[0] != '\0')
     {
         value = versionString;
     }
@@ -238,23 +238,23 @@ void WriteRuntimeEnvironmentText(
     const Json & environment,
     std::ostream & output)
 {
-    output << "OneFLOW Runtime Environment\\n";
-    output << "----------------------------------------\\n";
+    output << "OneFLOW Runtime Environment\n";
+    output << "----------------------------------------\n";
     output << "OneFLOW       : "
-           << environment["oneflow"]["version"].get<std::string>() << '\\n';
+           << environment["oneflow"]["version"].get<std::string>() << '\n';
     output << "Compiler      : "
            << environment["build"]["compiler"].get<std::string>() << ' '
-           << environment["build"]["compiler_version"].get<std::string>() << '\\n';
+           << environment["build"]["compiler_version"].get<std::string>() << '\n';
     output << "Configuration : "
-           << environment["build"]["configuration"].get<std::string>() << '\\n';
-    output << "\\nDependencies\\n";
-    output << "----------------------------------------\\n";
+           << environment["build"]["configuration"].get<std::string>() << '\n';
+    output << "\nDependencies\n";
+    output << "----------------------------------------\n";
 
     for (const Json & dependency : environment["dependencies"])
     {
-        output << dependency["name"].get<std::string>() << '\\n';
+        output << dependency["name"].get<std::string>() << '\n';
         output << "  Status          : "
-               << dependency["status"].get<std::string>() << '\\n';
+               << dependency["status"].get<std::string>() << '\n';
 
         if (!dependency["enabled"].get<bool>())
         {
@@ -268,11 +268,11 @@ void WriteRuntimeEnvironmentText(
             output << "  Runtime version : "
                    << runtimeVersion["value"].get<std::string>()
                    << " (" << runtimeVersion["source"].get<std::string>()
-                   << ")\\n";
+                   << ")\n";
         }
         else
         {
-            output << "  Runtime version : unavailable\\n";
+            output << "  Runtime version : unavailable\n";
         }
 
         const Json & headerVersion = dependency["header_version"];
@@ -280,23 +280,23 @@ void WriteRuntimeEnvironmentText(
         {
             output << "  Header version  : "
                    << headerVersion["value"].get<std::string>()
-                   << " (compile-time)\\n";
+                   << " (compile-time)\n";
         }
 
         const Json & runtimeLibrary = dependency["runtime_library"];
         if (!runtimeLibrary.is_null())
         {
             output << "  Linkage         : "
-                   << runtimeLibrary["linkage"].get<std::string>() << '\\n';
+                   << runtimeLibrary["linkage"].get<std::string>() << '\n';
             output << "  Loaded module   : "
-                   << runtimeLibrary["module_path"].get<std::string>() << '\\n';
+                   << runtimeLibrary["module_path"].get<std::string>() << '\n';
         }
 
         if (dependency.contains("runtime_version_status"))
         {
             output << "  Query status    : "
                    << dependency["runtime_version_status"].get<std::string>()
-                   << '\\n';
+                   << '\n';
         }
     }
 }
@@ -319,10 +319,10 @@ int HandleRuntimeEnvironmentCommand(
     {
         if (argc != 2)
         {
-            error << "Usage: OneFLOW --version\\n";
+            error << "Usage: OneFLOW --version\n";
             return 2;
         }
-        output << "OneFLOW " << ONEFLOW_PROJECT_VERSION << '\\n';
+        output << "OneFLOW " << ONEFLOW_PROJECT_VERSION << '\n';
         return 0;
     }
 
@@ -342,14 +342,14 @@ int HandleRuntimeEnvironmentCommand(
     }
     else if (argc != 2)
     {
-        error << "Usage: OneFLOW --environment [--format json]\\n";
+        error << "Usage: OneFLOW --environment [--format json]\n";
         return 2;
     }
 
     const Json environment = QueryRuntimeEnvironment();
     if (jsonFormat)
     {
-        output << environment.dump(2) << '\\n';
+        output << environment.dump(2) << '\n';
     }
     else
     {
