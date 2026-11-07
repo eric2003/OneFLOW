@@ -47,7 +47,10 @@ TEST(GmshTwoQuadsOneFlowTest, ConvertsTwoAdjacentQuadsThroughCgnsIntoNativeGrid)
     config.sourceType = ONEFLOW::GridFileType::Gmsh;
     config.targetType = ONEFLOW::GridFileType::OneFLOW;
     config.sourceFile = input.filename().string();
-    config.targetFile = "results/two_quads.oneflow.grid";
+    // CalcGrid resolves relative output names under the configured mesh-output
+    // root, not under caseDirectory. Use an absolute path so this isolated
+    // conversion test writes only inside its temporary workspace.
+    config.targetFile = (results / "two_quads.oneflow.grid").string();
     config.topology = ONEFLOW::GridTopology::Unstructured;
 
     ASSERT_NO_THROW(ONEFLOW::ConvertGrid(config, caseDirectory.string()));
