@@ -77,6 +77,9 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridMediator.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/DomainInp.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/Su2Grid.cpp
+    # Shared unstructured mesh model and CGNS writer used by Gmsh and SU2 adapters.
+    ${CMAKE_SOURCE_DIR}/codes/geometry/src/UnstructuredMeshData.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/src/UnstructuredCgnsZoneWriter.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/Plot3D.cpp
     ${CMAKE_SOURCE_DIR}/codes/partition/src/Partition.cpp
     ${CMAKE_SOURCE_DIR}/codes/basic/src/Word.cpp
