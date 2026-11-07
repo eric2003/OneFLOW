@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "id": "mesh/unstructured-cgns-writer",
+  "title": "Shared unstructured mesh staging model and CGNS writer",
+  "domain": "mesh",
+  "kind": "mesh_conversion_architecture",
+  "status": "partially_verified",
+  "overview": "A shared first-order unstructured staging model and a CGNS Unstructured Zone writer used by source-format adapters. SU2 and Gmsh are input adapters; neither owns the common CGNS zone-population algorithm. The staging model is not yet the complete canonical Mesh Core representation.",
+  "principle": "Input-format identity is not an internal mesh model. Readers map supported coordinates, element topology and boundary patches into a shared value representation. The current staging model uses VTK element identifiers and explicit CGNS BC type values, so it is source-format-independent but not output-format-neutral. The CGNS writer owns Zone type initialization, section numbering, one-based connectivity and BC PointList construction. Boundary labels remain distinct from solver semantics until an explicit mapping is applied.",
+  "architecture": "SU2 reader -> shared UnstructuredMeshData -> UnstructuredCgnsZoneWriter -> CGNS Unstructured Zone; Gmsh MSH reader -> GmshMesh -> shared UnstructuredMeshData -> UnstructuredCgnsZoneWriter -> CGNS Unstructured Zone. Standard Plot3D follows a separate structured GridMediator -> CGNS Structured Zone path.",
+  "references": [
+    "CGNS SIDS: https://cgns.github.io/CGNS_docs_current/sids/",
+    "doc/source/mesh_architecture.rst",
+    "doc/source/grid_conversion_cases.rst",
+    "doc/source/gmsh_interface.rst"
+  ],
+  "implementation": {
+    "source_paths": [
+      "codes/geometry/include/UnstructuredMeshData.h",
+      "codes/geometry/src/UnstructuredMeshData.cpp",
+      "codes/geometry/include/UnstructuredCgnsZoneWriter.h",
+      "codes/geometry/src/UnstructuredCgnsZoneWriter.cpp",
+      "codes/geometry/src/Su2Grid.cpp",
+      "codes/geometry/src/GridConversion.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/mesh_architecture.rst",
+      "doc/source/grid_conversion_cases.rst",
+      "doc/source/gmsh_interface.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "Gmsh conversion constructs UnstructuredMeshData directly and does not instantiate Su2Grid as its intermediate container.",
+      "SU2 retains its source-format reader while delegating CGNS Unstructured Zone population to the common writer.",
+      "The common writer sets the Zone type before creating sections and boundary connectivity."
+    ],
+    "does_not_prove": [
+      "UnstructuredMeshData is the complete canonical Mesh Core model.",
+      "High-order interpolation, periodic connectivity, partition/ghost metadata, arbitrary source entity identity and all provenance survive conversion.",
+      "Standard Plot3D is an unstructured input format.",
+      "All SU2 and Gmsh element families and boundary semantics are supported."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "integration",
+      "target": "tests/geometry/GmshTwoQuadsOneFlowTest.cpp",
+      "status": "declared_not_executed",
+      "scope": "Gmsh two-quad MSH -> CGNS Unstructured Zone -> OneFLOW native grid."
+    },
+    {
+      "kind": "architecture",
+      "target": "tools/mesh_contracts/test_unstructured_cgns_writer_architecture.py",
+      "status": "declared_not_executed",
+      "scope": "Checks that Gmsh uses the shared model/writer and the SU2 adapter delegates to the same writer."
+    }
+  },
+  "group": {
+    "id": "mesh_core",
+    "title": "Mesh Core Concepts",
+    "order": 15
+  }
+}

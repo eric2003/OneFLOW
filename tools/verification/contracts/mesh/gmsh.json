@@ -7,7 +7,7 @@
   "status": "partially_verified",
   "overview": "Gmsh is a mesh generator and MSH interchange format. OneFLOW currently targets ASCII MSH 4.1 first, with MSH 2.2 ASCII compatibility as a secondary format. The adapter must preserve node and element tags, ordering, entity dimensions/tags, physical names and memberships. The catalog explicitly names Physical Groups as a first-class concept: a physical group is a dimension-tagged collection of geometric entities and must remain distinct from solver boundary-condition semantics.",
   "principle": "MSH separates geometric entities from physical groups. MSH 4.1 stores nodes and elements in entity blocks; tags are sparse identities, not dense offsets. $MeshFormat declares version and encoding; $PhysicalNames stores dimension-tagged names; $Entities associates entities and physical groups; $Nodes and $Elements store entity blocks. A physical group is not a OneFLOW boundary-condition type. Physical Groups are declared by dimension and physical tag, then associated with geometric entities; the name is metadata and does not itself prescribe a wall, inlet, outlet or symmetry condition.",
-  "architecture": "MSH parser -> format-owned entity blocks, node/element tags and physical memberships -> neutral MeshSnapshot -> explicit semantic mapping -> Mesh Core. File parsing remains independent of the optional Gmsh SDK.",
+  "architecture": "MSH parser -> GmshMesh (source tags, entity ownership and physical memberships) -> UnstructuredMeshData (current first-order staging view) -> UnstructuredCgnsZoneWriter -> CGNS Unstructured Zone. The source parser remains independent of the optional Gmsh SDK. MeshSnapshot/Mesh Core is a broader contract and is not yet the production C++ conversion container.",
   "references": [
     "Gmsh MSH file format: https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format",
     "Gmsh API: https://gmsh.info/doc/texinfo/gmsh.html#Gmsh-API",
@@ -15,7 +15,11 @@
   ],
   "implementation": {
     "source_paths": [
-      "codes/geometry/src/GridConversion.cpp"
+      "codes/geometry/src/GridConversion.cpp",
+      "codes/geometry/include/UnstructuredMeshData.h",
+      "codes/geometry/src/UnstructuredMeshData.cpp",
+      "codes/geometry/include/UnstructuredCgnsZoneWriter.h",
+      "codes/geometry/src/UnstructuredCgnsZoneWriter.cpp"
     ]
   },
   "documentation": {
@@ -26,11 +30,11 @@
   },
   "claims": {
     "proves": [
-      "Current C++ reader validates and summarizes supported ASCII MSH 4.1 records.",
+      "C++ reader materializes supported ASCII MSH 4.1 data and Gmsh conversion uses the shared UnstructuredMeshData and UnstructuredCgnsZoneWriter.",
       "Knowledge distinguishes entity blocks, sparse tags and physical-group semantics."
     ],
     "does_not_prove": [
-      "Full MSH 4.1 MeshSnapshot export.",
+      "Full MSH 4.1 MeshSnapshot export and complete preservation of source entity identity.",
       "Binary MSH and all high-order element families are supported.",
       "Placeholder .cgns output is a legal CGNS file."
     ]

@@ -134,15 +134,23 @@ The intended adapter flow is:
 
 .. code-block:: text
 
-   Gmsh MSH 4.1 / Plot3D / SU2 / CGNS
-                    |
-             format-specific reader
-                    |
-          MeshSnapshot v1 validation
-                    |
-          explicit semantic mapping
-                    |
-             OneFLOW Mesh Core
+   SU2 reader -----------+
+                         |
+   Gmsh MSH reader ------+--> UnstructuredMeshData
+                         |          |
+   Other unstructured --+          v
+      format readers          UnstructuredCgnsZoneWriter
+                                    |
+                                    v
+                            CGNS Unstructured Zone
+
+   Plot3D reader -> structured GridMediator / block model
+                              |
+                              v
+                       CGNS Structured Zone
+
+   CGNS reader / other importers -> OneFLOW Mesh Core
+
 
 A future production C++ snapshot should implement the same semantics without
 making the Python validator or JSON representation a runtime dependency.
@@ -361,8 +369,10 @@ Gmsh reader and conversion implementation milestone
 The MSH 4.1 ASCII reader materializes coordinates, sparse source IDs,
 geometric entity ownership, physical names, element types, and ordered
 connectivity in a C++ GmshMesh value model. The conversion path maps
-top-dimensional first-order cells into the existing Su2Grid value container
-and reuses the production CGNS zone writer. The bundled square mesh is now
+top-dimensional first-order cells into the shared ``UnstructuredMeshData``
+staging model and writes the result through ``UnstructuredCgnsZoneWriter``.
+The Gmsh adapter does not construct a ``Su2Grid`` object or call a
+SU2-named writer method. The bundled square mesh is now
 written as a real unstructured CGNS zone and independently reopened through
 the CGNS API in a focused GTest.
 
@@ -414,11 +424,33 @@ Gmsh-to-CGNS first Zone
 -----------------------
 
 The first production output path maps MSH 4.1 ASCII top-dimensional,
-first-order cells into the existing Su2Grid value container and reuses
-Su2Grid::FillSU2CgnsZone() to populate OneFLOW's CGNS zone model.
-CgnsFactory::WriteCgnsFile() serializes the prepared base and zone through
-the existing CGNS writer. The Gmsh reader itself has no dependency on the
-Gmsh SDK or CGNS library.
+first-order cells into ``UnstructuredMeshData`` and calls
+``UnstructuredCgnsZoneWriter::Write()`` to populate OneFLOW's CGNS
+Unstructured Zone model. ``CgnsFactory::WriteCgnsFile()`` serializes the
+prepared base and zone through the existing CGNS writer. The Gmsh reader
+itself has no dependency on the Gmsh SDK or CGNS library.
+
+The common writer was extracted from the former
+``Su2Grid::FillSU2CgnsZone()`` implementation. SU2 keeps its source-format
+reader and adapts its parsed data to the shared staging model before calling
+the common writer. Reusing SU2 parsing or SU2 file semantics was never a
+technical requirement for Gmsh; the earlier route was an implementation
+shortcut that coupled unrelated responsibilities.
+
+The current staging model is intentionally limited: it uses VTK element
+identifiers and explicit CGNS BC type values for the first-order conversion
+path. It is not yet the canonical Mesh Core model. Original source entity
+identity, high-order interpolation data, periodic links, partitions, ghost
+entities, richer boundary semantics and complete provenance remain future
+extensions.
+
+Standard Plot3D follows a separate structured path. The current implementation
+uses ``Plot3D::Plot3DToCgns()``, ``GridMediatorGroup``, and
+``CgnsFactory::DumpCgnsGrid()`` to preserve structured blocks and write
+CGNS Structured Zones. It must not be forced through the unstructured writer.
+A future unstructured Plot3D variant may use ``UnstructuredMeshData`` only
+after its format variant and explicit connectivity semantics are defined and
+validated.
 
 For the bundled square sample, the semantic result is four nodes, two TRI_3
 cells, four BAR_2 boundary elements, and ordered volume connectivity

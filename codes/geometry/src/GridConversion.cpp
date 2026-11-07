@@ -28,6 +28,8 @@ License
 #include "CgnsZone.h"
 #include "GridMediator.h"
 #include "Su2Grid.h"
+#include "UnstructuredMeshData.h"
+#include "UnstructuredCgnsZoneWriter.h"
 #include "Plot3D.h"
 #include "Boundary.h"
 #include <filesystem>
@@ -341,7 +343,7 @@ namespace
         return "BCTypeUserDefined";
     }
 
-    Su2Grid BuildSu2GridFromGmsh( const GmshMesh & mesh, int & cellDimension )
+    UnstructuredMeshData BuildUnstructuredMeshFromGmsh( const GmshMesh & mesh, int & cellDimension )
     {
         if ( mesh.nodes.empty() || mesh.elements.empty() )
             throw std::runtime_error( "Gmsh mesh has no nodes or elements" );
@@ -353,10 +355,9 @@ namespace
         if ( mesh.nodes.size() > static_cast< size_t >( std::numeric_limits< int >::max() ) )
             throw std::runtime_error( "Gmsh node count exceeds OneFLOW index range" );
 
-        Su2Grid grid;
+        UnstructuredMeshData grid;
         grid.ndim = cellDimension;
         grid.nPoin = static_cast< int >( mesh.nodes.size() );
-        grid.nZone = 1;
         grid.xN.reserve( mesh.nodes.size() );
         grid.yN.reserve( mesh.nodes.size() );
         grid.zN.reserve( mesh.nodes.size() );
@@ -434,7 +435,7 @@ namespace
         int & cellDimension,
         const std::filesystem::path & target )
     {
-        Su2Grid grid = BuildSu2GridFromGmsh( mesh, cellDimension );
+        UnstructuredMeshData grid = BuildUnstructuredMeshFromGmsh( mesh, cellDimension );
         CgnsFactory factory;
         CgnsZbase & cgnsZbase = *factory.cgnsZbase;
         cgnsZbase.nBases = 1;
@@ -446,7 +447,7 @@ namespace
         cgnsBase->nZones = 1;
         cgnsBase->AllocateAllCgnsZones();
         CgnsZone * cgnsZone = cgnsBase->GetCgnsZone( 0 );
-        grid.FillSU2CgnsZone( *cgnsZone, false );
+        UnstructuredCgnsZoneWriter::Write(grid, *cgnsZone, false);
         factory.WriteCgnsFile( target.string() );
     }
 
