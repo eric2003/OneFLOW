@@ -150,24 +150,29 @@ library-version query functions. It is not a load failure.
 Current persistence behavior
 ----------------------------
 
-The current JSON command writes to standard output; it does not create a file
-by itself. The Workbench currently displays the response and does not yet
-persist a per-run environment snapshot. A user can save a point-in-time report
-using the redirection examples above.
+The standalone JSON command writes to standard output; it does not create a file
+by itself. The Project Workbench now captures the selected executable's
+environment at run start and stores it under
+``~/.oneflow/workflow-data/executions/<run-id>/`` (or the equivalent
+``ONEFLOW_HOME`` root). The snapshot is written even if the query fails: a
+failed query produces a small JSON diagnostic document and does not prevent
+the CFD project from running. Catalog Case-queue integration is a separate
+follow-up and is not yet covered by this persistence slice. A user can still
+save a standalone point-in-time report using the redirection examples above.
 
 Workbench settings, workflow definitions, run history, and execution
 workspaces have separate storage responsibilities under the OneFLOW user data
 root (~/.oneflow by default; ONEFLOW_HOME can relocate that root). Catalog Case
 runs staged by the Workbench use
-~/.oneflow/executions/<run-id>/<case-id> by default. The runtime report is not
+~/.oneflow/workflow-data/executions/<run-id>/<project-name> by default. The runtime report is not
 currently part of that run artifact contract.
 
 Planned per-run evidence storage
 --------------------------------
 
-The next persistence slice should capture the environment from the exact
-executable selected for a run and store an immutable JSON snapshot beside the
-run artifacts. The proposed layout is:
+The Project Workbench persistence slice captures the environment from the exact
+executable selected for a run and stores an immutable JSON snapshot under the
+user data execution directory. The current layout is:
 
 .. code-block:: text
 
