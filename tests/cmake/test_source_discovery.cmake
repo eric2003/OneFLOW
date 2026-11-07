@@ -14,6 +14,7 @@ file(MAKE_DIRECTORY
     "${_source}/legacy"
     "${_source}/tests"
     "${_source}/build"
+    "${_source}/empty"
 )
 
 file(WRITE "${_source}/include/Module.h" "#pragma once\n")
@@ -29,6 +30,11 @@ project(OneFLOWDiscoveryFixture NONE)
 include("${ONEFLOW_DISCOVERY_MODULE}")
 oneflow_discover_module_sources(
     "${CMAKE_CURRENT_SOURCE_DIR}" discovered_sources discovered_headers discovered_includes)
+oneflow_discover_module_sources(
+    "${CMAKE_CURRENT_SOURCE_DIR}/empty" empty_sources empty_headers empty_includes)
+if(empty_sources OR empty_headers OR empty_includes)
+    message(FATAL_ERROR "An empty module must produce empty discovery results")
+endif()
 file(WRITE "${CMAKE_BINARY_DIR}/discovery.txt"
     "SOURCES\n${discovered_sources}\nHEADERS\n${discovered_headers}\nINCLUDES\n${discovered_includes}\n")
 ]=])
@@ -60,6 +66,9 @@ if(_manifest MATCHES "ShouldNotCompile[.]cpp")
 endif()
 if(NOT _manifest MATCHES "Module[.]h")
     message(FATAL_ERROR "Module header was not discovered:\n${_manifest}")
+endif()
+if(NOT _manifest MATCHES "include")
+    message(FATAL_ERROR "Header include directory was not discovered:\n${_manifest}")
 endif()
 
 # Verify that CONFIGURE_DEPENDS-compatible discovery sees additions and
