@@ -1,3 +1,36 @@
+## 2026-11-07 continuation: mesh boundary algorithm note and contract references
+
+The user reported 1269/1269 tests passing before this slice. Documentation and
+contract metadata only; no claim of new solver verification.
+
+The verified `hexin` HEAD at the start of this slice was
+`11808345aae617b4553b8f48378931c2397aefe9`.
+
+Priority-1 follow-through after the conversion-boundary subsection:
+
+1. Document the triangle area / signed-XY orientation diagnostic used in Gmsh
+   conversion QA reports with explicit formulae, limits (not a read failure,
+   not a flux-orientation contract), and pointers to computational-geometry
+   and CGNS interchange practice.
+2. Point `mesh/unstructured-cgns-writer` references at the boundary subsection
+   and at CGNS SIDS / Gmsh MSH manuals so Workbench Reference navigation and
+   Sphinx stay aligned.
+
+Changed files:
+
+- `doc/source/mesh_architecture.rst`
+- `tools/verification/contracts/mesh/unstructured-cgns-writer.json`
+- `doc/AI_CONTEXT.md`
+
+No C++ behavior change. Focused check: confirm JSON still loads in the
+contract catalog if convenient.
+
+Next action: bind or refresh executable evidence for the mesh architecture
+tests without opening a new input format; or add one more topology Case that
+exercises the same boundary.
+
+---
+
 ## 2026-11-07 continuation: shared unstructured mesh conversion boundary (docs)
 
 The user reported 1269/1269 tests passing before this slice. That is a

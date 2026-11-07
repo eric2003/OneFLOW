@@ -492,11 +492,36 @@ boundary-section inventory is based on codimension-one elements associated
 with Physical Groups, matching the conversion path; it does not invent
 solver-specific wall, inlet, or outlet semantics.
 
-Triangle area is computed from the three-dimensional cross-product magnitude;
-the signed XY projection is reported separately as an orientation diagnostic.
-A negative XY orientation is not automatically treated as a read failure.
-Degenerate triangles are counted using a scale-relative floating-point
-threshold.
+Triangle geometry diagnostics (algorithm note)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For a triangle with vertices :math:`\mathbf{x}_0,\mathbf{x}_1,\mathbf{x}_2`,
+OneFLOW reports:
+
+.. math::
+
+   A_{3\mathrm{D}} = \tfrac{1}{2}
+   \lVert (\mathbf{x}_1-\mathbf{x}_0)\times(\mathbf{x}_2-\mathbf{x}_0)\rVert
+
+as a positive area from the three-dimensional cross-product magnitude, and
+
+.. math::
+
+   A_{xy} = \tfrac{1}{2}
+   \bigl[(x_1-x_0)(y_2-y_0)-(x_2-x_0)(y_1-y_0)\bigr]
+
+as the signed XY projection used only as an **orientation diagnostic**.
+A negative :math:`A_{xy}` is not treated as a read failure: the mesh may be
+intentionally oriented, or the 2-D problem may live in a plane that is not
+XY-aligned. Degenerate triangles are counted with a scale-relative
+floating-point threshold on :math:`A_{3\mathrm{D}}`, not by interpreting
+solver flux orientation.
+
+These formulae are standard polygonal area / cross-product identities; see
+e.g. O'Rourke, *Computational Geometry in C* (Cambridge), and the CGNS SIDS
+discussion of element orientation as an interchange concern rather than a
+solver BC policy. They support conversion QA reports only; they do not
+replace residual or finite-volume face-orientation contracts.
 
 The report's `READ_SUCCESS` status means that the reader's structural checks
 passed and that the declared PhysicalNames and Entities sections were parsed
