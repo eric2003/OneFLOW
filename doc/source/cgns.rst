@@ -225,3 +225,29 @@ both values to three makes a 2D Plot3D-to-CGNS conversion appear to be 3D to
 the subsequent CGNS reader. The reader then classifies 2D surface elements
 under the wrong topology and can produce an empty cell mesh. The
 ``CgnsBaseDimensionTest`` regression test protects this distinction.
+
+
+Single-cell runtime acceptance
+------------------------------
+
+The Gmsh interoperability path is not considered operational merely because
+the CGNS file and native OneFLOW grid can be written. The production runtime
+must also consume the native grid, initialize its solver fields, advance at
+least one iteration, and emit residual, restart-flow, and visualization files.
+
+The CTest
+``GmshSingleCellRuntimeIntegration.ConvertsReadsComputesAndWritesFlowField``
+uses one 2D ``QUAD_4`` cell with four explicitly named boundary edges. It
+converts ``Gmsh -> CGNS -> OneFLOW``, then invokes the same command-line
+simulation route used by users. The test deliberately checks process success
+and non-empty output artifacts rather than numerical accuracy. It is a
+workflow smoke test, not a validated CFD solution.
+
+A one-cell case is particularly useful because every face is a physical
+boundary: there are no interior faces to hide owner/neighbour or ghost-cell
+mistakes. It stresses boundary classification, ghost-state initialization,
+face flux traversal, one-cell residual accumulation, and cell-to-node field
+output. Once this path is stable, a separate multi-cell case should test
+internal-face adjacency and shared-face conservation; numerical verification
+should then use a manufactured or analytical solution rather than relaxing the
+workflow smoke test into a solution-accuracy claim.

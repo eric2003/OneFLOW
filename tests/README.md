@@ -56,3 +56,20 @@ Added 0 tests to meet fixture requirements
 Total Tests: 2
 
 ctest -C Release -V --output-on-failure
+
+
+## Production single-cell CFD smoke test
+
+When CGNS support is enabled, CTest also registers
+`GmshSingleCellRuntimeIntegration.ConvertsReadsComputesAndWritesFlowField`.
+It creates an isolated temporary case, converts a one-cell 2D Gmsh QUAD_4 mesh
+through a real CGNS interchange file into the native OneFLOW grid, then invokes
+the production `OneFLOW r <case-directory>` command-line path for one solver
+step. The test requires residual, restart-flow, and visualization outputs and
+checks that the visualization contains exactly one cell.
+
+This is a workflow smoke test, not a numerical verification case: it does not
+compare the computed solution against an analytical solution or a CFD
+benchmark. Its purpose is to expose mesh-read, single-cell/ghost-boundary,
+solver-initialization, iteration, restart, and field-output integration defects.
+All generated files are kept in the operating-system temporary directory.
