@@ -20,7 +20,7 @@ env:
   
   # Dependency versions
   HDF5_VERSION: "1.14.3"
-  CGNS_VERSION: "4.4.0"
+  CGNS_VERSION: "4.5.2"
   METIS_VERSION: "5.1.0"
   MSMPI_VERSION: "10.1.3"
   

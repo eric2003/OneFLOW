@@ -305,8 +305,8 @@ if ( CGNS_ENABLE )
 
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
         if ( NOT CGNS_ROOT )
-            set ( CGNS_ROOT "C:/dev/cgns/4.4.0" )
-            # set ( CGNS_ROOT "C:/dev/cgns/4.5.2" )
+            #set ( CGNS_ROOT "C:/dev/cgns/4.4.0" )
+            set ( CGNS_ROOT "C:/dev/cgns/4.5.2" )
         endif()
 
         set ( CGNS_LIBNAME "cgnsdll.lib" )
