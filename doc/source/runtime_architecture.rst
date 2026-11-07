@@ -640,8 +640,9 @@ The production case-specific entry point is
 ``ReadControlInfo(caseDir)`` in ``codes/io/src/ControlFileReader.cpp``. Its
 responsibility is orchestration rather than numerical interpretation:
 
-#. Read the case's ``script/control.txt`` manifest.
-#. Resolve each listed script under the case directory and parse the files in order.
+#. Discover real parameter documents under ``script/`` in deterministic filename order.
+#. If ``control.txt`` is a filename-only manifest, compare its entries with the discovered files and report differences; do not use it to select files or define precedence.
+#. If ``control.txt`` contains parameter declarations, include it as an ordinary parameter document.
 #. Commit the resulting typed entries into the global ``DataPara`` store.
 #. Coordinate process status and broadcast the committed parameter database.
 #. Write the merged database snapshot to ``log/database.log``.
@@ -744,7 +745,7 @@ The serial integration target links this same production translation unit
 and exercises two successive case configurations, including configured
 roots on the first case and default-root rebinding on the second. A scoped
 test guard clears case-owned log, project-path, and parameter state even when
-a fatal assertion exits the test early. The two-case test still resets state directly between its bootstrap calls; it does not invoke production ``TeardownCase()``, the full ``SimuImp::RunCase()``, MPI collectives, or accelerator resource release. A separate failure test now calls the public ``SetupCaseEnvironment()``: it commits one script, fails on the next, verifies automatic rollback of the first script and case path binding, then repairs the missing script and retries successfully on the same context.
+a fatal assertion exits the test early. The two-case test still resets state directly between its bootstrap calls; it does not invoke production ``TeardownCase()``, the full ``SimuImp::RunCase()``, MPI collectives, or accelerator resource release. A separate failure test now calls the public ``SetupCaseEnvironment()``: it commits the first real parameter file, fails while parsing the next real file, verifies automatic rollback of the first file and case path binding, then repairs the malformed file and retries successfully on the same context.
 
 This is meaningful component-integration evidence: the production bootstrap
 composition, real control reader, typed database commit, IO-setting

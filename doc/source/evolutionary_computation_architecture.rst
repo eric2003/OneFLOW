@@ -175,7 +175,7 @@ Current specimen: control-file ingestion
 
 The source responsibilities are now separated across five production units:
 
-* ``ControlFileReader.cpp`` coordinates manifest reading and ordered loading.
+* ``ControlFileReader.cpp`` coordinates discovery of real parameter files, optional manifest comparison, and runtime loading.
 * ``ControlScriptParser.cpp`` adapts file/parser input to ConfigLoader and
   commits the resulting ConfigDocument.
 * ``ControlParameterResolver.cpp`` resolves literal or database-backed array

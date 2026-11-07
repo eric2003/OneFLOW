@@ -77,6 +77,9 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridMediator.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/DomainInp.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/Su2Grid.cpp
+    # Shared unstructured mesh model and CGNS writer used by Gmsh and SU2 adapters.
+    ${CMAKE_SOURCE_DIR}/codes/geometry/src/UnstructuredMeshData.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/src/UnstructuredCgnsZoneWriter.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/Plot3D.cpp
     ${CMAKE_SOURCE_DIR}/codes/partition/src/Partition.cpp
     ${CMAKE_SOURCE_DIR}/codes/basic/src/Word.cpp
@@ -245,6 +248,8 @@ add_oneflow_gtest(UnsGridBoundaryTopologyRoundTripTest UnsGridBoundaryTopologyRo
 add_oneflow_gtest(GridSummaryAdapterTest GridSummaryAdapterTest.cpp)
 add_oneflow_gtest(GmshMeshReaderTest GmshMeshReaderTest.cpp)
 add_oneflow_gtest(GmshCgnsConversionTest GmshCgnsConversionTest.cpp)
+add_oneflow_gtest(GmshTwoQuadsOneFlowTest GmshTwoQuadsOneFlowTest.cpp)
+target_compile_definitions(GmshTwoQuadsOneFlowTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 target_compile_definitions(GmshCgnsConversionTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 target_compile_definitions(GmshMeshReaderTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 add_oneflow_gtest(GridInfoSnapshotTest GridInfoSnapshotTest.cpp)

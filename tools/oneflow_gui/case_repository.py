@@ -32,6 +32,7 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
                 runtime_config=runtime_config,
                 profile=(case_directory / profile_value).resolve() if profile_value else None,
                 layout=(case_directory / layout_value).resolve() if layout_value else None,
+                group=str(entry.get("group") or "General"),
             )
         )
 

@@ -2,6 +2,16 @@
 #include "GridConversion.h"
 #include "GridTypes.h"
 #include "HXCgns.h"
+#include "CgnsFactory.h"
+#include "CgnsBase.h"
+#include "GridElem.h"
+#include "UnsGrid.h"
+#include "FaceTopo.h"
+#include "CellMesh.h"
+#include "NodeMesh.h"
+#include "BcRecord.h"
+#include "Boundary.h"
+#include "Dimension.h"
 #include <chrono>
 #include <algorithm>
 #include <filesystem>
@@ -21,6 +31,28 @@ std::filesystem::path MakeTemporaryCaseDirectory() {
     std::filesystem::create_directories(path);
     return path;
 }
+
+class ScopedDimensionRestore
+{
+public:
+    ScopedDimensionRestore() : previousDimension( Dim::GetDimension() ) {}
+    ~ScopedDimensionRestore() { Dim::SetDimension( previousDimension ); }
+
+private:
+    int previousDimension;
+};
+}
+
+TEST(CgnsBaseDimensionTest, UsesActiveTopologyDimensionAndThreeCoordinateComponents)
+{
+    ScopedDimensionRestore restoreDimension;
+    ONEFLOW::Dim::SetDimension(ONEFLOW::TWO_D);
+
+    ONEFLOW::CgnsBase base;
+    base.SetDefaultCgnsBaseBasicInfo();
+
+    EXPECT_EQ(base.celldim, ONEFLOW::TWO_D);
+    EXPECT_EQ(base.phydim, ONEFLOW::THREE_D);
 }
 
 TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
@@ -196,6 +228,144 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
 
     std::filesystem::remove_all(caseDirectory);
 }
+
+TEST(GmshCgnsConversionTest, ConvertsGmshThroughCgnsIntoOneFlowGrid) {
+    const std::filesystem::path source =
+        std::filesystem::path(ONEFLOW_SOURCE_DIR) /
+        "grid" / "gmsh_to_cgns" / "grid" / "square.msh";
+    ASSERT_TRUE(std::filesystem::is_regular_file(source));
+
+    const std::filesystem::path caseDirectory = MakeTemporaryCaseDirectory();
+    const std::filesystem::path input = caseDirectory / "square.msh";
+    std::filesystem::copy_file(source, input);
+
+    ONEFLOW::GridConfig config;
+    config.sourceType = ONEFLOW::GridFileType::Gmsh;
+    config.targetType = ONEFLOW::GridFileType::OneFLOW;
+    config.sourceFile = input.filename().string();
+    config.topology = ONEFLOW::GridTopology::Unstructured;
+    const std::filesystem::path resultsDirectory = caseDirectory / "results";
+    std::filesystem::create_directories(resultsDirectory);
+    const std::filesystem::path nativeGrid =
+        resultsDirectory / "square.oneflow.grid";
+    config.targetFile = nativeGrid.string();
+
+    ASSERT_NO_THROW(ONEFLOW::ConvertGrid(config, caseDirectory.string()));
+
+    const std::filesystem::path interchange =
+        resultsDirectory / "square.gmsh-to-oneflow.cgns";
+    ASSERT_TRUE(std::filesystem::is_regular_file(interchange));
+    EXPECT_GT(std::filesystem::file_size(interchange), 0u);
+    ASSERT_TRUE(std::filesystem::is_regular_file(nativeGrid));
+    EXPECT_GT(std::filesystem::file_size(nativeGrid), 0u);
+
+    // The CGNS interchange must survive the OneFLOW output stage unchanged.
+    int fileId = -1;
+    ASSERT_EQ(cg_open(interchange.string().c_str(), CG_MODE_READ, &fileId), CG_OK);
+    int baseCount = 0;
+    ASSERT_EQ(cg_nbases(fileId, &baseCount), CG_OK);
+    ASSERT_EQ(baseCount, 1);
+    int zoneCount = 0;
+    ASSERT_EQ(cg_nzones(fileId, 1, &zoneCount), CG_OK);
+    ASSERT_EQ(zoneCount, 1);
+    int boundaryCount = 0;
+    ASSERT_EQ(cg_nbocos(fileId, 1, 1, &boundaryCount), CG_OK);
+    EXPECT_EQ(boundaryCount, 4);
+    EXPECT_EQ(cg_close(fileId), CG_OK);
+
+    // Re-run the same CGNS reader boundary and inspect the actual OneFLOW
+    // unstructured-grid model, not just the existence of output files.
+    ONEFLOW::GridConfig readConfig = config;
+    readConfig.sourceType = ONEFLOW::GridFileType::CGNS;
+    readConfig.sourceFile = std::filesystem::relative(
+        interchange, caseDirectory).generic_string();
+    readConfig.targetType = ONEFLOW::GridFileType::OneFLOW;
+
+    ONEFLOW::CgnsFactory cgnsFactory;
+    ASSERT_NO_THROW(cgnsFactory.ReadCgnsGrid(readConfig, caseDirectory.string()));
+    ASSERT_NO_THROW(cgnsFactory.ProcessCgnsBases());
+    ASSERT_NE(cgnsFactory.gridElemGroup, nullptr);
+    // Deliberately leave a stale 3D process setting: the CGNS Base cell
+    // dimension must take precedence when the 2D unstructured grid is built.
+    ScopedDimensionRestore restoreDimension;
+    ONEFLOW::Dim::SetDimension(ONEFLOW::THREE_D);
+    ONEFLOW::Grids grids =
+        cgnsFactory.gridElemGroup->GenerateLocalOneFlowGrids(readConfig);
+    EXPECT_EQ(ONEFLOW::Dim::GetDimension(), ONEFLOW::TWO_D);
+    ASSERT_EQ(grids.size(), 1u);
+
+    const auto * grid = dynamic_cast<const ONEFLOW::UnsGrid *>(grids.front().get());
+    ASSERT_NE(grid, nullptr);
+    EXPECT_EQ(grid->nNodes, 4);
+    EXPECT_EQ(grid->nCells, 2);
+    EXPECT_EQ(grid->nBFaces, 4);
+    EXPECT_EQ(grid->GetFaceTopo().GetBoundaryFaceCount(), 4);
+    EXPECT_EQ(grid->GetFaceTopo().GetFaceCount(), 5);
+    ASSERT_NE(grid->nodeMesh, nullptr);
+    ASSERT_EQ(grid->nodeMesh->xN.size(), 4u);
+    ASSERT_EQ(grid->nodeMesh->yN.size(), 4u);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->xN[0], 0.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->xN[1], 1.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->xN[2], 1.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->xN[3], 0.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->yN[0], 0.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->yN[1], 0.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->yN[2], 1.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->yN[3], 1.0);
+    const auto & bcRecord = grid->GetFaceTopo().GetBcRecord();
+    ASSERT_EQ(bcRecord.bcType.size(), 4u);
+    ASSERT_EQ(bcRecord.bcNameId.size(), 4u);
+
+    struct ExpectedOneFlowBoundary
+    {
+        const char * name;
+        int bcType;
+        int nodeA;
+        int nodeB;
+    };
+    const std::vector<ExpectedOneFlowBoundary> expectedOneFlowBoundaries{
+        { "inflow", BC::INFLOW, 3, 0 },
+        { "outflow", BC::OUTFLOW, 1, 2 },
+        { "symmetry", BC::SYMMETRY, 0, 1 },
+        { "farfield", BC::FARFIELD, 2, 3 }
+    };
+    const auto & boundaryFaces = grid->GetFaceTopo().GetFaces();
+    for ( const auto & expected : expectedOneFlowBoundaries )
+    {
+        const int expectedNameId = RegionNameMap::FindRegionId( expected.name );
+        ASSERT_GE( expectedNameId, 0 )
+            << "Missing registered OneFLOW boundary name: " << expected.name;
+
+        int matchedFace = -1;
+        int matchCount = 0;
+        for ( int iFace = 0; iFace < grid->nBFaces; ++ iFace )
+        {
+            if ( bcRecord.bcType[ iFace ] == expected.bcType &&
+                 bcRecord.bcNameId[ iFace ] == expectedNameId )
+            {
+                matchedFace = iFace;
+                ++ matchCount;
+            }
+        }
+        ASSERT_EQ( matchCount, 1 )
+            << "Expected exactly one boundary face for " << expected.name;
+        ASSERT_LT( matchedFace, static_cast<int>( boundaryFaces.size() ) );
+        ASSERT_EQ( boundaryFaces[ matchedFace ].size(), 2u );
+
+        std::vector<int> actualNodes = boundaryFaces[ matchedFace ];
+        std::sort( actualNodes.begin(), actualNodes.end() );
+        std::vector<int> expectedNodes{ expected.nodeA, expected.nodeB };
+        std::sort( expectedNodes.begin(), expectedNodes.end() );
+        EXPECT_EQ( actualNodes, expectedNodes )
+            << "Boundary name/type was attached to the wrong geometric edge: "
+            << expected.name;
+    }
+    EXPECT_EQ(grid->GetCellMesh().GetCellTopo().eTypes.size(), 2u);
+
+    grids.clear();
+    std::filesystem::remove_all(caseDirectory);
+}
+
 #else
 TEST(GmshCgnsConversionTest, CGNSDisabled) {
     GTEST_SKIP() << "CGNS is not enabled in this build.";

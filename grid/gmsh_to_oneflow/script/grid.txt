@@ -1,0 +1,14 @@
+string meshInputRoot = "default";
+string meshOutputRoot = "default";
+
+int gridObj = 1;
+string topoType = "u";
+int multiBlock = 0;
+string gridLayoutFileName = "grid/single_quad.msh";
+
+string sourceGridType = "gmsh";
+string targetGridType = "oneflow";
+string sourceGridFileName = "grid/single_quad.msh";
+string sourceGridBcName = "";
+string targetGridFileName = "results/single_quad.oneflow.grid";
+string gridInfoFileName = "results/single_quad.info.json";

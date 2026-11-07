@@ -1,12 +1,12 @@
 """Tests for the logical CFD/grid parameter model."""
 from __future__ import annotations
 
-import re
 import tempfile
 import unittest
 from pathlib import Path
 
 from tools.oneflow_gui.parameter_document import ParameterDocument
+from tools.oneflow_gui.script_file_discovery import discover_script_parameter_files
 from tools.oneflow_gui.parameter_model import (
     ParameterApplicability,
     ParameterDomain,
@@ -170,13 +170,31 @@ class ParameterModelTest(unittest.TestCase):
         for case_path in case_paths:
             with self.subTest(case=str(case_path)):
                 script = repository_root / case_path / "script"
-                control_text = (script / "control.txt").read_text(encoding="utf-8")
-                documents = []
-                for line in control_text.splitlines():
-                    match = re.fullmatch(r'\s*"([^"]+)"\s*;\s*', line)
-                    if match:
-                        documents.append(ParameterDocument.load(script / match.group(1)))
-                self.assertTrue(documents, f"No parameter documents found for {case_path}")
+                discovery = discover_script_parameter_files(script)
+                self.assertEqual(discovery.mode, "manifest")
+                unexpected_diagnostics = [
+                    item for item in discovery.diagnostics
+                    if not any(
+                        expected in item
+                        for expected in (
+                            "Auxiliary script file",
+                            "Parameter-file order in script/control.txt differs from the actual",
+                        )
+                    )
+                ]
+                self.assertEqual(
+                    unexpected_diagnostics, [],
+                    f"Unexpected control.txt mismatch for {case_path}",
+                )
+                self.assertEqual(
+                    [path.name for path in discovery.files],
+                    sorted(path.name for path in discovery.files),
+                    f"Parameter files must be read in filename order for {case_path}",
+                )
+                documents = [
+                    ParameterDocument.load(path) for path in discovery.files
+                ]
+                self.assertTrue(documents, f"No real parameter documents found for {case_path}")
                 model = ParameterModel.from_documents(documents)
 
                 unclassified = [

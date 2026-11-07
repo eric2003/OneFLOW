@@ -30,6 +30,7 @@ License
 #include "SimuContextIO.h"
 #include "Parallel.h"
 #include <gtest/gtest.h>
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <filesystem>
@@ -232,13 +233,13 @@ TEST( ControlConfigurationIngestion, CommitFailureCanLeaveEarlierEntriesFromCurr
 
 } // namespace
 
-TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesInOrder )
+TEST( ControlConfigurationIngestion, ReadsRealFilesInFilenameOrderAndCommitsTypedValues )
 {
     TemporaryControlCase testCase;
     testCase.WriteManifest(
-        "\"base.txt\";\n"
+        "\"override.txt\";\n"
         "\n"
-        "\"override.txt\";\n" );
+        "\"base.txt\";\n" );
     testCase.WriteScript(
         "base.txt",
         "int ingestion_dimension = 2;\n"
@@ -248,15 +249,26 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
         "override.txt",
         "int ingestion_dimension = 3;\n"
         "string ingestion_marker = \"second-file-loaded\";\n" );
+    testCase.WriteScript(
+        "unlisted.txt", "int ingestion_unlisted = 43;\n" );
 
     ClearRuntimeParameters();
 
     std::vector< std::string > scriptFiles;
     ReadScriptFileNameList( testCase.CaseDirectory(), scriptFiles );
-    ASSERT_EQ( scriptFiles.size(), 2u );
+    ASSERT_EQ( scriptFiles.size(), 3u );
+    EXPECT_EQ(
+        std::filesystem::path( scriptFiles[ 0 ] ).filename().string(),
+        "base.txt" );
+    EXPECT_EQ(
+        std::filesystem::path( scriptFiles[ 1 ] ).filename().string(),
+        "override.txt" );
+    EXPECT_EQ(
+        std::filesystem::path( scriptFiles[ 2 ] ).filename().string(),
+        "unlisted.txt" );
 
     // Exercise the production case-level reader composition:
-    // manifest discovery followed by ordered multi-file parsing and commit.
+    // real directory discovery, manifest comparison, and ordered multi-file commit.
     ReadPrjScript( testCase.CaseDirectory() );
 
     DataBase & mutableDatabase = RequireGlobalDataBase();
@@ -272,6 +284,15 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
     EXPECT_EQ(
         GetDataValue<std::string>( "ingestion_marker", &database ),
         "second-file-loaded" );
+    EXPECT_EQ( GetDataValue<int>( "ingestion_unlisted", &database ), 43 );
+
+    const ScriptFileDiscovery discovery =
+        DiscoverCaseScriptFiles( testCase.CaseDirectory() );
+    EXPECT_TRUE( std::any_of(
+        discovery.diagnostics.begin(), discovery.diagnostics.end(),
+        []( const std::string & item ) {
+            return item.find( "filename order" ) != std::string::npos;
+        } ) );
 }
 
 
@@ -280,11 +301,14 @@ TEST( ControlReaderIntegration, CaseEnvironmentSetupFailureCanBeRolledBack )
     TemporaryControlCase testCase;
     ScopedCaseRuntimeReset runtimeReset;
     testCase.WriteManifest(
-        "\"available.txt\";\n"
-        "\"missing.txt\";\n" );
+        "\"z_invalid.txt\";\n"
+        "\"a_available.txt\";\n" );
     testCase.WriteScript(
-        "available.txt",
+        "a_available.txt",
         "string partial_case_bootstrap_value = \"must_be_rolled_back\";\n" );
+    testCase.WriteScript(
+        "z_invalid.txt",
+        "int invalid_array[missing_array_size] = 1;\n" );
 
     ClearRuntimeParameters();
     Prj::current_dir = std::filesystem::current_path().string();
@@ -295,8 +319,8 @@ TEST( ControlReaderIntegration, CaseEnvironmentSetupFailureCanBeRolledBack )
     EXPECT_THROW( context.SetupCaseEnvironment(), std::runtime_error );
     EXPECT_FALSE( context.IsEnvironmentReady() );
 
-    // Bootstrap commits scripts in manifest order. Failure on the second
-    // script must roll back the first script and the case-relative bindings.
+    // Bootstrap reads actual files in filename order. The malformed second
+    // file must roll back the first file and the case-relative bindings.
     EXPECT_TRUE( Prj::prjBaseDir.empty() );
     EXPECT_THROW(
         GetDataValue<std::string>(
@@ -305,7 +329,7 @@ TEST( ControlReaderIntegration, CaseEnvironmentSetupFailureCanBeRolledBack )
 
     // The same context can retry after the failed bootstrap has been rolled back.
     testCase.WriteScript(
-        "missing.txt",
+        "z_invalid.txt",
         "string recovered_case_bootstrap_value = \"recovered\";\n" );
     EXPECT_NO_THROW( context.SetupCaseEnvironment() );
     EXPECT_TRUE( context.IsEnvironmentReady() );
@@ -412,12 +436,23 @@ TEST( ControlReaderIntegration, ContextSetupPublishesReadinessAfterBootstrap )
         2 );
 }
 
-TEST( ControlReaderIntegration, FailedContextSetupDoesNotPublishReadiness )
+TEST( ControlReaderIntegration, MalformedParameterFileDoesNotPublishReadiness )
 {
     TemporaryControlCase testCase;
     ScopedCaseRuntimeReset runtimeReset;
 
-    testCase.WriteManifest( "\"missing_bootstrap.txt\";\n" );
+    // A missing manifest entry is diagnostic only. The real malformed file
+    // must be what causes setup to fail.
+    testCase.WriteManifest(
+        "\"missing_bootstrap.txt\";\n"
+        "\"a_bootstrap.txt\";\n"
+        "\"z_invalid.txt\";\n" );
+    testCase.WriteScript(
+        "a_bootstrap.txt",
+        "string partial_context_bootstrap_value = \"must_be_rolled_back\";\n" );
+    testCase.WriteScript(
+        "z_invalid.txt",
+        "int invalid_array[missing_array_size] = 1;\n" );
 
     ClearRuntimeParameters();
     EnsureParallelEnvironment();
@@ -428,6 +463,11 @@ TEST( ControlReaderIntegration, FailedContextSetupDoesNotPublishReadiness )
     EXPECT_THROW( context.SetupCaseEnvironment(), std::runtime_error );
 
     EXPECT_FALSE( context.IsEnvironmentReady() );
+    EXPECT_TRUE( Prj::prjBaseDir.empty() );
+    EXPECT_THROW(
+        GetDataValue<std::string>(
+            "partial_context_bootstrap_value", &RequireGlobalDataBase() ),
+        std::runtime_error );
 }
 
 TEST( ControlReaderIntegration, ReadsCaseScriptsAndWritesDatabaseDump )
@@ -484,4 +524,60 @@ TEST( ControlReaderIntegration, ReadsCaseScriptsAndWritesDatabaseDump )
         std::filesystem::exists(
             std::filesystem::path( testCase.CaseDirectory() )
             / "log" / "log0.log" ) );
+}
+
+
+TEST( ControlConfigurationIngestion, ReadsRealFilesWhenManifestListsMissingFile )
+{
+    TemporaryControlCase testCase;
+    testCase.WriteManifest(
+        "\"missing.txt\";\n"
+        "\"present.txt\";\n" );
+    testCase.WriteScript(
+        "present.txt",
+        "int ingestion_present_despite_missing_manifest_entry = 47;\n" );
+
+    ClearRuntimeParameters();
+    EXPECT_NO_THROW( ReadPrjScript( testCase.CaseDirectory() ) );
+
+    EXPECT_EQ(
+        GetDataValue<int>(
+            "ingestion_present_despite_missing_manifest_entry",
+            &RequireGlobalDataBase() ),
+        47 );
+}
+
+
+TEST( ControlConfigurationIngestion, ReadsParameterStyleControlAsARealFile )
+{
+    TemporaryControlCase testCase;
+    testCase.WriteScript(
+        "control.txt",
+        "string simutask = \"Grid\";\n"
+        "int dimension = 2;\n" );
+    testCase.WriteScript( "grid.txt", "int ingestion_grid_scale = 4;\n" );
+
+    ClearRuntimeParameters();
+    ReadPrjScript( testCase.CaseDirectory() );
+
+    const DataBase & database = RequireGlobalDataBase();
+    EXPECT_EQ( GetDataValue<std::string>( "simutask", &database ), "Grid" );
+    EXPECT_EQ( GetDataValue<int>( "dimension", &database ), 2 );
+    EXPECT_EQ( GetDataValue<int>( "ingestion_grid_scale", &database ), 4 );
+}
+
+TEST( ControlConfigurationIngestion, DiscoversAndReadsFilesWithoutControl )
+{
+    TemporaryControlCase testCase;
+    testCase.WriteScript(
+        "simu.txt", "string simutask = \"Solve\";\n" );
+    testCase.WriteScript(
+        "cfd.txt", "int ingestion_max_steps = 25;\n" );
+
+    ClearRuntimeParameters();
+    ReadPrjScript( testCase.CaseDirectory() );
+
+    const DataBase & database = RequireGlobalDataBase();
+    EXPECT_EQ( GetDataValue<std::string>( "simutask", &database ), "Solve" );
+    EXPECT_EQ( GetDataValue<int>( "ingestion_max_steps", &database ), 25 );
 }

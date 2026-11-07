@@ -23,7 +23,9 @@ License
 #include "GridElem.h"
 #include "GridTypes.h"
 #include "CgnsZone.h"
+#include "CgnsBase.h"
 #include "CgnsZbase.h"
+#include "Dimension.h"
 #include "DataBase.h"
 #include "HXCgns.h"
 #include "UnsGrid.h"
@@ -45,6 +47,7 @@ License
 #include "Fatal.h"
 #include <iostream>
 #include <iomanip>
+#include <stdexcept>
 #include <utility>
 
 
@@ -370,6 +373,40 @@ Grids GridElemGroup::GenerateLocalOneFlowGrids()
 
 Grids GridElemGroup::GenerateLocalOneFlowGrids( const GridConfig & config )
 {
+    // Element classification and face construction use the process-wide
+    // Dim setting. A CGNS Base carries the authoritative cell dimension, so
+    // establish it before interpreting TRI_3/QUAD_4 versus volume elements.
+    // Do not infer this from physical dimension: a 2D mesh may be embedded in
+    // three-dimensional coordinates.
+    const int nZones = this->cgnsZbase.GetNZones();
+    if ( nZones <= 0 )
+    {
+        throw std::runtime_error(
+            "GridElemGroup::GenerateLocalOneFlowGrids: CGNS input has no zones" );
+    }
+
+    int gridDimension = -1;
+    for ( int iZone = 0; iZone < nZones; ++ iZone )
+    {
+        const CgnsZone & cgnsZone = *this->cgnsZbase.GetCgnsZone( iZone );
+        const int cellDimension = cgnsZone.cgnsBase.celldim;
+        if ( cellDimension < ONE_D || cellDimension > THREE_D )
+        {
+            throw std::runtime_error(
+                "GridElemGroup::GenerateLocalOneFlowGrids: unsupported CGNS cell dimension" );
+        }
+        if ( gridDimension == -1 )
+        {
+            gridDimension = cellDimension;
+        }
+        else if ( gridDimension != cellDimension )
+        {
+            throw std::runtime_error(
+                "GridElemGroup::GenerateLocalOneFlowGrids: CGNS zones have inconsistent cell dimensions" );
+        }
+    }
+    Dim::SetDimension( gridDimension );
+
     HXVector< std::unique_ptr< GridElem > > data =
         this->CreateGridElements( config.assemblyMode );
     this->PrepareUnsCalcGrid( data );

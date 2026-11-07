@@ -50,10 +50,29 @@ duplicate parameter values in the catalog.
 | `two_connected_cubes` | Generate two adjacent 3D blocks with one shared interface face | `case.json`, `script/control.txt` |
 | `two_connected_squares` | Generate two adjacent 2D blocks with one shared interface edge; carries the current grid options in the versioned profile | `case.json`, `script/control.txt` |
 | `mesh_workflow` | Convert the RAE 2822 Plot3D grid to OneFLOW format and write a metadata summary | `script/control.txt`, parameter files, `tools/validate_case.py` |
-| `gmsh_to_cgns` | Experimental ASCII Gmsh MSH 4.1 input (with MSH 2.x compatibility) and explicitly marked CGNS-placeholder output; available only as a manual GUI Case check using a temporary copy | `script/control.txt`, `grid/square.msh`, `README.md` |
+| `gmsh_to_cgns` | Manual GUI example for Gmsh MSH 4.1 ASCII to CGNS conversion | `script/control.txt`, `grid/square.msh`, `README.md` |
+| `gmsh_to_oneflow` | Manual GUI example for Gmsh MSH 4.1 ASCII through CGNS to a native OneFLOW grid | `script/control.txt`, `grid/single_quad.msh`, `README.md` |
+| `two_quads` | Self-contained two-cell Gmsh conversion example with an explicitly ungrouped internal interface | `grid/conversion/cases/two_quads` |
 | `laminar_flat_plate` | Reference two-block flat-plate mesh with 85 wall-normal points | `case.json`, `grid/laminarFlatPlateLayout.txt` |
 | `laminar_flat_plate_10_edges` | Two-block laminar flat plate with ten geometric line segments and 41 points across the first 0.02 near-wall region | `case.json`, `grid/laminarFlatPlate10EdgeLayout.txt` |
 | `turbulent_flat_plate` | Flat-plate mesh variant with 81 wall-normal points and updated expected topology counts | `case.json`, `grid/turbulentFlatPlateLayout.txt` |
+
+## Conversion Case organization
+
+Conversion examples are grouped under grid/conversion/cases/<case-id>/.
+The directory name describes the mesh/topology, not a source/target format
+pair. Each runnable Case owns its source mesh and runtime configuration so it
+can be copied and executed independently. The central
+grid/interoperability/conversion_matrix.json records implemented routes
+and the concrete Cases that cover them. Existing route-named Cases remain
+registered for backward compatibility; new examples use topology-oriented
+names.
+
+The first example, two_quads, contains two adjacent QUAD_4 cells, six
+nodes, six exterior LINE_2 elements, and one internal interface line. Its
+four exterior Physical Groups demonstrate that a single named group can span
+multiple geometric entities. See grid/conversion/README.md and the
+Grid conversion Cases documentation for the current collection and scope.
 
 ## Target integration model
 

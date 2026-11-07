@@ -259,3 +259,29 @@ target_compile_definitions(simu_imp_case_lifecycle_integration_test
 gtest_discover_tests(simu_imp_case_lifecycle_integration_test
   DISCOVERY_MODE PRE_TEST
 )
+
+# ---------------------------------------------------------------------------
+# Production Gmsh -> CGNS -> OneFLOW single-cell runtime integration
+# ---------------------------------------------------------------------------
+if (CGNS_ENABLE)
+  add_executable(gmsh_single_cell_runtime_integration_test
+    gmsh_single_cell_runtime_integration_test.cpp
+  )
+
+  target_link_libraries(gmsh_single_cell_runtime_integration_test
+    PRIVATE
+      OneFLOW_RuntimeObjects
+      GTest::gtest_main
+  )
+
+  target_compile_features(gmsh_single_cell_runtime_integration_test
+    PRIVATE cxx_std_20
+  )
+  target_compile_definitions(gmsh_single_cell_runtime_integration_test
+    PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+  )
+
+  gtest_discover_tests(gmsh_single_cell_runtime_integration_test
+    DISCOVERY_MODE PRE_TEST
+  )
+endif()

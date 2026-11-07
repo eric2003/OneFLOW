@@ -22,117 +22,16 @@ License
 
 
 #pragma once
-#include "HXDefine.h"
-#include <vector>
+#include "UnstructuredMeshData.h"
 #include <string>
 #include <map>
-
+#include <set>
 
 BeginNameSpace( ONEFLOW )
 
 class GridMediator;
 struct GridConfig;
-class TextFileParser;
-const int MAX_VTK_TYPE = 100;
-class VTK_TYPE
-{
-public:
-    VTK_TYPE() = default;
-    ~VTK_TYPE() = default;
-public:
-    static int VERTEX       ;
-    static int LINE         ;
-    static int TRIANGLE     ;
-    static int QUADRILATERAL;
-    static int TETRAHEDRON  ;
-    static int HEXAHEDRON   ;
-    static int PRISM        ;
-    static int PYRAMID      ;
-};
-
-class VTK_CgnsMap
-{
-public:
-    VTK_CgnsMap();
-    ~VTK_CgnsMap();
-public:
-    std::map< int, int > vtk2Cgns;
-public:
-    void Init();
-};
-
-extern VTK_CgnsMap vtk_CgnsMap;
-
-class Marker
-{
-public:
-    Marker() = default;
-    ~Marker() = default;
-public:
-    std::string name;
-    std::string bcName;
-    int cgns_bcType{ 0 };
-    LinkField elems;
-    IntField eTypes;
-    int nElem{ 0 };
-};
-
-class SecMarker
-{
-public:
-    SecMarker() = default;
-    ~SecMarker() = default;
-public:
-    int vtk_type{ 0 };
-    int cgns_type{ 0 };
-    std::string name;
-    int nElem{ 0 };
-    LinkField elems;
-};
-
-class SecMarkerManager
-{
-public:
-    SecMarkerManager() = default;
-    ~SecMarkerManager() = default;
-public:
-    int nType;
-    HXVector< SecMarker > data;
-public:
-    void Alloc( int nType );
-    int CalcTotalElem() const;
-};
-
-class MarkerManager
-{
-public:
-    MarkerManager() = default;
-    ~MarkerManager() = default;
-public:
-    int nMarker;
-    HXVector< Marker > markerList;
-
-    IntField types;
-    LinkField l2g;
-public:
-    void CreateMarkerList( int nMarker );
-    void CalcSecMarker( SecMarkerManager & secMarkerManager );
-};
-
-class Su2Grid;
-class VolumeSecManager
-{
-public:
-    VolumeSecManager() = default;
-    ~VolumeSecManager() = default;
-public:
-    int nSection;
-
-    IntField types;
-    LinkField l2g;
-public:
-    void CalcVolSec( const Su2Grid & su2Grid, SecMarkerManager & secMarkerManager );
-};
+class CgnsZone;
 
 class Su2Bc
 {
@@ -140,46 +39,36 @@ public:
     Su2Bc();
     ~Su2Bc();
 public:
-    std::set< std::string > bcList;
+    std::set<std::string> bcList;
     std::map<std::string, std::string> bcMap;
     std::map<std::string, int> bcNameToValueMap;
-public:
     void Init();
-    void AddBc( const std::string & geoName, const std::string & bcName );
-    void Process( const StringField & markerBCNameList, const StringField & markerNameList );
-    std::string GetBcName( const std::string & geoName ) const;
-    int GetCgnsBcType( const std::string & geoName ) const;
+    void AddBc(const std::string &geoName, const std::string &bcName);
+    void Process(const StringField &markerBCNameList, const StringField &markerNameList);
+    std::string GetBcName(const std::string &geoName) const;
+    int GetCgnsBcType(const std::string &geoName) const;
 };
 
-class CgnsZone;
-
-class Su2Grid
+// SU2-specific reader and compatibility adapter over the shared unstructured
+// value model. CGNS zone population belongs to the common writer.
+class Su2Grid : public UnstructuredMeshData
 {
 public:
     Su2Grid();
     ~Su2Grid() = default;
 public:
-    void ReadSu2Grid( GridMediator * gridMediator );
-    void ReadSu2GridAscii( const std::string & fileName, const std::string & caseDir );
-    void Su2ToOneFlowGrid( const GridConfig & config, const std::string & caseDir );
-    void MarkBoundary( const std::string & su2cfgFile, const std::string & caseDir );
-    void FillSU2CgnsZone( CgnsZone & cgnsZone, bool convertToInnerDataStandard = true );
+    void ReadSu2Grid(GridMediator *gridMediator);
+    void ReadSu2GridAscii(const std::string &fileName, const std::string &caseDir);
+    void Su2ToOneFlowGrid(const GridConfig &config, const std::string &caseDir);
+    void MarkBoundary(const std::string &su2cfgFile, const std::string &caseDir);
+    void FillSU2CgnsZone(CgnsZone &cgnsZone, bool convertToInnerDataStandard = true);
 public:
-    int ndim;
-    int nPoin, nElem;
     IntField vtkmap;
-    IntField elemVTKType;
     IntField elemId;
-    LinkField elems;
-    RealField xN, yN, zN;
-    MarkerManager mmark;
-    VolumeSecManager volSec;
     Su2Bc su2Bc;
-public:
-    int nZone;
-
+    int nZone{1};
 };
 
-void Su2ToOneFlowGrid( Su2Grid & su2Grid );
+void Su2ToOneFlowGrid(Su2Grid &su2Grid);
 
 EndNameSpace

@@ -28,6 +28,8 @@ License
 #include "CgnsZone.h"
 #include "GridMediator.h"
 #include "Su2Grid.h"
+#include "UnstructuredMeshData.h"
+#include "UnstructuredCgnsZoneWriter.h"
 #include "Plot3D.h"
 #include "Boundary.h"
 #include <filesystem>
@@ -341,7 +343,7 @@ namespace
         return "BCTypeUserDefined";
     }
 
-    Su2Grid BuildSu2GridFromGmsh( const GmshMesh & mesh, int & cellDimension )
+    UnstructuredMeshData BuildUnstructuredMeshFromGmsh( const GmshMesh & mesh, int & cellDimension )
     {
         if ( mesh.nodes.empty() || mesh.elements.empty() )
             throw std::runtime_error( "Gmsh mesh has no nodes or elements" );
@@ -353,10 +355,9 @@ namespace
         if ( mesh.nodes.size() > static_cast< size_t >( std::numeric_limits< int >::max() ) )
             throw std::runtime_error( "Gmsh node count exceeds OneFLOW index range" );
 
-        Su2Grid grid;
+        UnstructuredMeshData grid;
         grid.ndim = cellDimension;
         grid.nPoin = static_cast< int >( mesh.nodes.size() );
-        grid.nZone = 1;
         grid.xN.reserve( mesh.nodes.size() );
         grid.yN.reserve( mesh.nodes.size() );
         grid.zN.reserve( mesh.nodes.size() );
@@ -387,7 +388,6 @@ namespace
             {
                 grid.elems.push_back( std::move( connectivity ) );
                 grid.elemVTKType.push_back( vtkType );
-                grid.elemId.push_back( static_cast< int >( grid.elemId.size() + 1 ) );
                 continue;
             }
             const auto entity = mesh.entityPhysicalTags.find(
@@ -434,7 +434,7 @@ namespace
         int & cellDimension,
         const std::filesystem::path & target )
     {
-        Su2Grid grid = BuildSu2GridFromGmsh( mesh, cellDimension );
+        UnstructuredMeshData grid = BuildUnstructuredMeshFromGmsh( mesh, cellDimension );
         CgnsFactory factory;
         CgnsZbase & cgnsZbase = *factory.cgnsZbase;
         cgnsZbase.nBases = 1;
@@ -446,7 +446,7 @@ namespace
         cgnsBase->nZones = 1;
         cgnsBase->AllocateAllCgnsZones();
         CgnsZone * cgnsZone = cgnsBase->GetCgnsZone( 0 );
-        grid.FillSU2CgnsZone( *cgnsZone, false );
+        UnstructuredCgnsZoneWriter::Write(grid, *cgnsZone, false);
         factory.WriteCgnsFile( target.string() );
     }
 
@@ -615,11 +615,62 @@ namespace
                   << " and " << markdownReportPath.string() << std::endl;
     }
 
+    void ConvertGmshToOneFLOW(
+        const GridConfig & config,
+        const std::string & caseDir )
+    {
+        // Keep CGNS as the explicit, independently readable interchange
+        // artifact. This route composes the existing Gmsh writer and CGNS
+        // reader instead of maintaining a second Gmsh-to-runtime mapping.
+        const std::filesystem::path sourceName( config.sourceFile );
+        const std::string interchangeName =
+            sourceName.stem().string() + ".gmsh-to-oneflow.cgns";
+
+        GridConfig cgnsConfig = config;
+        cgnsConfig.targetType = GridFileType::CGNS;
+        cgnsConfig.targetFile =
+            ( std::filesystem::path( "results" ) / interchangeName ).generic_string();
+        ConvertGmshToCgns( cgnsConfig, caseDir );
+
+        GridConfig oneFlowConfig = cgnsConfig;
+        oneFlowConfig.sourceType = GridFileType::CGNS;
+        oneFlowConfig.sourceFile = cgnsConfig.targetFile;
+        oneFlowConfig.targetType = GridFileType::OneFLOW;
+        oneFlowConfig.topology = GridTopology::Unstructured;
+
+        // The CGNS interchange file is an input to the OneFLOW reader, not
+        // the native OneFLOW output. Never let CalcGrid::Dump overwrite it.
+        // Respect an explicitly configured native-grid target; otherwise
+        // keep the generated OneFLOW grid beside the interchange evidence.
+        oneFlowConfig.targetFile = config.targetFile;
+        if ( oneFlowConfig.targetFile.empty() )
+        {
+            const std::string nativeGridName =
+                sourceName.stem().string() + ".oneflow.grid";
+            oneFlowConfig.targetFile =
+                ( std::filesystem::absolute( caseDir ) /
+                  "results" / nativeGridName ).lexically_normal().string();
+        }
+
+        CgnsFactory cgnsFactory;
+        cgnsFactory.GenerateGrid( oneFlowConfig, caseDir );
+    }
+
     void ConvertGmsh( const GridConfig & config, const std::string & caseDir )
     {
-        if ( config.targetType != GridFileType::CGNS )
-            throw std::invalid_argument( "Initial Gmsh conversion supports targetGridType = cgns only" );
-        ConvertGmshToCgns( config, caseDir );
+        switch ( config.targetType )
+        {
+            case GridFileType::CGNS:
+                ConvertGmshToCgns( config, caseDir );
+                return;
+            case GridFileType::OneFLOW:
+                ConvertGmshToOneFLOW( config, caseDir );
+                return;
+            default:
+                throw std::invalid_argument(
+                    std::string( "Unsupported Gmsh target type: " ) +
+                    std::string( ToString( config.targetType ) ) );
+        }
     }
 
     void ConvertPlot3DToOneFLOW(
@@ -698,7 +749,8 @@ bool IsSupportedConversion( GridFileType sourceType, GridFileType targetType )
             return targetType == GridFileType::OneFLOW ||
                    targetType == GridFileType::CGNS;
         case GridFileType::Gmsh:
-            return targetType == GridFileType::CGNS;
+            return targetType == GridFileType::CGNS ||
+                   targetType == GridFileType::OneFLOW;
         default:
             return false;
     }

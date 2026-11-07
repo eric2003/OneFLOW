@@ -6,6 +6,7 @@ on:
     paths:
       - "tools/mesh_cases.py"
       - "tools/mesh_layout/**"
+      - "tools/stl_to_gmsh/**"
       - "tests/tools/**"
       - "tools/test_mesh_cases.py"
       - "tools/oneflow_gui/**"
@@ -51,13 +52,15 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libegl1 libgl1 libxkbcommon0 libdbus-1-3 libxcb-cursor0
+          sudo apt-get install -y libegl1 libgl1 libxkbcommon0 libdbus-1-3 libxcb-cursor0 gmsh
       - name: Install GUI test dependency
         run: python -m pip install -r tools/requirements-gui.txt
       - name: Compile Python tooling
-        run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout tools/oneflow_gui tools/verification
+        run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout tools/stl_to_gmsh tools/oneflow_gui tools/verification
       - name: Test case catalog
         run: python tools/test_mesh_cases.py
+      - name: Test planar STL to Gmsh geometry generation
+        run: python -m unittest tools.stl_to_gmsh.test_stl_to_gmsh
       - name: Test rectangle layout compiler
         run: python -m unittest tests.tools.test_compile_rectangle
       - name: Test flat plate layout compiler
@@ -88,6 +91,8 @@ jobs:
         run: python -m unittest tools.verification.test_latex_preview
       - name: Test Formula and Knowledge catalog
         run: python -m unittest tools.verification.test_curve_catalog
+      - name: Test Vencat analytic reference profiles
+        run: python -m unittest tools.verification.test_vencat_reference
       - name: Test Contract Workbench dialog
         run: python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
       - name: Test source editor process launch
@@ -106,6 +111,8 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_application_settings
       - name: Test project discovery and creation
         run: python -m unittest tools.oneflow_gui.test_project_repository tools.oneflow_gui.test_project_templates tools.oneflow_gui.test_rae2822_project_template tools.oneflow_gui.test_new_project_dialog
+      - name: Test Case script file discovery
+        run: python -m unittest tools.oneflow_gui.test_script_file_discovery
       - name: Test project window parameter actions
         run: python -m unittest tools.oneflow_gui.test_project_window
       - name: Test lossless parameter document

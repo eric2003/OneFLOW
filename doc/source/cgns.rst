@@ -190,3 +190,64 @@ Then for NFACE_n, ElementConnectivity contains the list of face elements making 
 
 
 
+
+
+CGNS cell dimension and OneFLOW element classification
+------------------------------------------------------
+
+For unstructured CGNS input, the Base ``CellDimension`` is the authoritative
+topological dimension of the mesh. It is not interchangeable with
+``PhysicalDimension``: a two-dimensional mesh may be embedded in three
+coordinate dimensions (for example, ``CellDimension = 2`` and
+``PhysicalDimension = 3``).
+
+OneFLOW element classification and face construction currently consult the
+process-wide ``Dim`` setting. Before materializing CGNS zones as OneFLOW
+unstructured grids, ``GridElemGroup::GenerateLocalOneFlowGrids`` therefore
+synchronizes ``Dim`` from the CGNS Base cell dimension. It rejects unsupported
+dimensions and mixed cell dimensions across zones rather than silently
+classifying cells under a stale global setting.
+
+This is required for a 2D CGNS section containing ``TRI_3`` or ``QUAD_4``:
+without the synchronization, a process still configured as 3D treats these
+elements as non-volume elements, producing an empty cell topology even though
+the CGNS sections and connectivity were read successfully.
+
+
+CGNS Base dimensions when writing OneFLOW grids
+------------------------------------------------
+
+When OneFLOW creates a CGNS Base for an in-memory grid conversion, the Base
+``CellDimension`` must come from the active topological grid dimension
+(``Dim::GetDimension()``). OneFLOW stores three coordinate components
+(``X``, ``Y`` and ``Z``), so ``PhysicalDimension`` remains three. Hard-coding
+both values to three makes a 2D Plot3D-to-CGNS conversion appear to be 3D to
+the subsequent CGNS reader. The reader then classifies 2D surface elements
+under the wrong topology and can produce an empty cell mesh. The
+``CgnsBaseDimensionTest`` regression test protects this distinction.
+
+
+Single-cell runtime acceptance
+------------------------------
+
+The Gmsh interoperability path is not considered operational merely because
+the CGNS file and native OneFLOW grid can be written. The production runtime
+must also consume the native grid, initialize its solver fields, advance at
+least one iteration, and emit residual, restart-flow, and visualization files.
+
+The CTest
+``GmshSingleCellRuntimeIntegration.ConvertsReadsComputesAndWritesFlowField``
+uses one 2D ``QUAD_4`` cell with four explicitly named boundary edges. It
+converts ``Gmsh -> CGNS -> OneFLOW``, then invokes the same command-line
+simulation route used by users. The test deliberately checks process success
+and non-empty output artifacts rather than numerical accuracy. It is a
+workflow smoke test, not a validated CFD solution.
+
+A one-cell case is particularly useful because every face is a physical
+boundary: there are no interior faces to hide owner/neighbour or ghost-cell
+mistakes. It stresses boundary classification, ghost-state initialization,
+face flux traversal, one-cell residual accumulation, and cell-to-node field
+output. Once this path is stable, a separate multi-cell case should test
+internal-face adjacency and shared-face conservation; numerical verification
+should then use a manufactured or analytical solution rather than relaxing the
+workflow smoke test into a solution-accuracy claim.

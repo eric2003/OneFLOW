@@ -56,7 +56,7 @@
       "kind": "google_test",
       "reference": "SimuImpCaseLifecycleIntegration.FailedProductionSetupRunsRealCaseTeardownAndKeepsProcessRuntimeActive",
       "status": "linked_not_executed",
-      "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; feeds a multi-file control manifest through the production SimuImp::RunCase path, injects a missing script after a partial read, and verifies real case teardown while process runtime remains active."
+      "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; feeds a multi-file control manifest through the production SimuImp::RunCase path, injects a parse failure in the second real parameter file after a partial read, and verifies real case teardown while process runtime remains active."
     },
     {
       "kind": "google_test",
@@ -74,7 +74,7 @@
       "kind": "google_test",
       "reference": "SimulationEntryIntegration.FailedFullSimulationEntryTearsDownCaseAndFinalizesProcessRuntime",
       "status": "linked_not_executed",
-      "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; invokes Simulation::Run with a control manifest whose second script is missing after the first script has populated the real DataBase, then verifies public failure reporting, case rollback, project-path cleanup, and process-runtime finalization."
+      "scope": "tests/main/simu_imp_case_lifecycle_integration_test.cpp; invokes Simulation::Run with a malformed second real parameter file after the first file has populated the real DataBase, then verifies public failure reporting, case rollback, project-path cleanup, and process-runtime finalization."
     },
     {
       "kind": "google_test",

@@ -116,10 +116,11 @@ int CgnsBase::GetNZones() const
 
 void CgnsBase::SetDefaultCgnsBaseBasicInfo()
 {
-    //this->celldim = Dim::dimension;
-    //this->phydim  = Dim::dimension;
-
-    this->celldim = THREE_D;
+    // CellDimension describes the mesh topology, not the number of
+    // coordinate components. OneFLOW stores X/Y/Z coordinates for all grid
+    // dimensions, so keep PhysicalDimension at three while honoring the
+    // active 1D/2D/3D grid dimension for CellDimension.
+    this->celldim = Dim::GetDimension();
     this->phydim  = THREE_D;
   
     this->baseName = ONEFLOW::AddString( "Base", this->baseId );

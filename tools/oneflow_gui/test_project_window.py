@@ -29,7 +29,7 @@ class ProjectWindowParameterTest(unittest.TestCase):
             (script / "control.txt").write_text('"simu.txt"\n', encoding="ascii")
             (script / "simu.txt").write_text('string simuTask = "flow";\n', encoding="ascii")
 
-            catalog_home = root.parent / "oneflow-user-data"
+            catalog_home = root / "oneflow-user-data"
             with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
                 window = ProjectWindow(
                     open_project(root),
@@ -78,7 +78,7 @@ class ProjectWindowParameterTest(unittest.TestCase):
             return None
         return visit(parent)
 
-    def test_unified_view_merges_manifest_files_and_exposes_consumer_evidence(self) -> None:
+    def test_unified_view_merges_discovered_files_in_filename_order_and_exposes_consumer_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             script = root / "script"
@@ -89,24 +89,32 @@ class ProjectWindowParameterTest(unittest.TestCase):
             (script / "simu.txt").write_text('string simuTask = "Solve";\nint maxSteps = 10;\nint time_integral = 1;\nint rk_stage = 3;\n', encoding="ascii")
             (script / "cfd.txt").write_text("int maxSteps = 20;\n", encoding="ascii")
             (script / "override.txt").write_text("int MAXSTEPS = 30;\nReal gridTrans[3] = {0.0, 0.0, 0.0};\n", encoding="ascii")
+            (script / "extra.txt").write_text(
+                "int extraManifestParameter = 9;\n", encoding="ascii"
+            )
             catalog_home = root.parent / "oneflow-user-data"
             with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
                 window = ProjectWindow(open_project(root), root.parent)
             try:
                 tree = window.findChild(QTreeWidget, "unifiedParameterTree")
-                effective = self._find_item(tree, "MAXSTEPS")
+                self.assertEqual(
+                    [path.name for path in window._project.parameter_files],
+                    ["cfd.txt", "extra.txt", "override.txt", "simu.txt"],
+                )
+                self.assertIn("filename order", window.statusBar().currentMessage())
+                effective = self._find_item(tree, "maxSteps")
                 self.assertIsNotNone(effective)
-                self.assertEqual(effective.text(1), "30")
+                self.assertEqual(effective.text(1), "10")
                 self.assertEqual(effective.text(4), "Solve")
-                self.assertIn("file 3", effective.text(3))
+                self.assertIn("file 4", effective.text(3))
                 overridden = [
                     effective.child(index)
                     for index in range(effective.childCount())
-                    if effective.child(index).text(0) == "[overridden] maxSteps"
+                    if effective.child(index).text(0).casefold() == "[overridden] maxsteps"
                 ]
-                self.assertEqual([item.text(1) for item in overridden], ["10", "20"])
+                self.assertEqual([item.text(1) for item in overridden], ["20", "30"])
                 self.assertIn("file 1", overridden[0].text(3))
-                self.assertIn("file 2", overridden[1].text(3))
+                self.assertIn("file 3", overridden[1].text(3))
                 consumer = next(
                     effective.child(index)
                     for index in range(effective.childCount())
@@ -114,6 +122,10 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 )
                 self.assertEqual(consumer.text(1), "Iteration::Init")
                 self.assertIn("Iteration.cpp", consumer.text(3))
+                extra = self._find_item(tree, "extraManifestParameter")
+                self.assertIsNotNone(extra)
+                self.assertEqual(extra.text(1), "9")
+                self.assertIn("script/extra.txt", extra.text(3))
                 for parameter_name in ("time_integral", "rk_stage"):
                     parameter_item = self._find_item(tree, parameter_name)
                     self.assertIsNotNone(parameter_item)
@@ -166,6 +178,59 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 )
             finally:
                 window.close()
+
+
+    def test_project_without_control_loads_real_script_parameter_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            script = root / "script"
+            script.mkdir()
+            (script / "simu.txt").write_text(
+                'string simutask = "Solve";\n', encoding="ascii"
+            )
+            (script / "cfd.txt").write_text(
+                "int maxSteps = 40;\n", encoding="ascii"
+            )
+            catalog_home = root.parent / "oneflow-user-data"
+            with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
+                window = ProjectWindow(open_project(root), root.parent)
+            try:
+                tree = window.findChild(QTreeWidget, "unifiedParameterTree")
+                self.assertIsNotNone(self._find_item(tree, "simutask"))
+                maximum = self._find_item(tree, "maxSteps")
+                self.assertIsNotNone(maximum)
+                self.assertEqual(maximum.text(1), "40")
+                self.assertIn("script/cfd.txt", maximum.text(3))
+            finally:
+                window.close()
+
+    def test_parameter_style_control_is_visible_as_a_source_document(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            script = root / "script"
+            script.mkdir()
+            (script / "control.txt").write_text(
+                'string simutask = "Grid";\nint dimension = 2;\n',
+                encoding="ascii",
+            )
+            (script / "grid.txt").write_text(
+                "int gridScale = 1;\n", encoding="ascii"
+            )
+            catalog_home = root.parent / "oneflow-user-data"
+            with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
+                window = ProjectWindow(open_project(root), root.parent)
+            try:
+                tree = window.findChild(QTreeWidget, "unifiedParameterTree")
+                task = self._find_item(tree, "simutask")
+                self.assertIsNotNone(task)
+                self.assertIn("script/control.txt", task.text(3))
+                self.assertEqual(task.text(1), "Grid")
+                dimension = self._find_item(tree, "dimension")
+                self.assertIsNotNone(dimension)
+                self.assertEqual(dimension.text(1), "2")
+            finally:
+                window.close()
+
 
 
 if __name__ == "__main__":

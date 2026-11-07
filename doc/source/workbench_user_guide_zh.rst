@@ -67,6 +67,8 @@ https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md
 * **CFD/Grid Regression** 使用仓库已有的回归清单和脚本，并在用户工作目录准备输入。
 * **Development Tests** 是可选项，默认不运行；选择后默认勾选目录清单中的所有 case，也可以打开 **Select cases...** 调整。
 
+**Select cases...** 按算例目录中的 `group` 元数据分组显示；例如 `gmsh_to_cgns`、`gmsh_to_oneflow` 和 `two_quads` 都归入 **Gmsh**。组名前的复选框可以整体选择或取消该组，展开后也可以单独选择某个算例。未声明分组的算例显示在 **General** 下。分组只影响选择界面，不改变算例执行方式；Gmsh→CGNS 仍遵循手动 GUI 工作流程约束。
+
 Development Tests 使用固定的用户数据测试工作目录，并在每批开始时重新准备该目录中的测试 case；源仓库内的内置 case 保持不动。测试进程的退出状态会记录为运行结果；这不等同于所有网格几何或数值结果都已由 GUI 独立验证。
 
 Contract Workbench

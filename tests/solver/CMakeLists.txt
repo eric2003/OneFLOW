@@ -430,7 +430,14 @@ target_include_directories(lusgs_viscous_spectrum_test PRIVATE
 )
 target_link_libraries(lusgs_viscous_spectrum_test PRIVATE GTest::gtest_main)
 target_compile_features(lusgs_viscous_spectrum_test PRIVATE cxx_std_20)
-gtest_discover_tests(lusgs_viscous_spectrum_test DISCOVERY_MODE PRE_TEST)
+# Windows Debug test executables can exceed CMake's 5-second default during
+# first-time GoogleTest discovery (e.g. antivirus/debug-runtime startup).
+# Keep discovery bounded, but avoid failing the whole RUN_TESTS target on a
+# short process-startup delay.
+gtest_discover_tests(lusgs_viscous_spectrum_test
+  DISCOVERY_MODE PRE_TEST
+  DISCOVERY_TIMEOUT 30
+)
 
 # Pure multi-stage RK weight schedule; header-only, no solver bootstrap.
 add_executable(time_integral_policy_test

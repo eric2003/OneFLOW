@@ -30,7 +30,6 @@ License
 #include "FieldSimu.h"
 #include "GridGeneration.h"
 #include "MultiBlock.h"
-#include "Test.h"
 #include "Theory.h"
 #include "SimpleSimu.h"
 #include "PostProcess.h"
@@ -71,12 +70,6 @@ public:
     void Execute( SimuContext& /*ctx*/ ) override { WalldistSimu(); }
 };
 
-class FunctionTestTask : public ISimuTask
-{
-public:
-    void Execute( SimuContext& /*ctx*/ ) override { FunctionTest(); }
-};
-
 class TheoryTask : public ISimuTask
 {
 public:
@@ -115,7 +108,6 @@ const bool kTasksRegistered = []() {
     reg.Register( "Grid",         []() { return std::make_unique<CreateGridTask>(); } );
     reg.Register( "WallDist",     []() { return std::make_unique<WallDistTask>(); } );
     reg.Register( "Partition",    []() { return std::make_unique<PartitionGridTask>(); } );
-    reg.Register( "FunctionTest", []() { return std::make_unique<FunctionTestTask>(); } );
     reg.Register( "Theory",       []() { return std::make_unique<TheoryTask>(); } );
     reg.Register( "ToyModel",     []() { return std::make_unique<ToyModelTask>(); } );
     reg.Register( "PostTask",     []() { return std::make_unique<PostTask>(); } );

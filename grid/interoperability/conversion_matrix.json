@@ -1,0 +1,97 @@
+{
+  "schema": "oneflow.grid-conversion-matrix",
+  "version": 1,
+  "policy": {
+    "interchange_hub": "cgns",
+    "pairwise_converter_policy": "Add only routes that serve a real workflow or independent cross-validation.",
+    "runnable_cases": "Each runnable conversion Case owns its input mesh and runtime configuration. Route coverage is recorded separately from Case identity."
+  },
+  "routes": [
+    {
+      "source": "gmsh",
+      "target": "cgns",
+      "status": "implemented",
+      "implementation": "GridConversion.cpp",
+      "input_scope": "MSH 4.1 ASCII; first-order LINE_2, TRI_3, QUAD_4, TETRA_4, HEXA_8, PENTA_6, PYRA_5",
+      "evidence": "GmshCgnsConversionTest independently reopens CGNS and checks mesh and boundary data."
+    },
+    {
+      "source": "gmsh",
+      "target": "oneflow",
+      "status": "implemented",
+      "via": [
+        "cgns"
+      ],
+      "implementation": "GridConversion.cpp",
+      "artifacts": [
+        "Case results/<source-stem>.gmsh-to-oneflow.cgns",
+        "Configured native OneFLOW grid target, or Case results/<source-stem>.oneflow.grid by default"
+      ],
+      "input_scope": "Same as gmsh -> cgns.",
+      "evidence": "GmshCgnsConversionTest verifies the retained CGNS Base/Zone/BC_t data, the separate native OneFLOW grid output, OneFLOW UnsGrid node/cell/face counts and coordinates, and per-boundary OneFLOW BC type/name identity attached to the expected geometric edge."
+    },
+    {
+      "source": "cgns",
+      "target": "oneflow",
+      "status": "implemented",
+      "implementation": "CgnsFactory::GenerateGrid"
+    },
+    {
+      "source": "plot3d",
+      "target": "cgns",
+      "status": "implemented",
+      "implementation": "Plot3D::Plot3DToCgns"
+    },
+    {
+      "source": "plot3d",
+      "target": "oneflow",
+      "status": "implemented",
+      "implementation": "CgnsFactory::CommonToOneFlowGrid"
+    },
+    {
+      "source": "su2",
+      "target": "oneflow",
+      "status": "implemented",
+      "implementation": "Su2Grid::Su2ToOneFlowGrid"
+    }
+  ],
+  "not_implemented": [
+    {
+      "source": "plot3d",
+      "target": "gmsh",
+      "reason": "No current workflow or validated semantic mapping requires this route."
+    },
+    {
+      "source": "gmsh",
+      "target": "plot3d",
+      "reason": "No current workflow or validated semantic mapping requires this route."
+    },
+    {
+      "source": "gmsh",
+      "target": "su2",
+      "reason": "No current workflow or validated semantic mapping requires this route."
+    }
+  ],
+  "cases": [
+    {
+      "id": "two_quads",
+      "directory": "grid/conversion/cases/two_quads",
+      "source": "gmsh",
+      "dimension": 2,
+      "topology": "two adjacent QUAD_4 cells",
+      "expected": {
+        "nodes": 6,
+        "cells": 2,
+        "boundary_elements": 6,
+        "internal_interface_edges": 1,
+        "physical_boundary_groups": 4,
+        "gmsh_element_records": 9
+      },
+      "routes": [
+        "gmsh->cgns"
+      ],
+      "execution": "manual_gui",
+      "purpose": "Validate multi-cell connectivity, a shared internal edge, and boundary Physical Groups spanning multiple geometric entities."
+    }
+  ]
+}

@@ -2,6 +2,9 @@
 # 包含 GoogleTest 模块 (只需在顶层包含一次，子目录即可直接使用)
 include(GoogleTest)
 
+# CMake infrastructure tests run in isolated temporary fixture projects.
+add_subdirectory(cmake)
+
 if ( NOT COMMAND gtest_discover_tests )
   message(FATAL_ERROR
     "GoogleTest.cmake did not define gtest_discover_tests. "

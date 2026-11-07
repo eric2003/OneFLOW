@@ -159,7 +159,7 @@ def main() -> int:
         "plot3d": {"oneflow", "cgns"},
         "su2": {"oneflow"},
         "cgns": {"oneflow", "cgns"},
-        "gmsh": {"cgns"},
+        "gmsh": {"cgns", "oneflow"},
     }
     source_type = strings.get("sourceGridType", "").lower()
     target_type = strings.get("targetGridType", "").lower()

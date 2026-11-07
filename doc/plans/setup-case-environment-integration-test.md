@@ -1282,3 +1282,34 @@ inspection does not constitute a test execution. The evidence status remains
 is observed in a real CTest run. R1 remains Partial. Remaining checks include
 the Windows/MSVC and Linux builds, complete suite, and review of teardown
 failure paths beyond the configuration rollback already covered.
+
+
+## 2026-11-07 correction: the directory is authoritative for parameter ingestion
+
+The current production rule no longer treats a filename-only
+``script/control.txt`` as the parameter-file read list. Historical sections
+above describe the earlier manifest-driven implementation and its tests.
+
+The current contract is:
+
+- enumerate real regular ``*.txt`` files under ``script/``;
+- identify parameter documents from their actual contents, leaving auxiliary
+  files such as solver-name files to their dedicated readers;
+- load real parameter documents in deterministic filename order;
+- when ``control.txt`` is a filename-only manifest, compare its entries with
+  the real parameter files and report missing, duplicate, unlisted, auxiliary,
+  and order differences, without changing file selection or precedence;
+- when ``control.txt`` contains parameter declarations, load it as an
+  ordinary parameter document; when absent, discover and load the other real
+  parameter documents in the same filename order.
+
+A missing filename in a manifest is a diagnostic, not a file-open failure.
+Production failure-path tests therefore use a real malformed parameter file
+after an earlier real file has been committed, preserving coverage of
+configuration rollback without depending on a stale manifest entry.
+
+The implementation is shared semantically by
+``codes/io/src/ControlManifestReader.cpp`` and
+``tools/oneflow_gui/script_file_discovery.py``. The C++ runtime and
+Workbench both read actual files; the Workbench retains source paths and
+declaration order for editing and diagnostics.

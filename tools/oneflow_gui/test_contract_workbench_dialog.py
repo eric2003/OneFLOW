@@ -74,7 +74,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 for i in range(dialog.contract_list.count())
                 if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole)
             }
-            self.assertTrue({"mesh/core-concepts", "mesh/gmsh", "mesh/plot3d", "mesh/cgns"}.issubset(ids))
+            self.assertTrue({"mesh/core-concepts", "mesh/unstructured-cgns-writer", "mesh/gmsh", "mesh/plot3d", "mesh/cgns"}.issubset(ids))
             headers = [
                 dialog.contract_list.item(i).text()
                 for i in range(dialog.contract_list.count())
@@ -87,6 +87,11 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             dialog.contract_list.setCurrentRow(gmsh_row)
             self.assertIn("MSH 4.1", dialog.mesh_knowledge_view.toPlainText())
             self.assertIn("Physical Groups", dialog.mesh_knowledge_view.toPlainText())
+            writer_row = next(i for i in range(dialog.contract_list.count())
+                               if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole) == "mesh/unstructured-cgns-writer")
+            dialog.contract_list.setCurrentRow(writer_row)
+            self.assertIn("UnstructuredCgnsZoneWriter", dialog.mesh_knowledge_view.toPlainText())
+            self.assertIn("Su2Grid", dialog.mesh_knowledge_view.toPlainText())
             self.assertTrue(dialog.open_mesh_topology_button.isEnabled())
             dialog.search_edit.setText("plot3d")
             filtered = {
@@ -94,7 +99,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 for i in range(dialog.contract_list.count())
                 if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole)
             }
-            self.assertEqual(filtered, {"mesh/plot3d"})
+            self.assertEqual(filtered, {"mesh/plot3d", "mesh/unstructured-cgns-writer"})
         finally:
             self._close_dialog(dialog)
 

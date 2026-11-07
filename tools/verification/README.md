@@ -508,3 +508,30 @@ Validate the source links with:
 python -m unittest tools.oneflow_gui.test_parameter_consumer_catalog
 python -m unittest tools.verification.test_curve_catalog
 ```
+
+
+## Vencat analytic reference profile
+
+The former codes/test runtime task generated a multi-zone Vencat profile
+file but was not used by any checked-in simu.txt case. Its formulas and
+reference-data writer are now isolated here, outside the production solver
+source set.
+
+The retained functions are:
+
+- vencat(x) = (1 + 2x) / (1 + x + 2x^2);
+- vencat_c(x,c) = (1 + cx) / (1 + x + cx^2);
+- vencat_eric(x) = (1 + 3x) / (1 + x + 2x^2).
+
+Generate the legacy-style ten-zone profile (101 points per zone, with
+c = 2, ..., 11) by choosing an explicit output path:
+
+```powershell
+python -m tools.verification.vencat_reference .\build\verification\vencat.dat
+```
+
+The writer creates parent directories and writes only to the requested path.
+Its unit tests use a temporary directory and verify formula values, zone
+structure, point counts, and endpoint values. This is an analytic reference
+profile generator, not evidence that a CFD discretization or solver converges
+to the profile.

@@ -25,6 +25,7 @@ License
 #include "HXStd.h"
 #include "ElementHome.h"
 #include "CgnsFactory.h"
+#include "UnstructuredCgnsZoneWriter.h"
 #include "CgnsZbase.h"
 #include "CgnsZsection.h"
 #include "CgnsZbc.h"
@@ -50,158 +51,6 @@ License
 
 
 BeginNameSpace( ONEFLOW )
-
-VTK_CgnsMap vtk_CgnsMap;
-
-int VTK_TYPE::VERTEX        = 1;
-int VTK_TYPE::LINE          = 3;
-int VTK_TYPE::TRIANGLE      = 5;
-int VTK_TYPE::QUADRILATERAL = 9;
-int VTK_TYPE::TETRAHEDRON   = 10;
-int VTK_TYPE::HEXAHEDRON    = 12;
-int VTK_TYPE::PRISM         = 13;
-int VTK_TYPE::PYRAMID       = 14;
-
-VTK_CgnsMap::VTK_CgnsMap()
-{
-    this->Init();
-}
-
-VTK_CgnsMap::~VTK_CgnsMap()
-{
-    ;
-}
-
-void VTK_CgnsMap::Init()
-{
-    using IntPair = std::pair< int, int >;
-
-    vtk2Cgns.insert( IntPair( VTK_TYPE::VERTEX       , NODE    ) );
-    vtk2Cgns.insert( IntPair( VTK_TYPE::LINE         , BAR_2   ) );
-    vtk2Cgns.insert( IntPair( VTK_TYPE::TRIANGLE     , TRI_3   ) );
-    vtk2Cgns.insert( IntPair( VTK_TYPE::QUADRILATERAL, QUAD_4  ) );
-    vtk2Cgns.insert( IntPair( VTK_TYPE::TETRAHEDRON  , TETRA_4 ) );
-    vtk2Cgns.insert( IntPair( VTK_TYPE::HEXAHEDRON   , HEXA_8  ) );
-    vtk2Cgns.insert( IntPair( VTK_TYPE::PRISM        , PENTA_6 ) );
-    vtk2Cgns.insert( IntPair( VTK_TYPE::PYRAMID      , PYRA_5 ) );
-}
-
-void SecMarkerManager::Alloc( int nType )
-{
-    this->nType = nType;
-    data.clear();
-    data.resize( nType );
-}
-
-int SecMarkerManager::CalcTotalElem() const
-{
-    const int nType = data.size();
-    int nElem = 0;
-    for ( int i = 0; i < nType; ++ i )
-    {
-        const SecMarker * sec = & this->data[ i ];
-        nElem += sec->nElem;
-    }
-    return nElem;
-}
-
-void MarkerManager::CreateMarkerList( int nMarker )
-{
-    markerList.clear();
-    markerList.resize( nMarker );
-}
-
-void MarkerManager::CalcSecMarker( SecMarkerManager & secMarkerManager )
-{
-    const int nMarker = this->markerList.size();
-    IntSet typeSet;
-    for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
-    {
-        const Marker * marker = & this->markerList[ iMarker ];
-        for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
-        {
-            const int type = marker->eTypes[ iElem ];
-            typeSet.insert( type );
-        }
-    }
-
-    ONEFLOW::Set2Array( typeSet, types );
-
-    l2g.resize( nMarker );
-    for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
-    {
-        const Marker * marker = & this->markerList[ iMarker ];
-        l2g[ iMarker ].resize( marker->nElem );
-    }
-
-    const int nType = types.size();
-
-    secMarkerManager.Alloc( nType );
-
-    int gid = 0;
-    for ( int iType = 0; iType < nType; ++ iType )
-    {
-        const int eType = types[ iType ];
-        SecMarker * secMarker = & secMarkerManager.data[ iType ];
-        secMarker->vtk_type = eType;
-        secMarker->cgns_type = vtk_CgnsMap.vtk2Cgns[ eType ];
-        secMarker->name = ElementTypeName[ secMarker->cgns_type ];
-        for ( int iMarker = 0; iMarker < nMarker; ++ iMarker )
-        {
-            const Marker * marker = & this->markerList[ iMarker ];
-            for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
-            {
-                const int type = marker->eTypes[ iElem ];
-                if ( type == eType )
-                {
-                    secMarker->elems.push_back( marker->elems[ iElem ] );
-                    this->l2g[ iMarker ][ iElem ] = gid ++;
-                }
-            }
-        }
-        secMarker->nElem = secMarker->elems.size();
-    }
-
-}
-
-void VolumeSecManager::CalcVolSec( const Su2Grid & su2Grid, SecMarkerManager & secMarkerManager )
-{
-    IntSet typeSet;
-
-    for ( int iElem = 0; iElem < su2Grid.nElem; ++ iElem )
-    {
-        const int eVtkType = su2Grid.elemVTKType[ iElem ];
-        typeSet.insert( eVtkType );
-    }
-    
-    ONEFLOW::Set2Array( typeSet, types );
-
-    int nType = types.size();
-    l2g.resize( nType );
-
-    secMarkerManager.Alloc( nType );
-
-    for ( int iType = 0; iType < nType; ++ iType )
-    {
-        int eType = types[ iType ];
-        SecMarker * secMarker = & secMarkerManager.data[ iType ];
-        secMarker->vtk_type = eType;
-        secMarker->cgns_type = vtk_CgnsMap.vtk2Cgns[ eType ];
-        secMarker->name = ElementTypeName[ secMarker->cgns_type ];
-        int gid = 0;
-        for ( int iElem = 0; iElem < su2Grid.nElem; ++ iElem )
-        {
-            const int e_VtkType = su2Grid.elemVTKType[ iElem ];
-            if ( eType == e_VtkType )
-            {
-                secMarker->elems.push_back( su2Grid.elems[ iElem ] );
-                this->l2g[ iType ].push_back( iElem );
-            }
-        }
-        secMarker->nElem = secMarker->elems.size();
-    }
-
-}
 
 Su2Bc::Su2Bc()
 {
@@ -259,20 +108,17 @@ int Su2Bc::GetCgnsBcType( const std::string & geoName ) const
 }
 
 Su2Grid::Su2Grid()
-    : ndim( 0 )
-    , nPoin( 0 )
-    , nElem( 0 )
-    , nZone( 1 )
+    : nZone(1)
 {
-    vtkmap.assign( MAX_VTK_TYPE, 0 );
-    vtkmap[ VTK_TYPE::VERTEX ] = 1;
-    vtkmap[ VTK_TYPE::LINE ] = 2;
-    vtkmap[ VTK_TYPE::TRIANGLE ] = 3;
-    vtkmap[ VTK_TYPE::QUADRILATERAL ] = 4;
-    vtkmap[ VTK_TYPE::TETRAHEDRON ] = 4;
-    vtkmap[ VTK_TYPE::HEXAHEDRON ] = 8;
-    vtkmap[ VTK_TYPE::PRISM ] = 6;
-    vtkmap[ VTK_TYPE::PYRAMID ] = 5;
+    vtkmap.assign(MAX_VTK_TYPE, 0);
+    vtkmap[VTK_TYPE::VERTEX] = 1;
+    vtkmap[VTK_TYPE::LINE] = 2;
+    vtkmap[VTK_TYPE::TRIANGLE] = 3;
+    vtkmap[VTK_TYPE::QUADRILATERAL] = 4;
+    vtkmap[VTK_TYPE::TETRAHEDRON] = 4;
+    vtkmap[VTK_TYPE::HEXAHEDRON] = 8;
+    vtkmap[VTK_TYPE::PRISM] = 6;
+    vtkmap[VTK_TYPE::PYRAMID] = 5;
 }
 
 void Su2Grid::ReadSu2Grid( GridMediator * gridMediator )
@@ -443,130 +289,12 @@ void Su2Grid::Su2ToOneFlowGrid( const GridConfig & config, const std::string & c
     ONEFLOW::Su2ToOneFlowGrid( *this );
 }
 
-void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone, bool convertToInnerDataStandard )
+void Su2Grid::FillSU2CgnsZone(
+    CgnsZone &cgnsZone,
+    bool convertToInnerDataStandard)
 {
-    const int nNodes = this->xN.size();
-    const int nCells = this->nElem;
-
-    CgnsCoor & cgnsCoor = cgnsZone.RequireCgnsCoor();
-    cgnsCoor.SetNNode( nNodes );
-    cgnsCoor.SetNCell( nCells );
-
-    NodeMesh & nodeMesh = cgnsCoor.RequireNodeMesh();
-
-    nodeMesh.SetCoordinates( this->xN, this->yN, this->zN );
-
-    cgnsZone.zoneName = "Zone1";
-    cgnsZone.isize[ 0 ] = nNodes;
-    cgnsZone.isize[ 1 ] = nCells;
-    cgnsZone.isize[ 2 ] = 0;
-
-    if ( ! convertToInnerDataStandard )
-    {
-        cgnsCoor.nCoor = 3;
-        cgnsCoor.coorNameList[ 0 ] = "CoordinateX";
-        cgnsCoor.coorNameList[ 1 ] = "CoordinateY";
-        cgnsCoor.coorNameList[ 2 ] = "CoordinateZ";
-        for ( int iCoor = 0; iCoor < 3; ++ iCoor )
-        {
-            cgnsCoor.typeList[ iCoor ] = RealDouble;
-            cgnsCoor.nNodeList[ iCoor ] = nNodes;
-            cgnsCoor.Alloc( iCoor, nNodes, RealDouble );
-        }
-        cgnsCoor.SetAllCoorData();
-    }
-    
-    SecMarkerManager volSec;
-
-    this->volSec.CalcVolSec( *this, volSec );
-    SecMarkerManager bcSec;
-    this->mmark.CalcSecMarker( bcSec );
-
-    const int nVolSec = volSec.nType;
-    const int nBcSec = bcSec.nType;
-
-    const int nSection = nVolSec + nBcSec;
-
-    CgnsZsection & cgnsZsection = cgnsZone.RequireCgnsZsection();
-
-    cgnsZsection.CreateCgnsSections( nSection );
-
-    int nVolCell = volSec.CalcTotalElem();
- 
-    int sumElem = 0;
-    for ( int iSection = 0; iSection < nSection; ++ iSection )
-    {
-        CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
-        const SecMarker * sec = nullptr;
-        if ( iSection < nVolSec )
-        {
-            sec = & volSec.data[ iSection ];
-        }
-        else
-        {
-            int jSection = iSection - nVolSec;
-            sec = & bcSec.data[ jSection ];
-        }
-            
-
-        const int nElem = sec->nElem;
-        cgnsSection.SetSectionInfo( sec->name, sec->cgns_type, sumElem + 1, sumElem + nElem );
-        cgnsSection.CreateConnList();
-        sumElem += nElem;
-
-        int pos = 0;
-        for ( int iElem = 0; iElem < nElem; ++ iElem )
-        {
-            const IntField & elem = sec->elems[ iElem ];
-            const int nNodes = elem.size();
-            for ( int i = 0; i < nNodes; ++ i )
-            {
-                cgnsSection.connList[ pos ++ ]= elem[ i ] + 1;
-            }
-        }
-
-    }
-
-    for ( int iSection = 0; iSection < nSection; ++ iSection )
-    {
-        CgnsSection & cgnsSection = cgnsZsection.GetCgnsSection( iSection );
-        cgnsSection.SetElemPosition();
-    }
-
-    CgnsZbc & cgnsZbc = cgnsZone.RequireCgnsZbc();
-    CgnsZbcBoco & cgnsZbcBoco = cgnsZbc.RequireCgnsZbcBoco();
-    cgnsZbcBoco.ReadZnboco( this->mmark.nMarker );
-    cgnsZbcBoco.CreateCgnsZbc();
-
-    for ( int iMarker = 0; iMarker < this->mmark.nMarker; ++ iMarker )
-    {
-        const Marker * marker = & this->mmark.markerList[ iMarker ];
-        const std::string & name = marker->name;
-
-        CgnsBcBoco & cgnsBcBoco = cgnsZbcBoco.GetCgnsBc( iMarker );
-        cgnsBcBoco.name = name;
-        cgnsBcBoco.gridLocation = CellCenter;
-        cgnsBcBoco.nElements    = marker->nElem;
-        cgnsBcBoco.bcType = static_cast< BCType_t >( marker->cgns_bcType );
-        cgnsBcBoco.pointSetType = PointList;
-        cgnsBcBoco.CreateCgnsBcBoco();
-
-        for ( int iElem = 0; iElem < marker->nElem; ++ iElem )
-        {
-            const int elemId = this->mmark.l2g[ iMarker ][ iElem ];
-            cgnsBcBoco.SetConnListValue( iElem, elemId + 1 + nVolCell );
-        }
-        
-        //string bcName = GetCgnsBcName( cgnsBcBoco.bcType );
-    }
-
-    cgnsZone.cgnsZoneType = Unstructured;
-
-    if ( convertToInnerDataStandard )
-    {
-        cgnsZone.ConvertToInnerDataStandard();
-    }
-
+    UnstructuredCgnsZoneWriter::Write(
+        *this, cgnsZone, convertToInnerDataStandard);
 }
 
 void Su2ToOneFlowGrid( Su2Grid & su2Grid )

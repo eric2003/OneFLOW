@@ -393,11 +393,14 @@ TEST( SimuImpCaseLifecycleIntegration,
 {
     TemporaryCase testCase;
     testCase.WriteManifest(
-        "\"available.txt\";\n"
-        "\"missing.txt\";\n" );
+        "\"z_invalid.txt\";\n"
+        "\"a_available.txt\";\n" );
     testCase.WriteScript(
-        "available.txt",
+        "a_available.txt",
         "string partial_simulation_value = \"must_be_cleared\";\n" );
+    testCase.WriteScript(
+        "z_invalid.txt",
+        "int invalid_array[missing_array_size] = 1;\n" );
 
     SimuImp simulation( testCase.Directory(), false );
     SimuContext & context = simulation.Context();
@@ -678,11 +681,14 @@ TEST( SimulationEntryIntegration,
 {
     TemporaryCase testCase;
     testCase.WriteManifest(
-        "\"available.txt\";\n"
-        "\"missing.txt\";\n" );
+        "\"z_invalid.txt\";\n"
+        "\"a_available.txt\";\n" );
     testCase.WriteScript(
-        "available.txt",
+        "a_available.txt",
         "string partial_simulation_value = \"must_be_cleared\";\n" );
+    testCase.WriteScript(
+        "z_invalid.txt",
+        "int invalid_array[missing_array_size] = 1;\n" );
 
     const std::string executable = "OneFLOW.exe";
     const std::string mode = "r";

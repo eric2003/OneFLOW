@@ -4,10 +4,10 @@
   "title": "Plot3D structured grid format",
   "domain": "mesh",
   "kind": "mesh_interchange_format",
-  "status": "proposed",
+  "status": "partially_verified",
   "overview": "Plot3D is a family of structured-grid conventions used in CFD. Files may contain one or multiple blocks, dimensions and coordinate arrays; variants differ in ASCII/binary encoding, precision, record markers and optional iblank data.",
   "principle": "Plot3D stores structured index-space connectivity implicitly. Neighbours are inferred from i-j-k ordering and block dimensions rather than explicit element connectivity. Point count Np=ni*nj*nk; for a non-degenerate 3-D block, Nc=(ni-1)(nj-1)(nk-1). Preserve dimensions, ordering, precision and blanking semantics.",
-  "architecture": "Plot3D reader -> structured block model -> structured MeshSnapshot/zone representation -> explicit conversion to unstructured cells only when required. Preserve native structured topology where possible.",
+  "architecture": "The current OneFLOW path reads Plot3D through GridMediator and writes CGNS through CgnsFactory::DumpCgnsGrid, preserving the structured block/zone path. Standard Plot3D stores connectivity implicitly through block dimensions and i-j-k ordering. An optional Plot3D-to-CGNS-Unstructured adapter can expand those blocks into ordered QUAD_4 / HEXA_8 cells, populate UnstructuredMeshData and call UnstructuredCgnsZoneWriter. This is a topology transformation, not a native unstructured Plot3D reader; it must preserve IBLANK and block-interface semantics and obtain boundary meaning from explicit source metadata or configuration. This optional route is not implemented yet.",
   "references": [
     "NASA Plot3D reference: https://www.grc.nasa.gov/www/wind/valid/plot3d.html",
     "tools/verification/contracts/parameter/iplot3d.json",
@@ -25,10 +25,11 @@
   },
   "claims": {
     "proves": [
-      "Catalog records Plot3D as a planned structured-grid adapter and distinguishes implicit topology from unstructured connectivity."
+      "The current Plot3D conversion entry point uses GridMediatorGroup and the structured CGNS writer path.",
+      "The contract distinguishes standard Plot3D implicit structured topology from an optional, not-yet-implemented structured-to-unstructured expansion route."
     ],
     "does_not_prove": [
-      "A production Plot3D reader or writer is implemented.",
+      "Every ASCII/binary and record-marker variant is supported or independently verified.",
       "All ASCII/binary, endian, precision and Fortran record variants are supported.",
       "Boundary conditions or interfaces can be inferred from coordinates alone."
     ]

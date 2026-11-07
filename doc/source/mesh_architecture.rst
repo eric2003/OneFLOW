@@ -134,15 +134,108 @@ The intended adapter flow is:
 
 .. code-block:: text
 
-   Gmsh MSH 4.1 / Plot3D / SU2 / CGNS
-                    |
-             format-specific reader
-                    |
-          MeshSnapshot v1 validation
-                    |
-          explicit semantic mapping
-                    |
-             OneFLOW Mesh Core
+   SU2 reader -----------+
+                         |
+   Gmsh MSH reader ------+--> UnstructuredMeshData
+                         |          |
+   Other unstructured --+          v
+      format readers          UnstructuredCgnsZoneWriter
+                                    |
+                                    v
+                            CGNS Unstructured Zone
+
+   Plot3D reader -> structured GridMediator / block model
+                              |
+                              v
+                       CGNS Structured Zone
+
+   CGNS reader / other importers -> OneFLOW Mesh Core
+
+
+Shared unstructured mesh conversion boundary
+--------------------------------------------
+
+This subsection is the curated boundary contract for the current first-order
+unstructured path. It consolidates what the recent Gmsh/SU2/CGNS work
+actually guarantees so that further local changes stay attached to one
+stable meaning.
+
+**Boundary statement.** Input-format identity is not an internal mesh model.
+Source adapters (SU2, Gmsh MSH, and any future unstructured reader) map
+supported coordinates, element topology, and boundary patches into a shared
+staging value type ``UnstructuredMeshData``. The shared writer
+``UnstructuredCgnsZoneWriter`` owns CGNS Unstructured Zone population: Zone
+type initialization, section numbering, one-based connectivity, and BC
+``PointList`` construction. Solver boundary semantics are assigned only by an
+explicit name mapping; a Physical Group label is not itself a OneFLOW BC.
+
+**Ownership.**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 28 36 36
+
+   * - Component
+     - Owns
+     - Must not own
+   * - SU2 / Gmsh (and similar) readers
+     - Source parse, local validation, map into staging fields
+     - CGNS Zone algorithm, solver BC policy, Mesh Core identity
+   * - ``UnstructuredMeshData``
+     - First-order staging values (nodes, VTK-typed cells, BC labels)
+     - Full Mesh Core, high-order data, partition/ghost model
+   * - ``UnstructuredCgnsZoneWriter``
+     - Unstructured Zone sections, connectivity base, BC PointLists
+     - Source-format parsers, Plot3D structured blocks
+   * - Plot3D structured path
+     - Structured blocks via ``GridMediator`` / structured CGNS Zone
+     - Implicit claim to be an unstructured input format
+   * - Explicit BC name map
+     - inflow / outflow / symmetry / farfield → CGNS BC types
+     - Geometric inference of BC from coordinates alone
+
+**What this boundary proves today**
+
+* Gmsh conversion builds ``UnstructuredMeshData`` directly and does not use
+  ``Su2Grid`` as its intermediate container.
+* SU2 keeps its reader but delegates Unstructured Zone population to the
+  common writer.
+* The common writer sets the Zone type before creating sections and boundary
+  connectivity.
+* Focused architecture tests under ``tools/mesh_contracts/`` and the geometry
+  GoogleTest fixtures declare these structural claims.
+
+**What it deliberately does not prove**
+
+* ``UnstructuredMeshData`` is the complete canonical Mesh Core model.
+* High-order interpolation, periodic links, partition/ghost metadata, and full
+  source-entity provenance survive conversion.
+* Standard Plot3D is an unstructured input (it remains a structured route;
+  any structured-to-unstructured expansion is a separate, unimplemented
+  topology transform).
+* Every SU2/Gmsh element family and every solver BC semantic is supported.
+
+**Machine-readable contract.** Workbench and catalog entry
+``mesh/unstructured-cgns-writer``
+(``tools/verification/contracts/mesh/unstructured-cgns-writer.json``).
+Evidence references there must stay aligned with the tests named in
+``tools/mesh_contracts/test_unstructured_cgns_writer_architecture.py`` and the
+geometry GoogleTests; do not infer links from directory names alone.
+
+**References (theory and interchange manuals)**
+
+* CGNS SIDS (Structured/Unstructured Zone, BC_t, Element_t):
+  https://cgns.github.io/CGNS_docs_current/sids/
+* Gmsh MSH file format documentation (element types, Physical Groups):
+  https://gmsh.info/doc/texinfo/gmsh.html#File-formats
+* VTK file formats / cell type table (staging element identifiers only;
+  not a claim that OneFLOW stores VTK as Mesh Core):
+  https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf
+* Related OneFLOW pages: :doc:`gmsh_interface`, :doc:`grid_conversion_cases`,
+  :doc:`cgns`.
+
+These references support interchange semantics and test design. They are not
+a substitute for OneFLOW residual or solver verification.
 
 A future production C++ snapshot should implement the same semantics without
 making the Python validator or JSON representation a runtime dependency.
@@ -361,8 +454,10 @@ Gmsh reader and conversion implementation milestone
 The MSH 4.1 ASCII reader materializes coordinates, sparse source IDs,
 geometric entity ownership, physical names, element types, and ordered
 connectivity in a C++ GmshMesh value model. The conversion path maps
-top-dimensional first-order cells into the existing Su2Grid value container
-and reuses the production CGNS zone writer. The bundled square mesh is now
+top-dimensional first-order cells into the shared ``UnstructuredMeshData``
+staging model and writes the result through ``UnstructuredCgnsZoneWriter``.
+The Gmsh adapter does not construct a ``Su2Grid`` object or call a
+SU2-named writer method. The bundled square mesh is now
 written as a real unstructured CGNS zone and independently reopened through
 the CGNS API in a focused GTest.
 
@@ -397,11 +492,36 @@ boundary-section inventory is based on codimension-one elements associated
 with Physical Groups, matching the conversion path; it does not invent
 solver-specific wall, inlet, or outlet semantics.
 
-Triangle area is computed from the three-dimensional cross-product magnitude;
-the signed XY projection is reported separately as an orientation diagnostic.
-A negative XY orientation is not automatically treated as a read failure.
-Degenerate triangles are counted using a scale-relative floating-point
-threshold.
+Triangle geometry diagnostics (algorithm note)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For a triangle with vertices :math:`\mathbf{x}_0,\mathbf{x}_1,\mathbf{x}_2`,
+OneFLOW reports:
+
+.. math::
+
+   A_{3\mathrm{D}} = \tfrac{1}{2}
+   \lVert (\mathbf{x}_1-\mathbf{x}_0)\times(\mathbf{x}_2-\mathbf{x}_0)\rVert
+
+as a positive area from the three-dimensional cross-product magnitude, and
+
+.. math::
+
+   A_{xy} = \tfrac{1}{2}
+   \bigl[(x_1-x_0)(y_2-y_0)-(x_2-x_0)(y_1-y_0)\bigr]
+
+as the signed XY projection used only as an **orientation diagnostic**.
+A negative :math:`A_{xy}` is not treated as a read failure: the mesh may be
+intentionally oriented, or the 2-D problem may live in a plane that is not
+XY-aligned. Degenerate triangles are counted with a scale-relative
+floating-point threshold on :math:`A_{3\mathrm{D}}`, not by interpreting
+solver flux orientation.
+
+These formulae are standard polygonal area / cross-product identities; see
+e.g. O'Rourke, *Computational Geometry in C* (Cambridge), and the CGNS SIDS
+discussion of element orientation as an interchange concern rather than a
+solver BC policy. They support conversion QA reports only; they do not
+replace residual or finite-volume face-orientation contracts.
 
 The report's `READ_SUCCESS` status means that the reader's structural checks
 passed and that the declared PhysicalNames and Entities sections were parsed
@@ -414,11 +534,41 @@ Gmsh-to-CGNS first Zone
 -----------------------
 
 The first production output path maps MSH 4.1 ASCII top-dimensional,
-first-order cells into the existing Su2Grid value container and reuses
-Su2Grid::FillSU2CgnsZone() to populate OneFLOW's CGNS zone model.
-CgnsFactory::WriteCgnsFile() serializes the prepared base and zone through
-the existing CGNS writer. The Gmsh reader itself has no dependency on the
-Gmsh SDK or CGNS library.
+first-order cells into ``UnstructuredMeshData`` and calls
+``UnstructuredCgnsZoneWriter::Write()`` to populate OneFLOW's CGNS
+Unstructured Zone model. ``CgnsFactory::WriteCgnsFile()`` serializes the
+prepared base and zone through the existing CGNS writer. The Gmsh reader
+itself has no dependency on the Gmsh SDK or CGNS library.
+
+The common writer was extracted from the former
+``Su2Grid::FillSU2CgnsZone()`` implementation. SU2 keeps its source-format
+reader and adapts its parsed data to the shared staging model before calling
+the common writer. Reusing SU2 parsing or SU2 file semantics was never a
+technical requirement for Gmsh; the earlier route was an implementation
+shortcut that coupled unrelated responsibilities.
+
+The current staging model is intentionally limited: it uses VTK element
+identifiers and explicit CGNS BC type values for the first-order conversion
+path. It is not yet the canonical Mesh Core model. Original source entity
+identity, high-order interpolation data, periodic links, partitions, ghost
+entities, richer boundary semantics and complete provenance remain future
+extensions.
+
+Standard Plot3D follows a separate native structured path. The current
+implementation uses ``Plot3D::Plot3DToCgns()``, ``GridMediatorGroup``,
+and ``CgnsFactory::DumpCgnsGrid()`` to preserve structured blocks and write
+CGNS Structured Zones.
+
+A separate, explicit Plot3D-to-CGNS-Unstructured route is also possible
+without involving SU2. Its adapter would expand structured index connectivity
+into ordered QUAD_4 cells for 2-D blocks or HEXA_8 cells for 3-D blocks, then
+populate ``UnstructuredMeshData`` and call
+``UnstructuredCgnsZoneWriter``. This is a topology transformation, not a
+native unstructured Plot3D read. It must define i-j-k node ordering, degenerate
+dimensions, IBLANK handling, multi-block interface policy, and the source of
+boundary patch/BC semantics. Coordinates alone must not be used to invent
+inflow, wall, symmetry, or other solver boundary conditions. This optional
+route is not yet implemented.
 
 For the bundled square sample, the semantic result is four nodes, two TRI_3
 cells, four BAR_2 boundary elements, and ordered volume connectivity
@@ -431,9 +581,10 @@ solver boundary-condition assignment.
 
 The CGNS output path keeps connectivity one-based until CGNS serialization.
 The existing SU2-to-OneFLOW runtime path still requests zero-based internal
-normalization. This distinction is explicit in the FillSU2CgnsZone option
-so the same zone-population logic can serve both runtime ingestion and file
-writing without corrupting CGNS element IDs.
+normalization. The SU2 adapter forwards this option to
+UnstructuredCgnsZoneWriter::Write(). The Gmsh file writer disables
+normalization so CGNS connectivity and BC element IDs remain one-based in the
+serialized file.
 
 
 Gmsh Physical Group boundary semantics
@@ -459,3 +610,46 @@ cell (or the minimum connected patch needed) per element family. Reader
 tests should not depend on CGNS; conversion tests should write to a temporary
 directory and independently reopen the result with the CGNS API; the manual
 Case should remain the end-to-end GUI and report-generation path.
+
+Format interoperability routes
+-------------------------------
+
+Format conversion is organized as a graph of supported routes, not as a
+collection of pairwise converter implementations. Each format adapter owns
+its file syntax and maps into or out of a stable OneFLOW-facing mesh
+representation. Shared topology, entity identity, connectivity ordering and
+boundary semantics must be validated by common contracts.
+
+CGNS is the preferred standards-based interchange hub where it provides a
+useful independent serialization boundary. It is not the OneFLOW runtime
+mesh model and should not leak CGNS library types into the Mesh Core. A
+composed route such as Gmsh -> CGNS -> OneFLOW should write and reopen a real
+CGNS file; an in-memory shortcut is not equivalent evidence.
+
+The current route inventory is maintained in
+`grid/interoperability/conversion_matrix.json`. It records implementation
+status and known limitations so that documentation and test planning do not
+silently imply support for every possible format pair.
+
+Current policy:
+
+* Keep source-format fixtures in one format-owned directory. Route cases
+  reference those fixtures instead of copying them.
+* Keep route-specific configuration and generated evidence under the route.
+* Reuse format adapters and shared semantic contracts; do not implement a
+  dedicated converter for every pair.
+* Add a route only when it unlocks a real workflow or an independent
+  cross-validation path.
+* A successful file write is insufficient: round-trip checks compare
+  dimensions, coordinates, element families, ordered connectivity, region
+  membership and boundary semantics.
+* Record unsupported features and lossy mappings explicitly. Physical group
+  names are not solver boundary states unless an explicit mapping contract
+  says so.
+
+The Gmsh -> OneFLOW convenience route currently composes the MSH 4.1 ASCII
+reader, CGNS writer, and CGNS reader. It retains the intermediate CGNS file
+under the Case `results/` directory as reproducible evidence. This
+deliberately tests the same on-disk path that users can invoke as two
+separate conversions; it does not create a second Gmsh-specific runtime
+adapter.
