@@ -1,5 +1,5 @@
 from __future__ import annotations
-import json, struct, tempfile, unittest
+import json, shutil, struct, subprocess, tempfile, unittest
 from pathlib import Path
 from .stl_to_gmsh import Stl2DError, build_geo, convert, extract_boundary, read_stl
 
@@ -30,6 +30,24 @@ class Stl2DGmshTest(unittest.TestCase):
             self.assertIn("Transfinite Surface {1};",content)
             self.assertIn("Recombine Surface {1};",content)
             self.assertIn('Physical Surface("Fluid")',content)
+
+    def test_gmsh_cli_generates_one_quad_and_four_boundary_lines(self):
+        gmsh = shutil.which("gmsh")
+        if not gmsh:
+            self.skipTest("Gmsh executable is not installed")
+        with tempfile.TemporaryDirectory() as temp:
+            geo = Path(temp) / "square.geo"
+            msh = Path(temp) / "square.msh"
+            convert(DATA/"square.stl", DATA/"square.boundary.json", geo)
+            subprocess.run([gmsh, str(geo), "-2", "-format", "msh2", "-o", str(msh)], check=True)
+            content = msh.read_text(encoding="utf-8")
+            names = content.split("$PhysicalNames", 1)[1].split("$EndPhysicalNames", 1)[0]
+            for name in ("Inlet", "Outlet", "Symmetry", "Farfield", "Fluid"):
+                self.assertIn(f'"{name}"', names)
+            elements = content.split("$Elements", 1)[1].split("$EndElements", 1)[0].splitlines()
+            records = [line.split() for line in elements[1:] if line.strip()]
+            self.assertEqual(sum(row[1] == "3" for row in records), 1)
+            self.assertEqual(sum(row[1] == "1" for row in records), 4)
 
     def test_non_planar_stl_is_rejected(self):
         with self.assertRaisesRegex(Stl2DError,"constant-Z"):
