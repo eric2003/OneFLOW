@@ -152,6 +152,91 @@ The intended adapter flow is:
    CGNS reader / other importers -> OneFLOW Mesh Core
 
 
+Shared unstructured mesh conversion boundary
+--------------------------------------------
+
+This subsection is the curated boundary contract for the current first-order
+unstructured path. It consolidates what the recent Gmsh/SU2/CGNS work
+actually guarantees so that further local changes stay attached to one
+stable meaning.
+
+**Boundary statement.** Input-format identity is not an internal mesh model.
+Source adapters (SU2, Gmsh MSH, and any future unstructured reader) map
+supported coordinates, element topology, and boundary patches into a shared
+staging value type ``UnstructuredMeshData``. The shared writer
+``UnstructuredCgnsZoneWriter`` owns CGNS Unstructured Zone population: Zone
+type initialization, section numbering, one-based connectivity, and BC
+``PointList`` construction. Solver boundary semantics are assigned only by an
+explicit name mapping; a Physical Group label is not itself a OneFLOW BC.
+
+**Ownership.**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 28 36 36
+
+   * - Component
+     - Owns
+     - Must not own
+   * - SU2 / Gmsh (and similar) readers
+     - Source parse, local validation, map into staging fields
+     - CGNS Zone algorithm, solver BC policy, Mesh Core identity
+   * - ``UnstructuredMeshData``
+     - First-order staging values (nodes, VTK-typed cells, BC labels)
+     - Full Mesh Core, high-order data, partition/ghost model
+   * - ``UnstructuredCgnsZoneWriter``
+     - Unstructured Zone sections, connectivity base, BC PointLists
+     - Source-format parsers, Plot3D structured blocks
+   * - Plot3D structured path
+     - Structured blocks via ``GridMediator`` / structured CGNS Zone
+     - Implicit claim to be an unstructured input format
+   * - Explicit BC name map
+     - inflow / outflow / symmetry / farfield → CGNS BC types
+     - Geometric inference of BC from coordinates alone
+
+**What this boundary proves today**
+
+* Gmsh conversion builds ``UnstructuredMeshData`` directly and does not use
+  ``Su2Grid`` as its intermediate container.
+* SU2 keeps its reader but delegates Unstructured Zone population to the
+  common writer.
+* The common writer sets the Zone type before creating sections and boundary
+  connectivity.
+* Focused architecture tests under ``tools/mesh_contracts/`` and the geometry
+  GoogleTest fixtures declare these structural claims.
+
+**What it deliberately does not prove**
+
+* ``UnstructuredMeshData`` is the complete canonical Mesh Core model.
+* High-order interpolation, periodic links, partition/ghost metadata, and full
+  source-entity provenance survive conversion.
+* Standard Plot3D is an unstructured input (it remains a structured route;
+  any structured-to-unstructured expansion is a separate, unimplemented
+  topology transform).
+* Every SU2/Gmsh element family and every solver BC semantic is supported.
+
+**Machine-readable contract.** Workbench and catalog entry
+``mesh/unstructured-cgns-writer``
+(``tools/verification/contracts/mesh/unstructured-cgns-writer.json``).
+Evidence references there must stay aligned with the tests named in
+``tools/mesh_contracts/test_unstructured_cgns_writer_architecture.py`` and the
+geometry GoogleTests; do not infer links from directory names alone.
+
+**References (theory and interchange manuals)**
+
+* CGNS SIDS (Structured/Unstructured Zone, BC_t, Element_t):
+  https://cgns.github.io/CGNS_docs_current/sids/
+* Gmsh MSH file format documentation (element types, Physical Groups):
+  https://gmsh.info/doc/texinfo/gmsh.html#File-formats
+* VTK file formats / cell type table (staging element identifiers only;
+  not a claim that OneFLOW stores VTK as Mesh Core):
+  https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf
+* Related OneFLOW pages: :doc:`gmsh_interface`, :doc:`grid_conversion_cases`,
+  :doc:`cgns`.
+
+These references support interchange semantics and test design. They are not
+a substitute for OneFLOW residual or solver verification.
+
 A future production C++ snapshot should implement the same semantics without
 making the Python validator or JSON representation a runtime dependency.
 The first C++ adapter should be read-only and value-based; it should not expose

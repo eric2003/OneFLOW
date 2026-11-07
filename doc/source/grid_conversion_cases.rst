@@ -9,6 +9,13 @@ parsed. A converter is only credible when it has been exercised against
 multiple concrete meshes with different cell counts, adjacency patterns,
 element families, and boundary semantics.
 
+For the architectural ownership of the shared unstructured path (readers →
+``UnstructuredMeshData`` → ``UnstructuredCgnsZoneWriter`` → CGNS Unstructured
+Zone), including proves/does_not_prove and external manual references, see
+the **Shared unstructured mesh conversion boundary** subsection of
+:doc:`mesh_architecture`. Runnable Cases here exercise that boundary; they do
+not redefine it.
+
 Runnable Cases are named and grouped by the mesh they describe, not by a
 conversion route. A directory such as grid/conversion/cases/two_quads remains
 meaningful if the same input is later sent through Gmsh-to-CGNS,
