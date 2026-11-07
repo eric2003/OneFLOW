@@ -239,8 +239,11 @@ ScriptFileDiscovery DiscoverCaseScriptFiles( const std::string & caseDir )
                     "script/control.txt lists '" + name
                     + "', but it has no parameter declarations and is not loaded." );
             else
+            {
+                result.hasFatalErrors = true;
                 result.diagnostics.push_back(
-                    "script/control.txt lists missing parameter file '" + name + "'." );
+                    "ERROR: script/control.txt lists missing parameter file '" + name + "'." );
+            }
             continue;
         }
         result.filePaths.push_back(

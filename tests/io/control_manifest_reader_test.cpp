@@ -60,6 +60,7 @@ TEST( ControlManifestReader, PreservesManifestOrderAndLoadsUnlistedRealFiles )
         DiscoverCaseScriptFiles( testCase.CasePath() );
 
     ASSERT_EQ( discovery.mode, ScriptFileSourceMode::Manifest );
+    EXPECT_FALSE( discovery.hasFatalErrors );
     ASSERT_EQ( discovery.filePaths.size(), 3u );
     EXPECT_EQ(
         std::filesystem::path( discovery.filePaths[ 0 ] ).filename().string(),

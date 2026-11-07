@@ -40,6 +40,7 @@ enum class ScriptFileSourceMode
 struct ScriptFileDiscovery
 {
     ScriptFileSourceMode mode = ScriptFileSourceMode::Directory;
+    bool hasFatalErrors = false;
     std::vector< std::string > filePaths;
     std::vector< std::string > diagnostics;
 };

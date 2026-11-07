@@ -160,7 +160,7 @@ def discover_script_parameter_files(
                     f"script/control.txt lists {name!r}, but it has no parameter declarations and is not loaded."
                 )
             else:
-                diagnostics.append(f"script/control.txt lists missing parameter file {name!r}.")
+                diagnostics.append(f"ERROR: script/control.txt lists missing parameter file {name!r}.")
             continue
         selected.append(path)
 

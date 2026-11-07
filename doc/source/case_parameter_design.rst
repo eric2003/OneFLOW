@@ -45,10 +45,13 @@ The discovery and ingestion rules are:
    last-declaration-wins behavior. Real parameter files omitted from the
    manifest are appended in deterministic filename order.
 #. **Manifest inconsistencies** — report missing listed files, duplicate
-   entries, and real parameter files not listed in the manifest. Missing
-   files are never passed to the parser; unlisted real parameter files are still read.
-   The manifest order is the precedence order for its existing entries;
-   filesystem enumeration order is not used as override precedence.
+   entries, and real parameter files not listed in the manifest. A missing
+   file explicitly named by a valid manifest is a fatal runtime configuration
+   error: existing files are parsed in order, then Case bootstrap fails and
+   rolls back. The missing path is never passed to the parser. Unlisted real
+   parameter files are warnings and are still read. The manifest order is the
+   precedence order for its existing entries; filesystem enumeration order is
+   not used as override precedence.
 
 The physical files are authoritative: the manifest cannot create a file or
 hide a real parameter file. Non-parameter auxiliary files remain available to
@@ -685,8 +688,9 @@ The Parameter entry in Contract Workbench and the Project Window parameter
 tree are related views, but they have different responsibilities:
 
 * The Project Window tree shows declarations found in the opened Case's
-  discovered parameter files, with valid manifest order retained. It preserves
-  source files, declaration order,
+  discovered parameter files, with valid manifest order retained. Missing
+  manifest references remain visible as diagnostics while existing files can
+  still be inspected. It preserves source files, declaration order,
   effective values, and overridden declarations. It is case-local.
 * The Contract Workbench Parameter catalog is a repository-level knowledge
   index. Each contract has a stable ID and an explicit ``parameter_key``
