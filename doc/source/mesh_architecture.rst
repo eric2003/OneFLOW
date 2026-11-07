@@ -355,7 +355,107 @@ evidence. A declared test is not a recorded execution result; a format entry
 marked proposed does not imply a production reader or writer exists.
 
 
-Gmsh reader implementation milestone
-------------------------------------
+Gmsh reader and conversion implementation milestone
+----------------------------------------------------
 
-The MSH 4.1 reader now materializes coordinates, source IDs, geometric entity ownership, element types, and ordered connectivity in a C++ GmshMesh value model. A focused GTest exercises the checked-in square mesh shape and malformed references. The conversion entry point invokes the reader and checks its counts against the existing summary. This is not yet a transfer into UnsGrid or a CGNS zone; the next code step is that mapping, not additional format catalog work.
+The MSH 4.1 ASCII reader materializes coordinates, sparse source IDs,
+geometric entity ownership, physical names, element types, and ordered
+connectivity in a C++ GmshMesh value model. The conversion path maps
+top-dimensional first-order cells into the existing Su2Grid value container
+and reuses the production CGNS zone writer. The bundled square mesh is now
+written as a real unstructured CGNS zone and independently reopened through
+the CGNS API in a focused GTest.
+
+The conversion test verifies the Base and Zone dimensions, node and cell
+counts, ordered TRI_3 connectivity, coordinate arrays, the BAR_2 boundary
+section, and the BC_t PointList. The test also checks the generated
+human-readable report. This validates a real file round trip rather than a
+placeholder or a successful writer call alone.
+
+
+Gmsh MSH 4.1 read and conversion reports
+----------------------------------------
+
+The production C++ reader maintains an explicit source-node-tag to
+zero-based node-position map while retaining each original Gmsh tag. This
+makes sparse source IDs safe for connectivity conversion without confusing
+identity with storage position.
+
+After a successful CGNS write, the conversion entry point writes two
+case-local reports under `results/`:
+
+* `*.gmsh-read-report.json`: machine-readable source tag ranges, coordinate
+  bounds, element-type counts, and geometry checks.
+* `*.gmsh-report.md`: an English inspection report covering physical groups,
+  geometric entities, element and node previews, connectivity, coordinate
+  bounds, and geometry checks.
+
+The Markdown report distinguishes Gmsh input element types from the CGNS
+boundary section types produced by conversion. For example, a two-dimensional
+Gmsh `LINE_2` boundary is represented as a CGNS `BAR_2` section. This
+boundary-section inventory is based on codimension-one elements associated
+with Physical Groups, matching the conversion path; it does not invent
+solver-specific wall, inlet, or outlet semantics.
+
+Triangle area is computed from the three-dimensional cross-product magnitude;
+the signed XY projection is reported separately as an orientation diagnostic.
+A negative XY orientation is not automatically treated as a read failure.
+Degenerate triangles are counted using a scale-relative floating-point
+threshold.
+
+The report's `READ_SUCCESS` status means that the reader's structural checks
+passed and that the declared PhysicalNames and Entities sections were parsed
+when present. It does not by itself claim that CGNS conversion succeeded:
+the reports are emitted only after the CGNS writer returns successfully, and
+the independent CGNS read-back test verifies the generated file.
+
+
+Gmsh-to-CGNS first Zone
+-----------------------
+
+The first production output path maps MSH 4.1 ASCII top-dimensional,
+first-order cells into the existing Su2Grid value container and reuses
+Su2Grid::FillSU2CgnsZone() to populate OneFLOW's CGNS zone model.
+CgnsFactory::WriteCgnsFile() serializes the prepared base and zone through
+the existing CGNS writer. The Gmsh reader itself has no dependency on the
+Gmsh SDK or CGNS library.
+
+For the bundled square sample, the semantic result is four nodes, two TRI_3
+cells, four BAR_2 boundary elements, and ordered volume connectivity
+[1, 2, 3] and [1, 3, 4]. The four lower-dimensional LINE_2 elements are
+grouped through their curve-entity physical tags and written as a CGNS
+boundary section. The matching BC_t point list references the boundary
+element IDs after the volume-cell range. Its name is preserved from
+PhysicalNames and its type is BCTypeUserDefined; this is a label, not a
+solver boundary-condition assignment.
+
+The CGNS output path keeps connectivity one-based until CGNS serialization.
+The existing SU2-to-OneFLOW runtime path still requests zero-based internal
+normalization. This distinction is explicit in the FillSU2CgnsZone option
+so the same zone-population logic can serve both runtime ingestion and file
+writing without corrupting CGNS element IDs.
+
+
+Gmsh Physical Group boundary semantics
+--------------------------------------
+
+The bundled two-dimensional Gmsh conversion Case now uses four named curve
+Physical Groups: `inflow` on the left edge, `outflow` on the right edge,
+`symmetry` on the bottom edge, and `farfield` on the top edge. The
+conversion adapter maps these explicit names to CGNS `BCInflow`,
+`BCOutflow`, `BCSymmetryPlane`, and `BCFarfield`, respectively. The canonical input spelling is `symmetry`; misspellings are not treated as
+standard boundary-condition aliases.
+
+This is a name-based semantic mapping, not geometric inference. Unrecognized
+Physical Group names remain `BCTypeUserDefined`; the converter does not
+invent a wall/inlet/outlet classification from edge coordinates. The
+round-trip test independently reads all four BC_t records and verifies both
+their CGNS type and the edge connectivity referenced by each PointList.
+
+Small Gmsh fixtures should be organized by the capability they prove:
+parser-only meshes, supported first-order 2-D and 3-D conversion meshes,
+higher-order read-only meshes, and malformed/unsupported inputs. Use one
+cell (or the minimum connected patch needed) per element family. Reader
+tests should not depend on CGNS; conversion tests should write to a temporary
+directory and independently reopen the result with the CGNS API; the manual
+Case should remain the end-to-end GUI and report-generation path.

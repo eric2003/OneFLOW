@@ -196,6 +196,22 @@ void CgnsFactory::DumpCgnsGrid( GridMediatorGroup & gridMediatorGroup )
     ONEFLOW::DumpCgnsGrid( cgnsZbase.get(), & gridMediatorGroup );
 }
 
+void CgnsFactory::WriteCgnsFile( const std::string & fileName )
+{
+    cgns_global.Bind( cgnsZbase.get() );
+    cgnsZbase->OpenCgnsFile( fileName, CG_MODE_WRITE );
+    try
+    {
+        cgnsZbase->DumpCgnsMultiBase();
+        cgnsZbase->CloseCgnsFile();
+    }
+    catch ( ... )
+    {
+        cgnsZbase->CloseCgnsFile();
+        throw;
+    }
+}
+
 
 void CgnsFactory::CommonToOneFlowGrid()
 {

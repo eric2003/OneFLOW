@@ -68,6 +68,7 @@ public:
     void ReadCgnsGrid( const std::string & caseDir );
     void ReadCgnsGrid( const GridConfig & config, const std::string & caseDir );
     void DumpCgnsGrid( GridMediatorGroup & gridMediatorGroup );
+    void WriteCgnsFile( const std::string & fileName );
     void DumpUnsCgnsGrid( const std::string & caseDir );
     void DumpUnsCgnsGrid( const GridConfig & config, const std::string & caseDir );
 public:
