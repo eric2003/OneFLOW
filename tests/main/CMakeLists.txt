@@ -285,3 +285,22 @@ if (CGNS_ENABLE)
     DISCOVERY_MODE PRE_TEST
   )
 endif()
+
+# ---------------------------------------------------------------------------
+# Runtime environment and dependency introspection
+# ---------------------------------------------------------------------------
+add_executable(runtime_environment_test
+  runtime_environment_test.cpp
+)
+
+target_link_libraries(runtime_environment_test
+  PRIVATE
+    OneFLOW_RuntimeObjects
+    GTest::gtest_main
+)
+
+target_compile_features(runtime_environment_test PRIVATE cxx_std_20)
+
+gtest_discover_tests(runtime_environment_test
+  DISCOVERY_MODE PRE_TEST
+)
