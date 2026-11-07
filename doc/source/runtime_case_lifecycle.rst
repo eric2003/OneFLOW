@@ -67,10 +67,13 @@ The sequence is:
 Configuration ingestion contract
 ---------------------------------
 
-``ReadControlInfo(caseDir)`` remains the production reader. It consumes the
-case's ``script/control.txt`` manifest and the referenced parameter files,
-commits their typed values to the global ``DataBase``, and emits
-``log/database.log``. ``SetupCaseEnvironment()`` then obtains the case I/O
+``ReadControlInfo(caseDir)`` remains the production reader. It discovers
+the real parameter documents under ``script/``, reads them in deterministic
+filename order, commits their typed values to the global ``DataBase``, and
+emits ``log/database.log``. A filename-only ``control.txt`` is checked
+against the real files for consistency; it does not select files or define
+parameter precedence. If ``control.txt`` contains parameter declarations,
+it is loaded as an ordinary parameter document. ``SetupCaseEnvironment()`` then obtains the case I/O
 settings and applies project, input, output, mesh, and flow roots through the
 existing ``Prj`` compatibility API. The ``io_paths.txt`` artifact records the
 resolved paths.

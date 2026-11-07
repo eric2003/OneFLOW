@@ -68,9 +68,9 @@ def discover_script_parameter_files(
 ) -> ScriptFileDiscovery:
     """Discover .txt files and classify control.txt by its actual contents.
 
-    Manifest entries preserve their historical precedence. Existing files
-    omitted from a manifest are appended in filename order and reported.
-    Missing and duplicate entries are reported but never loaded.
+    Actual parameter files are always loaded in filename order. A filename-only
+    manifest is checked for missing, extra, duplicate, and order differences;
+    it never determines ingestion or precedence.
     """
     script = Path(script_directory).expanduser().resolve()
     if not script.is_dir():
@@ -136,44 +136,51 @@ def discover_script_parameter_files(
         )
         return ScriptFileDiscovery(parameter_files, "parameter-file", diagnostics)
 
+    # Real files define ingestion. A filename-only control.txt is only
+    # checked against the directory and never controls which files are read.
     all_by_name = {path.name: path for path in actual if path.name != "control.txt"}
     actual_by_name = {
         name: path for name, path in all_by_name.items()
         if _has_parameter_declaration(path)
     }
+    actual_names = tuple(actual_by_name)
     diagnostics: list[str] = [
         f"Auxiliary script file {name!r} has no parameter declarations and is not loaded as a parameter file."
-        for name, path in all_by_name.items()
+        for name in all_by_name
         if name not in actual_by_name
     ]
-    selected: list[Path] = []
+
     declared: set[str] = set()
+    existing_manifest_names: list[str] = []
     for name in names:
         if name in declared:
             diagnostics.append(f"script/control.txt lists {name!r} more than once.")
             continue
         declared.add(name)
-        path = actual_by_name.get(name)
-        if path is None:
+        if name not in actual_by_name:
             if name in all_by_name:
                 diagnostics.append(
                     f"script/control.txt lists {name!r}, but it has no parameter declarations and is not loaded."
                 )
             else:
-                diagnostics.append(f"ERROR: script/control.txt lists missing parameter file {name!r}.")
+                diagnostics.append(
+                    f"WARNING: script/control.txt lists missing parameter file {name!r}; "
+                    "only files present in script/ will be read."
+                )
             continue
-        selected.append(path)
+        existing_manifest_names.append(name)
 
-    for path in actual:
-        if (
-            path.name == "control.txt"
-            or path.name in declared
-            or path.name not in actual_by_name
-        ):
-            continue
+    for name in actual_names:
+        if name not in declared:
+            diagnostics.append(
+                f"Parameter file {name!r} exists in script/ but is not listed in control.txt; it will still be read."
+            )
+
+    if tuple(existing_manifest_names) != actual_names:
         diagnostics.append(
-            f"Parameter file {path.name!r} exists in script/ but is not listed in control.txt; it will still be read."
+            "Parameter-file order in script/control.txt differs from the actual "
+            "script/ filename order; real parameter files will be read in filename order."
         )
-        selected.append(path)
 
+    selected = [actual_by_name[name] for name in actual_names]
     return ScriptFileDiscovery(tuple(selected), "manifest", tuple(diagnostics))

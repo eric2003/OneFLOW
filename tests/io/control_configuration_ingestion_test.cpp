@@ -30,6 +30,7 @@ License
 #include "SimuContextIO.h"
 #include "Parallel.h"
 #include <gtest/gtest.h>
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <filesystem>
@@ -236,9 +237,9 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
 {
     TemporaryControlCase testCase;
     testCase.WriteManifest(
-        "\"base.txt\";\n"
+        "\"override.txt\";\n"
         "\n"
-        "\"override.txt\";\n" );
+        "\"base.txt\";\n" );
     testCase.WriteScript(
         "base.txt",
         "int ingestion_dimension = 2;\n"
@@ -275,6 +276,14 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
         GetDataValue<std::string>( "ingestion_marker", &database ),
         "second-file-loaded" );
     EXPECT_EQ( GetDataValue<int>( "ingestion_unlisted", &database ), 43 );
+
+    const ScriptFileDiscovery discovery =
+        DiscoverCaseScriptFiles( testCase.CaseDirectory() );
+    EXPECT_TRUE( std::any_of(
+        discovery.diagnostics.begin(), discovery.diagnostics.end(),
+        []( const std::string & item ) {
+            return item.find( "filename order" ) != std::string::npos;
+        } ) );
 }
 
 

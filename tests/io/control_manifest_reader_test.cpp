@@ -2,6 +2,7 @@
 #include "ParaFile.h"
 #include <filesystem>
 #include <fstream>
+#include <algorithm>
 #include <string>
 
 using namespace ONEFLOW;
@@ -47,7 +48,7 @@ private:
 
 } // namespace
 
-TEST( ControlManifestReader, PreservesManifestOrderAndLoadsUnlistedRealFiles )
+TEST( ControlManifestReader, ReadsRealFilesInFilenameOrderAndChecksManifest )
 {
     TemporaryScriptDirectory testCase;
     testCase.Write( "control.txt", "\"second.txt\";\n\"first.txt\";\n" );
@@ -64,16 +65,25 @@ TEST( ControlManifestReader, PreservesManifestOrderAndLoadsUnlistedRealFiles )
     ASSERT_EQ( discovery.filePaths.size(), 3u );
     EXPECT_EQ(
         std::filesystem::path( discovery.filePaths[ 0 ] ).filename().string(),
-        "second.txt" );
+        "extra.txt" );
     EXPECT_EQ(
         std::filesystem::path( discovery.filePaths[ 1 ] ).filename().string(),
         "first.txt" );
     EXPECT_EQ(
         std::filesystem::path( discovery.filePaths[ 2 ] ).filename().string(),
-        "extra.txt" );
-    ASSERT_EQ( discovery.diagnostics.size(), 2u );
-    EXPECT_NE( discovery.diagnostics[ 0 ].find( "solver.txt" ), std::string::npos );
-    EXPECT_NE( discovery.diagnostics[ 1 ].find( "extra.txt" ), std::string::npos );
+        "second.txt" );
+    EXPECT_TRUE( std::any_of( discovery.diagnostics.begin(), discovery.diagnostics.end(),
+        []( const std::string & item ) {
+            return item.find( "solver.txt" ) != std::string::npos;
+        } ) );
+    EXPECT_TRUE( std::any_of( discovery.diagnostics.begin(), discovery.diagnostics.end(),
+        []( const std::string & item ) {
+            return item.find( "extra.txt" ) != std::string::npos;
+        } ) );
+    EXPECT_TRUE( std::any_of( discovery.diagnostics.begin(), discovery.diagnostics.end(),
+        []( const std::string & item ) {
+            return item.find( "filename order" ) != std::string::npos;
+        } ) );
 }
 
 TEST( ControlManifestReader, ReportsMissingAndDuplicateManifestEntries )
@@ -91,7 +101,11 @@ TEST( ControlManifestReader, ReportsMissingAndDuplicateManifestEntries )
     EXPECT_EQ(
         std::filesystem::path( discovery.filePaths[ 0 ] ).filename().string(),
         "present.txt" );
-    EXPECT_EQ( discovery.diagnostics.size(), 2u );
+    EXPECT_FALSE( discovery.hasFatalErrors );
+    EXPECT_TRUE( std::any_of( discovery.diagnostics.begin(), discovery.diagnostics.end(),
+        []( const std::string & item ) {
+            return item.find( "missing.txt" ) != std::string::npos;
+        } ) );
 }
 
 TEST( ControlManifestReader, ReadsParameterStyleControlAsAnOrdinaryFile )

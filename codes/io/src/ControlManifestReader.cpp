@@ -206,27 +206,37 @@ ScriptFileDiscovery DiscoverCaseScriptFiles( const std::string & caseDir )
         return result;
     }
 
+    // Real files define ingestion. The filename-only control file is a
+    // consistency check and never controls selection or precedence.
     result.mode = ScriptFileSourceMode::Manifest;
     const auto actualPaths = ListParameterFiles( scriptDirectory, false );
-    std::set< std::string > actualNames;
     std::set< std::string > allNames;
+    std::set< std::string > actualNames;
+    std::vector< std::string > actualParameterNames;
+
     for ( const auto & path : actualPaths )
     {
         const std::string name = path.filename().generic_string();
         allNames.insert( name );
         if ( HasParameterDeclaration( path ) )
+        {
             actualNames.insert( name );
+            actualParameterNames.push_back( name );
+            result.filePaths.push_back( path.lexically_normal().string() );
+        }
         else
+        {
             result.diagnostics.push_back(
                 "Auxiliary script file '" + name
                 + "' has no parameter declarations and is not loaded as a parameter file." );
+        }
     }
 
     std::set< std::string > declaredNames;
+    std::vector< std::string > existingManifestNames;
     for ( const std::string & name : manifestNames )
     {
-        const bool firstOccurrence = declaredNames.insert( name ).second;
-        if ( ! firstOccurrence )
+        if ( ! declaredNames.insert( name ).second )
         {
             result.diagnostics.push_back(
                 "script/control.txt lists '" + name + "' more than once." );
@@ -239,29 +249,27 @@ ScriptFileDiscovery DiscoverCaseScriptFiles( const std::string & caseDir )
                     "script/control.txt lists '" + name
                     + "', but it has no parameter declarations and is not loaded." );
             else
-            {
-                result.hasFatalErrors = true;
                 result.diagnostics.push_back(
-                    "ERROR: script/control.txt lists missing parameter file '" + name + "'." );
-            }
+                    "WARNING: script/control.txt lists missing parameter file '"
+                    + name + "'; only files present in script/ will be read." );
             continue;
         }
-        result.filePaths.push_back(
-            ( scriptDirectory / name ).lexically_normal().string() );
+        existingManifestNames.push_back( name );
     }
 
-    for ( const auto & path : actualPaths )
+    for ( const std::string & name : actualParameterNames )
     {
-        const std::string name = path.filename().generic_string();
-        if ( actualNames.find( name ) != actualNames.end()
-            && declaredNames.find( name ) == declaredNames.end() )
-        {
+        if ( declaredNames.find( name ) == declaredNames.end() )
             result.diagnostics.push_back(
                 "Parameter file '" + name
                 + "' exists in script/ but is not listed in control.txt; it will still be read." );
-            result.filePaths.push_back( path.lexically_normal().string() );
-        }
     }
+
+    if ( existingManifestNames != actualParameterNames )
+        result.diagnostics.push_back(
+            "Parameter-file order in script/control.txt differs from the actual "
+            "script/ filename order; real parameter files will be read in filename order." );
+
     return result;
 }
 

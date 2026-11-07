@@ -59,8 +59,8 @@ int GetParameterArraySize( const std::string & word );
 
 /**
  * Discovers real parameter files under caseDir/script. A filename-only
- * control.txt is checked against real files; other contents are parameters.
- * Manifest order is retained and unlisted real files are appended by name.
+ * control.txt is a consistency check only; actual files are always loaded
+ * in deterministic filename order. Other control.txt contents are parameters.
  */
 ScriptFileDiscovery DiscoverCaseScriptFiles( const std::string & caseDir );
 

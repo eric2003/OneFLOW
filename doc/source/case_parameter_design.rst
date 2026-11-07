@@ -14,53 +14,61 @@ Case script discovery and control.txt modes
 --------------------------------------------
 
 Parameter discovery is based on regular ``*.txt`` files that actually exist
-under a Case's ``script/`` directory. ``control.txt`` is optional. Its role
-is determined by its contents rather than its filename.
+under a Case's ``script/`` directory. ``control.txt`` is optional. Its
+role is determined by its contents rather than its filename.
 
 A ``control.txt`` is a filename-only manifest only when it contains one or
 more entries and every meaningful line is a single relative ``.txt``
 filename (optionally quoted and terminated by a semicolon). Blank lines and
 ``#`` or ``//`` comments are ignored. Parameter declarations such as
 ``int dimension = 2;`` or ``string simutask = "Grid";`` make it an
-ordinary parameter file instead.
+ordinary parameter file instead. An empty file is not a filename manifest;
+it is treated as an ordinary (empty) parameter file.
+
+The physical ``script/`` directory is authoritative for parameter
+ingestion. A filename-only ``control.txt`` is a consistency check, not an
+instruction that selects files or controls their load order. The reader
+first enumerates the real regular ``*.txt`` files, identifies parameter
+documents by their declarations, and loads those documents in deterministic
+filename order. This is the same order whether or not a filename-only
+``control.txt`` exists. The manifest is compared with the discovered
+parameter-file names and order.
 
 Directory scanning also finds auxiliary text files that are not parameter
 documents. A file is sent to the parameter parser only when it contains a
-parameter declaration (an assignment); an ordinary ``control.txt`` is
-included as a parameter document even when empty. For example, the checked-in
-CFD Cases contain ``solver.txt`` with a solver class name such as
+parameter declaration (an assignment). An ordinary ``control.txt`` is
+included as a parameter document even when empty. For example, checked-in
+CFD Cases can contain ``solver.txt`` with a solver class name such as
 ``NsSolver``, not a parameter declaration. It is reported as an auxiliary
 script file and is not sent to ``ConfigLoader``; solver-name loading remains
 the responsibility of its dedicated solver subsystem.
 
 The discovery and ingestion rules are:
 
-#. **No control.txt** — discover and read all parameter-declaration files among the real
-   ``*.txt`` files in ``script/`` in deterministic filename order.
-#. **Parameter-style or empty control.txt** — read ``control.txt`` as an
-   ordinary parameter file together with all other parameter-declaration
-   files. Auxiliary text files without assignments are reported, not parsed.
-#. **Filename-only manifest** — discover real parameter files first, then read existing
-   manifest entries in their declared order to preserve established
-   last-declaration-wins behavior. Real parameter files omitted from the
-   manifest are appended in deterministic filename order.
-#. **Manifest inconsistencies** — report missing listed files, duplicate
-   entries, and real parameter files not listed in the manifest. A missing
-   file explicitly named by a valid manifest is a fatal runtime configuration
-   error: existing files are parsed in order, then Case bootstrap fails and
-   rolls back. The missing path is never passed to the parser. Unlisted real
-   parameter files are warnings and are still read. The manifest order is the
-   precedence order for its existing entries; filesystem enumeration order is
-   not used as override precedence.
+#. **No control.txt** — discover and read all parameter-declaration files among
+   the real ``*.txt`` files in ``script/``, in deterministic filename order.
+#. **Parameter-style control.txt** — read ``control.txt`` as an ordinary
+   parameter document together with all other parameter-declaration files,
+   using the same filename ordering.
+#. **Filename-only manifest** — read the real parameter files discovered in
+   ``script/`` in filename order. Do not use the manifest as the read list
+   and do not let its order change parameter precedence.
+#. **Manifest comparison** — report missing listed files, duplicate entries,
+   real parameter files omitted from the manifest, auxiliary files listed as
+   parameters, and order differences. A missing manifest entry is a diagnostic,
+   not a request to open a nonexistent file and not a reason to skip real files.
+   Real parameter files omitted from the manifest are still read.
+#. **Auxiliary files** — files without parameter declarations are reported
+   and left to their dedicated readers; they are not sent to the parameter
+   parser.
 
-The physical files are authoritative: the manifest cannot create a file or
-hide a real parameter file. Non-parameter auxiliary files remain available to
-their dedicated readers and are not passed to the parameter parser. The C++ discovery contract is implemented by
-``DiscoverCaseScriptFiles()`` in ``ControlManifestReader.cpp``.
-``ReadPrjScript()`` reports discovery diagnostics and parses discovered
-files through the production ``ConfigLoader`` and
-``ConfigDatabaseAdapter`` path. The Qt-independent Workbench equivalent
-is ``script_file_discovery.py`` and is used by
+The physical files are authoritative: the manifest cannot create a file, hide
+a real parameter file, or change its load precedence. The C++ discovery
+contract is implemented by ``DiscoverCaseScriptFiles()`` in
+``ControlManifestReader.cpp``. ``ReadPrjScript()`` reports discovery
+diagnostics and parses discovered files through the production
+``ConfigLoader`` and ``ConfigDatabaseAdapter`` path. The Qt-independent
+Workbench equivalent is ``script_file_discovery.py`` and is used by
 ``project_repository.py``.
 
 Configuration parsing and runtime commit

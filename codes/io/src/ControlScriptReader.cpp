@@ -24,7 +24,6 @@ License
 #include "Prj.h"
 
 #include <iostream>
-#include <stdexcept>
 #include <string>
 
 namespace ONEFLOW {
@@ -36,12 +35,6 @@ void ReadDiscoveredCaseScripts( const std::string & caseDir )
     for ( const std::string & diagnostic : discovery.diagnostics )
         std::cerr << "[OneFLOW parameter files] " << diagnostic << std::endl;
     ReadMultiScriptFiles( discovery.filePaths );
-    if ( discovery.hasFatalErrors )
-    {
-        throw std::runtime_error(
-            "Case parameter manifest references one or more missing files: "
-            + caseDir );
-    }
 }
 
 } // namespace

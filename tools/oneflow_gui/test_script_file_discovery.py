@@ -11,7 +11,7 @@ from tools.oneflow_gui.project_repository import ProjectType, open_project
 
 
 class ScriptFileDiscoveryTest(unittest.TestCase):
-    def test_manifest_order_is_preserved_and_unlisted_real_files_are_loaded(self):
+    def test_real_files_are_loaded_in_filename_order_and_manifest_is_checked(self):
         with tempfile.TemporaryDirectory() as temporary:
             script = Path(temporary) / "script"
             script.mkdir()
@@ -27,9 +27,10 @@ class ScriptFileDiscoveryTest(unittest.TestCase):
             self.assertEqual(result.mode, "manifest")
             self.assertEqual(
                 [path.name for path in result.files],
-                ["b.txt", "a.txt", "extra.txt"],
+                ["a.txt", "b.txt", "extra.txt"],
             )
             self.assertTrue(any("extra.txt" in item for item in result.diagnostics))
+            self.assertTrue(any("filename order" in item for item in result.diagnostics))
 
     def test_missing_and_duplicate_manifest_entries_are_diagnosed(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -46,6 +47,7 @@ class ScriptFileDiscoveryTest(unittest.TestCase):
             self.assertEqual([path.name for path in result.files], ["present.txt"])
             self.assertTrue(any("missing.txt" in item for item in result.diagnostics))
             self.assertTrue(any("more than once" in item for item in result.diagnostics))
+            self.assertFalse(any(item.startswith("ERROR:") for item in result.diagnostics))
 
     def test_parameter_style_control_is_loaded_as_an_ordinary_parameter_file(self):
         with tempfile.TemporaryDirectory() as temporary:
