@@ -57,6 +57,7 @@ bool IsParameterFileName( const std::string & name )
     const std::filesystem::path path( name );
     return ! name.empty()
         && path.filename() == path
+        && name.find_first_of( "/\\\\:" ) == std::string::npos
         && ! path.is_absolute()
         && name != "." && name != ".."
         && path.extension() == ".txt"

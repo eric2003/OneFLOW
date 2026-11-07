@@ -106,6 +106,8 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_application_settings
       - name: Test project discovery and creation
         run: python -m unittest tools.oneflow_gui.test_project_repository tools.oneflow_gui.test_project_templates tools.oneflow_gui.test_rae2822_project_template tools.oneflow_gui.test_new_project_dialog
+      - name: Test Case script file discovery
+        run: python -m unittest tools.oneflow_gui.test_script_file_discovery
       - name: Test project window parameter actions
         run: python -m unittest tools.oneflow_gui.test_project_window
       - name: Test lossless parameter document

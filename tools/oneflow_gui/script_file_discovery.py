@@ -43,6 +43,9 @@ def _manifest_name(line: str) -> str | None:
         not name
         or candidate.is_absolute()
         or candidate.name != name
+        or "/" in name
+        or "\\" in name
+        or ":" in name
         or candidate.suffix != ".txt"
         or name in {".", "..", "control.txt"}
     ):
