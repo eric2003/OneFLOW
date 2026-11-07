@@ -73,3 +73,26 @@ compare the computed solution against an analytical solution or a CFD
 benchmark. Its purpose is to expose mesh-read, single-cell/ghost-boundary,
 solver-initialization, iteration, restart, and field-output integration defects.
 All generated files are kept in the operating-system temporary directory.
+
+
+## CMake infrastructure tests
+
+The cmake/ subdirectory contains configure-level tests for the build system
+itself. These are CTest tests, not GoogleTest cases and not production C++
+tests.
+
+CMakeSourceDiscovery creates a disposable fixture project below the build
+tree and checks legacy and include/src layouts, nested source discovery,
+header/include discovery, empty modules, exclusion of test/build directories,
+and source additions/removals across reconfiguration. It uses
+project(... NONE), so this focused test does not require a C++ compiler or
+third-party CFD libraries.
+
+Run only this test with:
+
+.. code-block:: console
+
+   ctest --test-dir build -R CMakeSourceDiscovery --output-on-failure
+
+The fixture must remain isolated in the binary tree. It must not create or
+modify files below the OneFLOW source tree.
