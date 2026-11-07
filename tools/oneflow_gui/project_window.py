@@ -748,10 +748,18 @@ class ProjectWindow(QMainWindow):
                 failures.append(f"{path.name}: {error}")
         self.parameter_model = ParameterModel.from_documents(documents)
         self._render_parameter_model()
+        diagnostics = list(self._project.parameter_file_diagnostics)
         if failures:
+            diagnostics.extend(failures)
+        if diagnostics:
+            summary = "; ".join(diagnostics[:2])
+            remaining = len(diagnostics) - min(len(diagnostics), 2)
+            if remaining:
+                summary += f"; and {remaining} more"
             self.statusBar().showMessage(
-                f"Parameter view loaded {len(documents)} file(s); {len(failures)} file(s) need attention.",
-                10000,
+                f"Parameter discovery ({self._project.parameter_file_mode}): "
+                f"loaded {len(documents)} file(s). {summary}",
+                15000,
             )
         elif indexed:
             self.statusBar().showMessage(
@@ -775,7 +783,7 @@ class ProjectWindow(QMainWindow):
             self.parameter_tree.addTopLevelItem(item)
             roots[domain] = item
         if model is None:
-            self.parameter_coverage_note.setText("No readable parameter files were found in the control manifest.")
+            self.parameter_coverage_note.setText("No readable parameter declarations were found under the Case script directory.")
             return
         groups = {}
         for group in model.groups:

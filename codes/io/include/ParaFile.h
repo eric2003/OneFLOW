@@ -1,4 +1,4 @@
-/*---------------------------------------------------------------------------*\
+/*---------------------------------------------------------------------------*\\
     OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
     Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
 -------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ License
     You should have received a copy of the GNU General Public License
     along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
 
-\*---------------------------------------------------------------------------*/
+\\*---------------------------------------------------------------------------*/
 
 #pragma once
 #include <vector>
@@ -29,6 +29,20 @@ namespace ONEFLOW {
 class DataBase;
 class DataBook;
 class TextFileParser;
+
+enum class ScriptFileSourceMode
+{
+    Directory,
+    Manifest,
+    ParameterFile
+};
+
+struct ScriptFileDiscovery
+{
+    ScriptFileSourceMode mode = ScriptFileSourceMode::Directory;
+    std::vector< std::string > filePaths;
+    std::vector< std::string > diagnostics;
+};
 
 bool IsArrayParameter( const std::string & lineOfName );
 void ReadOneFLOWScriptFile( TextFileParser & textFileParser );
@@ -43,38 +57,18 @@ int AnalysisScalarParameter( TextFileParser & textFileParser, int keyWordIndex )
 int GetParameterArraySize( const std::string & word );
 
 /**
- * @brief Loads project control scripts and completes process-level setup.
- *
- * ReadControlInfo owns the parallel greeting, control-parameter broadcast,
- * and database diagnostic output in addition to server-side script loading.
- * Parallel state must be initialized before this function is called.
+ * Discovers real parameter files under caseDir/script. A filename-only
+ * control.txt is checked against real files; other contents are parameters.
+ * Manifest order is retained and unlisted real files are appended by name.
  */
+ScriptFileDiscovery DiscoverCaseScriptFiles( const std::string & caseDir );
+
 void ReadControlInfo();
 void ReadControlInfo( const std::string & caseDir );
-
-/**
- * @brief Discovers and commits project control scripts in manifest order.
- *
- * These functions perform script ingestion only. They do not initialize
- * parallel state, broadcast parameters, or write the runtime database dump.
- */
 void ReadPrjScript();
 void ReadPrjScript( const std::string & caseDir );
-
-/**
- * @brief Appends script paths from the ordered control manifest.
- *
- * The case overload resolves entries under the supplied case directory.
- * Existing vector entries are preserved; manifest order is preserved.
- */
 void ReadScriptFileNameList( std::vector< std::string > & scriptFileNameList );
 void ReadScriptFileNameList( const std::string & caseDir, std::vector< std::string > & scriptFileNameList );
-/**
- * @brief Reads script files in manifest order and commits each document.
- *
- * Each file is parsed and committed before the next file is read. The
- * operation is ordered but not transactional across the complete file list.
- */
 void ReadMultiScriptFiles( const std::vector< std::string > & scriptFileNameList );
 void BroadcastControlParameterToAllProcessors();
 void DumpDataBase();
@@ -82,7 +76,6 @@ void DumpDataBase( const std::string & caseDir );
 
 void CompressData( DataBase * dataBase, DataBook * dataBook );
 void DecompressData( DataBase * dataBase, DataBook * dataBook );
-
 void CompressData( DataBook * dataBook );
 void DecompressData( DataBook * dataBook );
 

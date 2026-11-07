@@ -78,22 +78,21 @@ def _parameter_files(control_file: Path | None) -> tuple[Path, ...]:
     return tuple(files)
 
 
-def _runtime_file(control_file: Path | None) -> Path | None:
-    if control_file is None:
-        return None
-
-    try:
-        content = control_file.read_text(encoding="utf-8")
-    except (OSError, UnicodeError):
-        return None
-
-    match = re.search(r"""["']([^"']+)["']""", content)
-    if match is None:
-        return None
-
-    candidate = (control_file.parent / match.group(1)).resolve()
-    return candidate if candidate.is_file() else None
-
+def _runtime_file(parameter_files: tuple[Path, ...]) -> Path | None:
+    preferred = next(
+        (path for path in parameter_files if path.name.casefold() == "simu.txt"),
+        None,
+    )
+    if preferred is not None:
+        return preferred
+    for path in parameter_files:
+        try:
+            content = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if re.search(r"\bsimutask\s*=", content, flags=re.IGNORECASE):
+            return path
+    return None
 
 def _detect_type(runtime_file: Path | None) -> ProjectType:
     if runtime_file is None:

@@ -168,5 +168,56 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 window.close()
 
 
+    def test_project_without_control_loads_real_script_parameter_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            script = root / "script"
+            script.mkdir()
+            (script / "simu.txt").write_text(
+                'string simutask = "Solve";\n', encoding="ascii"
+            )
+            (script / "cfd.txt").write_text(
+                "int maxSteps = 40;\n", encoding="ascii"
+            )
+            catalog_home = root.parent / "oneflow-user-data"
+            with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
+                window = ProjectWindow(open_project(root), root.parent)
+            try:
+                tree = window.findChild(QTreeWidget, "unifiedParameterTree")
+                self.assertIsNotNone(self._find_item(tree, "simutask"))
+                maximum = self._find_item(tree, "maxSteps")
+                self.assertIsNotNone(maximum)
+                self.assertEqual(maximum.text(1), "40")
+                self.assertIn("script/cfd.txt", maximum.text(3))
+            finally:
+                window.close()
+
+    def test_parameter_style_control_is_visible_as_a_source_document(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            script = root / "script"
+            script.mkdir()
+            (script / "control.txt").write_text(
+                'string simutask = "Grid";\nint dimension = 2;\n',
+                encoding="ascii",
+            )
+            (script / "grid.txt").write_text(
+                "int gridScale = 1;\n", encoding="ascii"
+            )
+            catalog_home = root.parent / "oneflow-user-data"
+            with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
+                window = ProjectWindow(open_project(root), root.parent)
+            try:
+                tree = window.findChild(QTreeWidget, "unifiedParameterTree")
+                task = self._find_item(tree, "simutask")
+                self.assertIsNotNone(task)
+                self.assertIn("script/control.txt", task.text(3))
+                self.assertEqual(task.text(1), "Grid")
+                self.assertEqual(self._find_item(tree, "dimension").text(1), "2")
+            finally:
+                window.close()
+
+
+
 if __name__ == "__main__":
     unittest.main()

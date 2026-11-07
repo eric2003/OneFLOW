@@ -485,3 +485,38 @@ TEST( ControlReaderIntegration, ReadsCaseScriptsAndWritesDatabaseDump )
             std::filesystem::path( testCase.CaseDirectory() )
             / "log" / "log0.log" ) );
 }
+
+
+TEST( ControlConfigurationIngestion, ReadsParameterStyleControlAsARealFile )
+{
+    TemporaryControlCase testCase;
+    testCase.WriteScript(
+        "control.txt",
+        "string simutask = \"Grid\";\n"
+        "int dimension = 2;\n" );
+    testCase.WriteScript( "grid.txt", "int ingestion_grid_scale = 4;\n" );
+
+    ClearRuntimeParameters();
+    ReadPrjScript( testCase.CaseDirectory() );
+
+    const DataBase & database = RequireGlobalDataBase();
+    EXPECT_EQ( GetDataValue<std::string>( "simutask", &database ), "Grid" );
+    EXPECT_EQ( GetDataValue<int>( "dimension", &database ), 2 );
+    EXPECT_EQ( GetDataValue<int>( "ingestion_grid_scale", &database ), 4 );
+}
+
+TEST( ControlConfigurationIngestion, DiscoversAndReadsFilesWithoutControl )
+{
+    TemporaryControlCase testCase;
+    testCase.WriteScript(
+        "simu.txt", "string simutask = \"Solve\";\n" );
+    testCase.WriteScript(
+        "cfd.txt", "int ingestion_max_steps = 25;\n" );
+
+    ClearRuntimeParameters();
+    ReadPrjScript( testCase.CaseDirectory() );
+
+    const DataBase & database = RequireGlobalDataBase();
+    EXPECT_EQ( GetDataValue<std::string>( "simutask", &database ), "Solve" );
+    EXPECT_EQ( GetDataValue<int>( "ingestion_max_steps", &database ), 25 );
+}

@@ -10,35 +10,77 @@ examples for understanding the format; their values are not recommendations for 
 optimal mesh or CFD solution. A value appearing in a database dump proves that it was
 parsed and committed, but does not prove that it affects the selected task.
 
-Configuration path
-------------------
+Case script discovery and control.txt modes
+--------------------------------------------
 
-``script/control.txt`` is an ordered manifest of parameter files. For example,
-``test/grid/rae2822convert/script/control.txt`` lists ``simu.txt``, ``dimension.txt``,
-``tolerence.txt``, ``grid.txt``, and ``part.txt``. The CFD case
-``test/cfd/rae2822_roe_sa/script/control.txt`` additionally separates solver, model,
-inflow, wall-distance, and multigrid settings into files such as ``cfd.txt``,
-``vismodel.txt``, ``inflow.txt``, ``walldist.txt``, ``turb.txt``, and ``multigrid.txt``.
+Parameter discovery is based on regular ``*.txt`` files that actually exist
+under a Case's ``script/`` directory. ``control.txt`` is optional. Its role
+is determined by its contents rather than its filename.
 
-``ControlManifestReader.cpp`` reads the ordered manifest and resolves each
-listed script path under the selected case directory. ``ControlFileReader.cpp``
-then orchestrates the listed files in that order. ``ConfigLoader`` parses each
-legacy file into a ``ConfigDocument``. ``ControlScriptParser.cpp`` invokes
+A ``control.txt`` is a filename-only manifest only when it contains one or
+more entries and every meaningful line is a single relative ``.txt``
+filename (optionally quoted and terminated by a semicolon). Blank lines and
+``#`` or ``//`` comments are ignored. Parameter declarations such as
+``int dimension = 2;`` or ``string simutask = "Grid";`` make it an
+ordinary parameter file instead.
+
+Directory scanning also finds auxiliary text files that are not parameter
+documents. A file is sent to the parameter parser only when it contains a
+parameter declaration (an assignment); an ordinary ``control.txt`` is
+included as a parameter document even when empty. For example, the checked-in
+CFD Cases contain ``solver.txt`` with a solver class name such as
+``NsSolver``, not a parameter declaration. It is reported as an auxiliary
+script file and is not sent to ``ConfigLoader``; solver-name loading remains
+the responsibility of its dedicated solver subsystem.
+
+The discovery and ingestion rules are:
+
+#. **No control.txt** — discover and read all parameter-declaration files among the real
+   ``*.txt`` files in ``script/`` in deterministic filename order.
+#. **Parameter-style or empty control.txt** — read ``control.txt`` as an
+   ordinary parameter file together with all other parameter-declaration
+   files. Auxiliary text files without assignments are reported, not parsed.
+#. **Filename-only manifest** — discover real parameter files first, then read existing
+   manifest entries in their declared order to preserve established
+   last-declaration-wins behavior. Real parameter files omitted from the
+   manifest are appended in deterministic filename order.
+#. **Manifest inconsistencies** — report missing listed files, duplicate
+   entries, and real parameter files not listed in the manifest. Missing
+   files are never passed to the parser; unlisted real parameter files are still read.
+   The manifest order is the precedence order for its existing entries;
+   filesystem enumeration order is not used as override precedence.
+
+The physical files are authoritative: the manifest cannot create a file or
+hide a real parameter file. Non-parameter auxiliary files remain available to
+their dedicated readers and are not passed to the parameter parser. The C++ discovery contract is implemented by
+``DiscoverCaseScriptFiles()`` in ``ControlManifestReader.cpp``.
+``ReadPrjScript()`` reports discovery diagnostics and parses discovered
+files through the production ``ConfigLoader`` and
+``ConfigDatabaseAdapter`` path. The Qt-independent Workbench equivalent
+is ``script_file_discovery.py`` and is used by
+``project_repository.py``.
+
+Configuration parsing and runtime commit
+-----------------------------------------
+
+Each discovered parameter file is parsed by ``ConfigLoader`` into a
+``ConfigDocument``. ``ControlScriptParser.cpp`` invokes
 ``ConfigDatabaseAdapter::Commit()``, whose implementation is in
-``ConfigDatabaseAdapter.cpp``. The adapter applies those entries through
-``ProcessData`` to the legacy runtime database. The adapter preserves document order;
-repeated names follow the runtime ``DataPara`` replacement policy. The current commit
-operation is incremental, not transactional: an error in a later entry does not roll
-back earlier entries. This is a useful migration boundary:
-the parser handles text syntax, while task and physics code remain responsible for
-runtime meaning.
+``ConfigDatabaseAdapter.cpp``. The adapter applies entries through
+``ProcessData`` to the legacy runtime database. The adapter preserves
+document order; repeated names follow the runtime ``DataPara`` replacement
+policy. Commits remain incremental across files: if a later file fails,
+earlier files may already have been committed. Case bootstrap has a separate
+rollback boundary for setup failures; parser ingestion itself is not a
+multi-file transaction.
 
-The runtime database is not an authoring model. ``DataEntry`` stores a parameter name,
-runtime type, array size, and value. ``DataPara`` indexes entries with an
-``unordered_map``. Consequently, a database dump does not preserve the originating
-file, declaration order, comments, whether a value was explicit or defaulted, units,
-help text, constraints, or the conditions under which a parameter applies. A GUI must
-not use the dump as a complete parameter editor schema or treat its order as stable.
+The runtime database is not an authoring model. ``DataEntry`` stores a
+parameter name, runtime type, array size, and value. ``DataPara`` indexes
+entries with an ``unordered_map``. A database dump does not preserve
+originating file, declaration order, comments, whether a value was explicit
+or defaulted, units, help text, constraints, or applicability conditions.
+The Workbench therefore loads real source files directly and retains source
+paths and declaration order.
 
 Sample parameter domains
 ------------------------
@@ -75,9 +117,9 @@ RAE2822 Roe-SA CFD case
 Representative case inventory
 -----------------------------
 
-The manifest-driven classification test now loads all parameter files listed by
-the following checked-in cases, rather than validating only one CFD case and
-one grid case:
+The case classification test uses the shared script-file discovery rule for
+the following checked-in Cases, validating optional filename manifests and
+loading every real parameter file:
 
 * ``test/cfd/plateuns2dslau2``: laminar flat plate with SLAU2;
 * ``test/cfd/turbplateuns2droe_sa``: turbulent flat plate with Roe-SA;
@@ -86,8 +128,8 @@ one grid case:
 * ``test/grid/rae2822convert``: grid conversion and partitioning.
 
 The inventory test fails if any scalar or unsupported declaration name in
-these manifests is assigned to ``Other / Unclassified``. It also pins selected
-functional distinctions: turbulence inflow inputs are separated from model
+these discovered files is assigned to ``Other / Unclassified``. It also pins
+selected functional distinctions: turbulence inflow inputs are separated from model
 controls; physical inflow and wall thermal conditions remain separate from
 turbulence inflow; output cadence is separate from result/restart filenames;
 solver sub-iteration limits remain run-control parameters; and all ``mg*``
@@ -96,12 +138,13 @@ under ``Multigrid`` rather than split across physics groups.
 
 This is a growing representative corpus, not a claim that all ``test/`` cases,
 all optional solver modes, or all legacy configuration files have been
-enumerated. New case families should be added when their manifests introduce
-new keys or materially different applicability. Existing classifications may
+enumerated. New case families should be added when their script directories
+introduce new keys or materially different applicability. Existing classifications may
 be refined as source consumers and case comments provide stronger evidence.
 
 These source references confirm that representative parameters reach implementation
-code. They do not classify every key in every repository case manifest. Some settings are
+code. They do not classify every key in every repository Case script directory.
+Some settings are
 conditional on task, model, or file format; some may be defaults, compatibility fields,
 derived values, or historical leftovers. Establishing whether a parameter is unused
 requires tracing its read path and conditions, not searching for one exact spelling
@@ -136,18 +179,19 @@ constraint.
 Configuration adapter tests
 ----------------------------
 
-``TextFileParser_test`` now also exercises the production
-``ReadScriptFileNameList(caseDir, ...)`` operation with a temporary manifest.
-It checks that blank lines are skipped, listed paths are rooted under the case,
-and declaration order is preserved. This pins manifest discovery, not parsing
-or committing the listed scripts.
+The C++ control-discovery tests exercise the production
+``DiscoverCaseScriptFiles()`` operation with real temporary files. They cover
+valid manifests, unlisted and missing files, duplicate entries, parameter-style
+control files, and discovery without ``control.txt``. Integration tests also
+exercise real parameter parsing for the latter two modes.
 
 ``control_parameter_resolver_test`` also exercises the production
 ``ConfigDatabaseAdapter`` against the real global ``DataBase``. It checks typed
 integer, real, and string entries and confirms that a later declaration of the same
-name replaces the earlier value. These are adapter/database contract tests; they do
-not exercise manifest ordering across multiple physical files, parallel distribution,
-or the complete ``ReadControlInfo(caseDir)`` operation.
+name replaces the earlier value. These are adapter/database contract tests. The case-ingestion integration
+tests separately exercise ordered multi-file commits, parameter-style
+``control.txt``, and discovery without a control file. They do not exercise
+parallel distribution or the complete ``ReadControlInfo(caseDir)`` operation.
 
 Current parser tests
 --------------------
@@ -178,7 +222,7 @@ is deliberately limited to keys whose meaning and choices are supported by check
 configuration comments and representative cases.
 
 This is the data and serialization foundation for the structured editor UI. It does not
-yet edit arrays, nested/conditional fields, or every declaration in the control manifest.
+yet edit arrays, nested/conditional fields, or every declaration in the discovered parameter files.
 Unknown declarations remain untouched. The current CFD examples place task selection in
 simu.txt, iteration controls in cfd.txt, and viscous-model selection in vismodel.txt.
 No generic parameter is assigned an invented unit, range, or solver meaning.
@@ -190,8 +234,8 @@ conflict detection.
 Logical parameter model
 -----------------------
 
-The physical files listed by ``control.txt`` are an input organization, not the
-parameter model itself. The same logical CFD parameter set can be assembled from
+The physical files discovered under ``script/`` are an input organization,
+not the parameter model itself. The same logical CFD parameter set can be assembled from
 ``simu.txt``, ``dimension.txt``, ``tolerence.txt``, ``cfd.txt``, ``vismodel.txt``,
 ``inflow.txt``, ``turb.txt``, and other files. Grid cases follow the same pattern.
 The Workbench should therefore present a unified parameter view and retain the
@@ -200,7 +244,8 @@ parameter database.
 
 The Qt-independent ``parameter_model.py`` is the first implementation of this
 boundary. It combines multiple ``ParameterDocument`` instances in the order supplied
-by the case's control manifest. It identifies ``simutask``, ``dimension``, and
+by the shared script-file discovery layer (manifest order when valid, otherwise
+filename order). It identifies ``simutask``, ``dimension``, and
 ``ptTol`` as shared parameters; recognizes initial CFD groups (run control, output,
 numerical methods, reference conditions, physical models, turbulence, multigrid, and
 wall distance); and recognizes initial Grid groups (grid definition, formats/files,
@@ -212,9 +257,9 @@ declaration, not from a guessed schema type.
 The model preserves declaration order and source paths. When the same key occurs in
 multiple files, the last declaration is the effective value, matching the runtime
 ``DataPara`` replacement behavior; earlier declarations remain available as shadowed
-entries for diagnostics. The model does not modify source files. ``control.txt`` stays
-outside the parameter collection because it is the ordered manifest that tells the
-loader which parameter files to read.
+entries for diagnostics. The model does not modify source files. ``control.txt`` is excluded only
+when it is a filename-only manifest; when it contains parameter declarations,
+it is loaded as an ordinary source document.
 
 This is a logical consolidation only. It does not merge or rewrite the legacy files.
 That distinction allows the Workbench to offer one coherent editor even if users later
@@ -431,7 +476,7 @@ that process; completeness is increased incrementally rather than simulated by
 assigning every key to a known category.
 
 The next catalog expansion was checked against the repository's representative
-case manifests and declarations: ``test/cfd/rae2822_roe_sa/script/control.txt``
+Case script directories and declarations: ``test/cfd/rae2822_roe_sa/script/control.txt``
 and ``test/grid/rae2822convert/script/control.txt``. This exposed several
 distinct concepts that should not be hidden inside broad buckets:
 
@@ -446,9 +491,9 @@ distinct concepts that should not be hidden inside broad buckets:
   reference state``; Prandtl and Schmidt numbers are ``Transport properties``.
 
 These groups are still an initial classification, not a declaration that every
-case-specific option has been inventoried. The manifest is the authoritative
-starting point for discovering files; actual declarations and C++ consumers
-remain the evidence for adding keys. Arrays such as ``gridTrans[3]`` continue
+case-specific option has been inventoried. The script directory is authoritative for discovering real files; a valid
+manifest contributes preferred ordering and consistency diagnostics. Actual
+declarations and C++ consumers remain the evidence for adding keys. Arrays such as ``gridTrans[3]`` continue
 to be reported as unsupported by the scalar editor even when their names can
 be recognized for navigation.
 
@@ -639,8 +684,9 @@ Parameter catalog completeness and Case-template readiness
 The Parameter entry in Contract Workbench and the Project Window parameter
 tree are related views, but they have different responsibilities:
 
-* The Project Window tree shows declarations found in the opened Case's ordered
-  ``control.txt`` manifest. It preserves source files, declaration order,
+* The Project Window tree shows declarations found in the opened Case's
+  discovered parameter files, with valid manifest order retained. It preserves
+  source files, declaration order,
   effective values, and overridden declarations. It is case-local.
 * The Contract Workbench Parameter catalog is a repository-level knowledge
   index. Each contract has a stable ID and an explicit ``parameter_key``
@@ -679,7 +725,8 @@ preserved as ``parameter_key``.
 
 This is a meaningful increase in Parameter Workbench coverage, not proof of
 repository-wide completeness. The first inventory pass is based on the
-representative Case set; it does not yet enumerate every Case manifest or every
+representative Case set; it does not yet enumerate every Case script directory
+or every
 ``GetDataValue``/optional/lazy consumer in production code. A parameter
 entry being present in the catalog does not guarantee that its consumer has
 been audited or that its formula, units, default, and valid range are known.
@@ -687,7 +734,8 @@ Unknown declarations and array declarations must remain visible rather than
 being silently discarded.
 
 The next inventory pass must enumerate declarations from every repository
-Case manifest and cross-check them against production parameter reads. It
+Case script directory (using any valid manifest only for preferred ordering)
+and cross-check them against production parameter reads. It
 must also distinguish:
 
 * a key declared in a Case file;
