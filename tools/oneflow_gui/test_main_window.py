@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -40,7 +42,10 @@ class RunQueueWorkerTest(unittest.TestCase):
                     "Process exited successfully.",
                 )
 
-            with patch("tools.oneflow_gui.main_window.run_case", side_effect=run_case_side_effect):
+            user_data = root / "user-data"
+            with patch.dict(os.environ, {"ONEFLOW_HOME": str(user_data)}), patch(
+                "tools.oneflow_gui.main_window.run_case", side_effect=run_case_side_effect
+            ):
                 worker.run()
 
             self.assertEqual(
@@ -50,6 +55,16 @@ class RunQueueWorkerTest(unittest.TestCase):
             self.assertIn(("first", RunState.FAILED.value), states)
             self.assertIn(("second", RunState.SUCCEEDED.value), states)
             self.assertTrue(any("unexpected runner failure" in line for line in logs))
+            evidence_root = user_data / "workflow-data" / "executions" / "run-001"
+            environment = json.loads(
+                (evidence_root / "environment.json").read_text(encoding="utf-8")
+            )
+            manifest = json.loads(
+                (evidence_root / "run-manifest.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(environment["capture_status"], "failed")
+            self.assertEqual(manifest["status"], "failed")
+            self.assertEqual(manifest["return_code"], 1)
 
 
 if __name__ == "__main__":
