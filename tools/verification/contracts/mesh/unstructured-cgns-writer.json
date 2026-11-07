@@ -46,18 +46,18 @@
   },
   "verification": [
     {
-      "kind": "integration",
-      "target": "tests/geometry/GmshTwoQuadsOneFlowTest.cpp",
+      "kind": "google_test",
+      "reference": "tests/geometry/GmshTwoQuadsOneFlowTest.cpp",
       "status": "declared_not_executed",
       "scope": "Gmsh two-quad MSH -> CGNS Unstructured Zone -> OneFLOW native grid."
     },
     {
-      "kind": "architecture",
-      "target": "tools/mesh_contracts/test_unstructured_cgns_writer_architecture.py",
+      "kind": "python_test",
+      "reference": "tools/mesh_contracts/test_unstructured_cgns_writer_architecture.py",
       "status": "declared_not_executed",
       "scope": "Checks that Gmsh uses the shared model/writer and the SU2 adapter delegates to the same writer."
     }
-  },
+  ],
   "group": {
     "id": "mesh_core",
     "title": "Mesh Core Concepts",

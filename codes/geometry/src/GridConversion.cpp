@@ -388,6 +388,7 @@ namespace
             {
                 grid.elems.push_back( std::move( connectivity ) );
                 grid.elemVTKType.push_back( vtkType );
+                grid.elemId.push_back( static_cast< int >( grid.elemId.size() + 1 ) );
                 continue;
             }
             const auto entity = mesh.entityPhysicalTags.find(
