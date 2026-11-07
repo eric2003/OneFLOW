@@ -76,7 +76,7 @@ A Python caller can invoke OneFLOW directly and parse the response:
    import json
    import subprocess
 
-   executable = r"build\\bin\\Debug\\OneFLOW.exe"
+   executable = "build/bin/Debug/OneFLOW.exe"
    completed = subprocess.run(
        [executable, "--environment", "--format", "json"],
        check=True,
