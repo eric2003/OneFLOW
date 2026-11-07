@@ -88,6 +88,11 @@ and source additions/removals across reconfiguration. It uses
 project(... NONE), so this focused test does not require a C++ compiler or
 third-party CFD libraries.
 
+CMakeLegacyDiscoveryParity compares the new helper's source, header, and
+include-directory sets with the existing ConstructSolutionDirTree function
+against the real codes/ tree. This is the required compatibility gate before
+migrating production callers.
+
 Run only this test with:
 
 .. code-block:: console
