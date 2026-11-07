@@ -234,6 +234,7 @@ _PYTHON_UNIT_TESTS = (
     ("GUI test command builder tests", ("-m", "unittest", "tools.oneflow_gui.test_test_runner")),
     ("Structured test diagnostic tests", ("-m", "unittest", "tools.oneflow_gui.test_test_diagnostics")),
     ("Numerical verification catalog tests", ("-m", "unittest", "tools.verification.test_curve_catalog")),
+    ("Vencat analytic reference tests", ("-m", "unittest", "tools.verification.test_vencat_reference")),
     ("Combined contract catalog tests", ("-m", "unittest", "tools.verification.test_contract_catalog")),
     ("Verification execution record tests", ("-m", "unittest", "tools.verification.test_execution_records")),
     ("Python execution capture tests", ("-m", "unittest", "tools.oneflow_gui.test_execution_capture")),
