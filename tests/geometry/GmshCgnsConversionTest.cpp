@@ -2,6 +2,13 @@
 #include "GridConversion.h"
 #include "GridTypes.h"
 #include "HXCgns.h"
+#include "CgnsFactory.h"
+#include "GridElem.h"
+#include "UnsGrid.h"
+#include "FaceTopo.h"
+#include "CellMesh.h"
+#include "NodeMesh.h"
+#include "BcRecord.h"
 #include <chrono>
 #include <algorithm>
 #include <filesystem>
@@ -212,21 +219,73 @@ TEST(GmshCgnsConversionTest, ConvertsGmshThroughCgnsIntoOneFlowGrid) {
     config.targetType = ONEFLOW::GridFileType::OneFLOW;
     config.sourceFile = input.filename().string();
     config.topology = ONEFLOW::GridTopology::Unstructured;
+    const std::filesystem::path resultsDirectory = caseDirectory / "results";
+    std::filesystem::create_directories(resultsDirectory);
+    const std::filesystem::path nativeGrid =
+        resultsDirectory / "square.oneflow.grid";
+    config.targetFile = nativeGrid.string();
 
-    EXPECT_NO_THROW(ONEFLOW::ConvertGrid(config, caseDirectory.string()));
+    ASSERT_NO_THROW(ONEFLOW::ConvertGrid(config, caseDirectory.string()));
 
     const std::filesystem::path interchange =
-        caseDirectory / "results" / "square.gmsh-to-oneflow.cgns";
+        resultsDirectory / "square.gmsh-to-oneflow.cgns";
     ASSERT_TRUE(std::filesystem::is_regular_file(interchange));
     EXPECT_GT(std::filesystem::file_size(interchange), 0u);
+    ASSERT_TRUE(std::filesystem::is_regular_file(nativeGrid));
+    EXPECT_GT(std::filesystem::file_size(nativeGrid), 0u);
 
+    // The CGNS interchange must survive the OneFLOW output stage unchanged.
     int fileId = -1;
     ASSERT_EQ(cg_open(interchange.string().c_str(), CG_MODE_READ, &fileId), CG_OK);
     int baseCount = 0;
     ASSERT_EQ(cg_nbases(fileId, &baseCount), CG_OK);
-    EXPECT_EQ(baseCount, 1);
+    ASSERT_EQ(baseCount, 1);
+    int zoneCount = 0;
+    ASSERT_EQ(cg_nzones(fileId, 1, &zoneCount), CG_OK);
+    ASSERT_EQ(zoneCount, 1);
+    int boundaryCount = 0;
+    ASSERT_EQ(cg_nbocos(fileId, 1, 1, &boundaryCount), CG_OK);
+    EXPECT_EQ(boundaryCount, 4);
     EXPECT_EQ(cg_close(fileId), CG_OK);
 
+    // Re-run the same CGNS reader boundary and inspect the actual OneFLOW
+    // unstructured-grid model, not just the existence of output files.
+    ONEFLOW::GridConfig readConfig = config;
+    readConfig.sourceType = ONEFLOW::GridFileType::CGNS;
+    readConfig.sourceFile = std::filesystem::relative(
+        interchange, caseDirectory).generic_string();
+    readConfig.targetType = ONEFLOW::GridFileType::OneFLOW;
+
+    ONEFLOW::CgnsFactory cgnsFactory;
+    ASSERT_NO_THROW(cgnsFactory.ReadCgnsGrid(readConfig, caseDirectory.string()));
+    ASSERT_NO_THROW(cgnsFactory.ProcessCgnsBases());
+    ASSERT_NE(cgnsFactory.gridElemGroup, nullptr);
+    ONEFLOW::Grids grids =
+        cgnsFactory.gridElemGroup->GenerateLocalOneFlowGrids(readConfig);
+    ASSERT_EQ(grids.size(), 1u);
+
+    const auto * grid = dynamic_cast<const ONEFLOW::UnsGrid *>(grids.front().get());
+    ASSERT_NE(grid, nullptr);
+    EXPECT_EQ(grid->nNodes, 4);
+    EXPECT_EQ(grid->nCells, 2);
+    EXPECT_EQ(grid->nBFaces, 4);
+    EXPECT_EQ(grid->GetFaceTopo().GetBoundaryFaceCount(), 4);
+    EXPECT_EQ(grid->GetFaceTopo().GetFaceCount(), 5);
+    ASSERT_NE(grid->nodeMesh, nullptr);
+    ASSERT_EQ(grid->nodeMesh->xN.size(), 4u);
+    ASSERT_EQ(grid->nodeMesh->yN.size(), 4u);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->xN[0], 0.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->xN[1], 1.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->xN[2], 1.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->xN[3], 0.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->yN[0], 0.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->yN[1], 0.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->yN[2], 1.0);
+    EXPECT_DOUBLE_EQ(grid->nodeMesh->yN[3], 1.0);
+    EXPECT_EQ(grid->GetFaceTopo().GetBcRecord().bcType.size(), 4u);
+    EXPECT_EQ(grid->GetCellMesh().GetCellTopo().eTypes.size(), 2u);
+
+    grids.clear();
     std::filesystem::remove_all(caseDirectory);
 }
 

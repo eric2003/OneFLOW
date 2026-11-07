@@ -638,6 +638,20 @@ namespace
         oneFlowConfig.targetType = GridFileType::OneFLOW;
         oneFlowConfig.topology = GridTopology::Unstructured;
 
+        // The CGNS interchange file is an input to the OneFLOW reader, not
+        // the native OneFLOW output. Never let CalcGrid::Dump overwrite it.
+        // Respect an explicitly configured native-grid target; otherwise
+        // keep the generated OneFLOW grid beside the interchange evidence.
+        oneFlowConfig.targetFile = config.targetFile;
+        if ( oneFlowConfig.targetFile.empty() )
+        {
+            const std::string nativeGridName =
+                sourceName.stem().string() + ".oneflow.grid";
+            oneFlowConfig.targetFile =
+                ( std::filesystem::absolute( caseDir ) /
+                  "results" / nativeGridName ).lexically_normal().string();
+        }
+
         CgnsFactory cgnsFactory;
         cgnsFactory.GenerateGrid( oneFlowConfig, caseDir );
     }

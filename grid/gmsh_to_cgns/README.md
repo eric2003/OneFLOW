@@ -161,7 +161,14 @@ The generic `GridConfig` conversion entry now supports both:
 
 The composed route is intentionally not a second direct Gmsh runtime
 converter. It exercises the CGNS serialization boundary and keeps one
-authoritative Gmsh-to-CGNS mapping. Its current input scope remains MSH 4.1
-ASCII and the first-order element families listed above. The conversion
-matrix in `grid/interoperability/conversion_matrix.json` is the central
-inventory of supported routes.
+authoritative Gmsh-to-CGNS mapping. It retains
+`results/<source-stem>.gmsh-to-oneflow.cgns` as the interchange artifact and
+writes the native OneFLOW grid to the configured `targetFile`; when no
+native target is configured, the default is
+`results/<source-stem>.oneflow.grid`. These outputs must remain separate:
+the OneFLOW binary writer must never overwrite the CGNS input. The automated
+test checks both files and independently inspects the OneFLOW unstructured
+grid (nodes, cells, faces and coordinates). Its current input scope remains
+MSH 4.1 ASCII and the first-order element families listed above. The
+conversion matrix in `grid/interoperability/conversion_matrix.json` is the
+central inventory of supported routes.

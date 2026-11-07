@@ -21,9 +21,12 @@
       "status": "implemented",
       "via": ["cgns"],
       "implementation": "GridConversion.cpp",
-      "artifact": "Case results/<source-stem>.gmsh-to-oneflow.cgns",
+      "artifacts": [
+        "Case results/<source-stem>.gmsh-to-oneflow.cgns",
+        "Configured native OneFLOW grid target, or Case results/<source-stem>.oneflow.grid by default"
+      ],
       "input_scope": "Same as gmsh -> cgns.",
-      "evidence": "GmshCgnsConversionTest converts through a real CGNS file and reopens it through the OneFLOW CGNS reader."
+      "evidence": "GmshCgnsConversionTest verifies the retained CGNS Base/Zone/BC_t data, the separate native OneFLOW grid output, and OneFLOW UnsGrid node/cell/face counts and coordinates."
     },
     {
       "source": "cgns",

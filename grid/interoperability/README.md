@@ -40,8 +40,11 @@ CGNS is a preferred on-disk interchange hub, not the runtime mesh model.
 ```
 
 A composed route such as Gmsh -> CGNS -> OneFLOW must write and reopen a real
-CGNS file. This is stronger evidence than an in-memory shortcut because it
-also validates serialization, indexing conventions and the CGNS reader.
+CGNS file. The interchange artifact and the native OneFLOW grid output are
+separate files; the latter must never overwrite the former. Tests should
+inspect the constructed OneFLOW mesh model (not merely check that a file
+exists). This validates serialization, indexing conventions, the CGNS reader
+and the internal topology construction.
 
 ## Current routes
 
