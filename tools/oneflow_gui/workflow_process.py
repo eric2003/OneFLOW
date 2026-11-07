@@ -10,7 +10,12 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from .process_control import process_group_options, terminate_and_reap
+from .process_control import (
+    attach_process_job,
+    close_process_job,
+    process_group_options,
+    terminate_and_reap,
+)
 
 
 def _process_creation_options() -> dict[str, object]:
@@ -54,6 +59,7 @@ def run_process(
         bufsize=1,
         **_process_creation_options(),
     )
+    attach_process_job(process)
     output_queue: queue.Queue[str | None] = queue.Queue()
 
     def read_output() -> None:
@@ -69,7 +75,11 @@ def run_process(
     reader.start()
     reader_finished = False
     cancellation_requested = False
+    job_closed = False
     while process.poll() is None or not reader_finished:
+        if process.poll() is not None and not job_closed:
+            close_process_job(process)
+            job_closed = True
         if is_cancelled() and process.poll() is None:
             cancellation_requested = True
             terminate_and_reap(process)
@@ -82,6 +92,7 @@ def run_process(
         except queue.Empty:
             continue
     reader.join(timeout=1)
+    close_process_job(process)
     return_code = process.returncode
     if cancellation_requested:
         return ProcessResult("cancelled", return_code, "Workflow run cancelled.")
