@@ -4,7 +4,7 @@
   "policy": {
     "interchange_hub": "cgns",
     "pairwise_converter_policy": "Add only routes that serve a real workflow or independent cross-validation.",
-    "fixtures": "Store each source-format fixture once; route cases reference it."
+    "runnable_cases": "Each runnable conversion Case owns its input mesh and runtime configuration. Route coverage is recorded separately from Case identity."
   },
   "routes": [
     {
@@ -19,7 +19,9 @@
       "source": "gmsh",
       "target": "oneflow",
       "status": "implemented",
-      "via": ["cgns"],
+      "via": [
+        "cgns"
+      ],
       "implementation": "GridConversion.cpp",
       "artifacts": [
         "Case results/<source-stem>.gmsh-to-oneflow.cgns",
@@ -68,6 +70,28 @@
       "source": "gmsh",
       "target": "su2",
       "reason": "No current workflow or validated semantic mapping requires this route."
+    }
+  ],
+  "cases": [
+    {
+      "id": "two_quads",
+      "directory": "grid/conversion/cases/two_quads",
+      "source": "gmsh",
+      "dimension": 2,
+      "topology": "two adjacent QUAD_4 cells",
+      "expected": {
+        "nodes": 6,
+        "cells": 2,
+        "boundary_elements": 6,
+        "internal_interface_edges": 1,
+        "physical_boundary_groups": 4,
+        "gmsh_element_records": 9
+      },
+      "routes": [
+        "gmsh->cgns"
+      ],
+      "execution": "manual_gui",
+      "purpose": "Validate multi-cell connectivity, a shared internal edge, and boundary Physical Groups spanning multiple geometric entities."
     }
   ]
 }
