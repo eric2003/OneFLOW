@@ -117,9 +117,12 @@ The current Gmsh conversion boundary is independent of SU2 parsing. The MSH
 reader produces a GmshMesh value, the adapter maps supported first-order
 cells and boundary patches into UnstructuredMeshData, and
 UnstructuredCgnsZoneWriter constructs the CGNS Unstructured Zone. SU2
-uses the same writer through a separate source-format adapter. Standard
-Plot3D remains on the structured GridMediator / CGNS Structured Zone
-path; it is not routed through this unstructured Case pipeline.
+uses the same writer through a separate source-format adapter. The current
+Plot3D path preserves structured blocks through GridMediator / CGNS
+Structured Zones. An optional Plot3D-to-Unstructured route could expand
+structured block connectivity into QUAD_4 / HEXA_8 cells and use the shared
+writer, but it must explicitly handle IBLANK, block interfaces and boundary
+semantics; that route is not yet implemented.
 
 Coverage plan
 -------------

@@ -444,13 +444,21 @@ identity, high-order interpolation data, periodic links, partitions, ghost
 entities, richer boundary semantics and complete provenance remain future
 extensions.
 
-Standard Plot3D follows a separate structured path. The current implementation
-uses ``Plot3D::Plot3DToCgns()``, ``GridMediatorGroup``, and
-``CgnsFactory::DumpCgnsGrid()`` to preserve structured blocks and write
-CGNS Structured Zones. It must not be forced through the unstructured writer.
-A future unstructured Plot3D variant may use ``UnstructuredMeshData`` only
-after its format variant and explicit connectivity semantics are defined and
-validated.
+Standard Plot3D follows a separate native structured path. The current
+implementation uses ``Plot3D::Plot3DToCgns()``, ``GridMediatorGroup``,
+and ``CgnsFactory::DumpCgnsGrid()`` to preserve structured blocks and write
+CGNS Structured Zones.
+
+A separate, explicit Plot3D-to-CGNS-Unstructured route is also possible
+without involving SU2. Its adapter would expand structured index connectivity
+into ordered QUAD_4 cells for 2-D blocks or HEXA_8 cells for 3-D blocks, then
+populate ``UnstructuredMeshData`` and call
+``UnstructuredCgnsZoneWriter``. This is a topology transformation, not a
+native unstructured Plot3D read. It must define i-j-k node ordering, degenerate
+dimensions, IBLANK handling, multi-block interface policy, and the source of
+boundary patch/BC semantics. Coordinates alone must not be used to invent
+inflow, wall, symmetry, or other solver boundary conditions. This optional
+route is not yet implemented.
 
 For the bundled square sample, the semantic result is four nodes, two TRI_3
 cells, four BAR_2 boundary elements, and ordered volume connectivity
