@@ -162,41 +162,58 @@ save a standalone point-in-time report using the redirection examples above.
 
 Workbench settings, workflow definitions, run history, and execution
 workspaces have separate storage responsibilities under the OneFLOW user data
-root (~/.oneflow by default; ONEFLOW_HOME can relocate that root). Catalog Case
-runs staged by the Workbench use
-~/.oneflow/workflow-data/executions/<run-id>/<project-name> by default. The runtime report is not
-currently part of that run artifact contract.
+root (``~/.oneflow`` by default; ``ONEFLOW_HOME`` can relocate that root).
+Workflow definitions and history are stored under
+``~/.oneflow/workflow-data/definitions`` and
+``~/.oneflow/workflow-data/runs``. Project run artifacts and environment
+evidence are stored under ``~/.oneflow/workflow-data/executions``.
 
-Planned per-run evidence storage
---------------------------------
+Persisted Project Workbench run evidence
+----------------------------------------
 
-The Project Workbench persistence slice captures the environment from the exact
-executable selected for a run and stores an immutable JSON snapshot under the
-user data execution directory. The current layout is:
+For each Project Workbench run, the background runner captures the environment
+from the exact selected executable before launching the Case or workflow. The
+snapshot is stored under the user data root, independently of whether the
+project itself runs in the default workspace, a custom workspace, or in place.
+
+The current layout is:
 
 .. code-block:: text
 
    ~/.oneflow/
-     executions/
-       <run-id>/
-         run-manifest.json
-         environment.json
-         <case-id>/
-           input/
-           output/
-           logs/
+     workflow-data/
+       executions/
+         <run-id>/
+           run-manifest.json
+           environment.json
+           <project-name>/             (default workspace mode)
+             ... project and Case files ...
 
-For a multi-case or dependency workflow, environment.json belongs at the run
-root when all Cases share one OneFLOW process. If Cases execute as separate
-processes, each process must receive its own snapshot, or the manifest must
-reference the snapshot captured for that exact process.
+``environment.json`` is the JSON document returned by
+``OneFLOW --environment --format json``. It is written once at run start and is
+not modified when the run finishes. If the environment query fails, the file
+contains a diagnostic JSON object with ``capture_status: failed`` and the
+error message; this does not prevent the CFD run from starting.
 
-The run manifest should reference the environment snapshot by relative path
-and record the executable path, command arguments, working directory, run
-start time, and environment schema version. The snapshot is evidence, not
-configuration: it must not be edited to change a past run. A retry creates a
-new run ID and a new snapshot. Existing run-history records and artifacts
-must not be deleted or rewritten by this addition.
+``run-manifest.json`` is created before execution and finalized afterward. It
+records its schema version, Run ID, status, start and finish times, executable
+path, command template, working directory, source project directory,
+execution mode, relative environment report path, environment schema/query
+status, and process return code. The Project Workbench run-history record
+links to the absolute paths of both evidence files in its project-step
+metadata.
+
+A retry creates a new Run ID and a new evidence directory. Existing snapshots
+are not overwritten. The environment report is evidence, not configuration;
+editing it does not change the executable or reproduce a previous runtime.
+
+This first persistence integration covers Project Workbench runs, including
+project workflows with multiple Case processes. Catalog Case-queue and other
+Workbench launch paths are not yet wired to this evidence service and will be
+added in a subsequent slice. For a multi-process project workflow, the
+manifest records the executable and command template shared by its Case
+launches; a future enhancement may record per-process environment snapshots
+when process-specific launch environments differ.
 
 External interface and schema policy
 ------------------------------------
