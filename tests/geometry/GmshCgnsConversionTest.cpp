@@ -217,7 +217,7 @@ TEST(GmshCgnsConversionTest, ConvertsGmshThroughCgnsIntoOneFlowGrid) {
 
     const std::filesystem::path interchange =
         caseDirectory / "results" / "square.gmsh-to-oneflow.cgns";
-    EXPECT_TRUE(std::filesystem::is_regular_file(interchange));
+    ASSERT_TRUE(std::filesystem::is_regular_file(interchange));
     EXPECT_GT(std::filesystem::file_size(interchange), 0u);
 
     int fileId = -1;

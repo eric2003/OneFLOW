@@ -4,7 +4,7 @@ This directory is the central inventory and design entry for mesh-format
 interoperability. It is intentionally separate from solver Cases and from
 format-specific parser implementations.
 
-## Organization
+## Target organization (introduced incrementally)
 
 - `formats/`: canonical tiny fixtures and format-specific notes. A source
   mesh is stored once, regardless of how many conversion routes consume it.
@@ -13,12 +13,14 @@ format-specific parser implementations.
   not duplicate them.
 - `contracts/`: shared semantic checks for topology, identity, boundaries
   and round trips.
-- `manifests/conversion_matrix.json`: machine-readable inventory of routes,
+- `conversion_matrix.json`: machine-readable inventory of routes,
   implementation status and limitations.
 
-Existing manual Cases such as `grid/gmsh_to_cgns` remain in place while the
-interoperability layout is introduced incrementally. Do not move or duplicate
-their fixtures as part of adding a route.
+These subdirectories are expanded when their first real fixture, route or
+contract is migrated; they are not a requirement to create empty folders.
+Existing manual Cases such as `grid/gmsh_to_cgns` remain in place during this
+incremental transition. Its `grid/square.msh` is the current canonical Gmsh
+fixture and must not be copied into every route.
 
 ## Architecture
 
