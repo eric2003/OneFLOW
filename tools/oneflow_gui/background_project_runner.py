@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from .user_data_paths import UserDataPaths
+from .run_environment_evidence import RunEnvironmentEvidence
 from .workflow_graph_runner import run_case_graph
 from .workflow_plan import build_case_graph_plan
 from .workflow_process import run_process
@@ -18,7 +19,7 @@ def _log(message: str) -> None:
     print(message, flush=True)
 
 
-def run_project(
+def _run_project(
     project_directory: Path,
     executable: Path,
     run_id: str,
@@ -110,6 +111,45 @@ def run_project(
     except (OSError, ValueError, shutil.Error, json.JSONDecodeError) as error:
         _log(f"Project run failed: {error}")
         return 1
+
+
+
+def run_project(
+    project_directory: Path,
+    executable: Path,
+    run_id: str,
+    execution_mode: str,
+    custom_root: Path | None,
+    repository_root: Path,
+) -> int:
+    """Capture the selected binary's environment and then execute the project."""
+    executable = executable.expanduser().resolve()
+    paths = UserDataPaths.discover()
+    evidence = RunEnvironmentEvidence(
+        run_id=run_id,
+        executable=executable,
+        run_directory=paths.executions / run_id,
+        command_template=[str(executable), "r", "<case-directory>"],
+        working_directory=executable.parent,
+        project_directory=project_directory,
+        execution_mode=execution_mode,
+    )
+    _log(f"Runtime environment evidence: {evidence.environment_path}")
+    return_code = None
+    status = "failed"
+    try:
+        return_code = _run_project(
+            project_directory,
+            executable,
+            run_id,
+            execution_mode,
+            custom_root,
+            repository_root,
+        )
+        status = "succeeded" if return_code == 0 else "failed"
+        return return_code
+    finally:
+        evidence.finish(status=status, return_code=return_code)
 
 
 def main(argv: list[str] | None = None) -> int:
