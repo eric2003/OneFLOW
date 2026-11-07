@@ -104,7 +104,7 @@ def discover_script_parameter_files(
             if path.name != "control.txt" and path not in parameter_files
         )
         diagnostics = (
-            f"control.txt could not be classified ({error}); reading it as a parameter file.",
+            f"control.txt could not be classified ({error}); reading it as an ordinary parameter file.",
             *(f"Auxiliary script file {path.name!r} has no parameter declarations and is not loaded as a parameter file." for path in auxiliary),
         )
         return ScriptFileDiscovery(parameter_files, "parameter-file", diagnostics)
@@ -131,7 +131,7 @@ def discover_script_parameter_files(
             if path.name != "control.txt" and path not in parameter_files
         )
         diagnostics = (
-            "script/control.txt is not a filename-only manifest; reading it as a parameter file.",
+            "script/control.txt is not a filename-only manifest; reading it as an ordinary parameter file.",
             *(f"Auxiliary script file {path.name!r} has no parameter declarations and is not loaded as a parameter file." for path in auxiliary),
         )
         return ScriptFileDiscovery(parameter_files, "parameter-file", diagnostics)

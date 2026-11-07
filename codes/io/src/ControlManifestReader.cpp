@@ -193,7 +193,7 @@ ScriptFileDiscovery DiscoverCaseScriptFiles( const std::string & caseDir )
     {
         result.mode = ScriptFileSourceMode::ParameterFile;
         result.diagnostics.push_back(
-            "script/control.txt is not a filename-only manifest; reading it as a parameter file." );
+            "script/control.txt is not a filename-only manifest; reading it as an ordinary parameter file." );
         for ( const auto & path : ListParameterFiles( scriptDirectory, true ) )
         {
             if ( path.filename() == "control.txt" || HasParameterDeclaration( path ) )
