@@ -91,6 +91,8 @@ jobs:
         run: python -m unittest tools.verification.test_latex_preview
       - name: Test Formula and Knowledge catalog
         run: python -m unittest tools.verification.test_curve_catalog
+      - name: Test Vencat analytic reference profiles
+        run: python -m unittest tools.verification.test_vencat_reference
       - name: Test Contract Workbench dialog
         run: python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
       - name: Test source editor process launch
