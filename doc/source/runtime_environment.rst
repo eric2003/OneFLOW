@@ -173,8 +173,9 @@ Persisted Project Workbench run evidence
 
 For each Project Workbench run, the background runner captures the environment
 from the exact selected executable before launching the Case or workflow. The
-snapshot is stored under the user data root, independently of whether the
-project itself runs in the default workspace, a custom workspace, or in place.
+Case Workbench queue captures the same information once before launching its
+selected Case batch. Snapshots are stored under the user data root, independently
+of whether Case files run in the default workspace, a custom workspace, or in place.
 
 The current layout is:
 
@@ -186,8 +187,10 @@ The current layout is:
          <run-id>/
            run-manifest.json
            environment.json
-           <project-name>/             (default workspace mode)
+           <project-name>/             (Project Workbench default mode)
              ... project and Case files ...
+           <case-id>/                  (Case Workbench default mode)
+             ... staged Case files ...
 
 ``environment.json`` is the JSON document returned by
 ``OneFLOW --environment --format json``. It is written once at run start and is
@@ -207,13 +210,12 @@ A retry creates a new Run ID and a new evidence directory. Existing snapshots
 are not overwritten. The environment report is evidence, not configuration;
 editing it does not change the executable or reproduce a previous runtime.
 
-This first persistence integration covers Project Workbench runs, including
-project workflows with multiple Case processes. Catalog Case-queue and other
-Workbench launch paths are not yet wired to this evidence service and will be
-added in a subsequent slice. For a multi-process project workflow, the
-manifest records the executable and command template shared by its Case
-launches; a future enhancement may record per-process environment snapshots
-when process-specific launch environments differ.
+This persistence integration covers Project Workbench runs and Case Workbench
+queues. A queue captures one environment snapshot for its selected executable
+and Run ID; all Cases in that queue reference the same snapshot. Project
+workflows may launch multiple Case processes and currently record the common
+executable and command template. A future enhancement may record per-process
+environment snapshots when process-specific launch environments differ.
 
 External interface and schema policy
 ------------------------------------
