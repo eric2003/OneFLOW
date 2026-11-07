@@ -110,7 +110,7 @@ integration boundaries:
   public ``Simulation::Run()`` entry point, multi-file control ingestion, task
   dispatch, generated artifacts, and process finalization.
 * ``FailedFullSimulationEntryTearsDownCaseAndFinalizesProcessRuntime``: a
-  missing second control script after a partial read, with rollback verified
+  malformed real parameter file after a partial read, with rollback verified
   through the public entry point and process finalization.
 * Accelerator lifecycle tests: dependency-ordered release and retry after an
   injected backend finalization failure.

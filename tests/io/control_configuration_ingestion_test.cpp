@@ -292,11 +292,14 @@ TEST( ControlReaderIntegration, CaseEnvironmentSetupFailureCanBeRolledBack )
     TemporaryControlCase testCase;
     ScopedCaseRuntimeReset runtimeReset;
     testCase.WriteManifest(
-        "\"available.txt\";\n"
-        "\"missing.txt\";\n" );
+        "\"z_invalid.txt\";\n"
+        "\"a_available.txt\";\n" );
     testCase.WriteScript(
-        "available.txt",
+        "a_available.txt",
         "string partial_case_bootstrap_value = \"must_be_rolled_back\";\n" );
+    testCase.WriteScript(
+        "z_invalid.txt",
+        "int invalid_array[missing_array_size] = 1;\n" );
 
     ClearRuntimeParameters();
     Prj::current_dir = std::filesystem::current_path().string();
@@ -307,8 +310,8 @@ TEST( ControlReaderIntegration, CaseEnvironmentSetupFailureCanBeRolledBack )
     EXPECT_THROW( context.SetupCaseEnvironment(), std::runtime_error );
     EXPECT_FALSE( context.IsEnvironmentReady() );
 
-    // Bootstrap commits scripts in manifest order. Failure on the second
-    // script must roll back the first script and the case-relative bindings.
+    // Bootstrap reads actual files in filename order. The malformed second
+    // file must roll back the first file and the case-relative bindings.
     EXPECT_TRUE( Prj::prjBaseDir.empty() );
     EXPECT_THROW(
         GetDataValue<std::string>(
@@ -317,7 +320,7 @@ TEST( ControlReaderIntegration, CaseEnvironmentSetupFailureCanBeRolledBack )
 
     // The same context can retry after the failed bootstrap has been rolled back.
     testCase.WriteScript(
-        "missing.txt",
+        "z_invalid.txt",
         "string recovered_case_bootstrap_value = \"recovered\";\n" );
     EXPECT_NO_THROW( context.SetupCaseEnvironment() );
     EXPECT_TRUE( context.IsEnvironmentReady() );
