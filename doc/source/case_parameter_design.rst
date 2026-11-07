@@ -255,8 +255,8 @@ parameter database.
 
 The Qt-independent ``parameter_model.py`` is the first implementation of this
 boundary. It combines multiple ``ParameterDocument`` instances in the order supplied
-by the shared script-file discovery layer (manifest order when valid, otherwise
-filename order). It identifies ``simutask``, ``dimension``, and
+by the shared script-file discovery layer in deterministic filename order;
+a filename-only manifest is used only for consistency diagnostics. It identifies ``simutask``, ``dimension``, and
 ``ptTol`` as shared parameters; recognizes initial CFD groups (run control, output,
 numerical methods, reference conditions, physical models, turbulence, multigrid, and
 wall distance); and recognizes initial Grid groups (grid definition, formats/files,
@@ -696,8 +696,8 @@ The Parameter entry in Contract Workbench and the Project Window parameter
 tree are related views, but they have different responsibilities:
 
 * The Project Window tree shows declarations found in the opened Case's
-  discovered parameter files, with valid manifest order retained. Missing
-  manifest references remain visible as diagnostics while existing files can
+  discovered parameter files in deterministic filename order. Manifest
+  mismatches remain visible as diagnostics while all real parameter files can
   still be inspected. It preserves source files, declaration order,
   effective values, and overridden declarations. It is case-local.
 * The Contract Workbench Parameter catalog is a repository-level knowledge
@@ -758,7 +758,7 @@ must also distinguish:
 * a key validated by a representative executable Case.
 
 These are independent facts. The inventory should preserve the exact spelling
-of the runtime key, declaration type, source file, manifest order, aliases,
+of the runtime key, declaration type, source file, directory discovery order, aliases,
 classification, and evidence state. A missing consumer audit means
 ``not_yet_audited``, not unused. A key with no known formula remains a
 parameter entry with an explicit explanation, not an invented equation.
@@ -769,7 +769,8 @@ profile of task, dimension, solver/equation system, physical models, grid,
 boundary conditions, and numerical methods. The generator must:
 
 #. start from a known Case template or an explicitly versioned parameter
-   profile, preserving required legacy file syntax and the ordered manifest;
+   profile, preserving required legacy file syntax and checking any optional
+   filename manifest against the real parameter files;
 #. include only parameters applicable to the selected task and model, while
    retaining required defaults and dependencies;
 #. report unresolved required values, unsupported arrays, unknown keys, and

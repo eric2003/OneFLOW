@@ -640,8 +640,9 @@ The production case-specific entry point is
 ``ReadControlInfo(caseDir)`` in ``codes/io/src/ControlFileReader.cpp``. Its
 responsibility is orchestration rather than numerical interpretation:
 
-#. Read the case's ``script/control.txt`` manifest.
-#. Resolve each listed script under the case directory and parse the files in order.
+#. Discover real parameter documents under ``script/`` in deterministic filename order.
+#. If ``control.txt`` is a filename-only manifest, compare its entries with the discovered files and report differences; do not use it to select files or define precedence.
+#. If ``control.txt`` contains parameter declarations, include it as an ordinary parameter document.
 #. Commit the resulting typed entries into the global ``DataPara`` store.
 #. Coordinate process status and broadcast the committed parameter database.
 #. Write the merged database snapshot to ``log/database.log``.

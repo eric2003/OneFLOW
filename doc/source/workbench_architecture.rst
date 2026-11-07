@@ -134,7 +134,8 @@ Parameter editing
 -----------------
 
 The Project Window now builds a read-only Shared / CFD / Grid / Other tree from
-``ParameterModel`` in control-manifest order. Effective values retain source and
+``ParameterModel`` in deterministic script filename order. A filename-only
+``control.txt`` is checked for consistency and does not control precedence. Effective values retain source and
 declaration positions; shadowed declarations remain visible. A separate Qt-independent
 ``ParameterConsumerCatalog`` adds a small set of source-verified C++ read sites and
 labels all other keys as not yet audited rather than unused. This curated evidence is

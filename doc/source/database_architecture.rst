@@ -163,10 +163,12 @@ The configuration ingestion path composes the database as follows:
 
 .. code-block:: text
 
-   control.txt manifest
+   script/*.txt directory scan
+          |
+          +----> optional control.txt manifest comparison
           |
           v
-   ordered script paths
+   real parameter paths in filename order
           |
           v
    production script parser

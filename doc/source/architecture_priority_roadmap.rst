@@ -125,10 +125,12 @@ transformations and effects:
    case directory
         |
         v
-   script/control.txt
+   script/*.txt real files
+        |
+        +---- optional filename-only control.txt comparison
         |
         v
-   ordered script files
+   parameter files in filename order
         |
         v
    legacy syntax parser
