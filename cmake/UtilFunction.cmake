@@ -4,7 +4,7 @@ function ( ConstructSolutionDirTree currdir my_head_list my_src_list my_include_
 	set ( tmp_include_dirs "" )
 
 	#message ( STATUS "The currdir is ${currdir}" )
-	file ( GLOB_RECURSE FOUND_FILES LIST_DIRECTORIES true RELATIVE ${currdir} * )
+	file ( GLOB_RECURSE FOUND_FILES LIST_DIRECTORIES true RELATIVE "${currdir}" "${currdir}/*" )
 
 	#message( STATUS "Files are ${FOUND_FILES}" )
 
@@ -49,7 +49,7 @@ function ( GetCUDAFiles currdir my_head_list my_src_list my_include_dirs )
 	set ( tmp_include_dirs "" )
 
 	#message ( STATUS "The currdir is ${currdir}" )
-	file ( GLOB_RECURSE FOUND_FILES LIST_DIRECTORIES true RELATIVE ${currdir} * )
+	file ( GLOB_RECURSE FOUND_FILES LIST_DIRECTORIES true RELATIVE "${currdir}" "${currdir}/*" )
 
     foreach ( child ${FOUND_FILES} )
 		set( candidate_dir ${currdir}/${child} )
@@ -84,7 +84,7 @@ function ( GetHIPFiles currdir my_head_list my_src_list my_include_dirs )
     set ( tmp_src_list     "" )
     set ( tmp_include_dirs "" )
 
-    file ( GLOB_RECURSE FOUND_FILES LIST_DIRECTORIES true RELATIVE ${currdir} * )
+    file ( GLOB_RECURSE FOUND_FILES LIST_DIRECTORIES true RELATIVE "${currdir}" "${currdir}/*" )
 
     foreach ( child ${FOUND_FILES} )
         set( candidate_dir ${currdir}/${child} )
