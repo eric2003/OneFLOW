@@ -38,11 +38,12 @@ Production source boundaries
 
 The source-discovery helper excludes generated build, CMake-generated, and VCS
 directories. It does not exclude directories merely because they are named
-test or tests: the existing codes/test directory contains source files that
-are part of the current build. Test/production boundaries are established by
-the selected module root and target registration, not by guessing from a
-directory name. Generated files belong in the binary tree, never in the source
-tree.
+test or tests. The former codes/test module has been retired: JSON behavior is
+covered by focused GoogleTest cases under tests/io, while Vencat analytic
+profile generation is maintained under tools/verification. Test/production
+boundaries are established by the selected module root and target registration,
+not by guessing from a directory name. Generated files belong in the binary
+tree, never in the source tree.
 
 Deterministic results
 ~~~~~~~~~~~~~~~~~~~~~
@@ -72,7 +73,8 @@ the conventional include/ + src/ layout, including nested source folders.
 
 Directories named build, CMakeFiles, or .git are excluded. Directories named
 test or tests remain discoverable when they are inside the selected module
-root; this preserves existing modules such as codes/test.
+root. The fixture locks this generic rule independently of the current
+production module layout.
 Implementation files placed under a directory named include are not treated
 as production sources.
 

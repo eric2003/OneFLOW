@@ -75,10 +75,11 @@ TEST( TaskRegistryTest, TaskEnumToStringMapping )
     EXPECT_EQ( TaskEnumToString( TaskEnum::CREATE_GRID ),      "Grid" );
     EXPECT_EQ( TaskEnumToString( TaskEnum::CREATE_WALL_DIST ), "WallDist" );
     EXPECT_EQ( TaskEnumToString( TaskEnum::PARTITION_GRID ),   "Partition" );
-    EXPECT_EQ( TaskEnumToString( TaskEnum::FUNCTION_TEST ),    "FunctionTest" );
     EXPECT_EQ( TaskEnumToString( TaskEnum::SOLVE_THEORY ),     "Theory" );
     EXPECT_EQ( TaskEnumToString( TaskEnum::TOY_MODEL ),        "ToyModel" );
     EXPECT_EQ( TaskEnumToString( TaskEnum::POST_TASK ),        "PostTask" );
+    EXPECT_EQ( TaskEnumToString( static_cast<TaskEnum>( 4 ) ), "Unknown" );
+    EXPECT_EQ( TaskFilter.count( "FunctionTest" ), 0u );
 }
 
 TEST( TaskRegistryTest, CreateByTaskEnumUsesSameKeys )
@@ -95,7 +96,7 @@ TEST( TaskRegistryTest, CreateByTaskEnumUsesSameKeys )
 
 // ---------------------------------------------------------------------------
 // Contract for the production Solve path (mirrored by SolveFieldTask).
-// Does NOT link SimuTaskReg / FieldSimu ¡ª only the registry + context contract.
+// Does NOT link SimuTaskReg / FieldSimu Â¡Âª only the registry + context contract.
 // ---------------------------------------------------------------------------
 
 namespace {
@@ -109,7 +110,7 @@ namespace {
         void Execute( SimuContext& ctx ) override
         {
             RequireSolveFieldContext( ctx );
-            executed_ = true;  // ²»µ÷ÓÃ FieldSimu
+            executed_ = true;  // Â²Â»ÂµÃ·Ã“Ãƒ FieldSimu
         }
 
         bool executed_ = false;

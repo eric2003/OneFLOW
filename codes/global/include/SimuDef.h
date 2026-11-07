@@ -33,7 +33,7 @@ enum class TaskEnum
     CREATE_GRID = 1,
     CREATE_WALL_DIST = 2,
     PARTITION_GRID = 3,
-    FUNCTION_TEST = 4,
+    // Numeric value 4 is retired; remaining values stay stable.
     SOLVE_THEORY = 5,
     TOY_MODEL = 6,
     POST_TASK = 7
@@ -45,7 +45,6 @@ const std::map<std::string, TaskEnum> TaskFilter =
     {"Grid",TaskEnum::CREATE_GRID},
     {"WallDist",TaskEnum::CREATE_WALL_DIST},
     {"Partition",TaskEnum::PARTITION_GRID},
-    {"FunctionTest",TaskEnum::FUNCTION_TEST},
     {"ToyModel",TaskEnum::TOY_MODEL},
     {"Theory",TaskEnum::SOLVE_THEORY},
     {"PostTask",TaskEnum::POST_TASK}

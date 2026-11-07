@@ -67,26 +67,28 @@ std::vector<std::string> TaskRegistry::GetAllRegisteredNames() const
 
 const std::string& TaskEnumToString( TaskEnum task )
 {
-    // Index by underlying integer; keeps C++14/17 compilers happy without
-    // a custom std::hash for enum class.
-    static const std::string table[] = {
-        "Solve",        // SOLVE_FIELD      = 0
-        "Grid",         // CREATE_GRID      = 1
-        "WallDist",     // CREATE_WALL_DIST = 2
-        "Partition",    // PARTITION_GRID   = 3
-        "FunctionTest", // FUNCTION_TEST    = 4
-        "Theory",       // SOLVE_THEORY     = 5
-        "ToyModel",     // TOY_MODEL        = 6
-        "PostTask"      // POST_TASK        = 7
-    };
+    static const std::string solve = "Solve";
+    static const std::string grid = "Grid";
+    static const std::string wallDist = "WallDist";
+    static const std::string partition = "Partition";
+    static const std::string theory = "Theory";
+    static const std::string toyModel = "ToyModel";
+    static const std::string postTask = "PostTask";
     static const std::string unknown = "Unknown";
 
-    const auto idx = static_cast<int>( task );
-    if ( idx < 0 || idx >= static_cast<int>( sizeof( table ) / sizeof( table[ 0 ] ) ) )
+    // Switch mapping tolerates retired numeric IDs without shifting the
+    // remaining TaskEnum values.
+    switch ( task )
     {
-        return unknown;
+    case TaskEnum::SOLVE_FIELD:      return solve;
+    case TaskEnum::CREATE_GRID:      return grid;
+    case TaskEnum::CREATE_WALL_DIST: return wallDist;
+    case TaskEnum::PARTITION_GRID:   return partition;
+    case TaskEnum::SOLVE_THEORY:     return theory;
+    case TaskEnum::TOY_MODEL:        return toyModel;
+    case TaskEnum::POST_TASK:        return postTask;
     }
-    return table[ idx ];
+    return unknown;
 }
 
 EndNameSpace

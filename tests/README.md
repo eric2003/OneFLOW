@@ -83,7 +83,8 @@ tests.
 
 CMakeSourceDiscovery creates a disposable fixture project below the build
 tree and checks legacy and include/src layouts, nested source discovery,
-header/include discovery, empty modules, exclusion of test/build directories,
+header/include discovery, empty modules, preservation of sources under a
+module directory named test, exclusion of generated build/CMakeFiles sources,
 and source additions/removals across reconfiguration. It uses
 project(... NONE), so this focused test does not require a C++ compiler or
 third-party CFD libraries.
