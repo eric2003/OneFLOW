@@ -12,7 +12,8 @@ file(MAKE_DIRECTORY
     "${_source}/include"
     "${_source}/src/nested"
     "${_source}/legacy"
-    "${_source}/tests"
+    "${_source}/test"
+    "${_source}/CMakeFiles"
     "${_source}/build"
     "${_source}/empty"
 )
@@ -20,8 +21,9 @@ file(MAKE_DIRECTORY
 file(WRITE "${_source}/include/Module.h" "#pragma once\n")
 file(WRITE "${_source}/src/nested/NewStyle.cpp" "void new_style() {}\n")
 file(WRITE "${_source}/legacy/Legacy.cpp" "void legacy_style() {}\n")
-file(WRITE "${_source}/tests/ShouldNotCompile.cpp" "void test_only() {}\n")
+file(WRITE "${_source}/test/LegacyTestModule.cpp" "void legacy_test_module() {}\n")
 file(WRITE "${_source}/build/ShouldNotCompile.cpp" "void generated_only() {}\n")
+file(WRITE "${_source}/CMakeFiles/ShouldNotCompile.cpp" "void cmake_generated() {}\n")
 
 set(_fixture_cmake "${_source}/CMakeLists.txt")
 file(WRITE "${_fixture_cmake}" [=[
@@ -61,8 +63,11 @@ configure_fixture()
 if(NOT _manifest MATCHES "Legacy[.]cpp" OR NOT _manifest MATCHES "NewStyle[.]cpp")
     message(FATAL_ERROR "Legacy and include/src source layouts were not both discovered:\n${_manifest}")
 endif()
+if(NOT _manifest MATCHES "LegacyTestModule[.]cpp")
+    message(FATAL_ERROR "A valid legacy module under a directory named test was excluded:\n${_manifest}")
+endif()
 if(_manifest MATCHES "ShouldNotCompile[.]cpp")
-    message(FATAL_ERROR "Test/build sources leaked into production discovery:\n${_manifest}")
+    message(FATAL_ERROR "Generated build/CMakeFiles sources leaked into discovery:\n${_manifest}")
 endif()
 if(NOT _manifest MATCHES "Module[.]h")
     message(FATAL_ERROR "Module header was not discovered:\n${_manifest}")

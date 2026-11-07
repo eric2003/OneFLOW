@@ -34,7 +34,7 @@ function(oneflow_discover_module_sources module_root source_var header_var inclu
 
         # Do not let test fixtures, generated build trees, or repository
         # metadata leak into production module discovery.
-        if(_relative MATCHES "(^|/)(test|tests|build|CMakeFiles|\\.git)(/|$)")
+        if(_relative MATCHES "(^|/)(build|CMakeFiles|\\.git)(/|$)")
             continue()
         endif()
 

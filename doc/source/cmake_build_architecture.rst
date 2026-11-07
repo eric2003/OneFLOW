@@ -36,10 +36,13 @@ component should link every optional dependency.
 Production source boundaries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The source-discovery helper excludes test, build, CMake-generated, and VCS
-directories. Tests are separate targets and must not become production
-sources merely because they are located below a module root. Generated files
-belong in the binary tree, never in the source tree.
+The source-discovery helper excludes generated build, CMake-generated, and VCS
+directories. It does not exclude directories merely because they are named
+test or tests: the existing codes/test directory contains source files that
+are part of the current build. Test/production boundaries are established by
+the selected module root and target registration, not by guessing from a
+directory name. Generated files belong in the binary tree, never in the source
+tree.
 
 Deterministic results
 ~~~~~~~~~~~~~~~~~~~~~
@@ -67,7 +70,9 @@ headers (.h, .hpp). Header-containing directories are returned as
 include directories. It supports legacy implementation directories and
 the conventional include/ + src/ layout, including nested source folders.
 
-Directories named test, tests, build, CMakeFiles, or .git are excluded.
+Directories named build, CMakeFiles, or .git are excluded. Directories named
+test or tests remain discoverable when they are inside the selected module
+root; this preserves existing modules such as codes/test.
 Implementation files placed under a directory named include are not treated
 as production sources.
 
@@ -89,7 +94,7 @@ OneFLOW. The fixture is created below the CMake binary directory and verifies:
 * simultaneous discovery of legacy and include/ + src/ layouts;
 * recursive discovery in nested source directories;
 * header and include-directory discovery;
-* exclusion of test and build sources;
+* preservation of valid sources under a directory named test;\n* exclusion of generated build and CMakeFiles sources;
 * discovery of a source added after the initial configure;
 * removal of a source deleted before a later configure.
 
