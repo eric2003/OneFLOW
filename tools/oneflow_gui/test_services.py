@@ -29,6 +29,14 @@ class DesktopServiceTest(unittest.TestCase):
         )
         self.assertTrue(all(case.runtime_config.is_file() for case in cases))
 
+    def test_gmsh_cases_are_available_in_the_gmsh_development_group(self) -> None:
+        cases = load_cases(REPOSITORY_ROOT)
+        cases_by_id = {case.case_id: case for case in cases}
+        self.assertIn("two_quads", cases_by_id)
+        self.assertEqual(cases_by_id["two_quads"].group, "Gmsh")
+        self.assertEqual(cases_by_id["gmsh_to_cgns"].group, "Gmsh")
+        self.assertEqual(cases_by_id["gmsh_to_oneflow"].group, "Gmsh")
+
     def test_executable_discovery_prefers_debug_then_release_then_install(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

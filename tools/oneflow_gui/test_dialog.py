@@ -19,9 +19,8 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
-    QTableWidget,
-    QTableWidgetItem,
-    QAbstractItemView,
+    QTreeWidget,
+    QTreeWidgetItem,
     QHeaderView,
     QVBoxLayout,
 )
@@ -649,26 +648,45 @@ class CaseDatabaseSelectionDialog(QDialog):
             "Select development cases to include when you press Run. "
             "This dialog only saves the selection; it does not start calculations."
         ))
-        self.case_table = QTableWidget(0, 3)
-        self.case_table.setHorizontalHeaderLabels(["Run", "Case", "Configuration"])
-        self.case_table.verticalHeader().setVisible(False)
-        self.case_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        self.case_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.case_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.case_tree = QTreeWidget()
+        self.case_tree.setColumnCount(3)
+        self.case_tree.setHeaderLabels(["Run", "Case / Group", "Configuration"])
+        self.case_tree.setRootIsDecorated(True)
+        self.case_tree.setAlternatingRowColors(True)
+        self.case_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        group_items: dict[str, QTreeWidgetItem] = {}
         for case in self._cases:
-            row = self.case_table.rowCount()
-            self.case_table.insertRow(row)
-            check = QTableWidgetItem()
-            check.setFlags(check.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-            check.setCheckState(
-                Qt.CheckState.Checked if case.case_id in selected_ids else Qt.CheckState.Unchecked
+            group_name = case.group or "General"
+            group_item = group_items.get(group_name)
+            if group_item is None:
+                group_item = QTreeWidgetItem(self.case_tree)
+                group_item.setText(1, group_name)
+                group_item.setFlags(
+                    group_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
+                )
+                group_items[group_name] = group_item
+
+            case_item = QTreeWidgetItem(group_item)
+            case_item.setFlags(
+                case_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
             )
-            self.case_table.setItem(row, 0, check)
-            self.case_table.setItem(row, 1, QTableWidgetItem(case.title))
-            self.case_table.setItem(
-                row, 2, QTableWidgetItem("Typed profile" if case.profile else "Legacy config")
+            case_item.setData(0, Qt.ItemDataRole.UserRole, case.case_id)
+            case_item.setText(1, case.title)
+            case_item.setText(
+                2, "Typed profile" if case.profile else "Legacy config"
             )
-        layout.addWidget(self.case_table, 1)
+            case_item.setCheckState(
+                0,
+                Qt.CheckState.Checked
+                if case.case_id in selected_ids
+                else Qt.CheckState.Unchecked,
+            )
+
+        for group_item in group_items.values():
+            self._update_group_check_state(group_item)
+        self.case_tree.itemChanged.connect(self._on_case_item_changed)
+        self.case_tree.expandAll()
+        layout.addWidget(self.case_tree, 1)
         actions = QHBoxLayout()
         select_all = QPushButton("Select all")
         select_all.clicked.connect(lambda: self._set_all(True))
@@ -685,15 +703,51 @@ class CaseDatabaseSelectionDialog(QDialog):
         actions.addWidget(cancel_button)
         layout.addLayout(actions)
 
+    def _update_group_check_state(self, group_item: QTreeWidgetItem) -> None:
+        states = [
+            group_item.child(index).checkState(0)
+            for index in range(group_item.childCount())
+        ]
+        if states and all(state == Qt.CheckState.Checked for state in states):
+            state = Qt.CheckState.Checked
+        elif states and all(state == Qt.CheckState.Unchecked for state in states):
+            state = Qt.CheckState.Unchecked
+        else:
+            state = Qt.CheckState.PartiallyChecked
+        group_item.setCheckState(0, state)
+
+    def _on_case_item_changed(self, item: QTreeWidgetItem, column: int) -> None:
+        if column != 0:
+            return
+        self.case_tree.blockSignals(True)
+        if item.parent() is None:
+            state = item.checkState(0)
+            if state == Qt.CheckState.PartiallyChecked:
+                state = Qt.CheckState.Unchecked
+            for index in range(item.childCount()):
+                item.child(index).setCheckState(0, state)
+        else:
+            self._update_group_check_state(item.parent())
+        self.case_tree.blockSignals(False)
+
     def _set_all(self, checked: bool) -> None:
         state = Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked
-        for row in range(self.case_table.rowCount()):
-            self.case_table.item(row, 0).setCheckState(state)
+        self.case_tree.blockSignals(True)
+        for group_index in range(self.case_tree.topLevelItemCount()):
+            group_item = self.case_tree.topLevelItem(group_index)
+            for case_index in range(group_item.childCount()):
+                group_item.child(case_index).setCheckState(0, state)
+            group_item.setCheckState(0, state)
+        self.case_tree.blockSignals(False)
 
     def selected_cases(self) -> list[CaseDefinition]:
-        selected_ids = {
-            case.case_id
-            for row, case in enumerate(self._cases)
-            if self.case_table.item(row, 0).checkState() == Qt.CheckState.Checked
-        }
+        selected_ids = set()
+        for group_index in range(self.case_tree.topLevelItemCount()):
+            group_item = self.case_tree.topLevelItem(group_index)
+            for case_index in range(group_item.childCount()):
+                case_item = group_item.child(case_index)
+                if case_item.checkState(0) == Qt.CheckState.Checked:
+                    selected_ids.add(
+                        case_item.data(0, Qt.ItemDataRole.UserRole)
+                    )
         return [case for case in self._cases if case.case_id in selected_ids]

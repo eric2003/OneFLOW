@@ -27,6 +27,7 @@ class CaseDefinition:
     runtime_config: Path
     profile: Path | None
     layout: Path | None
+    group: str = "General"
 
 
 @dataclass(frozen=True, slots=True)

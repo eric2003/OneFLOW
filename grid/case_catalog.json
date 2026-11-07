@@ -56,7 +56,8 @@
       "directory": "grid/gmsh_to_cgns",
       "runtimeConfig": "script/control.txt",
       "profile": null,
-      "layout": null
+      "layout": null,
+      "group": "Gmsh"
     },
     {
       "id": "gmsh_to_oneflow",
@@ -64,7 +65,8 @@
       "directory": "grid/gmsh_to_oneflow",
       "runtimeConfig": "script/control.txt",
       "profile": null,
-      "layout": null
+      "layout": null,
+      "group": "Gmsh"
     },
     {
       "id": "two_quads",
@@ -72,7 +74,8 @@
       "directory": "grid/conversion/cases/two_quads",
       "runtimeConfig": "script/control.txt",
       "profile": null,
-      "layout": null
+      "layout": null,
+      "group": "Gmsh"
     },
     {
       "id": "laminar_flat_plate",
