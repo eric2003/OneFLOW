@@ -209,6 +209,7 @@ _PYTHON_UNIT_TESTS = (
     ("Explicit layout topology tests", ("-m", "unittest", "tests.tools.test_layout_topology")),
     ("Desktop service tests", ("-m", "unittest", "tools.oneflow_gui.test_services")),
     ("Project repository tests", ("-m", "unittest", "tools.oneflow_gui.test_project_repository")),
+    ("Case script discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_script_file_discovery")),
     ("Project window tests", ("-m", "unittest", "tools.oneflow_gui.test_project_window")),
     ("Parameter document tests", ("-m", "unittest", "tools.oneflow_gui.test_parameter_document")),
     ("Logical parameter model tests", ("-m", "unittest", "tools.oneflow_gui.test_parameter_model")),
