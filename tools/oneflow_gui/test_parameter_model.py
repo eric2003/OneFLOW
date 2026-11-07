@@ -174,11 +174,22 @@ class ParameterModelTest(unittest.TestCase):
                 self.assertEqual(discovery.mode, "manifest")
                 unexpected_diagnostics = [
                     item for item in discovery.diagnostics
-                    if "Auxiliary script file" not in item
+                    if not any(
+                        expected in item
+                        for expected in (
+                            "Auxiliary script file",
+                            "Parameter-file order in script/control.txt differs from the actual",
+                        )
+                    )
                 ]
                 self.assertEqual(
                     unexpected_diagnostics, [],
                     f"Unexpected control.txt mismatch for {case_path}",
+                )
+                self.assertEqual(
+                    [path.name for path in discovery.files],
+                    sorted(path.name for path in discovery.files),
+                    f"Parameter files must be read in filename order for {case_path}",
                 )
                 documents = [
                     ParameterDocument.load(path) for path in discovery.files
