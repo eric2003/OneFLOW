@@ -134,7 +134,7 @@ class RunQueueWorker(QThread):
 
             self.case_state.emit(case.case_id, RunState.RUNNING.value)
             self.log_line.emit(
-                f"\\n=== Case {index + 1}/{len(self._cases)}: {case.title} ==="
+                f"\n=== Case {index + 1}/{len(self._cases)}: {case.title} ==="
             )
             try:
                 result = run_case(
