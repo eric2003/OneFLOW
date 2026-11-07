@@ -82,9 +82,12 @@ The helper uses CONFIGURE_DEPENDS so additions and removals are noticed by
 CMake's generated build-system checks. A configure-time test also explicitly
 reconfigures a fixture project after adding and removing files.
 
-The existing ConstructSolutionDirTree function remains in place during
-this stage. The parity test is the evidence gate for a later migration to the
-new helper; the migration must not proceed if the discovered file sets differ.
+The production runtime source list in codes/CMakeLists.txt now uses
+oneflow_discover_module_sources. The legacy ConstructSolutionDirTree function
+is retained as an independent compatibility oracle for the parity test, not
+as the production discovery path. Visual Studio source-group hierarchy is
+applied separately after discovery, keeping IDE presentation out of the
+source enumeration contract.
 
 Testing the build system
 ------------------------
@@ -121,10 +124,13 @@ Evolution plan
 
 The infrastructure should evolve in controlled steps:
 
-#. Establish and test source-discovery semantics while retaining legacy
-   callers.
-#. Adapt one production module at a time, comparing old and new source,
-   header, and include-directory sets before changing target construction.
+#. Establish and test source-discovery semantics while retaining the
+   legacy implementation as a compatibility oracle.
+#. Migrate the production runtime source enumeration to the tested helper,
+   preserving IDE source groups and comparing source, header, and
+   include-directory sets.
+#. Adapt additional modules one at a time, comparing old and new discovery
+   results before changing target construction.
 #. Introduce target-level module boundaries only where dependency direction
    and ownership are understood.
 #. Move STL, Gmsh, CGNS, and conversion components into clearer submodules
