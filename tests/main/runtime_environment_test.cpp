@@ -6,24 +6,6 @@
 #include <sstream>
 #include <string>
 
-namespace
-{
-
-int RunCommand(
-    const std::string & command,
-    std::ostream & output,
-    std::ostream & error)
-{
-    char executable[] = "OneFLOW";
-    char commandBuffer[64] = {};
-    std::copy(command.begin(), command.end(), commandBuffer);
-    char * arguments[] = { executable, commandBuffer };
-    return ONEFLOW::HandleRuntimeEnvironmentCommand(
-        2, arguments, output, error);
-}
-
-} // namespace
-
 TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
 {
     char executable[] = "OneFLOW";
