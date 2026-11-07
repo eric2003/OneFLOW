@@ -436,12 +436,23 @@ TEST( ControlReaderIntegration, ContextSetupPublishesReadinessAfterBootstrap )
         2 );
 }
 
-TEST( ControlReaderIntegration, FailedContextSetupDoesNotPublishReadiness )
+TEST( ControlReaderIntegration, MalformedParameterFileDoesNotPublishReadiness )
 {
     TemporaryControlCase testCase;
     ScopedCaseRuntimeReset runtimeReset;
 
-    testCase.WriteManifest( "\"missing_bootstrap.txt\";\n" );
+    // A missing manifest entry is diagnostic only. The real malformed file
+    // must be what causes setup to fail.
+    testCase.WriteManifest(
+        "\"missing_bootstrap.txt\";\n"
+        "\"a_bootstrap.txt\";\n"
+        "\"z_invalid.txt\";\n" );
+    testCase.WriteScript(
+        "a_bootstrap.txt",
+        "string partial_context_bootstrap_value = \"must_be_rolled_back\";\n" );
+    testCase.WriteScript(
+        "z_invalid.txt",
+        "int invalid_array[missing_array_size] = 1;\n" );
 
     ClearRuntimeParameters();
     EnsureParallelEnvironment();
@@ -452,6 +463,11 @@ TEST( ControlReaderIntegration, FailedContextSetupDoesNotPublishReadiness )
     EXPECT_THROW( context.SetupCaseEnvironment(), std::runtime_error );
 
     EXPECT_FALSE( context.IsEnvironmentReady() );
+    EXPECT_TRUE( Prj::prjBaseDir.empty() );
+    EXPECT_THROW(
+        GetDataValue<std::string>(
+            "partial_context_bootstrap_value", &RequireGlobalDataBase() ),
+        std::runtime_error );
 }
 
 TEST( ControlReaderIntegration, ReadsCaseScriptsAndWritesDatabaseDump )
