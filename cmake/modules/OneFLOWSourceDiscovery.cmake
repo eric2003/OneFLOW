@@ -8,7 +8,8 @@ include_guard(GLOBAL)
 #
 # Both legacy layouts (implementation files directly below a module or
 # arbitrary legacy subdirectories) and the include/src convention are
-# accepted. Test, build and VCS directories are never production inputs.
+# accepted. Generated build, CMakeFiles, and VCS directories are excluded;
+# test-named directories are preserved when they belong to the module root.
 function(oneflow_discover_module_sources module_root source_var header_var include_var)
     if(NOT IS_DIRECTORY "${module_root}")
         message(FATAL_ERROR
