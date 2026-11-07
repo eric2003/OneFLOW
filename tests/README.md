@@ -2,7 +2,7 @@
 
 ## 目录职责与来源
 
-`tests/` 是 CMake/CTest 驱动的 GoogleTest 单元测试与 backend contract test 入口；它不替代既有的 `test/` 目录。`test/` 保留 OneFLOW 的 residual、算例和集成回归体系，`tests/` 面向小规模、确定性的 C++ 接口测试。
+`tests/` 是 CMake/CTest 驱动的 GoogleTest 单元测试与 backend contract test 入口；它不替代既有的 `test/` 目录。`test/` 保留 OneFLOW 的 residual、算例和集成回归体系，`tests/` 面向小规模、确定性的 C++ 接口测试。JSONCpp 的解析、错误报告和序列化回环测试位于 `tests/io/`，使用内存流，不依赖当前工作目录中的临时 JSON 文件。
 
 该目录随 GoogleTest 集成由提交 `8525ad1e`（2026-09-02）首次创建；提交 `60681aaa`（2026-09-02）加入 Euler backend contract test。当前包含原始 `hello_test` smoke test 和 CPU Euler backend contract test；Kunshan HIP contract test 由对应 port 的 CMake 选项按需构建。
 

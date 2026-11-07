@@ -117,3 +117,29 @@ target_compile_features(control_configuration_test PRIVATE cxx_std_20)
 gtest_discover_tests(control_configuration_test
   DISCOVERY_MODE PRE_TEST
 )
+
+# ---------------------------------------------------------------------------
+# JsonCpp parser and serializer contract (in-memory; no source-tree fixtures)
+# ---------------------------------------------------------------------------
+add_executable(jsoncpp_roundtrip_test
+  jsoncpp_roundtrip_test.cpp
+)
+
+target_include_directories(jsoncpp_roundtrip_test
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/ThirdParty/jsoncpp
+)
+
+target_link_libraries(jsoncpp_roundtrip_test
+  PRIVATE
+    GTest::gtest_main
+    jsoncpp
+)
+
+if ( WIN32 )
+  target_compile_definitions(jsoncpp_roundtrip_test PRIVATE JSON_DLL)
+endif()
+
+target_compile_features(jsoncpp_roundtrip_test PRIVATE cxx_std_20)
+
+gtest_discover_tests(jsoncpp_roundtrip_test DISCOVERY_MODE PRE_TEST)
