@@ -45,7 +45,7 @@ class Stl2DGmshTest(unittest.TestCase):
             for name in ("Inlet", "Outlet", "Symmetry", "Farfield", "Fluid"):
                 self.assertIn(f'"{name}"', names)
             elements = content.split("$Elements", 1)[1].split("$EndElements", 1)[0].splitlines()
-            records = [line.split() for line in elements[1:] if line.strip()]
+            records = [line.split() for line in elements if line.strip()][1:]
             self.assertEqual(sum(row[1] == "3" for row in records), 1)
             self.assertEqual(sum(row[1] == "1" for row in records), 4)
 
