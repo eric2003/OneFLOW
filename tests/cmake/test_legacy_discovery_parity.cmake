@@ -4,7 +4,7 @@ if(NOT DEFINED ONEFLOW_SOURCE_ROOT)
     message(FATAL_ERROR "ONEFLOW_SOURCE_ROOT is required")
 endif()
 
-set(_work "${CMAKE_CURRENT_BINARY_DIR}/legacy-discovery-parity")
+set(_work "${CMAKE_CURRENT_BINARY_DIR}/legacy discovery parity")
 set(_source "${_work}/source")
 set(_binary "${_work}/binary")
 file(REMOVE_RECURSE "${_work}")
