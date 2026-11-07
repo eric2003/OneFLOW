@@ -107,6 +107,39 @@ For Release, use --config Release for both build and test commands. Visual Studi
 
 The executable is typically under build/bin/Debug/ or build/bin/Release/, depending on the selected configuration.
 
+### Windows: Visual Studio 2026
+
+Install Visual Studio 2026 with the **Desktop development with C++** workload, the MSVC C++ Build Tools (v145), a Windows SDK, CMake tools, and Git. Install compatible x64 MPI, METIS, and CGNS development libraries as described in the Visual Studio 2022 section above.
+
+The Visual Studio 2026 CMake generator is **Visual Studio 18 2026** and requires **CMake 4.2 or newer**. The Visual Studio 2026 generator selects the v145 toolset by default. Check your CMake version before configuring:
+
+~~~powershell
+cmake --version
+~~~
+
+Use a separate build directory for Visual Studio 2026. Do not reuse the VS 2022 `build` directory because CMake build trees are tied to their original generator and toolchain.
+
+From PowerShell at the repository root:
+
+~~~powershell
+cmake -S . -B build-vs2026 `
+  -G "Visual Studio 18 2026" -A x64 `
+  -D CMAKE_INSTALL_PREFIX="C:/dev/OneFLOW" `
+  -D METIS_ROOT="C:/dev/METIS/METIS-VS2022-STATIC" `
+  -D CGNS_ROOT="C:/dev/cgns/4.4.0"
+
+cmake --build build-vs2026 --config Debug --parallel
+ctest --test-dir build-vs2026 -C Debug --output-on-failure
+~~~
+
+For a Release build, replace `Debug` with `Release` in both the build and CTest commands. Open `build-vs2026/OneFLOW.sln` in Visual Studio 2026 if you prefer to build or debug from the IDE.
+
+The example dependency paths are the same as the VS 2022 example and must be adjusted to your local installation. Confirm that the MPI, METIS, and CGNS libraries are x64 and compatible with the selected MSVC toolset. If a prebuilt third-party library causes linker or runtime incompatibilities, rebuild that dependency with the VS 2026 v145 toolset and point CMake to the rebuilt installation.
+
+The executable is typically under `build-vs2026/bin/Debug/` or `build-vs2026/bin/Release/`, depending on the selected configuration.
+
+For generator and toolset details, see the [CMake Visual Studio 18 2026 generator documentation](https://cmake.org/cmake/help/latest/generator/Visual%20Studio%2018%202026.html) and [Microsoft's MSVC compiler version information](https://learn.microsoft.com/en-us/cpp/overview/compiler-versions?view=msvc-170).
+
 ### Windows: Ninja / single-configuration build
 
 If Ninja and the MSVC developer environment are available, a single-configuration build can be convenient:
