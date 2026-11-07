@@ -21,9 +21,18 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Simulation.h"
+#include "RuntimeEnvironment.h"
+#include <iostream>
 
 int main( int argc, char ** argv )
 {
+    const int informationStatus = ONEFLOW::HandleRuntimeEnvironmentCommand(
+        argc, argv, std::cout, std::cerr );
+    if ( informationStatus >= 0 )
+    {
+        return informationStatus;
+    }
+
     ONEFLOW::Simulation simulation( argc, argv );
     return simulation.Run();
 }
