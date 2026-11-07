@@ -76,8 +76,8 @@ CMake's generated build-system checks. A configure-time test also explicitly
 reconfigures a fixture project after adding and removing files.
 
 The existing ConstructSolutionDirTree function remains in place during
-this stage. Migration to the new helper is a separately reviewable step after
-the fixture tests and compatibility behavior are established.
+this stage. The parity test is the evidence gate for a later migration to the
+new helper; the migration must not proceed if the discovered file sets differ.
 
 Testing the build system
 ------------------------
@@ -99,9 +99,15 @@ Run it with:
 
    ctest --test-dir build -R CMakeSourceDiscovery --output-on-failure
 
-The fixture is intentionally independent of GoogleTest and third-party CFD
-libraries. This makes failures attributable to the CMake contract rather than
-to compiler, CGNS, METIS, or solver configuration.
+The CMakeLegacyDiscoveryParity CTest additionally invokes both the existing
+ConstructSolutionDirTree implementation and the new discovery helper against
+the real codes/ tree. It compares sorted source, header, and include-directory
+sets. This is a compatibility gate: production callers must not migrate until
+this comparison passes.
+
+Both tests are independent of GoogleTest and third-party CFD libraries. This
+makes failures attributable to the CMake contract rather than to compiler,
+CGNS, METIS, or solver configuration.
 
 Evolution plan
 --------------
