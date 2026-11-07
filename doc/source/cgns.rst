@@ -212,3 +212,16 @@ This is required for a 2D CGNS section containing ``TRI_3`` or ``QUAD_4``:
 without the synchronization, a process still configured as 3D treats these
 elements as non-volume elements, producing an empty cell topology even though
 the CGNS sections and connectivity were read successfully.
+
+
+CGNS Base dimensions when writing OneFLOW grids
+------------------------------------------------
+
+When OneFLOW creates a CGNS Base for an in-memory grid conversion, the Base
+``CellDimension`` must come from the active topological grid dimension
+(``Dim::GetDimension()``). OneFLOW stores three coordinate components
+(``X``, ``Y`` and ``Z``), so ``PhysicalDimension`` remains three. Hard-coding
+both values to three makes a 2D Plot3D-to-CGNS conversion appear to be 3D to
+the subsequent CGNS reader. The reader then classifies 2D surface elements
+under the wrong topology and can produce an empty cell mesh. The
+``CgnsBaseDimensionTest`` regression test protects this distinction.

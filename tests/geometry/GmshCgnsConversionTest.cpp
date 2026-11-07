@@ -3,6 +3,7 @@
 #include "GridTypes.h"
 #include "HXCgns.h"
 #include "CgnsFactory.h"
+#include "CgnsBase.h"
 #include "GridElem.h"
 #include "UnsGrid.h"
 #include "FaceTopo.h"
@@ -40,6 +41,18 @@ public:
 private:
     int previousDimension;
 };
+}
+
+TEST(CgnsBaseDimensionTest, UsesActiveTopologyDimensionAndThreeCoordinateComponents)
+{
+    ScopedDimensionRestore restoreDimension;
+    ONEFLOW::Dim::SetDimension(ONEFLOW::TWO_D);
+
+    ONEFLOW::CgnsBase base;
+    base.SetDefaultCgnsBaseBasicInfo();
+
+    EXPECT_EQ(base.celldim, ONEFLOW::TWO_D);
+    EXPECT_EQ(base.phydim, ONEFLOW::THREE_D);
 }
 
 TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
