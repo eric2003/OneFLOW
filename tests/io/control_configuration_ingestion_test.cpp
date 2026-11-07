@@ -248,12 +248,14 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
         "override.txt",
         "int ingestion_dimension = 3;\n"
         "string ingestion_marker = \"second-file-loaded\";\n" );
+    testCase.WriteScript(
+        "unlisted.txt", "int ingestion_unlisted = 43;\n" );
 
     ClearRuntimeParameters();
 
     std::vector< std::string > scriptFiles;
     ReadScriptFileNameList( testCase.CaseDirectory(), scriptFiles );
-    ASSERT_EQ( scriptFiles.size(), 2u );
+    ASSERT_EQ( scriptFiles.size(), 3u );
 
     // Exercise the production case-level reader composition:
     // manifest discovery followed by ordered multi-file parsing and commit.
@@ -272,6 +274,7 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
     EXPECT_EQ(
         GetDataValue<std::string>( "ingestion_marker", &database ),
         "second-file-loaded" );
+    EXPECT_EQ( GetDataValue<int>( "ingestion_unlisted", &database ), 43 );
 }
 
 

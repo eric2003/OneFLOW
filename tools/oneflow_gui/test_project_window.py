@@ -89,6 +89,9 @@ class ProjectWindowParameterTest(unittest.TestCase):
             (script / "simu.txt").write_text('string simuTask = "Solve";\nint maxSteps = 10;\nint time_integral = 1;\nint rk_stage = 3;\n', encoding="ascii")
             (script / "cfd.txt").write_text("int maxSteps = 20;\n", encoding="ascii")
             (script / "override.txt").write_text("int MAXSTEPS = 30;\nReal gridTrans[3] = {0.0, 0.0, 0.0};\n", encoding="ascii")
+            (script / "extra.txt").write_text(
+                "int extraManifestParameter = 9;\n", encoding="ascii"
+            )
             catalog_home = root.parent / "oneflow-user-data"
             with patch.dict(os.environ, {"ONEFLOW_HOME": str(catalog_home)}):
                 window = ProjectWindow(open_project(root), root.parent)
@@ -114,6 +117,10 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 )
                 self.assertEqual(consumer.text(1), "Iteration::Init")
                 self.assertIn("Iteration.cpp", consumer.text(3))
+                extra = self._find_item(tree, "extraManifestParameter")
+                self.assertIsNotNone(extra)
+                self.assertEqual(extra.text(1), "9")
+                self.assertIn("script/extra.txt", extra.text(3))
                 for parameter_name in ("time_integral", "rk_stage"):
                     parameter_item = self._find_item(tree, parameter_name)
                     self.assertIsNotNone(parameter_item)
