@@ -59,6 +59,14 @@
       "layout": null
     },
     {
+      "id": "gmsh_to_oneflow",
+      "title": "Gmsh 2D to OneFLOW",
+      "directory": "grid/gmsh_to_oneflow",
+      "runtimeConfig": "script/control.txt",
+      "profile": null,
+      "layout": null
+    },
+    {
       "id": "laminar_flat_plate",
       "title": "Laminar Flat Plate",
       "directory": "grid/laminar_flat_plate",
