@@ -53,9 +53,21 @@
     },
     {
       "kind": "python_test",
-      "reference": "tools/mesh_contracts/test_unstructured_cgns_writer_architecture.py",
+      "reference": "UnstructuredCgnsWriterArchitectureTest.test_gmsh_builds_common_mesh_data_and_calls_common_writer",
       "status": "declared_not_executed",
-      "scope": "tools/mesh_contracts/test_unstructured_cgns_writer_architecture.py; Checks that Gmsh uses the shared model/writer and the SU2 adapter delegates to the same writer."
+      "scope": "tools/mesh_contracts/test_unstructured_cgns_writer_architecture.py; Gmsh adapter uses the shared mesh model and CGNS writer."
+    },
+    {
+      "kind": "python_test",
+      "reference": "UnstructuredCgnsWriterArchitectureTest.test_su2_reader_delegates_zone_population_to_common_writer",
+      "status": "declared_not_executed",
+      "scope": "tools/mesh_contracts/test_unstructured_cgns_writer_architecture.py; SU2 delegates CGNS zone population to the shared writer."
+    },
+    {
+      "kind": "python_test",
+      "reference": "UnstructuredCgnsWriterArchitectureTest.test_common_writer_has_no_source_format_dependency",
+      "status": "declared_not_executed",
+      "scope": "tools/mesh_contracts/test_unstructured_cgns_writer_architecture.py; Common CGNS writer remains independent of source-format adapters."
     }
   ],
   "group": {
