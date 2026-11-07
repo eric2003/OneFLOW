@@ -21,6 +21,23 @@ def process_group_options(*, platform_name: str | None = None) -> dict[str, obje
     return {"start_new_session": True}
 
 
+def _process_job(process: subprocess.Popen[object]) -> tuple[Any, Any] | None:
+    """Read only a job explicitly attached by this module.
+
+    Popen and test doubles may synthesize arbitrary attributes from getattr;
+    inspecting the instance dictionary avoids treating a Mock child as a
+    real (kernel32, HANDLE) pair.
+    """
+    job = vars(process).get("_oneflow_job")
+    if (
+        isinstance(job, tuple)
+        and len(job) == 2
+        and hasattr(job[0], "CloseHandle")
+    ):
+        return job
+    return None
+
+
 def attach_process_job(
     process: subprocess.Popen[object],
     *,
@@ -112,7 +129,7 @@ def attach_process_job(
 
 def close_process_job(process: subprocess.Popen[object]) -> bool:
     """Close an attached Job Object, terminating any remaining descendants."""
-    job = getattr(process, "_oneflow_job", None)
+    job = _process_job(process)
     if job is None:
         return False
     kernel32, job_handle = job
@@ -135,7 +152,7 @@ def terminate_process_tree(
 
     platform_value = (platform_name or os.name).lower()
     if platform_value in {"nt", "windows"}:
-        job = getattr(process, "_oneflow_job", None)
+        job = _process_job(process)
         if job is not None:
             kernel32, job_handle = job
             if kernel32.TerminateJobObject(job_handle, 1):
