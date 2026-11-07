@@ -1,0 +1,445 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneFLOW Workbench Architecture &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Contract Workbench Information Architecture" href="contract_workbench_information_architecture.html" />
+    <link rel="prev" title="Face Stage Pipeline" href="face_stage_pipeline.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OneFLOW Workbench Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose-and-status">Purpose and status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core-domain-concepts">Core domain concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#execution-modes">Execution modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#architectural-boundaries">Architectural boundaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#persistence-and-reproducibility">Persistence and reproducibility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#background-execution-and-shutdown">Background execution and shutdown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#validation-and-assisted-development">Validation and assisted development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#python-and-c-qt">Python and C++/Qt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contract-workbench-information-architecture">Contract Workbench information architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#current-implementation-and-known-gaps">Current implementation and known gaps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameter-editing">Parameter editing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contract-workbench-navigation-and-domain-payloads">Contract Workbench navigation and domain payloads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workflow-contract-view">Workflow contract view</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workflow-execution-evidence">Workflow execution evidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameter-contracts-in-the-contract-workbench">Parameter contracts in the Contract Workbench</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#runtime-parameter-consumer-evidence">Runtime parameter-consumer evidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameter-contract-grouping-and-discovery">Parameter contract grouping and discovery</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OneFLOW Workbench Architecture</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/workbench_architecture.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oneflow-workbench-architecture">
+<h1>OneFLOW Workbench Architecture<a class="headerlink" href="#oneflow-workbench-architecture" title="Link to this heading"></a></h1>
+<section id="purpose-and-status">
+<h2>Purpose and status<a class="headerlink" href="#purpose-and-status" title="Link to this heading"></a></h2>
+<p>The Workbench is the engineering environment around OneFLOW case preparation and execution. Its purpose is broader than launching a solver process: it should make projects, run locations, workflows, execution history, mesh checks, and generated artifacts easier to inspect and reproduce.</p>
+<p>This page is the curated architecture overview. It consolidates the bilingual engineering memos without treating every proposed capability as implemented. The code and tests for the selected <cite>hexin</cite> revision are the authority for current behavior.</p>
+</section>
+<section id="core-domain-concepts">
+<h2>Core domain concepts<a class="headerlink" href="#core-domain-concepts" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>Project</dt><dd><p>A named engineering context that organizes case inputs, configuration, mesh assets, outputs, and project metadata. A project may be opened from an existing directory or created from a template; templates should not be mandatory.</p>
+</dd>
+<dt>Case</dt><dd><p>An existing case directory and its configuration that can be selected for execution. A case catalog helps discover and describe cases; it does not determine where a run executes.</p>
+</dd>
+<dt>Workspace and run directory</dt><dd><p>A writable location for a particular execution, including its input copy, logs, and generated artifacts. The UI must state whether a run will use the source case directory, the default per-user runtime area, or a user-selected location. Source inputs should not be overwritten by default.</p>
+</dd>
+<dt>Workflow definition</dt><dd><p>A saved, named execution plan. The definition is configuration and can be edited or copied independently of any execution record.</p>
+</dd>
+<dt>Workflow run</dt><dd><p>One execution instance with its own ID, timestamps, executable, arguments, status, return code, logs, step outcomes, and artifact references. Editing or deleting a workflow definition must not silently erase its run history.</p>
+</dd>
+<dt>Artifact</dt><dd><p>A generated or referenced file, such as a mesh, mesh summary, flow result, log, comparison, or report. Artifacts should be traceable to the run that produced them.</p>
+</dd>
+</dl>
+</section>
+<section id="execution-modes">
+<h2>Execution modes<a class="headerlink" href="#execution-modes" title="Link to this heading"></a></h2>
+<p>The UI and persisted model should distinguish these modes rather than hiding them behind a single ambiguous multi-case action:</p>
+<ul class="simple">
+<li><p><strong>Single-case run:</strong> execute one selected case at a clearly displayed run location.</p></li>
+<li><p><strong>Multi-case run:</strong> execute a user-ordered set of cases without declared data dependencies. The UI must make clear whether the mode means separate process launches or one OneFLOW process receiving multiple case-directory arguments.</p></li>
+<li><p><strong>Dependency workflow:</strong> execute a task graph in which inputs and outputs connect steps. A dependent step must not run when a required predecessor fails or its required artifact is missing.</p></li>
+<li><p><strong>Validation and test modes:</strong> run project checks, unit tests, case-database checks, grid/CFD regressions, or build/test commands according to their actual contracts. These are related developer operations, but should not be conflated with ordinary case execution.</p></li>
+</ul>
+<p>A case database is an inventory and selection mechanism, not permission to execute in the source tree. Modes that can modify files should prepare an isolated runtime copy where their contract requires it.</p>
+</section>
+<section id="architectural-boundaries">
+<h2>Architectural boundaries<a class="headerlink" href="#architectural-boundaries" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Domain models</strong> represent projects, cases, workflow definitions, runs, steps, artifacts, and diagnostics without depending on Qt.</p></li>
+<li><p><strong>Repositories</strong> load, validate, and persist versioned definitions and run records. Definitions and history are separate data.</p></li>
+<li><p><strong>Execution services</strong> resolve paths, prepare runtime copies, construct argument lists, launch processes, collect logs, handle cancellation, and persist outcomes. Avoid shell-string interpolation for process arguments.</p></li>
+<li><p><strong>Validation services</strong> check project configuration, input files, mesh topology/geometry, and workflow prerequisites independently from presentation.</p></li>
+<li><p><strong>Presentation</strong> displays and edits state. Window classes should not become the sole owner of persistence, process control, or validation logic.</p></li>
+<li><p><strong>Adapters</strong> connect solver invocation, file formats, visualization tools, and report formats to stable internal contracts.</p></li>
+</ul>
+<p>Prefer small services that can be tested without Qt. Do not add abstractions without a concrete use case; preserve a working implementation and evolve one boundary at a time.</p>
+</section>
+<section id="persistence-and-reproducibility">
+<h2>Persistence and reproducibility<a class="headerlink" href="#persistence-and-reproducibility" title="Link to this heading"></a></h2>
+<p>Workflow definitions should use a versioned format with validation for required fields and supported versions. Unsupported versions should fail with a useful error instead of being interpreted silently.</p>
+<p>Each run should retain, where available:</p>
+<ul class="simple">
+<li><p>a unique run identifier and start/end times;</p></li>
+<li><p>the selected executable, arguments, configuration, and resolved paths;</p></li>
+<li><p>the run directory and references to the input snapshot;</p></li>
+<li><p>process and step status, return code, and log locations;</p></li>
+<li><p>outputs and artifacts produced by the run;</p></li>
+<li><p>the OneFLOW revision or version used, when it can be determined.</p></li>
+</ul>
+<p>The UI should show what changed in the run directory and distinguish original files from generated or modified files when that comparison is supported. Closing a details window is a presentation action, not an implicit stop request.</p>
+</section>
+<section id="background-execution-and-shutdown">
+<h2>Background execution and shutdown<a class="headerlink" href="#background-execution-and-shutdown" title="Link to this heading"></a></h2>
+<p>Long-running tasks need an explicit lifecycle. The product design should distinguish stopping a process, closing its details view, closing the Workbench, and allowing a task to continue in the background.</p>
+<p>If background execution is supported, a durable task record should make the task discoverable after the main window closes and after the application restarts. On restart, the Workbench should identify registered active tasks and let the user inspect or manage them before starting a conflicting new session. This behavior must be documented as implemented only when process ownership, task registration, recovery, and tests demonstrate it.</p>
+</section>
+<section id="validation-and-assisted-development">
+<h2>Validation and assisted development<a class="headerlink" href="#validation-and-assisted-development" title="Link to this heading"></a></h2>
+<p>Mesh checks, build/test operations, and structured diagnostics should be independent services with observable results. If assisted source changes are introduced, use a reviewable sequence: collect diagnostics, explain the proposed change, show a diff, obtain approval, apply it in an isolated workspace, run relevant checks, and record the outcome. Do not assume every compiler failure is an include-path problem.</p>
+</section>
+<section id="python-and-c-qt">
+<h2>Python and C++/Qt<a class="headerlink" href="#python-and-c-qt" title="Link to this heading"></a></h2>
+<p>Use languages according to responsibility and evidence, not a predetermined rewrite plan. Python can support workflow persistence, orchestration, tests, diagnostics, and reports. Qt provides desktop interaction; C++ may be appropriate for measured visualization or native-integration needs. Both sides should share stable, versioned data contracts rather than maintaining competing project state.</p>
+</section>
+<section id="contract-workbench-information-architecture">
+<h2>Contract Workbench information architecture<a class="headerlink" href="#contract-workbench-information-architecture" title="Link to this heading"></a></h2>
+<p>The Contract Workbench uses shared navigation without imposing a formula-centric
+data model on other domains. Every typed domain uses Overview, Principle,
+Reference, Architecture, Implementation, Code, Documentation and
+Verification / Evidence. Formula, Case Setup, Workflow Graph, Runtime
+Consumers, Mesh View and other focused pages are domain-specific visualizers
+and appear only when the domain has the corresponding typed data.</p>
+<p>The shared navigation is not evidence that every tab is complete. Missing
+content must remain explicitly undeclared, and linked tests must not be shown
+as passed unless execution evidence exists. The domain payloads retain their
+own semantics: formulas contain equations and symbols; Cases contain physical
+setup and comparison policy; Runtime contains state transitions and resource
+ownership; Workflow contains dependencies and artifact bindings; Mesh contains
+topology and boundary semantics; Algorithms contain discretization and
+numerical properties.</p>
+<p>See <a class="reference internal" href="contract_workbench_information_architecture.html"><span class="doc">Contract Workbench Information Architecture</span></a> for the section
+responsibilities, domain matrix, evidence semantics and migration rules.</p>
+</section>
+<section id="current-implementation-and-known-gaps">
+<h2>Current implementation and known gaps<a class="headerlink" href="#current-implementation-and-known-gaps" title="Link to this heading"></a></h2>
+<p>The implementation under <code class="docutils literal notranslate"><span class="pre">tools/oneflow_gui</span></code> is an optional Python/PySide6 client. <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">tools.oneflow_gui</span></code> starts the home window; the C++ solver remains a separate process. The current repository contains project opening and templates, project execution in a selected source or copied location, a test command dialog, a mesh layout editor, run history, background task records, saved workflow definitions, and a separate <code class="docutils literal notranslate"><span class="pre">.ofw</span></code> workspace editor.</p>
+<p>The Saved Workflows dialog supports multi-directory execution through one OneFLOW process and dependency-graph execution through <code class="docutils literal notranslate"><span class="pre">workflow_graph_runner.py</span></code>. Project runs with a <code class="docutils literal notranslate"><span class="pre">workflow.json</span></code> definition also use the graph runner. The <code class="docutils literal notranslate"><span class="pre">.ofw</span></code> editor now offers Save and Run: <code class="docutils literal notranslate"><span class="pre">workspace_workflow_adapter.py</span></code> converts single, sequential, and independent modes to the existing multi-directory workflow, and converts dependency cases to the graph runner format. The dependency conversion preserves ordering, failure blocking, and artifact input/output bindings. The version-2 <code class="docutils literal notranslate"><span class="pre">.ofw</span></code> schema migrates version-1 definitions that do not contain artifact fields. The editor exposes per-case JSON binding columns and validates artifact IDs, direct dependencies, case-relative paths, and producer parameter settings through the canonical workflow-plan builder. It opens an unsaved Saved Workflows draft; the existing workflow dialog persists its definition and run history when the user starts execution.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ApplicationSettings</span></code> persists a <code class="docutils literal notranslate"><span class="pre">run_mode</span></code> value and <code class="docutils literal notranslate"><span class="pre">ConfigurationDialog</span></code> lets the user select it. When the user opens Saved Workflows, the home window maps <code class="docutils literal notranslate"><span class="pre">multi_case</span></code> to a new multi-directory draft and <code class="docutils literal notranslate"><span class="pre">dependency_workflow</span></code> to a new case-graph draft; <code class="docutils literal notranslate"><span class="pre">single_case</span></code> leaves the saved-workflow list unchanged. The mapping is kept in a Qt-independent helper and covered by unit tests. The preference does not yet execute a run automatically.</p>
+<p>The Chinese user entry point is <code class="docutils literal notranslate"><span class="pre">workbench_user_guide_zh.rst</span></code>. <code class="docutils literal notranslate"><span class="pre">tools/oneflow_gui/README.md</span></code> remains the detailed module reference for button behavior, data paths, service modules, and test commands. Update the user guide when visible behavior changes, the README when detailed operations or module ownership change, and this architecture page when a service boundary, persistence contract, or lifecycle changes.
+Incremental implementation strategy
+———————————–</p>
+<ol class="arabic simple">
+<li><p>Keep domain data, workflow definitions, run history, and execution services independently testable.</p></li>
+<li><p>Make run location and source-versus-copy behavior explicit in every relevant entry point.</p></li>
+<li><p>Distinguish separate case launches, single-process multi-directory runs, and dependency-graph execution.</p></li>
+<li><p>Add focused tests for persistence, path resolution, process lifecycle, failure handling, and artifact tracking.</p></li>
+<li><p>Integrate mesh checks, case-database operations, build/test, and regression modes using their actual execution contracts.</p></li>
+<li><p>Add visualization, comparison, reports, background-task recovery, and assisted diagnostics only through staged implementations with explicit tests.</p></li>
+</ol>
+<p>This roadmap describes intended direction, not a blanket claim that all listed capabilities exist today.</p>
+</section>
+<section id="parameter-editing">
+<h2>Parameter editing<a class="headerlink" href="#parameter-editing" title="Link to this heading"></a></h2>
+<p>The Project Window now builds a read-only Shared / CFD / Grid / Other tree from
+<code class="docutils literal notranslate"><span class="pre">ParameterModel</span></code> in control-manifest order. Effective values retain source and
+declaration positions; shadowed declarations remain visible. A separate Qt-independent
+<code class="docutils literal notranslate"><span class="pre">ParameterConsumerCatalog</span></code> adds a small set of source-verified C++ read sites and
+labels all other keys as not yet audited rather than unused. This curated evidence is
+not whole-repository static analysis and does not prove numerical applicability.
+See <a class="reference internal" href="case_parameter_design.html"><span class="doc">Case Parameter Design and GUI Editing</span></a> for the parameter model, parser boundaries, and
+consumer-evidence policy. Current workflow artifact overrides remain a narrower adapter.</p>
+</section>
+<section id="contract-workbench-navigation-and-domain-payloads">
+<h2>Contract Workbench navigation and domain payloads<a class="headerlink" href="#contract-workbench-navigation-and-domain-payloads" title="Link to this heading"></a></h2>
+<p>The shared tabs (Overview, Principle, Architecture, Implementation / Code,
+Documentation / References, and Verification) describe the common engineering
+contract envelope. Domain-specific content remains typed: a Case exposes Case
+Setup, while Runtime lifecycle contracts expose ownership and transition details
+through Architecture and Verification. Do not add empty universal tabs merely for
+symmetry. Add a domain-specific view only when its typed payload and a real source of
+evidence exist. In particular, a Case is currently a reproducible evidence fixture
+that may exercise several contracts; it is not a replacement for the contract
+itself. Workflow Graph and Run Artifacts should be introduced when workflow
+contracts can link actual workflow definitions and persisted run records, not as
+placeholder tabs.</p>
+<p>A declaration or source link is not an execution result. A recorded run must retain
+its revision, command, configuration, platform, outcome, and artifact references;
+freshness and outcome are separate properties. A stale passing run remains a
+historical pass, not current verification.</p>
+</section>
+<section id="workflow-contract-view">
+<h2>Workflow contract view<a class="headerlink" href="#workflow-contract-view" title="Link to this heading"></a></h2>
+<p>The Contract Workbench includes a Workflow domain for declared dependency
+graphs. Its typed view shows case nodes, direct dependency edges, producer
+artifact paths, and consumer parameter bindings. The view is read-only and
+links to the checked-in workflow definition and existing plan/runner tests.</p>
+<p>Catalog validation checks that the typed graph agrees with the source
+definition and that artifact consumers name a direct producer dependency.
+Topological ordering, cycle detection, runtime staging, output checks, and
+failure propagation remain owned by the existing workflow planning and
+execution services. A declared graph or linked test is not an execution
+record; the Workbench must not infer a successful workflow run from static
+catalog validation.</p>
+</section>
+<section id="workflow-execution-evidence">
+<h2>Workflow execution evidence<a class="headerlink" href="#workflow-execution-evidence" title="Link to this heading"></a></h2>
+<p>The Workflow contract can be opened in the existing workflow runner through
+an explicit Workbench action. The action passes the contract ID into the
+runner; it does not launch a process. The developer still selects the
+executable and base directory and starts the run explicitly.</p>
+<p>After real process execution, the runner appends one ExecutionRecord per
+launched step. Records contain the actual command, source case, process
+working directory, timestamps, exit code, repository revision, branch,
+platform/runtime metadata, explicit contract attribution, and checksummed
+output/log artifacts. Dependency-blocked steps and pre-launch failures remain
+in workflow history but are not represented as launched processes.</p>
+<p>The Contract Workbench Verification view displays explicitly linked runs
+separately from unlinked history and labels revision freshness independently
+from the recorded outcome. A successful process exit does not override a
+failed declared-output check.</p>
+<p>Each step-level ExecutionRecord also carries the parent workflow’s
+<cite>invocation_id</cite>, allowing records to be grouped back into one graph run
+without changing the stable workflow-step <cite>test_id</cite>. This is an additive,
+optional schema-v1 field so existing records remain readable.</p>
+<p>The design borrows the SLSA provenance separation of build definition and
+run details, including invocation identity, timestamps, and output subjects
+(<a class="reference external" href="https://slsa.dev/spec/v1.2/provenance">https://slsa.dev/spec/v1.2/provenance</a>). OneFLOW’s local records are not signed
+attestations and do not claim trusted-builder or complete-dependency
+guarantees.</p>
+</section>
+<section id="parameter-contracts-in-the-contract-workbench">
+<h2>Parameter contracts in the Contract Workbench<a class="headerlink" href="#parameter-contracts-in-the-contract-workbench" title="Link to this heading"></a></h2>
+<p>The Parameter domain reuses the shared contract catalog and the existing
+source-backed parameter consumer index. At this revision the index contains
+32 audited runtime read-site records across 23 logical parameter keys. Each
+declaration links to implementation source paths and, where supported by
+evidence, related Formula &amp; Knowledge IDs.</p>
+<p>A Parameter contract describes the meaning and implementation of a parameter;
+a Project Parameter Instance describes the effective value in one concrete
+case, including its source file and override order. These are separate models.
+The Contract Workbench is read-only and does not replace the Project Window
+parameter editor or rewrite legacy parameter files.</p>
+<p>The Implementation / Code preview and the Open source files action use the same
+deduplicated path set: contract-declared implementation files plus audited runtime
+read sites and their declared downstream behavior sources. This keeps source
+navigation consistent with the Runtime Consumers evidence tab; it does not imply</p>
+<blockquote>
+<div><p>that every linked path is executed for every Case.</p>
+</div></blockquote>
+<p>Consumer coverage is deliberately conservative. A listed consumer is a
+source-backed read, not proof that the parameter applies to every solver task.
+An unlisted parameter is not considered unused. Declared source evidence is
+not an executed test result, and a formula cross-reference does not establish
+numerical order, stability, or physical validity. Future work can add typed
+constraints and Case-instance links without changing this ownership boundary.</p>
+</section>
+<section id="runtime-parameter-consumer-evidence">
+<h2>Runtime parameter-consumer evidence<a class="headerlink" href="#runtime-parameter-consumer-evidence" title="Link to this heading"></a></h2>
+<p>parameter_consumer_catalog.py is the first source-backed consumer index. It deliberately lives outside the Qt presentation layer and stores a curated set of verified C++ reads. A record includes the parameter key, source path, consumer symbol, read expression, read timing (required / optional / lazy), applicability, and behavior/evidence notes.</p>
+<p>Representative audited examples cover maxSteps and maxTime (outer-loop termination), time_integral and rk_stage (time-integration dispatch and stage weights), mach_ref (the derived compressible-flow reference constant), vismodel (model selection), ptTol (lazy geometric-tolerance initialization), and nmg (multigrid setup). Additional groups cover dual-time/CFL indexing, local/global time-step selection, turbulence inflow and SA production limiting, and output scheduling.</p>
+<p>This is intentionally not presented as whole-repository usage analysis. Absence from the catalog means not yet audited, not unused. A source-level read proves a consumer exists; it does not prove the parameter is active for every task, controls a particular numerical outcome in every configuration, or has a validated physical range. Those claims require applicability tracing and separate numerical verification. The catalog is tested independently of Qt so the evidence model can later feed the Project Window and Contract Workbench.</p>
+<p>The time-integration parameter trace is also exposed in Formula &amp; Knowledge as <cite>time_integral_rk_stage_weight</cite>. Its source-backed description deliberately separates the legacy stage coefficient schedule from the narrower resident Euler backend capability gate; it does not claim a complete Runge-Kutta tableau or temporal-order verification. See <cite>doc/source/numerical/time_integral_control.rst</cite>.</p>
+<p>The Project Window also displays declared Formula &amp; Knowledge IDs for parameters that have an explicit catalog cross-reference. The first mapping connects <cite>time_integral</cite> and <cite>rk_stage</cite> to <cite>time_integral_rk_stage_weight</cite>; this is a navigational reference, not evidence that the temporal method has a verified order or stability region.</p>
+</section>
+<section id="parameter-contract-grouping-and-discovery">
+<h2>Parameter contract grouping and discovery<a class="headerlink" href="#parameter-contract-grouping-and-discovery" title="Link to this heading"></a></h2>
+<p>Parameter contracts carry an explicit, validated group identity, display title,
+and sort order in their versioned declarations. The Parameter browser groups
+entries by this metadata and offers case-insensitive search across parameter
+identity, title, explanatory text, references, documentation, and implementation
+paths. Search filters the existing groups rather than flattening the results.</p>
+<p>Groups describe the engineering subject, not merely the source file that
+happens to read a parameter. The initial declarations distinguish Time Integration
+from Compressible Flow. Laminar and Turbulence groups should be populated only
+when source-backed parameter contracts for those models are added; a parameter
+must not be assigned to a physical model based on its name alone. Grouping is
+navigation metadata and does not imply complete parameter coverage.</p>
+<p>### Parameter mathematical knowledge and notation mapping</p>
+<p>A Parameter contract may declare a typed <cite>knowledge</cite> payload containing
+multiple formula definitions, assumptions, term-level meanings, notation
+aliases, OneFLOW identifier mappings, references, and explicit caveats. The
+catalog validates this payload independently of execution evidence.</p>
+<p>The Mach-number example deliberately separates four relations: local
+<cite>M = V/a</cite>, the ideal-gas sound-speed relation, free-stream/reference
+<cite>M_infinity = V_infinity/a_infinity</cite>, and the exact OneFLOW initialization
+expression for <cite>const_cp</cite>. The first three describe physical concepts under
+their stated assumptions; the last is a source-derived code relation. The
+Workbench’s Formula &amp; Symbols tab shows the term meanings and cross-notation
+mapping, exposes the LaTeX source for copying, and can render a PNG preview
+using the same renderer as Formula &amp; Knowledge.</p>
+<p>A symbol alias is a documented common notation, not a universal equivalence.
+In particular, local Mach number and reference/free-stream Mach number must
+not be conflated. A code identifier is an implementation name, not a canonical
+mathematical symbol. The OneFLOW source mapping is therefore explicit and
+scoped. Bibliographic references and URLs are stored with the contract, while
+assumptions and unresolved physical interpretations remain visible caveats.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="face_stage_pipeline.html" class="btn btn-neutral float-left" title="Face Stage Pipeline" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="contract_workbench_information_architecture.html" class="btn btn-neutral float-right" title="Contract Workbench Information Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

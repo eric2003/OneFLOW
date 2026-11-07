@@ -1,0 +1,460 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gmsh MSH Interface &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Grid Topology and Validation" href="grid_topology.html" />
+    <link rel="prev" title="OneFLOW Mesh Architecture" href="mesh_architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Gmsh MSH Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose-and-implementation-status">Purpose and implementation status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-policy">Version policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#msh-4-1-structure-and-parser-responsibilities">MSH 4.1 structure and parser responsibilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#current-validation-contract">Current validation contract</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#not-yet-preserved">Not yet preserved</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#target-architecture">Target architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conversion-validation-strategy">Conversion validation strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gmsh-api-integration-and-cross-platform-policy">Gmsh API integration and cross-platform policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references-for-the-api-and-sdk">References for the API and SDK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Gmsh MSH Interface</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/gmsh_interface.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gmsh-msh-interface">
+<h1>Gmsh MSH Interface<a class="headerlink" href="#gmsh-msh-interface" title="Link to this heading"></a></h1>
+<section id="purpose-and-implementation-status">
+<h2>Purpose and implementation status<a class="headerlink" href="#purpose-and-implementation-status" title="Link to this heading"></a></h2>
+<p>OneFLOW reads the Gmsh native mesh file format (MSH) through a file-format
+adapter. The adapter is intentionally independent of the Gmsh SDK and API:
+the solver does not need to link against Gmsh, and users can generate meshes
+with a separately installed Gmsh application.</p>
+<p>The current implementation is an input-validation prototype connected to the
+normal Case parameter path. It does not yet construct a canonical OneFLOW
+mesh from the parsed coordinates and connectivity, and its current
+.cgns-named output is a marked text placeholder, not a CGNS file.</p>
+</section>
+<section id="version-policy">
+<h2>Version policy<a class="headerlink" href="#version-policy" title="Link to this heading"></a></h2>
+<p>MSH 4.1 ASCII is the primary target. MSH 4.1 is the current 4.x file-format
+revision documented by Gmsh. The legacy MSH 2.x ASCII reader is retained as a
+compatibility path. The supported matrix is deliberately narrower than the
+complete Gmsh format:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 20.0%" />
+<col style="width: 62.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Input</p></th>
+<th class="head"><p>Status</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>MSH 4.1 ASCII</p></td>
+<td><p>Prototype supported</p></td>
+<td><p>Entity-block node and element sections; sparse node tags; parametric
+node coordinates; common element types 1-31.</p></td>
+</tr>
+<tr class="row-odd"><td><p>MSH 2.x ASCII</p></td>
+<td><p>Prototype supported</p></td>
+<td><p>Legacy line-oriented node and element records.</p></td>
+</tr>
+<tr class="row-even"><td><p>MSH 4.0</p></td>
+<td><p>Not supported</p></td>
+<td><p>Its block layout differs from MSH 4.1 and requires a separate reader.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Binary MSH</p></td>
+<td><p>Not supported</p></td>
+<td><p>Binary integer widths, endianness, and block payloads require a
+separate, explicitly tested implementation.</p></td>
+</tr>
+<tr class="row-even"><td><p>MSH 4.1 element types outside 1-31</p></td>
+<td><p>Not supported</p></td>
+<td><p>Variable-size polygon/polyhedron and later high-order types need
+explicit connectivity rules.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="msh-4-1-structure-and-parser-responsibilities">
+<h2>MSH 4.1 structure and parser responsibilities<a class="headerlink" href="#msh-4-1-structure-and-parser-responsibilities" title="Link to this heading"></a></h2>
+<p>A MSH file is organized as named sections. The parser first checks
+$MeshFormat and rejects binary input before interpreting text records.
+For MSH 4.1, the mesh payload is grouped by model entities:</p>
+<ul class="simple">
+<li><p>$Entities describes geometric points, curves, surfaces and volumes,
+including their physical-group memberships and boundary relationships.</p></li>
+<li><p>$Nodes starts with the number of entity blocks, total node count, and
+minimum/maximum node tags. Each block identifies its entity dimension and
+tag, whether nodes are parametric, and its node count. The block then stores
+all node tags followed by coordinates (and parametric coordinates where
+applicable).</p></li>
+<li><p>$Elements also starts with block and total counts. Each block identifies
+its entity dimension, entity tag, element type and count. Element records
+refer to nodes by node tag, not by the node’s position in a dense array.</p></li>
+</ul>
+<p>Node and element tags are positive identifiers and are not guaranteed to be
+contiguous or ordered. A production reader must therefore build a tag-to-local
+index map; it must never treat a Gmsh tag as a C++ vector offset. The current
+prototype validates uniqueness and node references using tag sets. It parses
+the coordinates and connectivity records but does not yet retain them in the
+OneFLOW mesh model.</p>
+<p>The parser also needs to distinguish three different concepts:</p>
+<ul class="simple">
+<li><p>Geometric entity: the Gmsh model entity (point, curve, surface or volume)
+on which mesh elements and nodes are classified.</p></li>
+<li><p>Physical group: a user-defined semantic group, often used to identify
+fluid regions, walls, inlets, outlets, interfaces or material regions.</p></li>
+<li><p>Element type: the interpolation/topology type and node ordering of an
+individual mesh element.</p></li>
+</ul>
+<p>These identifiers are not interchangeable. In particular, a geometric
+entity tag is not automatically a solver boundary-condition ID. A future
+mapping layer must resolve physical-group names and dimensions explicitly,
+then map them into OneFLOW region/boundary contracts.</p>
+</section>
+<section id="current-validation-contract">
+<h2>Current validation contract<a class="headerlink" href="#current-validation-contract" title="Link to this heading"></a></h2>
+<p>The MSH 4.1 ASCII prototype currently checks:</p>
+<ul class="simple">
+<li><p>valid file-format version and ASCII mode;</p></li>
+<li><p>non-empty node and element sections and consistent block totals;</p></li>
+<li><p>positive, unique node and element tags;</p></li>
+<li><p>supported element type and its declared node count;</p></li>
+<li><p>each element’s node references resolve to a declared node tag;</p></li>
+<li><p>section terminators and truncated records.</p></li>
+</ul>
+<p>The MSH 2.x path retains its existing basic record/count validation. It is a
+compatibility reader, not yet a semantic mesh importer.</p>
+</section>
+<section id="not-yet-preserved">
+<h2>Not yet preserved<a class="headerlink" href="#not-yet-preserved" title="Link to this heading"></a></h2>
+<p>The following information is intentionally not claimed as supported:</p>
+<ul class="simple">
+<li><p>$Entities bounding representation and entity adjacency;</p></li>
+<li><p>$PhysicalNames and entity-to-physical-group membership;</p></li>
+<li><p>periodic node relations;</p></li>
+<li><p>partitioned entities, ghost elements and partition ownership;</p></li>
+<li><p>high-order interpolation metadata beyond the currently recognized
+element connectivity counts;</p></li>
+<li><p>post-processing sections such as $NodeData, $ElementData and
+$ElementNodeData;</p></li>
+<li><p>units, coordinate reference conventions and application-specific metadata.</p></li>
+</ul>
+<p>The placeholder summary explicitly records that geometric entities and
+physical groups are not yet preserved. This prevents a successful parse from
+being mistaken for a lossless conversion.</p>
+</section>
+<section id="target-architecture">
+<h2>Target architecture<a class="headerlink" href="#target-architecture" title="Link to this heading"></a></h2>
+<p>The intended dependency direction is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Gmsh MSH 4.1 / MSH 2.x
+         |
+         v
+   Gmsh file reader
+         |
+         v
+Format-neutral mesh snapshot
+  - coordinates and stable node IDs
+  - element types and ordered connectivity
+  - geometric entity classification
+  - physical groups and names
+  - periodic / partition metadata when supported
+         |
+         v
+  OneFLOW mesh adapter
+         |
+         +----&gt; native OneFLOW mesh
+         |
+         +----&gt; CGNS writer / reader
+         |
+         +----&gt; validation and inspection reports
+</pre></div>
+</div>
+<p>The format-neutral snapshot is the critical boundary. Gmsh parsing should not
+depend on solver globals, GUI widgets, or CGNS library types. Likewise, the
+CGNS adapter should not know how MSH sections are tokenized. The same snapshot
+can later support Gmsh-to-CGNS, CGNS-to-Gmsh, and direct Gmsh-to-OneFLOW
+conversion without implementing every pair as an unrelated converter.</p>
+</section>
+<section id="conversion-validation-strategy">
+<h2>Conversion validation strategy<a class="headerlink" href="#conversion-validation-strategy" title="Link to this heading"></a></h2>
+<p>File creation is not a sufficient acceptance criterion. The planned
+verification levels are:</p>
+<ol class="arabic simple">
+<li><p>Syntax and structural validation — section counts, tag uniqueness,
+block totals, element arity and reference validity.</p></li>
+<li><p>Geometry validation — coordinate finiteness, bounding box, dimension,
+duplicate nodes and scale-aware geometric tolerances.</p></li>
+<li><p>Topology validation — cell connectivity, face incidence, orientation,
+boundary classification and connected components.</p></li>
+<li><p>Semantic validation — physical-group names and dimensions mapped to
+named OneFLOW regions and boundary patches.</p></li>
+<li><p>Round-trip validation — export to another format, reload it, then
+compare coordinates, element types, ordered connectivity and semantic
+region assignments. Comparisons must account for permitted node/element
+renumbering rather than requiring identical file ordering.</p></li>
+</ol>
+<p>The GUI exposes this prototype only as a manual experimental Case check.
+It is not part of CTest, Python unittest, the regular CFD/grid suites, or
+GitHub Actions. The Case is copied to a temporary workspace before execution;
+the repository’s sample input remains unchanged.</p>
+</section>
+<section id="gmsh-api-integration-and-cross-platform-policy">
+<h2>Gmsh API integration and cross-platform policy<a class="headerlink" href="#gmsh-api-integration-and-cross-platform-policy" title="Link to this heading"></a></h2>
+<p>The current MSH reader does not link to Gmsh. This remains the preferred
+baseline for importing existing mesh files: it keeps OneFLOW builds
+self-contained, avoids a runtime Gmsh dependency, and makes the file-format
+contract directly testable.</p>
+<p>If OneFLOW later needs to create geometry, generate meshes, query CAD entities
+or invoke Gmsh algorithms in-process, the official Gmsh SDK can be integrated
+as an optional dependency. The SDK is distributed for Windows, Linux and
+macOS and contains the shared library, headers and language bindings. This
+does not require separate platform-specific OneFLOW API implementations:
+the same adapter source can call the same Gmsh API on each platform.</p>
+<p>The platform-specific pieces are the SDK artifact and its build/runtime
+properties:</p>
+<ul class="simple">
+<li><p>Windows: Gmsh DLL plus its import library and headers; the DLL must be
+discoverable at runtime.</p></li>
+<li><p>Linux: Gmsh shared object plus headers; the shared library and its
+dependent libraries must be discoverable by the dynamic loader.</p></li>
+<li><p>macOS: Gmsh dynamic library plus headers and the platform loader/rpath
+configuration.</p></li>
+</ul>
+<p>Compiler ABI is a separate concern from operating-system portability. The
+native Gmsh C++ API may require an ABI-compatible compiler toolchain. The
+Gmsh SDK documents a gmsh.h_cwrap compatibility header that exposes the
+C++-style API through the C API for toolchains that cannot use the native
+C++ ABI. For a long-lived multi-compiler project such as OneFLOW, the
+preferred integration boundary is therefore the stable C API (or the
+official C-API-backed wrapper), hidden behind a small OneFLOW-owned adapter.
+Do not expose Gmsh types in public OneFLOW geometry headers.</p>
+<p>The future integration should follow these rules:</p>
+<ol class="arabic simple">
+<li><p>Keep Gmsh support optional and disabled by default. Reading an existing
+MSH file must continue to work without the Gmsh SDK.</p></li>
+<li><p>Add a dedicated CMake option (for example
+ONEFLOW_ENABLE_GMSH_API) only when an actual API-backed feature is
+implemented. Resolve the SDK through an explicit GMSH_ROOT hint and
+imported target; do not hard-code Visual Studio, GCC or installation paths.</p></li>
+<li><p>Compile one shared adapter implementation. Platform-specific CMake logic
+should only select the SDK library/import library and runtime search path.</p></li>
+<li><p>Keep SDK version checks and API capability checks in the adapter, not in
+solver or GUI code.</p></li>
+<li><p>Convert Gmsh-owned data immediately into the format-neutral OneFLOW mesh
+representation. No Gmsh handles, pointers, entity classes or containers
+should leak into solver-facing mesh types.</p></li>
+<li><p>Test both configurations: API disabled (the default, no Gmsh installation
+required) and API enabled (with an SDK explicitly supplied). CI should
+never download or require the SDK unless that build variant is deliberately
+selected.</p></li>
+</ol>
+<p>This leads to a clean separation:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Optional Gmsh SDK (Windows DLL / Linux SO / macOS dylib)
+                      |
+              Gmsh API adapter
+              (one C++ source)
+                      |
+             Format-neutral mesh
+                      |
+          OneFLOW geometry / mesh core
+</pre></div>
+</div>
+<p>The standalone gmsh executable is another valid integration option when
+OneFLOW only needs to launch meshing scripts or exchange files. It avoids
+linking Gmsh into the OneFLOW process, at the cost of process management and
+file-based exchange. The ONELAB socket interface is an option for interactive
+parameter exchange. These are separate deployment choices, not reasons to
+duplicate OneFLOW’s geometry implementation by platform.</p>
+</section>
+<section id="references-for-the-api-and-sdk">
+<h2>References for the API and SDK<a class="headerlink" href="#references-for-the-api-and-sdk" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://gmsh.info/doc/texinfo/gmsh.html#Installing-and-running-Gmsh-on-your-computer">Gmsh API and SDK installation</a></p></li>
+<li><p><a class="reference external" href="https://gmsh.info/doc/texinfo/gmsh.html#Gmsh-application-programming-interface">Gmsh API reference</a></p></li>
+<li><p><a class="reference external" href="https://github.com/gmsh-project/gmsh/blob/master/doc/SDK.txt">Gmsh SDK ABI notes</a></p></li>
+</ul>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format">Gmsh Reference Manual, MSH file format</a></p></li>
+<li><p><a class="reference external" href="https://gmsh.info/doc/texinfo/">Gmsh Reference Manual, current release</a></p></li>
+<li><p>Geuzaine, C. and Remacle, J.-F., <em>Gmsh: A three-dimensional finite element
+mesh generator with built-in pre- and post-processing facilities</em>,
+International Journal for Numerical Methods in Engineering, 79(11),
+1309-1331, 2009.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mesh_architecture.html" class="btn btn-neutral float-left" title="OneFLOW Mesh Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="grid_topology.html" class="btn btn-neutral float-right" title="Grid Topology and Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

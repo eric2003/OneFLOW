@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Viscous face spectral radius (overview) &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Viscous face spectral radius (model 1)" href="viscous_spectral_radius_model1.html" />
+    <link rel="prev" title="Time stepping: CFL, physical time, and dual-time status" href="cfl_ramp.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Numerical analysis</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tdma.html">Tridiagonal matrix algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ctdma.html">Cyclic Tridiagonal Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier_transform.html">FOURIER TRANSFORMS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fftw.html">FFTW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limiter.html">Limiter face contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gradient.html">Green-Gauss gradient contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vis_face_geometry.html">Viscous face geometry contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limited_face_reconstruction.html">Limited face reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="euler_convective_flux.html">Euler convective face flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roe_average.html">Roe average state</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ausm_splits.html">AUSM Mach and pressure splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ideal_gas_thermo.html">Ideal-gas thermodynamic contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roe_dissipation.html">Roe dissipation coefficients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_heat_flux.html">Viscous conductive heat flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sutherland_viscosity.html">Sutherland viscosity law</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spectral_radius.html">Face spectral radius and local time step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="references.html">References and external manuals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boundary_velocity.html">Boundary velocity images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="isothermal_wall.html">Isothermal wall density and temperature images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_scalar_upwind.html">Turbulence scalar convective upwind flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_spectrum.html">Turbulence face spectral radius</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_closure.html">Spalart-Allmaras closure functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_source.html">Spalart-Allmaras source residual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_eddy_viscosity.html">SA eddy viscosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_k_source.html">SST k-equation production and dissipation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_f1_blending.html">SST blending function F1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verification_layers.html">Verification layers (copyable policy)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wilcox_fbeta.html">Wilcox f_k and f_w modifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_residual_assembly.html">SST residual assembly (Menter linearization)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_lusgs.html">Turbulence LUSGS scalar sweep kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_eddy_viscosity.html">SST eddy viscosity and F2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_wall_bc.html">Turbulence viscous-wall boundary values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_update_bounds.html">SA working-variable bounds after update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_update_floors.html">SST and transition update floors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_farfield_bc.html">Turbulence far-field state selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_under_relax.html">SA under-relaxed working-variable update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lusgs_viscous_spectrum.html">LUSGS viscous spectral contribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_integral_control.html">OneFLOW Time-Integration Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cfl_ramp.html">Time stepping: CFL, physical time, and dual-time status</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Viscous face spectral radius (overview)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#theory-basis">Theory basis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comparison">Comparison</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#source-map">Source map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references-primary-and-comparative">References (primary and comparative)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_spectral_radius_model1.html">Viscous face spectral radius (model 1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_spectral_radius_model2.html">Viscous face spectral radius (model 2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_spectral_radius_model3.html">Viscous face spectral radius (model 3)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Numerical analysis</a></li>
+      <li class="breadcrumb-item active">Viscous face spectral radius (overview)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/numerical/viscous_spectral_radius.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="viscous-face-spectral-radius-overview">
+<h1>Viscous face spectral radius (overview)<a class="headerlink" href="#viscous-face-spectral-radius-overview" title="Link to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>For Navier-Stokes time-step control, the inviscid face spectral radius</p>
+<div class="math notranslate nohighlight">
+\[\lambda_{\mathrm{inv}}=\frac{1}{2}A\bigl(|v_n|+c\bigr)\]</div>
+<p>must be supplemented by a <strong>viscous</strong> estimate (lambda_{mathrm{vis}}).
+Viscous limits dominate in boundary layers and can force a much smaller
+local (Delta t). OneFLOW provides three pure policies in
+<code class="docutils literal notranslate"><span class="pre">TimeStepPolicy</span></code>:</p>
+<ul class="simple">
+<li><p><strong>Model 1</strong> — Blazek-style (max) of momentum and energy diffusivities,
+scaled by (A^{2}) (see <a class="reference internal" href="viscous_spectral_radius_model1.html"><span class="doc">Viscous face spectral radius (model 1)</span></a>).</p></li>
+<li><p><strong>Model 2</strong> — length-scale form with cell/wall distance (d)
+(see <a class="reference internal" href="viscous_spectral_radius_model2.html"><span class="doc">Viscous face spectral radius (model 2)</span></a>).</p></li>
+<li><p><strong>Model 3</strong> — simplest (A^{2}/(mathrm{Re},rho)) placeholder
+(see <a class="reference internal" href="viscous_spectral_radius_model3.html"><span class="doc">Viscous face spectral radius (model 3)</span></a>).</p></li>
+</ul>
+<p>These are <strong>engineering bounds</strong>, not exact eigenvalues of the viscous
+flux Jacobian.</p>
+</section>
+<section id="theory-basis">
+<h2>Theory basis<a class="headerlink" href="#theory-basis" title="Link to this heading"></a></h2>
+<p>A diffusion mode (u_t=nu u_{xx}) decays at rate (nu k^{2}). On a
+finite-volume mesh, (k) is estimated either from face/volume geometry
+((ksim A/V), leading to (A^{2}) forms) or from an explicit length
+(d) (leading to (1/d) forms). Non-dimensional NS equations place a
+factor (1/mathrm{Re}) on viscous fluxes, so (mathrm{Re}) appears in
+the spectral estimates.</p>
+</section>
+<section id="comparison">
+<h2>Comparison<a class="headerlink" href="#comparison" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 12.0%" />
+<col style="width: 40.0%" />
+<col style="width: 28.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Model</p></th>
+<th class="head"><p>Core formula</p></th>
+<th class="head"><p>Inputs</p></th>
+<th class="head"><p>Role</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>(A^{2}cdot 2max(c_1,c_2)/(mathrm{Re}rho))</p></td>
+<td><p>(mu,mu_t,mathrm{Pr},gamma,A)</p></td>
+<td><p>Full Blazek-type channel split</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>(mu_{mathrm{tot}} A/(rho,d,mathrm{Re}))</p></td>
+<td><p>(mu_{mathrm{tot}},d,A)</p></td>
+<td><p>Explicit length scale</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>(A^{2}/(mathrm{Re}rho))</p></td>
+<td><p>(A,mathrm{Re},rho)</p></td>
+<td><p>Cheapest bound</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="source-map">
+<h2>Source map<a class="headerlink" href="#source-map" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ViscousFaceSpectralRadiusModel1</span></code> / <code class="docutils literal notranslate"><span class="pre">Model2</span></code> / <code class="docutils literal notranslate"><span class="pre">Model3</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InviscidFaceSpectralRadius</span></code>, <code class="docutils literal notranslate"><span class="pre">CellTimeStepFromSpectrum</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CombineInvAndVisTimeStep</span></code></p></li>
+<li><p>Header: <code class="docutils literal notranslate"><span class="pre">codes/ns/include/TimeStepPolicy.h</span></code></p></li>
+</ul>
+</section>
+<section id="references-primary-and-comparative">
+<h2>References (primary and comparative)<a class="headerlink" href="#references-primary-and-comparative" title="Link to this heading"></a></h2>
+<p><strong>Primary textbook (form of model 1)</strong></p>
+<ul>
+<li><p>J. Blazek, <em>Computational Fluid Dynamics: Principles and Applications</em>,
+Elsevier (2nd/3rd ed.). Chapter on temporal discretisation /
+determination of the maximum time step. Structured-grid viscous
+spectral radius (schematic):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Lambda_v</span> <span class="o">~</span> <span class="nb">max</span><span class="p">(</span> <span class="p">(</span><span class="mi">4</span><span class="o">/</span><span class="mi">3</span><span class="p">)(</span><span class="n">mu_L</span><span class="o">+</span><span class="n">mu_T</span><span class="p">)</span><span class="o">/</span><span class="n">rho</span> <span class="p">,</span>
+                <span class="n">gamma</span> <span class="p">(</span><span class="n">mu_L</span><span class="o">/</span><span class="n">Pr_L</span> <span class="o">+</span> <span class="n">mu_T</span><span class="o">/</span><span class="n">Pr_T</span><span class="p">)</span><span class="o">/</span><span class="n">rho</span> <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">Delta</span> <span class="n">S</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span>
+</pre></div>
+</div>
+<p>with a multiplier (C) (often 1–4) when combining with convective
+radii in (Delta t). Unstructured variants sum face contributions
+with the same (max) of momentum and energy diffusivities.
+ISBN / DOI vary by edition; see Elsevier monograph
+<code class="docutils literal notranslate"><span class="pre">9780080445069</span></code> (2nd) and later editions.</p>
+</li>
+</ul>
+<p><strong>Open-source codes (comparative, not OneFLOW proofs)</strong></p>
+<ul class="simple">
+<li><p><strong>SU2</strong> — local time step from convective and viscous spectral radii;
+viscous contribution of the form (sum C,(mu/rho),S^{2}) along
+edges (see e.g. AIAA 2015-1949 and SU2 theory/solver documentation).
+Useful for terminology and scaling; coefficients differ.</p></li>
+<li><p><strong>Other FV RANS solvers</strong> — similar (lambda_{mathrm{vis}}proptomu S^{2}/rho)
+or (A^{2}) estimates appear widely; treat as implementation folklore
+unless tied to a specific published formula.</p></li>
+</ul>
+<p><strong>Commercial manuals</strong></p>
+<ul class="simple">
+<li><p>Public ANSYS Fluent / STAR-CCM+ theory guides discuss CFL and time-step
+limits at a high level; they do <strong>not</strong> publish OneFLOW-equivalent
+internal spectral-radius coefficients. Use only for terminology, not
+as a correctness proof for OneFLOW formulas.</p></li>
+</ul>
+<p><strong>What literature does and does not prove</strong></p>
+<ul class="simple">
+<li><p>Literature supports the <em>structure</em> of model 1 (momentum vs energy
+diffusivity, (A^{2}) or ((Delta S)^{2}) scaling, eddy viscosity).</p></li>
+<li><p>Exact numerical prefactors ((2), (1/2), choice of (d)) are
+<strong>implementation choices</strong> locked by OneFLOW unit tests, not unique
+theorems.</p></li>
+<li><p>Open/closed source manuals are for <strong>traceability and comparison</strong>,
+not permission to copy proprietary text or claim identical behavior.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cfl_ramp.html" class="btn btn-neutral float-left" title="Time stepping: CFL, physical time, and dual-time status" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="viscous_spectral_radius_model1.html" class="btn btn-neutral float-right" title="Viscous face spectral radius (model 1)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

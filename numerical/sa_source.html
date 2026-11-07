@@ -1,0 +1,381 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spalart-Allmaras source residual &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SA eddy viscosity" href="sa_eddy_viscosity.html" />
+    <link rel="prev" title="Spalart-Allmaras closure functions" href="sa_closure.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Numerical analysis</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tdma.html">Tridiagonal matrix algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ctdma.html">Cyclic Tridiagonal Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier_transform.html">FOURIER TRANSFORMS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fftw.html">FFTW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limiter.html">Limiter face contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gradient.html">Green-Gauss gradient contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vis_face_geometry.html">Viscous face geometry contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limited_face_reconstruction.html">Limited face reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="euler_convective_flux.html">Euler convective face flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roe_average.html">Roe average state</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ausm_splits.html">AUSM Mach and pressure splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ideal_gas_thermo.html">Ideal-gas thermodynamic contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roe_dissipation.html">Roe dissipation coefficients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_heat_flux.html">Viscous conductive heat flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sutherland_viscosity.html">Sutherland viscosity law</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spectral_radius.html">Face spectral radius and local time step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="references.html">References and external manuals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boundary_velocity.html">Boundary velocity images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="isothermal_wall.html">Isothermal wall density and temperature images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_scalar_upwind.html">Turbulence scalar convective upwind flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_spectrum.html">Turbulence face spectral radius</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_closure.html">Spalart-Allmaras closure functions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Spalart-Allmaras source residual</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#model-terms">Model terms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#source-level-mapping">Source-level mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#formula-level-verification">Formula-level verification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#verification-and-validation-are-different-questions">Verification and validation are different questions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sa_eddy_viscosity.html">SA eddy viscosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_k_source.html">SST k-equation production and dissipation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_f1_blending.html">SST blending function F1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verification_layers.html">Verification layers (copyable policy)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wilcox_fbeta.html">Wilcox f_k and f_w modifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_residual_assembly.html">SST residual assembly (Menter linearization)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_lusgs.html">Turbulence LUSGS scalar sweep kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_eddy_viscosity.html">SST eddy viscosity and F2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_wall_bc.html">Turbulence viscous-wall boundary values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_update_bounds.html">SA working-variable bounds after update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_update_floors.html">SST and transition update floors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_farfield_bc.html">Turbulence far-field state selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_under_relax.html">SA under-relaxed working-variable update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lusgs_viscous_spectrum.html">LUSGS viscous spectral contribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_integral_control.html">OneFLOW Time-Integration Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cfl_ramp.html">Time stepping: CFL, physical time, and dual-time status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_spectral_radius.html">Viscous face spectral radius (overview)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_spectral_radius_model1.html">Viscous face spectral radius (model 1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_spectral_radius_model2.html">Viscous face spectral radius (model 2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_spectral_radius_model3.html">Viscous face spectral radius (model 3)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Numerical analysis</a></li>
+      <li class="breadcrumb-item active">Spalart-Allmaras source residual</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/numerical/sa_source.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spalart-allmaras-source-residual">
+<h1>Spalart-Allmaras source residual<a class="headerlink" href="#spalart-allmaras-source-residual" title="Link to this heading"></a></h1>
+<p>The SA working-variable transport equation combines production, destruction,
+and a limited cross-diffusion contribution. The pure policy functions below
+represent the scalar algebra used by the production implementation.</p>
+<section id="model-terms">
+<h2>Model terms<a class="headerlink" href="#model-terms" title="Link to this heading"></a></h2>
+<div class="math notranslate nohighlight">
+\[P = c_{b1}(1-f_{t2})\tilde{S}\,\tilde{\nu}\]</div>
+<div class="math notranslate nohighlight">
+\[D = (c_{w1k} f_w - c_{b1} f_{t2})\tilde{\nu} r_s\]</div>
+<div class="math notranslate nohighlight">
+\[D_{\mathrm{diff}}
+= \min\left(r_p P,\,
+\frac{c_{b2}}{\sigma}
+|\nabla\tilde{\nu}|^2/Re\right)\]</div>
+<div class="math notranslate nohighlight">
+\[S_{\tilde{\nu}} = P - D + D_{\mathrm{diff}}\]</div>
+<p>The spectral contribution uses the negative part of a scalar rate:</p>
+<div class="math notranslate nohighlight">
+\[x^- = -\frac{1}{2}(x-|x|)\]</div>
+<p>The implementation uses precombined inputs at this policy boundary:
+cw1k represents the effective coefficient multiplying fw in the destruction
+term; in the current caller it is cw1 times kappa squared because rs
+contains the inverse kappa-squared factor. nuTildeRs represents the product
+of the working variable and rs, and cb2OverSigma represents cb2 divided by
+sigma. The caller computes these values from the active model constants
+and local flow state.</p>
+<p>In the current implementation, the scaling is assembled as follows:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}r_s = \frac{\tilde{\nu}}{\kappa^2 d^2 Re},
+\qquad \mathrm{nuTildeRs} = \tilde{\nu} r_s\\\mathrm{cw1k} = c_{w1}\kappa^2,
+\qquad \mathrm{cb2OverSigma} = c_{b2}/\sigma\end{aligned}\end{align} \]</div>
+</section>
+<section id="source-level-mapping">
+<h2>Source-level mapping<a class="headerlink" href="#source-level-mapping" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 32.0%" />
+<col style="width: 35.0%" />
+<col style="width: 33.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Mathematical term</p></th>
+<th class="head"><p>Pure API</p></th>
+<th class="head"><p>Production call site</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Production P</p></td>
+<td><p>SaProduction</p></td>
+<td><p>TurbCom::CalcSrcSa</p></td>
+</tr>
+<tr class="row-odd"><td><p>Destruction D</p></td>
+<td><p>SaDestruction</p></td>
+<td><p>TurbCom::CalcSrcSa</p></td>
+</tr>
+<tr class="row-even"><td><p>Unbounded diffusion</p></td>
+<td><p>SaDiffusion</p></td>
+<td><p>TurbCom::CalcSrcSa</p></td>
+</tr>
+<tr class="row-odd"><td><p>Limited diffusion</p></td>
+<td><p>SaLimitedDiffusion</p></td>
+<td><p>TurbCom::CalcSrcSa</p></td>
+</tr>
+<tr class="row-even"><td><p>Combined residual</p></td>
+<td><p>SaSourceResidual</p></td>
+<td><p>TurbCom::CalcSrcSa</p></td>
+</tr>
+<tr class="row-odd"><td><p>Negative part</p></td>
+<td><p>SaNegativePart</p></td>
+<td><p>SA implicit source linearization</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="formula-level-verification">
+<h2>Formula-level verification<a class="headerlink" href="#formula-level-verification" title="Link to this heading"></a></h2>
+<p>tests/solver/turb_sa_policy_test.cpp checks each source component against
+fixed values independently evaluated from the equations above. The test set
+also checks both branches of the diffusion limiter, the final signed
+combination, and the piecewise negative-part function.</p>
+<p>These tests establish the scalar algebra at the pure-policy boundary. They
+do not prove that the caller supplies the correct gradients, wall distance,
+strain measure, Reynolds scaling, model variant, or boundary values. Those
+require separate component and flow-level evidence.</p>
+</section>
+<section id="verification-and-validation-are-different-questions">
+<h2>Verification and validation are different questions<a class="headerlink" href="#verification-and-validation-are-different-questions" title="Link to this heading"></a></h2>
+<p>The NASA Turbulence Modeling Resource (TMR) explicitly separates code/model
+verification from validation:</p>
+<ul class="simple">
+<li><p>The SA model definition at
+<a class="reference external" href="https://tmbwg.github.io/turbmodels/spalart.html">https://tmbwg.github.io/turbmodels/spalart.html</a> documents the standard SA
+equations, constants, and model variants. Standard SA must not be confused
+with SA-neg, SA-noft2, or correction variants.</p></li>
+<li><p>The 2D zero-pressure-gradient flat-plate verification case at
+<a class="reference external" href="https://tmbwg.github.io/turbmodels/flatplate.html">https://tmbwg.github.io/turbmodels/flatplate.html</a> provides nested grids
+and reference solutions intended to check whether an implementation
+follows the specified equations and boundary conditions.</p></li>
+<li><p>The corresponding flat-plate validation case at
+<a class="reference external" href="https://tmbwg.github.io/turbmodels/flatplate_val.html">https://tmbwg.github.io/turbmodels/flatplate_val.html</a> compares quantities
+of interest such as skin-friction coefficient versus momentum-thickness
+Reynolds number and mean velocity profile u+(y+) against theoretical
+correlations.</p></li>
+<li><p>Eca, Hoekstra, Hay, and Pelletier (2005) provide a manufactured solution
+that includes source functions for the Spalart-Allmaras transport
+equation. This is a stronger route for checking the assembled differential
+operator and its source terms than comparing only a converged engineering
+flow.</p></li>
+</ul>
+<p>A source term is not generally a directly measured experimental observable.
+Therefore, compare its scalar components with the governing equations,
+published model definitions, and manufactured-solution expressions.
+Compare observable flow quantities (for example Cf, u+(y+), and Re_theta)
+with TMR reference correlations or experimental/DNS data in a separate
+validation study.</p>
+<p>A plotted curve is useful only when its provenance is explicit: record the
+equation or dataset, model variant, constants, nondimensionalization,
+sampling points, and the code path that generated the OneFLOW values.
+Do not treat a plot generated by a second copy of the same implementation
+formula as independent verification.</p>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Spalart, P. R. and Allmaras, S. R. (1994). A One-Equation Turbulence
+Model for Aerodynamic Flows. Recherche Aerospatiale, No. 1, pp. 5-21.
+The journal publication takes precedence over the earlier AIAA-92-0439
+conference version for the standard model definition.</p></li>
+<li><p>Eca, L., Hoekstra, M., Hay, A., and Pelletier, D. (2005). A Manufactured
+Solution for a Two-Dimensional Steady Wall-Bounded Incompressible
+Turbulent Flow. IST Report D72-34 / EPM Report EMP-RT-2005-08.
+<a class="reference external" href="https://tmbwg.github.io/turbmodels/Eca1/Report_D72_34_EMP_RT_2005_8.pdf">https://tmbwg.github.io/turbmodels/Eca1/Report_D72_34_EMP_RT_2005_8.pdf</a></p></li>
+<li><p>NASA/TMBWG, Spalart-Allmaras Model:
+<a class="reference external" href="https://tmbwg.github.io/turbmodels/spalart.html">https://tmbwg.github.io/turbmodels/spalart.html</a>.</p></li>
+<li><p>NASA/TMBWG, 2D Zero Pressure Gradient Flat Plate Verification and
+Validation:
+<a class="reference external" href="https://tmbwg.github.io/turbmodels/flatplate.html">https://tmbwg.github.io/turbmodels/flatplate.html</a>
+<a class="reference external" href="https://tmbwg.github.io/turbmodels/flatplate_val.html">https://tmbwg.github.io/turbmodels/flatplate_val.html</a></p></li>
+</ul>
+<p>Related pages: sa_closure.rst, sa_eddy_viscosity.rst, sa_prod_strain.rst,
+and verification_layers.rst.</p>
+<p>Pure APIs: SaProduction, SaDestruction, SaDiffusion, SaLimitedDiffusion,
+SaSourceResidual, and SaNegativePart.
+Tests: turb_sa_policy_test.
+Wiring: TurbCom::CalcSrcSa.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sa_closure.html" class="btn btn-neutral float-left" title="Spalart-Allmaras closure functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sa_eddy_viscosity.html" class="btn btn-neutral float-right" title="SA eddy viscosity" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
