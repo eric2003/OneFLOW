@@ -22,6 +22,7 @@ License
 
 #include "UnstructuredMeshData.h"
 #include "GridTypes.h"
+#include "HXCgns.h"
 #include "HXStd.h"
 #include "ElementHome.h"
 
