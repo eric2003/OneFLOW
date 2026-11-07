@@ -203,6 +203,7 @@ _PYTHON_UNIT_TESTS = (
     ("Mesh export tests", ("-m", "unittest", "discover", "-s", "tools/mesh_export", "-p", "test_*.py")),
     ("Mesh case catalog tests", ("tools/test_mesh_cases.py",)),
     ("Gmsh to OneFLOW case tests", ("tools/test_gmsh_to_oneflow_case.py",)),
+    ("Planar STL to Gmsh tests", ("-m", "unittest", "tools.stl_to_gmsh.test_stl_to_gmsh")),
     ("MeshSnapshot contract tests", ("-m", "unittest", "tools.mesh_contracts.test_snapshot")),
     ("Unstructured CGNS writer architecture tests", ("-m", "unittest", "tools.mesh_contracts.test_unstructured_cgns_writer_architecture")),
     ("Flat-plate layout compiler tests", ("-m", "unittest", "tests.tools.test_compile_flat_plate")),

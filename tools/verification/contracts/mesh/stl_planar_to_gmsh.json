@@ -4,7 +4,7 @@
   "title": "Planar STL boundary extraction and Gmsh 2D generation",
   "domain": "mesh",
   "kind": "mesh_generation_pipeline",
-  "status": "prototype",
+  "status": "partially_verified",
   "overview": "Reads a triangulated STL region in the XY plane, reconstructs one closed boundary loop, assigns named boundary groups from a JSON sidecar, and writes Gmsh geometry. Gmsh remains an optional external executable.",
   "principle": "STL facets carry coordinates and triangle topology, not standard CFD boundary-condition semantics. Singly incident triangle edges form the outer boundary; a sidecar explicitly maps every boundary edge to a named Gmsh Physical Curve. Physical names require a separate mapping to OneFLOW BC semantics.",
   "architecture": "ASCII/Binary STL -> vertex welding and XY topology validation -> single closed boundary loop -> sidecar edge-to-physical-name mapping -> Gmsh .geo -> optional Gmsh CLI -> MSH -> existing Gmsh import and CGNS conversion path.",
