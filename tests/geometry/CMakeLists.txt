@@ -245,6 +245,8 @@ add_oneflow_gtest(UnsGridBoundaryTopologyRoundTripTest UnsGridBoundaryTopologyRo
 add_oneflow_gtest(GridSummaryAdapterTest GridSummaryAdapterTest.cpp)
 add_oneflow_gtest(GmshMeshReaderTest GmshMeshReaderTest.cpp)
 add_oneflow_gtest(GmshCgnsConversionTest GmshCgnsConversionTest.cpp)
+add_oneflow_gtest(GmshTwoQuadsOneFlowTest GmshTwoQuadsOneFlowTest.cpp)
+target_compile_definitions(GmshTwoQuadsOneFlowTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 target_compile_definitions(GmshCgnsConversionTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 target_compile_definitions(GmshMeshReaderTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 add_oneflow_gtest(GridInfoSnapshotTest GridInfoSnapshotTest.cpp)
