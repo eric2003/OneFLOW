@@ -9,6 +9,7 @@
 #include "CellMesh.h"
 #include "NodeMesh.h"
 #include "BcRecord.h"
+#include "Boundary.h"
 #include "Dimension.h"
 #include <chrono>
 #include <algorithm>
@@ -319,10 +320,10 @@ TEST(GmshCgnsConversionTest, ConvertsGmshThroughCgnsIntoOneFlowGrid) {
     for ( const auto & expected : expectedOneFlowBoundaries )
     {
         const int expectedNameId = RegionNameMap::FindRegionId( expected.name );
-        ASSERT_NE( expectedNameId, INVALID_INDEX )
+        ASSERT_GE( expectedNameId, 0 )
             << "Missing registered OneFLOW boundary name: " << expected.name;
 
-        int matchedFace = INVALID_INDEX;
+        int matchedFace = -1;
         int matchCount = 0;
         for ( int iFace = 0; iFace < grid->nBFaces; ++ iFace )
         {
