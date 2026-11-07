@@ -459,7 +459,7 @@ for evidence of a parameter's ownership.
   task family; it does not claim that every solver model or physical regime
   consumes the parameter.
 * **Source provenance** remains attached to each declaration: source file,
-  manifest/declaration order, and any shadowed declaration are preserved.
+  directory discovery/declaration order, and any shadowed declaration are preserved.
 
 A known key is assigned only when the current catalog has semantic evidence
 for that assignment. An unknown key is retained under ``Other /
@@ -503,7 +503,7 @@ distinct concepts that should not be hidden inside broad buckets:
 
 These groups are still an initial classification, not a declaration that every
 case-specific option has been inventoried. The script directory is authoritative for discovering real files; a valid
-manifest contributes preferred ordering and consistency diagnostics. Actual
+filename-only manifest contributes consistency diagnostics only. Actual
 declarations and C++ consumers remain the evidence for adding keys. Arrays such as ``gridTrans[3]`` continue
 to be reported as unsupported by the scalar editor even when their names can
 be recognized for navigation.
@@ -746,7 +746,7 @@ Unknown declarations and array declarations must remain visible rather than
 being silently discarded.
 
 The next inventory pass must enumerate declarations from every repository
-Case script directory (using any valid manifest only for preferred ordering)
+Case script directory (using any valid filename-only manifest only for consistency diagnostics)
 and cross-check them against production parameter reads. It
 must also distinguish:
 
@@ -777,8 +777,9 @@ boundary conditions, and numerical methods. The generator must:
    conflicting declarations before writing files;
 #. preserve existing file encoding and formatting where editing an existing
    Case; never rewrite source-tree examples in place;
-#. validate the generated manifest and parameter documents with the production
-   parser, then run a real setup/initialization smoke test;
+#. compare any generated filename manifest with the real parameter files, parse
+   all real parameter documents with the production parser, then run a real
+   setup/initialization smoke test;
 #. record the generated profile version, source Case, parameter provenance,
    validation result, and any user modifications.
 

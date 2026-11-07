@@ -233,7 +233,7 @@ TEST( ControlConfigurationIngestion, CommitFailureCanLeaveEarlierEntriesFromCurr
 
 } // namespace
 
-TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesInOrder )
+TEST( ControlConfigurationIngestion, ReadsRealFilesInFilenameOrderAndCommitsTypedValues )
 {
     TemporaryControlCase testCase;
     testCase.WriteManifest(
@@ -257,9 +257,18 @@ TEST( ControlConfigurationIngestion, ReadsManifestScriptsAndCommitsTypedValuesIn
     std::vector< std::string > scriptFiles;
     ReadScriptFileNameList( testCase.CaseDirectory(), scriptFiles );
     ASSERT_EQ( scriptFiles.size(), 3u );
+    EXPECT_EQ(
+        std::filesystem::path( scriptFiles[ 0 ] ).filename().string(),
+        "base.txt" );
+    EXPECT_EQ(
+        std::filesystem::path( scriptFiles[ 1 ] ).filename().string(),
+        "override.txt" );
+    EXPECT_EQ(
+        std::filesystem::path( scriptFiles[ 2 ] ).filename().string(),
+        "unlisted.txt" );
 
     // Exercise the production case-level reader composition:
-    // manifest discovery followed by ordered multi-file parsing and commit.
+    // real directory discovery, manifest comparison, and ordered multi-file commit.
     ReadPrjScript( testCase.CaseDirectory() );
 
     DataBase & mutableDatabase = RequireGlobalDataBase();
@@ -499,6 +508,27 @@ TEST( ControlReaderIntegration, ReadsCaseScriptsAndWritesDatabaseDump )
         std::filesystem::exists(
             std::filesystem::path( testCase.CaseDirectory() )
             / "log" / "log0.log" ) );
+}
+
+
+TEST( ControlConfigurationIngestion, ReadsRealFilesWhenManifestListsMissingFile )
+{
+    TemporaryControlCase testCase;
+    testCase.WriteManifest(
+        "\"missing.txt\";\n"
+        "\"present.txt\";\n" );
+    testCase.WriteScript(
+        "present.txt",
+        "int ingestion_present_despite_missing_manifest_entry = 47;\n" );
+
+    ClearRuntimeParameters();
+    EXPECT_NO_THROW( ReadPrjScript( testCase.CaseDirectory() ) );
+
+    EXPECT_EQ(
+        GetDataValue<int>(
+            "ingestion_present_despite_missing_manifest_entry",
+            &RequireGlobalDataBase() ),
+        47 );
 }
 
 
