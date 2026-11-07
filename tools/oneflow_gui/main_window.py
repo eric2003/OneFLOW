@@ -606,6 +606,12 @@ class MainWindow(QMainWindow):
                         "case_ids": [case.case_id for case in selected],
                         "execution_mode": execution_mode,
                         "workspace": str(workspace_root / run_id),
+                        "environment_report": str(
+                            (UserDataPaths.discover().executions / run_id / "environment.json").resolve()
+                        ),
+                        "run_manifest": str(
+                            (UserDataPaths.discover().executions / run_id / "run-manifest.json").resolve()
+                        ),
                     },),
                     message="Case queue started.",
                     log_path=str(log_path),
