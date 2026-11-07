@@ -734,7 +734,7 @@ class ProjectWindow(QMainWindow):
             self._detached_changes_summary.setText(self.changes_summary.text())
 
     def _index_parameter_files(self) -> None:
-        """Index parameter files and build a manifest-ordered logical view."""
+        """Index discovered real parameter files in deterministic filename order."""
         store = ParameterCatalogStore(UserDataPaths.discover().parameter_catalog_database)
         documents = []
         indexed = 0
