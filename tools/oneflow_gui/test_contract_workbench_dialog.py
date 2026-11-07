@@ -99,7 +99,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
                 for i in range(dialog.contract_list.count())
                 if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole)
             }
-            self.assertEqual(filtered, {"mesh/plot3d"})
+            self.assertEqual(filtered, {"mesh/plot3d", "mesh/unstructured-cgns-writer"})
         finally:
             self._close_dialog(dialog)
 
