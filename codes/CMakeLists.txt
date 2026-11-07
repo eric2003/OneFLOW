@@ -338,7 +338,24 @@ endif()
 set ( JsonPrjDir "${PRJ_ROOT_DIR}/${THIRD_PARTY_DIR}/jsoncpp" )
 set ( JsonHeaderDir ${JsonPrjDir} )
 
-ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} PRJ_HEADER_LIST PRJ_SRC_LIST PRJ_LOCAL_INCLUDE_DIRS )
+oneflow_discover_module_sources(
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    PRJ_SRC_LIST
+    PRJ_HEADER_LIST
+    PRJ_LOCAL_INCLUDE_DIRS
+)
+
+# Preserve the legacy Visual Studio source-group hierarchy. The discovery
+# helper owns file enumeration; this loop owns IDE presentation only.
+foreach(_oneflow_file IN LISTS PRJ_HEADER_LIST PRJ_SRC_LIST)
+    file(RELATIVE_PATH _oneflow_group
+        "${CMAKE_CURRENT_SOURCE_DIR}" "${_oneflow_file}")
+    file(TO_CMAKE_PATH "${_oneflow_group}" _oneflow_group)
+    get_filename_component(_oneflow_group "${_oneflow_group}" DIRECTORY)
+    if(NOT _oneflow_group STREQUAL "")
+        source_group("${_oneflow_group}" FILES "${_oneflow_file}")
+    endif()
+endforeach()
 
 list ( FILTER PRJ_SRC_LIST EXCLUDE REGEX "/codes/accel/src/HipSmoke\\.cpp$" )
 if ( ONEFLOW_BUILD_HIP )
