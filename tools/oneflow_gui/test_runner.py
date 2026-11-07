@@ -221,6 +221,7 @@ _PYTHON_UNIT_TESTS = (
     ("Parameter catalog database tests", ("-m", "unittest", "tools.oneflow_gui.test_parameter_catalog_store")),
     ("User data path tests", ("-m", "unittest", "tools.oneflow_gui.test_user_data_paths")),
     ("Application settings tests", ("-m", "unittest", "tools.oneflow_gui.test_application_settings")),
+    ("Runtime environment query tests", ("-m", "unittest", "tools.oneflow_gui.test_runtime_environment_dialog")),
     ("Workflow persistence tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_repository")),
     ("Workspace persistence tests", ("-m", "unittest", "tools.oneflow_gui.test_workspace_repository")),
     ("Workspace execution adapter tests", ("-m", "unittest", "tools.oneflow_gui.test_workspace_workflow_adapter")),
