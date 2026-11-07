@@ -445,6 +445,11 @@ void Su2Grid::Su2ToOneFlowGrid( const GridConfig & config, const std::string & c
 
 void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone, bool convertToInnerDataStandard )
 {
+    // This routine always materializes an unstructured zone. Set the type
+    // before creating sections and BC lists so their allocation follows the
+    // unstructured CGNS path (the structured path expands two-value ranges).
+    cgnsZone.cgnsZoneType = Unstructured;
+
     const int nNodes = this->xN.size();
     const int nCells = this->nElem;
 
@@ -559,8 +564,6 @@ void Su2Grid::FillSU2CgnsZone( CgnsZone & cgnsZone, bool convertToInnerDataStand
         
         //string bcName = GetCgnsBcName( cgnsBcBoco.bcType );
     }
-
-    cgnsZone.cgnsZoneType = Unstructured;
 
     if ( convertToInnerDataStandard )
     {
