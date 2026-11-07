@@ -463,9 +463,10 @@ solver boundary-condition assignment.
 
 The CGNS output path keeps connectivity one-based until CGNS serialization.
 The existing SU2-to-OneFLOW runtime path still requests zero-based internal
-normalization. This distinction is explicit in the FillSU2CgnsZone option
-so the same zone-population logic can serve both runtime ingestion and file
-writing without corrupting CGNS element IDs.
+normalization. The SU2 adapter forwards this option to
+UnstructuredCgnsZoneWriter::Write(). The Gmsh file writer disables
+normalization so CGNS connectivity and BC element IDs remain one-based in the
+serialized file.
 
 
 Gmsh Physical Group boundary semantics

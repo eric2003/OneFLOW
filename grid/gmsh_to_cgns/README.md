@@ -11,7 +11,7 @@ into CGNS boundary element sections and BC_t point lists. The conversion recogni
 explicit Physical Group names `inflow`, `outflow`, `symmetry`, and `farfield`, mapping them to the
 corresponding CGNS `BCType_t` values. Unrecognized names remain
 `BCTypeUserDefined`; names are never guessed from geometry or position. The writer reuses
-OneFLOW's Su2Grid::FillSU2CgnsZone() and CgnsFactory / CgnsZbase paths.
+OneFLOW's shared UnstructuredMeshData and UnstructuredCgnsZoneWriter, followed by the CgnsFactory / CgnsZbase file writer.
 The bundled square sample writes four nodes, two TRI_3 cells, four BAR_2
 boundary elements, and four named BC_t records.
 
@@ -43,8 +43,11 @@ Run this Case only from the OneFLOW Tests GUI using the experimental
 system temporary directory before invoking the standard Case entry point, so
 the checked-in Case is not modified.
 
-The current milestone is an input-format adapter prototype. The next
-engineering steps are to introduce a format-neutral mesh snapshot, extend
+The current milestone is a first-order unstructured conversion path built
+around a shared staging model and CGNS writer. The Gmsh reader does not pass
+through SU2: it maps its GmshMesh value data into UnstructuredMeshData and
+calls UnstructuredCgnsZoneWriter. The next engineering steps are to evolve
+this limited staging model toward the fuller Mesh Core value contract, extend
 three-dimensional and higher-order conversion coverage, and validate
 round-trip semantics against additional real-world meshes. No Gmsh API is
 used; the reader depends only on the MSH file format.
@@ -56,8 +59,10 @@ The C++ reader materializes node coordinates, source node and element IDs,
 geometric entity ownership, physical names, entity-to-physical-group membership,
 element types, and ordered connectivity. Quoted physical names may contain
 spaces. The conversion path maps top-dimensional cells and first-order
-codimension-one physical-group elements through the existing
-Su2Grid-to-CgnsZone population path. MSH 2.x remains on the validation-only
+codimension-one physical-group elements into UnstructuredMeshData and writes
+the CGNS Unstructured Zone through UnstructuredCgnsZoneWriter. SU2 uses the
+same writer through its own adapter; Gmsh does not use the SU2 parser or
+Su2Grid as an intermediate mesh container. MSH 2.x remains on the validation-only
 path; high-order cells and periodic/partition metadata are not yet converted.
 
 

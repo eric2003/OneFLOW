@@ -113,6 +113,14 @@ quadrilateral section, boundary sections, BC names and BC types. Also inspect
 the reader/conversion reports. Process success or file existence alone is not
 a complete topology acceptance criterion.
 
+The current Gmsh conversion boundary is independent of SU2 parsing. The MSH
+reader produces a GmshMesh value, the adapter maps supported first-order
+cells and boundary patches into UnstructuredMeshData, and
+UnstructuredCgnsZoneWriter constructs the CGNS Unstructured Zone. SU2
+uses the same writer through a separate source-format adapter. Standard
+Plot3D remains on the structured GridMediator / CGNS Structured Zone
+path; it is not routed through this unstructured Case pipeline.
+
 Coverage plan
 -------------
 
