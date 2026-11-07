@@ -63,7 +63,7 @@ cmake/modules/OneFLOWSourceDiscovery.cmake provides:
    )
 
 The function recursively discovers C++ implementation files (.cpp) and
-headers (.h, .hpp, .hh). Header-containing directories are returned as
+headers (.h, .hpp). Header-containing directories are returned as
 include directories. It supports legacy implementation directories and
 the conventional include/ + src/ layout, including nested source folders.
 
