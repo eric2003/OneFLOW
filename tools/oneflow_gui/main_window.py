@@ -32,6 +32,7 @@ from .executable_discovery import executable_candidates
 from .models import CaseDefinition, CaseRunResult, RunState
 from .runner import create_run_id, prepare_case_database_workspace, run_case
 from .user_data_paths import UserDataPaths
+from .run_environment_evidence import RunEnvironmentEvidence
 from .workflow_dialog import WorkflowDialog
 from .test_dialog import TestCommandWorker, TestRunnerDialog
 from .test_runner import build_cmake_command
@@ -78,6 +79,19 @@ class RunQueueWorker(QThread):
 
     def run(self) -> None:
         execution_mode = self._execution_mode
+        executable = self._executable.expanduser().resolve()
+        paths = UserDataPaths.discover()
+        evidence = RunEnvironmentEvidence(
+            run_id=self._run_id,
+            executable=executable,
+            run_directory=paths.executions / self._run_id,
+            command_template=[str(executable), "r", "<case-directory>"],
+            working_directory=executable.parent,
+            project_directory=self._workspace_root,
+            execution_mode=execution_mode,
+        )
+        self.log_line.emit(f"Runtime environment evidence: {evidence.environment_path}")
+        run_status = "succeeded"
         if execution_mode == "case_database":
             try:
                 staged = prepare_case_database_workspace(
@@ -101,6 +115,7 @@ class RunQueueWorker(QThread):
                     )
                     self._emit_result(result)
                     self.case_state.emit(case.case_id, RunState.FAILED.value)
+                evidence.finish(status="failed", return_code=1)
                 return
 
         for index, case in enumerate(self._cases):
@@ -114,11 +129,12 @@ class RunQueueWorker(QThread):
                 )
                 self._emit_result(result)
                 self.case_state.emit(case.case_id, RunState.CANCELLED.value)
+                run_status = "cancelled"
                 continue
 
             self.case_state.emit(case.case_id, RunState.RUNNING.value)
             self.log_line.emit(
-                f"\n=== Case {index + 1}/{len(self._cases)}: {case.title} ==="
+                f"\\n=== Case {index + 1}/{len(self._cases)}: {case.title} ==="
             )
             try:
                 result = run_case(
@@ -142,6 +158,15 @@ class RunQueueWorker(QThread):
                 )
             self._emit_result(result)
             self.case_state.emit(case.case_id, result.state.value)
+            if result.state == RunState.FAILED:
+                run_status = "failed"
+            elif result.state == RunState.CANCELLED and run_status != "failed":
+                run_status = "cancelled"
+
+        evidence.finish(
+            status=run_status,
+            return_code=0 if run_status == "succeeded" else 1,
+        )
 
     def _emit_result(self, result: CaseRunResult) -> None:
         """Publish both the case-specific and shared task outcome contracts."""
