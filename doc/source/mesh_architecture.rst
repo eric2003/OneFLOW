@@ -459,3 +459,46 @@ cell (or the minimum connected patch needed) per element family. Reader
 tests should not depend on CGNS; conversion tests should write to a temporary
 directory and independently reopen the result with the CGNS API; the manual
 Case should remain the end-to-end GUI and report-generation path.
+
+Format interoperability routes
+-------------------------------
+
+Format conversion is organized as a graph of supported routes, not as a
+collection of pairwise converter implementations. Each format adapter owns
+its file syntax and maps into or out of a stable OneFLOW-facing mesh
+representation. Shared topology, entity identity, connectivity ordering and
+boundary semantics must be validated by common contracts.
+
+CGNS is the preferred standards-based interchange hub where it provides a
+useful independent serialization boundary. It is not the OneFLOW runtime
+mesh model and should not leak CGNS library types into the Mesh Core. A
+composed route such as Gmsh -> CGNS -> OneFLOW should write and reopen a real
+CGNS file; an in-memory shortcut is not equivalent evidence.
+
+The current route inventory is maintained in
+`grid/interoperability/conversion_matrix.json`. It records implementation
+status and known limitations so that documentation and test planning do not
+silently imply support for every possible format pair.
+
+Current policy:
+
+* Keep source-format fixtures in one format-owned directory. Route cases
+  reference those fixtures instead of copying them.
+* Keep route-specific configuration and generated evidence under the route.
+* Reuse format adapters and shared semantic contracts; do not implement a
+  dedicated converter for every pair.
+* Add a route only when it unlocks a real workflow or an independent
+  cross-validation path.
+* A successful file write is insufficient: round-trip checks compare
+  dimensions, coordinates, element families, ordered connectivity, region
+  membership and boundary semantics.
+* Record unsupported features and lossy mappings explicitly. Physical group
+  names are not solver boundary states unless an explicit mapping contract
+  says so.
+
+The Gmsh -> OneFLOW convenience route currently composes the MSH 4.1 ASCII
+reader, CGNS writer, and CGNS reader. It retains the intermediate CGNS file
+under the Case `results/` directory as reproducible evidence. This
+deliberately tests the same on-disk path that users can invoke as two
+separate conversions; it does not create a second Gmsh-specific runtime
+adapter.

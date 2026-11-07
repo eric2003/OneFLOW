@@ -150,3 +150,18 @@ Separate the automated checks into three layers:
 Each fixture should state the exact capability it proves and its expected
 node/element/section counts. Avoid one oversized mesh that mixes many
 features: separate tiny fixtures make failures local and diagnostics clear.
+## Interoperability route
+
+The generic `GridConfig` conversion entry now supports both:
+
+- `gmsh -> cgns`: write a CGNS interchange file.
+- `gmsh -> oneflow`: compose the same CGNS writer with the CGNS reader and
+  OneFLOW unstructured-grid construction. The intermediate file is retained
+  as `results/<source-stem>.gmsh-to-oneflow.cgns`.
+
+The composed route is intentionally not a second direct Gmsh runtime
+converter. It exercises the CGNS serialization boundary and keeps one
+authoritative Gmsh-to-CGNS mapping. Its current input scope remains MSH 4.1
+ASCII and the first-order element families listed above. The conversion
+matrix in `grid/interoperability/conversion_matrix.json` is the central
+inventory of supported routes.

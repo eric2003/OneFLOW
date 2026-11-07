@@ -196,6 +196,40 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
 
     std::filesystem::remove_all(caseDirectory);
 }
+
+TEST(GmshCgnsConversionTest, ConvertsGmshThroughCgnsIntoOneFlowGrid) {
+    const std::filesystem::path source =
+        std::filesystem::path(ONEFLOW_SOURCE_DIR) /
+        "grid" / "gmsh_to_cgns" / "grid" / "square.msh";
+    ASSERT_TRUE(std::filesystem::is_regular_file(source));
+
+    const std::filesystem::path caseDirectory = MakeTemporaryCaseDirectory();
+    const std::filesystem::path input = caseDirectory / "square.msh";
+    std::filesystem::copy_file(source, input);
+
+    ONEFLOW::GridConfig config;
+    config.sourceType = ONEFLOW::GridFileType::Gmsh;
+    config.targetType = ONEFLOW::GridFileType::OneFLOW;
+    config.sourceFile = input.filename().string();
+    config.topology = ONEFLOW::GridTopology::Unstructured;
+
+    EXPECT_NO_THROW(ONEFLOW::ConvertGrid(config, caseDirectory.string()));
+
+    const std::filesystem::path interchange =
+        caseDirectory / "results" / "square.gmsh-to-oneflow.cgns";
+    EXPECT_TRUE(std::filesystem::is_regular_file(interchange));
+    EXPECT_GT(std::filesystem::file_size(interchange), 0u);
+
+    int fileId = -1;
+    ASSERT_EQ(cg_open(interchange.string().c_str(), CG_MODE_READ, &fileId), CG_OK);
+    int baseCount = 0;
+    ASSERT_EQ(cg_nbases(fileId, &baseCount), CG_OK);
+    EXPECT_EQ(baseCount, 1);
+    EXPECT_EQ(cg_close(fileId), CG_OK);
+
+    std::filesystem::remove_all(caseDirectory);
+}
+
 #else
 TEST(GmshCgnsConversionTest, CGNSDisabled) {
     GTEST_SKIP() << "CGNS is not enabled in this build.";

@@ -615,11 +615,48 @@ namespace
                   << " and " << markdownReportPath.string() << std::endl;
     }
 
+    void ConvertGmshToOneFLOW(
+        const GridConfig & config,
+        const std::string & caseDir )
+    {
+        // Keep CGNS as the explicit, independently readable interchange
+        // artifact. This route composes the existing Gmsh writer and CGNS
+        // reader instead of maintaining a second Gmsh-to-runtime mapping.
+        const std::filesystem::path sourceName( config.sourceFile );
+        const std::string interchangeName =
+            sourceName.stem().string() + ".gmsh-to-oneflow.cgns";
+
+        GridConfig cgnsConfig = config;
+        cgnsConfig.targetType = GridFileType::CGNS;
+        cgnsConfig.targetFile =
+            ( std::filesystem::path( "results" ) / interchangeName ).generic_string();
+        ConvertGmshToCgns( cgnsConfig, caseDir );
+
+        GridConfig oneFlowConfig = cgnsConfig;
+        oneFlowConfig.sourceType = GridFileType::CGNS;
+        oneFlowConfig.sourceFile = cgnsConfig.targetFile;
+        oneFlowConfig.targetType = GridFileType::OneFLOW;
+        oneFlowConfig.topology = GridTopology::Unstructured;
+
+        CgnsFactory cgnsFactory;
+        cgnsFactory.GenerateGrid( oneFlowConfig, caseDir );
+    }
+
     void ConvertGmsh( const GridConfig & config, const std::string & caseDir )
     {
-        if ( config.targetType != GridFileType::CGNS )
-            throw std::invalid_argument( "Initial Gmsh conversion supports targetGridType = cgns only" );
-        ConvertGmshToCgns( config, caseDir );
+        switch ( config.targetType )
+        {
+            case GridFileType::CGNS:
+                ConvertGmshToCgns( config, caseDir );
+                return;
+            case GridFileType::OneFLOW:
+                ConvertGmshToOneFLOW( config, caseDir );
+                return;
+            default:
+                throw std::invalid_argument(
+                    std::string( "Unsupported Gmsh target type: " ) +
+                    std::string( ToString( config.targetType ) ) );
+        }
     }
 
     void ConvertPlot3DToOneFLOW(
@@ -698,7 +735,8 @@ bool IsSupportedConversion( GridFileType sourceType, GridFileType targetType )
             return targetType == GridFileType::OneFLOW ||
                    targetType == GridFileType::CGNS;
         case GridFileType::Gmsh:
-            return targetType == GridFileType::CGNS;
+            return targetType == GridFileType::CGNS ||
+                   targetType == GridFileType::OneFLOW;
         default:
             return false;
     }
