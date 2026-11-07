@@ -190,3 +190,25 @@ Then for NFACE_n, ElementConnectivity contains the list of face elements making 
 
 
 
+
+
+CGNS cell dimension and OneFLOW element classification
+------------------------------------------------------
+
+For unstructured CGNS input, the Base ``CellDimension`` is the authoritative
+topological dimension of the mesh. It is not interchangeable with
+``PhysicalDimension``: a two-dimensional mesh may be embedded in three
+coordinate dimensions (for example, ``CellDimension = 2`` and
+``PhysicalDimension = 3``).
+
+OneFLOW element classification and face construction currently consult the
+process-wide ``Dim`` setting. Before materializing CGNS zones as OneFLOW
+unstructured grids, ``GridElemGroup::GenerateLocalOneFlowGrids`` therefore
+synchronizes ``Dim`` from the CGNS Base cell dimension. It rejects unsupported
+dimensions and mixed cell dimensions across zones rather than silently
+classifying cells under a stale global setting.
+
+This is required for a 2D CGNS section containing ``TRI_3`` or ``QUAD_4``:
+without the synchronization, a process still configured as 3D treats these
+elements as non-volume elements, producing an empty cell topology even though
+the CGNS sections and connectivity were read successfully.

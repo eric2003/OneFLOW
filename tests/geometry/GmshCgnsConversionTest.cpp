@@ -9,6 +9,7 @@
 #include "CellMesh.h"
 #include "NodeMesh.h"
 #include "BcRecord.h"
+#include "Dimension.h"
 #include <chrono>
 #include <algorithm>
 #include <filesystem>
@@ -28,6 +29,16 @@ std::filesystem::path MakeTemporaryCaseDirectory() {
     std::filesystem::create_directories(path);
     return path;
 }
+
+class ScopedDimensionRestore
+{
+public:
+    ScopedDimensionRestore() : previousDimension( Dim::GetDimension() ) {}
+    ~ScopedDimensionRestore() { Dim::SetDimension( previousDimension ); }
+
+private:
+    int previousDimension;
+};
 }
 
 TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
@@ -260,8 +271,13 @@ TEST(GmshCgnsConversionTest, ConvertsGmshThroughCgnsIntoOneFlowGrid) {
     ASSERT_NO_THROW(cgnsFactory.ReadCgnsGrid(readConfig, caseDirectory.string()));
     ASSERT_NO_THROW(cgnsFactory.ProcessCgnsBases());
     ASSERT_NE(cgnsFactory.gridElemGroup, nullptr);
+    // Deliberately leave a stale 3D process setting: the CGNS Base cell
+    // dimension must take precedence when the 2D unstructured grid is built.
+    ScopedDimensionRestore restoreDimension;
+    ONEFLOW::Dim::SetDimension(ONEFLOW::THREE_D);
     ONEFLOW::Grids grids =
         cgnsFactory.gridElemGroup->GenerateLocalOneFlowGrids(readConfig);
+    EXPECT_EQ(ONEFLOW::Dim::GetDimension(), ONEFLOW::TWO_D);
     ASSERT_EQ(grids.size(), 1u);
 
     const auto * grid = dynamic_cast<const ONEFLOW::UnsGrid *>(grids.front().get());
