@@ -175,11 +175,9 @@ Json QueryCgnsDependency()
     }
 #endif
 
-    std::ostringstream headerVersion;
-#ifdef CGNS_DOTVERS
-    headerVersion << std::setprecision(6) << CGNS_DOTVERS;
-#else
-    headerVersion << "unknown";
+    std::string headerVersion = "unknown";
+#ifdef CGNS_VERSION
+    headerVersion = FormatCgnsVersionNumber(CGNS_VERSION);
 #endif
 
     return {
@@ -189,8 +187,9 @@ Json QueryCgnsDependency()
         {"runtime_version", runtimeVersion},
         {"runtime_version_status", runtimeStatus},
         {"header_version", {
-            {"value", headerVersion.str()},
-            {"source", "CGNS_DOTVERS_compile_time_macro"}
+            {"value", headerVersion},
+            {"number", CGNS_VERSION},
+            {"source", "CGNS_VERSION_compile_time_macro"}
         }},
         {"runtime_library", {
             {"module_path", module.path},
