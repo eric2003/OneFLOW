@@ -298,7 +298,54 @@ TEST(GmshCgnsConversionTest, ConvertsGmshThroughCgnsIntoOneFlowGrid) {
     EXPECT_DOUBLE_EQ(grid->nodeMesh->yN[1], 0.0);
     EXPECT_DOUBLE_EQ(grid->nodeMesh->yN[2], 1.0);
     EXPECT_DOUBLE_EQ(grid->nodeMesh->yN[3], 1.0);
-    EXPECT_EQ(grid->GetFaceTopo().GetBcRecord().bcType.size(), 4u);
+    const auto & bcRecord = grid->GetFaceTopo().GetBcRecord();
+    ASSERT_EQ(bcRecord.bcType.size(), 4u);
+    ASSERT_EQ(bcRecord.bcNameId.size(), 4u);
+
+    struct ExpectedOneFlowBoundary
+    {
+        const char * name;
+        int bcType;
+        int nodeA;
+        int nodeB;
+    };
+    const std::vector<ExpectedOneFlowBoundary> expectedOneFlowBoundaries{
+        { "inflow", BC::INFLOW, 3, 0 },
+        { "outflow", BC::OUTFLOW, 1, 2 },
+        { "symmetry", BC::SYMMETRY, 0, 1 },
+        { "farfield", BC::FARFIELD, 2, 3 }
+    };
+    const auto & boundaryFaces = grid->GetFaceTopo().GetFaces();
+    for ( const auto & expected : expectedOneFlowBoundaries )
+    {
+        const int expectedNameId = RegionNameMap::FindRegionId( expected.name );
+        ASSERT_NE( expectedNameId, INVALID_INDEX )
+            << "Missing registered OneFLOW boundary name: " << expected.name;
+
+        int matchedFace = INVALID_INDEX;
+        int matchCount = 0;
+        for ( int iFace = 0; iFace < grid->nBFaces; ++ iFace )
+        {
+            if ( bcRecord.bcType[ iFace ] == expected.bcType &&
+                 bcRecord.bcNameId[ iFace ] == expectedNameId )
+            {
+                matchedFace = iFace;
+                ++ matchCount;
+            }
+        }
+        ASSERT_EQ( matchCount, 1 )
+            << "Expected exactly one boundary face for " << expected.name;
+        ASSERT_LT( matchedFace, static_cast<int>( boundaryFaces.size() ) );
+        ASSERT_EQ( boundaryFaces[ matchedFace ].size(), 2u );
+
+        std::vector<int> actualNodes = boundaryFaces[ matchedFace ];
+        std::sort( actualNodes.begin(), actualNodes.end() );
+        std::vector<int> expectedNodes{ expected.nodeA, expected.nodeB };
+        std::sort( expectedNodes.begin(), expectedNodes.end() );
+        EXPECT_EQ( actualNodes, expectedNodes )
+            << "Boundary name/type was attached to the wrong geometric edge: "
+            << expected.name;
+    }
     EXPECT_EQ(grid->GetCellMesh().GetCellTopo().eTypes.size(), 2u);
 
     grids.clear();

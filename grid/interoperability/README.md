@@ -46,6 +46,14 @@ inspect the constructed OneFLOW mesh model (not merely check that a file
 exists). This validates serialization, indexing conventions, the CGNS reader
 and the internal topology construction.
 
+For the current 2D Gmsh fixture, boundary validation is semantic rather than
+count-only: the OneFLOW boundary record must preserve the mapped BC type and
+registered physical-group name, and each pair must remain attached to its
+expected geometric edge (left=inflow, right=outflow, bottom=symmetry,
+top=farfield). This catches a particularly dangerous class of conversion
+defects where all four boundary faces exist but their solver meanings have
+been permuted.
+
 ## Current routes
 
 See `conversion_matrix.json` for the maintained route inventory. Currently

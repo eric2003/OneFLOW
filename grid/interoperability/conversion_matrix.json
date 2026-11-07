@@ -26,7 +26,7 @@
         "Configured native OneFLOW grid target, or Case results/<source-stem>.oneflow.grid by default"
       ],
       "input_scope": "Same as gmsh -> cgns.",
-      "evidence": "GmshCgnsConversionTest verifies the retained CGNS Base/Zone/BC_t data, the separate native OneFLOW grid output, and OneFLOW UnsGrid node/cell/face counts and coordinates."
+      "evidence": "GmshCgnsConversionTest verifies the retained CGNS Base/Zone/BC_t data, the separate native OneFLOW grid output, OneFLOW UnsGrid node/cell/face counts and coordinates, and per-boundary OneFLOW BC type/name identity attached to the expected geometric edge."
     },
     {
       "source": "cgns",
