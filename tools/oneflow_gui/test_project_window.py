@@ -78,7 +78,7 @@ class ProjectWindowParameterTest(unittest.TestCase):
             return None
         return visit(parent)
 
-    def test_unified_view_merges_manifest_files_and_exposes_consumer_evidence(self) -> None:
+    def test_unified_view_merges_discovered_files_in_filename_order_and_exposes_consumer_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             script = root / "script"
@@ -97,19 +97,24 @@ class ProjectWindowParameterTest(unittest.TestCase):
                 window = ProjectWindow(open_project(root), root.parent)
             try:
                 tree = window.findChild(QTreeWidget, "unifiedParameterTree")
-                effective = self._find_item(tree, "MAXSTEPS")
+                self.assertEqual(
+                    [path.name for path in window._project.parameter_files],
+                    ["cfd.txt", "extra.txt", "override.txt", "simu.txt"],
+                )
+                self.assertIn("filename order", window.statusBar().currentMessage())
+                effective = self._find_item(tree, "maxSteps")
                 self.assertIsNotNone(effective)
-                self.assertEqual(effective.text(1), "30")
+                self.assertEqual(effective.text(1), "10")
                 self.assertEqual(effective.text(4), "Solve")
-                self.assertIn("file 3", effective.text(3))
+                self.assertIn("file 4", effective.text(3))
                 overridden = [
                     effective.child(index)
                     for index in range(effective.childCount())
                     if effective.child(index).text(0) == "[overridden] maxSteps"
                 ]
-                self.assertEqual([item.text(1) for item in overridden], ["10", "20"])
+                self.assertEqual([item.text(1) for item in overridden], ["20", "30"])
                 self.assertIn("file 1", overridden[0].text(3))
-                self.assertIn("file 2", overridden[1].text(3))
+                self.assertIn("file 3", overridden[1].text(3))
                 consumer = next(
                     effective.child(index)
                     for index in range(effective.childCount())
