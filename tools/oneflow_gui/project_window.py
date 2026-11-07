@@ -1074,6 +1074,12 @@ class ProjectWindow(QMainWindow):
                     "status": outcome.status,
                     "return_code": outcome.return_code,
                     "message": outcome.message,
+                    "environment_report": str(
+                        (UserDataPaths.discover().executions / outcome.run_id / "environment.json").resolve()
+                    ),
+                    "run_manifest": str(
+                        (UserDataPaths.discover().executions / outcome.run_id / "run-manifest.json").resolve()
+                    ),
                 },),
                 message=outcome.message,
                 log_path=record.log_path,
