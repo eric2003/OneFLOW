@@ -91,12 +91,13 @@ class RuntimeEnvironmentDialog(QDialog):
         self.summary_label.setWordWrap(True)
         layout.addWidget(self.summary_label)
 
-        self.table = QTableWidget(0, 5, self)
+        self.table = QTableWidget(0, 6, self)
         self.table.setHorizontalHeaderLabels(
             [
                 "Dependency",
                 "Runtime version",
                 "Header version",
+                "Version consistency",
                 "Status",
                 "Loaded module",
             ]
@@ -158,6 +159,15 @@ class RuntimeEnvironmentDialog(QDialog):
                 else "Unavailable"
             )
             header_text = header.get("value") or "—"
+            compatibility = dependency.get("version_compatibility") or {}
+            compatibility_status = compatibility.get("status", "unknown")
+            compatibility_basis = compatibility.get("basis", "")
+            compatibility_text = (
+                f"{compatibility_status} ({compatibility_basis})"
+                if compatibility_basis
+                else compatibility_status
+            )
+            compatibility_detail = compatibility.get("detail", "")
             runtime_library = dependency.get("runtime_library") or {}
             module_path = runtime_library.get("module_path") or "—"
             linkage = runtime_library.get("linkage")
@@ -170,12 +180,15 @@ class RuntimeEnvironmentDialog(QDialog):
                 dependency.get("name", "Unknown"),
                 runtime_text,
                 header_text,
+                compatibility_text,
                 dependency.get("status", "unknown"),
                 module_text,
             )
             for column, value in enumerate(values):
                 item = QTableWidgetItem(str(value))
                 if column == 4:
+                    item.setToolTip(str(compatibility_detail))
+                elif column == 5:
                     item.setToolTip(str(module_path))
                 self.table.setItem(row, column, item)
 
