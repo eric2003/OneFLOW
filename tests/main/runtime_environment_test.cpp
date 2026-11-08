@@ -47,6 +47,13 @@ TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
     EXPECT_TRUE(cgnsCompatibility.at("detail").is_string());
     const auto & cgnsRuntimeVersion = cgns.at("runtime_version");
     const auto & cgnsHeaderVersion = cgns.at("header_version");
+    if (cgnsHeaderVersion.is_object())
+    {
+        EXPECT_TRUE(
+            cgnsHeaderVersion.at("number").is_number_integer() ||
+            cgnsHeaderVersion.at("number").is_null());
+        EXPECT_TRUE(cgnsHeaderVersion.at("source").is_string());
+    }
     const bool hasCgnsHeader =
         cgnsHeaderVersion.is_object() &&
         cgnsHeaderVersion.contains("value") &&
