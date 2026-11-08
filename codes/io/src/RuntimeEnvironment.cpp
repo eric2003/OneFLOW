@@ -348,6 +348,7 @@ RuntimeSymbolInfo FindHdf5VersionSymbol(Hdf5GetLibVersion & function)
 
 Json QueryHdf5Dependency()
 {
+    const Json headerVersion = nullptr;
     Hdf5GetLibVersion getVersion = nullptr;
     const RuntimeSymbolInfo module = FindHdf5VersionSymbol(getVersion);
     if (getVersion == nullptr)
