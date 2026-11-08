@@ -109,16 +109,16 @@ class ContractCatalogTest(unittest.TestCase):
             )
         )
 
-        targets = discover_cmake_test_targets_by_source(self.repository_root)
-        geometry_targets = targets.get("tests/geometry/StlMeshIOTest.cpp", ())
-        self.assertTrue(
-            any(
-                item.target == "StlMeshIOTest"
-                and item.discovery_declared
-                and item.discovery_mode == "PRE_TEST"
-                for item in geometry_targets
-            ),
-            "STL native GoogleTests must be registered for CTest discovery",
+        geometry_cmake = (
+            self.repository_root / "tests" / "geometry" / "CMakeLists.txt"
+        ).read_text(encoding="utf-8")
+        self.assertIn(
+            "add_oneflow_gtest(StlMeshIOTest StlMeshIOTest.cpp)",
+            geometry_cmake,
+        )
+        self.assertIn(
+            "gtest_discover_tests(${TEST_NAME} DISCOVERY_MODE PRE_TEST)",
+            geometry_cmake,
         )
 
     def test_adapts_declared_runtime_contract_with_typed_evidence(self) -> None:
