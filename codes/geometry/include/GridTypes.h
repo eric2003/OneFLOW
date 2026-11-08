@@ -135,6 +135,8 @@ struct GridConfig
     std::string   layoutFile;
     std::string   bcFile;
     std::string   targetFile;
+    // External mesher executable used by generation workflows such as STL -> Gmsh.
+    std::string   gmshExecutable{ "gmsh" };
     GridOutputConfig output;
     // Legacy mirrors retained while existing callers migrate to output.
     std::string   gridInfoFile;
