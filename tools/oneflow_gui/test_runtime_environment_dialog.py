@@ -101,7 +101,11 @@ class RuntimeEnvironmentQueryTest(unittest.TestCase):
             )
             self.assertEqual(
                 result["dependencies"][1]["version_compatibility"]["status"],
-                "unknown",
+                "assumed_match",
+            )
+            self.assertEqual(
+                result["dependencies"][1]["header_version"]["source"],
+                "H5_VERS_MAJOR_MINOR_RELEASE_compile_time_macros",
             )
             arguments, keywords = run.call_args
             self.assertEqual(
