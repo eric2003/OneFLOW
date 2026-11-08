@@ -237,6 +237,11 @@ def run_pipeline(
 
             results_directory = step.directory / "results"
             results_directory.mkdir(parents=True, exist_ok=True)
+            runtime_environment = results_directory / "runtime-environment.json"
+            environment_snapshot = run_root / "environment.json"
+            if environment_snapshot.is_file():
+                runtime_environment.write_bytes(environment_snapshot.read_bytes())
+
             log_path = results_directory / "development_case.log"
             log_path.write_text(
                 "Command: "
@@ -270,6 +275,11 @@ def run_pipeline(
             validation_report = staged_directory / "results/validation.json"
             if validation_report.is_file():
                 artifacts.append(str(validation_report))
+            runtime_environment = (
+                staged_directory / "results/runtime-environment.json"
+            )
+            if runtime_environment.is_file():
+                artifacts.append(str(runtime_environment))
             step_records.append(
                 {
                     "case_id": result.case_id,
@@ -279,6 +289,11 @@ def run_pipeline(
                     "artifacts": produced,
                     "validation_report": (
                         str(validation_report) if validation_report.is_file() else None
+                    ),
+                    "runtime_environment": (
+                        str(runtime_environment)
+                        if runtime_environment.is_file()
+                        else None
                     ),
                     "log": str(staged_directory / "results/development_case.log"),
                 }

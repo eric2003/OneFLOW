@@ -98,8 +98,9 @@ integration tests, then uploads the per-run pipeline evidence as an artifact.
 Each Case declares its own output-validation rule in the workflow JSON, so
 validation behavior is data-driven rather than selected by Case ID. The
 runner snapshots the workflow JSON and writes one validation.json per
-validated stage. The pipeline writes pipeline-report.json, environment.json
-and run-manifest.json beside its staged Cases. It independently checks the MSH
+validated stage. The pipeline writes pipeline-report.json, environment.json,
+run-manifest.json and workflow.json beside its staged Cases. Every executed
+Case also receives results/runtime-environment.json beside its log. It independently checks the MSH
 4.1 node/line/quad counts and Physical Groups before allowing CGNS conversion
 to proceed. It also requires non-empty residual, restart and visualization
 outputs after CFD execution.

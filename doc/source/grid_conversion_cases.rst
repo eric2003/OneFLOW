@@ -303,7 +303,9 @@ The default staging root is
 $HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. A unique
 pipelines/<run-id>/ directory contains each staged Case, process logs,
 pipeline-report.json, environment.json, run-manifest.json and a snapshot of
-the workflow definition. Each validated Case also writes validation.json.
+the workflow definition. Each executed Case also receives
+results/runtime-environment.json and development_case.log; each validated
+Case writes validation.json.
 The source repository is not used as a runtime workspace. The manually
 dispatched OneFLOW External Tool Integration GitHub Actions workflow also
 runs this complete pipeline on Windows and uploads its run evidence.
