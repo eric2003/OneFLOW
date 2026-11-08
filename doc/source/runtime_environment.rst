@@ -95,10 +95,11 @@ CGNS version evidence
 
 The report deliberately separates three kinds of information:
 
-* runtime_version is populated only when the CGNS library linked into this
-  build exposes cg_get_cgns_version and cg_get_cgns_version_string. CMake
-  checks declaration and linkability against the configured CGNS headers and
-  library before enabling the calls.
+* runtime_version is populated only when the configured CGNS headers and
+  linked library expose the optional cg_get_cgns_version and
+  cg_get_cgns_version_string APIs. CMake checks declaration and linkability
+  so OneFLOW can compile the corresponding call. This is a build-capability
+  check; it is not itself evidence of the version loaded at runtime.
 * header_version is derived from the CGNS_VERSION macro in the header used to
   compile OneFLOW. It is compile-time evidence, not proof of the version of a
   different library that the operating system may load.
@@ -107,11 +108,18 @@ The report deliberately separates three kinds of information:
   the loaded DLL or the executable when CGNS is linked into it. On Linux and
   macOS it uses dynamic-loader module information. A static build may
   therefore report the OneFLOW executable as the containing module.
+* version_compatibility summarizes the evidence without confusing inference
+  with an independent runtime query. If both versions are available, OneFLOW
+  reports verified_match or mismatch. If only the header version is available,
+  it reports assumed_match and explicitly records header_version as the basis.
+  If neither side provides enough evidence, it reports unknown.
 
-The public CGNS 4.5.2 header does not declare the two cg_get_cgns_version
-functions. For that version the runtime API field is reported as unavailable,
-while the header version and loaded-module information remain visible.
-OneFLOW must not relabel the header macro as a runtime query result.
+The public CGNS 4.5.2 header does not declare the two optional version-query
+functions. For that version the runtime API field remains unavailable, while
+the header version and loaded-module information remain visible. The
+compatibility result is therefore assumed_match, not a runtime verification.
+The default assumption is a reporting convention, not a guarantee of ABI
+compatibility.
 
 Do not confuse the library version with cg_version(fn, &version). The latter
 queries the CGNS file-format version stored in an opened file; it does not
@@ -138,6 +146,10 @@ The table columns mean:
 * Runtime version: version returned by a runtime API, including its source.
   Unavailable means no reliable runtime version was returned.
 * Header version: version macro from the header used at compile time.
+* Version consistency: verified_match when independently obtained versions
+  agree, mismatch when they differ, assumed_match when only the header version
+  is available, or unknown when evidence is insufficient. The basis and
+  diagnostic detail are included in the JSON report.
 * Status: whether the dependency is enabled/available and, where applicable,
   the runtime-version query status.
 * Loaded module: actual module path containing the queried library function,
@@ -237,8 +249,17 @@ Dependency expansion policy
 Additional dependencies should be registered through the same typed report,
 not through GUI-specific probes. Each dependency entry should distinguish
 runtime API version, loaded module path and linkage, compile-time/header
-version, build configuration and enabled/disabled state, and query status
-with diagnostic detail when unavailable or failed.
+version, build configuration and enabled/disabled state, query status
+with diagnostic detail when unavailable or failed, and a version-consistency
+assessment.
+
+The consistency assessment uses four states: verified_match, mismatch,
+assumed_match, and unknown. OneFLOW compares independently obtained version
+strings when both are present. When only a usable header version is available,
+it defaults to assumed_match and records header_version as the basis. This
+assumption must never be presented as an independent runtime observation or
+as proof of binary/ABI compatibility. If only a runtime version is known, or
+neither version is known, the assessment remains unknown.
 
 HDF5 is now inspected without introducing an undeclared compile-time or
 link-time dependency. At runtime OneFLOW searches the modules already loaded
