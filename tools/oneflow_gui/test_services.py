@@ -47,12 +47,14 @@ class DesktopServiceTest(unittest.TestCase):
         cases = [case for case in load_cases(REPOSITORY_ROOT) if case.group == "STL"]
         cases_by_id = {case.case_id: case for case in cases}
 
-        self.assertEqual(len(cases), 11)
+        self.assertEqual(len(cases), 13)
         self.assertEqual(cases_by_id["stl_ascii_basic"].execution_kind, "oneflow")
         self.assertIsNone(cases_by_id["stl_ascii_basic"].runtime_config)
         self.assertIsNone(cases_by_id["stl_ascii_basic"].execution_script)
         self.assertEqual(cases_by_id["stl_ascii_crlf"].execution_kind, "oneflow")
         self.assertEqual(cases_by_id["stl_ascii_scientific_notation"].execution_kind, "oneflow")
+        self.assertEqual(cases_by_id["stl_binary_basic"].execution_kind, "oneflow")
+        self.assertEqual(cases_by_id["stl_binary_header_solid"].execution_kind, "oneflow")
         self.assertEqual(cases_by_id["stl_ascii_scientific_notation"].workspace_relative_directory, Path("stl/ascii_scientific_notation"))
         self.assertEqual(cases_by_id["stl_python_ascii_basic"].execution_kind, "python")
         self.assertEqual(cases_by_id["stl_python_ascii_crlf"].execution_kind, "python")
@@ -73,9 +75,11 @@ class DesktopServiceTest(unittest.TestCase):
         native = select_cases_by_execution_kind(cases, "oneflow")
         python = select_cases_by_execution_kind(cases, "python")
         self.assertEqual({case.case_id for case in native}, {
-            "stl_ascii_basic", "stl_ascii_crlf", "stl_ascii_scientific_notation"
+            "stl_ascii_basic", "stl_ascii_crlf", "stl_ascii_scientific_notation",
+            "stl_binary_basic", "stl_binary_header_solid"
         })
         self.assertEqual(len(python), 8)
+        self.assertEqual(len(native), 5)
         self.assertTrue(all(case.execution_kind == "oneflow" for case in native))
         self.assertTrue(all(case.execution_kind == "python" for case in python))
         with self.assertRaisesRegex(ValueError, "Unsupported"):
@@ -103,9 +107,12 @@ class DesktopServiceTest(unittest.TestCase):
     def test_native_stl_cases_are_staged_without_runtime_manifests(self) -> None:
         cases = [
             case for case in load_cases(REPOSITORY_ROOT)
-            if case.case_id in {"stl_ascii_basic", "stl_ascii_crlf", "stl_ascii_scientific_notation"}
+            if case.case_id in {
+                "stl_ascii_basic", "stl_ascii_crlf", "stl_ascii_scientific_notation",
+                "stl_binary_basic", "stl_binary_header_solid",
+            }
         ]
-        self.assertEqual(len(cases), 3)
+        self.assertEqual(len(cases), 5)
         with tempfile.TemporaryDirectory() as directory:
             staged_cases = prepare_case_database_workspace(cases, Path(directory) / "grid")
             for case in cases:
@@ -120,6 +127,12 @@ class DesktopServiceTest(unittest.TestCase):
             self.assertIn(bytes((13, 10)), crlf_fixture)
             scientific_fixture = (staged_cases["stl_ascii_scientific_notation"] / "input" / "model.stl").read_text(encoding="ascii")
             self.assertIn("e+", scientific_fixture.lower())
+            for case_id in ("stl_binary_basic", "stl_binary_header_solid"):
+                binary_fixture = (staged_cases[case_id] / "input" / "model.stl").read_bytes()
+                self.assertEqual(len(binary_fixture), 184)
+                self.assertEqual(int.from_bytes(binary_fixture[80:84], "little"), 2)
+            solid_header = (staged_cases["stl_binary_header_solid"] / "input" / "model.stl").read_bytes()
+            self.assertTrue(solid_header.startswith(b"solid"))
 
     def test_executable_discovery_prefers_debug_then_release_then_install(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

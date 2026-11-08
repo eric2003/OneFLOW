@@ -260,6 +260,14 @@ Native C++ OneFLOW Development Cases
      - Same geometry with exponent-form finite coordinates and normals
      - Native C++ numeric token parsing accepts scientific notation through the runtime conversion route
      - Extreme exponent/overflow boundaries, locale-specific decimal separators, geometric quality or solver suitability
+   * - `stl_binary_basic`
+     - Two-triangle square encoded as standard binary STL
+     - Native C++ runtime decodes the 80-byte header, little-endian count and 50-byte facets and writes the surface CGNS output
+     - All binary corruption cases, arbitrary vendor extensions, attribute semantic interpretation, volume meshing
+   * - `stl_binary_header_solid`
+     - Binary STL whose opaque header begins with the word `solid`
+     - Native C++ runtime detects binary structure rather than relying on the header prefix
+     - Every ambiguous/trailing-byte variant or all possible format-detection ambiguities
 
 Python reference Development Cases
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

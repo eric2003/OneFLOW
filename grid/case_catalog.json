@@ -128,6 +128,22 @@
       "group": "STL"
     },
     {
+      "id": "stl_binary_basic",
+      "title": "STL Binary Basic",
+      "directory": "grid/stl/binary_basic",
+      "profile": null,
+      "layout": null,
+      "group": "STL"
+    },
+    {
+      "id": "stl_binary_header_solid",
+      "title": "STL Binary Header Starts with solid",
+      "directory": "grid/stl/binary_header_solid",
+      "profile": null,
+      "layout": null,
+      "group": "STL"
+    },
+    {
       "id": "stl_ascii_scientific_notation",
       "title": "STL ASCII Scientific Notation",
       "directory": "grid/stl/ascii_scientific_notation",

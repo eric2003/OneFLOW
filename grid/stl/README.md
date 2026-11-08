@@ -32,7 +32,7 @@ STL defines geometry and triangle topology, not CFD boundary conditions. Boundar
 
 ## Development test cases
 
-STL reader compatibility cases are registered in `grid/case_catalog.json` under the `STL` group and appear in **Select Development Test Cases**. Each Python reference case lives under `grid/stl/python/<case>` and supplies `input/model.stl` and `expected.json`; the shared runner writes `results/stl_report.json` in the staged case workspace. Native OneFLOW cases live directly under `grid/stl/<case>` and run through the standard OneFLOW runtime. The native set currently includes `ascii_basic`, `ascii_crlf`, and `ascii_scientific_notation`.
+STL reader compatibility cases are registered in `grid/case_catalog.json` under the `STL` group and appear in **Select Development Test Cases**. Each Python reference case lives under `grid/stl/python/<case>` and supplies `input/model.stl` and `expected.json`; the shared runner writes `results/stl_report.json` in the staged case workspace. Native OneFLOW cases live directly under `grid/stl/<case>` and run through the standard OneFLOW runtime. The native set currently includes `ascii_basic`, `ascii_crlf`, `ascii_scientific_notation`, `binary_basic`, and `binary_header_solid`.
 
 The initial collection covers ASCII and binary STL, binary headers beginning with `solid`, CRLF text, scientific notation, degenerate triangles, truncated binary data, and non-planar surfaces. Expected diagnostic failures count as passing tests when the observed diagnostic matches the case expectation.
 
