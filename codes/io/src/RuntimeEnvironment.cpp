@@ -27,14 +27,17 @@ License
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <vector>
 
-#if defined(ENABLE_CGNS)
-#include <cgnslib.h>
 #if defined(_WIN32)
 #include <windows.h>
+#include <tlhelp32.h>
 #elif defined(__unix__) || defined(__APPLE__)
 #include <dlfcn.h>
 #endif
+
+#if defined(ENABLE_CGNS)
+#include <cgnslib.h>
 #endif
 
 #ifndef ONEFLOW_PROJECT_VERSION
@@ -214,10 +217,135 @@ Json QueryCgnsDependency()
 
 #endif
 
+struct RuntimeSymbolInfo
+{
+    std::string modulePath;
+    std::string linkage = "unavailable";
+};
+
+using Hdf5GetLibVersion = int (*)(unsigned int *, unsigned int *, unsigned int *);
+
+RuntimeSymbolInfo FindHdf5VersionSymbol(Hdf5GetLibVersion & function)
+{
+    RuntimeSymbolInfo result;
+    function = nullptr;
+
+#if defined(_WIN32)
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32,
+                                                GetCurrentProcessId());
+    if (snapshot == INVALID_HANDLE_VALUE)
+    {
+        return result;
+    }
+
+    MODULEENTRY32 entry{};
+    entry.dwSize = sizeof(entry);
+    if (Module32First(snapshot, &entry))
+    {
+        do
+        {
+            HMODULE module = entry.hModule;
+            FARPROC symbol = GetProcAddress(module, "H5get_libversion");
+            if (symbol != nullptr)
+            {
+                function = reinterpret_cast<Hdf5GetLibVersion>(symbol);
+                result.modulePath = entry.szExePath;
+                result.linkage = module == GetModuleHandleA(nullptr)
+                    ? "linked_into_executable"
+                    : "shared";
+                break;
+            }
+        } while (Module32Next(snapshot, &entry));
+    }
+    CloseHandle(snapshot);
+#elif defined(__unix__) || defined(__APPLE__)
+    void * symbol = dlsym(RTLD_DEFAULT, "H5get_libversion");
+    if (symbol != nullptr)
+    {
+        function = reinterpret_cast<Hdf5GetLibVersion>(symbol);
+        Dl_info moduleInfo{};
+        if (dladdr(symbol, &moduleInfo) != 0 && moduleInfo.dli_fname != nullptr)
+        {
+            result.modulePath = moduleInfo.dli_fname;
+            result.linkage = "shared";
+        }
+    }
+#endif
+
+    return result;
+}
+
+Json QueryHdf5Dependency()
+{
+    Hdf5GetLibVersion getVersion = nullptr;
+    const RuntimeSymbolInfo module = FindHdf5VersionSymbol(getVersion);
+    if (getVersion == nullptr)
+    {
+        return {
+            {"name", "HDF5"},
+            {"enabled", false},
+            {"status", "not_detected"},
+            {"runtime_version", {
+                {"value", nullptr},
+                {"source", "unavailable"}
+            }},
+            {"runtime_version_status", "runtime_api_symbol_not_found"},
+            {"header_version", nullptr},
+            {"runtime_library", {
+                {"module_path", module.modulePath},
+                {"linkage", module.linkage}
+            }},
+            {"detail", "H5get_libversion was not exported by a loaded process module."}
+        };
+    }
+
+    unsigned int major = 0;
+    unsigned int minor = 0;
+    unsigned int release = 0;
+    const int status = getVersion(&major, &minor, &release);
+    if (status < 0)
+    {
+        return {
+            {"name", "HDF5"},
+            {"enabled", true},
+            {"status", "query_failed"},
+            {"runtime_version", {
+                {"value", nullptr},
+                {"source", "unavailable"}
+            }},
+            {"runtime_version_status", "runtime_api_call_failed"},
+            {"header_version", nullptr},
+            {"runtime_library", {
+                {"module_path", module.modulePath},
+                {"linkage", module.linkage}
+            }}
+        };
+    }
+
+    std::ostringstream version;
+    version << major << '.' << minor << '.' << release;
+    return {
+        {"name", "HDF5"},
+        {"enabled", true},
+        {"status", "available"},
+        {"runtime_version", {
+            {"value", version.str()},
+            {"source", "H5get_libversion"}
+        }},
+        {"runtime_version_status", "available"},
+        {"header_version", nullptr},
+        {"runtime_library", {
+            {"module_path", module.modulePath},
+            {"linkage", module.linkage}
+        }}
+    };
+}
+
 Json QueryRuntimeEnvironment()
 {
     Json dependencies = Json::array();
     dependencies.push_back(QueryCgnsDependency());
+    dependencies.push_back(QueryHdf5Dependency());
 
     return {
         {"schema_version", 1},
