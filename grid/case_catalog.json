@@ -168,6 +168,14 @@
       "group": "STL"
     },
     {
+      "id": "stl_ascii_single_triangle",
+      "title": "STL ASCII Single Triangle",
+      "directory": "grid/stl/ascii_single_triangle",
+      "profile": null,
+      "layout": null,
+      "group": "STL"
+    },
+    {
       "id": "stl_python_binary_basic",
       "title": "STL Binary Basic (Python reference)",
       "directory": "grid/stl/python/binary_basic",

@@ -64,3 +64,27 @@ def select_cases_by_execution_kind(
     if execution_kind not in {"oneflow", "python"}:
         raise ValueError(f"Unsupported development case execution kind: {execution_kind!r}")
     return [case for case in cases if case.execution_kind == execution_kind]
+
+
+def select_cases_for_selection_dialog(
+    cases: list[CaseDefinition], *, run_native: bool, run_python: bool,
+) -> list[CaseDefinition]:
+    """Return cases visible for the enabled modes; default browsing is native."""
+    kinds = {"oneflow"}
+    if run_native and run_python:
+        kinds.add("python")
+    elif run_python:
+        kinds = {"python"}
+    return [case for case in cases if case.execution_kind in kinds]
+
+
+def select_cases_for_execution(
+    cases: list[CaseDefinition], *, run_native: bool, run_python: bool,
+) -> list[CaseDefinition]:
+    """Return native and/or Python cases enabled for this run."""
+    kinds = set()
+    if run_native:
+        kinds.add("oneflow")
+    if run_python:
+        kinds.add("python")
+    return [case for case in cases if case.execution_kind in kinds]

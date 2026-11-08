@@ -9,7 +9,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools.oneflow_gui.case_repository import load_cases, select_cases_by_execution_kind
+from tools.oneflow_gui.case_repository import (
+    load_cases,
+    select_cases_by_execution_kind,
+    select_cases_for_execution,
+    select_cases_for_selection_dialog,
+)
 from tools.oneflow_gui.executable_discovery import executable_candidates
 from tools.oneflow_gui.models import CaseDefinition
 from tools.oneflow_gui.runner import (
@@ -67,6 +72,8 @@ class DesktopServiceTest(unittest.TestCase):
 
         python_cases = [case for case in cases if case.execution_kind == "python"]
         self.assertEqual(len(python_cases), 8)
+        self.assertEqual(len([case for case in cases if case.execution_kind == "oneflow"]), 8)
+        self.assertIn("stl_ascii_single_triangle", cases_by_id)
         self.assertTrue(all(case.runtime_config is None for case in python_cases))
         self.assertTrue(all(case.execution_script is not None and case.execution_script.is_file()
                             for case in python_cases))
@@ -82,33 +89,37 @@ class DesktopServiceTest(unittest.TestCase):
             "stl_non_planar_surface", "stl_weld_tolerance"
         })
         self.assertEqual(len(python), 8)
-        self.assertEqual(len(native), 7)
+        self.assertEqual(len(native), 8)
         self.assertTrue(all(case.execution_kind == "oneflow" for case in native))
         self.assertTrue(all(case.execution_kind == "python" for case in python))
         with self.assertRaisesRegex(ValueError, "Unsupported"):
             select_cases_by_execution_kind(cases, "mixed")
 
-    def test_development_case_selection_options_are_exclusive_by_mode(self) -> None:
-        cases = load_cases(REPOSITORY_ROOT)
-        native = select_cases_by_execution_kind(cases, "oneflow")
-        python = select_cases_by_execution_kind(cases, "python")
-
-        # The selector receives only the active execution kind, regardless
-        # of whether the caller has enabled running Development Cases.
-        for run_development_cases in (False, True):
-            for python_mode in (False, True):
-                visible_cases = python if python_mode else native
-                self.assertTrue(visible_cases)
-                self.assertEqual(
-                    {case.execution_kind for case in visible_cases},
-                    {"python"} if python_mode else {"oneflow"},
-                )
-                self.assertFalse({case.case_id for case in native} & {
-                    case.case_id for case in python
-                })
-            # Run enablement controls execution only; it never broadens the
-            # selector to include the inactive execution kind.
-            self.assertIsInstance(run_development_cases, bool)
+    def test_development_case_selection_options_follow_both_independent_toggles(self) -> None:
+        cases = [case for case in load_cases(REPOSITORY_ROOT) if case.group == "STL"]
+        expected_visible = {
+            (False, False): {"oneflow"},
+            (True, False): {"oneflow"},
+            (False, True): {"python"},
+            (True, True): {"oneflow", "python"},
+        }
+        for run_native, run_python in expected_visible:
+            visible = select_cases_for_selection_dialog(
+                cases, run_native=run_native, run_python=run_python
+            )
+            self.assertEqual(
+                {case.execution_kind for case in visible},
+                expected_visible[(run_native, run_python)],
+            )
+            executable = select_cases_for_execution(
+                cases, run_native=run_native, run_python=run_python
+            )
+            expected_execution = set()
+            if run_native:
+                expected_execution.add("oneflow")
+            if run_python:
+                expected_execution.add("python")
+            self.assertEqual({case.execution_kind for case in executable}, expected_execution)
 
     def test_python_stl_development_cases_run_from_staged_workspaces(self) -> None:
         cases = [
@@ -135,7 +146,7 @@ class DesktopServiceTest(unittest.TestCase):
             if case.case_id in {
                 "stl_ascii_basic", "stl_ascii_crlf", "stl_ascii_scientific_notation",
                 "stl_binary_basic", "stl_binary_header_solid",
-                "stl_non_planar_surface", "stl_weld_tolerance",
+                "stl_non_planar_surface", "stl_weld_tolerance", "stl_ascii_single_triangle",
             }
         ]
         self.assertEqual(len(cases), 7)
