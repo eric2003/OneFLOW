@@ -23,6 +23,7 @@
     ],
     "case_paths": [
       "grid/stl/ascii_basic/script/control.txt",
+      "grid/stl/ascii_basic/script/dimension.txt",
       "grid/stl/ascii_basic/script/simu.txt",
       "grid/stl/ascii_basic/script/grid.txt",
       "grid/stl/ascii_basic/input/model.stl"
@@ -42,7 +43,8 @@
       "Binary parsing uses explicit little-endian field decoding and preserves the opaque header and 16-bit facet attribute.",
       "ASCII and Binary STL writer/reader paths have linked native GoogleTest declarations for round-trip and malformed-data behavior.",
       "The stl_ascii_basic catalog entry is a native OneFLOW runtime Case, not a Python execution case.",
-      "The native Case converts its two-facet ASCII STL input into an unstructured surface CGNS zone using the configured stlWeldTolerance."
+      "The native Case converts its two-facet ASCII STL input into an unstructured surface CGNS zone using the configured stlWeldTolerance.",
+      "The native planar STL Case declares dimension = 2 and lists all runtime parameter files in filename load order."
     ],
     "does_not_prove": [
       "The STL surface has been welded into shared vertex topology or classified as manifold, closed or consistently oriented.",

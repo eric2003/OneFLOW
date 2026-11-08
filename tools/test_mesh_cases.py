@@ -38,8 +38,16 @@ class MeshCaseCatalogTest(unittest.TestCase):
         case_dir = REPOSITORY_ROOT / entry["directory"]
         control = (case_dir / "script" / "control.txt").read_text(encoding="utf-8")
         grid = (case_dir / "script" / "grid.txt").read_text(encoding="utf-8")
-        self.assertIn('"simu.txt";', control)
-        self.assertIn('"grid.txt";', control)
+        self.assertEqual(
+            [line.strip() for line in control.splitlines() if line.strip()],
+            ['"dimension.txt";', '"grid.txt";', '"simu.txt";'],
+        )
+        dimension = (case_dir / "script" / "dimension.txt").read_text(encoding="utf-8")
+        self.assertIn("int dimension = 2;", dimension)
+        self.assertEqual(
+            [path.name for path in sorted((case_dir / "script").glob("*.txt")) if path.name != "control.txt"],
+            ["dimension.txt", "grid.txt", "simu.txt"],
+        )
         self.assertIn('string sourceGridType = "stl";', grid)
         self.assertIn('string targetGridType = "cgns";', grid)
         self.assertIn("Real stlWeldTolerance = 1.0e-10;", grid)

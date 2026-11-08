@@ -277,3 +277,15 @@ square is expected to produce four nodes and two TRI_3 cells. A JSON read
 report is written under the Case ``results`` directory. This is a surface
 conversion milestone, not a volume mesher; STL boundary-condition semantics
 and physical units are not inferred.
+
+
+Native OneFLOW grid Case configuration
+--------------------------------------
+
+The native `grid/stl/ascii_basic` Case is a two-dimensional surface conversion
+fixture. Its `script/control.txt` lists parameter files in the same
+lexicographical filename order used by the runtime loader:
+`dimension.txt`, `grid.txt`, and `simu.txt`. The dimension declaration is
+explicit (`int dimension = 2;`); it is a runtime parameter, not an inferred
+property of the STL file. Keeping the manifest synchronized with the actual
+parameter filenames avoids misleading load-order diagnostics.
