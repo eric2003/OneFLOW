@@ -68,7 +68,7 @@ namespace
     std::wstring QuoteWindowsArgument( const std::wstring & value )
     {
         if ( ! value.empty() &&
-             value.find_first_of( L" \\t\\n\\v\"" ) == std::wstring::npos )
+             value.find_first_of( L" \t\n\v\"" ) == std::wstring::npos )
             return value;
 
         std::wstring quoted = L"\"";
