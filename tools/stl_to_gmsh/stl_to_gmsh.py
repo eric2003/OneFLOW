@@ -181,8 +181,11 @@ def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: 
         body_lines = list(range(1, n + 1))
         for i,(x,y,_z) in enumerate(loop,1):
             lines.append(f"Point({i}) = {{{x:.17g}, {y:.17g}, 0, lc}};")
+        # Orient the internal wall curves clockwise, matching the fluid-side
+        # boundary orientation; the outer rectangle remains counter-clockwise.
+        reverse_loop = [1, *range(n, 1, -1), 1]
         for i in range(n):
-            lines.append(f"Line({i+1}) = {{{i+1}, {(i+1)%n+1}}};")
+            lines.append(f"Line({i+1}) = {{{reverse_loop[i]}, {reverse_loop[i+1]}}};")
         outer_points = [
             (bounds["xmin"], bounds["ymin"]),
             (bounds["xmax"], bounds["ymin"]),
@@ -204,7 +207,7 @@ def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: 
             b = first_outer_point + (offset + 1) % 4
             lines.append(f"Line({first_outer_line+offset}) = {{{a}, {b}}};")
         lines.append(f"Curve Loop(1) = {{{', '.join(str(i) for i in outer_line_ids.values())}}};")
-        lines.append(f"Curve Loop(2) = {{{', '.join(str(-i) for i in reversed(body_lines))}}};")
+        lines.append(f"Curve Loop(2) = {{{', '.join(map(str, body_lines))}}};")
         lines.append("Plane Surface(1) = {1, 2};")
         body_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", config["_body_boundary_name"])
         lines.append(f'Physical Curve("{body_name}") = {{{", ".join(map(str, body_lines))}}};')
