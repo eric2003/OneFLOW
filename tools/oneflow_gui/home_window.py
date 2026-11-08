@@ -29,6 +29,7 @@ from .project_repository import open_project
 from .project_window import ProjectWindow
 from .new_project_dialog import NewProjectDialog
 from .run_history_dialog import RunHistoryDialog
+from .runtime_environment_dialog import RuntimeEnvironmentDialog
 from .background_task_dialog import BackgroundTaskDialog
 from .background_task_registry import BackgroundTaskRegistry
 from .background_task_manager import request_background_stop
@@ -91,6 +92,7 @@ class WorkbenchHomeWindow(QMainWindow):
             ("Contract Workbench...", self._open_contract_workbench),
             ("Mesh Layout Editor...", self._open_mesh_layout),
             ("Background Tasks...", self._open_background_tasks),
+            ("Runtime Environment...", self._open_runtime_environment),
             ("Configuration...", self._open_configuration),
         ):
             button = QPushButton(label)
@@ -155,6 +157,11 @@ class WorkbenchHomeWindow(QMainWindow):
     def _run_project_action(self, dialog: QDialog, callback) -> None:
         dialog.accept()
         QTimer.singleShot(0, callback)
+
+    def _open_runtime_environment(self) -> None:
+        """Show information queried from the configured OneFLOW executable."""
+        dialog = RuntimeEnvironmentDialog(self._executable(), self)
+        dialog.exec()
 
     def _open_configuration(self) -> None:
         dialog = ConfigurationDialog(

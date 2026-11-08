@@ -653,3 +653,89 @@ under the Case `results/` directory as reproducible evidence. This
 deliberately tests the same on-disk path that users can invoke as two
 separate conversions; it does not create a second Gmsh-specific runtime
 adapter.
+
+
+STL surface format adapter
+--------------------------
+
+STL is a triangle-surface interchange format, not a volume-mesh or CFD
+boundary-condition format. Its native reader and writer belong in the C++
+Geometry module. They must not be implemented only in the Python conversion
+utility under grid/stl, and they must not depend on Gmsh or CGNS.
+
+The native I/O boundary is described in the :doc:`stl_mesh_io` page and
+catalogued as mesh/stl-native-io in the Mesh Contract Workbench. The first C++
+reader/writer slice is now implemented. Its native tests are linked in the
+contract, while platform execution evidence remains pending; it is not yet a
+claim of complete surface topology or CFD mesh conversion.
+
+The initial C++ value model should preserve one record per source facet:
+stored normal, three ordered vertices and the 16-bit binary attribute field.
+The binary header should also be retained. STL does not define shared vertex
+identity; readers must not silently weld equal coordinates. Welding,
+tolerance selection, edge incidence, connected components and manifold
+classification belong to explicit topology-building operations after parsing.
+
+ASCII and binary parsing share the same validated facet model. Binary parsing
+must decode little-endian values explicitly rather than reinterpret a packed
+C++ structure. Format detection must use structural evidence: a binary header
+may begin with the text "solid", so the prefix alone is not a reliable ASCII
+discriminator. Writers must reject values that cannot be represented by the
+target encoding and must report format-specific losses (notably the binary
+attribute field when writing standard ASCII STL).
+
+STL carries no standard units, shared node IDs, volume cells, physical groups,
+or solver boundary-condition meanings. Normals and facet winding are source
+data that should be reported and validated; a reader should not silently
+repair them. A successful parse is therefore only a format-read result, not
+proof of a watertight, manifold, consistently oriented or CFD-ready surface.
+
+The existing Python STL utility remains useful for planar boundary extraction
+and Gmsh generation. Its tests validate that Python pipeline only. Native STL
+I/O evidence must come from C++ GoogleTests linked to OneFLOW_GeometryCore,
+with ASCII/binary read-write round trips and malformed-input tests. End-to-end
+conversion to OneFLOW mesh topology is a separate integration milestone.
+
+
+STL surface input and information boundary
+------------------------------------------
+
+STL is a source surface description consisting of an ordered sequence of
+triangle facets. It is not a complete OneFLOW mesh. The native adapter is
+documented in :doc:`stl_mesh_io`; this section locates its information
+content in the Mesh Core levels above.
+
+An STL facet provides one stored normal vector and three ordered vertex
+coordinate triples. Binary STL additionally contains an opaque 80-byte file
+header, a 32-bit little-endian triangle count, and one 16-bit attribute value
+per facet. ASCII STL contains textual `solid` and facet records, but no
+standardized binary attribute field. Binary coordinates and normals are
+float32. The conventional binary size is `84 + 50 * triangle_count`.
+The header is opaque and may begin with `solid`, so a prefix check alone
+cannot identify the format. ASCII parsers must account for whitespace,
+LF/CRLF line endings and complete finite numeric tokens.
+
+STL has no authoritative shared node identifiers: vertex coordinates are
+repeated for every facet. Therefore:
+
+* L0 can report encoding, facet count, coordinate bounds, source header,
+  source path/fingerprint and parser diagnostics.
+* L1 can represent ordered triangle facets and coordinates. Constructing
+  shared nodes requires an explicit coordinate-welding policy and tolerance;
+  welding is a transformation, not a fact supplied by STL.
+* L2 edge incidence, connected components, boundary loops, manifoldness,
+  closure and consistent orientation must be derived and validated. Stored
+  facet normals and vertex winding are source records and may disagree.
+* L3 partition identity and inter-partition interfaces are absent.
+* L4 geometric normals, areas, adjacency and search structures are derived;
+  solution fields and CFD boundary conditions are absent.
+
+The native C++ `non_planar_surface` Development Case is intentionally distinct from the Python planar-boundary reference: the former validates generic triangle-surface ingestion and CGNS writing, while the latter rejects geometry outside its current planar-boundary contract. The native `weld_tolerance` Case separately exercises coordinate-key quantization on a controlled near-coincident vertex pair.
+
+STL does not standardize physical units, coordinate reference systems,
+material semantics, named patches, physical groups, volume cells or solver
+boundary conditions. Those facts must come from project metadata or an
+explicit mapping stage. A syntactically valid STL is not evidence of a closed
+or CFD-ready surface. The native STL-to-CGNS path currently creates an
+unstructured triangle surface; it is not a volume mesher and does not infer
+boundary semantics.

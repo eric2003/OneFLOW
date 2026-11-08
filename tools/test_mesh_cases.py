@@ -29,6 +29,113 @@ class MeshCaseCatalogTest(unittest.TestCase):
         ]
         self.assertEqual(errors, [])
 
+    def test_stl_ascii_basic_is_a_native_oneflow_case(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        entry = next(case for case in catalog["cases"] if case["id"] == "stl_ascii_basic")
+        self.assertEqual(entry["directory"], "grid/stl/ascii_basic")
+        self.assertNotIn("runtimeConfig", entry)
+        self.assertNotIn("execution", entry)
+        case_dir = REPOSITORY_ROOT / entry["directory"]
+        self.assertFalse((case_dir / "script" / "control.txt").exists())
+        grid = (case_dir / "script" / "grid.txt").read_text(encoding="utf-8")
+        dimension = (case_dir / "script" / "dimension.txt").read_text(encoding="utf-8")
+        self.assertIn("int dimension = 2;", dimension)
+        self.assertEqual(
+            [path.name for path in sorted((case_dir / "script").glob("*.txt"))],
+            ["dimension.txt", "grid.txt", "simu.txt"],
+        )
+        self.assertIn('string sourceGridType = "stl";', grid)
+        self.assertIn('string targetGridType = "cgns";', grid)
+        self.assertIn("Real stlWeldTolerance = 1.0e-10;", grid)
+        self.assertTrue((case_dir / "input" / "model.stl").is_file())
+        self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
+    def test_stl_ascii_crlf_is_a_native_oneflow_case_with_crlf_fixture(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        entry = next(
+            case for case in catalog["cases"] if case["id"] == "stl_ascii_crlf"
+        )
+        self.assertEqual(entry["directory"], "grid/stl/ascii_crlf")
+        self.assertNotIn("runtimeConfig", entry)
+        self.assertNotIn("execution", entry)
+
+        case_dir = REPOSITORY_ROOT / entry["directory"]
+        self.assertFalse((case_dir / "script" / "control.txt").exists())
+        fixture = (case_dir / "input" / "model.stl").read_bytes()
+        self.assertIn(bytes((13, 10)), fixture)
+        self.assertNotIn(bytes((10,)), fixture.replace(bytes((13, 10)), b""))
+        self.assertIn(b"endsolid oneflow_ascii_square\r\n", fixture)
+        self.assertEqual(
+            [path.name for path in sorted((case_dir / "script").glob("*.txt"))],
+            ["dimension.txt", "grid.txt", "simu.txt"],
+        )
+        self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
+
+    def test_stl_catalog_uses_language_neutral_case_names_and_python_namespace(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        stl_cases = [case for case in catalog["cases"] if case.get("group") == "STL"]
+        self.assertEqual(len(stl_cases), 16)
+
+        for entry in stl_cases:
+            parts = entry["directory"].split("/")
+            execution = entry.get("execution")
+            if isinstance(execution, dict) and execution.get("kind") == "python":
+                self.assertEqual(parts[:3], ["grid", "stl", "python"])
+                self.assertEqual(entry["id"], f"stl_python_{parts[-1]}")
+            else:
+                self.assertEqual(parts[:2], ["grid", "stl"])
+                self.assertEqual(len(parts), 3)
+                self.assertEqual(entry["id"], f"stl_{parts[-1]}")
+
+    def test_native_stl_binary_cases_have_standard_binary_record_layout(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        cases = {
+            case["id"]: case
+            for case in catalog["cases"]
+            if case["id"] in {"stl_binary_basic", "stl_binary_header_solid"}
+        }
+        self.assertEqual(set(cases), {"stl_binary_basic", "stl_binary_header_solid"})
+        for case_id, entry in cases.items():
+            self.assertNotIn("execution", entry)
+            self.assertNotIn("runtimeConfig", entry)
+            fixture = (
+                REPOSITORY_ROOT / entry["directory"] / "input" / "model.stl"
+            ).read_bytes()
+            self.assertEqual(len(fixture), 84 + 50 * 2)
+            self.assertEqual(int.from_bytes(fixture[80:84], "little"), 2)
+        solid_header = (
+            REPOSITORY_ROOT / cases["stl_binary_header_solid"]["directory"]
+            / "input" / "model.stl"
+        ).read_bytes()
+        self.assertTrue(solid_header.startswith(b"solid"))
+
+    def test_native_stl_surface_cases_cover_non_planarity_and_welding_tolerance(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        cases = {
+            case["id"]: case
+            for case in catalog["cases"]
+            if case["id"] in {"stl_non_planar_surface", "stl_weld_tolerance"}
+        }
+        self.assertEqual(set(cases), {"stl_non_planar_surface", "stl_weld_tolerance"})
+        for entry in cases.values():
+            self.assertNotIn("execution", entry)
+            self.assertNotIn("runtimeConfig", entry)
+            case_root = REPOSITORY_ROOT / entry["directory"]
+            for relative in (
+                "README.md", "script/dimension.txt", "script/simu.txt",
+                "script/grid.txt", "input/model.stl",
+            ):
+                self.assertTrue((case_root / relative).is_file(), relative)
+        non_planar = (
+            REPOSITORY_ROOT / cases["stl_non_planar_surface"]["directory"]
+            / "input" / "model.stl"
+        ).read_text(encoding="ascii")
+        self.assertIn("vertex 0 1 0.25", non_planar)
+        weld_fixture = (
+            REPOSITORY_ROOT / cases["stl_weld_tolerance"]["directory"]
+            / "input" / "model.stl"
+        ).read_text(encoding="ascii")
+        self.assertIn("vertex 1.000000000051 1 0", weld_fixture)
+
     def test_turbulent_flat_plate_uses_requested_bounds_and_tanh_distribution(self) -> None:
         case_dir = REPOSITORY_ROOT / "grid" / "turbulent_flat_plate"
         with (case_dir / "case.json").open("r", encoding="utf-8") as stream:
@@ -148,6 +255,29 @@ class MeshCaseCatalogTest(unittest.TestCase):
             self.assertTrue(any("gridOptions.scale" in error for error in errors))
             self.assertTrue(any("gridOptions.translation" in error for error in errors))
             self.assertTrue(any("gridOptions.ioRoots.meshOutput" in error for error in errors))
+
+    def test_native_case_without_control_manifest_uses_parameter_file_discovery(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            script_dir = root / "grid" / "sample" / "script"
+            script_dir.mkdir(parents=True)
+            (script_dir / "simu.txt").write_text(
+                'string simutask = "Grid";\n', encoding="utf-8"
+            )
+            (script_dir / "grid.txt").write_text(
+                "int gridObj = 1;\n", encoding="utf-8"
+            )
+            entry = {"id": "sample", "directory": "grid/sample"}
+            self.assertEqual(validate_case(root, entry), [])
+
+    def test_manifest_free_case_requires_parameter_files(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / "grid" / "sample" / "script").mkdir(parents=True)
+            entry = {"id": "sample", "directory": "grid/sample"}
+            errors = validate_case(Path(directory), entry)
+            self.assertTrue(
+                any("no script/*.txt parameter files found" in error for error in errors)
+            )
 
     def test_duplicate_case_ids_are_rejected(self) -> None:
         catalog = {

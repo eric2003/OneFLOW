@@ -305,8 +305,8 @@ if ( CGNS_ENABLE )
 
     if ( ${CMAKE_SYSTEM_NAME} MATCHES "Windows" )
         if ( NOT CGNS_ROOT )
-            set ( CGNS_ROOT "C:/dev/cgns/4.4.0" )
-            # set ( CGNS_ROOT "C:/dev/cgns/4.5.2" )
+            #set ( CGNS_ROOT "C:/dev/cgns/4.4.0" )
+            set ( CGNS_ROOT "C:/dev/cgns/4.5.2" )
         endif()
 
         set ( CGNS_LIBNAME "cgnsdll.lib" )
@@ -333,12 +333,70 @@ if ( CGNS_ENABLE )
 
     list ( APPEND PRJ_LIBRARIES ${CGNS_LIBRARIES} )
     list ( APPEND PRJ_INCLUDE_DIRS ${CGNS_INCLUDE_DIRS} )
+
+    # Detect the optional library-version query API against the headers and
+    # library that this build actually uses. Standard CGNS 4.5.2 does not
+    # provide these functions, so do not assume they exist.
+    include ( CheckCXXSourceCompiles )
+    set ( _ONEFLOW_SAVED_REQUIRED_INCLUDES "${CMAKE_REQUIRED_INCLUDES}" )
+    set ( _ONEFLOW_SAVED_REQUIRED_LIBRARIES "${CMAKE_REQUIRED_LIBRARIES}" )
+    set ( CMAKE_REQUIRED_INCLUDES ${CGNS_INCLUDE_DIRS} )
+    set ( CMAKE_REQUIRED_LIBRARIES ${CGNS_LIBRARIES} )
+    unset ( ONEFLOW_CGNS_HAS_RUNTIME_VERSION_API CACHE )
+    check_cxx_source_compiles ( [=[
+        #include <cgnslib.h>
+        int main()
+        {
+            int versionNumber = 0;
+            char * versionString = nullptr;
+            cg_get_cgns_version( &versionNumber );
+            cg_get_cgns_version_string( &versionString );
+            return versionNumber < 0;
+        }
+    ]=] ONEFLOW_CGNS_HAS_RUNTIME_VERSION_API )
+    set ( CMAKE_REQUIRED_INCLUDES "${_ONEFLOW_SAVED_REQUIRED_INCLUDES}" )
+    set ( CMAKE_REQUIRED_LIBRARIES "${_ONEFLOW_SAVED_REQUIRED_LIBRARIES}" )
+
+    if ( ONEFLOW_CGNS_HAS_RUNTIME_VERSION_API )
+        message ( STATUS "CGNS runtime version query API is available" )
+        list ( APPEND PRJ_COMPILE_DEF ONEFLOW_CGNS_HAS_RUNTIME_VERSION_API )
+    else()
+        message ( STATUS "CGNS runtime version query API is unavailable; runtime module path will still be reported" )
+    endif()
+
+endif()
+
+# Runtime environment inspection uses the platform dynamic-loader API even
+# when optional solver I/O dependencies such as CGNS are disabled.
+if ( WIN32 )
+    # EnumProcessModules is provided by the Windows Process Status API.
+    list ( APPEND PRJ_LIBRARIES Psapi )
+endif()
+if ( CMAKE_DL_LIBS )
+    list ( APPEND PRJ_LIBRARIES ${CMAKE_DL_LIBS} )
 endif()
 
 set ( JsonPrjDir "${PRJ_ROOT_DIR}/${THIRD_PARTY_DIR}/jsoncpp" )
 set ( JsonHeaderDir ${JsonPrjDir} )
 
-ConstructSolutionDirTree( ${CMAKE_CURRENT_SOURCE_DIR} PRJ_HEADER_LIST PRJ_SRC_LIST PRJ_LOCAL_INCLUDE_DIRS )
+oneflow_discover_module_sources(
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    PRJ_SRC_LIST
+    PRJ_HEADER_LIST
+    PRJ_LOCAL_INCLUDE_DIRS
+)
+
+# Preserve the legacy Visual Studio source-group hierarchy. The discovery
+# helper owns file enumeration; this loop owns IDE presentation only.
+foreach(_oneflow_file IN LISTS PRJ_HEADER_LIST PRJ_SRC_LIST)
+    file(RELATIVE_PATH _oneflow_group
+        "${CMAKE_CURRENT_SOURCE_DIR}" "${_oneflow_file}")
+    file(TO_CMAKE_PATH "${_oneflow_group}" _oneflow_group)
+    get_filename_component(_oneflow_group "${_oneflow_group}" DIRECTORY)
+    if(NOT _oneflow_group STREQUAL "")
+        source_group("${_oneflow_group}" FILES "${_oneflow_file}")
+    endif()
+endforeach()
 
 list ( FILTER PRJ_SRC_LIST EXCLUDE REGEX "/codes/accel/src/HipSmoke\\.cpp$" )
 if ( ONEFLOW_BUILD_HIP )
@@ -414,6 +472,14 @@ target_compile_features ( OneFLOW_RuntimeObjects
 target_compile_definitions ( OneFLOW_RuntimeObjects
     PUBLIC
         ${PRJ_COMPILE_DEF}
+)
+
+target_compile_definitions ( OneFLOW_RuntimeObjects
+    PUBLIC
+        ONEFLOW_PROJECT_VERSION=\"${PROJECT_VERSION}\"
+        ONEFLOW_COMPILER_ID=\"${CMAKE_CXX_COMPILER_ID}\"
+        ONEFLOW_COMPILER_VERSION=\"${CMAKE_CXX_COMPILER_VERSION}\"
+        ONEFLOW_BUILD_CONFIGURATION=\"$<CONFIG>\"
 )
 
 add_executable ( ${PROJECT_NAME}

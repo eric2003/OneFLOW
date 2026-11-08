@@ -1,0 +1,11 @@
+string meshInputRoot = "default";
+string meshOutputRoot = "default";
+
+int gridObj = 1;
+string topoType = "u";
+int multiBlock = 0;
+string sourceGridType = "stl";
+string targetGridType = "cgns";
+string sourceGridFileName = "input/model.stl";
+string targetGridFileName = "results/model.cgns";
+Real stlWeldTolerance = 1.0e-10;

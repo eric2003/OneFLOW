@@ -559,12 +559,19 @@ TEST( SimuImpCaseLifecycleIntegration,
         meshOutputRoot / "case_io_paths.txt" ) );
     EXPECT_TRUE( std::filesystem::exists(
         flowOutputRoot / "case_io_paths.txt" ) );
+    EXPECT_TRUE( std::filesystem::is_regular_file(
+        meshOutputRoot / "results" / "runtime_environment.json" ) );
+    EXPECT_TRUE( std::filesystem::is_regular_file(
+        flowOutputRoot / "results" / "runtime_environment.json" ) );
     EXPECT_TRUE( std::filesystem::exists(
         std::filesystem::path( firstCase.Directory() ) / "log" / "database.log" ) );
     EXPECT_TRUE( std::filesystem::exists(
         std::filesystem::path( secondCase.Directory() ) / "log" / "database.log" ) );
     EXPECT_TRUE( std::filesystem::exists(
         std::filesystem::path( secondCase.Directory() ) / "results" / "io_paths.txt" ) );
+    EXPECT_TRUE( std::filesystem::is_regular_file(
+        std::filesystem::path( secondCase.Directory() )
+        / "results" / "runtime_environment.json" ) );
     ASSERT_EQ( caseStateCleared.size(), 2u );
     EXPECT_TRUE( caseStateCleared[ 0 ] );
     EXPECT_TRUE( caseStateCleared[ 1 ] );
@@ -572,6 +579,9 @@ TEST( SimuImpCaseLifecycleIntegration,
         processRuntimeStayedActive,
         ( std::vector<bool>{ true, true } ) );
     EXPECT_FALSE( processContext.IsProcessEnvironmentActive() );
+
+    std::error_code cleanupError;
+    std::filesystem::remove_all(configuredRoot, cleanupError);
 }
 
 

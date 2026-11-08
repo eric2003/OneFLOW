@@ -75,15 +75,6 @@ private:
 };
 } // namespace
 
-// Helper function to calculate squared distance (avoids expensive sqrt operation)
-static inline Real CalcSquaredDistance(Real x1, Real y1, Real z1, Real x2, Real y2, Real z2) {
-    Real dx = x1 - x2;
-    Real dy = y1 - y2;
-    Real dz = z1 - z2;
-    return dx * dx + dy * dy + dz * dz;
-}
-
-
 PointLocator::PointLocator()
 {
     this->id = 0;
@@ -195,7 +186,7 @@ int PointLocator::FindPoint( const RealField & coordinate )
     }
 
     // 2. Narrow Phase: Find the closest point among candidates
-    Real minSquaredDist = this->tolerance * this->tolerance;
+    Real minDistance = this->tolerance;
     int bestId = INVALID_INDEX;
 
     for ( int candidateId : candidateIds )
@@ -204,13 +195,16 @@ int PointLocator::FindPoint( const RealField & coordinate )
         const Real ny = this->yCoor[ candidateId ];
         const Real nz = this->zCoor[ candidateId ];
 
-        const Real distSq = CalcSquaredDistance(
-            coordinate[ 0 ], coordinate[ 1 ], coordinate[ 2 ],
-            nx, ny, nz );
+        const Real distance = std::hypot(
+            coordinate[ 0 ] - nx,
+            coordinate[ 1 ] - ny,
+            coordinate[ 2 ] - nz );
 
-        if ( distSq < minSquaredDist )
+        if ( distance < minDistance ||
+             ( distance == minDistance &&
+               ( bestId != INVALID_INDEX && candidateId < bestId ) ) )
         {
-            minSquaredDist = distSq;
+            minDistance = distance;
             bestId = candidateId;
         }
     }

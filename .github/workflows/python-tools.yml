@@ -6,7 +6,8 @@ on:
     paths:
       - "tools/mesh_cases.py"
       - "tools/mesh_layout/**"
-      - "tools/stl_to_gmsh/**"
+      - "grid/stl/**"
+      - "grid/stl_to_gmsh/**"
       - "tests/tools/**"
       - "tools/test_mesh_cases.py"
       - "tools/oneflow_gui/**"
@@ -21,6 +22,8 @@ on:
     paths:
       - "tools/mesh_cases.py"
       - "tools/mesh_layout/**"
+      - "grid/stl/**"
+      - "grid/stl_to_gmsh/**"
       - "tests/tools/**"
       - "tools/test_mesh_cases.py"
       - "tools/oneflow_gui/**"
@@ -56,11 +59,11 @@ jobs:
       - name: Install GUI test dependency
         run: python -m pip install -r tools/requirements-gui.txt
       - name: Compile Python tooling
-        run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout tools/stl_to_gmsh tools/oneflow_gui tools/verification
+        run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout grid/stl grid/stl_to_gmsh tools/oneflow_gui tools/verification
       - name: Test case catalog
         run: python tools/test_mesh_cases.py
       - name: Test planar STL to Gmsh geometry generation
-        run: python -m unittest tools.stl_to_gmsh.test_stl_to_gmsh
+        run: python -m unittest grid.stl.test_stl_to_gmsh
       - name: Test rectangle layout compiler
         run: python -m unittest tests.tools.test_compile_rectangle
       - name: Test flat plate layout compiler
@@ -109,6 +112,10 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_user_data_paths
       - name: Test application settings
         run: python -m unittest tools.oneflow_gui.test_application_settings
+      - name: Test runtime environment query
+        run: python -m unittest tools.oneflow_gui.test_runtime_environment_dialog
+      - name: Test per-run environment evidence and history view
+        run: python -m unittest tools.oneflow_gui.test_run_environment_evidence tools.oneflow_gui.test_background_project_runner tools.oneflow_gui.test_run_history_dialog
       - name: Test project discovery and creation
         run: python -m unittest tools.oneflow_gui.test_project_repository tools.oneflow_gui.test_project_templates tools.oneflow_gui.test_rae2822_project_template tools.oneflow_gui.test_new_project_dialog
       - name: Test Case script file discovery

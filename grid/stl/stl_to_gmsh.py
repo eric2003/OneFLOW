@@ -50,6 +50,42 @@ def _check_simple_loop(loop: list[Point], tol: float) -> None:
             if ((o1 > tol and o2 < -tol) or (o1 < -tol and o2 > tol)) and ((o3 > tol and o4 < -tol) or (o3 < -tol and o4 > tol)):
                 raise Stl2DError("extracted boundary self-intersects")
 
+
+def _weld_vertices(raw: list[Point], tolerance: float) -> tuple[list[Point], list[tuple[int, int, int]]]:
+    """Weld against first-seen representatives using exact Euclidean distance."""
+    origin = tuple(min(p[axis] for p in raw) for axis in range(3))
+    buckets: dict[tuple[int, int, int], list[int]] = defaultdict(list)
+    points: list[Point] = []
+    tri_ids: list[tuple[int, int, int]] = []
+    for start in range(0, len(raw), 3):
+        ids = []
+        for p in raw[start:start+3]:
+            relative = tuple((p[axis] - origin[axis]) / tolerance for axis in range(3))
+            if not all(math.isfinite(value) for value in relative):
+                raise Stl2DError("coordinate range is too large for the requested weld tolerance")
+            key = tuple(math.floor(value) for value in relative)
+            candidates = []
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    for dz in (-1, 0, 1):
+                        candidates.extend(buckets.get((key[0]+dx, key[1]+dy, key[2]+dz), ()))
+            best = None
+            best_distance = tolerance
+            for point_id in candidates:
+                q = points[point_id]
+                distance = math.dist(p, q)
+                if distance < best_distance or (
+                    distance == best_distance and best is not None and point_id < best
+                ):
+                    best, best_distance = point_id, distance
+            if best is None:
+                best = len(points)
+                points.append(p)
+                buckets[key].append(best)
+            ids.append(best)
+        tri_ids.append(tuple(ids))
+    return points, tri_ids
+
 def extract_boundary(triangles: Iterable[Triangle], tolerance: float = 1e-9) -> list[Point]:
     if tolerance <= 0 or not math.isfinite(tolerance):
         raise Stl2DError("tolerance must be positive and finite")
@@ -59,22 +95,14 @@ def extract_boundary(triangles: Iterable[Triangle], tolerance: float = 1e-9) -> 
     zs = [p[2] for p in raw]
     if max(zs)-min(zs) > tolerance:
         raise Stl2DError("first-stage 2D STL must lie in a constant-Z XY plane")
-    keys, points, tri_ids = {}, [], []
-    for start in range(0, len(raw), 3):
-        ids = []
-        for p in raw[start:start+3]:
-            key = tuple(round(v/tolerance) for v in p)
-            if key not in keys:
-                keys[key] = len(points)
-                points.append(p)
-            ids.append(keys[key])
+    points, tri_ids = _weld_vertices(raw, tolerance)
+    for ids in tri_ids:
         if len(set(ids)) != 3:
             raise Stl2DError("degenerate triangle after vertex welding")
         a,b,c = (points[i] for i in ids)
         area2 = abs((b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]))
         if area2 <= tolerance*tolerance:
             raise Stl2DError("zero-area triangle in XY plane")
-        tri_ids.append(tuple(ids))
     incidence = Counter()
     for a,b,c in tri_ids:
         for u,v in ((a,b),(b,c),(c,a)):
@@ -109,9 +137,42 @@ def extract_boundary(triangles: Iterable[Triangle], tolerance: float = 1e-9) -> 
 
 def _read_sidecar(path: Path, loop: list[Point], tol: float) -> tuple[dict, dict[tuple[int,int],str]]:
     config = json.loads(path.read_text(encoding="utf-8"))
+    if "domain" in config:
+        domain = config["domain"]
+        if not isinstance(domain, dict):
+            raise Stl2DError("domain must be an object with xmin, xmax, ymin and ymax")
+        try:
+            bounds = {key: float(domain[key]) for key in ("xmin", "xmax", "ymin", "ymax")}
+        except (KeyError, TypeError, ValueError) as exc:
+            raise Stl2DError("domain requires numeric xmin, xmax, ymin and ymax") from exc
+        if not all(math.isfinite(value) for value in bounds.values()):
+            raise Stl2DError("domain bounds must be finite")
+        if bounds["xmin"] >= bounds["xmax"] or bounds["ymin"] >= bounds["ymax"]:
+            raise Stl2DError("domain bounds must have positive width and height")
+        if not (
+            min(p[0] for p in loop) > bounds["xmin"] + tol
+            and max(p[0] for p in loop) < bounds["xmax"] - tol
+            and min(p[1] for p in loop) > bounds["ymin"] + tol
+            and max(p[1] for p in loop) < bounds["ymax"] - tol
+        ):
+            raise Stl2DError("outer domain must strictly enclose the STL body with the requested tolerance")
+        outer = domain.get("boundaries", {})
+        required = {"left", "right", "bottom", "top"}
+        if not isinstance(outer, dict) or set(outer) != required:
+            raise Stl2DError("domain.boundaries must define left, right, bottom and top")
+        names = [str(outer[side]).strip() for side in ("left", "right", "bottom", "top")]
+        if any(not name for name in names) or len(set(names)) != 4:
+            raise Stl2DError("the four outer domain boundaries require four distinct non-empty names")
+        body_name = str(config.get("body_boundary_name", "Wall")).strip()
+        if not body_name or body_name in names:
+            raise Stl2DError("body_boundary_name must be non-empty and distinct from outer boundary names")
+        config["_domain_bounds"] = bounds
+        config["_outer_boundaries"] = {side: str(outer[side]).strip() for side in required}
+        config["_body_boundary_name"] = body_name
+        return config, {}
     entries = config.get("boundaries")
     if not isinstance(entries, list) or not entries:
-        raise Stl2DError("sidecar requires a non-empty boundaries array")
+        raise Stl2DError("sidecar requires boundaries or a domain configuration")
     n, assignments = len(loop), {}
     for entry in entries:
         name, ends = str(entry.get("name", "")).strip(), entry.get("endpoints")
@@ -119,14 +180,18 @@ def _read_sidecar(path: Path, loop: list[Point], tol: float) -> tuple[dict, dict
             raise Stl2DError("each boundary requires a name and two [x, y] endpoints")
         indices = []
         for xy in ends:
-            if not isinstance(xy, list) or len(xy) != 2: raise Stl2DError(f"{name}: endpoints must be [x, y]")
+            if not isinstance(xy, list) or len(xy) != 2:
+                raise Stl2DError(f"{name}: endpoints must be [x, y]")
             matches = [i for i,p in enumerate(loop) if math.hypot(p[0]-float(xy[0]),p[1]-float(xy[1])) <= tol]
-            if len(matches) != 1: raise Stl2DError(f"{name}: endpoint does not uniquely match an STL boundary vertex")
+            if len(matches) != 1:
+                raise Stl2DError(f"{name}: endpoint does not uniquely match an STL boundary vertex")
             indices.append(matches[0])
         a,b = indices
-        if (a-b) % n not in (1,n-1): raise Stl2DError(f"{name}: endpoints must identify one consecutive edge")
+        if (a-b) % n not in (1,n-1):
+            raise Stl2DError(f"{name}: endpoints must identify one consecutive edge")
         edge = tuple(sorted((a,b)))
-        if edge in assignments: raise Stl2DError(f"boundary edge assigned more than once: {name}")
+        if edge in assignments:
+            raise Stl2DError(f"boundary edge assigned more than once: {name}")
         assignments[edge] = name
     expected = {tuple(sorted((i,(i+1)%n))) for i in range(n)}
     if set(assignments) != expected:
@@ -135,23 +200,66 @@ def _read_sidecar(path: Path, loop: list[Point], tol: float) -> tuple[dict, dict
 
 def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: dict) -> str:
     size = float(config.get("mesh_size", 1.0))
-    if not math.isfinite(size) or size <= 0: raise Stl2DError("mesh_size must be positive and finite")
-    one_quad = bool(config.get("one_quad_cell", False))
-    if one_quad and len(loop) != 4: raise Stl2DError("one_quad_cell requires exactly four boundary vertices")
+    if not math.isfinite(size) or size <= 0:
+        raise Stl2DError("mesh_size must be positive and finite")
     lines = ['// Generated from planar STL by OneFLOW.', 'SetFactory("Built-in");', f"lc = {size:.17g};"]
-    for i,(x,y,_z) in enumerate(loop,1): lines.append(f"Point({i}) = {{{x:.17g}, {y:.17g}, 0, lc}};")
-    groups = defaultdict(list)
-    for i in range(len(loop)):
-        curve = i+1
-        lines.append(f"Line({curve}) = {{{i+1}, {(i+1)%len(loop)+1}}};")
-        groups[assignments[tuple(sorted((i,(i+1)%len(loop))))]].append(curve)
-    lines.extend([f"Curve Loop(1) = {{{', '.join(str(i) for i in range(1,len(loop)+1))}}};", "Plane Surface(1) = {1};"])
-    for name,curves in sorted(groups.items()):
-        safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", name)
-        lines.append(f'Physical Curve("{safe}") = {{{", ".join(map(str,curves))}}};')
+    if "_domain_bounds" in config:
+        n = len(loop)
+        bounds = config["_domain_bounds"]
+        body_lines = list(range(1, n + 1))
+        for i,(x,y,_z) in enumerate(loop,1):
+            lines.append(f"Point({i}) = {{{x:.17g}, {y:.17g}, 0, lc}};")
+        # Orient the internal wall curves clockwise, matching the fluid-side
+        # boundary orientation; the outer rectangle remains counter-clockwise.
+        reverse_loop = [1, *range(n, 1, -1), 1]
+        for i in range(n):
+            lines.append(f"Line({i+1}) = {{{reverse_loop[i]}, {reverse_loop[i+1]}}};")
+        outer_points = [
+            (bounds["xmin"], bounds["ymin"]),
+            (bounds["xmax"], bounds["ymin"]),
+            (bounds["xmax"], bounds["ymax"]),
+            (bounds["xmin"], bounds["ymax"]),
+        ]
+        first_outer_point = n + 1
+        for offset,(x,y) in enumerate(outer_points):
+            lines.append(f"Point({first_outer_point+offset}) = {{{x:.17g}, {y:.17g}, 0, lc}};")
+        first_outer_line = n + 1
+        outer_line_ids = {
+            "bottom": first_outer_line,
+            "right": first_outer_line + 1,
+            "top": first_outer_line + 2,
+            "left": first_outer_line + 3,
+        }
+        for offset in range(4):
+            a = first_outer_point + offset
+            b = first_outer_point + (offset + 1) % 4
+            lines.append(f"Line({first_outer_line+offset}) = {{{a}, {b}}};")
+        lines.append(f"Curve Loop(1) = {{{', '.join(str(i) for i in outer_line_ids.values())}}};")
+        lines.append(f"Curve Loop(2) = {{{', '.join(map(str, body_lines))}}};")
+        lines.append("Plane Surface(1) = {1, 2};")
+        body_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", config["_body_boundary_name"])
+        lines.append(f'Physical Curve("{body_name}") = {{{", ".join(map(str, body_lines))}}};')
+        for side in ("left", "right", "bottom", "top"):
+            name = re.sub(r"[^A-Za-z0-9_.-]+", "_", config["_outer_boundaries"][side])
+            lines.append(f'Physical Curve("{name}") = {{{outer_line_ids[side]}}};')
+    else:
+        one_quad = bool(config.get("one_quad_cell", False))
+        if one_quad and len(loop) != 4:
+            raise Stl2DError("one_quad_cell requires exactly four boundary vertices")
+        for i,(x,y,_z) in enumerate(loop,1):
+            lines.append(f"Point({i}) = {{{x:.17g}, {y:.17g}, 0, lc}};")
+        groups = defaultdict(list)
+        for i in range(len(loop)):
+            curve = i+1
+            lines.append(f"Line({curve}) = {{{i+1}, {(i+1)%len(loop)+1}}};")
+            groups[assignments[tuple(sorted((i,(i+1)%len(loop))))]].append(curve)
+        lines.extend([f"Curve Loop(1) = {{{', '.join(str(i) for i in range(1,len(loop)+1))}}};", "Plane Surface(1) = {1};"])
+        for name,curves in sorted(groups.items()):
+            safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", name)
+            lines.append(f'Physical Curve("{safe}") = {{{", ".join(map(str,curves))}}};')
     surface = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(config.get("surface_name","Fluid")))
     lines.append(f'Physical Surface("{surface}") = {{1}};')
-    if one_quad:
+    if config.get("one_quad_cell", False) and "_domain_bounds" not in config:
         lines.extend([f"Transfinite Curve {{{i}}} = 2;" for i in range(1,5)])
         lines.extend(["Transfinite Surface {1};", "Recombine Surface {1};"])
     lines.extend(["Mesh 2;", ""])
@@ -163,7 +271,7 @@ def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dic
     config, assignments = _read_sidecar(sidecar, loop, tolerance)
     geo.parent.mkdir(parents=True, exist_ok=True)
     geo.write_text(build_geo(loop, assignments, config), encoding="utf-8", newline="\n")
-    return {"triangles":len(triangles), "boundary_vertices":len(loop), "boundary_edges":len(assignments), "geo":str(geo)}
+    return {"triangles":len(triangles), "boundary_vertices":len(loop), "boundary_edges":len(assignments), "body_boundary_edges":len(loop) if "_domain_bounds" in config else 0, "geo":str(geo)}
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)

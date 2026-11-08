@@ -5,9 +5,9 @@
   "domain": "mesh",
   "kind": "mesh_generation_pipeline",
   "status": "partially_verified",
-  "overview": "Reads a triangulated STL region in the XY plane, reconstructs one closed boundary loop, assigns named boundary groups from a JSON sidecar, and writes Gmsh geometry. Gmsh remains an optional external executable.",
-  "principle": "STL facets carry coordinates and triangle topology, not standard CFD boundary-condition semantics. Singly incident triangle edges form the outer boundary; a sidecar explicitly maps every boundary edge to a named Gmsh Physical Curve. Physical names require a separate mapping to OneFLOW BC semantics.",
-  "architecture": "ASCII/Binary STL -> vertex welding and XY topology validation -> single closed boundary loop -> sidecar edge-to-physical-name mapping -> Gmsh .geo -> optional Gmsh CLI -> MSH -> existing Gmsh import and CGNS conversion path.",
+  "overview": "Reads one planar STL body loop, reconstructs its boundary, and generates either a directly bounded planar region or an external-flow fluid domain with the STL body as a wall hole and named outer boundary groups.",
+  "principle": "STL facets carry coordinates and triangle topology, not standard CFD boundary-condition semantics. Singly incident triangle edges reconstruct the body loop. A sidecar either assigns names to a planar region boundary or defines a rectangular external-flow domain whose four sides are Inlet, Outlet, Symmetry and Farfield and whose internal STL loop is Wall. Physical names require a separate mapping to OneFLOW BC semantics.",
+  "architecture": "ASCII/Binary STL -> vertex welding and XY topology validation -> single closed body loop -> explicit sidecar domain bounds and outer boundary names -> Gmsh geometry with an internal Wall hole and Fluid surface -> optional Gmsh CLI -> MSH -> existing Gmsh import and CGNS conversion path.",
   "references": [
     "Gmsh transfinite meshes: https://gmsh.info/doc/texinfo/gmsh.html#t6",
     "Gmsh MSH physical groups: https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format",
@@ -15,14 +15,16 @@
   ],
   "implementation": {
     "source_paths": [
-      "tools/stl_to_gmsh/stl_to_gmsh.py",
-      "tools/stl_to_gmsh/data/square.stl",
-      "tools/stl_to_gmsh/data/square.boundary.json"
+      "grid/stl/stl_to_gmsh.py",
+      "grid/stl/fixtures/square.stl",
+      "grid/stl_to_gmsh/input/body.stl",
+      "grid/stl_to_gmsh/config/external_flow.json"
     ]
   },
   "documentation": {
     "paths": [
-      "tools/stl_to_gmsh/README.md",
+      "grid/stl/README.md",
+      "grid/stl_to_gmsh/README.md",
       "doc/source/stl_to_gmsh_2d.rst",
       "doc/source/gmsh_interface.rst"
     ]
@@ -30,10 +32,11 @@
   "claims": {
     "proves": [
       "ASCII and binary STL triangle records can be read and a planar square fixture yields one four-edge boundary loop.",
-      "Every outer edge can be assigned to a named Gmsh Physical Curve and the generated geometry can request one quadrilateral cell."
+      "The planar STL loop can be used as an internal wall hole inside an explicitly bounded rectangular fluid domain.",
+      "The four outer rectangle sides and internal wall are emitted as separate named Gmsh Physical Curve groups."
     ],
     "does_not_prove": [
-      "Gmsh CLI has been executed or the emitted MSH contains exactly one quadrilateral element.",
+      "Generated outer-flow meshes have been converted through CGNS into a OneFLOW native grid.",
       "Generated MSH has been converted through CGNS into a OneFLOW native grid.",
       "Boundary names are automatically translated into OneFLOW solver boundary-condition types.",
       "Arbitrary plane orientations, holes, multiple components, curved reconstruction or general multi-cell meshing are supported."

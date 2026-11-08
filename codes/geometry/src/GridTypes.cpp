@@ -202,6 +202,15 @@ GridConfig GridConfig::FromDataBase()
 
     try
     {
+        cfg.stlWeldTolerance = GetDataValue< Real >( "stlWeldTolerance" );
+    }
+    catch ( const std::exception & )
+    {
+        // Keep the default tolerance when an STL-specific parameter is absent.
+    }
+
+    try
+    {
         cfg.scale = GetDataValue< Real >( "gridScale" );
     }
     catch ( const std::exception & )

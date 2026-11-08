@@ -22,6 +22,8 @@ License
 
 #include "GridConversion.h"
 #include "GmshMeshReader.h"
+#include "StlMeshIO.h"
+#include "PointLocator.h"
 #include "CgnsFactory.h"
 #include "CgnsZbase.h"
 #include "CgnsBase.h"
@@ -656,6 +658,130 @@ namespace
         cgnsFactory.GenerateGrid( oneFlowConfig, caseDir );
     }
 
+
+    UnstructuredMeshData BuildUnstructuredMeshFromStl(
+        const StlMesh & mesh,
+        Real weldTolerance )
+    {
+        if ( mesh.triangles.empty() )
+            throw std::runtime_error( "STL input contains no triangles" );
+        if ( ! std::isfinite( weldTolerance ) || weldTolerance <= 0.0 )
+            throw std::invalid_argument( "stlWeldTolerance must be finite and greater than zero" );
+        UnstructuredMeshData grid;
+        grid.ndim = 2;
+
+        // The ADT supplies candidates only; PointLocator applies the exact
+        // Euclidean tolerance test before reusing a node.
+        RealField pmin( 3 ), pmax( 3 );
+        for ( size_t axis = 0; axis < 3; ++axis )
+        {
+            pmin[ axis ] = std::numeric_limits< Real >::max();
+            pmax[ axis ] = -std::numeric_limits< Real >::max();
+        }
+        for ( const StlTriangle & triangle : mesh.triangles )
+        {
+            for ( const auto & vertex : triangle.vertices )
+            {
+                for ( size_t axis = 0; axis < 3; ++axis )
+                {
+                    pmin[ axis ] = std::min( pmin[ axis ], static_cast< Real >( vertex[ axis ] ) );
+                    pmax[ axis ] = std::max( pmax[ axis ], static_cast< Real >( vertex[ axis ] ) );
+                }
+            }
+        }
+
+        PointLocator vertexLocator;
+        vertexLocator.Initialize( pmin, pmax, static_cast< Real >( weldTolerance ) );
+        for ( const StlTriangle & triangle : mesh.triangles )
+        {
+            IntField connectivity;
+            connectivity.reserve( 3 );
+            for ( const auto & vertex : triangle.vertices )
+            {
+                const int pointId = vertexLocator.AddPoint(
+                    static_cast< Real >( vertex[ 0 ] ),
+                    static_cast< Real >( vertex[ 1 ] ),
+                    static_cast< Real >( vertex[ 2 ] ) );
+                if ( pointId < 0 )
+                    throw std::runtime_error( "STL vertex locator returned an invalid point ID" );
+                if ( static_cast< size_t >( pointId ) == grid.xN.size() )
+                {
+                    if ( grid.xN.size() >= static_cast< size_t >( std::numeric_limits< int >::max() ) )
+                        throw std::runtime_error( "STL vertex count exceeds OneFLOW index range" );
+                    grid.xN.push_back( vertex[ 0 ] );
+                    grid.yN.push_back( vertex[ 1 ] );
+                    grid.zN.push_back( vertex[ 2 ] );
+                }
+                connectivity.push_back( pointId );
+            }
+            if ( connectivity[ 0 ] == connectivity[ 1 ] ||
+                 connectivity[ 1 ] == connectivity[ 2 ] ||
+                 connectivity[ 2 ] == connectivity[ 0 ] )
+                throw std::runtime_error( "STL triangle collapses under stlWeldTolerance" );
+            grid.elems.push_back( std::move( connectivity ) );
+            grid.elemVTKType.push_back( VTK_TYPE::TRIANGLE );
+        }
+        grid.nPoin = static_cast< int >( grid.xN.size() );
+        grid.nElem = static_cast< int >( grid.elems.size() );
+        grid.mmark.CreateMarkerList( 0 );
+        grid.mmark.nMarker = 0;
+        return grid;
+    }
+
+    void ConvertStlToCgns(
+        const GridConfig & config,
+        const std::string & caseDir )
+    {
+        const std::filesystem::path sourceRoot = config.ResolveSourceCaseDir( caseDir );
+        const std::filesystem::path sourceName( config.sourceFile );
+        const std::filesystem::path source = sourceName.is_absolute()
+            ? sourceName : sourceRoot / sourceName;
+        const std::filesystem::path targetName( config.targetFile );
+        const std::filesystem::path target = targetName.is_absolute()
+            ? targetName : std::filesystem::path( caseDir ) / targetName;
+        const StlMesh mesh = StlMeshReader::Read( source.string() );
+        UnstructuredMeshData grid = BuildUnstructuredMeshFromStl( mesh, config.stlWeldTolerance );
+        if ( ! target.parent_path().empty() )
+            std::filesystem::create_directories( target.parent_path() );
+        CgnsFactory factory;
+        CgnsZbase & cgnsZbase = *factory.cgnsZbase;
+        cgnsZbase.nBases = 1;
+        cgnsZbase.InitCgnsBase();
+        CgnsBase * cgnsBase = cgnsZbase.GetCgnsBase( 0 );
+        cgnsBase->baseName = "Base";
+        cgnsBase->celldim = 2;
+        cgnsBase->phydim = 3;
+        cgnsBase->nZones = 1;
+        cgnsBase->AllocateAllCgnsZones();
+        CgnsZone * cgnsZone = cgnsBase->GetCgnsZone( 0 );
+        UnstructuredCgnsZoneWriter::Write( grid, *cgnsZone, false );
+        factory.WriteCgnsFile( target.string() );
+        const std::filesystem::path resultDirectory = std::filesystem::path( caseDir ) / "results";
+        std::filesystem::create_directories( resultDirectory );
+        const std::filesystem::path reportPath =
+            resultDirectory / ( target.stem().string() + ".stl-read-report.json" );
+        std::ofstream report( reportPath, std::ios::trunc );
+        if ( ! report ) throw std::runtime_error( "Cannot create STL report: " + reportPath.string() );
+        report << "{\n"
+               << "  \"format\": \"auto\",\n"
+               << "  \"triangleCount\": " << mesh.triangles.size() << ",\n"
+               << "  \"weldTolerance\": " << config.stlWeldTolerance << ",\n"
+               << "  \"nodeCount\": " << grid.nPoin << ",\n"
+               << "  \"cellCount\": " << grid.nElem << ",\n"
+               << "  \"topology\": \"triangle_surface\"\n"
+               << "}\n";
+        if ( ! report ) throw std::runtime_error( "Failed writing STL report: " + reportPath.string() );
+        std::cout << "STL to CGNS conversion completed: " << grid.nPoin
+                  << " welded nodes, " << grid.nElem << " triangles." << std::endl;
+    }
+
+    void ConvertStl( const GridConfig & config, const std::string & caseDir )
+    {
+        if ( config.targetType != GridFileType::CGNS )
+            throw std::invalid_argument( "STL conversion currently supports target type cgns" );
+        ConvertStlToCgns( config, caseDir );
+    }
+
     void ConvertGmsh( const GridConfig & config, const std::string & caseDir )
     {
         switch ( config.targetType )
@@ -731,6 +857,7 @@ namespace
         { GridFileType::SU2,    &ConvertSU2 },
         { GridFileType::CGNS,   &ConvertCGNS },
         { GridFileType::Gmsh,   &ConvertGmsh },
+        { GridFileType::STL,     &ConvertStl },
     };
 }
 
@@ -751,6 +878,8 @@ bool IsSupportedConversion( GridFileType sourceType, GridFileType targetType )
         case GridFileType::Gmsh:
             return targetType == GridFileType::CGNS ||
                    targetType == GridFileType::OneFLOW;
+        case GridFileType::STL:
+            return targetType == GridFileType::CGNS;
         default:
             return false;
     }

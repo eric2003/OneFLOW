@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 import threading
@@ -26,10 +27,15 @@ from PySide6.QtWidgets import (
 )
 
 from .executable_discovery import executable_candidates
-from .case_repository import load_cases
+from .case_repository import (
+    load_cases,
+    select_cases_by_execution_kind,
+    select_cases_for_execution,
+    select_cases_for_selection_dialog,
+)
 from .models import CaseDefinition
 from .process_control import process_group_options, terminate_and_reap, terminate_process_tree
-from .runner import create_run_id
+from .runner import prepare_case_database_workspace
 from .user_data_paths import UserDataPaths
 from .task_types import TaskRunResult, TaskRunStatus, TaskType, task_definition
 from .test_runner import (
@@ -268,7 +274,16 @@ class TestRunnerDialog(QDialog):
         self._build_config = build_config
         self._worker: TestCommandWorker | None = None
         self._case_worker = None
-        self._database_cases: list[CaseDefinition] = load_cases(self._repository_root)
+        all_database_cases = load_cases(self._repository_root)
+        self._all_database_cases = all_database_cases
+        self._available_database_cases_by_kind: dict[str, list[CaseDefinition]] = {
+            "oneflow": select_cases_by_execution_kind(all_database_cases, "oneflow"),
+            "python": select_cases_by_execution_kind(all_database_cases, "python"),
+        }
+        self._database_cases_by_kind = {
+            kind: list(cases)
+            for kind, cases in self._available_database_cases_by_kind.items()
+        }
         self._run_database_after_commands = False
         self.setWindowTitle("OneFLOW Tests")
         self.resize(900, 650)
@@ -337,9 +352,22 @@ class TestRunnerDialog(QDialog):
         )
         database_description.setWordWrap(True)
         database_layout.addWidget(database_description, 1)
-        self.case_database_check = QCheckBox("Run Development Tests")
+        self.case_database_check = QCheckBox("Run Development Cases")
         self.case_database_check.setChecked(False)
         database_layout.insertWidget(0, self.case_database_check)
+        self.python_development_check = QCheckBox("Python reference cases")
+        self.python_development_check.setChecked(False)
+        self.python_development_check.setToolTip(
+            "Runs Python reference cases. Together with Run Development Cases, "
+            "you can run Python only, native C++ only, or both. Selections are retained by type."
+        )
+        self.python_development_check.toggled.connect(
+            self._update_case_database_button_text
+        )
+        self.case_database_check.toggled.connect(
+            self._update_case_database_button_text
+        )
+        database_layout.insertWidget(1, self.python_development_check)
         self.case_database_button = QPushButton("Select cases...")
         self.case_database_button.setToolTip(
             "Choose which development cases to run. This does not start a run."
@@ -347,6 +375,7 @@ class TestRunnerDialog(QDialog):
         self.case_database_button.clicked.connect(self._open_case_database_tests)
         database_layout.addWidget(self.case_database_button)
         layout.addLayout(database_layout)
+        self._update_case_database_button_text()
 
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
@@ -376,17 +405,40 @@ class TestRunnerDialog(QDialog):
         buttons.addWidget(close_button)
         layout.addLayout(buttons)
 
+    def _development_case_selection_kinds(self) -> tuple[str, ...]:
+        if self.case_database_check.isChecked() and self.python_development_check.isChecked():
+            return ("oneflow", "python")
+        if self.python_development_check.isChecked():
+            return ("python",)
+        return ("oneflow",)
+
+    def _update_case_database_button_text(self, *_args) -> None:
+        kinds = self._development_case_selection_kinds()
+        labels = []
+        for kind in kinds:
+            label = "Python" if kind == "python" else "C++"
+            labels.append(f"{label} ({len(self._database_cases_by_kind[kind])})")
+        self.case_database_button.setText("Select cases... [" + " + ".join(labels) + "]")
+
     def _open_case_database_tests(self) -> None:
-        dialog = CaseDatabaseSelectionDialog(
-            self._repository_root, self._database_cases, self
+        available_cases = select_cases_for_selection_dialog(
+            self._all_database_cases,
+            run_native=self.case_database_check.isChecked(),
+            run_python=self.python_development_check.isChecked(),
         )
+        kinds = {case.execution_kind for case in available_cases}
+        selected_cases = [
+            case for kind in kinds for case in self._database_cases_by_kind[kind]
+        ]
+        dialog = CaseDatabaseSelectionDialog(available_cases, selected_cases, self)
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
-        self._database_cases = dialog.selected_cases()
-        count = len(self._database_cases)
-        self.case_database_button.setText(
-            f"Select cases... ({count} selected)" if count else "Select cases..."
-        )
+        selected = dialog.selected_cases()
+        for kind in kinds:
+            self._database_cases_by_kind[kind] = [
+                case for case in selected if case.execution_kind == kind
+            ]
+        self._update_case_database_button_text()
 
     def _start(self) -> None:
         if self._worker is not None and self._worker.isRunning():
@@ -469,11 +521,17 @@ class TestRunnerDialog(QDialog):
             except (OSError, ValueError) as error:
                 QMessageBox.warning(self, "Cannot start Gmsh Case", str(error))
                 return
-        run_database = self.case_database_check.isChecked()
-        if run_database and not self._database_cases:
+        run_database = (
+            self.case_database_check.isChecked()
+            or self.python_development_check.isChecked()
+        )
+        if run_database and not self._selected_development_cases():
+            mode = "native C++ OneFLOW and Python" if (
+                self.case_database_check.isChecked() and self.python_development_check.isChecked()
+            ) else ("Python" if self.python_development_check.isChecked() else "native C++ OneFLOW")
             QMessageBox.information(
                 self, "No cases configured",
-                "Use Select cases... to change the Development Tests selection.",
+                f"No {mode} cases are selected. Use Select cases... to change the selection.",
             )
             return
         if not commands and not run_database:
@@ -499,38 +557,66 @@ class TestRunnerDialog(QDialog):
         )
         self._launch_commands([command])
 
+    def _selected_development_cases(self) -> list[CaseDefinition]:
+        selected = [
+            case
+            for cases in self._database_cases_by_kind.values()
+            for case in cases
+        ]
+        return select_cases_for_execution(
+            selected,
+            run_native=self.case_database_check.isChecked(),
+            run_python=self.python_development_check.isChecked(),
+        )
+
     def _launch_database_cases(self) -> None:
-        executable = self.executable_combo.currentText().strip()
-        if not executable or not Path(executable).expanduser().is_file():
+        from .runner import build_command
+
+        selected_cases = self._selected_development_cases()
+        workspace_root = UserDataPaths.discover().grid_layout_test
+        executable_text = self.executable_combo.currentText().strip()
+        needs_oneflow = any(case.execution_kind == "oneflow" for case in selected_cases)
+        executable = Path(executable_text).expanduser().resolve() if executable_text else None
+        if needs_oneflow and (executable is None or not executable.is_file()):
             QMessageBox.warning(
                 self, "Executable required",
-                "Select a valid OneFLOW executable before running Development Tests.",
+                "The selected development cases include OneFLOW cases. Select a valid OneFLOW executable.",
             )
             return
-        from .main_window import RunQueueWorker
-
-        workspace_root = UserDataPaths.discover().grid_layout_test
-        run_id = create_run_id()
+        try:
+            staged = prepare_case_database_workspace(selected_cases, workspace_root)
+            commands: list[TestCommand] = []
+            for case in selected_cases:
+                case_directory = staged[case.case_id]
+                if case.execution_kind == "python":
+                    if case.execution_script is None:
+                        raise ValueError(f"{case.case_id}: Python execution script is missing.")
+                    arguments = (sys.executable, str(case.execution_script), "--case-directory", str(case_directory))
+                    working_directory = self._repository_root
+                else:
+                    assert executable is not None
+                    arguments = tuple(build_command(executable, case_directory))
+                    working_directory = executable.parent
+                commands.append(TestCommand(
+                    f"Development case: {case.title}", arguments, working_directory,
+                    task_type=TaskType.CASE_DATABASE,
+                ))
+        except (OSError, ValueError, shutil.Error) as error:
+            QMessageBox.warning(self, "Cannot stage development cases", str(error))
+            return
+        if not commands:
+            QMessageBox.information(self, "No cases selected", "Select at least one development case.")
+            return
+        enabled_modes = []
+        if any(case.execution_kind == "oneflow" for case in selected_cases):
+            enabled_modes.append("native C++ OneFLOW")
+        if any(case.execution_kind == "python" for case in selected_cases):
+            enabled_modes.append("Python reference")
         self.log_view.appendPlainText(
-            f"\n=== Development Tests ===\n"
-            f"Executable: {Path(executable).resolve()}\n"
-            f"Workspace: {workspace_root}"
+            f"Development case modes: {' + '.join(enabled_modes)}\n"
+            f"Development case workspace: {workspace_root}\nStaged {len(commands)} selected case(s)."
         )
-        self.run_button.setEnabled(False)
-        self.build_button.setEnabled(False)
-        self.rebuild_button.setEnabled(False)
-        self.stop_button.setEnabled(True)
-        self._case_worker = RunQueueWorker(
-            self._database_cases,
-            Path(executable).expanduser().resolve(),
-            workspace_root,
-            run_id,
-            execution_mode="case_database",
-        )
-        self._case_worker.log_line.connect(self.log_view.appendPlainText)
-        self._case_worker.case_result.connect(self._database_case_result)
-        self._case_worker.finished.connect(self._database_worker_finished)
-        self._case_worker.start()
+        self._launch_commands(commands)
 
     def _database_case_result(self, result) -> None:
         self.log_view.appendPlainText(
@@ -633,13 +719,12 @@ class CaseDatabaseSelectionDialog(QDialog):
 
     def __init__(
         self,
-        repository_root: Path,
+        available_cases: list[CaseDefinition],
         selected_cases: list[CaseDefinition],
         parent=None,
     ) -> None:
         super().__init__(parent)
-        self._repository_root = repository_root
-        self._cases = load_cases(repository_root)
+        self._cases = list(available_cases)
         selected_ids = {case.case_id for case in selected_cases}
         self.setWindowTitle("Select Development Test Cases")
         self.resize(760, 560)
@@ -672,9 +757,12 @@ class CaseDatabaseSelectionDialog(QDialog):
             )
             case_item.setData(0, Qt.ItemDataRole.UserRole, case.case_id)
             case_item.setText(1, case.title)
-            case_item.setText(
-                2, "Typed profile" if case.profile else "Legacy config"
+            configuration = (
+                f"Python: {case.execution_script.name}"
+                if case.execution_kind == "python" and case.execution_script is not None
+                else ("Typed profile" if case.profile else "Legacy config")
             )
+            case_item.setText(2, configuration)
             case_item.setCheckState(
                 0,
                 Qt.CheckState.Checked

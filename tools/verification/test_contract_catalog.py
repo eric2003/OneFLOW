@@ -77,6 +77,52 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(len(linked_tests), 1)
         self.assertEqual(linked_tests[0].status, "linked_not_executed")
 
+    def test_stl_native_io_contract_is_available_to_mesh_workbench(self) -> None:
+        definitions, issues = load_contract_catalog(self.repository_root)
+        self.assertEqual(issues, (), "\\n".join(issues))
+
+        contract = next(
+            item for item in definitions if item.id == "mesh/stl-native-io"
+        )
+        self.assertEqual(contract.domain, "mesh")
+        self.assertEqual(contract.group_id, "mesh_formats")
+        self.assertEqual(contract.status, "partially_verified")
+        self.assertEqual(
+            set(contract.implementation_paths),
+            {
+                "codes/geometry/include/StlMeshIO.h",
+                "codes/geometry/src/StlMeshIO.cpp",
+                "codes/geometry/src/GridConversion.cpp",
+                "codes/geometry/src/GridTypes.cpp",
+            },
+        )
+        self.assertIn("doc/source/stl_mesh_io.rst", contract.documentation_paths)
+        self.assertEqual(len(contract.evidence), 12)
+
+        resolutions = resolve_contract_evidence(self.repository_root, contract)
+        self.assertEqual(
+            [item.status for item in resolutions],
+            ["resolved"] * len(contract.evidence),
+        )
+        self.assertTrue(
+            all(
+                item.evidence.status == "linked_not_executed"
+                for item in resolutions
+            )
+        )
+
+        geometry_cmake = (
+            self.repository_root / "tests" / "geometry" / "CMakeLists.txt"
+        ).read_text(encoding="utf-8")
+        self.assertIn(
+            "add_oneflow_gtest(StlMeshIOTest StlMeshIOTest.cpp)",
+            geometry_cmake,
+        )
+        self.assertIn(
+            "gtest_discover_tests(${TEST_NAME} DISCOVERY_MODE PRE_TEST)",
+            geometry_cmake,
+        )
+
     def test_adapts_declared_runtime_contract_with_typed_evidence(self) -> None:
         definition_path = (
             self.repository_root

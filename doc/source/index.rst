@@ -34,6 +34,7 @@ Mesh and engineering workflows
 ------------------------------
 
 * :doc:`mesh_architecture` — mesh information levels, snapshots, and format adapters.
+* :doc:`stl_mesh_io` — native C++ STL ASCII/Binary I/O, facet semantics, and reader/writer verification.
 * :doc:`gmsh_interface` — Gmsh MSH 4.1-first input adapter, version support, semantic mapping, and conversion validation.
 * :doc:`stl_to_gmsh_2d` — planar STL boundary extraction, explicit CFD boundary groups, and Gmsh 2D generation.
 * :doc:`grid_conversion_cases` — runnable mesh conversion Cases, topology coverage, and format-route matrix.
@@ -52,6 +53,7 @@ Developer resources
 * :doc:`test_inventory` — source-discovered test catalog, separated by framework, with input/expected/result contracts.
 * :doc:`cmake_build_architecture` — module source discovery, compatibility rules, dependency boundaries, and CMake self-tests.
 * :doc:`runtime_architecture` — runtime entry points, configuration boundaries, execution flow, and refactoring rules.
+* :doc:`runtime_environment` — runtime dependency introspection, CGNS version evidence, CLI JSON, and Workbench display.
 * :doc:`runtime_case_lifecycle` — production CLI-to-case execution sequence, configuration ingestion, cleanup ownership, and integration evidence.
 * :doc:`database_architecture` — parameter ownership, type-erased storage, const access, field pointer registration, and serialization contracts.
 * :doc:`evolutionary_computation_architecture` — computation-unit contracts, intermediate representations, and the long-term algorithm/dataflow evolution model.
@@ -149,6 +151,7 @@ The existing reference library covers programming languages, build systems, para
    database_architecture
    evolutionary_computation_architecture
    mesh_architecture
+   stl_mesh_io
    gmsh_interface
    stl_to_gmsh_2d
    grid_conversion_cases

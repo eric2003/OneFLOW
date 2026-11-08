@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -22,7 +24,8 @@ class BackgroundProjectRunnerTest(unittest.TestCase):
             repository = root / "repository"
             repository.mkdir()
 
-            with patch(
+            user_data = root / "user-data"
+            with patch.dict(os.environ, {"ONEFLOW_HOME": str(user_data)}), patch(
                 "tools.oneflow_gui.background_project_runner.run_process",
                 return_value=ProcessResult("succeeded", 0, "completed"),
             ) as run_process:
@@ -40,6 +43,16 @@ class BackgroundProjectRunnerTest(unittest.TestCase):
             command = run_process.call_args.args[0]
             self.assertEqual(command, [str(executable.resolve()), "r", str(project.resolve())])
             self.assertFalse(run_process.call_args.kwargs["is_cancelled"]())
+            evidence_root = user_data / "workflow-data" / "executions" / "run-001"
+            environment = json.loads(
+                (evidence_root / "environment.json").read_text(encoding="utf-8")
+            )
+            manifest = json.loads(
+                (evidence_root / "run-manifest.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(environment["capture_status"], "failed")
+            self.assertEqual(manifest["status"], "succeeded")
+            self.assertEqual(manifest["return_code"], 0)
 
 
 if __name__ == "__main__":
