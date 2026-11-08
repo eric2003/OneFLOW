@@ -126,7 +126,12 @@ def run_all(stage_root: Path, oneflow: Path, gmsh: str) -> list[tuple[str, Path]
     return outputs
 
 
-def run_pipeline(stage_root: Path, oneflow: Path, gmsh: str) -> None:
+def run_pipeline(
+    stage_root: Path,
+    oneflow: Path,
+    gmsh: str,
+    workflow: Path | None = None,
+) -> None:
     script = REPOSITORY_ROOT / "grid/stl_to_gmsh/develop_test/run_pipeline.py"
     command = [
         sys.executable,
@@ -138,6 +143,8 @@ def run_pipeline(stage_root: Path, oneflow: Path, gmsh: str) -> None:
         "--stage-root",
         str(stage_root),
     ]
+    if workflow is not None:
+        command.extend(["--workflow", str(workflow.expanduser().resolve())])
     result = subprocess.run(command, cwd=REPOSITORY_ROOT, check=False)
     if result.returncode != 0:
         raise RuntimeError(
@@ -172,6 +179,11 @@ def main() -> int:
         action="store_true",
         help="run only the staged STL-to-CFD dependency workflow",
     )
+    parser.add_argument(
+        "--workflow",
+        type=Path,
+        help="workflow JSON to execute with --pipeline or --pipeline-only",
+    )
     args = parser.parse_args()
     try:
         if not args.gmsh:
@@ -195,7 +207,7 @@ def main() -> int:
         if not args.pipeline_only:
             outputs = run_all(stage_root, oneflow, str(gmsh_path))
         if args.pipeline or args.pipeline_only:
-            run_pipeline(stage_root, oneflow, str(gmsh_path))
+            run_pipeline(stage_root, oneflow, str(gmsh_path), args.workflow)
     except (OSError, RuntimeError, ValueError) as error:
         parser.exit(2, f"STL-to-Gmsh development run failed: {error}\n")
 

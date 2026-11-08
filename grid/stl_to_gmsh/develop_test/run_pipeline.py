@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the staged STL -> Gmsh -> CGNS -> OneFLOW -> CFD development workflow."""
+"""Run a declarative STL -> Gmsh -> CGNS -> OneFLOW -> CFD case graph."""
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ def _utc_now() -> str:
 def _load_workflow(path: Path) -> tuple[dict, list[dict]]:
     workflow = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(workflow, dict) or workflow.get("schema_version") != 1:
-        raise ValueError("Unsupported STL-to-CFD workflow definition.")
+        raise ValueError("Unsupported development workflow definition.")
     steps = workflow.get("steps")
     if not isinstance(steps, list) or len(steps) != 1:
         raise ValueError("The workflow must contain exactly one case_graph step.")
@@ -43,8 +43,14 @@ def _load_workflow(path: Path) -> tuple[dict, list[dict]]:
     cases = graph.get("cases")
     if not isinstance(cases, list) or not cases:
         raise ValueError("The case_graph must contain a non-empty cases list.")
-    if not isinstance(workflow.get("validation"), dict):
-        raise ValueError("The workflow must declare artifact validation rules.")
+    for case in cases:
+        if not isinstance(case, dict):
+            raise ValueError("Every workflow case must be an object.")
+        validation = case.get("validation")
+        if validation is not None and not isinstance(validation, dict):
+            raise ValueError(
+                f"Case '{case.get('id', '<unknown>')}' validation must be an object."
+            )
     return workflow, cases
 
 
@@ -57,42 +63,75 @@ def _ensure_outside_repository(path: Path) -> Path:
     raise ValueError(f"Run data must stay outside the source repository: {resolved}")
 
 
-def _validate_gmsh_mesh(mesh_path: Path, validation: dict) -> dict:
-    mesh = inspect_msh4(mesh_path)
-    expected = validation["gmsh_mesh"]
-    observed = {
-        key: mesh[key]
-        for key in (
-            "nodes",
-            "line_elements",
-            "triangle_elements",
-            "quadrilateral_elements",
-        )
-    }
-    if observed != expected:
-        raise ValueError(
-            f"Gmsh mesh counts {observed} do not match expected {expected}."
-        )
+def _case_file(case_directory: Path, value: str) -> Path:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("Validation artifact path must be a non-empty string.")
+    relative = Path(value.strip())
+    if relative.is_absolute() or ".." in relative.parts:
+        raise ValueError("Validation artifact path must stay inside its Case.")
+    return case_directory / relative
 
-    actual_groups = {
-        (group["dimension"], group["name"])
-        for group in mesh["physical_groups"]
-    }
-    expected_groups = {
-        (group["dimension"], group["name"])
-        for group in validation["physical_groups"]
-    }
-    if actual_groups != expected_groups:
-        raise ValueError(
-            "Gmsh Physical Groups do not match the pipeline contract: "
-            f"{sorted(actual_groups)} != {sorted(expected_groups)}."
-        )
-    return {
-        "mesh": observed,
-        "physical_groups": sorted(
-            f"{dimension}:{name}" for dimension, name in actual_groups
-        ),
-    }
+
+def _validate_step_outputs(case_directory: Path, specification: dict) -> dict:
+    """Apply declarative, side-effect-free acceptance checks to one Case."""
+    kind = specification.get("kind")
+    if kind == "gmsh_msh4":
+        mesh_path = _case_file(case_directory, specification.get("path"))
+        mesh = inspect_msh4(mesh_path)
+        expected_counts = specification.get("expected_counts")
+        if not isinstance(expected_counts, dict):
+            raise ValueError("gmsh_msh4 validation requires expected_counts.")
+        observed_counts = {
+            key: mesh[key]
+            for key in (
+                "nodes",
+                "line_elements",
+                "triangle_elements",
+                "quadrilateral_elements",
+            )
+        }
+        if observed_counts != expected_counts:
+            raise ValueError(
+                f"Gmsh mesh counts {observed_counts} do not match "
+                f"expected {expected_counts}."
+            )
+        expected_groups = {
+            (item["dimension"], item["name"])
+            for item in specification.get("physical_groups", [])
+        }
+        actual_groups = {
+            (item["dimension"], item["name"])
+            for item in mesh["physical_groups"]
+        }
+        if actual_groups != expected_groups:
+            raise ValueError(
+                "Gmsh Physical Groups do not match the Case contract: "
+                f"{sorted(actual_groups)} != {sorted(expected_groups)}."
+            )
+        return {
+            "kind": kind,
+            "path": str(mesh_path.relative_to(case_directory)),
+            "mesh": observed_counts,
+            "physical_groups": sorted(
+                f"{dimension}:{name}" for dimension, name in actual_groups
+            ),
+        }
+
+    if kind == "non_empty_files":
+        paths = specification.get("paths")
+        if not isinstance(paths, list) or not paths:
+            raise ValueError("non_empty_files validation requires a non-empty paths list.")
+        validated = []
+        for relative in paths:
+            path = _case_file(case_directory, relative)
+            if not path.is_file() or path.stat().st_size == 0:
+                raise ValueError(f"Required output is missing or empty: {path}")
+            validated.append(
+                {"path": str(path.relative_to(case_directory)), "size_bytes": path.stat().st_size}
+            )
+        return {"kind": kind, "files": validated}
+
+    raise ValueError(f"Unsupported Case output validation kind: {kind!r}")
 
 
 def run_pipeline(
@@ -112,6 +151,7 @@ def run_pipeline(
     workflow_path = workflow_file.expanduser().resolve()
     workflow, cases = _load_workflow(workflow_path)
     plan = build_case_graph_plan(cases, REPOSITORY_ROOT)
+    case_definitions = {case["id"]: case for case in cases}
 
     os.environ["PATH"] = (
         str(gmsh_executable.parent) + os.pathsep + os.environ.get("PATH", "")
@@ -132,6 +172,12 @@ def run_pipeline(
         working_directory=executable.parent,
         project_directory=REPOSITORY_ROOT / "grid/stl_to_gmsh",
         execution_mode="development_pipeline",
+    )
+    workflow_snapshot = run_root / "workflow.json"
+    workflow_snapshot.write_text(
+        workflow_path.read_text(encoding="utf-8"),
+        encoding="utf-8",
+        newline="\n",
     )
 
     final_status = "failed"
@@ -158,37 +204,26 @@ def run_pipeline(
                 status = "failed"
                 message = f"Unable to start OneFLOW: {error}"
 
+            validation_path = None
             if status == "succeeded":
-                try:
-                    if step.case_id == "stl_to_gmsh_square_2x2":
-                        validation_report = _validate_gmsh_mesh(
-                            step.directory / "results/square_2x2.msh",
-                            workflow["validation"],
+                validation_spec = case_definitions[step.case_id].get("validation")
+                if validation_spec is not None:
+                    try:
+                        validation_report = _validate_step_outputs(
+                            step.directory, validation_spec
                         )
-                        (step.directory / "results/mesh-validation.json").write_text(
+                        validation_path = (
+                            step.directory / "results/validation.json"
+                        )
+                        validation_path.parent.mkdir(parents=True, exist_ok=True)
+                        validation_path.write_text(
                             json.dumps(validation_report, indent=2) + "\n",
                             encoding="utf-8",
                             newline="\n",
                         )
-                    elif step.case_id == "cfd_solve_square_2x2":
-                        output_paths = workflow["validation"]["cfd_non_empty_outputs"]
-                        for relative in output_paths:
-                            output = step.directory / relative
-                            if not output.is_file() or output.stat().st_size == 0:
-                                raise ValueError(
-                                    f"CFD output is missing or empty: {output}"
-                                )
-                        (step.directory / "results/cfd-validation.json").write_text(
-                            json.dumps(
-                                {"non_empty_outputs": output_paths, "validated": True},
-                                indent=2,
-                            ) + "\n",
-                            encoding="utf-8",
-                            newline="\n",
-                        )
-                except (OSError, ValueError, KeyError, RuntimeError) as error:
-                    status = "failed"
-                    message = f"Artifact validation failed: {error}"
+                    except (OSError, ValueError, KeyError, RuntimeError) as error:
+                        status = "failed"
+                        message = f"Artifact validation failed: {error}"
 
             results_directory = step.directory / "results"
             results_directory.mkdir(parents=True, exist_ok=True)
@@ -222,6 +257,9 @@ def run_pipeline(
                 if output_path.is_file():
                     produced.append(str(output_path))
                     artifacts.append(str(output_path))
+            validation_report = staged_directory / "results/validation.json"
+            if validation_report.is_file():
+                artifacts.append(str(validation_report))
             step_records.append(
                 {
                     "case_id": result.case_id,
@@ -229,6 +267,9 @@ def run_pipeline(
                     "message": result.message,
                     "directory": str(staged_directory),
                     "artifacts": produced,
+                    "validation_report": (
+                        str(validation_report) if validation_report.is_file() else None
+                    ),
                     "log": str(staged_directory / "results/development_case.log"),
                 }
             )
@@ -242,6 +283,8 @@ def run_pipeline(
             "finished_at": _utc_now(),
             "executable": str(executable),
             "gmsh_executable": str(gmsh_executable),
+            "workflow_file": str(workflow_path),
+            "workflow_snapshot": str(workflow_snapshot),
             "run_directory": str(run_root),
             "steps": step_records,
             "artifacts": artifacts,
@@ -278,7 +321,7 @@ def main() -> int:
             args.workflow,
         )
     except (OSError, ValueError, KeyError, TypeError, RuntimeError, json.JSONDecodeError) as error:
-        parser.exit(2, f"STL-to-CFD pipeline failed: {error}\n")
+        parser.exit(2, f"Development pipeline failed: {error}\n")
 
 
 if __name__ == "__main__":

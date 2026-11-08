@@ -3,41 +3,6 @@
   "workflow_id": "stl-square-2x2-to-cfd",
   "name": "STL square 2x2 mesh to CFD",
   "description": "Generate a four-cell square mesh from STL, convert it through CGNS to a native OneFLOW grid, then run a 50-step SLAU2 CFD smoke test.",
-  "validation": {
-    "gmsh_mesh": {
-      "nodes": 9,
-      "line_elements": 8,
-      "triangle_elements": 0,
-      "quadrilateral_elements": 4
-    },
-    "physical_groups": [
-      {
-        "dimension": 1,
-        "name": "inflow"
-      },
-      {
-        "dimension": 1,
-        "name": "outflow"
-      },
-      {
-        "dimension": 1,
-        "name": "symmetry"
-      },
-      {
-        "dimension": 1,
-        "name": "farfield"
-      },
-      {
-        "dimension": 2,
-        "name": "fluid_domain"
-      }
-    ],
-    "cfd_non_empty_outputs": [
-      "results/res.dat",
-      "restart/flow.dat",
-      "visual/visual.dat"
-    ]
-  },
   "steps": [
     {
       "type": "case_graph",
@@ -52,7 +17,39 @@
               "parameter_file": "script/grid.txt",
               "setting": "targetGridFileName"
             }
-          ]
+          ],
+          "validation": {
+            "kind": "gmsh_msh4",
+            "path": "results/square_2x2.msh",
+            "expected_counts": {
+              "nodes": 9,
+              "line_elements": 8,
+              "triangle_elements": 0,
+              "quadrilateral_elements": 4
+            },
+            "physical_groups": [
+              {
+                "dimension": 1,
+                "name": "inflow"
+              },
+              {
+                "dimension": 1,
+                "name": "outflow"
+              },
+              {
+                "dimension": 1,
+                "name": "symmetry"
+              },
+              {
+                "dimension": 1,
+                "name": "farfield"
+              },
+              {
+                "dimension": 2,
+                "name": "fluid_domain"
+              }
+            ]
+          }
         },
         {
           "id": "gmsh_to_cgns_square_2x2",
@@ -74,7 +71,13 @@
               "parameter_file": "script/grid.txt",
               "setting": "targetGridFileName"
             }
-          ]
+          ],
+          "validation": {
+            "kind": "non_empty_files",
+            "paths": [
+              "results/square.cgns"
+            ]
+          }
         },
         {
           "id": "cgns_to_oneflow_square_2x2",
@@ -96,7 +99,13 @@
               "parameter_file": "script/grid.txt",
               "setting": "targetGridFileName"
             }
-          ]
+          ],
+          "validation": {
+            "kind": "non_empty_files",
+            "paths": [
+              "results/square.oneflow.grid"
+            ]
+          }
         },
         {
           "id": "cfd_solve_square_2x2",
@@ -124,7 +133,15 @@
               "id": "cfd_visualization",
               "path": "visual/visual.dat"
             }
-          ]
+          ],
+          "validation": {
+            "kind": "non_empty_files",
+            "paths": [
+              "results/res.dat",
+              "restart/flow.dat",
+              "visual/visual.dat"
+            ]
+          }
         }
       ]
     }

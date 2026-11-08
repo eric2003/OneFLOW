@@ -81,12 +81,19 @@ Run only the end-to-end pipeline:
 
     python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline-only
 
+A different workflow definition can be supplied without changing the runner:
+
+    python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline-only --workflow path/to/workflow.json
+
 Run the standalone geometry Cases first, followed by the pipeline:
 
     python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline
 
-The pipeline writes pipeline-report.json, environment.json and
-run-manifest.json beside its staged Cases. It independently checks the MSH
+Each Case declares its own output-validation rule in the workflow JSON, so
+validation behavior is data-driven rather than selected by Case ID. The
+runner snapshots the workflow JSON and writes one validation.json per
+validated stage. The pipeline writes pipeline-report.json, environment.json
+and run-manifest.json beside its staged Cases. It independently checks the MSH
 4.1 node/line/quad counts and Physical Groups before allowing CGNS conversion
 to proceed. It also requires non-empty residual, restart and visualization
 outputs after CFD execution.

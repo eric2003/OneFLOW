@@ -153,6 +153,28 @@ class StlToGmshCaseTest(unittest.TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn('string sourceGridType = "cgns";', cgns_grid)
         self.assertIn('string targetGridType = "oneflow";', cgns_grid)
+        case_definitions = {
+            case["id"]: case for case in workflow["steps"][0]["cases"]
+        }
+        self.assertEqual(case_definitions[gmsh.case_id]["validation"]["kind"], "gmsh_msh4")
+        self.assertEqual(
+            case_definitions[gmsh.case_id]["validation"]["expected_counts"],
+            {
+                "nodes": 9,
+                "line_elements": 8,
+                "triangle_elements": 0,
+                "quadrilateral_elements": 4,
+            },
+        )
+        for case_id in (cgns.case_id, native.case_id, cfd.case_id):
+            self.assertEqual(
+                case_definitions[case_id]["validation"]["kind"],
+                "non_empty_files",
+            )
+        self.assertEqual(
+            case_definitions[cfd.case_id]["validation"]["paths"],
+            ["results/res.dat", "restart/flow.dat", "visual/visual.dat"],
+        )
         cfd_parameters = (
             ROOT / "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/cfd.txt"
         ).read_text(encoding="utf-8")
