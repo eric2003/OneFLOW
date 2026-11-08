@@ -134,7 +134,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
             REPOSITORY_ROOT / cases["stl_weld_tolerance"]["directory"]
             / "input" / "model.stl"
         ).read_text(encoding="ascii")
-        self.assertIn("vertex 1.00000000002 1 0", weld_fixture)
+        self.assertIn("vertex 1.000000000051 1 0", weld_fixture)
 
     def test_turbulent_flat_plate_uses_requested_bounds_and_tanh_distribution(self) -> None:
         case_dir = REPOSITORY_ROOT / "grid" / "turbulent_flat_plate"
