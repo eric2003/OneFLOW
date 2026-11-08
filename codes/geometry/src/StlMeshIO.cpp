@@ -317,8 +317,10 @@ StlPlanarBoundary ExtractStlPlanarBoundary(
             for (std::size_t axis = 0; axis < 3; ++axis) {
                 const double relative = (point[axis] - minimum[axis]) / weldTolerance;
                 if (!std::isfinite(relative) ||
-                    relative < static_cast<double>(std::numeric_limits<long long>::min() + 2) ||
-                    relative > static_cast<double>(std::numeric_limits<long long>::max() - 2))
+                    static_cast<long double>(relative) <
+                        static_cast<long double>(std::numeric_limits<long long>::min()) + 2.0L ||
+                    static_cast<long double>(relative) >
+                        static_cast<long double>(std::numeric_limits<long long>::max()) - 2.0L)
                     throw std::invalid_argument(
                         "STL coordinate range is too large for the weld tolerance");
                 key[axis] = static_cast<long long>(std::floor(relative));
@@ -340,7 +342,8 @@ StlPlanarBoundary ExtractStlPlanarBoundary(
                                 point[1] - other[1],
                                 point[2] - other[2]);
                             if (distance < bestDistance ||
-                                (distance == bestDistance && candidate < best)) {
+                                (best != points.size() && distance == bestDistance &&
+                                 candidate < best)) {
                                 best = candidate;
                                 bestDistance = distance;
                             }
