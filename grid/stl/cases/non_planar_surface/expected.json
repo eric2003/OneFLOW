@@ -1,0 +1,7 @@
+{
+  "readable": true,
+  "format": "ascii",
+  "triangle_count": 1,
+  "topology": "invalid",
+  "topology_error_contains": "constant-Z"
+}

@@ -24,10 +24,12 @@ class CaseDefinition:
     case_id: str
     title: str
     case_directory: Path
-    runtime_config: Path
+    runtime_config: Path | None
     profile: Path | None
     layout: Path | None
     group: str = "General"
+    execution_kind: str = "oneflow"
+    execution_script: Path | None = None
 
 
 @dataclass(frozen=True, slots=True)

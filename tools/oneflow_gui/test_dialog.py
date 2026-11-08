@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 import threading
@@ -29,7 +30,7 @@ from .executable_discovery import executable_candidates
 from .case_repository import load_cases
 from .models import CaseDefinition
 from .process_control import process_group_options, terminate_and_reap, terminate_process_tree
-from .runner import create_run_id
+from .runner import prepare_case_database_workspace
 from .user_data_paths import UserDataPaths
 from .task_types import TaskRunResult, TaskRunStatus, TaskType, task_definition
 from .test_runner import (
@@ -500,37 +501,46 @@ class TestRunnerDialog(QDialog):
         self._launch_commands([command])
 
     def _launch_database_cases(self) -> None:
-        executable = self.executable_combo.currentText().strip()
-        if not executable or not Path(executable).expanduser().is_file():
-            QMessageBox.warning(
-                self, "Executable required",
-                "Select a valid OneFLOW executable before running Development Tests.",
-            )
-            return
-        from .main_window import RunQueueWorker
+        from .runner import build_command
 
         workspace_root = UserDataPaths.discover().grid_layout_test
-        run_id = create_run_id()
+        executable_text = self.executable_combo.currentText().strip()
+        needs_oneflow = any(case.execution_kind == "oneflow" for case in self._database_cases)
+        executable = Path(executable_text).expanduser().resolve() if executable_text else None
+        if needs_oneflow and (executable is None or not executable.is_file()):
+            QMessageBox.warning(
+                self, "Executable required",
+                "The selected development cases include OneFLOW cases. Select a valid OneFLOW executable.",
+            )
+            return
+        try:
+            staged = prepare_case_database_workspace(self._database_cases, workspace_root)
+            commands: list[TestCommand] = []
+            for case in self._database_cases:
+                case_directory = staged[case.case_id]
+                if case.execution_kind == "python":
+                    if case.execution_script is None:
+                        raise ValueError(f"{case.case_id}: Python execution script is missing.")
+                    arguments = (sys.executable, str(case.execution_script), "--case-directory", str(case_directory))
+                    working_directory = self._repository_root
+                else:
+                    assert executable is not None
+                    arguments = tuple(build_command(executable, case_directory))
+                    working_directory = executable.parent
+                commands.append(TestCommand(
+                    f"Development case: {case.title}", arguments, working_directory,
+                    task_type=TaskType.CASE_DATABASE,
+                ))
+        except (OSError, ValueError, shutil.Error) as error:
+            QMessageBox.warning(self, "Cannot stage development cases", str(error))
+            return
+        if not commands:
+            QMessageBox.information(self, "No cases selected", "Select at least one development case.")
+            return
         self.log_view.appendPlainText(
-            f"\n=== Development Tests ===\n"
-            f"Executable: {Path(executable).resolve()}\n"
-            f"Workspace: {workspace_root}"
+            f"Development case workspace: {workspace_root}\nStaged {len(commands)} selected case(s)."
         )
-        self.run_button.setEnabled(False)
-        self.build_button.setEnabled(False)
-        self.rebuild_button.setEnabled(False)
-        self.stop_button.setEnabled(True)
-        self._case_worker = RunQueueWorker(
-            self._database_cases,
-            Path(executable).expanduser().resolve(),
-            workspace_root,
-            run_id,
-            execution_mode="case_database",
-        )
-        self._case_worker.log_line.connect(self.log_view.appendPlainText)
-        self._case_worker.case_result.connect(self._database_case_result)
-        self._case_worker.finished.connect(self._database_worker_finished)
-        self._case_worker.start()
+        self._launch_commands(commands)
 
     def _database_case_result(self, result) -> None:
         self.log_view.appendPlainText(

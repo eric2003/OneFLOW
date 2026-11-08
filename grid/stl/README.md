@@ -30,12 +30,21 @@ The planar boundary pipeline welds coincident vertices using a caller-selected t
 
 STL defines geometry and triangle topology, not CFD boundary conditions. Boundary names therefore come from an explicit JSON sidecar in the consuming case. Physical group names are labels only; mapping them to CGNS or OneFLOW solver boundary types is a separate conversion responsibility.
 
+## Development test cases
+
+STL reader compatibility cases are registered in `grid/case_catalog.json` under the `STL` group and appear in **Select Development Test Cases**. Each case supplies `input/model.stl` and `expected.json`; the shared runner writes `results/stl_report.json` in the staged case workspace.
+
+The initial collection covers ASCII and binary STL, binary headers beginning with `solid`, CRLF text, scientific notation, degenerate triangles, truncated binary data, and non-planar surfaces. Expected diagnostic failures count as passing tests when the observed diagnostic matches the case expectation.
+
+Python development cases do not require a OneFLOW executable. OneFLOW and Python cases can be selected together and are dispatched according to their declared execution kind.
+
 ## Tests
 
 Run from the repository root:
 
 ```sh
 python -m unittest grid.stl.test_stl_to_gmsh
+python tools/test_mesh_cases.py validate
 ```
 
 The binary STL test builds its fixture in a temporary directory. Tests that generate reports or meshes use temporary directories and do not write generated files into this source directory.

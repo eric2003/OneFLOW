@@ -24,15 +24,20 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
         runtime_config = (case_directory / entry["runtimeConfig"]).resolve()
         profile_value = entry.get("profile")
         layout_value = entry.get("layout")
+        execution = entry.get("execution") or {}
+        execution_kind = str(execution.get("kind") or "oneflow")
+        execution_script = (root / execution["script"]).resolve() if execution_kind == "python" else None
         cases.append(
             CaseDefinition(
                 case_id=entry["id"],
                 title=entry.get("title", entry["id"]),
                 case_directory=case_directory,
-                runtime_config=runtime_config,
+                runtime_config=runtime_config if execution_kind == "oneflow" else None,
                 profile=(case_directory / profile_value).resolve() if profile_value else None,
                 layout=(case_directory / layout_value).resolve() if layout_value else None,
                 group=str(entry.get("group") or "General"),
+                execution_kind=execution_kind,
+                execution_script=execution_script,
             )
         )
 

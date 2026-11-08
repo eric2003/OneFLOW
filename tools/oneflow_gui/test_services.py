@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -27,7 +30,8 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertTrue(
             {"minimal_rectangle", "minimal_cube", "two_connected_cubes"} <= case_ids
         )
-        self.assertTrue(all(case.runtime_config.is_file() for case in cases))
+        self.assertTrue(all(case.runtime_config is not None and case.runtime_config.is_file()
+                            for case in cases if case.execution_kind == "oneflow"))
 
     def test_gmsh_cases_are_available_in_the_gmsh_development_group(self) -> None:
         cases = load_cases(REPOSITORY_ROOT)
@@ -36,6 +40,28 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertEqual(cases_by_id["two_quads"].group, "Gmsh")
         self.assertEqual(cases_by_id["gmsh_to_cgns"].group, "Gmsh")
         self.assertEqual(cases_by_id["gmsh_to_oneflow"].group, "Gmsh")
+
+    def test_stl_cases_are_available_as_python_development_cases(self) -> None:
+        cases = load_cases(REPOSITORY_ROOT)
+        stl_cases = [case for case in cases if case.group == "STL"]
+        self.assertEqual(len(stl_cases), 8)
+        self.assertTrue(all(case.execution_kind == "python" for case in stl_cases))
+        self.assertTrue(all(case.runtime_config is None for case in stl_cases))
+        self.assertTrue(all(case.execution_script.is_file() for case in stl_cases))
+
+    def test_stl_development_case_runs_from_staged_workspace(self) -> None:
+        cases = load_cases(REPOSITORY_ROOT)
+        case = next(item for item in cases if item.case_id == "stl_binary_header_solid")
+        with tempfile.TemporaryDirectory() as directory:
+            staged = prepare_case_database_workspace([case], Path(directory) / "grid")[case.case_id]
+            result = subprocess.run(
+                [sys.executable, str(case.execution_script), "--case-directory", str(staged)],
+                cwd=REPOSITORY_ROOT, check=True, capture_output=True, text=True,
+            )
+            report = json.loads((staged / "results" / "stl_report.json").read_text(encoding="utf-8"))
+            self.assertIn('"format": "binary"', result.stdout)
+            self.assertEqual(report["triangle_count"], 2)
+            self.assertFalse((case.case_directory / "results").exists())
 
     def test_executable_discovery_prefers_debug_then_release_then_install(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

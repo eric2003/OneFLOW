@@ -36,6 +36,8 @@ def load_catalog(catalog_path: Path) -> dict[str, Any]:
         case_id = entry.get("id")
         directory = entry.get("directory")
         runtime_config = entry.get("runtimeConfig")
+        execution = entry.get("execution")
+        python_case = isinstance(execution, dict) and execution.get("kind") == "python"
         if not isinstance(case_id, str) or not case_id:
             raise ValueError("Every catalog case must have a non-empty id")
         if case_id in seen_ids:
@@ -43,7 +45,13 @@ def load_catalog(catalog_path: Path) -> dict[str, Any]:
         seen_ids.add(case_id)
         if not isinstance(directory, str) or not directory:
             raise ValueError(f"Case {case_id} must have a directory")
-        if not isinstance(runtime_config, str) or not runtime_config:
+        if python_case:
+            script = execution.get("script")
+            if not isinstance(script, str) or not script:
+                raise ValueError(f"Python case {case_id} must have execution.script")
+        elif execution is not None:
+            raise ValueError(f"Case {case_id} has an unsupported execution kind")
+        elif not isinstance(runtime_config, str) or not runtime_config:
             raise ValueError(f"Case {case_id} must have runtimeConfig")
     return catalog
 
@@ -166,22 +174,41 @@ def validate_case(repository_root: Path, entry: dict[str, Any]) -> list[str]:
         if not case_dir.is_dir():
             return [f"{case_id}: case directory does not exist: {case_dir}"]
 
-        control_path = resolve_case_path(
-            case_dir, entry["runtimeConfig"], f"runtimeConfig for {case_id}"
-        )
-        if not control_path.is_file():
-            errors.append(f"{case_id}: runtime config not found: {control_path}")
+        execution = entry.get("execution")
+        if execution is not None:
+            if not isinstance(execution, dict) or execution.get("kind") != "python":
+                errors.append(f"{case_id}: unsupported execution definition")
+            else:
+                script = execution.get("script")
+                if not isinstance(script, str) or not script:
+                    errors.append(f"{case_id}: Python execution requires a script")
+                else:
+                    script_path = resolve_case_path(
+                        repository_root, script, f"Python execution script for {case_id}"
+                    )
+                    if not script_path.is_file():
+                        errors.append(f"{case_id}: Python execution script not found: {script_path}")
+                for relative in ("expected.json", "input/model.stl"):
+                    path = resolve_case_path(case_dir, relative, f"{relative} for {case_id}")
+                    if not path.is_file():
+                        errors.append(f"{case_id}: {relative} not found")
         else:
-            control_text = control_path.read_text(encoding="utf-8-sig")
-            includes = INCLUDE_PATTERN.findall(control_text)
-            if not includes:
-                errors.append(f"{case_id}: runtime config contains no parameter includes")
-            for include in includes:
-                include_path = resolve_case_path(
-                    control_path.parent, include, f"parameter include for {case_id}"
-                )
-                if not include_path.is_file():
-                    errors.append(f"{case_id}: parameter file not found: {include_path}")
+            control_path = resolve_case_path(
+                case_dir, entry["runtimeConfig"], f"runtimeConfig for {case_id}"
+            )
+            if not control_path.is_file():
+                errors.append(f"{case_id}: runtime config not found: {control_path}")
+            else:
+                control_text = control_path.read_text(encoding="utf-8-sig")
+                includes = INCLUDE_PATTERN.findall(control_text)
+                if not includes:
+                    errors.append(f"{case_id}: runtime config contains no parameter includes")
+                for include in includes:
+                    include_path = resolve_case_path(
+                        control_path.parent, include, f"parameter include for {case_id}"
+                    )
+                    if not include_path.is_file():
+                        errors.append(f"{case_id}: parameter file not found: {include_path}")
 
         layout = entry.get("layout")
         if layout:

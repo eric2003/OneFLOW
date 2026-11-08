@@ -100,6 +100,86 @@
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
       "layout": "grid/turbulentFlatPlateLayout.txt"
+    },
+    {
+      "id": "stl_ascii_basic",
+      "title": "STL ASCII Basic",
+      "directory": "grid/stl/cases/ascii_basic",
+      "group": "STL",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl/run_case.py"
+      }
+    },
+    {
+      "id": "stl_binary_basic",
+      "title": "STL Binary Basic",
+      "directory": "grid/stl/cases/binary_basic",
+      "group": "STL",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl/run_case.py"
+      }
+    },
+    {
+      "id": "stl_binary_header_solid",
+      "title": "STL Binary Header Starts with solid",
+      "directory": "grid/stl/cases/binary_header_solid",
+      "group": "STL",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl/run_case.py"
+      }
+    },
+    {
+      "id": "stl_ascii_crlf",
+      "title": "STL ASCII CRLF",
+      "directory": "grid/stl/cases/ascii_crlf",
+      "group": "STL",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl/run_case.py"
+      }
+    },
+    {
+      "id": "stl_scientific_notation",
+      "title": "STL Scientific Notation",
+      "directory": "grid/stl/cases/scientific_notation",
+      "group": "STL",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl/run_case.py"
+      }
+    },
+    {
+      "id": "stl_degenerate_triangle",
+      "title": "STL Degenerate Triangle Diagnostic",
+      "directory": "grid/stl/cases/degenerate_triangle",
+      "group": "STL",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl/run_case.py"
+      }
+    },
+    {
+      "id": "stl_truncated_binary",
+      "title": "STL Truncated Binary Diagnostic",
+      "directory": "grid/stl/cases/truncated_binary",
+      "group": "STL",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl/run_case.py"
+      }
+    },
+    {
+      "id": "stl_non_planar_surface",
+      "title": "STL Non-planar Surface Diagnostic",
+      "directory": "grid/stl/cases/non_planar_surface",
+      "group": "STL",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl/run_case.py"
+      }
     }
   ]
 }
