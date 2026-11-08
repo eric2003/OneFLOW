@@ -368,6 +368,10 @@ endif()
 
 # Runtime environment inspection uses the platform dynamic-loader API even
 # when optional solver I/O dependencies such as CGNS are disabled.
+if ( WIN32 )
+    # EnumProcessModules is provided by the Windows Process Status API.
+    list ( APPEND PRJ_LIBRARIES Psapi )
+endif()
 if ( CMAKE_DL_LIBS )
     list ( APPEND PRJ_LIBRARIES ${CMAKE_DL_LIBS} )
 endif()
