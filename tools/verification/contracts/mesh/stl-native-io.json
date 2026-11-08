@@ -25,7 +25,11 @@
       "grid/stl/ascii_basic/script/dimension.txt",
       "grid/stl/ascii_basic/script/simu.txt",
       "grid/stl/ascii_basic/script/grid.txt",
-      "grid/stl/ascii_basic/input/model.stl"
+      "grid/stl/ascii_basic/input/model.stl",
+      "grid/stl/ascii_crlf/script/dimension.txt",
+      "grid/stl/ascii_crlf/script/simu.txt",
+      "grid/stl/ascii_crlf/script/grid.txt",
+      "grid/stl/ascii_crlf/input/model.stl"
     ]
   },
   "documentation": {
@@ -43,7 +47,8 @@
       "ASCII and Binary STL writer/reader paths have linked native GoogleTest declarations for round-trip and malformed-data behavior.",
       "The stl_ascii_basic catalog entry is a native OneFLOW runtime Case, not a Python execution case.",
       "The native Case converts its two-facet ASCII STL input into an unstructured surface CGNS zone using the configured stlWeldTolerance.",
-      "The native planar STL Case runs without script/control.txt; its script parameter files are discovered by the runtime loader and dimension = 2 is explicitly declared."
+      "The native planar STL Case runs without script/control.txt; its script parameter files are discovered by the runtime loader and dimension = 2 is explicitly declared.",
+      "The native stl_ascii_crlf_native Case exercises the C++ STL-to-CGNS route using a CRLF ASCII fixture, without a control.txt manifest."
     ],
     "does_not_prove": [
       "The STL surface has been welded into shared vertex topology or classified as manifold, closed or consistently oriented.",
@@ -100,6 +105,12 @@
       "reference": "StlMeshIOTest.RejectsBinaryWriterValuesOutsideFloat32Range",
       "status": "linked_not_executed",
       "scope": "tests/geometry/StlMeshIOTest.cpp; binary writer rejects values not representable as finite float32."
+    },
+    {
+      "kind": "native_case",
+      "reference": "stl_ascii_crlf_native",
+      "status": "catalogued_not_executed",
+      "scope": "Native OneFLOW Grid task, CRLF ASCII STL input, automatic parameter discovery without control.txt, and CGNS surface output."
     }
   ],
   "group": {

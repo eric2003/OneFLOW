@@ -224,19 +224,27 @@ Relationship to existing Python tools
 The existing grid/stl Python utilities remain useful for planar boundary
 extraction and Gmsh geometry generation. They have a different responsibility:
 
-* Python utility: planar boundary extraction, sidecar-driven domain setup and
-  Gmsh generation.
-* C++ Geometry adapter: native STL file I/O and source-facet preservation.
+* Python utility: planar boundary extraction, sidecar-driven domain setup,
+  Gmsh generation, and independent reference checks for selected format cases.
+* C++ Geometry adapter: native STL file I/O and source-facet preservation,
+  integrated into the standard OneFLOW runtime and mesh conversion pipeline.
 * Later topology service: explicit vertex welding, connected components,
   edge incidence, manifold checks and surface orientation diagnostics.
 * Later conversion adapter: validated surface topology into a mesher or
   OneFLOW Mesh Core representation.
 
-The eight Python STL development cases currently registered in the development
+The Python STL development cases currently registered in the development
 case catalog exercise the Python utility only. They must not be described as
-native C++ STL reader tests. The first native C++ GoogleTest target is now
-registered with CTest through the geometry test helper. Additional STL cases
-should be added there as reader/writer coverage expands.
+native C++ STL reader tests. Python reference cases remain useful when they
+exercise distinct behavior or provide an independent cross-check; they are
+not duplicate production backends. The native ``stl_ascii_basic`` and
+``stl_ascii_crlf_native`` Cases exercise the production C++ route, with the
+latter preserving CRLF line endings in its fixture. The first native C++ GoogleTest target is now
+registered with CTest through the geometry test helper. Additional STL cases should be added there as reader/writer coverage expands.
+The registered Python ``stl_ascii_crlf`` reference case and native
+``stl_ascii_crlf_native`` integration Case have distinct responsibilities:
+the former checks the Python utility, while the latter exercises the C++
+reader through OneFLOW's normal Grid task and CGNS conversion path.
 
 Mesh Contract Workbench entry
 -----------------------------
@@ -275,7 +283,11 @@ constructs a two-dimensional unstructured triangle surface, and writes CGNS
 through ``UnstructuredCgnsZoneWriter``. Shared coordinates are welded using
 the explicit ``stlWeldTolerance`` Case parameter. The bundled two-triangle
 square is expected to produce four nodes and two TRI_3 cells. A JSON read
-report is written under the Case ``results`` directory. This is a surface
+report is written under the Case ``results`` directory. The companion
+``grid/stl/ascii_crlf`` Case uses the same geometry encoded with CRLF line
+endings to verify the native text parser through the production entry point.
+Both native Cases omit ``control.txt`` and rely on automatic parameter file
+discovery. This is a surface
 conversion milestone, not a volume mesher; STL boundary-condition semantics
 and physical units are not inferred.
 

@@ -47,10 +47,13 @@ class DesktopServiceTest(unittest.TestCase):
         cases = [case for case in load_cases(REPOSITORY_ROOT) if case.group == "STL"]
         cases_by_id = {case.case_id: case for case in cases}
 
-        self.assertEqual(len(cases), 8)
+        self.assertEqual(len(cases), 9)
         self.assertEqual(cases_by_id["stl_ascii_basic"].execution_kind, "oneflow")
         self.assertIsNone(cases_by_id["stl_ascii_basic"].runtime_config)
         self.assertIsNone(cases_by_id["stl_ascii_basic"].execution_script)
+        self.assertEqual(cases_by_id["stl_ascii_crlf_native"].execution_kind, "oneflow")
+        self.assertIsNone(cases_by_id["stl_ascii_crlf_native"].runtime_config)
+        self.assertIsNone(cases_by_id["stl_ascii_crlf_native"].execution_script)
 
         python_cases = [case for case in cases if case.execution_kind == "python"]
         self.assertEqual(len(python_cases), 7)
@@ -77,21 +80,24 @@ class DesktopServiceTest(unittest.TestCase):
                 self.assertTrue(report["passed"], result.stdout)
                 self.assertFalse((case.case_directory / "results").exists())
 
-    def test_native_stl_case_is_staged_without_a_runtime_manifest(self) -> None:
+    def test_native_stl_cases_are_staged_without_runtime_manifests(self) -> None:
         cases = [
             case for case in load_cases(REPOSITORY_ROOT)
-            if case.case_id == "stl_ascii_basic"
+            if case.case_id in {"stl_ascii_basic", "stl_ascii_crlf_native"}
         ]
-        self.assertEqual(len(cases), 1)
+        self.assertEqual(len(cases), 2)
         with tempfile.TemporaryDirectory() as directory:
             staged_cases = prepare_case_database_workspace(cases, Path(directory) / "grid")
-            staged = staged_cases["stl_ascii_basic"]
-            self.assertFalse((staged / "script" / "control.txt").exists())
-            self.assertTrue((staged / "script" / "dimension.txt").is_file())
-            self.assertTrue((staged / "script" / "simu.txt").is_file())
-            self.assertTrue((staged / "script" / "grid.txt").is_file())
-            self.assertTrue((staged / "input" / "model.stl").is_file())
-            self.assertFalse((cases[0].case_directory / "results").exists())
+            for case in cases:
+                staged = staged_cases[case.case_id]
+                self.assertFalse((staged / "script" / "control.txt").exists())
+                self.assertTrue((staged / "script" / "dimension.txt").is_file())
+                self.assertTrue((staged / "script" / "simu.txt").is_file())
+                self.assertTrue((staged / "script" / "grid.txt").is_file())
+                self.assertTrue((staged / "input" / "model.stl").is_file())
+                self.assertFalse((case.case_directory / "results").exists())
+            crlf_fixture = (staged_cases["stl_ascii_crlf_native"] / "input" / "model.stl").read_bytes()
+            self.assertIn(bytes((13, 10)), crlf_fixture)
 
     def test_executable_discovery_prefers_debug_then_release_then_install(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

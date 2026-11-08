@@ -49,6 +49,27 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertIn("Real stlWeldTolerance = 1.0e-10;", grid)
         self.assertTrue((case_dir / "input" / "model.stl").is_file())
         self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
+    def test_stl_ascii_crlf_is_a_native_oneflow_case_with_crlf_fixture(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        entry = next(
+            case for case in catalog["cases"] if case["id"] == "stl_ascii_crlf_native"
+        )
+        self.assertEqual(entry["directory"], "grid/stl/ascii_crlf")
+        self.assertNotIn("runtimeConfig", entry)
+        self.assertNotIn("execution", entry)
+
+        case_dir = REPOSITORY_ROOT / entry["directory"]
+        self.assertFalse((case_dir / "script" / "control.txt").exists())
+        fixture = (case_dir / "input" / "model.stl").read_bytes()
+        self.assertIn(bytes((13, 10)), fixture)
+        self.assertNotIn(bytes((10,)), fixture.replace(bytes((13, 10)), b""))
+        self.assertIn(b"endsolid oneflow_ascii_square\r\n", fixture)
+        self.assertEqual(
+            [path.name for path in sorted((case_dir / "script").glob("*.txt"))],
+            ["dimension.txt", "grid.txt", "simu.txt"],
+        )
+        self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
+
     def test_turbulent_flat_plate_uses_requested_bounds_and_tanh_distribution(self) -> None:
         case_dir = REPOSITORY_ROOT / "grid" / "turbulent_flat_plate"
         with (case_dir / "case.json").open("r", encoding="utf-8") as stream:

@@ -110,6 +110,14 @@
       "group": "STL"
     },
     {
+      "id": "stl_ascii_crlf_native",
+      "title": "STL ASCII CRLF (OneFLOW C++)",
+      "directory": "grid/stl/ascii_crlf",
+      "profile": null,
+      "layout": null,
+      "group": "STL"
+    },
+    {
       "id": "stl_binary_basic",
       "title": "STL Binary Basic",
       "directory": "grid/stl/cases/binary_basic",
@@ -131,7 +139,7 @@
     },
     {
       "id": "stl_ascii_crlf",
-      "title": "STL ASCII CRLF",
+      "title": "STL ASCII CRLF (Python reference)",
       "directory": "grid/stl/cases/ascii_crlf",
       "group": "STL",
       "execution": {
