@@ -160,11 +160,16 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertEqual(
             case_definitions[gmsh.case_id]["validation"]["expected_counts"],
             {
+                "elements": 12,
                 "nodes": 9,
                 "line_elements": 8,
                 "triangle_elements": 0,
                 "quadrilateral_elements": 4,
             },
+        )
+        self.assertEqual(
+            case_definitions[gmsh.case_id]["validation"]["expected_element_types"],
+            {"1": 8, "3": 4},
         )
         for case_id in (cgns.case_id, native.case_id, cfd.case_id):
             self.assertEqual(

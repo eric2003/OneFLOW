@@ -25,7 +25,8 @@
               "nodes": 9,
               "line_elements": 8,
               "triangle_elements": 0,
-              "quadrilateral_elements": 4
+              "quadrilateral_elements": 4,
+              "elements": 12
             },
             "physical_groups": [
               {
@@ -48,7 +49,11 @@
                 "dimension": 2,
                 "name": "fluid_domain"
               }
-            ]
+            ],
+            "expected_element_types": {
+              "1": 8,
+              "3": 4
+            }
           }
         },
         {

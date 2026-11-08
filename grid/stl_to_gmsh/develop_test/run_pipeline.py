@@ -84,6 +84,7 @@ def _validate_step_outputs(case_directory: Path, specification: dict) -> dict:
         observed_counts = {
             key: mesh[key]
             for key in (
+                "elements",
                 "nodes",
                 "line_elements",
                 "triangle_elements",
@@ -94,6 +95,15 @@ def _validate_step_outputs(case_directory: Path, specification: dict) -> dict:
             raise ValueError(
                 f"Gmsh mesh counts {observed_counts} do not match "
                 f"expected {expected_counts}."
+            )
+        expected_element_types = {
+            str(key): value
+            for key, value in specification.get("expected_element_types", {}).items()
+        }
+        if mesh["element_types"] != expected_element_types:
+            raise ValueError(
+                f"Gmsh element types {mesh['element_types']} do not match "
+                f"expected {expected_element_types}."
             )
         expected_groups = {
             (item["dimension"], item["name"])
@@ -174,15 +184,15 @@ def run_pipeline(
         execution_mode="development_pipeline",
     )
     workflow_snapshot = run_root / "workflow.json"
-    workflow_snapshot.write_text(
-        workflow_path.read_text(encoding="utf-8"),
-        encoding="utf-8",
-        newline="\n",
-    )
-
     final_status = "failed"
     return_code = 1
     try:
+        workflow_snapshot.write_text(
+            workflow_path.read_text(encoding="utf-8"),
+            encoding="utf-8",
+            newline="\n",
+        )
+
         def run_step(step):
             command = [str(executable), "r", str(step.directory)]
             output_lines: list[str] = []

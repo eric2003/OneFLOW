@@ -54,7 +54,7 @@ If the executable is not in the standard build/bin locations:
 
     python grid/stl_to_gmsh/develop_test/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
 
-The orchestrator stages all four Cases under
+The orchestrator stages all five Cases under
 %USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows or
 $HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. It recreates only
 the five named Case staging directories and leaves generated meshes, reports,
