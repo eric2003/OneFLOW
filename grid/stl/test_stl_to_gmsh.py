@@ -199,6 +199,14 @@ class Stl2DGmshTest(unittest.TestCase):
         self.assertNotEqual(triangles[0][0], triangles[1][0])
         self.assertEqual(len(points), 6)
 
+    def test_welding_does_not_merge_at_exact_tolerance(self):
+        points, triangles = _weld_vertices(
+            [(0.0, 0.0, 0.0), (3.0, 0.0, 0.0), (0.0, 3.0, 0.0),
+             (1.0, 0.0, 0.0), (4.0, 0.0, 0.0), (0.0, 4.0, 0.0)],
+            1.0,
+        )
+        self.assertNotEqual(triangles[0][0], triangles[1][0])
+
     def test_welding_does_not_take_transitive_closure(self):
         raw = [
             (0.0, 0.0, 0.0), (4.0, 0.0, 0.0), (0.0, 4.0, 0.0),

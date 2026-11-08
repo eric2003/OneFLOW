@@ -35,6 +35,16 @@ TEST(StlVertexWeldingTest, DoesNotMergeDistantPointsInSameRoundedCell)
     EXPECT_EQ(locator.GetNPoint(), 2);
 }
 
+TEST(StlVertexWeldingTest, DoesNotMergeAtTheExactToleranceBoundary)
+{
+    ONEFLOW::PointLocator locator;
+    InitializeLocator(locator, 1.0);
+    const int first = locator.AddPoint(0.0, 0.0, 0.0);
+    const int second = locator.AddPoint(1.0, 0.0, 0.0);
+    EXPECT_NE(first, second);
+    EXPECT_EQ(locator.GetNPoint(), 2);
+}
+
 TEST(StlVertexWeldingTest, UsesRepresentativeRatherThanTransitiveClosure)
 {
     ONEFLOW::PointLocator locator;

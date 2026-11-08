@@ -202,7 +202,7 @@ int PointLocator::FindPoint( const RealField & coordinate )
 
         if ( distance < minDistance ||
              ( distance == minDistance &&
-               ( bestId == INVALID_INDEX || candidateId < bestId ) ) )
+               ( bestId != INVALID_INDEX && candidateId < bestId ) ) )
         {
             minDistance = distance;
             bestId = candidateId;

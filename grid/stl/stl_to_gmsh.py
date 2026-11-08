@@ -75,7 +75,7 @@ def _weld_vertices(raw: list[Point], tolerance: float) -> tuple[list[Point], lis
                 q = points[point_id]
                 distance = math.dist(p, q)
                 if distance < best_distance or (
-                    distance == best_distance and (best is None or point_id < best)
+                    distance == best_distance and best is not None and point_id < best
                 ):
                     best, best_distance = point_id, distance
             if best is None:
