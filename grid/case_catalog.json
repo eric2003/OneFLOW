@@ -110,6 +110,16 @@
       "group": "STL"
     },
     {
+      "id": "stl_ascii_basic_python",
+      "title": "STL ASCII Basic (Python reference)",
+      "directory": "grid/stl/cases/ascii_basic",
+      "group": "STL",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl/run_case.py"
+      }
+    },
+    {
       "id": "stl_ascii_crlf_native",
       "title": "STL ASCII CRLF (OneFLOW C++)",
       "directory": "grid/stl/ascii_crlf",

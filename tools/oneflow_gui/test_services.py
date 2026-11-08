@@ -47,16 +47,17 @@ class DesktopServiceTest(unittest.TestCase):
         cases = [case for case in load_cases(REPOSITORY_ROOT) if case.group == "STL"]
         cases_by_id = {case.case_id: case for case in cases}
 
-        self.assertEqual(len(cases), 9)
+        self.assertEqual(len(cases), 10)
         self.assertEqual(cases_by_id["stl_ascii_basic"].execution_kind, "oneflow")
         self.assertIsNone(cases_by_id["stl_ascii_basic"].runtime_config)
         self.assertIsNone(cases_by_id["stl_ascii_basic"].execution_script)
         self.assertEqual(cases_by_id["stl_ascii_crlf_native"].execution_kind, "oneflow")
+        self.assertEqual(cases_by_id["stl_ascii_basic_python"].execution_kind, "python")
         self.assertIsNone(cases_by_id["stl_ascii_crlf_native"].runtime_config)
         self.assertIsNone(cases_by_id["stl_ascii_crlf_native"].execution_script)
 
         python_cases = [case for case in cases if case.execution_kind == "python"]
-        self.assertEqual(len(python_cases), 7)
+        self.assertEqual(len(python_cases), 8)
         self.assertTrue(all(case.runtime_config is None for case in python_cases))
         self.assertTrue(all(case.execution_script is not None and case.execution_script.is_file()
                             for case in python_cases))

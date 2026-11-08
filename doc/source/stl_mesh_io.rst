@@ -237,11 +237,17 @@ The Python STL development cases currently registered in the development
 case catalog exercise the Python utility only. They must not be described as
 native C++ STL reader tests. Python reference cases remain useful when they
 exercise distinct behavior or provide an independent cross-check; they are
-not duplicate production backends. The native ``stl_ascii_basic`` and
+not duplicate production backends. In particular, the original
+``grid/stl/cases/ascii_basic`` Python case is retained and registered as
+``stl_ascii_basic_python`` alongside the native ``stl_ascii_basic`` Case.
+They share a simple input shape but verify different implementation paths:
+Python checks the reference utility's parsing and planar-boundary extraction,
+while C++ checks OneFLOW's native reader, topology conversion and CGNS output. The native ``stl_ascii_basic`` and
 ``stl_ascii_crlf_native`` Cases exercise the production C++ route, with the
 latter preserving CRLF line endings in its fixture. The first native C++ GoogleTest target is now
 registered with CTest through the geometry test helper. Additional STL cases should be added there as reader/writer coverage expands.
-The registered Python ``stl_ascii_crlf`` reference case and native
+The registered Python ``stl_ascii_basic_python`` and
+``stl_ascii_crlf`` reference cases and native
 ``stl_ascii_crlf_native`` integration Case have distinct responsibilities:
 the former checks the Python utility, while the latter exercises the C++
 reader through OneFLOW's normal Grid task and CGNS conversion path.
