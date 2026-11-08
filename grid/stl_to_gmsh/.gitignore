@@ -1,2 +1,2 @@
-results/*
-!results/.gitkeep
+**/results/*
+!**/results/.gitkeep
