@@ -35,7 +35,8 @@ ByteBuffer ReadBytes(const std::string& fileName)
 {
     std::ifstream input(fileName, std::ios::binary);
     if (!input) throw std::runtime_error("Cannot open STL input: " + fileName);
-    ByteBuffer bytes(
+    ByteBuffer bytes;
+    bytes.assign(
         std::istreambuf_iterator<char>(input),
         std::istreambuf_iterator<char>());
     if (input.bad()) throw std::runtime_error("Failed reading STL input: " + fileName);
