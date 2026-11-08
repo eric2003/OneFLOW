@@ -363,6 +363,7 @@ class TestRunnerDialog(QDialog):
         self.case_database_button.clicked.connect(self._open_case_database_tests)
         database_layout.addWidget(self.case_database_button)
         layout.addLayout(database_layout)
+        self._update_case_database_button_text()
 
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
@@ -680,7 +681,7 @@ class CaseDatabaseSelectionDialog(QDialog):
     ) -> None:
         super().__init__(parent)
         self._cases = list(available_cases)
-        selected_ids = {case.case_id for case in selected_cases}
+        selected_ids = {case.case_id for case in self._cases}
         self.setWindowTitle("Select Development Test Cases")
         self.resize(760, 560)
         layout = QVBoxLayout(self)

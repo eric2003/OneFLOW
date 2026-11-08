@@ -96,14 +96,19 @@ class DesktopServiceTest(unittest.TestCase):
         # The selector receives only the active execution kind, regardless
         # of whether the caller has enabled running Development Cases.
         for run_development_cases in (False, True):
-            del run_development_cases  # Run enablement does not change visibility.
-            self.assertTrue(native)
-            self.assertTrue(python)
-            self.assertTrue(all(case.execution_kind == "oneflow" for case in native))
-            self.assertTrue(all(case.execution_kind == "python" for case in python))
-            self.assertFalse({case.case_id for case in native} & {
-                case.case_id for case in python
-            })
+            for python_mode in (False, True):
+                visible_cases = python if python_mode else native
+                self.assertTrue(visible_cases)
+                self.assertEqual(
+                    {case.execution_kind for case in visible_cases},
+                    {"python"} if python_mode else {"oneflow"},
+                )
+                self.assertFalse({case.case_id for case in native} & {
+                    case.case_id for case in python
+                })
+            # Run enablement controls execution only; it never broadens the
+            # selector to include the inactive execution kind.
+            self.assertIsInstance(run_development_cases, bool)
 
     def test_python_stl_development_cases_run_from_staged_workspaces(self) -> None:
         cases = [
