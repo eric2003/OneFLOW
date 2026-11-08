@@ -88,6 +88,20 @@ GridConfig GridConfig::FromDataBase()
 
     try
     {
+        const std::string executable =
+            GetDataValue< std::string >( "gmshExecutable" );
+        if ( ! executable.empty() )
+        {
+            cfg.gmshExecutable = executable;
+        }
+    }
+    catch ( const std::exception & )
+    {
+        // Keep the PATH-resolved Gmsh executable when no override is configured.
+    }
+
+    try
+    {
         cfg.output.summaryFile = GetDataValue< std::string >( "gridInfoFileName" );
         cfg.gridInfoFile = cfg.output.summaryFile;
     }
