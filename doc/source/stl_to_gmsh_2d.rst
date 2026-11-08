@@ -46,6 +46,35 @@ tools/stl_to_gmsh currently provides:
   quadrilateral cell configuration;
 * optional invocation of a separately installed Gmsh executable.
 
+External-flow obstacle domain
+------------------------------
+
+Use a sidecar with explicit outer bounds and one name for each rectangle side:
+
+.. code-block:: json
+
+   {
+     "mesh_size": 0.25,
+     "surface_name": "Fluid",
+     "body_boundary_name": "Wall",
+     "domain": {
+       "xmin": -1.0, "xmax": 2.0,
+       "ymin": -1.0, "ymax": 2.0,
+       "boundaries": {
+         "left": "Inlet",
+         "right": "Outlet",
+         "bottom": "Symmetry",
+         "top": "Farfield"
+       }
+     }
+   }
+
+The rectangle must strictly enclose the STL body. Its four sides must have
+distinct, non-empty physical names. The generated surface has the STL loop as
+a hole, so the body is a wall boundary and the outer rectangle bounds the
+fluid region. This mode generates an unstructured 2D mesh; the one-quad option
+remains available only for the original four-edge square fixture.
+
 Example
 -------
 
@@ -62,12 +91,14 @@ Parser and geometry-generation tests do not require Gmsh:
 Current limits and next steps
 -----------------------------
 
-The initial implementation accepts one simple closed loop in a constant-Z
-plane. Arbitrarily oriented planar projection, holes, multiple disconnected
-regions, curved boundary reconstruction, automatic farfield construction,
-mesh-size fields and general multi-cell quadrilateral layouts are not yet
-implemented. The one-quad option is a topology and conversion fixture, not a
-useful CFD discretization by itself.
+The implementation accepts one simple closed STL loop in a constant-Z plane.
+The external-flow mode constructs a rectangular outer boundary with explicit
+side names and treats the STL loop as one internal wall. Arbitrarily oriented
+planar projection, multiple body loops, holes inside the STL body, curved
+boundary reconstruction, automatic farfield sizing, mesh-size fields and
+general multi-cell structured layouts are not yet implemented. The one-quad
+option is a topology and conversion fixture, not a useful CFD discretization
+by itself.
 
 The next integration step is to run the generated MSH through the existing
 Gmsh MSH reader and shared unstructured CGNS writer, then validate that the
