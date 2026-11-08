@@ -154,7 +154,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertIn('string sourceGridType = "cgns";', cgns_grid)
         self.assertIn('string targetGridType = "oneflow";', cgns_grid)
         cfd_parameters = (
-            ROOT / "test/cfd/plateuns2dslau2/script/cfd.txt"
+            ROOT / "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/cfd.txt"
         ).read_text(encoding="utf-8")
         self.assertIn("int    maxSteps   =  50;", cfd_parameters)
         self.assertIn("Real global_dt = 0.001;", cfd_parameters)

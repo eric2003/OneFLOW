@@ -55,7 +55,18 @@
       "grid/stl_to_gmsh/square_2x2/input/model.stl",
       "grid/stl_to_gmsh/develop_test/stl_square_to_cfd.json",
       "grid/stl_to_gmsh/pipeline/cgns_to_oneflow/script/control.txt",
-      "grid/stl_to_gmsh/pipeline/cgns_to_oneflow/script/grid.txt"
+      "grid/stl_to_gmsh/pipeline/cgns_to_oneflow/script/grid.txt",
+      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/control.txt",
+      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/dimension.txt",
+      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/simu.txt",
+      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/tolerence.txt",
+      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/cfd.txt",
+      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/vismodel.txt",
+      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/multigrid.txt",
+      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/inflow.txt",
+      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/turb.txt",
+      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/walldist.txt",
+      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/solver.txt"
     ]
   },
   "documentation": {

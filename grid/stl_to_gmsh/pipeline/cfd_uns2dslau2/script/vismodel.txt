@@ -1,0 +1,2 @@
+int    vismodel = 1; // 0-euler 1-ns 2-0eq 3-1eq 4-2eq
+string visname  = "laminar"; //euler,laminar, 1eq-sa, 2eq-kw-menter-sst

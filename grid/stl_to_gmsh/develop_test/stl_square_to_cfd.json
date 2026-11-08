@@ -11,11 +11,26 @@
       "quadrilateral_elements": 4
     },
     "physical_groups": [
-      {"dimension": 1, "name": "inflow"},
-      {"dimension": 1, "name": "outflow"},
-      {"dimension": 1, "name": "symmetry"},
-      {"dimension": 1, "name": "farfield"},
-      {"dimension": 2, "name": "fluid_domain"}
+      {
+        "dimension": 1,
+        "name": "inflow"
+      },
+      {
+        "dimension": 1,
+        "name": "outflow"
+      },
+      {
+        "dimension": 1,
+        "name": "symmetry"
+      },
+      {
+        "dimension": 1,
+        "name": "farfield"
+      },
+      {
+        "dimension": 2,
+        "name": "fluid_domain"
+      }
     ],
     "cfd_non_empty_outputs": [
       "results/res.dat",
@@ -42,7 +57,9 @@
         {
           "id": "gmsh_to_cgns_square_2x2",
           "directory": "grid/gmsh_to_cgns",
-          "depends_on": ["stl_to_gmsh_square_2x2"],
+          "depends_on": [
+            "stl_to_gmsh_square_2x2"
+          ],
           "inputs": [
             {
               "artifact": "square_2x2_msh",
@@ -62,7 +79,9 @@
         {
           "id": "cgns_to_oneflow_square_2x2",
           "directory": "grid/stl_to_gmsh/pipeline/cgns_to_oneflow",
-          "depends_on": ["gmsh_to_cgns_square_2x2"],
+          "depends_on": [
+            "gmsh_to_cgns_square_2x2"
+          ],
           "inputs": [
             {
               "artifact": "square_2x2_cgns",
@@ -81,8 +100,10 @@
         },
         {
           "id": "cfd_solve_square_2x2",
-          "directory": "test/cfd/plateuns2dslau2",
-          "depends_on": ["cgns_to_oneflow_square_2x2"],
+          "directory": "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2",
+          "depends_on": [
+            "cgns_to_oneflow_square_2x2"
+          ],
           "inputs": [
             {
               "artifact": "square_2x2_oneflow_grid",
@@ -91,9 +112,18 @@
             }
           ],
           "outputs": [
-            {"id": "cfd_residual", "path": "results/res.dat"},
-            {"id": "cfd_restart", "path": "restart/flow.dat"},
-            {"id": "cfd_visualization", "path": "visual/visual.dat"}
+            {
+              "id": "cfd_residual",
+              "path": "results/res.dat"
+            },
+            {
+              "id": "cfd_restart",
+              "path": "restart/flow.dat"
+            },
+            {
+              "id": "cfd_visualization",
+              "path": "visual/visual.dat"
+            }
           ]
         }
       ]

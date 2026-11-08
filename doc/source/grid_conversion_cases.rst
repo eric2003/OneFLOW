@@ -275,13 +275,15 @@ The optional development pipeline composes four standard OneFLOW Cases:
    CGNS -> OneFLOW native grid
        |
        v
-   SLAU2 CFD Solve (50 steps)
+   cfd_uns2dslau2: SLAU2 CFD Solve (50 steps)
        |
        v
    residual + restart flow + visualization
 
 The workflow definition is
-grid/stl_to_gmsh/develop_test/stl_square_to_cfd.json. It reuses the
+grid/stl_to_gmsh/develop_test/stl_square_to_cfd.json. Its solver stage uses
+the dedicated pipeline Case at grid/stl_to_gmsh/pipeline/cfd_uns2dslau2,
+with the 50-step SLAU2 parameter set. It reuses the
 Qt-independent dependency planner and graph runner in tools/oneflow_gui.
 Each stage declares its required input artifact and output artifact. The
 runner copies source Cases to a unique run directory outside the repository,
