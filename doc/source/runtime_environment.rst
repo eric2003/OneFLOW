@@ -189,6 +189,34 @@ Workflow definitions and history are stored under
 ``~/.oneflow/workflow-data/runs``. Project run artifacts and environment
 evidence are stored under ``~/.oneflow/workflow-data/executions``.
 
+Case results snapshot
+---------------------
+
+Every production Case execution writes a runtime-environment snapshot after
+the Case configuration and I/O roots have been initialized, and before the
+selected calculation or grid task starts. The file name is:
+
+.. code-block:: text
+
+   results/runtime_environment.json
+
+The path is resolved independently against the configured mesh and flow
+output roots. When both roots are the same directory, only one file is
+written. When they differ, both output trees receive a copy so that a mesh
+generation result and a flow result each retain the environment evidence
+associated with the Case execution. Parent directories are created as needed.
+
+The file uses the same versioned JSON schema as
+``OneFLOW --environment --format json``. It records the OneFLOW build and
+the dependency evidence visible to that process. A subsequent execution
+refreshes the snapshot at that output path. The report is diagnostic evidence,
+not a complete reproducibility manifest: Case parameters, input files,
+commands, and solver results remain separate artifacts.
+
+Failure to write this optional diagnostic file produces a warning and does
+not prevent the calculation or grid task from running. This keeps environment
+reporting from changing the numerical execution path.
+
 Persisted Workbench run evidence
 --------------------------------
 
