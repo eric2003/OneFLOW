@@ -63,6 +63,51 @@ namespace
 
 using Json = nlohmann::json;
 
+Json BuildVersionCompatibility(
+    const Json & headerVersion,
+    const Json & runtimeVersion)
+{
+    const bool hasHeader =
+        headerVersion.is_object() &&
+        headerVersion.contains("value") &&
+        headerVersion["value"].is_string() &&
+        !headerVersion["value"].get<std::string>().empty() &&
+        headerVersion["value"] != "unknown";
+    const bool hasRuntime =
+        runtimeVersion.is_object() &&
+        runtimeVersion.contains("value") &&
+        runtimeVersion["value"].is_string() &&
+        !runtimeVersion["value"].get<std::string>().empty();
+
+    if (hasHeader && hasRuntime)
+    {
+        const bool matches =
+            headerVersion["value"] == runtimeVersion["value"];
+        return {
+            {"status", matches ? "verified_match" : "mismatch"},
+            {"basis", "header_and_runtime_versions"},
+            {"detail", matches
+                ? "Header and runtime versions were independently obtained and match."
+                : "Header and runtime versions were independently obtained and differ."}
+        };
+    }
+
+    if (hasHeader)
+    {
+        return {
+            {"status", "assumed_match"},
+            {"basis", "header_version"},
+            {"detail", "Runtime version was not independently obtained; the header version is used as the default assumption. This does not verify ABI compatibility."}
+        };
+    }
+
+    return {
+        {"status", "unknown"},
+        {"basis", "insufficient_version_evidence"},
+        {"detail", "There is insufficient independent version information to assess header/runtime version consistency."}
+    };
+}
+
 #if defined(ENABLE_CGNS)
 
 struct CgnsModuleInfo
@@ -197,7 +242,11 @@ Json QueryCgnsDependency()
         {"runtime_library", {
             {"module_path", module.path},
             {"linkage", module.linkage}
-        }}
+        }},
+        {"version_compatibility",
+            BuildVersionCompatibility(
+                Json{{"value", headerVersion}},
+                runtimeVersion)}
     };
 }
 
@@ -211,6 +260,8 @@ Json QueryCgnsDependency()
         {"status", "disabled"},
         {"runtime_version", nullptr},
         {"header_version", nullptr},
+        {"version_compatibility",
+            BuildVersionCompatibility(nullptr, nullptr)},
         {"runtime_library", nullptr}
     };
 }
@@ -311,6 +362,8 @@ Json QueryHdf5Dependency()
             }},
             {"runtime_version_status", "runtime_api_symbol_not_found"},
             {"header_version", nullptr},
+            {"version_compatibility",
+                BuildVersionCompatibility(nullptr, nullptr)},
             {"runtime_library", {
                 {"module_path", module.modulePath},
                 {"linkage", module.linkage}
@@ -335,6 +388,8 @@ Json QueryHdf5Dependency()
             }},
             {"runtime_version_status", "runtime_api_call_failed"},
             {"header_version", nullptr},
+            {"version_compatibility",
+                BuildVersionCompatibility(nullptr, nullptr)},
             {"runtime_library", {
                 {"module_path", module.modulePath},
                 {"linkage", module.linkage}
@@ -354,6 +409,8 @@ Json QueryHdf5Dependency()
         }},
         {"runtime_version_status", "available"},
         {"header_version", nullptr},
+        {"version_compatibility",
+            BuildVersionCompatibility(nullptr, Json{{"value", version.str()}})},
         {"runtime_library", {
             {"module_path", module.modulePath},
             {"linkage", module.linkage}
@@ -423,6 +480,17 @@ void WriteRuntimeEnvironmentText(
             output << "  Header version  : "
                    << headerVersion["value"].get<std::string>()
                    << " (compile-time)\n";
+        }
+
+        if (dependency.contains("version_compatibility"))
+        {
+            const Json & compatibility = dependency["version_compatibility"];
+            output << "  Version consistency: "
+                   << compatibility["status"].get<std::string>()
+                   << " (" << compatibility["basis"].get<std::string>()
+                   << ")\\n";
+            output << "  Version detail     : "
+                   << compatibility["detail"].get<std::string>() << '\\n';
         }
 
         const Json & runtimeLibrary = dependency["runtime_library"];
