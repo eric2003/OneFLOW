@@ -364,9 +364,12 @@ if ( CGNS_ENABLE )
         message ( STATUS "CGNS runtime version query API is unavailable; runtime module path will still be reported" )
     endif()
 
-    if ( CMAKE_DL_LIBS )
-        list ( APPEND PRJ_LIBRARIES ${CMAKE_DL_LIBS} )
-    endif()
+endif()
+
+# Runtime environment inspection uses the platform dynamic-loader API even
+# when optional solver I/O dependencies such as CGNS are disabled.
+if ( CMAKE_DL_LIBS )
+    list ( APPEND PRJ_LIBRARIES ${CMAKE_DL_LIBS} )
 endif()
 
 set ( JsonPrjDir "${PRJ_ROOT_DIR}/${THIRD_PARTY_DIR}/jsoncpp" )
