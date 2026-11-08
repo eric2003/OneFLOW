@@ -93,20 +93,12 @@ directory.
 HDF5 version evidence
 ---------------------
 
-HDF5 header discovery is independent of runtime symbol discovery. CMake looks
-for ``H5public.h`` using the configured ``HDF5_INCLUDE_DIRS`` and
-``HDF5_ROOT`` locations, followed by common Linux distribution include
-locations (including ``/usr/include/hdf5/serial``). It then compile-checks the
-public ``H5_VERS_MAJOR``, ``H5_VERS_MINOR``, and ``H5_VERS_RELEASE`` macros.
-The selected header path and macro source are included in ``header_version``.
-
-This is a header-only build probe: OneFLOW does not add an HDF5 link
-dependency merely to obtain the compile-time version. At runtime, the
-``H5get_libversion`` symbol is still discovered from loaded process modules
-and queried independently. If no suitable header can be found, the header
-version remains unavailable and consistency remains ``unknown`` unless
-independent header evidence becomes available through another supported
-mechanism.
+HDF5 is inspected at runtime only. OneFLOW searches modules already loaded
+into its process for the public ``H5get_libversion`` symbol and reports the
+version returned by that API when available. Header version is left
+unavailable because the runtime report does not independently discover or
+verify the exact HDF5 header used during compilation. A runtime version alone
+must not be used to infer a header version or ABI compatibility.
 
 CGNS version evidence
 ---------------------
@@ -279,9 +271,9 @@ assumption must never be presented as an independent runtime observation or
 as proof of binary/ABI compatibility. If only a runtime version is known, or
 neither version is known, the assessment remains unknown.
 
-HDF5 is now inspected without introducing an undeclared compile-time or
-link-time dependency. At runtime OneFLOW searches the modules already loaded
-into its process for the public ``H5get_libversion`` symbol. On Windows it uses the Windows Process Status API (PSAPI) to enumerate
+HDF5 is inspected at runtime only; no additional CMake header search
+or compile-time version probe is performed. OneFLOW searches the modules
+already loaded into its process for the public ``H5get_libversion`` symbol. On Windows it uses the Windows Process Status API (PSAPI) to enumerate
 loaded process modules, then resolves the symbol with ``GetProcAddress``.
 The PSAPI calls are isolated inside the runtime symbol-discovery helper; the
 report-building and JSON layers use platform-neutral C++ data structures.
