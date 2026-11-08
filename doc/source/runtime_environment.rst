@@ -167,8 +167,8 @@ Workflow definitions and history are stored under
 ``~/.oneflow/workflow-data/runs``. Project run artifacts and environment
 evidence are stored under ``~/.oneflow/workflow-data/executions``.
 
-Persisted Project Workbench run evidence
-----------------------------------------
+Persisted Workbench run evidence
+--------------------------------
 
 For each Project Workbench run, the background runner captures the environment
 from the exact selected executable before launching the Case or workflow. The
