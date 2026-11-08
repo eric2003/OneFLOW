@@ -30,6 +30,7 @@ License
 #include "RuntimeEnvironment.h"
 #include <filesystem>
 #include <string>
+#include <vector>
 #include <iostream>
 
 
@@ -64,7 +65,7 @@ void CaptureRuntimeEnvironmentEvidence()
             // Environment evidence must never prevent a CFD or grid task.
             std::cerr << "[WARNING] Could not write runtime environment "
                       << "report '" << reportPath.string() << "': "
-                      << error << '\\n';
+                      << error << '\n';
         }
     }
 }
