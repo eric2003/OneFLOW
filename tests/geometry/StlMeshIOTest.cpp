@@ -1,7 +1,6 @@
 #include "StlMeshIO.h"
 #include "GridConversion.h"
 #include "GmshMeshReader.h"
-#include "ProcessRunner.h"
 
 #include <gtest/gtest.h>
 
