@@ -131,4 +131,36 @@ class Stl2DGmshTest(unittest.TestCase):
             with self.assertRaisesRegex(Stl2DError, "four distinct"):
                 convert(DATA / "square.stl", sidecar, Path(temp) / "invalid.geo")
 
+
+    def test_gmsh_cli_generates_external_flow_domain_physical_groups(self):
+        gmsh = shutil.which("gmsh")
+        if not gmsh:
+            self.skipTest("Gmsh executable is not installed")
+        config = {
+            "mesh_size": 0.5,
+            "domain": {
+                "xmin": -1.0, "xmax": 2.0, "ymin": -1.0, "ymax": 2.0,
+                "boundaries": {
+                    "left": "Inlet", "right": "Outlet",
+                    "bottom": "Symmetry", "top": "Farfield"
+                }
+            },
+            "body_boundary_name": "Wall"
+        }
+        with tempfile.TemporaryDirectory() as temp:
+            sidecar = Path(temp) / "domain.json"
+            geo = Path(temp) / "body_domain.geo"
+            msh = Path(temp) / "body_domain.msh"
+            sidecar.write_text(json.dumps(config), encoding="utf-8")
+            convert(DATA / "square.stl", sidecar, geo)
+            subprocess.run([gmsh, str(geo), "-2", "-format", "msh2", "-o", str(msh)], check=True)
+            content = msh.read_text(encoding="utf-8")
+            names = content.split("$PhysicalNames", 1)[1].split("$EndPhysicalNames", 1)[0]
+            for name in ("Wall", "Inlet", "Outlet", "Symmetry", "Farfield", "Fluid"):
+                self.assertIn(f'"{name}"', names)
+            elements = content.split("$Elements", 1)[1].split("$EndElements", 1)[0].splitlines()
+            records = [line.split() for line in elements[1:] if line.strip()]
+            self.assertTrue(any(row[1] == "1" for row in records))
+            self.assertTrue(any(row[1] == "2" for row in records))
+
 if __name__ == "__main__": unittest.main()
