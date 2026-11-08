@@ -45,6 +45,27 @@ TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
     EXPECT_TRUE(hdf5.contains("runtime_version_status"));
     EXPECT_TRUE(hdf5.contains("header_version"));
     EXPECT_TRUE(hdf5.contains("runtime_library"));
+    const auto & hdf5Version = hdf5.at("runtime_version");
+    if (hdf5.at("enabled").get<bool>())
+    {
+        EXPECT_TRUE(
+            hdf5.at("status") == "available" ||
+            hdf5.at("status") == "query_failed");
+        if (hdf5.at("status") == "available")
+        {
+            EXPECT_TRUE(hdf5Version.at("value").is_string());
+            EXPECT_EQ(hdf5Version.at("source"), "H5get_libversion");
+        }
+        else
+        {
+            EXPECT_TRUE(hdf5Version.at("value").is_null());
+        }
+    }
+    else
+    {
+        EXPECT_EQ(hdf5.at("status"), "not_detected");
+        EXPECT_TRUE(hdf5Version.at("value").is_null());
+    }
 }
 
 TEST(RuntimeEnvironmentCommandTest, ReportsHdf5RuntimeVersionInText)
