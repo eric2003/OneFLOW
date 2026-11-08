@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <iterator>
 #include <limits>
+#include <map>
 #include <sstream>
 #include <stdexcept>
 

@@ -1039,8 +1039,13 @@ namespace
             {"line_elements", lineElements},
             {"triangle_elements", triangleElements},
             {"quadrilateral_elements", quadrilateralElements},
-            {"physical_group_count", meshReport.physicalGroupCount},
-            {"physical_groups", actualGroups}};
+            {"physical_group_count", meshReport.physicalGroupCount}};
+        report["mesh_summary"]["physical_groups"] = Json::array();
+        for (const auto& group : actualGroups)
+        {
+            report["mesh_summary"]["physical_groups"].push_back({
+                {"dimension", group.first}, {"name", group.second}});
+        }
         report["validated"] = true;
         std::ofstream reportOutput(reportPath, std::ios::trunc);
         if (!reportOutput)
