@@ -208,9 +208,17 @@ Json QueryCgnsDependency()
     }
 #endif
 
-    std::string headerVersion = "unknown";
+    Json headerVersion = {
+        {"value", nullptr},
+        {"number", nullptr},
+        {"source", "unavailable"}
+    };
 #ifdef CGNS_VERSION
-    headerVersion = FormatCgnsVersionNumber(CGNS_VERSION);
+    headerVersion = {
+        {"value", FormatCgnsVersionNumber(CGNS_VERSION)},
+        {"number", CGNS_VERSION},
+        {"source", "CGNS_VERSION_compile_time_macro"}
+    };
 #endif
 
     return {
@@ -219,19 +227,13 @@ Json QueryCgnsDependency()
         {"status", "available"},
         {"runtime_version", runtimeVersion},
         {"runtime_version_status", runtimeStatus},
-        {"header_version", {
-            {"value", headerVersion},
-            {"number", CGNS_VERSION},
-            {"source", "CGNS_VERSION_compile_time_macro"}
-        }},
+        {"header_version", headerVersion},
         {"runtime_library", {
             {"module_path", module.path},
             {"linkage", module.linkage}
         }},
         {"version_compatibility",
-            BuildVersionCompatibility(
-                Json{{"value", headerVersion}},
-                runtimeVersion)}
+            BuildVersionCompatibility(headerVersion, runtimeVersion)}
     };
 }
 
