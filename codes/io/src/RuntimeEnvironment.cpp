@@ -24,6 +24,8 @@ License
 #include <nlohmann/json.hpp>
 
 #include <cstdint>
+#include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -525,6 +527,70 @@ void WriteRuntimeEnvironmentText(
 }
 
 } // namespace
+
+bool WriteRuntimeEnvironmentJsonFile(
+    const std::string & fileName,
+    std::string & error)
+{
+    error.clear();
+
+    try
+    {
+        const std::filesystem::path outputPath(fileName);
+        if (outputPath.empty())
+        {
+            error = "output file path is empty";
+            return false;
+        }
+
+        const std::filesystem::path parentPath = outputPath.parent_path();
+        if (!parentPath.empty())
+        {
+            std::error_code filesystemError;
+            std::filesystem::create_directories(parentPath, filesystemError);
+            if (filesystemError)
+            {
+                error = "could not create output directory: " +
+                    filesystemError.message();
+                return false;
+            }
+        }
+
+        std::ofstream output(
+            outputPath, std::ios_base::out | std::ios_base::trunc);
+        if (!output)
+        {
+            error = "could not open runtime environment report";
+            return false;
+        }
+
+        output << QueryRuntimeEnvironment().dump(2) << '\\n';
+        output.flush();
+        if (!output)
+        {
+            error = "failed to write runtime environment report";
+            return false;
+        }
+
+        output.close();
+        if (!output)
+        {
+            error = "failed to close runtime environment report";
+            return false;
+        }
+        return true;
+    }
+    catch (const std::exception & exception)
+    {
+        error = exception.what();
+        return false;
+    }
+    catch (...)
+    {
+        error = "unknown error while writing runtime environment report";
+        return false;
+    }
+}
 
 int HandleRuntimeEnvironmentCommand(
     int argc,
