@@ -250,6 +250,14 @@ add_oneflow_gtest(UnsGridBoundaryTopologyRoundTripTest UnsGridBoundaryTopologyRo
 add_oneflow_gtest(GridSummaryAdapterTest GridSummaryAdapterTest.cpp)
 add_oneflow_gtest(GmshMeshReaderTest GmshMeshReaderTest.cpp)
 add_oneflow_gtest(StlMeshIOTest StlMeshIOTest.cpp)
+
+if (ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS)
+    target_compile_definitions(StlMeshIOTest PRIVATE
+        ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS=1)
+else()
+    target_compile_definitions(StlMeshIOTest PRIVATE
+        ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS=0)
+endif()
 add_oneflow_gtest(ProcessRunnerTest ProcessRunnerTest.cpp)
 add_oneflow_gtest(StlVertexWeldingTest StlVertexWeldingTest.cpp)
 add_oneflow_gtest(GmshCgnsConversionTest GmshCgnsConversionTest.cpp)
