@@ -116,15 +116,15 @@
     },
     {
       "kind": "google_test",
-      "reference": "StlMeshIOTest.NativeStlToGmshGeneratesOneSquareCellWhenGmshIsAvailable",
+      "reference": "StlMeshIOTest.NativeStlToGmshGeneratesOneSquareCell",
       "status": "linked_not_executed",
-      "scope": "tests/geometry/StlMeshIOTest.cpp; executes the native C++ STL-to-Gmsh Grid conversion and validates the one-quad MSH 4.1 output when Gmsh is installed."
+      "scope": "tests/geometry/StlMeshIOTest.cpp; executes the native C++ STL-to-Gmsh Grid conversion and validates the one-quad MSH 4.1 output when Gmsh integration tests are enabled."
     },
     {
       "kind": "google_test",
-      "reference": "StlMeshIOTest.NativeStlToGmshGeneratesTwoSquareCellsWhenGmshIsAvailable",
+      "reference": "StlMeshIOTest.NativeStlToGmshGeneratesTwoSquareCells",
       "status": "linked_not_executed",
-      "scope": "tests/geometry/StlMeshIOTest.cpp; executes the native C++ STL-to-Gmsh Grid conversion and validates the two-quad MSH 4.1 output when Gmsh is installed."
+      "scope": "tests/geometry/StlMeshIOTest.cpp; executes the native C++ STL-to-Gmsh Grid conversion and validates the two-quad MSH 4.1 output when Gmsh integration tests are enabled."
     }
   ],
   "group": {
