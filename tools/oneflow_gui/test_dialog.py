@@ -270,9 +270,13 @@ class TestRunnerDialog(QDialog):
         self._worker: TestCommandWorker | None = None
         self._case_worker = None
         all_database_cases = load_cases(self._repository_root)
-        self._database_cases_by_kind: dict[str, list[CaseDefinition]] = {
+        self._available_database_cases_by_kind: dict[str, list[CaseDefinition]] = {
             "oneflow": select_cases_by_execution_kind(all_database_cases, "oneflow"),
             "python": select_cases_by_execution_kind(all_database_cases, "python"),
+        }
+        self._database_cases_by_kind = {
+            kind: list(cases)
+            for kind, cases in self._available_database_cases_by_kind.items()
         }
         self._run_database_after_commands = False
         self.setWindowTitle("OneFLOW Tests")
@@ -407,8 +411,9 @@ class TestRunnerDialog(QDialog):
 
     def _open_case_database_tests(self) -> None:
         execution_kind = self._development_case_execution_kind()
-        available_cases = self._database_cases_by_kind[execution_kind]
-        dialog = CaseDatabaseSelectionDialog(available_cases, self)
+        available_cases = self._available_database_cases_by_kind[execution_kind]
+        selected_cases = self._database_cases_by_kind[execution_kind]
+        dialog = CaseDatabaseSelectionDialog(available_cases, selected_cases, self)
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
         self._database_cases_by_kind[execution_kind] = dialog.selected_cases()
@@ -677,11 +682,12 @@ class CaseDatabaseSelectionDialog(QDialog):
     def __init__(
         self,
         available_cases: list[CaseDefinition],
+        selected_cases: list[CaseDefinition],
         parent=None,
     ) -> None:
         super().__init__(parent)
         self._cases = list(available_cases)
-        selected_ids = {case.case_id for case in self._cases}
+        selected_ids = {case.case_id for case in selected_cases}
         self.setWindowTitle("Select Development Test Cases")
         self.resize(760, 560)
         layout = QVBoxLayout(self)

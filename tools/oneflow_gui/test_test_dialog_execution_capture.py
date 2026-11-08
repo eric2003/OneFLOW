@@ -30,7 +30,7 @@ class DevelopmentCaseSelectorModeTest(unittest.TestCase):
     def _visible_case_ids(self, execution_kind: str) -> set[str]:
         all_cases = load_cases(Path(__file__).resolve().parents[2])
         active_cases = select_cases_by_execution_kind(all_cases, execution_kind)
-        dialog = CaseDatabaseSelectionDialog(active_cases)
+        dialog = CaseDatabaseSelectionDialog(active_cases, active_cases)
         visible_ids = set()
         for group_index in range(dialog.case_tree.topLevelItemCount()):
             group = dialog.case_tree.topLevelItem(group_index)
