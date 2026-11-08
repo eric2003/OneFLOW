@@ -127,6 +127,22 @@ class RunHistoryDialog(QDialog):
         if record is None:
             return
         details = ["Run record:", json.dumps(record.to_dict(), indent=2, ensure_ascii=True)]
+        for title, key in (
+            ("Runtime Environment Report", "environment_report"),
+            ("Run Manifest", "run_manifest"),
+        ):
+            evidence_path = self._find_evidence_path(record.steps, key)
+            details.append("")
+            details.append(f"{title}:")
+            if evidence_path is None:
+                details.append("Not linked by this run record.")
+                continue
+            details.append(f"Path: {evidence_path}")
+            try:
+                payload = json.loads(evidence_path.read_text(encoding="utf-8"))
+                details.append(json.dumps(payload, indent=2, ensure_ascii=True))
+            except (OSError, json.JSONDecodeError) as error:
+                details.append(f"Evidence unavailable: {error}")
         if record.log_path:
             log_path = Path(record.log_path)
             details.append("")
@@ -136,6 +152,27 @@ class RunHistoryDialog(QDialog):
             except OSError as error:
                 details.append(f"Log unavailable: {error}")
         self.details.setPlainText("\n".join(details))
+
+    @staticmethod
+    def _find_evidence_path(steps: tuple[dict, ...], key: str) -> Path | None:
+        """Find an evidence path in nested persisted step metadata."""
+        def visit(value):
+            if isinstance(value, dict):
+                candidate = value.get(key)
+                if isinstance(candidate, str) and candidate.strip():
+                    return Path(candidate).expanduser()
+                for child in value.values():
+                    found = visit(child)
+                    if found is not None:
+                        return found
+            elif isinstance(value, (list, tuple)):
+                for child in value:
+                    found = visit(child)
+                    if found is not None:
+                        return found
+            return None
+
+        return visit(steps)
         self.note_edit.setText(record.note)
 
     def _save_note(self) -> None:
