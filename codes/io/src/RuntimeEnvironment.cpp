@@ -488,9 +488,9 @@ void WriteRuntimeEnvironmentText(
             output << "  Version consistency: "
                    << compatibility["status"].get<std::string>()
                    << " (" << compatibility["basis"].get<std::string>()
-                   << ")\\n";
+                   << ")\n";
             output << "  Version detail     : "
-                   << compatibility["detail"].get<std::string>() << '\\n';
+                   << compatibility["detail"].get<std::string>() << '\n';
         }
 
         const Json & runtimeLibrary = dependency["runtime_library"];
