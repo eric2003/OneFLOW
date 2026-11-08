@@ -14,6 +14,37 @@ shared diagonal is an interior edge; the four singly incident edges form the
 outer boundary. The generated Gmsh geometry can request one quadrilateral CELL
 using transfinite curves, a transfinite surface, and recombination.
 
+Native OneFLOW Cases
+--------------------
+
+The primary runtime implementation is now available in two normal OneFLOW
+Grid Cases:
+
+* `grid/stl_to_gmsh/square`: one square, one QUAD_4 cell, four boundary edges;
+* `grid/stl_to_gmsh/two_square_cells`: a 2 x 1 rectangle, two QUAD_4 cells,
+  six exterior boundary edges.
+
+Both Cases use the standard C++ STL reader and Grid conversion path. The
+Case's `script/grid.txt` selects `sourceGridType = "stl"`,
+`targetGridType = "gmsh"`, and `gmshExecutable`. The JSON
+`gridLayoutFileName` sidecar defines `transfinite_cells` and assigns the
+four rectangle sides to `inflow`, `outflow`, `symmetry`, and `farfield`.
+The fluid surface is named `fluid_domain`.
+
+Run the native Cases after building OneFLOW and installing Gmsh:
+
+.. code-block:: console
+
+   OneFLOW.exe r grid/stl_to_gmsh/square
+   OneFLOW.exe r grid/stl_to_gmsh/two_square_cells
+
+The native path writes .geo, MSH 4.1 and a validation report under each
+Case's results directory. It reads the generated MSH again with the existing
+C++ Gmsh reader and checks node, boundary-line, QUAD_4 and Physical Group
+counts. Independent Python reference Cases are maintained under
+`grid/stl_to_gmsh/python/`; the older external-flow Python prototype remains
+under `grid/stl/stl_to_gmsh/`.
+
 Input and boundary semantics
 ----------------------------
 
