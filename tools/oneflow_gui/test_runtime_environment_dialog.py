@@ -44,6 +44,22 @@ class RuntimeEnvironmentQueryTest(unittest.TestCase):
                         "module_path": "C:/dev/cgns/bin/cgnsdll.dll",
                         "linkage": "shared",
                     },
+                },
+                {
+                    "name": "HDF5",
+                    "enabled": False,
+                    "status": "not_detected",
+                    "runtime_version": {
+                        "value": None,
+                        "source": "unavailable",
+                    },
+                    "runtime_version_status": "runtime_api_symbol_not_found",
+                    "header_version": None,
+                    "runtime_library": {
+                        "module_path": "",
+                        "linkage": "unavailable",
+                    },
+                    "detail": "H5get_libversion was not exported by a loaded process module.",
                 }
             ],
         }
