@@ -304,7 +304,9 @@ $HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. A unique
 pipelines/<run-id>/ directory contains each staged Case, process logs,
 pipeline-report.json, environment.json, run-manifest.json and a snapshot of
 the workflow definition. Each validated Case also writes validation.json.
-The source repository is not used as a runtime workspace.
+The source repository is not used as a runtime workspace. The manually
+dispatched OneFLOW External Tool Integration GitHub Actions workflow also
+runs this complete pipeline on Windows and uploads its run evidence.
 
 Before CGNS conversion, the pipeline independently reopens the MSH 4.1 file
 and checks the expected node, boundary-line and quadrilateral counts as well

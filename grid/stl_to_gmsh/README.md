@@ -89,6 +89,10 @@ Run the standalone geometry Cases first, followed by the pipeline:
 
     python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline
 
+The manually dispatched GitHub Actions workflow named OneFLOW External Tool
+Integration also runs this full pipeline on Windows after the native Gmsh
+integration tests, then uploads the per-run pipeline evidence as an artifact.
+
 Each Case declares its own output-validation rule in the workflow JSON, so
 validation behavior is data-driven rather than selected by Case ID. The
 runner snapshots the workflow JSON and writes one validation.json per
