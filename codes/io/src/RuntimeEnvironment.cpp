@@ -25,6 +25,7 @@ License
 
 #include <cstdint>
 #include <filesystem>
+#include <exception>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
@@ -564,7 +565,7 @@ bool WriteRuntimeEnvironmentJsonFile(
             return false;
         }
 
-        output << QueryRuntimeEnvironment().dump(2) << '\\n';
+        output << QueryRuntimeEnvironment().dump(2) << '\n';
         output.flush();
         if (!output)
         {
