@@ -663,11 +663,11 @@ boundary-condition format. Its native reader and writer belong in the C++
 Geometry module. They must not be implemented only in the Python conversion
 utility under grid/stl, and they must not depend on Gmsh or CGNS.
 
-The proposed native I/O boundary is described in the :doc:`stl_mesh_io` page
-and catalogued as mesh/stl-native-io in the Mesh Contract Workbench. The
-contract is currently proposed: it records ownership, format semantics, error
-policy and the evidence needed for implementation. It does not claim that a
-production C++ STL reader or writer is already present.
+The native I/O boundary is described in the :doc:`stl_mesh_io` page and
+catalogued as mesh/stl-native-io in the Mesh Contract Workbench. The first C++
+reader/writer slice is now implemented. Its native tests are linked in the
+contract, while platform execution evidence remains pending; it is not yet a
+claim of complete surface topology or CFD mesh conversion.
 
 The initial C++ value model should preserve one record per source facet:
 stored normal, three ordered vertices and the 16-bit binary attribute field.

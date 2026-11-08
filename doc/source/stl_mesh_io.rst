@@ -234,9 +234,9 @@ extraction and Gmsh geometry generation. They have a different responsibility:
 
 The eight Python STL development cases currently registered in the development
 case catalog exercise the Python utility only. They must not be described as
-native C++ STL reader tests. Native C++ tests should be added to CTest and
-exposed through the appropriate development-test inventory after the C++
-implementation exists.
+native C++ STL reader tests. The first native C++ GoogleTest target is now
+registered with CTest through the geometry test helper. Additional STL cases
+should be added there as reader/writer coverage expands.
 
 Mesh Contract Workbench entry
 -----------------------------
@@ -244,8 +244,8 @@ Mesh Contract Workbench entry
 The machine-readable contract is
 tools/verification/contracts/mesh/stl-native-io.json, with ID
 mesh/stl-native-io. It is grouped under Mesh / Interchange Formats and
-currently has status proposed. The Overview, Principle, Reference and
-Architecture tabs describe the target. The Implementation tab links the C++ header/source and the Verification
+currently has status partially_verified. The Overview, Principle, Reference and
+Architecture tabs describe the contract. The Implementation tab links the C++ header/source and the Verification
 tab links native GoogleTests. Linked tests are declarations, not PASS results;
 CI must provide execution evidence before the contract can be promoted to
 verified. This prevents a source declaration from being mistaken for a
