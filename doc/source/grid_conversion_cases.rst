@@ -167,6 +167,40 @@ fails, the integration fixture preserves its temporary Case directory and
 prints its location so that the generated ``.geo`` file and related artifacts
 can be inspected rather than disappearing during test cleanup.
 
+Optional external-tool test policy
+-----------------------------------
+
+Gmsh is an optional executable dependency. The ordinary OneFLOW test suite
+must remain useful on machines where Gmsh is not installed. Configure the
+test policy with ``ONEFLOW_EXTERNAL_TOOL_TESTS``:
+
+.. code-block:: console
+
+   cmake -S . -B build -DONEFLOW_EXTERNAL_TOOL_TESTS=AUTO
+   cmake -S . -B build -DONEFLOW_EXTERNAL_TOOL_TESTS=ON
+   cmake -S . -B build -DONEFLOW_EXTERNAL_TOOL_TESTS=OFF
+
+The modes are:
+
+* ``AUTO`` (default): register the Gmsh integration tests only when the
+  ``gmsh`` executable is discoverable on PATH. No skipped tests are reported
+  when Gmsh is absent.
+* ``ON``: require Gmsh at configure time and fail configuration if it is
+  unavailable. Use this in a dedicated external-integration environment.
+* ``OFF``: do not register Gmsh integration tests, even if Gmsh is installed.
+
+STL parsing, planar-boundary extraction, geometry-script construction,
+MSH parsing, and ProcessRunner behavior remain core tests and do not require
+Gmsh. Only tests that launch the actual Gmsh executable are conditional.
+This setting currently controls Gmsh; additional external tools should be
+added to the same policy only when their integration tests are introduced.
+
+The regular Windows and Linux CI jobs explicitly use ``OFF`` so their core
+test results do not depend on the runner image's optional software inventory.
+A separate Windows Gmsh integration workflow installs a pinned Gmsh release
+and configures the test suite with ``ON``, ensuring that real CLI invocation
+is still exercised rather than silently skipped.
+
 Coverage plan
 -------------
 
