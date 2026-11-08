@@ -47,10 +47,10 @@ namespace
     {
 #ifdef _WIN32
         const ONEFLOW::ProcessResult result = ONEFLOW::RunProcess(
-            "cmd.exe", { "/d", "/c", "echo ProcessRunner diagnostic & exit /b 7" } );
+            "cmd.exe", { "/d", "/c", "echo ProcessRunner diagnostic 1>&2 & exit /b 7" } );
 #else
         const ONEFLOW::ProcessResult result = ONEFLOW::RunProcess(
-            "/bin/sh", { "-c", "printf 'ProcessRunner diagnostic\\n'; exit 7" } );
+            "/bin/sh", { "-c", "printf 'ProcessRunner diagnostic\\n' >&2; exit 7" } );
 #endif
         ASSERT_TRUE( result.started ) << result.errorMessage;
         EXPECT_EQ( result.exitCode, 7 );
