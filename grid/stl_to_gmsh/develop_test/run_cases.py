@@ -45,6 +45,16 @@ def find_oneflow_executable(explicit: str | None) -> Path:
     )
 
 
+def find_gmsh_executable(explicit: str) -> Path:
+    candidate = Path(explicit).expanduser()
+    if candidate.is_file():
+        return candidate.resolve()
+    discovered = shutil.which(explicit)
+    if discovered:
+        return Path(discovered).resolve()
+    raise FileNotFoundError(f"Gmsh executable does not exist or is not on PATH: {explicit}")
+
+
 def stage_case(source: Path, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.exists():
@@ -167,8 +177,8 @@ def main() -> int:
         if not args.gmsh:
             raise FileNotFoundError("Gmsh executable was not found; pass --gmsh")
         oneflow = find_oneflow_executable(args.oneflow_executable)
+        gmsh_path = find_gmsh_executable(args.gmsh)
         stage_root = args.stage_root.expanduser().resolve()
-        gmsh_path = Path(args.gmsh).expanduser().resolve()
         os.environ["PATH"] = (
             str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
         )
@@ -183,9 +193,9 @@ def main() -> int:
 
         outputs = []
         if not args.pipeline_only:
-            outputs = run_all(stage_root, oneflow, args.gmsh)
+            outputs = run_all(stage_root, oneflow, str(gmsh_path))
         if args.pipeline or args.pipeline_only:
-            run_pipeline(stage_root, oneflow, args.gmsh)
+            run_pipeline(stage_root, oneflow, str(gmsh_path))
     except (OSError, RuntimeError, ValueError) as error:
         parser.exit(2, f"STL-to-Gmsh development run failed: {error}\n")
 
