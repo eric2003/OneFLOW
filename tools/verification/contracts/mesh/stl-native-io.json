@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "id": "mesh/stl-native-io",
+  "title": "Native STL surface reader and writer",
+  "domain": "mesh",
+  "kind": "mesh_format_adapter",
+  "status": "proposed",
+  "overview": "A proposed native C++ STL surface I/O capability owned by OneFLOW Geometry. The current grid/stl Python utility is a separate planar-boundary and Gmsh-generation tool; its tests do not exercise the C++ geometry implementation.",
+  "principle": "STL stores an ordered sequence of triangle facets, not a shared-vertex mesh or CFD volume mesh. Preserve each facet's stored normal, ordered vertices, binary attribute value and binary header. Do not weld vertices, repair normals, infer units, invent boundary groups or assign solver boundary conditions during parsing. Binary records require explicit little-endian decoding; a header beginning with 'solid' is not proof of ASCII.",
+  "architecture": "ASCII/Binary STL -> C++ StlMeshReader -> value-based StlMesh -> explicit validation -> explicit topology construction -> Mesh Core or downstream format adapters. StlMeshWriter serializes the same value model to ASCII or Binary STL. The adapter has no Gmsh, CGNS, Qt or Python dependency.",
+  "references": [
+    "Library of Congress STL format description: https://www.loc.gov/preservation/digital/formats/fdd/fdd000504.shtml",
+    "Gmsh Reference Manual: https://gmsh.info/doc/texinfo/gmsh.html",
+    "doc/source/stl_mesh_io.rst",
+    "doc/source/mesh_architecture.rst"
+  ],
+  "implementation": {
+    "source_paths": []
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/stl_mesh_io.rst",
+      "doc/source/mesh_architecture.rst",
+      "doc/source/contract_workbench_information_architecture.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "Defines the intended C++ Geometry ownership boundary and value-preserving STL reader/writer responsibilities.",
+      "Defines ASCII and binary record semantics, format-detection hazards, source-facet preservation rules and native C++ verification criteria."
+    ],
+    "does_not_prove": [
+      "A production C++ STL reader or writer currently exists.",
+      "The existing Python STL development cases exercise OneFLOW C++ geometry.",
+      "Vertex welding, manifold repair, surface closure, volume meshing, CFD boundary assignment or conversion to OneFLOW Mesh Core is implemented.",
+      "STL carries units, shared vertex identity, named physical groups or solver boundary-condition semantics."
+    ]
+  },
+  "verification": [],
+  "group": {
+    "id": "mesh_formats",
+    "title": "Interchange Formats",
+    "order": 22
+  }
+}

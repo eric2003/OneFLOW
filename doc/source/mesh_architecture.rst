@@ -653,3 +653,45 @@ under the Case `results/` directory as reproducible evidence. This
 deliberately tests the same on-disk path that users can invoke as two
 separate conversions; it does not create a second Gmsh-specific runtime
 adapter.
+
+
+STL surface format adapter
+--------------------------
+
+STL is a triangle-surface interchange format, not a volume-mesh or CFD
+boundary-condition format. Its native reader and writer belong in the C++
+Geometry module. They must not be implemented only in the Python conversion
+utility under grid/stl, and they must not depend on Gmsh or CGNS.
+
+The proposed native I/O boundary is described in the :doc:`stl_mesh_io` page
+and catalogued as mesh/stl-native-io in the Mesh Contract Workbench. The
+contract is currently proposed: it records ownership, format semantics, error
+policy and the evidence needed for implementation. It does not claim that a
+production C++ STL reader or writer is already present.
+
+The initial C++ value model should preserve one record per source facet:
+stored normal, three ordered vertices and the 16-bit binary attribute field.
+The binary header should also be retained. STL does not define shared vertex
+identity; readers must not silently weld equal coordinates. Welding,
+tolerance selection, edge incidence, connected components and manifold
+classification belong to explicit topology-building operations after parsing.
+
+ASCII and binary parsing share the same validated facet model. Binary parsing
+must decode little-endian values explicitly rather than reinterpret a packed
+C++ structure. Format detection must use structural evidence: a binary header
+may begin with the text "solid", so the prefix alone is not a reliable ASCII
+discriminator. Writers must reject values that cannot be represented by the
+target encoding and must report format-specific losses (notably the binary
+attribute field when writing standard ASCII STL).
+
+STL carries no standard units, shared node IDs, volume cells, physical groups,
+or solver boundary-condition meanings. Normals and facet winding are source
+data that should be reported and validated; a reader should not silently
+repair them. A successful parse is therefore only a format-read result, not
+proof of a watertight, manifold, consistently oriented or CFD-ready surface.
+
+The existing Python STL utility remains useful for planar boundary extraction
+and Gmsh generation. Its tests validate that Python pipeline only. Native STL
+I/O evidence must come from C++ GoogleTests linked to OneFLOW_GeometryCore,
+with ASCII/binary read-write round trips and malformed-input tests. End-to-end
+conversion to OneFLOW mesh topology is a separate integration milestone.
