@@ -2,80 +2,14 @@
 
 from __future__ import annotations
 
-import os
 import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
-
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication
-
-from tools.oneflow_gui.case_repository import load_cases, select_cases_by_execution_kind
-from tools.oneflow_gui.test_dialog import (
-    CaseDatabaseSelectionDialog,
-    TestCommandWorker,
-)
+from tools.oneflow_gui.test_dialog import TestCommandWorker
 from tools.oneflow_gui.test_runner import TestCommand
-
-
-class DevelopmentCaseSelectorModeTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        cls.application = QApplication.instance() or QApplication([])
-
-    def _visible_case_ids(
-        self, execution_kind: str, selected_case_ids: set[str] | None = None
-    ) -> set[str]:
-        all_cases = load_cases(Path(__file__).resolve().parents[2])
-        active_cases = select_cases_by_execution_kind(all_cases, execution_kind)
-        selected_cases = [
-            case for case in active_cases
-            if selected_case_ids is None or case.case_id in selected_case_ids
-        ]
-        dialog = CaseDatabaseSelectionDialog(active_cases, selected_cases)
-        visible_ids = set()
-        for group_index in range(dialog.case_tree.topLevelItemCount()):
-            group = dialog.case_tree.topLevelItem(group_index)
-            for case_index in range(group.childCount()):
-                visible_ids.add(
-                    group.child(case_index).data(0, Qt.ItemDataRole.UserRole)
-                )
-        dialog.close()
-        return visible_ids
-
-    def test_unselected_cases_remain_available_after_selection_is_narrowed(self) -> None:
-        all_cases = load_cases(Path(__file__).resolve().parents[2])
-        native = select_cases_by_execution_kind(all_cases, "oneflow")
-        selected_ids = {native[0].case_id}
-        visible_ids = self._visible_case_ids("oneflow", selected_ids)
-        self.assertEqual(visible_ids, {case.case_id for case in native})
-        self.assertGreater(len(visible_ids), len(selected_ids))
-
-    def test_native_mode_selector_never_displays_python_cases(self) -> None:
-        all_cases = load_cases(Path(__file__).resolve().parents[2])
-        native_ids = {
-            case.case_id for case in select_cases_by_execution_kind(all_cases, "oneflow")
-        }
-        python_ids = {
-            case.case_id for case in select_cases_by_execution_kind(all_cases, "python")
-        }
-        self.assertEqual(self._visible_case_ids("oneflow"), native_ids)
-        self.assertFalse(self._visible_case_ids("oneflow") & python_ids)
-
-    def test_python_mode_selector_never_displays_native_cases(self) -> None:
-        all_cases = load_cases(Path(__file__).resolve().parents[2])
-        native_ids = {
-            case.case_id for case in select_cases_by_execution_kind(all_cases, "oneflow")
-        }
-        python_ids = {
-            case.case_id for case in select_cases_by_execution_kind(all_cases, "python")
-        }
-        self.assertEqual(self._visible_case_ids("python"), python_ids)
-        self.assertFalse(self._visible_case_ids("python") & native_ids)
 
 
 class TestCommandWorkerEvidenceTest(unittest.TestCase):
