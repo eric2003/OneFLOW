@@ -272,7 +272,7 @@ The optional development pipeline composes four standard OneFLOW Cases:
    Gmsh -> CGNS
        |
        v
-   CGNS -> OneFLOW native grid + bcRegionMap.txt
+   CGNS -> OneFLOW native grid + bcRegionMap.txt + grid-info JSON
        |
        v
    cfd_uns2dslau2: SLAU2 CFD Solve (50 steps)

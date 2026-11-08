@@ -121,13 +121,18 @@
             {
               "id": "square_2x2_bc_region_map",
               "path": "results/bcRegionMap.txt"
+            },
+            {
+              "id": "square_2x2_grid_info",
+              "path": "results/square.info.json"
             }
           ],
           "validation": {
             "kind": "non_empty_files",
             "paths": [
               "results/square.oneflow.grid",
-              "results/bcRegionMap.txt"
+              "results/bcRegionMap.txt",
+              "results/square.info.json"
             ]
           }
         },

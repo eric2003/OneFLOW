@@ -156,6 +156,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertEqual(native.inputs[0].relative_path, Path("results/square.cgns"))
         self.assertEqual(native.outputs[0].relative_path, Path("results/square.oneflow.grid"))
         self.assertEqual(native.outputs[1].relative_path, Path("results/bcRegionMap.txt"))
+        self.assertEqual(native.outputs[2].relative_path, Path("results/square.info.json"))
         self.assertEqual(cfd.inputs[0].producer_id, native.case_id)
         self.assertEqual(cfd.inputs[0].relative_path, Path("results/square.oneflow.grid"))
         self.assertEqual(
@@ -200,7 +201,11 @@ class StlToGmshCaseTest(unittest.TestCase):
         )
         self.assertEqual(
             case_definitions[native.case_id]["validation"]["paths"],
-            ["results/square.oneflow.grid", "results/bcRegionMap.txt"],
+            [
+                "results/square.oneflow.grid",
+                "results/bcRegionMap.txt",
+                "results/square.info.json",
+            ],
         )
         self.assertEqual(
             case_definitions[cfd.case_id]["validation"]["paths"],
