@@ -78,8 +78,8 @@ class MeshCaseCatalogTest(unittest.TestCase):
     def test_stl_to_gmsh_cases_register_native_cpp_and_python_variants(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         entries = {entry["id"]: entry for entry in catalog["cases"] if entry.get("group") == "STL to Gmsh"}
-        self.assertEqual(set(entries), {"stl_to_gmsh_square", "stl_to_gmsh_two_square_cells", "stl_to_gmsh_python_square", "stl_to_gmsh_python_two_square_cells"})
-        for case_id in ("stl_to_gmsh_square", "stl_to_gmsh_two_square_cells"):
+        self.assertEqual(set(entries), {"stl_to_gmsh_square", "stl_to_gmsh_square_2x2", "stl_to_gmsh_two_square_cells", "stl_to_gmsh_python_square", "stl_to_gmsh_python_two_square_cells"})
+        for case_id in ("stl_to_gmsh_square", "stl_to_gmsh_square_2x2", "stl_to_gmsh_two_square_cells"):
             entry = entries[case_id]
             self.assertNotIn("execution", entry)
             case_dir = REPOSITORY_ROOT / entry["directory"]
