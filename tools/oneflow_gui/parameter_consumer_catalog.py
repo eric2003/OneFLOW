@@ -325,7 +325,7 @@ _CONSUMERS = (
         "Direct read and interval predicate are present in Iteration.cpp.",
         ("codes/global/src/Iteration.cpp",),
         ("Iteration::ForceOk",),
-    ),,
+    ),
     ParameterConsumer(
         "gmshExecutable", "codes/geometry/src/GridTypes.cpp", "GridConfig::FromDataBase",
         'GetDataValue<std::string>("gmshExecutable")', ConsumerReadKind.OPTIONAL,
