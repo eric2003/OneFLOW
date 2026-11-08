@@ -149,7 +149,7 @@ class DesktopServiceTest(unittest.TestCase):
                 "stl_non_planar_surface", "stl_weld_tolerance", "stl_ascii_single_triangle",
             }
         ]
-        self.assertEqual(len(cases), 7)
+        self.assertEqual(len(cases), 8)
         with tempfile.TemporaryDirectory() as directory:
             staged_cases = prepare_case_database_workspace(cases, Path(directory) / "grid")
             for case in cases:

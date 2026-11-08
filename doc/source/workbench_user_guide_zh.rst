@@ -65,18 +65,11 @@ https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md
 
 * **Unit Tests** 在源码构建目录运行 CTest 和 Python 单元测试。
 * **CFD/Grid Regression** 使用仓库已有的回归清单和脚本，并在用户工作目录准备输入。
-* **Development Cases** 是可选项，默认不运行；打开 **Select cases...** 时，只显示当前执行模式的算例。缺省显示 C++ 算例；勾选 **Python reference cases** 后只显示 Python 算例。两种模式的选择分别保存。
+* **Development Cases** 是可选项，默认不运行。**Run Development Cases** 控制 C++ 原生算例，**Python reference cases** 控制 Python 参考算例；两项可独立选择，也可同时选择。选择窗口在两项同时勾选时显示两类算例，只勾选一项时只显示对应类型；两类选择分别保存。两项都未勾选时，选择窗口默认显示 C++ 算例供浏览和配置，但不会执行开发算例。
 
-**Select cases...** 按算例目录中的 `group` 元数据分组显示；例如 `gmsh_to_cgns`、`gmsh_to_oneflow` 和 `two_quads` 都归入 **Gmsh**。组名前的复选框可以整体选择或取消该组，展开后也可以单独选择某个算例。未声明分组的算例显示在 **General** 下。分组只影响选择界面，不改变算例执行方式；Gmsh→CGNS 仍遵循手动 GUI 工作流程约束。
-
-CTest、Python Unit Tests 与 Development Cases 是三个不同层次：CTest 运行 C++ 测试目标，Python Unit Tests 验证 Python 工具、解析器和 GUI 服务；Development Cases 则是具有输入文件、参数文件和结果目录的可运行工程算例，通常通过 OneFLOW 正常入口执行。它们可以通过 Contract 和 CI 关联，但不能把算例运行成功等同于所有底层算法测试均已通过。
-
-**Python reference cases** 是 Development Cases 的算例显示与执行模式开关，不是 Python Unit Tests：
-未勾选（缺省）时，只运行所选的原生 C++ OneFLOW 算例，通过 OneFLOW 可执行程序的标准
-`r <case-directory>` 入口执行；勾选后，只运行所选的 Python 参考算例，通过算例声明的
-Python 脚本执行。切换模式会切换 **Select cases...** 的可见算例，并分别保留 C++ 与 Python 的选择；一次 Run 只执行当前
-模式对应的算例。这样可以避免 Python 参考程序通过后被误认为 C++ 原生网格读写能力已经
-验证。STL 组同时维护两类 Development Cases：C++ 算例验证 OneFLOW 的生产运行通道，Python 算例用于
+**Python reference cases** 是独立的 Development Cases 执行开关，不是 Python Unit Tests：
+**Run Development Cases** 勾选时运行所选的原生 C++ OneFLOW 算例，通过 OneFLOW 可执行程序的标准
+`r <case-directory>` 入口执行；**Python reference cases** 勾选时运行所选 Python 参考算例，通过算例声明的 Python 脚本执行。两项同时勾选时，两类算例在同一批次中运行；只勾选其中一项时，只运行对应类型。两项都未勾选时不执行 Development Cases。这样可以避免 Python 参考程序通过后被误认为 C++ 原生网格读写能力已经验证。STL 组同时维护两类 Development Cases：C++ 算例验证 OneFLOW 的生产运行通道，Python 算例用于
 独立参考检查和几何诊断。
 
 Development Cases 使用固定的用户数据测试工作目录，并在每批开始时重新准备该目录中的测试 case；源仓库内的内置 case 保持不动。测试进程的退出状态会记录为运行结果；这不等同于所有网格几何或数值结果都已由 GUI 独立验证。

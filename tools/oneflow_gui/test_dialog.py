@@ -607,8 +607,13 @@ class TestRunnerDialog(QDialog):
         if not commands:
             QMessageBox.information(self, "No cases selected", "Select at least one development case.")
             return
+        enabled_modes = []
+        if any(case.execution_kind == "oneflow" for case in selected_cases):
+            enabled_modes.append("native C++ OneFLOW")
+        if any(case.execution_kind == "python" for case in selected_cases):
+            enabled_modes.append("Python reference")
         self.log_view.appendPlainText(
-            f"Development case mode: {'Python' if self.python_development_check.isChecked() else 'native C++ OneFLOW'}\n"
+            f"Development case modes: {' + '.join(enabled_modes)}\n"
             f"Development case workspace: {workspace_root}\nStaged {len(commands)} selected case(s)."
         )
         self._launch_commands(commands)

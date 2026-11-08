@@ -67,9 +67,16 @@ def select_cases_by_execution_kind(
 
 
 def select_cases_for_selection_dialog(
-    cases: list[CaseDefinition], *, run_native: bool, run_python: bool,
+    cases: list[CaseDefinition],
+    *,
+    run_native: bool,
+    run_python: bool,
 ) -> list[CaseDefinition]:
-    """Return cases visible for the enabled modes; default browsing is native."""
+    """Return cases visible in the selector for the enabled execution modes.
+
+    With neither run option enabled, retain the default native selector so
+    users can configure C++ cases before enabling their execution.
+    """
     kinds = {"oneflow"}
     if run_native and run_python:
         kinds.add("python")
@@ -79,9 +86,12 @@ def select_cases_for_selection_dialog(
 
 
 def select_cases_for_execution(
-    cases: list[CaseDefinition], *, run_native: bool, run_python: bool,
+    cases: list[CaseDefinition],
+    *,
+    run_native: bool,
+    run_python: bool,
 ) -> list[CaseDefinition]:
-    """Return native and/or Python cases enabled for this run."""
+    """Return the selected native and/or Python cases requested for execution."""
     kinds = set()
     if run_native:
         kinds.add("oneflow")
