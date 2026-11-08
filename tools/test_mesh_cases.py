@@ -49,6 +49,32 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertIn("Real stlWeldTolerance = 1.0e-10;", grid)
         self.assertTrue((case_dir / "input" / "model.stl").is_file())
         self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
+    def test_stl_to_gmsh_generation_case_has_two_structured_mesh_examples(self) -> None:
+        case_dir = REPOSITORY_ROOT / "grid" / "stl" / "stl_to_gmsh"
+        for relative in (
+            "README.md",
+            "run_case.py",
+            "input/square.stl",
+            "input/two_square_cells.stl",
+            "script/single_quad.json",
+            "script/two_quads.json",
+            "results/.gitkeep",
+            ".gitignore",
+        ):
+            self.assertTrue((case_dir / relative).is_file(), relative)
+        single = json.loads((case_dir / "script" / "single_quad.json").read_text(encoding="utf-8"))
+        two = json.loads((case_dir / "script" / "two_quads.json").read_text(encoding="utf-8"))
+        self.assertEqual(single["transfinite_cells"], {"x": 1, "y": 1})
+        self.assertEqual(two["transfinite_cells"], {"x": 2, "y": 1})
+        self.assertEqual(
+            {entry["name"] for entry in single["boundaries"]},
+            {"inflow", "outflow", "symmetry", "farfield"},
+        )
+        self.assertEqual(
+            {entry["name"] for entry in two["boundaries"]},
+            {"inflow", "outflow", "symmetry", "farfield"},
+        )
+
     def test_stl_ascii_crlf_is_a_native_oneflow_case_with_crlf_fixture(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         entry = next(

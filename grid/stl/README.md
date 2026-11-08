@@ -38,6 +38,21 @@ The collection covers ASCII and binary STL, binary headers beginning with `solid
 
 Python development cases do not require a OneFLOW executable. In the Tests dialog, **Run Development Cases** enables native C++ cases and **Python reference cases** enables Python cases. Either option can run independently; enabling both runs both kinds in one staged batch. The selector shows only enabled kinds (and defaults to the native C++ catalog for browsing when neither run option is enabled). Selections are retained independently by execution kind. Python reference results do not substitute for native C++ evidence. A native Case is currently marked successful from its process exit status; its JSON mesh report is produced for inspection, but expected node/cell counts are not yet enforced by the GUI runner.
 
+## STL to Gmsh generation
+
+The first two-dimensional meshing workflow is maintained in
+`grid/stl/stl_to_gmsh/`. It uses the shared `stl_to_gmsh.py` reader and
+boundary reconstruction code to create Gmsh `.geo` geometry and MSH 4.1
+ASCII meshes. It includes one unit-square QUAD_4 cell and two adjacent
+unit-square QUAD_4 cells. The four outer Physical Curves are explicitly
+named `inflow`, `outflow`, `symmetry`, and `farfield`; the fluid region
+is `fluid_domain`. See that directory's README for staged execution,
+expected node/cell counts, and the next Gmsh-to-CGNS handoff.
+
+The cell layout is declared by `transfinite_cells.x` and
+`transfinite_cells.y`, not inferred from STL triangle diagonals. Gmsh output
+is MSH 4.1 ASCII so it can be consumed by the current C++ Gmsh reader.
+
 ## Tests
 
 Run from the repository root:

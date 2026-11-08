@@ -8,6 +8,15 @@
   },
   "routes": [
     {
+      "source": "stl",
+      "target": "gmsh",
+      "status": "implemented",
+      "implementation": "grid/stl/stl_to_gmsh.py",
+      "input_scope": "One connected, closed, axis-aligned planar quadrilateral boundary in ASCII or binary STL; explicit four-edge boundary sidecar; structured QUAD_4 layouts.",
+      "output_scope": "Gmsh MSH 4.1 ASCII with LINE_2 Physical Curves and a QUAD_4 Physical Surface.",
+      "evidence": "grid/stl/test_stl_to_gmsh.py checks geometry construction, MSH 4.1 inspection, one-cell and two-cell topology, and Physical Group names."
+    },
+    {
       "source": "gmsh",
       "target": "cgns",
       "status": "implemented",
@@ -92,6 +101,33 @@
       ],
       "execution": "manual_gui",
       "purpose": "Validate multi-cell connectivity, a shared internal edge, and boundary Physical Groups spanning multiple geometric entities."
+    },
+    {
+      "id": "stl_to_gmsh",
+      "directory": "grid/stl/stl_to_gmsh",
+      "source": "stl",
+      "dimension": 2,
+      "topology": "one unit-square QUAD_4 or two adjacent unit-square QUAD_4 cells",
+      "expected": {
+        "single_quad": {
+          "nodes": 4,
+          "cells": 1,
+          "boundary_elements": 4,
+          "physical_boundary_groups": 4
+        },
+        "two_quads": {
+          "nodes": 6,
+          "cells": 2,
+          "boundary_elements": 6,
+          "internal_interface_edges": 1,
+          "physical_boundary_groups": 4
+        }
+      },
+      "routes": [
+        "stl->gmsh"
+      ],
+      "execution": "python_gmsh_cli",
+      "purpose": "Generate a MSH 4.1 mesh from a planar STL boundary and preserve the four named CFD boundary groups."
     }
   ]
 }
