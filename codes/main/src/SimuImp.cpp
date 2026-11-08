@@ -26,10 +26,50 @@ License
 #include "Fatal.h"
 #include "SolverNameList.h"
 #include "GridState.h"
+#include "Prj.h"
+#include "RuntimeEnvironment.h"
+#include <filesystem>
+#include <string>
 #include <iostream>
 
 
 BeginNameSpace( ONEFLOW )
+
+namespace
+{
+
+void CaptureRuntimeEnvironmentEvidence()
+{
+    const std::string relativePath = "results/runtime_environment.json";
+    const std::string meshReport =
+        Prj::GetMeshOutputFileName(relativePath);
+    const std::string flowReport =
+        Prj::GetFlowOutputFileName(relativePath);
+
+    std::vector<std::filesystem::path> reportPaths{
+        std::filesystem::path(meshReport).lexically_normal()
+    };
+    const std::filesystem::path normalizedFlowReport =
+        std::filesystem::path(flowReport).lexically_normal();
+    if (normalizedFlowReport != reportPaths.front())
+    {
+        reportPaths.push_back(normalizedFlowReport);
+    }
+
+    for (const std::filesystem::path & reportPath : reportPaths)
+    {
+        std::string error;
+        if (!WriteRuntimeEnvironmentJsonFile(reportPath.string(), error))
+        {
+            // Environment evidence must never prevent a CFD or grid task.
+            std::cerr << "[WARNING] Could not write runtime environment "
+                      << "report '" << reportPath.string() << "': "
+                      << error << '\\n';
+        }
+    }
+}
+
+}
 
 SimuImp::SimuImp( const std::vector<std::string>& args )
     : ctx_( std::make_unique<SimuContext>( args ) )
@@ -56,6 +96,7 @@ void SimuImp::RunCase()
         [this]()
         {
             this->PreProcess();
+            CaptureRuntimeEnvironmentEvidence();
             this->MainProcess();
         },
         [this]()
