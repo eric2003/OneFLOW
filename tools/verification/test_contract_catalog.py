@@ -97,7 +97,7 @@ class ContractCatalogTest(unittest.TestCase):
             },
         )
         self.assertIn("doc/source/stl_mesh_io.rst", contract.documentation_paths)
-        self.assertEqual(len(contract.evidence), 13)
+        self.assertEqual(len(contract.evidence), 12)
 
         resolutions = resolve_contract_evidence(self.repository_root, contract)
         self.assertEqual(

@@ -36,7 +36,7 @@ STL reader compatibility cases are registered in `grid/case_catalog.json` under 
 
 The collection covers ASCII and binary STL, binary headers beginning with `solid`, CRLF text, scientific notation, native folded-surface conversion, configured vertex welding tolerance, degenerate triangles, truncated binary data, and Python planar-boundary diagnostics. Expected diagnostic failures count as passing tests when the observed diagnostic matches the case expectation.
 
-Python development cases do not require a OneFLOW executable. In the Tests dialog, **Python examples** is an execution-mode switch: unchecked (the default) runs only native C++ OneFLOW Cases; checked runs only Python reference Cases. The case selection is retained across modes, but each Run executes exactly one mode. Python reference results do not substitute for native C++ evidence.
+Python development cases do not require a OneFLOW executable. In the Tests dialog, **Python examples** is an execution-mode switch: unchecked (the default) runs only native C++ OneFLOW Cases; checked runs only Python reference Cases. The case selection is retained across modes, but each Run executes exactly one mode. Python reference results do not substitute for native C++ evidence. A native Case is currently marked successful from its process exit status; its JSON mesh report is produced for inspection, but expected node/cell counts are not yet enforced by the GUI runner.
 
 ## Tests
 

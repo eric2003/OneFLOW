@@ -349,6 +349,8 @@ temporary fixtures. Its individual test purposes are:
   rejects values that cannot be represented as finite float32; it does not
   guarantee adequate precision for every engineering scale.
 
+For the native runtime Development Cases, the current runner records the OneFLOW process exit status. The STL read report contains triangle/node/cell counts, but the GUI runner does not yet compare those fields against per-Case expected-result assertions. Therefore a green Case run currently proves successful execution of the declared runtime path; the documented node/cell counts are expected outputs to inspect, not yet an independently enforced numerical oracle. Adding machine-checked result manifests is a separate next step.
+
 A passing GoogleTest establishes the named parser/writer behavior only.
 A passing native Development Case additionally exercises runtime parameter
 ingestion, Grid dispatch, topology staging and CGNS output. Neither alone
