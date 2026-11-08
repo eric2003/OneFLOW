@@ -186,7 +186,14 @@ class RuntimeEnvironmentDialog(QDialog):
             )
             for column, value in enumerate(values):
                 item = QTableWidgetItem(str(value))
-                if column == 4:
+                if column == 2:
+                    header_source = header.get("source", "compile-time")
+                    header_path = header.get("header_path")
+                    tooltip = str(header_source)
+                    if header_path:
+                        tooltip += f"\\n{header_path}"
+                    item.setToolTip(tooltip)
+                elif column == 3:
                     item.setToolTip(str(compatibility_detail))
                 elif column == 5:
                     item.setToolTip(str(module_path))
