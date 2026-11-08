@@ -291,6 +291,14 @@ version, build configuration and enabled/disabled state, query status
 with diagnostic detail when unavailable or failed, and a version-consistency
 assessment.
 
+The consistency assessment is implemented by the dependency-independent
+``AssessVersionCompatibility`` helper in the I/O module. Its unit tests
+exercise all four states without relying on which optional libraries happen
+to be installed on the test machine. Empty strings and the literal
+``unknown`` are treated as missing evidence. When both versions are present,
+OneFLOW compares their strings exactly; it does not normalize or reinterpret
+version numbering.
+
 The consistency assessment uses four states: verified_match, mismatch,
 assumed_match, and unknown. OneFLOW compares independently obtained version
 strings when both are present. When only a usable header version is available,
