@@ -34,6 +34,7 @@ Mesh and engineering workflows
 ------------------------------
 
 * :doc:`mesh_architecture` — mesh information levels, snapshots, and format adapters.
+* :doc:`stl_mesh_io` — native C++ STL ASCII/Binary I/O, facet semantics, and reader/writer verification.
 * :doc:`gmsh_interface` — Gmsh MSH 4.1-first input adapter, version support, semantic mapping, and conversion validation.
 * :doc:`stl_to_gmsh_2d` — planar STL boundary extraction, explicit CFD boundary groups, and Gmsh 2D generation.
 * :doc:`grid_conversion_cases` — runnable mesh conversion Cases, topology coverage, and format-route matrix.
@@ -150,6 +151,7 @@ The existing reference library covers programming languages, build systems, para
    database_architecture
    evolutionary_computation_architecture
    mesh_architecture
+   stl_mesh_io
    gmsh_interface
    stl_to_gmsh_2d
    grid_conversion_cases
