@@ -86,7 +86,7 @@ Parser and geometry-generation tests do not require Gmsh:
 
 .. code-block:: bash
 
-   python -m unittest tools.stl_to_gmsh.test_stl_to_gmsh
+   python -m unittest grid.stl.test_stl_to_gmsh
 
 Current limits and next steps
 -----------------------------
