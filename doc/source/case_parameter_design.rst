@@ -109,7 +109,10 @@ Grid conversion case
    boundary parameters; ``SimuDef.cpp`` resolves the task and ``Tolerance.cpp`` reads
    ``ptTol``. Representative declared keys include ``gridObj``, ``sourceGridType``,
    ``targetGridType``, ``gridScale``, ``gridTrans``, ``sourceGridFileName``,
-   ``targetGridFileName``, and ``parallelStrategy``.
+   ``targetGridFileName``, and ``parallelStrategy``. The optional
+   ``gmshExecutable`` setting selects the external Gmsh CLI for the native
+   STL-to-Gmsh Grid conversion; when absent, the runtime uses ``gmsh`` from
+   the process ``PATH``.
 
 RAE2822 Roe-SA CFD case
    ``simu.txt`` holds run control, files, and output cadence. ``cfd.txt`` selects

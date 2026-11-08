@@ -220,6 +220,17 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
         self.assertEqual(consumers[0].read_kind, ConsumerReadKind.LAZY)
         self.assertIn("first Tolerance::GetTol", consumers[0].behavior)
 
+    def test_gmsh_executable_is_an_optional_grid_generation_parameter(self):
+        consumers = self.catalog.find("gmshExecutable")
+        self.assertEqual(len(consumers), 1)
+        consumer = consumers[0]
+        self.assertEqual(consumer.source_path, "codes/geometry/src/GridTypes.cpp")
+        self.assertEqual(consumer.symbol, "GridConfig::FromDataBase")
+        self.assertEqual(consumer.read_kind, ConsumerReadKind.OPTIONAL)
+        self.assertIn("PATH", consumer.behavior)
+        self.assertEqual(consumer.behavior_source_paths, ("codes/geometry/src/GridConversion.cpp",))
+        self.assertEqual(consumer.behavior_symbols, ("ConvertStlToGmsh",))
+
     def test_unknown_parameter_has_no_invented_consumer(self):
         self.assertEqual(self.catalog.find("vendorPrivateParameter"), ())
         self.assertFalse(self.catalog.has_verified_consumer("vendorPrivateParameter"))

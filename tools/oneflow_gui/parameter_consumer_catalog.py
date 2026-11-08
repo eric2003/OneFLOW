@@ -325,7 +325,16 @@ _CONSUMERS = (
         "Direct read and interval predicate are present in Iteration.cpp.",
         ("codes/global/src/Iteration.cpp",),
         ("Iteration::ForceOk",),
-    ),
+    ),,
+    ParameterConsumer(
+        "gmshExecutable", "codes/geometry/src/GridTypes.cpp", "GridConfig::FromDataBase",
+        'GetDataValue<std::string>("gmshExecutable")', ConsumerReadKind.OPTIONAL,
+        "Optionally overrides the executable used for STL-to-Gmsh generation. Missing or empty values retain the default executable name gmsh, which is resolved through PATH.",
+        "Grid task; only the STL -> Gmsh conversion path invokes this external executable.",
+        "The guarded typed read is present in GridConfig::FromDataBase; command construction and invocation are present in ConvertStlToGmsh.",
+        ("codes/geometry/src/GridConversion.cpp",),
+        ("ConvertStlToGmsh",),
+    )
 )
 
 
