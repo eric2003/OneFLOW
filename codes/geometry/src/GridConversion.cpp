@@ -42,6 +42,7 @@ License
 #include <iterator>
 #include <sstream>
 #include <map>
+#include <set>
 #include <limits>
 #include <unordered_set>
 #include <vector>
@@ -1036,6 +1037,7 @@ namespace
             {"line_elements", lineElements},
             {"triangle_elements", triangleElements},
             {"quadrilateral_elements", quadrilateralElements},
+            {"physical_group_count", meshReport.physicalGroupCount},
             {"physical_groups", actualGroups}};
         report["validated"] = true;
         std::ofstream reportOutput(reportPath, std::ios::trunc);
