@@ -108,16 +108,16 @@
       "scope": "tests/geometry/StlMeshIOTest.cpp; binary writer rejects values not representable as finite float32."
     },
     {
-      "kind": "case_suite",
-      "reference": "stl_ascii_crlf_native",
-      "status": "declared_not_executed",
-      "scope": "Native OneFLOW Grid task, CRLF ASCII STL input, automatic parameter discovery without control.txt, and CGNS surface output."
+      "kind": "python_test",
+      "reference": "MeshCaseCatalogTest.test_stl_ascii_crlf_is_a_native_oneflow_case_with_crlf_fixture",
+      "status": "linked_not_executed",
+      "scope": "tools/test_mesh_cases.py; verifies native Case registration, absence of control.txt, parameter files and exact CRLF fixture bytes; does not execute OneFLOW."
     },
     {
       "kind": "python_test",
-      "reference": "stl_ascii_basic_python",
-      "status": "declared_not_executed",
-      "scope": "grid/stl/cases/ascii_basic; Python STL parser and planar-boundary extraction reference path, distinct from native OneFLOW runtime conversion."
+      "reference": "DesktopServiceTest.test_python_stl_development_cases_run_from_staged_workspaces",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_services.py; executes Python STL reference cases in isolated temporary workspaces, separate from native C++ runtime execution."
     }
   ],
   "group": {
