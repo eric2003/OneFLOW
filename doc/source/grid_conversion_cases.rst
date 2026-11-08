@@ -143,6 +143,30 @@ output. Independent Python reference Cases live under
 `grid/stl_to_gmsh/python/`. The existing external-flow Python preprocessing Case remains available at
 `grid/stl_to_gmsh/script/run.py` with `config/external_flow.json`.
 
+External process execution
+--------------------------
+
+Native grid conversion invokes external tools through the shared
+``ONEFLOW::RunProcess`` service in ``codes/io``. It passes the executable
+and each argument separately; it does not construct a shell command or rely on
+``std::system``. Windows uses the wide-character process API and applies
+Windows command-line argument escaping. POSIX uses ``posix_spawnp``, preserving
+argument boundaries and searching the process PATH.
+
+The process result records whether startup succeeded, the exit code, captured
+standard output/error (merged into one diagnostic stream), and a startup or
+wait error when applicable. The STL-to-Gmsh adapter includes this information,
+the executable and working directory in its failure message. This is important
+because a nonzero Gmsh exit code alone does not explain whether the failure
+came from process startup, geometry parsing, meshing, or output writing.
+
+The C++ ``ProcessRunnerTest`` covers argument boundaries, captured output,
+nonzero exit codes, and missing executables. The native STL-to-Gmsh integration
+tests use the same service for Gmsh discovery and invocation. When conversion
+fails, the integration fixture preserves its temporary Case directory and
+prints its location so that the generated ``.geo`` file and related artifacts
+can be inspected rather than disappearing during test cleanup.
+
 Coverage plan
 -------------
 

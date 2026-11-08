@@ -91,6 +91,7 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/io/src/TextFileParser.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/FileO.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/FileUtils.cpp
+    ${CMAKE_SOURCE_DIR}/codes/io/src/ProcessRunner.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/LogFile.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/PIO.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/PIOFileAccess.cpp
@@ -249,6 +250,7 @@ add_oneflow_gtest(UnsGridBoundaryTopologyRoundTripTest UnsGridBoundaryTopologyRo
 add_oneflow_gtest(GridSummaryAdapterTest GridSummaryAdapterTest.cpp)
 add_oneflow_gtest(GmshMeshReaderTest GmshMeshReaderTest.cpp)
 add_oneflow_gtest(StlMeshIOTest StlMeshIOTest.cpp)
+add_oneflow_gtest(ProcessRunnerTest ProcessRunnerTest.cpp)
 add_oneflow_gtest(StlVertexWeldingTest StlVertexWeldingTest.cpp)
 add_oneflow_gtest(GmshCgnsConversionTest GmshCgnsConversionTest.cpp)
 add_oneflow_gtest(GmshTwoQuadsOneFlowTest GmshTwoQuadsOneFlowTest.cpp)

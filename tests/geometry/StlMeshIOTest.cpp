@@ -1,6 +1,7 @@
 #include "StlMeshIO.h"
 #include "GridConversion.h"
 #include "GmshMeshReader.h"
+#include "ProcessRunner.h"
 
 #include <gtest/gtest.h>
 
@@ -14,6 +15,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <stdexcept>
 #include <set>
@@ -36,9 +38,17 @@ public:
 
     ~TemporaryDirectory()
     {
+        if ( preserve_ )
+        {
+            std::cerr << "Preserving failed test artifacts at: "
+                      << path_.string() << std::endl;
+            return;
+        }
         std::error_code error;
         std::filesystem::remove_all(path_, error);
     }
+
+    void Preserve() const { preserve_ = true; }
 
     std::filesystem::path File(const std::string& name) const
     {
@@ -47,6 +57,7 @@ public:
 
 private:
     std::filesystem::path path_;
+    mutable bool preserve_{ false };
 };
 
 const std::string kAsciiStl =
@@ -263,11 +274,9 @@ ONEFLOW::StlMesh MakeRectangleStl(double width)
 
 bool HasGmshExecutable()
 {
-#ifdef _WIN32
-    return std::system("gmsh -version > NUL 2>&1") == 0;
-#else
-    return std::system("gmsh -version >/dev/null 2>&1") == 0;
-#endif
+    const ONEFLOW::ProcessResult result =
+        ONEFLOW::RunProcess( "gmsh", { "-version" } );
+    return result.started && result.exitCode == 0;
 }
 
 void ValidateNativeStlToGmshCase(
@@ -318,7 +327,16 @@ void ValidateNativeStlToGmshCase(
     config.gmshExecutable = "gmsh";
     config.stlWeldTolerance = 1.0e-10;
 
-    ONEFLOW::ConvertGrid(config, temporary.File("").string());
+    try
+    {
+        ONEFLOW::ConvertGrid(config, temporary.File("").string());
+    }
+    catch ( const std::exception & error )
+    {
+        temporary.Preserve();
+        std::cerr << "STL-to-Gmsh case failed: " << error.what() << std::endl;
+        throw;
+    }
 
     const auto meshPath = temporary.File("results/generated.msh");
     const auto reportPath =

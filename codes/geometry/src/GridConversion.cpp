@@ -23,6 +23,7 @@ License
 #include "GridConversion.h"
 #include "GmshMeshReader.h"
 #include "StlMeshIO.h"
+#include "ProcessRunner.h"
 #include "PointLocator.h"
 #include "CgnsFactory.h"
 #include "CgnsZbase.h"
@@ -732,29 +733,6 @@ namespace
         return grid;
     }
 
-    std::string QuoteProcessArgument(const std::string& value)
-    {
-#ifdef _WIN32
-        std::string quoted = "\"";
-        for (char character : value)
-        {
-            if (character == '"') quoted += "\\\"";
-            else quoted += character;
-        }
-        quoted += "\"";
-        return quoted;
-#else
-        std::string quoted = "'";
-        for (char character : value)
-        {
-            if (character == '\'') quoted += "'\\''";
-            else quoted += character;
-        }
-        quoted += "'";
-        return quoted;
-#endif
-    }
-
     void ConvertStlToGmsh(
         const GridConfig& config,
         const std::string& caseDir)
@@ -964,16 +942,35 @@ namespace
 
         if (config.gmshExecutable.empty())
             throw std::invalid_argument("gmshExecutable must not be empty");
-        const std::string command =
-            QuoteProcessArgument(config.gmshExecutable) + " " +
-            QuoteProcessArgument(fs::absolute(geoPath).string()) +
-            " -2 -format msh4 -o " +
-            QuoteProcessArgument(fs::absolute(target).string());
-        const int processStatus = std::system(command.c_str());
-        if (processStatus != 0)
-            throw std::runtime_error(
-                "Gmsh failed with process status " + std::to_string(processStatus) +
-                ". Command: " + command);
+        const auto pathToUtf8 = []( const fs::path & path )
+        {
+            const auto value = path.u8string();
+            return std::string( value.begin(), value.end() );
+        };
+        const std::vector< std::string > gmshArguments{
+            pathToUtf8( fs::absolute( geoPath ) ),
+            "-2", "-format", "msh4", "-o",
+            pathToUtf8( fs::absolute( target ) )
+        };
+        const ProcessResult process = RunProcess(
+            config.gmshExecutable, gmshArguments,
+            pathToUtf8( fs::absolute( fs::path( caseDir ) ) ) );
+        if ( ! process.started || process.exitCode != 0 )
+        {
+            std::ostringstream diagnostic;
+            diagnostic
+                << "Gmsh process failed"
+                << "\\n  executable: " << config.gmshExecutable
+                << "\\n  working directory: "
+                << pathToUtf8( fs::absolute( fs::path( caseDir ) ) )
+                << "\\n  started: " << ( process.started ? "true" : "false" )
+                << "\\n  exit code: " << process.exitCode;
+            if ( ! process.errorMessage.empty() )
+                diagnostic << "\\n  process error: " << process.errorMessage;
+            if ( ! process.output.empty() )
+                diagnostic << "\\n  output:\\n" << process.output;
+            throw std::runtime_error( diagnostic.str() );
+        }
 
         std::ifstream meshInput(target, std::ios::binary);
         if (!meshInput)
