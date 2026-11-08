@@ -159,8 +159,24 @@ class Stl2DGmshTest(unittest.TestCase):
             for name in ("Wall", "Inlet", "Outlet", "Symmetry", "Farfield", "Fluid"):
                 self.assertIn(f'"{name}"', names)
             elements = content.split("$Elements", 1)[1].split("$EndElements", 1)[0].splitlines()
-            records = [line.split() for line in elements[1:] if line.strip()]
+            records = [line.split() for line in elements if line.strip()]
+            records = [row for row in records[1:] if len(row) >= 3 and row[0].isdigit() and row[1].isdigit()]
             self.assertTrue(any(row[1] == "1" for row in records))
             self.assertTrue(any(row[1] == "2" for row in records))
+
+    def test_stl_inspection_case_writes_report_without_touching_source_tree(self):
+        import sys
+        script = Path(__file__).parent / "script" / "inspect.py"
+        with tempfile.TemporaryDirectory() as temp:
+            report = Path(temp) / "stl_report.json"
+            subprocess.run(
+                [sys.executable, str(script), "--input", str(DATA / "square.stl"),
+                 "--output", str(report)],
+                check=True,
+            )
+            result = json.loads(report.read_text(encoding="utf-8"))
+            self.assertEqual(result["format"], "ascii")
+            self.assertEqual(result["triangle_count"], 2)
+            self.assertEqual(result["boundary_edge_count"], 4)
 
 if __name__ == "__main__": unittest.main()
