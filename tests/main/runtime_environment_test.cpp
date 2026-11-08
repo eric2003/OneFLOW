@@ -66,6 +66,7 @@ TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
     }
 
     const auto & hdf5 = document.at("dependencies").at(1);
+    const auto & hdf5Version = hdf5.at("runtime_version");
     EXPECT_EQ(hdf5.at("name"), "HDF5");
     EXPECT_TRUE(hdf5.at("enabled").is_boolean());
     EXPECT_TRUE(hdf5.at("status").is_string());
