@@ -55,8 +55,7 @@
       "grid/stl_to_gmsh/README.md",
       "doc/source/stl_to_gmsh_2d.rst",
       "doc/source/gmsh_interface.rst",
-      "doc/source/grid_conversion_cases.rst",
-      "grid/stl_to_gmsh/develop_test/run_cases.py"
+      "doc/source/grid_conversion_cases.rst"
     ]
   },
   "claims": {

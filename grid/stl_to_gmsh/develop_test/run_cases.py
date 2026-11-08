@@ -55,6 +55,8 @@ def execute(command: list[str], case_directory: Path) -> None:
         command,
         cwd=REPOSITORY_ROOT,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         capture_output=True,
         check=False,
     )
