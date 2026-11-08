@@ -505,7 +505,7 @@ void WriteRuntimeEnvironmentText(
             {
                 output << "  Header path     : "
                        << headerVersion["header_path"].get<std::string>()
-                       << '\\n';
+                       << '\n';
             }
         }
 
