@@ -66,7 +66,8 @@
       "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/inflow.txt",
       "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/turb.txt",
       "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/walldist.txt",
-      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/solver.txt"
+      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/solver.txt",
+      "grid/stl_to_gmsh/square_2x2/README.md"
     ]
   },
   "documentation": {

@@ -68,6 +68,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             (square / "input/model.stl").read_bytes(),
             (square_2x2 / "input/model.stl").read_bytes(),
         )
+        self.assertTrue((square_2x2 / "README.md").is_file())
         layout = json.loads(
             (square_2x2 / "script/layout.json").read_text(encoding="utf-8")
         )
