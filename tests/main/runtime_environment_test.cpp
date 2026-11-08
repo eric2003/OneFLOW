@@ -47,6 +47,24 @@ TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
     EXPECT_TRUE(hdf5.contains("runtime_library"));
 }
 
+TEST(RuntimeEnvironmentCommandTest, ReportsUnavailableHdf5RuntimeVersionInText)
+{
+    char executable[] = "OneFLOW";
+    char environment[] = "--environment";
+    char * arguments[] = { executable, environment };
+
+    std::ostringstream output;
+    std::ostringstream error;
+    const int status = ONEFLOW::HandleRuntimeEnvironmentCommand(
+        2, arguments, output, error);
+
+    ASSERT_EQ(status, 0) << error.str();
+    const std::string report = output.str();
+    EXPECT_NE(report.find("HDF5"), std::string::npos);
+    EXPECT_NE(report.find("Runtime version : unavailable"), std::string::npos);
+    EXPECT_NE(report.find("runtime_api_symbol_not_found"), std::string::npos);
+}
+
 TEST(RuntimeEnvironmentCommandTest, PrintsOneFlowVersion)
 {
     char executable[] = "OneFLOW";
