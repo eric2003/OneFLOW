@@ -105,7 +105,7 @@ jobs:
 
       - name: Run STL-to-CFD development pipeline
         env:
-          ONEFLOW_EXECUTABLE: ${{ github.workspace }}/build/bin/Release/OneFLOW.exe
+          ONEFLOW_EXECUTABLE: ${{ github.workspace }}/build/bin/OneFLOW.exe
           HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/1.14.3
           CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/4.5.2
           MSMPI_ROOT: "C:/Program Files/Microsoft MPI"
