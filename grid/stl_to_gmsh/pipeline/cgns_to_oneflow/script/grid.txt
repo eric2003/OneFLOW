@@ -1,0 +1,13 @@
+string meshInputRoot = "default";
+string meshOutputRoot = "default";
+
+int gridObj = 1;
+string topoType = "u";
+int multiBlock = 0;
+string gridLayoutFileName = "results/square.cgns";
+string sourceGridType = "cgns";
+string targetGridType = "oneflow";
+string sourceGridFileName = "results/square.cgns";
+string sourceGridBcName = "";
+string targetGridFileName = "results/square.oneflow.grid";
+string gridInfoFileName = "results/square.info.json";

@@ -247,3 +247,70 @@ The Case catalog and conversion matrix have different jobs. Do not duplicate
 runtime parameter values in either registry. The Case's existing OneFLOW
 parameter files remain the source of runtime configuration, while the matrix
 describes route and coverage metadata.
+
+
+STL-to-CFD dependency workflow
+-------------------------------
+
+The STL-to-Gmsh development Cases now include a square_2x2 variant. It uses
+the same square STL input as the one-cell square Case; only the transfinite
+cell counts change to 2 x 2. The expected MSH 4.1 topology is nine nodes,
+eight exterior LINE_2 elements, and four QUAD_4 cells. Its four external
+Physical Groups remain inflow, outflow, symmetry, and farfield, with
+fluid_domain on the surface.
+
+The optional development pipeline composes four standard OneFLOW Cases:
+
+.. code-block:: text
+
+   STL square_2x2
+       |
+       v
+   native STL -> Gmsh MSH 4.1
+       |
+       v
+   Gmsh -> CGNS
+       |
+       v
+   CGNS -> OneFLOW native grid
+       |
+       v
+   SLAU2 CFD Solve (50 steps)
+       |
+       v
+   residual + restart flow + visualization
+
+The workflow definition is
+grid/stl_to_gmsh/develop_test/stl_square_to_cfd.json. It reuses the
+Qt-independent dependency planner and graph runner in tools/oneflow_gui.
+Each stage declares its required input artifact and output artifact. The
+runner copies source Cases to a unique run directory outside the repository,
+binds producer outputs through sourceGridCaseDir and relative filenames,
+and prevents a consumer from starting when a dependency or declared
+artifact has failed. The checked-in Case parameter files remain unchanged.
+
+Run the workflow from the repository root after building OneFLOW and making
+Gmsh available on PATH:
+
+.. code-block:: console
+
+   python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline-only
+
+The default staging root is
+%USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows and
+$HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. A unique
+pipelines/<run-id>/ directory contains each staged Case, process logs,
+pipeline-report.json, environment.json and run-manifest.json. The source
+repository is not used as a runtime workspace.
+
+Before CGNS conversion, the pipeline independently reopens the MSH 4.1 file
+and checks the expected node, boundary-line and quadrilateral counts as well
+as all five Physical Names. After CFD, it requires non-empty residual,
+restart-flow and visualization files. The conversion stages additionally
+exercise OneFLOW's own Gmsh, CGNS and native-grid readers/writers.
+
+This is an end-to-end runtime smoke test, not a numerical-accuracy proof.
+A successful 50-step run does not establish convergence, conservation,
+boundary-condition correctness, or grid independence. Those require
+subsequent residual-history, finite/positive flow-state, flux-balance, and
+analytical or manufactured-solution verification.

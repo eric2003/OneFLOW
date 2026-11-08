@@ -254,6 +254,14 @@
       "group": "STL to Gmsh"
     },
     {
+      "id": "stl_to_gmsh_square_2x2",
+      "title": "STL to Gmsh: Four Cells on the Same Square Geometry (Native C++)",
+      "directory": "grid/stl_to_gmsh/square_2x2",
+      "profile": null,
+      "layout": null,
+      "group": "STL to Gmsh"
+    },
+    {
       "id": "stl_to_gmsh_two_square_cells",
       "title": "STL to Gmsh: Two Adjacent Square Cells (Native C++)",
       "directory": "grid/stl_to_gmsh/two_square_cells",

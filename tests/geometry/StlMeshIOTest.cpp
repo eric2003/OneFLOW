@@ -379,6 +379,12 @@ TEST(StlMeshIOTest, NativeStlToGmshGeneratesTwoSquareCells)
     TemporaryDirectory temporary;
     ValidateNativeStlToGmshCase(temporary, 2.0, 2, 1, 6, 6, 2);
 }
+
+TEST(StlMeshIOTest, NativeStlToGmshGeneratesFourCellsFromSquareGeometry)
+{
+    TemporaryDirectory temporary;
+    ValidateNativeStlToGmshCase(temporary, 1.0, 2, 2, 9, 8, 4);
+}
 #endif
 
 TEST(StlMeshIOTest, ExtractsSquareBoundaryAndRemovesStlDiagonal)

@@ -7,13 +7,16 @@ and the C++ Geometry conversion pipeline.
 | Implementation | Case | Transfinite cells | Nodes | QUAD_4 | Boundary LINE_2 |
 |---|---|---:|---:|---:|---:|
 | Native C++ | square | 1 x 1 | 4 | 1 | 4 |
+| Native C++ | square_2x2 | 2 x 2 | 9 | 4 | 8 |
 | Native C++ | two_square_cells | 2 x 1 | 6 | 2 | 6 |
 | Python | python/square | 1 x 1 | 4 | 1 | 4 |
 | Python | python/two_square_cells | 2 x 1 | 6 | 2 | 6 |
 
 The STL files describe the outer boundary. Their triangle diagonals are
-triangulation edges, not CFD cell interfaces. The two-cell split at x = 1
-comes from transfinite_cells.x = 2, not from STL triangles.
+triangulation edges, not CFD cell interfaces. The square and square_2x2 Cases
+use byte-identical STL geometry: only transfinite_cells changes from 1 x 1
+to 2 x 2. The two_square_cells Case deliberately uses a different, 2 x 1
+rectangle; its split comes from transfinite_cells.x = 2, not from STL triangles.
 
 ## Boundary contract
 
@@ -57,10 +60,48 @@ $HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. It recreates only
 the four named Case staging directories and leaves generated meshes, reports,
 and logs outside the repository source tree.
 
+## STL-to-CFD pipeline
+
+The optional dependency workflow uses the same square geometry and the
+2 x 2 (four-cell) layout. It executes four standard OneFLOW Cases in order:
+
+1. STL -> Gmsh: native C++ Grid task creates and validates results/square_2x2.msh.
+2. Gmsh -> CGNS: the existing conversion Case consumes that MSH artifact and writes results/square.cgns.
+3. CGNS -> OneFLOW: the pipeline CGNS consumer Case writes results/square.oneflow.grid.
+4. CFD Solve: the existing 50-step SLAU2 solver Case consumes the native grid and must produce residual, restart-flow and visualization outputs.
+
+The workflow reuses the Workbench dependency graph, artifact bindings and
+isolated case staging. It does not duplicate generated files into each
+consumer: sourceGridCaseDir plus the relative artifact path identifies the
+producer output. Each staged Case and its logs live below the user's
+.oneflow/mesh-layout-test/grid/stl_to_gmsh/pipelines directory. The source
+Case tree and its parameter files are never modified.
+
+Run only the end-to-end pipeline:
+
+    python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline-only
+
+Run the standalone geometry Cases first, followed by the pipeline:
+
+    python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline
+
+The pipeline writes pipeline-report.json, environment.json and
+run-manifest.json beside its staged Cases. It independently checks the MSH
+4.1 node/line/quad counts and Physical Groups before allowing CGNS conversion
+to proceed. It also requires non-empty residual, restart and visualization
+outputs after CFD execution.
+
+This first CFD stage is a runtime smoke test: it proves that the generated
+mesh can be consumed and a solver can execute and write results. It is not
+yet a claim of numerical accuracy, convergence, or grid-independence. Those
+require separate residual/physical-state checks and analytical or manufactured
+solution comparisons.
+
 ## Development tests
 
     python -m unittest grid.stl_to_gmsh.develop_test.test_cases
     python tools/mesh_cases.py validate stl_to_gmsh_square
+    python tools/mesh_cases.py validate stl_to_gmsh_square_2x2
     python tools/mesh_cases.py validate stl_to_gmsh_two_square_cells
 
 Tests use temporary output directories. The first native stage supports one
