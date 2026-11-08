@@ -151,14 +151,13 @@ Current persistence behavior
 ----------------------------
 
 The standalone JSON command writes to standard output; it does not create a file
-by itself. The Project Workbench now captures the selected executable's
-environment at run start and stores it under
+by itself. The Project Workbench and Case Workbench queue capture the selected
+executable's environment at run start and store it under
 ``~/.oneflow/workflow-data/executions/<run-id>/`` (or the equivalent
 ``ONEFLOW_HOME`` root). The snapshot is written even if the query fails: a
 failed query produces a small JSON diagnostic document and does not prevent
-the CFD project from running. Catalog Case-queue integration is a separate
-follow-up and is not yet covered by this persistence slice. A user can still
-save a standalone point-in-time report using the redirection examples above.
+the CFD run from starting. A user can still save a standalone point-in-time
+report using the redirection examples above.
 
 Workbench settings, workflow definitions, run history, and execution
 workspaces have separate storage responsibilities under the OneFLOW user data
@@ -204,7 +203,10 @@ path, command template, working directory, source project directory,
 execution mode, relative environment report path, environment schema/query
 status, and process return code. The Project Workbench run-history record
 links to the absolute paths of both evidence files in its project-step
-metadata.
+metadata. The Run History dialog resolves those links when a record is
+selected and displays the parsed Environment Report and Run Manifest JSON in
+the run-details pane. Legacy history records without evidence links remain
+readable and are marked as not linked.
 
 A retry creates a new Run ID and a new evidence directory. Existing snapshots
 are not overwritten. The environment report is evidence, not configuration;
