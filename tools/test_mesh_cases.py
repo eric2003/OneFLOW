@@ -29,6 +29,22 @@ class MeshCaseCatalogTest(unittest.TestCase):
         ]
         self.assertEqual(errors, [])
 
+    def test_stl_ascii_basic_is_a_native_oneflow_case(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        entry = next(case for case in catalog["cases"] if case["id"] == "stl_ascii_basic")
+        self.assertEqual(entry["directory"], "grid/stl/ascii_basic")
+        self.assertEqual(entry["runtimeConfig"], "script/control.txt")
+        self.assertNotIn("execution", entry)
+        case_dir = REPOSITORY_ROOT / entry["directory"]
+        control = (case_dir / "script" / "control.txt").read_text(encoding="utf-8")
+        grid = (case_dir / "script" / "grid.txt").read_text(encoding="utf-8")
+        self.assertIn('"simu.txt";', control)
+        self.assertIn('"grid.txt";', control)
+        self.assertIn('string sourceGridType = "stl";', grid)
+        self.assertIn('string targetGridType = "cgns";', grid)
+        self.assertIn("Real stlWeldTolerance = 1.0e-10;", grid)
+        self.assertTrue((case_dir / "input" / "model.stl").is_file())
+        self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
     def test_turbulent_flat_plate_uses_requested_bounds_and_tanh_distribution(self) -> None:
         case_dir = REPOSITORY_ROOT / "grid" / "turbulent_flat_plate"
         with (case_dir / "case.json").open("r", encoding="utf-8") as stream:
