@@ -103,44 +103,16 @@
     },
     {
       "id": "stl_ascii_basic",
-      "title": "STL ASCII Basic (OneFLOW C++)",
+      "title": "STL ASCII Basic",
       "directory": "grid/stl/ascii_basic",
       "profile": null,
       "layout": null,
       "group": "STL"
     },
     {
-      "id": "stl_ascii_basic_python",
+      "id": "stl_python_ascii_basic",
       "title": "STL ASCII Basic (Python reference)",
-      "directory": "grid/stl/cases/ascii_basic",
-      "group": "STL",
-      "execution": {
-        "kind": "python",
-        "script": "grid/stl/run_case.py"
-      }
-    },
-    {
-      "id": "stl_ascii_crlf_native",
-      "title": "STL ASCII CRLF (OneFLOW C++)",
-      "directory": "grid/stl/ascii_crlf",
-      "profile": null,
-      "layout": null,
-      "group": "STL"
-    },
-    {
-      "id": "stl_binary_basic",
-      "title": "STL Binary Basic",
-      "directory": "grid/stl/cases/binary_basic",
-      "group": "STL",
-      "execution": {
-        "kind": "python",
-        "script": "grid/stl/run_case.py"
-      }
-    },
-    {
-      "id": "stl_binary_header_solid",
-      "title": "STL Binary Header Starts with solid",
-      "directory": "grid/stl/cases/binary_header_solid",
+      "directory": "grid/stl/python/ascii_basic",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -149,8 +121,36 @@
     },
     {
       "id": "stl_ascii_crlf",
+      "title": "STL ASCII CRLF",
+      "directory": "grid/stl/ascii_crlf",
+      "profile": null,
+      "layout": null,
+      "group": "STL"
+    },
+    {
+      "id": "stl_python_binary_basic",
+      "title": "STL Binary Basic (Python reference)",
+      "directory": "grid/stl/python/binary_basic",
+      "group": "STL",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl/run_case.py"
+      }
+    },
+    {
+      "id": "stl_python_binary_header_solid",
+      "title": "STL Binary Header Starts with solid (Python reference)",
+      "directory": "grid/stl/python/binary_header_solid",
+      "group": "STL",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl/run_case.py"
+      }
+    },
+    {
+      "id": "stl_python_ascii_crlf",
       "title": "STL ASCII CRLF (Python reference)",
-      "directory": "grid/stl/cases/ascii_crlf",
+      "directory": "grid/stl/python/ascii_crlf",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -158,9 +158,9 @@
       }
     },
     {
-      "id": "stl_scientific_notation",
-      "title": "STL Scientific Notation",
-      "directory": "grid/stl/cases/scientific_notation",
+      "id": "stl_python_scientific_notation",
+      "title": "STL Scientific Notation (Python reference)",
+      "directory": "grid/stl/python/scientific_notation",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -168,9 +168,9 @@
       }
     },
     {
-      "id": "stl_degenerate_triangle",
-      "title": "STL Degenerate Triangle Diagnostic",
-      "directory": "grid/stl/cases/degenerate_triangle",
+      "id": "stl_python_degenerate_triangle",
+      "title": "STL Degenerate Triangle Diagnostic (Python reference)",
+      "directory": "grid/stl/python/degenerate_triangle",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -178,9 +178,9 @@
       }
     },
     {
-      "id": "stl_truncated_binary",
-      "title": "STL Truncated Binary Diagnostic",
-      "directory": "grid/stl/cases/truncated_binary",
+      "id": "stl_python_truncated_binary",
+      "title": "STL Truncated Binary Diagnostic (Python reference)",
+      "directory": "grid/stl/python/truncated_binary",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -188,9 +188,9 @@
       }
     },
     {
-      "id": "stl_non_planar_surface",
-      "title": "STL Non-planar Surface Diagnostic",
-      "directory": "grid/stl/cases/non_planar_surface",
+      "id": "stl_python_non_planar_surface",
+      "title": "STL Non-planar Surface Diagnostic (Python reference)",
+      "directory": "grid/stl/python/non_planar_surface",
       "group": "STL",
       "execution": {
         "kind": "python",

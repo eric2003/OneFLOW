@@ -52,7 +52,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
     def test_stl_ascii_crlf_is_a_native_oneflow_case_with_crlf_fixture(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         entry = next(
-            case for case in catalog["cases"] if case["id"] == "stl_ascii_crlf_native"
+            case for case in catalog["cases"] if case["id"] == "stl_ascii_crlf"
         )
         self.assertEqual(entry["directory"], "grid/stl/ascii_crlf")
         self.assertNotIn("runtimeConfig", entry)
@@ -69,6 +69,22 @@ class MeshCaseCatalogTest(unittest.TestCase):
             ["dimension.txt", "grid.txt", "simu.txt"],
         )
         self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
+
+    def test_stl_catalog_uses_language_neutral_case_names_and_python_namespace(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        stl_cases = [case for case in catalog["cases"] if case.get("group") == "STL"]
+        self.assertEqual(len(stl_cases), 10)
+
+        for entry in stl_cases:
+            parts = entry["directory"].split("/")
+            execution = entry.get("execution")
+            if isinstance(execution, dict) and execution.get("kind") == "python":
+                self.assertEqual(parts[:3], ["grid", "stl", "python"])
+                self.assertEqual(entry["id"], f"stl_python_{parts[-1]}")
+            else:
+                self.assertEqual(parts[:2], ["grid", "stl"])
+                self.assertEqual(len(parts), 3)
+                self.assertEqual(entry["id"], f"stl_{parts[-1]}")
 
     def test_turbulent_flat_plate_uses_requested_bounds_and_tanh_distribution(self) -> None:
         case_dir = REPOSITORY_ROOT / "grid" / "turbulent_flat_plate"

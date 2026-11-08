@@ -5,7 +5,7 @@
   "domain": "mesh",
   "kind": "mesh_format_adapter",
   "status": "partially_verified",
-  "overview": "Native C++ STL surface reader and writer in OneFLOW Geometry. The implementation preserves source facets, binary headers and attributes while keeping parsing separate from topology construction. The Python grid/stl utility remains a separate planar-boundary and Gmsh-generation tool. The native grid/stl/ascii_basic Case runs through OneFLOW's standard Grid task and converts its ASCII STL fixture to a surface CGNS mesh. The original Python ASCII-basic case is retained as an independently registered reference utility case rather than discarded or treated as a competing production backend.",
+  "overview": "Native C++ STL surface reader and writer in OneFLOW Geometry. The implementation preserves source facets, binary headers and attributes while keeping parsing separate from topology construction. The Python grid/stl utility remains a separate planar-boundary and Gmsh-generation tool. The native grid/stl/ascii_basic Case runs through OneFLOW's standard Grid task and converts its ASCII STL fixture to a surface CGNS mesh. Python STL reference cases are retained under grid/stl/python rather than discarded or treated as competing production backends.",
   "principle": "STL stores an ordered sequence of triangle facets, not a shared-vertex mesh or CFD volume mesh. Preserve each facet's stored normal, ordered vertices, binary attribute value and binary header. Do not weld vertices, repair normals, infer units, invent boundary groups or assign solver boundary conditions during parsing. Binary records require explicit little-endian decoding; a header beginning with 'solid' is not proof of ASCII.",
   "architecture": "ASCII/Binary STL -> C++ StlMeshReader -> value-based StlMesh -> explicit tolerance-based vertex welding -> UnstructuredMeshData triangle surface -> UnstructuredCgnsZoneWriter. The reader/writer remain independent; the Case-level conversion composes them with the existing CGNS writer.",
   "references": [
@@ -29,7 +29,11 @@
       "grid/stl/ascii_crlf/script/dimension.txt",
       "grid/stl/ascii_crlf/script/simu.txt",
       "grid/stl/ascii_crlf/script/grid.txt",
-      "grid/stl/ascii_crlf/input/model.stl"
+      "grid/stl/ascii_crlf/input/model.stl",
+      "grid/stl/python/ascii_basic/expected.json",
+      "grid/stl/python/ascii_basic/input/model.stl",
+      "grid/stl/python/ascii_crlf/expected.json",
+      "grid/stl/python/ascii_crlf/input/model.stl"
     ]
   },
   "documentation": {
@@ -48,7 +52,7 @@
       "The stl_ascii_basic catalog entry is a native OneFLOW runtime Case, not a Python execution case.",
       "The native Case converts its two-facet ASCII STL input into an unstructured surface CGNS zone using the configured stlWeldTolerance.",
       "The native planar STL Case runs without script/control.txt; its script parameter files are discovered by the runtime loader and dimension = 2 is explicitly declared.",
-      "The native stl_ascii_crlf_native Case exercises the C++ STL-to-CGNS route using a CRLF ASCII fixture, without a control.txt manifest.",
+      "The native stl_ascii_crlf Case exercises the C++ STL-to-CGNS route using a CRLF ASCII fixture, without a control.txt manifest.",
       "The original Python stl_ascii_basic reference case remains registered separately from the native C++ stl_ascii_basic runtime Case."
     ],
     "does_not_prove": [
@@ -117,7 +121,7 @@
       "kind": "python_test",
       "reference": "DesktopServiceTest.test_python_stl_development_cases_run_from_staged_workspaces",
       "status": "linked_not_executed",
-      "scope": "tools/oneflow_gui/test_services.py; executes Python STL reference cases in isolated temporary workspaces, separate from native C++ runtime execution."
+      "scope": "tools/oneflow_gui/test_services.py; executes Python STL reference cases under grid/stl/python in isolated temporary workspaces, separate from native C++ runtime execution."
     }
   ],
   "group": {

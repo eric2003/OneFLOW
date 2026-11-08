@@ -51,16 +51,18 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertEqual(cases_by_id["stl_ascii_basic"].execution_kind, "oneflow")
         self.assertIsNone(cases_by_id["stl_ascii_basic"].runtime_config)
         self.assertIsNone(cases_by_id["stl_ascii_basic"].execution_script)
-        self.assertEqual(cases_by_id["stl_ascii_crlf_native"].execution_kind, "oneflow")
-        self.assertEqual(cases_by_id["stl_ascii_basic_python"].execution_kind, "python")
-        self.assertIsNone(cases_by_id["stl_ascii_crlf_native"].runtime_config)
-        self.assertIsNone(cases_by_id["stl_ascii_crlf_native"].execution_script)
+        self.assertEqual(cases_by_id["stl_ascii_crlf"].execution_kind, "oneflow")
+        self.assertEqual(cases_by_id["stl_python_ascii_basic"].execution_kind, "python")
+        self.assertEqual(cases_by_id["stl_python_ascii_crlf"].execution_kind, "python")
+        self.assertIsNone(cases_by_id["stl_ascii_crlf"].runtime_config)
+        self.assertIsNone(cases_by_id["stl_ascii_crlf"].execution_script)
 
         python_cases = [case for case in cases if case.execution_kind == "python"]
         self.assertEqual(len(python_cases), 8)
         self.assertTrue(all(case.runtime_config is None for case in python_cases))
         self.assertTrue(all(case.execution_script is not None and case.execution_script.is_file()
                             for case in python_cases))
+        self.assertTrue(all(case.case_directory.parent.name == "python" for case in python_cases))
 
     def test_python_stl_development_cases_run_from_staged_workspaces(self) -> None:
         cases = [
@@ -84,7 +86,7 @@ class DesktopServiceTest(unittest.TestCase):
     def test_native_stl_cases_are_staged_without_runtime_manifests(self) -> None:
         cases = [
             case for case in load_cases(REPOSITORY_ROOT)
-            if case.case_id in {"stl_ascii_basic", "stl_ascii_crlf_native"}
+            if case.case_id in {"stl_ascii_basic", "stl_ascii_crlf"}
         ]
         self.assertEqual(len(cases), 2)
         with tempfile.TemporaryDirectory() as directory:
@@ -97,7 +99,7 @@ class DesktopServiceTest(unittest.TestCase):
                 self.assertTrue((staged / "script" / "grid.txt").is_file())
                 self.assertTrue((staged / "input" / "model.stl").is_file())
                 self.assertFalse((case.case_directory / "results").exists())
-            crlf_fixture = (staged_cases["stl_ascii_crlf_native"] / "input" / "model.stl").read_bytes()
+            crlf_fixture = (staged_cases["stl_ascii_crlf"] / "input" / "model.stl").read_bytes()
             self.assertIn(bytes((13, 10)), crlf_fixture)
 
     def test_executable_discovery_prefers_debug_then_release_then_install(self) -> None:

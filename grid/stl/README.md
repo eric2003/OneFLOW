@@ -32,7 +32,7 @@ STL defines geometry and triangle topology, not CFD boundary conditions. Boundar
 
 ## Development test cases
 
-STL reader compatibility cases are registered in `grid/case_catalog.json` under the `STL` group and appear in **Select Development Test Cases**. Each case supplies `input/model.stl` and `expected.json`; the shared runner writes `results/stl_report.json` in the staged case workspace.
+STL reader compatibility cases are registered in `grid/case_catalog.json` under the `STL` group and appear in **Select Development Test Cases**. Each Python reference case lives under `grid/stl/python/<case>` and supplies `input/model.stl` and `expected.json`; the shared runner writes `results/stl_report.json` in the staged case workspace. Native OneFLOW cases live directly under `grid/stl/<case>` and run through the standard OneFLOW runtime.
 
 The initial collection covers ASCII and binary STL, binary headers beginning with `solid`, CRLF text, scientific notation, degenerate triangles, truncated binary data, and non-planar surfaces. Expected diagnostic failures count as passing tests when the observed diagnostic matches the case expectation.
 
@@ -52,3 +52,14 @@ The binary STL test builds its fixture in a temporary directory. Tests that gene
 ## Scope
 
 Arbitrarily oriented plane projection, multiple disconnected bodies, internal holes, non-planar surface repair, and a general-purpose production Mesh Core STL reader are not claimed by this first milestone.
+
+
+## Case directory convention
+
+- Native OneFLOW case: `grid/stl/<case>`, catalog ID `stl_<case>`.
+- Python reference case: `grid/stl/python/<case>`, catalog ID `stl_python_<case>`.
+
+The case name describes the input variant (for example, `ascii_crlf`); the
+directory and execution metadata identify the implementation path. The
+catalog requires globally unique IDs, so Python references use the
+`stl_python_` namespace.

@@ -233,22 +233,22 @@ extraction and Gmsh geometry generation. They have a different responsibility:
 * Later conversion adapter: validated surface topology into a mesher or
   OneFLOW Mesh Core representation.
 
-The Python STL development cases currently registered in the development
+The Python STL development cases under ``grid/stl/python/`` currently registered in the development
 case catalog exercise the Python utility only. They must not be described as
 native C++ STL reader tests. Python reference cases remain useful when they
 exercise distinct behavior or provide an independent cross-check; they are
 not duplicate production backends. In particular, the original
-``grid/stl/cases/ascii_basic`` Python case is retained and registered as
-``stl_ascii_basic_python`` alongside the native ``stl_ascii_basic`` Case.
+``grid/stl/python/ascii_basic`` Python case is retained and registered as
+``stl_python_ascii_basic`` alongside the native ``stl_ascii_basic`` Case.
 They share a simple input shape but verify different implementation paths:
 Python checks the reference utility's parsing and planar-boundary extraction,
 while C++ checks OneFLOW's native reader, topology conversion and CGNS output. The native ``stl_ascii_basic`` and
-``stl_ascii_crlf_native`` Cases exercise the production C++ route, with the
-latter preserving CRLF line endings in its fixture. The first native C++ GoogleTest target is now
+``stl_ascii_crlf`` Cases exercise the production C++ route, with the latter
+preserving CRLF line endings in its fixture. The first native C++ GoogleTest target is now
 registered with CTest through the geometry test helper. Additional STL cases should be added there as reader/writer coverage expands.
-The registered Python ``stl_ascii_basic_python`` and
-``stl_ascii_crlf`` reference cases and native
-``stl_ascii_crlf_native`` integration Case have distinct responsibilities:
+The registered Python ``stl_python_ascii_basic`` and
+``stl_python_ascii_crlf`` reference cases and native
+``stl_ascii_crlf`` integration Case have distinct responsibilities:
 the former checks the Python utility, while the latter exercises the C++
 reader through OneFLOW's normal Grid task and CGNS conversion path.
 
@@ -309,3 +309,15 @@ explicit (`int dimension = 2;`); it is a runtime parameter, not an inferred
 property of the STL file. The Case catalog and preflight validator also support
 native Cases without a runtime manifest and validate their discovered
 `script/*.txt` parameter files.
+
+
+STL case directory convention
+------------------------------
+
+STL Case names describe the input and expected behavior, not the implementation
+language. Native OneFLOW Cases live directly under ``grid/stl/<case>`` and use
+IDs such as ``stl_ascii_crlf``. Python reference Cases live under
+``grid/stl/python/<case>`` and use the ``stl_python_<case>`` catalog namespace
+because catalog IDs are globally unique. This keeps the case identity readable
+while making the implementation boundary explicit in the directory and
+execution metadata. New STL Cases must follow this convention.
