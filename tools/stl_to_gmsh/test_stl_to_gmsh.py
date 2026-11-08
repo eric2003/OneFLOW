@@ -93,7 +93,7 @@ class Stl2DGmshTest(unittest.TestCase):
             content = geo.read_text(encoding="utf-8")
             self.assertEqual(report["body_boundary_edges"], 4)
             self.assertIn("Curve Loop(1) = {5, 6, 7, 8};", content)
-            self.assertIn("Curve Loop(2) = {-4, -3, -2, -1};", content)
+            self.assertIn("Curve Loop(2) = {1, 2, 3, 4};", content)
             self.assertIn("Plane Surface(1) = {1, 2};", content)
             for name in ("Wall", "Inlet", "Outlet", "Symmetry", "Farfield", "Fluid"):
                 self.assertIn(f'Physical Curve("{name}")' if name != "Fluid"
