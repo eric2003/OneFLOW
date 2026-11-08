@@ -960,15 +960,15 @@ namespace
             std::ostringstream diagnostic;
             diagnostic
                 << "Gmsh process failed"
-                << "\\n  executable: " << config.gmshExecutable
-                << "\\n  working directory: "
+                << "\n  executable: " << config.gmshExecutable
+                << "\n  working directory: "
                 << pathToUtf8( fs::absolute( fs::path( caseDir ) ) )
-                << "\\n  started: " << ( process.started ? "true" : "false" )
-                << "\\n  exit code: " << process.exitCode;
+                << "\n  started: " << ( process.started ? "true" : "false" )
+                << "\n  exit code: " << process.exitCode;
             if ( ! process.errorMessage.empty() )
-                diagnostic << "\\n  process error: " << process.errorMessage;
+                diagnostic << "\n  process error: " << process.errorMessage;
             if ( ! process.output.empty() )
-                diagnostic << "\\n  output:\\n" << process.output;
+                diagnostic << "\n  output:\\n" << process.output;
             throw std::runtime_error( diagnostic.str() );
         }
 

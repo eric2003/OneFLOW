@@ -57,7 +57,7 @@ namespace
             static_cast< int >( value.size() ), nullptr, 0 );
         if ( count <= 0 )
             throw std::runtime_error( "Invalid UTF-8 process argument" );
-        std::wstring result( static_cast< std::size_t >( count ), L'\\0' );
+        std::wstring result( static_cast< std::size_t >( count ), L'\0' );
         if ( MultiByteToWideChar(
                  CP_UTF8, MB_ERR_INVALID_CHARS, value.data(),
                  static_cast< int >( value.size() ), result.data(), count ) != count )
@@ -96,7 +96,7 @@ namespace
     {
         if ( executable.find_first_of( L"\\/" ) != std::wstring::npos )
             return executable;
-        std::vector< wchar_t > buffer( 32768, L'\\0' );
+        std::vector< wchar_t > buffer( 32768, L'\0' );
         const DWORD length = SearchPathW(
             nullptr, executable.c_str(), L".exe",
             static_cast< DWORD >( buffer.size() ), buffer.data(), nullptr );
