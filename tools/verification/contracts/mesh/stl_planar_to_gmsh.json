@@ -7,7 +7,7 @@
   "status": "partially_verified",
   "overview": "Reads one planar STL body loop, reconstructs its boundary, and generates either a directly bounded planar region or an external-flow fluid domain with the STL body as a wall hole and named outer boundary groups.",
   "principle": "STL facets carry coordinates and triangle topology, not standard CFD boundary-condition semantics. Singly incident triangle edges reconstruct the body loop. A sidecar either assigns names to a planar region boundary or defines a rectangular external-flow domain whose four sides are Inlet, Outlet, Symmetry and Farfield and whose internal STL loop is Wall. Physical names require a separate mapping to OneFLOW BC semantics.",
-  "architecture": "Native C++: STL -> StlMeshReader -> tolerance-based vertex welding and single planar boundary loop -> explicit Case layout JSON -> Gmsh .geo -> configured Gmsh CLI -> MSH 4.1 -> existing C++ Gmsh reader and topology/Physical Group validation. Independent Python reference Cases use grid/stl/stl_to_gmsh.py. The earlier Python external-flow workflow remains a separate mode.",
+  "architecture": "Native C++: STL -> StlMeshReader -> tolerance-based vertex welding and single planar boundary loop -> explicit Case layout JSON -> Gmsh .geo -> configured Gmsh CLI -> MSH 4.1 -> existing C++ Gmsh reader and topology/Physical Group validation. Independent Python reference Cases use grid/stl/stl_to_gmsh.py. The existing external-flow Python preprocessing Case at grid/stl_to_gmsh/script/run.py with config/external_flow.json remains a separate mode.",
   "references": [
     "Gmsh transfinite meshes: https://gmsh.info/doc/texinfo/gmsh.html#t6",
     "Gmsh MSH physical groups: https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format",
@@ -42,7 +42,10 @@
       "grid/stl_to_gmsh/python/square/script/layout.json",
       "grid/stl_to_gmsh/python/two_square_cells/expected.json",
       "grid/stl_to_gmsh/python/two_square_cells/input/model.stl",
-      "grid/stl_to_gmsh/python/two_square_cells/script/layout.json"
+      "grid/stl_to_gmsh/python/two_square_cells/script/layout.json",
+      "grid/stl_to_gmsh/script/run.py",
+      "grid/stl_to_gmsh/config/external_flow.json",
+      "grid/stl_to_gmsh/input/body.stl"
     ]
   },
   "documentation": {

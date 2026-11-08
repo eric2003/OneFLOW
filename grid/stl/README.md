@@ -40,10 +40,11 @@ Python development cases do not require a OneFLOW executable. In the Tests dialo
 
 ## STL to Gmsh generation
 
-The earlier Python planar meshing prototype remains under `grid/stl/stl_to_gmsh/`.
-The primary native C++ Cases and independent Python reference Cases are now
-organized under `grid/stl_to_gmsh/`: `square`, `two_square_cells`, and
-`python/<case>`. See `grid/stl_to_gmsh/README.md` for the Case workflow.
+The existing external-flow Python preprocessing Case remains under
+`grid/stl_to_gmsh/script/run.py` with its `config/external_flow.json` input.
+The native C++ Cases and independent Python reference Cases are organized
+beside it under `grid/stl_to_gmsh/`: `square`, `two_square_cells`, and
+`python/<case>`. See `grid/stl_to_gmsh/README.md` for both workflows.
 
 The cell layout is declared by `transfinite_cells.x` and
 `transfinite_cells.y`, not inferred from STL triangle diagonals. Gmsh output

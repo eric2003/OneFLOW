@@ -50,3 +50,24 @@ Tests use temporary output directories. The first native stage supports one
 connected, axis-aligned rectangular XY boundary and structured QUAD_4 layouts.
 Multiple loops, holes, curved/rotated boundaries, unstructured size fields,
 and 3-D volume meshing are not claimed.
+
+## Existing external-flow workflow (preserved)
+
+The original external-flow preprocessing case remains available alongside
+the native square Cases. It reads input/body.stl and applies
+config/external_flow.json. The STL body is an internal Wall boundary; the
+rectangular fluid domain has Inlet, Outlet, Symmetry, and Farfield Physical
+Curve groups, and the fluid region is named Fluid. These names are Gmsh
+physical labels, not automatic OneFLOW solver boundary-condition mappings.
+
+Run the original Python workflow from the repository root:
+
+    python grid/stl_to_gmsh/script/run.py
+
+To also invoke Gmsh and write the legacy MSH 2.2 output:
+
+    python grid/stl_to_gmsh/script/run.py --gmsh gmsh
+
+Its generated files remain under grid/stl_to_gmsh/results/:
+body.geo, body.msh (when Gmsh is supplied), and mesh_report.json.
+The checked-in body STL and external_flow.json are inputs and are not modified.
