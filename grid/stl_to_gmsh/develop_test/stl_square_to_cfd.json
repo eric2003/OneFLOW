@@ -75,12 +75,22 @@
               "path": "results/square.cgns",
               "parameter_file": "script/grid.txt",
               "setting": "targetGridFileName"
+            },
+            {
+              "id": "square_2x2_gmsh_read_report",
+              "path": "results/square.gmsh-read-report.json"
+            },
+            {
+              "id": "square_2x2_gmsh_report",
+              "path": "results/square.gmsh-report.md"
             }
           ],
           "validation": {
             "kind": "non_empty_files",
             "paths": [
-              "results/square.cgns"
+              "results/square.cgns",
+              "results/square.gmsh-read-report.json",
+              "results/square.gmsh-report.md"
             ]
           }
         },
@@ -103,12 +113,17 @@
               "path": "results/square.oneflow.grid",
               "parameter_file": "script/grid.txt",
               "setting": "targetGridFileName"
+            },
+            {
+              "id": "square_2x2_bc_region_map",
+              "path": "results/bcRegionMap.txt"
             }
           ],
           "validation": {
             "kind": "non_empty_files",
             "paths": [
-              "results/square.oneflow.grid"
+              "results/square.oneflow.grid",
+              "results/bcRegionMap.txt"
             ]
           }
         },
