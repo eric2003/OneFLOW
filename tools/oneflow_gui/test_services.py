@@ -52,7 +52,7 @@ class DesktopServiceTest(unittest.TestCase):
         cases = [case for case in load_cases(REPOSITORY_ROOT) if case.group == "STL"]
         cases_by_id = {case.case_id: case for case in cases}
 
-        self.assertEqual(len(cases), 15)
+        self.assertEqual(len(cases), 16)
         self.assertEqual(cases_by_id["stl_ascii_basic"].execution_kind, "oneflow")
         self.assertIsNone(cases_by_id["stl_ascii_basic"].runtime_config)
         self.assertIsNone(cases_by_id["stl_ascii_basic"].execution_script)
@@ -86,7 +86,7 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertEqual({case.case_id for case in native}, {
             "stl_ascii_basic", "stl_ascii_crlf", "stl_ascii_scientific_notation",
             "stl_binary_basic", "stl_binary_header_solid",
-            "stl_non_planar_surface", "stl_weld_tolerance"
+            "stl_non_planar_surface", "stl_weld_tolerance", "stl_ascii_single_triangle"
         })
         self.assertEqual(len(python), 8)
         self.assertEqual(len(native), 8)

@@ -73,7 +73,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
     def test_stl_catalog_uses_language_neutral_case_names_and_python_namespace(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         stl_cases = [case for case in catalog["cases"] if case.get("group") == "STL"]
-        self.assertEqual(len(stl_cases), 15)
+        self.assertEqual(len(stl_cases), 16)
 
         for entry in stl_cases:
             parts = entry["directory"].split("/")
