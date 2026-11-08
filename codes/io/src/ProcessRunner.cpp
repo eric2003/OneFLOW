@@ -67,6 +67,10 @@ namespace
 
     std::wstring QuoteWindowsArgument( const std::wstring & value )
     {
+        if ( ! value.empty() &&
+             value.find_first_of( L" \\t\\n\\v\"" ) == std::wstring::npos )
+            return value;
+
         std::wstring quoted = L"\"";
         std::size_t backslashes = 0;
         for ( wchar_t character : value )

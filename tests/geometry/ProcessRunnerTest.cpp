@@ -38,7 +38,7 @@ namespace
             "/bin/echo", { "ProcessRunner argument with spaces" } );
 #endif
         ASSERT_TRUE( result.started ) << result.errorMessage;
-        EXPECT_EQ( result.exitCode, 0 );
+        EXPECT_EQ( result.exitCode, 0 ) << result.errorMessage << "\\n" << result.output;
         EXPECT_NE( result.output.find( "ProcessRunner argument with spaces" ),
                    std::string::npos );
     }
@@ -53,9 +53,9 @@ namespace
             "/bin/sh", { "-c", "printf 'ProcessRunner diagnostic\\n' >&2; exit 7" } );
 #endif
         ASSERT_TRUE( result.started ) << result.errorMessage;
-        EXPECT_EQ( result.exitCode, 7 );
+        EXPECT_EQ( result.exitCode, 7 ) << result.errorMessage << "\\n" << result.output;
         EXPECT_NE( result.output.find( "ProcessRunner diagnostic" ),
-                   std::string::npos );
+                   std::string::npos ) << result.errorMessage << "\\n" << result.output;
     }
 
     TEST( ProcessRunnerTest, ReportsMissingExecutableWithoutInvokingAShell )
