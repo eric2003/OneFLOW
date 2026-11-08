@@ -43,15 +43,22 @@ TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
     EXPECT_TRUE(cgnsCompatibility.at("detail").is_string());
     const auto & cgnsRuntimeVersion = cgns.at("runtime_version");
     const auto & cgnsHeaderVersion = cgns.at("header_version");
-    if (cgnsRuntimeVersion.at("value").is_null() &&
-        cgnsHeaderVersion.at("value") != "unknown")
+    const bool hasCgnsHeader =
+        cgnsHeaderVersion.is_object() &&
+        cgnsHeaderVersion.contains("value") &&
+        cgnsHeaderVersion.at("value") != "unknown";
+    if (!hasCgnsHeader)
+    {
+        EXPECT_EQ(cgnsCompatibility.at("status"), "unknown");
+    }
+    else if (cgnsRuntimeVersion.is_object() &&
+             cgnsRuntimeVersion.at("value").is_null())
     {
         EXPECT_EQ(cgnsCompatibility.at("status"), "assumed_match");
         EXPECT_EQ(cgnsCompatibility.at("basis"), "header_version");
     }
-    else if (!cgnsRuntimeVersion.at("value").is_null() &&
-             !cgnsHeaderVersion.at("value").is_null() &&
-             cgnsHeaderVersion.at("value") != "unknown")
+    else if (cgnsRuntimeVersion.is_object() &&
+             !cgnsRuntimeVersion.at("value").is_null())
     {
         EXPECT_TRUE(
             cgnsCompatibility.at("status") == "verified_match" ||
