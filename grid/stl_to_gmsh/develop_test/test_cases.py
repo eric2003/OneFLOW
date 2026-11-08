@@ -137,6 +137,10 @@ class StlToGmshCaseTest(unittest.TestCase):
         )
         gmsh, cgns, native, cfd = plan.steps
         self.assertEqual(gmsh.outputs[0].relative_path, Path("results/square_2x2.msh"))
+        self.assertEqual(
+            gmsh.outputs[1].relative_path,
+            Path("results/square_2x2.stl-to-gmsh-report.json"),
+        )
         self.assertEqual(cgns.inputs[0].producer_id, gmsh.case_id)
         self.assertEqual(cgns.inputs[0].relative_path, Path("results/square_2x2.msh"))
         self.assertEqual(cgns.outputs[0].relative_path, Path("results/square.cgns"))

@@ -16,6 +16,10 @@
               "path": "results/square_2x2.msh",
               "parameter_file": "script/grid.txt",
               "setting": "targetGridFileName"
+            },
+            {
+              "id": "square_2x2_stl_to_gmsh_report",
+              "path": "results/square_2x2.stl-to-gmsh-report.json"
             }
           ],
           "validation": {
