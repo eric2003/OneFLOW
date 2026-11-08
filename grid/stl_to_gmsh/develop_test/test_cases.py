@@ -1,10 +1,11 @@
 from __future__ import annotations
-import json, tempfile, unittest
+import json, tempfile, unittest, sys
 from pathlib import Path
-from tools.mesh_cases import load_catalog, validate_case
-from grid.stl.stl_to_gmsh import convert
 
 ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "tools"))
+from mesh_cases import load_catalog, validate_case  # noqa: E402
+from grid.stl.stl_to_gmsh import convert  # noqa: E402
 EXPECTED_IDS = {"stl_to_gmsh_square", "stl_to_gmsh_two_square_cells",
                 "stl_to_gmsh_python_square", "stl_to_gmsh_python_two_square_cells"}
 
