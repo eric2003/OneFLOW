@@ -6,6 +6,8 @@ on:
     paths:
       - "tools/mesh_cases.py"
       - "tools/mesh_layout/**"
+      - "grid/stl/**"
+      - "grid/stl_to_gmsh/**"
       - "tools/stl_to_gmsh/**"
       - "tests/tools/**"
       - "tools/test_mesh_cases.py"
@@ -21,7 +23,11 @@ on:
     paths:
       - "tools/mesh_cases.py"
       - "tools/mesh_layout/**"
+      - "grid/stl/**"
+      - "grid/stl_to_gmsh/**"
       - "tests/tools/**"
+      - "grid/stl/**"
+      - "grid/stl_to_gmsh/**"
       - "tools/test_mesh_cases.py"
       - "tools/oneflow_gui/**"
       - "tools/verification/**"
@@ -56,11 +62,11 @@ jobs:
       - name: Install GUI test dependency
         run: python -m pip install -r tools/requirements-gui.txt
       - name: Compile Python tooling
-        run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout tools/stl_to_gmsh tools/oneflow_gui tools/verification
+        run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout grid/stl grid/stl_to_gmsh tools/oneflow_gui tools/verification
       - name: Test case catalog
         run: python tools/test_mesh_cases.py
       - name: Test planar STL to Gmsh geometry generation
-        run: python -m unittest tools.stl_to_gmsh.test_stl_to_gmsh
+        run: python -m unittest grid.stl.test_stl_to_gmsh
       - name: Test rectangle layout compiler
         run: python -m unittest tests.tools.test_compile_rectangle
       - name: Test flat plate layout compiler

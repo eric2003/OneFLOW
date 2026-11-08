@@ -3,7 +3,7 @@ import json, shutil, struct, subprocess, tempfile, unittest
 from pathlib import Path
 from .stl_to_gmsh import Stl2DError, build_geo, convert, extract_boundary, read_stl
 
-DATA = Path(__file__).parent / "data"
+DATA = Path(__file__).parent / "fixtures"
 
 class Stl2DGmshTest(unittest.TestCase):
     def test_ascii_square_extracts_four_boundary_edges(self):

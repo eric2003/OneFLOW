@@ -34,7 +34,7 @@ these names to OneFLOW boundary semantics and CGNS BC types.
 Implementation
 --------------
 
-tools/stl_to_gmsh currently provides:
+grid/stl currently provides:
 
 * ASCII and binary STL readers;
 * scale-controlled vertex welding and planar XY validation;
@@ -80,7 +80,7 @@ Example
 
 .. code-block:: bash
 
-   python tools/stl_to_gmsh/stl_to_gmsh.py tools/stl_to_gmsh/data/square.stl --boundaries tools/stl_to_gmsh/data/square.boundary.json --geo /tmp/square.geo --gmsh gmsh --msh /tmp/square.msh
+   python grid/stl/stl_to_gmsh.py grid/stl/fixtures/square.stl --boundaries grid/stl/fixtures/square.boundary.json --geo /tmp/square.geo --gmsh gmsh --msh /tmp/square.msh
 
 Parser and geometry-generation tests do not require Gmsh:
 
