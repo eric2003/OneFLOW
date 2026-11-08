@@ -5,9 +5,9 @@
   "domain": "mesh",
   "kind": "mesh_format_adapter",
   "status": "partially_verified",
-  "overview": "Native C++ STL surface reader and writer in OneFLOW Geometry. The implementation preserves source facets, binary headers and attributes while keeping parsing separate from topology construction. The Python grid/stl utility remains a separate planar-boundary and Gmsh-generation tool.",
+  "overview": "Native C++ STL surface reader and writer in OneFLOW Geometry. The implementation preserves source facets, binary headers and attributes while keeping parsing separate from topology construction. The Python grid/stl utility remains a separate planar-boundary and Gmsh-generation tool. The native grid/stl/ascii_basic Case runs through OneFLOW's standard Grid task and converts its ASCII STL fixture to a surface CGNS mesh.",
   "principle": "STL stores an ordered sequence of triangle facets, not a shared-vertex mesh or CFD volume mesh. Preserve each facet's stored normal, ordered vertices, binary attribute value and binary header. Do not weld vertices, repair normals, infer units, invent boundary groups or assign solver boundary conditions during parsing. Binary records require explicit little-endian decoding; a header beginning with 'solid' is not proof of ASCII.",
-  "architecture": "ASCII/Binary STL -> C++ StlMeshReader -> value-based StlMesh -> explicit validation -> explicit topology construction -> Mesh Core or downstream format adapters. StlMeshWriter serializes the same value model to ASCII or Binary STL. The adapter has no Gmsh, CGNS, Qt or Python dependency.",
+  "architecture": "ASCII/Binary STL -> C++ StlMeshReader -> value-based StlMesh -> explicit tolerance-based vertex welding -> UnstructuredMeshData triangle surface -> UnstructuredCgnsZoneWriter. The reader/writer remain independent; the Case-level conversion composes them with the existing CGNS writer.",
   "references": [
     "Library of Congress STL format description: https://www.loc.gov/preservation/digital/formats/fdd/fdd000504.shtml",
     "Gmsh Reference Manual: https://gmsh.info/doc/texinfo/gmsh.html",
@@ -17,27 +17,38 @@
   "implementation": {
     "source_paths": [
       "codes/geometry/include/StlMeshIO.h",
-      "codes/geometry/src/StlMeshIO.cpp"
+      "codes/geometry/src/StlMeshIO.cpp",
+      "codes/geometry/src/GridConversion.cpp",
+      "codes/geometry/src/GridTypes.cpp"
+    ],
+    "case_paths": [
+      "grid/stl/ascii_basic/script/control.txt",
+      "grid/stl/ascii_basic/script/simu.txt",
+      "grid/stl/ascii_basic/script/grid.txt",
+      "grid/stl/ascii_basic/input/model.stl"
     ]
   },
   "documentation": {
     "paths": [
       "doc/source/stl_mesh_io.rst",
       "doc/source/mesh_architecture.rst",
-      "doc/source/contract_workbench_information_architecture.rst"
+      "doc/source/contract_workbench_information_architecture.rst",
+      "grid/stl/ascii_basic/README.md"
     ]
   },
   "claims": {
     "proves": [
       "The C++ Geometry module provides native ASCII and Binary STL read/write APIs using a value-based facet model.",
       "Binary parsing uses explicit little-endian field decoding and preserves the opaque header and 16-bit facet attribute.",
-      "ASCII and Binary STL writer/reader paths have linked native GoogleTest declarations for round-trip and malformed-data behavior."
+      "ASCII and Binary STL writer/reader paths have linked native GoogleTest declarations for round-trip and malformed-data behavior.",
+      "The stl_ascii_basic catalog entry is a native OneFLOW runtime Case, not a Python execution case.",
+      "The native Case converts its two-facet ASCII STL input into an unstructured surface CGNS zone using the configured stlWeldTolerance."
     ],
     "does_not_prove": [
       "The STL surface has been welded into shared vertex topology or classified as manifold, closed or consistently oriented.",
-      "STL has been converted through the C++ adapter into OneFLOW Mesh Core, CGNS or a volume mesh.",
       "STL carries units, named physical groups or solver boundary-condition semantics.",
-      "The linked GoogleTests have passed on every supported platform until CI execution evidence is recorded."
+      "The linked GoogleTests have passed on every supported platform until CI execution evidence is recorded.",
+      "The STL surface is watertight, manifold, consistently oriented, or ready for CFD volume computation."
     ]
   },
   "verification": [
