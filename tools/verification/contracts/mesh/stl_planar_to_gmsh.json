@@ -112,6 +112,18 @@
       "reference": "StlToGmshCaseTest.test_python_geometry_compiles_square_and_two_cell_layouts",
       "status": "linked_not_executed",
       "scope": "grid/stl_to_gmsh/develop_test/test_cases.py; exercises independent Python geometry generation into temporary output."
+    },
+    {
+      "kind": "google_test",
+      "reference": "StlMeshIOTest.NativeStlToGmshGeneratesOneSquareCellWhenGmshIsAvailable",
+      "status": "linked_not_executed",
+      "scope": "tests/geometry/StlMeshIOTest.cpp; executes the native C++ STL-to-Gmsh Grid conversion and validates the one-quad MSH 4.1 output when Gmsh is installed."
+    },
+    {
+      "kind": "google_test",
+      "reference": "StlMeshIOTest.NativeStlToGmshGeneratesTwoSquareCellsWhenGmshIsAvailable",
+      "status": "linked_not_executed",
+      "scope": "tests/geometry/StlMeshIOTest.cpp; executes the native C++ STL-to-Gmsh Grid conversion and validates the two-quad MSH 4.1 output when Gmsh is installed."
     }
   ],
   "group": {

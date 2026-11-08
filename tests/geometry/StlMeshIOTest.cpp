@@ -1,4 +1,6 @@
 #include "StlMeshIO.h"
+#include "GridConversion.h"
+#include "GmshMeshReader.h"
 
 #include <gtest/gtest.h>
 
@@ -9,10 +11,12 @@
 #include <chrono>
 #include <cstdint>
 #include <cstring>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <stdexcept>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -255,6 +259,118 @@ ONEFLOW::StlMesh MakeRectangleStl(double width)
                         {0.0, 1.0, 0.0}}};
     mesh.triangles = {first, second};
     return mesh;
+}
+
+bool HasGmshExecutable()
+{
+#ifdef _WIN32
+    return std::system("gmsh -version > NUL 2>&1") == 0;
+#else
+    return std::system("gmsh -version >/dev/null 2>&1") == 0;
+#endif
+}
+
+void ValidateNativeStlToGmshCase(
+    const TemporaryDirectory& temporary,
+    double width,
+    int cellsX,
+    int cellsY,
+    std::size_t expectedNodes,
+    std::size_t expectedLines,
+    std::size_t expectedQuads)
+{
+    const auto inputDirectory = temporary.File("input");
+    const auto scriptDirectory = temporary.File("script");
+    std::filesystem::create_directories(inputDirectory);
+    std::filesystem::create_directories(scriptDirectory);
+
+    const auto stlPath = inputDirectory / "model.stl";
+    ONEFLOW::StlMeshWriter::WriteASCII(stlPath.string(), MakeRectangleStl(width));
+
+    const auto layoutPath = scriptDirectory / "layout.json";
+    std::ofstream layout(layoutPath);
+    ASSERT_TRUE(layout.good());
+    layout
+        << "{\n"
+        << "  \"surface_name\": \"fluid_domain\",\n"
+        << "  \"mesh_size\": 1.0,\n"
+        << "  \"transfinite_cells\": {\"x\": " << cellsX
+        << ", \"y\": " << cellsY << "},\n"
+        << "  \"boundaries\": [\n"
+        << "    {\"name\": \"inflow\", \"endpoints\": [[0, 0], [0, 1]]},\n"
+        << "    {\"name\": \"outflow\", \"endpoints\": [[" << width
+        << ", 0], [" << width << ", 1]]},\n"
+        << "    {\"name\": \"symmetry\", \"endpoints\": [[0, 0], ["
+        << width << ", 0]]},\n"
+        << "    {\"name\": \"farfield\", \"endpoints\": [[0, 1], ["
+        << width << ", 1]]}\n"
+        << "  ]\n"
+        << "}\n";
+    layout.close();
+
+    ONEFLOW::GridConfig config;
+    config.sourceType = ONEFLOW::GridFileType::STL;
+    config.targetType = ONEFLOW::GridFileType::Gmsh;
+    config.sourceCaseDir = temporary.File("").string();
+    config.sourceFile = "input/model.stl";
+    config.layoutFile = "script/layout.json";
+    config.targetFile = "results/generated.msh";
+    config.gmshExecutable = "gmsh";
+    config.stlWeldTolerance = 1.0e-10;
+
+    ONEFLOW::ConvertGrid(config, temporary.File("").string());
+
+    const auto meshPath = temporary.File("results/generated.msh");
+    const auto reportPath =
+        temporary.File("results/generated.stl-to-gmsh-report.json");
+    ASSERT_TRUE(std::filesystem::is_regular_file(meshPath));
+    ASSERT_TRUE(std::filesystem::is_regular_file(reportPath));
+
+    std::ifstream meshInput(meshPath, std::ios::binary);
+    ASSERT_TRUE(meshInput.good());
+    const std::string meshText{
+        std::istreambuf_iterator<char>(meshInput),
+        std::istreambuf_iterator<char>()};
+    const auto mesh = ONEFLOW::ReadGmsh41AsciiMesh(meshText);
+    EXPECT_EQ(mesh.version, "4.1");
+    EXPECT_EQ(mesh.nodes.size(), expectedNodes);
+
+    std::size_t lineCount = 0;
+    std::size_t quadCount = 0;
+    std::size_t triangleCount = 0;
+    for (const auto& element : mesh.elements)
+    {
+        if (element.type == 1) ++lineCount;
+        else if (element.type == 2) ++triangleCount;
+        else if (element.type == 3) ++quadCount;
+    }
+    EXPECT_EQ(lineCount, expectedLines);
+    EXPECT_EQ(quadCount, expectedQuads);
+    EXPECT_EQ(triangleCount, 0u);
+
+    const std::set<std::pair<int, std::string>> expectedGroups{
+        {1, "inflow"}, {1, "outflow"}, {1, "symmetry"},
+        {1, "farfield"}, {2, "fluid_domain"}};
+    std::set<std::pair<int, std::string>> actualGroups;
+    for (const auto& physical : mesh.physicalNames)
+        actualGroups.emplace(physical.first.first, physical.second);
+    EXPECT_EQ(actualGroups, expectedGroups);
+}
+
+TEST(StlMeshIOTest, NativeStlToGmshGeneratesOneSquareCellWhenGmshIsAvailable)
+{
+    if (!HasGmshExecutable())
+        GTEST_SKIP() << "Gmsh executable is not available on PATH";
+    TemporaryDirectory temporary;
+    ValidateNativeStlToGmshCase(temporary, 1.0, 1, 1, 4, 4, 1);
+}
+
+TEST(StlMeshIOTest, NativeStlToGmshGeneratesTwoSquareCellsWhenGmshIsAvailable)
+{
+    if (!HasGmshExecutable())
+        GTEST_SKIP() << "Gmsh executable is not available on PATH";
+    TemporaryDirectory temporary;
+    ValidateNativeStlToGmshCase(temporary, 2.0, 2, 1, 6, 6, 2);
 }
 
 TEST(StlMeshIOTest, ExtractsSquareBoundaryAndRemovesStlDiagonal)
