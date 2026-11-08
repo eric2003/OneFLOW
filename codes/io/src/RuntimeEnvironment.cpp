@@ -31,7 +31,7 @@ License
 
 #if defined(_WIN32)
 #include <windows.h>
-#include <tlhelp32.h>
+#include <psapi.h>
 #elif defined(__unix__) || defined(__APPLE__)
 #include <dlfcn.h>
 #endif
@@ -231,33 +231,53 @@ RuntimeSymbolInfo FindHdf5VersionSymbol(Hdf5GetLibVersion & function)
     function = nullptr;
 
 #if defined(_WIN32)
-    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32,
-                                                GetCurrentProcessId());
-    if (snapshot == INVALID_HANDLE_VALUE)
+    HANDLE process = GetCurrentProcess();
+    std::vector<HMODULE> modules(256);
+    DWORD bytesNeeded = 0;
+    if (!EnumProcessModules(
+            process, modules.data(),
+            static_cast<DWORD>(modules.size() * sizeof(HMODULE)),
+            &bytesNeeded))
     {
         return result;
     }
 
-    MODULEENTRY32A entry{};
-    entry.dwSize = sizeof(entry);
-    if (Module32FirstA(snapshot, &entry))
+    if (bytesNeeded > modules.size() * sizeof(HMODULE))
     {
-        do
+        modules.resize(bytesNeeded / sizeof(HMODULE));
+        if (!EnumProcessModules(
+                process, modules.data(),
+                static_cast<DWORD>(modules.size() * sizeof(HMODULE)),
+                &bytesNeeded))
         {
-            HMODULE module = entry.hModule;
-            FARPROC symbol = GetProcAddress(module, "H5get_libversion");
-            if (symbol != nullptr)
-            {
-                function = reinterpret_cast<Hdf5GetLibVersion>(symbol);
-                result.modulePath = entry.szExePath;
-                result.linkage = module == GetModuleHandleA(nullptr)
-                    ? "linked_into_executable"
-                    : "shared";
-                break;
-            }
-        } while (Module32NextA(snapshot, &entry));
+            return result;
+        }
     }
-    CloseHandle(snapshot);
+
+    const std::size_t moduleCount =
+        bytesNeeded / sizeof(HMODULE);
+    for (std::size_t i = 0; i < moduleCount; ++i)
+    {
+        HMODULE module = modules[i];
+        FARPROC symbol = GetProcAddress(module, "H5get_libversion");
+        if (symbol == nullptr)
+        {
+            continue;
+        }
+
+        function = reinterpret_cast<Hdf5GetLibVersion>(symbol);
+        char pathBuffer[32768] = {};
+        const DWORD length = GetModuleFileNameA(
+            module, pathBuffer, static_cast<DWORD>(sizeof(pathBuffer)));
+        if (length > 0 && length < sizeof(pathBuffer))
+        {
+            result.modulePath.assign(pathBuffer, length);
+        }
+        result.linkage = module == GetModuleHandleA(nullptr)
+            ? "linked_into_executable"
+            : "shared";
+        break;
+    }
 #elif defined(__unix__) || defined(__APPLE__)
     void * symbol = dlsym(RTLD_DEFAULT, "H5get_libversion");
     if (symbol != nullptr)
