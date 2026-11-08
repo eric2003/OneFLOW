@@ -259,3 +259,21 @@ References
 * Gmsh Reference Manual, file formats and geometry import:
   https://gmsh.info/doc/texinfo/gmsh.html
 * OneFLOW mesh_architecture, gmsh_interface and stl_to_gmsh_2d pages.
+
+Native OneFLOW grid Case
+========================
+
+``grid/stl/ascii_basic`` is a normal OneFLOW grid Case. It is registered in
+``grid/case_catalog.json`` without a Python execution backend and is launched
+through the standard ``OneFLOW.exe r <case-directory>`` entry point. Its
+``script/control.txt`` manifest loads ``simu.txt`` and ``grid.txt``; the latter
+selects ``sourceGridType = "stl"`` and ``targetGridType = "cgns"``.
+
+The C++ grid-conversion dispatcher reads the STL through ``StlMeshReader``,
+constructs a two-dimensional unstructured triangle surface, and writes CGNS
+through ``UnstructuredCgnsZoneWriter``. Shared coordinates are welded using
+the explicit ``stlWeldTolerance`` Case parameter. The bundled two-triangle
+square is expected to produce four nodes and two TRI_3 cells. A JSON read
+report is written under the Case ``results`` directory. This is a surface
+conversion milestone, not a volume mesher; STL boundary-condition semantics
+and physical units are not inferred.
