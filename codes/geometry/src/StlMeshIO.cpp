@@ -267,6 +267,174 @@ StlMesh StlMeshReader::Read(const std::string& fileName, StlFormat format)
     return ReadASCII(bytes);
 }
 
+StlPlanarBoundary ExtractStlPlanarBoundary(
+    const StlMesh& mesh, double weldTolerance)
+{
+    if (!std::isfinite(weldTolerance) || weldTolerance <= 0.0)
+        throw std::invalid_argument("STL weld tolerance must be positive and finite");
+    const double toleranceSquared = weldTolerance * weldTolerance;
+    if (!std::isfinite(toleranceSquared))
+        throw std::invalid_argument("STL weld tolerance is too large");
+
+    std::vector<std::array<double, 3>> rawVertices;
+    rawVertices.reserve(mesh.triangles.size() * 3);
+    std::array<double, 3> minimum{
+        std::numeric_limits<double>::max(),
+        std::numeric_limits<double>::max(),
+        std::numeric_limits<double>::max()};
+    double minimumZ = std::numeric_limits<double>::max();
+    double maximumZ = -std::numeric_limits<double>::max();
+
+    for (const StlTriangle& triangle : mesh.triangles) {
+        for (const auto& vertex : triangle.vertices) {
+            for (double value : vertex) {
+                if (!std::isfinite(value))
+                    throw std::invalid_argument("STL contains a non-finite vertex");
+            }
+            rawVertices.push_back(vertex);
+            for (std::size_t axis = 0; axis < 3; ++axis)
+                minimum[axis] = std::min(minimum[axis], vertex[axis]);
+            minimumZ = std::min(minimumZ, vertex[2]);
+            maximumZ = std::max(maximumZ, vertex[2]);
+        }
+    }
+    if (rawVertices.size() < 3)
+        throw std::invalid_argument("STL contains no triangles");
+    if (maximumZ - minimumZ > weldTolerance)
+        throw std::invalid_argument("2-D STL boundary must lie in a constant-Z XY plane");
+
+    using BucketKey = std::array<long long, 3>;
+    std::map<BucketKey, std::vector<std::size_t>> buckets;
+    std::vector<std::array<double, 3>> points;
+    std::vector<std::array<std::size_t, 3>> trianglePoints;
+    trianglePoints.reserve(mesh.triangles.size());
+
+    for (std::size_t start = 0; start < rawVertices.size(); start += 3) {
+        std::array<std::size_t, 3> ids{};
+        for (std::size_t corner = 0; corner < 3; ++corner) {
+            const auto& point = rawVertices[start + corner];
+            BucketKey key{};
+            for (std::size_t axis = 0; axis < 3; ++axis) {
+                const double relative = (point[axis] - minimum[axis]) / weldTolerance;
+                if (!std::isfinite(relative) ||
+                    relative < static_cast<double>(std::numeric_limits<long long>::min() + 2) ||
+                    relative > static_cast<double>(std::numeric_limits<long long>::max() - 2))
+                    throw std::invalid_argument(
+                        "STL coordinate range is too large for the weld tolerance");
+                key[axis] = static_cast<long long>(std::floor(relative));
+            }
+
+            std::size_t best = points.size();
+            double bestDistance = weldTolerance;
+            for (int dx = -1; dx <= 1; ++dx) {
+                for (int dy = -1; dy <= 1; ++dy) {
+                    for (int dz = -1; dz <= 1; ++dz) {
+                        const BucketKey neighbor{
+                            key[0] + dx, key[1] + dy, key[2] + dz};
+                        const auto bucket = buckets.find(neighbor);
+                        if (bucket == buckets.end()) continue;
+                        for (std::size_t candidate : bucket->second) {
+                            const auto& other = points[candidate];
+                            const double distance = std::hypot(
+                                point[0] - other[0],
+                                point[1] - other[1],
+                                point[2] - other[2]);
+                            if (distance < bestDistance ||
+                                (distance == bestDistance && candidate < best)) {
+                                best = candidate;
+                                bestDistance = distance;
+                            }
+                        }
+                    }
+                }
+            }
+            if (best == points.size()) {
+                best = points.size();
+                points.push_back(point);
+                buckets[key].push_back(best);
+            }
+            ids[corner] = best;
+        }
+        if (ids[0] == ids[1] || ids[1] == ids[2] || ids[2] == ids[0])
+            throw std::invalid_argument("Degenerate STL triangle after vertex welding");
+        const auto& a = points[ids[0]];
+        const auto& b = points[ids[1]];
+        const auto& c = points[ids[2]];
+        const double twiceArea =
+            (b[0] - a[0]) * (c[1] - a[1]) -
+            (b[1] - a[1]) * (c[0] - a[0]);
+        if (!std::isfinite(twiceArea) || std::abs(twiceArea) <= toleranceSquared)
+            throw std::invalid_argument("STL contains a zero-area XY triangle");
+        trianglePoints.push_back(ids);
+    }
+
+    using Edge = std::pair<std::size_t, std::size_t>;
+    std::map<Edge, std::size_t> edgeIncidence;
+    for (const auto& triangle : trianglePoints) {
+        for (const auto edge : {
+            Edge{triangle[0], triangle[1]},
+            Edge{triangle[1], triangle[2]},
+            Edge{triangle[2], triangle[0]}}) {
+            const Edge key = std::minmax(edge.first, edge.second);
+            const std::size_t count = ++edgeIncidence[key];
+            if (count > 2)
+                throw std::invalid_argument("STL contains a non-manifold edge");
+        }
+    }
+
+    std::map<std::size_t, std::vector<std::size_t>> adjacency;
+    for (const auto& entry : edgeIncidence) {
+        if (entry.second != 1) continue;
+        adjacency[entry.first.first].push_back(entry.first.second);
+        adjacency[entry.first.second].push_back(entry.first.first);
+    }
+    if (adjacency.size() < 3)
+        throw std::invalid_argument("STL has no closed outer boundary");
+    for (auto& entry : adjacency) {
+        auto& neighbors = entry.second;
+        if (neighbors.size() != 2)
+            throw std::invalid_argument("STL boundary is open, branched, or has touching loops");
+        std::sort(neighbors.begin(), neighbors.end());
+    }
+
+    const std::size_t first = adjacency.begin()->first;
+    std::vector<std::size_t> order{first};
+    std::size_t previous = points.size();
+    std::size_t current = first;
+    while (true) {
+        const auto& neighbors = adjacency.at(current);
+        const std::size_t next = neighbors[0] == previous
+            ? neighbors[1] : neighbors[0];
+        if (next == first) break;
+        if (std::find(order.begin(), order.end(), next) != order.end())
+            throw std::invalid_argument("STL boundary traversal repeats a vertex");
+        order.push_back(next);
+        previous = current;
+        current = next;
+        if (order.size() > adjacency.size())
+            throw std::invalid_argument("STL boundary traversal did not close");
+    }
+    if (order.size() != adjacency.size())
+        throw std::invalid_argument("STL contains multiple boundary loops or components");
+
+    double twiceArea = 0.0;
+    for (std::size_t i = 0; i < order.size(); ++i) {
+        const auto& a = points[order[i]];
+        const auto& b = points[order[(i + 1) % order.size()]];
+        twiceArea += a[0] * b[1] - b[0] * a[1];
+    }
+    if (!std::isfinite(twiceArea) || std::abs(twiceArea) <= toleranceSquared)
+        throw std::invalid_argument("STL boundary encloses zero XY area");
+    if (twiceArea < 0.0)
+        std::reverse(order.begin() + 1, order.end());
+
+    StlPlanarBoundary boundary;
+    boundary.vertices.reserve(order.size());
+    for (std::size_t id : order)
+        boundary.vertices.push_back(points[id]);
+    return boundary;
+}
+
 void StlMeshWriter::WriteASCII(
     const std::string& fileName, const StlMesh& mesh)
 {
