@@ -1,4 +1,5 @@
 #include "RuntimeEnvironment.h"
+#include "RuntimeVersionCompatibility.h"
 
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
@@ -104,6 +105,52 @@ TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
         EXPECT_EQ(hdf5.at("status"), "not_detected");
         EXPECT_TRUE(hdf5Version.at("value").is_null());
     }
+}
+
+TEST(RuntimeVersionCompatibilityTest, VerifiesMatchingIndependentVersions)
+{
+    const auto result =
+        ONEFLOW::AssessVersionCompatibility("4.5.2", "4.5.2");
+    EXPECT_EQ(result.status, "verified_match");
+    EXPECT_EQ(result.basis, "header_and_runtime_versions");
+}
+
+TEST(RuntimeVersionCompatibilityTest, DetectsDifferentIndependentVersions)
+{
+    const auto result =
+        ONEFLOW::AssessVersionCompatibility("4.5.2", "4.5.1");
+    EXPECT_EQ(result.status, "mismatch");
+    EXPECT_EQ(result.basis, "header_and_runtime_versions");
+}
+
+TEST(RuntimeVersionCompatibilityTest, AssumesMatchWhenOnlyHeaderVersionExists)
+{
+    const auto result =
+        ONEFLOW::AssessVersionCompatibility("4.5.2", "");
+    EXPECT_EQ(result.status, "assumed_match");
+    EXPECT_EQ(result.basis, "header_version");
+    EXPECT_NE(result.detail.find("ABI compatibility"), std::string::npos);
+}
+
+TEST(RuntimeVersionCompatibilityTest, RuntimeVersionAloneIsNotHeaderEvidence)
+{
+    const auto result =
+        ONEFLOW::AssessVersionCompatibility("", "1.14.6");
+    EXPECT_EQ(result.status, "unknown");
+    EXPECT_EQ(result.basis, "insufficient_version_evidence");
+}
+
+TEST(RuntimeVersionCompatibilityTest, MissingAndUnknownStringsAreNotEvidence)
+{
+    EXPECT_EQ(
+        ONEFLOW::AssessVersionCompatibility("", "").status,
+        "unknown");
+    EXPECT_EQ(
+        ONEFLOW::AssessVersionCompatibility("unknown", "1.2.3").status,
+        "unknown");
+    EXPECT_EQ(
+        ONEFLOW::AssessVersionCompatibility("1.2.3", "unknown").status,
+        "assumed_match");
 }
 
 TEST(RuntimeEnvironmentSnapshotTest, WritesValidJsonAndCreatesParentDirectory)
