@@ -36,6 +36,27 @@ TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
     EXPECT_TRUE(cgns.contains("runtime_version"));
     EXPECT_TRUE(cgns.contains("header_version"));
     EXPECT_TRUE(cgns.contains("runtime_library"));
+    ASSERT_TRUE(cgns.contains("version_compatibility"));
+    const auto & cgnsCompatibility = cgns.at("version_compatibility");
+    EXPECT_TRUE(cgnsCompatibility.at("status").is_string());
+    EXPECT_TRUE(cgnsCompatibility.at("basis").is_string());
+    EXPECT_TRUE(cgnsCompatibility.at("detail").is_string());
+    const auto & cgnsRuntimeVersion = cgns.at("runtime_version");
+    const auto & cgnsHeaderVersion = cgns.at("header_version");
+    if (cgnsRuntimeVersion.at("value").is_null() &&
+        cgnsHeaderVersion.at("value") != "unknown")
+    {
+        EXPECT_EQ(cgnsCompatibility.at("status"), "assumed_match");
+        EXPECT_EQ(cgnsCompatibility.at("basis"), "header_version");
+    }
+    else if (!cgnsRuntimeVersion.at("value").is_null() &&
+             !cgnsHeaderVersion.at("value").is_null() &&
+             cgnsHeaderVersion.at("value") != "unknown")
+    {
+        EXPECT_TRUE(
+            cgnsCompatibility.at("status") == "verified_match" ||
+            cgnsCompatibility.at("status") == "mismatch");
+    }
 
     const auto & hdf5 = document.at("dependencies").at(1);
     EXPECT_EQ(hdf5.at("name"), "HDF5");
@@ -45,6 +66,12 @@ TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
     EXPECT_TRUE(hdf5.contains("runtime_version_status"));
     EXPECT_TRUE(hdf5.contains("header_version"));
     EXPECT_TRUE(hdf5.contains("runtime_library"));
+    ASSERT_TRUE(hdf5.contains("version_compatibility"));
+    const auto & hdf5Compatibility = hdf5.at("version_compatibility");
+    EXPECT_TRUE(hdf5Compatibility.at("status").is_string());
+    EXPECT_TRUE(hdf5Compatibility.at("basis").is_string());
+    EXPECT_TRUE(hdf5Compatibility.at("detail").is_string());
+    EXPECT_EQ(hdf5Compatibility.at("status"), "unknown");
     const auto & hdf5Version = hdf5.at("runtime_version");
     if (hdf5.at("enabled").get<bool>())
     {
@@ -83,6 +110,7 @@ TEST(RuntimeEnvironmentCommandTest, ReportsHdf5RuntimeVersionInText)
     const std::string report = output.str();
     EXPECT_NE(report.find("HDF5"), std::string::npos);
     EXPECT_NE(report.find("Runtime version :"), std::string::npos);
+    EXPECT_NE(report.find("Version consistency:"), std::string::npos);
 }
 
 TEST(RuntimeEnvironmentCommandTest, PrintsOneFlowVersion)
