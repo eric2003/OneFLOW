@@ -57,7 +57,6 @@ def _weld_vertices(raw: list[Point], tolerance: float) -> tuple[list[Point], lis
     buckets: dict[tuple[int, int, int], list[int]] = defaultdict(list)
     points: list[Point] = []
     tri_ids: list[tuple[int, int, int]] = []
-    tolerance2 = tolerance * tolerance
     for start in range(0, len(raw), 3):
         ids = []
         for p in raw[start:start+3]:
@@ -71,14 +70,14 @@ def _weld_vertices(raw: list[Point], tolerance: float) -> tuple[list[Point], lis
                     for dz in (-1, 0, 1):
                         candidates.extend(buckets.get((key[0]+dx, key[1]+dy, key[2]+dz), ()))
             best = None
-            best_distance2 = tolerance2
+            best_distance = tolerance
             for point_id in candidates:
                 q = points[point_id]
-                distance2 = sum((p[axis] - q[axis]) ** 2 for axis in range(3))
-                if distance2 < best_distance2 or (
-                    distance2 == best_distance2 and (best is None or point_id < best)
+                distance = math.dist(p, q)
+                if distance < best_distance or (
+                    distance == best_distance and (best is None or point_id < best)
                 ):
-                    best, best_distance2 = point_id, distance2
+                    best, best_distance = point_id, distance
             if best is None:
                 best = len(points)
                 points.append(p)
