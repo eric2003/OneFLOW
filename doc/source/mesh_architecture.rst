@@ -730,6 +730,8 @@ repeated for every facet. Therefore:
 * L4 geometric normals, areas, adjacency and search structures are derived;
   solution fields and CFD boundary conditions are absent.
 
+The native C++ `non_planar_surface` Development Case is intentionally distinct from the Python planar-boundary reference: the former validates generic triangle-surface ingestion and CGNS writing, while the latter rejects geometry outside its current planar-boundary contract. The native `weld_tolerance` Case separately exercises coordinate-key quantization on a controlled near-coincident vertex pair.
+
 STL does not standardize physical units, coordinate reference systems,
 material semantics, named patches, physical groups, volume cells or solver
 boundary conditions. Those facts must come from project metadata or an

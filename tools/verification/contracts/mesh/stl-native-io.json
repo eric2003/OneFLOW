@@ -5,7 +5,7 @@
   "domain": "mesh",
   "kind": "mesh_format_adapter",
   "status": "partially_verified",
-  "overview": "Native C++ STL surface reader and writer in OneFLOW Geometry. The implementation preserves source facets, binary headers and attributes while keeping parsing separate from topology construction. The Python grid/stl utility remains a separate planar-boundary and Gmsh-generation tool. The native grid/stl/ascii_basic Case runs through OneFLOW's standard Grid task and converts its ASCII STL fixture to a surface CGNS mesh. Python STL reference cases are retained under grid/stl/python rather than discarded or treated as competing production backends. The native ASCII scientific-notation Case additionally exercises exponent-form finite numeric tokens through the normal OneFLOW Grid task. Native runtime Cases now cover baseline ASCII, CRLF, scientific notation, conventional binary, and binary with a header beginning with `solid`.",
+  "overview": "Native C++ STL surface reader and writer in OneFLOW Geometry. The implementation preserves source facets, binary headers and attributes while keeping parsing separate from topology construction. The Python grid/stl utility remains a separate planar-boundary and Gmsh-generation tool. The native grid/stl/ascii_basic Case runs through OneFLOW's standard Grid task and converts its ASCII STL fixture to a surface CGNS mesh. Python STL reference cases are retained under grid/stl/python rather than discarded or treated as competing production backends. The native ASCII scientific-notation Case additionally exercises exponent-form finite numeric tokens through the normal OneFLOW Grid task. Native runtime Cases now cover baseline ASCII, CRLF, scientific notation, conventional binary, and binary with a header beginning with `solid`. Two further native runtime Cases cover a folded non-planar surface and repeated shared vertices within the configured weld tolerance.",
   "principle": "STL stores an ordered sequence of triangle facets, not a shared-vertex mesh or CFD volume mesh. Preserve each facet's stored normal, ordered vertices, binary attribute value and binary header. Do not weld vertices, repair normals, infer units, invent boundary groups or assign solver boundary conditions during parsing. Binary records require explicit little-endian decoding; a header beginning with 'solid' is not proof of ASCII.",
   "architecture": "ASCII/Binary STL -> C++ StlMeshReader -> value-based StlMesh -> explicit tolerance-based vertex welding -> UnstructuredMeshData triangle surface -> UnstructuredCgnsZoneWriter. The reader/writer remain independent; the Case-level conversion composes them with the existing CGNS writer.",
   "references": [
@@ -48,7 +48,17 @@
       "grid/stl/binary_header_solid/script/dimension.txt",
       "grid/stl/binary_header_solid/script/simu.txt",
       "grid/stl/binary_header_solid/script/grid.txt",
-      "grid/stl/binary_header_solid/input/model.stl"
+      "grid/stl/binary_header_solid/input/model.stl",
+      "grid/stl/non_planar_surface/README.md",
+      "grid/stl/non_planar_surface/script/dimension.txt",
+      "grid/stl/non_planar_surface/script/simu.txt",
+      "grid/stl/non_planar_surface/script/grid.txt",
+      "grid/stl/non_planar_surface/input/model.stl",
+      "grid/stl/weld_tolerance/README.md",
+      "grid/stl/weld_tolerance/script/dimension.txt",
+      "grid/stl/weld_tolerance/script/simu.txt",
+      "grid/stl/weld_tolerance/script/grid.txt",
+      "grid/stl/weld_tolerance/input/model.stl"
     ]
   },
   "documentation": {
@@ -72,7 +82,9 @@
       "The original Python stl_ascii_basic reference case remains registered separately from the native C++ stl_ascii_basic runtime Case.",
       "The native stl_ascii_scientific_notation Case exercises exponent-form finite ASCII values through the production C++ STL-to-CGNS runtime path.",
       "The native stl_binary_basic Case exercises conventional binary STL parsing through the OneFLOW Grid runtime and CGNS surface writer.",
-      "The native stl_binary_header_solid Case exercises binary format detection when the opaque header begins with the ASCII word solid."
+      "The native stl_binary_header_solid Case exercises binary format detection when the opaque header begins with the ASCII word solid.",
+      "The native stl_non_planar_surface Case preserves the coordinates of a folded three-dimensional triangle surface through CGNS conversion without imposing a single-plane restriction.",
+      "The native stl_weld_tolerance Case exercises the configured coordinate quantization policy for near-coincident vertices repeated across adjacent STL facets."
     ],
     "does_not_prove": [
       "The STL surface has been welded into shared vertex topology or classified as manifold, closed or consistently oriented.",
@@ -80,7 +92,9 @@
       "The linked GoogleTests have passed on every supported platform until CI execution evidence is recorded.",
       "The STL surface is watertight, manifold, consistently oriented, or ready for CFD volume computation.",
       "The native ASCII scientific-notation Case does not establish support for every extreme exponent, locale-specific number format, or poorly conditioned geometric scale.",
-      "The two native binary runtime fixtures do not exhaust all malformed binary payloads, vendor extensions, attribute interpretations, or ambiguous format-detection cases."
+      "The two native binary runtime fixtures do not exhaust all malformed binary payloads, vendor extensions, attribute interpretations, or ambiguous format-detection cases.",
+      "The non-planar surface Case does not establish surface repair, self-intersection detection, manifoldness, watertightness, or volume meshing.",
+      "The weld-tolerance Case does not establish an optimal tolerance across arbitrary model scales or robust clustering for every spatial point distribution."
     ]
   },
   "verification": [

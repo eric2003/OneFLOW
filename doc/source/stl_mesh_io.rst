@@ -268,6 +268,14 @@ Native C++ OneFLOW Development Cases
      - Binary STL whose opaque header begins with the word `solid`
      - Native C++ runtime detects binary structure rather than relying on the header prefix
      - Every ambiguous/trailing-byte variant or all possible format-detection ambiguities
+   * - `stl_non_planar_surface`
+     - Two adjacent facets form a folded, non-planar 3D surface
+     - Native C++ STL-to-CGNS conversion preserves Z coordinates without assuming a single planar XY boundary
+     - Surface repair, self-intersection detection, manifoldness, volume meshing or solver boundary assignment
+   * - `stl_weld_tolerance`
+     - Adjacent facets repeat a shared vertex with a small coordinate perturbation
+     - Configured `stlWeldTolerance` maps near-coincident coordinates to one node; expected output is four nodes and two triangles
+     - Robust spatial clustering for arbitrary point distributions, tolerance sensitivity studies, and topology quality beyond vertex identity
 
 Python reference Development Cases
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

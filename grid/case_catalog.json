@@ -152,6 +152,22 @@
       "group": "STL"
     },
     {
+      "id": "stl_non_planar_surface",
+      "title": "STL Non-planar Surface",
+      "directory": "grid/stl/non_planar_surface",
+      "profile": null,
+      "layout": null,
+      "group": "STL"
+    },
+    {
+      "id": "stl_weld_tolerance",
+      "title": "STL Shared Vertices within Weld Tolerance",
+      "directory": "grid/stl/weld_tolerance",
+      "profile": null,
+      "layout": null,
+      "group": "STL"
+    },
+    {
       "id": "stl_python_binary_basic",
       "title": "STL Binary Basic (Python reference)",
       "directory": "grid/stl/python/binary_basic",

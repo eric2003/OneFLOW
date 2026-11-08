@@ -73,7 +73,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
     def test_stl_catalog_uses_language_neutral_case_names_and_python_namespace(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         stl_cases = [case for case in catalog["cases"] if case.get("group") == "STL"]
-        self.assertEqual(len(stl_cases), 13)
+        self.assertEqual(len(stl_cases), 15)
 
         for entry in stl_cases:
             parts = entry["directory"].split("/")
@@ -107,6 +107,34 @@ class MeshCaseCatalogTest(unittest.TestCase):
             / "input" / "model.stl"
         ).read_bytes()
         self.assertTrue(solid_header.startswith(b"solid"))
+
+    def test_native_stl_surface_cases_cover_non_planarity_and_welding_tolerance(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        cases = {
+            case["id"]: case
+            for case in catalog["cases"]
+            if case["id"] in {"stl_non_planar_surface", "stl_weld_tolerance"}
+        }
+        self.assertEqual(set(cases), {"stl_non_planar_surface", "stl_weld_tolerance"})
+        for entry in cases.values():
+            self.assertNotIn("execution", entry)
+            self.assertNotIn("runtimeConfig", entry)
+            case_root = REPOSITORY_ROOT / entry["directory"]
+            for relative in (
+                "README.md", "script/dimension.txt", "script/simu.txt",
+                "script/grid.txt", "input/model.stl",
+            ):
+                self.assertTrue((case_root / relative).is_file(), relative)
+        non_planar = (
+            REPOSITORY_ROOT / cases["stl_non_planar_surface"]["directory"]
+            / "input" / "model.stl"
+        ).read_text(encoding="ascii")
+        self.assertIn("vertex 0 1 0.25", non_planar)
+        weld_fixture = (
+            REPOSITORY_ROOT / cases["stl_weld_tolerance"]["directory"]
+            / "input" / "model.stl"
+        ).read_text(encoding="ascii")
+        self.assertIn("vertex 1.00000000002 1 0", weld_fixture)
 
     def test_turbulent_flat_plate_uses_requested_bounds_and_tanh_distribution(self) -> None:
         case_dir = REPOSITORY_ROOT / "grid" / "turbulent_flat_plate"

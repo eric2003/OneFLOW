@@ -338,14 +338,14 @@ class TestRunnerDialog(QDialog):
         )
         database_description.setWordWrap(True)
         database_layout.addWidget(database_description, 1)
-        self.case_database_check = QCheckBox("Run Development Tests")
+        self.case_database_check = QCheckBox("Run Development Cases")
         self.case_database_check.setChecked(False)
         database_layout.insertWidget(0, self.case_database_check)
-        self.python_development_check = QCheckBox("Python examples")
+        self.python_development_check = QCheckBox("Python reference cases")
         self.python_development_check.setChecked(False)
         self.python_development_check.setToolTip(
-            "When checked, Development Tests run selected Python reference cases. "
-            "When unchecked (default), they run native C++ OneFLOW cases."
+            "When checked, run selected Python reference Cases. "
+            "When unchecked (default), run native C++ OneFLOW Cases."
         )
         database_layout.insertWidget(1, self.python_development_check)
         self.case_database_button = QPushButton("Select cases...")

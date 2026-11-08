@@ -47,7 +47,7 @@ class DesktopServiceTest(unittest.TestCase):
         cases = [case for case in load_cases(REPOSITORY_ROOT) if case.group == "STL"]
         cases_by_id = {case.case_id: case for case in cases}
 
-        self.assertEqual(len(cases), 13)
+        self.assertEqual(len(cases), 15)
         self.assertEqual(cases_by_id["stl_ascii_basic"].execution_kind, "oneflow")
         self.assertIsNone(cases_by_id["stl_ascii_basic"].runtime_config)
         self.assertIsNone(cases_by_id["stl_ascii_basic"].execution_script)
@@ -55,6 +55,8 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertEqual(cases_by_id["stl_ascii_scientific_notation"].execution_kind, "oneflow")
         self.assertEqual(cases_by_id["stl_binary_basic"].execution_kind, "oneflow")
         self.assertEqual(cases_by_id["stl_binary_header_solid"].execution_kind, "oneflow")
+        self.assertEqual(cases_by_id["stl_non_planar_surface"].execution_kind, "oneflow")
+        self.assertEqual(cases_by_id["stl_weld_tolerance"].execution_kind, "oneflow")
         self.assertEqual(cases_by_id["stl_ascii_scientific_notation"].workspace_relative_directory, Path("stl/ascii_scientific_notation"))
         self.assertEqual(cases_by_id["stl_python_ascii_basic"].execution_kind, "python")
         self.assertEqual(cases_by_id["stl_python_ascii_crlf"].execution_kind, "python")
@@ -76,10 +78,11 @@ class DesktopServiceTest(unittest.TestCase):
         python = select_cases_by_execution_kind(cases, "python")
         self.assertEqual({case.case_id for case in native}, {
             "stl_ascii_basic", "stl_ascii_crlf", "stl_ascii_scientific_notation",
-            "stl_binary_basic", "stl_binary_header_solid"
+            "stl_binary_basic", "stl_binary_header_solid",
+            "stl_non_planar_surface", "stl_weld_tolerance"
         })
         self.assertEqual(len(python), 8)
-        self.assertEqual(len(native), 5)
+        self.assertEqual(len(native), 7)
         self.assertTrue(all(case.execution_kind == "oneflow" for case in native))
         self.assertTrue(all(case.execution_kind == "python" for case in python))
         with self.assertRaisesRegex(ValueError, "Unsupported"):
