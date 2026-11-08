@@ -49,19 +49,24 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertTrue(all(case.runtime_config is None for case in stl_cases))
         self.assertTrue(all(case.execution_script.is_file() for case in stl_cases))
 
-    def test_stl_development_case_runs_from_staged_workspace(self) -> None:
-        cases = load_cases(REPOSITORY_ROOT)
-        case = next(item for item in cases if item.case_id == "stl_binary_header_solid")
+    def test_all_stl_development_cases_run_from_staged_workspaces(self) -> None:
+        cases = [
+            case for case in load_cases(REPOSITORY_ROOT)
+            if case.group == "STL"
+        ]
         with tempfile.TemporaryDirectory() as directory:
-            staged = prepare_case_database_workspace([case], Path(directory) / "grid")[case.case_id]
-            result = subprocess.run(
-                [sys.executable, str(case.execution_script), "--case-directory", str(staged)],
-                cwd=REPOSITORY_ROOT, check=True, capture_output=True, text=True,
-            )
-            report = json.loads((staged / "results" / "stl_report.json").read_text(encoding="utf-8"))
-            self.assertIn('"format": "binary"', result.stdout)
-            self.assertEqual(report["triangle_count"], 2)
-            self.assertFalse((case.case_directory / "results").exists())
+            staged_cases = prepare_case_database_workspace(cases, Path(directory) / "grid")
+            for case in cases:
+                staged = staged_cases[case.case_id]
+                result = subprocess.run(
+                    [sys.executable, str(case.execution_script), "--case-directory", str(staged)],
+                    cwd=REPOSITORY_ROOT, check=True, capture_output=True, text=True,
+                )
+                report = json.loads(
+                    (staged / "results" / "stl_report.json").read_text(encoding="utf-8")
+                )
+                self.assertTrue(report["passed"], result.stdout)
+                self.assertFalse((case.case_directory / "results").exists())
 
     def test_executable_discovery_prefers_debug_then_release_then_install(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
