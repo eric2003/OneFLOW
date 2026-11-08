@@ -77,6 +77,7 @@ enum class GridFileType
     OneFLOW,
     Gridgen,
     Gmsh,
+    STL,
     Unknown
 };
 
@@ -146,6 +147,7 @@ struct GridConfig
     int           partitionCount{ 1 };
     bool          ignoreNoBoundary{ false };
     Real          scale{ 1.0 };
+    Real          stlWeldTolerance{ 1.0e-10 };
     std::array< Real, 3 > translate{};
 
     // Implemented in GridTypes.cpp (needs DataBase).
@@ -213,6 +215,7 @@ inline bool EqualIgnoreCase( std::string_view a, std::string_view b ) noexcept
     if ( grid_types_detail::EqualIgnoreCase( name, "oneflow" ) ) return GridFileType::OneFLOW;
     if ( grid_types_detail::EqualIgnoreCase( name, "gridgen" ) ) return GridFileType::Gridgen;
     if ( grid_types_detail::EqualIgnoreCase( name, "gmsh" ) ) return GridFileType::Gmsh;
+    if ( grid_types_detail::EqualIgnoreCase( name, "stl" ) ) return GridFileType::STL;
     return GridFileType::Unknown;
 }
 
@@ -226,6 +229,7 @@ inline bool EqualIgnoreCase( std::string_view a, std::string_view b ) noexcept
         case GridFileType::OneFLOW: return "oneflow";
         case GridFileType::Gridgen: return "gridgen";
         case GridFileType::Gmsh:    return "gmsh";
+        case GridFileType::STL:      return "stl";
         default:                    return "unknown";
     }
 }

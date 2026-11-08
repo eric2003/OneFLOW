@@ -103,13 +103,12 @@
     },
     {
       "id": "stl_ascii_basic",
-      "title": "STL ASCII Basic",
-      "directory": "grid/stl/cases/ascii_basic",
-      "group": "STL",
-      "execution": {
-        "kind": "python",
-        "script": "grid/stl/run_case.py"
-      }
+      "title": "STL ASCII Basic (OneFLOW C++)",
+      "directory": "grid/stl/ascii_basic",
+      "runtimeConfig": "script/control.txt",
+      "profile": null,
+      "layout": null,
+      "group": "STL"
     },
     {
       "id": "stl_binary_basic",
