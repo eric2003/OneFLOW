@@ -23,10 +23,6 @@ License
 
 #include <nlohmann/json.hpp>
 
-#if defined(ONEFLOW_HDF5_HEADER_AVAILABLE)
-#include <H5public.h>
-#endif
-
 #include <cstdint>
 #include <iomanip>
 #include <sstream>
@@ -263,9 +259,9 @@ Json QueryCgnsDependency()
         {"enabled", false},
         {"status", "disabled"},
         {"runtime_version", nullptr},
-        {"header_version", headerVersion},
+        {"header_version", nullptr},
         {"version_compatibility",
-            BuildVersionCompatibility(headerVersion, nullptr)},
+            BuildVersionCompatibility(nullptr, nullptr)},
         {"runtime_library", nullptr}
     };
 }
@@ -350,24 +346,8 @@ RuntimeSymbolInfo FindHdf5VersionSymbol(Hdf5GetLibVersion & function)
     return result;
 }
 
-Json QueryHdf5HeaderVersion()
-{
-#if defined(ONEFLOW_HDF5_HEADER_AVAILABLE)
-    std::ostringstream version;
-    version << H5_VERS_MAJOR << '.' << H5_VERS_MINOR << '.' << H5_VERS_RELEASE;
-    return {
-        {"value", version.str()},
-        {"source", "H5_VERS_MAJOR_MINOR_RELEASE_compile_time_macros"},
-        {"header_path", ONEFLOW_HDF5_HEADER_PATH}
-    };
-#else
-    return nullptr;
-#endif
-}
-
 Json QueryHdf5Dependency()
 {
-    const Json headerVersion = QueryHdf5HeaderVersion();
     Hdf5GetLibVersion getVersion = nullptr;
     const RuntimeSymbolInfo module = FindHdf5VersionSymbol(getVersion);
     if (getVersion == nullptr)
@@ -430,7 +410,7 @@ Json QueryHdf5Dependency()
         {"runtime_version_status", "available"},
         {"header_version", headerVersion},
         {"version_compatibility",
-            BuildVersionCompatibility(headerVersion, Json{{"value", version.str()}})},
+            BuildVersionCompatibility(nullptr, Json{{"value", version.str()}})},
         {"runtime_library", {
             {"module_path", module.modulePath},
             {"linkage", module.linkage}
