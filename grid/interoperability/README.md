@@ -57,8 +57,11 @@ been permuted.
 ## Current routes
 
 See `conversion_matrix.json` for the maintained route inventory. Currently
-implemented paths include Gmsh -> CGNS, Gmsh -> OneFLOW (composed through
-CGNS), CGNS -> OneFLOW, Plot3D -> CGNS, Plot3D -> OneFLOW and SU2 -> OneFLOW.
+implemented paths include planar STL -> Gmsh generation, Gmsh -> CGNS,
+Gmsh -> OneFLOW (composed through CGNS), CGNS -> OneFLOW, Plot3D -> CGNS,
+Plot3D -> OneFLOW and SU2 -> OneFLOW. The STL -> Gmsh path currently supports
+axis-aligned planar quadrilateral boundaries and explicit structured
+QUAD_4 cell layouts; its MSH 4.1 output feeds the Gmsh reader.
 
 ## Adding a route
 

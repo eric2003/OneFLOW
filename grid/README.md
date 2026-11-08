@@ -53,9 +53,12 @@ duplicate parameter values in the catalog.
 | `gmsh_to_cgns` | Manual GUI example for Gmsh MSH 4.1 ASCII to CGNS conversion | `script/control.txt`, `grid/square.msh`, `README.md` |
 | `gmsh_to_oneflow` | Manual GUI example for Gmsh MSH 4.1 ASCII through CGNS to a native OneFLOW grid | `script/control.txt`, `grid/single_quad.msh`, `README.md` |
 | `two_quads` | Self-contained two-cell Gmsh conversion example with an explicitly ungrouped internal interface | `grid/conversion/cases/two_quads` |
+| `stl_to_gmsh` | External Gmsh CLI workflow generating one or two structured QUAD_4 meshes from planar STL with four named boundaries | `grid/stl/stl_to_gmsh/run_case.py`, staged `results/` |
 | `laminar_flat_plate` | Reference two-block flat-plate mesh with 85 wall-normal points | `case.json`, `grid/laminarFlatPlateLayout.txt` |
 | `laminar_flat_plate_10_edges` | Two-block laminar flat plate with ten geometric line segments and 41 points across the first 0.02 near-wall region | `case.json`, `grid/laminarFlatPlate10EdgeLayout.txt` |
 | `turbulent_flat_plate` | Flat-plate mesh variant with 81 wall-normal points and updated expected topology counts | `case.json`, `grid/turbulentFlatPlateLayout.txt` |
+
+The `stl_to_gmsh` workflow is a pre-meshing generator and requires the Gmsh executable; it is not a native OneFLOW runtime case. Its MSH 4.1 outputs feed the existing Gmsh-to-CGNS/OneFLOW conversion paths.
 
 ## Conversion Case organization
 
