@@ -78,8 +78,38 @@ TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
     EXPECT_TRUE(hdf5Compatibility.at("status").is_string());
     EXPECT_TRUE(hdf5Compatibility.at("basis").is_string());
     EXPECT_TRUE(hdf5Compatibility.at("detail").is_string());
-    EXPECT_EQ(hdf5Compatibility.at("status"), "unknown");
+    const auto & hdf5HeaderVersion = hdf5.at("header_version");
     const auto & hdf5Version = hdf5.at("runtime_version");
+    const bool hasHdf5Header =
+        hdf5HeaderVersion.is_object() &&
+        hdf5HeaderVersion.contains("value") &&
+        hdf5HeaderVersion.at("value").is_string() &&
+        !hdf5HeaderVersion.at("value").get<std::string>().empty();
+    if (hasHdf5Header)
+    {
+        EXPECT_EQ(
+            hdf5HeaderVersion.at("source"),
+            "H5_VERS_MAJOR_MINOR_RELEASE_compile_time_macros");
+        EXPECT_TRUE(hdf5HeaderVersion.contains("header_path"));
+        EXPECT_FALSE(hdf5HeaderVersion.at("header_path").get<std::string>().empty());
+        if (hdf5Version.is_object() &&
+            hdf5Version.contains("value") &&
+            hdf5Version.at("value").is_string())
+        {
+            EXPECT_TRUE(
+                hdf5Compatibility.at("status") == "verified_match" ||
+                hdf5Compatibility.at("status") == "mismatch");
+        }
+        else
+        {
+            EXPECT_EQ(hdf5Compatibility.at("status"), "assumed_match");
+            EXPECT_EQ(hdf5Compatibility.at("basis"), "header_version");
+        }
+    }
+    else
+    {
+        EXPECT_EQ(hdf5Compatibility.at("status"), "unknown");
+    }
     if (hdf5.at("enabled").get<bool>())
     {
         EXPECT_TRUE(
