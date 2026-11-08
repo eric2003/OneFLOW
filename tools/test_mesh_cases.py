@@ -73,7 +73,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
     def test_stl_catalog_uses_language_neutral_case_names_and_python_namespace(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         stl_cases = [case for case in catalog["cases"] if case.get("group") == "STL"]
-        self.assertEqual(len(stl_cases), 10)
+        self.assertEqual(len(stl_cases), 13)
 
         for entry in stl_cases:
             parts = entry["directory"].split("/")
@@ -85,6 +85,28 @@ class MeshCaseCatalogTest(unittest.TestCase):
                 self.assertEqual(parts[:2], ["grid", "stl"])
                 self.assertEqual(len(parts), 3)
                 self.assertEqual(entry["id"], f"stl_{parts[-1]}")
+
+    def test_native_stl_binary_cases_have_standard_binary_record_layout(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        cases = {
+            case["id"]: case
+            for case in catalog["cases"]
+            if case["id"] in {"stl_binary_basic", "stl_binary_header_solid"}
+        }
+        self.assertEqual(set(cases), {"stl_binary_basic", "stl_binary_header_solid"})
+        for case_id, entry in cases.items():
+            self.assertNotIn("execution", entry)
+            self.assertNotIn("runtimeConfig", entry)
+            fixture = (
+                REPOSITORY_ROOT / entry["directory"] / "input" / "model.stl"
+            ).read_bytes()
+            self.assertEqual(len(fixture), 84 + 50 * 2)
+            self.assertEqual(int.from_bytes(fixture[80:84], "little"), 2)
+        solid_header = (
+            REPOSITORY_ROOT / cases["stl_binary_header_solid"]["directory"]
+            / "input" / "model.stl"
+        ).read_bytes()
+        self.assertTrue(solid_header.startswith(b"solid"))
 
     def test_turbulent_flat_plate_uses_requested_bounds_and_tanh_distribution(self) -> None:
         case_dir = REPOSITORY_ROOT / "grid" / "turbulent_flat_plate"
