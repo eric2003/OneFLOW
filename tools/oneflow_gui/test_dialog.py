@@ -682,9 +682,12 @@ class CaseDatabaseSelectionDialog(QDialog):
             )
             case_item.setData(0, Qt.ItemDataRole.UserRole, case.case_id)
             case_item.setText(1, case.title)
-            case_item.setText(
-                2, "Typed profile" if case.profile else "Legacy config"
+            configuration = (
+                f"Python: {case.execution_script.name}"
+                if case.execution_kind == "python" and case.execution_script is not None
+                else ("Typed profile" if case.profile else "Legacy config")
             )
+            case_item.setText(2, configuration)
             case_item.setCheckState(
                 0,
                 Qt.CheckState.Checked
