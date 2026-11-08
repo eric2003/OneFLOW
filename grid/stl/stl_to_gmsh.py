@@ -97,13 +97,13 @@ def extract_boundary(triangles: Iterable[Triangle], tolerance: float = 1e-9) -> 
     if max(zs)-min(zs) > tolerance:
         raise Stl2DError("first-stage 2D STL must lie in a constant-Z XY plane")
     points, tri_ids = _weld_vertices(raw, tolerance)
+    for ids in tri_ids:
         if len(set(ids)) != 3:
             raise Stl2DError("degenerate triangle after vertex welding")
         a,b,c = (points[i] for i in ids)
         area2 = abs((b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]))
         if area2 <= tolerance*tolerance:
             raise Stl2DError("zero-area triangle in XY plane")
-        tri_ids.append(tuple(ids))
     incidence = Counter()
     for a,b,c in tri_ids:
         for u,v in ((a,b),(b,c),(c,a)):
