@@ -41,18 +41,26 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertEqual(cases_by_id["gmsh_to_cgns"].group, "Gmsh")
         self.assertEqual(cases_by_id["gmsh_to_oneflow"].group, "Gmsh")
 
-    def test_stl_cases_are_available_as_python_development_cases(self) -> None:
-        cases = load_cases(REPOSITORY_ROOT)
-        stl_cases = [case for case in cases if case.group == "STL"]
-        self.assertEqual(len(stl_cases), 8)
-        self.assertTrue(all(case.execution_kind == "python" for case in stl_cases))
-        self.assertTrue(all(case.runtime_config is None for case in stl_cases))
-        self.assertTrue(all(case.execution_script.is_file() for case in stl_cases))
+    def test_stl_catalog_contains_native_and_python_development_cases(self) -> None:
+        cases = [case for case in load_cases(REPOSITORY_ROOT) if case.group == "STL"]
+        cases_by_id = {case.case_id: case for case in cases}
 
-    def test_all_stl_development_cases_run_from_staged_workspaces(self) -> None:
+        self.assertEqual(len(cases), 8)
+        self.assertEqual(cases_by_id["stl_ascii_basic"].execution_kind, "oneflow")
+        self.assertIsNotNone(cases_by_id["stl_ascii_basic"].runtime_config)
+        self.assertTrue(cases_by_id["stl_ascii_basic"].runtime_config.is_file())
+        self.assertIsNone(cases_by_id["stl_ascii_basic"].execution_script)
+
+        python_cases = [case for case in cases if case.execution_kind == "python"]
+        self.assertEqual(len(python_cases), 7)
+        self.assertTrue(all(case.runtime_config is None for case in python_cases))
+        self.assertTrue(all(case.execution_script is not None and case.execution_script.is_file()
+                            for case in python_cases))
+
+    def test_python_stl_development_cases_run_from_staged_workspaces(self) -> None:
         cases = [
             case for case in load_cases(REPOSITORY_ROOT)
-            if case.group == "STL"
+            if case.group == "STL" and case.execution_kind == "python"
         ]
         with tempfile.TemporaryDirectory() as directory:
             staged_cases = prepare_case_database_workspace(cases, Path(directory) / "grid")
@@ -67,6 +75,21 @@ class DesktopServiceTest(unittest.TestCase):
                 )
                 self.assertTrue(report["passed"], result.stdout)
                 self.assertFalse((case.case_directory / "results").exists())
+
+    def test_native_stl_case_is_staged_with_its_runtime_manifest(self) -> None:
+        cases = [
+            case for case in load_cases(REPOSITORY_ROOT)
+            if case.case_id == "stl_ascii_basic"
+        ]
+        self.assertEqual(len(cases), 1)
+        with tempfile.TemporaryDirectory() as directory:
+            staged_cases = prepare_case_database_workspace(cases, Path(directory) / "grid")
+            staged = staged_cases["stl_ascii_basic"]
+            self.assertTrue((staged / "script" / "control.txt").is_file())
+            self.assertTrue((staged / "script" / "simu.txt").is_file())
+            self.assertTrue((staged / "script" / "grid.txt").is_file())
+            self.assertTrue((staged / "input" / "model.stl").is_file())
+            self.assertFalse((cases[0].case_directory / "results").exists())
 
     def test_executable_discovery_prefers_debug_then_release_then_install(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -116,9 +139,9 @@ class DesktopServiceTest(unittest.TestCase):
             source = root / "source_case"
             (source / "script").mkdir(parents=True)
             source_config = source / "script" / "control.txt"
-            source_config.write_text('"simu.txt";\n', encoding="utf-8")
+            source_config.write_text('"simu.txt";\\n', encoding="utf-8")
             (source / "script" / "simu.txt").write_text(
-                'string simutask = "Grid";\n', encoding="utf-8"
+                'string simutask = "Grid";\\n', encoding="utf-8"
             )
             case = CaseDefinition(
                 case_id="sample",
@@ -131,7 +154,7 @@ class DesktopServiceTest(unittest.TestCase):
 
             copied = _copy_case_to_workspace(case, root / "runs", "run-001")
             self.assertTrue((copied / "script" / "control.txt").is_file())
-            self.assertEqual(source_config.read_text(encoding="utf-8"), '"simu.txt";\n')
+            self.assertEqual(source_config.read_text(encoding="utf-8"), '"simu.txt";\\n')
             self.assertNotEqual(copied, source)
 
     def test_case_database_mode_refreshes_the_workspace(self) -> None:
