@@ -113,9 +113,10 @@ class DesktopServiceTest(unittest.TestCase):
             if case.case_id in {
                 "stl_ascii_basic", "stl_ascii_crlf", "stl_ascii_scientific_notation",
                 "stl_binary_basic", "stl_binary_header_solid",
+                "stl_non_planar_surface", "stl_weld_tolerance",
             }
         ]
-        self.assertEqual(len(cases), 5)
+        self.assertEqual(len(cases), 7)
         with tempfile.TemporaryDirectory() as directory:
             staged_cases = prepare_case_database_workspace(cases, Path(directory) / "grid")
             for case in cases:
