@@ -91,7 +91,7 @@ class Stl2DGmshTest(unittest.TestCase):
             sidecar.write_text(json.dumps(config), encoding="utf-8")
             report = convert(DATA / "square.stl", sidecar, geo)
             content = geo.read_text(encoding="utf-8")
-            self.assertEqual(report["boundary_edges"], 4)
+            self.assertEqual(report["body_boundary_edges"], 4)
             self.assertIn("Curve Loop(1) = {5, 6, 7, 8};", content)
             self.assertIn("Curve Loop(2) = {-4, -3, -2, -1};", content)
             self.assertIn("Plane Surface(1) = {1, 2};", content)
