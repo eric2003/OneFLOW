@@ -4,8 +4,8 @@
   "title": "Native STL surface reader and writer",
   "domain": "mesh",
   "kind": "mesh_format_adapter",
-  "status": "proposed",
-  "overview": "A proposed native C++ STL surface I/O capability owned by OneFLOW Geometry. The current grid/stl Python utility is a separate planar-boundary and Gmsh-generation tool; its tests do not exercise the C++ geometry implementation.",
+  "status": "partially_verified",
+  "overview": "Native C++ STL surface reader and writer in OneFLOW Geometry. The implementation preserves source facets, binary headers and attributes while keeping parsing separate from topology construction. The Python grid/stl utility remains a separate planar-boundary and Gmsh-generation tool.",
   "principle": "STL stores an ordered sequence of triangle facets, not a shared-vertex mesh or CFD volume mesh. Preserve each facet's stored normal, ordered vertices, binary attribute value and binary header. Do not weld vertices, repair normals, infer units, invent boundary groups or assign solver boundary conditions during parsing. Binary records require explicit little-endian decoding; a header beginning with 'solid' is not proof of ASCII.",
   "architecture": "ASCII/Binary STL -> C++ StlMeshReader -> value-based StlMesh -> explicit validation -> explicit topology construction -> Mesh Core or downstream format adapters. StlMeshWriter serializes the same value model to ASCII or Binary STL. The adapter has no Gmsh, CGNS, Qt or Python dependency.",
   "references": [
@@ -15,7 +15,10 @@
     "doc/source/mesh_architecture.rst"
   ],
   "implementation": {
-    "source_paths": []
+    "source_paths": [
+      "codes/geometry/include/StlMeshIO.h",
+      "codes/geometry/src/StlMeshIO.cpp"
+    ]
   },
   "documentation": {
     "paths": [
@@ -26,17 +29,67 @@
   },
   "claims": {
     "proves": [
-      "Defines the intended C++ Geometry ownership boundary and value-preserving STL reader/writer responsibilities.",
-      "Defines ASCII and binary record semantics, format-detection hazards, source-facet preservation rules and native C++ verification criteria."
+      "The C++ Geometry module provides native ASCII and Binary STL read/write APIs using a value-based facet model.",
+      "Binary parsing uses explicit little-endian field decoding and preserves the opaque header and 16-bit facet attribute.",
+      "ASCII and Binary STL writer/reader paths have linked native GoogleTest declarations for round-trip and malformed-data behavior."
     ],
     "does_not_prove": [
-      "A production C++ STL reader or writer currently exists.",
-      "The existing Python STL development cases exercise OneFLOW C++ geometry.",
-      "Vertex welding, manifold repair, surface closure, volume meshing, CFD boundary assignment or conversion to OneFLOW Mesh Core is implemented.",
-      "STL carries units, shared vertex identity, named physical groups or solver boundary-condition semantics."
+      "The STL surface has been welded into shared vertex topology or classified as manifold, closed or consistently oriented.",
+      "STL has been converted through the C++ adapter into OneFLOW Mesh Core, CGNS or a volume mesh.",
+      "STL carries units, named physical groups or solver boundary-condition semantics.",
+      "The linked GoogleTests have passed on every supported platform until CI execution evidence is recorded."
     ]
   },
-  "verification": [],
+  "verification": [
+    {
+      "kind": "google_test",
+      "reference": "StlMeshIOTest.ReadsAsciiFacetAndPreservesVertexOrder",
+      "status": "linked_not_executed",
+      "scope": "tests/geometry/StlMeshIOTest.cpp; native C++ ASCII STL parsing and ordered facet data."
+    },
+    {
+      "kind": "google_test",
+      "reference": "StlMeshIOTest.ReadsBinaryAndPreservesSolidHeaderAndAttribute",
+      "status": "linked_not_executed",
+      "scope": "tests/geometry/StlMeshIOTest.cpp; binary STL parsing including a header beginning with solid and the attribute field."
+    },
+    {
+      "kind": "google_test",
+      "reference": "StlMeshIOTest.RejectsTruncatedBinaryFacet",
+      "status": "linked_not_executed",
+      "scope": "tests/geometry/StlMeshIOTest.cpp; malformed binary STL length is rejected."
+    },
+    {
+      "kind": "google_test",
+      "reference": "StlMeshIOTest.RejectsNonFiniteAsciiCoordinates",
+      "status": "linked_not_executed",
+      "scope": "tests/geometry/StlMeshIOTest.cpp; non-finite ASCII numeric data is rejected."
+    },
+    {
+      "kind": "google_test",
+      "reference": "StlMeshIOTest.WritesBinaryAndRoundTripsAttributeAndFacetData",
+      "status": "linked_not_executed",
+      "scope": "tests/geometry/StlMeshIOTest.cpp; binary writer layout and lossless facet attribute round trip."
+    },
+    {
+      "kind": "google_test",
+      "reference": "StlMeshIOTest.WritesAsciiAndRoundTripsFacetGeometry",
+      "status": "linked_not_executed",
+      "scope": "tests/geometry/StlMeshIOTest.cpp; ASCII writer and geometry round trip."
+    },
+    {
+      "kind": "google_test",
+      "reference": "StlMeshIOTest.RejectsAsciiWriteWhenBinaryAttributesWouldBeLost",
+      "status": "linked_not_executed",
+      "scope": "tests/geometry/StlMeshIOTest.cpp; ASCII writer refuses silent loss of binary attributes."
+    },
+    {
+      "kind": "google_test",
+      "reference": "StlMeshIOTest.RejectsBinaryWriterValuesOutsideFloat32Range",
+      "status": "linked_not_executed",
+      "scope": "tests/geometry/StlMeshIOTest.cpp; binary writer rejects values not representable as finite float32."
+    }
+  ],
   "group": {
     "id": "mesh_formats",
     "title": "Interchange Formats",

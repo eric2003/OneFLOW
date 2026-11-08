@@ -7,11 +7,12 @@ Purpose and status
 This page defines the target architecture and verification contract for native
 STL surface-file support in the C++ codes/geometry module.
 
-**Status: proposed.** The current Python implementation in
+**Status: first C++ I/O slice implemented; CI verification pending.** The current Python implementation in
 grid/stl/stl_to_gmsh.py is a separate planar-surface conversion tool. Its tests
 do not exercise OneFLOW's C++ geometry code. The native reader and writer
-described here must be implemented and tested before the Mesh Contract
-Workbench can report native STL I/O as implemented or verified.
+are now implemented in StlMeshIO.h and StlMeshIO.cpp. Native GoogleTests are
+registered in tests/geometry/StlMeshIOTest.cpp; their execution status is
+tracked separately by the Mesh Contract Workbench.
 
 STL's role in the geometry architecture
 ----------------------------------------
@@ -244,10 +245,11 @@ The machine-readable contract is
 tools/verification/contracts/mesh/stl-native-io.json, with ID
 mesh/stl-native-io. It is grouped under Mesh / Interchange Formats and
 currently has status proposed. The Overview, Principle, Reference and
-Architecture tabs describe the target. Implementation source paths and
-verification evidence remain empty until corresponding C++ files and tests
-are committed. This prevents a design declaration from being mistaken for
-working code.
+Architecture tabs describe the target. The Implementation tab links the C++ header/source and the Verification
+tab links native GoogleTests. Linked tests are declarations, not PASS results;
+CI must provide execution evidence before the contract can be promoted to
+verified. This prevents a source declaration from being mistaken for a
+passing test.
 
 References
 ----------
