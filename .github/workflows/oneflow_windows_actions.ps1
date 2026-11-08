@@ -940,6 +940,13 @@ function CompileOneFLOW() {
 
     $cmake_config_args = @()
 
+    $external_tool_tests = $env:ONEFLOW_EXTERNAL_TOOL_TESTS
+    if ( [string]::IsNullOrWhiteSpace( $external_tool_tests ) ) {
+        $external_tool_tests = "AUTO"
+    }
+    $cmake_config_args +=
+        "-DONEFLOW_EXTERNAL_TOOL_TESTS=$external_tool_tests"
+
     # Ninja is a single-config generator.
     # Its build type must be selected during configure.
     if ( $cmake_generator -like "Ninja*" ) {
