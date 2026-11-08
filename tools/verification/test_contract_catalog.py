@@ -92,6 +92,8 @@ class ContractCatalogTest(unittest.TestCase):
             {
                 "codes/geometry/include/StlMeshIO.h",
                 "codes/geometry/src/StlMeshIO.cpp",
+                "codes/geometry/src/GridConversion.cpp",
+                "codes/geometry/src/GridTypes.cpp",
             },
         )
         self.assertIn("doc/source/stl_mesh_io.rst", contract.documentation_paths)
