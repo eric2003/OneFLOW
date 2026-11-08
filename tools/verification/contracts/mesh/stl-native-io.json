@@ -108,15 +108,15 @@
       "scope": "tests/geometry/StlMeshIOTest.cpp; binary writer rejects values not representable as finite float32."
     },
     {
-      "kind": "native_case",
+      "kind": "case_suite",
       "reference": "stl_ascii_crlf_native",
-      "status": "catalogued_not_executed",
+      "status": "declared_not_executed",
       "scope": "Native OneFLOW Grid task, CRLF ASCII STL input, automatic parameter discovery without control.txt, and CGNS surface output."
     },
     {
-      "kind": "python_reference_case",
+      "kind": "python_test",
       "reference": "stl_ascii_basic_python",
-      "status": "catalogued",
+      "status": "declared_not_executed",
       "scope": "grid/stl/cases/ascii_basic; Python STL parser and planar-boundary extraction reference path, distinct from native OneFLOW runtime conversion."
     }
   ],
