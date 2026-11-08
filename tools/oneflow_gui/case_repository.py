@@ -21,11 +21,14 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
     for entry in catalog["cases"]:
         errors.extend(validate_case(root, entry))
         case_directory = (root / entry["directory"]).resolve()
-        runtime_config = (case_directory / entry["runtimeConfig"]).resolve()
         profile_value = entry.get("profile")
         layout_value = entry.get("layout")
         execution = entry.get("execution") or {}
         execution_kind = str(execution.get("kind") or "oneflow")
+        runtime_config = (
+            (case_directory / entry["runtimeConfig"]).resolve()
+            if execution_kind == "oneflow" else None
+        )
         execution_script = (root / execution["script"]).resolve() if execution_kind == "python" else None
         cases.append(
             CaseDefinition(
