@@ -208,7 +208,9 @@ int PointLocator::FindPoint( const RealField & coordinate )
             coordinate[ 0 ], coordinate[ 1 ], coordinate[ 2 ],
             nx, ny, nz );
 
-        if ( distSq < minSquaredDist )
+        if ( distSq < minSquaredDist ||
+             ( distSq == minSquaredDist &&
+               ( bestId == INVALID_INDEX || candidateId < bestId ) ) )
         {
             minSquaredDist = distSq;
             bestId = candidateId;

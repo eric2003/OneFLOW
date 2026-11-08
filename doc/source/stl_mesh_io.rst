@@ -462,3 +462,37 @@ IDs such as ``stl_ascii_crlf``. Python reference Cases live under
 because catalog IDs are globally unique. This keeps the case identity readable
 while making the implementation boundary explicit in the directory and
 execution metadata. New STL Cases must follow this convention.
+
+
+Tolerance-based vertex identity and spatial data structures
+-----------------------------------------------------------
+
+The previous native conversion and Python planar helper used coordinate-wise
+rounding by the weld tolerance. Rounding is not a geometric distance test:
+near points can fall on opposite cells, while points in one cell can be farther
+apart than the tolerance.
+
+The native C++ conversion now reuses the existing ADT-backed PointLocator.
+The ADT is only a broad-phase spatial index; the locator applies an exact
+squared Euclidean distance check in the narrow phase. The Python reference
+uses a tolerance-sized spatial hash, searches the 27 neighboring buckets, and
+applies the same Euclidean predicate. Both retain the first inserted point as
+the representative and reuse the nearest matching representative.
+
+This is representative-based welding, not transitive connected-component
+clustering. For A-B-C where A-B and B-C are within tolerance but A-C is not,
+the algorithm does not merge C merely because B matched A. This policy is
+explicit because transitive closure can change topology and can chain together
+points whose total spread is much larger than the tolerance.
+
+ADT, KD-tree and uniform-grid hashing are candidate lookup structures; none
+defines geometric identity. A candidate must pass the narrow-phase metric.
+OneFLOW already vendors nanoflann, but a second spatial dependency is not
+justified here: the existing ADT PointLocator serves the native path, while
+nanoflann remains an option to benchmark if profiling later shows a need.
+
+StlVertexWeldingTest and the Python reference tests cover cell-boundary misses,
+same-cell false merges and non-transitive representative behavior. This does
+not port Gmsh .geo generation, sidecar physical-boundary assignment or the
+external Gmsh CLI tests into C++; those belong to a separate Gmsh conversion
+adapter and must not be represented as STL parser coverage.

@@ -1,7 +1,7 @@
 from __future__ import annotations
 import json, shutil, struct, subprocess, tempfile, unittest
 from pathlib import Path
-from .stl_to_gmsh import Stl2DError, build_geo, convert, extract_boundary, read_stl
+from .stl_to_gmsh import Stl2DError, _weld_vertices, build_geo, convert, extract_boundary, read_stl
 
 DATA = Path(__file__).parent / "fixtures"
 
@@ -178,5 +178,35 @@ class Stl2DGmshTest(unittest.TestCase):
             self.assertEqual(result["format"], "ascii")
             self.assertEqual(result["triangle_count"], 2)
             self.assertEqual(result["boundary_edge_count"], 4)
+
+
+    def test_welding_matches_across_rounding_cell_boundary(self):
+        raw = [
+            (0.0, 0.0, 0.0), (0.2, 0.0, 0.0), (0.2, 0.2, 0.0),
+            (0.201, 0.2, 0.0), (0.0, 0.2, 0.0), (0.001, 0.0, 0.0),
+        ]
+        points, triangles = _weld_vertices(raw, 0.1)
+        self.assertEqual(len(points), 4)
+        self.assertEqual(triangles[0][0], triangles[1][2])
+        self.assertEqual(triangles[0][2], triangles[1][0])
+
+    def test_welding_rejects_false_merge_within_rounded_cell(self):
+        raw = [
+            (0.49, 0.49, 0.0), (2.0, 0.0, 0.0), (0.0, 2.0, 0.0),
+            (-0.49, -0.49, 0.0), (2.0, 1.0, 0.0), (0.0, 2.0, 1.0),
+        ]
+        points, triangles = _weld_vertices(raw, 1.0)
+        self.assertNotEqual(triangles[0][0], triangles[1][0])
+        self.assertEqual(len(points), 6)
+
+    def test_welding_does_not_take_transitive_closure(self):
+        raw = [
+            (0.0, 0.0, 0.0), (4.0, 0.0, 0.0), (0.0, 4.0, 0.0),
+            (0.75, 0.0, 0.0), (4.0, 1.0, 0.0), (0.0, 4.0, 1.0),
+            (1.5, 0.0, 0.0), (5.0, 0.0, 0.0), (0.0, 5.0, 0.0),
+        ]
+        points, triangles = _weld_vertices(raw, 1.0)
+        self.assertEqual(triangles[0][0], triangles[1][0])
+        self.assertNotEqual(triangles[0][0], triangles[2][0])
 
 if __name__ == "__main__": unittest.main()

@@ -50,6 +50,43 @@ def _check_simple_loop(loop: list[Point], tol: float) -> None:
             if ((o1 > tol and o2 < -tol) or (o1 < -tol and o2 > tol)) and ((o3 > tol and o4 < -tol) or (o3 < -tol and o4 > tol)):
                 raise Stl2DError("extracted boundary self-intersects")
 
+
+def _weld_vertices(raw: list[Point], tolerance: float) -> tuple[list[Point], list[tuple[int, int, int]]]:
+    """Weld against first-seen representatives using exact Euclidean distance."""
+    origin = tuple(min(p[axis] for p in raw) for axis in range(3))
+    buckets: dict[tuple[int, int, int], list[int]] = defaultdict(list)
+    points: list[Point] = []
+    tri_ids: list[tuple[int, int, int]] = []
+    tolerance2 = tolerance * tolerance
+    for start in range(0, len(raw), 3):
+        ids = []
+        for p in raw[start:start+3]:
+            relative = tuple((p[axis] - origin[axis]) / tolerance for axis in range(3))
+            if not all(math.isfinite(value) for value in relative):
+                raise Stl2DError("coordinate range is too large for the requested weld tolerance")
+            key = tuple(math.floor(value) for value in relative)
+            candidates = []
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    for dz in (-1, 0, 1):
+                        candidates.extend(buckets.get((key[0]+dx, key[1]+dy, key[2]+dz), ()))
+            best = None
+            best_distance2 = tolerance2
+            for point_id in candidates:
+                q = points[point_id]
+                distance2 = sum((p[axis] - q[axis]) ** 2 for axis in range(3))
+                if distance2 < best_distance2 or (
+                    distance2 == best_distance2 and (best is None or point_id < best)
+                ):
+                    best, best_distance2 = point_id, distance2
+            if best is None:
+                best = len(points)
+                points.append(p)
+                buckets[key].append(best)
+            ids.append(best)
+        tri_ids.append(tuple(ids))
+    return points, tri_ids
+
 def extract_boundary(triangles: Iterable[Triangle], tolerance: float = 1e-9) -> list[Point]:
     if tolerance <= 0 or not math.isfinite(tolerance):
         raise Stl2DError("tolerance must be positive and finite")
@@ -59,15 +96,7 @@ def extract_boundary(triangles: Iterable[Triangle], tolerance: float = 1e-9) -> 
     zs = [p[2] for p in raw]
     if max(zs)-min(zs) > tolerance:
         raise Stl2DError("first-stage 2D STL must lie in a constant-Z XY plane")
-    keys, points, tri_ids = {}, [], []
-    for start in range(0, len(raw), 3):
-        ids = []
-        for p in raw[start:start+3]:
-            key = tuple(round(v/tolerance) for v in p)
-            if key not in keys:
-                keys[key] = len(points)
-                points.append(p)
-            ids.append(keys[key])
+    points, tri_ids = _weld_vertices(raw, tolerance)
         if len(set(ids)) != 3:
             raise Stl2DError("degenerate triangle after vertex welding")
         a,b,c = (points[i] for i in ids)

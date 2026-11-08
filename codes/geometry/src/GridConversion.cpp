@@ -23,6 +23,7 @@ License
 #include "GridConversion.h"
 #include "GmshMeshReader.h"
 #include "StlMeshIO.h"
+#include "PointLocator.h"
 #include "CgnsFactory.h"
 #include "CgnsZbase.h"
 #include "CgnsBase.h"
@@ -668,35 +669,50 @@ namespace
             throw std::invalid_argument( "stlWeldTolerance must be finite and greater than zero" );
         UnstructuredMeshData grid;
         grid.ndim = 2;
-        std::map< std::array< long long, 3 >, int > vertexMap;
+
+        // The ADT supplies candidates only; PointLocator applies the exact
+        // Euclidean tolerance test before reusing a node.
+        RealField pmin( 3 ), pmax( 3 );
+        for ( size_t axis = 0; axis < 3; ++axis )
+        {
+            pmin[ axis ] = std::numeric_limits< Real >::max();
+            pmax[ axis ] = -std::numeric_limits< Real >::max();
+        }
+        for ( const StlTriangle & triangle : mesh.triangles )
+        {
+            for ( const auto & vertex : triangle.vertices )
+            {
+                for ( size_t axis = 0; axis < 3; ++axis )
+                {
+                    pmin[ axis ] = std::min( pmin[ axis ], static_cast< Real >( vertex[ axis ] ) );
+                    pmax[ axis ] = std::max( pmax[ axis ], static_cast< Real >( vertex[ axis ] ) );
+                }
+            }
+        }
+
+        PointLocator vertexLocator;
+        vertexLocator.Initialize( pmin, pmax, static_cast< Real >( weldTolerance ) );
         for ( const StlTriangle & triangle : mesh.triangles )
         {
             IntField connectivity;
             connectivity.reserve( 3 );
             for ( const auto & vertex : triangle.vertices )
             {
-                std::array< long long, 3 > key{};
-                for ( size_t axis = 0; axis < 3; ++axis )
+                const int pointId = vertexLocator.AddPoint(
+                    static_cast< Real >( vertex[ 0 ] ),
+                    static_cast< Real >( vertex[ 1 ] ),
+                    static_cast< Real >( vertex[ 2 ] ) );
+                if ( pointId < 0 )
+                    throw std::runtime_error( "STL vertex locator returned an invalid point ID" );
+                if ( static_cast< size_t >( pointId ) == grid.xN.size() )
                 {
-                    const double scaled = vertex[ axis ] / weldTolerance;
-                    if ( ! std::isfinite( scaled ) ||
-                         scaled < static_cast< double >( std::numeric_limits< long long >::min() ) ||
-                         scaled > static_cast< double >( std::numeric_limits< long long >::max() ) )
-                        throw std::runtime_error( "STL coordinate exceeds stlWeldTolerance quantization range" );
-                    key[ axis ] = static_cast< long long >( std::llround( scaled ) );
-                }
-                auto found = vertexMap.find( key );
-                if ( found == vertexMap.end() )
-                {
-                    if ( vertexMap.size() >= static_cast< size_t >( std::numeric_limits< int >::max() ) )
+                    if ( grid.xN.size() >= static_cast< size_t >( std::numeric_limits< int >::max() ) )
                         throw std::runtime_error( "STL vertex count exceeds OneFLOW index range" );
-                    const int index = static_cast< int >( vertexMap.size() );
-                    found = vertexMap.emplace( key, index ).first;
                     grid.xN.push_back( vertex[ 0 ] );
                     grid.yN.push_back( vertex[ 1 ] );
                     grid.zN.push_back( vertex[ 2 ] );
                 }
-                connectivity.push_back( found->second );
+                connectivity.push_back( pointId );
             }
             if ( connectivity[ 0 ] == connectivity[ 1 ] ||
                  connectivity[ 1 ] == connectivity[ 2 ] ||
