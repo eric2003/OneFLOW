@@ -21,9 +21,16 @@ License
 #pragma once
 
 #include <iosfwd>
+#include <string>
 
 namespace ONEFLOW
 {
+
+// Write the current runtime environment as a JSON evidence snapshot.
+// Returns false and fills error when the report cannot be written.
+bool WriteRuntimeEnvironmentJsonFile(
+    const std::string & fileName,
+    std::string & error );
 
 // Handle the informational CLI commands without entering the simulation
 // lifecycle. Return -1 when the arguments are not an information command,
