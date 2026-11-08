@@ -269,7 +269,11 @@ class TestRunnerDialog(QDialog):
         self._build_config = build_config
         self._worker: TestCommandWorker | None = None
         self._case_worker = None
-        self._database_cases: list[CaseDefinition] = load_cases(self._repository_root)
+        all_database_cases = load_cases(self._repository_root)
+        self._database_cases_by_kind: dict[str, list[CaseDefinition]] = {
+            "oneflow": select_cases_by_execution_kind(all_database_cases, "oneflow"),
+            "python": select_cases_by_execution_kind(all_database_cases, "python"),
+        }
         self._run_database_after_commands = False
         self.setWindowTitle("OneFLOW Tests")
         self.resize(900, 650)
@@ -344,8 +348,12 @@ class TestRunnerDialog(QDialog):
         self.python_development_check = QCheckBox("Python reference cases")
         self.python_development_check.setChecked(False)
         self.python_development_check.setToolTip(
-            "When checked, run selected Python reference Cases. "
-            "When unchecked (default), run native C++ OneFLOW Cases."
+            "Controls which cases appear in Select cases... and which cases run. "
+            "Unchecked (default) shows native C++ OneFLOW cases only; checked shows "
+            "Python reference cases only. Selections are retained independently."
+        )
+        self.python_development_check.toggled.connect(
+            self._update_case_database_button_text
         )
         database_layout.insertWidget(1, self.python_development_check)
         self.case_database_button = QPushButton("Select cases...")
@@ -384,17 +392,26 @@ class TestRunnerDialog(QDialog):
         buttons.addWidget(close_button)
         layout.addLayout(buttons)
 
-    def _open_case_database_tests(self) -> None:
-        dialog = CaseDatabaseSelectionDialog(
-            self._repository_root, self._database_cases, self
+    def _development_case_execution_kind(self) -> str:
+        return "python" if self.python_development_check.isChecked() else "oneflow"
+
+    def _update_case_database_button_text(self, *_args) -> None:
+        execution_kind = self._development_case_execution_kind()
+        count = len(self._database_cases_by_kind[execution_kind])
+        mode_label = "Python" if execution_kind == "python" else "C++"
+        self.case_database_button.setText(
+            f"Select {mode_label} cases... ({count} selected)"
+            if count else f"Select {mode_label} cases..."
         )
+
+    def _open_case_database_tests(self) -> None:
+        execution_kind = self._development_case_execution_kind()
+        available_cases = self._database_cases_by_kind[execution_kind]
+        dialog = CaseDatabaseSelectionDialog(available_cases, self)
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
-        self._database_cases = dialog.selected_cases()
-        count = len(self._database_cases)
-        self.case_database_button.setText(
-            f"Select cases... ({count} selected)" if count else "Select cases..."
-        )
+        self._database_cases_by_kind[execution_kind] = dialog.selected_cases()
+        self._update_case_database_button_text()
 
     def _start(self) -> None:
         if self._worker is not None and self._worker.isRunning():
@@ -509,8 +526,9 @@ class TestRunnerDialog(QDialog):
         self._launch_commands([command])
 
     def _selected_development_cases(self) -> list[CaseDefinition]:
-        execution_kind = "python" if self.python_development_check.isChecked() else "oneflow"
-        return select_cases_by_execution_kind(self._database_cases, execution_kind)
+        return list(
+            self._database_cases_by_kind[self._development_case_execution_kind()]
+        )
 
     def _launch_database_cases(self) -> None:
         from .runner import build_command
@@ -657,13 +675,11 @@ class CaseDatabaseSelectionDialog(QDialog):
 
     def __init__(
         self,
-        repository_root: Path,
-        selected_cases: list[CaseDefinition],
+        available_cases: list[CaseDefinition],
         parent=None,
     ) -> None:
         super().__init__(parent)
-        self._repository_root = repository_root
-        self._cases = load_cases(repository_root)
+        self._cases = list(available_cases)
         selected_ids = {case.case_id for case in selected_cases}
         self.setWindowTitle("Select Development Test Cases")
         self.resize(760, 560)

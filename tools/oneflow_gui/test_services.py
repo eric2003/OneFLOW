@@ -88,6 +88,23 @@ class DesktopServiceTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unsupported"):
             select_cases_by_execution_kind(cases, "mixed")
 
+    def test_development_case_selection_options_are_exclusive_by_mode(self) -> None:
+        cases = load_cases(REPOSITORY_ROOT)
+        native = select_cases_by_execution_kind(cases, "oneflow")
+        python = select_cases_by_execution_kind(cases, "python")
+
+        # The selector receives only the active execution kind, regardless
+        # of whether the caller has enabled running Development Cases.
+        for run_development_cases in (False, True):
+            del run_development_cases  # Run enablement does not change visibility.
+            self.assertTrue(native)
+            self.assertTrue(python)
+            self.assertTrue(all(case.execution_kind == "oneflow" for case in native))
+            self.assertTrue(all(case.execution_kind == "python" for case in python))
+            self.assertFalse({case.case_id for case in native} & {
+                case.case_id for case in python
+            })
+
     def test_python_stl_development_cases_run_from_staged_workspaces(self) -> None:
         cases = [
             case for case in load_cases(REPOSITORY_ROOT)
