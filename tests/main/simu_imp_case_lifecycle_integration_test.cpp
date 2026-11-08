@@ -579,6 +579,9 @@ TEST( SimuImpCaseLifecycleIntegration,
         processRuntimeStayedActive,
         ( std::vector<bool>{ true, true } ) );
     EXPECT_FALSE( processContext.IsProcessEnvironmentActive() );
+
+    std::error_code cleanupError;
+    std::filesystem::remove_all(configuredRoot, cleanupError);
 }
 
 
