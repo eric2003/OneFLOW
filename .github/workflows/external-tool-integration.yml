@@ -33,7 +33,9 @@ jobs:
       - name: Install pinned Gmsh executable
         shell: pwsh
         run: |
-          if ($env:GMSH_VERSION -notmatch '^\d+\.\d+\.\d+
+          $ErrorActionPreference = "Stop"
+
+          if ($env:GMSH_VERSION -notmatch '^\d+\.\d+\.\d+$') {
               throw "Invalid Gmsh version: $env:GMSH_VERSION"
           }
 
@@ -62,14 +64,18 @@ jobs:
       - name: Build OneFLOW with required external-tool tests
         shell: pwsh
         run: |
+          $ErrorActionPreference = "Stop"
           $psfile = "${{ github.workspace }}/.github/workflows/oneflow_windows_actions.ps1"
           & $psfile
+          if ($LASTEXITCODE -ne 0) {
+              throw "OneFLOW build script failed with exit code $LASTEXITCODE."
+          }
 
       - name: Run Windows process and Gmsh integration tests
         env:
           HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
           CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
-          MSMPI_ROOT: C:/Program Files/Microsoft MPI
+          MSMPI_ROOT: "C:/Program Files/Microsoft MPI"
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
@@ -86,65 +92,7 @@ jobs:
               }
           }
 
-          cd "${{ github.workspace }}/build"
-          ctest --output-on-failure -C Release -R "ProcessRunnerTest|StlMeshIOTest.NativeStlToGmsh"
-          if ($LASTEXITCODE -ne 0) {
-              throw "External-tool integration tests failed with exit code $LASTEXITCODE."
-          }
-) {
-              throw "Invalid Gmsh version: $env:GMSH_VERSION"
-          }
-
-          $archive = Join-Path $env:RUNNER_TEMP "gmsh-$env:GMSH_VERSION-Windows64.zip"
-          $installDirectory = Join-Path $env:RUNNER_TEMP "gmsh-$env:GMSH_VERSION"
-          $downloadUrl = "https://gmsh.info/bin/Windows/gmsh-$env:GMSH_VERSION-Windows64.zip"
-
-          Invoke-WebRequest -Uri $downloadUrl -OutFile $archive
-          Expand-Archive -Path $archive -DestinationPath $installDirectory -Force
-
-          $gmsh = Get-ChildItem -Path $installDirectory -Filter "gmsh.exe" -Recurse |
-              Select-Object -First 1
-          if ($null -eq $gmsh) {
-              throw "gmsh.exe was not found in the downloaded archive."
-          }
-
-          & $gmsh.FullName -version
-          if ($LASTEXITCODE -ne 0) {
-              throw "Gmsh failed its version check."
-          }
-
-          $gmsh.DirectoryName |
-              Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          Write-Host "Gmsh executable: $($gmsh.FullName)"
-
-      - name: Build OneFLOW with required external-tool tests
-        shell: pwsh
-        run: |
-          $psfile = "${{ github.workspace }}/.github/workflows/oneflow_windows_actions.ps1"
-          & $psfile
-
-      - name: Run Windows process and Gmsh integration tests
-        env:
-          HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
-          CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
-          MSMPI_ROOT: C:/Program Files/Microsoft MPI
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = "Stop"
-
-          $runtimePaths = @(
-              "${{ github.workspace }}/build/bin",
-              "$env:HDF5_ROOT/bin",
-              "$env:CGNS_ROOT/bin",
-              "$env:MSMPI_ROOT/Bin"
-          )
-          foreach ($path in $runtimePaths) {
-              if (Test-Path $path) {
-                  $env:Path = "$path;$env:Path"
-              }
-          }
-
-          cd "${{ github.workspace }}/build"
+          Set-Location "${{ github.workspace }}/build"
           ctest --output-on-failure -C Release -R "ProcessRunnerTest|StlMeshIOTest.NativeStlToGmsh"
           if ($LASTEXITCODE -ne 0) {
               throw "External-tool integration tests failed with exit code $LASTEXITCODE."
