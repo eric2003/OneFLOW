@@ -2,6 +2,10 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
+#include <array>
+#include <cmath>
+
 #include <chrono>
 #include <cstdint>
 #include <cstring>
@@ -232,6 +236,80 @@ TEST(StlMeshIOTest, RejectsBinaryWriterValuesOutsideFloat32Range)
     EXPECT_THROW(
         ONEFLOW::StlMeshWriter::WriteBinary(
             temp.File("overflow.stl").string(), mesh),
+        std::invalid_argument);
+}
+
+
+ONEFLOW::StlMesh MakeRectangleStl(double width)
+{
+    ONEFLOW::StlMesh mesh;
+    ONEFLOW::StlTriangle first;
+    first.normal = {0.0, 0.0, 1.0};
+    first.vertices = {{{0.0, 0.0, 0.0},
+                       {width, 0.0, 0.0},
+                       {width, 1.0, 0.0}}};
+    ONEFLOW::StlTriangle second;
+    second.normal = {0.0, 0.0, 1.0};
+    second.vertices = {{{0.0, 0.0, 0.0},
+                        {width, 1.0, 0.0},
+                        {0.0, 1.0, 0.0}}};
+    mesh.triangles = {first, second};
+    return mesh;
+}
+
+TEST(StlMeshIOTest, ExtractsSquareBoundaryAndRemovesStlDiagonal)
+{
+    const auto boundary = ONEFLOW::ExtractStlPlanarBoundary(MakeRectangleStl(1.0));
+    ASSERT_EQ(boundary.vertices.size(), 4u);
+    EXPECT_EQ(boundary.vertices[0], (std::array<double, 3>{0.0, 0.0, 0.0}));
+    EXPECT_EQ(boundary.vertices[1], (std::array<double, 3>{1.0, 0.0, 0.0}));
+    EXPECT_EQ(boundary.vertices[2], (std::array<double, 3>{1.0, 1.0, 0.0}));
+    EXPECT_EQ(boundary.vertices[3], (std::array<double, 3>{0.0, 1.0, 0.0}));
+}
+
+TEST(StlMeshIOTest, ExtractsTwoSquareCellsAsOneOuterRectangle)
+{
+    const auto boundary = ONEFLOW::ExtractStlPlanarBoundary(MakeRectangleStl(2.0));
+    ASSERT_EQ(boundary.vertices.size(), 4u);
+    double twiceArea = 0.0;
+    for (std::size_t i = 0; i < boundary.vertices.size(); ++i) {
+        const auto& a = boundary.vertices[i];
+        const auto& b = boundary.vertices[(i + 1) % boundary.vertices.size()];
+        twiceArea += a[0] * b[1] - b[0] * a[1];
+    }
+    EXPECT_DOUBLE_EQ(std::abs(twiceArea) * 0.5, 2.0);
+    EXPECT_EQ(
+        std::count_if(
+            boundary.vertices.begin(), boundary.vertices.end(),
+            [](const auto& point) { return point[0] == 1.0; }),
+        0);
+}
+
+TEST(StlMeshIOTest, RejectsNonPlanarSurfaceForTwoDimensionalBoundaryExtraction)
+{
+    auto mesh = MakeRectangleStl(1.0);
+    mesh.triangles[1].vertices[2][2] = 0.1;
+    EXPECT_THROW(
+        ONEFLOW::ExtractStlPlanarBoundary(mesh, 1.0e-3),
+        std::invalid_argument);
+}
+
+TEST(StlMeshIOTest, RejectsNonManifoldTriangleEdge)
+{
+    ONEFLOW::StlMesh mesh;
+    for (const auto& vertices : {
+        std::array<std::array<double, 3>, 3>{{
+            {0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}}},
+        std::array<std::array<double, 3>, 3>{{
+            {1.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {1.0, -1.0, 0.0}}},
+        std::array<std::array<double, 3>, 3>{{
+            {0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, -1.0, 0.0}}}}) {
+        ONEFLOW::StlTriangle triangle;
+        triangle.vertices = vertices;
+        mesh.triangles.push_back(triangle);
+    }
+    EXPECT_THROW(
+        ONEFLOW::ExtractStlPlanarBoundary(mesh),
         std::invalid_argument);
 }
 
