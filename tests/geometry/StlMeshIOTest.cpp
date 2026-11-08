@@ -272,13 +272,6 @@ ONEFLOW::StlMesh MakeRectangleStl(double width)
     return mesh;
 }
 
-bool HasGmshExecutable()
-{
-    const ONEFLOW::ProcessResult result =
-        ONEFLOW::RunProcess( "gmsh", { "-version" } );
-    return result.started && result.exitCode == 0;
-}
-
 void ValidateNativeStlToGmshCase(
     const TemporaryDirectory& temporary,
     double width,
@@ -375,21 +368,19 @@ void ValidateNativeStlToGmshCase(
     EXPECT_EQ(actualGroups, expectedGroups);
 }
 
-TEST(StlMeshIOTest, NativeStlToGmshGeneratesOneSquareCellWhenGmshIsAvailable)
+#if ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS
+TEST(StlMeshIOTest, NativeStlToGmshGeneratesOneSquareCell)
 {
-    if (!HasGmshExecutable())
-        GTEST_SKIP() << "Gmsh executable is not available on PATH";
     TemporaryDirectory temporary;
     ValidateNativeStlToGmshCase(temporary, 1.0, 1, 1, 4, 4, 1);
 }
 
-TEST(StlMeshIOTest, NativeStlToGmshGeneratesTwoSquareCellsWhenGmshIsAvailable)
+TEST(StlMeshIOTest, NativeStlToGmshGeneratesTwoSquareCells)
 {
-    if (!HasGmshExecutable())
-        GTEST_SKIP() << "Gmsh executable is not available on PATH";
     TemporaryDirectory temporary;
     ValidateNativeStlToGmshCase(temporary, 2.0, 2, 1, 6, 6, 2);
 }
+#endif
 
 TEST(StlMeshIOTest, ExtractsSquareBoundaryAndRemovesStlDiagonal)
 {
