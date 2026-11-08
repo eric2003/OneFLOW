@@ -55,3 +55,12 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
         details = "\n".join(f"- {error}" for error in errors)
         raise ValueError(f"Case catalog validation failed:\n{details}")
     return cases
+
+
+def select_cases_by_execution_kind(
+    cases: list[CaseDefinition], execution_kind: str,
+) -> list[CaseDefinition]:
+    """Return only cases belonging to one Development Tests execution mode."""
+    if execution_kind not in {"oneflow", "python"}:
+        raise ValueError(f"Unsupported development case execution kind: {execution_kind!r}")
+    return [case for case in cases if case.execution_kind == execution_kind]

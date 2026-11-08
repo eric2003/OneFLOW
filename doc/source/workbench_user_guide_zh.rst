@@ -69,6 +69,14 @@ https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md
 
 **Select cases...** 按算例目录中的 `group` 元数据分组显示；例如 `gmsh_to_cgns`、`gmsh_to_oneflow` 和 `two_quads` 都归入 **Gmsh**。组名前的复选框可以整体选择或取消该组，展开后也可以单独选择某个算例。未声明分组的算例显示在 **General** 下。分组只影响选择界面，不改变算例执行方式；Gmsh→CGNS 仍遵循手动 GUI 工作流程约束。
 
+**Python examples** 是 Development Tests 的执行模式开关，不是 Python Unit Tests：
+未勾选（缺省）时，只运行所选的原生 C++ OneFLOW 算例，通过 OneFLOW 可执行程序的标准
+`r <case-directory>` 入口执行；勾选后，只运行所选的 Python 参考算例，通过算例声明的
+Python 脚本执行。切换模式不会清空 **Select cases...** 中的选择，但一次 Run 只执行当前
+模式对应的算例。这样可以避免 Python 参考程序通过后被误认为 C++ 原生网格读写能力已经
+验证。STL 组同时维护两类算例：C++ 算例验证 OneFLOW 的生产运行通道，Python 算例用于
+独立参考检查和几何诊断。
+
 Development Tests 使用固定的用户数据测试工作目录，并在每批开始时重新准备该目录中的测试 case；源仓库内的内置 case 保持不动。测试进程的退出状态会记录为运行结果；这不等同于所有网格几何或数值结果都已由 GUI 独立验证。
 
 Contract Workbench

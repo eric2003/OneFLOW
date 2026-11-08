@@ -27,7 +27,7 @@ from PySide6.QtWidgets import (
 )
 
 from .executable_discovery import executable_candidates
-from .case_repository import load_cases
+from .case_repository import load_cases, select_cases_by_execution_kind
 from .models import CaseDefinition
 from .process_control import process_group_options, terminate_and_reap, terminate_process_tree
 from .runner import prepare_case_database_workspace
@@ -341,6 +341,13 @@ class TestRunnerDialog(QDialog):
         self.case_database_check = QCheckBox("Run Development Tests")
         self.case_database_check.setChecked(False)
         database_layout.insertWidget(0, self.case_database_check)
+        self.python_development_check = QCheckBox("Python examples")
+        self.python_development_check.setChecked(False)
+        self.python_development_check.setToolTip(
+            "When checked, Development Tests run selected Python reference cases. "
+            "When unchecked (default), they run native C++ OneFLOW cases."
+        )
+        database_layout.insertWidget(1, self.python_development_check)
         self.case_database_button = QPushButton("Select cases...")
         self.case_database_button.setToolTip(
             "Choose which development cases to run. This does not start a run."
@@ -471,10 +478,11 @@ class TestRunnerDialog(QDialog):
                 QMessageBox.warning(self, "Cannot start Gmsh Case", str(error))
                 return
         run_database = self.case_database_check.isChecked()
-        if run_database and not self._database_cases:
+        if run_database and not self._selected_development_cases():
+            mode = "Python" if self.python_development_check.isChecked() else "native C++ OneFLOW"
             QMessageBox.information(
                 self, "No cases configured",
-                "Use Select cases... to change the Development Tests selection.",
+                f"No {mode} cases are selected. Use Select cases... to change the selection.",
             )
             return
         if not commands and not run_database:
@@ -500,12 +508,17 @@ class TestRunnerDialog(QDialog):
         )
         self._launch_commands([command])
 
+    def _selected_development_cases(self) -> list[CaseDefinition]:
+        execution_kind = "python" if self.python_development_check.isChecked() else "oneflow"
+        return select_cases_by_execution_kind(self._database_cases, execution_kind)
+
     def _launch_database_cases(self) -> None:
         from .runner import build_command
 
+        selected_cases = self._selected_development_cases()
         workspace_root = UserDataPaths.discover().grid_layout_test
         executable_text = self.executable_combo.currentText().strip()
-        needs_oneflow = any(case.execution_kind == "oneflow" for case in self._database_cases)
+        needs_oneflow = any(case.execution_kind == "oneflow" for case in selected_cases)
         executable = Path(executable_text).expanduser().resolve() if executable_text else None
         if needs_oneflow and (executable is None or not executable.is_file()):
             QMessageBox.warning(
@@ -514,9 +527,9 @@ class TestRunnerDialog(QDialog):
             )
             return
         try:
-            staged = prepare_case_database_workspace(self._database_cases, workspace_root)
+            staged = prepare_case_database_workspace(selected_cases, workspace_root)
             commands: list[TestCommand] = []
-            for case in self._database_cases:
+            for case in selected_cases:
                 case_directory = staged[case.case_id]
                 if case.execution_kind == "python":
                     if case.execution_script is None:
@@ -538,6 +551,7 @@ class TestRunnerDialog(QDialog):
             QMessageBox.information(self, "No cases selected", "Select at least one development case.")
             return
         self.log_view.appendPlainText(
+            f"Development case mode: {'Python' if self.python_development_check.isChecked() else 'native C++ OneFLOW'}\n"
             f"Development case workspace: {workspace_root}\nStaged {len(commands)} selected case(s)."
         )
         self._launch_commands(commands)

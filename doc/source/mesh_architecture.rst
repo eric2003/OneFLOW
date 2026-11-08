@@ -695,3 +695,45 @@ and Gmsh generation. Its tests validate that Python pipeline only. Native STL
 I/O evidence must come from C++ GoogleTests linked to OneFLOW_GeometryCore,
 with ASCII/binary read-write round trips and malformed-input tests. End-to-end
 conversion to OneFLOW mesh topology is a separate integration milestone.
+
+
+STL surface input and information boundary
+------------------------------------------
+
+STL is a source surface description consisting of an ordered sequence of
+triangle facets. It is not a complete OneFLOW mesh. The native adapter is
+documented in :doc:`stl_mesh_io`; this section locates its information
+content in the Mesh Core levels above.
+
+An STL facet provides one stored normal vector and three ordered vertex
+coordinate triples. Binary STL additionally contains an opaque 80-byte file
+header, a 32-bit little-endian triangle count, and one 16-bit attribute value
+per facet. ASCII STL contains textual `solid` and facet records, but no
+standardized binary attribute field. Binary coordinates and normals are
+float32. The conventional binary size is `84 + 50 * triangle_count`.
+The header is opaque and may begin with `solid`, so a prefix check alone
+cannot identify the format. ASCII parsers must account for whitespace,
+LF/CRLF line endings and complete finite numeric tokens.
+
+STL has no authoritative shared node identifiers: vertex coordinates are
+repeated for every facet. Therefore:
+
+* L0 can report encoding, facet count, coordinate bounds, source header,
+  source path/fingerprint and parser diagnostics.
+* L1 can represent ordered triangle facets and coordinates. Constructing
+  shared nodes requires an explicit coordinate-welding policy and tolerance;
+  welding is a transformation, not a fact supplied by STL.
+* L2 edge incidence, connected components, boundary loops, manifoldness,
+  closure and consistent orientation must be derived and validated. Stored
+  facet normals and vertex winding are source records and may disagree.
+* L3 partition identity and inter-partition interfaces are absent.
+* L4 geometric normals, areas, adjacency and search structures are derived;
+  solution fields and CFD boundary conditions are absent.
+
+STL does not standardize physical units, coordinate reference systems,
+material semantics, named patches, physical groups, volume cells or solver
+boundary conditions. Those facts must come from project metadata or an
+explicit mapping stage. A syntactically valid STL is not evidence of a closed
+or CFD-ready surface. The native STL-to-CGNS path currently creates an
+unstructured triangle surface; it is not a volume mesher and does not infer
+boundary semantics.

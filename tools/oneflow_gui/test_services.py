@@ -9,7 +9,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools.oneflow_gui.case_repository import load_cases
+from tools.oneflow_gui.case_repository import load_cases, select_cases_by_execution_kind
 from tools.oneflow_gui.executable_discovery import executable_candidates
 from tools.oneflow_gui.models import CaseDefinition
 from tools.oneflow_gui.runner import (
@@ -47,11 +47,13 @@ class DesktopServiceTest(unittest.TestCase):
         cases = [case for case in load_cases(REPOSITORY_ROOT) if case.group == "STL"]
         cases_by_id = {case.case_id: case for case in cases}
 
-        self.assertEqual(len(cases), 10)
+        self.assertEqual(len(cases), 11)
         self.assertEqual(cases_by_id["stl_ascii_basic"].execution_kind, "oneflow")
         self.assertIsNone(cases_by_id["stl_ascii_basic"].runtime_config)
         self.assertIsNone(cases_by_id["stl_ascii_basic"].execution_script)
         self.assertEqual(cases_by_id["stl_ascii_crlf"].execution_kind, "oneflow")
+        self.assertEqual(cases_by_id["stl_ascii_scientific_notation"].execution_kind, "oneflow")
+        self.assertEqual(cases_by_id["stl_ascii_scientific_notation"].workspace_relative_directory, Path("stl/ascii_scientific_notation"))
         self.assertEqual(cases_by_id["stl_python_ascii_basic"].execution_kind, "python")
         self.assertEqual(cases_by_id["stl_python_ascii_crlf"].execution_kind, "python")
         self.assertEqual(cases_by_id["stl_ascii_crlf"].workspace_relative_directory, Path("stl/ascii_crlf"))
@@ -65,6 +67,19 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertTrue(all(case.execution_script is not None and case.execution_script.is_file()
                             for case in python_cases))
         self.assertTrue(all(case.case_directory.parent.name == "python" for case in python_cases))
+
+    def test_development_case_execution_mode_separates_native_and_python_cases(self) -> None:
+        cases = [case for case in load_cases(REPOSITORY_ROOT) if case.group == "STL"]
+        native = select_cases_by_execution_kind(cases, "oneflow")
+        python = select_cases_by_execution_kind(cases, "python")
+        self.assertEqual({case.case_id for case in native}, {
+            "stl_ascii_basic", "stl_ascii_crlf", "stl_ascii_scientific_notation"
+        })
+        self.assertEqual(len(python), 8)
+        self.assertTrue(all(case.execution_kind == "oneflow" for case in native))
+        self.assertTrue(all(case.execution_kind == "python" for case in python))
+        with self.assertRaisesRegex(ValueError, "Unsupported"):
+            select_cases_by_execution_kind(cases, "mixed")
 
     def test_python_stl_development_cases_run_from_staged_workspaces(self) -> None:
         cases = [
@@ -88,9 +103,9 @@ class DesktopServiceTest(unittest.TestCase):
     def test_native_stl_cases_are_staged_without_runtime_manifests(self) -> None:
         cases = [
             case for case in load_cases(REPOSITORY_ROOT)
-            if case.case_id in {"stl_ascii_basic", "stl_ascii_crlf"}
+            if case.case_id in {"stl_ascii_basic", "stl_ascii_crlf", "stl_ascii_scientific_notation"}
         ]
-        self.assertEqual(len(cases), 2)
+        self.assertEqual(len(cases), 3)
         with tempfile.TemporaryDirectory() as directory:
             staged_cases = prepare_case_database_workspace(cases, Path(directory) / "grid")
             for case in cases:
@@ -103,6 +118,8 @@ class DesktopServiceTest(unittest.TestCase):
                 self.assertFalse((case.case_directory / "results").exists())
             crlf_fixture = (staged_cases["stl_ascii_crlf"] / "input" / "model.stl").read_bytes()
             self.assertIn(bytes((13, 10)), crlf_fixture)
+            scientific_fixture = (staged_cases["stl_ascii_scientific_notation"] / "input" / "model.stl").read_text(encoding="ascii")
+            self.assertIn("e+", scientific_fixture.lower())
 
     def test_executable_discovery_prefers_debug_then_release_then_install(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

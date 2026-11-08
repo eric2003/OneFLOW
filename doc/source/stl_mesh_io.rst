@@ -218,6 +218,129 @@ stl_to_gmsh.py is not evidence for this C++ contract. Integration tests that
 build shared topology or convert STL to a OneFLOW mesh are a later milestone
 and must be reported separately from parser tests.
 
+Development Case and verification matrix
+----------------------------------------
+
+The Development Tests catalog separates native OneFLOW Cases from Python
+reference Cases. In the Tests dialog, the **Python examples** checkbox is an
+execution-mode selector:
+
+* Unchecked (default): run only native C++ OneFLOW Cases through the normal
+  `OneFLOW.exe r <case-directory>` entry point.
+* Checked: run only Python reference Cases through their declared Python
+  script. No OneFLOW executable is required in this mode.
+* The case selection is shared and retained when switching modes. Each Run
+  executes only the selected cases belonging to the active mode.
+
+This separation is essential: a Python parser passing says nothing about
+whether `StlMeshReader`, the C++ Grid conversion dispatcher, or the CGNS
+writer works. Conversely, a native runtime Case does not validate the
+independent Python geometry helper.
+
+Native C++ OneFLOW Development Cases
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+   :widths: 23 31 24 22
+
+   * - Case
+     - Purpose
+     - What PASS establishes
+     - Not covered
+   * - `stl_ascii_basic`
+     - Baseline ASCII two-triangle square through the production Grid task
+     - C++ STL read, tolerance-based shared-vertex construction, TRI_3 surface and CGNS output are connected; expected four nodes and two triangles
+     - Volume meshing, units, physical groups, BC assignment, manifold or watertight proof
+   * - `stl_ascii_crlf`
+     - Same geometry with CRLF line endings
+     - Native C++ ASCII parsing is independent of Windows/Linux text line endings
+     - Other encodings, arbitrary malformed grammar, geometry repair or volume generation
+   * - `stl_ascii_scientific_notation`
+     - Same geometry with exponent-form finite coordinates and normals
+     - Native C++ numeric token parsing accepts scientific notation through the runtime conversion route
+     - Extreme exponent/overflow boundaries, locale-specific decimal separators, geometric quality or solver suitability
+
+Python reference Development Cases
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+   :widths: 23 31 24 22
+
+   * - Case
+     - Purpose
+     - What PASS establishes
+     - Not covered
+   * - `stl_python_ascii_basic`
+     - Baseline ASCII parser and planar-boundary extraction
+     - Python utility reads the fixture and extracts the expected simple closed boundary
+     - Native C++ parsing, CGNS writing, general 3D topology
+   * - `stl_python_ascii_crlf`
+     - ASCII line-ending compatibility
+     - Python reference path handles CRLF input
+     - Native C++ line-ending behavior or other encodings
+   * - `stl_python_binary_basic`
+     - Conventional 80-byte header and binary triangle record
+     - Python utility recognizes and reads a structurally valid binary STL
+     - C++ binary reader/writer, attribute round trip, large-file robustness
+   * - `stl_python_binary_header_solid`
+     - Binary header whose first bytes spell `solid`
+     - Python format detection does not classify binary solely from the header prefix
+     - Native C++ auto-detection (covered separately by C++ unit tests), all ambiguous files
+   * - `stl_python_scientific_notation`
+     - ASCII exponent notation
+     - Python numeric parser accepts the fixture's finite scientific notation
+     - Native C++ numeric parsing or arbitrary numeric edge cases
+   * - `stl_python_degenerate_triangle`
+     - Zero-area / collapsed triangle diagnostic in planar extraction
+     - Python topology stage detects and reports this invalid geometry
+     - Whether the C++ STL reader rejects it; parsing and geometric validation are separate contracts
+   * - `stl_python_truncated_binary`
+     - Incomplete binary STL payload
+     - Python reader reports the expected truncated-input diagnostic rather than accepting partial data
+     - C++ binary truncation behavior (covered by C++ unit test), all corrupt binary variants
+   * - `stl_python_non_planar_surface`
+     - Non-planar input to a planar-boundary workflow
+     - Python utility refuses to treat unsupported non-planar geometry as a valid planar boundary
+     - Surface remeshing, projection, repair, or general 3D surface validity
+
+Native C++ GoogleTests
+~~~~~~~~~~~~~~~~~~~~~~
+
+The focused `StlMeshIOTest` suite checks the I/O API in isolation using
+temporary fixtures. Its individual test purposes are:
+
+* `ReadsAsciiFacetAndPreservesVertexOrder`: proves the ASCII reader returns
+  the stored normal and ordered vertices; it does not prove CGNS conversion.
+* `ReadsBinaryAndPreservesSolidHeaderAndAttribute`: proves binary layout
+  decoding and preservation of the opaque header and 16-bit facet attribute;
+  it does not prove topology construction or all vendor-specific attributes.
+* `RejectsTruncatedBinaryFacet`: proves a size/count mismatch is rejected;
+  it does not exhaust every malformed-file condition.
+* `RejectsNonFiniteAsciiCoordinates`: proves non-finite numeric data is
+  rejected at the I/O boundary; it does not assess finite but poor-quality
+  geometry.
+* `WritesBinaryAndRoundTripsAttributeAndFacetData`: proves binary output
+  can be read back with facet data and attributes preserved; it does not
+  guarantee byte-identical output for arbitrary source headers.
+* `WritesAsciiAndRoundTripsFacetGeometry`: proves ASCII serialization
+  preserves representable facet geometry; ASCII has no binary attribute field.
+* `RejectsAsciiWriteWhenBinaryAttributesWouldBeLost`: proves the writer
+  refuses a known lossy conversion; it does not define every downstream
+  interchange policy.
+* `RejectsBinaryWriterValuesOutsideFloat32Range`: proves binary output
+  rejects values that cannot be represented as finite float32; it does not
+  guarantee adequate precision for every engineering scale.
+
+A passing GoogleTest establishes the named parser/writer behavior only.
+A passing native Development Case additionally exercises runtime parameter
+ingestion, Grid dispatch, topology staging and CGNS output. Neither alone
+proves that an imported surface is watertight, manifold, consistently
+oriented, correctly scaled, physically labelled, or suitable for CFD volume
+generation. Those require independent geometry, topology, unit/provenance
+and meshing contracts.
+
 Relationship to existing Python tools
 -------------------------------------
 
