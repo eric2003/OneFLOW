@@ -90,6 +90,24 @@ OneFLOW executable with the JSON command and parses standard output. The GUI
 does not link to CGNS and does not infer a runtime version from an installation
 directory.
 
+HDF5 version evidence
+---------------------
+
+HDF5 header discovery is independent of runtime symbol discovery. CMake looks
+for ``H5public.h`` using the configured ``HDF5_INCLUDE_DIRS`` and
+``HDF5_ROOT`` locations, followed by common Linux distribution include
+locations (including ``/usr/include/hdf5/serial``). It then compile-checks the
+public ``H5_VERS_MAJOR``, ``H5_VERS_MINOR``, and ``H5_VERS_RELEASE`` macros.
+The selected header path and macro source are included in ``header_version``.
+
+This is a header-only build probe: OneFLOW does not add an HDF5 link
+dependency merely to obtain the compile-time version. At runtime, the
+``H5get_libversion`` symbol is still discovered from loaded process modules
+and queried independently. If no suitable header can be found, the header
+version remains unavailable and consistency remains ``unknown`` unless
+independent header evidence becomes available through another supported
+mechanism.
+
 CGNS version evidence
 ---------------------
 
