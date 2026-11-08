@@ -265,9 +265,10 @@ Native OneFLOW grid Case
 
 ``grid/stl/ascii_basic`` is a normal OneFLOW grid Case. It is registered in
 ``grid/case_catalog.json`` without a Python execution backend and is launched
-through the standard ``OneFLOW.exe r <case-directory>`` entry point. Its
-``script/control.txt`` manifest loads ``simu.txt`` and ``grid.txt``; the latter
-selects ``sourceGridType = "stl"`` and ``targetGridType = "cgns"``.
+through the standard ``OneFLOW.exe r <case-directory>`` entry point. It does not require a ``script/control.txt`` manifest. The runtime discovers
+parameter files in ``script/`` according to its filename-order loading rule;
+``grid.txt`` selects ``sourceGridType = "stl"`` and
+``targetGridType = "cgns"``.
 
 The C++ grid-conversion dispatcher reads the STL through ``StlMeshReader``,
 constructs a two-dimensional unstructured triangle surface, and writes CGNS
@@ -283,9 +284,10 @@ Native OneFLOW grid Case configuration
 --------------------------------------
 
 The native `grid/stl/ascii_basic` Case is a two-dimensional surface conversion
-fixture. Its `script/control.txt` lists parameter files in the same
-lexicographical filename order used by the runtime loader:
+fixture and intentionally has no `script/control.txt`. The runtime discovers
+the parameter files in `script/` using its filename-order loading rule:
 `dimension.txt`, `grid.txt`, and `simu.txt`. The dimension declaration is
 explicit (`int dimension = 2;`); it is a runtime parameter, not an inferred
-property of the STL file. Keeping the manifest synchronized with the actual
-parameter filenames avoids misleading load-order diagnostics.
+property of the STL file. The Case catalog and preflight validator also support
+native Cases without a runtime manifest and validate their discovered
+`script/*.txt` parameter files.

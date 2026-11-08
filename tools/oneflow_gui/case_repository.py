@@ -27,7 +27,7 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
         execution_kind = str(execution.get("kind") or "oneflow")
         runtime_config = (
             (case_directory / entry["runtimeConfig"]).resolve()
-            if execution_kind == "oneflow" else None
+            if execution_kind == "oneflow" and entry.get("runtimeConfig") else None
         )
         execution_script = (root / execution["script"]).resolve() if execution_kind == "python" else None
         cases.append(

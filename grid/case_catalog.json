@@ -105,7 +105,6 @@
       "id": "stl_ascii_basic",
       "title": "STL ASCII Basic (OneFLOW C++)",
       "directory": "grid/stl/ascii_basic",
-      "runtimeConfig": "script/control.txt",
       "profile": null,
       "layout": null,
       "group": "STL"

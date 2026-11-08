@@ -1,3 +1,0 @@
-"dimension.txt";
-"grid.txt";
-"simu.txt";

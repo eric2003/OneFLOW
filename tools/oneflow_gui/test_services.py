@@ -30,8 +30,10 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertTrue(
             {"minimal_rectangle", "minimal_cube", "two_connected_cubes"} <= case_ids
         )
-        self.assertTrue(all(case.runtime_config is not None and case.runtime_config.is_file()
-                            for case in cases if case.execution_kind == "oneflow"))
+        self.assertTrue(all(
+            case.runtime_config is None or case.runtime_config.is_file()
+            for case in cases if case.execution_kind == "oneflow"
+        ))
 
     def test_gmsh_cases_are_available_in_the_gmsh_development_group(self) -> None:
         cases = load_cases(REPOSITORY_ROOT)
@@ -47,8 +49,7 @@ class DesktopServiceTest(unittest.TestCase):
 
         self.assertEqual(len(cases), 8)
         self.assertEqual(cases_by_id["stl_ascii_basic"].execution_kind, "oneflow")
-        self.assertIsNotNone(cases_by_id["stl_ascii_basic"].runtime_config)
-        self.assertTrue(cases_by_id["stl_ascii_basic"].runtime_config.is_file())
+        self.assertIsNone(cases_by_id["stl_ascii_basic"].runtime_config)
         self.assertIsNone(cases_by_id["stl_ascii_basic"].execution_script)
 
         python_cases = [case for case in cases if case.execution_kind == "python"]
@@ -76,7 +77,7 @@ class DesktopServiceTest(unittest.TestCase):
                 self.assertTrue(report["passed"], result.stdout)
                 self.assertFalse((case.case_directory / "results").exists())
 
-    def test_native_stl_case_is_staged_with_its_runtime_manifest(self) -> None:
+    def test_native_stl_case_is_staged_without_a_runtime_manifest(self) -> None:
         cases = [
             case for case in load_cases(REPOSITORY_ROOT)
             if case.case_id == "stl_ascii_basic"
@@ -85,7 +86,8 @@ class DesktopServiceTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             staged_cases = prepare_case_database_workspace(cases, Path(directory) / "grid")
             staged = staged_cases["stl_ascii_basic"]
-            self.assertTrue((staged / "script" / "control.txt").is_file())
+            self.assertFalse((staged / "script" / "control.txt").exists())
+            self.assertTrue((staged / "script" / "dimension.txt").is_file())
             self.assertTrue((staged / "script" / "simu.txt").is_file())
             self.assertTrue((staged / "script" / "grid.txt").is_file())
             self.assertTrue((staged / "input" / "model.stl").is_file())

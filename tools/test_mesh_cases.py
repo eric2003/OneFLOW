@@ -33,19 +33,15 @@ class MeshCaseCatalogTest(unittest.TestCase):
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         entry = next(case for case in catalog["cases"] if case["id"] == "stl_ascii_basic")
         self.assertEqual(entry["directory"], "grid/stl/ascii_basic")
-        self.assertEqual(entry["runtimeConfig"], "script/control.txt")
+        self.assertNotIn("runtimeConfig", entry)
         self.assertNotIn("execution", entry)
         case_dir = REPOSITORY_ROOT / entry["directory"]
-        control = (case_dir / "script" / "control.txt").read_text(encoding="utf-8")
+        self.assertFalse((case_dir / "script" / "control.txt").exists())
         grid = (case_dir / "script" / "grid.txt").read_text(encoding="utf-8")
-        self.assertEqual(
-            [line.strip() for line in control.splitlines() if line.strip()],
-            ['"dimension.txt";', '"grid.txt";', '"simu.txt";'],
-        )
         dimension = (case_dir / "script" / "dimension.txt").read_text(encoding="utf-8")
         self.assertIn("int dimension = 2;", dimension)
         self.assertEqual(
-            [path.name for path in sorted((case_dir / "script").glob("*.txt")) if path.name != "control.txt"],
+            [path.name for path in sorted((case_dir / "script").glob("*.txt"))],
             ["dimension.txt", "grid.txt", "simu.txt"],
         )
         self.assertIn('string sourceGridType = "stl";', grid)
@@ -172,6 +168,23 @@ class MeshCaseCatalogTest(unittest.TestCase):
             self.assertTrue(any("gridOptions.scale" in error for error in errors))
             self.assertTrue(any("gridOptions.translation" in error for error in errors))
             self.assertTrue(any("gridOptions.ioRoots.meshOutput" in error for error in errors))
+
+    def test_native_case_without_control_manifest_uses_parameter_file_discovery(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            script_dir = root / "grid" / "sample" / "script"
+            script_dir.mkdir(parents=True)
+            (script_dir / "simu.txt").write_text('string simutask = "Grid";\\n', encoding="utf-8")
+            (script_dir / "grid.txt").write_text("int gridObj = 1;\\n", encoding="utf-8")
+            entry = {"id": "sample", "directory": "grid/sample"}
+            self.assertEqual(validate_case(root, entry), [])
+
+    def test_manifest_free_case_requires_parameter_files(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / "grid" / "sample" / "script").mkdir(parents=True)
+            entry = {"id": "sample", "directory": "grid/sample"}
+            errors = validate_case(Path(directory), entry)
+            self.assertTrue(any("no script/*.txt parameter files found" in error for error in errors))
 
     def test_duplicate_case_ids_are_rejected(self) -> None:
         catalog = {
