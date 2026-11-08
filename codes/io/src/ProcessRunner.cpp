@@ -144,18 +144,31 @@ ProcessResult RunProcess(
         return result;
     }
 
+    HANDLE inputHandle = CreateFileW(
+        L"NUL", GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+        &security, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr );
+    if ( inputHandle == INVALID_HANDLE_VALUE )
+    {
+        result.errorMessage = "Opening NUL for child standard input failed with Windows error " +
+            std::to_string( GetLastError() );
+        CloseHandle( readPipe );
+        CloseHandle( writePipe );
+        return result;
+    }
+
     STARTUPINFOW startup{};
     startup.cb = sizeof( startup );
     startup.dwFlags = STARTF_USESTDHANDLES;
     startup.hStdOutput = writePipe;
     startup.hStdError = writePipe;
-    startup.hStdInput = GetStdHandle( STD_INPUT_HANDLE );
+    startup.hStdInput = inputHandle;
     PROCESS_INFORMATION process{};
     const BOOL created = CreateProcessW(
         wideExecutable.c_str(), commandLine.data(), nullptr, nullptr, TRUE,
         CREATE_NO_WINDOW, nullptr,
         wideWorkingDirectory.empty() ? nullptr : wideWorkingDirectory.c_str(),
         &startup, &process );
+    CloseHandle( inputHandle );
     CloseHandle( writePipe );
     if ( ! created )
     {
