@@ -238,9 +238,9 @@ RuntimeSymbolInfo FindHdf5VersionSymbol(Hdf5GetLibVersion & function)
         return result;
     }
 
-    MODULEENTRY32 entry{};
+    MODULEENTRY32A entry{};
     entry.dwSize = sizeof(entry);
-    if (Module32First(snapshot, &entry))
+    if (Module32FirstA(snapshot, &entry))
     {
         do
         {
@@ -255,7 +255,7 @@ RuntimeSymbolInfo FindHdf5VersionSymbol(Hdf5GetLibVersion & function)
                     : "shared";
                 break;
             }
-        } while (Module32Next(snapshot, &entry));
+        } while (Module32NextA(snapshot, &entry));
     }
     CloseHandle(snapshot);
 #elif defined(__unix__) || defined(__APPLE__)
@@ -383,11 +383,6 @@ void WriteRuntimeEnvironmentText(
         output << "  Status          : "
                << dependency["status"].get<std::string>() << '\n';
 
-        if (!dependency["enabled"].get<bool>())
-        {
-            continue;
-        }
-
         const Json & runtimeVersion = dependency["runtime_version"];
         if (!runtimeVersion.is_null() &&
             !runtimeVersion["value"].is_null())
@@ -424,6 +419,11 @@ void WriteRuntimeEnvironmentText(
             output << "  Query status    : "
                    << dependency["runtime_version_status"].get<std::string>()
                    << '\n';
+        }
+        if (dependency.contains("detail"))
+        {
+            output << "  Detail          : "
+                   << dependency["detail"].get<std::string>() << '\n';
         }
     }
 }
