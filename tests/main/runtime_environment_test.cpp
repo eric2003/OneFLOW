@@ -47,7 +47,7 @@ TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
     EXPECT_TRUE(hdf5.contains("runtime_library"));
 }
 
-TEST(RuntimeEnvironmentCommandTest, ReportsUnavailableHdf5RuntimeVersionInText)
+TEST(RuntimeEnvironmentCommandTest, ReportsHdf5RuntimeVersionInText)
 {
     char executable[] = "OneFLOW";
     char environment[] = "--environment";
