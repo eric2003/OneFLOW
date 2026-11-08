@@ -47,6 +47,6 @@ int ieigenfix = 1;
 Real centropy1 = 0.0001;
 Real centropy2 = 0.0001;
 
-int idump = 1;  //0 no 1 laminar plate 2 turb plate
+int idump = 0; // 0: uniform initialization; 1: laminar plate; 2: turbulent plate
 int ilim  = 0; // -1 0 order 0 no 1 barth 2 vencat
 Real vencat_coef = 0.0001
