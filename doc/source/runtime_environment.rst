@@ -242,9 +242,14 @@ with diagnostic detail when unavailable or failed.
 
 HDF5 is now inspected without introducing an undeclared compile-time or
 link-time dependency. At runtime OneFLOW searches the modules already loaded
-into its process for the public ``H5get_libversion`` symbol. On Windows it
-enumerates loaded process modules and resolves the symbol from each module; on
-Linux and macOS it uses the dynamic loader's default symbol scope. If found,
+into its process for the public ``H5get_libversion`` symbol. On Windows it uses the Windows Process Status API (PSAPI) to enumerate
+loaded process modules, then resolves the symbol with ``GetProcAddress``.
+The PSAPI calls are isolated inside the runtime symbol-discovery helper; the
+report-building and JSON layers use platform-neutral C++ data structures.
+The Windows executable links ``Psapi`` for ``EnumProcessModules``. On Linux
+and macOS the helper uses the dynamic loader's default symbol scope
+(``dlsym``), and obtains the containing module with ``dladdr``. These
+platform-specific loader calls are kept behind the same helper boundary. If found,
 OneFLOW calls the function and reports the returned major, minor, and release
 numbers together with the module containing the symbol. If the symbol is not
 exported by any loaded module, the report uses ``status: not_detected`` and
