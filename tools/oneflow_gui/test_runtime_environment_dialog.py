@@ -40,6 +40,11 @@ class RuntimeEnvironmentQueryTest(unittest.TestCase):
                         "value": "4.5.2",
                         "source": "CGNS_VERSION_compile_time_macro",
                     },
+                    "version_compatibility": {
+                        "status": "assumed_match",
+                        "basis": "header_version",
+                        "detail": "Runtime version was not independently obtained.",
+                    },
                     "runtime_library": {
                         "module_path": "C:/dev/cgns/bin/cgnsdll.dll",
                         "linkage": "shared",
@@ -55,6 +60,11 @@ class RuntimeEnvironmentQueryTest(unittest.TestCase):
                     },
                     "runtime_version_status": "runtime_api_symbol_not_found",
                     "header_version": None,
+                    "version_compatibility": {
+                        "status": "unknown",
+                        "basis": "insufficient_version_evidence",
+                        "detail": "Insufficient version information.",
+                    },
                     "runtime_library": {
                         "module_path": "",
                         "linkage": "unavailable",
@@ -81,6 +91,14 @@ class RuntimeEnvironmentQueryTest(unittest.TestCase):
                 result = query_runtime_environment(executable)
 
             self.assertEqual(result, document)
+            self.assertEqual(
+                result["dependencies"][0]["version_compatibility"]["status"],
+                "assumed_match",
+            )
+            self.assertEqual(
+                result["dependencies"][1]["version_compatibility"]["status"],
+                "unknown",
+            )
             arguments, keywords = run.call_args
             self.assertEqual(
                 arguments[0],
