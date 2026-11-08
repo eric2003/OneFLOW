@@ -366,6 +366,55 @@ if ( CGNS_ENABLE )
 
 endif()
 
+# Discover the HDF5 headers independently from the runtime library query.
+# HDF5 is often a transitive dependency of CGNS, so OneFLOW must not add an
+# HDF5 link dependency merely to report the compile-time header version.
+find_path ( ONEFLOW_HDF5_INCLUDE_DIR
+    NAMES H5public.h
+    HINTS
+        ${HDF5_INCLUDE_DIRS}
+        "${HDF5_ROOT}/include"
+        "$ENV{HDF5_ROOT}/include"
+        "$ENV{HDF5_INCLUDE_DIRS}"
+    PATHS
+        /usr/include/hdf5/serial
+        /usr/include/hdf5/openmpi
+        /usr/include/hdf5/mpich
+    DOC "Directory containing the HDF5 public version header"
+)
+
+if ( ONEFLOW_HDF5_INCLUDE_DIR )
+    include ( CheckCXXSourceCompiles )
+    set ( _ONEFLOW_SAVED_REQUIRED_INCLUDES "${CMAKE_REQUIRED_INCLUDES}" )
+    set ( CMAKE_REQUIRED_INCLUDES "${ONEFLOW_HDF5_INCLUDE_DIR}" )
+    unset ( ONEFLOW_HDF5_HAS_VERSION_MACROS CACHE )
+    check_cxx_source_compiles ( [=[
+        #include <H5public.h>
+        #if !defined(H5_VERS_MAJOR) || !defined(H5_VERS_MINOR) || !defined(H5_VERS_RELEASE)
+        #error HDF5 public version macros are unavailable
+        #endif
+        int main()
+        {
+            return H5_VERS_MAJOR < 0 || H5_VERS_MINOR < 0 || H5_VERS_RELEASE < 0;
+        }
+    ]=] ONEFLOW_HDF5_HAS_VERSION_MACROS )
+    set ( CMAKE_REQUIRED_INCLUDES "${_ONEFLOW_SAVED_REQUIRED_INCLUDES}" )
+
+    if ( ONEFLOW_HDF5_HAS_VERSION_MACROS )
+        file ( TO_CMAKE_PATH "${ONEFLOW_HDF5_INCLUDE_DIR}/H5public.h"
+               ONEFLOW_HDF5_HEADER_PATH )
+        list ( APPEND PRJ_INCLUDE_DIRS "${ONEFLOW_HDF5_INCLUDE_DIR}" )
+        list ( APPEND PRJ_COMPILE_DEF ONEFLOW_HDF5_HEADER_AVAILABLE )
+        list ( APPEND PRJ_COMPILE_DEF
+               "ONEFLOW_HDF5_HEADER_PATH=\\\"${ONEFLOW_HDF5_HEADER_PATH}\\\"" )
+        message ( STATUS "HDF5 header version: enabled (${ONEFLOW_HDF5_HEADER_PATH})" )
+    else()
+        message ( STATUS "HDF5 header version: unavailable (version macros not detected)" )
+    endif()
+else()
+    message ( STATUS "HDF5 header version: unavailable (H5public.h not found)" )
+endif()
+
 # Runtime environment inspection uses the platform dynamic-loader API even
 # when optional solver I/O dependencies such as CGNS are disabled.
 if ( WIN32 )
