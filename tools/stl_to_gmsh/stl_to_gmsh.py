@@ -240,7 +240,7 @@ def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dic
     config, assignments = _read_sidecar(sidecar, loop, tolerance)
     geo.parent.mkdir(parents=True, exist_ok=True)
     geo.write_text(build_geo(loop, assignments, config), encoding="utf-8", newline="\n")
-    return {"triangles":len(triangles), "boundary_vertices":len(loop), "boundary_edges":len(assignments), "geo":str(geo)}
+    return {"triangles":len(triangles), "boundary_vertices":len(loop), "boundary_edges":len(assignments), "body_boundary_edges":len(loop) if "_domain_bounds" in config else 0, "geo":str(geo)}
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
