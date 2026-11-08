@@ -240,24 +240,42 @@ runtime API version, loaded module path and linkage, compile-time/header
 version, build configuration and enabled/disabled state, and query status
 with diagnostic detail when unavailable or failed.
 
-HDF5 is the next candidate because H5get_libversion returns the version of
-the HDF5 library linked to the application. It should only be queried when
-OneFLOW has a direct, correctly configured HDF5 link dependency; CGNS using
-HDF5 internally does not by itself prove that OneFLOW may safely call HDF5
-symbols directly. MPI should use MPI_Get_library_version after MPI
-initialization or an explicitly documented implementation-safe query path.
-METIS and JSON support should report only evidence available from their public
-APIs or build metadata. Compiler and accelerator-backend information should
-be reported separately from third-party library versions.
+HDF5 is now inspected without introducing an undeclared compile-time or
+link-time dependency. At runtime OneFLOW searches the modules already loaded
+into its process for the public ``H5get_libversion`` symbol. On Windows it
+enumerates loaded process modules and resolves the symbol from each module; on
+Linux and macOS it uses the dynamic loader's default symbol scope. If found,
+OneFLOW calls the function and reports the returned major, minor, and release
+numbers together with the module containing the symbol. If the symbol is not
+exported by any loaded module, the report uses ``status: not_detected`` and
+``runtime_version_status: runtime_api_symbol_not_found``. A successful lookup
+reports the actual runtime API result; it does not infer HDF5 presence merely
+because CGNS may use HDF5 internally.
+
+This is a process-level symbol probe, not a guarantee that every private or
+statically embedded HDF5 build can be identified. A static copy hidden inside
+another library may not export ``H5get_libversion`` to the process symbol
+lookup and will therefore remain not detected. OneFLOW does not add HDF5
+headers or a direct HDF5 link dependency for this probe. The platform dynamic
+loader library is linked where required.
+
+MPI should use MPI_Get_library_version after MPI initialization or an
+explicitly documented implementation-safe query path. METIS and JSON support
+should report only evidence available from their public APIs or build
+metadata. Compiler and accelerator-backend information should be reported
+separately from third-party library versions.
 
 Verification
 ------------
 
-The C++ runtime_environment_test target verifies the JSON schema and command
-dispatch without running a simulation. The Python
+The C++ runtime_environment_test target verifies the JSON schema, CGNS and
+HDF5 dependency entries, text-report output, and command dispatch without
+running a simulation. The Python
 test_runtime_environment_dialog suite verifies executable invocation, JSON
 validation, process errors, missing executables, and timeout handling.
 
-Actual dependency values are process- and installation-specific. Tests must
-verify the response contract, status semantics, and storage isolation; they
-must not assert a developer machine's CGNS installation path or version.
+Actual dependency values are process- and installation-specific. HDF5 may be
+reported as available only when its runtime API symbol is visible in the
+process; otherwise it is explicitly not detected. Tests verify the response
+contract and status semantics, not a developer machine's CGNS/HDF5 path or
+version.
