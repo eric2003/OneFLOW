@@ -223,6 +223,7 @@ _PYTHON_UNIT_TESTS = (
     ("Application settings tests", ("-m", "unittest", "tools.oneflow_gui.test_application_settings")),
     ("Runtime environment query tests", ("-m", "unittest", "tools.oneflow_gui.test_runtime_environment_dialog")),
     ("Per-run environment evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_run_environment_evidence")),
+    ("Run history environment evidence view tests", ("-m", "unittest", "tools.oneflow_gui.test_run_history_dialog")),
     ("Workflow persistence tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_repository")),
     ("Workspace persistence tests", ("-m", "unittest", "tools.oneflow_gui.test_workspace_repository")),
     ("Workspace execution adapter tests", ("-m", "unittest", "tools.oneflow_gui.test_workspace_workflow_adapter")),
