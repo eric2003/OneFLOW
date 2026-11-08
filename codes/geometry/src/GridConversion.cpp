@@ -785,8 +785,9 @@ namespace
         const Json options = Json::parse(layoutInput);
 
         const std::string surfaceName = options.value("surface_name", std::string("fluid_domain"));
-        if (surfaceName.empty())
-            throw std::invalid_argument("STL-to-Gmsh surface_name must not be empty");
+        if (surfaceName != "fluid_domain")
+            throw std::invalid_argument(
+                "The initial STL-to-Gmsh contract requires surface_name = fluid_domain");
         const double meshSize = options.value("mesh_size", 1.0);
         if (!std::isfinite(meshSize) || meshSize <= 0.0)
             throw std::invalid_argument("STL-to-Gmsh mesh_size must be positive and finite");
@@ -999,6 +1000,7 @@ namespace
         const std::size_t expectedQuads =
             static_cast<std::size_t>(cellsX) * static_cast<std::size_t>(cellsY);
         if (generated.nodes.size() != expectedNodes ||
+            generated.elements.size() != expectedLines + expectedQuads ||
             lineElements != expectedLines ||
             quadrilateralElements != expectedQuads ||
             triangleElements != 0)
