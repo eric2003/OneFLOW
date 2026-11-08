@@ -186,7 +186,7 @@ def run_pipeline(
                             encoding="utf-8",
                             newline="\n",
                         )
-                except (OSError, ValueError, KeyError) as error:
+                except (OSError, ValueError, KeyError, RuntimeError) as error:
                     status = "failed"
                     message = f"Artifact validation failed: {error}"
 
@@ -277,7 +277,7 @@ def main() -> int:
             args.stage_root,
             args.workflow,
         )
-    except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as error:
+    except (OSError, ValueError, KeyError, TypeError, RuntimeError, json.JSONDecodeError) as error:
         parser.exit(2, f"STL-to-CFD pipeline failed: {error}\n")
 
 

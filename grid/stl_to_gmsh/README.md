@@ -43,7 +43,7 @@ Group names. Outputs are written only under each Case results/ directory.
 
 The Python Cases use the independent grid/stl/stl_to_gmsh.py implementation.
 
-## Run all four development Cases
+## Run all five development Cases
 
 After building OneFLOW and installing Gmsh, run the orchestrator from the
 repository root:
@@ -57,7 +57,7 @@ If the executable is not in the standard build/bin locations:
 The orchestrator stages all four Cases under
 %USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows or
 $HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. It recreates only
-the four named Case staging directories and leaves generated meshes, reports,
+the five named Case staging directories and leaves generated meshes, reports,
 and logs outside the repository source tree.
 
 ## STL-to-CFD pipeline

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import subprocess
 import sys
@@ -167,6 +168,10 @@ def main() -> int:
             raise FileNotFoundError("Gmsh executable was not found; pass --gmsh")
         oneflow = find_oneflow_executable(args.oneflow_executable)
         stage_root = args.stage_root.expanduser().resolve()
+        gmsh_path = Path(args.gmsh).expanduser().resolve()
+        os.environ["PATH"] = (
+            str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
+        )
         try:
             stage_root.relative_to(REPOSITORY_ROOT)
         except ValueError:
