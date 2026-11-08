@@ -20,6 +20,7 @@ License
 ----------------------------------------------------------------------------*/
 
 #include "RuntimeEnvironment.h"
+#include "RuntimeVersionCompatibility.h"
 
 #include <nlohmann/json.hpp>
 
@@ -66,48 +67,29 @@ namespace
 
 using Json = nlohmann::json;
 
+std::string GetVersionValue(const Json & version)
+{
+    if (!version.is_object() ||
+        !version.contains("value") ||
+        !version["value"].is_string())
+    {
+        return {};
+    }
+    return version["value"].get<std::string>();
+}
+
 Json BuildVersionCompatibility(
     const Json & headerVersion,
     const Json & runtimeVersion)
 {
-    const bool hasHeader =
-        headerVersion.is_object() &&
-        headerVersion.contains("value") &&
-        headerVersion["value"].is_string() &&
-        !headerVersion["value"].get<std::string>().empty() &&
-        headerVersion["value"] != "unknown";
-    const bool hasRuntime =
-        runtimeVersion.is_object() &&
-        runtimeVersion.contains("value") &&
-        runtimeVersion["value"].is_string() &&
-        !runtimeVersion["value"].get<std::string>().empty();
-
-    if (hasHeader && hasRuntime)
-    {
-        const bool matches =
-            headerVersion["value"] == runtimeVersion["value"];
-        return {
-            {"status", matches ? "verified_match" : "mismatch"},
-            {"basis", "header_and_runtime_versions"},
-            {"detail", matches
-                ? "Header and runtime versions were independently obtained and match."
-                : "Header and runtime versions were independently obtained and differ."}
-        };
-    }
-
-    if (hasHeader)
-    {
-        return {
-            {"status", "assumed_match"},
-            {"basis", "header_version"},
-            {"detail", "Runtime version was not independently obtained; the header version is used as the default assumption. This does not verify ABI compatibility."}
-        };
-    }
-
+    const VersionCompatibilityAssessment assessment =
+        AssessVersionCompatibility(
+            GetVersionValue(headerVersion),
+            GetVersionValue(runtimeVersion));
     return {
-        {"status", "unknown"},
-        {"basis", "insufficient_version_evidence"},
-        {"detail", "There is insufficient independent version information to assess header/runtime version consistency."}
+        {"status", assessment.status},
+        {"basis", assessment.basis},
+        {"detail", assessment.detail}
     };
 }
 
