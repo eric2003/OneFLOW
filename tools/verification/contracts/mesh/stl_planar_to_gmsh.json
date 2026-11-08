@@ -23,7 +23,8 @@
       "codes/geometry/src/StlMeshIO.cpp",
       "codes/geometry/include/GridTypes.h",
       "codes/geometry/src/GridTypes.cpp",
-      "codes/geometry/src/GridConversion.cpp"
+      "codes/geometry/src/GridConversion.cpp",
+      "grid/stl_to_gmsh/develop_test/run_cases.py"
     ],
     "case_paths": [
       "grid/stl_to_gmsh/square/script/dimension.txt",
@@ -54,7 +55,8 @@
       "grid/stl_to_gmsh/README.md",
       "doc/source/stl_to_gmsh_2d.rst",
       "doc/source/gmsh_interface.rst",
-      "doc/source/grid_conversion_cases.rst"
+      "doc/source/grid_conversion_cases.rst",
+      "grid/stl_to_gmsh/develop_test/run_cases.py"
     ]
   },
   "claims": {
