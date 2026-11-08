@@ -960,7 +960,6 @@ function CompileOneFLOW() {
         -DCMAKE_CXX_COMPILER="$cmake_cxx_compiler" `
         -DMETIS_ROOT="$metis_root" `
         -DCGNS_ROOT="$cgns_root" `
-        -DHDF5_ROOT="$global:HDF5_PREFIX" `
         @cmake_config_args `
         ../
 
