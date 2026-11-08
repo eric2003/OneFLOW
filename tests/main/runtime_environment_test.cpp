@@ -3,6 +3,9 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
+#include <filesystem>
+#include <fstream>
+#include <iterator>
 #include <sstream>
 #include <string>
 
@@ -101,6 +104,34 @@ TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
         EXPECT_EQ(hdf5.at("status"), "not_detected");
         EXPECT_TRUE(hdf5Version.at("value").is_null());
     }
+}
+
+TEST(RuntimeEnvironmentSnapshotTest, WritesValidJsonAndCreatesParentDirectory)
+{
+    const std::filesystem::path root =
+        std::filesystem::temp_directory_path()
+        / "oneflow_runtime_environment_snapshot_test";
+    const std::filesystem::path report =
+        root / "results" / "runtime_environment.json";
+    std::error_code cleanupError;
+    std::filesystem::remove_all(root, cleanupError);
+
+    std::string error;
+    ASSERT_TRUE(ONEFLOW::WriteRuntimeEnvironmentJsonFile(
+        report.string(), error)) << error;
+    ASSERT_TRUE(std::filesystem::is_regular_file(report));
+
+    std::ifstream input(report);
+    ASSERT_TRUE(input.good());
+    const std::string contents{
+        std::istreambuf_iterator<char>(input),
+        std::istreambuf_iterator<char>()};
+    const nlohmann::json document = nlohmann::json::parse(contents);
+    EXPECT_EQ(document.at("schema_version"), 1);
+    EXPECT_TRUE(document.at("oneflow").contains("version"));
+    EXPECT_TRUE(document.at("dependencies").is_array());
+
+    std::filesystem::remove_all(root, cleanupError);
 }
 
 TEST(RuntimeEnvironmentCommandTest, ReportsHdf5RuntimeVersionInText)
