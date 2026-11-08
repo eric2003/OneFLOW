@@ -446,7 +446,11 @@ class MainWindow(QMainWindow):
             )
             self.case_table.setItem(row, 0, checkbox)
             self.case_table.setItem(row, 1, QTableWidgetItem(case.title))
-            config_text = "Typed profile" if case.profile else "Legacy config"
+            config_text = (
+                f"Python: {case.execution_script.name}"
+                if case.execution_kind == "python" and case.execution_script is not None
+                else ("Typed profile" if case.profile else "Legacy config")
+            )
             self.case_table.setItem(row, 2, QTableWidgetItem(config_text))
             self.case_table.setItem(row, 3, QTableWidgetItem(RunState.PENDING.value))
             self._row_by_id[case.case_id] = row
@@ -529,6 +533,15 @@ class MainWindow(QMainWindow):
         if not selected:
             QMessageBox.information(
                 self, "No cases selected", "Select at least one case to run."
+            )
+            return
+        python_cases = [case.title for case in selected if case.execution_kind != "oneflow"]
+        if python_cases:
+            QMessageBox.warning(
+                self,
+                "Python development cases",
+                "Python cases are run through Tests > Run Development Tests. "
+                "Please deselect: " + ", ".join(python_cases),
             )
             return
 
