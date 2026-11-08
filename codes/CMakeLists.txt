@@ -406,7 +406,7 @@ if ( ONEFLOW_HDF5_INCLUDE_DIR )
         list ( APPEND PRJ_INCLUDE_DIRS "${ONEFLOW_HDF5_INCLUDE_DIR}" )
         list ( APPEND PRJ_COMPILE_DEF ONEFLOW_HDF5_HEADER_AVAILABLE )
         list ( APPEND PRJ_COMPILE_DEF
-               "ONEFLOW_HDF5_HEADER_PATH=\\\"${ONEFLOW_HDF5_HEADER_PATH}\\\"" )
+               "ONEFLOW_HDF5_HEADER_PATH=\"${ONEFLOW_HDF5_HEADER_PATH}\"" )
         message ( STATUS "HDF5 header version: enabled (${ONEFLOW_HDF5_HEADER_PATH})" )
     else()
         message ( STATUS "HDF5 header version: unavailable (version macros not detected)" )
