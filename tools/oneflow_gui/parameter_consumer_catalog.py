@@ -334,6 +334,15 @@ _CONSUMERS = (
         "The guarded typed read is present in GridConfig::FromDataBase; command construction and invocation are present in ConvertStlToGmsh.",
         ("codes/geometry/src/GridConversion.cpp",),
         ("ConvertStlToGmsh",),
+    ),
+    ParameterConsumer(
+        "stlWeldTolerance", "codes/geometry/src/GridTypes.cpp", "GridConfig::FromDataBase",
+        'GetDataValue<Real>("stlWeldTolerance")', ConsumerReadKind.OPTIONAL,
+        "Optionally overrides the STL geometric tolerance. The default is 1.0e-10; the value controls STL vertex welding, planar tolerance and endpoint matching in the native STL-to-Gmsh path.",
+        "Grid task with STL source geometry.",
+        "The guarded typed read is present in GridConfig::FromDataBase; the value is passed to ExtractStlPlanarBoundary and used by ConvertStlToGmsh.",
+        ("codes/geometry/src/StlMeshIO.cpp", "codes/geometry/src/GridConversion.cpp"),
+        ("ExtractStlPlanarBoundary", "ConvertStlToGmsh"),
     )
 )
 
