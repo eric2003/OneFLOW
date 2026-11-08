@@ -73,8 +73,8 @@ jobs:
 
       - name: Run Windows process and Gmsh integration tests
         env:
-          HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
-          CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
+          HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/1.14.3
+          CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/4.5.2
           MSMPI_ROOT: "C:/Program Files/Microsoft MPI"
         shell: pwsh
         run: |
