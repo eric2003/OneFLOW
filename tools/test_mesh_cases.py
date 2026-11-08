@@ -174,8 +174,12 @@ class MeshCaseCatalogTest(unittest.TestCase):
             root = Path(directory)
             script_dir = root / "grid" / "sample" / "script"
             script_dir.mkdir(parents=True)
-            (script_dir / "simu.txt").write_text('string simutask = "Grid";\\n', encoding="utf-8")
-            (script_dir / "grid.txt").write_text("int gridObj = 1;\\n", encoding="utf-8")
+            (script_dir / "simu.txt").write_text(
+                'string simutask = "Grid";\n', encoding="utf-8"
+            )
+            (script_dir / "grid.txt").write_text(
+                "int gridObj = 1;\n", encoding="utf-8"
+            )
             entry = {"id": "sample", "directory": "grid/sample"}
             self.assertEqual(validate_case(root, entry), [])
 
@@ -184,7 +188,9 @@ class MeshCaseCatalogTest(unittest.TestCase):
             (Path(directory) / "grid" / "sample" / "script").mkdir(parents=True)
             entry = {"id": "sample", "directory": "grid/sample"}
             errors = validate_case(Path(directory), entry)
-            self.assertTrue(any("no script/*.txt parameter files found" in error for error in errors))
+            self.assertTrue(
+                any("no script/*.txt parameter files found" in error for error in errors)
+            )
 
     def test_duplicate_case_ids_are_rejected(self) -> None:
         catalog = {

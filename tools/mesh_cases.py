@@ -54,7 +54,9 @@ def load_catalog(catalog_path: Path) -> dict[str, Any]:
         elif runtime_config is not None and (
             not isinstance(runtime_config, str) or not runtime_config
         ):
-            raise ValueError(f"Case {case_id} runtimeConfig must be a non-empty path when provided")
+            raise ValueError(
+                f"Case {case_id} runtimeConfig must be a non-empty path when provided"
+            )
     return catalog
 
 
@@ -214,7 +216,9 @@ def validate_case(repository_root: Path, entry: dict[str, Any]) -> list[str]:
                         if not include_path.is_file():
                             errors.append(f"{case_id}: parameter file not found: {include_path}")
             else:
-                script_dir = resolve_case_path(case_dir, "script", f"script directory for {case_id}")
+                script_dir = resolve_case_path(
+                    case_dir, "script", f"script directory for {case_id}"
+                )
                 parameter_files = sorted(script_dir.glob("*.txt")) if script_dir.is_dir() else []
                 if not parameter_files:
                     errors.append(f"{case_id}: no script/*.txt parameter files found")
