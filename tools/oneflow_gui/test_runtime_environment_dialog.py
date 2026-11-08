@@ -59,11 +59,15 @@ class RuntimeEnvironmentQueryTest(unittest.TestCase):
                         "source": "unavailable",
                     },
                     "runtime_version_status": "runtime_api_symbol_not_found",
-                    "header_version": None,
+                    "header_version": {
+                        "value": "1.14.3",
+                        "source": "H5_VERS_MAJOR_MINOR_RELEASE_compile_time_macros",
+                        "header_path": "C:/deps/hdf5/include/H5public.h",
+                    },
                     "version_compatibility": {
-                        "status": "unknown",
-                        "basis": "insufficient_version_evidence",
-                        "detail": "Insufficient version information.",
+                        "status": "assumed_match",
+                        "basis": "header_version",
+                        "detail": "Runtime version was not independently obtained.",
                     },
                     "runtime_library": {
                         "module_path": "",
