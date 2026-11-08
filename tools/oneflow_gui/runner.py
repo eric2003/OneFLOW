@@ -51,27 +51,53 @@ def _copy_case_to_workspace(
     return destination
 
 
+def _case_database_destination(root: Path, case: CaseDefinition) -> Path:
+    """Resolve a catalog-relative directory inside the disposable grid workspace."""
+    relative = case.workspace_relative_directory or Path(case.case_id)
+    if relative.is_absolute() or any(part in ("", ".", "..") for part in relative.parts):
+        raise ValueError(
+            f"Case Database directory must be a safe relative path: {relative}"
+        )
+    destination = (root / relative).resolve()
+    try:
+        destination.relative_to(root)
+    except ValueError as error:
+        raise ValueError(
+            f"Case Database destination escapes its workspace: {destination}"
+        ) from error
+    if destination == root:
+        raise ValueError("Case Database destination cannot be the workspace root.")
+    return destination
+
+
 def prepare_case_database_workspace(
     cases: list[CaseDefinition],
     workspace_root: Path,
 ) -> dict[str, Path]:
-    """Refresh the whole fixed grid workspace, then stage selected cases."""
+    """Refresh the grid workspace and stage cases at their catalog-relative paths."""
     root = workspace_root.expanduser().resolve()
     destinations: dict[str, Path] = {}
+    occupied: list[Path] = []
     for case in cases:
         source = case.case_directory.expanduser().resolve()
-        destination = (root / case.case_id).resolve()
-        if destination.parent != root:
-            raise ValueError(
-                "Case Database destination must be a direct child of its workspace root."
-            )
+        destination = _case_database_destination(root, case)
         if source == root or root in source.parents:
             raise ValueError(
                 f"Case source must be outside the disposable grid workspace: {source}"
             )
         if case.case_id in destinations:
             raise ValueError(f"Duplicate Case Database id: {case.case_id}")
+        if any(
+            destination == existing
+            or destination in existing.parents
+            or existing in destination.parents
+            for existing in occupied
+        ):
+            raise ValueError(
+                f"Overlapping Case Database destination for {case.case_id}: {destination}"
+            )
         destinations[case.case_id] = destination
+        occupied.append(destination)
 
     root.mkdir(parents=True, exist_ok=True)
     for child in root.iterdir():
@@ -82,12 +108,12 @@ def prepare_case_database_workspace(
 
     for case in cases:
         destination = destinations[case.case_id]
+        destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(
             case.case_directory,
             destination,
             ignore=shutil.ignore_patterns("__pycache__", ".git"),
         )
-        destinations[case.case_id] = destination
     return destinations
 
 
@@ -106,8 +132,8 @@ def prepare_case_directory(
         return prepare_case_database_workspace([case], workspace_root)[case.case_id]
     if execution_mode == "case_database_prepared":
         root = workspace_root.expanduser().resolve()
-        destination = (root / case.case_id).resolve()
-        if destination.parent != root or not destination.is_dir():
+        destination = _case_database_destination(root, case)
+        if not destination.is_dir():
             raise ValueError(f"Prepared Case Database directory is missing: {destination}")
         return destination
     if execution_mode in {"default_workspace", "custom_workspace"}:

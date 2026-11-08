@@ -30,6 +30,7 @@ class CaseDefinition:
     group: str = "General"
     execution_kind: str = "oneflow"
     execution_script: Path | None = None
+    workspace_relative_directory: Path | None = None
 
 
 @dataclass(frozen=True, slots=True)

@@ -30,6 +30,12 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
             if execution_kind == "oneflow" and entry.get("runtimeConfig") else None
         )
         execution_script = (root / execution["script"]).resolve() if execution_kind == "python" else None
+        directory_parts = Path(entry["directory"]).parts
+        workspace_relative_directory = (
+            Path(*directory_parts[1:])
+            if directory_parts and directory_parts[0] == "grid"
+            else None
+        )
         cases.append(
             CaseDefinition(
                 case_id=entry["id"],
@@ -41,6 +47,7 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
                 group=str(entry.get("group") or "General"),
                 execution_kind=execution_kind,
                 execution_script=execution_script,
+                workspace_relative_directory=workspace_relative_directory,
             )
         )
 

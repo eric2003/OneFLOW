@@ -54,6 +54,8 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertEqual(cases_by_id["stl_ascii_crlf"].execution_kind, "oneflow")
         self.assertEqual(cases_by_id["stl_python_ascii_basic"].execution_kind, "python")
         self.assertEqual(cases_by_id["stl_python_ascii_crlf"].execution_kind, "python")
+        self.assertEqual(cases_by_id["stl_ascii_crlf"].workspace_relative_directory, Path("stl/ascii_crlf"))
+        self.assertEqual(cases_by_id["stl_python_ascii_crlf"].workspace_relative_directory, Path("stl/python/ascii_crlf"))
         self.assertIsNone(cases_by_id["stl_ascii_crlf"].runtime_config)
         self.assertIsNone(cases_by_id["stl_ascii_crlf"].execution_script)
 
@@ -223,6 +225,34 @@ class DesktopServiceTest(unittest.TestCase):
             self.assertFalse((destination / "stale-result.dat").exists())
             self.assertFalse(stale.exists())
             self.assertTrue((source / "control.txt").is_file())
+
+    def test_case_database_preserves_catalog_directory_hierarchy(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "repository" / "grid" / "stl" / "ascii_crlf"
+            source.mkdir(parents=True)
+            (source / "model.stl").write_text("fixture", encoding="ascii")
+            workspace = root / "mesh-layout-test" / "grid"
+            case = CaseDefinition(
+                case_id="stl_ascii_crlf",
+                title="STL ASCII CRLF",
+                case_directory=source,
+                runtime_config=None,
+                profile=None,
+                layout=None,
+                workspace_relative_directory=Path("stl/ascii_crlf"),
+            )
+
+            staged = prepare_case_database_workspace([case], workspace)
+            expected = workspace / "stl" / "ascii_crlf"
+            self.assertTrue(staged["stl_ascii_crlf"].samefile(expected))
+            self.assertEqual((expected / "model.stl").read_text(encoding="ascii"), "fixture")
+            self.assertFalse((workspace / "stl_ascii_crlf").exists())
+
+            prepared = prepare_case_directory(
+                case, workspace, "unused-run-id", "case_database_prepared"
+            )
+            self.assertTrue(prepared.samefile(expected))
 
     def test_source_execution_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
