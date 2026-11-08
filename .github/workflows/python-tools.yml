@@ -64,6 +64,8 @@ jobs:
         run: python tools/test_mesh_cases.py
       - name: Test planar STL to Gmsh geometry generation
         run: python -m unittest grid.stl.test_stl_to_gmsh
+      - name: Test native and Python STL-to-Gmsh Cases
+        run: python -m unittest grid.stl_to_gmsh.develop_test.test_cases
       - name: Test rectangle layout compiler
         run: python -m unittest tests.tools.test_compile_rectangle
       - name: Test flat plate layout compiler

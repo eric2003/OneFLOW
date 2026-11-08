@@ -135,39 +135,13 @@ semantics; that route is not yet implemented.
 STL-to-Gmsh generation workflow
 -------------------------------
 
-The geometry-generation stage is maintained separately in
-`grid/stl/stl_to_gmsh/`. It consumes a planar STL boundary and emits Gmsh
-MSH 4.1 ASCII. This is a pre-meshing workflow, before the Gmsh-to-CGNS
-conversion Cases described above; it is not a second implementation of the
-C++ Gmsh reader.
-
-It currently provides two examples:
-
-* `single_quad`: a unit square, 4 nodes and 1 QUAD_4 cell.
-* `two_quads`: a 2 x 1 rectangle split into two adjacent unit-square cells,
-  6 nodes and 2 QUAD_4 cells.
-
-The sidecar configuration explicitly maps left/right/bottom/top to
-`inflow`, `outflow`, `symmetry`, and `farfield`. The 2-D region is
-`fluid_domain`. The shared interface between the two cells is not an
-external boundary group. These Physical Group names are preserved in MSH 4.1
-and are compatible with the existing Gmsh-to-CGNS semantic mapping.
-
-Run the generator from the repository root after copying
-`grid/stl/stl_to_gmsh` to a staged directory under `%USERPROFILE%\.oneflow`
-(or `$HOME/.oneflow`):
-
-.. code-block:: console
-
-   python grid/stl/stl_to_gmsh/run_case.py --case-directory <staged-case>
-
-The generator writes `.geo`, `.msh`, and JSON validation reports under the
-staged Case `results/` directory. It validates node counts, LINE_2 and
-QUAD_4 counts, and Physical Group names/dimensions. The MSH files can then be
-used as inputs to the existing `gmsh -> cgns` and composed
-`gmsh -> cgns -> oneflow` routes. The generator's `two_quads` example is
-distinct from `grid/conversion/cases/two_quads`, which is a checked-in MSH
-reader/conversion fixture.
+The geometry-generation stage has native OneFLOW Cases under
+`grid/stl_to_gmsh/square` and `grid/stl_to_gmsh/two_square_cells`.
+They run through the standard C++ Grid task, recover the planar STL boundary,
+write Gmsh geometry, invoke the configured Gmsh CLI, and validate the MSH 4.1
+output. Independent Python reference Cases live under
+`grid/stl_to_gmsh/python/`. The earlier Python prototype under
+`grid/stl/stl_to_gmsh/` remains available for compatibility.
 
 Coverage plan
 -------------

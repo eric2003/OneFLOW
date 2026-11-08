@@ -40,14 +40,10 @@ Python development cases do not require a OneFLOW executable. In the Tests dialo
 
 ## STL to Gmsh generation
 
-The first two-dimensional meshing workflow is maintained in
-`grid/stl/stl_to_gmsh/`. It uses the shared `stl_to_gmsh.py` reader and
-boundary reconstruction code to create Gmsh `.geo` geometry and MSH 4.1
-ASCII meshes. It includes one unit-square QUAD_4 cell and two adjacent
-unit-square QUAD_4 cells. The four outer Physical Curves are explicitly
-named `inflow`, `outflow`, `symmetry`, and `farfield`; the fluid region
-is `fluid_domain`. See that directory's README for staged execution,
-expected node/cell counts, and the next Gmsh-to-CGNS handoff.
+The earlier Python planar meshing prototype remains under `grid/stl/stl_to_gmsh/`.
+The primary native C++ Cases and independent Python reference Cases are now
+organized under `grid/stl_to_gmsh/`: `square`, `two_square_cells`, and
+`python/<case>`. See `grid/stl_to_gmsh/README.md` for the Case workflow.
 
 The cell layout is declared by `transfinite_cells.x` and
 `transfinite_cells.y`, not inferred from STL triangle diagonals. Gmsh output

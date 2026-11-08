@@ -1,33 +1,52 @@
-# Planar STL to Gmsh 2D case
+# STL to Gmsh: native OneFLOW Cases
 
-This is a standalone Grid preprocessing case. It is intentionally not registered as a OneFLOW solver case and does not add any GUI functionality.
+This directory contains native C++ STL-to-Gmsh Cases and independent Python
+reference Cases. The native Cases run through the standard OneFLOW Grid task
+and the C++ Geometry conversion pipeline.
 
-The case reads `input/body.stl`, applies the explicit physical-boundary configuration in `config/external_flow.json`, and writes a Gmsh `.geo` file and JSON report under `results/`. If a Gmsh executable is supplied, it also writes an MSH 2.2 file.
+| Implementation | Case | Transfinite cells | Nodes | QUAD_4 | Boundary LINE_2 |
+|---|---|---:|---:|---:|---:|
+| Native C++ | square | 1 x 1 | 4 | 1 | 4 |
+| Native C++ | two_square_cells | 2 x 1 | 6 | 2 | 6 |
+| Python | python/square | 1 x 1 | 4 | 1 | 4 |
+| Python | python/two_square_cells | 2 x 1 | 6 | 2 | 6 |
 
-## Run
+The STL files describe the outer boundary. Their triangle diagonals are
+triangulation edges, not CFD cell interfaces. The two-cell split at x = 1
+comes from transfinite_cells.x = 2, not from STL triangles.
 
-From the repository root:
+## Boundary contract
 
-```sh
-python grid/stl_to_gmsh/script/run.py
-```
+The four external Physical Curves are inflow (left), outflow (right),
+symmetry (bottom), and farfield (top). The 2-D region is fluid_domain.
+These are Gmsh physical labels, not solver boundary-state definitions.
 
-To generate the MSH file as well:
+## Native C++ execution
 
-```sh
-python grid/stl_to_gmsh/script/run.py --gmsh gmsh
-```
+Make Gmsh available on PATH, or change gmshExecutable in script/grid.txt.
 
-On Windows, use the same Python entry point from PowerShell and provide the installed executable name or full path with `--gmsh`.
+    build\bin\Debug\OneFLOW.exe r grid/stl_to_gmsh/square
+    build\bin\Debug\OneFLOW.exe r grid/stl_to_gmsh/two_square_cells
 
-## Boundary semantics
+Linux uses the same Case paths with build/bin/OneFLOW. The C++ path reads STL,
+recovers its planar boundary, writes .geo, invokes Gmsh, reads MSH 4.1 through
+the existing Gmsh reader, and validates node/element counts and Physical
+Group names. Outputs are written only under each Case results/ directory.
 
-The STL body is an internal `Wall` boundary. The rectangular fluid domain has explicit `Inlet`, `Outlet`, `Symmetry`, and `Farfield` Physical Curve groups; the fluid region is `Fluid`. These are Gmsh physical labels, not an automatic OneFLOW solver boundary-condition mapping.
+## Python reference
 
-## Outputs
+    python grid/stl_to_gmsh/python/run_case.py --case-directory grid/stl_to_gmsh/python/square
+    python grid/stl_to_gmsh/python/run_case.py --case-directory grid/stl_to_gmsh/python/two_square_cells
 
-- `results/body.geo`
-- `results/body.msh` (only with `--gmsh`)
-- `results/mesh_report.json`
+The Python Cases use the independent grid/stl/stl_to_gmsh.py implementation.
 
-Generated files are ignored by Git. The checked-in case input and configuration are never modified.
+## Development tests
+
+    python -m unittest grid.stl_to_gmsh.develop_test.test_cases
+    python tools/mesh_cases.py validate stl_to_gmsh_square
+    python tools/mesh_cases.py validate stl_to_gmsh_two_square_cells
+
+Tests use temporary output directories. The first native stage supports one
+connected, axis-aligned rectangular XY boundary and structured QUAD_4 layouts.
+Multiple loops, holes, curved/rotated boundaries, unstructured size fields,
+and 3-D volume meshing are not claimed.

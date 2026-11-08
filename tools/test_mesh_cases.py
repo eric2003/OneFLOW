@@ -75,6 +75,26 @@ class MeshCaseCatalogTest(unittest.TestCase):
             {"inflow", "outflow", "symmetry", "farfield"},
         )
 
+    def test_stl_to_gmsh_cases_register_native_cpp_and_python_variants(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        entries = {entry["id"]: entry for entry in catalog["cases"] if entry.get("group") == "STL to Gmsh"}
+        self.assertEqual(set(entries), {"stl_to_gmsh_square", "stl_to_gmsh_two_square_cells", "stl_to_gmsh_python_square", "stl_to_gmsh_python_two_square_cells"})
+        for case_id in ("stl_to_gmsh_square", "stl_to_gmsh_two_square_cells"):
+            entry = entries[case_id]
+            self.assertNotIn("execution", entry)
+            case_dir = REPOSITORY_ROOT / entry["directory"]
+            self.assertFalse((case_dir / "script" / "control.txt").exists())
+            self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
+            grid = (case_dir / "script" / "grid.txt").read_text(encoding="utf-8")
+            self.assertIn('string sourceGridType = "stl";', grid)
+            self.assertIn('string targetGridType = "gmsh";', grid)
+            self.assertTrue((case_dir / "script" / "layout.json").is_file())
+            self.assertTrue((case_dir / "input" / "model.stl").is_file())
+        for case_id in ("stl_to_gmsh_python_square", "stl_to_gmsh_python_two_square_cells"):
+            entry = entries[case_id]
+            self.assertEqual(entry["execution"]["kind"], "python")
+            self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
+
     def test_stl_ascii_crlf_is_a_native_oneflow_case_with_crlf_fixture(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         entry = next(
