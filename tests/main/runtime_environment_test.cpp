@@ -28,7 +28,7 @@ TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
     EXPECT_TRUE(document.at("oneflow").at("version").is_string());
     EXPECT_TRUE(document.at("build").at("compiler").is_string());
     ASSERT_TRUE(document.at("dependencies").is_array());
-    ASSERT_EQ(document.at("dependencies").size(), 1);
+    ASSERT_EQ(document.at("dependencies").size(), 2);
 
     const auto & cgns = document.at("dependencies").at(0);
     EXPECT_EQ(cgns.at("name"), "CGNS");
@@ -36,6 +36,15 @@ TEST(RuntimeEnvironmentCommandTest, EmitsMachineReadableDependencyInformation)
     EXPECT_TRUE(cgns.contains("runtime_version"));
     EXPECT_TRUE(cgns.contains("header_version"));
     EXPECT_TRUE(cgns.contains("runtime_library"));
+
+    const auto & hdf5 = document.at("dependencies").at(1);
+    EXPECT_EQ(hdf5.at("name"), "HDF5");
+    EXPECT_TRUE(hdf5.at("enabled").is_boolean());
+    EXPECT_TRUE(hdf5.at("status").is_string());
+    EXPECT_TRUE(hdf5.contains("runtime_version"));
+    EXPECT_TRUE(hdf5.contains("runtime_version_status"));
+    EXPECT_TRUE(hdf5.contains("header_version"));
+    EXPECT_TRUE(hdf5.contains("runtime_library"));
 }
 
 TEST(RuntimeEnvironmentCommandTest, PrintsOneFlowVersion)
