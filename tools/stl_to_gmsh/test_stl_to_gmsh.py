@@ -69,4 +69,66 @@ class Stl2DGmshTest(unittest.TestCase):
         with self.assertRaisesRegex(Stl2DError,"exactly four"):
             build_geo(loop,{},{"one_quad_cell":True})
 
+
+    def test_stl_body_generates_outer_fluid_domain_and_five_physical_groups(self):
+        config = {
+            "surface_name": "Fluid",
+            "mesh_size": 0.25,
+            "domain": {
+                "xmin": -1.0, "xmax": 2.0, "ymin": -1.0, "ymax": 2.0,
+                "boundaries": {
+                    "left": "Inlet",
+                    "right": "Outlet",
+                    "bottom": "Symmetry",
+                    "top": "Farfield"
+                }
+            },
+            "body_boundary_name": "Wall"
+        }
+        with tempfile.TemporaryDirectory() as temp:
+            sidecar = Path(temp) / "domain.json"
+            geo = Path(temp) / "body_domain.geo"
+            sidecar.write_text(json.dumps(config), encoding="utf-8")
+            report = convert(DATA / "square.stl", sidecar, geo)
+            content = geo.read_text(encoding="utf-8")
+            self.assertEqual(report["boundary_edges"], 4)
+            self.assertIn("Curve Loop(1) = {5, 6, 7, 8};", content)
+            self.assertIn("Curve Loop(2) = {-4, -3, -2, -1};", content)
+            self.assertIn("Plane Surface(1) = {1, 2};", content)
+            for name in ("Wall", "Inlet", "Outlet", "Symmetry", "Farfield", "Fluid"):
+                self.assertIn(f'Physical Curve("{name}")' if name != "Fluid"
+                              else f'Physical Surface("{name}")', content)
+
+    def test_outer_domain_must_strictly_enclose_stl_body(self):
+        config = {
+            "domain": {
+                "xmin": 0.0, "xmax": 2.0, "ymin": -1.0, "ymax": 2.0,
+                "boundaries": {
+                    "left": "Inlet", "right": "Outlet",
+                    "bottom": "Symmetry", "top": "Farfield"
+                }
+            }
+        }
+        with tempfile.TemporaryDirectory() as temp:
+            sidecar = Path(temp) / "domain.json"
+            sidecar.write_text(json.dumps(config), encoding="utf-8")
+            with self.assertRaisesRegex(Stl2DError, "strictly enclose"):
+                convert(DATA / "square.stl", sidecar, Path(temp) / "invalid.geo")
+
+    def test_outer_domain_requires_all_four_distinct_boundary_names(self):
+        config = {
+            "domain": {
+                "xmin": -1.0, "xmax": 2.0, "ymin": -1.0, "ymax": 2.0,
+                "boundaries": {
+                    "left": "Inlet", "right": "Outlet",
+                    "bottom": "Farfield", "top": "Farfield"
+                }
+            }
+        }
+        with tempfile.TemporaryDirectory() as temp:
+            sidecar = Path(temp) / "domain.json"
+            sidecar.write_text(json.dumps(config), encoding="utf-8")
+            with self.assertRaisesRegex(Stl2DError, "four distinct"):
+                convert(DATA / "square.stl", sidecar, Path(temp) / "invalid.geo")
+
 if __name__ == "__main__": unittest.main()
