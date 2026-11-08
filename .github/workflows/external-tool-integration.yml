@@ -105,7 +105,6 @@ jobs:
 
       - name: Run STL-to-CFD development pipeline
         env:
-          ONEFLOW_EXECUTABLE: ${{ github.workspace }}/build/bin/OneFLOW.exe
           HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/1.14.3
           CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/4.5.2
           MSMPI_ROOT: "C:/Program Files/Microsoft MPI"
@@ -125,7 +124,7 @@ jobs:
               }
           }
 
-          python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline-only --oneflow-executable "$env:ONEFLOW_EXECUTABLE" --gmsh gmsh --stage-root "${{ runner.temp }}/stl-to-cfd"
+          python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline-only --gmsh gmsh --stage-root "${{ runner.temp }}/stl-to-cfd"
           if ($LASTEXITCODE -ne 0) {
               throw "The STL-to-CFD development pipeline failed with exit code $LASTEXITCODE."
           }
