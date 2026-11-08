@@ -499,7 +499,14 @@ void WriteRuntimeEnvironmentText(
         {
             output << "  Header version  : "
                    << headerVersion["value"].get<std::string>()
-                   << " (compile-time)\n";
+                   << " (" << headerVersion.value("source", "compile-time")
+                   << ")\n";
+            if (headerVersion.contains("header_path"))
+            {
+                output << "  Header path     : "
+                       << headerVersion["header_path"].get<std::string>()
+                       << '\\n';
+            }
         }
 
         if (dependency.contains("version_compatibility"))
