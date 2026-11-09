@@ -337,15 +337,13 @@ def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dic
 
 
 def inspect_msh4(path: Path) -> dict:
-    """Read the structural summary needed to validate generated MSH 4.1 output."""
+    """Inspect MSH 4.1 topology, coordinates and first-order triangle quality."""
     lines = path.read_text(encoding="utf-8").splitlines()
 
     def section(name: str) -> list[str]:
-        start = "$" + name
-        end = "$End" + name
         try:
-            first = lines.index(start)
-            last = lines.index(end, first + 1)
+            first = lines.index("$" + name)
+            last = lines.index("$End" + name, first + 1)
         except ValueError as exc:
             raise Stl2DError(f"MSH file is missing the {name} section") from exc
         return lines[first + 1:last]
@@ -357,35 +355,101 @@ def inspect_msh4(path: Path) -> dict:
     if len(format_values) < 3 or format_values[0] != "4.1" or format_values[1] != "0":
         raise Stl2DError("generated mesh must be MSH 4.1 ASCII")
 
-    node_section = section("Nodes")
-    if not node_section:
-        raise Stl2DError("MSH Nodes section is empty")
-    node_header = node_section[0].split()
-    if len(node_header) != 4:
-        raise Stl2DError("invalid MSH 4.1 Nodes header")
-    node_count = int(node_header[1])
-
-    element_section = section("Elements")
-    if not element_section:
-        raise Stl2DError("MSH Elements section is empty")
-    element_header = element_section[0].split()
-    if len(element_header) != 4:
-        raise Stl2DError("invalid MSH 4.1 Elements header")
-    block_count, element_count = int(element_header[0]), int(element_header[1])
-    cursor = 1
-    element_types: Counter[int] = Counter()
+    node_tokens = " ".join(section("Nodes")).split()
+    if len(node_tokens) < 4:
+        raise Stl2DError("MSH Nodes section is empty or truncated")
+    block_count, node_count = int(node_tokens[0]), int(node_tokens[1])
+    cursor = 4
+    nodes: dict[int, Point] = {}
     for _ in range(block_count):
-        if cursor >= len(element_section):
+        if cursor + 4 > len(node_tokens):
+            raise Stl2DError("truncated MSH 4.1 node block header")
+        entity_dim, _entity_tag, parametric, count = map(int, node_tokens[cursor:cursor + 4])
+        cursor += 4
+        if entity_dim not in (0, 1, 2, 3) or parametric not in (0, 1) or count < 0:
+            raise Stl2DError("invalid MSH 4.1 node block header")
+        tags = list(map(int, node_tokens[cursor:cursor + count]))
+        if len(tags) != count:
+            raise Stl2DError("truncated MSH 4.1 node tags")
+        cursor += count
+        for tag in tags:
+            coordinate_count = 3 + (entity_dim if parametric else 0)
+            if cursor + coordinate_count > len(node_tokens):
+                raise Stl2DError("truncated MSH 4.1 node coordinates")
+            xyz = tuple(float(value) for value in node_tokens[cursor:cursor + 3])
+            cursor += coordinate_count
+            if not all(math.isfinite(value) for value in xyz) or tag in nodes:
+                raise Stl2DError("non-finite coordinates or duplicate MSH node tag")
+            nodes[tag] = xyz
+    if len(nodes) != node_count:
+        raise Stl2DError("MSH node block counts do not match the file header")
+
+    element_tokens = " ".join(section("Elements")).split()
+    if len(element_tokens) < 4:
+        raise Stl2DError("MSH Elements section is empty or truncated")
+    element_block_count, element_count = int(element_tokens[0]), int(element_tokens[1])
+    cursor = 4
+    element_types: Counter[int] = Counter()
+    triangle_areas: list[float] = []
+    triangle_qualities: list[float] = []
+    triangle_min_angles: list[float] = []
+    positive_xy = negative_xy = 0
+    for _ in range(element_block_count):
+        if cursor + 4 > len(element_tokens):
             raise Stl2DError("truncated MSH 4.1 element block header")
-        block_header = element_section[cursor].split()
-        cursor += 1
-        if len(block_header) != 4:
-            raise Stl2DError("invalid MSH 4.1 element block header")
-        element_type, block_size = int(block_header[2]), int(block_header[3])
-        if cursor + block_size > len(element_section):
-            raise Stl2DError("truncated MSH 4.1 element block")
-        element_types[element_type] += block_size
-        cursor += block_size
+        entity_dim, _entity_tag, element_type, count = map(
+            int, element_tokens[cursor:cursor + 4]
+        )
+        cursor += 4
+        arity = {1: 2, 2: 3, 3: 4}.get(element_type)
+        if arity is None:
+            raise Stl2DError(f"unsupported element type {element_type} in 2D reference mesh")
+        element_types[element_type] += count
+        for _element in range(count):
+            if cursor + 1 + arity > len(element_tokens):
+                raise Stl2DError("truncated MSH 4.1 element connectivity")
+            _tag = int(element_tokens[cursor])
+            node_ids = list(map(int, element_tokens[cursor + 1:cursor + 1 + arity]))
+            cursor += 1 + arity
+            if any(node_id not in nodes for node_id in node_ids):
+                raise Stl2DError("MSH element references an unknown node")
+            if element_type != 2:
+                continue
+            p0, p1, p2 = (nodes[node_id] for node_id in node_ids)
+            u = tuple(p1[i] - p0[i] for i in range(3))
+            v = tuple(p2[i] - p0[i] for i in range(3))
+            cross = (
+                u[1] * v[2] - u[2] * v[1],
+                u[2] * v[0] - u[0] * v[2],
+                u[0] * v[1] - u[1] * v[0],
+            )
+            area = 0.5 * math.sqrt(sum(value * value for value in cross))
+            signed_xy = 0.5 * (u[0] * v[1] - u[1] * v[0])
+            lengths = (
+                math.dist(p0, p1), math.dist(p1, p2), math.dist(p2, p0)
+            )
+            if area <= 0.0 or min(lengths) <= 0.0:
+                raise Stl2DError("generated mesh contains a degenerate TRI_3 element")
+            angles = []
+            for opposite, adjacent_a, adjacent_b in (
+                (lengths[1], lengths[0], lengths[2]),
+                (lengths[2], lengths[0], lengths[1]),
+                (lengths[0], lengths[1], lengths[2]),
+            ):
+                cosine = (adjacent_a**2 + adjacent_b**2 - opposite**2) / (
+                    2.0 * adjacent_a * adjacent_b
+                )
+                angles.append(math.degrees(math.acos(max(-1.0, min(1.0, cosine)))))
+            triangle_areas.append(area)
+            triangle_qualities.append(
+                4.0 * math.sqrt(3.0) * area / sum(length * length for length in lengths)
+            )
+            triangle_min_angles.append(min(angles))
+            if signed_xy > 0.0:
+                positive_xy += 1
+            elif signed_xy < 0.0:
+                negative_xy += 1
+
     if sum(element_types.values()) != element_count:
         raise Stl2DError("MSH 4.1 element block counts do not match the file header")
 
@@ -405,6 +469,11 @@ def inspect_msh4(path: Path) -> dict:
         if len(physical_groups) != expected_groups:
             raise Stl2DError("MSH PhysicalNames count does not match its header")
 
+    coordinates = list(nodes.values())
+    bounds = {
+        "minimum": [min(point[axis] for point in coordinates) for axis in range(3)],
+        "maximum": [max(point[axis] for point in coordinates) for axis in range(3)],
+    }
     return {
         "format": format_values[0],
         "binary": False,
@@ -415,6 +484,16 @@ def inspect_msh4(path: Path) -> dict:
         "triangle_elements": element_types.get(2, 0),
         "quadrilateral_elements": element_types.get(3, 0),
         "physical_groups": physical_groups,
+        "coordinate_bounds": bounds,
+        "triangle_quality": {
+            "degenerate_count": 0,
+            "positive_xy_orientation_count": positive_xy,
+            "negative_xy_orientation_count": negative_xy,
+            "minimum_area": min(triangle_areas) if triangle_areas else 0.0,
+            "maximum_area": max(triangle_areas) if triangle_areas else 0.0,
+            "minimum_quality": min(triangle_qualities) if triangle_qualities else 0.0,
+            "minimum_angle_degrees": min(triangle_min_angles) if triangle_min_angles else 0.0,
+        },
     }
 
 def main() -> int:
