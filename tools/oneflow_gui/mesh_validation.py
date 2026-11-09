@@ -147,7 +147,7 @@ def mesh_validation_workspace(repository_root: Path, mesh_case_id: str) -> Path:
             f"Mesh validation Case must be located below grid/: {case_directory}"
         )
     relative_case = Path(*case_directory.parts[1:])
-    return UserDataPaths.discover().grid_layout_test / "grid" / "mesh-validation" / relative_case
+    return UserDataPaths.discover().grid_layout_test / "mesh-validation" / relative_case
 
 
 def reset_mesh_validation_workspace(path: Path) -> Path:
@@ -237,11 +237,27 @@ def run_mesh_validation(
         return status, message
 
     result = run_case_graph(plan, execute, run_root=run_root)
+    execution_by_id = {item["case_id"]: item for item in records}
+    graph_steps = []
+    for item in result.cases:
+        detail = execution_by_id.get(item.case_id, {})
+        graph_step = {
+            "case_id": item.case_id,
+            "status": item.status,
+            "message": item.message,
+        }
+        if "validation" in detail:
+            graph_step["validation"] = detail["validation"]
+        graph_steps.append(graph_step)
+        print(
+            f"[Mesh-to-CFD] {item.case_id}: {item.status}: {item.message}",
+            flush=True,
+        )
     report = {
         "schema": "oneflow.mesh-to-cfd-validation", "schema_version": 1,
         "run_id": run_id, "status": result.status, "mesh_case_id": mesh_case_id,
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
-        "run_directory": str(run_root), "steps": records,
+        "run_directory": str(run_root), "steps": graph_steps,
         "note": "A square mesh with the flat-plate template is a solver smoke test, not physical flat-plate validation.",
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
