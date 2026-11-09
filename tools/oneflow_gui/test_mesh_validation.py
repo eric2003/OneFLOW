@@ -24,6 +24,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.root = Path(self.temporary.name)
         (self.root / "grid/stl_to_gmsh/square/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/circle_external_flow/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/square/python").mkdir(parents=True)
         (self.root / "test/cfd/plateuns2dslau2/script").mkdir(parents=True)
         (self.root / "grid/case_catalog.json").write_text(json.dumps({
             "schema": "oneflow.case-catalog",
@@ -34,11 +35,15 @@ class MeshValidationCatalogTest(unittest.TestCase):
                  "title": "Circle External Flow (Native C++)",
                  "directory": "grid/stl_to_gmsh/circle_external_flow/cpp",
                  "group": "STL to Gmsh"},
-                {"id": "python_square", "directory": "grid/python",
+                {"id": "python_square", "title": "One Square Cell (Python Reference)",
+                 "directory": "grid/stl_to_gmsh/square/python",
                  "group": "STL to Gmsh",
-                 "execution": {"kind": "python", "script": "run.py"}},
+                 "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
             ],
         }), encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/square/python/expected.json").write_text(
+            json.dumps({"artifact": {"mesh_file": "square.msh"}}), encoding="utf-8"
+        )
         (self.root / "grid/stl_to_gmsh/circle_external_flow/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/circle_external_flow.msh";\n',
             encoding="utf-8")
@@ -52,10 +57,11 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def tearDown(self):
         self.temporary.cleanup()
 
-    def test_mesh_selector_contains_native_cases_only(self):
+    def test_mesh_selector_contains_native_and_python_implementations(self):
         self.assertEqual(mesh_case_choices(self.root), (
             ("stl_to_gmsh_square", "One Square Cell"),
             ("stl_to_gmsh_circle_external_flow", "Circle External Flow (Native C++)"),
+            ("python_square", "One Square Cell (Python Reference)"),
         ))
 
     def test_circle_external_flow_is_available_to_mesh_to_cfd_validation(self):
@@ -85,6 +91,22 @@ class MeshValidationCatalogTest(unittest.TestCase):
             cases[3]["inputs"][0]["artifact"],
             "oneflow_grid",
         )
+
+    def test_python_mesh_case_uses_the_same_artifact_handoff_contract(self):
+        cases = build_mesh_validation_cases(
+            self.root, "python_square", "laminar_flat_plate"
+        )
+        self.assertEqual(len(cases), 4)
+        self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/square/python")
+        self.assertEqual(cases[0]["outputs"], [
+            {"id": "gmsh_mesh", "path": "results/square.msh"}
+        ])
+        self.assertEqual(cases[0]["validation"], {
+            "kind": "gmsh_msh4", "path": "results/square.msh"
+        })
+        self.assertEqual(cases[1]["inputs"][0]["artifact"], "gmsh_mesh")
+        self.assertEqual(cases[1]["inputs"][0]["setting"], "sourceGridFileName")
+        self.assertEqual(cases[1]["directory"], "grid/gmsh_to_cgns")
 
     def test_first_cfd_template_is_the_existing_laminar_flat_plate_case(self):
         self.assertEqual(cfd_template_choices(), (("laminar_flat_plate", "Laminar Flat Plate"),))

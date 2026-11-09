@@ -36,13 +36,13 @@ def _catalog(root: Path) -> dict:
 
 
 def mesh_case_choices(repository_root: Path) -> tuple[tuple[str, str], ...]:
-    """List native STL-to-Gmsh Cases from the repository Case Catalog."""
+    """List native and Python STL-to-Gmsh producers from the Case Catalog."""
     entries = _catalog(Path(repository_root).resolve()).get("cases", [])
     choices = tuple(
         (str(item["id"]), str(item.get("title", item["id"])))
         for item in entries
         if item.get("group") == "STL to Gmsh"
-        and (item.get("execution") or {}).get("kind", "oneflow") == "oneflow"
+        and (item.get("execution") or {}).get("kind", "oneflow") in {"oneflow", "python"}
     )
     if not choices:
         raise ValueError("No native STL-to-Gmsh Cases are registered.")
@@ -77,22 +77,43 @@ def build_mesh_validation_cases(
     mesh = next((x for x in catalog["cases"] if x.get("id") == mesh_case_id), None)
     if mesh is None:
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
-    if mesh.get("group") != "STL to Gmsh" or (mesh.get("execution") or {}).get("kind", "oneflow") != "oneflow":
-        raise ValueError(f"Case {mesh_case_id!r} is not a native STL-to-Gmsh Case.")
+    execution = mesh.get("execution") or {}
+    implementation = execution.get("kind", "oneflow")
+    if mesh.get("group") != "STL to Gmsh" or implementation not in {"oneflow", "python"}:
+        raise ValueError(f"Case {mesh_case_id!r} is not a supported STL-to-Gmsh Case.")
     template = next((x for x in _CFD_TEMPLATES if x["id"] == cfd_template_id), None)
     if template is None:
         raise ValueError(f"Unknown CFD template: {cfd_template_id!r}")
 
     mesh_dir = root / mesh["directory"]
-    msh = _setting(mesh_dir / "script/grid.txt", "targetGridFileName")
+    if implementation == "oneflow":
+        msh = _setting(mesh_dir / "script/grid.txt", "targetGridFileName")
+    else:
+        expected_path = mesh_dir / "expected.json"
+        expected = json.loads(expected_path.read_text(encoding="utf-8"))
+        mesh_name = expected.get("artifact", {}).get("mesh_file")
+        if (
+            not isinstance(mesh_name, str)
+            or not mesh_name.endswith(".msh")
+            or Path(mesh_name).name != mesh_name
+        ):
+            raise ValueError(
+                f"Python Case {mesh_case_id!r} must declare artifact.mesh_file "
+                "as a simple .msh filename."
+            )
+        msh = f"results/{mesh_name}"
     stem = Path(msh).stem
     cgns, native = f"results/{stem}.cgns", f"results/{stem}.oneflow.grid"
     mesh_id, cgns_id, native_id = "gmsh_mesh", "cgns_mesh", "oneflow_grid"
     cfd_config = root / template["directory"] / "script/cfd.txt"
     return [
         {"id": "stl_to_gmsh", "directory": mesh["directory"],
-         "outputs": [{"id": mesh_id, "path": msh, "parameter_file": "script/grid.txt",
-                      "setting": "targetGridFileName"}],
+         "outputs": (
+             [{"id": mesh_id, "path": msh, "parameter_file": "script/grid.txt",
+               "setting": "targetGridFileName"}]
+             if implementation == "oneflow"
+             else [{"id": mesh_id, "path": msh}]
+         ),
          "validation": {"kind": "gmsh_msh4", "path": msh}},
         {"id": "gmsh_to_cgns", "directory": "grid/gmsh_to_cgns",
          "depends_on": ["stl_to_gmsh"],
@@ -191,6 +212,15 @@ def run_mesh_validation(
     if max_steps < 1:
         raise ValueError("CFD smoke-test steps must be at least one.")
 
+    catalog = _catalog(REPOSITORY_ROOT)
+    mesh_entry = next(
+        (item for item in catalog["cases"] if item.get("id") == mesh_case_id),
+        None,
+    )
+    if mesh_entry is None:
+        raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
+    mesh_execution = mesh_entry.get("execution") or {}
+    mesh_implementation = mesh_execution.get("kind", "oneflow")
     cases = build_mesh_validation_cases(REPOSITORY_ROOT, mesh_case_id, cfd_template_id)
     plan = build_case_graph_plan(cases, REPOSITORY_ROOT)
     run_root = _external(
@@ -206,13 +236,29 @@ def run_mesh_validation(
                 "maxSteps": max_steps, "nFieldSave": 1, "nVisualSave": 1,
                 "nResSave": 1, "idump": 0,
             })
-        command = [str(executable), "r", str(step.directory)]
+        if step.case_id == "stl_to_gmsh" and mesh_implementation == "python":
+            script_value = mesh_execution.get("script")
+            if not isinstance(script_value, str) or not script_value.strip():
+                raise ValueError(
+                    f"Python mesh Case {mesh_case_id!r} does not declare execution.script."
+                )
+            script_path = (REPOSITORY_ROOT / script_value).resolve()
+            try:
+                script_path.relative_to(REPOSITORY_ROOT)
+            except ValueError as error:
+                raise ValueError("Python mesh Case script must stay inside the repository.") from error
+            command = [
+                sys.executable, str(script_path), "--case-directory",
+                str(step.directory), "--gmsh", str(gmsh_path),
+            ]
+        else:
+            command = [str(executable), "r", str(step.directory)]
         output: list[str] = []
         def emit(line: str) -> None:
             output.append(line)
             print(f"[{step.case_id}] {line}", flush=True)
         try:
-            result = run_process(command, cwd=REPOSITORY_ROOT, on_output=emit,
+            result = run_process(command, cwd=step.directory, on_output=emit,
                                  is_cancelled=lambda: False)
             status, message = result.status, result.message
         except OSError as error:
@@ -225,6 +271,7 @@ def run_mesh_validation(
                 mesh_info = inspect_msh4(step.directory / rel)
                 validation = {
                     "kind": "gmsh_msh4", "path": rel,
+                    "implementation": mesh_implementation,
                     "nodes": mesh_info["nodes"], "elements": mesh_info["elements"],
                     "physical_groups": mesh_info["physical_groups"],
                 }
@@ -249,6 +296,7 @@ def run_mesh_validation(
     report = {
         "schema": "oneflow.mesh-to-cfd-validation", "schema_version": 1,
         "run_id": run_id, "status": result.status, "mesh_case_id": mesh_case_id,
+        "mesh_implementation": mesh_implementation,
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
         "note": "The selected CFD consumer is a runtime smoke test unless a matching physical validation contract is explicitly defined; applying the flat-plate template to another geometry does not establish flat-plate physics.",
