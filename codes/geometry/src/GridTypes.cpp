@@ -53,18 +53,17 @@ std::string GridConfig::GetSourceCaseDir()
 
 std::string GridConfig::GetBcRegionMapFileName()
 {
-    constexpr const char * defaultFileName = "grid/bcRegionMap.txt";
     DataBase * database = GetGlobalDataBase();
     if ( database == nullptr )
     {
-        return defaultFileName;
+        return std::string( kDefaultBcRegionMapFile );
     }
 
     const DataEntry * entry =
         database->RequireDataPara().FindDataEntry( "bcRegionMapFile" );
     if ( entry == nullptr )
     {
-        return defaultFileName;
+        return std::string( kDefaultBcRegionMapFile );
     }
     if ( entry->GetType() != HX_STRING )
     {
@@ -74,7 +73,7 @@ std::string GridConfig::GetBcRegionMapFileName()
 
     const std::string fileName =
         GetDataValue< std::string >( &entry->GetDataObject(), 0 );
-    return fileName.empty() ? defaultFileName : fileName;
+    return fileName.empty() ? std::string( kDefaultBcRegionMapFile ) : fileName;
 }
 
 GridConfig GridConfig::FromDataBase()

@@ -960,12 +960,18 @@ class ContractCatalogTest(unittest.TestCase):
                 "parameter/max_vis_ratio",
                 "parameter/inflow_intensity",
                 "parameter/inflow_viscosity",
+                "parameter/bc-region-map-file",
             },
         )
         self.assertGreater(len(parameters), len(source_backed_parameters))
         self.assertTrue(
             all(item.parameter_key for item in proposed_parameters.values()),
             "every proposed inventory entry must retain its logical key",
+        )
+        self.assertEqual(parameters["parameter/bc-region-map-file"].parameter_key, "bcRegionMapFile")
+        self.assertIn(
+            "codes/geometry/src/GridTypes.cpp",
+            parameters["parameter/bc-region-map-file"].implementation_paths,
         )
         self.assertEqual(parameters["parameter/max-steps"].group_id, "run_control")
         self.assertEqual(parameters["parameter/max-time"].group_id, "run_control")

@@ -117,6 +117,9 @@ struct GridOutputConfig
     std::string cgnsFile;
 };
 
+// Canonical fallback for the case-relative boundary-region name map.
+inline constexpr std::string_view kDefaultBcRegionMapFile = "grid/bcRegionMap.txt";
+
 // ---------------------------------------------------------------------------
 // Case-scoped grid workflow configuration. Read legacy DataBase values at the
 // entry boundary, then pass this value through generation and conversion.
@@ -136,7 +139,7 @@ struct GridConfig
     std::string   bcFile;
     std::string   targetFile;
     // Case-relative boundary-region name map shared by grid generation and solve.
-    std::string   bcRegionMapFile{ "grid/bcRegionMap.txt" };
+    std::string   bcRegionMapFile{ kDefaultBcRegionMapFile };
     // External mesher executable used by generation workflows such as STL -> Gmsh.
     std::string   gmshExecutable{ "gmsh" };
     GridOutputConfig output;
