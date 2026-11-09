@@ -53,10 +53,9 @@ Group names. Outputs are written only under each Case results/ directory.
 
 ## Python reference
 
-    python grid/stl_to_gmsh/run_python_case.py --case-directory grid/stl_to_gmsh/square/python
-    python grid/stl_to_gmsh/run_python_case.py --case-directory grid/stl_to_gmsh/two_square_cells/python
-    python grid/stl_to_gmsh/run_python_case.py --case-directory grid/stl_to_gmsh/circle_external_flow/python
-    python grid/stl_to_gmsh/run_python_case.py --case-directory grid/stl_to_gmsh/channel_internal_flow/python
+Run the Python reference Cases through the staging orchestrator below. Do not
+pass checked-in source Case directories to the Python runner directly, because
+that would place generated files in the repository.
 
 The Python Cases use the independent grid/stl/stl_to_gmsh.py implementation. The native C++ and Python `circle_external_flow` Cases use byte-identical STL input and the same domain, mesh-size and Physical Group settings. The native Case exercises OneFLOW's C++ STL reader, outer-domain/hole construction, Gmsh invocation and MSH validation; the Python Case is an independent implementation reference. The `circle_external_flow` Case treats a polygonal STL obstacle as an internal Wall loop and subtracts it from a rectangular outer domain. The `channel_internal_flow` Case treats the STL loop itself as the fluid domain, with inlet, outlet and wall groups; a transfinite 20 x 5 layout produces a reproducible quadrilateral channel mesh. The external case validates minimum mesh counts rather than exact counts because unstructured meshing can vary slightly between Gmsh versions. Both implementations also validate the generated coordinate bounds against the configured planar domain, reject degenerate triangles, and enforce the shared minimum normalized triangle quality (0.01) and minimum angle (1 degree). Python reports the measured minimum area, normalized quality, and minimum angle; native C++ reports the same quality thresholds alongside its MSH topology report. The two triangulations are not expected to have identical element counts or connectivity.
 
@@ -167,14 +166,8 @@ rectangular fluid domain has Inlet, Outlet, Symmetry, and Farfield Physical
 Curve groups, and the fluid region is named Fluid. These names are Gmsh
 physical labels, not automatic OneFLOW solver boundary-condition mappings.
 
-Run the original Python workflow from the repository root:
+The legacy Python workflow writes into the legacy source-tree results folder; do not use it for isolated development runs.
 
-    python grid/stl_to_gmsh/script/run.py
-
-To also invoke Gmsh and write the legacy MSH 2.2 output:
-
-    python grid/stl_to_gmsh/script/run.py --gmsh gmsh
-
-Its generated files remain under grid/stl_to_gmsh/results/:
+Its generated files historically went under grid/stl_to_gmsh/results/:
 body.geo, body.msh (when Gmsh is supplied), and mesh_report.json.
 The checked-in body STL and external_flow.json are inputs and are not modified.

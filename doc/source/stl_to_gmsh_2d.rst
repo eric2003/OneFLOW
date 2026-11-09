@@ -31,15 +31,20 @@ Case's `script/grid.txt` selects `sourceGridType = "stl"`,
 four rectangle sides to `inflow`, `outflow`, `symmetry`, and `farfield`.
 The fluid surface is named `fluid_domain`.
 
-Run the native Cases after building OneFLOW and installing Gmsh:
+Run native and Python Cases only through the external staging orchestrator
+after building OneFLOW and installing Gmsh:
 
 .. code-block:: console
 
-   OneFLOW.exe r grid/stl_to_gmsh/square/cpp
-   OneFLOW.exe r grid/stl_to_gmsh/two_square_cells/cpp
+   python grid/stl_to_gmsh/develop_test/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
+
+The orchestrator copies each Case to the user's .oneflow staging directory
+and launches OneFLOW with that staged Case as its working directory. Do not
+run checked-in Case directories directly: generated files must remain outside
+the repository source tree.
 
 The native path writes .geo, MSH 4.1 and a validation report under each
-Case's results directory. It reads the generated MSH again with the existing
+staged Case's results directory. It reads the generated MSH again with the existing
 C++ Gmsh reader and checks node, boundary-line, QUAD_4 and Physical Group
 counts. Independent Python reference Cases are maintained under
 `grid/stl_to_gmsh/<case>/python/`; the existing external-flow Python Case remains at
