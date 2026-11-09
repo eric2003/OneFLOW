@@ -192,6 +192,40 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertEqual(summary["coordinate_bounds"]["minimum"], [0.0, 0.0, 0.0])
         self.assertEqual(summary["coordinate_bounds"]["maximum"], [1.0, 1.0, 0.0])
 
+    def test_python_square_generates_mesh_and_report_without_domain_quality(self):
+        gmsh = shutil.which("gmsh")
+        if gmsh is None:
+            self.skipTest("Gmsh executable is not available")
+        source = ROOT / "grid/stl_to_gmsh/square/python"
+        with tempfile.TemporaryDirectory() as temporary:
+            staged = Path(temporary) / "square"
+            shutil.copytree(source, staged)
+            command = [
+                sys.executable,
+                str(ROOT / "grid/stl_to_gmsh/run_python_case.py"),
+                "--case-directory",
+                str(staged),
+                "--gmsh",
+                gmsh,
+            ]
+            result = subprocess.run(
+                command, cwd=staged, text=True, capture_output=True, check=False
+            )
+            self.assertEqual(
+                result.returncode, 0,
+                msg=result.stdout + "\\n" + result.stderr,
+            )
+            mesh = inspect_msh4(staged / "results/model.msh")
+            self.assertEqual(mesh["nodes"], 4)
+            self.assertEqual(mesh["line_elements"], 4)
+            self.assertEqual(mesh["quadrilateral_elements"], 1)
+            report = json.loads(
+                (staged / "results/report.json").read_text(encoding="utf-8")
+            )
+            self.assertTrue(report["validated"])
+            self.assertEqual(report["contract"]["quality_limits"], {})
+        self.assertFalse((source / "results").exists())
+
     def test_python_circle_external_flow_generates_valid_gmsh_mesh(self):
         gmsh = shutil.which("gmsh")
         if gmsh is None:
@@ -209,7 +243,7 @@ class StlToGmshCaseTest(unittest.TestCase):
                 gmsh,
             ]
             result = subprocess.run(
-                command, cwd=ROOT, text=True, capture_output=True, check=False
+                command, cwd=staged, text=True, capture_output=True, check=False
             )
             self.assertEqual(
                 result.returncode, 0,

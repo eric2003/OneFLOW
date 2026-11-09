@@ -25,6 +25,7 @@ def run_case(case_directory: Path, gmsh: str) -> dict:
                    check=True, cwd=case)
     mesh = inspect_msh4(msh)
     domain = layout.get("domain")
+    quality_limits = layout.get("quality", {})
     if domain is not None:
         bounds = mesh["coordinate_bounds"]
         tolerance = 1.0e-10
@@ -40,7 +41,6 @@ def run_case(case_directory: Path, gmsh: str) -> dict:
                 )
         if abs(bounds["maximum"][2] - bounds["minimum"][2]) > tolerance:
             raise RuntimeError("Generated external-flow mesh is not planar in XY")
-        quality_limits = layout.get("quality", {})
         measured_quality = mesh["triangle_quality"]
         minimum_quality = float(quality_limits.get("minimum_triangle_quality", 0.01))
         minimum_angle = float(quality_limits.get("minimum_angle_degrees", 1.0))
