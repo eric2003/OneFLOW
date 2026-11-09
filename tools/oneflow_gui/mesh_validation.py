@@ -87,37 +87,37 @@ def build_mesh_validation_cases(
     msh = _setting(mesh_dir / "script/grid.txt", "targetGridFileName")
     stem = Path(msh).stem
     cgns, native = f"results/{stem}.cgns", f"results/{stem}.oneflow.grid"
-    mesh_id, cgns_id, native_id = f"{mesh_case_id}_msh", f"{mesh_case_id}_cgns", f"{mesh_case_id}_native"
+    mesh_id, cgns_id, native_id = "gmsh_mesh", "cgns_mesh", "oneflow_grid"
     cfd_config = root / template["directory"] / "script/cfd.txt"
     return [
-        {"id": mesh_case_id, "directory": mesh["directory"],
+        {"id": "stl_to_gmsh", "directory": mesh["directory"],
          "outputs": [{"id": mesh_id, "path": msh, "parameter_file": "script/grid.txt",
                       "setting": "targetGridFileName"}],
          "validation": {"kind": "gmsh_msh4", "path": msh}},
-        {"id": f"{mesh_case_id}_gmsh_to_cgns", "directory": "grid/gmsh_to_cgns",
-         "depends_on": [mesh_case_id],
+        {"id": "gmsh_to_cgns", "directory": "grid/gmsh_to_cgns",
+         "depends_on": ["stl_to_gmsh"],
          "inputs": [{"artifact": mesh_id, "setting": "sourceGridFileName",
                      "parameter_file": "script/grid.txt"}],
          "outputs": [{"id": cgns_id, "path": cgns,
                       "parameter_file": "script/grid.txt",
                       "setting": "targetGridFileName"}]},
-        {"id": f"{mesh_case_id}_cgns_to_oneflow",
+        {"id": "cgns_to_oneflow",
          "directory": "grid/stl_to_gmsh/pipeline/cgns_to_oneflow",
-         "depends_on": [f"{mesh_case_id}_gmsh_to_cgns"],
+         "depends_on": ["gmsh_to_cgns"],
          "inputs": [{"artifact": cgns_id, "setting": "sourceGridFileName",
                      "parameter_file": "script/grid.txt"}],
          "outputs": [{"id": native_id, "path": native,
                       "parameter_file": "script/grid.txt",
                       "setting": "targetGridFileName"}]},
-        {"id": f"{mesh_case_id}_{cfd_template_id}_solve",
+        {"id": "laminar_flat_plate_solve",
          "directory": template["directory"],
-         "depends_on": [f"{mesh_case_id}_cgns_to_oneflow"],
+         "depends_on": ["cgns_to_oneflow"],
          "inputs": [{"artifact": native_id, "setting": "gridFileName",
                      "parameter_file": "script/cfd.txt"}],
          "outputs": [
-             {"id": f"{mesh_case_id}_residual", "path": _setting(cfd_config, "resFile")},
-             {"id": f"{mesh_case_id}_restart", "path": _setting(cfd_config, "flowFile")},
-             {"id": f"{mesh_case_id}_visual", "path": _setting(cfd_config, "visualFile")},
+             {"id": "residual", "path": _setting(cfd_config, "resFile")},
+             {"id": "restart", "path": _setting(cfd_config, "flowFile")},
+             {"id": "visual", "path": _setting(cfd_config, "visualFile")},
          ]},
     ]
 
@@ -201,7 +201,7 @@ def run_mesh_validation(
     run_id = run_root.name
     os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
     def execute(step):
-        if step.case_id.endswith("_solve"):
+        if step.case_id == "laminar_flat_plate_solve":
             apply_runtime_overrides(step.directory / "script/cfd.txt", {
                 "maxSteps": max_steps, "nFieldSave": 1, "nVisualSave": 1,
                 "nResSave": 1, "idump": 0,
@@ -219,7 +219,7 @@ def run_mesh_validation(
             status, message = "failed", str(error)
 
         validation = None
-        if status == "succeeded" and step.case_id == mesh_case_id:
+        if status == "succeeded" and step.case_id == "stl_to_gmsh":
             try:
                 rel = step.outputs[0].relative_path.as_posix()
                 mesh_info = inspect_msh4(step.directory / rel)
