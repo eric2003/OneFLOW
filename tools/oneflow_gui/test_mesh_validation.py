@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 import unittest
 from unittest import mock
@@ -75,8 +76,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
             self.root, python_entry, Path("OneFLOW"), Path("gmsh"),
             self.root / ".oneflow/staged/python_case",
         )
-        self.assertEqual(command[0], __import__("sys").executable)
-        self.assertEqual(command[1], str(self.root / "grid/stl_to_gmsh/run_python_case.py"))
+        self.assertEqual(command[0], sys.executable)
+        self.assertEqual(command[1], str((self.root / "grid/stl_to_gmsh/run_python_case.py").resolve()))
         self.assertEqual(command[2:], [
             "--case-directory", str(self.root / ".oneflow/staged/python_case"),
             "--gmsh", "gmsh",
