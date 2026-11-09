@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 from mesh_cases import load_catalog, validate_case  # noqa: E402
 from grid.stl.stl_to_gmsh import convert, inspect_msh4  # noqa: E402
+from grid.stl_to_gmsh.develop_test.run_cases import NATIVE_CASES, PYTHON_CASES  # noqa: E402
 from tools.oneflow_gui.workflow_plan import build_case_graph_plan  # noqa: E402
 
 EXPECTED_IDS = {
@@ -37,6 +38,22 @@ class StlToGmshCaseTest(unittest.TestCase):
             for entry in catalog["cases"]
             if entry.get("group") == "STL to Gmsh"
         }
+
+    def test_development_staging_paths_mirror_case_implementation_layout(self):
+        self.assertEqual(NATIVE_CASES, {
+            "square/cpp": ("square/cpp", "square.msh"),
+            "square_2x2/cpp": ("square_2x2/cpp", "square_2x2.msh"),
+            "two_square_cells/cpp": ("two_square_cells/cpp", "two_square_cells.msh"),
+            "circle_external_flow/cpp": (
+                "circle_external_flow/cpp", "circle_external_flow.msh"
+            ),
+        })
+        self.assertEqual(PYTHON_CASES, {
+            "square/python": "square/python",
+            "two_square_cells/python": "two_square_cells/python",
+            "circle_external_flow/python": "circle_external_flow/python",
+            "channel_internal_flow/python": "channel_internal_flow/python",
+        })
 
     def test_native_and_python_cases_are_registered_separately(self):
         self.assertEqual(set(self.entries), EXPECTED_IDS)

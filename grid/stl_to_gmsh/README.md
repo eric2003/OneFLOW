@@ -76,9 +76,10 @@ If the executable is not in the standard build/bin locations:
 
 The orchestrator stages all eight Cases under
 %USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows or
-$HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. It recreates only
-the eight named Case staging directories and leaves generated meshes, reports,
-and logs outside the repository source tree.
+$HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. Staging paths mirror
+the Case layout, for example square/cpp and square/python; each has its own
+results directory. It recreates only the eight named Case staging directories
+and leaves generated meshes, reports, and logs outside the repository source tree.
 
 ## STL-to-CFD pipeline
 

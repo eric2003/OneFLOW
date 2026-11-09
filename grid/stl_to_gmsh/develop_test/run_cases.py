@@ -13,16 +13,16 @@ from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 NATIVE_CASES = {
-    "stl_to_gmsh_square": ("square/cpp", "square.msh"),
-    "stl_to_gmsh_square_2x2": ("square_2x2/cpp", "square_2x2.msh"),
-    "stl_to_gmsh_two_square_cells": ("two_square_cells/cpp", "two_square_cells.msh"),
+    "square/cpp": ("square/cpp", "square.msh"),
+    "square_2x2/cpp": ("square_2x2/cpp", "square_2x2.msh"),
+    "two_square_cells/cpp": ("two_square_cells/cpp", "two_square_cells.msh"),
     "circle_external_flow/cpp": ("circle_external_flow/cpp", "circle_external_flow.msh"),
 }
 PYTHON_CASES = {
-    "stl_to_gmsh_python_square": "square/python",
-    "stl_to_gmsh_python_two_square_cells": "two_square_cells/python",
+    "square/python": "square/python",
+    "two_square_cells/python": "two_square_cells/python",
     "circle_external_flow/python": "circle_external_flow/python",
-    "stl_to_gmsh_python_channel_internal_flow": "channel_internal_flow/python",
+    "channel_internal_flow/python": "channel_internal_flow/python",
 }
 
 
