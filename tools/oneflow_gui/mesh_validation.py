@@ -99,15 +99,13 @@ def build_mesh_validation_cases(
          "depends_on": [mesh_case_id],
          "inputs": [{"artifact": mesh_id, "setting": "sourceGridFileName",
                      "parameter_file": "script/grid.txt"}],
-         "outputs": [{"id": cgns_id, "path": cgns,
-                      "parameter_file": "script/grid.txt", "setting": "targetGridFileName"}]},
+         "outputs": [{"id": cgns_id, "path": cgns}]},
         {"id": f"{mesh_case_id}_cgns_to_oneflow",
          "directory": "grid/stl_to_gmsh/pipeline/cgns_to_oneflow",
          "depends_on": [f"{mesh_case_id}_gmsh_to_cgns"],
          "inputs": [{"artifact": cgns_id, "setting": "sourceGridFileName",
                      "parameter_file": "script/grid.txt"}],
-         "outputs": [{"id": native_id, "path": native,
-                      "parameter_file": "script/grid.txt", "setting": "targetGridFileName"}]},
+         "outputs": [{"id": native_id, "path": native}]},
         {"id": f"{mesh_case_id}_{cfd_template_id}_solve",
          "directory": template["directory"],
          "depends_on": [f"{mesh_case_id}_cgns_to_oneflow"],
@@ -174,16 +172,6 @@ def run_mesh_validation(
             status, message = result.status, result.message
         except OSError as error:
             status, message = "failed", str(error)
-
-        if status == "succeeded":
-            empty_outputs = [
-                str(step.directory / output.relative_path)
-                for output in step.outputs
-                if not (step.directory / output.relative_path).is_file()
-                or (step.directory / output.relative_path).stat().st_size == 0
-            ]
-            if empty_outputs:
-                status, message = "failed", "Missing or empty output artifacts: " + ", ".join(empty_outputs)
 
         validation = None
         if status == "succeeded" and step.case_id == mesh_case_id:

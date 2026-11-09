@@ -44,6 +44,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             "tools.verification.test_curve_catalog",
             "tools.oneflow_gui.test_parameter_consumer_catalog",
             "tools.verification.test_contract_catalog",
+            "tools.oneflow_gui.test_mesh_validation",
             "grid.stl.test_stl_to_gmsh",
             "tools.verification.test_cmake_test_catalog",
             "tools.oneflow_gui.test_contract_workbench_dialog",
