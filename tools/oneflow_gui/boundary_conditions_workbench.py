@@ -99,7 +99,7 @@ class BoundaryConditionsWorkbenchDialog(QDialog):
         self._text("Formulation", ["Equations / relations:", *entry["formulation"]["equations"], "", entry["formulation"].get("notes", "")])
         self._text("Parameters", [item["name"] + " — required" for item in entry["parameters"]] or ["No additional parameters declared."])
         mapping = entry["mappings"]
-        rows = [["CFL3D", str(cfl["bctype"]), cfl["section"]], ["CGNS", str(mapping["cgns"]), "candidate mapping"], ["OneFLOW", str(mapping["oneflow"]), entry["implementation"]["status"]]]
+        rows = [["CFL3D", str(cfl["bctype"]), cfl["section"]], ["Gmsh", ", ".join(mapping.get("gmsh_aliases", [])), "Physical Group aliases; names are user-defined"], ["CGNS", str(mapping["cgns"]), "candidate mapping"], ["OneFLOW", str(mapping["oneflow"]), entry["implementation"]["status"]]]
         table = self.views["Mappings"]
         table.setRowCount(len(rows))
         for r, values in enumerate(rows):
