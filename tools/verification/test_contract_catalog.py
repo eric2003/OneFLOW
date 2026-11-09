@@ -1086,7 +1086,7 @@ class ContractCatalogTest(unittest.TestCase):
             for contract_id, summary in parameter_summaries.items()
             if summary.status == "proposed"
         }
-        self.assertEqual(len(source_backed_parameters), 14)
+        self.assertEqual(len(source_backed_parameters), 15)
         self.assertGreater(len(proposed_parameters), 0)
         self.assertTrue(
             all(not item.implementation_paths and not item.evidence
