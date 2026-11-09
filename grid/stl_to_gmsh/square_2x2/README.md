@@ -1,7 +1,7 @@
 # STL to Gmsh: Square 2 x 2
 
 This native C++ OneFLOW Grid Case uses the exact same STL geometry as
-../square/input/model.stl. The two STL files are byte-identical. Only the
+../square/cpp/input/model.stl. The two STL files are byte-identical. Only the
 transfinite mesh layout changes.
 
 ## Geometry and mesh

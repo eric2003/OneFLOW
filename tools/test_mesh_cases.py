@@ -96,6 +96,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         ):
             entry = entries[case_id]
             self.assertNotIn("execution", entry)
+            self.assertTrue(entry["directory"].endswith("/cpp"))
             case_dir = REPOSITORY_ROOT / entry["directory"]
             self.assertFalse((case_dir / "script" / "control.txt").exists())
             self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
@@ -104,6 +105,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
             self.assertIn('string targetGridType = "gmsh";', grid)
             self.assertTrue((case_dir / "script" / "layout.json").is_file())
             self.assertTrue((case_dir / "input" / "model.stl").is_file())
+        self.assertFalse((REPOSITORY_ROOT / "grid/stl_to_gmsh/python").exists())
         for case_id in (
             "stl_to_gmsh_python_square",
             "stl_to_gmsh_python_two_square_cells",
@@ -112,6 +114,8 @@ class MeshCaseCatalogTest(unittest.TestCase):
         ):
             entry = entries[case_id]
             self.assertEqual(entry["execution"]["kind"], "python")
+            self.assertTrue(entry["directory"].endswith("/python"))
+            self.assertEqual(entry["execution"]["script"], "grid/stl_to_gmsh/run_python_case.py")
             self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
 
     def test_stl_ascii_crlf_is_a_native_oneflow_case_with_crlf_fixture(self) -> None:

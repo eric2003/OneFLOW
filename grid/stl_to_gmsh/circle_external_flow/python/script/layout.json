@@ -1,5 +1,5 @@
 {
-  "surface_name": "fluid",
+  "surface_name": "fluid_domain",
   "mesh_size": 0.22,
   "body_boundary_name": "wall",
   "domain": {

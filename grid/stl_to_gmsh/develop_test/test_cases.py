@@ -49,6 +49,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             entry = self.entries[case_id]
             case = ROOT / entry["directory"]
             self.assertNotIn("execution", entry)
+            self.assertTrue(entry["directory"].endswith("/cpp"))
             self.assertEqual(validate_case(ROOT, entry), [])
             self.assertEqual(
                 sorted(path.name for path in (case / "script").glob("*.txt")),
@@ -67,11 +68,13 @@ class StlToGmshCaseTest(unittest.TestCase):
         ):
             entry = self.entries[case_id]
             self.assertEqual(entry["execution"]["kind"], "python")
+            self.assertTrue(entry["directory"].endswith("/python"))
+            self.assertEqual(entry["execution"]["script"], "grid/stl_to_gmsh/run_python_case.py")
             self.assertEqual(validate_case(ROOT, entry), [])
 
     def test_native_circle_external_flow_uses_same_stl_and_domain_as_python_reference(self):
-        native = ROOT / "grid/stl_to_gmsh/circle_external_flow"
-        reference = ROOT / "grid/stl_to_gmsh/python/circle_external_flow"
+        native = ROOT / "grid/stl_to_gmsh/circle_external_flow/cpp"
+        reference = ROOT / "grid/stl_to_gmsh/circle_external_flow/python"
         self.assertEqual(
             (native / "input/model.stl").read_bytes(),
             (reference / "input/model.stl").read_bytes(),
@@ -83,6 +86,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             (reference / "script/layout.json").read_text(encoding="utf-8")
         )
         self.assertEqual(native_layout, python_layout)
+        self.assertEqual(native_layout["surface_name"], "fluid_domain")
         self.assertEqual(native_layout["domain"]["boundaries"], {
             "left": "inflow", "right": "outflow",
             "bottom": "farfield", "top": "farfield",
@@ -92,8 +96,8 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertFalse((native / "results").exists())
 
     def test_square_2x2_reuses_square_stl_and_changes_only_mesh_density(self):
-        square = ROOT / "grid/stl_to_gmsh/square"
-        square_2x2 = ROOT / "grid/stl_to_gmsh/square_2x2"
+        square = ROOT / "grid/stl_to_gmsh/square/cpp"
+        square_2x2 = ROOT / "grid/stl_to_gmsh/square_2x2/cpp"
         self.assertEqual(
             (square / "input/model.stl").read_bytes(),
             (square_2x2 / "input/model.stl").read_bytes(),
@@ -113,8 +117,8 @@ class StlToGmshCaseTest(unittest.TestCase):
 
     def test_python_geometry_compiles_square_and_two_cell_layouts(self):
         for relative, nx, ny in (
-            ("python/square", 1, 1),
-            ("python/two_square_cells", 2, 1),
+            ("square/python", 1, 1),
+            ("two_square_cells/python", 2, 1),
         ):
             case = ROOT / "grid/stl_to_gmsh" / relative
             with tempfile.TemporaryDirectory() as temp:
@@ -138,10 +142,10 @@ class StlToGmshCaseTest(unittest.TestCase):
 
     def test_expected_mesh_counts_distinguish_the_two_examples(self):
         square = json.loads(
-            (ROOT / "grid/stl_to_gmsh/python/square/expected.json").read_text()
+            (ROOT / "grid/stl_to_gmsh/square/python/expected.json").read_text()
         )
         two = json.loads(
-            (ROOT / "grid/stl_to_gmsh/python/two_square_cells/expected.json").read_text()
+            (ROOT / "grid/stl_to_gmsh/two_square_cells/python/expected.json").read_text()
         )
         self.assertEqual(
             square["mesh"],
@@ -156,13 +160,13 @@ class StlToGmshCaseTest(unittest.TestCase):
         gmsh = shutil.which("gmsh")
         if gmsh is None:
             self.skipTest("Gmsh executable is not available")
-        source = ROOT / "grid/stl_to_gmsh/python/circle_external_flow"
+        source = ROOT / "grid/stl_to_gmsh/circle_external_flow/python"
         with tempfile.TemporaryDirectory() as temporary:
             staged = Path(temporary) / "circle_external_flow"
             shutil.copytree(source, staged)
             command = [
                 sys.executable,
-                str(ROOT / "grid/stl_to_gmsh/python/run_case.py"),
+                str(ROOT / "grid/stl_to_gmsh/run_python_case.py"),
                 "--case-directory",
                 str(staged),
                 "--gmsh",
@@ -186,7 +190,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             }
             self.assertEqual(groups, {
                 (1, "wall"), (1, "inflow"), (1, "outflow"),
-                (1, "farfield"), (2, "fluid"),
+                (1, "farfield"), (2, "fluid_domain"),
             })
             report = json.loads(
                 (staged / "results/report.json").read_text(encoding="utf-8")
@@ -195,9 +199,9 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertFalse((source / "results").exists())
 
     def test_external_and_internal_flow_cases_build_distinct_fluid_domains(self):
-        cases_root = ROOT / "grid/stl_to_gmsh/python"
-        external = cases_root / "circle_external_flow"
-        internal = cases_root / "channel_internal_flow"
+        cases_root = ROOT / "grid/stl_to_gmsh"
+        external = cases_root / "circle_external_flow/python"
+        internal = cases_root / "channel_internal_flow/python"
         with tempfile.TemporaryDirectory() as temp:
             external_geo = Path(temp) / "external.geo"
             external_report = convert(
@@ -216,7 +220,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             self.assertEqual(external_text.count('Physical Curve("farfield")'), 1)
             for name in ("inflow", "outflow", "farfield", "wall"):
                 self.assertIn(f'Physical Curve("{name}")', external_text)
-            self.assertIn('Physical Surface("fluid")', external_text)
+            self.assertIn('Physical Surface("fluid_domain")', external_text)
 
             internal_geo = Path(temp) / "internal.geo"
             internal_report = convert(

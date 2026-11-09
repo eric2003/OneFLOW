@@ -18,7 +18,7 @@
     },
     {
       "dimension": 2,
-      "name": "fluid"
+      "name": "fluid_domain"
     }
   ],
   "mesh_minimum": {

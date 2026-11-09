@@ -20,8 +20,8 @@ Native OneFLOW Cases
 The primary runtime implementation is now available in two normal OneFLOW
 Grid Cases:
 
-* `grid/stl_to_gmsh/square`: one square, one QUAD_4 cell, four boundary edges;
-* `grid/stl_to_gmsh/two_square_cells`: a 2 x 1 rectangle, two QUAD_4 cells,
+* `grid/stl_to_gmsh/square/cpp`: one square, one QUAD_4 cell, four boundary edges;
+* `grid/stl_to_gmsh/two_square_cells/cpp`: a 2 x 1 rectangle, two QUAD_4 cells,
   six exterior boundary edges.
 
 Both Cases use the standard C++ STL reader and Grid conversion path. The
@@ -35,14 +35,14 @@ Run the native Cases after building OneFLOW and installing Gmsh:
 
 .. code-block:: console
 
-   OneFLOW.exe r grid/stl_to_gmsh/square
-   OneFLOW.exe r grid/stl_to_gmsh/two_square_cells
+   OneFLOW.exe r grid/stl_to_gmsh/square/cpp
+   OneFLOW.exe r grid/stl_to_gmsh/two_square_cells/cpp
 
 The native path writes .geo, MSH 4.1 and a validation report under each
 Case's results directory. It reads the generated MSH again with the existing
 C++ Gmsh reader and checks node, boundary-line, QUAD_4 and Physical Group
 counts. Independent Python reference Cases are maintained under
-`grid/stl_to_gmsh/python/`; the existing external-flow Python Case remains at
+`grid/stl_to_gmsh/<case>/python/`; the existing external-flow Python Case remains at
 `grid/stl_to_gmsh/script/run.py` with `config/external_flow.json`.
 
 Input and boundary semantics
@@ -58,7 +58,7 @@ inlet and another is an outlet. The workflow therefore uses two inputs:
 
 The example assigns the four square edges to Inlet, Outlet, Symmetry and
 Farfield. These become Gmsh Physical Curve groups. The 2D fluid region becomes
-a Physical Surface group named Fluid. Physical names are mesh metadata, not
+a Physical Surface group named ``fluid_domain``. Physical names are mesh metadata, not
 solver boundary-condition types. A subsequent explicit mapping layer must map
 these names to OneFLOW boundary semantics and CGNS BC types.
 
@@ -86,7 +86,7 @@ Use a sidecar with explicit outer bounds and one name for each rectangle side:
 
    {
      "mesh_size": 0.25,
-     "surface_name": "Fluid",
+     "surface_name": "fluid_domain",
      "body_boundary_name": "Wall",
      "domain": {
        "xmin": -1.0, "xmax": 2.0,
@@ -122,9 +122,9 @@ Parser and geometry-generation tests do not require Gmsh:
 Native C++ circle external-flow Case
 ------------------------------------
 
-The native Case at `grid/stl_to_gmsh/circle_external_flow` uses the same
+The native Case at `grid/stl_to_gmsh/circle_external_flow/cpp` uses the same
 32-segment circular STL and layout as the independent Python reference at
-`grid/stl_to_gmsh/python/circle_external_flow`. Its layout defines an outer
+`grid/stl_to_gmsh/circle_external_flow/python`. Its layout defines an outer
 rectangular computational domain and the four outer boundary labels. The C++
 converter creates the outer loop, reverses the body loop orientation to form
 a hole, and creates one fluid Plane Surface. The upper and lower outer curves
@@ -142,12 +142,12 @@ External- and internal-flow reference Cases
 Two independent Python reference Cases make the computational-domain
 distinction executable:
 
-* `grid/stl_to_gmsh/circle_external_flow` and its Python reference:
+* `grid/stl_to_gmsh/circle_external_flow/cpp` and `grid/stl_to_gmsh/circle_external_flow/python`:
   a 32-segment circular STL obstacle is placed inside a rectangular outer
   domain. The fluid surface is the outer loop with the obstacle loop as a
   hole. The body is `wall`; the outer curves are `inflow`, `outflow` and
   `farfield` (the top and bottom edges share the farfield group).
-* `grid/stl_to_gmsh/python/channel_internal_flow`: a rectangular STL loop
+* `grid/stl_to_gmsh/channel_internal_flow/python`: a rectangular STL loop
   directly bounds the fluid region. Its four edges are `Inlet`, `Outlet`,
   `LowerWall` and `UpperWall`. A transfinite 20 x 5 layout produces 100
   quadrilateral cells.

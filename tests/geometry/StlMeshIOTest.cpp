@@ -304,7 +304,7 @@ void ValidateNativeStlExternalFlowCase(const TemporaryDirectory& temporary)
     ASSERT_TRUE(layout.good());
     layout
         << "{\n"
-        << "  \"surface_name\": \"fluid\",\n"
+        << "  \"surface_name\": \"fluid_domain\",\n"
         << "  \"body_boundary_name\": \"wall\",\n"
         << "  \"mesh_size\": 0.15,\n"
         << "  \"outer_mesh_size\": 0.4,\n"
@@ -370,7 +370,7 @@ void ValidateNativeStlExternalFlowCase(const TemporaryDirectory& temporary)
 
     const std::set<std::pair<int, std::string>> expectedGroups{
         {1, "wall"}, {1, "inflow"}, {1, "outflow"},
-        {1, "farfield"}, {2, "fluid"}};
+        {1, "farfield"}, {2, "fluid_domain"}};
     std::set<std::pair<int, std::string>> actualGroups;
     for (const auto& physical : mesh.physicalNames)
         actualGroups.emplace(physical.first.first, physical.second);

@@ -1,19 +1,10 @@
-# STL to Gmsh: 2D Circle External Flow (Native C++)
+# STL to Gmsh: 2D Circle External Flow
 
-This native OneFLOW Grid Case reads the same 32-segment circular STL as the
-Python reference Case. The configured rectangular outer domain encloses the
-body; the C++ converter builds an outer curve loop and an oppositely oriented
-inner body loop, then creates a planar fluid surface with a hole.
+This problem has two independent implementations:
 
-Physical groups are `inflow`, `outflow`, `farfield`, `wall` and `fluid`.
-The upper and lower outer boundaries intentionally share the `farfield`
-group. These are geometry labels; the Gmsh-to-CGNS stage maps recognized names
-to CGNS boundary types, while the solver still owns the actual boundary state.
+- `cpp/`: native OneFLOW Grid Case using the C++ STL reader and Gmsh conversion pipeline
+- `python/`: Python reference using the independent planar STL geometry implementation
 
-Run from the repository root after building OneFLOW and installing Gmsh:
+Both use byte-identical 32-segment circular STL input, the same rectangular outer domain and matching mesh-size controls. The STL body is an internal `wall` boundary; the rectangular outer boundary has `inflow`, `outflow` and `farfield` groups. The fluid surface is the rectangle with the circular body loop subtracted as a hole and is named `fluid_domain` in both implementations.
 
-    build/bin/Debug/OneFLOW.exe r grid/stl_to_gmsh/circle_external_flow
-
-The generated MSH 4.1 mesh, Gmsh geometry and validation report are written
-under this Case's `results/` directory. The mesh is unstructured triangular;
-it is not expected to match the Python reference's exact element count.
+The two meshes need not have identical node or element counts. Validation compares the geometry/domain definition, Physical Group semantics and mesh validity rather than requiring identical unstructured triangulations.

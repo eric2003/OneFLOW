@@ -12,16 +12,16 @@ from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 NATIVE_CASES = {
-    "stl_to_gmsh_square": ("square", "square.msh"),
-    "stl_to_gmsh_square_2x2": ("square_2x2", "square_2x2.msh"),
-    "stl_to_gmsh_two_square_cells": ("two_square_cells", "two_square_cells.msh"),
-    "stl_to_gmsh_circle_external_flow": ("circle_external_flow", "circle_external_flow.msh"),
+    "stl_to_gmsh_square": ("square/cpp", "square.msh"),
+    "stl_to_gmsh_square_2x2": ("square_2x2/cpp", "square_2x2.msh"),
+    "stl_to_gmsh_two_square_cells": ("two_square_cells/cpp", "two_square_cells.msh"),
+    "stl_to_gmsh_circle_external_flow": ("circle_external_flow/cpp", "circle_external_flow.msh"),
 }
 PYTHON_CASES = {
-    "stl_to_gmsh_python_square": "square",
-    "stl_to_gmsh_python_two_square_cells": "two_square_cells",
-    "stl_to_gmsh_python_circle_external_flow": "circle_external_flow",
-    "stl_to_gmsh_python_channel_internal_flow": "channel_internal_flow",
+    "stl_to_gmsh_python_square": "square/python",
+    "stl_to_gmsh_python_two_square_cells": "two_square_cells/python",
+    "stl_to_gmsh_python_circle_external_flow": "circle_external_flow/python",
+    "stl_to_gmsh_python_channel_internal_flow": "channel_internal_flow/python",
 }
 
 
@@ -107,9 +107,9 @@ def run_all(stage_root: Path, oneflow: Path, gmsh: str) -> list[tuple[str, Path]
             )
         outputs.append((case_id, destination))
 
-    python_runner = REPOSITORY_ROOT / "grid/stl_to_gmsh/python/run_case.py"
+    python_runner = REPOSITORY_ROOT / "grid/stl_to_gmsh/run_python_case.py"
     for case_id, directory in PYTHON_CASES.items():
-        source = REPOSITORY_ROOT / "grid/stl_to_gmsh/python" / directory
+        source = REPOSITORY_ROOT / "grid/stl_to_gmsh" / directory
         destination = stage_root / case_id
         stage_case(source, destination)
         execute(

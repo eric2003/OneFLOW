@@ -9,7 +9,7 @@
       "cases": [
         {
           "id": "stl_to_gmsh_square_2x2",
-          "directory": "grid/stl_to_gmsh/square_2x2",
+          "directory": "grid/stl_to_gmsh/square_2x2/cpp",
           "outputs": [
             {
               "id": "square_2x2_msh",

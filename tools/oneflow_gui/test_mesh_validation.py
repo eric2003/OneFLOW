@@ -22,27 +22,27 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
-        (self.root / "grid/stl_to_gmsh/square/script").mkdir(parents=True)
-        (self.root / "grid/stl_to_gmsh/circle_external_flow/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/square/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/circle_external_flow/cpp/script").mkdir(parents=True)
         (self.root / "test/cfd/plateuns2dslau2/script").mkdir(parents=True)
         (self.root / "grid/case_catalog.json").write_text(json.dumps({
             "schema": "oneflow.case-catalog",
             "cases": [
                 {"id": "stl_to_gmsh_square", "title": "One Square Cell",
-                 "directory": "grid/stl_to_gmsh/square", "group": "STL to Gmsh"},
+                 "directory": "grid/stl_to_gmsh/square/cpp", "group": "STL to Gmsh"},
                 {"id": "stl_to_gmsh_circle_external_flow",
                  "title": "Circle External Flow (Native C++)",
-                 "directory": "grid/stl_to_gmsh/circle_external_flow",
+                 "directory": "grid/stl_to_gmsh/circle_external_flow/cpp",
                  "group": "STL to Gmsh"},
                 {"id": "python_square", "directory": "grid/python",
                  "group": "STL to Gmsh",
                  "execution": {"kind": "python", "script": "run.py"}},
             ],
         }), encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/circle_external_flow/script/grid.txt").write_text(
+        (self.root / "grid/stl_to_gmsh/circle_external_flow/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/circle_external_flow.msh";\n',
             encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/square/script/grid.txt").write_text(
+        (self.root / "grid/stl_to_gmsh/square/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/square.msh";\n', encoding="utf-8")
         (self.root / "test/cfd/plateuns2dslau2/script/cfd.txt").write_text(
             'string resFile = "results/res.dat";\n'
@@ -64,7 +64,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertEqual(len(cases), 4)
         self.assertEqual(
-            cases[0]["directory"], "grid/stl_to_gmsh/circle_external_flow"
+            cases[0]["directory"], "grid/stl_to_gmsh/circle_external_flow/cpp"
         )
         self.assertEqual(
             cases[0]["outputs"][0]["path"],
@@ -159,7 +159,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             workspace = mesh_validation_workspace(self.root, "stl_to_gmsh_square")
         self.assertEqual(
             workspace,
-            self.root / ".oneflow" / "mesh-validation" / "stl_to_gmsh" / "square",
+            self.root / ".oneflow" / "mesh-validation" / "stl_to_gmsh" / "square" / "cpp",
         )
 
     def test_workspace_rejects_cases_outside_grid(self):
