@@ -86,7 +86,7 @@ class WorkflowRuntimeOverridesTest(unittest.TestCase):
     def test_numeric_overrides_keep_int_and_real_parameter_types(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "cfd.txt"
-            path.write_text("int maxSteps = 50; // steps\nReal global_dt = 0.001;\n", encoding="utf-8")
+            path.write_text("int maxSteps = 50; // steps\\nReal global_dt = 0.001;\\n", encoding="utf-8")
             apply_runtime_overrides(path, {"maxSteps": 2, "global_dt": 0.002})
             content = path.read_text(encoding="utf-8")
             self.assertIn("int maxSteps = 2; // steps", content)
@@ -96,7 +96,7 @@ class WorkflowRuntimeOverridesTest(unittest.TestCase):
     def test_rejects_wrong_numeric_override_type_without_writing(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "cfd.txt"
-            original = "int maxSteps = 50;\n"
+            original = "int maxSteps = 50;\\n"
             path.write_text(original, encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "integer values"):
                 apply_runtime_overrides(path, {"maxSteps": "2"})

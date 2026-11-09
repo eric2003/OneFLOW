@@ -49,7 +49,11 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(len(cases), 4)
         self.assertEqual(cases[0]["outputs"][0]["path"], "results/square.msh")
         self.assertEqual(cases[1]["directory"], "grid/gmsh_to_cgns")
+        self.assertEqual(cases[1]["outputs"][0]["path"], "results/square.cgns")
+        self.assertEqual(cases[1]["outputs"][0]["setting"], "targetGridFileName")
         self.assertEqual(cases[2]["directory"], "grid/stl_to_gmsh/pipeline/cgns_to_oneflow")
+        self.assertEqual(cases[2]["outputs"][0]["path"], "results/square.oneflow.grid")
+        self.assertEqual(cases[2]["outputs"][0]["setting"], "targetGridFileName")
         self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
         self.assertEqual(cases[3]["inputs"][0]["artifact"], "stl_to_gmsh_square_native")
 
