@@ -222,6 +222,12 @@
       "reference": "Stl2DGmshTest.test_outer_domain_allows_shared_physical_group_for_multiple_sides",
       "status": "linked_not_executed",
       "scope": "grid/stl/test_stl_to_gmsh.py; verifies that two outer rectangle edges can share one Physical Curve group, as used by the external-flow farfield."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlToGmshCaseTest.test_python_circle_external_flow_generates_valid_gmsh_mesh",
+      "status": "linked_not_executed",
+      "scope": "grid/stl_to_gmsh/develop_test/test_cases.py; runs the Python external-flow reference through Gmsh in a temporary Case directory and checks MSH 4.1 cells and all five Physical Groups."
     }
   ],
   "group": {

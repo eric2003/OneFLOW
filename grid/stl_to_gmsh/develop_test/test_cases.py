@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 import tempfile
 import unittest
 import sys
@@ -11,7 +13,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tools"))
 
 from mesh_cases import load_catalog, validate_case  # noqa: E402
-from grid.stl.stl_to_gmsh import convert  # noqa: E402
+from grid.stl.stl_to_gmsh import convert, inspect_msh4  # noqa: E402
 from tools.oneflow_gui.workflow_plan import build_case_graph_plan  # noqa: E402
 
 EXPECTED_IDS = {
@@ -149,6 +151,48 @@ class StlToGmshCaseTest(unittest.TestCase):
             two["mesh"],
             {"nodes": 6, "line_elements": 6, "triangle_elements": 0, "quadrilateral_elements": 2},
         )
+
+    def test_python_circle_external_flow_generates_valid_gmsh_mesh(self):
+        gmsh = shutil.which("gmsh")
+        if gmsh is None:
+            self.skipTest("Gmsh executable is not available")
+        source = ROOT / "grid/stl_to_gmsh/python/circle_external_flow"
+        with tempfile.TemporaryDirectory() as temporary:
+            staged = Path(temporary) / "circle_external_flow"
+            shutil.copytree(source, staged)
+            command = [
+                sys.executable,
+                str(ROOT / "grid/stl_to_gmsh/python/run_case.py"),
+                "--case-directory",
+                str(staged),
+                "--gmsh",
+                gmsh,
+            ]
+            result = subprocess.run(
+                command, cwd=ROOT, text=True, capture_output=True, check=False
+            )
+            self.assertEqual(
+                result.returncode, 0,
+                msg=result.stdout + "\\n" + result.stderr,
+            )
+            mesh = inspect_msh4(staged / "results/model.msh")
+            self.assertGreater(mesh["nodes"], 20)
+            self.assertGreater(mesh["line_elements"], 0)
+            self.assertGreater(mesh["triangle_elements"], 0)
+            self.assertEqual(mesh["quadrilateral_elements"], 0)
+            groups = {
+                (group["dimension"], group["name"])
+                for group in mesh["physical_groups"]
+            }
+            self.assertEqual(groups, {
+                (1, "wall"), (1, "inflow"), (1, "outflow"),
+                (1, "farfield"), (2, "fluid"),
+            })
+            report = json.loads(
+                (staged / "results/report.json").read_text(encoding="utf-8")
+            )
+            self.assertTrue(report["validated"])
+        self.assertFalse((source / "results").exists())
 
     def test_external_and_internal_flow_cases_build_distinct_fluid_domains(self):
         cases_root = ROOT / "grid/stl_to_gmsh/python"

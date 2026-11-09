@@ -137,6 +137,12 @@ solution comparisons.
     python tools/mesh_cases.py validate stl_to_gmsh_two_square_cells
     python tools/mesh_cases.py validate stl_to_gmsh_circle_external_flow
 
+When Gmsh is available, the Python test suite also executes the circle
+reference Case in a temporary directory and validates its MSH 4.1 triangle
+cells and Physical Groups. The native C++ circle integration test is enabled
+by `ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS` and is exercised by the
+`OneFLOW External Tool Integration` workflow.
+
 Tests use temporary output directories. The structured native Cases support
 one connected, axis-aligned rectangular XY boundary and QUAD_4 layouts. The
 native circle external-flow Case additionally supports one closed planar STL
