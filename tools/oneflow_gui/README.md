@@ -343,3 +343,6 @@ is not set). For example, the square STL Case uses
 `stl_to_gmsh/square/`. Re-running a Case clears and recreates only that
 Case's directory; sibling Case results are preserved. Reports and stage
 artifacts remain in that directory rather than a timestamped `runs/` tree.
+
+
+The home-screen Boundary Conditions entry opens a dedicated Boundary Conditions Workbench, separate from Mesh Validation and the Contract Workbench browser. Contract Workbench retains its Boundary Conditions contract domain for cross-domain governance. The dedicated GUI reads the versioned semantic catalog under tools/verification/boundary_conditions/registry.json and presents formulations, parameters, mappings, implementation status, verification and references. The initial catalog covers CFL3D Version 5.0 boundary types 1002, 1003, 2002, 2003 and 2004. This is a read-only research catalog, not a claim that all referenced solver treatments exist in OneFLOW.
