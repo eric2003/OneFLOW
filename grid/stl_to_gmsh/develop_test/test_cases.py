@@ -87,6 +87,21 @@ class StlToGmshCaseTest(unittest.TestCase):
         )
         self.assertEqual(native_layout, python_layout)
         self.assertEqual(native_layout["surface_name"], "fluid_domain")
+        self.assertEqual(native_layout["body_boundary_name"], "wall")
+        self.assertEqual(
+            native_layout["domain"],
+            {
+                "xmin": -3, "xmax": 6, "ymin": -3, "ymax": 3,
+                "boundaries": {
+                    "left": "inflow", "right": "outflow",
+                    "bottom": "farfield", "top": "farfield",
+                },
+            },
+        )
+        self.assertEqual(
+            native_layout["quality"],
+            {"minimum_triangle_quality": 0.01, "minimum_angle_degrees": 1.0},
+        )
         self.assertEqual(native_layout["domain"]["boundaries"], {
             "left": "inflow", "right": "outflow",
             "bottom": "farfield", "top": "farfield",
@@ -184,6 +199,12 @@ class StlToGmshCaseTest(unittest.TestCase):
             self.assertGreater(mesh["line_elements"], 0)
             self.assertGreater(mesh["triangle_elements"], 0)
             self.assertEqual(mesh["quadrilateral_elements"], 0)
+            quality = mesh["triangle_quality"]
+            self.assertEqual(quality["degenerate_count"], 0)
+            self.assertGreaterEqual(quality["minimum_quality"], 0.01)
+            self.assertGreaterEqual(quality["minimum_angle_degrees"], 1.0)
+            self.assertEqual(mesh["coordinate_bounds"]["minimum"][:2], [-3.0, -3.0])
+            self.assertEqual(mesh["coordinate_bounds"]["maximum"][:2], [6.0, 3.0])
             groups = {
                 (group["dimension"], group["name"])
                 for group in mesh["physical_groups"]
