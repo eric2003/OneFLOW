@@ -349,6 +349,7 @@ namespace
         if ( bcType == static_cast< int >( CGNS_ENUMV( BCOutflow ) ) ) return "BCOutflow";
         if ( bcType == static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) ) ) return "BCSymmetryPlane";
         if ( bcType == static_cast< int >( CGNS_ENUMV( BCFarfield ) ) ) return "BCFarfield";
+        if ( bcType == static_cast< int >( CGNS_ENUMV( BCWall ) ) ) return "BCWall";
         return "BCTypeUserDefined";
     }
 
