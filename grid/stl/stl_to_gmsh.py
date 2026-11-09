@@ -384,6 +384,14 @@ def inspect_msh4(path: Path) -> dict:
     if len(nodes) != node_count:
         raise Stl2DError("MSH node block counts do not match the file header")
 
+    coordinate_values = list(nodes.values())
+    coordinate_scale = max(
+        max(point[axis] for point in coordinate_values)
+        - min(point[axis] for point in coordinate_values)
+        for axis in range(3)
+    )
+    area_tolerance = 64.0 * math.ulp(1.0) * coordinate_scale * coordinate_scale
+
     element_tokens = " ".join(section("Elements")).split()
     if len(element_tokens) < 4:
         raise Stl2DError("MSH Elements section is empty or truncated")
@@ -428,7 +436,7 @@ def inspect_msh4(path: Path) -> dict:
             lengths = (
                 math.dist(p0, p1), math.dist(p1, p2), math.dist(p2, p0)
             )
-            if area <= 0.0 or min(lengths) <= 0.0:
+            if area <= area_tolerance or min(lengths) <= 0.0:
                 raise Stl2DError("generated mesh contains a degenerate TRI_3 element")
             angles = []
             for opposite, adjacent_a, adjacent_b in (
