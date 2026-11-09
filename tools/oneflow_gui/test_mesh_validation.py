@@ -120,10 +120,19 @@ class MeshValidationCatalogTest(unittest.TestCase):
             cases[2]["outputs"][0]["path"],
             "results/circle_external_flow.oneflow.grid",
         )
+        self.assertEqual(cases[2]["outputs"][1], {
+            "id": "bc_region_map", "path": "results/bcRegionMap.txt",
+            "parameter_file": "script/grid.txt", "setting": "bcRegionMapFile",
+        })
         self.assertEqual(cases[3]["id"], "laminar_flat_plate_solve")
         self.assertEqual(
-            cases[3]["inputs"][0]["artifact"],
-            "oneflow_grid",
+            cases[3]["inputs"],
+            [
+                {"artifact": "oneflow_grid", "setting": "gridFileName",
+                 "parameter_file": "script/cfd.txt"},
+                {"artifact": "bc_region_map", "setting": "bcRegionMapFile",
+                 "parameter_file": "script/cfd.txt"},
+            ],
         )
 
     def test_python_mesh_case_uses_the_same_artifact_handoff_contract(self):
@@ -141,6 +150,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[1]["inputs"][0]["artifact"], "gmsh_mesh")
         self.assertEqual(cases[1]["inputs"][0]["setting"], "sourceGridFileName")
         self.assertEqual(cases[1]["directory"], "grid/gmsh_to_cgns")
+        self.assertEqual(cases[3]["inputs"][1]["artifact"], "bc_region_map")
+        self.assertEqual(cases[3]["inputs"][1]["setting"], "bcRegionMapFile")
 
     def test_first_cfd_template_is_the_existing_laminar_flat_plate_case(self):
         self.assertEqual(cfd_template_choices(), (("laminar_flat_plate", "Laminar Flat Plate"),))
@@ -161,14 +172,21 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[2]["id"], "gmsh_to_oneflow")
         self.assertEqual(cases[2]["depends_on"], ["gmsh_to_cgns"])
         self.assertEqual(cases[2]["directory"], "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow")
-        self.assertEqual(cases[2]["outputs"][0], {
-            "id": "oneflow_grid", "path": "results/square.oneflow.grid",
-            "parameter_file": "script/grid.txt", "setting": "targetGridFileName",
-        })
+        self.assertEqual(cases[2]["outputs"], [
+            {"id": "oneflow_grid", "path": "results/square.oneflow.grid",
+             "parameter_file": "script/grid.txt", "setting": "targetGridFileName"},
+            {"id": "bc_region_map", "path": "results/bcRegionMap.txt",
+             "parameter_file": "script/grid.txt", "setting": "bcRegionMapFile"},
+        ])
         self.assertEqual(cases[3]["id"], "laminar_flat_plate_solve")
         self.assertEqual(cases[3]["depends_on"], ["gmsh_to_oneflow"])
         self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
-        self.assertEqual(cases[3]["inputs"][0]["artifact"], "oneflow_grid")
+        self.assertEqual(cases[3]["inputs"], [
+            {"artifact": "oneflow_grid", "setting": "gridFileName",
+             "parameter_file": "script/cfd.txt"},
+            {"artifact": "bc_region_map", "setting": "bcRegionMapFile",
+             "parameter_file": "script/cfd.txt"},
+        ])
 
     def test_report_records_final_graph_status_and_blocked_steps(self):
         result = WorkflowGraphRunResult("failed", (
