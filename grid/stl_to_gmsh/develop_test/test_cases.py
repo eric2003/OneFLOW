@@ -131,7 +131,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             [
                 "stl_to_gmsh_square_2x2",
                 "gmsh_to_cgns_square_2x2",
-                "cgns_to_oneflow_square_2x2",
+                "gmsh_to_oneflow_square_2x2",
                 "cfd_solve_square_2x2",
             ],
         )
@@ -164,7 +164,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             ["results/res.dat", "restart/flow.dat", "visual/visual.dat"],
         )
         cgns_grid = (
-            ROOT / "grid/stl_to_gmsh/pipeline/cgns_to_oneflow/script/grid.txt"
+            ROOT / "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow/script/grid.txt"
         ).read_text(encoding="utf-8")
         self.assertIn('string sourceGridType = "cgns";', cgns_grid)
         self.assertIn('string targetGridType = "oneflow";', cgns_grid)
