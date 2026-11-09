@@ -4,22 +4,25 @@ This directory contains native C++ STL-to-Gmsh Cases and independent Python
 reference Cases. The native Cases run through the standard OneFLOW Grid task
 and the C++ Geometry conversion pipeline.
 
-| Implementation | Case | Transfinite cells | Nodes | QUAD_4 | Boundary LINE_2 |
+| Implementation | Case | Layout | Nodes | 2D cells | Boundary LINE_2 |
 |---|---|---:|---:|---:|---:|
-| Native C++ | square | 1 x 1 | 4 | 1 | 4 |
-| Native C++ | square_2x2 | 2 x 2 | 9 | 4 | 8 |
-| Native C++ | two_square_cells | 2 x 1 | 6 | 2 | 6 |
-| Native C++ | circle_external_flow | Unstructured | Gmsh-generated | Triangles | Boundary groups |
-| Python | python/square | 1 x 1 | 4 | 1 | 4 |
-| Python | python/two_square_cells | 2 x 1 | 6 | 2 | 6 |
-| Python | python/circle_external_flow | Unstructured | Gmsh-generated | Triangles | Boundary groups |
-| Python | python/channel_internal_flow | 20 x 5 | 126 | 100 | 50 |
+| Native C++ | square | 1 x 1 | 4 | 1 QUAD_4 | 4 |
+| Native C++ | square_2x2 | 2 x 2 | 9 | 4 QUAD_4 | 8 |
+| Native C++ | two_square_cells | 2 x 1 | 6 | 2 QUAD_4 | 6 |
+| Native C++ | circle_external_flow | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
+| Python | python/square | 1 x 1 | 4 | 1 QUAD_4 | 4 |
+| Python | python/two_square_cells | 2 x 1 | 6 | 2 QUAD_4 | 6 |
+| Python | python/circle_external_flow | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
+| Python | python/channel_internal_flow | 20 x 5 | 126 | 100 QUAD_4 | 50 |
 
-The STL files describe the outer boundary. Their triangle diagonals are
-triangulation edges, not CFD cell interfaces. The square and square_2x2 Cases
-use byte-identical STL geometry: only transfinite_cells changes from 1 x 1
-to 2 x 2. The two_square_cells Case deliberately uses a different, 2 x 1
-rectangle; its split comes from transfinite_cells.x = 2, not from STL triangles.
+For the structured square Cases, the STL describes the outer domain boundary.
+For circle_external_flow, the STL describes the inner body boundary and the
+rectangular outer domain is supplied by the layout. In every case, STL
+triangle diagonals are triangulation edges, not CFD cell interfaces. The
+square and square_2x2 Cases use byte-identical STL geometry: only
+transfinite_cells changes from 1 x 1 to 2 x 2. The two_square_cells Case
+deliberately uses a different, 2 x 1 rectangle; its split comes from
+transfinite_cells.x = 2, not from STL triangles.
 
 ## Boundary contract
 
