@@ -1,0 +1,18 @@
+{
+  "surface_name": "fluid",
+  "mesh_size": 0.22,
+  "body_boundary_name": "wall",
+  "domain": {
+    "xmin": -3,
+    "xmax": 6,
+    "ymin": -3,
+    "ymax": 3,
+    "boundaries": {
+      "left": "inflow",
+      "right": "outflow",
+      "bottom": "farfield",
+      "top": "farfield"
+    }
+  },
+  "outer_mesh_size": 0.4
+}

@@ -271,6 +271,112 @@ ONEFLOW::StlMesh MakeRectangleStl(double width)
     return mesh;
 }
 
+
+ONEFLOW::StlMesh MakeCircleStl(int segments, double radius)
+{
+    ONEFLOW::StlMesh mesh;
+    for (int i = 0; i < segments; ++i)
+    {
+        const double firstAngle = 2.0 * 3.14159265358979323846 * i / segments;
+        const double secondAngle = 2.0 * 3.14159265358979323846 * (i + 1) / segments;
+        ONEFLOW::StlTriangle triangle;
+        triangle.normal = {0.0, 0.0, 1.0};
+        triangle.vertices = {{
+            {0.0, 0.0, 0.0},
+            {radius * std::cos(firstAngle), radius * std::sin(firstAngle), 0.0},
+            {radius * std::cos(secondAngle), radius * std::sin(secondAngle), 0.0}}};
+        mesh.triangles.push_back(triangle);
+    }
+    return mesh;
+}
+
+void ValidateNativeStlExternalFlowCase(const TemporaryDirectory& temporary)
+{
+    const auto inputDirectory = temporary.File("input");
+    const auto scriptDirectory = temporary.File("script");
+    std::filesystem::create_directories(inputDirectory);
+    std::filesystem::create_directories(scriptDirectory);
+    ONEFLOW::StlMeshWriter::WriteASCII(
+        (inputDirectory / "model.stl").string(), MakeCircleStl(32, 0.5));
+
+    const auto layoutPath = scriptDirectory / "layout.json";
+    std::ofstream layout(layoutPath);
+    ASSERT_TRUE(layout.good());
+    layout
+        << "{\n"
+        << "  \"surface_name\": \"fluid\",\n"
+        << "  \"body_boundary_name\": \"wall\",\n"
+        << "  \"mesh_size\": 0.15,\n"
+        << "  \"outer_mesh_size\": 0.4,\n"
+        << "  \"domain\": {\n"
+        << "    \"xmin\": -3, \"xmax\": 6, \"ymin\": -3, \"ymax\": 3,\n"
+        << "    \"boundaries\": {\n"
+        << "      \"left\": \"inflow\", \"right\": \"outflow\",\n"
+        << "      \"bottom\": \"farfield\", \"top\": \"farfield\"\n"
+        << "    }\n"
+        << "  }\n"
+        << "}\n";
+    layout.close();
+
+    ONEFLOW::GridConfig config;
+    config.sourceType = ONEFLOW::GridFileType::STL;
+    config.targetType = ONEFLOW::GridFileType::Gmsh;
+    config.sourceCaseDir = temporary.File("").string();
+    config.sourceFile = "input/model.stl";
+    config.layoutFile = "script/layout.json";
+    config.targetFile = "results/circle_external_flow.msh";
+    config.gmshExecutable = "gmsh";
+    config.stlWeldTolerance = 1.0e-10;
+
+    try
+    {
+        ONEFLOW::ConvertGrid(config, temporary.File("").string());
+    }
+    catch (const std::exception& error)
+    {
+        temporary.Preserve();
+        std::cerr << "Native STL external-flow Case failed: "
+                  << error.what() << std::endl;
+        throw;
+    }
+
+    const auto meshPath = temporary.File("results/circle_external_flow.msh");
+    const auto reportPath =
+        temporary.File("results/circle_external_flow.stl-to-gmsh-report.json");
+    ASSERT_TRUE(std::filesystem::is_regular_file(meshPath));
+    ASSERT_TRUE(std::filesystem::is_regular_file(reportPath));
+
+    std::ifstream meshInput(meshPath, std::ios::binary);
+    ASSERT_TRUE(meshInput.good());
+    const std::string meshText{
+        std::istreambuf_iterator<char>(meshInput),
+        std::istreambuf_iterator<char>()};
+    const auto mesh = ONEFLOW::ReadGmsh41AsciiMesh(meshText);
+    EXPECT_EQ(mesh.version, "4.1");
+
+    std::size_t lineCount = 0;
+    std::size_t triangleCount = 0;
+    std::size_t quadrilateralCount = 0;
+    for (const auto& element : mesh.elements)
+    {
+        if (element.type == 1) ++lineCount;
+        else if (element.type == 2) ++triangleCount;
+        else if (element.type == 3) ++quadrilateralCount;
+    }
+    EXPECT_GE(mesh.nodes.size(), 20u);
+    EXPECT_GE(lineCount, 36u);
+    EXPECT_GT(triangleCount, 0u);
+    EXPECT_EQ(quadrilateralCount, 0u);
+
+    const std::set<std::pair<int, std::string>> expectedGroups{
+        {1, "wall"}, {1, "inflow"}, {1, "outflow"},
+        {1, "farfield"}, {2, "fluid"}};
+    std::set<std::pair<int, std::string>> actualGroups;
+    for (const auto& physical : mesh.physicalNames)
+        actualGroups.emplace(physical.first.first, physical.second);
+    EXPECT_EQ(actualGroups, expectedGroups);
+}
+
 void ValidateNativeStlToGmshCase(
     const TemporaryDirectory& temporary,
     double width,
@@ -384,6 +490,12 @@ TEST(StlMeshIOTest, NativeStlToGmshGeneratesFourCellsFromSquareGeometry)
 {
     TemporaryDirectory temporary;
     ValidateNativeStlToGmshCase(temporary, 1.0, 2, 2, 9, 8, 4);
+}
+
+TEST(StlMeshIOTest, NativeStlToGmshGeneratesCircleExternalFlowDomain)
+{
+    TemporaryDirectory temporary;
+    ValidateNativeStlExternalFlowCase(temporary);
 }
 #endif
 

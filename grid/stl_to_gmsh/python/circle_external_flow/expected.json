@@ -2,23 +2,23 @@
   "physical_groups": [
     {
       "dimension": 1,
-      "name": "Wall"
+      "name": "wall"
     },
     {
       "dimension": 1,
-      "name": "Inlet"
+      "name": "inflow"
     },
     {
       "dimension": 1,
-      "name": "Outlet"
+      "name": "outflow"
     },
     {
       "dimension": 1,
-      "name": "Farfield"
+      "name": "farfield"
     },
     {
       "dimension": 2,
-      "name": "Fluid"
+      "name": "fluid"
     }
   ],
   "mesh_minimum": {

@@ -119,16 +119,34 @@ Parser and geometry-generation tests do not require Gmsh:
 
    python -m unittest grid.stl.test_stl_to_gmsh
 
+Native C++ circle external-flow Case
+------------------------------------
+
+The native Case at `grid/stl_to_gmsh/circle_external_flow` uses the same
+32-segment circular STL and layout as the independent Python reference at
+`grid/stl_to_gmsh/python/circle_external_flow`. Its layout defines an outer
+rectangular computational domain and the four outer boundary labels. The C++
+converter creates the outer loop, reverses the body loop orientation to form
+a hole, and creates one fluid Plane Surface. The upper and lower outer curves
+share the `farfield` Physical Group; the body loop is `wall`.
+
+The native Case is registered as a C++ development Case and is automatically
+available in Mesh-to-CFD Validation. The validation graph uses the selected
+Case's declared MSH path for the Gmsh-to-CGNS and Gmsh-to-OneFLOW handoffs.
+The default CFD consumer is a solver smoke test only; a physical cylinder
+wake validation requires a separate case setup and reference quantities.
+
 External- and internal-flow reference Cases
 --------------------------------------------
 
 Two independent Python reference Cases make the computational-domain
 distinction executable:
 
-* `grid/stl_to_gmsh/python/circle_external_flow`: a 32-segment circular STL
-  obstacle is placed inside a rectangular outer domain. The fluid surface is
-  the outer loop with the obstacle loop as a hole. The body is `Wall`; the
-  outer curves are `Inlet`, `Outlet`, `Symmetry` and `Farfield`.
+* `grid/stl_to_gmsh/circle_external_flow` and its Python reference:
+  a 32-segment circular STL obstacle is placed inside a rectangular outer
+  domain. The fluid surface is the outer loop with the obstacle loop as a
+  hole. The body is `wall`; the outer curves are `inflow`, `outflow` and
+  `farfield` (the top and bottom edges share the farfield group).
 * `grid/stl_to_gmsh/python/channel_internal_flow`: a rectangular STL loop
   directly bounds the fluid region. Its four edges are `Inlet`, `Outlet`,
   `LowerWall` and `UpperWall`. A transfinite 20 x 5 layout produces 100

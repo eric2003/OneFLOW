@@ -26,7 +26,9 @@
       "codes/geometry/src/GridConversion.cpp",
       "grid/stl_to_gmsh/develop_test/run_cases.py",
       "grid/stl_to_gmsh/develop_test/run_pipeline.py",
-      "grid/stl_to_gmsh/python/run_case.py"
+      "grid/stl_to_gmsh/python/run_case.py",
+      "codes/geometry/src/GridConversion.cpp",
+      "tests/geometry/StlMeshIOTest.cpp"
     ],
     "case_paths": [
       "grid/stl_to_gmsh/square/script/dimension.txt",
@@ -74,7 +76,13 @@
       "grid/stl_to_gmsh/python/circle_external_flow/script/layout.json",
       "grid/stl_to_gmsh/python/channel_internal_flow/expected.json",
       "grid/stl_to_gmsh/python/channel_internal_flow/input/model.stl",
-      "grid/stl_to_gmsh/python/channel_internal_flow/script/layout.json"
+      "grid/stl_to_gmsh/python/channel_internal_flow/script/layout.json",
+      "grid/stl_to_gmsh/circle_external_flow/README.md",
+      "grid/stl_to_gmsh/circle_external_flow/input/model.stl",
+      "grid/stl_to_gmsh/circle_external_flow/script/dimension.txt",
+      "grid/stl_to_gmsh/circle_external_flow/script/grid.txt",
+      "grid/stl_to_gmsh/circle_external_flow/script/layout.json",
+      "grid/stl_to_gmsh/circle_external_flow/script/simu.txt"
     ]
   },
   "documentation": {
@@ -98,7 +106,10 @@
       "The STL-to-CFD workflow declares explicit artifact handoffs through Gmsh MSH 4.1, CGNS, a native OneFLOW grid, and a CFD Solve Case, using isolated run directories.",
       "The Python external-flow reference Case builds a rectangular fluid domain with a polygonal STL obstacle as a named internal Wall boundary.",
       "The Python internal-flow reference Case uses a closed rectangular STL loop as the fluid-domain boundary and emits named inlet, outlet and wall Physical Curves.",
-      "The channel reference Case generates a deterministic 20 x 5 transfinite quadrilateral mesh, while the unstructured external-flow Case validates minimum mesh counts and exact Physical Group names."
+      "The channel reference Case generates a deterministic 20 x 5 transfinite quadrilateral mesh, while the unstructured external-flow Case validates minimum mesh counts and exact Physical Group names.",
+      "The native C++ STL-to-Gmsh Case builds a 2D external-flow fluid domain by enclosing a planar STL body loop in a rectangular outer domain and creating a Plane Surface with the body as a hole.",
+      "The native C++ and Python circle external-flow Cases use byte-identical STL input and matching domain bounds, mesh-size controls and Physical Group names.",
+      "The native circle external-flow Case is registered for both Run Development Cases and Mesh-to-CFD Validation; the latter executes the selected MSH through the existing CGNS, OneFLOW-grid and CFD smoke-test chain."
     ],
     "does_not_prove": [
       "Generated outer-flow meshes have been converted through CGNS into a OneFLOW native grid.",
@@ -111,7 +122,8 @@
       "The complete STL-to-CFD workflow has been executed successfully on Windows and Linux.",
       "A successful CFD smoke run establishes numerical accuracy, convergence, conservation, boundary-condition correctness, or grid independence.",
       "The new external- and internal-flow reference Cases have been converted through CGNS into OneFLOW native grids.",
-      "The external- and internal-flow reference Cases have been run through OneFLOW CFD or establish physical accuracy."
+      "The external- and internal-flow reference Cases have been run through OneFLOW CFD or establish physical accuracy.",
+      "The circle external-flow CFD smoke test establishes an accurate cylinder wake, drag coefficient, lift coefficient or Strouhal number."
     ]
   },
   "verification": [
@@ -186,6 +198,24 @@
       "reference": "StlToGmshCaseTest.test_external_and_internal_flow_cases_build_distinct_fluid_domains",
       "status": "linked_not_executed",
       "scope": "grid/stl_to_gmsh/develop_test/test_cases.py; verifies external obstacle subtraction versus directly bounded internal channel geometry and named Physical Curves."
+    },
+    {
+      "kind": "google_test",
+      "reference": "StlMeshIOTest.NativeStlToGmshGeneratesCircleExternalFlowDomain",
+      "status": "linked_not_executed",
+      "scope": "tests/geometry/StlMeshIOTest.cpp; requires ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS and Gmsh on PATH; checks generated MSH 4.1 topology and Physical Groups."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlToGmshCaseTest.test_native_circle_external_flow_uses_same_stl_and_domain_as_python_reference",
+      "status": "linked_not_executed",
+      "scope": "grid/stl_to_gmsh/develop_test/test_cases.py; checks byte-identical native/reference STL geometry and identical external-domain layout."
+    },
+    {
+      "kind": "python_test",
+      "reference": "MeshValidationCatalogTest.test_circle_external_flow_is_available_to_mesh_to_cfd_validation",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_mesh_validation.py; verifies the native circle Case appears in the native selector and produces a dynamic MSH-to-CFD dependency chain."
     }
   ],
   "group": {

@@ -1,15 +1,13 @@
-# 2D Circle External Flow
+# 2D Circle External Flow (Python Reference)
 
-This reference Case uses a planar, 32-segment circular STL obstacle inside a
-rectangular outer domain. The obstacle loop becomes the internal `Wall`
-boundary; the outer rectangle is split into `Inlet`, `Outlet`,
-`Symmetry` and `Farfield` Physical Curves. The remaining surface is the
-`Fluid` region.
+This independent Python reference uses the same 32-segment circular STL,
+outer-domain bounds, mesh-size controls and Physical Group names as the native
+C++ Case at `grid/stl_to_gmsh/circle_external_flow`. Both construct the fluid
+surface as the rectangular outer loop with the STL body loop as a hole.
 
 Run from the repository root:
 
     python grid/stl_to_gmsh/python/run_case.py --case-directory grid/stl_to_gmsh/python/circle_external_flow
 
-The generated unstructured mesh is validated by Physical Group names and
-minimum node/line/triangle counts. Exact counts are intentionally not pinned
-because Gmsh's unstructured meshing details may vary by release.
+The unstructured mesh is checked by Physical Group names and minimum node,
+boundary-line and triangle counts rather than exact counts.

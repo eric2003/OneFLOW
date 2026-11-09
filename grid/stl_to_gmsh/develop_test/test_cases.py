@@ -18,6 +18,7 @@ EXPECTED_IDS = {
     "stl_to_gmsh_square",
     "stl_to_gmsh_square_2x2",
     "stl_to_gmsh_two_square_cells",
+    "stl_to_gmsh_circle_external_flow",
     "stl_to_gmsh_python_square",
     "stl_to_gmsh_python_two_square_cells",
     "stl_to_gmsh_python_circle_external_flow",
@@ -41,6 +42,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             "stl_to_gmsh_square",
             "stl_to_gmsh_square_2x2",
             "stl_to_gmsh_two_square_cells",
+            "stl_to_gmsh_circle_external_flow",
         ):
             entry = self.entries[case_id]
             case = ROOT / entry["directory"]
@@ -64,6 +66,28 @@ class StlToGmshCaseTest(unittest.TestCase):
             entry = self.entries[case_id]
             self.assertEqual(entry["execution"]["kind"], "python")
             self.assertEqual(validate_case(ROOT, entry), [])
+
+    def test_native_circle_external_flow_uses_same_stl_and_domain_as_python_reference(self):
+        native = ROOT / "grid/stl_to_gmsh/circle_external_flow"
+        reference = ROOT / "grid/stl_to_gmsh/python/circle_external_flow"
+        self.assertEqual(
+            (native / "input/model.stl").read_bytes(),
+            (reference / "input/model.stl").read_bytes(),
+        )
+        native_layout = json.loads(
+            (native / "script/layout.json").read_text(encoding="utf-8")
+        )
+        python_layout = json.loads(
+            (reference / "script/layout.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(native_layout, python_layout)
+        self.assertEqual(native_layout["domain"]["boundaries"], {
+            "left": "inflow", "right": "outflow",
+            "bottom": "farfield", "top": "farfield",
+        })
+        grid = (native / "script/grid.txt").read_text(encoding="utf-8")
+        self.assertIn('string targetGridFileName = "results/circle_external_flow.msh";', grid)
+        self.assertFalse((native / "results").exists())
 
     def test_square_2x2_reuses_square_stl_and_changes_only_mesh_density(self):
         square = ROOT / "grid/stl_to_gmsh/square"
@@ -141,11 +165,11 @@ class StlToGmshCaseTest(unittest.TestCase):
             external_text = external_geo.read_text(encoding="utf-8")
             self.assertEqual(external_report["body_boundary_edges"], 32)
             self.assertIn("Plane Surface(1) = {1, 2};", external_text)
-            self.assertIn('Physical Curve("Wall")', external_text)
-            self.assertEqual(external_text.count('Physical Curve("Farfield")'), 1)
-            for name in ("Inlet", "Outlet", "Farfield"):
+            self.assertIn('Physical Curve("wall")', external_text)
+            self.assertEqual(external_text.count('Physical Curve("farfield")'), 1)
+            for name in ("inflow", "outflow", "farfield", "wall"):
                 self.assertIn(f'Physical Curve("{name}")', external_text)
-            self.assertIn('Physical Surface("Fluid")', external_text)
+            self.assertIn('Physical Surface("fluid")', external_text)
 
             internal_geo = Path(temp) / "internal.geo"
             internal_report = convert(

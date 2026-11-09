@@ -251,7 +251,7 @@ def run_mesh_validation(
         "run_id": run_id, "status": result.status, "mesh_case_id": mesh_case_id,
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
-        "note": "A square mesh with the flat-plate template is a solver smoke test, not physical flat-plate validation.",
+        "note": "The selected CFD consumer is a runtime smoke test unless a matching physical validation contract is explicitly defined; applying the flat-plate template to another geometry does not establish flat-plate physics.",
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
     report_path = run_root / "mesh-validation-report.json"
