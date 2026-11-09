@@ -161,6 +161,14 @@ def reset_mesh_validation_workspace(path: Path) -> Path:
     return workspace
 
 
+def _graph_step_records(result) -> list[dict[str, str]]:
+    """Serialize final graph outcomes, including artifact checks and blocked steps."""
+    return [
+        {"case_id": item.case_id, "status": item.status, "message": item.message}
+        for item in result.cases
+    ]
+
+
 def run_mesh_validation(
     oneflow: Path, gmsh: str, mesh_case_id: str,
     cfd_template_id: str = "laminar_flat_plate", max_steps: int = 2,
@@ -188,8 +196,6 @@ def run_mesh_validation(
     run_root = reset_mesh_validation_workspace(run_root)
     run_id = run_root.name
     os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
-    records = []
-
     def execute(step):
         if step.case_id.endswith("_solve"):
             apply_runtime_overrides(step.directory / "script/cfd.txt", {
@@ -232,7 +238,6 @@ def run_mesh_validation(
                 json.dumps(validation, indent=2, ensure_ascii=False) + "\n",
                 encoding="utf-8", newline="\n",
             )
-        records.append({"case_id": step.case_id, "status": status, "message": message})
         print(f"[{step.case_id}] {status}: {message}", flush=True)
         return status, message
 
@@ -241,7 +246,7 @@ def run_mesh_validation(
         "schema": "oneflow.mesh-to-cfd-validation", "schema_version": 1,
         "run_id": run_id, "status": result.status, "mesh_case_id": mesh_case_id,
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
-        "run_directory": str(run_root), "steps": records,
+        "run_directory": str(run_root), "steps": _graph_step_records(result),
         "note": "A square mesh with the flat-plate template is a solver smoke test, not physical flat-plate validation.",
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }

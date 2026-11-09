@@ -11,6 +11,10 @@ from pathlib import Path
 from tools.oneflow_gui.mesh_validation import (
     build_mesh_validation_cases, cfd_template_choices, mesh_case_choices,
     mesh_validation_workspace, reset_mesh_validation_workspace,
+    _graph_step_records,
+)
+from tools.oneflow_gui.workflow_graph_runner import (
+    CaseExecutionResult, WorkflowGraphRunResult,
 )
 
 
@@ -54,6 +58,31 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[2]["directory"], "grid/stl_to_gmsh/pipeline/cgns_to_oneflow")
         self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
         self.assertEqual(cases[3]["inputs"][0]["artifact"], "stl_to_gmsh_square_native")
+
+    def test_report_records_final_graph_status_and_blocked_steps(self):
+        result = WorkflowGraphRunResult("failed", (
+            CaseExecutionResult("mesh", "succeeded", "OneFLOW exited successfully."),
+            CaseExecutionResult(
+                "convert", "failed",
+                "Declared output artifacts were not produced: results/mesh.cgns",
+            ),
+            CaseExecutionResult(
+                "native", "skipped", "Blocked by unsuccessful dependencies: convert",
+            ),
+            CaseExecutionResult(
+                "cfd", "skipped", "Blocked by unsuccessful dependencies: native",
+            ),
+        ))
+        self.assertEqual(_graph_step_records(result), [
+            {"case_id": "mesh", "status": "succeeded",
+             "message": "OneFLOW exited successfully."},
+            {"case_id": "convert", "status": "failed",
+             "message": "Declared output artifacts were not produced: results/mesh.cgns"},
+            {"case_id": "native", "status": "skipped",
+             "message": "Blocked by unsuccessful dependencies: convert"},
+            {"case_id": "cfd", "status": "skipped",
+             "message": "Blocked by unsuccessful dependencies: native"},
+        ])
 
     def test_unknown_mesh_case_and_template_are_rejected(self):
         with self.assertRaisesRegex(ValueError, "Unknown mesh-generation Case"):
