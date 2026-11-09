@@ -158,6 +158,7 @@ The existing reference library covers programming languages, build systems, para
    grid_topology
    face_stage_pipeline
    workbench_architecture
+   mesh_to_cfd_validation
    contract_workbench_information_architecture
 
 .. toctree::

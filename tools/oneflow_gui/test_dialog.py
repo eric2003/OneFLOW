@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QMessageBox,
     QPlainTextEdit,
+    QSpinBox,
     QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
@@ -27,6 +28,7 @@ from PySide6.QtWidgets import (
 )
 
 from .executable_discovery import executable_candidates
+from .mesh_validation import cfd_template_choices, mesh_case_choices
 from .case_repository import (
     load_cases,
     select_cases_by_execution_kind,
@@ -326,6 +328,32 @@ class TestRunnerDialog(QDialog):
         )
         layout.addWidget(self.gmsh_case_check)
 
+        self.mesh_validation_check = QCheckBox("Mesh-to-CFD Validation")
+        self.mesh_validation_check.setChecked(False)
+        self.mesh_validation_check.setToolTip(
+            "Run a selected STL-to-Gmsh Case through CGNS and native-grid conversion, "
+            "then solve with a real CFD Case template. All stages use copies under .oneflow."
+        )
+        layout.addWidget(self.mesh_validation_check)
+        mesh_form = QFormLayout()
+        self.mesh_validation_case_combo = QComboBox()
+        try:
+            for case_id, title in mesh_case_choices(self._repository_root):
+                self.mesh_validation_case_combo.addItem(title, case_id)
+        except (OSError, ValueError, KeyError) as error:
+            self.mesh_validation_case_combo.addItem(f"Unavailable: {error}", "")
+        self.mesh_validation_template_combo = QComboBox()
+        for template_id, title in cfd_template_choices():
+            self.mesh_validation_template_combo.addItem(title, template_id)
+        self.mesh_validation_steps = QSpinBox()
+        self.mesh_validation_steps.setRange(1, 100000)
+        self.mesh_validation_steps.setValue(2)
+        self.mesh_validation_steps.setToolTip("Short solver smoke-test iteration count.")
+        mesh_form.addRow("Mesh generation Case", self.mesh_validation_case_combo)
+        mesh_form.addRow("CFD consumer template", self.mesh_validation_template_combo)
+        mesh_form.addRow("CFD smoke-test steps", self.mesh_validation_steps)
+        layout.addLayout(mesh_form)
+
         form = QFormLayout()
         self.executable_combo = QComboBox()
         self.executable_combo.setEditable(True)
@@ -521,6 +549,32 @@ class TestRunnerDialog(QDialog):
             except (OSError, ValueError) as error:
                 QMessageBox.warning(self, "Cannot start Gmsh Case", str(error))
                 return
+        if self.mesh_validation_check.isChecked():
+            executable = self.executable_combo.currentText().strip()
+            mesh_case_id = self.mesh_validation_case_combo.currentData()
+            template_id = self.mesh_validation_template_combo.currentData()
+            try:
+                if not executable:
+                    raise ValueError("Select a OneFLOW executable for Mesh-to-CFD Validation.")
+                executable_path = Path(executable).expanduser().resolve()
+                if not executable_path.is_file():
+                    raise FileNotFoundError(f"OneFLOW executable not found: {executable_path}")
+                if not mesh_case_id:
+                    raise ValueError("No native STL-to-Gmsh Case is available.")
+                commands.append(TestCommand(
+                    "Mesh-to-CFD Validation",
+                    (sys.executable, "-m", "tools.oneflow_gui.mesh_validation",
+                     "--oneflow-executable", str(executable_path),
+                     "--mesh-case-id", str(mesh_case_id),
+                     "--cfd-template-id", str(template_id),
+                     "--max-steps", str(self.mesh_validation_steps.value())),
+                    self._repository_root,
+                    task_type=TaskType.CFD_GRID_REGRESSION,
+                ))
+            except (OSError, ValueError) as error:
+                QMessageBox.warning(self, "Cannot start Mesh-to-CFD Validation", str(error))
+                return
+
         run_database = (
             self.case_database_check.isChecked()
             or self.python_development_check.isChecked()
@@ -537,7 +591,7 @@ class TestRunnerDialog(QDialog):
         if not commands and not run_database:
             QMessageBox.information(
                 self, "No tests selected",
-                "Select CTest, Python Unit Tests, CFD regression, the experimental Gmsh Case, or Development Tests.",
+                "Select CTest, Python Unit Tests, CFD regression, the experimental Gmsh Case, Mesh-to-CFD Validation, or Development Tests.",
             )
             return
 
