@@ -40,9 +40,11 @@ boundary-state values remain a separate concern.
 
 Make Gmsh available on PATH, or change gmshExecutable in script/grid.txt.
 
-    build\bin\Debug\OneFLOW.exe r grid/stl_to_gmsh/square/cpp
-    build\bin\Debug\OneFLOW.exe r grid/stl_to_gmsh/two_square_cells/cpp
-    build\bin\Debug\OneFLOW.exe r grid/stl_to_gmsh/circle_external_flow/cpp
+    python grid/stl_to_gmsh/develop_test/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
+
+The runner copies each Case to the external staging root before execution. Do
+not execute a checked-in Case directly: relative output paths would create
+runtime files in the source tree.
 
 Linux uses the same Case paths with build/bin/OneFLOW. The C++ path reads STL,
 recovers its planar boundary, writes .geo, invokes Gmsh, reads MSH 4.1 through
@@ -109,6 +111,11 @@ Run the standalone geometry Cases first, followed by the pipeline:
 
     python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline
 
+Native and Python circle implementations are staged together under
+`circle_external_flow/cpp` and `circle_external_flow/python`, respectively.
+Every process runs with its staged Case directory as the working directory;
+no development Case is executed from the repository root.
+
 The manually dispatched GitHub Actions workflow named OneFLOW External Tool
 Integration runs the native C++ Gmsh integration tests, all eight development
 Cases (Native C++ and Python Reference), and this dependency pipeline on
@@ -137,7 +144,7 @@ solution comparisons.
     python tools/mesh_cases.py validate stl_to_gmsh_square
     python tools/mesh_cases.py validate stl_to_gmsh_square_2x2
     python tools/mesh_cases.py validate stl_to_gmsh_two_square_cells
-    python tools/mesh_cases.py validate stl_to_gmsh_circle_external_flow
+    python tools/mesh_cases.py validate circle_external_flow/cpp
 
 When Gmsh is available, the Python test suite also executes the circle
 reference Case in a temporary directory and validates its MSH 4.1 triangle

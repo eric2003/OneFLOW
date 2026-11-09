@@ -15,12 +15,12 @@ NATIVE_CASES = {
     "stl_to_gmsh_square": ("square/cpp", "square.msh"),
     "stl_to_gmsh_square_2x2": ("square_2x2/cpp", "square_2x2.msh"),
     "stl_to_gmsh_two_square_cells": ("two_square_cells/cpp", "two_square_cells.msh"),
-    "stl_to_gmsh_circle_external_flow": ("circle_external_flow/cpp", "circle_external_flow.msh"),
+    "circle_external_flow/cpp": ("circle_external_flow/cpp", "circle_external_flow.msh"),
 }
 PYTHON_CASES = {
     "stl_to_gmsh_python_square": "square/python",
     "stl_to_gmsh_python_two_square_cells": "two_square_cells/python",
-    "stl_to_gmsh_python_circle_external_flow": "circle_external_flow/python",
+    "circle_external_flow/python": "circle_external_flow/python",
     "stl_to_gmsh_python_channel_internal_flow": "channel_internal_flow/python",
 }
 
@@ -68,7 +68,7 @@ def stage_case(source: Path, destination: Path) -> None:
 def execute(command: list[str], case_directory: Path) -> None:
     result = subprocess.run(
         command,
-        cwd=REPOSITORY_ROOT,
+        cwd=case_directory,
         text=True,
         encoding="utf-8",
         errors="replace",
