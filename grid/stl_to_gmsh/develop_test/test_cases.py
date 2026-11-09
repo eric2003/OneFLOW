@@ -217,6 +217,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertIn("int    maxSteps   =  50;", cfd_parameters)
         self.assertIn("Real global_dt = 0.001;", cfd_parameters)
         self.assertIn("int idump = 0;", cfd_parameters)
+        self.assertIn('string gridFileName = "grid/square.oneflow.grid";', cfd_parameters)
 
 
 if __name__ == "__main__":

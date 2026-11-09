@@ -10,7 +10,7 @@ int    nResSave          =  1;    //Residual and aerodynamic-force output
 int    nVisualSave      =  50;    //Flow-field display
 int    addVisualizationSteps               =  0;     //1: Append outer-iteration step to file name; 0 disables it
 
-string gridFileName = "grid/plate20182d.ofl";
+string gridFileName = "grid/square.oneflow.grid";
 string aeroFile   =  "results/aero.dat";
 string resFile    =  "results/res.dat";
 string wallaeroFile=  "results/wallaero.dat";
