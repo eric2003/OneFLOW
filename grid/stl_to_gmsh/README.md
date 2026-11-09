@@ -32,9 +32,9 @@ fluid_domain.
 
 The circle external-flow Cases use inflow (left), outflow (right), farfield
 (top and bottom, combined into one Physical Group), and wall (the STL body).
-Their fluid region is fluid. These are geometry labels; Gmsh-to-CGNS maps
-recognized names to CGNS boundary types, while solver boundary-state values
-remain a separate concern.
+Their fluid region is named `fluid_domain`. These are geometry labels;
+Gmsh-to-CGNS maps recognized names to CGNS boundary types, while solver
+boundary-state values remain a separate concern.
 
 ## Native C++ execution
 
@@ -56,7 +56,7 @@ Group names. Outputs are written only under each Case results/ directory.
     python grid/stl_to_gmsh/run_python_case.py --case-directory grid/stl_to_gmsh/circle_external_flow/python
     python grid/stl_to_gmsh/run_python_case.py --case-directory grid/stl_to_gmsh/channel_internal_flow/python
 
-The Python Cases use the independent grid/stl/stl_to_gmsh.py implementation. The native C++ and Python `circle_external_flow` Cases use byte-identical STL input and the same domain, mesh-size and Physical Group settings. The native Case exercises OneFLOW's C++ STL reader, outer-domain/hole construction, Gmsh invocation and MSH validation; the Python Case is an independent implementation reference. The `circle_external_flow` Case treats a polygonal STL obstacle as an internal Wall loop and subtracts it from a rectangular outer domain. The `channel_internal_flow` Case treats the STL loop itself as the fluid domain, with inlet, outlet and wall groups; a transfinite 20 x 5 layout produces a reproducible quadrilateral channel mesh. The external case validates minimum mesh counts rather than exact counts because unstructured meshing can vary slightly between Gmsh versions.
+The Python Cases use the independent grid/stl/stl_to_gmsh.py implementation. The native C++ and Python `circle_external_flow` Cases use byte-identical STL input and the same domain, mesh-size and Physical Group settings. The native Case exercises OneFLOW's C++ STL reader, outer-domain/hole construction, Gmsh invocation and MSH validation; the Python Case is an independent implementation reference. The `circle_external_flow` Case treats a polygonal STL obstacle as an internal Wall loop and subtracts it from a rectangular outer domain. The `channel_internal_flow` Case treats the STL loop itself as the fluid domain, with inlet, outlet and wall groups; a transfinite 20 x 5 layout produces a reproducible quadrilateral channel mesh. The external case validates minimum mesh counts rather than exact counts because unstructured meshing can vary slightly between Gmsh versions. Both implementations also validate the generated coordinate bounds against the configured planar domain, reject degenerate triangles, and enforce the shared minimum normalized triangle quality (0.01) and minimum angle (1 degree). Python reports the measured minimum area, normalized quality, and minimum angle; native C++ reports the same quality thresholds alongside its MSH topology report. The two triangulations are not expected to have identical element counts or connectivity.
 
 ## Run all eight development Cases
 
