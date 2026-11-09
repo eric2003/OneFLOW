@@ -152,11 +152,11 @@ Triangle quality uses the normalized measure
 
 .. math::
 
-   q = \\frac{4\\sqrt{3} A}{a^2+b^2+c^2}
+   q = \frac{4\sqrt{3} A}{a^2+b^2+c^2}
 
 where :math:`A` is triangle area and :math:`a,b,c` are its edge lengths.
 An equilateral triangle has :math:`q=1`; values approach zero for
-degenerate triangles. The shared case contract requires :math:`q \\ge 0.01`
+degenerate triangles. The shared case contract requires :math:`q \ge 0.01`
 and a minimum interior angle of at least one degree. The Python MSH inspector
 reports minimum area, minimum normalized quality, minimum angle, coordinate
 bounds and orientation counts. The native C++ path applies the same quality
