@@ -216,6 +216,12 @@
       "reference": "MeshValidationCatalogTest.test_circle_external_flow_is_available_to_mesh_to_cfd_validation",
       "status": "linked_not_executed",
       "scope": "tools/oneflow_gui/test_mesh_validation.py; verifies the native circle Case appears in the native selector and produces a dynamic MSH-to-CFD dependency chain."
+    },
+    {
+      "kind": "python_test",
+      "reference": "Stl2DGmshTest.test_outer_domain_allows_shared_physical_group_for_multiple_sides",
+      "status": "linked_not_executed",
+      "scope": "grid/stl/test_stl_to_gmsh.py; verifies that two outer rectangle edges can share one Physical Curve group, as used by the external-flow farfield."
     }
   ],
   "group": {

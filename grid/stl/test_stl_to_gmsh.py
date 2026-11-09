@@ -230,7 +230,7 @@ $EndElements
             with self.assertRaisesRegex(Stl2DError, "strictly enclose"):
                 convert(DATA / "square.stl", sidecar, Path(temp) / "invalid.geo")
 
-    def test_outer_domain_requires_all_four_distinct_boundary_names(self):
+    def test_outer_domain_allows_shared_physical_group_for_multiple_sides(self):
         config = {
             "domain": {
                 "xmin": -1.0, "xmax": 2.0, "ymin": -1.0, "ymax": 2.0,
@@ -242,9 +242,19 @@ $EndElements
         }
         with tempfile.TemporaryDirectory() as temp:
             sidecar = Path(temp) / "domain.json"
+            geo = Path(temp) / "domain.geo"
             sidecar.write_text(json.dumps(config), encoding="utf-8")
-            with self.assertRaisesRegex(Stl2DError, "four distinct"):
-                convert(DATA / "square.stl", sidecar, Path(temp) / "invalid.geo")
+            convert(DATA / "square.stl", sidecar, geo)
+            content = geo.read_text(encoding="utf-8")
+            self.assertEqual(content.count('Physical Curve("Farfield")'), 1)
+            farfield = next(
+                line for line in content.splitlines()
+                if 'Physical Curve("Farfield")' in line
+            )
+            curve_ids = farfield.split("{", 1)[1].split("}", 1)[0].split(",")
+            self.assertEqual(len(curve_ids), 2)
+            self.assertIn('Physical Curve("Inlet")', content)
+            self.assertIn('Physical Curve("Outlet")', content)
 
 
     def test_gmsh_cli_generates_external_flow_domain_physical_groups(self):
