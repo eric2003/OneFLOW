@@ -136,6 +136,32 @@ Case's declared MSH path for the Gmsh-to-CGNS and Gmsh-to-OneFLOW handoffs.
 The default CFD consumer is a solver smoke test only; a physical cylinder
 wake validation requires a separate case setup and reference quantities.
 
+The C++ and Python Case directories intentionally mirror one another. Their
+`input/model.stl` files are byte-identical and their `script/layout.json`
+files are identical. The layout is the shared geometry contract: it defines
+the body boundary name, outer rectangle, side-to-Physical-Group assignments,
+surface name, body/outer mesh sizes, and quality limits. The mesh comparison
+is semantic rather than byte-for-byte: Gmsh versions and independently
+generated .geo files may produce different valid triangulations.
+
+Both implementations verify that generated MSH 4.1 coordinates reproduce
+the configured domain bounds and remain planar in XY. They require the
+`wall`, `inflow`, `outflow`, `farfield`, and `fluid_domain` Physical
+Groups with the expected dimensions, and reject degenerate TRI_3 cells.
+Triangle quality uses the normalized measure
+
+.. math::
+
+   q = \\frac{4\\sqrt{3} A}{a^2+b^2+c^2}
+
+where :math:`A` is triangle area and :math:`a,b,c` are its edge lengths.
+An equilateral triangle has :math:`q=1`; values approach zero for
+degenerate triangles. The shared case contract requires :math:`q \\ge 0.01`
+and a minimum interior angle of at least one degree. The Python MSH inspector
+reports minimum area, minimum normalized quality, minimum angle, coordinate
+bounds and orientation counts. The native C++ path applies the same quality
+limits and also checks its mesh-read report for degenerate cells.
+
 External- and internal-flow reference Cases
 --------------------------------------------
 
