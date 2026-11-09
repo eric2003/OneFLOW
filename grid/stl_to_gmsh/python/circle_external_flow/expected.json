@@ -1,0 +1,33 @@
+{
+  "physical_groups": [
+    {
+      "dimension": 1,
+      "name": "Wall"
+    },
+    {
+      "dimension": 1,
+      "name": "Inlet"
+    },
+    {
+      "dimension": 1,
+      "name": "Outlet"
+    },
+    {
+      "dimension": 1,
+      "name": "Symmetry"
+    },
+    {
+      "dimension": 1,
+      "name": "Farfield"
+    },
+    {
+      "dimension": 2,
+      "name": "Fluid"
+    }
+  ],
+  "mesh_minimum": {
+    "nodes": 20,
+    "line_elements": 10,
+    "triangle_elements": 1
+  }
+}

@@ -27,8 +27,17 @@ def run_case(case_directory: Path, gmsh: str) -> dict:
         "nodes", "line_elements", "triangle_elements", "quadrilateral_elements")}
     groups = {(g["dimension"], g["name"]) for g in mesh["physical_groups"]}
     wanted_groups = {(g["dimension"], g["name"]) for g in expected["physical_groups"]}
-    if observed != expected["mesh"]:
-        raise RuntimeError(f"Mesh counts {observed} do not match {expected['mesh']}")
+    expected_mesh = expected.get("mesh", {})
+    for key, value in expected_mesh.items():
+        if observed.get(key) != value:
+            raise RuntimeError(
+                f"Mesh count {key}={observed.get(key)} does not match {value}"
+            )
+    for key, minimum in expected.get("mesh_minimum", {}).items():
+        if observed.get(key, 0) < minimum:
+            raise RuntimeError(
+                f"Mesh count {key}={observed.get(key, 0)} is below minimum {minimum}"
+            )
     if groups != wanted_groups:
         raise RuntimeError(f"Physical Groups {sorted(groups)} do not match {sorted(wanted_groups)}")
     report = {"case": case.name, "geometry": "results/model.geo",

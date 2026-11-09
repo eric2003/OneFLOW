@@ -1,0 +1,30 @@
+{
+  "mesh": {
+    "nodes": 126,
+    "line_elements": 50,
+    "triangle_elements": 0,
+    "quadrilateral_elements": 100
+  },
+  "physical_groups": [
+    {
+      "dimension": 1,
+      "name": "Inlet"
+    },
+    {
+      "dimension": 1,
+      "name": "Outlet"
+    },
+    {
+      "dimension": 1,
+      "name": "LowerWall"
+    },
+    {
+      "dimension": 1,
+      "name": "UpperWall"
+    },
+    {
+      "dimension": 2,
+      "name": "Fluid"
+    }
+  ]
+}

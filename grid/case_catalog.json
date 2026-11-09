@@ -288,6 +288,26 @@
         "kind": "python",
         "script": "grid/stl_to_gmsh/python/run_case.py"
       }
+    },
+    {
+      "id": "stl_to_gmsh_python_circle_external_flow",
+      "title": "STL to Gmsh: 2D Circle External Flow (Python Reference)",
+      "directory": "grid/stl_to_gmsh/python/circle_external_flow",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/python/run_case.py"
+      }
+    },
+    {
+      "id": "stl_to_gmsh_python_channel_internal_flow",
+      "title": "STL to Gmsh: 2D Channel Internal Flow (Python Reference)",
+      "directory": "grid/stl_to_gmsh/python/channel_internal_flow",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/python/run_case.py"
+      }
     }
   ]
 }

@@ -19,6 +19,8 @@ NATIVE_CASES = {
 PYTHON_CASES = {
     "stl_to_gmsh_python_square": "square",
     "stl_to_gmsh_python_two_square_cells": "two_square_cells",
+    "stl_to_gmsh_python_circle_external_flow": "circle_external_flow",
+    "stl_to_gmsh_python_channel_internal_flow": "channel_internal_flow",
 }
 
 

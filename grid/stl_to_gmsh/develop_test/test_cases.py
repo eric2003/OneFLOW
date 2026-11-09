@@ -20,6 +20,8 @@ EXPECTED_IDS = {
     "stl_to_gmsh_two_square_cells",
     "stl_to_gmsh_python_square",
     "stl_to_gmsh_python_two_square_cells",
+    "stl_to_gmsh_python_circle_external_flow",
+    "stl_to_gmsh_python_channel_internal_flow",
 }
 
 
@@ -56,6 +58,8 @@ class StlToGmshCaseTest(unittest.TestCase):
         for case_id in (
             "stl_to_gmsh_python_square",
             "stl_to_gmsh_python_two_square_cells",
+            "stl_to_gmsh_python_circle_external_flow",
+            "stl_to_gmsh_python_channel_internal_flow",
         ):
             entry = self.entries[case_id]
             self.assertEqual(entry["execution"]["kind"], "python")
@@ -121,6 +125,46 @@ class StlToGmshCaseTest(unittest.TestCase):
             two["mesh"],
             {"nodes": 6, "line_elements": 6, "triangle_elements": 0, "quadrilateral_elements": 2},
         )
+
+    def test_external_and_internal_flow_cases_build_distinct_fluid_domains(self):
+        cases_root = ROOT / "grid/stl_to_gmsh/python"
+        external = cases_root / "circle_external_flow"
+        internal = cases_root / "channel_internal_flow"
+        with tempfile.TemporaryDirectory() as temp:
+            external_geo = Path(temp) / "external.geo"
+            external_report = convert(
+                external / "input/model.stl",
+                external / "script/layout.json",
+                external_geo,
+                tolerance=1.0e-10,
+            )
+            external_text = external_geo.read_text(encoding="utf-8")
+            self.assertEqual(external_report["body_boundary_edges"], 32)
+            self.assertIn("Plane Surface(1) = {1, 2};", external_text)
+            self.assertIn('Physical Curve("Wall")', external_text)
+            for name in ("Inlet", "Outlet", "Symmetry", "Farfield"):
+                self.assertIn(f'Physical Curve("{name}")', external_text)
+            self.assertIn('Physical Surface("Fluid")', external_text)
+
+            internal_geo = Path(temp) / "internal.geo"
+            internal_report = convert(
+                internal / "input/model.stl",
+                internal / "script/layout.json",
+                internal_geo,
+                tolerance=1.0e-10,
+            )
+            internal_text = internal_geo.read_text(encoding="utf-8")
+            self.assertEqual(internal_report["boundary_edges"], 4)
+            self.assertIn("Plane Surface(1) = {1};", internal_text)
+            self.assertNotIn("Plane Surface(1) = {1, 2};", internal_text)
+            for name in ("Inlet", "Outlet", "UpperWall", "LowerWall"):
+                self.assertIn(f'Physical Curve("{name}")', internal_text)
+            self.assertIn("Transfinite Curve", internal_text)
+            self.assertIn("Transfinite Surface {1};", internal_text)
+            self.assertIn("Recombine Surface {1};", internal_text)
+
+        for case in (external, internal):
+            self.assertFalse((case / "results").exists())
 
     def test_stl_to_cfd_pipeline_declares_ordered_artifact_handoffs(self):
         workflow_path = ROOT / "grid/stl_to_gmsh/develop_test/stl_square_to_cfd.json"

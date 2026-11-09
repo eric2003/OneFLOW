@@ -119,6 +119,34 @@ Parser and geometry-generation tests do not require Gmsh:
 
    python -m unittest grid.stl.test_stl_to_gmsh
 
+External- and internal-flow reference Cases
+--------------------------------------------
+
+Two independent Python reference Cases make the computational-domain
+distinction executable:
+
+* `grid/stl_to_gmsh/python/circle_external_flow`: a 32-segment circular STL
+  obstacle is placed inside a rectangular outer domain. The fluid surface is
+  the outer loop with the obstacle loop as a hole. The body is `Wall`; the
+  outer curves are `Inlet`, `Outlet`, `Symmetry` and `Farfield`.
+* `grid/stl_to_gmsh/python/channel_internal_flow`: a rectangular STL loop
+  directly bounds the fluid region. Its four edges are `Inlet`, `Outlet`,
+  `LowerWall` and `UpperWall`. A transfinite 20 x 5 layout produces 100
+  quadrilateral cells.
+
+Both Cases use the same STL reader, boundary reconstruction, sidecar
+validation, Gmsh geometry writer and MSH 4.1 inspector. The channel Case has
+exact expected mesh counts. The external unstructured Case validates physical
+groups and minimum non-zero mesh counts instead of pinning an exact count that
+may vary with Gmsh releases.
+
+These are geometry and mesh-generation reference Cases, not complete CFD
+validation cases. They do not yet establish boundary-condition state mapping,
+solver convergence, or physical accuracy. The next integration step is to
+pass their generated MSH artifacts through the existing Gmsh reader and CGNS
+writer, then validate that physical curve groups survive as distinct CGNS
+boundary patches and are mapped into intended OneFLOW boundary records.
+
 Current limits and next steps
 -----------------------------
 
