@@ -10,7 +10,7 @@
     "boundaries": {
       "left": "Inlet",
       "right": "Outlet",
-      "bottom": "Symmetry",
+      "bottom": "Farfield",
       "top": "Farfield"
     }
   }

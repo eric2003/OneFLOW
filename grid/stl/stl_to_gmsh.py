@@ -161,8 +161,8 @@ def _read_sidecar(path: Path, loop: list[Point], tol: float) -> tuple[dict, dict
         if not isinstance(outer, dict) or set(outer) != required:
             raise Stl2DError("domain.boundaries must define left, right, bottom and top")
         names = [str(outer[side]).strip() for side in ("left", "right", "bottom", "top")]
-        if any(not name for name in names) or len(set(names)) != 4:
-            raise Stl2DError("the four outer domain boundaries require four distinct non-empty names")
+        if any(not name for name in names):
+            raise Stl2DError("the four outer domain boundaries require non-empty names")
         body_name = str(config.get("body_boundary_name", "Wall")).strip()
         if not body_name or body_name in names:
             raise Stl2DError("body_boundary_name must be non-empty and distinct from outer boundary names")
@@ -274,9 +274,12 @@ def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: 
         lines.append("Plane Surface(1) = {1, 2};")
         body_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", config["_body_boundary_name"])
         lines.append(f'Physical Curve("{body_name}") = {{{", ".join(map(str, body_lines))}}};')
+        outer_groups = defaultdict(list)
         for side in ("left", "right", "bottom", "top"):
             name = re.sub(r"[^A-Za-z0-9_.-]+", "_", config["_outer_boundaries"][side])
-            lines.append(f'Physical Curve("{name}") = {{{outer_line_ids[side]}}};')
+            outer_groups[name].append(outer_line_ids[side])
+        for name, curves in sorted(outer_groups.items()):
+            lines.append(f'Physical Curve("{name}") = {{{", ".join(map(str, curves))}}};')
     else:
         for i,(x,y,_z) in enumerate(loop,1):
             lines.append(f"Point({i}) = {{{x:.17g}, {y:.17g}, 0, lc}};")

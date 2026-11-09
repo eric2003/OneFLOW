@@ -142,7 +142,8 @@ class StlToGmshCaseTest(unittest.TestCase):
             self.assertEqual(external_report["body_boundary_edges"], 32)
             self.assertIn("Plane Surface(1) = {1, 2};", external_text)
             self.assertIn('Physical Curve("Wall")', external_text)
-            for name in ("Inlet", "Outlet", "Symmetry", "Farfield"):
+            self.assertEqual(external_text.count('Physical Curve("Farfield")'), 1)
+            for name in ("Inlet", "Outlet", "Farfield"):
                 self.assertIn(f'Physical Curve("{name}")', external_text)
             self.assertIn('Physical Surface("Fluid")', external_text)
 
