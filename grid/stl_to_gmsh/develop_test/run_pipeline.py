@@ -179,7 +179,7 @@ def run_pipeline(
         executable=executable,
         run_directory=run_root,
         command_template=[str(executable), "r", "<case-directory>"],
-        working_directory=REPOSITORY_ROOT,
+        working_directory=run_root,
         project_directory=REPOSITORY_ROOT / "grid/stl_to_gmsh",
         execution_mode="development_pipeline",
     )
@@ -204,7 +204,7 @@ def run_pipeline(
             try:
                 result = run_process(
                     command,
-                    cwd=REPOSITORY_ROOT,
+                    cwd=step.directory,
                     on_output=on_output,
                     is_cancelled=lambda: False,
                 )
@@ -308,7 +308,7 @@ def run_pipeline(
             "finished_at": _utc_now(),
             "executable": str(executable),
             "gmsh_executable": str(gmsh_executable),
-            "working_directory": str(REPOSITORY_ROOT),
+            "working_directory": "each staged Case directory",
             "workflow_file": str(workflow_path),
             "workflow_snapshot": str(workflow_snapshot),
             "run_directory": str(run_root),

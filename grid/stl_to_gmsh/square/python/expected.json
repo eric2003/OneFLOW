@@ -2,10 +2,10 @@
   "schema": "oneflow.stl-to-gmsh-expected",
   "version": 1,
   "mesh": {
-    "nodes": 6,
-    "line_elements": 6,
+    "nodes": 4,
+    "line_elements": 4,
     "triangle_elements": 0,
-    "quadrilateral_elements": 2
+    "quadrilateral_elements": 1
   },
   "physical_groups": [
     {
@@ -28,5 +28,8 @@
       "dimension": 2,
       "name": "fluid_domain"
     }
-  ]
+  ],
+  "artifact": {
+    "mesh_file": "square.msh"
+  }
 }

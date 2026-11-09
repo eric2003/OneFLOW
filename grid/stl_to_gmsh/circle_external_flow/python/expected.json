@@ -1,13 +1,9 @@
 {
-  "schema": "oneflow.stl-to-gmsh-expected",
-  "version": 1,
-  "mesh": {
-    "nodes": 4,
-    "line_elements": 4,
-    "triangle_elements": 0,
-    "quadrilateral_elements": 1
-  },
   "physical_groups": [
+    {
+      "dimension": 1,
+      "name": "wall"
+    },
     {
       "dimension": 1,
       "name": "inflow"
@@ -18,15 +14,19 @@
     },
     {
       "dimension": 1,
-      "name": "symmetry"
-    },
-    {
-      "dimension": 1,
       "name": "farfield"
     },
     {
       "dimension": 2,
       "name": "fluid_domain"
     }
-  ]
+  ],
+  "mesh_minimum": {
+    "nodes": 20,
+    "line_elements": 10,
+    "triangle_elements": 1
+  },
+  "artifact": {
+    "mesh_file": "circle_external_flow.msh"
+  }
 }

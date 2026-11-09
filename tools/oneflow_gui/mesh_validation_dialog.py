@@ -108,7 +108,8 @@ class MeshValidationDialog(QDialog):
 
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel(
-            "Select one or more STL-to-Gmsh Cases. Each selected Case runs its complete "
+            "Select one or more native C++ or Python STL-to-Gmsh Cases. Each selected "
+            "Case runs its complete "
             "STL → Gmsh → CGNS → OneFLOW grid → CFD validation chain. Re-running a Case "
             "clears only that Case's previous validation directory."
         ))

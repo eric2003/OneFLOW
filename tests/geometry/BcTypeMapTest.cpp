@@ -56,3 +56,25 @@ TEST( BcTypeMapTest, RoundTripCommonOneFlowTypes )
     EXPECT_EQ( map.Cgns2OneFlow( map.OneFlow2Cgns( BC::OUTFLOW ) ), BC::OUTFLOW );
     EXPECT_EQ( map.Cgns2OneFlow( map.OneFlow2Cgns( BC::SOLID_SURFACE ) ), BC::SOLID_SURFACE );
 }
+
+TEST( BcTypeMapTest, GmshPhysicalNamesMapToStandardCgnsTypes )
+{
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "Inlet" ),
+               static_cast< int >( CGNS_ENUMV( BCInflow ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "Velocity-Inlet" ),
+               static_cast< int >( CGNS_ENUMV( BCInflow ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "Outlet" ),
+               static_cast< int >( CGNS_ENUMV( BCOutflow ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "LowerWall" ),
+               static_cast< int >( CGNS_ENUMV( BCWall ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "NoSlipWall" ),
+               static_cast< int >( CGNS_ENUMV( BCWallViscous ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "SlipWall" ),
+               static_cast< int >( CGNS_ENUMV( BCWallInviscid ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "Symmetry" ),
+               static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "Farfield" ),
+               static_cast< int >( CGNS_ENUMV( BCFarfield ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "UnclassifiedPatch" ),
+               static_cast< int >( CGNS_ENUMV( BCTypeUserDefined ) ) );
+}

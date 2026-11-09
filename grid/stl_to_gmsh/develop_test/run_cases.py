@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -12,13 +13,16 @@ from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 NATIVE_CASES = {
-    "stl_to_gmsh_square": ("square", "square.msh"),
-    "stl_to_gmsh_square_2x2": ("square_2x2", "square_2x2.msh"),
-    "stl_to_gmsh_two_square_cells": ("two_square_cells", "two_square_cells.msh"),
+    "square/cpp": ("square/cpp", "square.msh"),
+    "square_2x2/cpp": ("square_2x2/cpp", "square_2x2.msh"),
+    "two_square_cells/cpp": ("two_square_cells/cpp", "two_square_cells.msh"),
+    "circle_external_flow/cpp": ("circle_external_flow/cpp", "circle_external_flow.msh"),
 }
 PYTHON_CASES = {
-    "stl_to_gmsh_python_square": "square",
-    "stl_to_gmsh_python_two_square_cells": "two_square_cells",
+    "square/python": "square/python",
+    "two_square_cells/python": "two_square_cells/python",
+    "circle_external_flow/python": "circle_external_flow/python",
+    "channel_internal_flow/python": "channel_internal_flow/python",
 }
 
 
@@ -65,7 +69,7 @@ def stage_case(source: Path, destination: Path) -> None:
 def execute(command: list[str], case_directory: Path) -> None:
     result = subprocess.run(
         command,
-        cwd=REPOSITORY_ROOT,
+        cwd=case_directory,
         text=True,
         encoding="utf-8",
         errors="replace",
@@ -104,9 +108,9 @@ def run_all(stage_root: Path, oneflow: Path, gmsh: str) -> list[tuple[str, Path]
             )
         outputs.append((case_id, destination))
 
-    python_runner = REPOSITORY_ROOT / "grid/stl_to_gmsh/python/run_case.py"
+    python_runner = REPOSITORY_ROOT / "grid/stl_to_gmsh/run_python_case.py"
     for case_id, directory in PYTHON_CASES.items():
-        source = REPOSITORY_ROOT / "grid/stl_to_gmsh/python" / directory
+        source = REPOSITORY_ROOT / "grid/stl_to_gmsh" / directory
         destination = stage_root / case_id
         stage_case(source, destination)
         execute(
@@ -120,8 +124,18 @@ def run_all(stage_root: Path, oneflow: Path, gmsh: str) -> list[tuple[str, Path]
             ],
             destination,
         )
-        if not (destination / "results/model.msh").is_file():
-            raise RuntimeError(f"{case_id}: Python runner did not create results/model.msh")
+        expected = json.loads(
+            (destination / "expected.json").read_text(encoding="utf-8")
+        )
+        mesh_name = expected["artifact"]["mesh_file"]
+        report_name = f"{Path(mesh_name).stem}.stl-to-gmsh-report.json"
+        mesh = destination / "results" / mesh_name
+        report = destination / "results" / report_name
+        if not mesh.is_file() or not report.is_file():
+            raise RuntimeError(
+                f"{case_id}: expected mesh/report outputs are missing under "
+                f"{destination / 'results'}"
+            )
         outputs.append((case_id, destination))
     return outputs
 

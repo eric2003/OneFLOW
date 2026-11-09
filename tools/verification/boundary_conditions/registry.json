@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "registry_id": "oneflow.boundary-condition-registry",
+  "status": "curated_research_catalog",
+  "source": {
+    "name": "CFL3D User's Manual Version 5.0",
+    "url": "https://nasa.github.io/CFL3D/Cfl3dv6/V5Manual/Bound.pdf",
+    "document": "NASA/TM-1998-208444",
+    "chapter": "6"
+  },
+  "conditions": [
+    {
+      "id": "flow.extrapolation.zeroth_order",
+      "name": "Zeroth-order extrapolation",
+      "family": "Zeroth-order extrapolation",
+      "cfl3d": {
+        "version": "5.0",
+        "bctype": 1002,
+        "section": "6.1.3"
+      },
+      "description": "CFL3D Version 5.0 boundary formulation documented in Chapter 6, Section 6.1.3.",
+      "formulation": {
+        "equations": [
+          "q(-1)=q(1); q(-2)=q(1)"
+        ],
+        "notes": "The manual's complete coordinate convention, assumptions and derivation must be retained before implementing an equivalent solver treatment."
+      },
+      "parameters": [
+        {
+          "name": "No additional data",
+          "required": true
+        }
+      ],
+      "data_location": "cell-center / ghost points",
+      "mappings": {
+        "cgns": "BCExtrapolate (6)",
+        "oneflow": "EXTRAPOLATION",
+        "gmsh_aliases": [
+          "Extrapolation"
+        ]
+      },
+      "implementation": {
+        "status": "not_verified",
+        "numerical_realization": "A broad OneFLOW category mapping is not proof of a matching numerical implementation."
+      },
+      "verification": {
+        "formula": "reference_transcription_or_unit_test_required",
+        "parameters": "schema_declared",
+        "numerical": "not_verified",
+        "physical_case": "not_verified"
+      }
+    },
+    {
+      "id": "flow.characteristic.inflow_outflow",
+      "name": "Characteristic inflow/outflow",
+      "family": "Characteristic inflow/outflow",
+      "cfl3d": {
+        "version": "5.0",
+        "bctype": 1003,
+        "section": "6.1.4"
+      },
+      "description": "CFL3D Version 5.0 boundary formulation documented in Chapter 6, Section 6.1.4.",
+      "formulation": {
+        "equations": [
+          "R+ = un + 2a/(gamma-1); R- = un - 2a/(gamma-1)"
+        ],
+        "notes": "The manual's complete coordinate convention, assumptions and derivation must be retained before implementing an equivalent solver treatment."
+      },
+      "parameters": [
+        {
+          "name": "gamma",
+          "required": true
+        },
+        {
+          "name": "interior state",
+          "required": true
+        },
+        {
+          "name": "exterior reference state for inflow",
+          "required": true
+        }
+      ],
+      "data_location": "cell-face",
+      "mappings": {
+        "cgns": "BCInflow (9) / BCOutflow (13)",
+        "oneflow": "INFLOW / OUTFLOW",
+        "gmsh_aliases": [
+          "Inflow",
+          "Outflow",
+          "CharacteristicInlet",
+          "CharacteristicOutlet"
+        ]
+      },
+      "implementation": {
+        "status": "not_verified",
+        "numerical_realization": "A broad OneFLOW category mapping is not proof of a matching numerical implementation."
+      },
+      "verification": {
+        "formula": "reference_transcription_or_unit_test_required",
+        "parameters": "schema_declared",
+        "numerical": "not_verified",
+        "physical_case": "not_verified"
+      }
+    },
+    {
+      "id": "flow.pressure_outlet.specified_ratio",
+      "name": "Specified pressure-ratio outlet",
+      "family": "Specified pressure-ratio outlet",
+      "cfl3d": {
+        "version": "5.0",
+        "bctype": 2002,
+        "section": "6.2.1"
+      },
+      "description": "CFL3D Version 5.0 boundary formulation documented in Chapter 6, Section 6.2.1.",
+      "formulation": {
+        "equations": [
+          "p_b/p_inf = prescribed ratio; rho,u,v,w extrapolated"
+        ],
+        "notes": "The manual's complete coordinate convention, assumptions and derivation must be retained before implementing an equivalent solver treatment."
+      },
+      "parameters": [
+        {
+          "name": "positive p/p_inf",
+          "required": true
+        }
+      ],
+      "data_location": "cell-center / ghost points",
+      "mappings": {
+        "cgns": "BCOutflow (13)",
+        "oneflow": "OUTFLOW",
+        "gmsh_aliases": [
+          "PressureOutlet"
+        ]
+      },
+      "implementation": {
+        "status": "not_verified",
+        "numerical_realization": "A broad OneFLOW category mapping is not proof of a matching numerical implementation."
+      },
+      "verification": {
+        "formula": "reference_transcription_or_unit_test_required",
+        "parameters": "schema_declared",
+        "numerical": "not_verified",
+        "physical_case": "not_verified"
+      }
+    },
+    {
+      "id": "flow.inflow.total_conditions",
+      "name": "Total-condition inlet",
+      "family": "Total-condition inlet",
+      "cfl3d": {
+        "version": "5.0",
+        "bctype": 2003,
+        "section": "6.2.2"
+      },
+      "description": "CFL3D Version 5.0 boundary formulation documented in Chapter 6, Section 6.2.2.",
+      "formulation": {
+        "equations": [
+          "M_e; p_t/p_inf; T_t/T_inf; alpha; beta determine characteristic reference state"
+        ],
+        "notes": "The manual's complete coordinate convention, assumptions and derivation must be retained before implementing an equivalent solver treatment."
+      },
+      "parameters": [
+        {
+          "name": "estimated Mach",
+          "required": true
+        },
+        {
+          "name": "total pressure and temperature ratios",
+          "required": true
+        },
+        {
+          "name": "flow angles",
+          "required": true
+        }
+      ],
+      "data_location": "cell-center / ghost points",
+      "mappings": {
+        "cgns": "BCInflow (9)",
+        "oneflow": "INFLOW",
+        "gmsh_aliases": [
+          "TotalConditionInlet",
+          "EngineInlet"
+        ]
+      },
+      "implementation": {
+        "status": "not_verified",
+        "numerical_realization": "A broad OneFLOW category mapping is not proof of a matching numerical implementation."
+      },
+      "verification": {
+        "formula": "reference_transcription_or_unit_test_required",
+        "parameters": "schema_declared",
+        "numerical": "not_verified",
+        "physical_case": "not_verified"
+      }
+    },
+    {
+      "id": "wall.viscous.no_slip",
+      "name": "Viscous no-slip wall",
+      "family": "Wall",
+      "cfl3d": {
+        "version": "5.0",
+        "bctype": 2004,
+        "section": "6.2.3"
+      },
+      "description": "CFL3D Version 5.0 boundary formulation documented in Chapter 6, Section 6.2.3.",
+      "formulation": {
+        "equations": [
+          "u_fluid = u_wall; thermal closure is independent"
+        ],
+        "notes": "The manual's complete coordinate convention, assumptions and derivation must be retained before implementing an equivalent solver treatment."
+      },
+      "parameters": [
+        {
+          "name": "wall velocity",
+          "required": true
+        },
+        {
+          "name": "thermal model",
+          "required": true
+        }
+      ],
+      "data_location": "cell-center / ghost points",
+      "mappings": {
+        "cgns": "BCWallViscous (22)",
+        "oneflow": "SOLID_SURFACE",
+        "gmsh_aliases": [
+          "NoSlipWall",
+          "ViscousWall"
+        ]
+      },
+      "implementation": {
+        "status": "category_only",
+        "numerical_realization": "A broad OneFLOW category mapping is not proof of a matching numerical implementation."
+      },
+      "verification": {
+        "formula": "reference_transcription_or_unit_test_required",
+        "parameters": "schema_declared",
+        "numerical": "not_verified",
+        "physical_case": "not_verified"
+      }
+    }
+  ]
+}

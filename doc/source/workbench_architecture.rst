@@ -102,11 +102,14 @@ as passed unless execution evidence exists. The domain payloads retain their
 own semantics: formulas contain equations and symbols; Cases contain physical
 setup and comparison policy; Runtime contains state transitions and resource
 ownership; Workflow contains dependencies and artifact bindings; Mesh contains
-topology and boundary semantics; Algorithms contain discretization and
-numerical properties.
+format-neutral topology and boundary entities; Boundary Conditions contains
+physical semantics, mathematical constraints, required state data and
+format/solver mappings; Algorithms contain discretization and numerical
+properties.
 
 See :doc:`contract_workbench_information_architecture` for the section
-responsibilities, domain matrix, evidence semantics and migration rules.
+responsibilities, domain matrix, evidence semantics and migration rules. Boundary-condition ownership and mapping rules are detailed in
+:doc:`boundary_condition_architecture`.
 
 Current implementation and known gaps
 --------------------------------------

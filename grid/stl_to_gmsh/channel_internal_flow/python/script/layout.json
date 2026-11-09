@@ -1,0 +1,62 @@
+{
+  "surface_name": "Fluid",
+  "mesh_size": 0.2,
+  "transfinite_cells": {
+    "x": 20,
+    "y": 5
+  },
+  "boundaries": [
+    {
+      "name": "LowerWall",
+      "endpoints": [
+        [
+          0,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ]
+    },
+    {
+      "name": "Outlet",
+      "endpoints": [
+        [
+          4,
+          0
+        ],
+        [
+          4,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "UpperWall",
+      "endpoints": [
+        [
+          4,
+          1
+        ],
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "Inlet",
+      "endpoints": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    }
+  ]
+}

@@ -24,6 +24,7 @@ from .application_settings import (
 from .configuration_dialog import ConfigurationDialog
 from .mesh_layout_dialog import MeshLayoutDialog
 from .contract_workbench_dialog import ContractWorkbenchDialog
+from .boundary_conditions_workbench import BoundaryConditionsWorkbenchDialog
 from .repository_test_inventory_dialog import RepositoryTestInventoryDialog
 from .project_repository import open_project
 from .project_window import ProjectWindow
@@ -90,6 +91,7 @@ class WorkbenchHomeWindow(QMainWindow):
             ("Tests...", self._open_tests),
             ("Repository Test Inventory...", self._open_test_inventory),
             ("Contract Workbench...", self._open_contract_workbench),
+            ("Boundary Conditions...", self._open_boundary_conditions),
             ("Mesh Layout Editor...", self._open_mesh_layout),
             ("Background Tasks...", self._open_background_tasks),
             ("Runtime Environment...", self._open_runtime_environment),
@@ -99,6 +101,9 @@ class WorkbenchHomeWindow(QMainWindow):
             button.setMinimumHeight(44)
             button.setMaximumWidth(360)
             button.clicked.connect(callback)
+            if label == "Boundary Conditions...":
+                button.setObjectName("boundaryConditionsButton")
+                self.boundary_conditions_button = button
             root.addWidget(button)
 
         root.addStretch(1)
@@ -294,6 +299,10 @@ class WorkbenchHomeWindow(QMainWindow):
 
     def _open_contract_workbench(self) -> None:
         ContractWorkbenchDialog(self._repository_root, self).exec()
+
+    def _open_boundary_conditions(self) -> None:
+        """Open the dedicated Boundary Conditions Workbench."""
+        BoundaryConditionsWorkbenchDialog(self._repository_root, self).exec()
 
     def _open_mesh_layout(self) -> None:
         MeshLayoutDialog(self._repository_root, self).exec()

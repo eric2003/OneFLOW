@@ -65,6 +65,10 @@ public:
     static bool IsWallBc( int bcType );
 };
 
+// Map common Gmsh Physical Group names to standard CGNS BCType values.
+// Unknown names remain BCTypeUserDefined; names are never rewritten.
+int GmshPhysicalNameToCgnsBcType( const std::string & physicalName );
+
 class BcTypeMap
 {
 public:

@@ -248,7 +248,7 @@
     {
       "id": "stl_to_gmsh_square",
       "title": "STL to Gmsh: One Square Cell (Native C++)",
-      "directory": "grid/stl_to_gmsh/square",
+      "directory": "grid/stl_to_gmsh/square/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh"
@@ -256,7 +256,7 @@
     {
       "id": "stl_to_gmsh_square_2x2",
       "title": "STL to Gmsh: Four Cells on the Same Square Geometry (Native C++)",
-      "directory": "grid/stl_to_gmsh/square_2x2",
+      "directory": "grid/stl_to_gmsh/square_2x2/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh"
@@ -264,7 +264,15 @@
     {
       "id": "stl_to_gmsh_two_square_cells",
       "title": "STL to Gmsh: Two Adjacent Square Cells (Native C++)",
-      "directory": "grid/stl_to_gmsh/two_square_cells",
+      "directory": "grid/stl_to_gmsh/two_square_cells/cpp",
+      "profile": null,
+      "layout": null,
+      "group": "STL to Gmsh"
+    },
+    {
+      "id": "stl_to_gmsh_circle_external_flow",
+      "title": "STL to Gmsh: 2D Circle External Flow (Native C++)",
+      "directory": "grid/stl_to_gmsh/circle_external_flow/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh"
@@ -272,21 +280,41 @@
     {
       "id": "stl_to_gmsh_python_square",
       "title": "STL to Gmsh: One Square Cell (Python Reference)",
-      "directory": "grid/stl_to_gmsh/python/square",
+      "directory": "grid/stl_to_gmsh/square/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",
-        "script": "grid/stl_to_gmsh/python/run_case.py"
+        "script": "grid/stl_to_gmsh/run_python_case.py"
       }
     },
     {
       "id": "stl_to_gmsh_python_two_square_cells",
       "title": "STL to Gmsh: Two Adjacent Square Cells (Python Reference)",
-      "directory": "grid/stl_to_gmsh/python/two_square_cells",
+      "directory": "grid/stl_to_gmsh/two_square_cells/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",
-        "script": "grid/stl_to_gmsh/python/run_case.py"
+        "script": "grid/stl_to_gmsh/run_python_case.py"
+      }
+    },
+    {
+      "id": "stl_to_gmsh_python_circle_external_flow",
+      "title": "STL to Gmsh: 2D Circle External Flow (Python Reference)",
+      "directory": "grid/stl_to_gmsh/circle_external_flow/python",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/run_python_case.py"
+      }
+    },
+    {
+      "id": "stl_to_gmsh_python_channel_internal_flow",
+      "title": "STL to Gmsh: 2D Channel Internal Flow (Python Reference)",
+      "directory": "grid/stl_to_gmsh/channel_internal_flow/python",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/run_python_case.py"
       }
     }
   ]

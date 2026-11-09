@@ -9,7 +9,7 @@
       "cases": [
         {
           "id": "stl_to_gmsh_square_2x2",
-          "directory": "grid/stl_to_gmsh/square_2x2",
+          "directory": "grid/stl_to_gmsh/square_2x2/cpp",
           "outputs": [
             {
               "id": "square_2x2_msh",
@@ -99,8 +99,8 @@
           }
         },
         {
-          "id": "cgns_to_oneflow_square_2x2",
-          "directory": "grid/stl_to_gmsh/pipeline/cgns_to_oneflow",
+          "id": "gmsh_to_oneflow_square_2x2",
+          "directory": "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow",
           "depends_on": [
             "gmsh_to_cgns_square_2x2"
           ],
@@ -140,7 +140,7 @@
           "id": "cfd_solve_square_2x2",
           "directory": "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2",
           "depends_on": [
-            "cgns_to_oneflow_square_2x2"
+            "gmsh_to_oneflow_square_2x2"
           ],
           "inputs": [
             {

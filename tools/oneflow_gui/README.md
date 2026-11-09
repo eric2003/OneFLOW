@@ -14,8 +14,10 @@ the suite manifest, residual baseline, and retained analytical reference files.
 These actions resolve repository-relative paths and do not run the case.
 
 The home page's **Contract Workbench...** button opens the cross-domain contract
-navigator. Current domain entry points are:
+navigator. **Boundary Conditions...** is also a direct first-class home-screen
+entry, separate from Mesh Validation. Current Contract Workbench domain entries are:
 
+- **Boundary Conditions** browses physical boundary semantics and Gmsh/CGNS/OneFLOW mapping contracts. See `doc/source/boundary_condition_architecture.rst` for the detailed model and limitations.
 - **Parameter** browses source-backed parameter definition contracts,
   including runtime consumers, implementation paths, related Formula &
   Knowledge IDs, and declared verification evidence. The first contracts cover
@@ -341,3 +343,6 @@ is not set). For example, the square STL Case uses
 `stl_to_gmsh/square/`. Re-running a Case clears and recreates only that
 Case's directory; sibling Case results are preserved. Reports and stage
 artifacts remain in that directory rather than a timestamped `runs/` tree.
+
+
+The home-screen Boundary Conditions entry opens a dedicated Boundary Conditions Workbench, separate from Mesh Validation and the Contract Workbench browser. Contract Workbench retains its Boundary Conditions contract domain for cross-domain governance. The dedicated GUI reads the versioned semantic catalog under tools/verification/boundary_conditions/registry.json and presents formulations, parameters, mappings, implementation status, verification and references. The initial catalog covers CFL3D Version 5.0 boundary types 1002, 1003, 2002, 2003 and 2004. This is a read-only research catalog, not a claim that all referenced solver treatments exist in OneFLOW.

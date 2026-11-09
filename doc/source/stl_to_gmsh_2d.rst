@@ -20,8 +20,8 @@ Native OneFLOW Cases
 The primary runtime implementation is now available in two normal OneFLOW
 Grid Cases:
 
-* `grid/stl_to_gmsh/square`: one square, one QUAD_4 cell, four boundary edges;
-* `grid/stl_to_gmsh/two_square_cells`: a 2 x 1 rectangle, two QUAD_4 cells,
+* `grid/stl_to_gmsh/square/cpp`: one square, one QUAD_4 cell, four boundary edges;
+* `grid/stl_to_gmsh/two_square_cells/cpp`: a 2 x 1 rectangle, two QUAD_4 cells,
   six exterior boundary edges.
 
 Both Cases use the standard C++ STL reader and Grid conversion path. The
@@ -31,18 +31,23 @@ Case's `script/grid.txt` selects `sourceGridType = "stl"`,
 four rectangle sides to `inflow`, `outflow`, `symmetry`, and `farfield`.
 The fluid surface is named `fluid_domain`.
 
-Run the native Cases after building OneFLOW and installing Gmsh:
+Run native and Python Cases only through the external staging orchestrator
+after building OneFLOW and installing Gmsh:
 
 .. code-block:: console
 
-   OneFLOW.exe r grid/stl_to_gmsh/square
-   OneFLOW.exe r grid/stl_to_gmsh/two_square_cells
+   python grid/stl_to_gmsh/develop_test/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
+
+The orchestrator copies each Case to the user's .oneflow staging directory
+and launches OneFLOW with that staged Case as its working directory. Do not
+run checked-in Case directories directly: generated files must remain outside
+the repository source tree.
 
 The native path writes .geo, MSH 4.1 and a validation report under each
-Case's results directory. It reads the generated MSH again with the existing
+staged Case's results directory. It reads the generated MSH again with the existing
 C++ Gmsh reader and checks node, boundary-line, QUAD_4 and Physical Group
 counts. Independent Python reference Cases are maintained under
-`grid/stl_to_gmsh/python/`; the existing external-flow Python Case remains at
+`grid/stl_to_gmsh/<case>/python/`; the existing external-flow Python Case remains at
 `grid/stl_to_gmsh/script/run.py` with `config/external_flow.json`.
 
 Input and boundary semantics
@@ -58,7 +63,7 @@ inlet and another is an outlet. The workflow therefore uses two inputs:
 
 The example assigns the four square edges to Inlet, Outlet, Symmetry and
 Farfield. These become Gmsh Physical Curve groups. The 2D fluid region becomes
-a Physical Surface group named Fluid. Physical names are mesh metadata, not
+a Physical Surface group named ``fluid_domain``. Physical names are mesh metadata, not
 solver boundary-condition types. A subsequent explicit mapping layer must map
 these names to OneFLOW boundary semantics and CGNS BC types.
 
@@ -86,7 +91,7 @@ Use a sidecar with explicit outer bounds and one name for each rectangle side:
 
    {
      "mesh_size": 0.25,
-     "surface_name": "Fluid",
+     "surface_name": "fluid_domain",
      "body_boundary_name": "Wall",
      "domain": {
        "xmin": -1.0, "xmax": 2.0,
@@ -118,6 +123,78 @@ Parser and geometry-generation tests do not require Gmsh:
 .. code-block:: bash
 
    python -m unittest grid.stl.test_stl_to_gmsh
+
+Native C++ circle external-flow Case
+------------------------------------
+
+The native Case at `grid/stl_to_gmsh/circle_external_flow/cpp` uses the same
+32-segment circular STL and layout as the independent Python reference at
+`grid/stl_to_gmsh/circle_external_flow/python`. Its layout defines an outer
+rectangular computational domain and the four outer boundary labels. The C++
+converter creates the outer loop, reverses the body loop orientation to form
+a hole, and creates one fluid Plane Surface. The upper and lower outer curves
+share the `farfield` Physical Group; the body loop is `wall`.
+
+The native Case is registered as a C++ development Case and is automatically
+available in Mesh-to-CFD Validation. The validation graph uses the selected
+Case's declared MSH path for the Gmsh-to-CGNS and Gmsh-to-OneFLOW handoffs.
+The default CFD consumer is a solver smoke test only; a physical cylinder
+wake validation requires a separate case setup and reference quantities.
+
+The C++ and Python Case directories intentionally mirror one another. Their
+`input/model.stl` files are byte-identical and their `script/layout.json`
+files are identical. The layout is the shared geometry contract: it defines
+the body boundary name, outer rectangle, side-to-Physical-Group assignments,
+surface name, body/outer mesh sizes, and quality limits. The mesh comparison
+is semantic rather than byte-for-byte: Gmsh versions and independently
+generated .geo files may produce different valid triangulations.
+
+Both implementations verify that generated MSH 4.1 coordinates reproduce
+the configured domain bounds and remain planar in XY. They require the
+`wall`, `inflow`, `outflow`, `farfield`, and `fluid_domain` Physical
+Groups with the expected dimensions, and reject degenerate TRI_3 cells.
+Triangle quality uses the normalized measure
+
+.. math::
+
+   q = \frac{4\sqrt{3} A}{a^2+b^2+c^2}
+
+where :math:`A` is triangle area and :math:`a,b,c` are its edge lengths.
+An equilateral triangle has :math:`q=1`; values approach zero for
+degenerate triangles. The shared case contract requires :math:`q \ge 0.01`
+and a minimum interior angle of at least one degree. The Python MSH inspector
+reports minimum area, minimum normalized quality, minimum angle, coordinate
+bounds and orientation counts. The native C++ path applies the same quality
+limits and also checks its mesh-read report for degenerate cells.
+
+External- and internal-flow reference Cases
+--------------------------------------------
+
+Two independent Python reference Cases make the computational-domain
+distinction executable:
+
+* `grid/stl_to_gmsh/circle_external_flow/cpp` and `grid/stl_to_gmsh/circle_external_flow/python`:
+  a 32-segment circular STL obstacle is placed inside a rectangular outer
+  domain. The fluid surface is the outer loop with the obstacle loop as a
+  hole. The body is `wall`; the outer curves are `inflow`, `outflow` and
+  `farfield` (the top and bottom edges share the farfield group).
+* `grid/stl_to_gmsh/channel_internal_flow/python`: a rectangular STL loop
+  directly bounds the fluid region. Its four edges are `Inlet`, `Outlet`,
+  `LowerWall` and `UpperWall`. A transfinite 20 x 5 layout produces 100
+  quadrilateral cells.
+
+Both Cases use the same STL reader, boundary reconstruction, sidecar
+validation, Gmsh geometry writer and MSH 4.1 inspector. The channel Case has
+exact expected mesh counts. The external unstructured Case validates physical
+groups and minimum non-zero mesh counts instead of pinning an exact count that
+may vary with Gmsh releases.
+
+These are geometry and mesh-generation reference Cases, not complete CFD
+validation cases. They do not yet establish boundary-condition state mapping,
+solver convergence, or physical accuracy. The next integration step is to
+pass their generated MSH artifacts through the existing Gmsh reader and CGNS
+writer, then validate that physical curve groups survive as distinct CGNS
+boundary patches and are mapped into intended OneFLOW boundary records.
 
 Current limits and next steps
 -----------------------------

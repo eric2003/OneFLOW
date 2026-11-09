@@ -320,33 +320,15 @@ namespace
         }
     }
 
-    int GmshPhysicalNameToCgnsBcType( const std::string & physicalName )
-    {
-        std::string key;
-        for ( unsigned char ch : physicalName )
-        {
-            if ( std::isalnum( ch ) )
-                key.push_back( static_cast< char >( std::tolower( ch ) ) );
-        }
-
-        if ( key == "inflow" )
-            return static_cast< int >( CGNS_ENUMV( BCInflow ) );
-        if ( key == "outflow" )
-            return static_cast< int >( CGNS_ENUMV( BCOutflow ) );
-        if ( key == "symmetry" || key == "symmetryplane" )
-            return static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) );
-        if ( key == "farfield" )
-            return static_cast< int >( CGNS_ENUMV( BCFarfield ) );
-
-        return static_cast< int >( CGNS_ENUMV( BCTypeUserDefined ) );
-    }
-
     const char * CgnsBcTypeName( int bcType )
     {
         if ( bcType == static_cast< int >( CGNS_ENUMV( BCInflow ) ) ) return "BCInflow";
         if ( bcType == static_cast< int >( CGNS_ENUMV( BCOutflow ) ) ) return "BCOutflow";
         if ( bcType == static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) ) ) return "BCSymmetryPlane";
         if ( bcType == static_cast< int >( CGNS_ENUMV( BCFarfield ) ) ) return "BCFarfield";
+        if ( bcType == static_cast< int >( CGNS_ENUMV( BCWall ) ) ) return "BCWall";
+        if ( bcType == static_cast< int >( CGNS_ENUMV( BCWallViscous ) ) ) return "BCWallViscous";
+        if ( bcType == static_cast< int >( CGNS_ENUMV( BCWallInviscid ) ) ) return "BCWallInviscid";
         return "BCTypeUserDefined";
     }
 
@@ -733,6 +715,373 @@ namespace
         return grid;
     }
 
+
+    void ConvertStlExternalFlowToGmsh(
+        const GridConfig& config,
+        const std::string& caseDir,
+        const nlohmann::json& options,
+        const std::filesystem::path& source,
+        const std::filesystem::path& target)
+    {
+        using Json = nlohmann::json;
+        namespace fs = std::filesystem;
+
+        const std::string surfaceName = options.value("surface_name", std::string("fluid"));
+        const std::string bodyName = options.value("body_boundary_name", std::string("wall"));
+        const double bodyMeshSize = options.value("mesh_size", 0.15);
+        const double outerMeshSize = options.value("outer_mesh_size", bodyMeshSize * 2.5);
+        if (surfaceName.empty() || bodyName.empty() ||
+            surfaceName.size() > 32 || bodyName.size() > 32)
+            throw std::invalid_argument("External-flow physical names must contain 1 to 32 characters");
+        const auto validName = [](const std::string& name)
+        {
+            return !name.empty() && std::all_of(name.begin(), name.end(),
+                [](unsigned char value)
+                {
+                    return std::isalnum(value) || value == '_' || value == '.' || value == '-';
+                });
+        };
+        if (!validName(surfaceName) || !validName(bodyName))
+            throw std::invalid_argument("External-flow physical names may contain only letters, digits, _, . and -");
+        if (!std::isfinite(bodyMeshSize) || bodyMeshSize <= 0.0 ||
+            !std::isfinite(outerMeshSize) || outerMeshSize <= 0.0)
+            throw std::invalid_argument("External-flow mesh sizes must be positive and finite");
+
+        const Json& domain = options.at("domain");
+        const double xmin = domain.at("xmin").get<double>();
+        const double xmax = domain.at("xmax").get<double>();
+        const double ymin = domain.at("ymin").get<double>();
+        const double ymax = domain.at("ymax").get<double>();
+        if (!std::isfinite(xmin) || !std::isfinite(xmax) ||
+            !std::isfinite(ymin) || !std::isfinite(ymax) ||
+            xmax - xmin <= config.stlWeldTolerance ||
+            ymax - ymin <= config.stlWeldTolerance)
+            throw std::invalid_argument("External-flow domain bounds must be finite and have positive dimensions");
+
+        const StlMesh stl = StlMeshReader::Read(source.string());
+        const StlPlanarBoundary body =
+            ExtractStlPlanarBoundary(stl, config.stlWeldTolerance);
+        if (body.vertices.size() < 3)
+            throw std::invalid_argument("External-flow STL body must have at least three boundary edges");
+        for (const auto& point : body.vertices)
+        {
+            if (point[0] <= xmin + config.stlWeldTolerance ||
+                point[0] >= xmax - config.stlWeldTolerance ||
+                point[1] <= ymin + config.stlWeldTolerance ||
+                point[1] >= ymax - config.stlWeldTolerance)
+                throw std::invalid_argument("External-flow outer domain must strictly enclose the STL body");
+        }
+
+        const Json& boundaryOptions = domain.at("boundaries");
+        const std::array<std::string, 4> sides{"left", "right", "bottom", "top"};
+        std::map<std::string, std::vector<int>> physicalCurves;
+        std::set<std::string> outerNames;
+        for (const std::string& side : sides)
+        {
+            const std::string name = boundaryOptions.at(side).get<std::string>();
+            if (!validName(name) || name.size() > 32 || name == bodyName)
+                throw std::invalid_argument("Invalid or conflicting external-flow boundary name: " + name);
+            outerNames.insert(name);
+        }
+        if (outerNames.size() < 3)
+            throw std::invalid_argument("External-flow domain requires distinct inlet, outlet and farfield groups");
+
+        const fs::path resultDirectory = fs::path(caseDir) / "results";
+        fs::create_directories(resultDirectory);
+        if (!target.parent_path().empty())
+            fs::create_directories(target.parent_path());
+        const fs::path geoPath =
+            resultDirectory / (target.stem().string() + ".geo");
+        const fs::path reportPath =
+            resultDirectory / (target.stem().string() + ".stl-to-gmsh-report.json");
+
+        std::ofstream geo(geoPath, std::ios::trunc);
+        if (!geo)
+            throw std::runtime_error("Cannot create Gmsh geometry: " + geoPath.string());
+        geo << std::setprecision(std::numeric_limits<double>::max_digits10);
+        geo << "SetFactory(\"Built-in\");\n"
+            << "Mesh.MshFileVersion = 4.1;\n"
+            << "Mesh.Binary = 0;\n"
+            << "Mesh.ElementOrder = 1;\n"
+            << "Mesh.RecombineAll = 0;\n"
+            << "Mesh.Algorithm = 6;\n"
+            << "Mesh.MeshSizeMin = " << std::min(bodyMeshSize, outerMeshSize) << ";\n"
+            << "Mesh.MeshSizeMax = " << std::max(bodyMeshSize, outerMeshSize) << ";\n";
+
+        const std::array<std::array<double, 3>, 4> outerPoints{{
+            {xmin, ymin, 0.0}, {xmax, ymin, 0.0},
+            {xmax, ymax, 0.0}, {xmin, ymax, 0.0}}};
+        for (std::size_t i = 0; i < outerPoints.size(); ++i)
+        {
+            const auto& point = outerPoints[i];
+            geo << "Point(" << i + 1 << ") = {"
+                << point[0] << ", " << point[1] << ", " << point[2]
+                << ", " << outerMeshSize << "};\n";
+        }
+        for (int i = 0; i < 4; ++i)
+            geo << "Line(" << i + 1 << ") = {"
+                << i + 1 << ", " << (i + 1) % 4 + 1 << "};\n";
+
+        const std::array<std::pair<std::string, int>, 4> sideCurves{{
+            {"bottom", 1}, {"right", 2}, {"top", 3}, {"left", 4}}};
+        for (const auto& side : sideCurves)
+            physicalCurves[boundaryOptions.at(side.first).get<std::string>()].push_back(side.second);
+
+        const int firstBodyPoint = 5;
+        const int firstBodyLine = 5;
+        for (std::size_t i = 0; i < body.vertices.size(); ++i)
+        {
+            const auto& point = body.vertices[i];
+            geo << "Point(" << firstBodyPoint + static_cast<int>(i) << ") = {"
+                << point[0] << ", " << point[1] << ", " << point[2]
+                << ", " << bodyMeshSize << "};\n";
+        }
+        std::vector<int> reversedBodyLoop;
+        std::vector<int> bodyPhysicalLines;
+        for (std::size_t i = 0; i < body.vertices.size(); ++i)
+        {
+            const int lineId = firstBodyLine + static_cast<int>(i);
+            const int pointId = firstBodyPoint + static_cast<int>(i);
+            const int nextPointId =
+                firstBodyPoint + static_cast<int>((i + 1) % body.vertices.size());
+            geo << "Line(" << lineId << ") = {"
+                << pointId << ", " << nextPointId << "};\n";
+            reversedBodyLoop.push_back(-lineId);
+            bodyPhysicalLines.push_back(lineId);
+        }
+        std::reverse(reversedBodyLoop.begin(), reversedBodyLoop.end());
+        geo << "Curve Loop(1) = {1, 2, 3, 4};\n"
+            << "Curve Loop(2) = {";
+        for (std::size_t i = 0; i < reversedBodyLoop.size(); ++i)
+        {
+            if (i != 0) geo << ", ";
+            geo << reversedBodyLoop[i];
+        }
+        geo << "};\n"
+            << "Plane Surface(1) = {1, 2};\n";
+
+        for (const auto& group : physicalCurves)
+        {
+            geo << "Physical Curve(\"" << group.first << "\") = {";
+            for (std::size_t i = 0; i < group.second.size(); ++i)
+            {
+                if (i != 0) geo << ", ";
+                geo << group.second[i];
+            }
+            geo << "};\n";
+        }
+        geo << "Physical Curve(\"" << bodyName << "\") = {";
+        for (std::size_t i = 0; i < bodyPhysicalLines.size(); ++i)
+        {
+            if (i != 0) geo << ", ";
+            geo << bodyPhysicalLines[i];
+        }
+        geo << "};\n"
+            << "Physical Surface(\"" << surfaceName << "\") = {1};\n";
+        geo.flush();
+        if (!geo)
+            throw std::runtime_error("Failed writing Gmsh geometry: " + geoPath.string());
+        geo.close();
+
+        if (config.gmshExecutable.empty())
+            throw std::invalid_argument("gmshExecutable must not be empty");
+        const auto pathToUtf8 = [](const fs::path& path)
+        {
+            const auto value = path.u8string();
+            return std::string(value.begin(), value.end());
+        };
+        const std::vector<std::string> gmshArguments{
+            pathToUtf8(fs::absolute(geoPath)),
+            "-2", "-format", "msh4", "-o",
+            pathToUtf8(fs::absolute(target))};
+        const ProcessResult process = RunProcess(
+            config.gmshExecutable, gmshArguments,
+            pathToUtf8(fs::absolute(fs::path(caseDir))));
+        if (!process.started || process.exitCode != 0)
+        {
+            std::ostringstream diagnostic;
+            diagnostic << "Gmsh external-flow mesh generation failed"
+                << "\n  executable: " << config.gmshExecutable
+                << "\n  working directory: " << pathToUtf8(fs::absolute(fs::path(caseDir)))
+                << "\n  started: " << (process.started ? "true" : "false")
+                << "\n  exit code: " << process.exitCode;
+            if (!process.errorMessage.empty())
+                diagnostic << "\n  process error: " << process.errorMessage;
+            if (!process.output.empty())
+                diagnostic << "\n  output:\n" << process.output;
+            throw std::runtime_error(diagnostic.str());
+        }
+
+        std::ifstream meshInput(target, std::ios::binary);
+        if (!meshInput)
+            throw std::runtime_error("Gmsh did not create the requested mesh: " + target.string());
+        const std::string meshContent{
+            std::istreambuf_iterator<char>(meshInput),
+            std::istreambuf_iterator<char>()};
+        const GmshMesh generated = ReadGmsh41AsciiMesh(meshContent);
+        const GmshMeshReadReport meshReport = BuildGmshMeshReadReport(generated);
+        const double domainTolerance = std::max(
+            config.stlWeldTolerance,
+            64.0 * std::numeric_limits<double>::epsilon() *
+                std::max({std::abs(xmin), std::abs(xmax),
+                          std::abs(ymin), std::abs(ymax), 1.0}));
+        if (std::abs(meshReport.minimumCoordinates[0] - xmin) > domainTolerance ||
+            std::abs(meshReport.maximumCoordinates[0] - xmax) > domainTolerance ||
+            std::abs(meshReport.minimumCoordinates[1] - ymin) > domainTolerance ||
+            std::abs(meshReport.maximumCoordinates[1] - ymax) > domainTolerance ||
+            std::abs(meshReport.maximumCoordinates[2] -
+                     meshReport.minimumCoordinates[2]) > domainTolerance)
+            throw std::runtime_error(
+                "Generated external-flow mesh coordinates do not match the planar computational domain");
+
+        std::size_t lineElements = 0;
+        std::size_t triangleElements = 0;
+        std::size_t quadrilateralElements = 0;
+        for (const GmshElement& element : generated.elements)
+        {
+            if (element.type == 1) ++lineElements;
+            else if (element.type == 2) ++triangleElements;
+            else if (element.type == 3) ++quadrilateralElements;
+        }
+        if (generated.nodes.size() < 20 ||
+            lineElements < body.vertices.size() + 4 ||
+            triangleElements == 0 || quadrilateralElements != 0 ||
+            meshReport.degenerateTriangleCount != 0)
+            throw std::runtime_error(
+                "External-flow mesh topology is incomplete: expected boundary lines and "
+                "triangular fluid cells, observed " +
+                std::to_string(generated.nodes.size()) + " nodes, " +
+                std::to_string(lineElements) + " lines, " +
+                std::to_string(triangleElements) + " triangles and " +
+                std::to_string(quadrilateralElements) + " quadrilaterals");
+
+        const Json qualityOptions = options.value("quality", Json::object());
+        const double minimumQuality = qualityOptions.value(
+            "minimum_triangle_quality", 0.01);
+        const double minimumAngleDegrees = qualityOptions.value(
+            "minimum_angle_degrees", 1.0);
+        if (!std::isfinite(minimumQuality) || minimumQuality <= 0.0 ||
+            minimumQuality > 1.0 || !std::isfinite(minimumAngleDegrees) ||
+            minimumAngleDegrees <= 0.0 || minimumAngleDegrees >= 60.0)
+            throw std::invalid_argument("External-flow triangle quality thresholds are invalid");
+
+        double observedMinimumQuality = 1.0;
+        double observedMinimumAngleDegrees = 60.0;
+        for (const GmshElement& element : generated.elements)
+        {
+            if (element.type != 2 || element.nodeTags.size() != 3) continue;
+            std::array<std::array<double, 3>, 3> points{};
+            for (std::size_t i = 0; i < 3; ++i)
+            {
+                const auto found = generated.nodeTagToIndex.find(element.nodeTags[i]);
+                if (found == generated.nodeTagToIndex.end())
+                    throw std::runtime_error("TRI_3 references an unknown node while measuring quality");
+                points[i] = generated.nodes[found->second].coordinates;
+            }
+            const auto distance = [](const auto& a, const auto& b)
+            {
+                const double x = a[0] - b[0];
+                const double y = a[1] - b[1];
+                const double z = a[2] - b[2];
+                return std::sqrt(x * x + y * y + z * z);
+            };
+            const double a = distance(points[0], points[1]);
+            const double b = distance(points[1], points[2]);
+            const double c = distance(points[2], points[0]);
+            const double twiceArea = 2.0 * (
+                (points[1][0] - points[0][0]) * (points[2][1] - points[0][1]) -
+                (points[1][1] - points[0][1]) * (points[2][0] - points[0][0]));
+            const double area = 0.5 * std::abs(twiceArea);
+            if (area <= 0.0 || a <= 0.0 || b <= 0.0 || c <= 0.0)
+                throw std::runtime_error("External-flow mesh contains a degenerate TRI_3 element");
+            const double quality = 4.0 * std::sqrt(3.0) * area /
+                (a * a + b * b + c * c);
+            const auto angle = [](double opposite, double adjacentA, double adjacentB)
+            {
+                const double cosine = (adjacentA * adjacentA + adjacentB * adjacentB -
+                    opposite * opposite) / (2.0 * adjacentA * adjacentB);
+                return std::acos(std::max(-1.0, std::min(1.0, cosine))) *
+                    180.0 / 3.14159265358979323846;
+            };
+            observedMinimumQuality = std::min(observedMinimumQuality, quality);
+            observedMinimumAngleDegrees = std::min({
+                observedMinimumAngleDegrees,
+                angle(b, a, c), angle(c, a, b), angle(a, b, c)});
+        }
+        if (observedMinimumQuality < minimumQuality ||
+            observedMinimumAngleDegrees < minimumAngleDegrees)
+            throw std::runtime_error(
+                "External-flow mesh failed triangle quality thresholds: minimum quality " +
+                std::to_string(observedMinimumQuality) + ", minimum angle " +
+                std::to_string(observedMinimumAngleDegrees) + " degrees");
+
+        std::set<std::pair<int, std::string>> expectedGroups;
+        for (const auto& group : physicalCurves)
+            expectedGroups.emplace(1, group.first);
+        expectedGroups.emplace(1, bodyName);
+        expectedGroups.emplace(2, surfaceName);
+        std::set<std::pair<int, std::string>> actualGroups;
+        for (const auto& physical : generated.physicalNames)
+            actualGroups.emplace(physical.first.first, physical.second);
+        if (actualGroups != expectedGroups)
+            throw std::runtime_error("Generated external-flow MSH Physical Groups do not match the boundary contract");
+
+        Json report;
+        report["schema"] = "oneflow.stl-to-gmsh-validation-report";
+        report["version"] = 1;
+        report["case_type"] = "2d_external_flow";
+        report["source_stl"] = source.lexically_normal().string();
+        report["geometry"] = geoPath.lexically_normal().string();
+        report["mesh"] = target.lexically_normal().string();
+        report["gmsh_executable"] = config.gmshExecutable;
+        report["gmsh_version"] = generated.version;
+        report["stl_triangles"] = stl.triangles.size();
+        report["stl_boundary_vertices"] = body.vertices.size();
+        report["contract"] = {
+            {"domain", {
+                {"xmin", xmin}, {"xmax", xmax}, {"ymin", ymin}, {"ymax", ymax},
+                {"boundaries", boundaryOptions}}},
+            {"surface_name", surfaceName},
+            {"body_boundary_name", bodyName},
+            {"quality_limits", {
+                {"minimum_triangle_quality", minimumQuality},
+                {"minimum_angle_degrees", minimumAngleDegrees}}}};
+        report["domain"] = report["contract"]["domain"];
+        report["mesh_summary"] = {
+            {"nodes", generated.nodes.size()},
+            {"line_elements", lineElements},
+            {"triangle_elements", triangleElements},
+            {"quadrilateral_elements", quadrilateralElements},
+            {"physical_group_count", meshReport.physicalGroupCount}};
+        report["mesh_summary"]["coordinate_bounds"] = {
+            {"minimum", meshReport.minimumCoordinates},
+            {"maximum", meshReport.maximumCoordinates}};
+        report["mesh_summary"]["triangle_quality"] = {
+            {"minimum_quality", observedMinimumQuality},
+            {"minimum_angle_degrees", observedMinimumAngleDegrees},
+            {"minimum_area", meshReport.minimumTriangleArea},
+            {"maximum_area", meshReport.maximumTriangleArea},
+            {"degenerate_count", meshReport.degenerateTriangleCount},
+            {"positive_xy_orientation_count", meshReport.positiveXYTriangleCount},
+            {"negative_xy_orientation_count", meshReport.negativeXYTriangleCount}};
+        report["mesh_summary"]["physical_groups"] = Json::array();
+        for (const auto& group : actualGroups)
+            report["mesh_summary"]["physical_groups"].push_back({
+                {"dimension", group.first}, {"name", group.second}});
+        report["validated"] = true;
+        std::ofstream reportOutput(reportPath, std::ios::trunc);
+        if (!reportOutput)
+            throw std::runtime_error("Cannot create STL-to-Gmsh report: " + reportPath.string());
+        reportOutput << report.dump(2) << '\n';
+        if (!reportOutput)
+            throw std::runtime_error("Failed writing STL-to-Gmsh report: " + reportPath.string());
+
+        std::cout << "STL external-flow mesh completed: "
+            << generated.nodes.size() << " nodes, "
+            << triangleElements << " TRI_3 cells, "
+            << lineElements << " boundary LINE_2 elements." << std::endl;
+    }
+
     void ConvertStlToGmsh(
         const GridConfig& config,
         const std::string& caseDir)
@@ -761,6 +1110,12 @@ namespace
         if (!layoutInput)
             throw std::runtime_error("Cannot open STL-to-Gmsh layout: " + layout.string());
         const Json options = Json::parse(layoutInput);
+
+        if (options.contains("domain"))
+        {
+            ConvertStlExternalFlowToGmsh(config, caseDir, options, source, target);
+            return;
+        }
 
         const std::string surfaceName = options.value("surface_name", std::string("fluid_domain"));
         if (surfaceName != "fluid_domain")

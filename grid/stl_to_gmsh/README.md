@@ -4,46 +4,69 @@ This directory contains native C++ STL-to-Gmsh Cases and independent Python
 reference Cases. The native Cases run through the standard OneFLOW Grid task
 and the C++ Geometry conversion pipeline.
 
-| Implementation | Case | Transfinite cells | Nodes | QUAD_4 | Boundary LINE_2 |
+| Implementation | Case | Layout | Nodes | 2D cells | Boundary LINE_2 |
 |---|---|---:|---:|---:|---:|
-| Native C++ | square | 1 x 1 | 4 | 1 | 4 |
-| Native C++ | square_2x2 | 2 x 2 | 9 | 4 | 8 |
-| Native C++ | two_square_cells | 2 x 1 | 6 | 2 | 6 |
-| Python | python/square | 1 x 1 | 4 | 1 | 4 |
-| Python | python/two_square_cells | 2 x 1 | 6 | 2 | 6 |
+| Native C++ | square/cpp | 1 x 1 | 4 | 1 QUAD_4 | 4 |
+| Native C++ | square_2x2/cpp | 2 x 2 | 9 | 4 QUAD_4 | 8 |
+| Native C++ | two_square_cells/cpp | 2 x 1 | 6 | 2 QUAD_4 | 6 |
+| Native C++ | circle_external_flow/cpp | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
+| Python | square/python | 1 x 1 | 4 | 1 QUAD_4 | 4 |
+| Python | two_square_cells/python | 2 x 1 | 6 | 2 QUAD_4 | 6 |
+| Python | circle_external_flow/python | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
+| Python | channel_internal_flow/python | 20 x 5 | 126 | 100 QUAD_4 | 50 |
 
-The STL files describe the outer boundary. Their triangle diagonals are
-triangulation edges, not CFD cell interfaces. The square and square_2x2 Cases
-use byte-identical STL geometry: only transfinite_cells changes from 1 x 1
-to 2 x 2. The two_square_cells Case deliberately uses a different, 2 x 1
-rectangle; its split comes from transfinite_cells.x = 2, not from STL triangles.
+For the structured square Cases, the STL describes the outer domain boundary.
+For circle_external_flow, the STL describes the inner body boundary and the
+rectangular outer domain is supplied by the layout. In every case, STL
+triangle diagonals are triangulation edges, not CFD cell interfaces. The
+square and square_2x2 Cases use byte-identical STL geometry: only
+transfinite_cells changes from 1 x 1 to 2 x 2. The two_square_cells Case
+deliberately uses a different, 2 x 1 rectangle; its split comes from
+transfinite_cells.x = 2, not from STL triangles.
 
 ## Boundary contract
 
-The four external Physical Curves are inflow (left), outflow (right),
-symmetry (bottom), and farfield (top). The 2-D region is fluid_domain.
-These are Gmsh physical labels, not solver boundary-state definitions.
+The square mesh Cases use four outer Physical Curves: inflow (left), outflow
+(right), symmetry (bottom), and farfield (top). Their 2-D region is
+fluid_domain.
+
+The circle external-flow Cases use Inlet (left), Outlet (right), Farfield
+(top and bottom, combined into one Physical Group), and Wall (the STL body).
+The channel Case uses Inlet, Outlet, LowerWall and UpperWall. These names
+identify patches; the Gmsh-to-CGNS adapter maps common aliases to CGNS
+`BCType_t` values, and the CGNS-to-OneFLOW reader maps those broad categories
+to OneFLOW boundary IDs. The original patch names remain intact. This is a
+type-level mapping only: inlet/outlet state values and solver-specific wall
+treatment require separate configuration.
 
 ## Native C++ execution
 
 Make Gmsh available on PATH, or change gmshExecutable in script/grid.txt.
 
-    build\bin\Debug\OneFLOW.exe r grid/stl_to_gmsh/square
-    build\bin\Debug\OneFLOW.exe r grid/stl_to_gmsh/two_square_cells
+    python grid/stl_to_gmsh/develop_test/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
+
+The runner copies each Case to the external staging root before execution. Do
+not execute a checked-in Case directly: relative output paths would create
+runtime files in the source tree.
 
 Linux uses the same Case paths with build/bin/OneFLOW. The C++ path reads STL,
 recovers its planar boundary, writes .geo, invokes Gmsh, reads MSH 4.1 through
 the existing Gmsh reader, and validates node/element counts and Physical
 Group names. Outputs are written only under each Case results/ directory.
 
+## Shared output contract
+
+Each implementation writes its mesh using the Case-specific canonical name: `square.msh`, `two_square_cells.msh`, `circle_external_flow.msh`, or `channel_internal_flow.msh`. Python declares this name in `expected.json` under `artifact.mesh_file`; its geometry and validation report use the same basename. In particular, the square outputs are `results/square.msh` and `results/square.stl-to-gmsh-report.json` for both C++ and Python. The producer language does not change the artifact naming contract, so downstream conversion and validation stages can consume either implementation without filename-specific branching.
+
 ## Python reference
 
-    python grid/stl_to_gmsh/python/run_case.py --case-directory grid/stl_to_gmsh/python/square
-    python grid/stl_to_gmsh/python/run_case.py --case-directory grid/stl_to_gmsh/python/two_square_cells
+Run the Python reference Cases through the staging orchestrator below. Do not
+pass checked-in source Case directories to the Python runner directly, because
+that would place generated files in the repository.
 
-The Python Cases use the independent grid/stl/stl_to_gmsh.py implementation.
+The Python Cases use the independent grid/stl/stl_to_gmsh.py implementation. They emit the same Case-specific mesh and report filenames as their native counterparts. The native C++ and Python `circle_external_flow` Cases use byte-identical STL input and the same domain, mesh-size and Physical Group settings. The native Case exercises OneFLOW's C++ STL reader, outer-domain/hole construction, Gmsh invocation and MSH validation; the Python Case is an independent implementation reference. The `circle_external_flow` Case treats a polygonal STL obstacle as an internal Wall loop and subtracts it from a rectangular outer domain. The `channel_internal_flow` Case treats the STL loop itself as the fluid domain, with inlet, outlet and wall groups; a transfinite 20 x 5 layout produces a reproducible quadrilateral channel mesh. The external case validates minimum mesh counts rather than exact counts because unstructured meshing can vary slightly between Gmsh versions. Both implementations also validate the generated coordinate bounds against the configured planar domain, reject degenerate triangles, and enforce the shared minimum normalized triangle quality (0.01) and minimum angle (1 degree). Python reports the measured minimum area, normalized quality, and minimum angle; native C++ reports the same quality thresholds alongside its MSH topology report. The two triangulations are not expected to have identical element counts or connectivity.
 
-## Run all five development Cases
+## Run all eight development Cases
 
 After building OneFLOW and installing Gmsh, run the orchestrator from the
 repository root:
@@ -54,11 +77,12 @@ If the executable is not in the standard build/bin locations:
 
     python grid/stl_to_gmsh/develop_test/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
 
-The orchestrator stages all five Cases under
+The orchestrator stages all eight Cases under
 %USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows or
-$HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. It recreates only
-the five named Case staging directories and leaves generated meshes, reports,
-and logs outside the repository source tree.
+$HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. Staging paths mirror
+the Case layout, for example square/cpp and square/python; each has its own
+results directory. It recreates only the eight named Case staging directories
+and leaves generated meshes, reports, and logs outside the repository source tree.
 
 ## STL-to-CFD pipeline
 
@@ -67,15 +91,16 @@ The optional dependency workflow uses the same square geometry and the
 
 1. STL -> Gmsh: native C++ Grid task creates and validates results/square_2x2.msh.
 2. Gmsh -> CGNS: the existing conversion Case consumes that MSH artifact and writes results/square.cgns.
-3. CGNS -> OneFLOW: the pipeline CGNS consumer Case writes
+3. Gmsh -> OneFLOW: the pipeline Case consumes the CGNS interchange artifact and writes
    results/square.oneflow.grid, results/bcRegionMap.txt and
    results/square.info.json. The boundary map is the sidecar that the CFD
    solver reads for boundary-region setup; the info JSON records native-grid
    metadata for inspection.
 4. CFD Solve: the dedicated cfd_uns2dslau2 pipeline Case consumes the native grid and must produce residual, restart-flow and visualization outputs.
 
-The workflow reuses the Workbench dependency graph, artifact bindings and
-isolated case staging. It does not duplicate generated files into each
+CGNS remains an explicit, validated intermediate artifact; the end-to-end
+consumer stage is named `gmsh_to_oneflow`. The workflow reuses the Workbench
+dependency graph, artifact bindings and isolated case staging. It does not duplicate generated files into each
 consumer: sourceGridCaseDir plus the relative artifact path identifies the
 producer output. Each staged Case and its logs live below the user's
 .oneflow/mesh-layout-test/grid/stl_to_gmsh/pipelines directory. The source
@@ -93,9 +118,16 @@ Run the standalone geometry Cases first, followed by the pipeline:
 
     python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline
 
+Native and Python circle implementations are staged together under
+`circle_external_flow/cpp` and `circle_external_flow/python`, respectively.
+Every process runs with its staged Case directory as the working directory;
+no development Case is executed from the repository root.
+
 The manually dispatched GitHub Actions workflow named OneFLOW External Tool
-Integration also runs this full pipeline on Windows after the native Gmsh
-integration tests, then uploads the per-run pipeline evidence as an artifact.
+Integration runs the native C++ Gmsh integration tests, all eight development
+Cases (Native C++ and Python Reference), and this dependency pipeline on
+Windows. It uploads the isolated Case outputs and pipeline evidence as one
+artifact.
 
 Each Case declares its own output-validation rule in the workflow JSON, so
 validation behavior is data-driven rather than selected by Case ID. The
@@ -119,29 +151,31 @@ solution comparisons.
     python tools/mesh_cases.py validate stl_to_gmsh_square
     python tools/mesh_cases.py validate stl_to_gmsh_square_2x2
     python tools/mesh_cases.py validate stl_to_gmsh_two_square_cells
+    python tools/mesh_cases.py validate circle_external_flow/cpp
 
-Tests use temporary output directories. The first native stage supports one
-connected, axis-aligned rectangular XY boundary and structured QUAD_4 layouts.
-Multiple loops, holes, curved/rotated boundaries, unstructured size fields,
-and 3-D volume meshing are not claimed.
+When Gmsh is available, the Python test suite also executes the circle
+reference Case in a temporary directory and validates its MSH 4.1 triangle
+cells and Physical Groups. The native C++ circle integration test is enabled
+by `ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS` and is exercised by the
+`OneFLOW External Tool Integration` workflow.
 
-## Existing external-flow workflow (preserved)
+Tests use temporary output directories. The structured native Cases support
+one connected, axis-aligned rectangular XY boundary and QUAD_4 layouts. The
+native circle external-flow Case additionally supports one closed planar STL
+body loop inside a rectangular outer domain, producing a triangular fluid
+region with a hole. Arbitrary multiple body loops, self-intersections,
+curved CAD entities and 3-D volume meshing are not claimed.
 
-The original external-flow preprocessing case remains available alongside
-the native square Cases. It reads input/body.stl and applies
+## Legacy external-flow workflow
+
+The original external-flow preprocessing entry point remains available for backward compatibility. The native `circle_external_flow` Case and its `circle_external_flow/python` reference are now the preferred executable examples for the external-flow domain model. It reads input/body.stl and applies
 config/external_flow.json. The STL body is an internal Wall boundary; the
 rectangular fluid domain has Inlet, Outlet, Symmetry, and Farfield Physical
 Curve groups, and the fluid region is named Fluid. These names are Gmsh
 physical labels, not automatic OneFLOW solver boundary-condition mappings.
 
-Run the original Python workflow from the repository root:
+The legacy Python workflow writes into the legacy source-tree results folder; do not use it for isolated development runs.
 
-    python grid/stl_to_gmsh/script/run.py
-
-To also invoke Gmsh and write the legacy MSH 2.2 output:
-
-    python grid/stl_to_gmsh/script/run.py --gmsh gmsh
-
-Its generated files remain under grid/stl_to_gmsh/results/:
+Its generated files historically went under grid/stl_to_gmsh/results/:
 body.geo, body.msh (when Gmsh is supplied), and mesh_report.json.
 The checked-in body STL and external_flow.json are inputs and are not modified.

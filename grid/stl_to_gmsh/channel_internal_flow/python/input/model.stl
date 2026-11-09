@@ -1,0 +1,16 @@
+solid rectangular_channel
+  facet normal 0 0 1
+    outer loop
+      vertex 0 0 0
+      vertex 4 0 0
+      vertex 4 1 0
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 0 0 0
+      vertex 4 1 0
+      vertex 0 1 0
+    endloop
+  endfacet
+endsolid rectangular_channel

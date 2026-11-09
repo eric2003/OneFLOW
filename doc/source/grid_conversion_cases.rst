@@ -136,11 +136,11 @@ STL-to-Gmsh generation workflow
 -------------------------------
 
 The geometry-generation stage has native OneFLOW Cases under
-`grid/stl_to_gmsh/square` and `grid/stl_to_gmsh/two_square_cells`.
+`grid/stl_to_gmsh/square/cpp` and `grid/stl_to_gmsh/two_square_cells/cpp`.
 They run through the standard C++ Grid task, recover the planar STL boundary,
 write Gmsh geometry, invoke the configured Gmsh CLI, and validate the MSH 4.1
-output. Independent Python reference Cases live under
-`grid/stl_to_gmsh/python/`. The existing external-flow Python preprocessing Case remains available at
+output. Independent Python reference Cases live beside the native Cases under each
+problem directory in `python/`. The existing external-flow Python preprocessing Case remains available at
 `grid/stl_to_gmsh/script/run.py` with `config/external_flow.json`.
 
 External process execution

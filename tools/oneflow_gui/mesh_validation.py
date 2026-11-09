@@ -36,16 +36,16 @@ def _catalog(root: Path) -> dict:
 
 
 def mesh_case_choices(repository_root: Path) -> tuple[tuple[str, str], ...]:
-    """List native STL-to-Gmsh Cases from the repository Case Catalog."""
+    """List native and Python STL-to-Gmsh producers from the Case Catalog."""
     entries = _catalog(Path(repository_root).resolve()).get("cases", [])
     choices = tuple(
         (str(item["id"]), str(item.get("title", item["id"])))
         for item in entries
         if item.get("group") == "STL to Gmsh"
-        and (item.get("execution") or {}).get("kind", "oneflow") == "oneflow"
+        and (item.get("execution") or {}).get("kind", "oneflow") in {"oneflow", "python"}
     )
     if not choices:
-        raise ValueError("No native STL-to-Gmsh Cases are registered.")
+        raise ValueError("No supported STL-to-Gmsh Cases are registered.")
     return choices
 
 
@@ -71,53 +71,75 @@ def _setting(path: Path, name: str) -> str:
 def build_mesh_validation_cases(
     repository_root: Path, mesh_case_id: str, cfd_template_id: str,
 ) -> list[dict]:
-    """Build the current STL -> Gmsh -> CGNS -> OneFLOW -> CFD route."""
+    """Build the current STL -> Gmsh -> OneFLOW -> CFD route."""
     root = Path(repository_root).resolve()
     catalog = _catalog(root)
     mesh = next((x for x in catalog["cases"] if x.get("id") == mesh_case_id), None)
     if mesh is None:
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
-    if mesh.get("group") != "STL to Gmsh" or (mesh.get("execution") or {}).get("kind", "oneflow") != "oneflow":
-        raise ValueError(f"Case {mesh_case_id!r} is not a native STL-to-Gmsh Case.")
+    execution = mesh.get("execution") or {}
+    implementation = execution.get("kind", "oneflow")
+    if mesh.get("group") != "STL to Gmsh" or implementation not in {"oneflow", "python"}:
+        raise ValueError(f"Case {mesh_case_id!r} is not a supported STL-to-Gmsh Case.")
     template = next((x for x in _CFD_TEMPLATES if x["id"] == cfd_template_id), None)
     if template is None:
         raise ValueError(f"Unknown CFD template: {cfd_template_id!r}")
 
     mesh_dir = root / mesh["directory"]
-    msh = _setting(mesh_dir / "script/grid.txt", "targetGridFileName")
+    if implementation == "oneflow":
+        msh = _setting(mesh_dir / "script/grid.txt", "targetGridFileName")
+    else:
+        expected_path = mesh_dir / "expected.json"
+        expected = json.loads(expected_path.read_text(encoding="utf-8"))
+        mesh_name = expected.get("artifact", {}).get("mesh_file")
+        if (
+            not isinstance(mesh_name, str)
+            or not mesh_name.endswith(".msh")
+            or Path(mesh_name).name != mesh_name
+            or "\\" in mesh_name
+        ):
+            raise ValueError(
+                f"Python Case {mesh_case_id!r} must declare artifact.mesh_file "
+                "as a simple .msh filename."
+            )
+        msh = f"results/{mesh_name}"
     stem = Path(msh).stem
     cgns, native = f"results/{stem}.cgns", f"results/{stem}.oneflow.grid"
-    mesh_id, cgns_id, native_id = f"{mesh_case_id}_msh", f"{mesh_case_id}_cgns", f"{mesh_case_id}_native"
+    mesh_id, cgns_id, native_id = "gmsh_mesh", "cgns_mesh", "oneflow_grid"
     cfd_config = root / template["directory"] / "script/cfd.txt"
     return [
-        {"id": mesh_case_id, "directory": mesh["directory"],
-         "outputs": [{"id": mesh_id, "path": msh, "parameter_file": "script/grid.txt",
-                      "setting": "targetGridFileName"}],
+        {"id": "stl_to_gmsh", "directory": mesh["directory"],
+         "outputs": (
+             [{"id": mesh_id, "path": msh, "parameter_file": "script/grid.txt",
+               "setting": "targetGridFileName"}]
+             if implementation == "oneflow"
+             else [{"id": mesh_id, "path": msh}]
+         ),
          "validation": {"kind": "gmsh_msh4", "path": msh}},
-        {"id": f"{mesh_case_id}_gmsh_to_cgns", "directory": "grid/gmsh_to_cgns",
-         "depends_on": [mesh_case_id],
+        {"id": "gmsh_to_cgns", "directory": "grid/gmsh_to_cgns",
+         "depends_on": ["stl_to_gmsh"],
          "inputs": [{"artifact": mesh_id, "setting": "sourceGridFileName",
                      "parameter_file": "script/grid.txt"}],
          "outputs": [{"id": cgns_id, "path": cgns,
                       "parameter_file": "script/grid.txt",
                       "setting": "targetGridFileName"}]},
-        {"id": f"{mesh_case_id}_cgns_to_oneflow",
-         "directory": "grid/stl_to_gmsh/pipeline/cgns_to_oneflow",
-         "depends_on": [f"{mesh_case_id}_gmsh_to_cgns"],
+        {"id": "gmsh_to_oneflow",
+         "directory": "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow",
+         "depends_on": ["gmsh_to_cgns"],
          "inputs": [{"artifact": cgns_id, "setting": "sourceGridFileName",
                      "parameter_file": "script/grid.txt"}],
          "outputs": [{"id": native_id, "path": native,
                       "parameter_file": "script/grid.txt",
                       "setting": "targetGridFileName"}]},
-        {"id": f"{mesh_case_id}_{cfd_template_id}_solve",
+        {"id": "laminar_flat_plate_solve",
          "directory": template["directory"],
-         "depends_on": [f"{mesh_case_id}_cgns_to_oneflow"],
+         "depends_on": ["gmsh_to_oneflow"],
          "inputs": [{"artifact": native_id, "setting": "gridFileName",
                      "parameter_file": "script/cfd.txt"}],
          "outputs": [
-             {"id": f"{mesh_case_id}_residual", "path": _setting(cfd_config, "resFile")},
-             {"id": f"{mesh_case_id}_restart", "path": _setting(cfd_config, "flowFile")},
-             {"id": f"{mesh_case_id}_visual", "path": _setting(cfd_config, "visualFile")},
+             {"id": "residual", "path": _setting(cfd_config, "resFile")},
+             {"id": "restart", "path": _setting(cfd_config, "flowFile")},
+             {"id": "visual", "path": _setting(cfd_config, "visualFile")},
          ]},
     ]
 
@@ -173,6 +195,35 @@ def _graph_step_records(result) -> list[dict[str, str]]:
     ]
 
 
+def _mesh_case_command(
+    repository_root: Path,
+    mesh_entry: dict,
+    oneflow_executable: Path,
+    gmsh_executable: Path,
+    case_directory: Path,
+) -> list[str]:
+    """Build the selected mesh producer command without coupling to its language."""
+    execution = mesh_entry.get("execution") or {}
+    kind = execution.get("kind", "oneflow")
+    if kind == "oneflow":
+        return [str(oneflow_executable), "r", str(case_directory)]
+    if kind != "python":
+        raise ValueError(f"Unsupported mesh producer implementation: {kind!r}")
+    script_value = execution.get("script")
+    if not isinstance(script_value, str) or not script_value.strip():
+        raise ValueError("Python mesh producer must declare execution.script.")
+    root = repository_root.resolve()
+    script_path = (root / script_value).resolve()
+    try:
+        script_path.relative_to(root)
+    except ValueError as error:
+        raise ValueError("Python mesh producer script must stay inside the repository.") from error
+    return [
+        sys.executable, str(script_path), "--case-directory",
+        str(case_directory), "--gmsh", str(gmsh_executable),
+    ]
+
+
 def run_mesh_validation(
     oneflow: Path, gmsh: str, mesh_case_id: str,
     cfd_template_id: str = "laminar_flat_plate", max_steps: int = 2,
@@ -191,6 +242,15 @@ def run_mesh_validation(
     if max_steps < 1:
         raise ValueError("CFD smoke-test steps must be at least one.")
 
+    catalog = _catalog(REPOSITORY_ROOT)
+    mesh_entry = next(
+        (item for item in catalog["cases"] if item.get("id") == mesh_case_id),
+        None,
+    )
+    if mesh_entry is None:
+        raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
+    mesh_execution = mesh_entry.get("execution") or {}
+    mesh_implementation = mesh_execution.get("kind", "oneflow")
     cases = build_mesh_validation_cases(REPOSITORY_ROOT, mesh_case_id, cfd_template_id)
     plan = build_case_graph_plan(cases, REPOSITORY_ROOT)
     run_root = _external(
@@ -201,30 +261,36 @@ def run_mesh_validation(
     run_id = run_root.name
     os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
     def execute(step):
-        if step.case_id.endswith("_solve"):
+        if step.case_id == "laminar_flat_plate_solve":
             apply_runtime_overrides(step.directory / "script/cfd.txt", {
                 "maxSteps": max_steps, "nFieldSave": 1, "nVisualSave": 1,
                 "nResSave": 1, "idump": 0,
             })
-        command = [str(executable), "r", str(step.directory)]
+        if step.case_id == "stl_to_gmsh":
+            command = _mesh_case_command(
+                REPOSITORY_ROOT, mesh_entry, executable, gmsh_path, step.directory
+            )
+        else:
+            command = [str(executable), "r", str(step.directory)]
         output: list[str] = []
         def emit(line: str) -> None:
             output.append(line)
             print(f"[{step.case_id}] {line}", flush=True)
         try:
-            result = run_process(command, cwd=REPOSITORY_ROOT, on_output=emit,
+            result = run_process(command, cwd=step.directory, on_output=emit,
                                  is_cancelled=lambda: False)
             status, message = result.status, result.message
         except OSError as error:
             status, message = "failed", str(error)
 
         validation = None
-        if status == "succeeded" and step.case_id == mesh_case_id:
+        if status == "succeeded" and step.case_id == "stl_to_gmsh":
             try:
                 rel = step.outputs[0].relative_path.as_posix()
                 mesh_info = inspect_msh4(step.directory / rel)
                 validation = {
                     "kind": "gmsh_msh4", "path": rel,
+                    "implementation": mesh_implementation,
                     "nodes": mesh_info["nodes"], "elements": mesh_info["elements"],
                     "physical_groups": mesh_info["physical_groups"],
                 }
@@ -249,9 +315,10 @@ def run_mesh_validation(
     report = {
         "schema": "oneflow.mesh-to-cfd-validation", "schema_version": 1,
         "run_id": run_id, "status": result.status, "mesh_case_id": mesh_case_id,
+        "mesh_implementation": mesh_implementation,
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
-        "note": "A square mesh with the flat-plate template is a solver smoke test, not physical flat-plate validation.",
+        "note": "The selected CFD consumer is a runtime smoke test unless a matching physical validation contract is explicitly defined; applying the flat-plate template to another geometry does not establish flat-plate physics.",
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
     report_path = run_root / "mesh-validation-report.json"

@@ -250,6 +250,7 @@ _PYTHON_UNIT_TESTS = (
     ("CMake test catalog tests", ("-m", "unittest", "tools.verification.test_cmake_test_catalog")),
     ("Configured CTest discovery tests", ("-m", "unittest", "tools.verification.test_ctest_discovery")),
     ("Contract Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_contract_workbench_dialog")),
+    ("Boundary Conditions Workbench tests", ("-m", "unittest", "tools.oneflow_gui.test_boundary_conditions_workbench")),
     ("Source editor process tests", ("-m", "unittest", "tools.oneflow_gui.test_source_editor")),
     ("Repository test inventory discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_test_inventory")),
     ("Executable discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_executable_discovery")),

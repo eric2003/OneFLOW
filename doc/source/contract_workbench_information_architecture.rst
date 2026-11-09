@@ -92,6 +92,9 @@ typed payload and may add focused views:
      - Steps, dependencies, artifact contracts, input/output bindings,
        scheduling and failure propagation.
      - Workflow graph, run history, artifact lineage and diagnostics.
+   * - Boundary Conditions
+     - Physical meaning, mathematical boundary constraints, required state data, format mappings, solver realization and applicability.
+     - Boundary semantic catalog, Gmsh/CGNS/OneFLOW mapping matrix and compatibility/evidence view.
    * - Mesh
      - Format-neutral entities and topology, coordinates, connectivity,
        boundaries, regions, identity, orientation and quality; plus Gmsh,
@@ -154,7 +157,7 @@ Architecture and ownership
 .. code-block:: text
 
    Domain sources / typed payloads
-      Formula catalog | Case contracts | Runtime contracts
+      Formula catalog | Boundary contracts | Case contracts | Runtime contracts
       Workflow definitions | Mesh scenarios | Algorithm records
                          |
                          v
