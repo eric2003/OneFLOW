@@ -34,7 +34,10 @@
       "data_location": "cell-center / ghost points",
       "mappings": {
         "cgns": "BCExtrapolate (6)",
-        "oneflow": "EXTRAPOLATION"
+        "oneflow": "EXTRAPOLATION",
+        "gmsh_aliases": [
+          "Extrapolation"
+        ]
       },
       "implementation": {
         "status": "not_verified",
@@ -80,7 +83,13 @@
       "data_location": "cell-face",
       "mappings": {
         "cgns": "BCInflow (9) / BCOutflow (13)",
-        "oneflow": "INFLOW / OUTFLOW"
+        "oneflow": "INFLOW / OUTFLOW",
+        "gmsh_aliases": [
+          "Inflow",
+          "Outflow",
+          "CharacteristicInlet",
+          "CharacteristicOutlet"
+        ]
       },
       "implementation": {
         "status": "not_verified",
@@ -118,7 +127,10 @@
       "data_location": "cell-center / ghost points",
       "mappings": {
         "cgns": "BCOutflow (13)",
-        "oneflow": "OUTFLOW"
+        "oneflow": "OUTFLOW",
+        "gmsh_aliases": [
+          "PressureOutlet"
+        ]
       },
       "implementation": {
         "status": "not_verified",
@@ -164,7 +176,11 @@
       "data_location": "cell-center / ghost points",
       "mappings": {
         "cgns": "BCInflow (9)",
-        "oneflow": "INFLOW"
+        "oneflow": "INFLOW",
+        "gmsh_aliases": [
+          "TotalConditionInlet",
+          "EngineInlet"
+        ]
       },
       "implementation": {
         "status": "not_verified",
@@ -206,7 +222,11 @@
       "data_location": "cell-center / ghost points",
       "mappings": {
         "cgns": "BCWallViscous (22)",
-        "oneflow": "SOLID_SURFACE"
+        "oneflow": "SOLID_SURFACE",
+        "gmsh_aliases": [
+          "NoSlipWall",
+          "ViscousWall"
+        ]
       },
       "implementation": {
         "status": "category_only",
