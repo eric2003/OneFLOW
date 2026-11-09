@@ -108,9 +108,9 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             window = WorkbenchHomeWindow(self.repository_root)
         try:
             self.assertEqual(window.boundary_conditions_button.text(), "Boundary Conditions...")
-            with patch("tools.oneflow_gui.home_window.ContractDomainDialog") as dialog_type:
+            with patch("tools.oneflow_gui.home_window.BoundaryConditionsWorkbenchDialog") as dialog_type:
                 window._open_boundary_conditions()
-            dialog_type.assert_called_once_with(self.repository_root.resolve(), "boundary", window)
+            dialog_type.assert_called_once_with(self.repository_root.resolve(), window)
             dialog_type.return_value.exec.assert_called_once()
         finally:
             window.close()
