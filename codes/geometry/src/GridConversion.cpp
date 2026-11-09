@@ -966,7 +966,8 @@ namespace
         }
         if (generated.nodes.size() < 20 ||
             lineElements < body.vertices.size() + 4 ||
-            triangleElements == 0 || quadrilateralElements != 0)
+            triangleElements == 0 || quadrilateralElements != 0 ||
+            meshReport.degenerateTriangleCount != 0)
             throw std::runtime_error(
                 "External-flow mesh topology is incomplete: expected boundary lines and "
                 "triangular fluid cells, observed " +
