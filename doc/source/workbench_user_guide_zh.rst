@@ -159,3 +159,11 @@ Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动�
 读取时机区分为 required、optional 和 lazy。参数不在当前目录中，只表示尚未完成追踪，不能据此判定参数无用。代码中存在读取语句，也不代表该参数对所有任务都生效，更不代表其物理意义、推荐范围和数值效果已经验证。
 
 新增独立单元测试，覆盖大小写无关查询、多处消费者、延迟读取和未知参数边界。后续逐步扩充时，必须先核对 hexin 中的真实代码路径，再补充适用模型、公式依据和验证证据；不能仅凭参数名称推断公式。
+
+
+边界条件工作台
+--------------
+
+首页 Boundary Conditions... 打开独立的 Boundary Conditions Workbench。它与 Contract Workbench 中的 Boundary Conditions 契约浏览入口职责不同：前者浏览物理定义、公式、参数、格式映射、OneFLOW 实现状态和验证计划；后者用于跨领域契约治理。
+
+当前工作台读取 tools/verification/boundary_conditions/registry.json，首批整理 CFL3D Version 5.0 的 1002、1003、2002、2003 和 2004 五类边界条件。当前为只读研究目录，不会直接修改 Case 参数或启动求解器。格式映射或 OneFLOW 大类对应不代表数值实现已经完成。
