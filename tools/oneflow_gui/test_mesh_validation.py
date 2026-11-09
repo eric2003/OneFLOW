@@ -66,7 +66,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def test_workspace_uses_mesh_case_relative_directory(self):
         paths = type(
             "Paths", (),
-            {"grid_layout_test": self.root / ".oneflow" / "mesh-layout-test"},
+            {"grid_layout_test": self.root / ".oneflow" / "mesh-layout-test" / "grid"},
         )()
         with mock.patch(
             "tools.oneflow_gui.mesh_validation.UserDataPaths.discover",

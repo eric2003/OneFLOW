@@ -237,27 +237,11 @@ def run_mesh_validation(
         return status, message
 
     result = run_case_graph(plan, execute, run_root=run_root)
-    execution_by_id = {item["case_id"]: item for item in records}
-    graph_steps = []
-    for item in result.cases:
-        detail = execution_by_id.get(item.case_id, {})
-        graph_step = {
-            "case_id": item.case_id,
-            "status": item.status,
-            "message": item.message,
-        }
-        if "validation" in detail:
-            graph_step["validation"] = detail["validation"]
-        graph_steps.append(graph_step)
-        print(
-            f"[Mesh-to-CFD] {item.case_id}: {item.status}: {item.message}",
-            flush=True,
-        )
     report = {
         "schema": "oneflow.mesh-to-cfd-validation", "schema_version": 1,
         "run_id": run_id, "status": result.status, "mesh_case_id": mesh_case_id,
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
-        "run_directory": str(run_root), "steps": graph_steps,
+        "run_directory": str(run_root), "steps": records,
         "note": "A square mesh with the flat-plate template is a solver smoke test, not physical flat-plate validation.",
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
