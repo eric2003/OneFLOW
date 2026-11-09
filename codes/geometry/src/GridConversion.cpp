@@ -1074,11 +1074,17 @@ namespace
             {"triangle_elements", triangleElements},
             {"quadrilateral_elements", quadrilateralElements},
             {"physical_group_count", meshReport.physicalGroupCount}};
+        report["mesh_summary"]["coordinate_bounds"] = {
+            {"minimum", meshReport.minimumCoordinates},
+            {"maximum", meshReport.maximumCoordinates}};
         report["mesh_summary"]["triangle_quality"] = {
             {"minimum_quality", observedMinimumQuality},
             {"minimum_angle_degrees", observedMinimumAngleDegrees},
             {"minimum_area", meshReport.minimumTriangleArea},
-            {"degenerate_count", meshReport.degenerateTriangleCount}};
+            {"maximum_area", meshReport.maximumTriangleArea},
+            {"degenerate_count", meshReport.degenerateTriangleCount},
+            {"positive_xy_orientation_count", meshReport.positiveXYTriangleCount},
+            {"negative_xy_orientation_count", meshReport.negativeXYTriangleCount}};
         report["mesh_summary"]["physical_groups"] = Json::array();
         for (const auto& group : actualGroups)
             report["mesh_summary"]["physical_groups"].push_back({
