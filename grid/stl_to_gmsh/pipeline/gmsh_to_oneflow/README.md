@@ -4,10 +4,10 @@ This Case is the Gmsh-to-OneFLOW stage of the STL-to-CFD development workflow.
 It consumes the CGNS interchange artifact produced by the preceding Gmsh-to-CGNS
 stage, then writes the native OneFLOW grid through the standard Grid task.
 
-The workflow runner supplies sourceGridCaseDir and sourceGridFileName from
-the preceding Gmsh-to-CGNS stage. CGNS remains an intermediate artifact rather than the name of this end-to-end stage.
-The source CGNS file is therefore not
-duplicated into this Case. The generated native grid and grid information
+The workflow runner supplies `sourceGridCaseDir` and `sourceGridFileName`
+from the preceding `gmsh_to_cgns` stage. CGNS is an intermediate interchange
+format; this Case represents the complete Gmsh-to-OneFLOW conversion stage.
+The source CGNS file is therefore not duplicated into this Case. The generated native grid and grid information
 report remain in this Case's results directory.
 
 Run it as part of the workflow:
