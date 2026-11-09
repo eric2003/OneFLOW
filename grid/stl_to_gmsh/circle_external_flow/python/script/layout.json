@@ -14,5 +14,9 @@
       "top": "farfield"
     }
   },
-  "outer_mesh_size": 0.4
+  "outer_mesh_size": 0.4,
+  "quality": {
+    "minimum_triangle_quality": 0.01,
+    "minimum_angle_degrees": 1
+  }
 }
