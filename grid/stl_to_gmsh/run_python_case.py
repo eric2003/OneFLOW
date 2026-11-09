@@ -24,6 +24,21 @@ def run_case(case_directory: Path, gmsh: str) -> dict:
     subprocess.run([gmsh, str(geo), "-2", "-format", "msh4", "-o", str(msh)],
                    check=True, cwd=case)
     mesh = inspect_msh4(msh)
+    domain = layout.get("domain", {})
+    bounds = mesh["coordinate_bounds"]
+    tolerance = 1.0e-10
+    for axis, lower, upper in (
+        (0, "xmin", "xmax"), (1, "ymin", "ymax")
+    ):
+        if (
+            abs(bounds["minimum"][axis] - float(domain[lower])) > tolerance
+            or abs(bounds["maximum"][axis] - float(domain[upper])) > tolerance
+        ):
+            raise RuntimeError(
+                f"Generated mesh bounds on axis {axis} do not match the computational domain"
+            )
+    if abs(bounds["maximum"][2] - bounds["minimum"][2]) > tolerance:
+        raise RuntimeError("Generated external-flow mesh is not planar in XY")
     quality_limits = layout.get("quality", {})
     measured_quality = mesh["triangle_quality"]
     minimum_quality = float(quality_limits.get("minimum_triangle_quality", 0.01))
