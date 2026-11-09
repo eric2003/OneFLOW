@@ -375,6 +375,14 @@ void ValidateNativeStlExternalFlowCase(const TemporaryDirectory& temporary)
     for (const auto& physical : mesh.physicalNames)
         actualGroups.emplace(physical.first.first, physical.second);
     EXPECT_EQ(actualGroups, expectedGroups);
+
+    const auto quality = ONEFLOW::BuildGmshMeshReadReport(mesh);
+    EXPECT_EQ(quality.degenerateTriangleCount, 0u);
+    EXPECT_GT(quality.minimumTriangleArea, 0.0);
+    EXPECT_DOUBLE_EQ(quality.minimumCoordinates[0], -3.0);
+    EXPECT_DOUBLE_EQ(quality.maximumCoordinates[0], 6.0);
+    EXPECT_DOUBLE_EQ(quality.minimumCoordinates[1], -3.0);
+    EXPECT_DOUBLE_EQ(quality.maximumCoordinates[1], 3.0);
 }
 
 void ValidateNativeStlToGmshCase(
