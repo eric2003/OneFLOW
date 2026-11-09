@@ -141,6 +141,22 @@ class MeshValidationDialog(QDialog):
             layout.addWidget(QLabel(f"Mesh Case catalog unavailable: {error}"))
         layout.addWidget(self.case_tree, 1)
 
+        self.boundary_mapping_label = QLabel(
+            "Boundary mapping preview (Gmsh name → CGNS BCType → OneFLOW): "
+            "Inlet/Inflow → BCInflow → INFLOW; Outlet/Outflow → BCOutflow → OUTFLOW; "
+            "Wall/LowerWall/UpperWall → BCWall → SOLID_SURFACE; "
+            "NoSlipWall → BCWallViscous; SlipWall → BCWallInviscid; "
+            "Symmetry → BCSymmetryPlane → SYMMETRY; Farfield → BCFarfield → FARFIELD. "
+            "Unknown names remain BCTypeUserDefined. Inlet/outlet state values and "
+            "solver-specific wall treatment are configured separately."
+        )
+        self.boundary_mapping_label.setWordWrap(True)
+        self.boundary_mapping_label.setToolTip(
+            "This is a type-level mapping only. CGNS BCType does not carry the full "
+            "velocity, pressure, temperature or turbulence state."
+        )
+        layout.addWidget(self.boundary_mapping_label)
+
         selection_actions = QHBoxLayout()
         select_all = QPushButton("Select all")
         select_all.clicked.connect(lambda: self._set_all(True))

@@ -30,6 +30,7 @@ License
 
 #include <iostream>
 #include <vector>
+#include <cctype>
 
 
 BeginNameSpace( ONEFLOW )
@@ -97,6 +98,35 @@ bool BC::IsWallBc( int bcType )
         return true;
     }
     return false;
+}
+
+int GmshPhysicalNameToCgnsBcType( const std::string & physicalName )
+{
+    std::string key;
+    for ( unsigned char ch : physicalName )
+    {
+        if ( std::isalnum( ch ) )
+            key.push_back( static_cast< char >( std::tolower( ch ) ) );
+    }
+
+    if ( key == "inlet" || key == "inflow" || key == "velocityinlet" ||
+         key == "massflowinlet" || key == "pressureinlet" )
+        return static_cast< int >( CGNS_ENUMV( BCInflow ) );
+    if ( key == "outlet" || key == "outflow" || key == "pressureoutlet" )
+        return static_cast< int >( CGNS_ENUMV( BCOutflow ) );
+    if ( key == "symmetry" || key == "symmetryplane" )
+        return static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) );
+    if ( key == "farfield" || key == "freestream" )
+        return static_cast< int >( CGNS_ENUMV( BCFarfield ) );
+    if ( key == "noslipwall" || key == "viscouswall" )
+        return static_cast< int >( CGNS_ENUMV( BCWallViscous ) );
+    if ( key == "slipwall" || key == "inviscidwall" )
+        return static_cast< int >( CGNS_ENUMV( BCWallInviscid ) );
+    if ( key == "wall" || key == "lowerwall" || key == "upperwall" ||
+         key == "bodywall" )
+        return static_cast< int >( CGNS_ENUMV( BCWall ) );
+
+    return static_cast< int >( CGNS_ENUMV( BCTypeUserDefined ) );
 }
 
 void BcTypeMap::Init()

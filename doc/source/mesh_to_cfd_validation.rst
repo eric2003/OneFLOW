@@ -33,3 +33,59 @@ and short time advancement; it is not a physical flat-plate validation.
 Each stage writes a log, and the run writes ``mesh-validation-report.json``.
 Additional CFD templates, including a turbulent flat plate, can be registered
 as this mode evolves.
+
+Boundary type mapping
+---------------------
+
+The Gmsh-to-CGNS adapter maps common Physical Group name aliases to CGNS
+``BCType_t`` values. Matching is case-insensitive and ignores punctuation;
+the original Physical Group name is retained as the boundary patch name.
+
+.. list-table::
+   :header-rows: 1
+
+   * - Gmsh Physical Group name
+     - CGNS ``BCType_t``
+     - OneFLOW boundary category
+   * - ``Inlet``, ``Inflow``, ``VelocityInlet``, ``MassFlowInlet``, ``PressureInlet``
+     - ``BCInflow``
+     - ``BC::INFLOW``
+   * - ``Outlet``, ``Outflow``, ``PressureOutlet``
+     - ``BCOutflow``
+     - ``BC::OUTFLOW``
+   * - ``Wall``, ``LowerWall``, ``UpperWall``, ``BodyWall``
+     - ``BCWall``
+     - ``BC::SOLID_SURFACE``
+   * - ``NoSlipWall``, ``ViscousWall``
+     - ``BCWallViscous``
+     - ``BC::SOLID_SURFACE``
+   * - ``SlipWall``, ``InviscidWall``
+     - ``BCWallInviscid``
+     - ``BC::SOLID_SURFACE``
+   * - ``Symmetry``, ``SymmetryPlane``
+     - ``BCSymmetryPlane``
+     - ``BC::SYMMETRY``
+   * - ``Farfield``, ``Freestream``
+     - ``BCFarfield``
+     - ``BC::FARFIELD``
+   * - unrecognized names
+     - ``BCTypeUserDefined``
+     - ``BC::GENERIC_2`` (existing fallback)
+
+This mapping is deliberately a boundary-type mapping, not a complete
+physical boundary-state definition. ``BCInflow`` does not specify velocity,
+mass flow, temperature or turbulence quantities. ``BCOutflow`` does not
+specify a target pressure. Mapping ``NoSlipWall`` to the broad OneFLOW
+``SOLID_SURFACE`` category does not prove that a particular viscous wall
+treatment is configured. The original name and CGNS type are retained for
+diagnostics and later richer contracts.
+
+Periodic connectivity is not inferred from a name such as ``Periodic``:
+CGNS periodic interfaces are represented through zone connectivity metadata,
+not as a ``BCType_t`` member in the enum. Neumann, Dirichlet, degenerate
+and other CGNS types remain unmapped until their OneFLOW semantics and
+numerical treatment are explicitly defined.
+
+The Mesh-to-CFD dialog displays this common mapping as a quick reference.
+It is not a compatibility approval: physical problem type, required boundary
+state data and solver support must still be checked before a CFD template runs.

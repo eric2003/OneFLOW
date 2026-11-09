@@ -30,11 +30,14 @@ The square mesh Cases use four outer Physical Curves: inflow (left), outflow
 (right), symmetry (bottom), and farfield (top). Their 2-D region is
 fluid_domain.
 
-The circle external-flow Cases use inflow (left), outflow (right), farfield
-(top and bottom, combined into one Physical Group), and wall (the STL body).
-Their fluid region is named `fluid_domain`. These are geometry labels;
-Gmsh-to-CGNS maps recognized names to CGNS boundary types, while solver
-boundary-state values remain a separate concern.
+The circle external-flow Cases use Inlet (left), Outlet (right), Farfield
+(top and bottom, combined into one Physical Group), and Wall (the STL body).
+The channel Case uses Inlet, Outlet, LowerWall and UpperWall. These names
+identify patches; the Gmsh-to-CGNS adapter maps common aliases to CGNS
+`BCType_t` values, and the CGNS-to-OneFLOW reader maps those broad categories
+to OneFLOW boundary IDs. The original patch names remain intact. This is a
+type-level mapping only: inlet/outlet state values and solver-specific wall
+treatment require separate configuration.
 
 ## Native C++ execution
 

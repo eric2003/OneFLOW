@@ -320,29 +320,6 @@ namespace
         }
     }
 
-    int GmshPhysicalNameToCgnsBcType( const std::string & physicalName )
-    {
-        std::string key;
-        for ( unsigned char ch : physicalName )
-        {
-            if ( std::isalnum( ch ) )
-                key.push_back( static_cast< char >( std::tolower( ch ) ) );
-        }
-
-        if ( key == "inflow" )
-            return static_cast< int >( CGNS_ENUMV( BCInflow ) );
-        if ( key == "outflow" )
-            return static_cast< int >( CGNS_ENUMV( BCOutflow ) );
-        if ( key == "symmetry" || key == "symmetryplane" )
-            return static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) );
-        if ( key == "farfield" )
-            return static_cast< int >( CGNS_ENUMV( BCFarfield ) );
-        if ( key == "wall" || key == "viscouswall" )
-            return static_cast< int >( CGNS_ENUMV( BCWall ) );
-
-        return static_cast< int >( CGNS_ENUMV( BCTypeUserDefined ) );
-    }
-
     const char * CgnsBcTypeName( int bcType )
     {
         if ( bcType == static_cast< int >( CGNS_ENUMV( BCInflow ) ) ) return "BCInflow";
@@ -350,6 +327,8 @@ namespace
         if ( bcType == static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) ) ) return "BCSymmetryPlane";
         if ( bcType == static_cast< int >( CGNS_ENUMV( BCFarfield ) ) ) return "BCFarfield";
         if ( bcType == static_cast< int >( CGNS_ENUMV( BCWall ) ) ) return "BCWall";
+        if ( bcType == static_cast< int >( CGNS_ENUMV( BCWallViscous ) ) ) return "BCWallViscous";
+        if ( bcType == static_cast< int >( CGNS_ENUMV( BCWallInviscid ) ) ) return "BCWallInviscid";
         return "BCTypeUserDefined";
     }
 
