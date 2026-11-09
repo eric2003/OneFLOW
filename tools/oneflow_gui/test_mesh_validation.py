@@ -11,7 +11,7 @@ from pathlib import Path
 from tools.oneflow_gui.mesh_validation import (
     build_mesh_validation_cases, cfd_template_choices, mesh_case_choices,
     mesh_validation_workspace, reset_mesh_validation_workspace,
-    _graph_step_records,
+    _graph_step_records, _mesh_case_command,
 )
 from tools.oneflow_gui.workflow_graph_runner import (
     CaseExecutionResult, WorkflowGraphRunResult,
@@ -63,6 +63,39 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ("stl_to_gmsh_circle_external_flow", "Circle External Flow (Native C++)"),
             ("python_square", "One Square Cell (Python Reference)"),
         ))
+
+    def test_mesh_producer_command_dispatches_by_implementation(self):
+        python_entry = {
+            "execution": {
+                "kind": "python",
+                "script": "grid/stl_to_gmsh/run_python_case.py",
+            }
+        }
+        command = _mesh_case_command(
+            self.root, python_entry, Path("OneFLOW"), Path("gmsh"),
+            self.root / ".oneflow/staged/python_case",
+        )
+        self.assertEqual(command[0], __import__("sys").executable)
+        self.assertEqual(command[1], str(self.root / "grid/stl_to_gmsh/run_python_case.py"))
+        self.assertEqual(command[2:], [
+            "--case-directory", str(self.root / ".oneflow/staged/python_case"),
+            "--gmsh", "gmsh",
+        ])
+        native = _mesh_case_command(
+            self.root, {}, Path("OneFLOW"), Path("gmsh"),
+            self.root / ".oneflow/staged/native_case",
+        )
+        self.assertEqual(native, [
+            "OneFLOW", "r", str(self.root / ".oneflow/staged/native_case")
+        ])
+
+    def test_python_mesh_producer_script_cannot_escape_repository(self):
+        with self.assertRaisesRegex(ValueError, "inside the repository"):
+            _mesh_case_command(
+                self.root,
+                {"execution": {"kind": "python", "script": "../outside.py"}},
+                Path("OneFLOW"), Path("gmsh"), self.root / "staged",
+            )
 
     def test_circle_external_flow_is_available_to_mesh_to_cfd_validation(self):
         cases = build_mesh_validation_cases(

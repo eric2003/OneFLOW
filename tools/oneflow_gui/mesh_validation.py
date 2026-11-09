@@ -45,7 +45,7 @@ def mesh_case_choices(repository_root: Path) -> tuple[tuple[str, str], ...]:
         and (item.get("execution") or {}).get("kind", "oneflow") in {"oneflow", "python"}
     )
     if not choices:
-        raise ValueError("No native STL-to-Gmsh Cases are registered.")
+        raise ValueError("No supported STL-to-Gmsh Cases are registered.")
     return choices
 
 
@@ -96,6 +96,7 @@ def build_mesh_validation_cases(
             not isinstance(mesh_name, str)
             or not mesh_name.endswith(".msh")
             or Path(mesh_name).name != mesh_name
+            or "\\" in mesh_name
         ):
             raise ValueError(
                 f"Python Case {mesh_case_id!r} must declare artifact.mesh_file "
@@ -194,6 +195,35 @@ def _graph_step_records(result) -> list[dict[str, str]]:
     ]
 
 
+def _mesh_case_command(
+    repository_root: Path,
+    mesh_entry: dict,
+    oneflow_executable: Path,
+    gmsh_executable: Path,
+    case_directory: Path,
+) -> list[str]:
+    """Build the selected mesh producer command without coupling to its language."""
+    execution = mesh_entry.get("execution") or {}
+    kind = execution.get("kind", "oneflow")
+    if kind == "oneflow":
+        return [str(oneflow_executable), "r", str(case_directory)]
+    if kind != "python":
+        raise ValueError(f"Unsupported mesh producer implementation: {kind!r}")
+    script_value = execution.get("script")
+    if not isinstance(script_value, str) or not script_value.strip():
+        raise ValueError("Python mesh producer must declare execution.script.")
+    root = repository_root.resolve()
+    script_path = (root / script_value).resolve()
+    try:
+        script_path.relative_to(root)
+    except ValueError as error:
+        raise ValueError("Python mesh producer script must stay inside the repository.") from error
+    return [
+        sys.executable, str(script_path), "--case-directory",
+        str(case_directory), "--gmsh", str(gmsh_executable),
+    ]
+
+
 def run_mesh_validation(
     oneflow: Path, gmsh: str, mesh_case_id: str,
     cfd_template_id: str = "laminar_flat_plate", max_steps: int = 2,
@@ -236,21 +266,10 @@ def run_mesh_validation(
                 "maxSteps": max_steps, "nFieldSave": 1, "nVisualSave": 1,
                 "nResSave": 1, "idump": 0,
             })
-        if step.case_id == "stl_to_gmsh" and mesh_implementation == "python":
-            script_value = mesh_execution.get("script")
-            if not isinstance(script_value, str) or not script_value.strip():
-                raise ValueError(
-                    f"Python mesh Case {mesh_case_id!r} does not declare execution.script."
-                )
-            script_path = (REPOSITORY_ROOT / script_value).resolve()
-            try:
-                script_path.relative_to(REPOSITORY_ROOT)
-            except ValueError as error:
-                raise ValueError("Python mesh Case script must stay inside the repository.") from error
-            command = [
-                sys.executable, str(script_path), "--case-directory",
-                str(step.directory), "--gmsh", str(gmsh_path),
-            ]
+        if step.case_id == "stl_to_gmsh":
+            command = _mesh_case_command(
+                REPOSITORY_ROOT, mesh_entry, executable, gmsh_path, step.directory
+            )
         else:
             command = [str(executable), "r", str(step.directory)]
         output: list[str] = []
