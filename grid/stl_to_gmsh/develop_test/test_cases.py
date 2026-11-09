@@ -175,11 +175,11 @@ class StlToGmshCaseTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             msh = Path(temporary) / "one_triangle.msh"
             msh.write_text(
-                "$MeshFormat\\n4.1 0 8\\n$EndMeshFormat\\n"
+                "$MeshFormat\n4.1 0 8\n$EndMeshFormat\n"
                 '$PhysicalNames\n1\n2 1 "fluid_domain"\n$EndPhysicalNames\n'
-                "$Nodes\\n1 3 1 3\\n2 1 0 3\\n1 2 3\\n"
-                "0 0 0\\n1 0 0\\n0 1 0\\n$EndNodes\\n"
-                "$Elements\\n1 1 1 1\\n2 1 2 1\\n1 1 2 3\\n$EndElements\\n",
+                "$Nodes\n1 3 1 3\n2 1 0 3\n1 2 3\n"
+                "0 0 0\n1 0 0\n0 1 0\n$EndNodes\n"
+                "$Elements\n1 1 1 1\n2 1 2 1\n1 1 2 3\n$EndElements\n",
                 encoding="utf-8",
             )
             summary = inspect_msh4(msh)
