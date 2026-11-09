@@ -340,3 +340,17 @@ References
 * mesh_architecture
 * mesh_to_cfd_validation
 * contract_workbench_information_architecture
+
+
+Dedicated Boundary Conditions Workbench
+---------------------------------------
+
+The home-screen Boundary Conditions entry opens a dedicated domain workbench. Contract Workbench retains a separate Boundary Conditions contract domain for cross-domain governance; it is not the primary knowledge browser.
+
+The versioned data catalog is tools/verification/boundary_conditions/registry.json. Stable semantic IDs are independent of CFL3D type numbers and OneFLOW enum values. Entries describe physical formulation, equations, parameters, data location, format mapping, implementation status and verification state.
+
+The first curated entries cover CFL3D Version 5.0 types 1002, 1003, 2002, 2003 and 2004. The manual version and section are retained with each entry. Compact equations in the catalog are reference summaries; complete coordinate conventions, assumptions, normalization and derivations must be transcribed before implementing an equivalent solver treatment.
+
+Mappings are qualified, not treated as equivalences. CGNS BCOutflow and OneFLOW OUTFLOW do not encode a prescribed pressure ratio. SOLID_SURFACE does not distinguish wall velocity or thermal closure. Such information must remain in the semantic definition and parameter payload.
+
+The GUI is read-only in this first slice. It does not configure solver runs or claim numerical support. not_verified and category_only are explicit capability states. Future stages include exact equation transcription, typed parameter validation, solver capability registration and executable formula/numerical verification.
