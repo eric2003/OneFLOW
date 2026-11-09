@@ -87,7 +87,7 @@ class BoundaryConditionsWorkbenchDialog(QDialog):
             self.condition_list.setCurrentRow(selected)
 
     def _text(self, tab, lines):
-        self.views[tab].setPlainText("\\n".join(lines))
+        self.views[tab].setPlainText("\n".join(lines))
 
     def _select(self, current, _previous=None):
         if current is None:
