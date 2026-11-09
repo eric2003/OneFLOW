@@ -102,7 +102,7 @@ def build_mesh_validation_cases(
                       "parameter_file": "script/grid.txt",
                       "setting": "targetGridFileName"}]},
         {"id": "gmsh_to_oneflow",
-         "directory": "grid/stl_to_gmsh/pipeline/cgns_to_oneflow",
+         "directory": "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow",
          "depends_on": ["gmsh_to_cgns"],
          "inputs": [{"artifact": cgns_id, "setting": "sourceGridFileName",
                      "parameter_file": "script/grid.txt"}],

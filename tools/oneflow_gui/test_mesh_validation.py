@@ -65,7 +65,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         })
         self.assertEqual(cases[2]["id"], "gmsh_to_oneflow")
         self.assertEqual(cases[2]["depends_on"], ["gmsh_to_cgns"])
-        self.assertEqual(cases[2]["directory"], "grid/stl_to_gmsh/pipeline/cgns_to_oneflow")
+        self.assertEqual(cases[2]["directory"], "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow")
         self.assertEqual(cases[2]["outputs"][0], {
             "id": "oneflow_grid", "path": "results/square.oneflow.grid",
             "parameter_file": "script/grid.txt", "setting": "targetGridFileName",
