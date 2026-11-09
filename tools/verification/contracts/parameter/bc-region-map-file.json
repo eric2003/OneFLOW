@@ -34,7 +34,7 @@
   },
   "verification": [
     {
-      "kind": "runtime_integration",
+      "kind": "google_test",
       "reference": "GmshSingleCellRuntimeIntegration.ConvertsReadsComputesAndWritesFlowField",
       "status": "declared_not_executed",
       "scope": "The integration test configures a non-default map path, checks that conversion writes it, then runs the production simulation path that reads it. CI execution is tracked separately."
