@@ -24,6 +24,7 @@ from .application_settings import (
 from .configuration_dialog import ConfigurationDialog
 from .mesh_layout_dialog import MeshLayoutDialog
 from .contract_workbench_dialog import ContractDomainDialog, ContractWorkbenchDialog
+from .boundary_conditions_workbench import BoundaryConditionsWorkbenchDialog
 from .repository_test_inventory_dialog import RepositoryTestInventoryDialog
 from .project_repository import open_project
 from .project_window import ProjectWindow
@@ -300,8 +301,8 @@ class WorkbenchHomeWindow(QMainWindow):
         ContractWorkbenchDialog(self._repository_root, self).exec()
 
     def _open_boundary_conditions(self) -> None:
-        """Open the first-class Boundary Conditions domain workbench."""
-        ContractDomainDialog(self._repository_root, "boundary", self).exec()
+        """Open the dedicated Boundary Conditions Workbench."""
+        BoundaryConditionsWorkbenchDialog(self._repository_root, self).exec()
 
     def _open_mesh_layout(self) -> None:
         MeshLayoutDialog(self._repository_root, self).exec()
