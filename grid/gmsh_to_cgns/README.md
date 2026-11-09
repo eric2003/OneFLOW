@@ -13,7 +13,12 @@ corresponding CGNS `BCType_t` values. Unrecognized names remain
 `BCTypeUserDefined`; names are never guessed from geometry or position. The writer reuses
 OneFLOW's shared UnstructuredMeshData and UnstructuredCgnsZoneWriter, followed by the CgnsFactory / CgnsZbase file writer.
 The bundled square sample writes four nodes, two TRI_3 cells, four BAR_2
-boundary elements, and four named BC_t records.
+boundary elements, and four named BC_t records. The automated
+`grid/cube_single_hex.msh` fixture additionally exercises the 3D path with
+eight nodes, one HEXA_8 cell, six QUAD_4 boundary elements, and five named
+BC_t records (the `wall` group contains two faces). For unstructured meshes,
+the writer assigns `EdgeCenter` to 2D boundary elements and `FaceCenter` to
+3D boundary elements.
 
 ## Parameters
 
@@ -91,6 +96,7 @@ coordinate, cell-section, boundary-section and BC_t data.
 - Maps first-order LINE_2, TRI_3, QUAD_4, TETRA_4, HEXA_8, PENTA_6 and PYRA_5 top-dimensional cells.
 - Preserves source node ordering and maps sparse node tags before CGNS one-based numbering.
 - Writes coordinates, top-dimensional cell sections, supported codimension-one boundary sections, BC_t point lists, and a read-report sidecar.
+- Uses CGNS `EdgeCenter` for 2D boundary elements and `FaceCenter` for 3D boundary elements; boundary point lists reference the corresponding boundary-element section.
 - Maps the explicit names inflow, outflow, symmetry, and farfield to CGNS BCInflow, BCOutflow, BCSymmetryPlane, and BCFarfield. Other names remain BCTypeUserDefined.
 - MSH 2.x is parsed but not yet materialized for CGNS output. High-order cells, periodicity, and partition metadata are not yet mapped.
 
@@ -115,6 +121,25 @@ mapping only; flow values and solver-specific boundary state data are not
 created by this mapping.
 
 
+
+The 3D `cube_single_hex.msh` conversion fixture exercises six quadrilateral
+boundary faces around one hexahedral cell:
+
+| Physical Group | Geometric face(s) | CGNS BCType_t |
+|---|---|---|
+| `inflow` | XMin | `BCInflow` |
+| `outflow` | XMax | `BCOutflow` |
+| `symmetry` | YMin | `BCSymmetryPlane` |
+| `farfield` | YMax | `BCFarfield` |
+| `wall` | ZMin, ZMax | `BCWall` |
+
+This is a deterministic conversion fixture, not yet a general STL-to-hex
+algorithm or a standalone CFD Case. Its automated test checks the CGNS Base
+and Zone dimensions, HEXA_8 and QUAD_4 sections, FaceCenter BC_t locations,
+boundary-element references, and OneFLOW's reconstructed 3D unstructured
+grid.
+
+
 ## Small-mesh example and test strategy
 
 Keep this directory as the manual, end-to-end Case. Grow its examples as
@@ -122,7 +147,8 @@ small, focused MSH fixtures rather than large CFD meshes. A proposed layout is:
 
 ```text
 grid/gmsh_to_cgns/
-  grid/square.msh                 # current 2-D conversion + four BC semantics
+  grid/square.msh                 # 2-D conversion + four EdgeCenter BC groups
+  grid/cube_single_hex.msh        # 3-D HEXA_8 conversion + six FaceCenter BC faces
   examples/
     read_only/                    # parser coverage; no CGNS writer required
     convert_2d/                   # TRI_3 and QUAD_4

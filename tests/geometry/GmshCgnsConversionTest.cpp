@@ -199,6 +199,10 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
         ASSERT_EQ(cg_boco_info(fileId, 1, 1, bocoIndex, bocoName, &bocoType,
                                &pointSetType, &pointCount, normalIndex,
                                &normalListSize, &normalDataType, &dataSetCount), CG_OK);
+        GridLocation_t boundaryLocation = GridLocationNull;
+        ASSERT_EQ(cg_boco_gridlocation_read(fileId, 1, 1, bocoIndex,
+                                            &boundaryLocation), CG_OK);
+        EXPECT_EQ(boundaryLocation, EdgeCenter);
         ASSERT_EQ(pointSetType, PointList);
         ASSERT_EQ(pointCount, 1);
         cgsize_t boundaryElementId = 0;
@@ -361,6 +365,137 @@ TEST(GmshCgnsConversionTest, ConvertsGmshThroughCgnsIntoOneFlowGrid) {
             << expected.name;
     }
     EXPECT_EQ(grid->GetCellMesh().GetCellTopo().eTypes.size(), 2u);
+
+    grids.clear();
+    std::filesystem::remove_all(caseDirectory);
+}
+
+
+TEST(GmshCgnsConversionTest, ConvertsSingleHexahedronWithFaceCenterBoundaries) {
+    const std::filesystem::path source =
+        std::filesystem::path(ONEFLOW_SOURCE_DIR) /
+        "grid" / "gmsh_to_cgns" / "grid" / "cube_single_hex.msh";
+    ASSERT_TRUE(std::filesystem::is_regular_file(source));
+
+    const std::filesystem::path caseDirectory = MakeTemporaryCaseDirectory();
+    const std::filesystem::path input = caseDirectory / "cube_single_hex.msh";
+    const std::filesystem::path resultsDirectory = caseDirectory / "results";
+    std::filesystem::create_directories(resultsDirectory);
+    std::filesystem::copy_file(source, input);
+
+    ONEFLOW::GridConfig config;
+    config.sourceType = ONEFLOW::GridFileType::Gmsh;
+    config.targetType = ONEFLOW::GridFileType::CGNS;
+    config.sourceFile = input.filename().string();
+    config.targetFile = (std::filesystem::path("results") / "cube_single_hex.cgns").string();
+    ONEFLOW::ConvertGrid(config, caseDirectory.string());
+
+    const std::filesystem::path output = resultsDirectory / "cube_single_hex.cgns";
+    ASSERT_TRUE(std::filesystem::is_regular_file(output));
+
+    int fileId = -1;
+    ASSERT_EQ(cg_open(output.string().c_str(), CG_MODE_READ, &fileId), CG_OK);
+    int cellDimension = 0;
+    int physicalDimension = 0;
+    char baseName[33] = {};
+    ASSERT_EQ(cg_base_read(fileId, 1, baseName, &cellDimension, &physicalDimension), CG_OK);
+    EXPECT_EQ(cellDimension, 3);
+    EXPECT_EQ(physicalDimension, 3);
+
+    char zoneName[33] = {};
+    cgsize_t zoneSize[9] = {};
+    ASSERT_EQ(cg_zone_read(fileId, 1, 1, zoneName, zoneSize), CG_OK);
+    EXPECT_EQ(zoneSize[0], 8);
+    EXPECT_EQ(zoneSize[1], 1);
+    EXPECT_EQ(zoneSize[2], 0);
+
+    int sectionCount = 0;
+    ASSERT_EQ(cg_nsections(fileId, 1, 1, &sectionCount), CG_OK);
+    ASSERT_EQ(sectionCount, 2);
+    char sectionName[33] = {};
+    ElementType_t elementType = ElementTypeNull;
+    cgsize_t start = 0;
+    cgsize_t end = 0;
+    int boundaryCount = 0;
+    int parentFlag = 0;
+    ASSERT_EQ(cg_section_read(fileId, 1, 1, 1, sectionName, &elementType,
+                              &start, &end, &boundaryCount, &parentFlag), CG_OK);
+    EXPECT_EQ(elementType, HEXA_8);
+    EXPECT_EQ(start, 1);
+    EXPECT_EQ(end, 1);
+    ASSERT_EQ(cg_section_read(fileId, 1, 1, 2, sectionName, &elementType,
+                              &start, &end, &boundaryCount, &parentFlag), CG_OK);
+    EXPECT_EQ(elementType, QUAD_4);
+    EXPECT_EQ(start, 2);
+    EXPECT_EQ(end, 7);
+
+    int bocoCount = 0;
+    ASSERT_EQ(cg_nbocos(fileId, 1, 1, &bocoCount), CG_OK);
+    ASSERT_EQ(bocoCount, 5);
+    std::vector<cgsize_t> observedBoundaryElementIds;
+    int wallFaceCount = 0;
+    for (int bocoIndex = 1; bocoIndex <= bocoCount; ++bocoIndex) {
+        char bocoName[33] = {};
+        BCType_t bocoType = BCTypeNull;
+        PointSetType_t pointSetType = PointSetTypeNull;
+        cgsize_t pointCount = 0;
+        int normalIndex[3] = {};
+        cgsize_t normalListSize = 0;
+        DataType_t normalDataType = DataTypeNull;
+        int dataSetCount = 0;
+        ASSERT_EQ(cg_boco_info(fileId, 1, 1, bocoIndex, bocoName, &bocoType,
+                               &pointSetType, &pointCount, normalIndex,
+                               &normalListSize, &normalDataType, &dataSetCount), CG_OK);
+        EXPECT_EQ(pointSetType, PointList);
+        GridLocation_t boundaryLocation = GridLocationNull;
+        ASSERT_EQ(cg_boco_gridlocation_read(fileId, 1, 1, bocoIndex,
+                                            &boundaryLocation), CG_OK);
+        EXPECT_EQ(boundaryLocation, FaceCenter);
+
+        if (std::string(bocoName) == "wall") {
+            EXPECT_EQ(bocoType, BCWall);
+            wallFaceCount = static_cast<int>(pointCount);
+        } else {
+            EXPECT_EQ(pointCount, 1);
+        }
+        std::vector<cgsize_t> ids(static_cast<std::size_t>(pointCount));
+        ASSERT_EQ(cg_boco_read(fileId, 1, 1, bocoIndex, ids.data(), nullptr), CG_OK);
+        observedBoundaryElementIds.insert(observedBoundaryElementIds.end(),
+                                          ids.begin(), ids.end());
+    }
+    EXPECT_EQ(wallFaceCount, 2);
+    std::sort(observedBoundaryElementIds.begin(), observedBoundaryElementIds.end());
+    EXPECT_EQ(observedBoundaryElementIds,
+              (std::vector<cgsize_t>{2, 3, 4, 5, 6, 7}));
+    EXPECT_EQ(cg_close(fileId), CG_OK);
+
+    ONEFLOW::GridConfig readConfig = config;
+    readConfig.sourceType = ONEFLOW::GridFileType::CGNS;
+    readConfig.sourceFile = "results/cube_single_hex.cgns";
+    readConfig.targetType = ONEFLOW::GridFileType::OneFLOW;
+    ONEFLOW::CgnsFactory cgnsFactory;
+    ASSERT_NO_THROW(cgnsFactory.ReadCgnsGrid(readConfig, caseDirectory.string()));
+    ASSERT_NO_THROW(cgnsFactory.ProcessCgnsBases());
+    ASSERT_NE(cgnsFactory.gridElemGroup, nullptr);
+
+    ScopedDimensionRestore restoreDimension;
+    ONEFLOW::Dim::SetDimension(ONEFLOW::TWO_D);
+    ONEFLOW::Grids grids =
+        cgnsFactory.gridElemGroup->GenerateLocalOneFlowGrids(readConfig);
+    EXPECT_EQ(ONEFLOW::Dim::GetDimension(), ONEFLOW::THREE_D);
+    ASSERT_EQ(grids.size(), 1u);
+    const auto * grid = dynamic_cast<const ONEFLOW::UnsGrid *>(grids.front().get());
+    ASSERT_NE(grid, nullptr);
+    EXPECT_EQ(grid->nNodes, 8);
+    EXPECT_EQ(grid->nCells, 1);
+    EXPECT_EQ(grid->nBFaces, 6);
+    EXPECT_EQ(grid->GetFaceTopo().GetBoundaryFaceCount(), 6);
+    EXPECT_EQ(grid->GetFaceTopo().GetFaceCount(), 6);
+    ASSERT_NE(grid->nodeMesh, nullptr);
+    EXPECT_EQ(grid->nodeMesh->xN.size(), 8u);
+    EXPECT_EQ(grid->nodeMesh->yN.size(), 8u);
+    EXPECT_EQ(grid->nodeMesh->zN.size(), 8u);
+    EXPECT_EQ(grid->GetCellMesh().GetCellTopo().eTypes.size(), 1u);
 
     grids.clear();
     std::filesystem::remove_all(caseDirectory);

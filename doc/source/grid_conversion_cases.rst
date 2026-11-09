@@ -95,6 +95,29 @@ named Physical Groups: inflow, outflow, symmetry, and farfield. The bottom
 and top groups each contain two curve entities. Both surface entities belong
 to fluid_domain.
 
+
+3D conversion reference fixture: cube_single_hex
+-------------------------------------------------
+
+The automated Gmsh-to-CGNS conversion suite also includes
+``grid/gmsh_to_cgns/grid/cube_single_hex.msh``, a deterministic MSH 4.1
+fixture with eight nodes, one HEXA_8 volume cell, and six QUAD_4 boundary
+elements. Its five Physical Groups are inflow (XMin), outflow (XMax),
+symmetry (YMin), farfield (YMax), and wall (ZMin and ZMax). The fixture is
+used to verify the 3D conversion boundary; it is not yet an STL geometry
+reconstruction Case.
+
+For unstructured CGNS zones, boundary elements have codimension one relative
+to the cell dimension. The writer therefore uses ``EdgeCenter`` for 2D
+boundary LINE_2 elements and ``FaceCenter`` for 3D boundary TRI_3 or QUAD_4
+elements. BC_t PointList values reference the corresponding boundary-element
+section, not volume-cell IDs. The 2D and 3D conversion tests independently
+read the written CGNS files and verify the GridLocation and element references.
+The 3D test additionally sends the CGNS file through CgnsFactory and checks
+that OneFLOW reconstructs the expected 8-node, 1-cell, 6-boundary-face
+unstructured grid.
+
+
 Conversion route and execution
 ------------------------------
 

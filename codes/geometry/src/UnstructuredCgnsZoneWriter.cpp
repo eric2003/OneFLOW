@@ -145,7 +145,11 @@ void UnstructuredCgnsZoneWriter::Write(
 
         CgnsBcBoco & cgnsBcBoco = cgnsZbcBoco.GetCgnsBc( iMarker );
         cgnsBcBoco.name = name;
-        cgnsBcBoco.gridLocation = CellCenter;
+        // Boundary elements are one topological dimension below the cells.
+        // CGNS therefore locates 2D unstructured boundaries at EdgeCenter
+        // and 3D unstructured boundaries at FaceCenter.
+        cgnsBcBoco.gridLocation = mesh.ndim == 2 ? EdgeCenter :
+                                 mesh.ndim == 3 ? FaceCenter : Vertex;
         cgnsBcBoco.nElements    = marker->nElem;
         cgnsBcBoco.bcType = static_cast< BCType_t >( marker->cgns_bcType );
         cgnsBcBoco.pointSetType = PointList;
