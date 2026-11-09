@@ -962,6 +962,66 @@ namespace
                 std::to_string(triangleElements) + " triangles and " +
                 std::to_string(quadrilateralElements) + " quadrilaterals");
 
+        const Json qualityOptions = options.value("quality", Json::object());
+        const double minimumQuality = qualityOptions.value(
+            "minimum_triangle_quality", 0.01);
+        const double minimumAngleDegrees = qualityOptions.value(
+            "minimum_angle_degrees", 1.0);
+        if (!std::isfinite(minimumQuality) || minimumQuality <= 0.0 ||
+            minimumQuality > 1.0 || !std::isfinite(minimumAngleDegrees) ||
+            minimumAngleDegrees <= 0.0 || minimumAngleDegrees >= 60.0)
+            throw std::invalid_argument("External-flow triangle quality thresholds are invalid");
+
+        double observedMinimumQuality = 1.0;
+        double observedMinimumAngleDegrees = 60.0;
+        for (const GmshElement& element : generated.elements)
+        {
+            if (element.type != 2 || element.nodeTags.size() != 3) continue;
+            std::array<std::array<double, 3>, 3> points{};
+            for (std::size_t i = 0; i < 3; ++i)
+            {
+                const auto found = generated.nodeTagToIndex.find(element.nodeTags[i]);
+                if (found == generated.nodeTagToIndex.end())
+                    throw std::runtime_error("TRI_3 references an unknown node while measuring quality");
+                points[i] = generated.nodes[found->second].coordinates;
+            }
+            const auto distance = [](const auto& a, const auto& b)
+            {
+                const double x = a[0] - b[0];
+                const double y = a[1] - b[1];
+                const double z = a[2] - b[2];
+                return std::sqrt(x * x + y * y + z * z);
+            };
+            const double a = distance(points[0], points[1]);
+            const double b = distance(points[1], points[2]);
+            const double c = distance(points[2], points[0]);
+            const double twiceArea = 2.0 * (
+                (points[1][0] - points[0][0]) * (points[2][1] - points[0][1]) -
+                (points[1][1] - points[0][1]) * (points[2][0] - points[0][0]));
+            const double area = 0.5 * std::abs(twiceArea);
+            if (area <= 0.0 || a <= 0.0 || b <= 0.0 || c <= 0.0)
+                throw std::runtime_error("External-flow mesh contains a degenerate TRI_3 element");
+            const double quality = 4.0 * std::sqrt(3.0) * area /
+                (a * a + b * b + c * c);
+            const auto angle = [](double opposite, double adjacentA, double adjacentB)
+            {
+                const double cosine = (adjacentA * adjacentA + adjacentB * adjacentB -
+                    opposite * opposite) / (2.0 * adjacentA * adjacentB);
+                return std::acos(std::max(-1.0, std::min(1.0, cosine))) *
+                    180.0 / 3.14159265358979323846;
+            };
+            observedMinimumQuality = std::min(observedMinimumQuality, quality);
+            observedMinimumAngleDegrees = std::min({
+                observedMinimumAngleDegrees,
+                angle(b, a, c), angle(c, a, b), angle(a, b, c)});
+        }
+        if (observedMinimumQuality < minimumQuality ||
+            observedMinimumAngleDegrees < minimumAngleDegrees)
+            throw std::runtime_error(
+                "External-flow mesh failed triangle quality thresholds: minimum quality " +
+                std::to_string(observedMinimumQuality) + ", minimum angle " +
+                std::to_string(observedMinimumAngleDegrees) + " degrees");
+
         std::set<std::pair<int, std::string>> expectedGroups;
         for (const auto& group : physicalCurves)
             expectedGroups.emplace(1, group.first);
@@ -992,6 +1052,11 @@ namespace
             {"triangle_elements", triangleElements},
             {"quadrilateral_elements", quadrilateralElements},
             {"physical_group_count", meshReport.physicalGroupCount}};
+        report["mesh_summary"]["triangle_quality"] = {
+            {"minimum_quality", observedMinimumQuality},
+            {"minimum_angle_degrees", observedMinimumAngleDegrees},
+            {"minimum_area", meshReport.minimumTriangleArea},
+            {"degenerate_count", meshReport.degenerateTriangleCount}};
         report["mesh_summary"]["physical_groups"] = Json::array();
         for (const auto& group : actualGroups)
             report["mesh_summary"]["physical_groups"].push_back({
