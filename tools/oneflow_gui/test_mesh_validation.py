@@ -103,7 +103,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def test_workspace_uses_mesh_case_relative_directory(self):
         paths = type(
             "Paths", (),
-            {"grid_layout_test": self.root / ".oneflow" / "mesh-layout-test" / "grid"},
+            {"mesh_validation": self.root / ".oneflow" / "mesh-validation"},
         )()
         with mock.patch(
             "tools.oneflow_gui.mesh_validation.UserDataPaths.discover",
@@ -112,8 +112,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             workspace = mesh_validation_workspace(self.root, "stl_to_gmsh_square")
         self.assertEqual(
             workspace,
-            self.root / ".oneflow" / "mesh-layout-test" / "grid" / "mesh-validation"
-            / "stl_to_gmsh" / "square",
+            self.root / ".oneflow" / "mesh-validation" / "stl_to_gmsh" / "square",
         )
 
     def test_workspace_rejects_cases_outside_grid(self):

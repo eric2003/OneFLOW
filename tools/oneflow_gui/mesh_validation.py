@@ -151,7 +151,7 @@ def mesh_validation_workspace(repository_root: Path, mesh_case_id: str) -> Path:
             f"Mesh validation Case must be located below grid/: {case_directory}"
         )
     relative_case = Path(*case_directory.parts[1:])
-    return UserDataPaths.discover().grid_layout_test / "mesh-validation" / relative_case
+    return UserDataPaths.discover().mesh_validation / relative_case
 
 
 def reset_mesh_validation_workspace(path: Path) -> Path:

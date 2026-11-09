@@ -93,6 +93,11 @@ class UserDataPaths:
         return self.mesh_layout_test / "grid"
 
     @property
+    def mesh_validation(self) -> Path:
+        """Stable root for end-to-end mesh-to-CFD validation workspaces."""
+        return self.root / "mesh-validation"
+
+    @property
     def cfd_regression_workspace(self) -> Path:
         """Keep disposable CFD regression copies outside the source repository."""
         return self.root / "cfd-regression"

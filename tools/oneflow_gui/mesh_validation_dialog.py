@@ -173,7 +173,7 @@ class MeshValidationDialog(QDialog):
         form.addRow("CFD smoke-test steps", self.steps_spin)
         layout.addLayout(form)
 
-        workspace = UserDataPaths.discover().grid_layout_test / "mesh-validation"
+        workspace = UserDataPaths.discover().mesh_validation
         self.workspace_label = QLabel("Workspace: " + str(workspace))
         self.workspace_label.setWordWrap(True)
         layout.addWidget(self.workspace_label)
