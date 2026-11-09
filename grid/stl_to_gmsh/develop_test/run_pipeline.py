@@ -179,7 +179,7 @@ def run_pipeline(
         executable=executable,
         run_directory=run_root,
         command_template=[str(executable), "r", "<case-directory>"],
-        working_directory=REPOSITORY_ROOT,
+        working_directory=run_root,
         project_directory=REPOSITORY_ROOT / "grid/stl_to_gmsh",
         execution_mode="development_pipeline",
     )
