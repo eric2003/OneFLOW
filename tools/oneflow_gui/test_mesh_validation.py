@@ -10,7 +10,7 @@ from pathlib import Path
 
 from tools.oneflow_gui.mesh_validation import (
     build_mesh_validation_cases, cfd_template_choices, mesh_case_choices,
-    mesh_validation_workspace,
+    mesh_validation_workspace, reset_mesh_validation_workspace,
 )
 
 
@@ -89,6 +89,19 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "below grid"):
             mesh_validation_workspace(self.root, "stl_to_gmsh_square")
+
+    def test_reset_clears_only_the_selected_case_directory(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            selected = root / "mesh-validation/stl_to_gmsh/square"
+            sibling = root / "mesh-validation/stl_to_gmsh/square_2x2"
+            selected.mkdir(parents=True)
+            sibling.mkdir(parents=True)
+            (selected / "stale.txt").write_text("old", encoding="utf-8")
+            (sibling / "keep.txt").write_text("keep", encoding="utf-8")
+            reset_mesh_validation_workspace(selected)
+            self.assertFalse((selected / "stale.txt").exists())
+            self.assertTrue((sibling / "keep.txt").is_file())
 
 
 if __name__ == "__main__":

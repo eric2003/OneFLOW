@@ -137,13 +137,28 @@ def mesh_validation_workspace(repository_root: Path, mesh_case_id: str) -> Path:
     if entry is None:
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
     case_directory = Path(entry["directory"])
-    try:
-        relative_case = case_directory.relative_to("grid")
-    except ValueError as error:
+    if (
+        case_directory.is_absolute()
+        or ".." in case_directory.parts
+        or len(case_directory.parts) < 2
+        or case_directory.parts[0] != "grid"
+    ):
         raise ValueError(
             f"Mesh validation Case must be located below grid/: {case_directory}"
-        ) from error
+        )
+    relative_case = Path(*case_directory.parts[1:])
     return UserDataPaths.discover().grid_layout_test / "mesh-validation" / relative_case
+
+
+def reset_mesh_validation_workspace(path: Path) -> Path:
+    """Clear and recreate one Case workspace without touching sibling Cases."""
+    workspace = _external(path)
+    if workspace.is_symlink():
+        raise ValueError(f"Mesh validation workspace must not be a symbolic link: {workspace}")
+    if workspace.exists():
+        shutil.rmtree(workspace)
+    workspace.mkdir(parents=True, exist_ok=False)
+    return workspace
 
 
 def run_mesh_validation(
@@ -170,9 +185,7 @@ def run_mesh_validation(
         stage_root if stage_root is not None
         else mesh_validation_workspace(REPOSITORY_ROOT, mesh_case_id)
     )
-    if run_root.exists():
-        shutil.rmtree(run_root)
-    run_root.mkdir(parents=True, exist_ok=False)
+    run_root = reset_mesh_validation_workspace(run_root)
     run_id = run_root.name
     os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
     records = []
