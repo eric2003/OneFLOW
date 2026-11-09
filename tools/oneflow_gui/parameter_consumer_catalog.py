@@ -326,6 +326,24 @@ _CONSUMERS = (
         ("codes/global/src/Iteration.cpp",),
         ("Iteration::ForceOk",),
     ),
+    ParameterConsumer(
+        "gmshExecutable", "codes/geometry/src/GridTypes.cpp", "GridConfig::FromDataBase",
+        'GetDataValue<std::string>("gmshExecutable")', ConsumerReadKind.OPTIONAL,
+        "Optionally overrides the executable used for STL-to-Gmsh generation. Missing or empty values retain the default executable name gmsh, which is resolved through PATH.",
+        "Grid task; only the STL -> Gmsh conversion path invokes this external executable.",
+        "The guarded typed read is present in GridConfig::FromDataBase; command construction and invocation are present in ConvertStlToGmsh.",
+        ("codes/geometry/src/GridConversion.cpp",),
+        ("ConvertStlToGmsh",),
+    ),
+    ParameterConsumer(
+        "stlWeldTolerance", "codes/geometry/src/GridTypes.cpp", "GridConfig::FromDataBase",
+        'GetDataValue<Real>("stlWeldTolerance")', ConsumerReadKind.OPTIONAL,
+        "Optionally overrides the STL geometric tolerance. The default is 1.0e-10; the value controls STL vertex welding, planar tolerance and endpoint matching in the native STL-to-Gmsh path.",
+        "Grid task with STL source geometry.",
+        "The guarded typed read is present in GridConfig::FromDataBase; the value is passed to ExtractStlPlanarBoundary and used by ConvertStlToGmsh.",
+        ("codes/geometry/src/StlMeshIO.cpp", "codes/geometry/src/GridConversion.cpp"),
+        ("ExtractStlPlanarBoundary", "ConvertStlToGmsh"),
+    )
 )
 
 

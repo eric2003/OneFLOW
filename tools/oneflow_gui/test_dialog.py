@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QMessageBox,
     QPlainTextEdit,
+    QSpinBox,
     QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
@@ -326,6 +327,21 @@ class TestRunnerDialog(QDialog):
         )
         layout.addWidget(self.gmsh_case_check)
 
+        mesh_validation_layout = QHBoxLayout()
+        mesh_validation_description = QLabel(
+            "Run complete STL-to-CFD validation in its own workspace."
+        )
+        mesh_validation_description.setWordWrap(True)
+        mesh_validation_layout.addWidget(mesh_validation_description, 1)
+        self.mesh_validation_button = QPushButton("Mesh-to-CFD Validation...")
+        self.mesh_validation_button.setToolTip(
+            "Open the dedicated validation workbench to select multiple mesh Cases, "
+            "a CFD consumer template, and solver smoke-test settings."
+        )
+        self.mesh_validation_button.clicked.connect(self._open_mesh_validation)
+        mesh_validation_layout.addWidget(self.mesh_validation_button)
+        layout.addLayout(mesh_validation_layout)
+
         form = QFormLayout()
         self.executable_combo = QComboBox()
         self.executable_combo.setEditable(True)
@@ -404,6 +420,16 @@ class TestRunnerDialog(QDialog):
         buttons.addWidget(self.stop_button)
         buttons.addWidget(close_button)
         layout.addLayout(buttons)
+
+    def _open_mesh_validation(self) -> None:
+        from .mesh_validation_dialog import MeshValidationDialog
+
+        dialog = MeshValidationDialog(
+            self._repository_root,
+            executable=self.executable_combo.currentText().strip(),
+            parent=self,
+        )
+        dialog.exec()
 
     def _development_case_selection_kinds(self) -> tuple[str, ...]:
         if self.case_database_check.isChecked() and self.python_development_check.isChecked():
@@ -521,6 +547,7 @@ class TestRunnerDialog(QDialog):
             except (OSError, ValueError) as error:
                 QMessageBox.warning(self, "Cannot start Gmsh Case", str(error))
                 return
+
         run_database = (
             self.case_database_check.isChecked()
             or self.python_development_check.isChecked()
@@ -537,7 +564,7 @@ class TestRunnerDialog(QDialog):
         if not commands and not run_database:
             QMessageBox.information(
                 self, "No tests selected",
-                "Select CTest, Python Unit Tests, CFD regression, the experimental Gmsh Case, or Development Tests.",
+                "Select CTest, Python Unit Tests, CFD regression, the experimental Gmsh Case, or Development Tests. Mesh-to-CFD Validation runs in its own workbench.",
             )
             return
 

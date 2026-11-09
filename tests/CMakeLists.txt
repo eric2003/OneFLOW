@@ -12,6 +12,43 @@ if ( NOT COMMAND gtest_discover_tests )
     "is loaded before adding tests.")
 endif()
 
+# Optional external-tool integration tests.
+# AUTO keeps the core test suite independent from optional executables.
+# ON requires the currently supported external tool (Gmsh); OFF disables
+# external-tool integration tests even when the tool is installed.
+set(ONEFLOW_EXTERNAL_TOOL_TESTS "AUTO" CACHE STRING
+    "External-tool tests: AUTO (detect), ON (require), or OFF (disable)")
+set_property(CACHE ONEFLOW_EXTERNAL_TOOL_TESTS PROPERTY STRINGS AUTO ON OFF)
+string(TOUPPER "${ONEFLOW_EXTERNAL_TOOL_TESTS}" _oneflow_external_tool_tests)
+
+if (NOT _oneflow_external_tool_tests MATCHES "^(AUTO|ON|OFF)$")
+  message(FATAL_ERROR
+    "ONEFLOW_EXTERNAL_TOOL_TESTS must be AUTO, ON, or OFF; got "
+    "'${ONEFLOW_EXTERNAL_TOOL_TESTS}'.")
+endif()
+
+find_program(ONEFLOW_GMSH_EXECUTABLE NAMES gmsh gmsh.exe)
+set(ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS OFF)
+
+if (_oneflow_external_tool_tests STREQUAL "ON")
+  if (NOT ONEFLOW_GMSH_EXECUTABLE)
+    message(FATAL_ERROR
+      "ONEFLOW_EXTERNAL_TOOL_TESTS=ON requires the Gmsh executable on PATH.")
+  endif()
+  set(ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS ON)
+elseif (_oneflow_external_tool_tests STREQUAL "AUTO")
+  if (ONEFLOW_GMSH_EXECUTABLE)
+    set(ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS ON)
+  endif()
+endif()
+
+if (ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS)
+  message(STATUS
+    "External-tool tests: Gmsh integration enabled (${ONEFLOW_GMSH_EXECUTABLE})")
+else()
+  message(STATUS "External-tool tests: Gmsh integration disabled")
+endif()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # 设置默认文件夹名称

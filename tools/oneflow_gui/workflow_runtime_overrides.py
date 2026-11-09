@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 from pathlib import Path
 from typing import Mapping
@@ -19,7 +20,7 @@ _IDENTIFIER_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 def apply_runtime_overrides(
     parameter_file: Path | str,
-    overrides: Mapping[str, str],
+    overrides: Mapping[str, str | int | float | bool],
 ) -> tuple[str, ...]:
     """Update settings in a run-specific parameter file, never the source case.
 
@@ -51,7 +52,9 @@ def apply_runtime_overrides(
         if name not in overrides:
             return match.group(0)
         updated.add(name)
-        return f'{prefix}{name}{equals}"{_quote(overrides[name])}"{suffix}'
+        declaration = prefix.strip().split()[0]
+        rendered = _format_override(overrides[name], declaration)
+        return f"{prefix}{name}{equals}{rendered}{suffix}"
 
     content = _SETTING_PATTERN.sub(replace_setting, content)
     missing = [name for name in overrides if name not in updated]
@@ -59,7 +62,10 @@ def apply_runtime_overrides(
         if not _IDENTIFIER_PATTERN.fullmatch(name):
             raise ValueError(f"Invalid runtime setting name: {name!r}")
         content += ("" if not content or content.endswith(("\n", "\r")) else newline)
-        content += f'string {name} = "{_quote(overrides[name])}";{newline}'
+        value = overrides[name]
+        if not isinstance(value, str):
+            raise ValueError(f"Missing setting {name!r} can only be appended as a string.")
+        content += f'string {name} = "{_quote(value)}";{newline}'
 
     path.write_bytes(content.encode(encoding))
     return tuple(overrides)
@@ -69,3 +75,24 @@ def _quote(value: str) -> str:
     if not isinstance(value, str):
         raise TypeError("Runtime override values must be strings.")
     return value.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _format_override(value: str | int | float | bool, declaration: str) -> str:
+    """Render a typed runtime value without changing the parameter declaration."""
+    if declaration == "string":
+        if not isinstance(value, str):
+            raise ValueError("String parameter overrides require string values.")
+        return f'"{_quote(value)}"'
+    if declaration == "int":
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError("Integer parameter overrides require integer values.")
+        return str(value)
+    if declaration in {"Real", "real"}:
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(float(value)):
+            raise ValueError("Real parameter overrides require finite numeric values.")
+        return format(float(value), ".15g")
+    if declaration == "bool":
+        if not isinstance(value, bool):
+            raise ValueError("Boolean parameter overrides require boolean values.")
+        return "true" if value else "false"
+    raise ValueError(f"Unsupported parameter declaration type: {declaration!r}")

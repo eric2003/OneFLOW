@@ -90,6 +90,28 @@ class ParameterModelTest(unittest.TestCase):
             ))
 
 
+    def test_stl_to_gmsh_controls_are_classified_as_grid_generation_tools(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            documents = self._documents(root, {
+                "simu.txt": 'string simutask = "Grid";\n',
+                "grid.txt": (
+                    'string sourceGridType = "stl";\n'
+                    'string targetGridType = "gmsh";\n'
+                    'string gridLayoutFileName = "script/layout.json";\n'
+                    'string gmshExecutable = "gmsh";\n'
+                    "Real stlWeldTolerance = 1.0e-10;\n"
+                ),
+            })
+            model = ParameterModel.from_documents(documents)
+            for key in ("gmshExecutable", "stlWeldTolerance"):
+                with self.subTest(parameter=key):
+                    entry = model.get(key)
+                    self.assertEqual(entry.classification.domain, ParameterDomain.GRID)
+                    self.assertEqual(entry.classification.group, "Grid generation tools")
+                    self.assertEqual(entry.classification.applicability, ParameterApplicability.GRID)
+            self.assertEqual(model.get("gridLayoutFileName").classification.group, "Grid formats and files")
+
     def test_audited_cfd_case_settings_use_distinct_functional_groups(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

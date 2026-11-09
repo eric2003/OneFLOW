@@ -23,6 +23,7 @@ License
 #include "GridConversion.h"
 #include "GmshMeshReader.h"
 #include "StlMeshIO.h"
+#include "ProcessRunner.h"
 #include "PointLocator.h"
 #include "CgnsFactory.h"
 #include "CgnsZbase.h"
@@ -42,6 +43,7 @@ License
 #include <iterator>
 #include <sstream>
 #include <map>
+#include <set>
 #include <limits>
 #include <unordered_set>
 #include <vector>
@@ -49,6 +51,9 @@ License
 #include <stdexcept>
 #include <string>
 #include <iostream>
+#include <cstdlib>
+#include <iomanip>
+#include <nlohmann/json.hpp>
 
 BeginNameSpace( ONEFLOW )
 
@@ -728,6 +733,330 @@ namespace
         return grid;
     }
 
+    void ConvertStlToGmsh(
+        const GridConfig& config,
+        const std::string& caseDir)
+    {
+        using Json = nlohmann::json;
+        namespace fs = std::filesystem;
+
+        if (config.layoutFile.empty())
+            throw std::invalid_argument(
+                "STL to Gmsh requires gridLayoutFileName to identify its JSON layout");
+
+        const fs::path sourceName(config.sourceFile);
+        const fs::path sourceRoot = config.ResolveSourceCaseDir(caseDir);
+        const fs::path source = sourceName.is_absolute()
+            ? sourceName : sourceRoot / sourceName;
+        const fs::path layoutName(config.layoutFile);
+        const fs::path layout = layoutName.is_absolute()
+            ? layoutName : fs::path(caseDir) / layoutName;
+        const fs::path targetName(config.targetFile);
+        const fs::path target = targetName.is_absolute()
+            ? targetName : fs::path(caseDir) / targetName;
+        if (config.targetFile.empty())
+            throw std::invalid_argument("STL to Gmsh requires targetGridFileName");
+
+        std::ifstream layoutInput(layout, std::ios::binary);
+        if (!layoutInput)
+            throw std::runtime_error("Cannot open STL-to-Gmsh layout: " + layout.string());
+        const Json options = Json::parse(layoutInput);
+
+        const std::string surfaceName = options.value("surface_name", std::string("fluid_domain"));
+        if (surfaceName != "fluid_domain")
+            throw std::invalid_argument(
+                "The initial STL-to-Gmsh contract requires surface_name = fluid_domain");
+        const double meshSize = options.value("mesh_size", 1.0);
+        if (!std::isfinite(meshSize) || meshSize <= 0.0)
+            throw std::invalid_argument("STL-to-Gmsh mesh_size must be positive and finite");
+
+        const Json cells = options.at("transfinite_cells");
+        const int cellsX = cells.at("x").get<int>();
+        const int cellsY = cells.at("y").get<int>();
+        if (cellsX < 1 || cellsY < 1)
+            throw std::invalid_argument("STL-to-Gmsh transfinite cell counts must be positive");
+
+        const StlMesh stl = StlMeshReader::Read(source.string());
+        const StlPlanarBoundary boundary =
+            ExtractStlPlanarBoundary(stl, config.stlWeldTolerance);
+        if (boundary.vertices.size() != 4)
+            throw std::invalid_argument(
+                "The first native STL-to-Gmsh stage requires a four-edge rectangular boundary");
+
+        std::array<double, 4> bounds{
+            boundary.vertices[0][0], boundary.vertices[0][0],
+            boundary.vertices[0][1], boundary.vertices[0][1]};
+        for (const auto& point : boundary.vertices)
+        {
+            bounds[0] = std::min(bounds[0], point[0]);
+            bounds[1] = std::max(bounds[1], point[0]);
+            bounds[2] = std::min(bounds[2], point[1]);
+            bounds[3] = std::max(bounds[3], point[1]);
+        }
+        if (bounds[1] - bounds[0] <= config.stlWeldTolerance ||
+            bounds[3] - bounds[2] <= config.stlWeldTolerance)
+            throw std::invalid_argument("STL rectangular boundary has zero width or height");
+
+        for (std::size_t i = 0; i < boundary.vertices.size(); ++i)
+        {
+            const auto& a = boundary.vertices[i];
+            const auto& b = boundary.vertices[(i + 1) % boundary.vertices.size()];
+            const bool horizontal = std::abs(a[1] - b[1]) <= config.stlWeldTolerance;
+            const bool vertical = std::abs(a[0] - b[0]) <= config.stlWeldTolerance;
+            if (horizontal == vertical)
+                throw std::invalid_argument(
+                    "STL boundary must be an axis-aligned rectangle for transfinite QUAD_4 generation");
+        }
+
+        const Json boundaryOptions = options.at("boundaries");
+        if (!boundaryOptions.is_array() || boundaryOptions.size() != 4)
+            throw std::invalid_argument(
+                "STL-to-Gmsh layout must define exactly four boundary assignments");
+
+        const std::array<std::string, 4> requiredNames{
+            "inflow", "outflow", "symmetry", "farfield"};
+        std::map<std::string, std::size_t> assignedCurves;
+        std::set<std::size_t> assignedEdges;
+        for (const Json& entry : boundaryOptions)
+        {
+            const std::string name = entry.at("name").get<std::string>();
+            if (std::find(requiredNames.begin(), requiredNames.end(), name) ==
+                requiredNames.end())
+                throw std::invalid_argument("Unsupported outer boundary name: " + name);
+            if (assignedCurves.count(name) != 0)
+                throw std::invalid_argument("Duplicate STL-to-Gmsh boundary name: " + name);
+
+            const Json endpoints = entry.at("endpoints");
+            if (!endpoints.is_array() || endpoints.size() != 2)
+                throw std::invalid_argument(name + " requires two [x, y] endpoints");
+            std::array<std::size_t, 2> vertexIds{};
+            for (std::size_t endpoint = 0; endpoint < 2; ++endpoint)
+            {
+                if (!endpoints[endpoint].is_array() || endpoints[endpoint].size() != 2)
+                    throw std::invalid_argument(name + " endpoint must contain [x, y]");
+                const double x = endpoints[endpoint][0].get<double>();
+                const double y = endpoints[endpoint][1].get<double>();
+                std::size_t matches = 0;
+                for (std::size_t vertex = 0; vertex < boundary.vertices.size(); ++vertex)
+                {
+                    const auto& point = boundary.vertices[vertex];
+                    if (std::hypot(point[0] - x, point[1] - y) <=
+                        config.stlWeldTolerance)
+                    {
+                        vertexIds[endpoint] = vertex;
+                        ++matches;
+                    }
+                }
+                if (matches != 1)
+                    throw std::invalid_argument(
+                        name + " endpoint does not uniquely match an STL boundary vertex");
+            }
+
+            const std::size_t first = vertexIds[0];
+            const std::size_t second = vertexIds[1];
+            std::size_t edge = boundary.vertices.size();
+            if ((first + 1) % boundary.vertices.size() == second)
+                edge = first;
+            else if ((second + 1) % boundary.vertices.size() == first)
+                edge = second;
+            if (edge == boundary.vertices.size() || !assignedEdges.insert(edge).second)
+                throw std::invalid_argument(
+                    name + " must identify one unique consecutive STL boundary edge");
+
+            const auto& a = boundary.vertices[edge];
+            const auto& b = boundary.vertices[(edge + 1) % boundary.vertices.size()];
+            const bool isLeft =
+                std::abs(a[0] - bounds[0]) <= config.stlWeldTolerance &&
+                std::abs(b[0] - bounds[0]) <= config.stlWeldTolerance;
+            const bool isRight =
+                std::abs(a[0] - bounds[1]) <= config.stlWeldTolerance &&
+                std::abs(b[0] - bounds[1]) <= config.stlWeldTolerance;
+            const bool isBottom =
+                std::abs(a[1] - bounds[2]) <= config.stlWeldTolerance &&
+                std::abs(b[1] - bounds[2]) <= config.stlWeldTolerance;
+            const bool isTop =
+                std::abs(a[1] - bounds[3]) <= config.stlWeldTolerance &&
+                std::abs(b[1] - bounds[3]) <= config.stlWeldTolerance;
+            const bool matchesSide =
+                (name == "inflow" && isLeft) ||
+                (name == "outflow" && isRight) ||
+                (name == "symmetry" && isBottom) ||
+                (name == "farfield" && isTop);
+            if (!matchesSide)
+                throw std::invalid_argument(
+                    name + " does not match its required left/right/bottom/top side");
+            assignedCurves.emplace(name, edge + 1);
+        }
+        if (assignedEdges.size() != 4 || assignedCurves.size() != 4)
+            throw std::invalid_argument("All four outer boundary edges must be assigned");
+
+        const fs::path resultDirectory = fs::path(caseDir) / "results";
+        fs::create_directories(resultDirectory);
+        if (!target.parent_path().empty())
+            fs::create_directories(target.parent_path());
+        const fs::path geoPath =
+            resultDirectory / (target.stem().string() + ".geo");
+        const fs::path reportPath =
+            resultDirectory / (target.stem().string() + ".stl-to-gmsh-report.json");
+
+        std::ofstream geo(geoPath, std::ios::trunc);
+        if (!geo)
+            throw std::runtime_error("Cannot create Gmsh geometry: " + geoPath.string());
+        geo << std::setprecision(std::numeric_limits<double>::max_digits10);
+        geo << "SetFactory(\"Built-in\");\n"
+            << "Mesh.MshFileVersion = 4.1;\n"
+            << "Mesh.Binary = 0;\n"
+            << "Mesh.ElementOrder = 1;\n"
+            << "Mesh.RecombineAll = 1;\n";
+        for (std::size_t i = 0; i < boundary.vertices.size(); ++i)
+        {
+            const auto& point = boundary.vertices[i];
+            geo << "Point(" << i + 1 << ") = {"
+                << point[0] << ", " << point[1] << ", " << point[2]
+                << ", " << meshSize << "};\n";
+        }
+        for (std::size_t i = 0; i < boundary.vertices.size(); ++i)
+            geo << "Line(" << i + 1 << ") = {"
+                << i + 1 << ", " << (i + 1) % boundary.vertices.size() + 1 << "};\n";
+        geo << "Curve Loop(1) = {1, 2, 3, 4};\n"
+            << "Plane Surface(1) = {1};\n";
+        for (std::size_t i = 0; i < boundary.vertices.size(); ++i)
+        {
+            const auto& a = boundary.vertices[i];
+            const auto& b = boundary.vertices[(i + 1) % boundary.vertices.size()];
+            const bool horizontal =
+                std::abs(a[1] - b[1]) <= config.stlWeldTolerance;
+            geo << "Transfinite Curve {" << i + 1 << "} = "
+                << (horizontal ? cellsX + 1 : cellsY + 1) << ";\n";
+        }
+        geo << "Transfinite Surface {1};\n"
+            << "Recombine Surface {1};\n";
+        for (const auto& assignment : assignedCurves)
+            geo << "Physical Curve(\"" << assignment.first << "\") = {"
+                << assignment.second << "};\n";
+        geo << "Physical Surface(\"" << surfaceName << "\") = {1};\n";
+        geo.flush();
+        if (!geo)
+            throw std::runtime_error("Failed writing Gmsh geometry: " + geoPath.string());
+        geo.close();
+
+        if (config.gmshExecutable.empty())
+            throw std::invalid_argument("gmshExecutable must not be empty");
+        const auto pathToUtf8 = []( const fs::path & path )
+        {
+            const auto value = path.u8string();
+            return std::string( value.begin(), value.end() );
+        };
+        const std::vector< std::string > gmshArguments{
+            pathToUtf8( fs::absolute( geoPath ) ),
+            "-2", "-format", "msh4", "-o",
+            pathToUtf8( fs::absolute( target ) )
+        };
+        const ProcessResult process = RunProcess(
+            config.gmshExecutable, gmshArguments,
+            pathToUtf8( fs::absolute( fs::path( caseDir ) ) ) );
+        if ( ! process.started || process.exitCode != 0 )
+        {
+            std::ostringstream diagnostic;
+            diagnostic
+                << "Gmsh process failed"
+                << "\n  executable: " << config.gmshExecutable
+                << "\n  working directory: "
+                << pathToUtf8( fs::absolute( fs::path( caseDir ) ) )
+                << "\n  started: " << ( process.started ? "true" : "false" )
+                << "\n  exit code: " << process.exitCode;
+            if ( ! process.errorMessage.empty() )
+                diagnostic << "\n  process error: " << process.errorMessage;
+            if ( ! process.output.empty() )
+                diagnostic << "\n  output:\\n" << process.output;
+            throw std::runtime_error( diagnostic.str() );
+        }
+
+        std::ifstream meshInput(target, std::ios::binary);
+        if (!meshInput)
+            throw std::runtime_error("Gmsh did not create the requested mesh: " + target.string());
+        const std::string meshContent{
+            std::istreambuf_iterator<char>(meshInput),
+            std::istreambuf_iterator<char>()};
+        const GmshMesh generated = ReadGmsh41AsciiMesh(meshContent);
+        const GmshMeshReadReport meshReport = BuildGmshMeshReadReport(generated);
+
+        std::size_t lineElements = 0;
+        std::size_t quadrilateralElements = 0;
+        std::size_t triangleElements = 0;
+        for (const GmshElement& element : generated.elements)
+        {
+            if (element.type == 1) ++lineElements;
+            else if (element.type == 2) ++triangleElements;
+            else if (element.type == 3) ++quadrilateralElements;
+        }
+        const std::size_t expectedNodes =
+            static_cast<std::size_t>(cellsX + 1) * static_cast<std::size_t>(cellsY + 1);
+        const std::size_t expectedLines =
+            2u * (static_cast<std::size_t>(cellsX) + static_cast<std::size_t>(cellsY));
+        const std::size_t expectedQuads =
+            static_cast<std::size_t>(cellsX) * static_cast<std::size_t>(cellsY);
+        if (generated.nodes.size() != expectedNodes ||
+            generated.elements.size() != expectedLines + expectedQuads ||
+            lineElements != expectedLines ||
+            quadrilateralElements != expectedQuads ||
+            triangleElements != 0)
+            throw std::runtime_error(
+                "Generated MSH topology mismatch: expected " +
+                std::to_string(expectedNodes) + " nodes, " +
+                std::to_string(expectedLines) + " boundary lines, " +
+                std::to_string(expectedQuads) + " QUAD_4 cells; observed " +
+                std::to_string(generated.nodes.size()) + ", " +
+                std::to_string(lineElements) + ", " +
+                std::to_string(quadrilateralElements) + " quads and " +
+                std::to_string(triangleElements) + " triangles");
+
+        const std::set<std::pair<int, std::string>> expectedGroups{
+            {1, "inflow"}, {1, "outflow"}, {1, "symmetry"},
+            {1, "farfield"}, {2, surfaceName}};
+        std::set<std::pair<int, std::string>> actualGroups;
+        for (const auto& physical : generated.physicalNames)
+            actualGroups.emplace(physical.first.first, physical.second);
+        if (actualGroups != expectedGroups)
+            throw std::runtime_error("Generated MSH Physical Groups do not match the boundary contract");
+
+        Json report;
+        report["schema"] = "oneflow.stl-to-gmsh-report";
+        report["version"] = 1;
+        report["source_stl"] = source.lexically_normal().string();
+        report["geometry"] = geoPath.lexically_normal().string();
+        report["mesh"] = target.lexically_normal().string();
+        report["gmsh_executable"] = config.gmshExecutable;
+        report["gmsh_version"] = generated.version;
+        report["stl_triangles"] = stl.triangles.size();
+        report["stl_boundary_vertices"] = boundary.vertices.size();
+        report["transfinite_cells"] = {{"x", cellsX}, {"y", cellsY}};
+        report["mesh_summary"] = {
+            {"nodes", generated.nodes.size()},
+            {"line_elements", lineElements},
+            {"triangle_elements", triangleElements},
+            {"quadrilateral_elements", quadrilateralElements},
+            {"physical_group_count", meshReport.physicalGroupCount}};
+        report["mesh_summary"]["physical_groups"] = Json::array();
+        for (const auto& group : actualGroups)
+        {
+            report["mesh_summary"]["physical_groups"].push_back({
+                {"dimension", group.first}, {"name", group.second}});
+        }
+        report["validated"] = true;
+        std::ofstream reportOutput(reportPath, std::ios::trunc);
+        if (!reportOutput)
+            throw std::runtime_error("Cannot create STL-to-Gmsh report: " + reportPath.string());
+        reportOutput << report.dump(2) << '\n';
+        if (!reportOutput)
+            throw std::runtime_error("Failed writing STL-to-Gmsh report: " + reportPath.string());
+
+        std::cout << "STL to Gmsh completed: " << generated.nodes.size()
+                  << " nodes, " << quadrilateralElements
+                  << " QUAD_4 cells, " << lineElements
+                  << " boundary LINE_2 elements." << std::endl;
+    }
+
     void ConvertStlToCgns(
         const GridConfig & config,
         const std::string & caseDir )
@@ -777,9 +1106,19 @@ namespace
 
     void ConvertStl( const GridConfig & config, const std::string & caseDir )
     {
-        if ( config.targetType != GridFileType::CGNS )
-            throw std::invalid_argument( "STL conversion currently supports target type cgns" );
-        ConvertStlToCgns( config, caseDir );
+        switch ( config.targetType )
+        {
+            case GridFileType::CGNS:
+                ConvertStlToCgns( config, caseDir );
+                return;
+            case GridFileType::Gmsh:
+                ConvertStlToGmsh( config, caseDir );
+                return;
+            default:
+                throw std::invalid_argument(
+                    std::string( "Unsupported STL target type: " ) +
+                    std::string( ToString( config.targetType ) ) );
+        }
     }
 
     void ConvertGmsh( const GridConfig & config, const std::string & caseDir )
@@ -879,7 +1218,8 @@ bool IsSupportedConversion( GridFileType sourceType, GridFileType targetType )
             return targetType == GridFileType::CGNS ||
                    targetType == GridFileType::OneFLOW;
         case GridFileType::STL:
-            return targetType == GridFileType::CGNS;
+            return targetType == GridFileType::CGNS ||
+                   targetType == GridFileType::Gmsh;
         default:
             return false;
     }

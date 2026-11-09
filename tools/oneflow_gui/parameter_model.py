@@ -94,6 +94,9 @@ _GRID_GROUPS = {
         "boundaryregionnamemapfilename", "volumeboundarynamemapfilename",
         "oversetgridfilename",
     }),
+    "Grid generation tools": frozenset({
+        "gmshexecutable", "stlweldtolerance",
+    }),
     "Partitioning": frozenset({
         "partition_type", "partition_c2n", "npartproc", "us_type",
         "ori_uns_file", "part_uns_file", "ori_layout_file",

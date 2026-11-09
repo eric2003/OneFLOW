@@ -38,6 +38,18 @@ The collection covers ASCII and binary STL, binary headers beginning with `solid
 
 Python development cases do not require a OneFLOW executable. In the Tests dialog, **Run Development Cases** enables native C++ cases and **Python reference cases** enables Python cases. Either option can run independently; enabling both runs both kinds in one staged batch. The selector shows only enabled kinds (and defaults to the native C++ catalog for browsing when neither run option is enabled). Selections are retained independently by execution kind. Python reference results do not substitute for native C++ evidence. A native Case is currently marked successful from its process exit status; its JSON mesh report is produced for inspection, but expected node/cell counts are not yet enforced by the GUI runner.
 
+## STL to Gmsh generation
+
+The existing external-flow Python preprocessing Case remains under
+`grid/stl_to_gmsh/script/run.py` with its `config/external_flow.json` input.
+The native C++ Cases and independent Python reference Cases are organized
+beside it under `grid/stl_to_gmsh/`: `square`, `two_square_cells`, and
+`python/<case>`. See `grid/stl_to_gmsh/README.md` for both workflows.
+
+The cell layout is declared by `transfinite_cells.x` and
+`transfinite_cells.y`, not inferred from STL triangle diagonals. Gmsh output
+is MSH 4.1 ASCII so it can be consumed by the current C++ Gmsh reader.
+
 ## Tests
 
 Run from the repository root:

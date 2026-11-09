@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "workflow_id": "stl-square-2x2-to-cfd",
+  "name": "STL square 2x2 mesh to CFD",
+  "description": "Generate a four-cell square mesh from STL, convert it through CGNS to a native OneFLOW grid, then run a 50-step SLAU2 CFD smoke test.",
+  "steps": [
+    {
+      "type": "case_graph",
+      "cases": [
+        {
+          "id": "stl_to_gmsh_square_2x2",
+          "directory": "grid/stl_to_gmsh/square_2x2",
+          "outputs": [
+            {
+              "id": "square_2x2_msh",
+              "path": "results/square_2x2.msh",
+              "parameter_file": "script/grid.txt",
+              "setting": "targetGridFileName"
+            },
+            {
+              "id": "square_2x2_stl_to_gmsh_report",
+              "path": "results/square_2x2.stl-to-gmsh-report.json"
+            }
+          ],
+          "validation": {
+            "kind": "gmsh_msh4",
+            "path": "results/square_2x2.msh",
+            "expected_counts": {
+              "nodes": 9,
+              "line_elements": 8,
+              "triangle_elements": 0,
+              "quadrilateral_elements": 4,
+              "elements": 12
+            },
+            "physical_groups": [
+              {
+                "dimension": 1,
+                "name": "inflow"
+              },
+              {
+                "dimension": 1,
+                "name": "outflow"
+              },
+              {
+                "dimension": 1,
+                "name": "symmetry"
+              },
+              {
+                "dimension": 1,
+                "name": "farfield"
+              },
+              {
+                "dimension": 2,
+                "name": "fluid_domain"
+              }
+            ],
+            "expected_element_types": {
+              "1": 8,
+              "3": 4
+            }
+          }
+        },
+        {
+          "id": "gmsh_to_cgns_square_2x2",
+          "directory": "grid/gmsh_to_cgns",
+          "depends_on": [
+            "stl_to_gmsh_square_2x2"
+          ],
+          "inputs": [
+            {
+              "artifact": "square_2x2_msh",
+              "setting": "sourceGridFileName",
+              "parameter_file": "script/grid.txt"
+            }
+          ],
+          "outputs": [
+            {
+              "id": "square_2x2_cgns",
+              "path": "results/square.cgns",
+              "parameter_file": "script/grid.txt",
+              "setting": "targetGridFileName"
+            },
+            {
+              "id": "square_2x2_gmsh_read_report",
+              "path": "results/square.gmsh-read-report.json"
+            },
+            {
+              "id": "square_2x2_gmsh_report",
+              "path": "results/square.gmsh-report.md"
+            }
+          ],
+          "validation": {
+            "kind": "non_empty_files",
+            "paths": [
+              "results/square.cgns",
+              "results/square.gmsh-read-report.json",
+              "results/square.gmsh-report.md"
+            ]
+          }
+        },
+        {
+          "id": "cgns_to_oneflow_square_2x2",
+          "directory": "grid/stl_to_gmsh/pipeline/cgns_to_oneflow",
+          "depends_on": [
+            "gmsh_to_cgns_square_2x2"
+          ],
+          "inputs": [
+            {
+              "artifact": "square_2x2_cgns",
+              "setting": "sourceGridFileName",
+              "parameter_file": "script/grid.txt"
+            }
+          ],
+          "outputs": [
+            {
+              "id": "square_2x2_oneflow_grid",
+              "path": "results/square.oneflow.grid",
+              "parameter_file": "script/grid.txt",
+              "setting": "targetGridFileName"
+            },
+            {
+              "id": "square_2x2_bc_region_map",
+              "path": "results/bcRegionMap.txt"
+            },
+            {
+              "id": "square_2x2_grid_info",
+              "path": "results/square.info.json"
+            }
+          ],
+          "validation": {
+            "kind": "non_empty_files",
+            "paths": [
+              "results/square.oneflow.grid",
+              "results/bcRegionMap.txt",
+              "results/square.info.json"
+            ]
+          }
+        },
+        {
+          "id": "cfd_solve_square_2x2",
+          "directory": "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2",
+          "depends_on": [
+            "cgns_to_oneflow_square_2x2"
+          ],
+          "inputs": [
+            {
+              "artifact": "square_2x2_oneflow_grid",
+              "setting": "gridFileName",
+              "parameter_file": "script/cfd.txt"
+            }
+          ],
+          "outputs": [
+            {
+              "id": "cfd_residual",
+              "path": "results/res.dat"
+            },
+            {
+              "id": "cfd_restart",
+              "path": "restart/flow.dat"
+            },
+            {
+              "id": "cfd_visualization",
+              "path": "visual/visual.dat"
+            }
+          ],
+          "validation": {
+            "kind": "non_empty_files",
+            "paths": [
+              "results/res.dat",
+              "restart/flow.dat",
+              "visual/visual.dat"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

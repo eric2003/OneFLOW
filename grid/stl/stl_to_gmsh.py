@@ -166,6 +166,7 @@ def _read_sidecar(path: Path, loop: list[Point], tol: float) -> tuple[dict, dict
         body_name = str(config.get("body_boundary_name", "Wall")).strip()
         if not body_name or body_name in names:
             raise Stl2DError("body_boundary_name must be non-empty and distinct from outer boundary names")
+        config["_weld_tolerance"] = tol
         config["_domain_bounds"] = bounds
         config["_outer_boundaries"] = {side: str(outer[side]).strip() for side in required}
         config["_body_boundary_name"] = body_name
@@ -196,12 +197,46 @@ def _read_sidecar(path: Path, loop: list[Point], tol: float) -> tuple[dict, dict
     expected = {tuple(sorted((i,(i+1)%n))) for i in range(n)}
     if set(assignments) != expected:
         raise Stl2DError(f"assign every outer edge exactly once (missing={len(expected-set(assignments))})")
+    config["_weld_tolerance"] = tol
     return config, assignments
+
+def _transfinite_cell_layout(loop: list[Point], config: dict) -> dict | None:
+    raw = config.get("transfinite_cells")
+    if raw is None and not config.get("one_quad_cell", False):
+        return None
+    if "_domain_bounds" in config:
+        raise Stl2DError("transfinite cell layout is currently supported for a single STL boundary only")
+    if raw is None:
+        nx, ny = 1, 1
+    else:
+        if not isinstance(raw, dict):
+            raise Stl2DError("transfinite_cells must define integer x and y cell counts")
+        nx, ny = raw.get("x"), raw.get("y")
+        if any(isinstance(value, bool) or not isinstance(value, int) or value < 1 for value in (nx, ny)):
+            raise Stl2DError("transfinite_cells.x and .y must be positive integers")
+    if len(loop) != 4:
+        raise Stl2DError("transfinite quadrilateral layout requires exactly four STL boundary vertices")
+    tolerance = max(float(config.get("_weld_tolerance", 1e-9)), 1e-12)
+    horizontal, vertical = [], []
+    for index, point in enumerate(loop):
+        following = loop[(index + 1) % len(loop)]
+        dx, dy = abs(following[0] - point[0]), abs(following[1] - point[1])
+        curve = index + 1
+        if dy <= tolerance and dx > tolerance:
+            horizontal.append(curve)
+        elif dx <= tolerance and dy > tolerance:
+            vertical.append(curve)
+        else:
+            raise Stl2DError("transfinite quadrilateral layout requires axis-aligned horizontal and vertical edges")
+    if len(horizontal) != 2 or len(vertical) != 2:
+        raise Stl2DError("transfinite quadrilateral requires two horizontal and two vertical edges")
+    return {"x": nx, "y": ny, "horizontal_curves": horizontal, "vertical_curves": vertical}
 
 def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: dict) -> str:
     size = float(config.get("mesh_size", 1.0))
     if not math.isfinite(size) or size <= 0:
         raise Stl2DError("mesh_size must be positive and finite")
+    cell_layout = _transfinite_cell_layout(loop, config)
     lines = ['// Generated from planar STL by OneFLOW.', 'SetFactory("Built-in");', f"lc = {size:.17g};"]
     if "_domain_bounds" in config:
         n = len(loop)
@@ -243,9 +278,6 @@ def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: 
             name = re.sub(r"[^A-Za-z0-9_.-]+", "_", config["_outer_boundaries"][side])
             lines.append(f'Physical Curve("{name}") = {{{outer_line_ids[side]}}};')
     else:
-        one_quad = bool(config.get("one_quad_cell", False))
-        if one_quad and len(loop) != 4:
-            raise Stl2DError("one_quad_cell requires exactly four boundary vertices")
         for i,(x,y,_z) in enumerate(loop,1):
             lines.append(f"Point({i}) = {{{x:.17g}, {y:.17g}, 0, lc}};")
         groups = defaultdict(list)
@@ -257,11 +289,14 @@ def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: 
         for name,curves in sorted(groups.items()):
             safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", name)
             lines.append(f'Physical Curve("{safe}") = {{{", ".join(map(str,curves))}}};')
+        if cell_layout:
+            horizontal = ", ".join(map(str, cell_layout["horizontal_curves"]))
+            vertical = ", ".join(map(str, cell_layout["vertical_curves"]))
+            lines.append(f"Transfinite Curve {{{horizontal}}} = {cell_layout['x'] + 1};")
+            lines.append(f"Transfinite Curve {{{vertical}}} = {cell_layout['y'] + 1};")
+            lines.extend(["Transfinite Surface {1};", "Recombine Surface {1};"])
     surface = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(config.get("surface_name","Fluid")))
     lines.append(f'Physical Surface("{surface}") = {{1}};')
-    if config.get("one_quad_cell", False) and "_domain_bounds" not in config:
-        lines.extend([f"Transfinite Curve {{{i}}} = 2;" for i in range(1,5)])
-        lines.extend(["Transfinite Surface {1};", "Recombine Surface {1};"])
     lines.extend(["Mesh 2;", ""])
     return "\n".join(lines)
 
@@ -269,9 +304,105 @@ def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dic
     triangles = read_stl(stl)
     loop = extract_boundary(triangles, tolerance)
     config, assignments = _read_sidecar(sidecar, loop, tolerance)
+    layout = _transfinite_cell_layout(loop, config)
     geo.parent.mkdir(parents=True, exist_ok=True)
     geo.write_text(build_geo(loop, assignments, config), encoding="utf-8", newline="\n")
-    return {"triangles":len(triangles), "boundary_vertices":len(loop), "boundary_edges":len(assignments), "body_boundary_edges":len(loop) if "_domain_bounds" in config else 0, "geo":str(geo)}
+    report = {
+        "triangles": len(triangles),
+        "boundary_vertices": len(loop),
+        "boundary_edges": len(assignments),
+        "body_boundary_edges": len(loop) if "_domain_bounds" in config else 0,
+        "geo": str(geo),
+    }
+    if layout:
+        report["structured_cells"] = {
+            "x": layout["x"],
+            "y": layout["y"],
+            "total": layout["x"] * layout["y"],
+        }
+    return report
+
+
+def inspect_msh4(path: Path) -> dict:
+    """Read the structural summary needed to validate generated MSH 4.1 output."""
+    lines = path.read_text(encoding="utf-8").splitlines()
+
+    def section(name: str) -> list[str]:
+        start = "$" + name
+        end = "$End" + name
+        try:
+            first = lines.index(start)
+            last = lines.index(end, first + 1)
+        except ValueError as exc:
+            raise Stl2DError(f"MSH file is missing the {name} section") from exc
+        return lines[first + 1:last]
+
+    mesh_format = section("MeshFormat")
+    if not mesh_format:
+        raise Stl2DError("MSH MeshFormat section is empty")
+    format_values = mesh_format[0].split()
+    if len(format_values) < 3 or format_values[0] != "4.1" or format_values[1] != "0":
+        raise Stl2DError("generated mesh must be MSH 4.1 ASCII")
+
+    node_section = section("Nodes")
+    if not node_section:
+        raise Stl2DError("MSH Nodes section is empty")
+    node_header = node_section[0].split()
+    if len(node_header) != 4:
+        raise Stl2DError("invalid MSH 4.1 Nodes header")
+    node_count = int(node_header[1])
+
+    element_section = section("Elements")
+    if not element_section:
+        raise Stl2DError("MSH Elements section is empty")
+    element_header = element_section[0].split()
+    if len(element_header) != 4:
+        raise Stl2DError("invalid MSH 4.1 Elements header")
+    block_count, element_count = int(element_header[0]), int(element_header[1])
+    cursor = 1
+    element_types: Counter[int] = Counter()
+    for _ in range(block_count):
+        if cursor >= len(element_section):
+            raise Stl2DError("truncated MSH 4.1 element block header")
+        block_header = element_section[cursor].split()
+        cursor += 1
+        if len(block_header) != 4:
+            raise Stl2DError("invalid MSH 4.1 element block header")
+        element_type, block_size = int(block_header[2]), int(block_header[3])
+        if cursor + block_size > len(element_section):
+            raise Stl2DError("truncated MSH 4.1 element block")
+        element_types[element_type] += block_size
+        cursor += block_size
+    if sum(element_types.values()) != element_count:
+        raise Stl2DError("MSH 4.1 element block counts do not match the file header")
+
+    physical_groups = []
+    physical_section = section("PhysicalNames")
+    if physical_section:
+        expected_groups = int(physical_section[0])
+        for row in physical_section[1:]:
+            values = row.split(maxsplit=2)
+            if len(values) != 3:
+                raise Stl2DError("invalid MSH PhysicalNames record")
+            physical_groups.append({
+                "dimension": int(values[0]),
+                "tag": int(values[1]),
+                "name": values[2].strip().strip('"'),
+            })
+        if len(physical_groups) != expected_groups:
+            raise Stl2DError("MSH PhysicalNames count does not match its header")
+
+    return {
+        "format": format_values[0],
+        "binary": False,
+        "nodes": node_count,
+        "elements": element_count,
+        "element_types": {str(key): value for key, value in sorted(element_types.items())},
+        "line_elements": element_types.get(1, 0),
+        "triangle_elements": element_types.get(2, 0),
+        "quadrilateral_elements": element_types.get(3, 0),
+        "physical_groups": physical_groups,
+    }
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -287,7 +418,11 @@ def main() -> int:
         print(json.dumps(report,indent=2))
         if args.gmsh:
             if not args.msh: parser.error("--msh is required with --gmsh")
-            subprocess.run([args.gmsh,str(args.geo),"-2","-format","msh2","-o",str(args.msh)],check=True)
+            args.msh.parent.mkdir(parents=True, exist_ok=True)
+            subprocess.run(
+                [args.gmsh, str(args.geo), "-2", "-format", "msh4", "-o", str(args.msh)],
+                check=True,
+            )
     except (OSError,json.JSONDecodeError,Stl2DError,subprocess.CalledProcessError) as exc:
         parser.exit(2,f"stl_to_gmsh: {exc}\n")
     return 0

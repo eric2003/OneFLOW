@@ -325,3 +325,19 @@ expression. The Formula & Symbols view lists term meanings, alternate textbook
 notations, OneFLOW variable mappings, references, assumptions, and caveats.
 It exposes copyable LaTeX source and an optional rendered preview using the
 existing Formula & Knowledge renderer.
+
+
+## Mesh-to-CFD Validation Workbench
+
+The Tests page opens Mesh-to-CFD Validation as a separate workbench. Select
+multiple STL-to-Gmsh Cases, choose a CFD consumer template, and set the short
+solver smoke-test iteration count. Each selected mesh Case is validated
+independently through its conversion chain and CFD consumer.
+
+Validation workspaces are stable and Case-scoped below
+`$ONEFLOW_HOME/mesh-layout-test/grid/mesh-validation/` (or
+`~/.oneflow/mesh-layout-test/grid/mesh-validation/` when `ONEFLOW_HOME`
+is not set). For example, the square STL Case uses
+`stl_to_gmsh/square/`. Re-running a Case clears and recreates only that
+Case's directory; sibling Case results are preserved. Reports and stage
+artifacts remain in that directory rather than a timestamped `runs/` tree.

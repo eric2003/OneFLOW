@@ -1,7 +1,7 @@
 from __future__ import annotations
 import json, shutil, struct, subprocess, tempfile, unittest
 from pathlib import Path
-from .stl_to_gmsh import Stl2DError, _weld_vertices, build_geo, convert, extract_boundary, read_stl
+from .stl_to_gmsh import Stl2DError, _weld_vertices, build_geo, convert, extract_boundary, inspect_msh4, read_stl
 
 DATA = Path(__file__).parent / "fixtures"
 
@@ -39,15 +39,130 @@ class Stl2DGmshTest(unittest.TestCase):
             geo = Path(temp) / "square.geo"
             msh = Path(temp) / "square.msh"
             convert(DATA/"square.stl", DATA/"square.boundary.json", geo)
-            subprocess.run([gmsh, str(geo), "-2", "-format", "msh2", "-o", str(msh)], check=True)
-            content = msh.read_text(encoding="utf-8")
-            names = content.split("$PhysicalNames", 1)[1].split("$EndPhysicalNames", 1)[0]
-            for name in ("Inlet", "Outlet", "Symmetry", "Farfield", "Fluid"):
-                self.assertIn(f'"{name}"', names)
-            elements = content.split("$Elements", 1)[1].split("$EndElements", 1)[0].splitlines()
-            records = [line.split() for line in elements if line.strip()][1:]
-            self.assertEqual(sum(row[1] == "3" for row in records), 1)
-            self.assertEqual(sum(row[1] == "1" for row in records), 4)
+            subprocess.run([gmsh, str(geo), "-2", "-format", "msh4", "-o", str(msh)], check=True)
+            summary = inspect_msh4(msh)
+            self.assertEqual(summary["format"], "4.1")
+            self.assertEqual(summary["nodes"], 4)
+            self.assertEqual(summary["quadrilateral_elements"], 1)
+            self.assertEqual(summary["line_elements"], 4)
+            names = {group["name"] for group in summary["physical_groups"]}
+            self.assertEqual(names, {"Inlet", "Outlet", "Symmetry", "Farfield", "Fluid"})
+
+    def test_two_quad_layout_splits_the_horizontal_edges_into_two_cells(self):
+        config = json.loads((DATA / "square.boundary.json").read_text(encoding="utf-8"))
+        config.pop("one_quad_cell", None)
+        config["transfinite_cells"] = {"x": 2, "y": 1}
+        with tempfile.TemporaryDirectory() as temp:
+            sidecar = Path(temp) / "two_quads.json"
+            geo = Path(temp) / "two_quads.geo"
+            sidecar.write_text(json.dumps(config), encoding="utf-8")
+            report = convert(DATA / "square.stl", sidecar, geo)
+            content = geo.read_text(encoding="utf-8")
+            self.assertEqual(report["structured_cells"], {"x": 2, "y": 1, "total": 2})
+            self.assertIn("Transfinite Curve {1, 3} = 3;", content)
+            self.assertIn("Transfinite Curve {2, 4} = 2;", content)
+            self.assertIn("Transfinite Surface {1};", content)
+            self.assertIn("Recombine Surface {1};", content)
+
+    def test_transfinite_cell_counts_must_be_positive_integers(self):
+        config = json.loads((DATA / "square.boundary.json").read_text(encoding="utf-8"))
+        config.pop("one_quad_cell", None)
+        config["transfinite_cells"] = {"x": 0, "y": 1}
+        with tempfile.TemporaryDirectory() as temp:
+            sidecar = Path(temp) / "invalid.json"
+            sidecar.write_text(json.dumps(config), encoding="utf-8")
+            with self.assertRaisesRegex(Stl2DError, "positive integers"):
+                convert(DATA / "square.stl", sidecar, Path(temp) / "invalid.geo")
+
+    def test_gmsh_cli_generates_two_adjacent_square_cells_and_boundary_groups(self):
+        gmsh = shutil.which("gmsh")
+        if not gmsh:
+            self.skipTest("Gmsh executable is not installed")
+        case = Path(__file__).parent / "stl_to_gmsh"
+        with tempfile.TemporaryDirectory() as temp:
+            geo = Path(temp) / "two_quads.geo"
+            msh = Path(temp) / "two_quads.msh"
+            convert(
+                case / "input" / "two_square_cells.stl",
+                case / "script" / "two_quads.json",
+                geo,
+            )
+            subprocess.run([gmsh, str(geo), "-2", "-format", "msh4", "-o", str(msh)], check=True)
+            summary = inspect_msh4(msh)
+            self.assertEqual(summary["format"], "4.1")
+            self.assertEqual(summary["nodes"], 6)
+            self.assertEqual(summary["line_elements"], 6)
+            self.assertEqual(summary["quadrilateral_elements"], 2)
+            names = {group["name"] for group in summary["physical_groups"]}
+            self.assertEqual(names, {"inflow", "outflow", "symmetry", "farfield", "fluid_domain"})
+
+    def test_stl_to_gmsh_case_uses_two_adjacent_unit_square_cells(self):
+        case = Path(__file__).parent / "stl_to_gmsh"
+        triangles = read_stl(case / "input" / "two_square_cells.stl")
+        loop = extract_boundary(triangles)
+        self.assertEqual(len(loop), 4)
+        self.assertEqual((min(p[0] for p in loop), max(p[0] for p in loop)), (0.0, 2.0))
+        self.assertEqual((min(p[1] for p in loop), max(p[1] for p in loop)), (0.0, 1.0))
+        with tempfile.TemporaryDirectory() as temp:
+            report = convert(
+                case / "input" / "two_square_cells.stl",
+                case / "script" / "two_quads.json",
+                Path(temp) / "two_quads.geo",
+            )
+        self.assertEqual(report["structured_cells"], {"x": 2, "y": 1, "total": 2})
+
+    def test_inspect_msh4_reads_element_blocks_and_boundary_names(self):
+        content = """$MeshFormat
+4.1 0 8
+$EndMeshFormat
+$PhysicalNames
+5
+1 1 "inflow"
+1 2 "outflow"
+1 3 "symmetry"
+1 4 "farfield"
+2 5 "fluid_domain"
+$EndPhysicalNames
+$Nodes
+4 4 1 4
+0 1 0 1
+1
+0 0 0
+0 2 0 1
+2
+1 0 0
+0 3 0 1
+3
+1 1 0
+0 4 0 1
+4
+0 1 0
+$EndNodes
+$Elements
+5 5 1 5
+1 1 1 1
+1 1 2
+1 2 1 1
+2 2 3
+1 3 1 1
+3 3 4
+1 4 1 1
+4 4 1
+2 1 3 1
+5 1 2 3 4
+$EndElements
+"""
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "square.msh"
+            path.write_text(content, encoding="utf-8")
+            summary = inspect_msh4(path)
+        self.assertEqual(summary["nodes"], 4)
+        self.assertEqual(summary["line_elements"], 4)
+        self.assertEqual(summary["quadrilateral_elements"], 1)
+        self.assertEqual(
+            {group["name"] for group in summary["physical_groups"]},
+            {"inflow", "outflow", "symmetry", "farfield", "fluid_domain"},
+        )
 
     def test_non_planar_stl_is_rejected(self):
         with self.assertRaisesRegex(Stl2DError,"constant-Z"):
@@ -153,16 +268,12 @@ class Stl2DGmshTest(unittest.TestCase):
             msh = Path(temp) / "body_domain.msh"
             sidecar.write_text(json.dumps(config), encoding="utf-8")
             convert(DATA / "square.stl", sidecar, geo)
-            subprocess.run([gmsh, str(geo), "-2", "-format", "msh2", "-o", str(msh)], check=True)
-            content = msh.read_text(encoding="utf-8")
-            names = content.split("$PhysicalNames", 1)[1].split("$EndPhysicalNames", 1)[0]
-            for name in ("Wall", "Inlet", "Outlet", "Symmetry", "Farfield", "Fluid"):
-                self.assertIn(f'"{name}"', names)
-            elements = content.split("$Elements", 1)[1].split("$EndElements", 1)[0].splitlines()
-            records = [line.split() for line in elements if line.strip()]
-            records = [row for row in records[1:] if len(row) >= 3 and row[0].isdigit() and row[1].isdigit()]
-            self.assertTrue(any(row[1] == "1" for row in records))
-            self.assertTrue(any(row[1] == "2" for row in records))
+            subprocess.run([gmsh, str(geo), "-2", "-format", "msh4", "-o", str(msh)], check=True)
+            summary = inspect_msh4(msh)
+            names = {group["name"] for group in summary["physical_groups"]}
+            self.assertEqual(names, {"Wall", "Inlet", "Outlet", "Symmetry", "Farfield", "Fluid"})
+            self.assertGreater(summary["line_elements"], 0)
+            self.assertGreater(summary["triangle_elements"], 0)
 
     def test_stl_inspection_case_writes_report_without_touching_source_tree(self):
         import sys

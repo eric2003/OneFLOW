@@ -25,6 +25,7 @@ class UserDataPathsTest(unittest.TestCase):
             self.assertEqual(paths.executions, paths.workflow_data / "executions")
             self.assertEqual(paths.mesh_layout_test, paths.root / "mesh-layout-test")
             self.assertEqual(paths.grid_layout_test, paths.mesh_layout_test / "grid")
+            self.assertEqual(paths.mesh_validation, paths.root / "mesh-validation")
             self.assertEqual(paths.cfd_regression_workspace, paths.root / "cfd-regression")
             self.assertEqual(paths.settings_file, paths.root / "settings.json")
             self.assertEqual(paths.projects, paths.root / "projects")

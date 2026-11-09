@@ -244,6 +244,50 @@
         "kind": "python",
         "script": "grid/stl/run_case.py"
       }
+    },
+    {
+      "id": "stl_to_gmsh_square",
+      "title": "STL to Gmsh: One Square Cell (Native C++)",
+      "directory": "grid/stl_to_gmsh/square",
+      "profile": null,
+      "layout": null,
+      "group": "STL to Gmsh"
+    },
+    {
+      "id": "stl_to_gmsh_square_2x2",
+      "title": "STL to Gmsh: Four Cells on the Same Square Geometry (Native C++)",
+      "directory": "grid/stl_to_gmsh/square_2x2",
+      "profile": null,
+      "layout": null,
+      "group": "STL to Gmsh"
+    },
+    {
+      "id": "stl_to_gmsh_two_square_cells",
+      "title": "STL to Gmsh: Two Adjacent Square Cells (Native C++)",
+      "directory": "grid/stl_to_gmsh/two_square_cells",
+      "profile": null,
+      "layout": null,
+      "group": "STL to Gmsh"
+    },
+    {
+      "id": "stl_to_gmsh_python_square",
+      "title": "STL to Gmsh: One Square Cell (Python Reference)",
+      "directory": "grid/stl_to_gmsh/python/square",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/python/run_case.py"
+      }
+    },
+    {
+      "id": "stl_to_gmsh_python_two_square_cells",
+      "title": "STL to Gmsh: Two Adjacent Square Cells (Python Reference)",
+      "directory": "grid/stl_to_gmsh/python/two_square_cells",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/python/run_case.py"
+      }
     }
   ]
 }

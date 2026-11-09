@@ -88,7 +88,7 @@ jobs:
 
           configure_start=$(date +%s)
 
-          cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/Run ../
+          cmake -DONEFLOW_EXTERNAL_TOOL_TESTS=OFF -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/Run ../
 
           configure_end=$(date +%s)
 

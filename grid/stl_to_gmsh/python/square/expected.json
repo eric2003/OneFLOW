@@ -1,0 +1,32 @@
+{
+  "schema": "oneflow.stl-to-gmsh-expected",
+  "version": 1,
+  "mesh": {
+    "nodes": 4,
+    "line_elements": 4,
+    "triangle_elements": 0,
+    "quadrilateral_elements": 1
+  },
+  "physical_groups": [
+    {
+      "dimension": 1,
+      "name": "inflow"
+    },
+    {
+      "dimension": 1,
+      "name": "outflow"
+    },
+    {
+      "dimension": 1,
+      "name": "symmetry"
+    },
+    {
+      "dimension": 1,
+      "name": "farfield"
+    },
+    {
+      "dimension": 2,
+      "name": "fluid_domain"
+    }
+  ]
+}

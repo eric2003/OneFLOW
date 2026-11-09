@@ -28,6 +28,18 @@ struct StlMesh
     std::vector<StlTriangle> triangles;
 };
 
+// Recover the single closed XY boundary represented by a planar STL surface.
+// STL triangulation edges are removed by edge-incidence counting; only edges
+// used by one triangle are returned as the outer loop.
+struct StlPlanarBoundary
+{
+    std::vector<std::array<double, 3>> vertices;
+};
+
+StlPlanarBoundary ExtractStlPlanarBoundary(
+    const StlMesh& mesh,
+    double weldTolerance = 1.0e-9);
+
 class StlMeshReader
 {
 public:
