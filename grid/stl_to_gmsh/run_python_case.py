@@ -18,11 +18,26 @@ def run_case(case_directory: Path, gmsh: str) -> dict:
         if not path.is_file():
             raise FileNotFoundError(f"Required Case input does not exist: {path}")
     expected = json.loads(expected_path.read_text(encoding="utf-8"))
+    layout = json.loads(sidecar.read_text(encoding="utf-8"))
     results.mkdir(parents=True, exist_ok=True)
     geometry = convert(source, sidecar, geo, tolerance=1.0e-10)
     subprocess.run([gmsh, str(geo), "-2", "-format", "msh4", "-o", str(msh)],
                    check=True, cwd=case)
     mesh = inspect_msh4(msh)
+    quality_limits = layout.get("quality", {})
+    measured_quality = mesh["triangle_quality"]
+    minimum_quality = float(quality_limits.get("minimum_triangle_quality", 0.01))
+    minimum_angle = float(quality_limits.get("minimum_angle_degrees", 1.0))
+    if measured_quality["minimum_quality"] < minimum_quality:
+        raise RuntimeError(
+            f"Minimum triangle quality {measured_quality['minimum_quality']:.6g} "
+            f"is below {minimum_quality:.6g}"
+        )
+    if measured_quality["minimum_angle_degrees"] < minimum_angle:
+        raise RuntimeError(
+            f"Minimum triangle angle {measured_quality['minimum_angle_degrees']:.6g} "
+            f"is below {minimum_angle:.6g} degrees"
+        )
     observed = {key: mesh[key] for key in (
         "nodes", "line_elements", "triangle_elements", "quadrilateral_elements")}
     groups = {(g["dimension"], g["name"]) for g in mesh["physical_groups"]}
@@ -40,9 +55,15 @@ def run_case(case_directory: Path, gmsh: str) -> dict:
             )
     if groups != wanted_groups:
         raise RuntimeError(f"Physical Groups {sorted(groups)} do not match {sorted(wanted_groups)}")
-    report = {"case": case.name, "geometry": "results/model.geo",
-              "mesh": "results/model.msh", "geometry_report": geometry,
-              "mesh_summary": mesh, "expected": expected, "validated": True}
+    report = {"schema": "oneflow.stl-to-gmsh-validation-report", "version": 1,
+              "case": case.name, "geometry": "results/model.geo",
+              "mesh": "results/model.msh",
+              "contract": {"domain": layout.get("domain"),
+                           "surface_name": layout.get("surface_name"),
+                           "body_boundary_name": layout.get("body_boundary_name"),
+                           "quality_limits": quality_limits},
+              "geometry_report": geometry, "mesh_summary": mesh,
+              "expected": expected, "validated": True}
     (results / "report.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n",
         encoding="utf-8", newline="\n")
