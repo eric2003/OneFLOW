@@ -23,7 +23,7 @@ from .application_settings import (
 )
 from .configuration_dialog import ConfigurationDialog
 from .mesh_layout_dialog import MeshLayoutDialog
-from .contract_workbench_dialog import ContractDomainDialog, ContractWorkbenchDialog
+from .contract_workbench_dialog import ContractWorkbenchDialog
 from .boundary_conditions_workbench import BoundaryConditionsWorkbenchDialog
 from .repository_test_inventory_dialog import RepositoryTestInventoryDialog
 from .project_repository import open_project
