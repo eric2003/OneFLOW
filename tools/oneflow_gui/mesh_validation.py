@@ -10,7 +10,6 @@ import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from uuid import uuid4
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 if str(REPOSITORY_ROOT) not in sys.path:
@@ -128,6 +127,25 @@ def _external(path: Path) -> Path:
     raise ValueError(f"Run data must stay outside the source repository: {resolved}")
 
 
+def mesh_validation_workspace(repository_root: Path, mesh_case_id: str) -> Path:
+    """Return the stable user-data directory for one mesh validation Case."""
+    root = Path(repository_root).resolve()
+    entry = next(
+        (item for item in _catalog(root)["cases"] if item.get("id") == mesh_case_id),
+        None,
+    )
+    if entry is None:
+        raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
+    case_directory = Path(entry["directory"])
+    try:
+        relative_case = case_directory.relative_to("grid")
+    except ValueError as error:
+        raise ValueError(
+            f"Mesh validation Case must be located below grid/: {case_directory}"
+        ) from error
+    return UserDataPaths.discover().grid_layout_test / "mesh-validation" / relative_case
+
+
 def run_mesh_validation(
     oneflow: Path, gmsh: str, mesh_case_id: str,
     cfd_template_id: str = "laminar_flat_plate", max_steps: int = 2,
@@ -148,10 +166,14 @@ def run_mesh_validation(
 
     cases = build_mesh_validation_cases(REPOSITORY_ROOT, mesh_case_id, cfd_template_id)
     plan = build_case_graph_plan(cases, REPOSITORY_ROOT)
-    root = _external(stage_root or (UserDataPaths.discover().root / "mesh-validation"))
-    run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid4().hex[:8]
-    run_root = root / "runs" / run_id
+    run_root = _external(
+        stage_root if stage_root is not None
+        else mesh_validation_workspace(REPOSITORY_ROOT, mesh_case_id)
+    )
+    if run_root.exists():
+        shutil.rmtree(run_root)
     run_root.mkdir(parents=True, exist_ok=False)
+    run_id = run_root.name
     os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
     records = []
 

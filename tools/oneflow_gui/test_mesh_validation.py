@@ -5,10 +5,12 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from tools.oneflow_gui.mesh_validation import (
     build_mesh_validation_cases, cfd_template_choices, mesh_case_choices,
+    mesh_validation_workspace,
 )
 
 
@@ -58,6 +60,35 @@ class MeshValidationCatalogTest(unittest.TestCase):
             build_mesh_validation_cases(self.root, "missing", "laminar_flat_plate")
         with self.assertRaisesRegex(ValueError, "Unknown CFD template"):
             build_mesh_validation_cases(self.root, "stl_to_gmsh_square", "missing")
+
+
+
+    def test_workspace_uses_mesh_case_relative_directory(self):
+        paths = type(
+            "Paths", (),
+            {"grid_layout_test": self.root / ".oneflow" / "mesh-layout-test"},
+        )()
+        with mock.patch(
+            "tools.oneflow_gui.mesh_validation.UserDataPaths.discover",
+            return_value=paths,
+        ):
+            workspace = mesh_validation_workspace(self.root, "stl_to_gmsh_square")
+        self.assertEqual(
+            workspace,
+            self.root / ".oneflow" / "mesh-layout-test" / "mesh-validation"
+            / "stl_to_gmsh" / "square",
+        )
+
+    def test_workspace_rejects_cases_outside_grid(self):
+        catalog = json.loads(
+            (self.root / "grid/case_catalog.json").read_text(encoding="utf-8")
+        )
+        catalog["cases"][0]["directory"] = "../outside"
+        (self.root / "grid/case_catalog.json").write_text(
+            json.dumps(catalog), encoding="utf-8"
+        )
+        with self.assertRaisesRegex(ValueError, "below grid"):
+            mesh_validation_workspace(self.root, "stl_to_gmsh_square")
 
 
 if __name__ == "__main__":
