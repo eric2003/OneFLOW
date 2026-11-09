@@ -75,7 +75,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             workspace = mesh_validation_workspace(self.root, "stl_to_gmsh_square")
         self.assertEqual(
             workspace,
-            self.root / ".oneflow" / "mesh-layout-test" / "mesh-validation"
+            self.root / ".oneflow" / "mesh-layout-test" / "grid" / "mesh-validation"
             / "stl_to_gmsh" / "square",
         )
 
