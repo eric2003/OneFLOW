@@ -124,6 +124,7 @@ class ContractDomainDialog(QDialog):
         super().__init__(parent)
         self._repository_root = repository_root.resolve()
         self._domain = domain
+        self._domain_title = {"boundary": "Boundary Conditions"}.get(domain, domain.title())
         self._execution_records_path = (
             Path(execution_records_path)
             if execution_records_path is not None
@@ -154,22 +155,22 @@ class ContractDomainDialog(QDialog):
             ParameterConsumerCatalog() if domain == "parameter" else None
         )
 
-        self.setWindowTitle(f"Contract Workbench - {domain.title()}")
+        self.setWindowTitle(f"Contract Workbench - {self._domain_title}")
         self.resize(1120, 740)
         root = QVBoxLayout(self)
         intro = QLabel(
-            f"{domain.title()} contracts use the shared Contract Workbench navigation. "
+            f"{self._domain_title} contracts use the shared Contract Workbench navigation. "
             "Evidence status describes what is declared or recorded; it is not inferred "
             "from the existence of a linked test."
         )
         intro.setWordWrap(True)
         root.addWidget(intro)
 
-        if domain in {"parameter", "mesh"}:
+        if domain in {"parameter", "mesh", "boundary"}:
             self.search_edit = QLineEdit()
             self.search_edit.setObjectName("parameterContractSearch")
             self.search_edit.setPlaceholderText(
-                "Search mesh formats, concepts, sources, or references..." if domain == "mesh" else "Search parameters by name, description, group, source, or reference..."
+                "Search mesh formats, concepts, sources, or references..." if domain == "mesh" else ("Search boundary semantics, Gmsh aliases, CGNS BCType, or OneFLOW categories..." if domain == "boundary" else "Search parameters by name, description, group, source, or reference...")
             )
             self.search_edit.textChanged.connect(self._filter_contracts)
             root.addWidget(self.search_edit)
@@ -263,10 +264,15 @@ class ContractDomainDialog(QDialog):
         self.workflow_view = QPlainTextEdit()
         self.workflow_view.setReadOnly(True)
         self.mesh_knowledge_view = None
+        self.boundary_mapping_view = None
         if domain == "mesh":
             self.mesh_knowledge_view = QPlainTextEdit()
             self.mesh_knowledge_view.setReadOnly(True)
             self.mesh_knowledge_view.setObjectName("meshKnowledgeView")
+        if domain == "boundary":
+            self.boundary_mapping_view = QPlainTextEdit()
+            self.boundary_mapping_view.setReadOnly(True)
+            self.boundary_mapping_view.setObjectName("boundaryMappingView")
         self.parameter_formula_page = None
         self.parameter_formula_text = None
         self.parameter_formula_latex = None
@@ -331,6 +337,8 @@ class ContractDomainDialog(QDialog):
         self.tabs.addTab(self.evidence_view, "Verification / Evidence")
         if domain == "mesh":
             self.tabs.addTab(self.mesh_knowledge_view, "Mesh Knowledge")
+        if domain == "boundary":
+            self.tabs.addTab(self.boundary_mapping_view, "Boundary Model")
         if domain == "parameter":
             self.tabs.addTab(self.parameter_formula_page, "Formula")
             self.tabs.addTab(self.runtime_consumers_view, "Runtime Consumers")
@@ -509,7 +517,7 @@ class ContractDomainDialog(QDialog):
     def _populate_contract_list(self, query: str = "", selected_id: str = "") -> None:
         self.contract_list.clear()
         normalized_query = query.casefold().strip()
-        if self._domain in {"parameter", "mesh"}:
+        if self._domain in {"parameter", "mesh", "boundary"}:
             groups = {}
             for summary in self._summaries:
                 searchable = " ".join((
@@ -748,6 +756,24 @@ class ContractDomainDialog(QDialog):
                 *(f"- {item}" for item in summary.references),
             ]
             self.mesh_knowledge_view.setPlainText("\n".join(lines))
+        if self.boundary_mapping_view is not None:
+            lines = [
+                "BOUNDARY CONDITION CONTRACT", "============================",
+                summary.overview, "",
+                "PHYSICAL / MATHEMATICAL PRINCIPLE", "==================================",
+                summary.principle, "",
+                "FORMAT AND SOLVER REPRESENTATION", "=================================",
+                summary.architecture, "",
+                "IMPLEMENTATION REFERENCES", "==========================",
+                *(f"- {path}" for path in summary.implementation_paths),
+                "",
+                "LIMITATIONS AND OPEN QUESTIONS", "===============================",
+                *(f"- {item}" for item in summary.limitations),
+                "",
+                "REFERENCES", "==========",
+                *(f"- {item}" for item in summary.references),
+            ]
+            self.boundary_mapping_view.setPlainText("\n".join(lines))
         parameter_key = summary.parameter_key or summary.source_id
         consumer_records = (
             self._parameter_consumer_catalog.find(parameter_key)
@@ -1383,6 +1409,12 @@ class ContractWorkbenchDialog(QDialog):
                 self._open_mesh,
             ),
             (
+                "boundary",
+                "Boundary Conditions",
+                "Physical boundary semantics, mathematical constraints, required state data, format mappings and solver realization.",
+                self._open_boundary_conditions,
+            ),
+            (
                 "parameter",
                 "Parameter",
                 "Parameter definitions, runtime consumers, constraints, formula links and verification evidence.",
@@ -1458,6 +1490,9 @@ class ContractWorkbenchDialog(QDialog):
 
     def _open_mesh(self) -> None:
         ContractDomainDialog(self._repository_root, "mesh", self).exec()
+
+    def _open_boundary_conditions(self) -> None:
+        ContractDomainDialog(self._repository_root, "boundary", self).exec()
 
     def _open_parameter(self) -> None:
         ContractDomainDialog(self._repository_root, "parameter", self).exec()

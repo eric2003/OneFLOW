@@ -37,6 +37,7 @@ Mesh and engineering workflows
 * :doc:`stl_mesh_io` — native C++ STL ASCII/Binary I/O, facet semantics, and reader/writer verification.
 * :doc:`gmsh_interface` — Gmsh MSH 4.1-first input adapter, version support, semantic mapping, and conversion validation.
 * :doc:`stl_to_gmsh_2d` — planar STL boundary extraction, explicit CFD boundary groups, and Gmsh 2D generation.
+* :doc:`boundary_condition_architecture` — physical boundary semantics, Gmsh/CGNS/OneFLOW mappings, required state data, and verification boundaries.
 * :doc:`grid_conversion_cases` — runnable mesh conversion Cases, topology coverage, and format-route matrix.
 * :doc:`grid_topology` — topology contracts, boundary normalization, and derived connectivity.
 * :doc:`face_stage_pipeline` — staged face write path, BC export, reorder contract, identity vs orientation.
@@ -156,6 +157,7 @@ The existing reference library covers programming languages, build systems, para
    stl_to_gmsh_2d
    grid_conversion_cases
    grid_topology
+   boundary_condition_architecture
    face_stage_pipeline
    workbench_architecture
    mesh_to_cfd_validation

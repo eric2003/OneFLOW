@@ -14,8 +14,10 @@ the suite manifest, residual baseline, and retained analytical reference files.
 These actions resolve repository-relative paths and do not run the case.
 
 The home page's **Contract Workbench...** button opens the cross-domain contract
-navigator. Current domain entry points are:
+navigator. **Boundary Conditions...** is also a direct first-class home-screen
+entry, separate from Mesh Validation. Current Contract Workbench domain entries are:
 
+- **Boundary Conditions** browses physical boundary semantics and Gmsh/CGNS/OneFLOW mapping contracts. See `doc/source/boundary_condition_architecture.rst` for the detailed model and limitations.
 - **Parameter** browses source-backed parameter definition contracts,
   including runtime consumers, implementation paths, related Formula &
   Knowledge IDs, and declared verification evidence. The first contracts cover

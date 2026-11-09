@@ -46,19 +46,74 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
         try:
             self.assertEqual(
                 set(dialog.domain_buttons),
-                {"formula", "geometry", "mesh", "parameter", "case", "runtime", "workflow"},
+                {"formula", "geometry", "mesh", "boundary", "parameter", "case", "runtime", "workflow"},
             )
             self.assertEqual(
                 dialog.domain_buttons["formula"].text(),
                 "Formula & Knowledge",
             )
             self.assertEqual(dialog.domain_buttons["mesh"].text(), "Mesh")
+            self.assertEqual(dialog.domain_buttons["boundary"].text(), "Boundary Conditions")
             self.assertEqual(dialog.domain_buttons["parameter"].text(), "Parameter")
             self.assertEqual(dialog.domain_buttons["case"].text(), "Case")
             self.assertEqual(dialog.domain_buttons["runtime"].text(), "Runtime")
             self.assertEqual(dialog.domain_buttons["workflow"].text(), "Workflow")
         finally:
             self._close_dialog(dialog)
+
+    def test_boundary_conditions_domain_is_first_class_and_source_backed(self) -> None:
+        dialog = ContractDomainDialog(self.repository_root, "boundary")
+        try:
+            self.assertEqual(dialog.windowTitle(), "Contract Workbench - Boundary Conditions")
+            self.assertIsNotNone(dialog.search_edit)
+            names = [dialog.tabs.tabText(i) for i in range(dialog.tabs.count())]
+            self.assertIn("Boundary Model", names)
+            ids = {
+                dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole)
+                for i in range(dialog.contract_list.count())
+                if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertIn("boundary/semantic-model", ids)
+            row = next(i for i in range(dialog.contract_list.count())
+                       if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole) == "boundary/semantic-model")
+            dialog.contract_list.setCurrentRow(row)
+            mapping = dialog.boundary_mapping_view.toPlainText()
+            self.assertIn("BCWallViscous", mapping)
+            self.assertIn("BC::SOLID_SURFACE", mapping)
+            self.assertIn("BCTypeUserDefined", mapping)
+            dialog.search_edit.setText("PressureInlet")
+            filtered = {
+                dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole)
+                for i in range(dialog.contract_list.count())
+                if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole)
+            }
+            self.assertIn("boundary/semantic-model", filtered)
+        finally:
+            self._close_dialog(dialog)
+
+    def test_main_home_exposes_boundary_conditions_directly(self) -> None:
+        from tools.oneflow_gui.application_settings import ApplicationSettings
+        from tools.oneflow_gui.home_window import WorkbenchHomeWindow
+
+        settings = ApplicationSettings(
+            repository_root=self.repository_root,
+            build_configuration="Debug",
+            executable_path="",
+            run_mode="single_case",
+        )
+        with patch(
+            "tools.oneflow_gui.home_window.ApplicationSettings.load",
+            return_value=settings,
+        ), patch("tools.oneflow_gui.home_window.QTimer.singleShot"):
+            window = WorkbenchHomeWindow(self.repository_root)
+        try:
+            self.assertEqual(window.boundary_conditions_button.text(), "Boundary Conditions...")
+            with patch("tools.oneflow_gui.home_window.ContractDomainDialog") as dialog_type:
+                window._open_boundary_conditions()
+            dialog_type.assert_called_once_with(self.repository_root.resolve(), "boundary", window)
+            dialog_type.return_value.exec.assert_called_once()
+        finally:
+            window.close()
 
     def test_mesh_domain_uses_grouped_source_backed_knowledge_catalog(self) -> None:
         dialog = ContractDomainDialog(self.repository_root, "mesh")

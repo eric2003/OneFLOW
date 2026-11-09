@@ -98,10 +98,11 @@ Case 领域还提供两个文件入口：**Open case directory...** 打开算例
 这些操作只定位已有文件，不会启动求解器，也不会修改基线。
 
 
-首页 **Contract Workbench...** 是 OneFLOW 数值知识和工程契约的统一入口。当前提供四个领域入口：
+首页 **Contract Workbench...** 是 OneFLOW 数值知识和工程契约的统一入口。当前提供以下领域入口：
 
 * **Formula & Knowledge**：打开现有 Verification Curves 浏览器，查看公式、原理、参考文献、文档摘录、代码草图和理论曲线。
 * **Geometry**：打开 Geometry Contract Explorer，查看拓扑场景、输入/期望表和 fixture 结果。Fixture 运行不等同于执行生产 C++。
+* **Boundary Conditions**：独立浏览边界物理语义、数学约束、Gmsh Physical Group 到 CGNS BCType_t、CGNS 到 OneFLOW 边界类别的映射及其证据状态。它不是 Mesh Validation 的测试选项。
 * **Case**：浏览类型化 CFD Case 契约，查看算例所属 Suite、求解器、物理模型、数值格式、输入网格、输出比较清单、残差基线和分析参考数据。
 * **Runtime**：浏览进程生命周期、资源所有权、状态转换、实现代码和测试证据。
 
@@ -118,7 +119,7 @@ Case 领域还提供两个文件入口：**Open case directory...** 打开算例
 
 领域自身的数据结构和专用视图仍然不同：Formula Knowledge 可展示公式、符号和曲线；Case 展示物理设置、网格和比较基线；Runtime 展示状态机、资源所有权和故障处理；Workflow 展示依赖图、产物输入输出和运行历史；Mesh / Geometry 展示实体、拓扑、边界、区域和质量；Algorithm 展示离散方法、数据依赖、稳定性、守恒性和收敛证据。Formula、Curve、Case Setup、Workflow Graph、Mesh View 都是领域专用视图，不是所有领域必须具备的通用标签页。
 
-当前统一标签页只是导航结构，不代表每个领域的数据都已完整。没有登记的内容应明确显示未声明；关联测试不代表测试已经执行；通过单元测试也不能直接证明物理精度。完整的信息架构、领域矩阵和证据规则见 :doc:`contract_workbench_information_architecture`。
+当前统一标签页只是导航结构，不代表每个领域的数据都已完整。没有登记的内容应明确显示未声明；关联测试不代表测试已经执行；通过单元测试也不能直接证明物理精度。完整的信息架构、领域矩阵和证据规则见 :doc:`contract_workbench_information_architecture`；边界条件的分层模型和格式映射见 :doc:`boundary_condition_architecture`。
 
 Contract Workbench 展示证据声明和验证范围，不负责执行求解器或测试，也不会因为关联了一个测试名称就显示 PASS。Case 中保留的 Blasius 参考数据如果尚未被回归程序自动比较，会明确标记为“已声明、未自动比较”。Workflow 和 Performance 入口将在对应契约和证据模型有实际内容后再加入。
 
