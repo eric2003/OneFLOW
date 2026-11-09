@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "parameter/bc-region-map-file",
+  "title": "Boundary region map file",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "source_audited",
+  "overview": "bcRegionMapFile selects the case-relative file that stores the mapping between boundary-region names and integer region identifiers.",
+  "principle": "The default is grid/bcRegionMap.txt. Grid generation writes this file under the mesh-output root; solver boundary-data loading reads it under the mesh-input root or the selected source Case directory.",
+  "architecture": "GridConfig::GetBcRegionMapFileName reads the optional string parameter and applies the default only when the key is absent or empty. GridConfig carries the resolved path into grid generation. BcData resolves the same configured path for runtime reads. A present parameter with a non-string type is rejected.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/geometry/include/GridTypes.h",
+      "codes/geometry/src/GridTypes.cpp",
+      "codes/geometry/src/CalcGrid.cpp",
+      "codes/geometry/src/Boundary.cpp",
+      "codes/solver/src/BcData.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The parameter has a default path and is consumed by both grid-map generation and solver map loading."
+    ],
+    "does_not_prove": [
+      "The contents of the map are physically or numerically validated.",
+      "Every grid input format provides equivalent boundary-region semantics."
+    ]
+  },
+  "verification": [
+    "tests/main/gmsh_single_cell_runtime_integration_test.cpp"
+  ],
+  "group": {
+    "id": "grid_formats",
+    "title": "Grid Formats and Files",
+    "order": 120
+  },
+  "parameter_key": "bcRegionMapFile"
+}

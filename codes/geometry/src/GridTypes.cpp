@@ -24,6 +24,7 @@ License
 #include "DataBase.h"
 #include "Prj.h"
 #include <exception>
+#include <stdexcept>
 
 BeginNameSpace( ONEFLOW )
 
@@ -50,9 +51,36 @@ std::string GridConfig::GetSourceCaseDir()
     }
 }
 
+std::string GridConfig::GetBcRegionMapFileName()
+{
+    constexpr const char * defaultFileName = "grid/bcRegionMap.txt";
+    DataBase * database = GetGlobalDataBase();
+    if ( database == nullptr )
+    {
+        return defaultFileName;
+    }
+
+    const DataEntry * entry =
+        database->RequireDataPara().FindDataEntry( "bcRegionMapFile" );
+    if ( entry == nullptr )
+    {
+        return defaultFileName;
+    }
+    if ( entry->GetType() != HX_STRING )
+    {
+        throw std::invalid_argument(
+            "Control parameter \"bcRegionMapFile\" must be a string" );
+    }
+
+    const std::string fileName =
+        GetDataValue< std::string >( &entry->GetDataObject(), 0 );
+    return fileName.empty() ? defaultFileName : fileName;
+}
+
 GridConfig GridConfig::FromDataBase()
 {
     GridConfig cfg;
+    cfg.bcRegionMapFile = GridConfig::GetBcRegionMapFileName();
 
     cfg.sourceFile = GetDataValue< std::string >( "sourceGridFileName" );
 

@@ -135,6 +135,8 @@ struct GridConfig
     std::string   layoutFile;
     std::string   bcFile;
     std::string   targetFile;
+    // Case-relative boundary-region name map shared by grid generation and solve.
+    std::string   bcRegionMapFile{ "grid/bcRegionMap.txt" };
     // External mesher executable used by generation workflows such as STL -> Gmsh.
     std::string   gmshExecutable{ "gmsh" };
     GridOutputConfig output;
@@ -154,6 +156,7 @@ struct GridConfig
 
     // Implemented in GridTypes.cpp (needs DataBase).
     static GridConfig FromDataBase();
+    static std::string GetBcRegionMapFileName();
 
     // Return the optional external source case for the current grid configuration.
     static std::string GetSourceCaseDir();

@@ -27,6 +27,7 @@ License
 
 #include "Prj.h"
 #include "BcRecord.h"
+#include "GridTypes.h"
 
 #include <iostream>
 #include <vector>
@@ -283,7 +284,10 @@ int RegionNameMap::FindRegionId( const std::string & regionName )
 
 void RegionNameMap::DumpRegion()
 {
-    RegionNameMap::DumpRegion( "grid/bcRegionMap.txt" );
+    const std::string fileName =
+        Prj::GetMeshOutputFileName( GridConfig::GetBcRegionMapFileName() );
+    Prj::CreateDirIfNeeded( fileName );
+    RegionNameMap::DumpRegion( fileName );
 }
 
 void RegionNameMap::DumpRegion( const std::string & fileName )

@@ -766,8 +766,17 @@ classification, and evidence state. A missing consumer audit means
 ``not_yet_audited``, not unused. A key with no known formula remains a
 parameter entry with an explicit explanation, not an invented equation.
 
-Case parameter-file generation is a later consumer of this catalog, not a
-shortcut around it. A generated Case should be assembled from a compatible
+The boundary-region name map path is controlled by the optional string
+parameter ``bcRegionMapFile``. Its default is ``grid/bcRegionMap.txt`` when the
+key is absent or its value is empty. Grid generation writes the map under the
+configured mesh-output root; the solver reads the same case-relative path under
+the configured mesh-input root (or under ``sourceGridCaseDir`` when an external
+source Case is selected). This keeps the producer and consumer aligned while
+allowing cases and mesh workflows to place the map elsewhere. A present value
+must be a string; a type mismatch is a configuration error rather than a silent
+fallback.
+
+Case parameter-file generation is a later consumer of this catalog. A generated Case should be assembled from a compatible
 profile of task, dimension, solver/equation system, physical models, grid,
 boundary conditions, and numerical methods. The generator must:
 

@@ -50,11 +50,12 @@ void BcData::Init( const std::string & fileName )
 void BcData::ReadRegion()
 {
     const std::string sourceCaseDir = GridConfig::GetSourceCaseDir();
-    const std::string gridPath = sourceCaseDir.empty()
-        ? Prj::GetMeshInputFileName( GetGridFileName() )
-        : Prj::GetCaseFileName( sourceCaseDir, GetGridFileName() );
-    const std::filesystem::path regionMapPath =
-        std::filesystem::path( gridPath ).parent_path() / "bcRegionMap.txt";
+    const std::string bcRegionMapFile = GridConfig::GetBcRegionMapFileName();
+    const std::filesystem::path regionMapPath = sourceCaseDir.empty()
+        ? std::filesystem::path(
+            Prj::GetMeshInputFileName( bcRegionMapFile ) )
+        : std::filesystem::path(
+            Prj::GetCaseFileName( sourceCaseDir, bcRegionMapFile ) );
 
     std::fstream file;
     Prj::OpenFile( file, regionMapPath.string(), std::ios_base::in );

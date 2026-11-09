@@ -418,11 +418,9 @@ void CalcGrid::GenerateMultiZoneCalcGrids(
 {
     this->Init( std::move( grids ), config );
 
-    const std::filesystem::path targetGridPath =
-        Prj::GetMeshOutputFileName( this->gridFileName );
     const std::filesystem::path regionMapPath =
-        targetGridPath.parent_path() / "bcRegionMap.txt";
-    Prj::CreateDirIfNeeded( targetGridPath.string() );
+        Prj::GetMeshOutputFileName( this->config.bcRegionMapFile );
+    Prj::CreateDirIfNeeded( regionMapPath.string() );
     RegionNameMap::DumpRegion( regionMapPath.string() );
 
     this->Post();
