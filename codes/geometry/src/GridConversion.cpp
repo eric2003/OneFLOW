@@ -941,6 +941,19 @@ namespace
             std::istreambuf_iterator<char>()};
         const GmshMesh generated = ReadGmsh41AsciiMesh(meshContent);
         const GmshMeshReadReport meshReport = BuildGmshMeshReadReport(generated);
+        const double domainTolerance = std::max(
+            config.stlWeldTolerance,
+            64.0 * std::numeric_limits<double>::epsilon() *
+                std::max({std::abs(xmin), std::abs(xmax),
+                          std::abs(ymin), std::abs(ymax), 1.0}));
+        if (std::abs(meshReport.minimumCoordinates[0] - xmin) > domainTolerance ||
+            std::abs(meshReport.maximumCoordinates[0] - xmax) > domainTolerance ||
+            std::abs(meshReport.minimumCoordinates[1] - ymin) > domainTolerance ||
+            std::abs(meshReport.maximumCoordinates[1] - ymax) > domainTolerance ||
+            std::abs(meshReport.maximumCoordinates[2] -
+                     meshReport.minimumCoordinates[2]) > domainTolerance)
+            throw std::runtime_error(
+                "Generated external-flow mesh coordinates do not match the planar computational domain");
 
         std::size_t lineElements = 0;
         std::size_t triangleElements = 0;
