@@ -63,7 +63,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             "id": "cgns_mesh", "path": "results/square.cgns",
             "parameter_file": "script/grid.txt", "setting": "targetGridFileName",
         })
-        self.assertEqual(cases[2]["id"], "cgns_to_oneflow")
+        self.assertEqual(cases[2]["id"], "gmsh_to_oneflow")
         self.assertEqual(cases[2]["depends_on"], ["gmsh_to_cgns"])
         self.assertEqual(cases[2]["directory"], "grid/stl_to_gmsh/pipeline/cgns_to_oneflow")
         self.assertEqual(cases[2]["outputs"][0], {
@@ -71,7 +71,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             "parameter_file": "script/grid.txt", "setting": "targetGridFileName",
         })
         self.assertEqual(cases[3]["id"], "laminar_flat_plate_solve")
-        self.assertEqual(cases[3]["depends_on"], ["cgns_to_oneflow"])
+        self.assertEqual(cases[3]["depends_on"], ["gmsh_to_oneflow"])
         self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
         self.assertEqual(cases[3]["inputs"][0]["artifact"], "oneflow_grid")
 
@@ -83,10 +83,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 "Declared output artifacts were not produced: results/mesh.cgns",
             ),
             CaseExecutionResult(
-                "cgns_to_oneflow", "skipped", "Blocked by unsuccessful dependencies: gmsh_to_cgns",
+                "gmsh_to_oneflow", "skipped", "Blocked by unsuccessful dependencies: gmsh_to_cgns",
             ),
             CaseExecutionResult(
-                "laminar_flat_plate_solve", "skipped", "Blocked by unsuccessful dependencies: cgns_to_oneflow",
+                "laminar_flat_plate_solve", "skipped", "Blocked by unsuccessful dependencies: gmsh_to_oneflow",
             ),
         ))
         self.assertEqual(_graph_step_records(result), [
@@ -94,10 +94,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
              "message": "OneFLOW exited successfully."},
             {"case_id": "gmsh_to_cgns", "status": "failed",
              "message": "Declared output artifacts were not produced: results/mesh.cgns"},
-            {"case_id": "cgns_to_oneflow", "status": "skipped",
+            {"case_id": "gmsh_to_oneflow", "status": "skipped",
              "message": "Blocked by unsuccessful dependencies: gmsh_to_cgns"},
             {"case_id": "laminar_flat_plate_solve", "status": "skipped",
-             "message": "Blocked by unsuccessful dependencies: cgns_to_oneflow"},
+             "message": "Blocked by unsuccessful dependencies: gmsh_to_oneflow"},
         ])
 
     def test_unknown_mesh_case_and_template_are_rejected(self):
