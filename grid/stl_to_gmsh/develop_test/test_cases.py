@@ -215,15 +215,19 @@ class StlToGmshCaseTest(unittest.TestCase):
                 result.returncode, 0,
                 msg=result.stdout + "\\n" + result.stderr,
             )
-            mesh = inspect_msh4(staged / "results/model.msh")
+            mesh = inspect_msh4(staged / "results/square.msh")
             self.assertEqual(mesh["nodes"], 4)
             self.assertEqual(mesh["line_elements"], 4)
             self.assertEqual(mesh["quadrilateral_elements"], 1)
             report = json.loads(
-                (staged / "results/report.json").read_text(encoding="utf-8")
+                (staged / "results/square.stl-to-gmsh-report.json").read_text(
+                    encoding="utf-8"
+                )
             )
             self.assertTrue(report["validated"])
+            self.assertEqual(report["mesh"], "results/square.msh")
             self.assertEqual(report["contract"]["quality_limits"], {})
+            self.assertFalse((staged / "results/model.msh").exists())
         self.assertFalse((source / "results").exists())
 
     def test_python_circle_external_flow_generates_valid_gmsh_mesh(self):
@@ -249,7 +253,7 @@ class StlToGmshCaseTest(unittest.TestCase):
                 result.returncode, 0,
                 msg=result.stdout + "\\n" + result.stderr,
             )
-            mesh = inspect_msh4(staged / "results/model.msh")
+            mesh = inspect_msh4(staged / "results/circle_external_flow.msh")
             self.assertGreater(mesh["nodes"], 20)
             self.assertGreater(mesh["line_elements"], 0)
             self.assertGreater(mesh["triangle_elements"], 0)
@@ -269,9 +273,13 @@ class StlToGmshCaseTest(unittest.TestCase):
                 (1, "farfield"), (2, "fluid_domain"),
             })
             report = json.loads(
-                (staged / "results/report.json").read_text(encoding="utf-8")
+                (staged / "results/circle_external_flow.stl-to-gmsh-report.json").read_text(
+                    encoding="utf-8"
+                )
             )
             self.assertTrue(report["validated"])
+            self.assertEqual(report["mesh"], "results/circle_external_flow.msh")
+            self.assertFalse((staged / "results/model.msh").exists())
         self.assertFalse((source / "results").exists())
 
     def test_external_and_internal_flow_cases_build_distinct_fluid_domains(self):

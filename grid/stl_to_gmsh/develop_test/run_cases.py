@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -123,8 +124,18 @@ def run_all(stage_root: Path, oneflow: Path, gmsh: str) -> list[tuple[str, Path]
             ],
             destination,
         )
-        if not (destination / "results/model.msh").is_file():
-            raise RuntimeError(f"{case_id}: Python runner did not create results/model.msh")
+        expected = json.loads(
+            (destination / "expected.json").read_text(encoding="utf-8")
+        )
+        mesh_name = expected["artifact"]["mesh_file"]
+        report_name = f"{Path(mesh_name).stem}.stl-to-gmsh-report.json"
+        mesh = destination / "results" / mesh_name
+        report = destination / "results" / report_name
+        if not mesh.is_file() or not report.is_file():
+            raise RuntimeError(
+                f"{case_id}: expected mesh/report outputs are missing under "
+                f"{destination / 'results'}"
+            )
         outputs.append((case_id, destination))
     return outputs
 

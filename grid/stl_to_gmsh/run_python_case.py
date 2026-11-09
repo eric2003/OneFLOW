@@ -13,11 +13,23 @@ def run_case(case_directory: Path, gmsh: str) -> dict:
     source, sidecar = case / "input/model.stl", case / "script/layout.json"
     expected_path = case / "expected.json"
     results = case / "results"
-    geo, msh = results / "model.geo", results / "model.msh"
     for path in (source, sidecar, expected_path):
         if not path.is_file():
             raise FileNotFoundError(f"Required Case input does not exist: {path}")
     expected = json.loads(expected_path.read_text(encoding="utf-8"))
+    artifact = expected.get("artifact", {})
+    mesh_name = artifact.get("mesh_file")
+    if (
+        not isinstance(mesh_name, str)
+        or not mesh_name.endswith(".msh")
+        or Path(mesh_name).name != mesh_name
+    ):
+        raise ValueError(
+            "expected.json must declare artifact.mesh_file as a simple .msh filename"
+        )
+    mesh_stem = Path(mesh_name).stem
+    geo, msh = results / f"{mesh_stem}.geo", results / mesh_name
+    report_path = results / f"{mesh_stem}.stl-to-gmsh-report.json"
     layout = json.loads(sidecar.read_text(encoding="utf-8"))
     results.mkdir(parents=True, exist_ok=True)
     geometry = convert(source, sidecar, geo, tolerance=1.0e-10)
@@ -72,15 +84,15 @@ def run_case(case_directory: Path, gmsh: str) -> dict:
     if groups != wanted_groups:
         raise RuntimeError(f"Physical Groups {sorted(groups)} do not match {sorted(wanted_groups)}")
     report = {"schema": "oneflow.stl-to-gmsh-validation-report", "version": 1,
-              "case": case.name, "geometry": "results/model.geo",
-              "mesh": "results/model.msh",
+              "case": case.name, "geometry": f"results/{mesh_stem}.geo",
+              "mesh": f"results/{mesh_name}",
               "contract": {"domain": layout.get("domain"),
                            "surface_name": layout.get("surface_name"),
                            "body_boundary_name": layout.get("body_boundary_name"),
                            "quality_limits": quality_limits},
               "geometry_report": geometry, "mesh_summary": mesh,
               "expected": expected, "validated": True}
-    (results / "report.json").write_text(
+    report_path.write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n",
         encoding="utf-8", newline="\n")
     print(json.dumps(report, indent=2))

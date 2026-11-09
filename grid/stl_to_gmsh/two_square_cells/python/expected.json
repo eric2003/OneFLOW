@@ -28,5 +28,8 @@
       "dimension": 2,
       "name": "fluid_domain"
     }
-  ]
+  ],
+  "artifact": {
+    "mesh_file": "two_square_cells.msh"
+  }
 }

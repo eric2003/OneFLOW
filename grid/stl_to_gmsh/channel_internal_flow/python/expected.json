@@ -26,5 +26,8 @@
       "dimension": 2,
       "name": "Fluid"
     }
-  ]
+  ],
+  "artifact": {
+    "mesh_file": "channel_internal_flow.msh"
+  }
 }

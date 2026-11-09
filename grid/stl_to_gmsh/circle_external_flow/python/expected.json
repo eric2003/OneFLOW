@@ -25,5 +25,8 @@
     "nodes": 20,
     "line_elements": 10,
     "triangle_elements": 1
+  },
+  "artifact": {
+    "mesh_file": "circle_external_flow.msh"
   }
 }
