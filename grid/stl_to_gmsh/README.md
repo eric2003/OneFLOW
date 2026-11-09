@@ -94,8 +94,10 @@ The optional dependency workflow uses the same square geometry and the
 3. Gmsh -> OneFLOW: the pipeline Case consumes the CGNS interchange artifact and writes
    results/square.oneflow.grid, results/bcRegionMap.txt and
    results/square.info.json. The boundary map is the sidecar that the CFD
-   solver reads for boundary-region setup; the info JSON records native-grid
-   metadata for inspection.
+   solver reads for boundary-region setup; the OneFLOW conversion Case
+   explicitly sets ``bcRegionMapFile = "results/bcRegionMap.txt"`` because
+   its mesh output root is the Case root and the grid artifact lives in
+   ``results/``. The info JSON records native-grid metadata for inspection.
 4. CFD Solve: the dedicated cfd_uns2dslau2 pipeline Case consumes the native grid and must produce residual, restart-flow and visualization outputs.
 
 CGNS remains an explicit, validated intermediate artifact; the end-to-end

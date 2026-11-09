@@ -389,6 +389,10 @@ class StlToGmshCaseTest(unittest.TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn('string sourceGridType = "cgns";', cgns_grid)
         self.assertIn('string targetGridType = "oneflow";', cgns_grid)
+        self.assertIn(
+            'string bcRegionMapFile = "results/bcRegionMap.txt";',
+            cgns_grid,
+        )
         case_definitions = {
             case["id"]: case for case in workflow["steps"][0]["cases"]
         }

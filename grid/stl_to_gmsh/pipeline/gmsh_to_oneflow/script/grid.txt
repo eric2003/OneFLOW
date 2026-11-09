@@ -1,5 +1,6 @@
 string meshInputRoot = "default";
 string meshOutputRoot = "default";
+string bcRegionMapFile = "results/bcRegionMap.txt";
 
 int gridObj = 1;
 string topoType = "u";
