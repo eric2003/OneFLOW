@@ -236,9 +236,19 @@ def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: 
     size = float(config.get("mesh_size", 1.0))
     if not math.isfinite(size) or size <= 0:
         raise Stl2DError("mesh_size must be positive and finite")
+    outer_size = float(config.get("outer_mesh_size", size))
+    if "_domain_bounds" in config and (
+        not math.isfinite(outer_size) or outer_size <= 0
+    ):
+        raise Stl2DError("outer_mesh_size must be positive and finite")
     cell_layout = _transfinite_cell_layout(loop, config)
     lines = ['// Generated from planar STL by OneFLOW.', 'SetFactory("Built-in");', f"lc = {size:.17g};"]
     if "_domain_bounds" in config:
+        lines.extend([
+            f"lc_outer = {outer_size:.17g};",
+            f"Mesh.MeshSizeMin = {min(size, outer_size):.17g};",
+            f"Mesh.MeshSizeMax = {max(size, outer_size):.17g};",
+        ])
         n = len(loop)
         bounds = config["_domain_bounds"]
         body_lines = list(range(1, n + 1))
@@ -257,7 +267,7 @@ def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: 
         ]
         first_outer_point = n + 1
         for offset,(x,y) in enumerate(outer_points):
-            lines.append(f"Point({first_outer_point+offset}) = {{{x:.17g}, {y:.17g}, 0, lc}};")
+            lines.append(f"Point({first_outer_point+offset}) = {{{x:.17g}, {y:.17g}, 0, lc_outer}};")
         first_outer_line = n + 1
         outer_line_ids = {
             "bottom": first_outer_line,

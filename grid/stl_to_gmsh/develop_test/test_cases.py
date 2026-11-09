@@ -165,6 +165,9 @@ class StlToGmshCaseTest(unittest.TestCase):
             external_text = external_geo.read_text(encoding="utf-8")
             self.assertEqual(external_report["body_boundary_edges"], 32)
             self.assertIn("Plane Surface(1) = {1, 2};", external_text)
+            self.assertIn("lc = 0.22;", external_text)
+            self.assertIn("lc_outer =", external_text)
+            self.assertIn("Point(33) = {-3, -3, 0, lc_outer};", external_text)
             self.assertIn('Physical Curve("wall")', external_text)
             self.assertEqual(external_text.count('Physical Curve("farfield")'), 1)
             for name in ("inflow", "outflow", "farfield", "wall"):
