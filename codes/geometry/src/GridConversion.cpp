@@ -1047,7 +1047,7 @@ namespace
             throw std::runtime_error("Generated external-flow MSH Physical Groups do not match the boundary contract");
 
         Json report;
-        report["schema"] = "oneflow.stl-to-gmsh-report";
+        report["schema"] = "oneflow.stl-to-gmsh-validation-report";
         report["version"] = 1;
         report["case_type"] = "2d_external_flow";
         report["source_stl"] = source.lexically_normal().string();
@@ -1057,8 +1057,16 @@ namespace
         report["gmsh_version"] = generated.version;
         report["stl_triangles"] = stl.triangles.size();
         report["stl_boundary_vertices"] = body.vertices.size();
-        report["domain"] = {
-            {"xmin", xmin}, {"xmax", xmax}, {"ymin", ymin}, {"ymax", ymax}};
+        report["contract"] = {
+            {"domain", {
+                {"xmin", xmin}, {"xmax", xmax}, {"ymin", ymin}, {"ymax", ymax},
+                {"boundaries", boundaryOptions}}},
+            {"surface_name", surfaceName},
+            {"body_boundary_name", bodyName},
+            {"quality_limits", {
+                {"minimum_triangle_quality", minimumQuality},
+                {"minimum_angle_degrees", minimumAngleDegrees}}}};
+        report["domain"] = report["contract"]["domain"];
         report["mesh_summary"] = {
             {"nodes", generated.nodes.size()},
             {"line_elements", lineElements},
