@@ -208,30 +208,13 @@ namespace
 {
 const char * CgnsBcTypeName( int bcType )
 {
-    switch ( bcType )
+    if ( bcType < 0 || bcType >= NofValidBCTypes )
     {
-    case CGNS_ENUMV( BCTypeNull ): return "BCTypeNull";
-    case CGNS_ENUMV( BCTypeUserDefined ): return "BCTypeUserDefined";
-    case CGNS_ENUMV( BCExtrapolate ): return "BCExtrapolate";
-    case CGNS_ENUMV( BCSymmetryPlane ): return "BCSymmetryPlane";
-    case CGNS_ENUMV( BCInflow ): return "BCInflow";
-    case CGNS_ENUMV( BCInflowSubsonic ): return "BCInflowSubsonic";
-    case CGNS_ENUMV( BCInflowSupersonic ): return "BCInflowSupersonic";
-    case CGNS_ENUMV( BCTunnelInflow ): return "BCTunnelInflow";
-    case CGNS_ENUMV( BCOutflow ): return "BCOutflow";
-    case CGNS_ENUMV( BCOutflowSubsonic ): return "BCOutflowSubsonic";
-    case CGNS_ENUMV( BCOutflowSupersonic ): return "BCOutflowSupersonic";
-    case CGNS_ENUMV( BCTunnelOutflow ): return "BCTunnelOutflow";
-    case CGNS_ENUMV( BCWall ): return "BCWall";
-    case CGNS_ENUMV( BCWallInviscid ): return "BCWallInviscid";
-    case CGNS_ENUMV( BCWallViscous ): return "BCWallViscous";
-    case CGNS_ENUMV( BCWallViscousHeatFlux ): return "BCWallViscousHeatFlux";
-    case CGNS_ENUMV( BCWallViscousIsothermal ): return "BCWallViscousIsothermal";
-    case CGNS_ENUMV( BCDegenerateLine ): return "BCDegenerateLine";
-    case CGNS_ENUMV( BCFarfield ): return "BCFarfield";
-    case CGNS_ENUMV( BCGeneral ): return "BCGeneral";
-    default: return "UnknownCGNS";
+        return "UnknownCGNS";
     }
+
+    const char * typeName = BCTypeName[ bcType ];
+    return typeName ? typeName : "UnknownCGNS";
 }
 
 const char * OneFlowBcTypeName( int bcType )
