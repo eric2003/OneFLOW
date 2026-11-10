@@ -26,6 +26,8 @@ EXPECTED_IDS = {
     "stl_to_gmsh_python_two_square_cells",
     "stl_to_gmsh_python_circle_external_flow",
     "stl_to_gmsh_python_channel_internal_flow",
+    "stl_to_gmsh_cube_single_hex",
+    "stl_to_gmsh_python_cube_single_hex",
 }
 
 
@@ -47,13 +49,38 @@ class StlToGmshCaseTest(unittest.TestCase):
             "circle_external_flow/cpp": (
                 "circle_external_flow/cpp", "circle_external_flow.msh"
             ),
+            "cube_single_hex/cpp": ("cube_single_hex/cpp", "cube_single_hex.msh"),
         })
         self.assertEqual(PYTHON_CASES, {
             "square/python": "square/python",
             "two_square_cells/python": "two_square_cells/python",
             "circle_external_flow/python": "circle_external_flow/python",
             "channel_internal_flow/python": "channel_internal_flow/python",
+            "cube_single_hex/python": "cube_single_hex/python",
         })
+
+    def test_cube_cases_are_registered_and_staged_for_both_implementations(self):
+        native = self.entries["stl_to_gmsh_cube_single_hex"]
+        python = self.entries["stl_to_gmsh_python_cube_single_hex"]
+        self.assertEqual(native["directory"], "grid/stl_to_gmsh/cube_single_hex/cpp")
+        self.assertNotIn("execution", native)
+        self.assertEqual(python["directory"], "grid/stl_to_gmsh/cube_single_hex/python")
+        self.assertEqual(python["execution"]["kind"], "python")
+        self.assertEqual(validate_case(ROOT, native), [])
+        self.assertEqual(validate_case(ROOT, python), [])
+        self.assertEqual(
+            (ROOT / native["directory"] / "input/model.stl").read_bytes(),
+            (ROOT / python["directory"] / "input/model.stl").read_bytes(),
+        )
+        self.assertEqual(
+            json.loads((ROOT / native["directory"] / "script/layout.json").read_text()),
+            json.loads((ROOT / python["directory"] / "script/layout.json").read_text()),
+        )
+        self.assertIn("cube_single_hex/cpp", NATIVE_CASES)
+        self.assertIn("cube_single_hex/python", PYTHON_CASES)
+        for entry in (native, python):
+            self.assertTrue((ROOT / entry["directory"] / "input/model.stl").is_file())
+            self.assertTrue((ROOT / entry["directory"] / "script/layout.json").is_file())
 
     def test_native_and_python_cases_are_registered_separately(self):
         self.assertEqual(set(self.entries), EXPECTED_IDS)
@@ -342,6 +369,36 @@ class StlToGmshCaseTest(unittest.TestCase):
 
         for case in (external, internal):
             self.assertFalse((case / "results").exists())
+
+
+    def test_python_cube_single_hex_generates_one_hexahedron(self):
+        gmsh = shutil.which("gmsh")
+        if gmsh is None:
+            self.skipTest("Gmsh executable is not available")
+        source = ROOT / "grid/stl_to_gmsh/cube_single_hex/python"
+        with tempfile.TemporaryDirectory() as temporary:
+            staged = Path(temporary) / "cube_single_hex"
+            shutil.copytree(source, staged)
+            command = [
+                sys.executable, str(ROOT / "grid/stl_to_gmsh/run_python_case.py"),
+                "--case-directory", str(staged), "--gmsh", gmsh,
+            ]
+            result = subprocess.run(command, cwd=staged, text=True, capture_output=True, check=False)
+            self.assertEqual(result.returncode, 0, msg=result.stdout + "\\n" + result.stderr)
+            mesh = inspect_msh4(staged / "results/cube_single_hex.msh")
+            self.assertEqual(mesh["nodes"], 8)
+            self.assertEqual(mesh["quadrilateral_elements"], 6)
+            self.assertEqual(mesh["hexahedron_elements"], 1)
+            self.assertEqual(mesh["triangle_elements"], 0)
+            groups = {(item["dimension"], item["name"]) for item in mesh["physical_groups"]}
+            self.assertEqual(groups, {
+                (2, "wall"), (2, "inflow"), (2, "outflow"),
+                (2, "symmetry"), (2, "farfield"), (3, "fluid_domain"),
+            })
+            self.assertTrue(json.loads(
+                (staged / "results/cube_single_hex.stl-to-gmsh-report.json").read_text()
+            )["validated"])
+        self.assertFalse((source / "results").exists())
 
     def test_stl_to_cfd_pipeline_declares_ordered_artifact_handoffs(self):
         workflow_path = ROOT / "grid/stl_to_gmsh/develop_test/stl_square_to_cfd.json"

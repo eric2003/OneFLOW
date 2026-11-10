@@ -344,3 +344,25 @@ A successful 50-step run does not establish convergence, conservation,
 boundary-condition correctness, or grid independence. Those require
 subsequent residual-history, finite/positive flow-state, flux-balance, and
 analytical or manufactured-solution verification.
+
+
+STL cube single-hexahedron validation
+-------------------------------------
+
+The `grid/stl_to_gmsh/cube_single_hex` Case pair adds a constrained 3-D
+producer to the STL-to-Gmsh collection. The native C++ and independent Python
+reference implementations accept an axis-aligned cube STL with twelve
+triangles and reconstruct six planar faces plus one volume. Gmsh must generate
+exactly eight nodes, six QUAD_4 boundary elements and one HEXA_8 volume cell.
+The boundary Physical Groups are XMin/inflow, XMax/outflow, YMin/symmetry,
+YMax/farfield, and ZMin+ZMax/wall; fluid_domain is the volume group.
+
+The Case appears in both Run Development Cases and Python Reference Cases,
+and is discoverable by Mesh-to-CFD Validation through the Case catalog. Its
+validation graph ends after STL -> Gmsh -> CGNS -> OneFLOW, where the
+FaceCenter boundary locations and boundary-region map are checked. It does
+not run the unrelated flat-plate CFD template. This prototype is limited to
+axis-aligned cubes with equal edge lengths; it is not a general STL-to-hex
+mesher. The unit-test suite is stored under tests/python/grid rather than in
+the grid/stl_to_gmsh Case tree, and all executable Cases are staged outside
+the source repository before running.

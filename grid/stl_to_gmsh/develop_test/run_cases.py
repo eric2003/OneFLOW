@@ -17,12 +17,14 @@ NATIVE_CASES = {
     "square_2x2/cpp": ("square_2x2/cpp", "square_2x2.msh"),
     "two_square_cells/cpp": ("two_square_cells/cpp", "two_square_cells.msh"),
     "circle_external_flow/cpp": ("circle_external_flow/cpp", "circle_external_flow.msh"),
+    "cube_single_hex/cpp": ("cube_single_hex/cpp", "cube_single_hex.msh"),
 }
 PYTHON_CASES = {
     "square/python": "square/python",
     "two_square_cells/python": "two_square_cells/python",
     "circle_external_flow/python": "circle_external_flow/python",
     "channel_internal_flow/python": "channel_internal_flow/python",
+    "cube_single_hex/python": "cube_single_hex/python",
 }
 
 

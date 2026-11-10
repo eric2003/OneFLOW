@@ -25,6 +25,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.root = Path(self.temporary.name)
         (self.root / "grid/stl_to_gmsh/square/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/circle_external_flow/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/cube_single_hex/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/square/python").mkdir(parents=True)
         (self.root / "test/cfd/plateuns2dslau2/script").mkdir(parents=True)
         (self.root / "grid/case_catalog.json").write_text(json.dumps({
@@ -36,6 +37,13 @@ class MeshValidationCatalogTest(unittest.TestCase):
                  "title": "Circle External Flow (Native C++)",
                  "directory": "grid/stl_to_gmsh/circle_external_flow/cpp",
                  "group": "STL to Gmsh"},
+                {"id": "native_cube", "title": "Cube Single Hex (Native C++)",
+                 "directory": "grid/stl_to_gmsh/cube_single_hex/cpp",
+                 "group": "STL to Gmsh"},
+                {"id": "python_cube", "title": "Cube Single Hex (Python Reference)",
+                 "directory": "grid/stl_to_gmsh/cube_single_hex/python",
+                 "group": "STL to Gmsh",
+                 "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
                 {"id": "python_square", "title": "One Square Cell (Python Reference)",
                  "directory": "grid/stl_to_gmsh/square/python",
                  "group": "STL to Gmsh",
@@ -48,6 +56,11 @@ class MeshValidationCatalogTest(unittest.TestCase):
         (self.root / "grid/stl_to_gmsh/circle_external_flow/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/circle_external_flow.msh";\n',
             encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/cube_single_hex/cpp/script/grid.txt").write_text(
+            'string sourceGridFileName = "input/model.stl";\n'
+            'string targetGridFileName = "results/cube_single_hex.msh";\n', encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/cube_single_hex/cpp/script/layout.json").write_text(
+            json.dumps({"mesh_dimension": 3}), encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/square/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/square.msh";\n', encoding="utf-8")
         (self.root / "test/cfd/plateuns2dslau2/script/cfd.txt").write_text(
@@ -62,9 +75,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(mesh_case_choices(self.root), (
             ("stl_to_gmsh_square", "One Square Cell"),
             ("stl_to_gmsh_circle_external_flow", "Circle External Flow (Native C++)"),
+            ("native_cube", "Cube Single Hex (Native C++)"),
+            ("python_cube", "Cube Single Hex (Python Reference)"),
             ("python_square", "One Square Cell (Python Reference)"),
         ))
-
     def test_mesh_producer_command_dispatches_by_implementation(self):
         python_entry = {
             "execution": {
@@ -152,6 +166,34 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[1]["directory"], "grid/gmsh_to_cgns")
         self.assertEqual(cases[3]["inputs"][1]["artifact"], "bc_region_map")
         self.assertEqual(cases[3]["inputs"][1]["setting"], "bcRegionMapFile")
+
+
+    def test_native_cube_single_hex_uses_topology_only_validation_chain(self):
+        cases = build_mesh_validation_cases(self.root, "native_cube", "laminar_flat_plate")
+        self.assertEqual([item["id"] for item in cases],
+                         ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow"])
+        self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/cube_single_hex/cpp")
+        self.assertEqual(cases[0]["outputs"][0]["path"], "results/cube_single_hex.msh")
+
+    def test_cube_single_hex_uses_topology_only_validation_chain(self):
+        cube_dir = self.root / "grid/stl_to_gmsh/cube_single_hex/python"
+        (cube_dir / "script").mkdir(parents=True, exist_ok=True)
+        (cube_dir / "script/layout.json").write_text(
+            json.dumps({"mesh_dimension": 3}), encoding="utf-8"
+        )
+        (cube_dir / "expected.json").write_text(
+            json.dumps({"artifact": {"mesh_file": "cube_single_hex.msh"}}),
+            encoding="utf-8",
+        )
+        cases = build_mesh_validation_cases(
+            self.root, "python_cube", "laminar_flat_plate"
+        )
+        self.assertEqual([item["id"] for item in cases],
+                         ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow"])
+        self.assertEqual(cases[0]["validation"], {
+            "kind": "gmsh_msh4", "path": "results/cube_single_hex.msh"
+        })
+        self.assertNotIn("laminar_flat_plate_solve", [item["id"] for item in cases])
 
     def test_first_cfd_template_is_the_existing_laminar_flat_plate_case(self):
         self.assertEqual(cfd_template_choices(), (("laminar_flat_plate", "Laminar Flat Plate"),))

@@ -109,8 +109,8 @@ class MeshValidationDialog(QDialog):
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel(
             "Select one or more native C++ or Python STL-to-Gmsh Cases. Each selected "
-            "Case runs its complete "
-            "STL → Gmsh → CGNS → OneFLOW grid → CFD validation chain. Re-running a Case "
+            "Case runs its applicable "
+            "STL → Gmsh → CGNS → OneFLOW validation chain; 3D single-cell topology fixtures stop before CFD. Re-running a Case "
             "clears only that Case's previous validation directory."
         ))
 
@@ -170,7 +170,7 @@ class MeshValidationDialog(QDialog):
         self.steps_spin.setValue(2)
         self.steps_spin.setToolTip("Short CFD solver smoke-test iteration count.")
         form.addRow("OneFLOW executable", self.executable_combo)
-        form.addRow("CFD consumer template", self.template_combo)
+        form.addRow("CFD consumer template (not used by 3D topology-only cases)", self.template_combo)
         form.addRow("CFD smoke-test steps", self.steps_spin)
         layout.addLayout(form)
 

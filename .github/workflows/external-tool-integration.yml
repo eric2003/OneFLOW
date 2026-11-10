@@ -124,6 +124,9 @@ jobs:
               }
           }
 
+          python -m unittest tests.python.grid.test_stl_to_gmsh_cases
+          if ($LASTEXITCODE -ne 0) { throw "STL-to-Gmsh Python tests failed with exit code $LASTEXITCODE." }
+
           python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline --gmsh gmsh --stage-root "${{ runner.temp }}/stl-to-cfd"
           if ($LASTEXITCODE -ne 0) {
               throw "The STL-to-Gmsh development Cases or STL-to-CFD pipeline failed with exit code $LASTEXITCODE."

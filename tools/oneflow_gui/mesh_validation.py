@@ -107,7 +107,7 @@ def build_mesh_validation_cases(
     cgns, native = f"results/{stem}.cgns", f"results/{stem}.oneflow.grid"
     mesh_id, cgns_id, native_id = "gmsh_mesh", "cgns_mesh", "oneflow_grid"
     cfd_config = root / template["directory"] / "script/cfd.txt"
-    return [
+    steps = [
         {"id": "stl_to_gmsh", "directory": mesh["directory"],
          "outputs": (
              [{"id": mesh_id, "path": msh, "parameter_file": "script/grid.txt",
@@ -151,6 +151,12 @@ def build_mesh_validation_cases(
              {"id": "visual", "path": _setting(cfd_config, "visualFile")},
          ]},
     ]
+    layout_path = mesh_dir / "script/layout.json"
+    if layout_path.is_file():
+        layout_data = json.loads(layout_path.read_text(encoding="utf-8"))
+        if layout_data.get("mesh_dimension") == 3:
+            return steps[:3]
+    return steps
 
 
 def _external(path: Path) -> Path:
@@ -327,7 +333,7 @@ def run_mesh_validation(
         "mesh_implementation": mesh_implementation,
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
-        "note": "The selected CFD consumer is a runtime smoke test unless a matching physical validation contract is explicitly defined; applying the flat-plate template to another geometry does not establish flat-plate physics.",
+        "note": ("3D single-cell cube validation ends after OneFLOW grid and boundary-map handoff; it is not a CFD accuracy test." if len(cases) == 3 else "The selected CFD consumer is a runtime smoke test unless a matching physical validation contract is explicitly defined; applying the flat-plate template to another geometry does not establish flat-plate physics."),
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
     report_path = run_root / "mesh-validation-report.json"

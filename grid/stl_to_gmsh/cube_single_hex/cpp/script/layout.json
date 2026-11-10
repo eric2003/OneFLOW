@@ -1,0 +1,13 @@
+{
+  "volume_mesh": "axis_aligned_cube_single_hex",
+  "mesh_dimension": 3,
+  "surface_name": "fluid_domain",
+  "boundary_groups": {
+    "xmin": "inflow",
+    "xmax": "outflow",
+    "ymin": "symmetry",
+    "ymax": "farfield",
+    "zmin": "wall",
+    "zmax": "wall"
+  }
+}

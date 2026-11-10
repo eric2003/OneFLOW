@@ -16,6 +16,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <map>
 #include <stdexcept>
 #include <set>
 #include <string>
@@ -254,6 +255,28 @@ TEST(StlMeshIOTest, RejectsBinaryWriterValuesOutsideFloat32Range)
 }
 
 
+
+#if ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS
+ONEFLOW::StlMesh MakeCubeStl()
+{
+    ONEFLOW::StlMesh mesh;
+    const std::array<std::array<std::array<double, 3>, 3>, 12> faces{{
+        {{{0,0,0},{1,1,0},{1,0,0}}}, {{{0,0,0},{0,1,0},{1,1,0}}},
+        {{{0,0,1},{1,0,1},{1,1,1}}}, {{{0,0,1},{1,1,1},{0,1,1}}},
+        {{{0,0,0},{0,0,1},{0,1,1}}}, {{{0,0,0},{0,1,1},{0,1,0}}},
+        {{{1,0,0},{1,1,0},{1,1,1}}}, {{{1,0,0},{1,1,1},{1,0,1}}},
+        {{{0,0,0},{1,0,0},{1,0,1}}}, {{{0,0,0},{1,0,1},{0,0,1}}},
+        {{{0,1,0},{0,1,1},{1,1,1}}}, {{{0,1,0},{1,1,1},{1,1,0}}}
+    }};
+    for (const auto& vertices : faces) {
+        ONEFLOW::StlTriangle triangle;
+        triangle.vertices = vertices;
+        mesh.triangles.push_back(triangle);
+    }
+    return mesh;
+}
+#endif
+
 ONEFLOW::StlMesh MakeRectangleStl(double width)
 {
     ONEFLOW::StlMesh mesh;
@@ -482,6 +505,48 @@ void ValidateNativeStlToGmshCase(
 }
 
 #if ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS
+
+TEST(StlMeshIOTest, NativeStlToGmshGeneratesSingleHexahedron)
+{
+    TemporaryDirectory temporary;
+    const auto inputDirectory = temporary.File("input");
+    const auto scriptDirectory = temporary.File("script");
+    std::filesystem::create_directories(inputDirectory);
+    std::filesystem::create_directories(scriptDirectory);
+    ONEFLOW::StlMeshWriter::WriteASCII(
+        (inputDirectory / "model.stl").string(), MakeCubeStl());
+    const auto layoutPath = scriptDirectory / "layout.json";
+    WriteText(layoutPath,
+        R"({"volume_mesh":"axis_aligned_cube_single_hex","mesh_dimension":3})");
+    ONEFLOW::GridConfig config;
+    config.sourceType = ONEFLOW::GridFileType::STL;
+    config.targetType = ONEFLOW::GridFileType::Gmsh;
+    config.sourceCaseDir = temporary.File("").string();
+    config.sourceFile = "input/model.stl";
+    config.layoutFile = "script/layout.json";
+    config.targetFile = "results/cube_single_hex.msh";
+    config.gmshExecutable = "gmsh";
+    config.stlWeldTolerance = 1.0e-10;
+    ONEFLOW::ConvertGrid(config, temporary.File("").string());
+    std::ifstream input(temporary.File("results/cube_single_hex.msh"), std::ios::binary);
+    ASSERT_TRUE(input.good());
+    const std::string content{std::istreambuf_iterator<char>(input),
+                              std::istreambuf_iterator<char>()};
+    const auto generated = ONEFLOW::ReadGmsh41AsciiMesh(content);
+    ASSERT_EQ(generated.nodes.size(), 8u);
+    std::map<int, std::size_t> counts;
+    for (const auto& element : generated.elements) ++counts[element.type];
+    EXPECT_EQ(counts[3], 6u);
+    EXPECT_EQ(counts[5], 1u);
+    EXPECT_EQ(generated.elements.size(), 7u);
+    std::set<std::pair<int, std::string>> groups;
+    for (const auto& group : generated.physicalNames)
+        groups.emplace(group.first.first, group.second);
+    EXPECT_EQ(groups, (std::set<std::pair<int, std::string>>{
+        {2,"wall"},{2,"inflow"},{2,"outflow"},{2,"symmetry"},
+        {2,"farfield"},{3,"fluid_domain"}}));
+}
+
 TEST(StlMeshIOTest, NativeStlToGmshGeneratesOneSquareCell)
 {
     TemporaryDirectory temporary;

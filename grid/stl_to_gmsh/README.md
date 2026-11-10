@@ -4,16 +4,16 @@ This directory contains native C++ STL-to-Gmsh Cases and independent Python
 reference Cases. The native Cases run through the standard OneFLOW Grid task
 and the C++ Geometry conversion pipeline.
 
-| Implementation | Case | Layout | Nodes | 2D cells | Boundary LINE_2 |
+| Implementation | Case | Layout | Nodes | Cells | Boundary elements |
 |---|---|---:|---:|---:|---:|
 | Native C++ | square/cpp | 1 x 1 | 4 | 1 QUAD_4 | 4 |
 | Native C++ | square_2x2/cpp | 2 x 2 | 9 | 4 QUAD_4 | 8 |
 | Native C++ | two_square_cells/cpp | 2 x 1 | 6 | 2 QUAD_4 | 6 |
-| Native C++ | circle_external_flow/cpp | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
+| Native C++ | circle_external_flow/cpp | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |\n| Native C++ | cube_single_hex/cpp | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
 | Python | square/python | 1 x 1 | 4 | 1 QUAD_4 | 4 |
 | Python | two_square_cells/python | 2 x 1 | 6 | 2 QUAD_4 | 6 |
 | Python | circle_external_flow/python | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
-| Python | channel_internal_flow/python | 20 x 5 | 126 | 100 QUAD_4 | 50 |
+| Python | channel_internal_flow/python | 20 x 5 | 126 | 100 QUAD_4 | 50 |\n| Python | cube_single_hex/python | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
 
 For the structured square Cases, the STL describes the outer domain boundary.
 For circle_external_flow, the STL describes the inner body boundary and the
@@ -66,7 +66,7 @@ that would place generated files in the repository.
 
 The Python Cases use the independent grid/stl/stl_to_gmsh.py implementation. They emit the same Case-specific mesh and report filenames as their native counterparts. The native C++ and Python `circle_external_flow` Cases use byte-identical STL input and the same domain, mesh-size and Physical Group settings. The native Case exercises OneFLOW's C++ STL reader, outer-domain/hole construction, Gmsh invocation and MSH validation; the Python Case is an independent implementation reference. The `circle_external_flow` Case treats a polygonal STL obstacle as an internal Wall loop and subtracts it from a rectangular outer domain. The `channel_internal_flow` Case treats the STL loop itself as the fluid domain, with inlet, outlet and wall groups; a transfinite 20 x 5 layout produces a reproducible quadrilateral channel mesh. The external case validates minimum mesh counts rather than exact counts because unstructured meshing can vary slightly between Gmsh versions. Both implementations also validate the generated coordinate bounds against the configured planar domain, reject degenerate triangles, and enforce the shared minimum normalized triangle quality (0.01) and minimum angle (1 degree). Python reports the measured minimum area, normalized quality, and minimum angle; native C++ reports the same quality thresholds alongside its MSH topology report. The two triangulations are not expected to have identical element counts or connectivity.
 
-## Run all eight development Cases
+## Run all ten development Cases
 
 After building OneFLOW and installing Gmsh, run the orchestrator from the
 repository root:
@@ -77,11 +77,11 @@ If the executable is not in the standard build/bin locations:
 
     python grid/stl_to_gmsh/develop_test/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
 
-The orchestrator stages all eight Cases under
+The orchestrator stages all ten Cases under
 %USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows or
 $HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. Staging paths mirror
 the Case layout, for example square/cpp and square/python; each has its own
-results directory. It recreates only the eight named Case staging directories
+results directory. It recreates only the ten named Case staging directories
 and leaves generated meshes, reports, and logs outside the repository source tree.
 
 ## STL-to-CFD pipeline
@@ -125,8 +125,8 @@ Native and Python circle implementations are staged together under
 Every process runs with its staged Case directory as the working directory;
 no development Case is executed from the repository root.
 
-The manually dispatched GitHub Actions workflow named OneFLOW External Tool
-Integration runs the native C++ Gmsh integration tests, all eight development
+The Python development unit tests live under `tests/python/grid`; the executable Cases themselves remain under `grid/stl_to_gmsh`.\n\nThe manually dispatched GitHub Actions workflow named OneFLOW External Tool
+Integration runs the native C++ Gmsh integration tests, all ten development
 Cases (Native C++ and Python Reference), and this dependency pipeline on
 Windows. It uploads the isolated Case outputs and pipeline evidence as one
 artifact.
@@ -149,15 +149,15 @@ solution comparisons.
 
 ## Development tests
 
-    python -m unittest grid.stl_to_gmsh.develop_test.test_cases
+    python -m unittest tests.python.grid.test_stl_to_gmsh_cases
     python tools/mesh_cases.py validate stl_to_gmsh_square
     python tools/mesh_cases.py validate stl_to_gmsh_square_2x2
     python tools/mesh_cases.py validate stl_to_gmsh_two_square_cells
     python tools/mesh_cases.py validate circle_external_flow/cpp
 
-When Gmsh is available, the Python test suite also executes the circle
-reference Case in a temporary directory and validates its MSH 4.1 triangle
-cells and Physical Groups. The native C++ circle integration test is enabled
+When Gmsh is available, the Python test suite executes the circle reference
+Case and cube_single_hex in temporary directories, validating their MSH 4.1
+element topology and Physical Groups. The native C++ circle integration test is enabled
 by `ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS` and is exercised by the
 `OneFLOW External Tool Integration` workflow.
 
@@ -165,19 +165,19 @@ Tests use temporary output directories. The structured native Cases support
 one connected, axis-aligned rectangular XY boundary and QUAD_4 layouts. The
 native circle external-flow Case additionally supports one closed planar STL
 body loop inside a rectangular outer domain, producing a triangular fluid
-region with a hole. Arbitrary multiple body loops, self-intersections,
-curved CAD entities and 3-D volume meshing are not claimed.
+region with a hole. The cube_single_hex pair is the only supported 3-D volume
+prototype and is restricted to an axis-aligned cube. Arbitrary multiple body
+loops, self-intersections, curved CAD entities, and general STL-to-volume
+meshing are not claimed.
 
-## Legacy external-flow workflow
+## Retired legacy entry point
 
-The original external-flow preprocessing entry point remains available for backward compatibility. The native `circle_external_flow` Case and its `circle_external_flow/python` reference are now the preferred executable examples for the external-flow domain model. It reads input/body.stl and applies
-config/external_flow.json. The STL body is an internal Wall boundary; the
-rectangular fluid domain has Inlet, Outlet, Symmetry, and Farfield Physical
-Curve groups, and the fluid region is named Fluid. These names are Gmsh
-physical labels, not automatic OneFLOW solver boundary-condition mappings.
+The former root-level `script/run.py` workflow was removed because it wrote generated files into the source Case tree. Use the registered `circle_external_flow/cpp` and `circle_external_flow/python` Cases through the isolated development runner instead.
 
-The legacy Python workflow writes into the legacy source-tree results folder; do not use it for isolated development runs.
+## 3D cube single-hexahedron prototype
 
-Its generated files historically went under grid/stl_to_gmsh/results/:
-body.geo, body.msh (when Gmsh is supplied), and mesh_report.json.
-The checked-in body STL and external_flow.json are inputs and are not modified.
+The `cube_single_hex` pair is a deliberately restricted 3D STL-to-Gmsh prototype. Both implementations independently validate an axis-aligned, closed cube STL with equal edge lengths and exactly 12 triangles, eight bounding-box corners, two triangles per face, and a closed two-manifold edge incidence. They reconstruct the six planar faces and one volume, then ask Gmsh for a transfinite/recombined volume mesh.
+
+The acceptance contract is exactly 8 nodes, 6 QUAD_4 boundary elements and 1 HEXA_8 volume cell. Physical Groups map XMin to `inflow`, XMax to `outflow`, YMin to `symmetry`, YMax to `farfield`, and the two Z faces to `wall`; `fluid_domain` is the volume group. These labels are subsequently mapped to CGNS BCType_t by the existing conversion layer.
+
+This is not a general STL-to-hexahedral mesher. It accepts only the axis-aligned cube topology described above; arbitrary closed STL geometry requires a different volume-meshing strategy. Mesh-to-CFD Validation uses this case to verify STL/Gmsh/CGNS/OneFLOW topology and boundary handoff, and deliberately does not run the flat-plate CFD template on this one-cell cube.

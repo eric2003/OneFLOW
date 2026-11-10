@@ -1,2 +1,6 @@
+/input/
+/results/
+/script/
+/config/
 **/results/*
 !**/results/.gitkeep
