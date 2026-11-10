@@ -16,11 +16,11 @@ the **Shared unstructured mesh conversion boundary** subsection of
 :doc:`mesh_architecture`. Runnable Cases here exercise that boundary; they do
 not redefine it.
 
-Runnable topology Cases are stored separately from route templates. The current two_quads example belongs to
-``grid/conversion/cases/two_quads``. The conversion matrix
-keeps route coverage separate from Case identity, so a future shared mesh
-fixture can be referenced by more than one route without creating a generic
-top-level conversion directory.
+Runnable topology Cases are stored separately from route templates. The
+``two_quads`` Case lives at ``grid/conversion/cases/two_quads``; the
+conversion matrix associates it with the Gmsh-to-CGNS route. Case identity
+therefore remains independent of the conversion route, and every catalog
+Case can be staged without copying or merging another Case.
 
 Directory and metadata model
 ----------------------------
@@ -35,15 +35,15 @@ Directory and metadata model
        gmsh_to_cgns/
        cases/
          two_quads/
-             README.md
-             grid/
-               two_quads.msh
-             script/
-               control.txt
-               simu.txt
-               dimension.txt
-               tolerence.txt
-               grid.txt
+           README.md
+           grid/
+             two_quads.msh
+           script/
+             control.txt
+             simu.txt
+             dimension.txt
+             tolerence.txt
+             grid.txt
 
 The responsibilities are deliberately separate:
 
@@ -61,7 +61,7 @@ a mesh file hidden in another Case directory. Shared low-level test fixtures
 may still exist for unit tests, but they are not runtime dependencies of the
 runnable Case collection.
 
-Current runnable example: two_quads
+Current runnable Case: two_quads
 -----------------------------------
 
 The two_quads Case is a two-dimensional rectangle split into two adjacent
@@ -124,7 +124,7 @@ Conversion route and execution
 
 The current Case runtime configuration selects gmsh -> cgns. It is registered
 in grid/case_catalog.json, so it appears in the standard GUI Case Workbench.
-Its route-specific directory is
+Its independent Case directory is
 ``grid/conversion/cases/two_quads``.
 Run it manually from the GUI after building OneFLOW with CGNS support. The GUI
 uses an isolated run workspace; the checked-in Case and input MSH file must
@@ -137,8 +137,9 @@ The command
    python tools/mesh_cases.py validate two_quads
 
 checks the catalog entry and its runtime parameter includes. It is a
-preflight check, not a conversion run. The Gmsh-to-CGNS runtime example is
-intentionally excluded from CTest, Python unittest, and GitHub Actions.
+preflight check, not a conversion run. The GUI Case is a manual workflow and is not launched by CTest or Python
+unittest. Its independent conversion contract is covered by the C++ and
+CGNS round-trip tests when those integrations are enabled.
 
 The expected output path configured by the Case is
 results/two_quads.cgns. Inspect the CGNS Base/Zone, coordinate arrays,

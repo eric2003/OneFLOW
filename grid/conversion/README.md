@@ -45,13 +45,15 @@ The composed `gmsh_to_oneflow` template is also available when a workflow
 needs the complete route as one Case. It uses the same Gmsh-to-CGNS mapping
 and CGNS interchange boundary; it is not a second direct Gmsh converter.
 
-## Focused examples
+## Focused conversion Cases
 
-Examples that exercise a specific conversion contract belong beneath the
-route that owns their execution. For example,
-`grid/conversion/cases/two_quads` tests two adjacent QUAD_4 cells,
-their shared internal edge, and Physical Group membership. It remains a
-Gmsh-to-CGNS example rather than a generic conversion fixture.
+Runnable topology Cases live in the sibling `cases/` directory rather than
+inside a route-template directory. For example,
+`grid/conversion/cases/two_quads` is an independently stageable Case that
+exercises two adjacent QUAD_4 cells, their shared internal edge, and Physical
+Group membership on the Gmsh-to-CGNS route. The Case catalog identifies the
+Case; the conversion matrix associates it with the route. This keeps route
+templates and runnable mesh Cases independently copyable.
 
 ## Inventory and implementation boundaries
 
