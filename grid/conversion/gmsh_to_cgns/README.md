@@ -146,9 +146,10 @@ grid.
 ## Small-mesh fixture and test strategy
 
 Keep this directory focused on the Gmsh-to-CGNS route template and its
-route-level input fixtures. Store independently runnable topology Cases
-outside this directory under `grid/conversion/cases/<case-id>/`; register
-them in `grid/case_catalog.json` and associate their exercised routes in
+route-owned input fixtures. The `grid/` subdirectory contains compact MSH
+files used by reader and conversion integration tests. These fixtures are
+not independent GUI Cases and do not need separate catalog entries.
+Fixture-level coverage belongs in
 `grid/interoperability/conversion_matrix.json`.
 
 Use the smallest topology that proves each contract: one triangle for a basic
@@ -199,15 +200,15 @@ conversion matrix in `grid/interoperability/conversion_matrix.json` is the
 central inventory of supported routes.
 
 
-## Runnable conversion Cases
+## Two-cell topology fixture
 
-The independently runnable `two_quads` Case is stored at
-`grid/conversion/cases/two_quads`, outside this route-template directory.
-It contains two adjacent QUAD_4 cells and verifies that the shared internal
-interface is not exported as an external boundary condition. It also checks
-that named Physical Groups may span multiple geometric curve entities.
+The `grid/two_quads.msh` fixture contains two adjacent QUAD_4 cells and
+verifies that the shared internal interface is not exported as an external
+boundary condition. It also checks that named Physical Groups may span
+multiple geometric curve entities.
 
-The Case catalog exposes it in the GUI Case Workbench. The runner stages the
-complete Case into an isolated workspace; its checked-in input remains
-unchanged. See `doc/source/grid_conversion_cases.rst` for its topology and
+The fixture is consumed by the automated
+`GmshTwoQuadsOneFlowTest`, which writes its CGNS interchange file and native
+OneFLOW grid into a temporary directory. It is not exposed as a separate GUI
+Case. See `doc/source/grid_conversion_cases.rst` for its topology and
 acceptance criteria.
