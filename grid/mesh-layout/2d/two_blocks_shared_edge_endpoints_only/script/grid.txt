@@ -8,7 +8,7 @@ Real gridTrans[3] = 0, 0, 0;
 int axis_dir = 0;
 int ignoreNoBc = 0;
 
-string gridLayoutFileName = "grid/twoConnectedSquaresLayout.txt";
+string gridLayoutFileName = "grid/twoBlocksSharedEdgeEndpointsOnlyLayout.txt";
 int igene = 4;
 
 int codeOfOversetGrid = 0;
@@ -19,12 +19,12 @@ string sourceGridType = "plot3d";
 string targetGridType = "oneflow";
 int iplot3d = 0;
 
-string sourceGridFileName = "results/twoConnectedSquares.generated.grd";
-string sourceGridBcName = "results/twoConnectedSquares.inp";
-string targetGridFileName = "results/twoConnectedSquares.ofl";
-string gridInfoFileName = "results/twoConnectedSquares.info.json";
-string tecplotGridFileName = "results/twoConnectedSquares.tecplot.dat";
-string patchFileName = "grid/twoConnectedSquares.patch";
+string sourceGridFileName = "results/twoBlocksSharedEdgeEndpointsOnly.generated.grd";
+string sourceGridBcName = "results/twoBlocksSharedEdgeEndpointsOnly.inp";
+string targetGridFileName = "results/twoBlocksSharedEdgeEndpointsOnly.ofl";
+string gridInfoFileName = "results/twoBlocksSharedEdgeEndpointsOnly.info.json";
+string tecplotGridFileName = "results/twoBlocksSharedEdgeEndpointsOnly.tecplot.dat";
+string patchFileName = "grid/twoBlocksSharedEdgeEndpointsOnly.patch";
 
 string projectRoot = ".";
 string inputRoot = "case";
