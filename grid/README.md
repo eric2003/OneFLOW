@@ -52,7 +52,7 @@ duplicate parameter values in the catalog.
 | `mesh_workflow` | Convert the RAE 2822 Plot3D grid to OneFLOW format and write a metadata summary | `script/control.txt`, parameter files, `tools/validate_case.py` |
 | `gmsh_to_cgns` | Manual GUI example for Gmsh MSH 4.1 ASCII to CGNS conversion | `script/control.txt`, `grid/square.msh`, `README.md` |
 | `gmsh_to_oneflow` | Manual GUI example for Gmsh MSH 4.1 ASCII through CGNS to a native OneFLOW grid | `script/control.txt`, `grid/single_quad.msh`, `README.md` |
-| `two_quads` | Self-contained two-cell Gmsh conversion example with an explicitly ungrouped internal interface | `grid/conversion/cases/two_quads` |
+| `two_quads` | Gmsh-to-CGNS example with two QUAD_4 cells and an explicitly ungrouped internal interface | `grid/gmsh_to_cgns/examples/convert_2d/two_quads` |
 | `stl_to_gmsh_square`, `stl_to_gmsh_two_square_cells` | Native C++ OneFLOW STL-to-Gmsh Cases with independent Python references | `grid/stl_to_gmsh/<case>/cpp`, `grid/stl_to_gmsh/<case>/python` |
 | `laminar_flat_plate` | Reference two-block flat-plate layout template with 85 wall-normal points | `grid/mesh-layout/2d/laminar_flat_plate` |
 | `laminar_flat_plate_10_edges` | Two-block laminar flat-plate layout with ten geometric line segments and 41 points across the first 0.02 near-wall region | `grid/mesh-layout/2d/laminar_flat_plate_10_edges` |
@@ -77,22 +77,26 @@ Each template remains a self-contained case with its own profile where
 applicable, runtime parameter files, layout source, and editable specification.
 Generated artifacts belong in an external workspace.
 
-## Conversion Case organization
+## Conversion example organization
 
-Conversion examples are grouped under grid/conversion/cases/<case-id>/.
-The directory name describes the mesh/topology, not a source/target format
-pair. Each runnable Case owns its source mesh and runtime configuration so it
-can be copied and executed independently. The central
-grid/interoperability/conversion_matrix.json records implemented routes
-and the concrete Cases that cover them. Existing route-named Cases remain
-registered for backward compatibility; new examples use topology-oriented
-names.
+Runnable examples for a specific format route live with that route. The
+Gmsh-to-CGNS examples are under
+`grid/gmsh_to_cgns/examples/<contract>/<case-id>/`. Each example owns its
+source mesh, runtime configuration, expected topology, and instructions, so
+it can be copied and run independently.
 
-The first example, two_quads, contains two adjacent QUAD_4 cells, six
-nodes, six exterior LINE_2 elements, and one internal interface line. Its
-four exterior Physical Groups demonstrate that a single named group can span
-multiple geometric entities. See grid/conversion/README.md and the
-Grid conversion Cases documentation for the current collection and scope.
+The conversion matrix at `grid/interoperability/conversion_matrix.json`
+remains the central inventory of supported format routes and the runnable
+Cases that cover them. The Case catalog registers examples for GUI and CLI
+discovery. These registries describe different things: the catalog locates a
+runnable Case, while the matrix records conversion coverage.
+
+The `two_quads` example is located at
+`grid/gmsh_to_cgns/examples/convert_2d/two_quads`. It contains two adjacent
+QUAD_4 cells, six nodes, six exterior LINE_2 elements, and one internal
+interface line. Its four exterior Physical Groups demonstrate that a single
+named group can span multiple geometric entities. See the Gmsh-to-CGNS
+examples README and the Grid conversion Cases documentation for its scope.
 
 ## Target integration model
 

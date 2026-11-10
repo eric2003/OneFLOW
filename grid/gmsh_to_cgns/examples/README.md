@@ -19,9 +19,15 @@ Planned fixture groups:
 - `invalid/`: malformed node references, duplicate IDs, and unsupported
   element families with explicit expected diagnostics.
 
-The current canonical 2-D boundary conversion fixture remains
-`../grid/square.msh`. Do not duplicate it here. Add a fixture only when a
-focused reader or CGNS round-trip test consumes it. Keep automated tests
+The canonical minimal 2-D boundary fixture remains
+`../grid/square.msh`; it is the smallest four-node/two-triangle sample used
+by the bootstrap Case. The runnable `convert_2d/two_quads` Case is a separate
+two-cell QUAD_4 example: it adds a shared internal edge and a Physical Group
+that spans multiple geometric curve entities. It owns its complete input and
+runtime configuration and is registered in the Case catalog.
+
+Add fixtures only when a focused reader test, CGNS round-trip test, or
+independently runnable conversion Case consumes them. Keep automated tests
 independent of the manual GUI Case runner: parser tests need no CGNS library,
-conversion tests use temporary output files and the CGNS read API, and the
-manual Case remains responsible for the full workflow and reports.
+conversion tests use temporary output files and the CGNS read API, and manual
+Cases remain responsible for the full workflow and reports.

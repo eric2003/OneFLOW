@@ -17,11 +17,12 @@ the **Shared unstructured mesh conversion boundary** subsection of
 not redefine it.
 
 Runnable Cases are named and grouped by the mesh they describe, not by a
-conversion route. A directory such as grid/conversion/cases/two_quads remains
-meaningful if the same input is later sent through Gmsh-to-CGNS,
-Gmsh-to-OneFLOW, or another supported route. This avoids multiplying
-directories with gmsh_to_cgns_ prefixes and keeps geometry coverage
-independent from converter coverage.
+conversion route. Runnable examples are grouped beneath the route that owns their execution
+workflow. The current two_quads example belongs to
+``grid/gmsh_to_cgns/examples/convert_2d/two_quads``. The conversion matrix
+keeps route coverage separate from Case identity, so a future shared mesh
+fixture can be referenced by more than one route without creating a generic
+top-level conversion directory.
 
 Directory and metadata model
 ----------------------------
@@ -32,19 +33,19 @@ Directory and metadata model
      case_catalog.json
      interoperability/
        conversion_matrix.json
-     conversion/
-       README.md
-       cases/
-         two_quads/
-           README.md
-           grid/
-             two_quads.msh
-           script/
-             control.txt
-             simu.txt
-             dimension.txt
-             tolerence.txt
-             grid.txt
+     gmsh_to_cgns/
+       examples/
+         convert_2d/
+           two_quads/
+             README.md
+             grid/
+               two_quads.msh
+             script/
+               control.txt
+               simu.txt
+               dimension.txt
+               tolerence.txt
+               grid.txt
 
 The responsibilities are deliberately separate:
 
@@ -53,6 +54,8 @@ The responsibilities are deliberately separate:
   and human-readable explanation.
 * conversion_matrix.json records which source/target routes are implemented
   and which runnable Cases exercise them.
+* Route-specific example directories own the runnable inputs and runtime
+  configuration for that conversion workflow.
 * This document explains topology, semantic contracts, and remaining gaps.
 
 A Case must be independently copyable and runnable. Do not make it depend on
@@ -123,6 +126,8 @@ Conversion route and execution
 
 The current Case runtime configuration selects gmsh -> cgns. It is registered
 in grid/case_catalog.json, so it appears in the standard GUI Case Workbench.
+Its route-specific directory is
+``grid/gmsh_to_cgns/examples/convert_2d/two_quads``.
 Run it manually from the GUI after building OneFLOW with CGNS support. The GUI
 uses an isolated run workspace; the checked-in Case and input MSH file must
 remain unchanged.

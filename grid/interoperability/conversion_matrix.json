@@ -84,7 +84,7 @@
   "cases": [
     {
       "id": "two_quads",
-      "directory": "grid/conversion/cases/two_quads",
+      "directory": "grid/gmsh_to_cgns/examples/convert_2d/two_quads",
       "source": "gmsh",
       "dimension": 2,
       "topology": "two adjacent QUAD_4 cells",

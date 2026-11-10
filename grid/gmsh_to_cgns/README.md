@@ -206,3 +206,16 @@ grid (nodes, cells, faces and coordinates). Its current input scope remains
 MSH 4.1 ASCII and the first-order element families listed above. The
 conversion matrix in `grid/interoperability/conversion_matrix.json` is the
 central inventory of supported routes.
+
+
+## Runnable conversion examples
+
+Small end-to-end Gmsh-to-CGNS Cases are kept under `examples/`, grouped by
+the conversion contract they exercise. The `convert_2d/two_quads` Case
+contains two adjacent QUAD_4 cells and verifies that the shared internal
+interface is not exported as an external boundary condition. It also checks
+that named Physical Groups may span multiple geometric curve entities.
+
+Run the Case from the GUI Case Workbench after building with CGNS support.
+The Case is staged into an isolated workspace; its checked-in input remains
+unchanged. See `examples/README.md` for the minimal fixture organization.
