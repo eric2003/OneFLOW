@@ -94,6 +94,9 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertIn('string targetGridType = "cgns";', grid)
         self.assertIn("Real stlWeldTolerance = 1.0e-10;", grid)
         self.assertTrue((case_dir / "input" / "model.stl").is_file())
+        self.assertTrue((case_dir.parent / "README.md").is_file())
+        self.assertTrue((case_dir.parent / "python" / "input" / "model.stl").is_file())
+        self.assertTrue((case_dir.parent / "python" / "expected.json").is_file())
         self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
     def test_stl_to_gmsh_generation_case_has_two_structured_mesh_examples(self) -> None:
         case_dir = REPOSITORY_ROOT / "grid" / "stl" / "stl_to_gmsh"
@@ -248,8 +251,9 @@ class MeshCaseCatalogTest(unittest.TestCase):
             self.assertNotIn("execution", entry)
             self.assertNotIn("runtimeConfig", entry)
             case_root = REPOSITORY_ROOT / entry["directory"]
+            self.assertTrue((case_root.parent / "README.md").is_file())
             for relative in (
-                "README.md", "script/dimension.txt", "script/simu.txt",
+                "script/dimension.txt", "script/simu.txt",
                 "script/grid.txt", "input/model.stl",
             ):
                 self.assertTrue((case_root / relative).is_file(), relative)
