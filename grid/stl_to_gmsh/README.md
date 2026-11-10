@@ -124,6 +124,7 @@ standalone STL-to-Gmsh producer Cases.
 
     python -m unittest tests.python.grid.test_stl_to_gmsh_cases
     python tools/mesh_cases.py validate stl_to_gmsh_square
+    python tools/mesh_cases.py validate stl_to_gmsh_square_two_triangles
     python tools/mesh_cases.py validate stl_to_gmsh_square_2x2
     python tools/mesh_cases.py validate stl_to_gmsh_two_square_cells
     python tools/mesh_cases.py validate circle_external_flow/cpp

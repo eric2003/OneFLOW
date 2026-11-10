@@ -143,10 +143,12 @@ class MeshCaseCatalogTest(unittest.TestCase):
         entries = {entry["id"]: entry for entry in catalog["cases"] if entry.get("group") == "STL to Gmsh"}
         self.assertEqual(set(entries), {
             "stl_to_gmsh_square",
+            "stl_to_gmsh_square_two_triangles",
             "stl_to_gmsh_square_2x2",
             "stl_to_gmsh_two_square_cells",
             "stl_to_gmsh_circle_external_flow",
             "stl_to_gmsh_python_square",
+            "stl_to_gmsh_python_square_two_triangles",
             "stl_to_gmsh_python_two_square_cells",
             "stl_to_gmsh_python_circle_external_flow",
             "stl_to_gmsh_python_channel_internal_flow",

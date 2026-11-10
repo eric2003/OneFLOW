@@ -274,6 +274,12 @@
       "reference": "StlToGmshCaseTest.test_python_square_two_triangles_generates_exactly_two_triangle_cells",
       "status": "linked_not_executed",
       "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; Python reference runs Gmsh in a temporary directory and validates exact two-triangle topology and unchanged Physical Groups."
+    },
+    {
+      "kind": "python_test",
+      "reference": "MeshValidationCatalogTest.test_square_two_triangles_cases_are_available_to_mesh_to_cfd_validation",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_mesh_validation.py; verifies both native C++ and Python two-triangle square Cases can enter the shared STL-to-Gmsh-to-CGNS-to-OneFLOW-to-CFD validation graph with the same mesh artifact stem."
     }
   ],
   "group": {
