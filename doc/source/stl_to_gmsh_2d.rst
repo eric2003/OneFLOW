@@ -199,16 +199,25 @@ boundary patches and are mapped into intended OneFLOW boundary records.
 Current limits and next steps
 -----------------------------
 
-The implementation accepts one simple closed STL loop in a constant-Z plane.
-The external-flow mode constructs a rectangular outer boundary with explicit
-side names and treats the STL loop as one internal wall. Arbitrarily oriented
-planar projection, multiple body loops, holes inside the STL body, curved
-boundary reconstruction, automatic farfield sizing, mesh-size fields and
-general multi-cell structured layouts are not yet implemented. The one-quad
-option is a topology and conversion fixture, not a useful CFD discretization
-by itself.
+The 2-D implementation accepts one simple closed STL loop in a constant-Z
+plane. The external-flow mode constructs a rectangular outer boundary with
+explicit side names and treats the STL loop as one internal wall. Arbitrarily
+oriented planar projection, multiple body loops, holes inside the STL body,
+curved boundary reconstruction, automatic farfield sizing, mesh-size fields
+and general multi-cell structured layouts are not yet implemented.
 
-The next integration step is to run the generated MSH through the existing
-Gmsh MSH reader and shared unstructured CGNS writer, then validate that the
-four physical curve groups survive as four CGNS boundary patches and are
-mapped into the intended OneFLOW boundary records.
+A separate 3-D `cube_single_hex` prototype now accepts only a closed,
+axis-aligned cube STL with equal edge lengths, exactly 12 triangles, eight
+bounding-box corners, two triangles on each face, and closed two-manifold
+edge incidence. It reconstructs six planar surfaces, creates one volume, and
+uses Gmsh transfinite/recombined meshing. The exact acceptance topology is
+eight nodes, six QUAD_4 boundary faces and one HEXA_8 volume cell. XMin,
+XMax, YMin and YMax map to inflow, outflow, symmetry and farfield; ZMin and
+ZMax share wall; fluid_domain names the volume.
+
+The cube is a restricted geometry-recovery prototype, not a general STL
+volume mesher. Mesh-to-CFD Validation passes it through MSH, CGNS and OneFLOW
+grid conversion and verifies FaceCenter boundary semantics and the boundary
+region map. It deliberately stops before the flat-plate CFD consumer: a
+single-cell cube is a topology/interoperability fixture, not a meaningful
+CFD accuracy case.

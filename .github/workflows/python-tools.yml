@@ -9,6 +9,7 @@ on:
       - "grid/stl/**"
       - "grid/stl_to_gmsh/**"
       - "tests/tools/**"
+      - "tests/python/**"
       - "tools/test_mesh_cases.py"
       - "tools/oneflow_gui/**"
       - "tools/verification/**"
@@ -25,6 +26,7 @@ on:
       - "grid/stl/**"
       - "grid/stl_to_gmsh/**"
       - "tests/tools/**"
+      - "tests/python/**"
       - "tools/test_mesh_cases.py"
       - "tools/oneflow_gui/**"
       - "tools/verification/**"
@@ -65,7 +67,7 @@ jobs:
       - name: Test planar STL to Gmsh geometry generation
         run: python -m unittest grid.stl.test_stl_to_gmsh
       - name: Test native and Python STL-to-Gmsh Cases
-        run: python -m unittest grid.stl_to_gmsh.develop_test.test_cases
+        run: python -m unittest tests.python.grid.test_stl_to_gmsh_cases
       - name: Test Mesh-to-CFD Validation graph
         run: python -m unittest tools.oneflow_gui.test_mesh_validation
       - name: Test rectangle layout compiler

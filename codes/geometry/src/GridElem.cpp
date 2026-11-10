@@ -159,15 +159,15 @@ void GridElem::PrepareUnsCalcGrid()
 
 void GridElem::PrepareUnsCalcGridNormal()
 {
-this->InitCgnsElements();
-this->elemFeature.ScanElements( this->faceSolver );
-this->ScanBcFace();
+    this->InitCgnsElements();
+    this->elemFeature.ScanElements( this->faceSolver );
+    this->ScanBcFace();
     this->GenerateCalcElement();
 }
 
 void GridElem::PrepareUnsCalcGridPolyhedron()
 {
-this->ScanPolyhedralFaces();
+    this->ScanPolyhedralFaces();
     this->ScanBcFace();
     this->GenerateCalcElement();
 }
@@ -288,11 +288,13 @@ void GridElem::CalcBoundaryType( UnsGrid & grid )
     BcRecord & bcRecord = grid.GetFaceTopo().GetBcRecord();
     grid.nBFaces = static_cast< int >( bcRecord.bcType.size() );
 
-    // Map staged CGNS BC type ids to OneFLOW ids. Logging/summary used to live
-    // here and mixed observation with mutation; mapping is now a pure step.
+    // Keep the source ids for a concise CGNS-to-OneFLOW summary.
+    const IntField cgnsBcTypes = bcRecord.bcType;
+
     BcTypeMap bcTypeMap;
     bcTypeMap.Init();
     bcTypeMap.MapFromCgnsInPlace( bcRecord.bcType );
+    bcTypeMap.PrintSummary( cgnsBcTypes );
 }
 
 void GridElem::ReorderLink( UnsGrid & grid )

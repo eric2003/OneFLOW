@@ -87,12 +87,15 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_python_two_square_cells",
             "stl_to_gmsh_python_circle_external_flow",
             "stl_to_gmsh_python_channel_internal_flow",
+            "stl_to_gmsh_cube_single_hex",
+            "stl_to_gmsh_python_cube_single_hex",
         })
         for case_id in (
             "stl_to_gmsh_square",
             "stl_to_gmsh_square_2x2",
             "stl_to_gmsh_two_square_cells",
             "stl_to_gmsh_circle_external_flow",
+            "stl_to_gmsh_cube_single_hex",
         ):
             entry = entries[case_id]
             self.assertNotIn("execution", entry)
@@ -106,11 +109,15 @@ class MeshCaseCatalogTest(unittest.TestCase):
             self.assertTrue((case_dir / "script" / "layout.json").is_file())
             self.assertTrue((case_dir / "input" / "model.stl").is_file())
         self.assertFalse((REPOSITORY_ROOT / "grid/stl_to_gmsh/python").exists())
+        stl_case_root = REPOSITORY_ROOT / "grid/stl_to_gmsh"
+        for legacy_directory in ("input", "results", "script", "config"):
+            self.assertFalse((stl_case_root / legacy_directory).exists())
         for case_id in (
             "stl_to_gmsh_python_square",
             "stl_to_gmsh_python_two_square_cells",
             "stl_to_gmsh_python_circle_external_flow",
             "stl_to_gmsh_python_channel_internal_flow",
+            "stl_to_gmsh_python_cube_single_hex",
         ):
             entry = entries[case_id]
             self.assertEqual(entry["execution"]["kind"], "python")

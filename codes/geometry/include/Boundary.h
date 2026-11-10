@@ -85,6 +85,9 @@ public:
 
     // Convert each entry from CGNS BC type ids to OneFLOW BC ids in place.
     void MapFromCgnsInPlace( IntField & bcTypes ) const;
+
+    // Print unique mapped OneFLOW types and only the CGNS mappings used by this mesh.
+    void PrintSummary( const IntField & cgnsBcTypes ) const;
 };
 
 class CommonNameMap

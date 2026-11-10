@@ -316,6 +316,24 @@
         "kind": "python",
         "script": "grid/stl_to_gmsh/run_python_case.py"
       }
+    },
+    {
+      "id": "stl_to_gmsh_cube_single_hex",
+      "title": "STL to Gmsh: Single Hexahedron Cube (Native C++)",
+      "directory": "grid/stl_to_gmsh/cube_single_hex/cpp",
+      "profile": null,
+      "layout": null,
+      "group": "STL to Gmsh"
+    },
+    {
+      "id": "stl_to_gmsh_python_cube_single_hex",
+      "title": "STL to Gmsh: Single Hexahedron Cube (Python Reference)",
+      "directory": "grid/stl_to_gmsh/cube_single_hex/python",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/run_python_case.py"
+      }
     }
   ]
 }

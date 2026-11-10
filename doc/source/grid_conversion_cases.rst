@@ -95,6 +95,29 @@ named Physical Groups: inflow, outflow, symmetry, and farfield. The bottom
 and top groups each contain two curve entities. Both surface entities belong
 to fluid_domain.
 
+
+3D conversion reference fixture: cube_single_hex
+-------------------------------------------------
+
+The automated Gmsh-to-CGNS conversion suite also includes
+``grid/gmsh_to_cgns/grid/cube_single_hex.msh``, a deterministic MSH 4.1
+fixture with eight nodes, one HEXA_8 volume cell, and six QUAD_4 boundary
+elements. Its five Physical Groups are inflow (XMin), outflow (XMax),
+symmetry (YMin), farfield (YMax), and wall (ZMin and ZMax). The fixture is
+used to verify the 3D conversion boundary; it is not yet an STL geometry
+reconstruction Case.
+
+For unstructured CGNS zones, boundary elements have codimension one relative
+to the cell dimension. The writer therefore uses ``EdgeCenter`` for 2D
+boundary LINE_2 elements and ``FaceCenter`` for 3D boundary TRI_3 or QUAD_4
+elements. BC_t PointList values reference the corresponding boundary-element
+section, not volume-cell IDs. The 2D and 3D conversion tests independently
+read the written CGNS files and verify the GridLocation and element references.
+The 3D test additionally sends the CGNS file through CgnsFactory and checks
+that OneFLOW reconstructs the expected 8-node, 1-cell, 6-boundary-face
+unstructured grid.
+
+
 Conversion route and execution
 ------------------------------
 
@@ -321,3 +344,25 @@ A successful 50-step run does not establish convergence, conservation,
 boundary-condition correctness, or grid independence. Those require
 subsequent residual-history, finite/positive flow-state, flux-balance, and
 analytical or manufactured-solution verification.
+
+
+STL cube single-hexahedron validation
+-------------------------------------
+
+The `grid/stl_to_gmsh/cube_single_hex` Case pair adds a constrained 3-D
+producer to the STL-to-Gmsh collection. The native C++ and independent Python
+reference implementations accept an axis-aligned cube STL with twelve
+triangles and reconstruct six planar faces plus one volume. Gmsh must generate
+exactly eight nodes, six QUAD_4 boundary elements and one HEXA_8 volume cell.
+The boundary Physical Groups are XMin/inflow, XMax/outflow, YMin/symmetry,
+YMax/farfield, and ZMin+ZMax/wall; fluid_domain is the volume group.
+
+The Case appears in both Run Development Cases and Python Reference Cases,
+and is discoverable by Mesh-to-CFD Validation through the Case catalog. Its
+validation graph ends after STL -> Gmsh -> CGNS -> OneFLOW, where the
+FaceCenter boundary locations and boundary-region map are checked. It does
+not run the unrelated flat-plate CFD template. This prototype is limited to
+axis-aligned cubes with equal edge lengths; it is not a general STL-to-hex
+mesher. The unit-test suite is stored under tests/python/grid rather than in
+the grid/stl_to_gmsh Case tree, and all executable Cases are staged outside
+the source repository before running.

@@ -35,7 +35,9 @@ License
 #include "UnstructuredCgnsZoneWriter.h"
 #include "Plot3D.h"
 #include "Boundary.h"
+#include "HXCgns.h"
 #include <filesystem>
+#include <array>
 #include <algorithm>
 #include <cmath>
 #include <cctype>
@@ -1082,6 +1084,256 @@ namespace
             << lineElements << " boundary LINE_2 elements." << std::endl;
     }
 
+using Point = std::array<double, 3>;
+using Edge = std::pair<int, int>;
+
+int FindCorner(const Point& point, const std::array<Point, 8>& corners, double tolerance)
+{
+    int match = -1;
+    for (int i = 0; i < 8; ++i)
+    {
+        bool equal = true;
+        for (int axis = 0; axis < 3; ++axis)
+            equal = equal && std::abs(point[axis] - corners[i][axis]) <= tolerance;
+        if (equal)
+        {
+            if (match != -1) throw std::invalid_argument("STL vertex ambiguously matches cube corners");
+            match = i;
+        }
+    }
+    return match;
+}
+
+void ValidateCubeSurface(const StlMesh& mesh, const std::array<Point, 8>& corners, double tolerance)
+{
+    if (mesh.triangles.size() != 12)
+        throw std::invalid_argument("cube_single_hex requires exactly 12 STL surface triangles");
+    std::array<int, 6> faceTriangles{};
+    std::map<Edge, int> edgeIncidence;
+    for (const StlTriangle& triangle : mesh.triangles)
+    {
+        std::array<int, 3> ids{};
+        for (int vertex = 0; vertex < 3; ++vertex)
+        {
+            ids[vertex] = FindCorner(triangle.vertices[vertex], corners, tolerance);
+            if (ids[vertex] < 0)
+                throw std::invalid_argument("STL contains a vertex that is not one of the eight axis-aligned cube corners");
+        }
+        int face = -1;
+        for (int axis = 0; axis < 3; ++axis)
+        {
+            const double value = triangle.vertices[0][axis];
+            if (std::abs(triangle.vertices[1][axis] - value) <= tolerance &&
+                std::abs(triangle.vertices[2][axis] - value) <= tolerance)
+            {
+                const double low = corners[0][axis];
+                const double high = corners[6][axis];
+                if (std::abs(value - low) <= tolerance) face = axis * 2;
+                else if (std::abs(value - high) <= tolerance) face = axis * 2 + 1;
+            }
+        }
+        if (face < 0) throw std::invalid_argument("Every STL triangle must lie on one cube bounding-box face");
+        ++faceTriangles[face];
+        for (int edge = 0; edge < 3; ++edge)
+        {
+            int a = ids[edge], b = ids[(edge + 1) % 3];
+            if (a > b) std::swap(a, b);
+            ++edgeIncidence[{a, b}];
+        }
+    }
+    if (std::any_of(faceTriangles.begin(), faceTriangles.end(), [](int count) { return count != 2; }))
+        throw std::invalid_argument("Each of the six cube faces must contain exactly two STL triangles");
+    if (edgeIncidence.size() != 18 ||
+        std::any_of(edgeIncidence.begin(), edgeIncidence.end(),
+                    [](const auto& entry) { return entry.second != 2; }))
+        throw std::invalid_argument("Cube STL must form a closed two-manifold surface");
+}
+
+std::string PathUtf8(const std::filesystem::path& path)
+{
+    const auto value = path.u8string();
+    return std::string(value.begin(), value.end());
+}
+
+
+void ConvertStlCubeToGmsh(
+    const GridConfig& config,
+    const std::string& caseDirectory,
+    const nlohmann::json& options,
+    const std::filesystem::path& source,
+    const std::filesystem::path& target)
+{
+    namespace fs = std::filesystem;
+    if (options.value("volume_mesh", std::string{}) != "axis_aligned_cube_single_hex")
+        throw std::invalid_argument("Unsupported STL volume_mesh contract");
+    const double tolerance = config.stlWeldTolerance;
+    if (!std::isfinite(tolerance) || tolerance <= 0.0)
+        throw std::invalid_argument("STL weld tolerance must be positive and finite");
+    const StlMesh mesh = StlMeshReader::Read(source.string());
+    if (mesh.triangles.empty())
+        throw std::invalid_argument("Cube STL contains no triangles");
+
+    Point minimum = mesh.triangles.front().vertices.front();
+    Point maximum = minimum;
+    for (const auto& triangle : mesh.triangles)
+        for (const Point& point : triangle.vertices)
+            for (int axis = 0; axis < 3; ++axis)
+            {
+                minimum[axis] = std::min(minimum[axis], point[axis]);
+                maximum[axis] = std::max(maximum[axis], point[axis]);
+            }
+    for (int axis = 0; axis < 3; ++axis)
+        if (!std::isfinite(minimum[axis]) || maximum[axis] - minimum[axis] <= tolerance)
+            throw std::invalid_argument("Cube STL must have finite positive extent on all three axes");
+    const std::array<double, 3> extents{{
+        maximum[0] - minimum[0], maximum[1] - minimum[1], maximum[2] - minimum[2]}};
+    if (*std::max_element(extents.begin(), extents.end()) -
+        *std::min_element(extents.begin(), extents.end()) > tolerance)
+        throw std::invalid_argument("cube_single_hex requires equal axis-aligned edge lengths");
+
+
+    const std::array<Point, 8> corners{{
+        {minimum[0], minimum[1], minimum[2]}, {maximum[0], minimum[1], minimum[2]},
+        {maximum[0], maximum[1], minimum[2]}, {minimum[0], maximum[1], minimum[2]},
+        {minimum[0], minimum[1], maximum[2]}, {maximum[0], minimum[1], maximum[2]},
+        {maximum[0], maximum[1], maximum[2]}, {minimum[0], maximum[1], maximum[2]}}};
+    ValidateCubeSurface(mesh, corners, tolerance);
+
+    const fs::path caseRoot(caseDirectory);
+    const fs::path results = caseRoot / "results";
+    fs::create_directories(results);
+    if (!target.parent_path().empty()) fs::create_directories(target.parent_path());
+    const fs::path geoPath = results / (target.stem().string() + ".geo");
+    const fs::path reportPath = results / (target.stem().string() + ".stl-to-gmsh-report.json");
+    std::ofstream geo(geoPath, std::ios::trunc);
+    if (!geo) throw std::runtime_error("Cannot create Gmsh geometry: " + geoPath.string());
+    geo << std::setprecision(std::numeric_limits<double>::max_digits10)
+        << "SetFactory(\"Built-in\");\n"
+        << "Mesh.MshFileVersion = 4.1;\nMesh.Binary = 0;\nMesh.ElementOrder = 1;\n";
+    for (int i = 0; i < 8; ++i)
+        geo << "Point(" << i + 1 << ") = {" << corners[i][0] << ", " << corners[i][1]
+            << ", " << corners[i][2] << ", 1};\n";
+    const std::array<std::pair<int, int>, 12> lines{{
+        {1,2},{2,3},{3,4},{4,1},{5,6},{6,7},{7,8},{8,5},
+        {1,5},{2,6},{3,7},{4,8}}};
+    for (int i = 0; i < 12; ++i)
+        geo << "Line(" << i + 1 << ") = {" << lines[i].first << ", " << lines[i].second << "};\n";
+    const std::array<std::string, 6> loops{{
+        "{1, 2, 3, 4}", "{5, 6, 7, 8}", "{4, 9, -8, -12}",
+        "{2, 11, -6, -10}", "{1, 10, -5, -9}", "{3, 12, -7, -11}"}};
+    for (int i = 0; i < 6; ++i)
+        geo << "Curve Loop(" << i + 1 << ") = " << loops[i] << ";\n"
+            << "Plane Surface(" << i + 1 << ") = {" << i + 1 << "};\n";
+    geo << "Surface Loop(1) = {-1, 2, 3, 4, 5, 6};\n"
+        << "Volume(1) = {1};\n"
+        << "Transfinite Curve {1:12} = 2;\n"
+        << "Transfinite Surface {1:6};\nRecombine Surface {1:6};\n"
+        << "Transfinite Volume {1};\nRecombine Volume {1};\n";
+
+    // The six CAD surface IDs follow the cube construction above:
+    // ZMin=1, ZMax=2, XMin=3, XMax=4, YMin=5, YMax=6.
+    // Keep each geometric patch independent even when two patches share a BC type.
+    const std::array<std::pair<std::string, int>, 6> surfaceBySide{{
+        {"xmin", 3}, {"xmax", 4}, {"ymin", 5},
+        {"ymax", 6}, {"zmin", 1}, {"zmax", 2}}};
+    const auto boundaryGroupsIter = options.find("boundary_groups");
+    if (boundaryGroupsIter == options.end() || !boundaryGroupsIter->is_object() ||
+        boundaryGroupsIter->size() != surfaceBySide.size())
+        throw std::invalid_argument(
+            "cube_single_hex layout must define exactly xmin, xmax, ymin, ymax, zmin and zmax boundary_groups");
+
+    std::set<std::string> expectedPhysicalNames;
+    for (const auto& side : surfaceBySide)
+    {
+        const auto semanticIter = boundaryGroupsIter->find(side.first);
+        if (semanticIter == boundaryGroupsIter->end() || !semanticIter->is_string())
+            throw std::invalid_argument(
+                "cube_single_hex boundary_groups." + side.first + " must be a string");
+        const std::string physicalName = side.first + "_" + semanticIter->get<std::string>();
+        if (physicalName.size() > 32 ||
+            GmshPhysicalNameToCgnsBcType(physicalName) ==
+                static_cast<int>(CGNS_ENUMV(BCTypeUserDefined)))
+            throw std::invalid_argument(
+                "Unsupported cube_single_hex boundary semantic for " + side.first +
+                ": " + semanticIter->get<std::string>());
+        if (!expectedPhysicalNames.insert(physicalName).second)
+            throw std::invalid_argument(
+                "cube_single_hex boundary patch names must be unique: " + physicalName);
+        geo << "Physical Surface(\"" << physicalName << "\") = {"
+            << side.second << "};\n";
+    }
+    const std::string volumeName = options.value("surface_name", std::string("fluid_domain"));
+    geo << "Physical Volume(\"" << volumeName << "\") = {1};\n";
+    geo.close();
+    if (!geo) throw std::runtime_error("Failed writing Gmsh geometry: " + geoPath.string());
+
+    if (config.gmshExecutable.empty()) throw std::invalid_argument("gmshExecutable must not be empty");
+    const ProcessResult process = RunProcess(
+        config.gmshExecutable,
+        {PathUtf8(fs::absolute(geoPath)), "-3", "-format", "msh4", "-o", PathUtf8(fs::absolute(target))},
+        PathUtf8(fs::absolute(caseRoot)));
+    if (!process.started || process.exitCode != 0)
+        throw std::runtime_error("Gmsh cube volume generation failed (exit " +
+            std::to_string(process.exitCode) + "): " + process.output + process.errorMessage);
+
+    std::ifstream input(target, std::ios::binary);
+    if (!input) throw std::runtime_error("Gmsh did not create mesh: " + target.string());
+    const std::string content{std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+    const GmshMesh generated = ReadGmsh41AsciiMesh(content);
+    std::map<int, std::size_t> counts;
+    for (const auto& element : generated.elements) ++counts[element.type];
+    if (generated.nodes.size() != 8 || counts[5] != 1 || counts[3] != 6 ||
+        counts.size() != 2 || generated.elements.size() != 7)
+        throw std::runtime_error("cube_single_hex must generate exactly 8 nodes, 6 QUAD_4 faces and 1 HEXA_8 cell");
+    std::set<std::pair<int, std::string>> expected;
+    for (const std::string& name : expectedPhysicalNames)
+        expected.emplace(2, name);
+    expected.emplace(3, volumeName);
+    std::set<std::pair<int, std::string>> actual;
+    for (const auto& item : generated.physicalNames)
+        actual.emplace(item.first.first, item.second);
+    if (actual != expected)
+        throw std::runtime_error("cube_single_hex Physical Groups do not match the boundary contract");
+
+    for (const auto& side : surfaceBySide)
+    {
+        const std::string physicalName =
+            side.first + "_" + boundaryGroupsIter->at(side.first).get<std::string>();
+        const auto entity = generated.entityPhysicalTags.find({2, side.second});
+        if (entity == generated.entityPhysicalTags.end() ||
+            entity->second.size() != 1)
+            throw std::runtime_error(
+                "cube_single_hex surface " + side.first +
+                " must belong to exactly one Physical Group");
+        const auto name = generated.physicalNames.find({2, entity->second.front()});
+        if (name == generated.physicalNames.end() || name->second != physicalName)
+            throw std::runtime_error(
+                "cube_single_hex Physical Group is attached to the wrong surface: " +
+                side.first);
+    }
+
+    nlohmann::json report;
+    report["schema"] = "oneflow.stl-to-gmsh-validation-report";
+    report["version"] = 1;
+    report["case"] = "cube_single_hex";
+    report["input_triangles"] = 12;
+    report["mesh_nodes"] = 8;
+    report["hexahedron_elements"] = 1;
+    report["quadrilateral_boundary_elements"] = 6;
+    report["physical_groups"] = nlohmann::json::array();
+    for (const std::string& name : expectedPhysicalNames)
+        report["physical_groups"].push_back(name);
+    report["physical_groups"].push_back(volumeName);
+    report["validated"] = true;
+    std::ofstream reportOutput(reportPath, std::ios::trunc);
+    if (!reportOutput)
+        throw std::runtime_error("Cannot create STL-to-Gmsh report: " + reportPath.string());
+    reportOutput << report.dump(2) << '\n';
+    if (!reportOutput)
+        throw std::runtime_error("Failed writing STL-to-Gmsh report: " + reportPath.string());
+}
+
+
     void ConvertStlToGmsh(
         const GridConfig& config,
         const std::string& caseDir)
@@ -1110,6 +1362,30 @@ namespace
         if (!layoutInput)
             throw std::runtime_error("Cannot open STL-to-Gmsh layout: " + layout.string());
         const Json options = Json::parse(layoutInput);
+
+        // Select the geometry pipeline by its declared topological dimension.
+        // A 3-D volume layout must never fall through to the 2-D transfinite
+        // surface path, where transfinite_cells is intentionally absent.
+        const int meshDimension = options.value("mesh_dimension", 2);
+        if (meshDimension == 3)
+        {
+            const std::string volumeMesh =
+                options.value("volume_mesh", std::string{});
+            if (volumeMesh != "axis_aligned_cube_single_hex")
+                throw std::invalid_argument(
+                    "Unsupported 3-D STL-to-Gmsh volume_mesh contract: " + volumeMesh);
+            std::cout << "STL to Gmsh: selected 3-D volume pipeline ("
+                      << volumeMesh << ")." << std::endl;
+            ConvertStlCubeToGmsh(config, caseDir, options, source, target);
+            return;
+        }
+        if (meshDimension != 2)
+            throw std::invalid_argument(
+                "STL-to-Gmsh mesh_dimension must be 2 or 3");
+
+        if (options.contains("volume_mesh"))
+            throw std::invalid_argument(
+                "A volume_mesh layout must declare mesh_dimension = 3");
 
         if (options.contains("domain"))
         {

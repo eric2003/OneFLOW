@@ -313,8 +313,108 @@ def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: 
     lines.extend(["Mesh 2;", ""])
     return "\n".join(lines)
 
+def _cube_single_hex_geo(
+    triangles: list[Triangle],
+    tolerance: float,
+    boundary_groups: dict[str, str],
+) -> tuple[str, dict]:
+    surface_by_side = {
+        "xmin": 3, "xmax": 4, "ymin": 5,
+        "ymax": 6, "zmin": 1, "zmax": 2,
+    }
+    if not isinstance(boundary_groups, dict) or set(boundary_groups) != set(surface_by_side):
+        raise Stl2DError(
+            "cube_single_hex boundary_groups must define xmin, xmax, ymin, ymax, zmin and zmax"
+        )
+    physical_groups: dict[str, int] = {}
+    for side, surface_id in surface_by_side.items():
+        semantic = boundary_groups[side]
+        if not isinstance(semantic, str) or semantic.lower() not in {
+            "inflow", "outflow", "wall", "farfield", "symmetry"
+        }:
+            raise Stl2DError(f"cube_single_hex has an unsupported boundary semantic for {side}")
+        physical_name = f"{side}_{semantic.lower()}"
+        if not re.fullmatch(r"[A-Za-z0-9_.-]{1,32}", physical_name):
+            raise Stl2DError(f"cube_single_hex has an invalid Physical Group name: {physical_name}")
+        if physical_name in physical_groups:
+            raise Stl2DError(f"cube_single_hex Physical Group names must be unique: {physical_name}")
+        physical_groups[physical_name] = surface_id
+
+    if len(triangles) != 12:
+        raise Stl2DError("cube_single_hex requires exactly 12 STL surface triangles")
+    points = [point for triangle in triangles for point in triangle]
+    lower = tuple(min(point[axis] for point in points) for axis in range(3))
+    upper = tuple(max(point[axis] for point in points) for axis in range(3))
+    if any(not math.isfinite(lower[a]) or upper[a] - lower[a] <= tolerance for a in range(3)):
+        raise Stl2DError("cube STL must have finite positive extent on all three axes")
+    extents = tuple(upper[a] - lower[a] for a in range(3))
+    if max(extents) - min(extents) > tolerance:
+        raise Stl2DError("cube_single_hex requires equal axis-aligned edge lengths")
+
+    corners: tuple[Point, ...] = (
+        (lower[0],lower[1],lower[2]), (upper[0],lower[1],lower[2]),
+        (upper[0],upper[1],lower[2]), (lower[0],upper[1],lower[2]),
+        (lower[0],lower[1],upper[2]), (upper[0],lower[1],upper[2]),
+        (upper[0],upper[1],upper[2]), (lower[0],upper[1],upper[2]))
+    def corner_id(point: Point) -> int:
+        matches = [i for i, corner in enumerate(corners)
+                   if all(abs(point[a] - corner[a]) <= tolerance for a in range(3))]
+        if len(matches) != 1:
+            raise Stl2DError("STL vertex is not a unique axis-aligned cube corner")
+        return matches[0]
+    face_counts = [0] * 6
+    edge_counts: Counter[tuple[int, int]] = Counter()
+    for triangle in triangles:
+        ids = [corner_id(point) for point in triangle]
+        face = None
+        for axis in range(3):
+            value = triangle[0][axis]
+            if all(abs(point[axis] - value) <= tolerance for point in triangle):
+                if abs(value - lower[axis]) <= tolerance: face = 2 * axis
+                elif abs(value - upper[axis]) <= tolerance: face = 2 * axis + 1
+        if face is None:
+            raise Stl2DError("each STL triangle must lie on one cube bounding-box face")
+        face_counts[face] += 1
+        for a, b in ((ids[0],ids[1]),(ids[1],ids[2]),(ids[2],ids[0])):
+            edge_counts[tuple(sorted((a,b)))] += 1
+    if face_counts != [2] * 6:
+        raise Stl2DError("each cube face must contain exactly two STL triangles")
+    if len(edge_counts) != 18 or any(count != 2 for count in edge_counts.values()):
+        raise Stl2DError("cube STL must form a closed two-manifold surface")
+    lines = ['SetFactory("Built-in");', "Mesh.MshFileVersion = 4.1;",
+             "Mesh.Binary = 0;", "Mesh.ElementOrder = 1;"]
+    for i, point in enumerate(corners, 1):
+        lines.append(f"Point({i}) = {{{point[0]:.17g}, {point[1]:.17g}, {point[2]:.17g}, 1}};")
+    edges = ((1,2),(2,3),(3,4),(4,1),(5,6),(6,7),(7,8),(8,5),(1,5),(2,6),(3,7),(4,8))
+    for i, (a,b) in enumerate(edges, 1):
+        lines.append(f"Line({i}) = {{{a}, {b}}};")
+    loops = ("{1, 2, 3, 4}", "{5, 6, 7, 8}", "{4, 9, -8, -12}",
+             "{2, 11, -6, -10}", "{1, 10, -5, -9}", "{3, 12, -7, -11}")
+    for i, loop in enumerate(loops, 1):
+        lines.extend((f"Curve Loop({i}) = {loop};", f"Plane Surface({i}) = {{{i}}};"))
+    lines.extend(("Surface Loop(1) = {-1, 2, 3, 4, 5, 6};", "Volume(1) = {1};",
+        "Transfinite Curve {1:12} = 2;", "Transfinite Surface {1:6};",
+        "Recombine Surface {1:6};", "Transfinite Volume {1};", "Recombine Volume {1};"))
+    for name, surface_id in physical_groups.items():
+        lines.append(f'Physical Surface("{name}") = {{{surface_id}}};')
+    lines.append('Physical Volume("fluid_domain") = {1};')
+    return "\n".join(lines) + "\n", {
+        "triangles": 12, "unique_cube_corners": 8,
+        "boundary_faces": 6, "volume_cells": 1,
+        "physical_groups": sorted([*physical_groups, "fluid_domain"]),
+    }
+
+
 def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dict:
     triangles = read_stl(stl)
+    sidecar_data = json.loads(sidecar.read_text(encoding="utf-8"))
+    if sidecar_data.get("volume_mesh") == "axis_aligned_cube_single_hex":
+        geometry, report = _cube_single_hex_geo(
+            triangles, tolerance, sidecar_data.get("boundary_groups"))
+        geo.parent.mkdir(parents=True, exist_ok=True)
+        geo.write_text(geometry, encoding="utf-8", newline="\n")
+        report["geo"] = str(geo)
+        return report
     loop = extract_boundary(triangles, tolerance)
     config, assignments = _read_sidecar(sidecar, loop, tolerance)
     layout = _transfinite_cell_layout(loop, config)
@@ -409,9 +509,9 @@ def inspect_msh4(path: Path) -> dict:
             int, element_tokens[cursor:cursor + 4]
         )
         cursor += 4
-        arity = {1: 2, 2: 3, 3: 4}.get(element_type)
+        arity = {1: 2, 2: 3, 3: 4, 5: 8}.get(element_type)
         if arity is None:
-            raise Stl2DError(f"unsupported element type {element_type} in 2D reference mesh")
+            raise Stl2DError(f"unsupported element type {element_type} in reference mesh")
         element_types[element_type] += count
         for _element in range(count):
             if cursor + 1 + arity > len(element_tokens):
@@ -491,6 +591,7 @@ def inspect_msh4(path: Path) -> dict:
         "line_elements": element_types.get(1, 0),
         "triangle_elements": element_types.get(2, 0),
         "quadrilateral_elements": element_types.get(3, 0),
+        "hexahedron_elements": element_types.get(5, 0),
         "physical_groups": physical_groups,
         "coordinate_bounds": bounds,
         "triangle_quality": {

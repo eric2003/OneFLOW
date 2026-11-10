@@ -1,0 +1,44 @@
+{
+  "schema": "oneflow.stl-to-gmsh-expected",
+  "version": 1,
+  "mesh": {
+    "nodes": 8,
+    "line_elements": 0,
+    "triangle_elements": 0,
+    "quadrilateral_elements": 6,
+    "hexahedron_elements": 1
+  },
+  "physical_groups": [
+    {
+      "dimension": 2,
+      "name": "xmin_inflow"
+    },
+    {
+      "dimension": 2,
+      "name": "xmax_outflow"
+    },
+    {
+      "dimension": 2,
+      "name": "ymin_wall"
+    },
+    {
+      "dimension": 2,
+      "name": "ymax_farfield"
+    },
+    {
+      "dimension": 2,
+      "name": "zmin_symmetry"
+    },
+    {
+      "dimension": 2,
+      "name": "zmax_symmetry"
+    },
+    {
+      "dimension": 3,
+      "name": "fluid_domain"
+    }
+  ],
+  "artifact": {
+    "mesh_file": "cube_single_hex.msh"
+  }
+}

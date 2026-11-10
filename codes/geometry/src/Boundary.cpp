@@ -27,8 +27,11 @@ License
 
 #include "Prj.h"
 #include "BcRecord.h"
+#include "GridTypes.h"
 
 #include <iostream>
+#include <iomanip>
+#include <utility>
 #include <vector>
 #include <cctype>
 
@@ -110,20 +113,23 @@ int GmshPhysicalNameToCgnsBcType( const std::string & physicalName )
     }
 
     if ( key == "inlet" || key == "inflow" || key == "velocityinlet" ||
-         key == "massflowinlet" || key == "pressureinlet" )
+         key == "massflowinlet" || key == "pressureinlet" ||
+         key == "xmininflow" )
         return static_cast< int >( CGNS_ENUMV( BCInflow ) );
-    if ( key == "outlet" || key == "outflow" || key == "pressureoutlet" )
+    if ( key == "outlet" || key == "outflow" || key == "pressureoutlet" ||
+         key == "xmaxoutflow" )
         return static_cast< int >( CGNS_ENUMV( BCOutflow ) );
-    if ( key == "symmetry" || key == "symmetryplane" )
+    if ( key == "symmetry" || key == "symmetryplane" ||
+         key == "zminsymmetry" || key == "zmaxsymmetry" )
         return static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) );
-    if ( key == "farfield" || key == "freestream" )
+    if ( key == "farfield" || key == "freestream" || key == "ymaxfarfield" )
         return static_cast< int >( CGNS_ENUMV( BCFarfield ) );
     if ( key == "noslipwall" || key == "viscouswall" )
         return static_cast< int >( CGNS_ENUMV( BCWallViscous ) );
     if ( key == "slipwall" || key == "inviscidwall" )
         return static_cast< int >( CGNS_ENUMV( BCWallInviscid ) );
     if ( key == "wall" || key == "lowerwall" || key == "upperwall" ||
-         key == "bodywall" )
+         key == "bodywall" || key == "yminwall" )
         return static_cast< int >( CGNS_ENUMV( BCWall ) );
 
     return static_cast< int >( CGNS_ENUMV( BCTypeUserDefined ) );
@@ -198,6 +204,94 @@ void BcTypeMap::MapFromCgnsInPlace( IntField & bcTypes ) const
     for ( int & bcType : bcTypes )
     {
         bcType = this->Cgns2OneFlow( bcType );
+    }
+}
+
+namespace
+{
+const char * CgnsBcTypeName( int bcType )
+{
+    if ( bcType < 0 || bcType >= NofValidBCTypes )
+    {
+        return "UnknownCGNS";
+    }
+
+    const char * typeName = BCTypeName[ bcType ];
+    return typeName ? typeName : "UnknownCGNS";
+}
+
+const char * OneFlowBcTypeName( int bcType )
+{
+    if ( bcType == BC::PERIODIC ) return "PERIODIC";
+    if ( bcType == BC::WAKE ) return "WAKE";
+    if ( bcType == BC::INTERFACE ) return "INTERFACE";
+    if ( bcType == BC::NO_BOUNDARY ) return "NO_BOUNDARY";
+    if ( bcType == BC::EXTRAPOLATION ) return "EXTRAPOLATION";
+    if ( bcType == BC::SOLID_SURFACE ) return "SOLID_SURFACE";
+    if ( bcType == BC::SYMMETRY ) return "SYMMETRY";
+    if ( bcType == BC::FARFIELD ) return "FARFIELD";
+    if ( bcType == BC::INFLOW ) return "INFLOW";
+    if ( bcType == BC::OUTFLOW ) return "OUTFLOW";
+    if ( bcType == BC::OUTFLOW_CONFINED ) return "OUTFLOW_CONFINED";
+    if ( bcType == BC::POLE ) return "POLE";
+    if ( bcType == BC::POLE1 ) return "POLE1";
+    if ( bcType == BC::POLE2 ) return "POLE2";
+    if ( bcType == BC::POLE3 ) return "POLE3";
+    if ( bcType == BC::GENERIC_1 ) return "GENERIC_1";
+    if ( bcType == BC::GENERIC_2 ) return "GENERIC_2";
+    if ( bcType == BC::GENERIC_3 ) return "GENERIC_3";
+    if ( bcType == BC::INTERIOR ) return "INTERIOR";
+    if ( bcType == BC::OVERSET ) return "OVERSET";
+    return "UNKNOWN";
+}
+}
+
+void BcTypeMap::PrintSummary( const IntField & cgnsBcTypes ) const
+{
+    std::set< int > oneFlowTypes;
+    std::set< std::pair< int, int > > usedMappings;
+
+    for ( int cgnsType : cgnsBcTypes )
+    {
+        const int oneFlowType = this->Cgns2OneFlow( cgnsType );
+        oneFlowTypes.insert( oneFlowType );
+        usedMappings.insert( std::make_pair( cgnsType, oneFlowType ) );
+    }
+
+    std::cout << "\nBoundary Conditions"
+              << "\n-------------------"
+              << "\nOneFLOW types (" << oneFlowTypes.size() << "):\n";
+
+    int column = 0;
+    for ( int bcType : oneFlowTypes )
+    {
+        std::cout << std::setw( 4 ) << bcType;
+        if ( ++column % 10 == 0 || column == static_cast< int >( oneFlowTypes.size() ) )
+        {
+            std::cout << '\n';
+        }
+    }
+
+    if ( usedMappings.empty() )
+    {
+        std::cout << "  (none)\n";
+        return;
+    }
+
+    std::cout << "CGNS -> OneFLOW mapping (used only):\n"
+              << "  " << std::left
+              << std::setw( 8 ) << "CGNS ID"
+              << std::setw( 27 ) << "CGNS type"
+              << std::right << std::setw( 10 ) << "OneFLOW"
+              << "  OneFLOW type\n";
+
+    for ( const auto & mapping : usedMappings )
+    {
+        std::cout << "  " << std::left
+                  << std::setw( 8 ) << mapping.first
+                  << std::setw( 27 ) << CgnsBcTypeName( mapping.first )
+                  << std::right << std::setw( 10 ) << mapping.second
+                  << "  " << OneFlowBcTypeName( mapping.second ) << '\n';
     }
 }
 
@@ -283,7 +377,10 @@ int RegionNameMap::FindRegionId( const std::string & regionName )
 
 void RegionNameMap::DumpRegion()
 {
-    RegionNameMap::DumpRegion( "grid/bcRegionMap.txt" );
+    const std::string fileName =
+        Prj::GetMeshOutputFileName( GridConfig::GetBcRegionMapFileName() );
+    Prj::CreateDirIfNeeded( fileName );
+    RegionNameMap::DumpRegion( fileName );
 }
 
 void RegionNameMap::DumpRegion( const std::string & fileName )

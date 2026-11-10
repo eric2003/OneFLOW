@@ -10,6 +10,15 @@ from grid.stl.stl_to_gmsh import convert, inspect_msh4  # noqa: E402
 
 def run_case(case_directory: Path, gmsh: str) -> dict:
     case = case_directory.expanduser().resolve()
+    try:
+        case.relative_to(ROOT)
+    except ValueError:
+        pass
+    else:
+        raise ValueError(
+            "Python reference Cases must run from an external staging directory, "
+            "not from the checked-in source tree."
+        )
     source, sidecar = case / "input/model.stl", case / "script/layout.json"
     expected_path = case / "expected.json"
     results = case / "results"
@@ -33,7 +42,7 @@ def run_case(case_directory: Path, gmsh: str) -> dict:
     layout = json.loads(sidecar.read_text(encoding="utf-8"))
     results.mkdir(parents=True, exist_ok=True)
     geometry = convert(source, sidecar, geo, tolerance=1.0e-10)
-    subprocess.run([gmsh, str(geo), "-2", "-format", "msh4", "-o", str(msh)],
+    subprocess.run([gmsh, str(geo), "-3" if layout.get("mesh_dimension") == 3 else "-2", "-format", "msh4", "-o", str(msh)],
                    check=True, cwd=case)
     mesh = inspect_msh4(msh)
     domain = layout.get("domain")
@@ -67,7 +76,14 @@ def run_case(case_directory: Path, gmsh: str) -> dict:
                 f"is below {minimum_angle:.6g} degrees"
             )
     observed = {key: mesh[key] for key in (
-        "nodes", "line_elements", "triangle_elements", "quadrilateral_elements")}
+        "nodes", "line_elements", "triangle_elements", "quadrilateral_elements", "hexahedron_elements")}
+    if layout.get("mesh_dimension") == 3:
+        if (observed["nodes"] != 8 or observed["hexahedron_elements"] != 1
+                or observed["quadrilateral_elements"] != 6
+                or observed["triangle_elements"] != 0):
+            raise RuntimeError(
+                "cube_single_hex must contain 8 nodes, 6 QUAD_4 faces and 1 HEXA_8 cell"
+            )
     groups = {(g["dimension"], g["name"]) for g in mesh["physical_groups"]}
     wanted_groups = {(g["dimension"], g["name"]) for g in expected["physical_groups"]}
     expected_mesh = expected.get("mesh", {})

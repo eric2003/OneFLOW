@@ -105,10 +105,13 @@ def build_mesh_validation_cases(
         msh = f"results/{mesh_name}"
     stem = Path(msh).stem
     cgns, native = f"results/{stem}.cgns", f"results/{stem}.oneflow.grid"
+    bc_region_map = f"results/{stem}_bcRegionMap.txt"
+    grid_info = f"results/{stem}.info.json"
     mesh_id, cgns_id, native_id = "gmsh_mesh", "cgns_mesh", "oneflow_grid"
     cfd_config = root / template["directory"] / "script/cfd.txt"
-    return [
+    steps = [
         {"id": "stl_to_gmsh", "directory": mesh["directory"],
+         "runtime_directory": "stl_to_gmsh",
          "outputs": (
              [{"id": mesh_id, "path": msh, "parameter_file": "script/grid.txt",
                "setting": "targetGridFileName"}]
@@ -117,6 +120,7 @@ def build_mesh_validation_cases(
          ),
          "validation": {"kind": "gmsh_msh4", "path": msh}},
         {"id": "gmsh_to_cgns", "directory": "grid/gmsh_to_cgns",
+         "runtime_directory": "gmsh_to_cgns",
          "depends_on": ["stl_to_gmsh"],
          "inputs": [{"artifact": mesh_id, "setting": "sourceGridFileName",
                      "parameter_file": "script/grid.txt"}],
@@ -125,23 +129,38 @@ def build_mesh_validation_cases(
                       "setting": "targetGridFileName"}]},
         {"id": "gmsh_to_oneflow",
          "directory": "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow",
+         "runtime_directory": "gmsh_to_oneflow",
          "depends_on": ["gmsh_to_cgns"],
          "inputs": [{"artifact": cgns_id, "setting": "sourceGridFileName",
                      "parameter_file": "script/grid.txt"}],
-         "outputs": [{"id": native_id, "path": native,
-                      "parameter_file": "script/grid.txt",
-                      "setting": "targetGridFileName"}]},
-        {"id": "laminar_flat_plate_solve",
+         "outputs": [
+             {"id": native_id, "path": native,
+              "parameter_file": "script/grid.txt",
+              "setting": "targetGridFileName"},
+             {"id": "bc_region_map", "path": bc_region_map,
+              "parameter_file": "script/grid.txt",
+              "setting": "bcRegionMapFile"},
+             {"id": "grid_info", "path": grid_info,
+              "parameter_file": "script/grid.txt",
+              "setting": "gridInfoFileName"},
+         ]},
+        {"id": "oneflow_cfd_solve",
          "directory": template["directory"],
+         "runtime_directory": "oneflow_cfd_solve",
          "depends_on": ["gmsh_to_oneflow"],
-         "inputs": [{"artifact": native_id, "setting": "gridFileName",
-                     "parameter_file": "script/cfd.txt"}],
+         "inputs": [
+             {"artifact": native_id, "setting": "gridFileName",
+              "parameter_file": "script/cfd.txt"},
+             {"artifact": "bc_region_map", "setting": "bcRegionMapFile",
+              "parameter_file": "script/cfd.txt"},
+         ],
          "outputs": [
              {"id": "residual", "path": _setting(cfd_config, "resFile")},
              {"id": "restart", "path": _setting(cfd_config, "flowFile")},
              {"id": "visual", "path": _setting(cfd_config, "visualFile")},
          ]},
     ]
+    return steps
 
 
 def _external(path: Path) -> Path:
@@ -261,7 +280,14 @@ def run_mesh_validation(
     run_id = run_root.name
     os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
     def execute(step):
-        if step.case_id == "laminar_flat_plate_solve":
+        if step.case_id == "oneflow_cfd_solve":
+            layout_path = REPOSITORY_ROOT / mesh_entry["directory"] / "script/layout.json"
+            if layout_path.is_file():
+                layout_data = json.loads(layout_path.read_text(encoding="utf-8"))
+                if layout_data.get("mesh_dimension") == 3:
+                    apply_runtime_overrides(
+                        step.directory / "script/dimension.txt", {"dimension": 3}
+                    )
             apply_runtime_overrides(step.directory / "script/cfd.txt", {
                 "maxSteps": max_steps, "nFieldSave": 1, "nVisualSave": 1,
                 "nResSave": 1, "idump": 0,
@@ -318,7 +344,7 @@ def run_mesh_validation(
         "mesh_implementation": mesh_implementation,
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
-        "note": "The selected CFD consumer is a runtime smoke test unless a matching physical validation contract is explicitly defined; applying the flat-plate template to another geometry does not establish flat-plate physics.",
+        "note": ("3D single-cell cube validation ends after OneFLOW grid and boundary-map handoff; it is not a CFD accuracy test." if len(cases) == 3 else "The selected CFD consumer is a runtime smoke test. For a 3-D mesh, the staged CFD template dimension is overridden to 3; the flat-plate template supplies common solver parameters only and does not establish flat-plate physics or numerical accuracy."),
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
     report_path = run_root / "mesh-validation-report.json"

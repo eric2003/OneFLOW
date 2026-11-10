@@ -108,6 +108,7 @@ void ConfigureOneStepCase( const std::filesystem::path & caseDirectory )
     ReplaceAssignment( cfd, "gridFileName", "\"grid/single_quad.oneflow.grid\"" );
     ReplaceAssignment( cfd, "idump", "0" );
     ReplaceAssignment( cfd, "showfield", "0" );
+    cfd += "\nstring bcRegionMapFile = \"grid/custom_bcRegionMap.txt\";\n";
 
     std::ofstream output( cfdFile, std::ios::trunc );
     if ( ! output ) throw std::runtime_error( "Cannot update copied cfd.txt" );
@@ -115,6 +116,12 @@ void ConfigureOneStepCase( const std::filesystem::path & caseDirectory )
     if ( ! output ) throw std::runtime_error( "Failed to write copied cfd.txt" );
 }
 } // namespace
+
+TEST( GridConfigParameter, BoundaryRegionMapDefaultsToGridPath )
+{
+    const ONEFLOW::GridConfig config;
+    EXPECT_EQ( config.bcRegionMapFile, "grid/bcRegionMap.txt" );
+}
 
 TEST( GmshSingleCellRuntimeIntegration,
       ConvertsReadsComputesAndWritesFlowField )
@@ -144,13 +151,14 @@ TEST( GmshSingleCellRuntimeIntegration,
     gridConfig.topology = ONEFLOW::GridTopology::Unstructured;
     gridConfig.sourceFile = "grid/single_quad.msh";
     gridConfig.targetFile = "grid/single_quad.oneflow.grid";
+    gridConfig.bcRegionMapFile = "grid/custom_bcRegionMap.txt";
 
     ASSERT_NO_THROW(
         ONEFLOW::ConvertGrid( gridConfig, caseDirectory.string() ) );
     ASSERT_TRUE( std::filesystem::is_regular_file(
         caseDirectory / "grid" / "single_quad.oneflow.grid" ) );
     ASSERT_TRUE( std::filesystem::is_regular_file(
-        caseDirectory / "grid" / "bcRegionMap.txt" ) );
+        caseDirectory / "grid" / "custom_bcRegionMap.txt" ) );
 
     // Exercise the same production command-line route as:
     // OneFLOW.exe r <case-directory>

@@ -17,15 +17,27 @@ def prepare_case_directory(
     """Copy a case and apply artifact bindings to the staged parameter files."""
     root = Path(run_root).expanduser().resolve()
     source = step.directory.resolve()
-    target = root / "cases" / step.case_id
+    runtime_directory = step.runtime_directory or Path("cases") / step.case_id
+    target = (root / runtime_directory).resolve()
+    try:
+        target.relative_to(root)
+    except ValueError as error:
+        raise ValueError("Staged case directory must stay within the run workspace.") from error
     if source == target or source in target.parents or target in source.parents:
         raise ValueError("Run directory must be separate from the source case tree.")
     if not source.is_dir():
         raise FileNotFoundError(f"Case directory not found: {source}")
     if target.exists():
-        raise FileExistsError(f"Staged case directory already exists: {target}")
-    target.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(source, target)
+        # A workflow workspace may pre-create an empty runtime root (for
+        # example, the cpp/python implementation directory). Reuse only an
+        # empty directory; never merge into or overwrite existing user data.
+        if target.is_dir() and not any(target.iterdir()):
+            shutil.copytree(source, target, dirs_exist_ok=True)
+        else:
+            raise FileExistsError(f"Staged case directory already exists: {target}")
+    else:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(source, target)
 
     overrides_by_file: dict[Path, dict[str, str]] = {}
     for output in step.outputs:

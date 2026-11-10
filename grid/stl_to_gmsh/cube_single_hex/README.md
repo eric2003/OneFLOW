@@ -1,0 +1,1 @@
+# Cube Single Hexahedron\n\nThis restricted 3D prototype accepts an axis-aligned closed cube STL made of 12 triangles. It generates one HEXA_8 cell with six QUAD_4 boundary faces. See the parent STL-to-Gmsh README for the boundary mapping and scope limitations.\n

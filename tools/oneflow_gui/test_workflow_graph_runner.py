@@ -37,6 +37,7 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
                     "id": "mesh",
                     "directory": "mesh",
                     "outputs": [{"id": "grid", "path": "results/mesh.ofl"}],
+                    "runtime_directory": "cpp",
                 },
             ],
             root,
@@ -46,12 +47,23 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             plan = self._plan(root)
+            runtime_directories = {
+                step.case_id: step.runtime_directory for step in plan.steps
+            }
+            self.assertEqual(
+                runtime_directories,
+                {"independent": None, "mesh": Path("cpp"), "solver": None},
+            )
             run_root = root / "run"
+            (run_root / "cpp").mkdir(parents=True)
             invoked = []
 
             def run_step(step):
                 invoked.append(step.case_id)
-                expected_directory = (run_root / "cases" / step.case_id).resolve()
+                expected_directory = (
+                    run_root / step.runtime_directory
+                    if step.runtime_directory is not None else run_root / "cases" / step.case_id
+                ).resolve()
                 self.assertEqual(step.directory.resolve(), expected_directory)
                 if step.case_id == "mesh":
                     output = step.directory / "results" / "mesh.ofl"
@@ -59,7 +71,7 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
                     output.write_bytes(b"mesh")
                 if step.case_id == "solver":
                     binding = step.inputs[0]
-                    producer_directory = (run_root / "cases" / "mesh").resolve()
+                    producer_directory = (run_root / "cpp").resolve()
                     self.assertEqual(binding.source_case_directory.resolve(), producer_directory)
                     self.assertTrue(binding.source_path.is_file())
                     self.assertEqual(
@@ -80,7 +92,14 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
                 return "succeeded", "ok"
 
             result = run_case_graph(plan, run_step, run_root=run_root)
-            self.assertEqual(result.status, "succeeded")
+            self.assertEqual(
+                result.status,
+                "succeeded",
+                "; ".join(
+                    f"{item.case_id}: {item.status}: {item.message}"
+                    for item in result.cases
+                ),
+            )
             self.assertEqual(invoked, ["independent", "mesh", "solver"])
             self.assertEqual(
                 (root / "solver" / "script" / "cfd.txt").read_text(encoding="utf-8"),
@@ -144,10 +163,12 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
             root = Path(temporary)
             plan = self._plan(root)
             invoked = []
+            run_root = root / "run"
+            (run_root / "cpp").mkdir(parents=True)
             result = run_case_graph(
                 plan,
                 lambda step: (invoked.append(step.case_id) or "succeeded", "ok"),
-                run_root=root / "run",
+                run_root=run_root,
             )
             statuses = {item.case_id: item.status for item in result.cases}
             self.assertEqual(statuses["mesh"], "failed")
