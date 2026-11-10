@@ -37,6 +37,7 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
                     "id": "mesh",
                     "directory": "mesh",
                     "outputs": [{"id": "grid", "path": "results/mesh.ofl"}],
+                    "runtime_directory": "cpp",
                 },
             ],
             root,
@@ -51,7 +52,10 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
 
             def run_step(step):
                 invoked.append(step.case_id)
-                expected_directory = (run_root / "cases" / step.case_id).resolve()
+                expected_directory = (
+                    run_root / step.runtime_directory
+                    if step.runtime_directory is not None else run_root / "cases" / step.case_id
+                ).resolve()
                 self.assertEqual(step.directory.resolve(), expected_directory)
                 if step.case_id == "mesh":
                     output = step.directory / "results" / "mesh.ofl"
@@ -59,7 +63,7 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
                     output.write_bytes(b"mesh")
                 if step.case_id == "solver":
                     binding = step.inputs[0]
-                    producer_directory = (run_root / "cases" / "mesh").resolve()
+                    producer_directory = (run_root / "cpp").resolve()
                     self.assertEqual(binding.source_case_directory.resolve(), producer_directory)
                     self.assertTrue(binding.source_path.is_file())
                     self.assertEqual(

@@ -109,6 +109,7 @@ def build_mesh_validation_cases(
     cfd_config = root / template["directory"] / "script/cfd.txt"
     steps = [
         {"id": "stl_to_gmsh", "directory": mesh["directory"],
+         "runtime_directory": ".",
          "outputs": (
              [{"id": mesh_id, "path": msh, "parameter_file": "script/grid.txt",
                "setting": "targetGridFileName"}]
@@ -125,6 +126,7 @@ def build_mesh_validation_cases(
                       "setting": "targetGridFileName"}]},
         {"id": "gmsh_to_oneflow",
          "directory": "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow",
+         "runtime_directory": "pipeline/gmsh_to_oneflow",
          "depends_on": ["gmsh_to_cgns"],
          "inputs": [{"artifact": cgns_id, "setting": "sourceGridFileName",
                      "parameter_file": "script/grid.txt"}],
@@ -138,6 +140,7 @@ def build_mesh_validation_cases(
          ]},
         {"id": "laminar_flat_plate_solve",
          "directory": template["directory"],
+         "runtime_directory": "cfd",
          "depends_on": ["gmsh_to_oneflow"],
          "inputs": [
              {"artifact": native_id, "setting": "gridFileName",
@@ -151,11 +154,6 @@ def build_mesh_validation_cases(
              {"id": "visual", "path": _setting(cfd_config, "visualFile")},
          ]},
     ]
-    layout_path = mesh_dir / "script/layout.json"
-    if layout_path.is_file():
-        layout_data = json.loads(layout_path.read_text(encoding="utf-8"))
-        if layout_data.get("mesh_dimension") == 3:
-            return steps[:3]
     return steps
 
 
@@ -277,6 +275,13 @@ def run_mesh_validation(
     os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
     def execute(step):
         if step.case_id == "laminar_flat_plate_solve":
+            layout_path = REPOSITORY_ROOT / mesh_entry["directory"] / "script/layout.json"
+            if layout_path.is_file():
+                layout_data = json.loads(layout_path.read_text(encoding="utf-8"))
+                if layout_data.get("mesh_dimension") == 3:
+                    apply_runtime_overrides(
+                        step.directory / "script/dimension.txt", {"dimension": 3}
+                    )
             apply_runtime_overrides(step.directory / "script/cfd.txt", {
                 "maxSteps": max_steps, "nFieldSave": 1, "nVisualSave": 1,
                 "nResSave": 1, "idump": 0,

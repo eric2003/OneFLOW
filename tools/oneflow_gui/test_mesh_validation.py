@@ -171,8 +171,14 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def test_native_cube_single_hex_uses_topology_only_validation_chain(self):
         cases = build_mesh_validation_cases(self.root, "native_cube", "laminar_flat_plate")
         self.assertEqual([item["id"] for item in cases],
-                         ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow"])
+                         ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow",
+                          "laminar_flat_plate_solve"])
         self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/cube_single_hex/cpp")
+        self.assertEqual(cases[0]["runtime_directory"], ".")
+        self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
+        self.assertEqual(cases[3]["runtime_directory"], "cfd")
+        self.assertEqual(cases[3]["inputs"][0]["artifact"], "oneflow_grid")
+        self.assertEqual(cases[3]["inputs"][1]["artifact"], "bc_region_map")
         self.assertEqual(cases[0]["outputs"][0]["path"], "results/cube_single_hex.msh")
 
     def test_cube_single_hex_uses_topology_only_validation_chain(self):
@@ -189,11 +195,12 @@ class MeshValidationCatalogTest(unittest.TestCase):
             self.root, "python_cube", "laminar_flat_plate"
         )
         self.assertEqual([item["id"] for item in cases],
-                         ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow"])
+                         ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow",
+                          "laminar_flat_plate_solve"])
         self.assertEqual(cases[0]["validation"], {
             "kind": "gmsh_msh4", "path": "results/cube_single_hex.msh"
         })
-        self.assertNotIn("laminar_flat_plate_solve", [item["id"] for item in cases])
+        self.assertIn("laminar_flat_plate_solve", [item["id"] for item in cases])
 
     def test_first_cfd_template_is_the_existing_laminar_flat_plate_case(self):
         self.assertEqual(cfd_template_choices(), (("laminar_flat_plate", "Laminar Flat Plate"),))

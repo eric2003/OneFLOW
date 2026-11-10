@@ -61,6 +61,7 @@ class WorkflowPlanStep:
     depends_on: tuple[str, ...]
     inputs: tuple[ArtifactBinding, ...]
     outputs: tuple[ArtifactOutput, ...] = ()
+    runtime_directory: Path | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -171,6 +172,13 @@ def build_case_graph_plan(
             depends_on=graph.dependencies[case_id],
             inputs=tuple(inputs_by_case[case_id]),
             outputs=tuple(outputs_by_case[case_id]),
+            runtime_directory=(
+                _relative_artifact_path(
+                    case["runtime_directory"],
+                    f"runtime directory for case '{case_id}'",
+                )
+                if case.get("runtime_directory") is not None else None
+            ),
         )
         for case_id in graph.ordered_ids
     )
