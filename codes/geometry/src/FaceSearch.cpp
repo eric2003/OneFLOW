@@ -402,9 +402,6 @@ bool FaceSearch::TrySplitLineAtMidpoint(
 {
     PointLocator & pointLocator = iFaceLink.GetPointLocator();
 
-    const int soleZoneId = RequireSoleZoneIdForGlobalFace(
-        iFaceLink.GetGlobalToZoneIds(), globalFaceId );
-
     const int p0 = nodeId[ 0 ];
     const int p1 = nodeId[ 1 ];
     RealField coor0( 3 ), coor1( 3 ), coor2( 3 );
@@ -426,7 +423,18 @@ bool FaceSearch::TrySplitLineAtMidpoint(
     registeredChildren = ResolveRegisteredChildFaces( *this, globalLineCandidates );
     if ( registeredChildren.empty() ) return false;
 
+    // A shared multi-zone edge may be a valid interface but need no split.
+    // Enforce the current single-zone mutation contract only after geometry
+    // and registered-child checks prove that a split will actually be applied.
+    const int soleZoneId = RequireSoleZoneIdForGlobalFace(
+        iFaceLink.GetGlobalToZoneIds(), globalFaceId );
+
     Grid & grid = iFaceLink.GetGrid( soleZoneId );
+    if ( ! grid.nodeMesh )
+    {
+        throw std::logic_error(
+            "FaceSearch::TrySplitLineAtMidpoint: zone node mesh is not initialized" );
+    }
     int pId = grid.nodeMesh->FindPoint(
         coor2[ 0 ], coor2[ 1 ], coor2[ 2 ], pointLocator.GetTol() );
     if ( pId == ONEFLOW::INVALID_INDEX )

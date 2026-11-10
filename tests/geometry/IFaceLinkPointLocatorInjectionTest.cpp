@@ -138,3 +138,32 @@ TEST( IFaceLinkPointLocatorInjectionTest, SplitLineWithoutRegisteredChildrenDoes
     EXPECT_TRUE( faceSearch.interfaceSplit.childFaceNodeFlagsByParent[ 0 ].empty() );
 }
 
+TEST( IFaceLinkPointLocatorInjectionTest, SharedZoneEdgeWithoutMidpointDoesNotRequireSoleZone )
+{
+    Grids grids;
+    IFaceLink link( grids );
+
+    auto fake = std::make_unique< RecordingPointLocator >();
+    fake->AddPoint( 0.0, 0.0, 0.0 );
+    fake->AddPoint( 0.0, 0.5, 0.0 );
+    // The segment midpoint (0, 0.25, 0) is intentionally absent.
+    RecordingPointLocator * raw = fake.get();
+    link.ReplacePointLocator( std::move( fake ), /*markReady=*/true );
+
+    link.EnsureInterfaceZoneCount( 2 );
+    link.EnsureLocalInterfaceFaceCount( 0, 1 );
+    link.EnsureLocalInterfaceFaceCount( 1, 1 );
+    link.RegisterLocalInterfaceFace( 0, /*isNew=*/true, 0, 0 );
+    link.RegisterLocalInterfaceFace( 0, /*isNew=*/false, 1, 0 );
+
+    FaceSearch faceSearch;
+    EXPECT_EQ( faceSearch.AddFace( IntField{ 0, 1 } ), 0 );
+    faceSearch.interfaceSplit.ResetForFaceCount( faceSearch.Size() );
+
+    // No split is needed: skip before the single-zone policy or grid lookup.
+    EXPECT_NO_THROW( faceSearch.SplitLine( link, 0 ) );
+    EXPECT_EQ( raw->findCalls, 1 );
+    EXPECT_TRUE( faceSearch.interfaceSplit.childFaceIdsOfParent[ 0 ].empty() );
+    EXPECT_TRUE( faceSearch.interfaceSplit.childFaceNodeIdsByParent[ 0 ].empty() );
+    EXPECT_TRUE( faceSearch.interfaceSplit.childFaceNodeFlagsByParent[ 0 ].empty() );
+}
