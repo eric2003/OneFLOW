@@ -492,6 +492,170 @@ TEST( GridLayoutGenerationTest, AssemblesRectangleFromTwoLocallyGeneratedBlocks 
     file.close();
 }
 
+TEST( GridLayoutGenerationTest, GeneratesTwoConnectedSquaresWithSharedInterface )
+{
+    const std::filesystem::path layoutFile =
+        std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
+        "grid/two_connected_squares/grid/twoConnectedSquaresLayout.txt";
+    const std::filesystem::path outputDir =
+        std::filesystem::temp_directory_path() / "oneflow-two-connected-squares";
+    std::filesystem::remove_all( outputDir );
+    std::filesystem::create_directories( outputDir );
+
+    const std::filesystem::path outputFile =
+        outputDir / "twoConnectedSquares.generated.grd";
+    const std::filesystem::path bcFile =
+        outputDir / "twoConnectedSquares.inp";
+    const int oldDimension = Dim::GetDimension();
+    const std::string oldProjectDir = Prj::prjBaseDir;
+    const GridGenerationTestContext restore{ oldDimension, oldProjectDir, outputDir };
+
+    Dim::SetDimension( TWO_D );
+    Prj::SetPrjBaseDir( outputDir.string() );
+    SetDataString( "gridLayoutFileName", layoutFile.string() );
+    SetDataString( "sourceGridFileName", outputFile.string() );
+    SetDataString( "sourceGridBcName", bcFile.string() );
+    SetDataString( "targetGridFileName", outputFile.string() );
+    SetDataString( "part_uns_file", ( outputDir / "partition.uns" ).string() );
+
+    GridMachine().Run( layoutFile.string() );
+
+    ASSERT_TRUE( std::filesystem::is_regular_file( outputFile ) );
+    ASSERT_TRUE( std::filesystem::is_regular_file( bcFile ) );
+
+    std::ifstream file( outputFile, std::ios::binary );
+    ASSERT_TRUE( file.is_open() );
+    ASSERT_EQ( ReadBinary< int >( file ), 2 );
+
+    struct Zone
+    {
+        int ni = 0;
+        int nj = 0;
+        int nk = 0;
+        std::vector< Real > x;
+        std::vector< Real > y;
+        std::vector< Real > z;
+    };
+    std::array< Zone, 2 > zones{};
+    for ( Zone & zone : zones )
+    {
+        zone.ni = ReadBinary< int >( file );
+        zone.nj = ReadBinary< int >( file );
+        zone.nk = ReadBinary< int >( file );
+        EXPECT_EQ( zone.ni, 3 );
+        EXPECT_EQ( zone.nj, 3 );
+        EXPECT_EQ( zone.nk, 1 );
+        ASSERT_EQ( zone.ni * zone.nj, 9 );
+    }
+
+    for ( Zone & zone : zones )
+    {
+        const std::size_t nodeCount =
+            static_cast< std::size_t >( zone.ni * zone.nj );
+        zone.x.resize( nodeCount );
+        zone.y.resize( nodeCount );
+        zone.z.resize( nodeCount );
+        for ( Real & value : zone.x ) value = ReadBinary< Real >( file );
+        for ( Real & value : zone.y ) value = ReadBinary< Real >( file );
+        for ( Real & value : zone.z ) value = ReadBinary< Real >( file );
+    }
+
+    const auto nodeIndex = []( int i, int j, int ni )
+    {
+        return static_cast< std::size_t >( j * ni + i );
+    };
+    const std::array< Real, 2 > expectedMinX = {{ 0.0, 1.0 }};
+    const std::array< Real, 2 > expectedMaxX = {{ 1.0, 2.0 }};
+    Real totalArea = 0.0;
+    std::vector< std::array< Real, 3 > > uniqueNodes;
+
+    for ( std::size_t zoneIndex = 0; zoneIndex < zones.size(); ++ zoneIndex )
+    {
+        const Zone & zone = zones[ zoneIndex ];
+        for ( std::size_t node = 0; node < zone.x.size(); ++ node )
+        {
+            EXPECT_TRUE( std::isfinite( zone.x[ node ] ) );
+            EXPECT_TRUE( std::isfinite( zone.y[ node ] ) );
+            EXPECT_TRUE( std::isfinite( zone.z[ node ] ) );
+            EXPECT_GE( zone.x[ node ], expectedMinX[ zoneIndex ] );
+            EXPECT_LE( zone.x[ node ], expectedMaxX[ zoneIndex ] );
+            EXPECT_GE( zone.y[ node ], 0.0 );
+            EXPECT_LE( zone.y[ node ], 1.0 );
+            EXPECT_NEAR( zone.z[ node ], 0.0, 1.0e-12 );
+
+            const std::array< Real, 3 > point = {{
+                zone.x[ node ], zone.y[ node ], zone.z[ node ]
+            }};
+            const bool alreadyRegistered = std::any_of(
+                uniqueNodes.begin(), uniqueNodes.end(),
+                [ &point ]( const std::array< Real, 3 > & existing )
+                {
+                    return std::abs( existing[ 0 ] - point[ 0 ] ) <= 1.0e-12 &&
+                           std::abs( existing[ 1 ] - point[ 1 ] ) <= 1.0e-12 &&
+                           std::abs( existing[ 2 ] - point[ 2 ] ) <= 1.0e-12;
+                } );
+            if ( ! alreadyRegistered ) uniqueNodes.push_back( point );
+        }
+
+        for ( int j = 0; j < zone.nj - 1; ++ j )
+        {
+            for ( int i = 0; i < zone.ni - 1; ++ i )
+            {
+                const std::array< std::size_t, 4 > corners = {{
+                    nodeIndex( i, j, zone.ni ),
+                    nodeIndex( i + 1, j, zone.ni ),
+                    nodeIndex( i + 1, j + 1, zone.ni ),
+                    nodeIndex( i, j + 1, zone.ni )
+                }};
+                Real twiceSignedArea = 0.0;
+                for ( std::size_t corner = 0; corner < corners.size(); ++ corner )
+                {
+                    const std::size_t current = corners[ corner ];
+                    const std::size_t next = corners[ ( corner + 1 ) % corners.size() ];
+                    twiceSignedArea +=
+                        zone.x[ current ] * zone.y[ next ] -
+                        zone.y[ current ] * zone.x[ next ];
+                }
+                const Real cellArea = 0.5 * twiceSignedArea;
+                EXPECT_GT( cellArea, 0.0 );
+                totalArea += cellArea;
+            }
+        }
+
+        EXPECT_NEAR(
+            *std::min_element( zone.x.begin(), zone.x.end() ),
+            expectedMinX[ zoneIndex ], 1.0e-12 );
+        EXPECT_NEAR(
+            *std::max_element( zone.x.begin(), zone.x.end() ),
+            expectedMaxX[ zoneIndex ], 1.0e-12 );
+    }
+
+    EXPECT_EQ( uniqueNodes.size(), 15u );
+    EXPECT_NEAR( totalArea, 2.0, 1.0e-12 );
+
+    int sharedInterfaceNodeCount = 0;
+    for ( std::size_t firstNode = 0; firstNode < zones[ 0 ].x.size(); ++ firstNode )
+    {
+        if ( std::abs( zones[ 0 ].x[ firstNode ] - 1.0 ) > 1.0e-12 ) continue;
+        bool foundMatchingNode = false;
+        for ( std::size_t secondNode = 0; secondNode < zones[ 1 ].x.size(); ++ secondNode )
+        {
+            if ( std::abs( zones[ 1 ].x[ secondNode ] - 1.0 ) <= 1.0e-12 &&
+                 std::abs( zones[ 0 ].y[ firstNode ] - zones[ 1 ].y[ secondNode ] ) <= 1.0e-12 &&
+                 std::abs( zones[ 0 ].z[ firstNode ] - zones[ 1 ].z[ secondNode ] ) <= 1.0e-12 )
+            {
+                foundMatchingNode = true;
+                break;
+            }
+        }
+        EXPECT_TRUE( foundMatchingNode );
+        ++ sharedInterfaceNodeCount;
+    }
+    EXPECT_EQ( sharedInterfaceNodeCount, 3 );
+
+    file.close();
+}
+
 TEST( DomDataTest, RebuildsControlPointCandidatesFromCurrentDomainIncidence )
 {
     DomData domainData;
