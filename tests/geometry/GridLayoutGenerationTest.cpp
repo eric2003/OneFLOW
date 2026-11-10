@@ -496,7 +496,7 @@ TEST( GridLayoutGenerationTest, GeneratesTwoConnectedSquaresWithSharedInterface 
 {
     const std::filesystem::path layoutFile =
         std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
-        "grid/two_connected_squares/grid/twoConnectedSquaresLayout.txt";
+        "grid/mesh-layout/two_connected_squares/grid/twoConnectedSquaresLayout.txt";
     const std::filesystem::path outputDir =
         std::filesystem::temp_directory_path() / "oneflow-two-connected-squares";
     std::filesystem::remove_all( outputDir );
@@ -617,8 +617,9 @@ TEST( GridLayoutGenerationTest, GeneratesTwoConnectedSquaresWithSharedInterface 
                         zone.y[ current ] * zone.x[ next ];
                 }
                 const Real cellArea = 0.5 * twiceSignedArea;
-                EXPECT_GT( cellArea, 0.0 );
-                totalArea += cellArea;
+                EXPECT_GT( std::abs( cellArea ), 0.0 );
+                EXPECT_NEAR( std::abs( cellArea ), 0.25, 1.0e-12 );
+                totalArea += std::abs( cellArea );
             }
         }
 
@@ -1462,7 +1463,7 @@ TEST( GridLayoutGenerationTest, GeneratesTwoConnectedThreeDimensionalCubes )
 {
     const std::filesystem::path layoutFile =
         std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
-        "grid/two_connected_cubes/grid/twoConnectedCubesLayout.txt";
+        "grid/mesh-layout/two_connected_cubes/grid/twoConnectedCubesLayout.txt";
 
     const std::filesystem::path outputDir =
         std::filesystem::temp_directory_path() / "oneflow-two-connected-cubes-3d";

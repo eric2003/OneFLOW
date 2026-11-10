@@ -1,7 +1,7 @@
 # Minimal Cube Mesh Case
 
 This is a runnable OneFLOW case template, organized like
-`grid/minimal_rectangle`. It includes the runtime control file and all
+`grid/mesh-layout/minimal_rectangle`. It includes the runtime control file and all
 parameter files required by `OneFLOW.exe r <case-directory>`.
 
 ## Case files
@@ -46,7 +46,7 @@ the block which side it occupies.
 
 ## Run on Windows
 
-Copy the complete `grid/minimal_cube` directory to a writable workspace,
+Copy the complete `grid/mesh-layout/minimal_cube` directory to a writable workspace,
 for example `D:\\OneFLOWWorkspace\\workdir2026\\grid\\minimal_cube`.
 Keep the repository checkout separately for the executable and shared runtime
 resources.

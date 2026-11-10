@@ -48,7 +48,7 @@ one-based.
 
 ## Run
 
-Copy `grid/two_connected_cubes` to an external workspace, then launch OneFLOW
+Copy `grid/mesh-layout/two_connected_cubes` to an external workspace, then launch OneFLOW
 with that copied directory as the case argument. Keep the process working
 directory at the OneFLOW executable/build directory if shared runtime
 resources are resolved relative to the executable.
@@ -56,13 +56,13 @@ resources are resolved relative to the executable.
 For example, in Visual Studio 2022, set the command arguments to:
 
 ```text
-r D:\OneFLOWWorkspace\grid\two_connected_cubes\
+r D:\OneFLOWWorkspace\grid\mesh-layout\two_connected_cubes\
 ```
 
 Or from PowerShell:
 
 ```powershell
-.\build\bin\Debug\OneFLOW.exe r D:\OneFLOWWorkspace\grid\two_connected_cubes\
+.\build\bin\Debug\OneFLOW.exe r D:\OneFLOWWorkspace\grid\mesh-layout\two_connected_cubes\
 ```
 
 Use the actual path to your built executable.

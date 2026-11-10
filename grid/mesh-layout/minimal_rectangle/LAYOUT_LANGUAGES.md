@@ -25,7 +25,7 @@ From the repository root:
 
 ```sh
 python tools/mesh_layout/compile_rectangle.py \
-    grid/minimal_rectangle/rectangle.json \
+    grid/mesh-layout/minimal_rectangle/rectangle.json \
     --output /tmp/minimalRectangleLayout.txt \
     --svg-output /tmp/minimalRectangleTopology.svg
 ```

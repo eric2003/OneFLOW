@@ -5,7 +5,7 @@
     {
       "id": "minimal_rectangle",
       "title": "Minimal Rectangle",
-      "directory": "grid/minimal_rectangle",
+      "directory": "grid/mesh-layout/minimal_rectangle",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
       "layout": "grid/minimalRectangleLayout.txt"
@@ -13,7 +13,7 @@
     {
       "id": "minimal_rectangle_vertical_midpoints",
       "title": "Minimal Rectangle with Vertical Midpoints",
-      "directory": "grid/minimal_rectangle_vertical_midpoints",
+      "directory": "grid/mesh-layout/minimal_rectangle_vertical_midpoints",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
       "layout": "grid/minimalRectangleVerticalMidpointsLayout.txt"
@@ -21,7 +21,7 @@
     {
       "id": "minimal_cube",
       "title": "Minimal Cube",
-      "directory": "grid/minimal_cube",
+      "directory": "grid/mesh-layout/minimal_cube",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
       "layout": "grid/minimalCubeLayout.txt"
@@ -29,7 +29,7 @@
     {
       "id": "two_connected_cubes",
       "title": "Two Connected Cubes",
-      "directory": "grid/two_connected_cubes",
+      "directory": "grid/mesh-layout/two_connected_cubes",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
       "layout": "grid/twoConnectedCubesLayout.txt"
@@ -37,7 +37,7 @@
     {
       "id": "two_connected_squares",
       "title": "Two Connected Squares",
-      "directory": "grid/two_connected_squares",
+      "directory": "grid/mesh-layout/two_connected_squares",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
       "layout": "grid/twoConnectedSquaresLayout.txt"

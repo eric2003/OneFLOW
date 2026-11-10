@@ -17,16 +17,16 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class MeshLayoutEditorDocumentTest(unittest.TestCase):
     def test_rectangle_template_compiles_to_checked_in_layout(self):
-        spec_path = ROOT / "grid" / "minimal_rectangle" / "rectangle.json"
-        layout_path = ROOT / "grid" / "minimal_rectangle" / "grid" / "minimalRectangleLayout.txt"
+        spec_path = ROOT / "grid" / "mesh-layout" / "minimal_rectangle" / "rectangle.json"
+        layout_path = ROOT / "grid" / "mesh-layout" / "minimal_rectangle" / "grid" / "minimalRectangleLayout.txt"
         spec = load_specification(spec_path)
         layout, svg = compile_specification(spec)
         self.assertEqual(layout, layout_path.read_text(encoding="utf-8"))
         self.assertIn("Rectangle layout", svg)
 
     def test_vertical_midpoint_rectangle_template_compiles_to_checked_in_layout(self):
-        spec_path = ROOT / "grid" / "minimal_rectangle_vertical_midpoints" / "rectangle_vertical_midpoints.json"
-        layout_path = ROOT / "grid" / "minimal_rectangle_vertical_midpoints" / "grid" / "minimalRectangleVerticalMidpointsLayout.txt"
+        spec_path = ROOT / "grid" / "mesh-layout" / "minimal_rectangle_vertical_midpoints" / "rectangle_vertical_midpoints.json"
+        layout_path = ROOT / "grid" / "mesh-layout" / "minimal_rectangle_vertical_midpoints" / "grid" / "minimalRectangleVerticalMidpointsLayout.txt"
         spec = load_specification(spec_path)
         layout, svg = compile_specification(spec)
         self.assertEqual(layout, layout_path.read_text(encoding="utf-8"))
@@ -58,7 +58,7 @@ class MeshLayoutEditorDocumentTest(unittest.TestCase):
         self.assertEqual(layout.count("Add L2F"), 12)
 
     def test_save_specification_writes_valid_ascii_json(self):
-        source = ROOT / "grid" / "minimal_rectangle" / "rectangle.json"
+        source = ROOT / "grid" / "mesh-layout" / "minimal_rectangle" / "rectangle.json"
         spec = load_specification(source)
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "saved" / "rectangle.json"

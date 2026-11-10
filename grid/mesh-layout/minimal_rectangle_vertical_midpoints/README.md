@@ -18,8 +18,8 @@ workflow:
 
 ```sh
 python tools/mesh_workflow.py run \
-    --case grid/minimal_rectangle_vertical_midpoints/case.json \
-    --workdir /path/to/workspace/grid/minimal_rectangle_vertical_midpoints \
+    --case grid/mesh-layout/minimal_rectangle_vertical_midpoints/case.json \
+    --workdir /path/to/workspace/grid/mesh-layout/minimal_rectangle_vertical_midpoints \
     --oneflow /path/to/build/bin/OneFLOW
 ```
 

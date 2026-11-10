@@ -171,7 +171,7 @@ OneFLOW.exe r <case-directory>
 例如，在 Windows 的 Debug 构建完成后，可以从仓库根目录执行：
 
 ~~~powershell
-.\build\bin\Debug\OneFLOW.exe r .\grid\minimal_rectangle
+.\build\bin\Debug\OneFLOW.exe r .\grid\mesh-layout\minimal_rectangle
 ~~~
 
 如果算例会生成网格、结果或日志，请在可写的工作目录中运行，而不要直接在受版本控制的源算例目录里执行。桌面工作台对支持的任务会创建独立运行副本。算例输入和预期输出请参阅具体算例目录及[网格算例说明](./grid/README.md)。

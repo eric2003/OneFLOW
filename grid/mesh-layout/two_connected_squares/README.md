@@ -39,7 +39,7 @@ OneFLOW.exe r <case-directory>
 For example:
 
 ```powershell
-.\build\bin\Debug\OneFLOW.exe r D:\OneFLOWWorkspace\grid\two_connected_squares\
+.\build\bin\Debug\OneFLOW.exe r D:\OneFLOWWorkspace\grid\mesh-layout\two_connected_squares\
 ```
 
 Use the executable path from the local build. Run from the executable/build

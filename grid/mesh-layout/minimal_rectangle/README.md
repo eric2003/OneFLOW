@@ -36,8 +36,8 @@ From the repository root, run the same Python command on either platform:
 
 ```sh
 python tools/mesh_workflow.py run \
-    --case grid/minimal_rectangle/case.json \
-    --workdir /path/to/workspace/grid/minimal_rectangle \
+    --case grid/mesh-layout/minimal_rectangle/case.json \
+    --workdir /path/to/workspace/grid/mesh-layout/minimal_rectangle \
     --oneflow /path/to/build/bin/OneFLOW
 ```
 
@@ -45,7 +45,7 @@ On Windows, for example:
 
 ```powershell
 python tools/mesh_workflow.py run `
-    --case grid/minimal_rectangle/case.json `
+    --case grid/mesh-layout/minimal_rectangle/case.json `
     --workdir D:\\OneFLOWWorkspace\\workdir2026\\grid\\minimal_rectangle `
     --oneflow build\\bin\\Debug\\OneFLOW.exe
 ```

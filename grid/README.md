@@ -12,8 +12,8 @@ future GUI. It gives each case a stable ID and locates its runtime entry point,
 layout, and optional richer profile. A GUI should discover cases from this
 catalog instead of hard-coding case names or directory paths.
 
-The `minimal_rectangle`, `minimal_cube`, `two_connected_cubes`, and
-`two_connected_squares` cases have versioned `case.json` profiles. Each profile describes the generation
+The `minimal_rectangle`, `minimal_rectangle_vertical_midpoints`, `minimal_cube`,
+`two_connected_cubes`, and `two_connected_squares` cases have versioned `case.json` profiles. Each profile describes the generation
 dimension, layout, runtime parameter-file list, inspection outputs, and
 expected mesh counts and bounds. The flat-plate cases also provide profiles
 with mesh expectations; `turbulent_flat_plate` follows the laminar reference
@@ -45,10 +45,11 @@ duplicate parameter values in the catalog.
 
 | Case | Purpose | Configuration and execution |
 |---|---|---|
-| `minimal_rectangle` | Generate a small structured grid, inspect geometry and topology, and export SVG/VTU views | `case.json`, `run.ps1` |
-| `minimal_cube` | Generate one 3D block from a readable point-line-face-block layout | `case.json`, `script/control.txt` |
-| `two_connected_cubes` | Generate two adjacent 3D blocks with one shared interface face | `case.json`, `script/control.txt` |
-| `two_connected_squares` | Generate two adjacent 2D blocks with one shared interface edge; carries the current grid options in the versioned profile | `case.json`, `script/control.txt` |
+| `minimal_rectangle` | Generate a small structured grid, inspect geometry and topology, and export SVG/VTU views | `grid/mesh-layout/minimal_rectangle` |
+| `minimal_rectangle_vertical_midpoints` | Rectangle layout with one midpoint on each vertical side | `grid/mesh-layout/minimal_rectangle_vertical_midpoints` |
+| `minimal_cube` | Generate one 3D block from a readable point-line-face-block layout | `grid/mesh-layout/minimal_cube` |
+| `two_connected_cubes` | Generate two adjacent 3D blocks with one shared interface face | `grid/mesh-layout/two_connected_cubes` |
+| `two_connected_squares` | Generate two adjacent 2D blocks with one shared interface edge; carries the current grid options in the versioned profile | `grid/mesh-layout/two_connected_squares` |
 | `mesh_workflow` | Convert the RAE 2822 Plot3D grid to OneFLOW format and write a metadata summary | `script/control.txt`, parameter files, `tools/validate_case.py` |
 | `gmsh_to_cgns` | Manual GUI example for Gmsh MSH 4.1 ASCII to CGNS conversion | `script/control.txt`, `grid/square.msh`, `README.md` |
 | `gmsh_to_oneflow` | Manual GUI example for Gmsh MSH 4.1 ASCII through CGNS to a native OneFLOW grid | `script/control.txt`, `grid/single_quad.msh`, `README.md` |
@@ -62,9 +63,12 @@ The native `stl_to_gmsh` Cases run through the OneFLOW Grid task and use the con
 
 ## Mesh layout templates
 
-The flat-plate layout family is grouped under `grid/mesh-layout/`. Each
-template remains a self-contained case with its own `case.json`, legacy
-runtime parameter files, layout source, and editable specification. The GUI
+The five foundational layout cases (`minimal_cube`, `minimal_rectangle`,
+`minimal_rectangle_vertical_midpoints`, `two_connected_cubes`, and
+`two_connected_squares`) now live alongside the flat-plate family under
+`grid/mesh-layout/`. Each template remains a self-contained case with its own
+`case.json` where applicable, legacy runtime parameter files, layout source,
+and editable specification. The GUI
 copies these templates into the user's workspace before editing; repository
 examples remain read-only.
 

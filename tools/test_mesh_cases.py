@@ -21,7 +21,23 @@ class MeshCaseCatalogTest(unittest.TestCase):
         profile_ids = {
             entry["id"] for entry in catalog["cases"] if entry.get("profile")
         }
-        self.assertTrue({"minimal_rectangle", "minimal_cube", "two_connected_cubes", "two_connected_squares"} <= profile_ids)
+        self.assertTrue({
+            "minimal_rectangle",
+            "minimal_rectangle_vertical_midpoints",
+            "minimal_cube",
+            "two_connected_cubes",
+            "two_connected_squares",
+        } <= profile_ids)
+        layout_case_ids = {
+            "minimal_cube",
+            "minimal_rectangle",
+            "minimal_rectangle_vertical_midpoints",
+            "two_connected_cubes",
+            "two_connected_squares",
+        }
+        for entry in catalog["cases"]:
+            if entry["id"] in layout_case_ids:
+                self.assertEqual(entry["directory"], f"grid/mesh-layout/{entry['id']}")
         errors = [
             error
             for entry in catalog["cases"]
@@ -250,7 +266,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertEqual(expected["boundingBox"]["max"], [2.0, 1.0, 0.0])
 
     def test_two_connected_squares_profile_carries_grid_options(self) -> None:
-        case_dir = REPOSITORY_ROOT / "grid" / "two_connected_squares"
+        case_dir = REPOSITORY_ROOT / "grid" / "mesh-layout" / "two_connected_squares"
         with (case_dir / "case.json").open("r", encoding="utf-8") as stream:
             profile = json.load(stream)
 
