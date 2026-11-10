@@ -152,12 +152,10 @@ def terminate_process_tree(
 
     platform_value = (platform_name or os.name).lower()
     if platform_value in {"nt", "windows"}:
-        job = _process_job(process)
-        if job is not None:
-            kernel32, job_handle = job
-            if kernel32.TerminateJobObject(job_handle, 1):
-                return True
-
+        # A child can be spawned in the short interval between Popen returning
+        # and attach_process_job assigning the parent to its Job Object. Use
+        # taskkill while the parent is still alive so Windows enumerates its
+        # current process tree, including any child that escaped that race.
         runner = command_runner or subprocess.run
         try:
             result = runner(
@@ -167,9 +165,18 @@ def terminate_process_tree(
                 check=False,
             )
         except OSError:
-            process.terminate()
+            result = None
+        if result is not None and result.returncode == 0:
             return True
-        if result.returncode != 0 and process.poll() is None:
+
+        # Keep the Job Object as a second termination mechanism when taskkill
+        # is unavailable or cannot terminate the process tree.
+        job = _process_job(process)
+        if job is not None:
+            kernel32, job_handle = job
+            if kernel32.TerminateJobObject(job_handle, 1):
+                return True
+        if process.poll() is None:
             process.terminate()
         return True
 
