@@ -29,6 +29,7 @@ License
 #include <set>
 #include <map>
 #include <memory>
+#include <vector>
 
 
 BeginNameSpace( ONEFLOW )
@@ -73,6 +74,13 @@ public:
         int bcType,
         int bcNameId,
         bool boundaryFacesOnly );
+
+    // Assign a BC to explicitly identified boundary faces. Each entry is one
+    // face connectivity; the complete batch is validated before any BC write.
+    int AssignBcToMatchingFaces(
+        const std::vector< IntField > & boundaryFaceNodes,
+        int bcType,
+        int bcNameId );
 
     // Boundary faces only (right cell INVALID). Prefer for post-ownership BC.
     void ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId );

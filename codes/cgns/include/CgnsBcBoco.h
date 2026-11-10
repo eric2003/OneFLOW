@@ -25,6 +25,7 @@ License
 #include "HXCgns.h"
 #include "HXDefine.h"
 #include <string>
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
@@ -68,7 +69,7 @@ public:
     void ScanBcFace( FaceSolver & faceSolver );
 public:
     void ProcessVertexBc( IntSet & bcVertex );
-    void ProcessFaceBc( IntSet & bcVertex );
+    void ProcessFaceBc( std::vector< IntField > & boundaryFaces );
 public:
     void ReadCgnsBcBoco();
     void DumpCgnsBcBoco();

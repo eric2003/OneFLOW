@@ -409,3 +409,114 @@ TEST( FaceSolverStageTest, CountFacesWithoutChildrenRejectsMisalignedChildFid )
     solver.DropLastChildFidEntryForTest();
     EXPECT_THROW( solver.CountFacesWithoutChildren(), std::logic_error );
 }
+
+TEST( FaceSolverStageTest, DirectBoundaryFaceMatchingKeepsOppositeWallFacesDistinct )
+{
+    FaceSolver solver;
+    CgIntField offsets{ 0, 4, 8, 12, 16, 20, 24 };
+    CgIntField connectivity{
+        1, 2, 3, 4,
+        5, 6, 7, 8,
+        1, 4, 8, 5,
+        2, 3, 7, 6,
+        1, 2, 6, 5,
+        4, 3, 7, 8
+    };
+    solver.StagePolyhedralFacesFromConnectivity(
+        6, offsets, connectivity, /*faceType=*/7 );
+    for ( int faceId = 0; faceId < 6; ++ faceId )
+    {
+        solver.ClaimStagedFaceAsLeft( faceId, /*cellId=*/0 );
+    }
+
+    const std::vector< IntField > wallFaces{
+        IntField{ 4, 3, 2, 1 },
+        IntField{ 5, 6, 7, 8 }
+    };
+    EXPECT_EQ(
+        solver.AssignBcToMatchingFaces( wallFaces, /*bcType=*/20, /*bcNameId=*/1 ),
+        2 );
+
+    EXPECT_EQ( solver.AssignBcToMatchingFaces(
+        std::vector< IntField >{ IntField{ 1, 4, 8, 5 } }, 21, 2 ), 1 );
+    EXPECT_EQ( solver.AssignBcToMatchingFaces(
+        std::vector< IntField >{ IntField{ 2, 3, 7, 6 } }, 22, 3 ), 1 );
+    EXPECT_EQ( solver.AssignBcToMatchingFaces(
+        std::vector< IntField >{ IntField{ 1, 2, 6, 5 } }, 23, 4 ), 1 );
+    EXPECT_EQ( solver.AssignBcToMatchingFaces(
+        std::vector< IntField >{ IntField{ 4, 3, 7, 8 } }, 24, 5 ), 1 );
+
+    EXPECT_EQ( solver.GetStagedBcType( 0 ), 20 );
+    EXPECT_EQ( solver.GetStagedBcType( 1 ), 20 );
+    EXPECT_EQ( solver.GetStagedBcType( 2 ), 21 );
+    EXPECT_EQ( solver.GetStagedBcType( 3 ), 22 );
+    EXPECT_EQ( solver.GetStagedBcType( 4 ), 23 );
+    EXPECT_EQ( solver.GetStagedBcType( 5 ), 24 );
+}
+
+TEST( FaceSolverStageTest, DirectBoundaryFaceMatchingRejectsMissingFace )
+{
+    FaceSolver solver;
+    solver.StagePolyhedralFacesFromConnectivity(
+        1, CgIntField{ 0, 4 }, CgIntField{ 1, 2, 3, 4 }, 7 );
+    solver.ClaimStagedFaceAsLeft( 0, 0 );
+
+    EXPECT_THROW(
+        solver.AssignBcToMatchingFaces(
+            std::vector< IntField >{ IntField{ 1, 2, 3, 5 } }, 20, 1 ),
+        std::runtime_error );
+    EXPECT_EQ( solver.GetStagedBcType( 0 ), INVALID_INDEX );
+}
+
+TEST( FaceSolverStageTest, DirectBoundaryFaceMatchingRejectsInteriorFace )
+{
+    FaceSolver solver;
+    solver.StagePolyhedralFacesFromConnectivity(
+        1, CgIntField{ 0, 3 }, CgIntField{ 1, 2, 3 }, 5 );
+    solver.ClaimStagedFaceAsLeft( 0, 0 );
+    solver.AttachStagedFaceAsRight( 0, 1 );
+
+    EXPECT_THROW(
+        solver.AssignBcToMatchingFaces(
+            std::vector< IntField >{ IntField{ 3, 2, 1 } }, 20, 1 ),
+        std::runtime_error );
+    EXPECT_EQ( solver.GetStagedBcType( 0 ), INVALID_INDEX );
+}
+
+TEST( FaceSolverStageTest, DirectBoundaryFaceMatchingRejectsConflictingBc )
+{
+    FaceSolver solver;
+    solver.StagePolyhedralFacesFromConnectivity(
+        1, CgIntField{ 0, 3 }, CgIntField{ 1, 2, 3 }, 5 );
+    solver.ClaimStagedFaceAsLeft( 0, 0 );
+    solver.AssignBcToMatchingFaces(
+        std::vector< IntField >{ IntField{ 1, 2, 3 } }, 20, 1 );
+
+    EXPECT_THROW(
+        solver.AssignBcToMatchingFaces(
+            std::vector< IntField >{ IntField{ 2, 3, 1 } }, 21, 2 ),
+        std::runtime_error );
+    EXPECT_EQ( solver.GetStagedBcType( 0 ), 20 );
+    EXPECT_EQ( solver.GetStagedBcNameId( 0 ), 1 );
+}
+
+TEST( FaceSolverStageTest, DirectBoundaryFaceMatchingValidatesBatchBeforeWriting )
+{
+    FaceSolver solver;
+    solver.StagePolyhedralFacesFromConnectivity(
+        2, CgIntField{ 0, 3, 6 }, CgIntField{ 1, 2, 3, 4, 5, 6 }, 5 );
+    solver.ClaimStagedFaceAsLeft( 0, 0 );
+    solver.ClaimStagedFaceAsLeft( 1, 0 );
+    solver.AssignBcToMatchingFaces(
+        std::vector< IntField >{ IntField{ 1, 2, 3 } }, 20, 1 );
+
+    EXPECT_THROW(
+        solver.AssignBcToMatchingFaces(
+            std::vector< IntField >{
+                IntField{ 4, 5, 6 },
+                IntField{ 1, 3, 2 }
+            }, 21, 2 ),
+        std::runtime_error );
+    EXPECT_EQ( solver.GetStagedBcType( 1 ), INVALID_INDEX );
+}
+

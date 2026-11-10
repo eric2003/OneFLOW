@@ -95,7 +95,7 @@ the same loops:
 
 #. **Discover** unique faces while scanning elements (geometry identity).
 #. **Own** each face from the left and right cells (topology).
-#. **Label** boundary faces from CGNS BOCO vertex sets (physics BC).
+#. **Label** boundary faces from explicit CGNS face elements where available; retain vertex-set matching only as a compatibility path.
 
 Those jobs share parallel arrays (``faces``, left/right cells, BC slots,
 ``l2g`` / ``gI2Zid``). Before the staged APIs, alignment was accidental: each
@@ -108,9 +108,9 @@ The local refactor's meaning is therefore not "more free functions". It is:
   ``StagedBcMatchesFaceCount`` so parallel arrays stay aligned by construction.
 * **Named write paths** -- Claim / Attach / Bind / ``SetStagedFaceBc`` so
   ownership and BC are not ad-hoc index writes.
-* **Pure rules extracted from adapters** -- eligibility, vertex-set match,
-  boundary-first permutation, interface dual maps -- so intent is unit-tested
-  without CGNS.
+* **Pure rules extracted from adapters** -- eligibility, explicit face-identity
+  matching, vertex-set compatibility matching, boundary-first permutation,
+  interface dual maps -- so intent is unit-tested without a full CGNS zone.
 * **Documented algorithms** on this page so the next change can see the
   *pipeline*, not only the last helper.
 
@@ -126,7 +126,8 @@ GridElem orchestration
 implement face identity or BC matching; it sequences already-tested steps:
 
 #. Scan elements into ``FaceSolver`` (stage / claim / bind).
-#. Scan BOCO into staged BC (``AssignBcToMatchingFaces`` / residual fill).
+#. Scan BOCO into staged BC (explicit face lookup for unstructured face/edge
+   element locations; vertex-set compatibility path otherwise) / residual fill.
 #. ``AppendBoundaryBcToRecord`` -- export boundary BC in discovery order.
 #. Move ``FaceTopo`` onto ``UnsGrid``, map CGNS BC ids
    (``BcTypeMap::MapFromCgnsInPlace``).
@@ -1611,3 +1612,42 @@ Prefer small, compile-checked changes that improve a real call path, with a
 focused test for the type-level contract. The next audit targets are public
 geometry accessors and grid/mesh lookup APIs; each candidate must be classified
 as required, optional, owning, or non-owning before changing its type.
+
+Boundary-condition assignment by face identity
+-----------------------------------------------
+
+For an unstructured boundary, each face/edge element listed by a BOCO is a
+separate face identity. This applies to ``ElementList`` / ``ElementRange``
+and also to ``PointList`` / ``PointRange`` when ``GridLocation`` is
+``FaceCenter`` (3D) or ``EdgeCenter`` (2D). The CGNS SIDS defines these point
+sets as element-number references for the selected location. The reader must
+preserve each element's node connectivity and map its local node IDs through
+the zone's ``l2g`` table. It must not union all nodes in one BOCO into a single
+vertex set.
+
+``FaceSolver::AssignBcToMatchingFaces`` resolves each connectivity against the
+same ``faceLookup`` used while staging volume-cell faces. The lookup key is
+order-independent, but the stored face node ring remains unchanged. The
+complete BOCO patch is resolved and validated before any BC slot is modified.
+A missing face, an interior face, a duplicate face reference, or a conflicting
+BC assignment is an error; first-wins assignment is not accepted for this
+explicit face path.
+
+This distinction matters even for a single hexahedron. If two opposite faces
+share one WALL BOCO, their union contains all eight cell vertices. A
+vertex-subset test then matches all six faces. Explicit face connectivity
+instead resolves the two listed boundary elements to exactly two face IDs.
+
+Vertex-based BOCO remains a compatibility path. It identifies candidate faces
+from a vertex set and cannot recover face grouping that the source file did
+not preserve. If one vertex-only BOCO contains all vertices of a cell, the
+intended subset of faces is mathematically underdetermined; the importer must
+not claim that it can infer the original face partition. Prefer face/edge
+location point sets or element connectivity when exact entity identity is
+required.
+
+**Tests:** ``FaceSolverStageTest.DirectBoundaryFaceMatchingKeepsOppositeWallFacesDistinct``,
+``DirectBoundaryFaceMatchingRejectsMissingFace``,
+``DirectBoundaryFaceMatchingRejectsInteriorFace``,
+``DirectBoundaryFaceMatchingRejectsConflictingBc``, and
+``DirectBoundaryFaceMatchingValidatesBatchBeforeWriting``.

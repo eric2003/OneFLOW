@@ -35,6 +35,8 @@ License
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <stdexcept>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
@@ -138,50 +140,111 @@ void CgnsBcBoco::ProcessVertexBc( IntSet & bcVertex )
     }
 }
 
-void CgnsBcBoco::ProcessFaceBc( IntSet & bcVertex )
+void CgnsBcBoco::ProcessFaceBc( std::vector< IntField > & boundaryFaces )
 {
-    if ( this->pointSetType == ElementRange ||
-         this->pointSetType == PointRange )
+    if ( this->nElements <= 0 )
     {
-        std::cout << " nBcElement = " << this->connList[ 1 ] - this->connList[ 0 ] + 1 << std::endl;
+        throw std::runtime_error(
+            "CgnsBcBoco::ProcessFaceBc: boundary element list is empty" );
+    }
 
-        for ( int eId = this->connList[ 0 ]; eId <= this->connList[ 1 ]; ++ eId )
+    CgIntField elementIds;
+    const bool isRange =
+        this->pointSetType == CGNS_ENUMV( ElementRange ) ||
+        this->pointSetType == CGNS_ENUMV( PointRange );
+    const bool isList =
+        this->pointSetType == CGNS_ENUMV( ElementList ) ||
+        this->pointSetType == CGNS_ENUMV( PointList );
+
+    if ( isRange )
+    {
+        if ( this->nElements != 2 || this->connList.size() < 2 ||
+             this->connList[ 0 ] > this->connList[ 1 ] )
         {
-            CgIntField fNodeId;
-            cgnsZone->GetElementNodeId( eId, fNodeId );
-            for ( int iNode = 0; iNode < fNodeId.size(); ++ iNode )
-            {
-                bcVertex.insert( this->cgnsZone->l2g[ fNodeId[ iNode ] ] );
-            }
+            throw std::runtime_error(
+                "CgnsBcBoco::ProcessFaceBc: invalid boundary element range" );
+        }
+        for ( CgInt elementId = this->connList[ 0 ];
+              elementId <= this->connList[ 1 ]; ++ elementId )
+        {
+            elementIds.push_back( elementId );
         }
     }
-    else // if (  this->pointSetType == ElementList ||  this->pointSetType == PointList )
+    else if ( isList )
     {
-        for ( int eId = 0; eId < this->nElements; ++ eId )
+        if ( static_cast< std::size_t >( this->nElements ) > this->connList.size() )
         {
-            CgIntField fNodeId;
-            cgnsZone->GetElementNodeId( this->connList[ eId ], fNodeId );
-            for ( int iNode = 0; iNode < fNodeId.size(); ++ iNode )
-            {
-                bcVertex.insert( this->cgnsZone->l2g[ fNodeId[ iNode ] ] );
-            }
+            throw std::runtime_error(
+                "CgnsBcBoco::ProcessFaceBc: boundary element list is incomplete" );
         }
+        elementIds.assign( this->connList.begin(),
+                           this->connList.begin() + this->nElements );
+    }
+    else
+    {
+        throw std::runtime_error(
+            "CgnsBcBoco::ProcessFaceBc: unsupported face point-set type" );
+    }
+
+    const auto & localToGlobal = this->cgnsZone->l2g;
+    boundaryFaces.reserve( boundaryFaces.size() + elementIds.size() );
+
+    for ( CgInt elementId : elementIds )
+    {
+        CgIntField localNodeIds;
+        this->cgnsZone->GetElementNodeId( elementId, localNodeIds );
+
+        IntField globalNodeIds;
+        globalNodeIds.reserve( localNodeIds.size() );
+        for ( CgInt localNodeId : localNodeIds )
+        {
+            if ( localNodeId < 0 ||
+                 static_cast< std::size_t >( localNodeId ) >= localToGlobal.size() )
+            {
+                throw std::runtime_error(
+                    "CgnsBcBoco::ProcessFaceBc: local node index is out of range" );
+            }
+            globalNodeIds.push_back(
+                localToGlobal[ static_cast< std::size_t >( localNodeId ) ] );
+        }
+        boundaryFaces.push_back( std::move( globalNodeIds ) );
     }
 }
 
 
 void CgnsBcBoco::ScanBcFace( FaceSolver & faceSolver )
 {
+    const bool isElementSet =
+        this->pointSetType == CGNS_ENUMV( ElementList ) ||
+        this->pointSetType == CGNS_ENUMV( ElementRange );
+    const bool isPointSet =
+        this->pointSetType == CGNS_ENUMV( PointList ) ||
+        this->pointSetType == CGNS_ENUMV( PointRange );
+    const bool isFaceLocation =
+        this->modifiedLocation == CGNS_ENUMV( FaceCenter ) ||
+        this->modifiedLocation == CGNS_ENUMV( EdgeCenter );
+
+    if ( this->cgnsZone->cgnsZoneType == CGNS_ENUMV( Unstructured ) &&
+         ( isElementSet || ( isPointSet && isFaceLocation ) ) )
+    {
+        std::vector< IntField > boundaryFaces;
+        this->ProcessFaceBc( boundaryFaces );
+        faceSolver.AssignBcToMatchingFaces(
+            boundaryFaces, this->bcType, this->nameId );
+        return;
+    }
+
     IntSet bcVertex;
-    if ( this->modifiedLocation == Vertex )
+    if ( this->cgnsZone->cgnsZoneType == CGNS_ENUMV( Unstructured ) &&
+         this->modifiedLocation == CGNS_ENUMV( Vertex ) && isPointSet )
     {
         this->ProcessVertexBc( bcVertex );
+        faceSolver.ScanBcFace( bcVertex, this->bcType, this->nameId );
+        return;
     }
-    else
-    {
-        this->ProcessFaceBc( bcVertex );
-    }
-    faceSolver.ScanBcFaceDetail( bcVertex, this->bcType, this->nameId );
+
+    throw std::runtime_error(
+        "CgnsBcBoco::ScanBcFace: unsupported unstructured BC location or point-set type" );
 }
 
 void CgnsBcBoco::ResizeConnList( CgInt size )

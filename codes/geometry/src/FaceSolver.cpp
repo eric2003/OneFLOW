@@ -26,6 +26,7 @@ License
 #include "FaceTopo.h"
 #include "BcRecord.h"
 #include "CgnsSection.h"
+#include "CgnsZone.h"
 #include <algorithm>
 #include <limits>
 #include <stdexcept>
@@ -140,10 +141,26 @@ void FaceSolver::StagePolyhedralFacesFromConnectivity(
 
 void FaceSolver::ScanPolyhedralFace( CgnsSection & cgnsSection )
 {
+    const auto & localToGlobal = cgnsSection.cgnsZone.l2g;
+    CgIntField globalConnectivity;
+    globalConnectivity.reserve( cgnsSection.connList.size() );
+
+    for ( CgInt localNodeId : cgnsSection.connList )
+    {
+        if ( localNodeId < 0 ||
+             static_cast< std::size_t >( localNodeId ) >= localToGlobal.size() )
+        {
+            throw std::runtime_error(
+                "FaceSolver::ScanPolyhedralFace: local node index is out of range" );
+        }
+        globalConnectivity.push_back(
+            localToGlobal[ static_cast< std::size_t >( localNodeId ) ] );
+    }
+
     this->StagePolyhedralFacesFromConnectivity(
         cgnsSection.nElement,
         cgnsSection.ePosList,
-        cgnsSection.connList,
+        globalConnectivity,
         cgnsSection.eType );
 }
 
@@ -462,6 +479,73 @@ int FaceSolver::AssignBcToMatchingFaces(
         }
     }
     return nAssigned;
+}
+
+int FaceSolver::AssignBcToMatchingFaces(
+    const std::vector< IntField > & boundaryFaceNodes,
+    int bcType,
+    int bcNameId )
+{
+    if ( boundaryFaceNodes.empty() )
+    {
+        throw std::runtime_error(
+            "FaceSolver::AssignBcToMatchingFaces: boundary face list is empty" );
+    }
+    if ( ! this->StagedBcMatchesFaceCount() )
+    {
+        throw std::logic_error(
+            "FaceSolver::AssignBcToMatchingFaces: staged face arrays are not aligned" );
+    }
+
+    const auto & rightCells = this->faceTopo->GetRightCells();
+    std::vector< int > matchedFaceIds;
+    matchedFaceIds.reserve( boundaryFaceNodes.size() );
+    std::unordered_set< int > uniqueFaceIds;
+
+    // Resolve and validate the whole BC patch before mutating any staged slot.
+    for ( const IntField & faceNodes : boundaryFaceNodes )
+    {
+        if ( faceNodes.size() < 2 )
+        {
+            throw std::runtime_error(
+                "FaceSolver::AssignBcToMatchingFaces: boundary face has fewer than two nodes" );
+        }
+
+        const int faceId = this->faceLookup.Find( faceNodes );
+        if ( faceId == ONEFLOW::INVALID_INDEX ||
+             static_cast< std::size_t >( faceId ) >= this->faceTopo->GetFaces().size() )
+        {
+            throw std::runtime_error(
+                "FaceSolver::AssignBcToMatchingFaces: CGNS boundary element does not match a mesh face" );
+        }
+        if ( ! uniqueFaceIds.insert( faceId ).second )
+        {
+            throw std::runtime_error(
+                "FaceSolver::AssignBcToMatchingFaces: boundary patch references the same mesh face more than once" );
+        }
+        if ( rightCells[ static_cast< std::size_t >( faceId ) ] != ONEFLOW::INVALID_INDEX )
+        {
+            throw std::runtime_error(
+                "FaceSolver::AssignBcToMatchingFaces: CGNS boundary element matches an interior face" );
+        }
+
+        const int currentBcType = this->faceBcTypes[ static_cast< std::size_t >( faceId ) ];
+        const int currentBcNameId = this->faceBcNameIds[ static_cast< std::size_t >( faceId ) ];
+        if ( currentBcType != ONEFLOW::INVALID_INDEX &&
+             ( currentBcType != bcType || currentBcNameId != bcNameId ) )
+        {
+            throw std::runtime_error(
+                "FaceSolver::AssignBcToMatchingFaces: mesh face has conflicting boundary conditions" );
+        }
+
+        matchedFaceIds.push_back( faceId );
+    }
+
+    for ( int faceId : matchedFaceIds )
+    {
+        this->SetStagedFaceBc( faceId, bcType, bcNameId );
+    }
+    return static_cast< int >( matchedFaceIds.size() );
 }
 
 void FaceSolver::ScanBcFace( IntSet & bcVertex, int bcType, int bcNameId )
