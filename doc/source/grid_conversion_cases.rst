@@ -16,9 +16,8 @@ the **Shared unstructured mesh conversion boundary** subsection of
 :doc:`mesh_architecture`. Runnable Cases here exercise that boundary; they do
 not redefine it.
 
-Runnable Cases are named and grouped by the mesh they describe, not by a
-conversion route. Runnable examples are grouped beneath the route that owns their execution
-workflow. The current two_quads example belongs to
+Runnable examples are grouped beneath the conversion route that owns their
+execution workflow. The current two_quads example belongs to
 ``grid/gmsh_to_cgns/examples/convert_2d/two_quads``. The conversion matrix
 keeps route coverage separate from Case identity, so a future shared mesh
 fixture can be referenced by more than one route without creating a generic
