@@ -50,7 +50,7 @@
       "kind": "google_test",
       "reference": "tests/geometry/GmshTwoQuadsOneFlowTest.cpp",
       "status": "declared_not_executed",
-      "scope": "Gmsh two-quad MSH -> CGNS Unstructured Zone -> OneFLOW native grid."
+      "scope": "Gmsh MSH 4.1 two-quad route fixture at grid/conversion/gmsh_to_cgns/grid/two_quads.msh -> CGNS Unstructured Zone -> OneFLOW native grid."
     },
     {
       "kind": "python_test",
