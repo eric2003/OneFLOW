@@ -63,7 +63,7 @@ TEST(GmshMeshReaderTest, RejectsUnsupportedElementTypes) {
 
 TEST(GmshMeshReaderTest, ReadsBundledSquareMshFileAndBuildsDiagnosticReport) {
     const std::string path =
-        std::string(ONEFLOW_SOURCE_DIR) + "/grid/gmsh_to_cgns/grid/square.msh";
+        std::string(ONEFLOW_SOURCE_DIR) + "/grid/conversion/gmsh_to_cgns/grid/square.msh";
     std::ifstream input(path);
     ASSERT_TRUE(input.good()) << path;
     const std::string content{

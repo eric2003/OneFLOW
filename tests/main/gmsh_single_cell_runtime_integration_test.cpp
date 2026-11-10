@@ -135,7 +135,7 @@ TEST( GmshSingleCellRuntimeIntegration,
 
     const std::filesystem::path sourceMesh =
         std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
-        "grid" / "gmsh_to_oneflow" / "grid" / "single_quad.msh";
+        "grid" / "conversion" / "gmsh_to_oneflow" / "grid" / "single_quad.msh";
     ASSERT_TRUE( std::filesystem::is_regular_file( sourceMesh ) );
     const std::filesystem::path inputMesh =
         caseDirectory / "grid" / "single_quad.msh";

@@ -99,7 +99,7 @@ discovery. These registries describe different things: the catalog locates a
 runnable Case, while the matrix records conversion coverage.
 
 The `two_quads` example is located at
-`grid/gmsh_to_cgns/examples/convert_2d/two_quads`. It contains two adjacent
+`grid/conversion/gmsh_to_cgns/examples/convert_2d/two_quads`. It contains two adjacent
 QUAD_4 cells, six nodes, six exterior LINE_2 elements, and one internal
 interface line. Its four exterior Physical Groups demonstrate that a single
 named group can span multiple geometric entities. See the Gmsh-to-CGNS

@@ -33,7 +33,7 @@ TEST(GmshTwoQuadsOneFlowTest, ConvertsTwoAdjacentQuadsThroughCgnsIntoNativeGrid)
 {
     namespace fs = std::filesystem;
     const fs::path source = fs::path(ONEFLOW_SOURCE_DIR) /
-        "grid" / "conversion" / "cases" / "two_quads" / "grid" / "two_quads.msh";
+        "grid" / "conversion" / "gmsh_to_cgns" / "examples" / "convert_2d" / "two_quads" / "grid" / "two_quads.msh";
     ASSERT_TRUE(fs::is_regular_file(source)) << source.string();
 
     TemporaryCaseDirectory temporaryCase;
