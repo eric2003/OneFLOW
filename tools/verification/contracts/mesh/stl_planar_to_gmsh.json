@@ -117,7 +117,7 @@
       "The native C++ and Python circle external-flow Cases use byte-identical STL input and matching domain bounds, mesh-size controls and Physical Group names.",
       "The native circle external-flow Case is registered for both Run Development Cases and Mesh-to-CFD Validation; the latter executes the selected MSH through the existing CGNS, OneFLOW-grid and CFD smoke-test chain.",
       "The native C++ and independent Python cube_single_hex Cases validate a closed axis-aligned cube STL with twelve triangles and generate exactly one HEXA_8 volume cell with six QUAD_4 boundary faces.",
-      "The cube_single_hex Case pair is registered in Run Development Cases, Python Reference Cases and Mesh-to-CFD Validation; its validation graph checks MSH-to-CGNS-to-OneFLOW topology and boundary-region-map handoff without running an unrelated flat-plate CFD case.",
+      "The cube_single_hex Case pair is registered in Run Development Cases, Python Reference Cases and Mesh-to-CFD Validation; its validation graph checks MSH-to-CGNS-to-OneFLOW topology, boundary-region-map handoff and a two-step CFD smoke run using the staged laminar flat-plate template with dimension overridden to 3.",
       "The legacy root-level script/run.py and its root input/results/script data were removed; Python reference Cases reject execution from checked-in source directories, and Python unit tests live under tests/python/grid."
     ],
     "does_not_prove": [
@@ -253,9 +253,15 @@
     },
     {
       "kind": "python_test",
-      "reference": "MeshValidationCatalogTest.test_cube_single_hex_uses_topology_only_validation_chain",
+      "reference": "MeshValidationCatalogTest.test_native_cube_single_hex_runs_the_complete_cfd_smoke_chain",
       "status": "linked_not_executed",
-      "scope": "tools/oneflow_gui/test_mesh_validation.py; checks that the 3-D cube validation graph ends after OneFLOW grid and boundary-map handoff rather than using the flat-plate CFD template."
+      "scope": "tools/oneflow_gui/test_mesh_validation.py; checks the native 3-D cube graph through MSH-to-CGNS-to-OneFLOW grid conversion, boundary-map handoff and the staged two-step CFD smoke consumer with dimension overridden to 3."
+    },
+    {
+      "kind": "python_test",
+      "reference": "MeshValidationCatalogTest.test_python_cube_single_hex_runs_the_complete_cfd_smoke_chain",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_mesh_validation.py; checks the independent Python 3-D cube graph through MSH-to-CGNS-to-OneFLOW grid conversion, boundary-map handoff and the staged two-step CFD smoke consumer with dimension overridden to 3."
     }
   ],
   "group": {
