@@ -308,7 +308,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertIn("int fileFormat = 1;", grid_parameters)
         self.assertIn("Real gridScale = 1.0;", grid_parameters)
         self.assertIn("Real gridTrans[3] = 0, 0, 0;", grid_parameters)
-        self.assertIn('string gridLayoutFileName = "grid/twoConnectedSquaresLayout.txt";', grid_parameters)
+        self.assertIn('string gridLayoutFileName = "grid/twoBlocksSharedEdgeOneInteriorNodeLayout.txt";', grid_parameters)
         self.assertIn('string sourceGridType = "plot3d";', grid_parameters)
         self.assertIn('string targetGridType = "oneflow";', grid_parameters)
         self.assertIn("int parallelStrategy = 1;", grid_parameters)
