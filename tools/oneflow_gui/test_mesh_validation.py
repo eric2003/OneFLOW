@@ -168,7 +168,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[3]["inputs"][1]["setting"], "bcRegionMapFile")
 
 
-    def test_native_cube_single_hex_uses_topology_only_validation_chain(self):
+    def test_native_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
         cases = build_mesh_validation_cases(self.root, "native_cube", "laminar_flat_plate")
         self.assertEqual([item["id"] for item in cases],
                          ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow",
@@ -181,7 +181,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[3]["inputs"][1]["artifact"], "bc_region_map")
         self.assertEqual(cases[0]["outputs"][0]["path"], "results/cube_single_hex.msh")
 
-    def test_cube_single_hex_uses_topology_only_validation_chain(self):
+    def test_python_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
         cube_dir = self.root / "grid/stl_to_gmsh/cube_single_hex/python"
         (cube_dir / "script").mkdir(parents=True, exist_ok=True)
         (cube_dir / "script/layout.json").write_text(

@@ -118,6 +118,7 @@ def build_mesh_validation_cases(
          ),
          "validation": {"kind": "gmsh_msh4", "path": msh}},
         {"id": "gmsh_to_cgns", "directory": "grid/gmsh_to_cgns",
+         "runtime_directory": "pipeline/gmsh_to_cgns",
          "depends_on": ["stl_to_gmsh"],
          "inputs": [{"artifact": mesh_id, "setting": "sourceGridFileName",
                      "parameter_file": "script/grid.txt"}],
@@ -338,7 +339,7 @@ def run_mesh_validation(
         "mesh_implementation": mesh_implementation,
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
-        "note": ("3D single-cell cube validation ends after OneFLOW grid and boundary-map handoff; it is not a CFD accuracy test." if len(cases) == 3 else "The selected CFD consumer is a runtime smoke test unless a matching physical validation contract is explicitly defined; applying the flat-plate template to another geometry does not establish flat-plate physics."),
+        "note": ("3D single-cell cube validation ends after OneFLOW grid and boundary-map handoff; it is not a CFD accuracy test." if len(cases) == 3 else "The selected CFD consumer is a runtime smoke test. For a 3-D mesh, the staged CFD template dimension is overridden to 3; the flat-plate template supplies common solver parameters only and does not establish flat-plate physics or numerical accuracy."),
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
     report_path = run_root / "mesh-validation-report.json"
