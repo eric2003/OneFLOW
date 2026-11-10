@@ -77,7 +77,7 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertTrue(all(case.runtime_config is None for case in python_cases))
         self.assertTrue(all(case.execution_script is not None and case.execution_script.is_file()
                             for case in python_cases))
-        self.assertTrue(all(case.case_directory.parent.name == "python" for case in python_cases))
+        self.assertTrue(all(case.case_directory.name == "python" for case in python_cases))
 
     def test_development_case_execution_mode_separates_native_and_python_cases(self) -> None:
         cases = [case for case in load_cases(REPOSITORY_ROOT) if case.group == "STL"]
