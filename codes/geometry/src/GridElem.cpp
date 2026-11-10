@@ -159,15 +159,15 @@ void GridElem::PrepareUnsCalcGrid()
 
 void GridElem::PrepareUnsCalcGridNormal()
 {
-this->InitCgnsElements();
-this->elemFeature.ScanElements( this->faceSolver );
-this->ScanBcFace();
+    this->InitCgnsElements();
+    this->elemFeature.ScanElements( this->faceSolver );
+    this->ScanBcFace();
     this->GenerateCalcElement();
 }
 
 void GridElem::PrepareUnsCalcGridPolyhedron()
 {
-this->ScanPolyhedralFaces();
+    this->ScanPolyhedralFaces();
     this->ScanBcFace();
     this->GenerateCalcElement();
 }
