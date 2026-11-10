@@ -50,7 +50,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
     def test_two_quads_gmsh_conversion_case_is_owned_by_gmsh_to_cgns(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         entry = next(case for case in catalog["cases"] if case["id"] == "two_quads")
-        expected_directory = "grid/gmsh_to_cgns/examples/convert_2d/two_quads"
+        expected_directory = "grid/conversion/gmsh_to_cgns/examples/convert_2d/two_quads"
         self.assertEqual(entry["directory"], expected_directory)
         self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
         case_dir = REPOSITORY_ROOT / expected_directory
@@ -67,7 +67,13 @@ class MeshCaseCatalogTest(unittest.TestCase):
         grid = (case_dir / "script" / "grid.txt").read_text(encoding="utf-8")
         self.assertIn('string sourceGridType = "gmsh";', grid)
         self.assertIn('string targetGridType = "cgns";', grid)
-        self.assertFalse((REPOSITORY_ROOT / "grid" / "conversion").exists())
+        conversion_root = REPOSITORY_ROOT / "grid" / "conversion"
+        self.assertTrue((conversion_root / "README.md").is_file())
+        for template in ("cgns_to_oneflow", "gmsh_to_cgns", "gmsh_to_oneflow"):
+            self.assertTrue((conversion_root / template / "README.md").is_file())
+        self.assertFalse((REPOSITORY_ROOT / "grid" / "gmsh_to_cgns").exists())
+        self.assertFalse((REPOSITORY_ROOT / "grid" / "gmsh_to_oneflow").exists())
+        self.assertFalse((REPOSITORY_ROOT / "grid" / "cgns_to_oneflow").exists())
 
     def test_stl_ascii_basic_is_a_native_oneflow_case(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")

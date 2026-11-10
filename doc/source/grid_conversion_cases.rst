@@ -18,7 +18,7 @@ not redefine it.
 
 Runnable examples are grouped beneath the conversion route that owns their
 execution workflow. The current two_quads example belongs to
-``grid/gmsh_to_cgns/examples/convert_2d/two_quads``. The conversion matrix
+``grid/conversion/gmsh_to_cgns/examples/convert_2d/two_quads``. The conversion matrix
 keeps route coverage separate from Case identity, so a future shared mesh
 fixture can be referenced by more than one route without creating a generic
 top-level conversion directory.
@@ -30,10 +30,11 @@ Directory and metadata model
 
    grid/
      case_catalog.json
-     interoperability/
-       conversion_matrix.json
-     gmsh_to_cgns/
-       examples/
+     conversion/
+       README.md
+       cgns_to_oneflow/
+       gmsh_to_cgns/
+         examples/
          convert_2d/
            two_quads/
              README.md
@@ -102,7 +103,7 @@ to fluid_domain.
 -------------------------------------------------
 
 The automated Gmsh-to-CGNS conversion suite also includes
-``grid/gmsh_to_cgns/grid/cube_single_hex.msh``, a deterministic MSH 4.1
+``grid/conversion/gmsh_to_cgns/grid/cube_single_hex.msh``, a deterministic MSH 4.1
 fixture with eight nodes, one HEXA_8 volume cell, and six QUAD_4 boundary
 elements. Its five Physical Groups are inflow (XMin), outflow (XMax),
 symmetry (YMin), farfield (YMax), and wall (ZMin and ZMax). The fixture is
@@ -126,7 +127,7 @@ Conversion route and execution
 The current Case runtime configuration selects gmsh -> cgns. It is registered
 in grid/case_catalog.json, so it appears in the standard GUI Case Workbench.
 Its route-specific directory is
-``grid/gmsh_to_cgns/examples/convert_2d/two_quads``.
+``grid/conversion/gmsh_to_cgns/examples/convert_2d/two_quads``.
 Run it manually from the GUI after building OneFLOW with CGNS support. The GUI
 uses an isolated run workspace; the checked-in Case and input MSH file must
 remain unchanged.
@@ -291,13 +292,13 @@ Python producer and constructs an artifact-bound graph:
    Gmsh MSH 4.1 (validated)
        |
        v
-   grid/gmsh_to_cgns
+   grid/conversion/gmsh_to_cgns
        |
        v
    CGNS interchange artifact
        |
        v
-   grid/cgns_to_oneflow
+   grid/conversion/cgns_to_oneflow
        |
        v
    native OneFLOW grid + boundary-region map + grid-info JSON
@@ -308,7 +309,7 @@ Python producer and constructs an artifact-bound graph:
        v
    residual + restart flow + visualization
 
-The reusable `grid/cgns_to_oneflow` Case is a conversion-stage template. The
+The reusable `grid/conversion/cgns_to_oneflow` Case is a conversion-stage template. The
 graph runner injects the upstream CGNS artifact and binds the selected mesh
 stem to the native-grid, boundary-region-map and grid-info outputs. The
 existing `test/cfd/plateuns2dslau2` Case is staged as the CFD consumer; its

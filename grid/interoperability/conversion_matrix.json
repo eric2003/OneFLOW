@@ -22,7 +22,8 @@
       "status": "implemented",
       "implementation": "GridConversion.cpp",
       "input_scope": "MSH 4.1 ASCII; first-order LINE_2, TRI_3, QUAD_4, TETRA_4, HEXA_8, PENTA_6, PYRA_5",
-      "evidence": "GmshCgnsConversionTest independently reopens CGNS and checks mesh and boundary data."
+      "evidence": "GmshCgnsConversionTest independently reopens CGNS and checks mesh and boundary data.",
+      "template": "grid/conversion/gmsh_to_cgns"
     },
     {
       "source": "gmsh",
@@ -37,13 +38,15 @@
         "Configured native OneFLOW grid target, or Case results/<source-stem>.oneflow.grid by default"
       ],
       "input_scope": "Same as gmsh -> cgns.",
-      "evidence": "GmshCgnsConversionTest verifies the retained CGNS Base/Zone/BC_t data, the separate native OneFLOW grid output, OneFLOW UnsGrid node/cell/face counts and coordinates, and per-boundary OneFLOW BC type/name identity attached to the expected geometric edge."
+      "evidence": "GmshCgnsConversionTest verifies the retained CGNS Base/Zone/BC_t data, the separate native OneFLOW grid output, OneFLOW UnsGrid node/cell/face counts and coordinates, and per-boundary OneFLOW BC type/name identity attached to the expected geometric edge.",
+      "template": "grid/conversion/gmsh_to_oneflow"
     },
     {
       "source": "cgns",
       "target": "oneflow",
       "status": "implemented",
-      "implementation": "CgnsFactory::GenerateGrid"
+      "implementation": "CgnsFactory::GenerateGrid",
+      "template": "grid/conversion/cgns_to_oneflow"
     },
     {
       "source": "plot3d",
@@ -84,7 +87,7 @@
   "cases": [
     {
       "id": "two_quads",
-      "directory": "grid/gmsh_to_cgns/examples/convert_2d/two_quads",
+      "directory": "grid/conversion/gmsh_to_cgns/examples/convert_2d/two_quads",
       "source": "gmsh",
       "dimension": 2,
       "topology": "two adjacent QUAD_4 cells",

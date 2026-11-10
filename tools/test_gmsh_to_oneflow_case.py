@@ -14,7 +14,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
 class GmshToOneFlowCaseTest(unittest.TestCase):
     def test_case_is_catalogued_and_passes_preflight(self) -> None:
-        case_dir = REPOSITORY_ROOT / "grid" / "gmsh_to_oneflow"
+        case_dir = REPOSITORY_ROOT / "grid" / "conversion" / "gmsh_to_oneflow"
         validator = (
             REPOSITORY_ROOT
             / "grid"
@@ -50,7 +50,7 @@ class GmshToOneFlowCaseTest(unittest.TestCase):
             None,
         )
         self.assertIsNotNone(entry)
-        self.assertEqual(entry["directory"], "grid/gmsh_to_oneflow")
+        self.assertEqual(entry["directory"], "grid/conversion/gmsh_to_oneflow")
         self.assertEqual(entry["runtimeConfig"], "script/control.txt")
 
 

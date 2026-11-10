@@ -167,7 +167,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         })
         self.assertEqual(cases[1]["inputs"][0]["artifact"], "gmsh_mesh")
         self.assertEqual(cases[1]["inputs"][0]["setting"], "sourceGridFileName")
-        self.assertEqual(cases[1]["directory"], "grid/gmsh_to_cgns")
+        self.assertEqual(cases[1]["directory"], "grid/conversion/gmsh_to_cgns")
         self.assertEqual(cases[3]["inputs"][1]["artifact"], "bc_region_map")
         self.assertEqual(cases[3]["inputs"][1]["setting"], "bcRegionMapFile")
 
@@ -233,14 +233,14 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertEqual(cases[1]["id"], "gmsh_to_cgns")
         self.assertEqual(cases[1]["depends_on"], ["stl_to_gmsh"])
-        self.assertEqual(cases[1]["directory"], "grid/gmsh_to_cgns")
+        self.assertEqual(cases[1]["directory"], "grid/conversion/gmsh_to_cgns")
         self.assertEqual(cases[1]["outputs"][0], {
             "id": "cgns_mesh", "path": "results/square.cgns",
             "parameter_file": "script/grid.txt", "setting": "targetGridFileName",
         })
         self.assertEqual(cases[2]["id"], "cgns_to_oneflow")
         self.assertEqual(cases[2]["depends_on"], ["gmsh_to_cgns"])
-        self.assertEqual(cases[2]["directory"], "grid/cgns_to_oneflow")
+        self.assertEqual(cases[2]["directory"], "grid/conversion/cgns_to_oneflow")
         self.assertEqual(cases[2]["outputs"], [
             {"id": "oneflow_grid", "path": "results/square.oneflow.grid",
              "parameter_file": "script/grid.txt", "setting": "targetGridFileName"},

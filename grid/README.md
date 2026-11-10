@@ -50,9 +50,9 @@ duplicate parameter values in the catalog.
 | `two_blocks_shared_edge_endpoints_only` | Minimum 2D two-block case: one QUAD per block and two shared-edge endpoints | `grid/mesh-layout/2d/two_blocks_shared_edge_endpoints_only` |
 | `two_blocks_shared_edge_one_interior_node` | Two 2D blocks whose shared edge contains one interior node | `grid/mesh-layout/2d/two_blocks_shared_edge_one_interior_node` |
 | `mesh_workflow` | Convert the RAE 2822 Plot3D grid to OneFLOW format and write a metadata summary | `script/control.txt`, parameter files, `tools/validate_case.py` |
-| `gmsh_to_cgns` | Manual GUI example for Gmsh MSH 4.1 ASCII to CGNS conversion | `script/control.txt`, `grid/square.msh`, `README.md` |
-| `gmsh_to_oneflow` | Manual GUI example for Gmsh MSH 4.1 ASCII through CGNS to a native OneFLOW grid | `script/control.txt`, `grid/single_quad.msh`, `README.md` |
-| `two_quads` | Gmsh-to-CGNS example with two QUAD_4 cells and an explicitly ungrouped internal interface | `grid/gmsh_to_cgns/examples/convert_2d/two_quads` |
+| `gmsh_to_cgns` | Gmsh MSH 4.1 ASCII to CGNS conversion template | `grid/conversion/gmsh_to_cgns` |
+| `gmsh_to_oneflow` | Gmsh MSH 4.1 ASCII through CGNS to a native OneFLOW grid | `grid/conversion/gmsh_to_oneflow` |
+| `two_quads` | Gmsh-to-CGNS example with two QUAD_4 cells and an explicitly ungrouped internal interface | `grid/conversion/gmsh_to_cgns/examples/convert_2d/two_quads` |
 | `stl_to_gmsh_square`, `stl_to_gmsh_two_square_cells` | Native C++ OneFLOW STL-to-Gmsh Cases with independent Python references | `grid/stl_to_gmsh/<case>/cpp`, `grid/stl_to_gmsh/<case>/python` |
 | `laminar_flat_plate` | Reference two-block flat-plate layout template with 85 wall-normal points | `grid/mesh-layout/2d/laminar_flat_plate` |
 | `laminar_flat_plate_10_edges` | Two-block laminar flat-plate layout with ten geometric line segments and 41 points across the first 0.02 near-wall region | `grid/mesh-layout/2d/laminar_flat_plate_10_edges` |
@@ -77,13 +77,20 @@ Each template remains a self-contained case with its own profile where
 applicable, runtime parameter files, layout source, and editable specification.
 Generated artifacts belong in an external workspace.
 
-## Conversion example organization
+## Conversion templates and examples
 
-Runnable examples for a specific format route live with that route. The
-Gmsh-to-CGNS examples are under
-`grid/gmsh_to_cgns/examples/<contract>/<case-id>/`. Each example owns its
+Reusable conversion Cases are grouped under `grid/conversion/`. Each route
+directory is a runnable template with its own input and configuration contract.
+Focused examples live beneath the route that owns their execution workflow.
+The Gmsh-to-CGNS examples are under
+`grid/conversion/gmsh_to_cgns/examples/<contract>/<case-id>/`. Each example owns its
 source mesh, runtime configuration, expected topology, and instructions, so
 it can be copied and run independently.
+
+The three reusable route templates are `cgns_to_oneflow`, `gmsh_to_cgns`,
+and `gmsh_to_oneflow`. They are runnable Case templates, not converter
+implementation modules. `mesh-validation` stages and composes them in an
+external workspace rather than duplicating their runtime configuration.
 
 The conversion matrix at `grid/interoperability/conversion_matrix.json`
 remains the central inventory of supported format routes and the runnable
