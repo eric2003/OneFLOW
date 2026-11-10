@@ -23,18 +23,18 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
-        (self.root / "grid/stl_to_gmsh/square/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/square/single_quad/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/square/two_triangles/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/square/two_triangles/python").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/circle_external_flow/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/cube_single_hex/cpp/script").mkdir(parents=True)
-        (self.root / "grid/stl_to_gmsh/square/python").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/square/single_quad/python").mkdir(parents=True)
         (self.root / "test/cfd/plateuns2dslau2/script").mkdir(parents=True)
         (self.root / "grid/case_catalog.json").write_text(json.dumps({
             "schema": "oneflow.case-catalog",
             "cases": [
                 {"id": "stl_to_gmsh_square", "title": "One Square QUAD_4 Cell",
-                 "directory": "grid/stl_to_gmsh/square/cpp", "group": "STL to Gmsh"},
+                 "directory": "grid/stl_to_gmsh/square/single_quad/cpp", "group": "STL to Gmsh"},
                 {"id": "stl_to_gmsh_square_two_triangles",
                  "title": "Square with Two TRI_3 Cells (Native C++)",
                  "directory": "grid/stl_to_gmsh/square/two_triangles/cpp",
@@ -51,7 +51,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
                  "group": "STL to Gmsh",
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
                 {"id": "python_square", "title": "One Square QUAD_4 Cell (Python Reference)",
-                 "directory": "grid/stl_to_gmsh/square/python",
+                 "directory": "grid/stl_to_gmsh/square/single_quad/python",
                  "group": "STL to Gmsh",
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
                 {"id": "stl_to_gmsh_python_square_two_triangles",
@@ -61,7 +61,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
             ],
         }), encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/square/python/expected.json").write_text(
+        (self.root / "grid/stl_to_gmsh/square/single_quad/python/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "square.msh"}}), encoding="utf-8"
         )
         (self.root / "grid/stl_to_gmsh/circle_external_flow/cpp/script/grid.txt").write_text(
@@ -72,7 +72,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             'string targetGridFileName = "results/cube_single_hex.msh";\n', encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/cube_single_hex/cpp/script/layout.json").write_text(
             json.dumps({"mesh_dimension": 3}), encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/square/cpp/script/grid.txt").write_text(
+        (self.root / "grid/stl_to_gmsh/square/single_quad/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/square.msh";\n', encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/square/two_triangles/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/square_two_triangles.msh";\n', encoding="utf-8")
@@ -200,7 +200,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             self.root, "python_square", "laminar_flat_plate"
         )
         self.assertEqual(len(cases), 4)
-        self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/square/python")
+        self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/square/single_quad/python")
         self.assertEqual(cases[0]["outputs"], [
             {"id": "gmsh_mesh", "path": "results/square.msh"}
         ])

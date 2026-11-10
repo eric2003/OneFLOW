@@ -57,7 +57,7 @@ duplicate parameter values in the catalog.
 | `laminar_flat_plate_10_edges` | Two-block laminar flat-plate layout with ten geometric line segments and 41 points across the first 0.02 near-wall region | `grid/mesh-layout/2d/laminar_flat_plate_10_edges` |
 | `turbulent_flat_plate` | Flat-plate layout variant with 81 wall-normal points and updated expected topology counts | `grid/mesh-layout/2d/turbulent_flat_plate` |
 
-The native `stl_to_gmsh` Cases run through the OneFLOW Grid task and use the configured Gmsh CLI to generate MSH 4.1. Their outputs can feed the existing Gmsh-to-CGNS/OneFLOW conversion paths. Each problem keeps its Native C++ and Python Reference implementations side by side under `grid/stl_to_gmsh/<case>/cpp` and `grid/stl_to_gmsh/<case>/python`.
+The native `stl_to_gmsh` Cases run through the OneFLOW Grid task and use the configured Gmsh CLI to generate MSH 4.1. Their outputs can feed the existing Gmsh-to-CGNS/OneFLOW conversion paths. Each STL-to-Gmsh geometry family groups topology variants first and implementation language second; for example, the square variants live under `grid/stl_to_gmsh/square/single_quad/{cpp,python}` and `grid/stl_to_gmsh/square/two_triangles/{cpp,python}`.
 
 ## Mesh layout templates
 

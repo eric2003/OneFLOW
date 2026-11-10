@@ -7,7 +7,7 @@ interface.
 
 | Variant | Layout | Surface recombination | Output |
 |---|---|---|---|
-| square/cpp and square/python | 1 x 1 | enabled | 1 QUAD_4 |
+| square/single_quad/cpp and square/single_quad/python | 1 x 1 | enabled | 1 QUAD_4 |
 | two_triangles/cpp and two_triangles/python | 1 x 1 | disabled | 2 TRI_3 |
 
 Both variants have four nodes, four exterior LINE_2 elements and the same

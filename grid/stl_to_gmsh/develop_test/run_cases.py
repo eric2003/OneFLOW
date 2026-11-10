@@ -13,7 +13,7 @@ from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 NATIVE_CASES = {
-    "square/cpp": ("square/cpp", "square.msh"),
+    "square/single_quad/cpp": ("square/single_quad/cpp", "square.msh"),
     "square/two_triangles/cpp": (
         "square/two_triangles/cpp", "square_two_triangles.msh"
     ),
@@ -23,7 +23,7 @@ NATIVE_CASES = {
     "cube_single_hex/cpp": ("cube_single_hex/cpp", "cube_single_hex.msh"),
 }
 PYTHON_CASES = {
-    "square/python": "square/python",
+    "square/single_quad/python": "square/single_quad/python",
     "square/two_triangles/python": "square/two_triangles/python",
     "two_square_cells/python": "two_square_cells/python",
     "circle_external_flow/python": "circle_external_flow/python",

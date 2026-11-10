@@ -20,7 +20,7 @@ Native OneFLOW Cases
 The primary runtime implementation is now available in two normal OneFLOW
 Grid Cases:
 
-* `grid/stl_to_gmsh/square/cpp`: one square, one QUAD_4 cell, four boundary edges;
+* `grid/stl_to_gmsh/square/single_quad/cpp`: one square, one QUAD_4 cell, four boundary edges;
 * `grid/stl_to_gmsh/square/two_triangles/cpp`: the same square, two TRI_3 cells;
 * `grid/stl_to_gmsh/two_square_cells/cpp`: a 2 x 1 rectangle, two QUAD_4 cells,
   six exterior boundary edges.

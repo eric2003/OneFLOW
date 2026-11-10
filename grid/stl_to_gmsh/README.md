@@ -6,12 +6,12 @@ and the C++ Geometry conversion pipeline.
 
 | Implementation | Case | Layout | Nodes | Cells | Boundary elements |
 |---|---|---:|---:|---:|---:|
-| Native C++ | square/cpp | 1 x 1 | 4 | 1 QUAD_4 | 4 |
+| Native C++ | square/single_quad/cpp | 1 x 1 | 4 | 1 QUAD_4 | 4 |
 | Native C++ | square/two_triangles/cpp | 1 x 1 | 4 | 2 TRI_3 | 4 |
 | Native C++ | square_2x2/cpp | 2 x 2 | 9 | 4 QUAD_4 | 8 |
 | Native C++ | two_square_cells/cpp | 2 x 1 | 6 | 2 QUAD_4 | 6 |
 | Native C++ | circle_external_flow/cpp | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |\n| Native C++ | cube_single_hex/cpp | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
-| Python | square/python | 1 x 1 | 4 | 1 QUAD_4 | 4 |
+| Python | square/single_quad/python | 1 x 1 | 4 | 1 QUAD_4 | 4 |
 | Python | square/two_triangles/python | 1 x 1 | 4 | 2 TRI_3 | 4 |
 | Python | two_square_cells/python | 2 x 1 | 6 | 2 QUAD_4 | 6 |
 | Python | circle_external_flow/python | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
@@ -85,7 +85,7 @@ If the executable is not in the standard build/bin locations:
 The orchestrator stages all twelve Cases under
 %USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows or
 $HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. Staging paths mirror
-the Case layout, for example square/cpp and square/python; each has its own
+the Case layout, for example square/single_quad/cpp and square/single_quad/python; each has its own
 results directory. It recreates only the ten named Case staging directories
 and leaves generated meshes, reports, and logs outside the repository source tree.
 

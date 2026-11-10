@@ -247,7 +247,7 @@
     {
       "id": "stl_to_gmsh_square",
       "title": "STL to Gmsh: One Square QUAD_4 Cell (Native C++)",
-      "directory": "grid/stl_to_gmsh/square/cpp",
+      "directory": "grid/stl_to_gmsh/square/single_quad/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh"
@@ -287,7 +287,7 @@
     {
       "id": "stl_to_gmsh_python_square",
       "title": "STL to Gmsh: One Square QUAD_4 Cell (Python Reference)",
-      "directory": "grid/stl_to_gmsh/square/python",
+      "directory": "grid/stl_to_gmsh/square/single_quad/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",

@@ -44,7 +44,7 @@ class StlToGmshCaseTest(unittest.TestCase):
 
     def test_development_staging_paths_mirror_case_implementation_layout(self):
         self.assertEqual(NATIVE_CASES, {
-            "square/cpp": ("square/cpp", "square.msh"),
+            "square/single_quad/cpp": ("square/single_quad/cpp", "square.msh"),
             "square/two_triangles/cpp": (
                 "square/two_triangles/cpp", "square_two_triangles.msh"
             ),
@@ -56,7 +56,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             "cube_single_hex/cpp": ("cube_single_hex/cpp", "cube_single_hex.msh"),
         })
         self.assertEqual(PYTHON_CASES, {
-            "square/python": "square/python",
+            "square/single_quad/python": "square/single_quad/python",
             "square/two_triangles/python": "square/two_triangles/python",
             "two_square_cells/python": "two_square_cells/python",
             "circle_external_flow/python": "circle_external_flow/python",
@@ -175,7 +175,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertFalse((native / "results").exists())
 
     def test_square_2x2_reuses_square_stl_and_changes_only_mesh_density(self):
-        square = ROOT / "grid/stl_to_gmsh/square/cpp"
+        square = ROOT / "grid/stl_to_gmsh/square/single_quad/cpp"
         square_2x2 = ROOT / "grid/stl_to_gmsh/square_2x2/cpp"
         self.assertEqual(
             (square / "input/model.stl").read_bytes(),
@@ -251,7 +251,7 @@ class StlToGmshCaseTest(unittest.TestCase):
 
     def test_python_geometry_compiles_square_and_two_cell_layouts(self):
         for relative, nx, ny in (
-            ("square/python", 1, 1),
+            ("square/single_quad/python", 1, 1),
             ("two_square_cells/python", 2, 1),
         ):
             case = ROOT / "grid/stl_to_gmsh" / relative
@@ -276,7 +276,7 @@ class StlToGmshCaseTest(unittest.TestCase):
 
     def test_expected_mesh_counts_distinguish_the_two_examples(self):
         square = json.loads(
-            (ROOT / "grid/stl_to_gmsh/square/python/expected.json").read_text()
+            (ROOT / "grid/stl_to_gmsh/square/single_quad/python/expected.json").read_text()
         )
         two = json.loads(
             (ROOT / "grid/stl_to_gmsh/two_square_cells/python/expected.json").read_text()
@@ -315,7 +315,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         gmsh = shutil.which("gmsh")
         if gmsh is None:
             self.skipTest("Gmsh executable is not available")
-        source = ROOT / "grid/stl_to_gmsh/square/python"
+        source = ROOT / "grid/stl_to_gmsh/square/single_quad/python"
         with tempfile.TemporaryDirectory() as temporary:
             staged = Path(temporary) / "square"
             shutil.copytree(source, staged)
