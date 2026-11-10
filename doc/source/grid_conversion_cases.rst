@@ -272,78 +272,71 @@ parameter files remain the source of runtime configuration, while the matrix
 describes route and coverage metadata.
 
 
-STL-to-CFD dependency workflow
--------------------------------
+Mesh-to-CFD validation chain
+----------------------------
 
-The STL-to-Gmsh development Cases now include a square_2x2 variant. It uses
-the same square STL input as the one-cell square Case; only the transfinite
-cell counts change to 2 x 2. The expected MSH 4.1 topology is nine nodes,
-eight exterior LINE_2 elements, and four QUAD_4 cells. Its four external
-Physical Groups remain inflow, outflow, symmetry, and farfield, with
-fluid_domain on the surface.
-
-The optional development pipeline composes four standard OneFLOW Cases:
+The STL-to-Gmsh producer Cases can be composed with the shared Mesh-to-CFD
+Validation Workbench. The Workbench accepts a registered native C++ or
+Python producer and constructs an artifact-bound graph:
 
 .. code-block:: text
 
-   STL square_2x2
+   selected STL-to-Gmsh Case
        |
        v
-   native STL -> Gmsh MSH 4.1
+   Gmsh MSH 4.1 (validated)
        |
        v
-   Gmsh -> CGNS
+   grid/gmsh_to_cgns
        |
        v
-   CGNS -> OneFLOW native grid + bcRegionMap.txt + grid-info JSON
+   CGNS interchange artifact
        |
        v
-   cfd_uns2dslau2: SLAU2 CFD Solve (50 steps)
+   grid/cgns_to_oneflow
+       |
+       v
+   native OneFLOW grid + boundary-region map + grid-info JSON
+       |
+       v
+   test/cfd/plateuns2dslau2 (runtime-overridden CFD smoke test)
        |
        v
    residual + restart flow + visualization
 
-The workflow definition is
-grid/stl_to_gmsh/develop_test/stl_square_to_cfd.json. Its solver stage uses
-the dedicated pipeline Case at grid/stl_to_gmsh/pipeline/cfd_uns2dslau2,
-with the 50-step SLAU2 parameter set. It reuses the
-Qt-independent dependency planner and graph runner in tools/oneflow_gui.
-Each stage declares its required input artifact and output artifact. The
-runner copies source Cases to a unique run directory outside the repository,
-binds producer outputs through sourceGridCaseDir and relative filenames,
-and prevents a consumer from starting when a dependency or declared
-artifact has failed. The checked-in Case parameter files remain unchanged.
+The reusable `grid/cgns_to_oneflow` Case is a conversion-stage template. The
+graph runner injects the upstream CGNS artifact and binds the selected mesh
+stem to the native-grid, boundary-region-map and grid-info outputs. The
+existing `test/cfd/plateuns2dslau2` Case is staged as the CFD consumer; its
+smoke-test iteration count, output cadence and initialization mode are
+overridden only in the staged copy. This avoids maintaining a second solver
+parameter tree solely for the STL workflow.
 
-Run the workflow from the repository root after building OneFLOW and making
-Gmsh available on PATH:
+Run a selected producer from the repository root after building OneFLOW and
+making Gmsh available on PATH:
 
 .. code-block:: console
 
-   python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline-only
+   python -m tools.oneflow_gui.mesh_validation --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh --mesh-case-id stl_to_gmsh_square_2x2 --max-steps 2
 
-The default staging root is
-%USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows and
-$HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. A unique
-pipelines/<run-id>/ directory contains each staged Case, process logs,
-pipeline-report.json, environment.json, run-manifest.json and a snapshot of
-the workflow definition. Each executed Case also receives
-results/runtime-environment.json and development_case.log; each validated
-Case writes validation.json.
-The source repository is not used as a runtime workspace. The manually
-dispatched OneFLOW External Tool Integration GitHub Actions workflow also
-runs this complete pipeline on Windows and uploads its run evidence.
+The default workspace is under
+`%USERPROFILE%/.oneflow/mesh-validation/` on Windows and
+`$HOME/.oneflow/mesh-validation/` on Linux. Each selected mesh Case has an
+independent workspace containing the staged producer, conversion stages,
+CFD consumer, logs and `mesh-validation-report.json`. Re-running one Case
+recreates only its own workspace; sibling Case evidence is preserved. The
+source repository is not used as a runtime workspace.
 
-Before CGNS conversion, the pipeline independently reopens the MSH 4.1 file
-and checks the expected node, boundary-line and quadrilateral counts as well
-as all five Physical Names. After CFD, it requires non-empty residual,
-restart-flow and visualization files. The conversion stages additionally
-exercise OneFLOW's own Gmsh, CGNS and native-grid readers/writers.
+The former `grid/stl_to_gmsh/pipeline/` tree, fixed
+`stl_square_to_cfd.json` workflow and `run_pipeline.py` entry point have
+been retired. The standalone STL development runner now executes only the
+STL-to-Gmsh producer Cases; end-to-end validation has one owner.
 
-This is an end-to-end runtime smoke test, not a numerical-accuracy proof.
-A successful 50-step run does not establish convergence, conservation,
-boundary-condition correctness, or grid independence. Those require
-subsequent residual-history, finite/positive flow-state, flux-balance, and
-analytical or manufactured-solution verification.
+This is a runtime smoke test, not a numerical-accuracy proof. A successful
+CFD run does not establish convergence, conservation, boundary-condition
+correctness, or grid independence. Those require residual-history,
+finite/positive flow-state, flux-balance, and analytical or
+manufactured-solution verification.
 
 
 STL cube single-hexahedron validation

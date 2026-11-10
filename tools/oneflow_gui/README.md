@@ -341,7 +341,7 @@ Validation workspaces are stable and Case-scoped below
 `ONEFLOW_HOME` is not set). For example, the square C++ STL Case uses
 `stl_to_gmsh/square/cpp/`. Each workflow stage has its own named directory
 under that Case root: `stl_to_gmsh/`, `gmsh_to_cgns/`,
-`gmsh_to_oneflow/` and `oneflow_cfd_solve/`. The Case root itself contains
+`cgns_to_oneflow/` and `oneflow_cfd_solve/`. The Case root itself contains
 only the workflow report; stage inputs, scripts, results and logs stay inside
 their respective stage directories. Re-running a Case clears and recreates
 only that Case's directory; sibling Case results are preserved.

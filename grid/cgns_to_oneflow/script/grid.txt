@@ -1,0 +1,14 @@
+string meshInputRoot = "default";
+string meshOutputRoot = "default";
+string bcRegionMapFile = "results/converted_bcRegionMap.txt";
+
+int gridObj = 1;
+string topoType = "u";
+int multiBlock = 0;
+string gridLayoutFileName = "results/source.cgns";
+string sourceGridType = "cgns";
+string targetGridType = "oneflow";
+string sourceGridFileName = "results/source.cgns";
+string sourceGridBcName = "";
+string targetGridFileName = "results/converted.oneflow.grid";
+string gridInfoFileName = "results/converted.info.json";

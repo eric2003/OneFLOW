@@ -71,7 +71,7 @@ def _setting(path: Path, name: str) -> str:
 def build_mesh_validation_cases(
     repository_root: Path, mesh_case_id: str, cfd_template_id: str,
 ) -> list[dict]:
-    """Build the current STL -> Gmsh -> OneFLOW -> CFD route."""
+    """Build the current STL -> Gmsh -> CGNS -> OneFLOW -> CFD route."""
     root = Path(repository_root).resolve()
     catalog = _catalog(root)
     mesh = next((x for x in catalog["cases"] if x.get("id") == mesh_case_id), None)
@@ -127,9 +127,9 @@ def build_mesh_validation_cases(
          "outputs": [{"id": cgns_id, "path": cgns,
                       "parameter_file": "script/grid.txt",
                       "setting": "targetGridFileName"}]},
-        {"id": "gmsh_to_oneflow",
-         "directory": "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow",
-         "runtime_directory": "gmsh_to_oneflow",
+        {"id": "cgns_to_oneflow",
+         "directory": "grid/cgns_to_oneflow",
+         "runtime_directory": "cgns_to_oneflow",
          "depends_on": ["gmsh_to_cgns"],
          "inputs": [{"artifact": cgns_id, "setting": "sourceGridFileName",
                      "parameter_file": "script/grid.txt"}],
@@ -147,7 +147,7 @@ def build_mesh_validation_cases(
         {"id": "oneflow_cfd_solve",
          "directory": template["directory"],
          "runtime_directory": "oneflow_cfd_solve",
-         "depends_on": ["gmsh_to_oneflow"],
+         "depends_on": ["cgns_to_oneflow"],
          "inputs": [
              {"artifact": native_id, "setting": "gridFileName",
               "parameter_file": "script/cfd.txt"},

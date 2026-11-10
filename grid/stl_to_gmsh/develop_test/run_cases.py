@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage and execute STL-to-Gmsh Cases and the optional STL-to-CFD pipeline."""
+"""Stage and execute the registered STL-to-Gmsh development Cases."""
 
 from __future__ import annotations
 
@@ -142,32 +142,6 @@ def run_all(stage_root: Path, oneflow: Path, gmsh: str) -> list[tuple[str, Path]
     return outputs
 
 
-def run_pipeline(
-    stage_root: Path,
-    oneflow: Path,
-    gmsh: str,
-    workflow: Path | None = None,
-) -> None:
-    script = REPOSITORY_ROOT / "grid/stl_to_gmsh/develop_test/run_pipeline.py"
-    command = [
-        sys.executable,
-        str(script),
-        "--oneflow-executable",
-        str(oneflow),
-        "--gmsh",
-        str(Path(gmsh).expanduser().resolve()),
-        "--stage-root",
-        str(stage_root),
-    ]
-    if workflow is not None:
-        command.extend(["--workflow", str(workflow.expanduser().resolve())])
-    result = subprocess.run(command, cwd=REPOSITORY_ROOT, check=False)
-    if result.returncode != 0:
-        raise RuntimeError(
-            f"STL-to-CFD pipeline failed with exit code {result.returncode}."
-        )
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -184,21 +158,6 @@ def main() -> int:
         type=Path,
         default=Path.home() / ".oneflow/mesh-layout-test/grid/stl_to_gmsh",
         help="staging directory outside the source tree",
-    )
-    parser.add_argument(
-        "--pipeline",
-        action="store_true",
-        help="run the STL -> Gmsh -> CGNS -> OneFLOW -> CFD pipeline after the Cases",
-    )
-    parser.add_argument(
-        "--pipeline-only",
-        action="store_true",
-        help="run only the staged STL-to-CFD dependency workflow",
-    )
-    parser.add_argument(
-        "--workflow",
-        type=Path,
-        help="workflow JSON to execute with --pipeline or --pipeline-only",
     )
     args = parser.parse_args()
     try:
@@ -219,11 +178,7 @@ def main() -> int:
                 "The staging directory must be outside the OneFLOW source repository."
             )
 
-        outputs = []
-        if not args.pipeline_only:
-            outputs = run_all(stage_root, oneflow, str(gmsh_path))
-        if args.pipeline or args.pipeline_only:
-            run_pipeline(stage_root, oneflow, str(gmsh_path), args.workflow)
+        outputs = run_all(stage_root, oneflow, str(gmsh_path))
     except (OSError, RuntimeError, ValueError) as error:
         parser.exit(2, f"STL-to-Gmsh development run failed: {error}\n")
 
@@ -231,8 +186,6 @@ def main() -> int:
         print("STL-to-Gmsh development Cases passed:")
         for case_id, directory in outputs:
             print(f"  {case_id}: {directory / 'results'}")
-    if args.pipeline or args.pipeline_only:
-        print("STL-to-CFD development pipeline passed.")
     return 0
 
 

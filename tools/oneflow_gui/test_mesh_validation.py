@@ -129,7 +129,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             cases[1]["outputs"][0]["path"],
             "results/circle_external_flow.cgns",
         )
-        self.assertEqual(cases[2]["id"], "gmsh_to_oneflow")
+        self.assertEqual(cases[2]["id"], "cgns_to_oneflow")
         self.assertEqual(
             cases[2]["outputs"][0]["path"],
             "results/circle_external_flow.oneflow.grid",
@@ -175,7 +175,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def test_native_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
         cases = build_mesh_validation_cases(self.root, "native_cube", "laminar_flat_plate")
         self.assertEqual([item["id"] for item in cases],
-                         ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow",
+                         ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow",
                           "oneflow_cfd_solve"])
         self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/cube_single_hex/cpp")
         self.assertEqual(cases[0]["runtime_directory"], "stl_to_gmsh")
@@ -207,7 +207,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             self.root, "python_cube", "laminar_flat_plate"
         )
         self.assertEqual([item["id"] for item in cases],
-                         ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow",
+                         ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow",
                           "oneflow_cfd_solve"])
         self.assertEqual(cases[0]["validation"], {
             "kind": "gmsh_msh4", "path": "results/cube_single_hex.msh"
@@ -229,7 +229,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[0]["outputs"][0]["path"], "results/square.msh")
         self.assertEqual(
             [item["runtime_directory"] for item in cases],
-            ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow", "oneflow_cfd_solve"],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
         )
         self.assertEqual(cases[1]["id"], "gmsh_to_cgns")
         self.assertEqual(cases[1]["depends_on"], ["stl_to_gmsh"])
@@ -238,9 +238,9 @@ class MeshValidationCatalogTest(unittest.TestCase):
             "id": "cgns_mesh", "path": "results/square.cgns",
             "parameter_file": "script/grid.txt", "setting": "targetGridFileName",
         })
-        self.assertEqual(cases[2]["id"], "gmsh_to_oneflow")
+        self.assertEqual(cases[2]["id"], "cgns_to_oneflow")
         self.assertEqual(cases[2]["depends_on"], ["gmsh_to_cgns"])
-        self.assertEqual(cases[2]["directory"], "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow")
+        self.assertEqual(cases[2]["directory"], "grid/cgns_to_oneflow")
         self.assertEqual(cases[2]["outputs"], [
             {"id": "oneflow_grid", "path": "results/square.oneflow.grid",
              "parameter_file": "script/grid.txt", "setting": "targetGridFileName"},
@@ -250,7 +250,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
              "parameter_file": "script/grid.txt", "setting": "gridInfoFileName"},
         ])
         self.assertEqual(cases[3]["id"], "oneflow_cfd_solve")
-        self.assertEqual(cases[3]["depends_on"], ["gmsh_to_oneflow"])
+        self.assertEqual(cases[3]["depends_on"], ["cgns_to_oneflow"])
         self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
         self.assertEqual(cases[3]["inputs"], [
             {"artifact": "oneflow_grid", "setting": "gridFileName",
@@ -267,10 +267,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 "Declared output artifacts were not produced: results/mesh.cgns",
             ),
             CaseExecutionResult(
-                "gmsh_to_oneflow", "skipped", "Blocked by unsuccessful dependencies: gmsh_to_cgns",
+                "cgns_to_oneflow", "skipped", "Blocked by unsuccessful dependencies: gmsh_to_cgns",
             ),
             CaseExecutionResult(
-                "oneflow_cfd_solve", "skipped", "Blocked by unsuccessful dependencies: gmsh_to_oneflow",
+                "oneflow_cfd_solve", "skipped", "Blocked by unsuccessful dependencies: cgns_to_oneflow",
             ),
         ))
         self.assertEqual(_graph_step_records(result), [
@@ -278,10 +278,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
              "message": "OneFLOW exited successfully."},
             {"case_id": "gmsh_to_cgns", "status": "failed",
              "message": "Declared output artifacts were not produced: results/mesh.cgns"},
-            {"case_id": "gmsh_to_oneflow", "status": "skipped",
+            {"case_id": "cgns_to_oneflow", "status": "skipped",
              "message": "Blocked by unsuccessful dependencies: gmsh_to_cgns"},
             {"case_id": "oneflow_cfd_solve", "status": "skipped",
-             "message": "Blocked by unsuccessful dependencies: gmsh_to_oneflow"},
+             "message": "Blocked by unsuccessful dependencies: cgns_to_oneflow"},
         ])
 
     def test_unknown_mesh_case_and_template_are_rejected(self):

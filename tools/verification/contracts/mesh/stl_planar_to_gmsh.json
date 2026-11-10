@@ -7,7 +7,7 @@
   "status": "partially_verified",
   "overview": "Reads one planar STL body loop, reconstructs its boundary, and generates Gmsh 2D geometry for directly bounded planar regions, external-flow obstacle domains, and internal-flow channels.",
   "principle": "STL facets carry coordinates and triangle topology, not standard CFD boundary-condition semantics. Singly incident triangle edges reconstruct the body loop. A sidecar either assigns names to a planar region boundary or defines a rectangular external-flow domain whose four sides are Inlet, Outlet, Symmetry and Farfield and whose internal STL loop is Wall. Physical names require a separate mapping to OneFLOW BC semantics. External flow constructs a fluid surface by subtracting an internal obstacle loop from an enclosing outer loop; internal flow uses the STL boundary loop itself as the closed fluid-domain boundary. Both assign physical names independently of solver boundary-state configuration.",
-  "architecture": "Native C++: STL -> StlMeshReader -> tolerance-based vertex welding and single planar boundary loop -> explicit Case layout JSON -> Gmsh .geo -> configured Gmsh CLI -> MSH 4.1 -> existing C++ Gmsh reader and topology/Physical Group validation. Each problem directory groups Native C++ and Python Reference implementations in sibling cpp/ and python/ directories; Python geometry uses grid/stl/stl_to_gmsh.py. The former root-level preprocessing script was retired to prevent source-tree output pollution. The cube_single_hex native and Python implementations independently validate an axis-aligned cube STL, reconstruct six surfaces and one volume in the existing GridConversion module, and require one HEXA_8 cell plus six QUAD_4 boundary faces. The square_2x2 native Case reuses the exact square STL and changes only its transfinite layout. An optional development dependency graph reuses the Workbench planner and runner to stage STL -> Gmsh -> CGNS -> OneFLOW -> CFD Cases, validate MSH 4.1 topology and physical names, and retain per-stage logs and runtime environment evidence outside the source tree.",
+  "architecture": "Native C++: STL -> StlMeshReader -> tolerance-based vertex welding and single planar boundary loop -> explicit Case layout JSON -> Gmsh .geo -> configured Gmsh CLI -> MSH 4.1 -> existing C++ Gmsh reader and topology/Physical Group validation. Each problem directory groups Native C++ and Python Reference implementations in sibling cpp/ and python/ directories; Python geometry uses grid/stl/stl_to_gmsh.py. The former root-level preprocessing script was retired to prevent source-tree output pollution. The cube_single_hex native and Python implementations independently validate an axis-aligned cube STL, reconstruct six surfaces and one volume in the existing GridConversion module, and require one HEXA_8 cell plus six QUAD_4 boundary faces. The square_2x2 native Case reuses the exact square STL and changes only its transfinite layout. The shared Mesh-to-CFD Validation Workbench builds an artifact-bound STL -> Gmsh -> CGNS -> OneFLOW -> CFD Case graph, validates MSH 4.1 topology and Physical Groups, and retains per-stage logs and validation reports in a user-data workspace outside the source tree.",
   "references": [
     "Gmsh transfinite meshes: https://gmsh.info/doc/texinfo/gmsh.html#t6",
     "Gmsh MSH physical groups: https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format",
@@ -23,11 +23,13 @@
       "codes/geometry/src/GridTypes.cpp",
       "codes/geometry/src/GridConversion.cpp",
       "grid/stl_to_gmsh/develop_test/run_cases.py",
-      "grid/stl_to_gmsh/develop_test/run_pipeline.py",
       "grid/stl_to_gmsh/run_python_case.py",
       "codes/geometry/src/GridConversion.cpp",
       "tests/geometry/StlMeshIOTest.cpp",
-      "tests/python/grid/test_stl_to_gmsh_cases.py"
+      "tests/python/grid/test_stl_to_gmsh_cases.py",
+      "tools/oneflow_gui/mesh_validation.py",
+      "tools/oneflow_gui/workflow_plan.py",
+      "tools/oneflow_gui/workflow_graph_runner.py"
     ],
     "case_paths": [
       "grid/stl_to_gmsh/square/cpp/script/dimension.txt",
@@ -52,20 +54,6 @@
       "grid/stl_to_gmsh/square_2x2/cpp/script/grid.txt",
       "grid/stl_to_gmsh/square_2x2/cpp/script/layout.json",
       "grid/stl_to_gmsh/square_2x2/cpp/input/model.stl",
-      "grid/stl_to_gmsh/develop_test/stl_square_to_cfd.json",
-      "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow/script/control.txt",
-      "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow/script/grid.txt",
-      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/control.txt",
-      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/dimension.txt",
-      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/simu.txt",
-      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/tolerence.txt",
-      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/cfd.txt",
-      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/vismodel.txt",
-      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/multigrid.txt",
-      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/inflow.txt",
-      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/turb.txt",
-      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/walldist.txt",
-      "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/solver.txt",
       "grid/stl_to_gmsh/square_2x2/README.md",
       "grid/stl_to_gmsh/circle_external_flow/python/expected.json",
       "grid/stl_to_gmsh/circle_external_flow/python/input/model.stl",
@@ -86,7 +74,15 @@
       "grid/stl_to_gmsh/cube_single_hex/cpp/script/layout.json",
       "grid/stl_to_gmsh/cube_single_hex/python/input/model.stl",
       "grid/stl_to_gmsh/cube_single_hex/python/script/layout.json",
-      "grid/stl_to_gmsh/cube_single_hex/python/expected.json"
+      "grid/stl_to_gmsh/cube_single_hex/python/expected.json",
+      "grid/cgns_to_oneflow/README.md",
+      "grid/cgns_to_oneflow/grid/.gitkeep",
+      "grid/cgns_to_oneflow/script/control.txt",
+      "grid/cgns_to_oneflow/script/dimension.txt",
+      "grid/cgns_to_oneflow/script/grid.txt",
+      "grid/cgns_to_oneflow/script/simu.txt",
+      "grid/cgns_to_oneflow/script/tolerence.txt",
+      "test/cfd/plateuns2dslau2/script/cfd.txt"
     ]
   },
   "documentation": {
@@ -97,7 +93,8 @@
       "doc/source/gmsh_interface.rst",
       "doc/source/grid_conversion_cases.rst",
       "grid/stl_to_gmsh/cube_single_hex/README.md",
-      "tests/python/grid/test_stl_to_gmsh_cases.py"
+      "tests/python/grid/test_stl_to_gmsh_cases.py",
+      "grid/cgns_to_oneflow/README.md"
     ]
   },
   "claims": {
@@ -109,7 +106,7 @@
       "The native C++ route validates generated MSH 4.1 node counts, LINE_2 and QUAD_4 element counts, and the four outer Physical Curve names plus fluid_domain.",
       "The square and two_square_cells native C++ Cases and their independent Python references are registered separately in the grid Case catalog.",
       "The square_2x2 native Case reuses the square STL geometry and changes only the transfinite layout to produce a 2 x 2 quadrilateral mesh.",
-      "The STL-to-CFD workflow declares explicit artifact handoffs through Gmsh MSH 4.1, CGNS, a native OneFLOW grid, and a CFD Solve Case, using isolated run directories.",
+      "The shared Mesh-to-CFD Validation Workbench declares artifact handoffs through Gmsh MSH 4.1, CGNS, a native OneFLOW grid, and a staged CFD consumer, using isolated Case workspaces.",
       "The Python external-flow reference Case builds a rectangular fluid domain with a polygonal STL obstacle as a named internal Wall boundary.",
       "The Python internal-flow reference Case uses a closed rectangular STL loop as the fluid-domain boundary and emits named inlet, outlet and wall Physical Curves.",
       "The channel reference Case generates a deterministic 20 x 5 transfinite quadrilateral mesh, while the unstructured external-flow Case validates minimum mesh counts and exact Physical Group names.",
@@ -196,12 +193,6 @@
       "reference": "StlToGmshCaseTest.test_square_2x2_reuses_square_stl_and_changes_only_mesh_density",
       "status": "linked_not_executed",
       "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; checks byte-identical STL input and the 2 x 2 transfinite layout."
-    },
-    {
-      "kind": "python_test",
-      "reference": "StlToGmshCaseTest.test_stl_to_cfd_pipeline_declares_ordered_artifact_handoffs",
-      "status": "linked_not_executed",
-      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; validates dependency order and MSH, CGNS, native-grid and CFD artifact bindings."
     },
     {
       "kind": "python_test",
