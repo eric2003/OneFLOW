@@ -526,14 +526,14 @@ Line midpoint split algorithm
 The 2D interface split path separates geometry discovery from mapping assembly.
 ``FaceSearch::SplitLine`` first clears the selected parent's old child list and
 ignores faces that are not two-node edges. ``TrySplitLineAtMidpoint`` first
-checks whether the geometric midpoint is already present in ``PointLocator``,
-then resolves candidate child edges against the global ``FaceSearch`` registry.
-A shared multi-zone edge with no midpoint or no registered child therefore
-returns without requiring a zone-local mutation target. Only after a real split
-has been established does the current implementation enforce its single-zone
-mutation policy. This distinguishes an interface that needs no split from a
-split that the current zone-local mapping implementation cannot yet apply
-symmetrically to multiple zones.
+checks whether the geometric midpoint is already present in ``PointLocator``.
+If it is absent, the edge is not split and the function returns before checking
+Zone ownership. This matters for a shared multi-zone interface whose existing
+edge segments do not themselves contain additional midpoint nodes. Only when
+the midpoint already exists does the current path require exactly one Zone,
+before resolving registered child edges and updating that Zone's local node
+mesh. The single-Zone restriction therefore applies to an actual split, not to
+every interface edge encountered during the scan.
 
 When a midpoint is available, the algorithm resolves both candidate child
 edges against the global ``FaceSearch`` registry before touching the zone mesh.
@@ -1111,11 +1111,11 @@ separate locator query (stage 3), not part of the arithmetic.
 
 **Stage list:**
 
-#. ``RequireSoleZoneIdForGlobalFace`` — exactly one zone on the global face.
 #. ``ComputeSegmentMidpoint`` — formula above; no mesh.
-#. ``PointLocator::FindPoint`` — global mid-node must **already** exist; else abort.
+#. ``PointLocator::FindPoint`` — if the global midpoint is absent, return without a split.
+#. ``RequireSoleZoneIdForGlobalFace`` — once a midpoint exists, require exactly one Zone.
 #. ``BuildGlobalLineSplitCandidates`` — directed edges :math:`(p_0,m)` and :math:`(m,p_1)`.
-#. ``ResolveRegisteredChildFaces`` — empty resolution aborts before mesh mutation.
+#. ``ResolveRegisteredChildFaces`` — empty resolution aborts before local node mutation.
 #. Zone ``nodeMesh`` find-or-add (local mid index).
 #. ``BuildLocalLineSplitMapping`` — parent-local rings and endpoint flags.
 

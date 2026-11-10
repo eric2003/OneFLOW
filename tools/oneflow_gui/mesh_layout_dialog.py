@@ -31,7 +31,11 @@ from tools.mesh_layout.editor_document import (
 )
 
 from .user_data_paths import UserDataPaths
-from .mesh_layout_projects import ensure_template_project
+from .mesh_layout_projects import (
+    TEMPLATE_PROJECTS,
+    TEMPLATE_SOURCE_DIRECTORIES,
+    ensure_template_project,
+)
 
 
 BOUNDARY_OPTIONS = (
@@ -156,7 +160,7 @@ class MeshLayoutDialog(QDialog):
         self._load_selected_template()
 
     def _template_project_source(self, kind: str) -> Path:
-        folder = {"rectangle": "minimal_rectangle", "rectangle_vertical_midpoints": "minimal_rectangle_vertical_midpoints", "flat_plate": "turbulent_flat_plate", "laminar_flat_plate": "laminar_flat_plate", "laminar_flat_plate_10_edges": "laminar_flat_plate_10_edges"}[kind]
+        folder = TEMPLATE_SOURCE_DIRECTORIES.get(kind, TEMPLATE_PROJECTS[kind])
         return self._repository_root / "grid" / folder
 
     def _template_specification_name(self, kind: str) -> str:

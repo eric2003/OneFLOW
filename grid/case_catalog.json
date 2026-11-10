@@ -80,7 +80,7 @@
     {
       "id": "laminar_flat_plate",
       "title": "Laminar Flat Plate",
-      "directory": "grid/laminar_flat_plate",
+      "directory": "grid/mesh-layout/laminar_flat_plate",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
       "layout": "grid/laminarFlatPlateLayout.txt"
@@ -88,7 +88,7 @@
     {
       "id": "laminar_flat_plate_10_edges",
       "title": "Two-block Laminar Flat Plate (10 Edges)",
-      "directory": "grid/laminar_flat_plate_10_edges",
+      "directory": "grid/mesh-layout/laminar_flat_plate_10_edges",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
       "layout": "grid/laminarFlatPlate10EdgeLayout.txt"
@@ -96,7 +96,7 @@
     {
       "id": "turbulent_flat_plate",
       "title": "Turbulent Flat Plate",
-      "directory": "grid/turbulent_flat_plate",
+      "directory": "grid/mesh-layout/turbulent_flat_plate",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
       "layout": "grid/turbulentFlatPlateLayout.txt"

@@ -14,6 +14,12 @@ TEMPLATE_PROJECTS = {
     "laminar_flat_plate_10_edges": "laminar_flat_plate_10_edges",
 }
 
+TEMPLATE_SOURCE_DIRECTORIES = {
+    "flat_plate": "mesh-layout/turbulent_flat_plate",
+    "laminar_flat_plate": "mesh-layout/laminar_flat_plate",
+    "laminar_flat_plate_10_edges": "mesh-layout/laminar_flat_plate_10_edges",
+}
+
 
 def ensure_template_project(
     repository_root: Path,
@@ -26,7 +32,8 @@ def ensure_template_project(
     except KeyError as error:
         raise ValueError(f"Unsupported mesh layout project type: {kind!r}") from error
 
-    source = (repository_root / "grid" / folder_name).resolve()
+    source_directory = TEMPLATE_SOURCE_DIRECTORIES.get(kind, folder_name)
+    source = (repository_root / "grid" / source_directory).resolve()
     destination = (projects_root / folder_name).expanduser().resolve()
     try:
         destination.relative_to((repository_root).resolve())
@@ -58,4 +65,4 @@ def ensure_template_project(
     return destination
 
 
-__all__ = ["TEMPLATE_PROJECTS", "ensure_template_project"]
+__all__ = ["TEMPLATE_PROJECTS", "TEMPLATE_SOURCE_DIRECTORIES", "ensure_template_project"]

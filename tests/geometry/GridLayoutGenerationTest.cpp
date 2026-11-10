@@ -52,7 +52,7 @@ TEST( GridLayoutGenerationTest, GeneratesFlatPlateBoundaryLayerDistribution )
 {
     const std::filesystem::path layoutFile =
         std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
-        "grid/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
+        "grid/mesh-layout/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
 
     const std::filesystem::path outputDir =
         std::filesystem::temp_directory_path() / "oneflow-flat-plate-boundary-layer";
@@ -256,7 +256,7 @@ TEST( GridLayoutGenerationTest, GeneratesTenLineLaminarFlatPlateWithFortyNearWal
 {
     const std::filesystem::path layoutFile =
         std::filesystem::path( ONEFLOW_SOURCE_DIR ) /
-        "grid/laminar_flat_plate_10_edges/grid/laminarFlatPlate10EdgeLayout.txt";
+        "grid/mesh-layout/laminar_flat_plate_10_edges/grid/laminarFlatPlate10EdgeLayout.txt";
     const std::filesystem::path outputDir =
         std::filesystem::temp_directory_path() / "oneflow-laminar-flat-plate-ten-lines";
     std::filesystem::remove_all( outputDir );

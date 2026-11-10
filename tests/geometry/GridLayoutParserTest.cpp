@@ -107,7 +107,7 @@ TEST( GridLayoutParserTest, ParsesLaminarFlatPlateLayout )
 {
     const std::string fileName =
         std::string( ONEFLOW_SOURCE_DIR ) +
-        "/grid/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
+        "/grid/mesh-layout/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
 
     const GridLayout layout = GridLayoutParser().Parse( fileName );
 
@@ -139,7 +139,7 @@ TEST( GridLayoutParserTest, ParsesBoundaryLayerDistribution )
 {
     const std::string fileName =
         std::string( ONEFLOW_SOURCE_DIR ) +
-        "/grid/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
+        "/grid/mesh-layout/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
 
     const GridLayout layout = GridLayoutParser().Parse( fileName );
 

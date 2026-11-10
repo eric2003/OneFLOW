@@ -54,11 +54,19 @@ duplicate parameter values in the catalog.
 | `gmsh_to_oneflow` | Manual GUI example for Gmsh MSH 4.1 ASCII through CGNS to a native OneFLOW grid | `script/control.txt`, `grid/single_quad.msh`, `README.md` |
 | `two_quads` | Self-contained two-cell Gmsh conversion example with an explicitly ungrouped internal interface | `grid/conversion/cases/two_quads` |
 | `stl_to_gmsh_square`, `stl_to_gmsh_two_square_cells` | Native C++ OneFLOW STL-to-Gmsh Cases with independent Python references | `grid/stl_to_gmsh/<case>/cpp`, `grid/stl_to_gmsh/<case>/python` |
-| `laminar_flat_plate` | Reference two-block flat-plate mesh with 85 wall-normal points | `case.json`, `grid/laminarFlatPlateLayout.txt` |
-| `laminar_flat_plate_10_edges` | Two-block laminar flat plate with ten geometric line segments and 41 points across the first 0.02 near-wall region | `case.json`, `grid/laminarFlatPlate10EdgeLayout.txt` |
-| `turbulent_flat_plate` | Flat-plate mesh variant with 81 wall-normal points and updated expected topology counts | `case.json`, `grid/turbulentFlatPlateLayout.txt` |
+| `laminar_flat_plate` | Reference two-block flat-plate layout template with 85 wall-normal points | `grid/mesh-layout/laminar_flat_plate` |
+| `laminar_flat_plate_10_edges` | Two-block laminar flat-plate layout with ten geometric line segments and 41 points across the first 0.02 near-wall region | `grid/mesh-layout/laminar_flat_plate_10_edges` |
+| `turbulent_flat_plate` | Flat-plate layout variant with 81 wall-normal points and updated expected topology counts | `grid/mesh-layout/turbulent_flat_plate` |
 
 The native `stl_to_gmsh` Cases run through the OneFLOW Grid task and use the configured Gmsh CLI to generate MSH 4.1. Their outputs can feed the existing Gmsh-to-CGNS/OneFLOW conversion paths. Each problem keeps its Native C++ and Python Reference implementations side by side under `grid/stl_to_gmsh/<case>/cpp` and `grid/stl_to_gmsh/<case>/python`.
+
+## Mesh layout templates
+
+The flat-plate layout family is grouped under `grid/mesh-layout/`. Each
+template remains a self-contained case with its own `case.json`, legacy
+runtime parameter files, layout source, and editable specification. The GUI
+copies these templates into the user's workspace before editing; repository
+examples remain read-only.
 
 ## Conversion Case organization
 

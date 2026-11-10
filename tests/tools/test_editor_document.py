@@ -35,16 +35,16 @@ class MeshLayoutEditorDocumentTest(unittest.TestCase):
         self.assertEqual(layout.count("Add L2F"), 6)
 
     def test_flat_plate_template_compiles_to_checked_in_layout(self):
-        spec_path = ROOT / "grid" / "turbulent_flat_plate" / "flat_plate.json"
-        layout_path = ROOT / "grid" / "turbulent_flat_plate" / "grid" / "turbulentFlatPlateLayout.txt"
+        spec_path = ROOT / "grid" / "mesh-layout" / "turbulent_flat_plate" / "flat_plate.json"
+        layout_path = ROOT / "grid" / "mesh-layout" / "turbulent_flat_plate" / "grid" / "turbulentFlatPlateLayout.txt"
         spec = load_specification(spec_path)
         layout, svg = compile_specification(spec)
         self.assertEqual(layout, layout_path.read_text(encoding="utf-8"))
         self.assertIn("Flat plate boundary-layer layout", svg)
 
     def test_ten_edge_laminar_flat_plate_compiles_to_checked_in_layout(self):
-        spec_path = ROOT / "grid" / "laminar_flat_plate_10_edges" / "flat_plate.json"
-        layout_path = ROOT / "grid" / "laminar_flat_plate_10_edges" / "grid" / "laminarFlatPlate10EdgeLayout.txt"
+        spec_path = ROOT / "grid" / "mesh-layout" / "laminar_flat_plate_10_edges" / "flat_plate.json"
+        layout_path = ROOT / "grid" / "mesh-layout" / "laminar_flat_plate_10_edges" / "grid" / "laminarFlatPlate10EdgeLayout.txt"
         spec = load_specification(spec_path)
         layout, svg = compile_specification(spec)
         self.assertEqual(layout, layout_path.read_text(encoding="utf-8"))
