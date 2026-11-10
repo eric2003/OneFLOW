@@ -1301,12 +1301,29 @@ void ConvertStlCubeToGmsh(
             throw std::runtime_error("Cannot open STL-to-Gmsh layout: " + layout.string());
         const Json options = Json::parse(layoutInput);
 
-        if (options.contains("volume_mesh") &&
-            options.value("volume_mesh", std::string{}) == "axis_aligned_cube_single_hex")
+        // Select the geometry pipeline by its declared topological dimension.
+        // A 3-D volume layout must never fall through to the 2-D transfinite
+        // surface path, where transfinite_cells is intentionally absent.
+        const int meshDimension = options.value("mesh_dimension", 2);
+        if (meshDimension == 3)
         {
+            const std::string volumeMesh =
+                options.value("volume_mesh", std::string{});
+            if (volumeMesh != "axis_aligned_cube_single_hex")
+                throw std::invalid_argument(
+                    "Unsupported 3-D STL-to-Gmsh volume_mesh contract: " + volumeMesh);
+            std::cout << "STL to Gmsh: selected 3-D volume pipeline ("
+                      << volumeMesh << ")." << std::endl;
             ConvertStlCubeToGmsh(config, caseDir, options, source, target);
             return;
         }
+        if (meshDimension != 2)
+            throw std::invalid_argument(
+                "STL-to-Gmsh mesh_dimension must be 2 or 3");
+
+        if (options.contains("volume_mesh"))
+            throw std::invalid_argument(
+                "A volume_mesh layout must declare mesh_dimension = 3");
 
         if (options.contains("domain"))
         {
