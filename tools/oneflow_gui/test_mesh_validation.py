@@ -138,7 +138,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             "id": "bc_region_map", "path": "results/bcRegionMap.txt",
             "parameter_file": "script/grid.txt", "setting": "bcRegionMapFile",
         })
-        self.assertEqual(cases[3]["id"], "laminar_flat_plate_solve")
+        self.assertEqual(cases[3]["id"], "oneflow_cfd_solve")
         self.assertEqual(
             cases[3]["inputs"],
             [
@@ -172,11 +172,11 @@ class MeshValidationCatalogTest(unittest.TestCase):
         cases = build_mesh_validation_cases(self.root, "native_cube", "laminar_flat_plate")
         self.assertEqual([item["id"] for item in cases],
                          ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow",
-                          "laminar_flat_plate_solve"])
+                          "oneflow_cfd_solve"])
         self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/cube_single_hex/cpp")
-        self.assertEqual(cases[0]["runtime_directory"], ".")
+        self.assertEqual(cases[0]["runtime_directory"], "stl_to_gmsh")
         self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
-        self.assertEqual(cases[3]["runtime_directory"], "cfd")
+        self.assertEqual(cases[3]["runtime_directory"], "oneflow_cfd_solve")
         self.assertEqual(cases[3]["inputs"][0]["artifact"], "oneflow_grid")
         self.assertEqual(cases[3]["inputs"][1]["artifact"], "bc_region_map")
         self.assertEqual(cases[0]["outputs"][0]["path"], "results/cube_single_hex.msh")
@@ -196,11 +196,11 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertEqual([item["id"] for item in cases],
                          ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow",
-                          "laminar_flat_plate_solve"])
+                          "oneflow_cfd_solve"])
         self.assertEqual(cases[0]["validation"], {
             "kind": "gmsh_msh4", "path": "results/cube_single_hex.msh"
         })
-        self.assertIn("laminar_flat_plate_solve", [item["id"] for item in cases])
+        self.assertIn("oneflow_cfd_solve", [item["id"] for item in cases])
 
     def test_first_cfd_template_is_the_existing_laminar_flat_plate_case(self):
         self.assertEqual(cfd_template_choices(), (("laminar_flat_plate", "Laminar Flat Plate"),))
@@ -211,6 +211,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[0]["id"], "stl_to_gmsh")
         self.assertEqual(cases[0]["outputs"][0]["id"], "gmsh_mesh")
         self.assertEqual(cases[0]["outputs"][0]["path"], "results/square.msh")
+        self.assertEqual(
+            [item["runtime_directory"] for item in cases],
+            ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow", "oneflow_cfd_solve"],
+        )
         self.assertEqual(cases[1]["id"], "gmsh_to_cgns")
         self.assertEqual(cases[1]["depends_on"], ["stl_to_gmsh"])
         self.assertEqual(cases[1]["directory"], "grid/gmsh_to_cgns")
@@ -227,7 +231,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             {"id": "bc_region_map", "path": "results/bcRegionMap.txt",
              "parameter_file": "script/grid.txt", "setting": "bcRegionMapFile"},
         ])
-        self.assertEqual(cases[3]["id"], "laminar_flat_plate_solve")
+        self.assertEqual(cases[3]["id"], "oneflow_cfd_solve")
         self.assertEqual(cases[3]["depends_on"], ["gmsh_to_oneflow"])
         self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
         self.assertEqual(cases[3]["inputs"], [
@@ -248,7 +252,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 "gmsh_to_oneflow", "skipped", "Blocked by unsuccessful dependencies: gmsh_to_cgns",
             ),
             CaseExecutionResult(
-                "laminar_flat_plate_solve", "skipped", "Blocked by unsuccessful dependencies: gmsh_to_oneflow",
+                "oneflow_cfd_solve", "skipped", "Blocked by unsuccessful dependencies: gmsh_to_oneflow",
             ),
         ))
         self.assertEqual(_graph_step_records(result), [
@@ -258,7 +262,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
              "message": "Declared output artifacts were not produced: results/mesh.cgns"},
             {"case_id": "gmsh_to_oneflow", "status": "skipped",
              "message": "Blocked by unsuccessful dependencies: gmsh_to_cgns"},
-            {"case_id": "laminar_flat_plate_solve", "status": "skipped",
+            {"case_id": "oneflow_cfd_solve", "status": "skipped",
              "message": "Blocked by unsuccessful dependencies: gmsh_to_oneflow"},
         ])
 
