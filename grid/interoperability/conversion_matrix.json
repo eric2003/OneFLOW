@@ -87,7 +87,6 @@
   "cases": [
     {
       "id": "gmsh_to_cgns_two_quads",
-      "directory": "grid/conversion/gmsh_to_cgns/grid/two_quads.msh",
       "source": "gmsh",
       "dimension": 2,
       "topology": "two adjacent QUAD_4 cells",
@@ -103,7 +102,8 @@
         "gmsh->cgns"
       ],
       "execution": "automated_integration_test",
-      "purpose": "Exercise the Gmsh-to-CGNS route with two adjacent QUAD_4 cells, an ungrouped internal interface, and boundary Physical Groups spanning multiple geometric entities."
+      "purpose": "Exercise the Gmsh-to-CGNS route with two adjacent QUAD_4 cells, an ungrouped internal interface, and boundary Physical Groups spanning multiple geometric entities.",
+      "fixture": "grid/conversion/gmsh_to_cgns/grid/two_quads.msh"
     },
     {
       "id": "stl_to_gmsh",
