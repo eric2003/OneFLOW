@@ -446,7 +446,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertEqual(native.inputs[0].producer_id, cgns.case_id)
         self.assertEqual(native.inputs[0].relative_path, Path("results/square.cgns"))
         self.assertEqual(native.outputs[0].relative_path, Path("results/square.oneflow.grid"))
-        self.assertEqual(native.outputs[1].relative_path, Path("results/bcRegionMap.txt"))
+        self.assertEqual(native.outputs[1].relative_path, Path("results/square_bcRegionMap.txt"))
         self.assertEqual(native.outputs[2].relative_path, Path("results/square.info.json"))
         self.assertEqual(cfd.inputs[0].producer_id, native.case_id)
         self.assertEqual(cfd.inputs[0].relative_path, Path("results/square.oneflow.grid"))
@@ -460,7 +460,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertIn('string sourceGridType = "cgns";', cgns_grid)
         self.assertIn('string targetGridType = "oneflow";', cgns_grid)
         self.assertIn(
-            'string bcRegionMapFile = "results/bcRegionMap.txt";',
+            'string bcRegionMapFile = "results/converted_grid_bcRegionMap.txt";',
             cgns_grid,
         )
         case_definitions = {
@@ -498,7 +498,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             case_definitions[native.case_id]["validation"]["paths"],
             [
                 "results/square.oneflow.grid",
-                "results/bcRegionMap.txt",
+                "results/square_bcRegionMap.txt",
                 "results/square.info.json",
             ],
         )
