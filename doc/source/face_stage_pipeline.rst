@@ -1646,6 +1646,13 @@ not claim that it can infer the original face partition. Prefer face/edge
 location point sets or element connectivity when exact entity identity is
 required.
 
+A legacy unstructured CellCenter + PointList / PointRange BOCO path is also
+retained for existing normalized CGNS inputs: its referenced boundary elements
+are expanded to a vertex set and matched using the compatibility matcher. This
+is distinct from FaceCenter / EdgeCenter, which must retain one connectivity
+per face and use explicit face identity. The grid/rae2822convert regression
+case exercises this compatibility path.
+
 **Tests:** ``FaceSolverStageTest.DirectBoundaryFaceMatchingKeepsOppositeWallFacesDistinct``,
 ``DirectBoundaryFaceMatchingRejectsMissingFace``,
 ``DirectBoundaryFaceMatchingRejectsInteriorFace``,

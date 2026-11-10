@@ -243,6 +243,25 @@ void CgnsBcBoco::ScanBcFace( FaceSolver & faceSolver )
         return;
     }
 
+    // Some existing unstructured CGNS inputs describe a boundary patch at
+    // CellCenter after their cell/face element numbering has been normalized.
+    // Preserve the established BOCO compatibility path for these inputs:
+    // expand the referenced boundary elements to vertices, then match the
+    // candidate boundary faces. FaceCenter/EdgeCenter point sets must use the
+    // explicit face-identity path above instead.
+    if ( this->cgnsZone->cgnsZoneType == CGNS_ENUMV( Unstructured ) &&
+         this->modifiedLocation == CGNS_ENUMV( CellCenter ) && isPointSet )
+    {
+        std::vector< IntField > boundaryElements;
+        this->ProcessFaceBc( boundaryElements );
+        for ( const IntField & elementNodes : boundaryElements )
+        {
+            bcVertex.insert( elementNodes.begin(), elementNodes.end() );
+        }
+        faceSolver.ScanBcFaceDetail( bcVertex, this->bcType, this->nameId );
+        return;
+    }
+
     throw std::runtime_error(
         "CgnsBcBoco::ScanBcFace: unsupported unstructured BC location or point-set type" );
 }
