@@ -48,6 +48,7 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
             root = Path(temporary)
             plan = self._plan(root)
             run_root = root / "run"
+            (run_root / "cpp").mkdir(parents=True)
             invoked = []
 
             def run_step(step):
@@ -148,10 +149,12 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
             root = Path(temporary)
             plan = self._plan(root)
             invoked = []
+            run_root = root / "run"
+            (run_root / "cpp").mkdir(parents=True)
             result = run_case_graph(
                 plan,
                 lambda step: (invoked.append(step.case_id) or "succeeded", "ok"),
-                run_root=root / "run",
+                run_root=run_root,
             )
             statuses = {item.case_id: item.status for item in result.cases}
             self.assertEqual(statuses["mesh"], "failed")
