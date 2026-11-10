@@ -94,13 +94,17 @@ def prepare_case_database_workspace(
     # the same parent/child relationship. The parent copy must omit each child
     # source so the child can be staged independently at its catalog path.
     nested_sources: dict[str, list[Path]] = {case.case_id: [] for case in cases}
-    case_by_id = {case.case_id: case for case in cases}
     for index, case in enumerate(cases):
         for other in cases[index + 1:]:
             source = sources[case.case_id]
             other_source = sources[other.case_id]
             destination = destinations[case.case_id]
             other_destination = destinations[other.case_id]
+            if source == other_source or destination == other_destination:
+                raise ValueError(
+                    "Duplicate Case Database source or destination: "
+                    f"{case.case_id} ({destination}) and {other.case_id} ({other_destination})"
+                )
             source_nested = other_source in source.parents
             other_source_nested = source in other_source.parents
             destination_nested = other_destination in destination.parents
