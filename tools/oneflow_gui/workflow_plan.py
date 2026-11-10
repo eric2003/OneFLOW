@@ -181,6 +181,7 @@ def build_case_graph_plan(
             ),
         )
         for case_id in graph.ordered_ids
+        for case in (case_by_id[case_id],)
     )
     return WorkflowExecutionPlan(steps=steps)
 

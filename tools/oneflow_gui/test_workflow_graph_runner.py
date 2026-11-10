@@ -47,6 +47,13 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             plan = self._plan(root)
+            runtime_directories = {
+                step.case_id: step.runtime_directory for step in plan.steps
+            }
+            self.assertEqual(
+                runtime_directories,
+                {"independent": None, "mesh": Path("cpp"), "solver": None},
+            )
             run_root = root / "run"
             (run_root / "cpp").mkdir(parents=True)
             invoked = []
