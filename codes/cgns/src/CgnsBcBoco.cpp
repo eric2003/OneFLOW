@@ -34,6 +34,7 @@ License
 #include "FaceSolver.h"
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 
 BeginNameSpace( ONEFLOW )
 
@@ -45,7 +46,7 @@ namespace
 void PrintConnectivityPreview( const CgIntField & connList )
 {
     const CgInt nTotal = static_cast< CgInt >( connList.size() );
-    const CgInt nPreview = MIN( nTotal, 5 );
+    const CgInt nPreview = std::min( nTotal, static_cast< CgInt >( 5 ) );
 
     std::cout << "   CGNS Connectivity (showing " << nPreview
               << " of " << nTotal << "):";
@@ -60,7 +61,7 @@ void PrintConnectivityPreview( const CgIntField & connList )
         std::cout << ", ...";
     }
 
-    std::cout << "\\n";
+    std::cout << "\n";
 }
 
 } // namespace
