@@ -405,8 +405,13 @@ class StlToGmshCaseTest(unittest.TestCase):
             self.assertEqual(mesh["triangle_elements"], 0)
             groups = {(item["dimension"], item["name"]) for item in mesh["physical_groups"]}
             self.assertEqual(groups, {
-                (2, "wall"), (2, "inflow"), (2, "outflow"),
-                (2, "symmetry"), (2, "farfield"), (3, "fluid_domain"),
+                (2, "xmin_inflow"),
+                (2, "xmax_outflow"),
+                (2, "ymin_wall"),
+                (2, "ymax_farfield"),
+                (2, "zmin_symmetry"),
+                (2, "zmax_symmetry"),
+                (3, "fluid_domain"),
             })
             self.assertTrue(json.loads(
                 (staged / "results/cube_single_hex.stl-to-gmsh-report.json").read_text()
@@ -446,7 +451,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertEqual(native.inputs[0].producer_id, cgns.case_id)
         self.assertEqual(native.inputs[0].relative_path, Path("results/square.cgns"))
         self.assertEqual(native.outputs[0].relative_path, Path("results/square.oneflow.grid"))
-        self.assertEqual(native.outputs[1].relative_path, Path("results/square_bcRegionMap.txt"))
+        self.assertEqual(native.outputs[1].relative_path, Path("results/bcRegionMap.txt"))
         self.assertEqual(native.outputs[2].relative_path, Path("results/square.info.json"))
         self.assertEqual(cfd.inputs[0].producer_id, native.case_id)
         self.assertEqual(cfd.inputs[0].relative_path, Path("results/square.oneflow.grid"))
