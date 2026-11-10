@@ -1107,7 +1107,7 @@ already pure and testable without CGNS (``LineSplitPureStagesTest``).
    \mathbf{m} = \frac{1}{2}(\mathbf{a} + \mathbf{b})
 
 No tolerance is applied at this stage. Matching the global mid-node is a
-separate locator query (stage 3), not part of the arithmetic.
+separate locator query (stage 2), not part of the arithmetic.
 
 **Stage list:**
 
@@ -1123,7 +1123,7 @@ Header comments on the pure stages use ``@doc-algorithm line-interface-split``
 and ``@doc-stage N`` so a future extractor can rebuild this section from
 ``FaceSearch.h`` without inventing a second algorithm description.
 
-The remaining hard edge is intentional: stages 3 and 6 need a live locator and a
+The remaining hard edge is intentional: stages 2 and 6 need a live locator and a
 zone mesh. Do not fold mesh mutation into the pure candidate builders.
 
 

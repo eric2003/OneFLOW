@@ -68,6 +68,9 @@ struct RegisteredChildFace
 
 // Resolve candidate node rings to registered global face IDs.
 // Missing candidates are skipped; each result retains its original candidate index.
+// @doc-algorithm line-interface-split
+// @doc-stage 5
+// @doc-pure
 std::vector< RegisteredChildFace > ResolveRegisteredChildFaces(
     const FaceSearchBasic & faceSearch,
     const LinkField & candidateFaces );
@@ -138,10 +141,8 @@ private:
         std::vector< RegisteredChildFace > & registeredChildren );
 };
 
-// Build directed global child-edge candidates. Outputs are replaced and order
-// follows the parent edge direction.
 // @doc-algorithm line-interface-split
-// @doc-stage 2
+// @doc-stage 1
 // @doc-pure
 // @doc-formula m = (1/2) * (a + b) component-wise in R^3
 // Arithmetic midpoint of a segment. No mesh, locator, or tolerance.
@@ -150,6 +151,11 @@ void ComputeSegmentMidpoint(
     Real x1, Real y1, Real z1,
     Real & mx, Real & my, Real & mz );
 
+// Build directed global child-edge candidates. Outputs are replaced and order
+// follows the parent edge direction.
+// @doc-algorithm line-interface-split
+// @doc-stage 4
+// @doc-pure
 void BuildGlobalLineSplitCandidates(
     int firstNode,
     int secondNode,
@@ -157,7 +163,7 @@ void BuildGlobalLineSplitCandidates(
     LinkField & globalLineIds );
 
 // @doc-algorithm line-interface-split
-// @doc-stage 1
+// @doc-stage 3
 // @doc-pure
 // Line-split policy: the global interface face must reference exactly one
 // zone. Returns that zone ID or throws.
