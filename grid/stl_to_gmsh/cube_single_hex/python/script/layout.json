@@ -5,9 +5,9 @@
   "boundary_groups": {
     "xmin": "inflow",
     "xmax": "outflow",
-    "ymin": "symmetry",
+    "ymin": "wall",
     "ymax": "farfield",
-    "zmin": "wall",
-    "zmax": "wall"
+    "zmin": "symmetry",
+    "zmax": "symmetry"
   }
 }

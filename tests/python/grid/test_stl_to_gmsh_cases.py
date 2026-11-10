@@ -76,6 +76,19 @@ class StlToGmshCaseTest(unittest.TestCase):
             json.loads((ROOT / native["directory"] / "script/layout.json").read_text()),
             json.loads((ROOT / python["directory"] / "script/layout.json").read_text()),
         )
+        self.assertEqual(
+            json.loads((ROOT / native["directory"] / "script/layout.json").read_text())[
+                "boundary_groups"
+            ],
+            {
+                "xmin": "inflow",
+                "xmax": "outflow",
+                "ymin": "wall",
+                "ymax": "farfield",
+                "zmin": "symmetry",
+                "zmax": "symmetry",
+            },
+        )
         self.assertIn("cube_single_hex/cpp", NATIVE_CASES)
         self.assertIn("cube_single_hex/python", PYTHON_CASES)
         for entry in (native, python):
