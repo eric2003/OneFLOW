@@ -503,7 +503,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             case_definitions[native.case_id]["validation"]["paths"],
             [
                 "results/square.oneflow.grid",
-                "results/square_bcRegionMap.txt",
+                "results/bcRegionMap.txt",
                 "results/square.info.json",
             ],
         )
