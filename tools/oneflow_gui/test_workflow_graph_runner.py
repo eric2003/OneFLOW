@@ -85,7 +85,14 @@ class WorkflowGraphRunnerTest(unittest.TestCase):
                 return "succeeded", "ok"
 
             result = run_case_graph(plan, run_step, run_root=run_root)
-            self.assertEqual(result.status, "succeeded")
+            self.assertEqual(
+                result.status,
+                "succeeded",
+                "; ".join(
+                    f"{item.case_id}: {item.status}: {item.message}"
+                    for item in result.cases
+                ),
+            )
             self.assertEqual(invoked, ["independent", "mesh", "solver"])
             self.assertEqual(
                 (root / "solver" / "script" / "cfd.txt").read_text(encoding="utf-8"),
