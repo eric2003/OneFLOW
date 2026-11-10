@@ -121,7 +121,7 @@ class CompileFlatPlateTest(unittest.TestCase):
 
     def test_semantic_tanh_spacing_compiles_to_legacy_ds_syntax(self):
         spec = json.loads(
-            (ROOT / "grid" / "mesh-layout" / "turbulent_flat_plate" / "flat_plate.json").read_text(
+            (ROOT / "grid" / "mesh-layout" / "2d" / "turbulent_flat_plate" / "flat_plate.json").read_text(
                 encoding="utf-8"
             )
         )
@@ -138,7 +138,7 @@ class CompileFlatPlateTest(unittest.TestCase):
         for line in expected:
             self.assertIn(line, output)
         checked_in_layout = (
-            ROOT / "grid" / "mesh-layout" / "turbulent_flat_plate" / "grid" / "turbulentFlatPlateLayout.txt"
+            ROOT / "grid" / "mesh-layout" / "2d" / "turbulent_flat_plate" / "grid" / "turbulentFlatPlateLayout.txt"
         ).read_text(encoding="utf-8")
         self.assertEqual(output, checked_in_layout)
 
