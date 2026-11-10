@@ -28,7 +28,10 @@ def prepare_case_directory(
     if not source.is_dir():
         raise FileNotFoundError(f"Case directory not found: {source}")
     if target.exists():
-        if step.runtime_directory == Path(".") and target.is_dir() and not any(target.iterdir()):
+        # A workflow workspace may pre-create an empty runtime root (for
+        # example, the cpp/python implementation directory). Reuse only an
+        # empty directory; never merge into or overwrite existing user data.
+        if target.is_dir() and not any(target.iterdir()):
             shutil.copytree(source, target, dirs_exist_ok=True)
         else:
             raise FileExistsError(f"Staged case directory already exists: {target}")
