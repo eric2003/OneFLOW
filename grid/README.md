@@ -52,7 +52,6 @@ duplicate parameter values in the catalog.
 | `mesh_workflow` | Convert the RAE 2822 Plot3D grid to OneFLOW format and write a metadata summary | `script/control.txt`, parameter files, `tools/validate_case.py` |
 | `gmsh_to_cgns` | Gmsh MSH 4.1 ASCII to CGNS conversion template | `grid/conversion/gmsh_to_cgns` |
 | `gmsh_to_oneflow` | Gmsh MSH 4.1 ASCII through CGNS to a native OneFLOW grid | `grid/conversion/gmsh_to_oneflow` |
-| `two_quads` | Gmsh-to-CGNS example with two QUAD_4 cells and an explicitly ungrouped internal interface | `grid/conversion/cases/two_quads` |
 | `stl_to_gmsh_square`, `stl_to_gmsh_two_square_cells` | Native C++ OneFLOW STL-to-Gmsh Cases with independent Python references | `grid/stl_to_gmsh/<case>/cpp`, `grid/stl_to_gmsh/<case>/python` |
 | `laminar_flat_plate` | Reference two-block flat-plate layout template with 85 wall-normal points | `grid/mesh-layout/2d/laminar_flat_plate` |
 | `laminar_flat_plate_10_edges` | Two-block laminar flat-plate layout with ten geometric line segments and 41 points across the first 0.02 near-wall region | `grid/mesh-layout/2d/laminar_flat_plate_10_edges` |
@@ -98,12 +97,13 @@ Cases that cover them. The Case catalog registers examples for GUI and CLI
 discovery. These registries describe different things: the catalog locates a
 runnable Case, while the matrix records conversion coverage.
 
-The `two_quads` example is located at
-`grid/conversion/cases/two_quads`. It contains two adjacent
-QUAD_4 cells, six nodes, six exterior LINE_2 elements, and one internal
-interface line. Its four exterior Physical Groups demonstrate that a single
-named group can span multiple geometric entities. See the Gmsh-to-CGNS
-examples README and the Grid conversion Cases documentation for its scope.
+The Gmsh-to-CGNS route owns a `grid/two_quads.msh` input fixture with two
+adjacent QUAD_4 cells, six nodes, six exterior LINE_2 elements, and one
+internal interface line. Its four exterior Physical Groups demonstrate that
+a single named group can span multiple geometric entities. The fixture is
+used by the automated conversion integration test and is not a separate
+catalog Case. See the Gmsh-to-CGNS examples README and the Grid conversion
+Cases documentation for its scope.
 
 ## Target integration model
 
