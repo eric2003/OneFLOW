@@ -135,8 +135,12 @@ class MeshValidationCatalogTest(unittest.TestCase):
             "results/circle_external_flow.oneflow.grid",
         )
         self.assertEqual(cases[2]["outputs"][1], {
-            "id": "bc_region_map", "path": "results/bcRegionMap.txt",
+            "id": "bc_region_map", "path": "results/circle_external_flow_bcRegionMap.txt",
             "parameter_file": "script/grid.txt", "setting": "bcRegionMapFile",
+        })
+        self.assertEqual(cases[2]["outputs"][2], {
+            "id": "grid_info", "path": "results/circle_external_flow.info.json",
+            "parameter_file": "script/grid.txt", "setting": "gridInfoFileName",
         })
         self.assertEqual(cases[3]["id"], "oneflow_cfd_solve")
         self.assertEqual(
@@ -180,6 +184,14 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[3]["inputs"][0]["artifact"], "oneflow_grid")
         self.assertEqual(cases[3]["inputs"][1]["artifact"], "bc_region_map")
         self.assertEqual(cases[0]["outputs"][0]["path"], "results/cube_single_hex.msh")
+        self.assertEqual(cases[2]["outputs"], [
+            {"id": "oneflow_grid", "path": "results/cube_single_hex.oneflow.grid",
+             "parameter_file": "script/grid.txt", "setting": "targetGridFileName"},
+            {"id": "bc_region_map", "path": "results/cube_single_hex_bcRegionMap.txt",
+             "parameter_file": "script/grid.txt", "setting": "bcRegionMapFile"},
+            {"id": "grid_info", "path": "results/cube_single_hex.info.json",
+             "parameter_file": "script/grid.txt", "setting": "gridInfoFileName"},
+        ])
 
     def test_python_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
         cube_dir = self.root / "grid/stl_to_gmsh/cube_single_hex/python"
@@ -200,6 +212,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[0]["validation"], {
             "kind": "gmsh_msh4", "path": "results/cube_single_hex.msh"
         })
+        self.assertEqual(cases[2]["outputs"][1]["path"],
+                         "results/cube_single_hex_bcRegionMap.txt")
+        self.assertEqual(cases[2]["outputs"][2]["path"],
+                         "results/cube_single_hex.info.json")
         self.assertIn("oneflow_cfd_solve", [item["id"] for item in cases])
 
     def test_first_cfd_template_is_the_existing_laminar_flat_plate_case(self):
@@ -228,8 +244,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[2]["outputs"], [
             {"id": "oneflow_grid", "path": "results/square.oneflow.grid",
              "parameter_file": "script/grid.txt", "setting": "targetGridFileName"},
-            {"id": "bc_region_map", "path": "results/bcRegionMap.txt",
+            {"id": "bc_region_map", "path": "results/square_bcRegionMap.txt",
              "parameter_file": "script/grid.txt", "setting": "bcRegionMapFile"},
+            {"id": "grid_info", "path": "results/square.info.json",
+             "parameter_file": "script/grid.txt", "setting": "gridInfoFileName"},
         ])
         self.assertEqual(cases[3]["id"], "oneflow_cfd_solve")
         self.assertEqual(cases[3]["depends_on"], ["gmsh_to_oneflow"])

@@ -105,6 +105,8 @@ def build_mesh_validation_cases(
         msh = f"results/{mesh_name}"
     stem = Path(msh).stem
     cgns, native = f"results/{stem}.cgns", f"results/{stem}.oneflow.grid"
+    bc_region_map = f"results/{stem}_bcRegionMap.txt"
+    grid_info = f"results/{stem}.info.json"
     mesh_id, cgns_id, native_id = "gmsh_mesh", "cgns_mesh", "oneflow_grid"
     cfd_config = root / template["directory"] / "script/cfd.txt"
     steps = [
@@ -135,9 +137,12 @@ def build_mesh_validation_cases(
              {"id": native_id, "path": native,
               "parameter_file": "script/grid.txt",
               "setting": "targetGridFileName"},
-             {"id": "bc_region_map", "path": "results/bcRegionMap.txt",
+             {"id": "bc_region_map", "path": bc_region_map,
               "parameter_file": "script/grid.txt",
               "setting": "bcRegionMapFile"},
+             {"id": "grid_info", "path": grid_info,
+              "parameter_file": "script/grid.txt",
+              "setting": "gridInfoFileName"},
          ]},
         {"id": "oneflow_cfd_solve",
          "directory": template["directory"],

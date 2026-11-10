@@ -92,12 +92,13 @@ The optional dependency workflow uses the same square geometry and the
 1. STL -> Gmsh: native C++ Grid task creates and validates results/square_2x2.msh.
 2. Gmsh -> CGNS: the existing conversion Case consumes that MSH artifact and writes results/square.cgns.
 3. Gmsh -> OneFLOW: the pipeline Case consumes the CGNS interchange artifact and writes
-   results/square.oneflow.grid, results/bcRegionMap.txt and
-   results/square.info.json. The boundary map is the sidecar that the CFD
-   solver reads for boundary-region setup; the OneFLOW conversion Case
-   explicitly sets ``bcRegionMapFile = "results/bcRegionMap.txt"`` because
-   its mesh output root is the Case root and the grid artifact lives in
-   ``results/``. The info JSON records native-grid metadata for inspection.
+   Case-specific artifacts under ``results/``: ``<mesh-stem>.oneflow.grid``,
+   ``<mesh-stem>_bcRegionMap.txt``, and ``<mesh-stem>.info.json``. For example,
+   the cube prototype writes ``cube_single_hex_bcRegionMap.txt`` and
+   ``cube_single_hex.info.json``. The boundary-map and grid-info filenames are
+   supplied as runtime output bindings, so the conversion parameter file does
+   not leak the square prototype names into other Cases. The CFD solver reads
+   the boundary-map sidecar from the producing stage through the artifact binding.
 4. CFD Solve: the dedicated cfd_uns2dslau2 pipeline Case consumes the native grid and must produce residual, restart-flow and visualization outputs.
 
 CGNS remains an explicit, validated intermediate artifact; the end-to-end
