@@ -47,31 +47,44 @@ class MeshCaseCatalogTest(unittest.TestCase):
         ]
         self.assertEqual(errors, [])
 
-    def test_two_quads_is_an_independent_gmsh_conversion_case(self) -> None:
+    def test_two_quads_is_a_gmsh_to_cgns_route_fixture_not_a_catalog_case(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
-        entry = next(case for case in catalog["cases"] if case["id"] == "two_quads")
-        expected_directory = "grid/conversion/cases/two_quads"
-        self.assertEqual(entry["directory"], expected_directory)
-        self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
-        case_dir = REPOSITORY_ROOT / expected_directory
-        for relative in (
-            "README.md",
-            "grid/two_quads.msh",
-            "script/control.txt",
-            "script/dimension.txt",
-            "script/grid.txt",
-            "script/simu.txt",
-            "script/tolerence.txt",
-        ):
-            self.assertTrue((case_dir / relative).is_file(), relative)
-        grid = (case_dir / "script" / "grid.txt").read_text(encoding="utf-8")
-        self.assertIn('string sourceGridType = "gmsh";', grid)
-        self.assertIn('string targetGridType = "cgns";', grid)
+        case_ids = {case["id"] for case in catalog["cases"]}
+        self.assertNotIn("two_quads", case_ids)
+
         conversion_root = REPOSITORY_ROOT / "grid" / "conversion"
         self.assertTrue((conversion_root / "README.md").is_file())
-        self.assertFalse((conversion_root / "gmsh_to_cgns" / "examples").exists())
         for template in ("cgns_to_oneflow", "gmsh_to_cgns", "gmsh_to_oneflow"):
             self.assertTrue((conversion_root / template / "README.md").is_file())
+
+        fixture_relative = "grid/conversion/gmsh_to_cgns/grid/two_quads.msh"
+        fixture = REPOSITORY_ROOT / fixture_relative
+        self.assertTrue(fixture.is_file())
+        mesh_text = fixture.read_text(encoding="ascii")
+        self.assertIn("$MeshFormat\\n4.1 0 8", mesh_text)
+        self.assertIn('1 1 "inflow"', mesh_text)
+        self.assertIn('1 2 "outflow"', mesh_text)
+        self.assertIn('1 3 "symmetry"', mesh_text)
+        self.assertIn('1 4 "farfield"', mesh_text)
+        self.assertIn('2 5 "fluid_domain"', mesh_text)
+
+        with (REPOSITORY_ROOT / "grid" / "interoperability" / "conversion_matrix.json").open(
+            "r", encoding="utf-8"
+        ) as stream:
+            matrix = json.load(stream)
+        fixture_cases = {
+            case["id"]: case for case in matrix.get("cases", [])
+        }
+        entry = fixture_cases["gmsh_to_cgns_two_quads"]
+        self.assertEqual(entry["fixture"], fixture_relative)
+        self.assertEqual(entry["routes"], ["gmsh->cgns"])
+        self.assertEqual(entry["execution"], "automated_integration_test")
+        self.assertEqual(entry["expected"]["nodes"], 6)
+        self.assertEqual(entry["expected"]["cells"], 2)
+        self.assertEqual(entry["expected"]["internal_interface_edges"], 1)
+
+        obsolete_case_dir = REPOSITORY_ROOT / "grid" / "conversion" / "cases" / "two_quads"
+        self.assertFalse(obsolete_case_dir.exists())
         self.assertFalse((REPOSITORY_ROOT / "grid" / "gmsh_to_cgns").exists())
         self.assertFalse((REPOSITORY_ROOT / "grid" / "gmsh_to_oneflow").exists())
         self.assertFalse((REPOSITORY_ROOT / "grid" / "cgns_to_oneflow").exists())
