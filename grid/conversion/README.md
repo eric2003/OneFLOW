@@ -45,15 +45,19 @@ The composed `gmsh_to_oneflow` template is also available when a workflow
 needs the complete route as one Case. It uses the same Gmsh-to-CGNS mapping
 and CGNS interchange boundary; it is not a second direct Gmsh converter.
 
-## Focused conversion Cases
+## Route-owned input fixtures
 
-Runnable topology Cases live in the sibling `cases/` directory rather than
-inside a route-template directory. For example,
-`grid/conversion/cases/two_quads` is an independently stageable Case that
-exercises two adjacent QUAD_4 cells, their shared internal edge, and Physical
-Group membership on the Gmsh-to-CGNS route. The Case catalog identifies the
-Case; the conversion matrix associates it with the route. This keeps route
-templates and runnable mesh Cases independently copyable.
+Small topology inputs belong to the conversion route they exercise. The
+`gmsh_to_cgns` template owns the MSH 4.1 fixtures in
+`grid/conversion/gmsh_to_cgns/grid/`, including `square.msh`,
+`two_quads.msh`, and `cube_single_hex.msh`. The two-quad fixture exercises
+adjacent QUAD_4 cells, their shared internal edge, and Physical Group
+membership. It is consumed by automated conversion integration tests; it is
+not a separate GUI Case or a second conversion route.
+
+The Case catalog therefore lists route templates, not every input mesh used
+to test a route. The conversion matrix records fixture-level coverage and
+links it to the owning route.
 
 ## Inventory and implementation boundaries
 
