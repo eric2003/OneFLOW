@@ -8,15 +8,17 @@ MSH 4.1 ASCII conversion writes a real CGNS unstructured Zone for supported
 first-order top-dimensional cells. It also maps first-order elements from
 the immediately lower dimension through Gmsh Entities and Physical Names
 into CGNS boundary element sections and BC_t point lists. The conversion recognizes
-explicit Physical Group names `inflow`, `outflow`, `symmetry`, and `farfield`, mapping them to the
-corresponding CGNS `BCType_t` values. Unrecognized names remain
+explicit Physical Group names such as `inflow`, `outflow`, `symmetry`, and `farfield`,
+as well as directional cube patch names such as `xmin_inflow`, `ymin_wall`,
+and `zmax_symmetry`, mapping them to the corresponding CGNS `BCType_t` values.
+Unrecognized names remain
 `BCTypeUserDefined`; names are never guessed from geometry or position. The writer reuses
 OneFLOW's shared UnstructuredMeshData and UnstructuredCgnsZoneWriter, followed by the CgnsFactory / CgnsZbase file writer.
 The bundled square sample writes four nodes, two TRI_3 cells, four BAR_2
 boundary elements, and four named BC_t records. The automated
 `grid/cube_single_hex.msh` fixture additionally exercises the 3D path with
-eight nodes, one HEXA_8 cell, six QUAD_4 boundary elements, and five named
-BC_t records (the `wall` group contains two faces). For unstructured meshes,
+eight nodes, one HEXA_8 cell, six QUAD_4 boundary elements, and six named
+BC_t records, one for each geometric face. For unstructured meshes,
 the writer assigns `EdgeCenter` to 2D boundary elements and `FaceCenter` to
 3D boundary elements.
 
@@ -127,11 +129,12 @@ boundary faces around one hexahedral cell:
 
 | Physical Group | Geometric face(s) | CGNS BCType_t |
 |---|---|---|
-| `inflow` | XMin | `BCInflow` |
-| `outflow` | XMax | `BCOutflow` |
-| `symmetry` | YMin | `BCSymmetryPlane` |
-| `farfield` | YMax | `BCFarfield` |
-| `wall` | ZMin, ZMax | `BCWall` |
+| `xmin_inflow` | XMin | `BCInflow` |
+| `xmax_outflow` | XMax | `BCOutflow` |
+| `ymin_wall` | YMin | `BCWall` |
+| `ymax_farfield` | YMax | `BCFarfield` |
+| `zmin_symmetry` | ZMin | `BCSymmetryPlane` |
+| `zmax_symmetry` | ZMax | `BCSymmetryPlane` |
 
 This is a deterministic conversion fixture, not yet a general STL-to-hex
 algorithm or a standalone CFD Case. Its automated test checks the CGNS Base

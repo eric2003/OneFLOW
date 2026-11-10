@@ -35,6 +35,7 @@ License
 #include "UnstructuredCgnsZoneWriter.h"
 #include "Plot3D.h"
 #include "Boundary.h"
+#include "HXCgns.h"
 #include <filesystem>
 #include <array>
 #include <algorithm>
@@ -1227,13 +1228,42 @@ void ConvertStlCubeToGmsh(
         << "Volume(1) = {1};\n"
         << "Transfinite Curve {1:12} = 2;\n"
         << "Transfinite Surface {1:6};\nRecombine Surface {1:6};\n"
-        << "Transfinite Volume {1};\nRecombine Volume {1};\n"
-        << "Physical Surface(\"wall\") = {1, 2};\n"
-        << "Physical Surface(\"inflow\") = {3};\n"
-        << "Physical Surface(\"outflow\") = {4};\n"
-        << "Physical Surface(\"symmetry\") = {5};\n"
-        << "Physical Surface(\"farfield\") = {6};\n"
-        << "Physical Volume(\"fluid_domain\") = {1};\n";
+        << "Transfinite Volume {1};\nRecombine Volume {1};\n";
+
+    // The six CAD surface IDs follow the cube construction above:
+    // ZMin=1, ZMax=2, XMin=3, XMax=4, YMin=5, YMax=6.
+    // Keep each geometric patch independent even when two patches share a BC type.
+    const std::array<std::pair<std::string, int>, 6> surfaceBySide{{
+        {"xmin", 3}, {"xmax", 4}, {"ymin", 5},
+        {"ymax", 6}, {"zmin", 1}, {"zmax", 2}}};
+    const auto boundaryGroupsIter = options.find("boundary_groups");
+    if (boundaryGroupsIter == options.end() || !boundaryGroupsIter->is_object() ||
+        boundaryGroupsIter->size() != surfaceBySide.size())
+        throw std::invalid_argument(
+            "cube_single_hex layout must define exactly xmin, xmax, ymin, ymax, zmin and zmax boundary_groups");
+
+    std::set<std::string> expectedPhysicalNames;
+    for (const auto& side : surfaceBySide)
+    {
+        const auto semanticIter = boundaryGroupsIter->find(side.first);
+        if (semanticIter == boundaryGroupsIter->end() || !semanticIter->is_string())
+            throw std::invalid_argument(
+                "cube_single_hex boundary_groups." + side.first + " must be a string");
+        const std::string physicalName = side.first + "_" + semanticIter->get<std::string>();
+        if (physicalName.size() > 32 ||
+            GmshPhysicalNameToCgnsBcType(physicalName) ==
+                static_cast<int>(CGNS_ENUMV(BCTypeUserDefined)))
+            throw std::invalid_argument(
+                "Unsupported cube_single_hex boundary semantic for " + side.first +
+                ": " + semanticIter->get<std::string>());
+        if (!expectedPhysicalNames.insert(physicalName).second)
+            throw std::invalid_argument(
+                "cube_single_hex boundary patch names must be unique: " + physicalName);
+        geo << "Physical Surface(\"" << physicalName << "\") = {"
+            << side.second << "};\n";
+    }
+    const std::string volumeName = options.value("surface_name", std::string("fluid_domain"));
+    geo << "Physical Volume(\"" << volumeName << "\") = {1};\n";
     geo.close();
     if (!geo) throw std::runtime_error("Failed writing Gmsh geometry: " + geoPath.string());
 
@@ -1255,20 +1285,52 @@ void ConvertStlCubeToGmsh(
     if (generated.nodes.size() != 8 || counts[5] != 1 || counts[3] != 6 ||
         counts.size() != 2 || generated.elements.size() != 7)
         throw std::runtime_error("cube_single_hex must generate exactly 8 nodes, 6 QUAD_4 faces and 1 HEXA_8 cell");
-    const std::set<std::pair<int, std::string>> expected{{
-        {2,"wall"},{2,"inflow"},{2,"outflow"},{2,"symmetry"},{2,"farfield"},{3,"fluid_domain"}}};
+    std::set<std::pair<int, std::string>> expected;
+    for (const std::string& name : expectedPhysicalNames)
+        expected.emplace(2, name);
+    expected.emplace(3, volumeName);
     std::set<std::pair<int, std::string>> actual;
-    for (const auto& item : generated.physicalNames) actual.insert({item.first.first, item.second});
-    if (actual != expected) throw std::runtime_error("cube_single_hex Physical Groups do not match the boundary contract");
+    for (const auto& item : generated.physicalNames)
+        actual.emplace(item.first.first, item.second);
+    if (actual != expected)
+        throw std::runtime_error("cube_single_hex Physical Groups do not match the boundary contract");
 
-    std::ofstream report(reportPath, std::ios::trunc);
-    if (!report) throw std::runtime_error("Cannot create STL-to-Gmsh report: " + reportPath.string());
-    report << "{\n  \"schema\": \"oneflow.stl-to-gmsh-validation-report\",\n"
-           << "  \"version\": 1,\n  \"case\": \"cube_single_hex\",\n"
-           << "  \"input_triangles\": 12,\n  \"mesh_nodes\": 8,\n"
-           << "  \"hexahedron_elements\": 1,\n  \"quadrilateral_boundary_elements\": 6,\n"
-           << "  \"physical_groups\": [\"inflow\", \"outflow\", \"symmetry\", \"farfield\", \"wall\", \"fluid_domain\"],\n"
-           << "  \"validated\": true\n}\n";
+    for (const auto& side : surfaceBySide)
+    {
+        const std::string physicalName =
+            side.first + "_" + boundaryGroupsIter->at(side.first).get<std::string>();
+        const auto entity = generated.entityPhysicalTags.find({2, side.second});
+        if (entity == generated.entityPhysicalTags.end() ||
+            entity->second.size() != 1)
+            throw std::runtime_error(
+                "cube_single_hex surface " + side.first +
+                " must belong to exactly one Physical Group");
+        const auto name = generated.physicalNames.find({2, entity->second.front()});
+        if (name == generated.physicalNames.end() || name->second != physicalName)
+            throw std::runtime_error(
+                "cube_single_hex Physical Group is attached to the wrong surface: " +
+                side.first);
+    }
+
+    nlohmann::json report;
+    report["schema"] = "oneflow.stl-to-gmsh-validation-report";
+    report["version"] = 1;
+    report["case"] = "cube_single_hex";
+    report["input_triangles"] = 12;
+    report["mesh_nodes"] = 8;
+    report["hexahedron_elements"] = 1;
+    report["quadrilateral_boundary_elements"] = 6;
+    report["physical_groups"] = nlohmann::json::array();
+    for (const std::string& name : expectedPhysicalNames)
+        report["physical_groups"].push_back(name);
+    report["physical_groups"].push_back(volumeName);
+    report["validated"] = true;
+    std::ofstream reportOutput(reportPath, std::ios::trunc);
+    if (!reportOutput)
+        throw std::runtime_error("Cannot create STL-to-Gmsh report: " + reportPath.string());
+    reportOutput << report.dump(2) << '\n';
+    if (!reportOutput)
+        throw std::runtime_error("Failed writing STL-to-Gmsh report: " + reportPath.string());
 }
 
 

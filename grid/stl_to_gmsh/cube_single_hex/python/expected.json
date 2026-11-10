@@ -11,23 +11,27 @@
   "physical_groups": [
     {
       "dimension": 2,
-      "name": "wall"
+      "name": "xmin_inflow"
     },
     {
       "dimension": 2,
-      "name": "inflow"
+      "name": "xmax_outflow"
     },
     {
       "dimension": 2,
-      "name": "outflow"
+      "name": "ymin_wall"
     },
     {
       "dimension": 2,
-      "name": "symmetry"
+      "name": "ymax_farfield"
     },
     {
       "dimension": 2,
-      "name": "farfield"
+      "name": "zmin_symmetry"
+    },
+    {
+      "dimension": 2,
+      "name": "zmax_symmetry"
     },
     {
       "dimension": 3,

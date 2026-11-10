@@ -1,6 +1,8 @@
 #include "StlMeshIO.h"
 #include "GridConversion.h"
 #include "GmshMeshReader.h"
+#include "Boundary.h"
+#include "HXCgns.h"
 
 #include <gtest/gtest.h>
 
@@ -517,7 +519,7 @@ TEST(StlMeshIOTest, NativeStlToGmshGeneratesSingleHexahedron)
         (inputDirectory / "model.stl").string(), MakeCubeStl());
     const auto layoutPath = scriptDirectory / "layout.json";
     WriteText(layoutPath,
-        R"({"volume_mesh":"axis_aligned_cube_single_hex","mesh_dimension":3})");
+        R"({"volume_mesh":"axis_aligned_cube_single_hex","mesh_dimension":3,"boundary_groups":{"xmin":"inflow","xmax":"outflow","ymin":"wall","ymax":"farfield","zmin":"symmetry","zmax":"symmetry"}})");
     ONEFLOW::GridConfig config;
     config.sourceType = ONEFLOW::GridFileType::STL;
     config.targetType = ONEFLOW::GridFileType::Gmsh;
@@ -543,8 +545,21 @@ TEST(StlMeshIOTest, NativeStlToGmshGeneratesSingleHexahedron)
     for (const auto& group : generated.physicalNames)
         groups.emplace(group.first.first, group.second);
     EXPECT_EQ(groups, (std::set<std::pair<int, std::string>>{
-        {2,"wall"},{2,"inflow"},{2,"outflow"},{2,"symmetry"},
-        {2,"farfield"},{3,"fluid_domain"}}));
+        {2,"xmin_inflow"},{2,"xmax_outflow"},{2,"ymin_wall"},
+        {2,"ymax_farfield"},{2,"zmin_symmetry"},{2,"zmax_symmetry"},
+        {3,"fluid_domain"}}));
+    EXPECT_EQ(ONEFLOW::GmshPhysicalNameToCgnsBcType("xmin_inflow"),
+              static_cast<int>(CGNS_ENUMV(BCInflow)));
+    EXPECT_EQ(ONEFLOW::GmshPhysicalNameToCgnsBcType("xmax_outflow"),
+              static_cast<int>(CGNS_ENUMV(BCOutflow)));
+    EXPECT_EQ(ONEFLOW::GmshPhysicalNameToCgnsBcType("ymin_wall"),
+              static_cast<int>(CGNS_ENUMV(BCWall)));
+    EXPECT_EQ(ONEFLOW::GmshPhysicalNameToCgnsBcType("ymax_farfield"),
+              static_cast<int>(CGNS_ENUMV(BCFarfield)));
+    EXPECT_EQ(ONEFLOW::GmshPhysicalNameToCgnsBcType("zmin_symmetry"),
+              static_cast<int>(CGNS_ENUMV(BCSymmetryPlane)));
+    EXPECT_EQ(ONEFLOW::GmshPhysicalNameToCgnsBcType("zmax_symmetry"),
+              static_cast<int>(CGNS_ENUMV(BCSymmetryPlane)));
 }
 
 TEST(StlMeshIOTest, NativeStlToGmshGeneratesOneSquareCell)

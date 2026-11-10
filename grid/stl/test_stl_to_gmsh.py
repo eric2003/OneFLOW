@@ -164,6 +164,46 @@ $EndElements
             {"inflow", "outflow", "symmetry", "farfield", "fluid_domain"},
         )
 
+    def test_cube_single_hex_uses_layout_boundary_groups_for_all_six_faces(self):
+        case = Path(__file__).parents[1] / "stl_to_gmsh" / "cube_single_hex" / "python"
+        with tempfile.TemporaryDirectory() as temp:
+            geo = Path(temp) / "cube_single_hex.geo"
+            report = convert(
+                case / "input" / "model.stl",
+                case / "script" / "layout.json",
+                geo,
+            )
+            geometry = geo.read_text(encoding="utf-8")
+        expected = {
+            "xmin_inflow": 3,
+            "xmax_outflow": 4,
+            "ymin_wall": 5,
+            "ymax_farfield": 6,
+            "zmin_symmetry": 1,
+            "zmax_symmetry": 2,
+        }
+        for name, surface_id in expected.items():
+            self.assertIn(f'Physical Surface("{name}") = {{{surface_id}}};', geometry)
+        self.assertEqual(report["physical_groups"], sorted([*expected, "fluid_domain"]))
+        self.assertEqual(geometry.count('Physical Surface("'), 6)
+        self.assertIn('Physical Volume("fluid_domain") = {1};', geometry)
+
+    def test_cube_single_hex_rejects_incomplete_boundary_groups(self):
+        case = Path(__file__).parents[1] / "stl_to_gmsh" / "cube_single_hex" / "python"
+        config = json.loads(
+            (case / "script" / "layout.json").read_text(encoding="utf-8")
+        )
+        config["boundary_groups"].pop("zmax")
+        with tempfile.TemporaryDirectory() as temp:
+            sidecar = Path(temp) / "invalid_cube.json"
+            sidecar.write_text(json.dumps(config), encoding="utf-8")
+            with self.assertRaisesRegex(Stl2DError, "must define xmin"):
+                convert(
+                    case / "input" / "model.stl",
+                    sidecar,
+                    Path(temp) / "invalid.geo",
+                )
+
     def test_non_planar_stl_is_rejected(self):
         with self.assertRaisesRegex(Stl2DError,"constant-Z"):
             extract_boundary([((0.,0.,0.),(1.,0.,0.),(1.,1.,0.1))])

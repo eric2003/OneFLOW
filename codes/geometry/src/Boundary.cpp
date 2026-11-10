@@ -113,20 +113,23 @@ int GmshPhysicalNameToCgnsBcType( const std::string & physicalName )
     }
 
     if ( key == "inlet" || key == "inflow" || key == "velocityinlet" ||
-         key == "massflowinlet" || key == "pressureinlet" )
+         key == "massflowinlet" || key == "pressureinlet" ||
+         key == "xmininflow" )
         return static_cast< int >( CGNS_ENUMV( BCInflow ) );
-    if ( key == "outlet" || key == "outflow" || key == "pressureoutlet" )
+    if ( key == "outlet" || key == "outflow" || key == "pressureoutlet" ||
+         key == "xmaxoutflow" )
         return static_cast< int >( CGNS_ENUMV( BCOutflow ) );
-    if ( key == "symmetry" || key == "symmetryplane" )
+    if ( key == "symmetry" || key == "symmetryplane" ||
+         key == "zminsymmetry" || key == "zmaxsymmetry" )
         return static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) );
-    if ( key == "farfield" || key == "freestream" )
+    if ( key == "farfield" || key == "freestream" || key == "ymaxfarfield" )
         return static_cast< int >( CGNS_ENUMV( BCFarfield ) );
     if ( key == "noslipwall" || key == "viscouswall" )
         return static_cast< int >( CGNS_ENUMV( BCWallViscous ) );
     if ( key == "slipwall" || key == "inviscidwall" )
         return static_cast< int >( CGNS_ENUMV( BCWallInviscid ) );
     if ( key == "wall" || key == "lowerwall" || key == "upperwall" ||
-         key == "bodywall" )
+         key == "bodywall" || key == "yminwall" )
         return static_cast< int >( CGNS_ENUMV( BCWall ) );
 
     return static_cast< int >( CGNS_ENUMV( BCTypeUserDefined ) );

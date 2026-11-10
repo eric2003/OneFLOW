@@ -80,6 +80,19 @@ TEST( BcTypeMapTest, GmshPhysicalNamesMapToStandardCgnsTypes )
                static_cast< int >( CGNS_ENUMV( BCFarfield ) ) );
     EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "UnclassifiedPatch" ),
                static_cast< int >( CGNS_ENUMV( BCTypeUserDefined ) ) );
+
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "xmin_inflow" ),
+               static_cast< int >( CGNS_ENUMV( BCInflow ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "xmax_outflow" ),
+               static_cast< int >( CGNS_ENUMV( BCOutflow ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "ymin_wall" ),
+               static_cast< int >( CGNS_ENUMV( BCWall ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "ymax_farfield" ),
+               static_cast< int >( CGNS_ENUMV( BCFarfield ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "zmin_symmetry" ),
+               static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "zmax_symmetry" ),
+               static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) ) );
 }
 
 TEST( BcTypeMapTest, PrintSummaryListsUniqueTypesAndOnlyUsedMappings )

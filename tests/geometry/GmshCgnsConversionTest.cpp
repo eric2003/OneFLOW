@@ -431,7 +431,21 @@ TEST(GmshCgnsConversionTest, ConvertsSingleHexahedronWithFaceCenterBoundaries) {
 
     int bocoCount = 0;
     ASSERT_EQ(cg_nbocos(fileId, 1, 1, &bocoCount), CG_OK);
-    ASSERT_EQ(bocoCount, 5);
+    ASSERT_EQ(bocoCount, 6);
+    struct ExpectedCubeBoundary
+    {
+        const char * name;
+        BCType_t type;
+        cgsize_t elementId;
+    };
+    const std::vector<ExpectedCubeBoundary> expectedBoundaries{
+        { "xmin_inflow", BCInflow, 2 },
+        { "xmax_outflow", BCOutflow, 3 },
+        { "zmin_symmetry", BCSymmetryPlane, 4 },
+        { "ymax_farfield", BCFarfield, 5 },
+        { "ymin_wall", BCWall, 6 },
+        { "zmax_symmetry", BCSymmetryPlane, 7 }
+    };
     std::vector<cgsize_t> observedBoundaryElementIds;
     int wallFaceCount = 0;
     for (int bocoIndex = 1; bocoIndex <= bocoCount; ++bocoIndex) {
@@ -451,19 +465,25 @@ TEST(GmshCgnsConversionTest, ConvertsSingleHexahedronWithFaceCenterBoundaries) {
         ASSERT_EQ(cg_boco_gridlocation_read(fileId, 1, 1, bocoIndex,
                                             &boundaryLocation), CG_OK);
         EXPECT_EQ(boundaryLocation, FaceCenter);
+        ASSERT_EQ(pointCount, 1) << "Each cube face must remain an independent BC_t patch";
 
-        if (std::string(bocoName) == "wall") {
-            EXPECT_EQ(bocoType, BCWall);
-            wallFaceCount = static_cast<int>(pointCount);
-        } else {
-            EXPECT_EQ(pointCount, 1);
-        }
+        const auto expected = std::find_if(
+            expectedBoundaries.begin(), expectedBoundaries.end(),
+            [bocoName](const ExpectedCubeBoundary & item) {
+                return std::string(item.name) == bocoName;
+            });
+        ASSERT_NE(expected, expectedBoundaries.end())
+            << "Unexpected cube BC_t name: " << bocoName;
+        EXPECT_EQ(bocoType, expected->type);
         std::vector<cgsize_t> ids(static_cast<std::size_t>(pointCount));
         ASSERT_EQ(cg_boco_read(fileId, 1, 1, bocoIndex, ids.data(), nullptr), CG_OK);
+        EXPECT_EQ(ids.front(), expected->elementId);
         observedBoundaryElementIds.insert(observedBoundaryElementIds.end(),
                                           ids.begin(), ids.end());
+        if (std::string(bocoName) == "ymin_wall")
+            wallFaceCount += static_cast<int>(pointCount);
     }
-    EXPECT_EQ(wallFaceCount, 2);
+    EXPECT_EQ(wallFaceCount, 1);
     std::sort(observedBoundaryElementIds.begin(), observedBoundaryElementIds.end());
     EXPECT_EQ(observedBoundaryElementIds,
               (std::vector<cgsize_t>{2, 3, 4, 5, 6, 7}));
@@ -496,6 +516,33 @@ TEST(GmshCgnsConversionTest, ConvertsSingleHexahedronWithFaceCenterBoundaries) {
     EXPECT_EQ(grid->nodeMesh->yN.size(), 8u);
     EXPECT_EQ(grid->nodeMesh->zN.size(), 8u);
     EXPECT_EQ(grid->GetCellMesh().GetCellTopo().eTypes.size(), 1u);
+
+    const auto& cubeBcRecord = grid->GetFaceTopo().GetBcRecord();
+    ASSERT_EQ(cubeBcRecord.bcType.size(), 6u);
+    ASSERT_EQ(cubeBcRecord.bcNameId.size(), 6u);
+    const std::vector<std::pair<std::string, int>> expectedOneFlowBoundaries{
+        {"xmin_inflow", BC::INFLOW},
+        {"xmax_outflow", BC::OUTFLOW},
+        {"ymin_wall", BC::SOLID_SURFACE},
+        {"ymax_farfield", BC::FARFIELD},
+        {"zmin_symmetry", BC::SYMMETRY},
+        {"zmax_symmetry", BC::SYMMETRY},
+    };
+    for (const auto& expected : expectedOneFlowBoundaries)
+    {
+        const int expectedNameId = RegionNameMap::FindRegionId(expected.first);
+        ASSERT_GE(expectedNameId, 0)
+            << "Missing OneFLOW boundary patch name: " << expected.first;
+        int matchCount = 0;
+        for (std::size_t face = 0; face < cubeBcRecord.bcType.size(); ++face)
+        {
+            if (cubeBcRecord.bcNameId[face] == expectedNameId &&
+                cubeBcRecord.bcType[face] == expected.second)
+                ++matchCount;
+        }
+        EXPECT_EQ(matchCount, 1)
+            << "Expected exactly one OneFLOW boundary face for " << expected.first;
+    }
 
     grids.clear();
     std::filesystem::remove_all(caseDirectory);

@@ -313,7 +313,33 @@ def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: 
     lines.extend(["Mesh 2;", ""])
     return "\n".join(lines)
 
-def _cube_single_hex_geo(triangles: list[Triangle], tolerance: float) -> tuple[str, dict]:
+def _cube_single_hex_geo(
+    triangles: list[Triangle],
+    tolerance: float,
+    boundary_groups: dict[str, str],
+) -> tuple[str, dict]:
+    surface_by_side = {
+        "xmin": 3, "xmax": 4, "ymin": 5,
+        "ymax": 6, "zmin": 1, "zmax": 2,
+    }
+    if not isinstance(boundary_groups, dict) or set(boundary_groups) != set(surface_by_side):
+        raise Stl2DError(
+            "cube_single_hex boundary_groups must define xmin, xmax, ymin, ymax, zmin and zmax"
+        )
+    physical_groups: dict[str, int] = {}
+    for side, surface_id in surface_by_side.items():
+        semantic = boundary_groups[side]
+        if not isinstance(semantic, str) or semantic.lower() not in {
+            "inflow", "outflow", "wall", "farfield", "symmetry"
+        }:
+            raise Stl2DError(f"cube_single_hex has an unsupported boundary semantic for {side}")
+        physical_name = f"{side}_{semantic.lower()}"
+        if not re.fullmatch(r"[A-Za-z0-9_.-]{1,32}", physical_name):
+            raise Stl2DError(f"cube_single_hex has an invalid Physical Group name: {physical_name}")
+        if physical_name in physical_groups:
+            raise Stl2DError(f"cube_single_hex Physical Group names must be unique: {physical_name}")
+        physical_groups[physical_name] = surface_id
+
     if len(triangles) != 12:
         raise Stl2DError("cube_single_hex requires exactly 12 STL surface triangles")
     points = [point for triangle in triangles for point in triangle]
@@ -368,19 +394,23 @@ def _cube_single_hex_geo(triangles: list[Triangle], tolerance: float) -> tuple[s
         lines.extend((f"Curve Loop({i}) = {loop};", f"Plane Surface({i}) = {{{i}}};"))
     lines.extend(("Surface Loop(1) = {-1, 2, 3, 4, 5, 6};", "Volume(1) = {1};",
         "Transfinite Curve {1:12} = 2;", "Transfinite Surface {1:6};",
-        "Recombine Surface {1:6};", "Transfinite Volume {1};", "Recombine Volume {1};",
-        'Physical Surface("wall") = {1, 2};', 'Physical Surface("inflow") = {3};',
-        'Physical Surface("outflow") = {4};', 'Physical Surface("symmetry") = {5};',
-        'Physical Surface("farfield") = {6};', 'Physical Volume("fluid_domain") = {1};'))
-    return "\n".join(lines) + "\n", {"triangles": 12, "unique_cube_corners": 8,
-        "boundary_faces": 6, "volume_cells": 1}
+        "Recombine Surface {1:6};", "Transfinite Volume {1};", "Recombine Volume {1};"))
+    for name, surface_id in physical_groups.items():
+        lines.append(f'Physical Surface("{name}") = {{{surface_id}}};')
+    lines.append('Physical Volume("fluid_domain") = {1};')
+    return "\n".join(lines) + "\n", {
+        "triangles": 12, "unique_cube_corners": 8,
+        "boundary_faces": 6, "volume_cells": 1,
+        "physical_groups": sorted([*physical_groups, "fluid_domain"]),
+    }
 
 
 def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dict:
     triangles = read_stl(stl)
     sidecar_data = json.loads(sidecar.read_text(encoding="utf-8"))
     if sidecar_data.get("volume_mesh") == "axis_aligned_cube_single_hex":
-        geometry, report = _cube_single_hex_geo(triangles, tolerance)
+        geometry, report = _cube_single_hex_geo(
+            triangles, tolerance, sidecar_data.get("boundary_groups"))
         geo.parent.mkdir(parents=True, exist_ok=True)
         geo.write_text(geometry, encoding="utf-8", newline="\n")
         report["geo"] = str(geo)
