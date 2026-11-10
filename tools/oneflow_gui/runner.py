@@ -141,10 +141,19 @@ def prepare_case_database_workspace(
                     ignored.add(name)
             return ignored
 
+        # A parent case may already have created empty ancestor directories
+        # for a separately registered nested case. Reuse those directories, but
+        # never merge into a non-empty destination that could contain parent data.
+        if destination.exists():
+            if not destination.is_dir() or any(destination.iterdir()):
+                raise ValueError(
+                    f"Case Database destination is not empty: {destination}"
+                )
         shutil.copytree(
             case.case_directory,
             destination,
             ignore=ignore_nested_cases,
+            dirs_exist_ok=True,
         )
     return destinations
 
