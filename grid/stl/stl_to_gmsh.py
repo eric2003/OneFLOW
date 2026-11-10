@@ -307,7 +307,12 @@ def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: 
             vertical = ", ".join(map(str, cell_layout["vertical_curves"]))
             lines.append(f"Transfinite Curve {{{horizontal}}} = {cell_layout['x'] + 1};")
             lines.append(f"Transfinite Curve {{{vertical}}} = {cell_layout['y'] + 1};")
-            lines.extend(["Transfinite Surface {1};", "Recombine Surface {1};"])
+            lines.append("Transfinite Surface {1};")
+            recombine_surface = config.get("recombine_surface", True)
+            if not isinstance(recombine_surface, bool):
+                raise Stl2DError("recombine_surface must be a boolean")
+            if recombine_surface:
+                lines.append("Recombine Surface {1};")
     surface = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(config.get("surface_name","Fluid")))
     lines.append(f'Physical Surface("{surface}") = {{1}};')
     lines.extend(["Mesh 2;", ""])

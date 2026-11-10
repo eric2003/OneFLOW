@@ -82,7 +82,15 @@
       "grid/cgns_to_oneflow/script/grid.txt",
       "grid/cgns_to_oneflow/script/simu.txt",
       "grid/cgns_to_oneflow/script/tolerence.txt",
-      "test/cfd/plateuns2dslau2/script/cfd.txt"
+      "test/cfd/plateuns2dslau2/script/cfd.txt",
+      "grid/stl_to_gmsh/square/two_triangles/cpp/script/dimension.txt",
+      "grid/stl_to_gmsh/square/two_triangles/cpp/script/simu.txt",
+      "grid/stl_to_gmsh/square/two_triangles/cpp/script/grid.txt",
+      "grid/stl_to_gmsh/square/two_triangles/cpp/script/layout.json",
+      "grid/stl_to_gmsh/square/two_triangles/cpp/input/model.stl",
+      "grid/stl_to_gmsh/square/two_triangles/python/expected.json",
+      "grid/stl_to_gmsh/square/two_triangles/python/input/model.stl",
+      "grid/stl_to_gmsh/square/two_triangles/python/script/layout.json"
     ]
   },
   "documentation": {
@@ -115,7 +123,8 @@
       "The native circle external-flow Case is registered for both Run Development Cases and Mesh-to-CFD Validation; the latter executes the selected MSH through the existing CGNS, OneFLOW-grid and CFD smoke-test chain.",
       "The native C++ and independent Python cube_single_hex Cases validate a closed axis-aligned cube STL with twelve triangles and generate exactly one HEXA_8 volume cell with six QUAD_4 boundary faces.",
       "The cube_single_hex Case pair is registered in Run Development Cases, Python Reference Cases and Mesh-to-CFD Validation; its validation graph checks MSH-to-CGNS-to-OneFLOW topology, boundary-region-map handoff and a two-step CFD smoke run using the staged laminar flat-plate template with dimension overridden to 3.",
-      "The legacy root-level script/run.py and its root input/results/script data were removed; Python reference Cases reject execution from checked-in source directories, and Python unit tests live under tests/python/grid."
+      "The legacy root-level script/run.py and its root input/results/script data were removed; Python reference Cases reject execution from checked-in source directories, and Python unit tests live under tests/python/grid.",
+      "The same unit-square STL and four named outer boundaries can produce either one QUAD_4 cell or exactly two TRI_3 cells by enabling or disabling Gmsh surface recombination while retaining a 1 x 1 transfinite boundary layout."
     ],
     "does_not_prove": [
       "Generated outer-flow meshes have been converted through CGNS into a OneFLOW native grid.",
@@ -253,6 +262,18 @@
       "reference": "MeshValidationCatalogTest.test_python_cube_single_hex_runs_the_complete_cfd_smoke_chain",
       "status": "linked_not_executed",
       "scope": "tools/oneflow_gui/test_mesh_validation.py; checks the independent Python 3-D cube graph through MSH-to-CGNS-to-OneFLOW grid conversion, boundary-map handoff and the staged two-step CFD smoke consumer with dimension overridden to 3."
+    },
+    {
+      "kind": "google_test",
+      "reference": "StlMeshIOTest.NativeStlToGmshGeneratesTwoTrianglesFromSquareGeometry",
+      "status": "linked_not_executed",
+      "scope": "tests/geometry/StlMeshIOTest.cpp; native C++ conversion validates four nodes, four boundary LINE_2 elements, two TRI_3 cells, zero QUAD_4 cells and unchanged Physical Groups when Gmsh integration tests are enabled."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlToGmshCaseTest.test_python_square_two_triangles_generates_exactly_two_triangle_cells",
+      "status": "linked_not_executed",
+      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; Python reference runs Gmsh in a temporary directory and validates exact two-triangle topology and unchanged Physical Groups."
     }
   ],
   "group": {

@@ -1406,6 +1406,7 @@ void ConvertStlCubeToGmsh(
         const int cellsY = cells.at("y").get<int>();
         if (cellsX < 1 || cellsY < 1)
             throw std::invalid_argument("STL-to-Gmsh transfinite cell counts must be positive");
+        const bool recombineSurface = options.value("recombine_surface", true);
 
         const StlMesh stl = StlMeshReader::Read(source.string());
         const StlPlanarBoundary boundary =
@@ -1537,8 +1538,9 @@ void ConvertStlCubeToGmsh(
         geo << "SetFactory(\"Built-in\");\n"
             << "Mesh.MshFileVersion = 4.1;\n"
             << "Mesh.Binary = 0;\n"
-            << "Mesh.ElementOrder = 1;\n"
-            << "Mesh.RecombineAll = 1;\n";
+            << "Mesh.ElementOrder = 1;\n";
+        if (recombineSurface)
+            geo << "Mesh.RecombineAll = 1;\n";
         for (std::size_t i = 0; i < boundary.vertices.size(); ++i)
         {
             const auto& point = boundary.vertices[i];
@@ -1560,8 +1562,9 @@ void ConvertStlCubeToGmsh(
             geo << "Transfinite Curve {" << i + 1 << "} = "
                 << (horizontal ? cellsX + 1 : cellsY + 1) << ";\n";
         }
-        geo << "Transfinite Surface {1};\n"
-            << "Recombine Surface {1};\n";
+        geo << "Transfinite Surface {1};\n";
+        if (recombineSurface)
+            geo << "Recombine Surface {1};\n";
         for (const auto& assignment : assignedCurves)
             geo << "Physical Curve(\"" << assignment.first << "\") = {"
                 << assignment.second << "};\n";
@@ -1625,18 +1628,21 @@ void ConvertStlCubeToGmsh(
             static_cast<std::size_t>(cellsX + 1) * static_cast<std::size_t>(cellsY + 1);
         const std::size_t expectedLines =
             2u * (static_cast<std::size_t>(cellsX) + static_cast<std::size_t>(cellsY));
-        const std::size_t expectedQuads =
+        const std::size_t expectedCells =
             static_cast<std::size_t>(cellsX) * static_cast<std::size_t>(cellsY);
+        const std::size_t expectedQuads = recombineSurface ? expectedCells : 0u;
+        const std::size_t expectedTriangles = recombineSurface ? 0u : 2u * expectedCells;
         if (generated.nodes.size() != expectedNodes ||
-            generated.elements.size() != expectedLines + expectedQuads ||
+            generated.elements.size() != expectedLines + expectedQuads + expectedTriangles ||
             lineElements != expectedLines ||
             quadrilateralElements != expectedQuads ||
-            triangleElements != 0)
+            triangleElements != expectedTriangles)
             throw std::runtime_error(
                 "Generated MSH topology mismatch: expected " +
                 std::to_string(expectedNodes) + " nodes, " +
                 std::to_string(expectedLines) + " boundary lines, " +
-                std::to_string(expectedQuads) + " QUAD_4 cells; observed " +
+                std::to_string(expectedQuads) + " QUAD_4 cells and " +
+                std::to_string(expectedTriangles) + " TRI_3 cells; observed " +
                 std::to_string(generated.nodes.size()) + ", " +
                 std::to_string(lineElements) + ", " +
                 std::to_string(quadrilateralElements) + " quads and " +
@@ -1662,6 +1668,7 @@ void ConvertStlCubeToGmsh(
         report["stl_triangles"] = stl.triangles.size();
         report["stl_boundary_vertices"] = boundary.vertices.size();
         report["transfinite_cells"] = {{"x", cellsX}, {"y", cellsY}};
+        report["recombine_surface"] = recombineSurface;
         report["mesh_summary"] = {
             {"nodes", generated.nodes.size()},
             {"line_elements", lineElements},
@@ -1683,8 +1690,8 @@ void ConvertStlCubeToGmsh(
             throw std::runtime_error("Failed writing STL-to-Gmsh report: " + reportPath.string());
 
         std::cout << "STL to Gmsh completed: " << generated.nodes.size()
-                  << " nodes, " << quadrilateralElements
-                  << " QUAD_4 cells, " << lineElements
+                  << " nodes, " << quadrilateralElements << " QUAD_4 cells, "
+                  << triangleElements << " TRI_3 cells, " << lineElements
                   << " boundary LINE_2 elements." << std::endl;
     }
 

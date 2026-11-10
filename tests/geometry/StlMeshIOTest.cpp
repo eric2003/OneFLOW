@@ -417,7 +417,9 @@ void ValidateNativeStlToGmshCase(
     int cellsY,
     std::size_t expectedNodes,
     std::size_t expectedLines,
-    std::size_t expectedQuads)
+    std::size_t expectedQuads,
+    std::size_t expectedTriangles = 0,
+    bool recombineSurface = true)
 {
     const auto inputDirectory = temporary.File("input");
     const auto scriptDirectory = temporary.File("script");
@@ -434,6 +436,7 @@ void ValidateNativeStlToGmshCase(
         << "{\n"
         << "  \"surface_name\": \"fluid_domain\",\n"
         << "  \"mesh_size\": 1.0,\n"
+        << "  \"recombine_surface\": " << (recombineSurface ? "true" : "false") << ",\n"
         << "  \"transfinite_cells\": {\"x\": " << cellsX
         << ", \"y\": " << cellsY << "},\n"
         << "  \"boundaries\": [\n"
@@ -495,7 +498,7 @@ void ValidateNativeStlToGmshCase(
     }
     EXPECT_EQ(lineCount, expectedLines);
     EXPECT_EQ(quadCount, expectedQuads);
-    EXPECT_EQ(triangleCount, 0u);
+    EXPECT_EQ(triangleCount, expectedTriangles);
 
     const std::set<std::pair<int, std::string>> expectedGroups{
         {1, "inflow"}, {1, "outflow"}, {1, "symmetry"},
@@ -566,6 +569,12 @@ TEST(StlMeshIOTest, NativeStlToGmshGeneratesOneSquareCell)
 {
     TemporaryDirectory temporary;
     ValidateNativeStlToGmshCase(temporary, 1.0, 1, 1, 4, 4, 1);
+}
+
+TEST(StlMeshIOTest, NativeStlToGmshGeneratesTwoTrianglesFromSquareGeometry)
+{
+    TemporaryDirectory temporary;
+    ValidateNativeStlToGmshCase(temporary, 1.0, 1, 1, 4, 4, 0, 2, false);
 }
 
 TEST(StlMeshIOTest, NativeStlToGmshGeneratesTwoSquareCells)

@@ -7,15 +7,20 @@ and the C++ Geometry conversion pipeline.
 | Implementation | Case | Layout | Nodes | Cells | Boundary elements |
 |---|---|---:|---:|---:|---:|
 | Native C++ | square/cpp | 1 x 1 | 4 | 1 QUAD_4 | 4 |
+| Native C++ | square/two_triangles/cpp | 1 x 1 | 4 | 2 TRI_3 | 4 |
 | Native C++ | square_2x2/cpp | 2 x 2 | 9 | 4 QUAD_4 | 8 |
 | Native C++ | two_square_cells/cpp | 2 x 1 | 6 | 2 QUAD_4 | 6 |
 | Native C++ | circle_external_flow/cpp | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |\n| Native C++ | cube_single_hex/cpp | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
 | Python | square/python | 1 x 1 | 4 | 1 QUAD_4 | 4 |
+| Python | square/two_triangles/python | 1 x 1 | 4 | 2 TRI_3 | 4 |
 | Python | two_square_cells/python | 2 x 1 | 6 | 2 QUAD_4 | 6 |
 | Python | circle_external_flow/python | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
 | Python | channel_internal_flow/python | 20 x 5 | 126 | 100 QUAD_4 | 50 |\n| Python | cube_single_hex/python | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
 
-For the structured square Cases, the STL describes the outer domain boundary.
+For the square Cases, the STL describes the outer domain boundary. The
+single-quad and two-triangle variants use the same STL and 1 x 1 transfinite
+boundary layout: the former recombines the surface into one QUAD_4, while the
+latter leaves it un-recombined and produces two TRI_3 cells.
 For circle_external_flow, the STL describes the inner body boundary and the
 rectangular outer domain is supplied by the layout. In every case, STL
 triangle diagonals are triangulation edges, not CFD cell interfaces. The
@@ -66,7 +71,7 @@ that would place generated files in the repository.
 
 The Python Cases use the independent grid/stl/stl_to_gmsh.py implementation. They emit the same Case-specific mesh and report filenames as their native counterparts. The native C++ and Python `circle_external_flow` Cases use byte-identical STL input and the same domain, mesh-size and Physical Group settings. The native Case exercises OneFLOW's C++ STL reader, outer-domain/hole construction, Gmsh invocation and MSH validation; the Python Case is an independent implementation reference. The `circle_external_flow` Case treats a polygonal STL obstacle as an internal Wall loop and subtracts it from a rectangular outer domain. The `channel_internal_flow` Case treats the STL loop itself as the fluid domain, with inlet, outlet and wall groups; a transfinite 20 x 5 layout produces a reproducible quadrilateral channel mesh. The external case validates minimum mesh counts rather than exact counts because unstructured meshing can vary slightly between Gmsh versions. Both implementations also validate the generated coordinate bounds against the configured planar domain, reject degenerate triangles, and enforce the shared minimum normalized triangle quality (0.01) and minimum angle (1 degree). Python reports the measured minimum area, normalized quality, and minimum angle; native C++ reports the same quality thresholds alongside its MSH topology report. The two triangulations are not expected to have identical element counts or connectivity.
 
-## Run all ten development Cases
+## Run all twelve development Cases
 
 After building OneFLOW and installing Gmsh, run the orchestrator from the
 repository root:
@@ -77,7 +82,7 @@ If the executable is not in the standard build/bin locations:
 
     python grid/stl_to_gmsh/develop_test/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
 
-The orchestrator stages all ten Cases under
+The orchestrator stages all twelve Cases under
 %USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows or
 $HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. Staging paths mirror
 the Case layout, for example square/cpp and square/python; each has its own

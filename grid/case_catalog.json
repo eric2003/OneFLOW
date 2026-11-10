@@ -246,8 +246,16 @@
     },
     {
       "id": "stl_to_gmsh_square",
-      "title": "STL to Gmsh: One Square Cell (Native C++)",
+      "title": "STL to Gmsh: One Square QUAD_4 Cell (Native C++)",
       "directory": "grid/stl_to_gmsh/square/cpp",
+      "profile": null,
+      "layout": null,
+      "group": "STL to Gmsh"
+    },
+    {
+      "id": "stl_to_gmsh_square_two_triangles",
+      "title": "STL to Gmsh: Square with Two TRI_3 Cells (Native C++)",
+      "directory": "grid/stl_to_gmsh/square/two_triangles/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh"
@@ -278,8 +286,18 @@
     },
     {
       "id": "stl_to_gmsh_python_square",
-      "title": "STL to Gmsh: One Square Cell (Python Reference)",
+      "title": "STL to Gmsh: One Square QUAD_4 Cell (Python Reference)",
       "directory": "grid/stl_to_gmsh/square/python",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/run_python_case.py"
+      }
+    },
+    {
+      "id": "stl_to_gmsh_python_square_two_triangles",
+      "title": "STL to Gmsh: Square with Two TRI_3 Cells (Python Reference)",
+      "directory": "grid/stl_to_gmsh/square/two_triangles/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",
