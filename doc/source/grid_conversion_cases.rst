@@ -114,12 +114,13 @@ interchange file and native OneFLOW grid are written only under that temporary
 workspace; no generated files are written into the source tree.
 
 This fixture is not a catalog entry and is not validated through
-``tools/mesh_cases.py``. Its conversion contract is covered by the C++
-integration test and independent CGNS read-back checks. Acceptance includes
-the CGNS Base/Zone, coordinate arrays, quadrilateral section, boundary
-sections, BC names and BC types, as well as the native-grid topology. Process
-success or file existence alone is not a complete topology acceptance
-criterion.
+``tools/mesh_cases.py``. ``GmshMeshReaderTest`` checks its six nodes, two
+quadrilateral cells, seven line elements, Physical Group assignments, and
+ungrouped internal curve. ``GmshTwoQuadsOneFlowTest`` exercises the composed
+conversion route and currently checks that non-empty CGNS and native-grid
+artifacts are produced in a temporary workspace. It does not yet independently
+read back and assert the two-cell CGNS topology. Separate CGNS round-trip tests
+cover the triangle and single-hexahedron fixtures.
 
 The current Gmsh conversion boundary is independent of SU2 parsing. The MSH
 reader produces a GmshMesh value, the adapter maps supported first-order
