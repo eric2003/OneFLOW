@@ -231,7 +231,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertIn("vertex 1.000000000051 1 0", weld_fixture)
 
     def test_turbulent_flat_plate_uses_requested_bounds_and_tanh_distribution(self) -> None:
-        case_dir = REPOSITORY_ROOT / "grid" / "mesh-layout" / "turbulent_flat_plate"
+        case_dir = REPOSITORY_ROOT / "grid" / "mesh-layout" / "2d" / "turbulent_flat_plate"
         with (case_dir / "case.json").open("r", encoding="utf-8") as stream:
             profile = json.load(stream)
 

@@ -9,7 +9,7 @@
       "objective": 0,
       "generationId": 4,
       "dimension": 2,
-      "layout": "grid/twoConnectedSquaresLayout.txt",
+      "layout": "grid/twoBlocksSharedEdgeEndpointsOnlyLayout.txt",
       "parameterFiles": [
         "script/simu.txt",
         "script/dimension.txt",
