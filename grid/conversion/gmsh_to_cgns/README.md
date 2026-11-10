@@ -143,22 +143,13 @@ boundary-element references, and OneFLOW's reconstructed 3D unstructured
 grid.
 
 
-## Small-mesh example and test strategy
+## Small-mesh fixture and test strategy
 
-Keep this directory as the manual, end-to-end Case. Grow its examples as
-small, focused MSH fixtures rather than large CFD meshes. A proposed layout is:
-
-```text
-grid/gmsh_to_cgns/
-  grid/square.msh                 # 2-D conversion + four EdgeCenter BC groups
-  grid/cube_single_hex.msh        # 3-D HEXA_8 conversion + six FaceCenter BC faces
-  examples/
-    read_only/                    # parser coverage; no CGNS writer required
-    convert_2d/                   # TRI_3 and QUAD_4
-    convert_3d/                   # TETRA_4, HEXA_8, PENTA_6, PYRA_5
-    higher_order_read_only/       # TRI_6, TETRA_10, etc.; parse only initially
-    invalid/                      # malformed references and unsupported cases
-```
+Keep this directory focused on the Gmsh-to-CGNS route template and its
+route-level input fixtures. Store independently runnable topology Cases
+outside this directory under `grid/conversion/cases/<case-id>/`; register
+them in `grid/case_catalog.json` and associate their exercised routes in
+`grid/interoperability/conversion_matrix.json`.
 
 Use the smallest topology that proves each contract: one triangle for a basic
 read, a four-node square for 2-D boundary semantics, one tetrahedron with four
@@ -208,14 +199,15 @@ conversion matrix in `grid/interoperability/conversion_matrix.json` is the
 central inventory of supported routes.
 
 
-## Runnable conversion examples
+## Runnable conversion Cases
 
-Small end-to-end Gmsh-to-CGNS Cases are kept under `examples/`, grouped by
-the conversion contract they exercise. The `convert_2d/two_quads` Case
-contains two adjacent QUAD_4 cells and verifies that the shared internal
+The independently runnable `two_quads` Case is stored at
+`grid/conversion/cases/two_quads`, outside this route-template directory.
+It contains two adjacent QUAD_4 cells and verifies that the shared internal
 interface is not exported as an external boundary condition. It also checks
 that named Physical Groups may span multiple geometric curve entities.
 
-Run the Case from the GUI Case Workbench after building with CGNS support.
-The Case is staged into an isolated workspace; its checked-in input remains
-unchanged. See `examples/README.md` for the minimal fixture organization.
+The Case catalog exposes it in the GUI Case Workbench. The runner stages the
+complete Case into an isolated workspace; its checked-in input remains
+unchanged. See `doc/source/grid_conversion_cases.rst` for its topology and
+acceptance criteria.

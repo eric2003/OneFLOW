@@ -79,7 +79,7 @@
     {
       "id": "two_quads",
       "title": "Gmsh Two Adjacent Quadrilaterals",
-      "directory": "grid/conversion/gmsh_to_cgns/examples/convert_2d/two_quads",
+      "directory": "grid/conversion/cases/two_quads",
       "runtimeConfig": "script/control.txt",
       "profile": null,
       "layout": null,

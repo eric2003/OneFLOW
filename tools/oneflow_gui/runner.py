@@ -90,10 +90,8 @@ def prepare_case_database_workspace(
         destinations[case.case_id] = destination
         sources[case.case_id] = source
 
-    # Nested catalog cases are valid when their source and workspace paths have
-    # the same parent/child relationship. The parent copy must omit each child
-    # source so the child can be staged independently at its catalog path.
-    nested_sources: dict[str, list[Path]] = {case.case_id: [] for case in cases}
+    # Each catalog Case must be independently stageable. Parent/child
+    # source or destination trees make refresh and ownership ambiguous.
     for index, case in enumerate(cases):
         for other in cases[index + 1:]:
             source = sources[case.case_id]
@@ -105,20 +103,16 @@ def prepare_case_database_workspace(
                     "Duplicate Case Database source or destination: "
                     f"{case.case_id} ({destination}) and {other.case_id} ({other_destination})"
                 )
-            source_nested = other_source in source.parents
-            other_source_nested = source in other_source.parents
-            destination_nested = other_destination in destination.parents
-            other_destination_nested = destination in other_destination.parents
-            if source_nested != destination_nested or other_source_nested != other_destination_nested:
+            source_overlap = source in other_source.parents or other_source in source.parents
+            destination_overlap = (
+                destination in other_destination.parents
+                or other_destination in destination.parents
+            )
+            if source_overlap or destination_overlap:
                 raise ValueError(
-                    "Overlapping Case Database paths do not match their source hierarchy: "
+                    "Overlapping Case Database paths are not allowed: "
                     f"{case.case_id} ({destination}) and {other.case_id} ({other_destination})"
                 )
-            if source_nested:
-                nested_sources[case.case_id].append(other_source)
-            elif other_source_nested:
-                nested_sources[other.case_id].append(source)
-
 
     root.mkdir(parents=True, exist_ok=True)
     for child in root.iterdir():
@@ -130,30 +124,10 @@ def prepare_case_database_workspace(
     for case in cases:
         destination = destinations[case.case_id]
         destination.parent.mkdir(parents=True, exist_ok=True)
-        excluded_nested_sources = set(nested_sources[case.case_id])
-
-        def ignore_nested_cases(directory: str, names: list[str]) -> set[str]:
-            current = Path(directory).resolve()
-            ignored = set()
-            for name in names:
-                candidate = (current / name).resolve()
-                if name in {"__pycache__", ".git"} or candidate in excluded_nested_sources:
-                    ignored.add(name)
-            return ignored
-
-        # A parent case may already have created empty ancestor directories
-        # for a separately registered nested case. Reuse those directories, but
-        # never merge into a non-empty destination that could contain parent data.
-        if destination.exists():
-            if not destination.is_dir() or any(destination.iterdir()):
-                raise ValueError(
-                    f"Case Database destination is not empty: {destination}"
-                )
         shutil.copytree(
             case.case_directory,
             destination,
-            ignore=ignore_nested_cases,
-            dirs_exist_ok=True,
+            ignore=shutil.ignore_patterns("__pycache__", ".git"),
         )
     return destinations
 

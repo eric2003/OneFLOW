@@ -16,9 +16,8 @@ the **Shared unstructured mesh conversion boundary** subsection of
 :doc:`mesh_architecture`. Runnable Cases here exercise that boundary; they do
 not redefine it.
 
-Runnable examples are grouped beneath the conversion route that owns their
-execution workflow. The current two_quads example belongs to
-``grid/conversion/gmsh_to_cgns/examples/convert_2d/two_quads``. The conversion matrix
+Runnable topology Cases are stored separately from route templates. The current two_quads example belongs to
+``grid/conversion/cases/two_quads``. The conversion matrix
 keeps route coverage separate from Case identity, so a future shared mesh
 fixture can be referenced by more than one route without creating a generic
 top-level conversion directory.
@@ -34,9 +33,8 @@ Directory and metadata model
        README.md
        cgns_to_oneflow/
        gmsh_to_cgns/
-         examples/
-         convert_2d/
-           two_quads/
+       cases/
+         two_quads/
              README.md
              grid/
                two_quads.msh
@@ -54,8 +52,8 @@ The responsibilities are deliberately separate:
   and human-readable explanation.
 * conversion_matrix.json records which source/target routes are implemented
   and which runnable Cases exercise them.
-* Route-specific example directories own the runnable inputs and runtime
-  configuration for that conversion workflow.
+* The `cases/` directory owns independently runnable topology Cases; the
+  conversion matrix associates each Case with the routes it exercises.
 * This document explains topology, semantic contracts, and remaining gaps.
 
 A Case must be independently copyable and runnable. Do not make it depend on
@@ -127,7 +125,7 @@ Conversion route and execution
 The current Case runtime configuration selects gmsh -> cgns. It is registered
 in grid/case_catalog.json, so it appears in the standard GUI Case Workbench.
 Its route-specific directory is
-``grid/conversion/gmsh_to_cgns/examples/convert_2d/two_quads``.
+``grid/conversion/cases/two_quads``.
 Run it manually from the GUI after building OneFLOW with CGNS support. The GUI
 uses an isolated run workspace; the checked-in Case and input MSH file must
 remain unchanged.

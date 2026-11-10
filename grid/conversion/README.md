@@ -49,7 +49,7 @@ and CGNS interchange boundary; it is not a second direct Gmsh converter.
 
 Examples that exercise a specific conversion contract belong beneath the
 route that owns their execution. For example,
-`gmsh_to_cgns/examples/convert_2d/two_quads` tests two adjacent QUAD_4 cells,
+`grid/conversion/cases/two_quads` tests two adjacent QUAD_4 cells,
 their shared internal edge, and Physical Group membership. It remains a
 Gmsh-to-CGNS example rather than a generic conversion fixture.
 
