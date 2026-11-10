@@ -2,6 +2,9 @@
 // Locks CGNS -> OneFLOW BC type mapping without GridElem or a full mesh.
 
 #include <gtest/gtest.h>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 #include "Boundary.h"
 #include "HXCgns.h"
@@ -77,4 +80,29 @@ TEST( BcTypeMapTest, GmshPhysicalNamesMapToStandardCgnsTypes )
                static_cast< int >( CGNS_ENUMV( BCFarfield ) ) );
     EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "UnclassifiedPatch" ),
                static_cast< int >( CGNS_ENUMV( BCTypeUserDefined ) ) );
+}
+
+TEST( BcTypeMapTest, PrintSummaryListsUniqueTypesAndOnlyUsedMappings )
+{
+    BcTypeMap map;
+    map.Init();
+
+    IntField cgnsTypes{
+        static_cast< int >( CGNS_ENUMV( BCWall ) ),
+        static_cast< int >( CGNS_ENUMV( BCWall ) ),
+        static_cast< int >( CGNS_ENUMV( BCInflow ) ),
+        static_cast< int >( CGNS_ENUMV( BCFarfield ) )
+    };
+
+    std::ostringstream output;
+    std::streambuf * oldBuffer = std::cout.rdbuf( output.rdbuf() );
+    map.PrintSummary( cgnsTypes );
+    std::cout.rdbuf( oldBuffer );
+
+    const std::string summary = output.str();
+    EXPECT_NE( summary.find( "OneFLOW types (3)" ), std::string::npos );
+    EXPECT_NE( summary.find( "SOLID_SURFACE" ), std::string::npos );
+    EXPECT_NE( summary.find( "INFLOW" ), std::string::npos );
+    EXPECT_NE( summary.find( "FARFIELD" ), std::string::npos );
+    EXPECT_EQ( summary.find( "BCOutflow" ), std::string::npos );
 }
