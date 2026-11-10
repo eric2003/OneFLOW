@@ -321,6 +321,52 @@ class DesktopServiceTest(unittest.TestCase):
             )
             self.assertTrue(prepared.samefile(expected))
 
+    def test_case_database_stages_nested_catalog_cases_independently(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repository_grid = root / "repository" / "grid"
+            parent_source = repository_grid / "conversion" / "gmsh_to_cgns"
+            nested_source = parent_source / "examples" / "convert_2d" / "two_quads"
+            nested_source.mkdir(parents=True)
+            (parent_source / "README.md").write_text("parent", encoding="utf-8")
+            (nested_source / "case.txt").write_text("nested-case", encoding="utf-8")
+
+            workspace = root / "mesh-layout-test" / "grid"
+            parent = CaseDefinition(
+                case_id="gmsh_to_cgns",
+                title="Gmsh to CGNS",
+                case_directory=parent_source,
+                runtime_config=None,
+                profile=None,
+                layout=None,
+                workspace_relative_directory=Path("conversion/gmsh_to_cgns"),
+            )
+            nested = CaseDefinition(
+                case_id="two_quads",
+                title="Two Quads",
+                case_directory=nested_source,
+                runtime_config=None,
+                profile=None,
+                layout=None,
+                workspace_relative_directory=Path(
+                    "conversion/gmsh_to_cgns/examples/convert_2d/two_quads"
+                ),
+            )
+
+            staged = prepare_case_database_workspace([parent, nested], workspace)
+
+            self.assertEqual(
+                (staged["gmsh_to_cgns"] / "README.md").read_text(encoding="utf-8"),
+                "parent",
+            )
+            self.assertEqual(
+                (staged["two_quads"] / "case.txt").read_text(encoding="utf-8"),
+                "nested-case",
+            )
+            self.assertTrue(staged["two_quads"].samefile(
+                workspace / "conversion/gmsh_to_cgns/examples/convert_2d/two_quads"
+            ))
+
     def test_source_execution_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
