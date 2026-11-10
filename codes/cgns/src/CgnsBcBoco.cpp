@@ -39,6 +39,32 @@ BeginNameSpace( ONEFLOW )
 
 #ifdef ENABLE_CGNS
 
+namespace
+{
+
+void PrintConnectivityPreview( const CgIntField & connList )
+{
+    const CgInt nTotal = static_cast< CgInt >( connList.size() );
+    const CgInt nPreview = MIN( nTotal, 5 );
+
+    std::cout << "   CGNS Connectivity (showing " << nPreview
+              << " of " << nTotal << "):";
+
+    for ( CgInt i = 0; i < nPreview; ++ i )
+    {
+        std::cout << ( i == 0 ? " " : ", " ) << connList[ i ];
+    }
+
+    if ( nTotal > nPreview )
+    {
+        std::cout << ", ...";
+    }
+
+    std::cout << "\\n";
+}
+
+} // namespace
+
 CgnsBcBoco::CgnsBcBoco( CgnsZone * cgnsZone )
 {
     this->cgnsZone = cgnsZone;
@@ -346,6 +372,7 @@ void CgnsBcBoco::ReadCgnsBcBocoConnList()
     // Read the element IDs.
     cg_boco_read( fileId, baseId, zId, this->bcId, & connList[ 0 ], & cgnsNormalList );
 
+    PrintConnectivityPreview( this->connList );
 }
 
 void CgnsBcBoco::DumpCgnsBcBocoConnList()
