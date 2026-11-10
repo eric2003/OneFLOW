@@ -75,7 +75,7 @@
       "grid/stl_to_gmsh/cube_single_hex/python/input/model.stl",
       "grid/stl_to_gmsh/cube_single_hex/python/script/layout.json",
       "grid/stl_to_gmsh/cube_single_hex/python/expected.json",
-      "grid/cgns_to_oneflow/README.md",
+      "grid/conversion/cgns_to_oneflow/README.md",
       "grid/cgns_to_oneflow/grid/.gitkeep",
       "grid/cgns_to_oneflow/script/control.txt",
       "grid/cgns_to_oneflow/script/dimension.txt",
@@ -94,7 +94,7 @@
       "doc/source/grid_conversion_cases.rst",
       "grid/stl_to_gmsh/cube_single_hex/README.md",
       "tests/python/grid/test_stl_to_gmsh_cases.py",
-      "grid/cgns_to_oneflow/README.md"
+      "grid/conversion/cgns_to_oneflow/README.md"
     ]
   },
   "claims": {
