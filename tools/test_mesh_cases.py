@@ -61,7 +61,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         fixture = REPOSITORY_ROOT / fixture_relative
         self.assertTrue(fixture.is_file())
         mesh_text = fixture.read_text(encoding="ascii")
-        self.assertIn("$MeshFormat\\n4.1 0 8", mesh_text)
+        self.assertIn("$MeshFormat\n4.1 0 8", mesh_text)
         self.assertIn('1 1 "inflow"', mesh_text)
         self.assertIn('1 2 "outflow"', mesh_text)
         self.assertIn('1 3 "symmetry"', mesh_text)
