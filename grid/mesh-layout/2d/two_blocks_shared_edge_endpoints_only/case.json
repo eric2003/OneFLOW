@@ -1,7 +1,7 @@
 {
   "schema": "oneflow.case",
   "version": 1,
-  "name": "two_connected_squares_mesh",
+  "name": "two_blocks_shared_edge_endpoints_only",
   "kind": "structured-mesh-generation-and-inspection",
   "parameters": {
     "runtime": {
@@ -21,8 +21,12 @@
         "topology": "unstructured",
         "multiBlock": true,
         "fileFormat": 1,
-        "scale": 1.0,
-        "translation": [0.0, 0.0, 0.0],
+        "scale": 1,
+        "translation": [
+          0,
+          0,
+          0
+        ],
         "axisDirection": 0,
         "ignoreMissingBoundary": false,
         "sourceFormat": "plot3d",
@@ -42,21 +46,29 @@
     "inspection": {
       "realBytes": 8,
       "byteOrder": "little",
-      "sourceGrid": "results/twoConnectedSquares.generated.grd",
-      "oneFlowGrid": "results/twoConnectedSquares.ofl",
-      "gridInfo": "results/twoConnectedSquares.info.json"
+      "sourceGrid": "results/twoBlocksSharedEdgeEndpointsOnly.generated.grd",
+      "oneFlowGrid": "results/twoBlocksSharedEdgeEndpointsOnly.ofl",
+      "gridInfo": "results/twoBlocksSharedEdgeEndpointsOnly.info.json"
     },
     "expected": {
       "zones": 2,
       "dimension": 2,
-      "nodes": 15,
-      "cells": 8,
-      "faces": 21,
-      "boundaryFaces": 12,
-      "internalFaces": 9,
+      "nodes": 6,
+      "cells": 2,
+      "faces": 7,
+      "boundaryFaces": 6,
+      "internalFaces": 1,
       "boundingBox": {
-        "min": [0.0, 0.0, 0.0],
-        "max": [2.0, 1.0, 0.0]
+        "min": [
+          0,
+          0,
+          0
+        ],
+        "max": [
+          2,
+          1,
+          0
+        ]
       }
     }
   }

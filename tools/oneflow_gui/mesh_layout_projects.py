@@ -15,11 +15,11 @@ TEMPLATE_PROJECTS = {
 }
 
 TEMPLATE_SOURCE_DIRECTORIES = {
-    "rectangle": "mesh-layout/minimal_rectangle",
-    "rectangle_vertical_midpoints": "mesh-layout/minimal_rectangle_vertical_midpoints",
-    "flat_plate": "mesh-layout/turbulent_flat_plate",
-    "laminar_flat_plate": "mesh-layout/laminar_flat_plate",
-    "laminar_flat_plate_10_edges": "mesh-layout/laminar_flat_plate_10_edges",
+    "rectangle": "mesh-layout/2d/minimal_rectangle",
+    "rectangle_vertical_midpoints": "mesh-layout/2d/minimal_rectangle_vertical_midpoints",
+    "flat_plate": "mesh-layout/2d/turbulent_flat_plate",
+    "laminar_flat_plate": "mesh-layout/2d/laminar_flat_plate",
+    "laminar_flat_plate_10_edges": "mesh-layout/2d/laminar_flat_plate_10_edges",
 }
 
 

@@ -46,7 +46,7 @@ def available_project_templates() -> tuple[ProjectTemplate, ...]:
             "minimal_rectangle",
             "Mesh generation",
             "Start from the minimal rectangle mesh generation case.",
-            "grid/mesh-layout/minimal_rectangle",
+            "grid/mesh-layout/2d/minimal_rectangle",
         ),
         ProjectTemplate(
             "rae2822_multicase",

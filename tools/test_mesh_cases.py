@@ -25,19 +25,21 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "minimal_rectangle",
             "minimal_rectangle_vertical_midpoints",
             "minimal_cube",
-            "two_connected_cubes",
-            "two_connected_squares",
+            "two_blocks_shared_face_corners_only",
+            "two_blocks_shared_edge_endpoints_only",
+            "two_blocks_shared_edge_one_interior_node",
         } <= profile_ids)
-        layout_case_ids = {
-            "minimal_cube",
-            "minimal_rectangle",
-            "minimal_rectangle_vertical_midpoints",
-            "two_connected_cubes",
-            "two_connected_squares",
+        layout_directories = {
+            "minimal_cube": "grid/mesh-layout/3d/minimal_cube",
+            "minimal_rectangle": "grid/mesh-layout/2d/minimal_rectangle",
+            "minimal_rectangle_vertical_midpoints": "grid/mesh-layout/2d/minimal_rectangle_vertical_midpoints",
+            "two_blocks_shared_face_corners_only": "grid/mesh-layout/3d/two_blocks_shared_face_corners_only",
+            "two_blocks_shared_edge_endpoints_only": "grid/mesh-layout/2d/two_blocks_shared_edge_endpoints_only",
+            "two_blocks_shared_edge_one_interior_node": "grid/mesh-layout/2d/two_blocks_shared_edge_one_interior_node",
         }
         for entry in catalog["cases"]:
-            if entry["id"] in layout_case_ids:
-                self.assertEqual(entry["directory"], f"grid/mesh-layout/{entry['id']}")
+            if entry["id"] in layout_directories:
+                self.assertEqual(entry["directory"], layout_directories[entry["id"]])
         errors = [
             error
             for entry in catalog["cases"]
@@ -265,8 +267,20 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertEqual(expected["boundingBox"]["min"], [-0.35, 0.0, 0.0])
         self.assertEqual(expected["boundingBox"]["max"], [2.0, 1.0, 0.0])
 
-    def test_two_connected_squares_profile_carries_grid_options(self) -> None:
-        case_dir = REPOSITORY_ROOT / "grid" / "mesh-layout" / "two_connected_squares"
+    def test_two_blocks_shared_edge_endpoints_only_profile_describes_minimum_topology(self) -> None:
+        case_dir = REPOSITORY_ROOT / "grid" / "mesh-layout" / "2d" / "two_blocks_shared_edge_endpoints_only"
+        profile = json.loads((case_dir / "case.json").read_text(encoding="utf-8"))
+        expected = profile["parameters"]["expected"]
+        self.assertEqual(
+            {key: expected[key] for key in ("zones", "nodes", "cells", "faces", "boundaryFaces", "internalFaces")},
+            {"zones": 2, "nodes": 6, "cells": 2, "faces": 7, "boundaryFaces": 6, "internalFaces": 1},
+        )
+        layout = (case_dir / "grid" / "twoBlocksSharedEdgeEndpointsOnlyLayout.txt").read_text(encoding="utf-8")
+        self.assertEqual(layout.count("Dim("), 7)
+        self.assertEqual(layout.count("= {2}"), 7)
+
+    def test_two_blocks_shared_edge_one_interior_node_profile_carries_grid_options(self) -> None:
+        case_dir = REPOSITORY_ROOT / "grid" / "mesh-layout" / "2d" / "two_blocks_shared_edge_one_interior_node"
         with (case_dir / "case.json").open("r", encoding="utf-8") as stream:
             profile = json.load(stream)
 

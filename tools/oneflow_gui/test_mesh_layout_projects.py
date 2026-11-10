@@ -17,7 +17,7 @@ class MeshLayoutProjectsTest(unittest.TestCase):
     def test_template_copy_includes_project_files_and_preserves_source(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             workspace = Path(directory) / "projects"
-            source_json = REPOSITORY_ROOT / "grid" / "mesh-layout" / "turbulent_flat_plate" / "flat_plate.json"
+            source_json = REPOSITORY_ROOT / "grid" / "mesh-layout" / "2d" / "turbulent_flat_plate" / "flat_plate.json"
             original = source_json.read_text(encoding="utf-8")
 
             project = ensure_template_project(REPOSITORY_ROOT, workspace, "flat_plate")

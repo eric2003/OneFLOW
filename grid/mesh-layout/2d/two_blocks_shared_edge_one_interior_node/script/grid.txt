@@ -1,0 +1,35 @@
+int gridObj = 0;
+string topoType = "u";
+int multiBlock = 1;
+
+int fileFormat = 1;
+Real gridScale = 1.0;
+Real gridTrans[3] = 0, 0, 0;
+int axis_dir = 0;
+int ignoreNoBc = 0;
+
+string gridLayoutFileName = "grid/twoConnectedSquaresLayout.txt";
+int igene = 4;
+
+int codeOfOversetGrid = 0;
+string oversetGridFileName = "grid/iBlank.ovs";
+int parallelStrategy = 1;
+
+string sourceGridType = "plot3d";
+string targetGridType = "oneflow";
+int iplot3d = 0;
+
+string sourceGridFileName = "results/twoConnectedSquares.generated.grd";
+string sourceGridBcName = "results/twoConnectedSquares.inp";
+string targetGridFileName = "results/twoConnectedSquares.ofl";
+string gridInfoFileName = "results/twoConnectedSquares.info.json";
+string tecplotGridFileName = "results/twoConnectedSquares.tecplot.dat";
+string patchFileName = "grid/twoConnectedSquares.patch";
+
+string projectRoot = ".";
+string inputRoot = "case";
+string outputRoot = "case";
+string meshInputRoot = "case";
+string flowInputRoot = "case";
+string meshOutputRoot = "case";
+string flowOutputRoot = "case";

@@ -33,7 +33,7 @@ class DesktopServiceTest(unittest.TestCase):
         cases = load_cases(REPOSITORY_ROOT)
         case_ids = {case.case_id for case in cases}
         self.assertTrue(
-            {"minimal_rectangle", "minimal_cube", "two_connected_cubes"} <= case_ids
+            {"minimal_rectangle", "minimal_cube", "two_blocks_shared_face_corners_only", "two_blocks_shared_edge_endpoints_only", "two_blocks_shared_edge_one_interior_node"} <= case_ids
         )
         self.assertTrue(all(
             case.runtime_config is None or case.runtime_config.is_file()

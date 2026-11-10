@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 MODULE_PATH = ROOT / "tools" / "mesh_layout" / "compile_rectangle.py"
-SPEC_PATH = ROOT / "grid" / "mesh-layout" / "minimal_rectangle" / "rectangle.json"
+SPEC_PATH = ROOT / "grid" / "mesh-layout" / "2d" / "minimal_rectangle" / "rectangle.json"
 
 module_spec = importlib.util.spec_from_file_location("compile_rectangle", MODULE_PATH)
 compiler = importlib.util.module_from_spec(module_spec)

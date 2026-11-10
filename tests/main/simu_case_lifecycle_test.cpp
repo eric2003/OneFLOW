@@ -186,9 +186,9 @@ TEST( SimuCaseLifecycleTest, FinalizesSingleCaseProcessAfterExecutionFailure )
 TEST( SimuCaseLifecycleTest, RunsMultipleCasesInCommandLineOrder )
 {
     const std::vector< std::string > caseDirs = {
-        "workspace/grid/mesh-layout/minimal_cube",
+        "workspace/grid/mesh-layout/3d/minimal_cube",
         "workspace/grid/mesh_workflow",
-        "workspace/grid/mesh-layout/minimal_rectangle",
+        "workspace/grid/mesh-layout/2d/minimal_rectangle",
         "workspace/rae2822grid",
         "workspace/rae2822_roe_sa",
         "workspace/platescript"

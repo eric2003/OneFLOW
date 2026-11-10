@@ -1,7 +1,7 @@
 {
   "schema": "oneflow.case",
   "version": 1,
-  "name": "two_connected_cubes_mesh",
+  "name": "two_blocks_shared_face_corners_only",
   "kind": "structured-mesh-generation-and-inspection",
   "parameters": {
     "runtime": {
@@ -34,8 +34,16 @@
       "boundaryFaces": 10,
       "internalFaces": 1,
       "boundingBox": {
-        "min": [0.0, 0.0, 0.0],
-        "max": [2.0, 1.0, 1.0]
+        "min": [
+          0,
+          0,
+          0
+        ],
+        "max": [
+          2,
+          1,
+          1
+        ]
       }
     }
   }
