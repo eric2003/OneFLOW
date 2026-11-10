@@ -62,11 +62,11 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertEqual(cases_by_id["stl_binary_header_solid"].execution_kind, "oneflow")
         self.assertEqual(cases_by_id["stl_non_planar_surface"].execution_kind, "oneflow")
         self.assertEqual(cases_by_id["stl_weld_tolerance"].execution_kind, "oneflow")
-        self.assertEqual(cases_by_id["stl_ascii_scientific_notation"].workspace_relative_directory, Path("stl/ascii_scientific_notation"))
+        self.assertEqual(cases_by_id["stl_ascii_scientific_notation"].workspace_relative_directory, Path("stl/ascii_scientific_notation/cpp"))
         self.assertEqual(cases_by_id["stl_python_ascii_basic"].execution_kind, "python")
         self.assertEqual(cases_by_id["stl_python_ascii_crlf"].execution_kind, "python")
-        self.assertEqual(cases_by_id["stl_ascii_crlf"].workspace_relative_directory, Path("stl/ascii_crlf"))
-        self.assertEqual(cases_by_id["stl_python_ascii_crlf"].workspace_relative_directory, Path("stl/python/ascii_crlf"))
+        self.assertEqual(cases_by_id["stl_ascii_crlf"].workspace_relative_directory, Path("stl/ascii_crlf/cpp"))
+        self.assertEqual(cases_by_id["stl_python_ascii_crlf"].workspace_relative_directory, Path("stl/ascii_crlf/python"))
         self.assertIsNone(cases_by_id["stl_ascii_crlf"].runtime_config)
         self.assertIsNone(cases_by_id["stl_ascii_crlf"].execution_script)
 
@@ -296,7 +296,7 @@ class DesktopServiceTest(unittest.TestCase):
     def test_case_database_preserves_catalog_directory_hierarchy(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            source = root / "repository" / "grid" / "stl" / "ascii_crlf"
+            source = root / "repository" / "grid" / "stl" / "ascii_crlf" / "cpp"
             source.mkdir(parents=True)
             (source / "model.stl").write_text("fixture", encoding="ascii")
             workspace = root / "mesh-layout-test" / "grid"
@@ -307,11 +307,11 @@ class DesktopServiceTest(unittest.TestCase):
                 runtime_config=None,
                 profile=None,
                 layout=None,
-                workspace_relative_directory=Path("stl/ascii_crlf"),
+                workspace_relative_directory=Path("stl/ascii_crlf/cpp"),
             )
 
             staged = prepare_case_database_workspace([case], workspace)
-            expected = workspace / "stl" / "ascii_crlf"
+            expected = workspace / "stl" / "ascii_crlf" / "cpp"
             self.assertTrue(staged["stl_ascii_crlf"].samefile(expected))
             self.assertEqual((expected / "model.stl").read_text(encoding="ascii"), "fixture")
             self.assertFalse((workspace / "stl_ascii_crlf").exists())
