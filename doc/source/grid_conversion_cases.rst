@@ -4,24 +4,23 @@ Grid Conversion Cases
 Purpose
 -------
 
-The conversion Case collection measures more than whether one element can be
-parsed. A converter is only credible when it has been exercised against
-multiple concrete meshes with different cell counts, adjacency patterns,
-element families, and boundary semantics.
+The conversion route templates are validated against small, deterministic
+mesh inputs with distinct cell counts, adjacency patterns, element families,
+and boundary semantics.
 
 For the architectural ownership of the shared unstructured path (readers →
 ``UnstructuredMeshData`` → ``UnstructuredCgnsZoneWriter`` → CGNS Unstructured
 Zone), including proves/does_not_prove and external manual references, see
 the **Shared unstructured mesh conversion boundary** subsection of
-:doc:`mesh_architecture`. Runnable Cases here exercise that boundary; they do
-not redefine it.
+:doc:`mesh_architecture`. The runnable GUI Cases describe workflows; the
+small input fixtures described here provide route-level test coverage.
 
 Conversion input fixtures are owned by their route templates. The Gmsh
 two-cell topology fixture lives at
-``grid/conversion/gmsh_to_cgns/grid/two_quads.msh`` and is used by the
+``grid/conversion/gmsh_to_cgns/grid/two_quads.msh`` and is consumed by the
 automated Gmsh-to-CGNS-to-OneFLOW integration test. It is not a standalone
-GUI Case; the Case catalog lists the conversion route, while the conversion
-matrix records the fixture-level coverage.
+GUI Case. The Case catalog lists runnable route templates, while the
+conversion matrix records fixture-level coverage.
 
 Directory and metadata model
 ----------------------------
@@ -34,7 +33,6 @@ Directory and metadata model
        README.md
        cgns_to_oneflow/
        gmsh_to_cgns/
-       gmsh_to_cgns/
          grid/
            square.msh
            two_quads.msh
@@ -42,25 +40,19 @@ Directory and metadata model
 
 The responsibilities are deliberately separate:
 
-* case_catalog.json registers each runnable Case for the GUI and CLI.
-* A Case directory owns its input mesh, runtime parameters, expected topology,
-  and human-readable explanation.
-* conversion_matrix.json records which source/target routes are implemented
-  and which runnable Cases exercise them.
-* The `cases/` directory owns independently runnable topology Cases; the
-  conversion matrix associates each Case with the routes it exercises.
+* ``case_catalog.json`` registers runnable Cases for GUI and CLI discovery.
+* A route template owns its runtime parameters and input fixtures.
+* ``conversion_matrix.json`` records implemented routes and fixture-level
+  conversion coverage.
+* C++ reader and conversion tests stage generated outputs in temporary
+  directories; checked-in input fixtures remain unchanged.
 * This document explains topology, semantic contracts, and remaining gaps.
 
-A Case must be independently copyable and runnable. Do not make it depend on
-a mesh file hidden in another Case directory. Shared low-level test fixtures
-may still exist for unit tests, but they are not runtime dependencies of the
-runnable Case collection.
-
 Gmsh-to-CGNS topology fixture: two_quads
------------------------------------
+---------------------------------------
 
-The two_quads fixture is a two-dimensional rectangle split into two adjacent
-quadrilateral cells.
+The ``two_quads.msh`` fixture is a two-dimensional rectangle split into
+two adjacent quadrilateral cells.
 
 .. list-table::
    :header-rows: 1
@@ -91,17 +83,16 @@ named Physical Groups: inflow, outflow, symmetry, and farfield. The bottom
 and top groups each contain two curve entities. Both surface entities belong
 to fluid_domain.
 
-
 3D conversion reference fixture: cube_single_hex
--------------------------------------------------
+------------------------------------------------
 
 The automated Gmsh-to-CGNS conversion suite also includes
-``grid/conversion/gmsh_to_cgns/grid/cube_single_hex.msh``, a deterministic MSH 4.1
-fixture with eight nodes, one HEXA_8 volume cell, and six QUAD_4 boundary
-elements. Its five Physical Groups are inflow (XMin), outflow (XMax),
-symmetry (YMin), farfield (YMax), and wall (ZMin and ZMax). The fixture is
-used to verify the 3D conversion boundary; it is not yet an STL geometry
-reconstruction Case.
+``grid/conversion/gmsh_to_cgns/grid/cube_single_hex.msh``, a deterministic
+MSH 4.1 fixture with eight nodes, one HEXA_8 volume cell, and six QUAD_4
+boundary elements. Its five Physical Groups are inflow (XMin), outflow
+(XMax), symmetry (YMin), farfield (YMax), and wall (ZMin and ZMax). The
+fixture is used to verify the 3D conversion boundary; it is not yet an STL
+geometry reconstruction Case.
 
 For unstructured CGNS zones, boundary elements have codimension one relative
 to the cell dimension. The writer therefore uses ``EdgeCenter`` for 2D
@@ -113,27 +104,22 @@ The 3D test additionally sends the CGNS file through CgnsFactory and checks
 that OneFLOW reconstructs the expected 8-node, 1-cell, 6-boundary-face
 unstructured grid.
 
-
 Conversion route and execution
 ------------------------------
 
-The fixture is consumed by the automated Gmsh two-quad integration test. The
-test copies the MSH input to a temporary directory and exercises the composed
-Gmsh -> CGNS -> OneFLOW route; generated files never enter the source tree.
+The two-quad fixture is consumed by
+``GmshTwoQuadsOneFlowTest``. The test copies the MSH input to a temporary
+directory and exercises the composed Gmsh -> CGNS -> OneFLOW route. The CGNS
+interchange file and native OneFLOW grid are written only under that temporary
+workspace; no generated files are written into the source tree.
 
-The command
-
-.. code-block:: console
-
-The fixture is not a catalog entry, so it is not validated through
+This fixture is not a catalog entry and is not validated through
 ``tools/mesh_cases.py``. Its conversion contract is covered by the C++
-integration test and the independent CGNS read-back checks.
-
-The integration test writes the CGNS interchange file and native OneFLOW grid
-under its temporary workspace. Acceptance includes the CGNS Base/Zone,
-coordinate arrays, quadrilateral section, boundary sections, BC names and BC
-types, as well as the native-grid topology. Process success or file existence
-alone is not a complete topology acceptance criterion.
+integration test and independent CGNS read-back checks. Acceptance includes
+the CGNS Base/Zone, coordinate arrays, quadrilateral section, boundary
+sections, BC names and BC types, as well as the native-grid topology. Process
+success or file existence alone is not a complete topology acceptance
+criterion.
 
 The current Gmsh conversion boundary is independent of SU2 parsing. The MSH
 reader produces a GmshMesh value, the adapter maps supported first-order
