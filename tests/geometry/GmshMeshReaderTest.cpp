@@ -142,10 +142,10 @@ TEST(GmshMeshReaderTest, ReadsTwoQuadRouteFixtureAndPreservesInternalInterfaceSe
     EXPECT_EQ(report.elementTypeCounts.at(1), 7u);
     EXPECT_EQ(report.elementTypeCounts.at(3), 2u);
 
-    ASSERT_EQ(mesh.entityPhysicalTags.size(), 8u);
+    ASSERT_EQ(mesh.entityPhysicalTags.size(), 15u);
     EXPECT_EQ(mesh.entityPhysicalTags.at({1, 1}), (std::vector<long long>{1}));
     EXPECT_EQ(mesh.entityPhysicalTags.at({1, 2}), (std::vector<long long>{3}));
-    EXPECT_EQ(mesh.entityPhysicalTags.count({1, 3}), 0u);
+    EXPECT_TRUE(mesh.entityPhysicalTags.at({1, 3}).empty());
     EXPECT_EQ(mesh.entityPhysicalTags.at({1, 4}), (std::vector<long long>{3}));
     EXPECT_EQ(mesh.entityPhysicalTags.at({1, 5}), (std::vector<long long>{2}));
     EXPECT_EQ(mesh.entityPhysicalTags.at({1, 6}), (std::vector<long long>{4}));
@@ -154,17 +154,17 @@ TEST(GmshMeshReaderTest, ReadsTwoQuadRouteFixtureAndPreservesInternalInterfaceSe
     EXPECT_EQ(mesh.entityPhysicalTags.at({2, 2}), (std::vector<long long>{5}));
 
     std::size_t quadCells = 0;
-    std::size_t boundaryLines = 0;
+    std::size_t lineElements = 0;
     for (const auto& element : mesh.elements) {
         if (element.entityDimension == 2 && element.type == 3) {
             ++quadCells;
             EXPECT_EQ(element.nodeTags.size(), 4u);
         }
         if (element.entityDimension == 1 && element.type == 1) {
-            ++boundaryLines;
+            ++lineElements;
             EXPECT_EQ(element.nodeTags.size(), 2u);
         }
     }
     EXPECT_EQ(quadCells, 2u);
-    EXPECT_EQ(boundaryLines, 7u);
+    EXPECT_EQ(lineElements, 7u);
 }
