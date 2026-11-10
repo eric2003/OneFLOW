@@ -327,7 +327,7 @@ $EndElements
 
     def test_stl_inspection_case_writes_report_without_touching_source_tree(self):
         import sys
-        script = Path(__file__).parent / "script" / "inspect.py"
+        script = Path(__file__).parent / "tools" / "inspect.py"
         with tempfile.TemporaryDirectory() as temp:
             report = Path(temp) / "stl_report.json"
             subprocess.run(

@@ -112,7 +112,7 @@
     {
       "id": "stl_ascii_basic",
       "title": "STL ASCII Basic",
-      "directory": "grid/stl/ascii_basic",
+      "directory": "grid/stl/ascii_basic/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -120,7 +120,7 @@
     {
       "id": "stl_python_ascii_basic",
       "title": "STL ASCII Basic (Python reference)",
-      "directory": "grid/stl/python/ascii_basic",
+      "directory": "grid/stl/ascii_basic/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -130,7 +130,7 @@
     {
       "id": "stl_ascii_crlf",
       "title": "STL ASCII CRLF",
-      "directory": "grid/stl/ascii_crlf",
+      "directory": "grid/stl/ascii_crlf/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -138,7 +138,7 @@
     {
       "id": "stl_binary_basic",
       "title": "STL Binary Basic",
-      "directory": "grid/stl/binary_basic",
+      "directory": "grid/stl/binary_basic/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -146,7 +146,7 @@
     {
       "id": "stl_binary_header_solid",
       "title": "STL Binary Header Starts with solid",
-      "directory": "grid/stl/binary_header_solid",
+      "directory": "grid/stl/binary_header_solid/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -154,7 +154,7 @@
     {
       "id": "stl_ascii_scientific_notation",
       "title": "STL ASCII Scientific Notation",
-      "directory": "grid/stl/ascii_scientific_notation",
+      "directory": "grid/stl/ascii_scientific_notation/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -162,7 +162,7 @@
     {
       "id": "stl_non_planar_surface",
       "title": "STL Non-planar Surface",
-      "directory": "grid/stl/non_planar_surface",
+      "directory": "grid/stl/non_planar_surface/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -170,7 +170,7 @@
     {
       "id": "stl_weld_tolerance",
       "title": "STL Shared Vertices within Weld Tolerance",
-      "directory": "grid/stl/weld_tolerance",
+      "directory": "grid/stl/weld_tolerance/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -178,7 +178,7 @@
     {
       "id": "stl_ascii_single_triangle",
       "title": "STL ASCII Single Triangle",
-      "directory": "grid/stl/ascii_single_triangle",
+      "directory": "grid/stl/ascii_single_triangle/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -186,7 +186,7 @@
     {
       "id": "stl_python_binary_basic",
       "title": "STL Binary Basic (Python reference)",
-      "directory": "grid/stl/python/binary_basic",
+      "directory": "grid/stl/binary_basic/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -196,7 +196,7 @@
     {
       "id": "stl_python_binary_header_solid",
       "title": "STL Binary Header Starts with solid (Python reference)",
-      "directory": "grid/stl/python/binary_header_solid",
+      "directory": "grid/stl/binary_header_solid/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -206,7 +206,7 @@
     {
       "id": "stl_python_ascii_crlf",
       "title": "STL ASCII CRLF (Python reference)",
-      "directory": "grid/stl/python/ascii_crlf",
+      "directory": "grid/stl/ascii_crlf/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -216,7 +216,7 @@
     {
       "id": "stl_python_scientific_notation",
       "title": "STL Scientific Notation (Python reference)",
-      "directory": "grid/stl/python/scientific_notation",
+      "directory": "grid/stl/scientific_notation/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -226,7 +226,7 @@
     {
       "id": "stl_python_degenerate_triangle",
       "title": "STL Degenerate Triangle Diagnostic (Python reference)",
-      "directory": "grid/stl/python/degenerate_triangle",
+      "directory": "grid/stl/degenerate_triangle/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -236,7 +236,7 @@
     {
       "id": "stl_python_truncated_binary",
       "title": "STL Truncated Binary Diagnostic (Python reference)",
-      "directory": "grid/stl/python/truncated_binary",
+      "directory": "grid/stl/truncated_binary/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -246,7 +246,7 @@
     {
       "id": "stl_python_non_planar_surface",
       "title": "STL Non-planar Surface Diagnostic (Python reference)",
-      "directory": "grid/stl/python/non_planar_surface",
+      "directory": "grid/stl/non_planar_surface/python",
       "group": "STL",
       "execution": {
         "kind": "python",

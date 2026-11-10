@@ -78,7 +78,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
     def test_stl_ascii_basic_is_a_native_oneflow_case(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         entry = next(case for case in catalog["cases"] if case["id"] == "stl_ascii_basic")
-        self.assertEqual(entry["directory"], "grid/stl/ascii_basic")
+        self.assertEqual(entry["directory"], "grid/stl/ascii_basic/cpp")
         self.assertNotIn("runtimeConfig", entry)
         self.assertNotIn("execution", entry)
         case_dir = REPOSITORY_ROOT / entry["directory"]
@@ -176,7 +176,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         entry = next(
             case for case in catalog["cases"] if case["id"] == "stl_ascii_crlf"
         )
-        self.assertEqual(entry["directory"], "grid/stl/ascii_crlf")
+        self.assertEqual(entry["directory"], "grid/stl/ascii_crlf/cpp")
         self.assertNotIn("runtimeConfig", entry)
         self.assertNotIn("execution", entry)
 
