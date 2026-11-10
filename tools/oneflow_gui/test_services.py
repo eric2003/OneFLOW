@@ -40,11 +40,10 @@ class DesktopServiceTest(unittest.TestCase):
             for case in cases if case.execution_kind == "oneflow"
         ))
 
-    def test_gmsh_cases_are_available_in_the_gmsh_development_group(self) -> None:
+    def test_gmsh_conversion_routes_are_catalogued_without_topology_duplicates(self) -> None:
         cases = load_cases(REPOSITORY_ROOT)
         cases_by_id = {case.case_id: case for case in cases}
-        self.assertIn("two_quads", cases_by_id)
-        self.assertEqual(cases_by_id["two_quads"].group, "Gmsh")
+        self.assertNotIn("two_quads", cases_by_id)
         self.assertEqual(cases_by_id["gmsh_to_cgns"].group, "Gmsh")
         self.assertEqual(cases_by_id["gmsh_to_oneflow"].group, "Gmsh")
 
