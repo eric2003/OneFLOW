@@ -196,17 +196,23 @@ class MeshCaseCatalogTest(unittest.TestCase):
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         stl_cases = [case for case in catalog["cases"] if case.get("group") == "STL"]
         self.assertEqual(len(stl_cases), 16)
+        stl_root = REPOSITORY_ROOT / "grid" / "stl"
+        for legacy in ("input", "results", "script", "python"):
+            self.assertFalse((stl_root / legacy).exists(), legacy)
 
         for entry in stl_cases:
             parts = entry["directory"].split("/")
             execution = entry.get("execution")
             if isinstance(execution, dict) and execution.get("kind") == "python":
-                self.assertEqual(parts[:3], ["grid", "stl", "python"])
-                self.assertEqual(entry["id"], f"stl_python_{parts[-1]}")
+                self.assertEqual(parts[:2], ["grid", "stl"])
+                self.assertEqual(parts[-1], "python")
+                self.assertEqual(len(parts), 4)
+                self.assertEqual(entry["id"], f"stl_python_{parts[-2]}")
             else:
                 self.assertEqual(parts[:2], ["grid", "stl"])
-                self.assertEqual(len(parts), 3)
-                self.assertEqual(entry["id"], f"stl_{parts[-1]}")
+                self.assertEqual(parts[-1], "cpp")
+                self.assertEqual(len(parts), 4)
+                self.assertEqual(entry["id"], f"stl_{parts[-2]}")
 
     def test_native_stl_binary_cases_have_standard_binary_record_layout(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
