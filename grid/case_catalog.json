@@ -77,15 +77,6 @@
       "group": "Gmsh"
     },
     {
-      "id": "two_quads",
-      "title": "Gmsh Two Adjacent Quadrilaterals",
-      "directory": "grid/conversion/cases/two_quads",
-      "runtimeConfig": "script/control.txt",
-      "profile": null,
-      "layout": null,
-      "group": "Gmsh"
-    },
-    {
       "id": "laminar_flat_plate",
       "title": "Laminar Flat Plate",
       "directory": "grid/mesh-layout/2d/laminar_flat_plate",
