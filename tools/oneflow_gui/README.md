@@ -337,12 +337,14 @@ solver smoke-test iteration count. Each selected mesh Case is validated
 independently through its conversion chain and CFD consumer.
 
 Validation workspaces are stable and Case-scoped below
-`$ONEFLOW_HOME/mesh-layout-test/grid/mesh-validation/` (or
-`~/.oneflow/mesh-layout-test/grid/mesh-validation/` when `ONEFLOW_HOME`
-is not set). For example, the square STL Case uses
-`stl_to_gmsh/square/`. Re-running a Case clears and recreates only that
-Case's directory; sibling Case results are preserved. Reports and stage
-artifacts remain in that directory rather than a timestamped `runs/` tree.
+`$ONEFLOW_HOME/mesh-validation/` (or `~/.oneflow/mesh-validation/` when
+`ONEFLOW_HOME` is not set). For example, the square C++ STL Case uses
+`stl_to_gmsh/square/cpp/`. Each workflow stage has its own named directory
+under that Case root: `stl_to_gmsh/`, `gmsh_to_cgns/`,
+`gmsh_to_oneflow/` and `oneflow_cfd_solve/`. The Case root itself contains
+only the workflow report; stage inputs, scripts, results and logs stay inside
+their respective stage directories. Re-running a Case clears and recreates
+only that Case's directory; sibling Case results are preserved.
 
 
 The home-screen Boundary Conditions entry opens a dedicated Boundary Conditions Workbench, separate from Mesh Validation and the Contract Workbench browser. Contract Workbench retains its Boundary Conditions contract domain for cross-domain governance. The dedicated GUI reads the versioned semantic catalog under tools/verification/boundary_conditions/registry.json and presents formulations, parameters, mappings, implementation status, verification and references. The initial catalog covers CFL3D Version 5.0 boundary types 1002, 1003, 2002, 2003 and 2004. This is a read-only research catalog, not a claim that all referenced solver treatments exist in OneFLOW.
