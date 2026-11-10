@@ -16,11 +16,12 @@ the **Shared unstructured mesh conversion boundary** subsection of
 :doc:`mesh_architecture`. Runnable Cases here exercise that boundary; they do
 not redefine it.
 
-Runnable topology Cases are stored separately from route templates. The
-``two_quads`` Case lives at ``grid/conversion/cases/two_quads``; the
-conversion matrix associates it with the Gmsh-to-CGNS route. Case identity
-therefore remains independent of the conversion route, and every catalog
-Case can be staged without copying or merging another Case.
+Conversion input fixtures are owned by their route templates. The Gmsh
+two-cell topology fixture lives at
+``grid/conversion/gmsh_to_cgns/grid/two_quads.msh`` and is used by the
+automated Gmsh-to-CGNS-to-OneFLOW integration test. It is not a standalone
+GUI Case; the Case catalog lists the conversion route, while the conversion
+matrix records the fixture-level coverage.
 
 Directory and metadata model
 ----------------------------
@@ -33,17 +34,11 @@ Directory and metadata model
        README.md
        cgns_to_oneflow/
        gmsh_to_cgns/
-       cases/
-         two_quads/
-           README.md
-           grid/
-             two_quads.msh
-           script/
-             control.txt
-             simu.txt
-             dimension.txt
-             tolerence.txt
-             grid.txt
+       gmsh_to_cgns/
+         grid/
+           square.msh
+           two_quads.msh
+           cube_single_hex.msh
 
 The responsibilities are deliberately separate:
 
@@ -61,10 +56,10 @@ a mesh file hidden in another Case directory. Shared low-level test fixtures
 may still exist for unit tests, but they are not runtime dependencies of the
 runnable Case collection.
 
-Current runnable Case: two_quads
+Gmsh-to-CGNS topology fixture: two_quads
 -----------------------------------
 
-The two_quads Case is a two-dimensional rectangle split into two adjacent
+The two_quads fixture is a two-dimensional rectangle split into two adjacent
 quadrilateral cells.
 
 .. list-table::
@@ -122,30 +117,23 @@ unstructured grid.
 Conversion route and execution
 ------------------------------
 
-The current Case runtime configuration selects gmsh -> cgns. It is registered
-in grid/case_catalog.json, so it appears in the standard GUI Case Workbench.
-Its independent Case directory is
-``grid/conversion/cases/two_quads``.
-Run it manually from the GUI after building OneFLOW with CGNS support. The GUI
-uses an isolated run workspace; the checked-in Case and input MSH file must
-remain unchanged.
+The fixture is consumed by the automated Gmsh two-quad integration test. The
+test copies the MSH input to a temporary directory and exercises the composed
+Gmsh -> CGNS -> OneFLOW route; generated files never enter the source tree.
 
 The command
 
 .. code-block:: console
 
-   python tools/mesh_cases.py validate two_quads
+The fixture is not a catalog entry, so it is not validated through
+``tools/mesh_cases.py``. Its conversion contract is covered by the C++
+integration test and the independent CGNS read-back checks.
 
-checks the catalog entry and its runtime parameter includes. It is a
-preflight check, not a conversion run. The GUI Case is a manual workflow and is not launched by CTest or Python
-unittest. Its independent conversion contract is covered by the C++ and
-CGNS round-trip tests when those integrations are enabled.
-
-The expected output path configured by the Case is
-results/two_quads.cgns. Inspect the CGNS Base/Zone, coordinate arrays,
-quadrilateral section, boundary sections, BC names and BC types. Also inspect
-the reader/conversion reports. Process success or file existence alone is not
-a complete topology acceptance criterion.
+The integration test writes the CGNS interchange file and native OneFLOW grid
+under its temporary workspace. Acceptance includes the CGNS Base/Zone,
+coordinate arrays, quadrilateral section, boundary sections, BC names and BC
+types, as well as the native-grid topology. Process success or file existence
+alone is not a complete topology acceptance criterion.
 
 The current Gmsh conversion boundary is independent of SU2 parsing. The MSH
 reader produces a GmshMesh value, the adapter maps supported first-order
@@ -231,9 +219,9 @@ is still exercised rather than silently skipped.
 Coverage plan
 -------------
 
-The first runnable Case establishes a multi-cell 2-D baseline. Extend the
-collection with independent Cases, each carrying its own mesh, configuration,
-expected counts, semantic description, and documentation:
+The first route-owned two-cell fixture establishes a multi-cell 2-D baseline.
+Extend the fixture set only when each new input adds a distinct parser,
+topology, element-family, or boundary-semantic contract:
 
 .. list-table::
    :header-rows: 1
