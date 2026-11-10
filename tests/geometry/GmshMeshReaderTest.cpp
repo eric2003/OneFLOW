@@ -115,3 +115,56 @@ TEST(GmshMeshReaderTest, ReadsBundledSquareMshFileAndBuildsDiagnosticReport) {
     EXPECT_NE(markdown.find("inflow"), std::string::npos);
     EXPECT_NE(markdown.find("4 nodes, 6 elements"), std::string::npos);
 }
+
+TEST(GmshMeshReaderTest, ReadsTwoQuadRouteFixtureAndPreservesInternalInterfaceSemantics) {
+    const std::string path =
+        std::string(ONEFLOW_SOURCE_DIR) + "/grid/conversion/gmsh_to_cgns/grid/two_quads.msh";
+    std::ifstream input(path);
+    ASSERT_TRUE(input.good()) << path;
+    const std::string content{
+        std::istreambuf_iterator<char>(input),
+        std::istreambuf_iterator<char>()
+    };
+
+    const auto mesh = ONEFLOW::ReadGmsh41AsciiMesh(content);
+    ASSERT_EQ(mesh.nodes.size(), 6u);
+    ASSERT_EQ(mesh.elements.size(), 9u);
+    ASSERT_EQ(mesh.physicalNames.size(), 5u);
+    EXPECT_EQ(mesh.physicalNames.at({1, 1}), "inflow");
+    EXPECT_EQ(mesh.physicalNames.at({1, 2}), "outflow");
+    EXPECT_EQ(mesh.physicalNames.at({1, 3}), "symmetry");
+    EXPECT_EQ(mesh.physicalNames.at({1, 4}), "farfield");
+    EXPECT_EQ(mesh.physicalNames.at({2, 5}), "fluid_domain");
+
+    const auto report = ONEFLOW::BuildGmshMeshReadReport(mesh);
+    EXPECT_EQ(report.nodeCount, 6u);
+    EXPECT_EQ(report.elementCount, 9u);
+    EXPECT_EQ(report.elementTypeCounts.at(1), 7u);
+    EXPECT_EQ(report.elementTypeCounts.at(3), 2u);
+
+    ASSERT_EQ(mesh.entityPhysicalTags.size(), 8u);
+    EXPECT_EQ(mesh.entityPhysicalTags.at({1, 1}), (std::vector<long long>{1}));
+    EXPECT_EQ(mesh.entityPhysicalTags.at({1, 2}), (std::vector<long long>{3}));
+    EXPECT_EQ(mesh.entityPhysicalTags.count({1, 3}), 0u);
+    EXPECT_EQ(mesh.entityPhysicalTags.at({1, 4}), (std::vector<long long>{3}));
+    EXPECT_EQ(mesh.entityPhysicalTags.at({1, 5}), (std::vector<long long>{2}));
+    EXPECT_EQ(mesh.entityPhysicalTags.at({1, 6}), (std::vector<long long>{4}));
+    EXPECT_EQ(mesh.entityPhysicalTags.at({1, 7}), (std::vector<long long>{4}));
+    EXPECT_EQ(mesh.entityPhysicalTags.at({2, 1}), (std::vector<long long>{5}));
+    EXPECT_EQ(mesh.entityPhysicalTags.at({2, 2}), (std::vector<long long>{5}));
+
+    std::size_t quadCells = 0;
+    std::size_t boundaryLines = 0;
+    for (const auto& element : mesh.elements) {
+        if (element.entityDimension == 2 && element.type == 3) {
+            ++quadCells;
+            EXPECT_EQ(element.nodeTags.size(), 4u);
+        }
+        if (element.entityDimension == 1 && element.type == 1) {
+            ++boundaryLines;
+            EXPECT_EQ(element.nodeTags.size(), 2u);
+        }
+    }
+    EXPECT_EQ(quadCells, 2u);
+    EXPECT_EQ(boundaryLines, 7u);
+}
