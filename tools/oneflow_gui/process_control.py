@@ -265,7 +265,9 @@ def terminate_process_tree(
             _terminate_windows_descendants(process.pid)
             return True
         if process.poll() is None:
-            process.kill()
+            # Keep the direct-child fallback cooperative here. terminate_and_reap
+            # owns escalation to kill() if the process does not exit in time.
+            process.terminate()
         _terminate_windows_descendants(process.pid)
         return True
 
