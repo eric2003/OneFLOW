@@ -587,11 +587,11 @@ TEST(StlMeshIOTest, NativeStlToGmshAutomaticallyTriangulatesSquare)
     ONEFLOW::StlMeshWriter::WriteASCII(
         (inputDirectory / "model.stl").string(), MakeRectangleStl(1.0));
     WriteText(scriptDirectory / "layout.json",
-        R"({"surface_name":"fluid_domain","mesh_size":0.25,"boundaries":["
-        R"({"name":"inflow","endpoints":[[0,0],[0,1]]},"
-        R"({"name":"outflow","endpoints":[[1,0],[1,1]]},"
-        R"({"name":"symmetry","endpoints":[[0,0],[1,0]]},"
-        R"({"name":"farfield","endpoints":[[0,1],[1,1]]}]})");
+        R"json({"surface_name":"fluid_domain","mesh_size":0.25,"boundaries":[
+        {"name":"inflow","endpoints":[[0,0],[0,1]]},
+        {"name":"outflow","endpoints":[[1,0],[1,1]]},
+        {"name":"symmetry","endpoints":[[0,0],[1,0]]},
+        {"name":"farfield","endpoints":[[0,1],[1,1]]}]})json");
     ONEFLOW::GridConfig config;
     config.sourceType = ONEFLOW::GridFileType::STL;
     config.targetType = ONEFLOW::GridFileType::Gmsh;
