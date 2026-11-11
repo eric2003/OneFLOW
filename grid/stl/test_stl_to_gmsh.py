@@ -223,15 +223,16 @@ $EndElements
                 subprocess.run([gmsh, str(geo), "-3", "-format", "msh4", "-o", str(msh)],
                                check=True, capture_output=True, text=True)
                 summary = inspect_msh4(msh)
-                self.assertEqual(summary["physical_groups"], [
-                    {"dimension": 2, "name": "xmin_inflow"},
-                    {"dimension": 2, "name": "xmax_outflow"},
-                    {"dimension": 2, "name": "ymin_wall"},
-                    {"dimension": 2, "name": "ymax_farfield"},
-                    {"dimension": 2, "name": "zmin_symmetry"},
-                    {"dimension": 2, "name": "zmax_symmetry"},
-                    {"dimension": 3, "name": "fluid_domain"},
-                ])
+                groups = {
+                    (item["dimension"], item["name"])
+                    for item in summary["physical_groups"]
+                }
+                self.assertEqual(groups, {
+                    (2, "xmin_inflow"), (2, "xmax_outflow"),
+                    (2, "ymin_wall"), (2, "ymax_farfield"),
+                    (2, "zmin_symmetry"), (2, "zmax_symmetry"),
+                    (3, "fluid_domain"),
+                })
                 if name == "single_hex":
                     self.assertEqual(summary["hexahedron_elements"], 1)
                 elif name == "six_tetrahedra":

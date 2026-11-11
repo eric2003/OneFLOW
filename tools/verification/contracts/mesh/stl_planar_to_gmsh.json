@@ -112,7 +112,7 @@
       "doc/source/stl_to_gmsh_2d.rst",
       "doc/source/gmsh_interface.rst",
       "doc/source/grid_conversion_cases.rst",
-      "grid/stl_to_gmsh/cube_single_hex/README.md",
+      "grid/stl_to_gmsh/cube/README.md",
       "tests/python/grid/test_stl_to_gmsh_cases.py",
       "grid/conversion/cgns_to_oneflow/README.md",
       "grid/stl_to_gmsh/square/README.md",
