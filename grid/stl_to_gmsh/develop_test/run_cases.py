@@ -17,6 +17,9 @@ NATIVE_CASES = {
     "square/two_triangles/cpp": (
         "square/two_triangles/cpp", "square_two_triangles.msh"
     ),
+    "square/automatic_triangles/cpp": (
+        "square/automatic_triangles/cpp", "square_automatic_triangles.msh"
+    ),
     "square_2x2/cpp": ("square_2x2/cpp", "square_2x2.msh"),
     "two_square_cells/cpp": ("two_square_cells/cpp", "two_square_cells.msh"),
     "circle_external_flow/cpp": ("circle_external_flow/cpp", "circle_external_flow.msh"),
@@ -25,6 +28,7 @@ NATIVE_CASES = {
 PYTHON_CASES = {
     "square/single_quad/python": "square/single_quad/python",
     "square/two_triangles/python": "square/two_triangles/python",
+    "square/automatic_triangles/python": "square/automatic_triangles/python",
     "two_square_cells/python": "two_square_cells/python",
     "circle_external_flow/python": "circle_external_flow/python",
     "channel_internal_flow/python": "channel_internal_flow/python",
