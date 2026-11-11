@@ -87,7 +87,7 @@ class Stl2DGmshTest(unittest.TestCase):
         config.pop("one_quad_cell", None)
         config["transfinite_cells"] = {"x": 2, "y": 1}
         with tempfile.TemporaryDirectory() as temp:
-            sidecar = Path(temp) / "two_quads.json"
+            sidecar = Path(temp) / "layout.json"
             geo = Path(temp) / "two_quads.geo"
             sidecar.write_text(json.dumps(config), encoding="utf-8")
             report = convert(DATA / "square.stl", sidecar, geo)
@@ -112,13 +112,13 @@ class Stl2DGmshTest(unittest.TestCase):
         gmsh = shutil.which("gmsh")
         if not gmsh:
             self.skipTest("Gmsh executable is not installed")
-        case = Path(__file__).parent / "stl_to_gmsh"
+        case = Path(__file__).parents[1] / "stl_to_gmsh" / "two_square_cells" / "python"
         with tempfile.TemporaryDirectory() as temp:
             geo = Path(temp) / "two_quads.geo"
             msh = Path(temp) / "two_quads.msh"
             convert(
-                case / "input" / "two_square_cells.stl",
-                case / "script" / "two_quads.json",
+                case / "input" / "model.stl",
+                case / "script" / "layout.json",
                 geo,
             )
             subprocess.run([gmsh, str(geo), "-2", "-format", "msh4", "-o", str(msh)], check=True)
@@ -131,16 +131,16 @@ class Stl2DGmshTest(unittest.TestCase):
             self.assertEqual(names, {"inflow", "outflow", "symmetry", "farfield", "fluid_domain"})
 
     def test_stl_to_gmsh_case_uses_two_adjacent_unit_square_cells(self):
-        case = Path(__file__).parent / "stl_to_gmsh"
-        triangles = read_stl(case / "input" / "two_square_cells.stl")
+        case = Path(__file__).parents[1] / "stl_to_gmsh" / "two_square_cells" / "python"
+        triangles = read_stl(case / "input" / "model.stl")
         loop = extract_boundary(triangles)
         self.assertEqual(len(loop), 4)
         self.assertEqual((min(p[0] for p in loop), max(p[0] for p in loop)), (0.0, 2.0))
         self.assertEqual((min(p[1] for p in loop), max(p[1] for p in loop)), (0.0, 1.0))
         with tempfile.TemporaryDirectory() as temp:
             report = convert(
-                case / "input" / "two_square_cells.stl",
-                case / "script" / "two_quads.json",
+                case / "input" / "model.stl",
+                case / "script" / "layout.json",
                 Path(temp) / "two_quads.geo",
             )
         self.assertEqual(report["structured_cells"], {"x": 2, "y": 1, "total": 2})

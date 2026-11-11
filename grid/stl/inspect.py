@@ -7,7 +7,7 @@ import math
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -53,9 +53,8 @@ def _is_binary_stl(path: Path) -> bool:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    case_dir = Path(__file__).resolve().parents[1]
-    parser.add_argument("--input", type=Path, default=case_dir / "input" / "body.stl")
-    parser.add_argument("--output", type=Path, default=case_dir / "results" / "stl_report.json")
+    parser.add_argument("--input", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--tolerance", type=float, default=1e-9)
     args = parser.parse_args(argv)
     try:
