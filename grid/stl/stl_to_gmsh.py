@@ -445,6 +445,13 @@ def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dic
     triangles = read_stl(stl)
     sidecar_data = json.loads(sidecar.read_text(encoding="utf-8"))
     volume_mesh = sidecar_data.get("volume_mesh")
+    supported_volume_meshes = {
+        "axis_aligned_cube_single_hex",
+        "axis_aligned_cube_six_tetrahedra",
+        "axis_aligned_cube_automatic_tetrahedra",
+    }
+    if sidecar_data.get("mesh_dimension") == 3 and volume_mesh not in supported_volume_meshes:
+        raise Stl2DError(f"unsupported 3D cube volume mesh strategy: {volume_mesh}")
     if volume_mesh in {
         "axis_aligned_cube_single_hex",
         "axis_aligned_cube_six_tetrahedra",

@@ -138,8 +138,10 @@ standalone STL-to-Gmsh producer Cases.
     python tools/mesh_cases.py validate circle_external_flow/cpp
 
 When Gmsh is available, the Python test suite executes the circle reference
-Case and cube/single_hex in temporary directories, validating their MSH 4.1
-element topology and Physical Groups. The native C++ circle integration test is enabled
+Case and all three cube reference Cases in temporary directories, validating
+their MSH 4.1 element families, fixed or minimum topology contracts, and
+Physical Groups. The native C++ integration suite separately exercises the
+single-hex, six-tetrahedron, and automatic-tetrahedron cube strategies. The native C++ circle integration test is enabled
 by `ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS` and is exercised by the
 `OneFLOW External Tool Integration` workflow.
 
