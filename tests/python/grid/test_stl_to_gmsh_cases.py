@@ -19,11 +19,13 @@ from grid.stl_to_gmsh.develop_test.run_cases import NATIVE_CASES, PYTHON_CASES  
 EXPECTED_IDS = {
     "stl_to_gmsh_square",
     "stl_to_gmsh_square_two_triangles",
+    "stl_to_gmsh_square_automatic_triangles",
     "stl_to_gmsh_square_2x2",
     "stl_to_gmsh_two_square_cells",
     "stl_to_gmsh_circle_external_flow",
     "stl_to_gmsh_python_square",
     "stl_to_gmsh_python_square_two_triangles",
+    "stl_to_gmsh_python_square_automatic_triangles",
     "stl_to_gmsh_python_two_square_cells",
     "stl_to_gmsh_python_circle_external_flow",
     "stl_to_gmsh_python_channel_internal_flow",
@@ -48,6 +50,9 @@ class StlToGmshCaseTest(unittest.TestCase):
             "square/two_triangles/cpp": (
                 "square/two_triangles/cpp", "square_two_triangles.msh"
             ),
+            "square/automatic_triangles/cpp": (
+                "square/automatic_triangles/cpp", "square_automatic_triangles.msh"
+            ),
             "square_2x2/cpp": ("square_2x2/cpp", "square_2x2.msh"),
             "two_square_cells/cpp": ("two_square_cells/cpp", "two_square_cells.msh"),
             "circle_external_flow/cpp": (
@@ -58,6 +63,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertEqual(PYTHON_CASES, {
             "square/single_quad/python": "square/single_quad/python",
             "square/two_triangles/python": "square/two_triangles/python",
+            "square/automatic_triangles/python": "square/automatic_triangles/python",
             "two_square_cells/python": "two_square_cells/python",
             "circle_external_flow/python": "circle_external_flow/python",
             "channel_internal_flow/python": "channel_internal_flow/python",
@@ -105,6 +111,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         for case_id in (
             "stl_to_gmsh_square",
             "stl_to_gmsh_square_two_triangles",
+            "stl_to_gmsh_square_automatic_triangles",
             "stl_to_gmsh_square_2x2",
             "stl_to_gmsh_two_square_cells",
             "stl_to_gmsh_circle_external_flow",
@@ -126,6 +133,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         for case_id in (
             "stl_to_gmsh_python_square",
             "stl_to_gmsh_python_square_two_triangles",
+            "stl_to_gmsh_python_square_automatic_triangles",
             "stl_to_gmsh_python_two_square_cells",
             "stl_to_gmsh_python_circle_external_flow",
             "stl_to_gmsh_python_channel_internal_flow",
@@ -135,6 +143,28 @@ class StlToGmshCaseTest(unittest.TestCase):
             self.assertTrue(entry["directory"].endswith("/python"))
             self.assertEqual(entry["execution"]["script"], "grid/stl_to_gmsh/run_python_case.py")
             self.assertEqual(validate_case(ROOT, entry), [])
+
+    def test_automatic_triangle_case_pair_is_registered_and_uses_mesh_size_only(self):
+        native = self.entries["stl_to_gmsh_square_automatic_triangles"]
+        python = self.entries["stl_to_gmsh_python_square_automatic_triangles"]
+        self.assertEqual(validate_case(ROOT, native), [])
+        self.assertEqual(validate_case(ROOT, python), [])
+        native_dir, python_dir = ROOT / native["directory"], ROOT / python["directory"]
+        self.assertEqual((native_dir / "input/model.stl").read_bytes(),
+                         (python_dir / "input/model.stl").read_bytes())
+        native_layout = json.loads((native_dir / "script/layout.json").read_text())
+        python_layout = json.loads((python_dir / "script/layout.json").read_text())
+        self.assertEqual(native_layout, python_layout)
+        self.assertEqual(native_layout["mesh_size"], 0.25)
+        self.assertNotIn("transfinite_cells", native_layout)
+        self.assertNotIn("recombine_surface", native_layout)
+        expected = json.loads((python_dir / "expected.json").read_text())
+        self.assertEqual(expected["mesh"], {"quadrilateral_elements": 0})
+        self.assertEqual(expected["mesh_minimum"], {
+            "nodes": 5, "line_elements": 4, "triangle_elements": 1,
+        })
+        self.assertFalse((native_dir / "results").exists())
+        self.assertFalse((python_dir / "results").exists())
 
     def test_native_circle_external_flow_uses_same_stl_and_domain_as_python_reference(self):
         native = ROOT / "grid/stl_to_gmsh/circle_external_flow/cpp"
