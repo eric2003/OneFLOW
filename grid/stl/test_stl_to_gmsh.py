@@ -1,11 +1,45 @@
 from __future__ import annotations
 import json, shutil, struct, subprocess, tempfile, unittest
 from pathlib import Path
-from .stl_to_gmsh import Stl2DError, _weld_vertices, build_geo, convert, extract_boundary, inspect_msh4, read_stl
+from .stl_to_gmsh import (
+    Stl2DError, _validate_tetrahedral_boundary, _weld_vertices,
+    build_geo, convert, extract_boundary, inspect_msh4, read_stl,
+)
 
 DATA = Path(__file__).parent / "fixtures"
 
 class Stl2DGmshTest(unittest.TestCase):
+    def test_tetrahedral_boundary_validation_accepts_arbitrary_two_cell_mesh(self):
+        elements = [
+            (3, 4, (1, 2, 3, 4)),
+            (3, 4, (1, 3, 2, 5)),
+            (2, 2, (1, 2, 4)),
+            (2, 2, (2, 3, 4)),
+            (2, 2, (1, 3, 4)),
+            (2, 2, (1, 2, 5)),
+            (2, 2, (2, 3, 5)),
+            (2, 2, (1, 3, 5)),
+        ]
+        report = _validate_tetrahedral_boundary(elements)
+        self.assertEqual(report["tetrahedron_cells"], 2)
+        self.assertEqual(report["exterior_faces"], 6)
+        self.assertEqual(report["internal_faces"], 1)
+        self.assertEqual(report["surface_triangles"], 6)
+
+    def test_tetrahedral_boundary_validation_rejects_unmatched_surface_triangle(self):
+        elements = [
+            (3, 4, (1, 2, 3, 4)),
+            (3, 4, (1, 3, 2, 5)),
+            (2, 2, (2, 4, 5)),
+            (2, 2, (2, 3, 4)),
+            (2, 2, (1, 3, 4)),
+            (2, 2, (1, 2, 5)),
+            (2, 2, (2, 3, 5)),
+            (2, 2, (1, 3, 5)),
+        ]
+        with self.assertRaisesRegex(Stl2DError, "does not match any TETRA_4 face"):
+            _validate_tetrahedral_boundary(elements)
+
     def test_ascii_square_extracts_four_boundary_edges(self):
         tris = read_stl(DATA / "square.stl")
         self.assertEqual(len(tris), 2)

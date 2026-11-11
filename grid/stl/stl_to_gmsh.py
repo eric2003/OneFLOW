@@ -420,8 +420,16 @@ def _cube_volume_geo(
                       "Recombine Surface {1:6};", "Transfinite Volume {1};",
                       "Recombine Volume {1};"))
     elif volume_mesh == "axis_aligned_cube_six_tetrahedra":
-        lines.extend(("Transfinite Curve {1:12} = 2;", "Transfinite Surface {1:6};",
-                      "Transfinite Volume {1};"))
+        lines.extend((
+            "Transfinite Curve {1:12} = 2;",
+            "Transfinite Surface {1} = {1, 2, 3, 4};",
+            "Transfinite Surface {2} = {5, 6, 7, 8};",
+            "Transfinite Surface {3} = {4, 1, 5, 8} Right;",
+            "Transfinite Surface {4} = {2, 3, 7, 6};",
+            "Transfinite Surface {5} = {1, 2, 6, 5};",
+            "Transfinite Surface {6} = {3, 4, 8, 7} Right;",
+            "Transfinite Volume {1} = {1, 2, 3, 4, 5, 6, 7, 8};",
+        ))
     elif volume_mesh == "axis_aligned_cube_automatic_tetrahedra":
         if not math.isfinite(mesh_size) or mesh_size <= 0:
             raise Stl2DError("mesh_size must be positive and finite")
@@ -483,6 +491,59 @@ def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dic
             "total": layout["x"] * layout["y"],
         }
     return report
+
+
+def _validate_tetrahedral_boundary(elements: list[tuple[int, int, tuple[int, ...]]]) -> dict:
+    """Check TRI_3 facets against the faces of an arbitrary linear tetrahedral mesh."""
+    face_incidence: Counter[tuple[int, int, int]] = Counter()
+    surface_faces: set[tuple[int, int, int]] = set()
+    tetrahedron_count = 0
+    for entity_dimension, element_type, node_ids in elements:
+        if entity_dimension == 3:
+            if element_type != 4 or len(node_ids) != 4:
+                raise Stl2DError(
+                    "tetrahedral topology validation requires first-order TETRA_4 volume cells"
+                )
+            if len(set(node_ids)) != 4:
+                raise Stl2DError("TETRA_4 element contains repeated node tags")
+            tetrahedron_count += 1
+            for omitted in range(4):
+                face = tuple(sorted(node_ids[:omitted] + node_ids[omitted + 1:]))
+                face_incidence[face] += 1
+                if face_incidence[face] > 2:
+                    raise Stl2DError(
+                        f"non-manifold tetrahedral face is shared by more than two cells: {face}"
+                    )
+        elif entity_dimension == 2:
+            if element_type != 2 or len(node_ids) != 3:
+                raise Stl2DError(
+                    "tetrahedral boundary validation requires first-order TRI_3 surface elements"
+                )
+            face = tuple(sorted(node_ids))
+            if face in surface_faces:
+                raise Stl2DError(f"duplicate TRI_3 boundary element: {face}")
+            surface_faces.add(face)
+
+    if tetrahedron_count == 0:
+        raise Stl2DError("tetrahedral topology validation found no TETRA_4 volume cells")
+    for face in surface_faces:
+        if face not in face_incidence:
+            raise Stl2DError(
+                f"TRI_3 surface element does not match any TETRA_4 face: {face}"
+            )
+    boundary_faces = {face for face, count in face_incidence.items() if count == 1}
+    missing = boundary_faces - surface_faces
+    if missing:
+        face = min(missing)
+        raise Stl2DError(
+            f"TETRA_4 exterior face has no matching TRI_3 boundary element: {face}"
+        )
+    return {
+        "tetrahedron_cells": tetrahedron_count,
+        "exterior_faces": len(boundary_faces),
+        "internal_faces": sum(count == 2 for count in face_incidence.values()),
+        "surface_triangles": len(surface_faces),
+    }
 
 
 def inspect_msh4(path: Path) -> dict:
@@ -547,6 +608,7 @@ def inspect_msh4(path: Path) -> dict:
     element_block_count, element_count = int(element_tokens[0]), int(element_tokens[1])
     cursor = 4
     element_types: Counter[int] = Counter()
+    element_records: list[tuple[int, int, tuple[int, ...]]] = []
     triangle_areas: list[float] = []
     triangle_qualities: list[float] = []
     triangle_min_angles: list[float] = []
@@ -570,6 +632,7 @@ def inspect_msh4(path: Path) -> dict:
             cursor += 1 + arity
             if any(node_id not in nodes for node_id in node_ids):
                 raise Stl2DError("MSH element references an unknown node")
+            element_records.append((entity_dim, element_type, tuple(node_ids)))
             if element_type != 2:
                 continue
             p0, p1, p2 = (nodes[node_id] for node_id in node_ids)
@@ -610,6 +673,18 @@ def inspect_msh4(path: Path) -> dict:
     if sum(element_types.values()) != element_count:
         raise Stl2DError("MSH 4.1 element block counts do not match the file header")
 
+    tetrahedral_topology = None
+    if element_types.get(4, 0):
+        volume_types = {
+            element_type for dimension, element_type, _nodes in element_records
+            if dimension == 3
+        }
+        if volume_types != {4}:
+            raise Stl2DError(
+                "automatic tetrahedral boundary validation does not accept mixed volume cell families"
+            )
+        tetrahedral_topology = _validate_tetrahedral_boundary(element_records)
+
     physical_groups = []
     physical_section = section("PhysicalNames")
     if physical_section:
@@ -642,6 +717,7 @@ def inspect_msh4(path: Path) -> dict:
         "quadrilateral_elements": element_types.get(3, 0),
         "tetrahedron_elements": element_types.get(4, 0),
         "hexahedron_elements": element_types.get(5, 0),
+        "tetrahedral_topology": tetrahedral_topology,
         "physical_groups": physical_groups,
         "coordinate_bounds": bounds,
         "triangle_quality": {

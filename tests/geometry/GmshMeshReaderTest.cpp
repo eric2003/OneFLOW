@@ -60,6 +60,68 @@ TEST(GmshMeshReaderTest, RejectsUnsupportedElementTypes) {
  EXPECT_THROW(ONEFLOW::ReadGmsh41AsciiMesh(bad),std::runtime_error);
 }
 
+TEST(GmshMeshReaderTest, ValidatesBoundaryForArbitraryTetrahedralCellCounts) {
+    ONEFLOW::GmshMesh mesh;
+    const std::vector<std::array<long long, 3>> coordinates = {
+        {{0, 0, 0}}, {{1, 0, 0}}, {{0, 1, 0}},
+        {{0, 0, 1}}, {{0, 0, -1}}
+    };
+    for (std::size_t i = 0; i < coordinates.size(); ++i) {
+        ONEFLOW::GmshNode node;
+        node.tag = static_cast<long long>(i + 1);
+        node.coordinates = {{
+            static_cast<double>(coordinates[i][0]),
+            static_cast<double>(coordinates[i][1]),
+            static_cast<double>(coordinates[i][2])
+        }};
+        mesh.nodeTagToIndex.emplace(node.tag, mesh.nodes.size());
+        mesh.nodes.push_back(node);
+    }
+    auto add = [&mesh](int dimension, int type, std::initializer_list<long long> nodes) {
+        ONEFLOW::GmshElement element;
+        element.entityDimension = dimension;
+        element.type = type;
+        element.nodeTags.assign(nodes.begin(), nodes.end());
+        mesh.elements.push_back(std::move(element));
+    };
+    add(3, 4, {1, 2, 3, 4});
+    add(3, 4, {1, 3, 2, 5});
+    add(2, 2, {1, 2, 4});
+    add(2, 2, {2, 3, 4});
+    add(2, 2, {1, 3, 4});
+    add(2, 2, {1, 2, 5});
+    add(2, 2, {2, 3, 5});
+    add(2, 2, {1, 3, 5});
+
+    const auto report = ONEFLOW::ValidateGmshTetrahedralTopology(mesh);
+    EXPECT_EQ(report.tetrahedronCount, 2u);
+    EXPECT_EQ(report.boundaryFaceCount, 6u);
+    EXPECT_EQ(report.internalFaceCount, 1u);
+    EXPECT_EQ(report.surfaceTriangleCount, 6u);
+}
+
+TEST(GmshMeshReaderTest, RejectsSurfaceTrianglesThatDoNotMatchTetrahedralFaces) {
+    ONEFLOW::GmshMesh mesh;
+    auto add = [&mesh](int dimension, int type, std::initializer_list<long long> nodes) {
+        ONEFLOW::GmshElement element;
+        element.entityDimension = dimension;
+        element.type = type;
+        element.nodeTags.assign(nodes.begin(), nodes.end());
+        mesh.elements.push_back(std::move(element));
+    };
+    add(3, 4, {1, 2, 3, 4});
+    add(3, 4, {1, 3, 2, 5});
+    add(2, 2, {2, 4, 5});
+    add(2, 2, {2, 3, 4});
+    add(2, 2, {1, 3, 4});
+    add(2, 2, {1, 2, 5});
+    add(2, 2, {2, 3, 5});
+    add(2, 2, {1, 3, 5});
+    EXPECT_THROW(
+        ONEFLOW::ValidateGmshTetrahedralTopology(mesh),
+        std::runtime_error);
+}
+
 
 TEST(GmshMeshReaderTest, ReadsBundledSquareMshFileAndBuildsDiagnosticReport) {
     const std::string path =

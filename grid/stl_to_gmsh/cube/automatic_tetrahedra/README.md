@@ -14,6 +14,8 @@ rejected so the Case cannot silently become a structured hex mesh.
 The native C++ and Python reference Cases use the same input STL and
 equivalent layout settings. Their triangulations and counts may differ across
 Gmsh versions; validation therefore checks topology families and minimum
-non-empty counts rather than exact connectivity. See
+non-empty counts rather than exact connectivity. For tetrahedral output, all
+exterior faces must match the emitted TRI_3 boundary elements, independent
+of the number or connectivity of generated tetrahedra. See
 [the cube progression](../README.md) and
 [Development Case Methodology](../../../../doc/source/development_case_methodology.rst).

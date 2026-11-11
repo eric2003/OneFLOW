@@ -13,6 +13,10 @@ This fixed-count Case is not the automatic tetrahedral mesher. It isolates
 the conversion and connectivity path for a known, reproducible tetrahedral
 decomposition. The generated MSH 4.1 mesh is checked for exact element
 families and counts, and all six boundary Physical Groups must survive.
+The tetrahedral mesh is also checked topologically: every exterior face must
+have a matching TRI_3 element, every TRI_3 must belong to a tetrahedral face,
+and no face may be shared by more than two tetrahedra. This check uses node
+connectivity rather than a prescribed cube diagonal.
 
 Native C++ and Python reference Cases share the same STL and layout. See
 [the cube progression](../README.md) and

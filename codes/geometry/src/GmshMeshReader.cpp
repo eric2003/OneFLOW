@@ -5,6 +5,7 @@
 #include <limits>
 #include <iomanip>
 #include <map>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_set>
@@ -138,6 +139,77 @@ GmshMesh ReadGmsh41AsciiMesh(const std::string& content) {
 
 
 namespace ONEFLOW {
+
+GmshTetrahedralTopologyReport ValidateGmshTetrahedralTopology(const GmshMesh& mesh) {
+    using FaceKey = std::array<long long, 3>;
+    std::map<FaceKey, std::size_t> faceIncidence;
+    std::set<FaceKey> surfaceFaces;
+    GmshTetrahedralTopologyReport report;
+
+    for (const GmshElement& element : mesh.elements) {
+        if (element.entityDimension == 3) {
+            if (element.type != 4 || element.nodeTags.size() != 4) {
+                throw std::runtime_error(
+                    "Tetrahedral topology validation requires first-order TETRA_4 volume cells");
+            }
+            std::set<long long> uniqueNodes(element.nodeTags.begin(), element.nodeTags.end());
+            if (uniqueNodes.size() != 4) {
+                throw std::runtime_error("TETRA_4 element contains repeated node tags");
+            }
+            ++report.tetrahedronCount;
+            for (std::size_t omitted = 0; omitted < 4; ++omitted) {
+                FaceKey face{};
+                std::size_t target = 0;
+                for (std::size_t node = 0; node < 4; ++node) {
+                    if (node != omitted) face[target++] = element.nodeTags[node];
+                }
+                std::sort(face.begin(), face.end());
+                const std::size_t count = ++faceIncidence[face];
+                if (count > 2) {
+                    throw std::runtime_error(
+                        "Non-manifold tetrahedral face is shared by more than two cells");
+                }
+            }
+        } else if (element.entityDimension == 2) {
+            if (element.type != 2 || element.nodeTags.size() != 3) {
+                throw std::runtime_error(
+                    "Tetrahedral boundary validation requires first-order TRI_3 surface elements");
+            }
+            FaceKey face{{element.nodeTags[0], element.nodeTags[1], element.nodeTags[2]}};
+            std::sort(face.begin(), face.end());
+            if (!surfaceFaces.insert(face).second) {
+                throw std::runtime_error("Duplicate TRI_3 boundary element detected");
+            }
+        }
+    }
+
+    if (report.tetrahedronCount == 0) {
+        throw std::runtime_error("Tetrahedral topology validation found no TETRA_4 volume cells");
+    }
+    report.surfaceTriangleCount = surfaceFaces.size();
+    for (const auto& entry : faceIncidence) {
+        if (entry.second == 1) {
+            ++report.boundaryFaceCount;
+            if (surfaceFaces.find(entry.first) == surfaceFaces.end()) {
+                std::ostringstream message;
+                message << "TETRA_4 exterior face has no matching TRI_3 boundary element: "
+                        << entry.first[0] << ", " << entry.first[1] << ", " << entry.first[2];
+                throw std::runtime_error(message.str());
+            }
+        } else {
+            ++report.internalFaceCount;
+        }
+    }
+    for (const FaceKey& face : surfaceFaces) {
+        if (faceIncidence.find(face) == faceIncidence.end()) {
+            std::ostringstream message;
+            message << "TRI_3 surface element does not match any TETRA_4 face: "
+                    << face[0] << ", " << face[1] << ", " << face[2];
+            throw std::runtime_error(message.str());
+        }
+    }
+    return report;
+}
 
 GmshMeshReadReport BuildGmshMeshReadReport(const GmshMesh& mesh) {
     GmshMeshReadReport report;

@@ -343,6 +343,19 @@ namespace
             cellDimension = std::max( cellDimension, element.entityDimension );
         if ( cellDimension < 1 || cellDimension > 3 )
             throw std::runtime_error( "Gmsh mesh has no supported cell dimension" );
+        if ( cellDimension == 3 )
+        {
+            bool hasVolumeCells = false;
+            bool allVolumeCellsAreTetrahedra = true;
+            for ( const GmshElement & element : mesh.elements )
+            {
+                if ( element.entityDimension != 3 ) continue;
+                hasVolumeCells = true;
+                if ( element.type != 4 ) allVolumeCellsAreTetrahedra = false;
+            }
+            if ( hasVolumeCells && allVolumeCellsAreTetrahedra )
+                (void)ValidateGmshTetrahedralTopology( mesh );
+        }
         if ( mesh.nodes.size() > static_cast< size_t >( std::numeric_limits< int >::max() ) )
             throw std::runtime_error( "Gmsh node count exceeds OneFLOW index range" );
 
@@ -1235,7 +1248,13 @@ void ConvertStlCubeToGmsh(
             << "Transfinite Volume {1};\nRecombine Volume {1};\n";
     else if (volumeMesh == "axis_aligned_cube_six_tetrahedra")
         geo << "Transfinite Curve {1:12} = 2;\n"
-            << "Transfinite Surface {1:6};\nTransfinite Volume {1};\n";
+            << "Transfinite Surface {1} = {1, 2, 3, 4};\n"
+            << "Transfinite Surface {2} = {5, 6, 7, 8};\n"
+            << "Transfinite Surface {3} = {4, 1, 5, 8} Right;\n"
+            << "Transfinite Surface {4} = {2, 3, 7, 6};\n"
+            << "Transfinite Surface {5} = {1, 2, 6, 5};\n"
+            << "Transfinite Surface {6} = {3, 4, 8, 7} Right;\n"
+            << "Transfinite Volume {1} = {1, 2, 3, 4, 5, 6, 7, 8};\n";
     else
     {
         const double meshSize = options.value("mesh_size", 0.5);
@@ -1297,6 +1316,9 @@ void ConvertStlCubeToGmsh(
     if (!input) throw std::runtime_error("Gmsh did not create mesh: " + target.string());
     const std::string content{std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
     const GmshMesh generated = ReadGmsh41AsciiMesh(content);
+    if ( volumeMesh == "axis_aligned_cube_six_tetrahedra" ||
+         volumeMesh == "axis_aligned_cube_automatic_tetrahedra" )
+        (void)ValidateGmshTetrahedralTopology( generated );
     std::map<int, std::size_t> counts;
     for (const auto& element : generated.elements) ++counts[element.type];
     bool validTopology = false;
