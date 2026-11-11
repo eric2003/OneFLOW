@@ -21,7 +21,25 @@ class MeshCaseCatalogTest(unittest.TestCase):
         profile_ids = {
             entry["id"] for entry in catalog["cases"] if entry.get("profile")
         }
-        self.assertTrue({"minimal_rectangle", "minimal_cube", "two_connected_cubes", "two_connected_squares"} <= profile_ids)
+        self.assertTrue({
+            "minimal_rectangle",
+            "minimal_rectangle_vertical_midpoints",
+            "minimal_cube",
+            "two_blocks_shared_face_corners_only",
+            "two_blocks_shared_edge_endpoints_only",
+            "two_blocks_shared_edge_one_interior_node",
+        } <= profile_ids)
+        layout_directories = {
+            "minimal_cube": "grid/mesh-layout/3d/minimal_cube",
+            "minimal_rectangle": "grid/mesh-layout/2d/minimal_rectangle",
+            "minimal_rectangle_vertical_midpoints": "grid/mesh-layout/2d/minimal_rectangle_vertical_midpoints",
+            "two_blocks_shared_face_corners_only": "grid/mesh-layout/3d/two_blocks_shared_face_corners_only",
+            "two_blocks_shared_edge_endpoints_only": "grid/mesh-layout/2d/two_blocks_shared_edge_endpoints_only",
+            "two_blocks_shared_edge_one_interior_node": "grid/mesh-layout/2d/two_blocks_shared_edge_one_interior_node",
+        }
+        for entry in catalog["cases"]:
+            if entry["id"] in layout_directories:
+                self.assertEqual(entry["directory"], layout_directories[entry["id"]])
         errors = [
             error
             for entry in catalog["cases"]
@@ -29,10 +47,52 @@ class MeshCaseCatalogTest(unittest.TestCase):
         ]
         self.assertEqual(errors, [])
 
+    def test_two_quads_is_a_gmsh_to_cgns_route_fixture_not_a_catalog_case(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        case_ids = {case["id"] for case in catalog["cases"]}
+        self.assertNotIn("two_quads", case_ids)
+
+        conversion_root = REPOSITORY_ROOT / "grid" / "conversion"
+        self.assertTrue((conversion_root / "README.md").is_file())
+        for template in ("cgns_to_oneflow", "gmsh_to_cgns", "gmsh_to_oneflow"):
+            self.assertTrue((conversion_root / template / "README.md").is_file())
+
+        fixture_relative = "grid/conversion/gmsh_to_cgns/grid/two_quads.msh"
+        fixture = REPOSITORY_ROOT / fixture_relative
+        self.assertTrue(fixture.is_file())
+        mesh_text = fixture.read_text(encoding="ascii")
+        self.assertIn("$MeshFormat\n4.1 0 8", mesh_text)
+        self.assertIn('1 1 "inflow"', mesh_text)
+        self.assertIn('1 2 "outflow"', mesh_text)
+        self.assertIn('1 3 "symmetry"', mesh_text)
+        self.assertIn('1 4 "farfield"', mesh_text)
+        self.assertIn('2 5 "fluid_domain"', mesh_text)
+
+        with (REPOSITORY_ROOT / "grid" / "interoperability" / "conversion_matrix.json").open(
+            "r", encoding="utf-8"
+        ) as stream:
+            matrix = json.load(stream)
+        fixture_cases = {
+            case["id"]: case for case in matrix.get("cases", [])
+        }
+        entry = fixture_cases["gmsh_to_cgns_two_quads"]
+        self.assertEqual(entry["fixture"], fixture_relative)
+        self.assertEqual(entry["routes"], ["gmsh->cgns"])
+        self.assertEqual(entry["execution"], "automated_integration_test")
+        self.assertEqual(entry["expected"]["nodes"], 6)
+        self.assertEqual(entry["expected"]["cells"], 2)
+        self.assertEqual(entry["expected"]["internal_interface_edges"], 1)
+
+        obsolete_case_dir = REPOSITORY_ROOT / "grid" / "conversion" / "cases" / "two_quads"
+        self.assertFalse(obsolete_case_dir.exists())
+        self.assertFalse((REPOSITORY_ROOT / "grid" / "gmsh_to_cgns").exists())
+        self.assertFalse((REPOSITORY_ROOT / "grid" / "gmsh_to_oneflow").exists())
+        self.assertFalse((REPOSITORY_ROOT / "grid" / "cgns_to_oneflow").exists())
+
     def test_stl_ascii_basic_is_a_native_oneflow_case(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         entry = next(case for case in catalog["cases"] if case["id"] == "stl_ascii_basic")
-        self.assertEqual(entry["directory"], "grid/stl/ascii_basic")
+        self.assertEqual(entry["directory"], "grid/stl/ascii_basic/cpp")
         self.assertNotIn("runtimeConfig", entry)
         self.assertNotIn("execution", entry)
         case_dir = REPOSITORY_ROOT / entry["directory"]
@@ -48,6 +108,9 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertIn('string targetGridType = "cgns";', grid)
         self.assertIn("Real stlWeldTolerance = 1.0e-10;", grid)
         self.assertTrue((case_dir / "input" / "model.stl").is_file())
+        self.assertTrue((case_dir.parent / "README.md").is_file())
+        self.assertTrue((case_dir.parent / "python" / "input" / "model.stl").is_file())
+        self.assertTrue((case_dir.parent / "python" / "expected.json").is_file())
         self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
     def test_stl_to_gmsh_generation_case_has_two_structured_mesh_examples(self) -> None:
         case_dir = REPOSITORY_ROOT / "grid" / "stl" / "stl_to_gmsh"
@@ -80,10 +143,14 @@ class MeshCaseCatalogTest(unittest.TestCase):
         entries = {entry["id"]: entry for entry in catalog["cases"] if entry.get("group") == "STL to Gmsh"}
         self.assertEqual(set(entries), {
             "stl_to_gmsh_square",
+            "stl_to_gmsh_square_two_triangles",
+            "stl_to_gmsh_square_automatic_triangles",
             "stl_to_gmsh_square_2x2",
             "stl_to_gmsh_two_square_cells",
             "stl_to_gmsh_circle_external_flow",
             "stl_to_gmsh_python_square",
+            "stl_to_gmsh_python_square_two_triangles",
+            "stl_to_gmsh_python_square_automatic_triangles",
             "stl_to_gmsh_python_two_square_cells",
             "stl_to_gmsh_python_circle_external_flow",
             "stl_to_gmsh_python_channel_internal_flow",
@@ -92,6 +159,8 @@ class MeshCaseCatalogTest(unittest.TestCase):
         })
         for case_id in (
             "stl_to_gmsh_square",
+            "stl_to_gmsh_square_two_triangles",
+            "stl_to_gmsh_square_automatic_triangles",
             "stl_to_gmsh_square_2x2",
             "stl_to_gmsh_two_square_cells",
             "stl_to_gmsh_circle_external_flow",
@@ -130,7 +199,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         entry = next(
             case for case in catalog["cases"] if case["id"] == "stl_ascii_crlf"
         )
-        self.assertEqual(entry["directory"], "grid/stl/ascii_crlf")
+        self.assertEqual(entry["directory"], "grid/stl/ascii_crlf/cpp")
         self.assertNotIn("runtimeConfig", entry)
         self.assertNotIn("execution", entry)
 
@@ -150,17 +219,23 @@ class MeshCaseCatalogTest(unittest.TestCase):
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         stl_cases = [case for case in catalog["cases"] if case.get("group") == "STL"]
         self.assertEqual(len(stl_cases), 16)
+        stl_root = REPOSITORY_ROOT / "grid" / "stl"
+        for legacy in ("input", "results", "script", "python"):
+            self.assertFalse((stl_root / legacy).exists(), legacy)
 
         for entry in stl_cases:
             parts = entry["directory"].split("/")
             execution = entry.get("execution")
             if isinstance(execution, dict) and execution.get("kind") == "python":
-                self.assertEqual(parts[:3], ["grid", "stl", "python"])
-                self.assertEqual(entry["id"], f"stl_python_{parts[-1]}")
+                self.assertEqual(parts[:2], ["grid", "stl"])
+                self.assertEqual(parts[-1], "python")
+                self.assertEqual(len(parts), 4)
+                self.assertEqual(entry["id"], f"stl_python_{parts[-2]}")
             else:
                 self.assertEqual(parts[:2], ["grid", "stl"])
-                self.assertEqual(len(parts), 3)
-                self.assertEqual(entry["id"], f"stl_{parts[-1]}")
+                self.assertEqual(parts[-1], "cpp")
+                self.assertEqual(len(parts), 4)
+                self.assertEqual(entry["id"], f"stl_{parts[-2]}")
 
     def test_native_stl_binary_cases_have_standard_binary_record_layout(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
@@ -196,8 +271,9 @@ class MeshCaseCatalogTest(unittest.TestCase):
             self.assertNotIn("execution", entry)
             self.assertNotIn("runtimeConfig", entry)
             case_root = REPOSITORY_ROOT / entry["directory"]
+            self.assertTrue((case_root.parent / "README.md").is_file())
             for relative in (
-                "README.md", "script/dimension.txt", "script/simu.txt",
+                "script/dimension.txt", "script/simu.txt",
                 "script/grid.txt", "input/model.stl",
             ):
                 self.assertTrue((case_root / relative).is_file(), relative)
@@ -213,7 +289,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertIn("vertex 1.000000000051 1 0", weld_fixture)
 
     def test_turbulent_flat_plate_uses_requested_bounds_and_tanh_distribution(self) -> None:
-        case_dir = REPOSITORY_ROOT / "grid" / "turbulent_flat_plate"
+        case_dir = REPOSITORY_ROOT / "grid" / "mesh-layout" / "2d" / "turbulent_flat_plate"
         with (case_dir / "case.json").open("r", encoding="utf-8") as stream:
             profile = json.load(stream)
 
@@ -249,8 +325,20 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertEqual(expected["boundingBox"]["min"], [-0.35, 0.0, 0.0])
         self.assertEqual(expected["boundingBox"]["max"], [2.0, 1.0, 0.0])
 
-    def test_two_connected_squares_profile_carries_grid_options(self) -> None:
-        case_dir = REPOSITORY_ROOT / "grid" / "two_connected_squares"
+    def test_two_blocks_shared_edge_endpoints_only_profile_describes_minimum_topology(self) -> None:
+        case_dir = REPOSITORY_ROOT / "grid" / "mesh-layout" / "2d" / "two_blocks_shared_edge_endpoints_only"
+        profile = json.loads((case_dir / "case.json").read_text(encoding="utf-8"))
+        expected = profile["parameters"]["expected"]
+        self.assertEqual(
+            {key: expected[key] for key in ("zones", "nodes", "cells", "faces", "boundaryFaces", "internalFaces")},
+            {"zones": 2, "nodes": 6, "cells": 2, "faces": 7, "boundaryFaces": 6, "internalFaces": 1},
+        )
+        layout = (case_dir / "grid" / "twoBlocksSharedEdgeEndpointsOnlyLayout.txt").read_text(encoding="utf-8")
+        self.assertEqual(layout.count("Dim("), 7)
+        self.assertEqual(layout.count("= {2}"), 7)
+
+    def test_two_blocks_shared_edge_one_interior_node_profile_carries_grid_options(self) -> None:
+        case_dir = REPOSITORY_ROOT / "grid" / "mesh-layout" / "2d" / "two_blocks_shared_edge_one_interior_node"
         with (case_dir / "case.json").open("r", encoding="utf-8") as stream:
             profile = json.load(stream)
 
@@ -278,7 +366,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertIn("int fileFormat = 1;", grid_parameters)
         self.assertIn("Real gridScale = 1.0;", grid_parameters)
         self.assertIn("Real gridTrans[3] = 0, 0, 0;", grid_parameters)
-        self.assertIn('string gridLayoutFileName = "grid/twoConnectedSquaresLayout.txt";', grid_parameters)
+        self.assertIn('string gridLayoutFileName = "grid/twoBlocksSharedEdgeOneInteriorNodeLayout.txt";', grid_parameters)
         self.assertIn('string sourceGridType = "plot3d";', grid_parameters)
         self.assertIn('string targetGridType = "oneflow";', grid_parameters)
         self.assertIn("int parallelStrategy = 1;", grid_parameters)

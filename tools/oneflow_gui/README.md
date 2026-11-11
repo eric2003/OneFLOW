@@ -341,10 +341,27 @@ Validation workspaces are stable and Case-scoped below
 `ONEFLOW_HOME` is not set). For example, the square C++ STL Case uses
 `stl_to_gmsh/square/cpp/`. Each workflow stage has its own named directory
 under that Case root: `stl_to_gmsh/`, `gmsh_to_cgns/`,
-`gmsh_to_oneflow/` and `oneflow_cfd_solve/`. The Case root itself contains
+`cgns_to_oneflow/` and `oneflow_cfd_solve/`. The Case root itself contains
 only the workflow report; stage inputs, scripts, results and logs stay inside
 their respective stage directories. Re-running a Case clears and recreates
 only that Case's directory; sibling Case results are preserved.
 
 
 The home-screen Boundary Conditions entry opens a dedicated Boundary Conditions Workbench, separate from Mesh Validation and the Contract Workbench browser. Contract Workbench retains its Boundary Conditions contract domain for cross-domain governance. The dedicated GUI reads the versioned semantic catalog under tools/verification/boundary_conditions/registry.json and presents formulations, parameters, mappings, implementation status, verification and references. The initial catalog covers CFL3D Version 5.0 boundary types 1002, 1003, 2002, 2003 and 2004. This is a read-only research catalog, not a claim that all referenced solver treatments exist in OneFLOW.
+
+
+## Dimension-aware Development Case navigation
+
+The **Run Development Cases** selector uses the shared `grid/case_catalog.json`
+metadata and presents a compact hierarchy: spatial dimension (2D / 3D /
+Unclassified), Case family, then individual Case. Native C++ and Python
+reference implementations remain separate runnable entries but share the same
+dimension and family. A dimension is read from explicit catalog metadata
+first, then from the Case's mesh layout or typed runtime profile; directory
+conventions such as `grid/mesh-layout/2d` are a fallback. Unknown dimensions
+remain under Unclassified rather than being guessed.
+
+**Mesh-to-CFD Validation** uses the same dimension-first navigation for its
+STL-to-Gmsh producer Cases. It keeps the CFD consumer and smoke-test controls
+outside the Case tree, so 2D and 3D producer selection does not create
+duplicate controls or an overly wide list. 3D topology Cases retain the conversion handoff and may run a short dimension-adjusted solver smoke test; this does not establish 2D flat-plate physics or numerical accuracy.

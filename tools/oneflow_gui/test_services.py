@@ -33,18 +33,17 @@ class DesktopServiceTest(unittest.TestCase):
         cases = load_cases(REPOSITORY_ROOT)
         case_ids = {case.case_id for case in cases}
         self.assertTrue(
-            {"minimal_rectangle", "minimal_cube", "two_connected_cubes"} <= case_ids
+            {"minimal_rectangle", "minimal_cube", "two_blocks_shared_face_corners_only", "two_blocks_shared_edge_endpoints_only", "two_blocks_shared_edge_one_interior_node"} <= case_ids
         )
         self.assertTrue(all(
             case.runtime_config is None or case.runtime_config.is_file()
             for case in cases if case.execution_kind == "oneflow"
         ))
 
-    def test_gmsh_cases_are_available_in_the_gmsh_development_group(self) -> None:
+    def test_gmsh_conversion_routes_are_catalogued_without_topology_duplicates(self) -> None:
         cases = load_cases(REPOSITORY_ROOT)
         cases_by_id = {case.case_id: case for case in cases}
-        self.assertIn("two_quads", cases_by_id)
-        self.assertEqual(cases_by_id["two_quads"].group, "Gmsh")
+        self.assertNotIn("two_quads", cases_by_id)
         self.assertEqual(cases_by_id["gmsh_to_cgns"].group, "Gmsh")
         self.assertEqual(cases_by_id["gmsh_to_oneflow"].group, "Gmsh")
 
@@ -62,11 +61,11 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertEqual(cases_by_id["stl_binary_header_solid"].execution_kind, "oneflow")
         self.assertEqual(cases_by_id["stl_non_planar_surface"].execution_kind, "oneflow")
         self.assertEqual(cases_by_id["stl_weld_tolerance"].execution_kind, "oneflow")
-        self.assertEqual(cases_by_id["stl_ascii_scientific_notation"].workspace_relative_directory, Path("stl/ascii_scientific_notation"))
+        self.assertEqual(cases_by_id["stl_ascii_scientific_notation"].workspace_relative_directory, Path("stl/ascii_scientific_notation/cpp"))
         self.assertEqual(cases_by_id["stl_python_ascii_basic"].execution_kind, "python")
         self.assertEqual(cases_by_id["stl_python_ascii_crlf"].execution_kind, "python")
-        self.assertEqual(cases_by_id["stl_ascii_crlf"].workspace_relative_directory, Path("stl/ascii_crlf"))
-        self.assertEqual(cases_by_id["stl_python_ascii_crlf"].workspace_relative_directory, Path("stl/python/ascii_crlf"))
+        self.assertEqual(cases_by_id["stl_ascii_crlf"].workspace_relative_directory, Path("stl/ascii_crlf/cpp"))
+        self.assertEqual(cases_by_id["stl_python_ascii_crlf"].workspace_relative_directory, Path("stl/ascii_crlf/python"))
         self.assertIsNone(cases_by_id["stl_ascii_crlf"].runtime_config)
         self.assertIsNone(cases_by_id["stl_ascii_crlf"].execution_script)
 
@@ -77,7 +76,7 @@ class DesktopServiceTest(unittest.TestCase):
         self.assertTrue(all(case.runtime_config is None for case in python_cases))
         self.assertTrue(all(case.execution_script is not None and case.execution_script.is_file()
                             for case in python_cases))
-        self.assertTrue(all(case.case_directory.parent.name == "python" for case in python_cases))
+        self.assertTrue(all(case.case_directory.name == "python" for case in python_cases))
 
     def test_development_case_execution_mode_separates_native_and_python_cases(self) -> None:
         cases = [case for case in load_cases(REPOSITORY_ROOT) if case.group == "STL"]
@@ -296,7 +295,7 @@ class DesktopServiceTest(unittest.TestCase):
     def test_case_database_preserves_catalog_directory_hierarchy(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            source = root / "repository" / "grid" / "stl" / "ascii_crlf"
+            source = root / "repository" / "grid" / "stl" / "ascii_crlf" / "cpp"
             source.mkdir(parents=True)
             (source / "model.stl").write_text("fixture", encoding="ascii")
             workspace = root / "mesh-layout-test" / "grid"
@@ -307,11 +306,11 @@ class DesktopServiceTest(unittest.TestCase):
                 runtime_config=None,
                 profile=None,
                 layout=None,
-                workspace_relative_directory=Path("stl/ascii_crlf"),
+                workspace_relative_directory=Path("stl/ascii_crlf/cpp"),
             )
 
             staged = prepare_case_database_workspace([case], workspace)
-            expected = workspace / "stl" / "ascii_crlf"
+            expected = workspace / "stl" / "ascii_crlf" / "cpp"
             self.assertTrue(staged["stl_ascii_crlf"].samefile(expected))
             self.assertEqual((expected / "model.stl").read_text(encoding="ascii"), "fixture")
             self.assertFalse((workspace / "stl_ascii_crlf").exists())
@@ -320,6 +319,37 @@ class DesktopServiceTest(unittest.TestCase):
                 case, workspace, "unused-run-id", "case_database_prepared"
             )
             self.assertTrue(prepared.samefile(expected))
+
+    def test_case_database_rejects_nested_catalog_cases(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            parent_source = root / "repository" / "grid" / "conversion" / "gmsh_to_cgns"
+            nested_source = parent_source / "examples" / "convert_2d" / "two_quads"
+            nested_source.mkdir(parents=True)
+            workspace = root / "mesh-layout-test" / "grid"
+            parent = CaseDefinition(
+                case_id="gmsh_to_cgns",
+                title="Gmsh to CGNS",
+                case_directory=parent_source,
+                runtime_config=None,
+                profile=None,
+                layout=None,
+                workspace_relative_directory=Path("conversion/gmsh_to_cgns"),
+            )
+            nested = CaseDefinition(
+                case_id="two_quads",
+                title="Two Quads",
+                case_directory=nested_source,
+                runtime_config=None,
+                profile=None,
+                layout=None,
+                workspace_relative_directory=Path(
+                    "conversion/gmsh_to_cgns/examples/convert_2d/two_quads"
+                ),
+            )
+
+            with self.assertRaisesRegex(ValueError, "Overlapping Case Database paths"):
+                prepare_case_database_workspace([parent, nested], workspace)
 
     def test_source_execution_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -196,7 +196,7 @@ OneFLOW.exe r <case-directory>
 For example, after building on Windows:
 
 ~~~powershell
-.\build\bin\Debug\OneFLOW.exe r .\grid\minimal_rectangle
+.\build\bin\Debug\OneFLOW.exe r .\grid\mesh-layout\minimal_rectangle
 ~~~
 
 Run cases in a writable workspace rather than directly in the checked-in source case when they generate files. The workbench can create isolated run copies for supported task types. Case inputs and outputs are described in the relevant case directory and the [grid guide](./grid/README.md).

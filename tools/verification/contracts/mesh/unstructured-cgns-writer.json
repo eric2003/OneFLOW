@@ -48,9 +48,15 @@
   "verification": [
     {
       "kind": "google_test",
+      "reference": "GmshMeshReaderTest.ReadsTwoQuadRouteFixtureAndPreservesInternalInterfaceSemantics",
+      "status": "declared_not_executed",
+      "scope": "tests/geometry/GmshMeshReaderTest.cpp; verifies six nodes, two QUAD_4 cells, seven LINE_2 records, named exterior Physical Groups, and an explicitly ungrouped internal curve."
+    },
+    {
+      "kind": "google_test",
       "reference": "tests/geometry/GmshTwoQuadsOneFlowTest.cpp",
       "status": "declared_not_executed",
-      "scope": "Gmsh two-quad MSH -> CGNS Unstructured Zone -> OneFLOW native grid."
+      "scope": "Uses the route-owned two-quad MSH fixture to exercise Gmsh -> CGNS -> OneFLOW and checks that both interchange and native-grid artifacts are produced in a temporary workspace."
     },
     {
       "kind": "python_test",

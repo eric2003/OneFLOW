@@ -15,14 +15,17 @@ sys.path.insert(0, str(ROOT / "tools"))
 from mesh_cases import load_catalog, validate_case  # noqa: E402
 from grid.stl.stl_to_gmsh import convert, inspect_msh4  # noqa: E402
 from grid.stl_to_gmsh.develop_test.run_cases import NATIVE_CASES, PYTHON_CASES  # noqa: E402
-from tools.oneflow_gui.workflow_plan import build_case_graph_plan  # noqa: E402
 
 EXPECTED_IDS = {
     "stl_to_gmsh_square",
+    "stl_to_gmsh_square_two_triangles",
+    "stl_to_gmsh_square_automatic_triangles",
     "stl_to_gmsh_square_2x2",
     "stl_to_gmsh_two_square_cells",
     "stl_to_gmsh_circle_external_flow",
     "stl_to_gmsh_python_square",
+    "stl_to_gmsh_python_square_two_triangles",
+    "stl_to_gmsh_python_square_automatic_triangles",
     "stl_to_gmsh_python_two_square_cells",
     "stl_to_gmsh_python_circle_external_flow",
     "stl_to_gmsh_python_channel_internal_flow",
@@ -43,7 +46,13 @@ class StlToGmshCaseTest(unittest.TestCase):
 
     def test_development_staging_paths_mirror_case_implementation_layout(self):
         self.assertEqual(NATIVE_CASES, {
-            "square/cpp": ("square/cpp", "square.msh"),
+            "square/single_quad/cpp": ("square/single_quad/cpp", "square.msh"),
+            "square/two_triangles/cpp": (
+                "square/two_triangles/cpp", "square_two_triangles.msh"
+            ),
+            "square/automatic_triangles/cpp": (
+                "square/automatic_triangles/cpp", "square_automatic_triangles.msh"
+            ),
             "square_2x2/cpp": ("square_2x2/cpp", "square_2x2.msh"),
             "two_square_cells/cpp": ("two_square_cells/cpp", "two_square_cells.msh"),
             "circle_external_flow/cpp": (
@@ -52,7 +61,9 @@ class StlToGmshCaseTest(unittest.TestCase):
             "cube_single_hex/cpp": ("cube_single_hex/cpp", "cube_single_hex.msh"),
         })
         self.assertEqual(PYTHON_CASES, {
-            "square/python": "square/python",
+            "square/single_quad/python": "square/single_quad/python",
+            "square/two_triangles/python": "square/two_triangles/python",
+            "square/automatic_triangles/python": "square/automatic_triangles/python",
             "two_square_cells/python": "two_square_cells/python",
             "circle_external_flow/python": "circle_external_flow/python",
             "channel_internal_flow/python": "channel_internal_flow/python",
@@ -99,6 +110,8 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertEqual(set(self.entries), EXPECTED_IDS)
         for case_id in (
             "stl_to_gmsh_square",
+            "stl_to_gmsh_square_two_triangles",
+            "stl_to_gmsh_square_automatic_triangles",
             "stl_to_gmsh_square_2x2",
             "stl_to_gmsh_two_square_cells",
             "stl_to_gmsh_circle_external_flow",
@@ -119,6 +132,8 @@ class StlToGmshCaseTest(unittest.TestCase):
             self.assertFalse((case / "script/control.txt").exists())
         for case_id in (
             "stl_to_gmsh_python_square",
+            "stl_to_gmsh_python_square_two_triangles",
+            "stl_to_gmsh_python_square_automatic_triangles",
             "stl_to_gmsh_python_two_square_cells",
             "stl_to_gmsh_python_circle_external_flow",
             "stl_to_gmsh_python_channel_internal_flow",
@@ -128,6 +143,28 @@ class StlToGmshCaseTest(unittest.TestCase):
             self.assertTrue(entry["directory"].endswith("/python"))
             self.assertEqual(entry["execution"]["script"], "grid/stl_to_gmsh/run_python_case.py")
             self.assertEqual(validate_case(ROOT, entry), [])
+
+    def test_automatic_triangle_case_pair_is_registered_and_uses_mesh_size_only(self):
+        native = self.entries["stl_to_gmsh_square_automatic_triangles"]
+        python = self.entries["stl_to_gmsh_python_square_automatic_triangles"]
+        self.assertEqual(validate_case(ROOT, native), [])
+        self.assertEqual(validate_case(ROOT, python), [])
+        native_dir, python_dir = ROOT / native["directory"], ROOT / python["directory"]
+        self.assertEqual((native_dir / "input/model.stl").read_bytes(),
+                         (python_dir / "input/model.stl").read_bytes())
+        native_layout = json.loads((native_dir / "script/layout.json").read_text())
+        python_layout = json.loads((python_dir / "script/layout.json").read_text())
+        self.assertEqual(native_layout, python_layout)
+        self.assertEqual(native_layout["mesh_size"], 0.25)
+        self.assertNotIn("transfinite_cells", native_layout)
+        self.assertNotIn("recombine_surface", native_layout)
+        expected = json.loads((python_dir / "expected.json").read_text())
+        self.assertEqual(expected["mesh"], {"quadrilateral_elements": 0})
+        self.assertEqual(expected["mesh_minimum"], {
+            "nodes": 5, "line_elements": 4, "triangle_elements": 1,
+        })
+        self.assertFalse((native_dir / "results").exists())
+        self.assertFalse((python_dir / "results").exists())
 
     def test_native_circle_external_flow_uses_same_stl_and_domain_as_python_reference(self):
         native = ROOT / "grid/stl_to_gmsh/circle_external_flow/cpp"
@@ -168,7 +205,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertFalse((native / "results").exists())
 
     def test_square_2x2_reuses_square_stl_and_changes_only_mesh_density(self):
-        square = ROOT / "grid/stl_to_gmsh/square/cpp"
+        square = ROOT / "grid/stl_to_gmsh/square/single_quad/cpp"
         square_2x2 = ROOT / "grid/stl_to_gmsh/square_2x2/cpp"
         self.assertEqual(
             (square / "input/model.stl").read_bytes(),
@@ -187,9 +224,64 @@ class StlToGmshCaseTest(unittest.TestCase):
         )
         self.assertFalse((square_2x2 / "results").exists())
 
+    def test_square_two_triangles_uses_same_stl_and_disables_recombination(self):
+        native = ROOT / "grid/stl_to_gmsh/square/two_triangles/cpp"
+        reference = ROOT / "grid/stl_to_gmsh/square/two_triangles/python"
+        self.assertEqual((native / "input/model.stl").read_bytes(),
+                         (reference / "input/model.stl").read_bytes())
+        native_layout = json.loads((native / "script/layout.json").read_text(encoding="utf-8"))
+        python_layout = json.loads((reference / "script/layout.json").read_text(encoding="utf-8"))
+        self.assertEqual(native_layout, python_layout)
+        self.assertEqual(native_layout["transfinite_cells"], {"x": 1, "y": 1})
+        self.assertFalse(native_layout["recombine_surface"])
+        with tempfile.TemporaryDirectory() as temporary:
+            geo = Path(temporary) / "square_two_triangles.geo"
+            convert(reference / "input/model.stl", reference / "script/layout.json",
+                    geo, tolerance=1.0e-10)
+            text = geo.read_text(encoding="utf-8")
+            self.assertIn("Transfinite Surface {1};", text)
+            self.assertNotIn("Recombine Surface {1};", text)
+            self.assertIn('Physical Surface("fluid_domain")', text)
+        expected = json.loads((reference / "expected.json").read_text(encoding="utf-8"))
+        self.assertEqual(expected["mesh"], {
+            "nodes": 4, "line_elements": 4, "triangle_elements": 2,
+            "quadrilateral_elements": 0,
+        })
+        self.assertFalse((native / "results").exists())
+        self.assertFalse((reference / "results").exists())
+
+    def test_python_square_two_triangles_generates_exactly_two_triangle_cells(self):
+        gmsh = shutil.which("gmsh")
+        if gmsh is None:
+            self.skipTest("Gmsh executable is not available")
+        source = ROOT / "grid/stl_to_gmsh/square/two_triangles/python"
+        with tempfile.TemporaryDirectory() as temporary:
+            staged = Path(temporary) / "square_two_triangles"
+            shutil.copytree(source, staged)
+            command = [sys.executable, str(ROOT / "grid/stl_to_gmsh/run_python_case.py"),
+                       "--case-directory", str(staged), "--gmsh", gmsh]
+            result = subprocess.run(command, cwd=staged, text=True, capture_output=True, check=False)
+            self.assertEqual(result.returncode, 0, msg=result.stdout + "\\n" + result.stderr)
+            mesh = inspect_msh4(staged / "results/square_two_triangles.msh")
+            self.assertEqual(mesh["nodes"], 4)
+            self.assertEqual(mesh["line_elements"], 4)
+            self.assertEqual(mesh["triangle_elements"], 2)
+            self.assertEqual(mesh["quadrilateral_elements"], 0)
+            groups = {(item["dimension"], item["name"]) for item in mesh["physical_groups"]}
+            self.assertEqual(groups, {
+                (1, "inflow"), (1, "outflow"), (1, "symmetry"),
+                (1, "farfield"), (2, "fluid_domain"),
+            })
+            report = json.loads(
+                (staged / "results/square_two_triangles.stl-to-gmsh-report.json")
+                .read_text(encoding="utf-8")
+            )
+            self.assertTrue(report["validated"])
+        self.assertFalse((source / "results").exists())
+
     def test_python_geometry_compiles_square_and_two_cell_layouts(self):
         for relative, nx, ny in (
-            ("square/python", 1, 1),
+            ("square/single_quad/python", 1, 1),
             ("two_square_cells/python", 2, 1),
         ):
             case = ROOT / "grid/stl_to_gmsh" / relative
@@ -212,9 +304,87 @@ class StlToGmshCaseTest(unittest.TestCase):
                 self.assertIn('Physical Surface("fluid_domain")', text)
             self.assertFalse((case / "results").exists())
 
+    def test_automatic_triangle_mode_uses_mesh_size_without_transfinite_constraints(self):
+        source = ROOT / "grid/stl_to_gmsh/square/two_triangles/python"
+        with tempfile.TemporaryDirectory() as temporary:
+            sidecar_path = Path(temporary) / "layout.json"
+            sidecar = json.loads(
+                (source / "script/layout.json").read_text(encoding="utf-8")
+            )
+            sidecar.pop("transfinite_cells")
+            sidecar.pop("recombine_surface")
+            sidecar["mesh_size"] = 0.25
+            sidecar_path.write_text(json.dumps(sidecar), encoding="utf-8")
+            from grid.stl.stl_to_gmsh import (
+                build_geo, extract_boundary, read_stl, _read_sidecar,
+            )
+            loop = extract_boundary(read_stl(source / "input/model.stl"), 1.0e-10)
+            config, assignments = _read_sidecar(sidecar_path, loop, 1.0e-10)
+            generated = build_geo(loop, assignments, config)
+            self.assertIn("Mesh.MeshSizeMin = 0.25;", generated)
+            self.assertIn("Mesh.MeshSizeMax = 0.25;", generated)
+            self.assertIn("Mesh.MeshSizeFromPoints = 1;", generated)
+            self.assertNotIn("Transfinite Curve", generated)
+            self.assertNotIn("Transfinite Surface", generated)
+            self.assertNotIn("Recombine Surface", generated)
+            self.assertIn('Physical Surface("fluid_domain")', generated)
+            sidecar["recombine_surface"] = True
+            sidecar_path.write_text(json.dumps(sidecar), encoding="utf-8")
+            config, assignments = _read_sidecar(sidecar_path, loop, 1.0e-10)
+            with self.assertRaisesRegex(ValueError, "does not support recombine_surface"):
+                build_geo(loop, assignments, config)
+        self.assertFalse((source / "results").exists())
+
+    def test_python_automatic_mesh_size_controls_progressive_refinement(self):
+        gmsh = shutil.which("gmsh")
+        if gmsh is None:
+            self.skipTest("Gmsh executable is not available")
+        source = ROOT / "grid/stl_to_gmsh/square/two_triangles/python"
+        triangle_counts = []
+        node_counts = []
+        expected_groups = {
+            (1, "inflow"), (1, "outflow"), (1, "symmetry"),
+            (1, "farfield"), (2, "fluid_domain"),
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            base = json.loads((source / "script/layout.json").read_text(encoding="utf-8"))
+            base.pop("transfinite_cells")
+            base.pop("recombine_surface")
+            for index, mesh_size in enumerate((0.5, 0.25, 0.125)):
+                layout = dict(base, mesh_size=mesh_size)
+                sidecar = root / f"layout_{index}.json"
+                sidecar.write_text(json.dumps(layout), encoding="utf-8")
+                from grid.stl.stl_to_gmsh import build_geo, extract_boundary, read_stl, _read_sidecar
+                loop = extract_boundary(read_stl(source / "input/model.stl"), 1.0e-10)
+                config, assignments = _read_sidecar(sidecar, loop, 1.0e-10)
+                geo = root / f"automatic_{index}.geo"
+                geo.write_text(build_geo(loop, assignments, config), encoding="utf-8")
+                msh = root / f"automatic_{index}.msh"
+                result = subprocess.run(
+                    [gmsh, str(geo), "-2", "-format", "msh4", "-o", str(msh)],
+                    cwd=root, text=True, capture_output=True, check=False,
+                )
+                self.assertEqual(result.returncode, 0, msg=result.stdout + "\n" + result.stderr)
+                mesh = inspect_msh4(msh)
+                self.assertGreater(mesh["nodes"], 4)
+                self.assertGreater(mesh["line_elements"], 4)
+                self.assertGreater(mesh["triangle_elements"], 0)
+                self.assertEqual(mesh["quadrilateral_elements"], 0)
+                self.assertEqual(
+                    {(group["dimension"], group["name"]) for group in mesh["physical_groups"]},
+                    expected_groups,
+                )
+                triangle_counts.append(mesh["triangle_elements"])
+                node_counts.append(mesh["nodes"])
+        self.assertEqual(triangle_counts, sorted(triangle_counts))
+        self.assertEqual(node_counts, sorted(node_counts))
+        self.assertLess(triangle_counts[0], triangle_counts[-1])
+        self.assertLess(node_counts[0], node_counts[-1])
+
     def test_expected_mesh_counts_distinguish_the_two_examples(self):
         square = json.loads(
-            (ROOT / "grid/stl_to_gmsh/square/python/expected.json").read_text()
+            (ROOT / "grid/stl_to_gmsh/square/single_quad/python/expected.json").read_text()
         )
         two = json.loads(
             (ROOT / "grid/stl_to_gmsh/two_square_cells/python/expected.json").read_text()
@@ -253,7 +423,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         gmsh = shutil.which("gmsh")
         if gmsh is None:
             self.skipTest("Gmsh executable is not available")
-        source = ROOT / "grid/stl_to_gmsh/square/python"
+        source = ROOT / "grid/stl_to_gmsh/square/single_quad/python"
         with tempfile.TemporaryDirectory() as temporary:
             staged = Path(temporary) / "square"
             shutil.copytree(source, staged)
@@ -417,108 +587,6 @@ class StlToGmshCaseTest(unittest.TestCase):
                 (staged / "results/cube_single_hex.stl-to-gmsh-report.json").read_text()
             )["validated"])
         self.assertFalse((source / "results").exists())
-
-    def test_stl_to_cfd_pipeline_declares_ordered_artifact_handoffs(self):
-        workflow_path = ROOT / "grid/stl_to_gmsh/develop_test/stl_square_to_cfd.json"
-        workflow = json.loads(workflow_path.read_text(encoding="utf-8"))
-        plan = build_case_graph_plan(workflow["steps"][0]["cases"], ROOT)
-        self.assertEqual(
-            [step.case_id for step in plan.steps],
-            [
-                "stl_to_gmsh_square_2x2",
-                "gmsh_to_cgns_square_2x2",
-                "gmsh_to_oneflow_square_2x2",
-                "cfd_solve_square_2x2",
-            ],
-        )
-        gmsh, cgns, native, cfd = plan.steps
-        self.assertEqual(gmsh.outputs[0].relative_path, Path("results/square_2x2.msh"))
-        self.assertEqual(
-            gmsh.outputs[1].relative_path,
-            Path("results/square_2x2.stl-to-gmsh-report.json"),
-        )
-        self.assertEqual(cgns.inputs[0].producer_id, gmsh.case_id)
-        self.assertEqual(cgns.inputs[0].relative_path, Path("results/square_2x2.msh"))
-        self.assertEqual(cgns.outputs[0].relative_path, Path("results/square.cgns"))
-        self.assertEqual(
-            [output.relative_path.as_posix() for output in cgns.outputs],
-            [
-                "results/square.cgns",
-                "results/square.gmsh-read-report.json",
-                "results/square.gmsh-report.md",
-            ],
-        )
-        self.assertEqual(native.inputs[0].producer_id, cgns.case_id)
-        self.assertEqual(native.inputs[0].relative_path, Path("results/square.cgns"))
-        self.assertEqual(native.outputs[0].relative_path, Path("results/square.oneflow.grid"))
-        self.assertEqual(native.outputs[1].relative_path, Path("results/bcRegionMap.txt"))
-        self.assertEqual(native.outputs[2].relative_path, Path("results/square.info.json"))
-        self.assertEqual(cfd.inputs[0].producer_id, native.case_id)
-        self.assertEqual(cfd.inputs[0].relative_path, Path("results/square.oneflow.grid"))
-        self.assertEqual(
-            [output.relative_path.as_posix() for output in cfd.outputs],
-            ["results/res.dat", "restart/flow.dat", "visual/visual.dat"],
-        )
-        cgns_grid = (
-            ROOT / "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow/script/grid.txt"
-        ).read_text(encoding="utf-8")
-        self.assertIn('string sourceGridType = "cgns";', cgns_grid)
-        self.assertIn('string targetGridType = "oneflow";', cgns_grid)
-        self.assertIn(
-            'string bcRegionMapFile = "results/converted_grid_bcRegionMap.txt";',
-            cgns_grid,
-        )
-        case_definitions = {
-            case["id"]: case for case in workflow["steps"][0]["cases"]
-        }
-        self.assertEqual(case_definitions[gmsh.case_id]["validation"]["kind"], "gmsh_msh4")
-        self.assertEqual(
-            case_definitions[gmsh.case_id]["validation"]["expected_counts"],
-            {
-                "elements": 12,
-                "nodes": 9,
-                "line_elements": 8,
-                "triangle_elements": 0,
-                "quadrilateral_elements": 4,
-            },
-        )
-        self.assertEqual(
-            case_definitions[gmsh.case_id]["validation"]["expected_element_types"],
-            {"1": 8, "3": 4},
-        )
-        for case_id in (cgns.case_id, native.case_id, cfd.case_id):
-            self.assertEqual(
-                case_definitions[case_id]["validation"]["kind"],
-                "non_empty_files",
-            )
-        self.assertEqual(
-            case_definitions[cgns.case_id]["validation"]["paths"],
-            [
-                "results/square.cgns",
-                "results/square.gmsh-read-report.json",
-                "results/square.gmsh-report.md",
-            ],
-        )
-        self.assertEqual(
-            case_definitions[native.case_id]["validation"]["paths"],
-            [
-                "results/square.oneflow.grid",
-                "results/bcRegionMap.txt",
-                "results/square.info.json",
-            ],
-        )
-        self.assertEqual(
-            case_definitions[cfd.case_id]["validation"]["paths"],
-            ["results/res.dat", "restart/flow.dat", "visual/visual.dat"],
-        )
-        cfd_parameters = (
-            ROOT / "grid/stl_to_gmsh/pipeline/cfd_uns2dslau2/script/cfd.txt"
-        ).read_text(encoding="utf-8")
-        self.assertIn("int    maxSteps   =  50;", cfd_parameters)
-        self.assertIn("Real global_dt = 0.001;", cfd_parameters)
-        self.assertIn("int idump = 0;", cfd_parameters)
-        self.assertIn('string gridFileName = "grid/square.oneflow.grid";', cfd_parameters)
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -31,6 +31,7 @@ class CaseDefinition:
     execution_kind: str = "oneflow"
     execution_script: Path | None = None
     workspace_relative_directory: Path | None = None
+    dimension: int | None = None
 
 
 @dataclass(frozen=True, slots=True)

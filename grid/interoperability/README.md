@@ -18,9 +18,11 @@ format-specific parser implementations.
 
 These subdirectories are expanded when their first real fixture, route or
 contract is migrated; they are not a requirement to create empty folders.
-Existing manual Cases such as `grid/gmsh_to_cgns` remain in place during this
-incremental transition. Its `grid/square.msh` is the current canonical Gmsh
-fixture and must not be copied into every route.
+Runnable conversion templates are owned by `grid/conversion/`; for example,
+`grid/conversion/gmsh_to_cgns` owns the Gmsh-to-CGNS Case and its examples.
+This interoperability directory remains the route/format/contract inventory,
+not a second home for runnable Case templates. The canonical Gmsh fixture must
+not be copied into every route.
 
 ## Architecture
 

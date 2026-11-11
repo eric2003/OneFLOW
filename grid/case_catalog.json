@@ -5,42 +5,62 @@
     {
       "id": "minimal_rectangle",
       "title": "Minimal Rectangle",
-      "directory": "grid/minimal_rectangle",
+      "directory": "grid/mesh-layout/2d/minimal_rectangle",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
-      "layout": "grid/minimalRectangleLayout.txt"
+      "layout": "grid/minimalRectangleLayout.txt",
+      "group": "Mesh Layout",
+      "dimension": 2
     },
     {
       "id": "minimal_rectangle_vertical_midpoints",
       "title": "Minimal Rectangle with Vertical Midpoints",
-      "directory": "grid/minimal_rectangle_vertical_midpoints",
+      "directory": "grid/mesh-layout/2d/minimal_rectangle_vertical_midpoints",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
-      "layout": "grid/minimalRectangleVerticalMidpointsLayout.txt"
+      "layout": "grid/minimalRectangleVerticalMidpointsLayout.txt",
+      "group": "Mesh Layout",
+      "dimension": 2
     },
     {
       "id": "minimal_cube",
       "title": "Minimal Cube",
-      "directory": "grid/minimal_cube",
+      "directory": "grid/mesh-layout/3d/minimal_cube",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
-      "layout": "grid/minimalCubeLayout.txt"
+      "layout": "grid/minimalCubeLayout.txt",
+      "group": "Mesh Layout",
+      "dimension": 3
     },
     {
-      "id": "two_connected_cubes",
-      "title": "Two Connected Cubes",
-      "directory": "grid/two_connected_cubes",
+      "id": "two_blocks_shared_face_corners_only",
+      "title": "Two Blocks Sharing a Face with Four Corner Nodes",
+      "directory": "grid/mesh-layout/3d/two_blocks_shared_face_corners_only",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
-      "layout": "grid/twoConnectedCubesLayout.txt"
+      "layout": "grid/twoConnectedCubesLayout.txt",
+      "group": "Mesh Layout",
+      "dimension": 3
     },
     {
-      "id": "two_connected_squares",
-      "title": "Two Connected Squares",
-      "directory": "grid/two_connected_squares",
+      "id": "two_blocks_shared_edge_endpoints_only",
+      "title": "Two Blocks Sharing an Edge with Endpoints Only",
+      "directory": "grid/mesh-layout/2d/two_blocks_shared_edge_endpoints_only",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
-      "layout": "grid/twoConnectedSquaresLayout.txt"
+      "layout": "grid/twoBlocksSharedEdgeEndpointsOnlyLayout.txt",
+      "group": "Mesh Layout",
+      "dimension": 2
+    },
+    {
+      "id": "two_blocks_shared_edge_one_interior_node",
+      "title": "Two Blocks Sharing an Edge with One Interior Node",
+      "directory": "grid/mesh-layout/2d/two_blocks_shared_edge_one_interior_node",
+      "runtimeConfig": "script/control.txt",
+      "profile": "case.json",
+      "layout": "grid/twoConnectedSquaresLayout.txt",
+      "group": "Mesh Layout",
+      "dimension": 2
     },
     {
       "id": "mesh_workflow",
@@ -48,12 +68,13 @@
       "directory": "grid/mesh_workflow",
       "runtimeConfig": "script/control.txt",
       "profile": null,
-      "layout": null
+      "layout": null,
+      "group": "Mesh Workflow"
     },
     {
       "id": "gmsh_to_cgns",
       "title": "Gmsh to CGNS Bootstrap",
-      "directory": "grid/gmsh_to_cgns",
+      "directory": "grid/conversion/gmsh_to_cgns",
       "runtimeConfig": "script/control.txt",
       "profile": null,
       "layout": null,
@@ -62,16 +83,7 @@
     {
       "id": "gmsh_to_oneflow",
       "title": "Gmsh 2D to OneFLOW",
-      "directory": "grid/gmsh_to_oneflow",
-      "runtimeConfig": "script/control.txt",
-      "profile": null,
-      "layout": null,
-      "group": "Gmsh"
-    },
-    {
-      "id": "two_quads",
-      "title": "Gmsh Two Adjacent Quadrilaterals",
-      "directory": "grid/conversion/cases/two_quads",
+      "directory": "grid/conversion/gmsh_to_oneflow",
       "runtimeConfig": "script/control.txt",
       "profile": null,
       "layout": null,
@@ -80,31 +92,37 @@
     {
       "id": "laminar_flat_plate",
       "title": "Laminar Flat Plate",
-      "directory": "grid/laminar_flat_plate",
+      "directory": "grid/mesh-layout/2d/laminar_flat_plate",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
-      "layout": "grid/laminarFlatPlateLayout.txt"
+      "layout": "grid/laminarFlatPlateLayout.txt",
+      "group": "Mesh Layout",
+      "dimension": 2
     },
     {
       "id": "laminar_flat_plate_10_edges",
       "title": "Two-block Laminar Flat Plate (10 Edges)",
-      "directory": "grid/laminar_flat_plate_10_edges",
+      "directory": "grid/mesh-layout/2d/laminar_flat_plate_10_edges",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
-      "layout": "grid/laminarFlatPlate10EdgeLayout.txt"
+      "layout": "grid/laminarFlatPlate10EdgeLayout.txt",
+      "group": "Mesh Layout",
+      "dimension": 2
     },
     {
       "id": "turbulent_flat_plate",
       "title": "Turbulent Flat Plate",
-      "directory": "grid/turbulent_flat_plate",
+      "directory": "grid/mesh-layout/2d/turbulent_flat_plate",
       "runtimeConfig": "script/control.txt",
       "profile": "case.json",
-      "layout": "grid/turbulentFlatPlateLayout.txt"
+      "layout": "grid/turbulentFlatPlateLayout.txt",
+      "group": "Mesh Layout",
+      "dimension": 2
     },
     {
       "id": "stl_ascii_basic",
       "title": "STL ASCII Basic",
-      "directory": "grid/stl/ascii_basic",
+      "directory": "grid/stl/ascii_basic/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -112,7 +130,7 @@
     {
       "id": "stl_python_ascii_basic",
       "title": "STL ASCII Basic (Python reference)",
-      "directory": "grid/stl/python/ascii_basic",
+      "directory": "grid/stl/ascii_basic/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -122,7 +140,7 @@
     {
       "id": "stl_ascii_crlf",
       "title": "STL ASCII CRLF",
-      "directory": "grid/stl/ascii_crlf",
+      "directory": "grid/stl/ascii_crlf/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -130,7 +148,7 @@
     {
       "id": "stl_binary_basic",
       "title": "STL Binary Basic",
-      "directory": "grid/stl/binary_basic",
+      "directory": "grid/stl/binary_basic/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -138,7 +156,7 @@
     {
       "id": "stl_binary_header_solid",
       "title": "STL Binary Header Starts with solid",
-      "directory": "grid/stl/binary_header_solid",
+      "directory": "grid/stl/binary_header_solid/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -146,7 +164,7 @@
     {
       "id": "stl_ascii_scientific_notation",
       "title": "STL ASCII Scientific Notation",
-      "directory": "grid/stl/ascii_scientific_notation",
+      "directory": "grid/stl/ascii_scientific_notation/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -154,7 +172,7 @@
     {
       "id": "stl_non_planar_surface",
       "title": "STL Non-planar Surface",
-      "directory": "grid/stl/non_planar_surface",
+      "directory": "grid/stl/non_planar_surface/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -162,7 +180,7 @@
     {
       "id": "stl_weld_tolerance",
       "title": "STL Shared Vertices within Weld Tolerance",
-      "directory": "grid/stl/weld_tolerance",
+      "directory": "grid/stl/weld_tolerance/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -170,7 +188,7 @@
     {
       "id": "stl_ascii_single_triangle",
       "title": "STL ASCII Single Triangle",
-      "directory": "grid/stl/ascii_single_triangle",
+      "directory": "grid/stl/ascii_single_triangle/cpp",
       "profile": null,
       "layout": null,
       "group": "STL"
@@ -178,7 +196,7 @@
     {
       "id": "stl_python_binary_basic",
       "title": "STL Binary Basic (Python reference)",
-      "directory": "grid/stl/python/binary_basic",
+      "directory": "grid/stl/binary_basic/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -188,7 +206,7 @@
     {
       "id": "stl_python_binary_header_solid",
       "title": "STL Binary Header Starts with solid (Python reference)",
-      "directory": "grid/stl/python/binary_header_solid",
+      "directory": "grid/stl/binary_header_solid/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -198,7 +216,7 @@
     {
       "id": "stl_python_ascii_crlf",
       "title": "STL ASCII CRLF (Python reference)",
-      "directory": "grid/stl/python/ascii_crlf",
+      "directory": "grid/stl/ascii_crlf/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -208,7 +226,7 @@
     {
       "id": "stl_python_scientific_notation",
       "title": "STL Scientific Notation (Python reference)",
-      "directory": "grid/stl/python/scientific_notation",
+      "directory": "grid/stl/scientific_notation/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -218,7 +236,7 @@
     {
       "id": "stl_python_degenerate_triangle",
       "title": "STL Degenerate Triangle Diagnostic (Python reference)",
-      "directory": "grid/stl/python/degenerate_triangle",
+      "directory": "grid/stl/degenerate_triangle/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -228,7 +246,7 @@
     {
       "id": "stl_python_truncated_binary",
       "title": "STL Truncated Binary Diagnostic (Python reference)",
-      "directory": "grid/stl/python/truncated_binary",
+      "directory": "grid/stl/truncated_binary/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -238,7 +256,7 @@
     {
       "id": "stl_python_non_planar_surface",
       "title": "STL Non-planar Surface Diagnostic (Python reference)",
-      "directory": "grid/stl/python/non_planar_surface",
+      "directory": "grid/stl/non_planar_surface/python",
       "group": "STL",
       "execution": {
         "kind": "python",
@@ -247,11 +265,30 @@
     },
     {
       "id": "stl_to_gmsh_square",
-      "title": "STL to Gmsh: One Square Cell (Native C++)",
-      "directory": "grid/stl_to_gmsh/square/cpp",
+      "title": "STL to Gmsh: One Square QUAD_4 Cell (Native C++)",
+      "directory": "grid/stl_to_gmsh/square/single_quad/cpp",
       "profile": null,
       "layout": null,
-      "group": "STL to Gmsh"
+      "group": "STL to Gmsh",
+      "dimension": 2
+    },
+    {
+      "id": "stl_to_gmsh_square_two_triangles",
+      "title": "STL to Gmsh: Square with Two TRI_3 Cells (Native C++)",
+      "directory": "grid/stl_to_gmsh/square/two_triangles/cpp",
+      "profile": null,
+      "layout": null,
+      "group": "STL to Gmsh",
+      "dimension": 2
+    },
+    {
+      "id": "stl_to_gmsh_square_automatic_triangles",
+      "title": "STL to Gmsh: Square with Automatic TRI_3 Refinement (Native C++)",
+      "directory": "grid/stl_to_gmsh/square/automatic_triangles/cpp",
+      "profile": null,
+      "layout": null,
+      "group": "STL to Gmsh",
+      "dimension": 2
     },
     {
       "id": "stl_to_gmsh_square_2x2",
@@ -259,7 +296,8 @@
       "directory": "grid/stl_to_gmsh/square_2x2/cpp",
       "profile": null,
       "layout": null,
-      "group": "STL to Gmsh"
+      "group": "STL to Gmsh",
+      "dimension": 2
     },
     {
       "id": "stl_to_gmsh_two_square_cells",
@@ -267,7 +305,8 @@
       "directory": "grid/stl_to_gmsh/two_square_cells/cpp",
       "profile": null,
       "layout": null,
-      "group": "STL to Gmsh"
+      "group": "STL to Gmsh",
+      "dimension": 2
     },
     {
       "id": "stl_to_gmsh_circle_external_flow",
@@ -275,17 +314,41 @@
       "directory": "grid/stl_to_gmsh/circle_external_flow/cpp",
       "profile": null,
       "layout": null,
-      "group": "STL to Gmsh"
+      "group": "STL to Gmsh",
+      "dimension": 2
     },
     {
       "id": "stl_to_gmsh_python_square",
-      "title": "STL to Gmsh: One Square Cell (Python Reference)",
-      "directory": "grid/stl_to_gmsh/square/python",
+      "title": "STL to Gmsh: One Square QUAD_4 Cell (Python Reference)",
+      "directory": "grid/stl_to_gmsh/square/single_quad/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",
         "script": "grid/stl_to_gmsh/run_python_case.py"
-      }
+      },
+      "dimension": 2
+    },
+    {
+      "id": "stl_to_gmsh_python_square_two_triangles",
+      "title": "STL to Gmsh: Square with Two TRI_3 Cells (Python Reference)",
+      "directory": "grid/stl_to_gmsh/square/two_triangles/python",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/run_python_case.py"
+      },
+      "dimension": 2
+    },
+    {
+      "id": "stl_to_gmsh_python_square_automatic_triangles",
+      "title": "STL to Gmsh: Square with Automatic TRI_3 Refinement (Python Reference)",
+      "directory": "grid/stl_to_gmsh/square/automatic_triangles/python",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/run_python_case.py"
+      },
+      "dimension": 2
     },
     {
       "id": "stl_to_gmsh_python_two_square_cells",
@@ -295,7 +358,8 @@
       "execution": {
         "kind": "python",
         "script": "grid/stl_to_gmsh/run_python_case.py"
-      }
+      },
+      "dimension": 2
     },
     {
       "id": "stl_to_gmsh_python_circle_external_flow",
@@ -305,7 +369,8 @@
       "execution": {
         "kind": "python",
         "script": "grid/stl_to_gmsh/run_python_case.py"
-      }
+      },
+      "dimension": 2
     },
     {
       "id": "stl_to_gmsh_python_channel_internal_flow",
@@ -315,7 +380,8 @@
       "execution": {
         "kind": "python",
         "script": "grid/stl_to_gmsh/run_python_case.py"
-      }
+      },
+      "dimension": 2
     },
     {
       "id": "stl_to_gmsh_cube_single_hex",
@@ -323,7 +389,8 @@
       "directory": "grid/stl_to_gmsh/cube_single_hex/cpp",
       "profile": null,
       "layout": null,
-      "group": "STL to Gmsh"
+      "group": "STL to Gmsh",
+      "dimension": 3
     },
     {
       "id": "stl_to_gmsh_python_cube_single_hex",
@@ -333,7 +400,8 @@
       "execution": {
         "kind": "python",
         "script": "grid/stl_to_gmsh/run_python_case.py"
-      }
+      },
+      "dimension": 3
     }
   ]
 }

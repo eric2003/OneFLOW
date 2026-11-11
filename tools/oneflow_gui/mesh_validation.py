@@ -35,8 +35,36 @@ def _catalog(root: Path) -> dict:
     return value
 
 
+def mesh_case_groups(
+    repository_root: Path,
+) -> tuple[tuple[str, tuple[tuple[str, str], ...]], ...]:
+    """Group supported mesh producers by spatial dimension for GUI navigation."""
+    entries = _catalog(Path(repository_root).resolve()).get("cases", [])
+    grouped: dict[int | None, list[tuple[str, str]]] = {2: [], 3: [], None: []}
+    for item in entries:
+        if item.get("group") != "STL to Gmsh":
+            continue
+        if (item.get("execution") or {}).get("kind", "oneflow") not in {"oneflow", "python"}:
+            continue
+        dimension = item.get("dimension")
+        if dimension not in (2, 3):
+            dimension = None
+        grouped[dimension].append(
+            (str(item["id"]), str(item.get("title", item["id"])))
+        )
+    labels = ((2, "2D"), (3, "3D"), (None, "Unclassified"))
+    result = tuple(
+        (label, tuple(grouped[dimension]))
+        for dimension, label in labels
+        if grouped[dimension]
+    )
+    if not result:
+        raise ValueError("No supported STL-to-Gmsh Cases are registered.")
+    return result
+
+
 def mesh_case_choices(repository_root: Path) -> tuple[tuple[str, str], ...]:
-    """List native and Python STL-to-Gmsh producers from the Case Catalog."""
+    """List native and Python STL-to-Gmsh producers in catalog order."""
     entries = _catalog(Path(repository_root).resolve()).get("cases", [])
     choices = tuple(
         (str(item["id"]), str(item.get("title", item["id"])))
@@ -71,7 +99,7 @@ def _setting(path: Path, name: str) -> str:
 def build_mesh_validation_cases(
     repository_root: Path, mesh_case_id: str, cfd_template_id: str,
 ) -> list[dict]:
-    """Build the current STL -> Gmsh -> OneFLOW -> CFD route."""
+    """Build the current STL -> Gmsh -> CGNS -> OneFLOW -> CFD route."""
     root = Path(repository_root).resolve()
     catalog = _catalog(root)
     mesh = next((x for x in catalog["cases"] if x.get("id") == mesh_case_id), None)
@@ -119,7 +147,7 @@ def build_mesh_validation_cases(
              else [{"id": mesh_id, "path": msh}]
          ),
          "validation": {"kind": "gmsh_msh4", "path": msh}},
-        {"id": "gmsh_to_cgns", "directory": "grid/gmsh_to_cgns",
+        {"id": "gmsh_to_cgns", "directory": "grid/conversion/gmsh_to_cgns",
          "runtime_directory": "gmsh_to_cgns",
          "depends_on": ["stl_to_gmsh"],
          "inputs": [{"artifact": mesh_id, "setting": "sourceGridFileName",
@@ -127,9 +155,9 @@ def build_mesh_validation_cases(
          "outputs": [{"id": cgns_id, "path": cgns,
                       "parameter_file": "script/grid.txt",
                       "setting": "targetGridFileName"}]},
-        {"id": "gmsh_to_oneflow",
-         "directory": "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow",
-         "runtime_directory": "gmsh_to_oneflow",
+        {"id": "cgns_to_oneflow",
+         "directory": "grid/conversion/cgns_to_oneflow",
+         "runtime_directory": "cgns_to_oneflow",
          "depends_on": ["gmsh_to_cgns"],
          "inputs": [{"artifact": cgns_id, "setting": "sourceGridFileName",
                      "parameter_file": "script/grid.txt"}],
@@ -147,7 +175,7 @@ def build_mesh_validation_cases(
         {"id": "oneflow_cfd_solve",
          "directory": template["directory"],
          "runtime_directory": "oneflow_cfd_solve",
-         "depends_on": ["gmsh_to_oneflow"],
+         "depends_on": ["cgns_to_oneflow"],
          "inputs": [
              {"artifact": native_id, "setting": "gridFileName",
               "parameter_file": "script/cfd.txt"},

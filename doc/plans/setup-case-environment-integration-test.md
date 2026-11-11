@@ -255,7 +255,7 @@ count from the selected backend. In a serial build, `HXRank()` is 0 and
 `HXSize()` is 1. This remains the correct setup for a real reader test; static
 zero-initialized members are not a substitute for an explicit runtime contract.
 
-A representative minimal real case exists at `grid/minimal_rectangle`.
+A representative minimal real case exists at `grid/mesh-layout/2d/minimal_rectangle`.
 Its `script/control.txt` lists five files (`simu.txt`, `dimension.txt`,
 `tolerence.txt`, `grid.txt`, `part.txt`); the first files establish
 `simutask = "Grid"` and `dimension = 2`. For an isolated test, create a

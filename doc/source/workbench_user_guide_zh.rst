@@ -167,3 +167,13 @@ Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动�
 首页 Boundary Conditions... 打开独立的 Boundary Conditions Workbench。它与 Contract Workbench 中的 Boundary Conditions 契约浏览入口职责不同：前者浏览物理定义、公式、参数、格式映射、OneFLOW 实现状态和验证计划；后者用于跨领域契约治理。
 
 当前工作台读取 tools/verification/boundary_conditions/registry.json，首批整理 CFL3D Version 5.0 的 1002、1003、2002、2003 和 2004 五类边界条件。当前为只读研究目录，不会直接修改 Case 参数或启动求解器。格式映射或 OneFLOW 大类对应不代表数值实现已经完成。
+
+
+开发算例的 2D / 3D 分类
+-----------------------
+
+**Run Development Cases** 和 **Python reference cases** 共用 Case Catalog。选择算例时按空间维度、算例类别、具体算例三级组织：先选择 **2D** 或 **3D**，再展开 STL、STL to Gmsh、Mesh Layout 等类别，最后勾选 Native C++ 或 Python reference 的具体实现。两种实现作为同一算例族的并列条目显示，不把它们拆成互不相关的类别。尚未能从 Catalog、网格布局或类型化参数中确认维度的条目放在 **Unclassified**，不会根据标题猜测。
+
+**Mesh-to-CFD Validation** 使用相同的维度分组，但只显示具备完整产物绑定和转换图的网格生产算例。CFD consumer 和 smoke-test 参数仍在选择树之外，避免把网格维度、实现语言和求解器配置混在一个列表里。
+
+新增算例时，除了代码和测试，还应说明几何/数据如何构造、配置如何驱动生成、预期产物及其拓扑/边界约束、下游转换如何消费产物，以及测试究竟证明了什么。完整的算例设计与实施规范见 ``doc/source/development_case_methodology.rst``；STL-to-Gmsh 的具体构造步骤见各算例目录中的 README。

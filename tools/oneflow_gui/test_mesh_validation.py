@@ -10,10 +10,11 @@ from unittest import mock
 from pathlib import Path
 
 from tools.oneflow_gui.mesh_validation import (
-    build_mesh_validation_cases, cfd_template_choices, mesh_case_choices,
+    build_mesh_validation_cases, cfd_template_choices, mesh_case_choices, mesh_case_groups,
     mesh_validation_workspace, reset_mesh_validation_workspace,
     _graph_step_records, _mesh_case_command,
 )
+from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
     CaseExecutionResult, WorkflowGraphRunResult,
 )
@@ -23,34 +24,56 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
-        (self.root / "grid/stl_to_gmsh/square/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/square/single_quad/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/square/two_triangles/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/square/two_triangles/python").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/square/automatic_triangles/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/square/automatic_triangles/python").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/circle_external_flow/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/cube_single_hex/cpp/script").mkdir(parents=True)
-        (self.root / "grid/stl_to_gmsh/square/python").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/square/single_quad/python").mkdir(parents=True)
         (self.root / "test/cfd/plateuns2dslau2/script").mkdir(parents=True)
         (self.root / "grid/case_catalog.json").write_text(json.dumps({
             "schema": "oneflow.case-catalog",
             "cases": [
-                {"id": "stl_to_gmsh_square", "title": "One Square Cell",
-                 "directory": "grid/stl_to_gmsh/square/cpp", "group": "STL to Gmsh"},
+                {"id": "stl_to_gmsh_square", "title": "One Square QUAD_4 Cell",
+                 "directory": "grid/stl_to_gmsh/square/single_quad/cpp", "group": "STL to Gmsh", "dimension": 2},
+                {"id": "stl_to_gmsh_square_two_triangles",
+                 "title": "Square with Two TRI_3 Cells (Native C++)",
+                 "directory": "grid/stl_to_gmsh/square/two_triangles/cpp",
+                 "group": "STL to Gmsh", "dimension": 2},
+                {"id": "stl_to_gmsh_square_automatic_triangles",
+                 "title": "Square with Automatic TRI_3 Refinement (Native C++)",
+                 "directory": "grid/stl_to_gmsh/square/automatic_triangles/cpp",
+                 "group": "STL to Gmsh", "dimension": 2},
                 {"id": "stl_to_gmsh_circle_external_flow",
                  "title": "Circle External Flow (Native C++)",
                  "directory": "grid/stl_to_gmsh/circle_external_flow/cpp",
-                 "group": "STL to Gmsh"},
+                 "group": "STL to Gmsh", "dimension": 2},
                 {"id": "native_cube", "title": "Cube Single Hex (Native C++)",
                  "directory": "grid/stl_to_gmsh/cube_single_hex/cpp",
-                 "group": "STL to Gmsh"},
+                 "group": "STL to Gmsh", "dimension": 3},
                 {"id": "python_cube", "title": "Cube Single Hex (Python Reference)",
                  "directory": "grid/stl_to_gmsh/cube_single_hex/python",
-                 "group": "STL to Gmsh",
+                 "group": "STL to Gmsh", "dimension": 3,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
-                {"id": "python_square", "title": "One Square Cell (Python Reference)",
-                 "directory": "grid/stl_to_gmsh/square/python",
-                 "group": "STL to Gmsh",
+                {"id": "python_square", "title": "One Square QUAD_4 Cell (Python Reference)",
+                 "directory": "grid/stl_to_gmsh/square/single_quad/python",
+                 "group": "STL to Gmsh", "dimension": 2,
+                 "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
+                {"id": "stl_to_gmsh_python_square_two_triangles",
+                 "title": "Square with Two TRI_3 Cells (Python Reference)",
+                 "directory": "grid/stl_to_gmsh/square/two_triangles/python",
+                 "group": "STL to Gmsh", "dimension": 2,
+                 "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
+                {"id": "stl_to_gmsh_python_square_automatic_triangles",
+                 "title": "Square with Automatic TRI_3 Refinement (Python Reference)",
+                 "directory": "grid/stl_to_gmsh/square/automatic_triangles/python",
+                 "group": "STL to Gmsh", "dimension": 2,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
             ],
         }), encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/square/python/expected.json").write_text(
+        (self.root / "grid/stl_to_gmsh/square/single_quad/python/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "square.msh"}}), encoding="utf-8"
         )
         (self.root / "grid/stl_to_gmsh/circle_external_flow/cpp/script/grid.txt").write_text(
@@ -61,8 +84,19 @@ class MeshValidationCatalogTest(unittest.TestCase):
             'string targetGridFileName = "results/cube_single_hex.msh";\n', encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/cube_single_hex/cpp/script/layout.json").write_text(
             json.dumps({"mesh_dimension": 3}), encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/square/cpp/script/grid.txt").write_text(
+        (self.root / "grid/stl_to_gmsh/square/single_quad/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/square.msh";\n', encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/square/two_triangles/cpp/script/grid.txt").write_text(
+            'string targetGridFileName = "results/square_two_triangles.msh";\n', encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/square/two_triangles/python/expected.json").write_text(
+            json.dumps({"artifact": {"mesh_file": "square_two_triangles.msh"}}),
+            encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/square/automatic_triangles/cpp/script/grid.txt").write_text(
+            'string targetGridFileName = "results/square_automatic_triangles.msh";\n',
+            encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/square/automatic_triangles/python/expected.json").write_text(
+            json.dumps({"artifact": {"mesh_file": "square_automatic_triangles.msh"}}),
+            encoding="utf-8")
         (self.root / "test/cfd/plateuns2dslau2/script/cfd.txt").write_text(
             'string resFile = "results/res.dat";\n'
             'string flowFile = "restart/flow.dat";\n'
@@ -71,14 +105,58 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def tearDown(self):
         self.temporary.cleanup()
 
+    def test_case_dimension_uses_explicit_metadata_then_layout_or_directory(self):
+        two_d = {"directory": "grid/mesh-layout/2d/minimal"}
+        self.assertEqual(_case_dimension(two_d, self.root), 2)
+
+        layout_case = self.root / "grid/mesh-layout/2d/custom_volume_case"
+        (layout_case / "script").mkdir(parents=True)
+        (layout_case / "script/layout.json").write_text(
+            json.dumps({"mesh_dimension": 3}), encoding="utf-8"
+        )
+        self.assertEqual(
+            _case_dimension({"directory": "grid/mesh-layout/2d/custom_volume_case"}, layout_case), 3
+        )
+        self.assertEqual(
+            _case_dimension(
+                {"directory": "grid/mesh-layout/2d/custom_volume_case", "dimension": 2}, layout_case
+            ),
+            2,
+        )
+        self.assertIsNone(_case_dimension({"directory": "grid/unknown_case"}, self.root))
+
     def test_mesh_selector_contains_native_and_python_implementations(self):
         self.assertEqual(mesh_case_choices(self.root), (
-            ("stl_to_gmsh_square", "One Square Cell"),
+            ("stl_to_gmsh_square", "One Square QUAD_4 Cell"),
+            ("stl_to_gmsh_square_two_triangles", "Square with Two TRI_3 Cells (Native C++)"),
+            ("stl_to_gmsh_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Native C++)"),
             ("stl_to_gmsh_circle_external_flow", "Circle External Flow (Native C++)"),
             ("native_cube", "Cube Single Hex (Native C++)"),
             ("python_cube", "Cube Single Hex (Python Reference)"),
-            ("python_square", "One Square Cell (Python Reference)"),
+            ("python_square", "One Square QUAD_4 Cell (Python Reference)"),
+            ("stl_to_gmsh_python_square_two_triangles", "Square with Two TRI_3 Cells (Python Reference)"),
+            ("stl_to_gmsh_python_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Python Reference)"),
         ))
+    def test_mesh_selector_groups_cases_by_spatial_dimension(self):
+        groups = mesh_case_groups(self.root)
+        self.assertEqual([dimension for dimension, _cases in groups], ["2D", "3D"])
+        self.assertEqual(
+            [case_id for case_id, _title in groups[0][1]],
+            [
+                "stl_to_gmsh_square",
+                "stl_to_gmsh_square_two_triangles",
+                "stl_to_gmsh_square_automatic_triangles",
+                "stl_to_gmsh_circle_external_flow",
+                "python_square",
+                "stl_to_gmsh_python_square_two_triangles",
+                "stl_to_gmsh_python_square_automatic_triangles",
+            ],
+        )
+        self.assertEqual(
+            [case_id for case_id, _title in groups[1][1]],
+            ["native_cube", "python_cube"],
+        )
+
     def test_mesh_producer_command_dispatches_by_implementation(self):
         python_entry = {
             "execution": {
@@ -129,7 +207,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             cases[1]["outputs"][0]["path"],
             "results/circle_external_flow.cgns",
         )
-        self.assertEqual(cases[2]["id"], "gmsh_to_oneflow")
+        self.assertEqual(cases[2]["id"], "cgns_to_oneflow")
         self.assertEqual(
             cases[2]["outputs"][0]["path"],
             "results/circle_external_flow.oneflow.grid",
@@ -153,12 +231,56 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ],
         )
 
+    def test_square_two_triangles_cases_are_available_to_mesh_to_cfd_validation(self):
+        native = build_mesh_validation_cases(
+            self.root, "stl_to_gmsh_square_two_triangles", "laminar_flat_plate"
+        )
+        python = build_mesh_validation_cases(
+            self.root, "stl_to_gmsh_python_square_two_triangles", "laminar_flat_plate"
+        )
+        self.assertEqual(len(native), 4)
+        self.assertEqual(len(python), 4)
+        self.assertEqual(
+            native[0]["directory"], "grid/stl_to_gmsh/square/two_triangles/cpp"
+        )
+        self.assertEqual(
+            native[0]["outputs"][0]["path"], "results/square_two_triangles.msh"
+        )
+        self.assertEqual(
+            python[0]["directory"], "grid/stl_to_gmsh/square/two_triangles/python"
+        )
+        self.assertEqual(
+            python[0]["outputs"][0]["path"], "results/square_two_triangles.msh"
+        )
+        self.assertEqual(native[1]["id"], "gmsh_to_cgns")
+        self.assertEqual(python[1]["id"], "gmsh_to_cgns")
+
+    def test_automatic_triangle_cases_are_available_to_mesh_to_cfd_validation(self):
+        native = build_mesh_validation_cases(
+            self.root, "stl_to_gmsh_square_automatic_triangles", "laminar_flat_plate"
+        )
+        python = build_mesh_validation_cases(
+            self.root, "stl_to_gmsh_python_square_automatic_triangles", "laminar_flat_plate"
+        )
+        self.assertEqual(len(native), 4)
+        self.assertEqual(len(python), 4)
+        self.assertEqual(native[0]["directory"],
+                         "grid/stl_to_gmsh/square/automatic_triangles/cpp")
+        self.assertEqual(python[0]["directory"],
+                         "grid/stl_to_gmsh/square/automatic_triangles/python")
+        self.assertEqual(native[0]["outputs"][0]["path"],
+                         "results/square_automatic_triangles.msh")
+        self.assertEqual(python[0]["outputs"][0]["path"],
+                         "results/square_automatic_triangles.msh")
+        self.assertEqual(native[1]["id"], "gmsh_to_cgns")
+        self.assertEqual(python[1]["id"], "gmsh_to_cgns")
+
     def test_python_mesh_case_uses_the_same_artifact_handoff_contract(self):
         cases = build_mesh_validation_cases(
             self.root, "python_square", "laminar_flat_plate"
         )
         self.assertEqual(len(cases), 4)
-        self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/square/python")
+        self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/square/single_quad/python")
         self.assertEqual(cases[0]["outputs"], [
             {"id": "gmsh_mesh", "path": "results/square.msh"}
         ])
@@ -167,7 +289,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         })
         self.assertEqual(cases[1]["inputs"][0]["artifact"], "gmsh_mesh")
         self.assertEqual(cases[1]["inputs"][0]["setting"], "sourceGridFileName")
-        self.assertEqual(cases[1]["directory"], "grid/gmsh_to_cgns")
+        self.assertEqual(cases[1]["directory"], "grid/conversion/gmsh_to_cgns")
         self.assertEqual(cases[3]["inputs"][1]["artifact"], "bc_region_map")
         self.assertEqual(cases[3]["inputs"][1]["setting"], "bcRegionMapFile")
 
@@ -175,7 +297,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def test_native_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
         cases = build_mesh_validation_cases(self.root, "native_cube", "laminar_flat_plate")
         self.assertEqual([item["id"] for item in cases],
-                         ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow",
+                         ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow",
                           "oneflow_cfd_solve"])
         self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/cube_single_hex/cpp")
         self.assertEqual(cases[0]["runtime_directory"], "stl_to_gmsh")
@@ -207,7 +329,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             self.root, "python_cube", "laminar_flat_plate"
         )
         self.assertEqual([item["id"] for item in cases],
-                         ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow",
+                         ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow",
                           "oneflow_cfd_solve"])
         self.assertEqual(cases[0]["validation"], {
             "kind": "gmsh_msh4", "path": "results/cube_single_hex.msh"
@@ -229,18 +351,18 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[0]["outputs"][0]["path"], "results/square.msh")
         self.assertEqual(
             [item["runtime_directory"] for item in cases],
-            ["stl_to_gmsh", "gmsh_to_cgns", "gmsh_to_oneflow", "oneflow_cfd_solve"],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
         )
         self.assertEqual(cases[1]["id"], "gmsh_to_cgns")
         self.assertEqual(cases[1]["depends_on"], ["stl_to_gmsh"])
-        self.assertEqual(cases[1]["directory"], "grid/gmsh_to_cgns")
+        self.assertEqual(cases[1]["directory"], "grid/conversion/gmsh_to_cgns")
         self.assertEqual(cases[1]["outputs"][0], {
             "id": "cgns_mesh", "path": "results/square.cgns",
             "parameter_file": "script/grid.txt", "setting": "targetGridFileName",
         })
-        self.assertEqual(cases[2]["id"], "gmsh_to_oneflow")
+        self.assertEqual(cases[2]["id"], "cgns_to_oneflow")
         self.assertEqual(cases[2]["depends_on"], ["gmsh_to_cgns"])
-        self.assertEqual(cases[2]["directory"], "grid/stl_to_gmsh/pipeline/gmsh_to_oneflow")
+        self.assertEqual(cases[2]["directory"], "grid/conversion/cgns_to_oneflow")
         self.assertEqual(cases[2]["outputs"], [
             {"id": "oneflow_grid", "path": "results/square.oneflow.grid",
              "parameter_file": "script/grid.txt", "setting": "targetGridFileName"},
@@ -250,7 +372,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
              "parameter_file": "script/grid.txt", "setting": "gridInfoFileName"},
         ])
         self.assertEqual(cases[3]["id"], "oneflow_cfd_solve")
-        self.assertEqual(cases[3]["depends_on"], ["gmsh_to_oneflow"])
+        self.assertEqual(cases[3]["depends_on"], ["cgns_to_oneflow"])
         self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
         self.assertEqual(cases[3]["inputs"], [
             {"artifact": "oneflow_grid", "setting": "gridFileName",
@@ -267,10 +389,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 "Declared output artifacts were not produced: results/mesh.cgns",
             ),
             CaseExecutionResult(
-                "gmsh_to_oneflow", "skipped", "Blocked by unsuccessful dependencies: gmsh_to_cgns",
+                "cgns_to_oneflow", "skipped", "Blocked by unsuccessful dependencies: gmsh_to_cgns",
             ),
             CaseExecutionResult(
-                "oneflow_cfd_solve", "skipped", "Blocked by unsuccessful dependencies: gmsh_to_oneflow",
+                "oneflow_cfd_solve", "skipped", "Blocked by unsuccessful dependencies: cgns_to_oneflow",
             ),
         ))
         self.assertEqual(_graph_step_records(result), [
@@ -278,10 +400,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
              "message": "OneFLOW exited successfully."},
             {"case_id": "gmsh_to_cgns", "status": "failed",
              "message": "Declared output artifacts were not produced: results/mesh.cgns"},
-            {"case_id": "gmsh_to_oneflow", "status": "skipped",
+            {"case_id": "cgns_to_oneflow", "status": "skipped",
              "message": "Blocked by unsuccessful dependencies: gmsh_to_cgns"},
             {"case_id": "oneflow_cfd_solve", "status": "skipped",
-             "message": "Blocked by unsuccessful dependencies: gmsh_to_oneflow"},
+             "message": "Blocked by unsuccessful dependencies: cgns_to_oneflow"},
         ])
 
     def test_unknown_mesh_case_and_template_are_rejected(self):
@@ -304,7 +426,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             workspace = mesh_validation_workspace(self.root, "stl_to_gmsh_square")
         self.assertEqual(
             workspace,
-            self.root / ".oneflow" / "mesh-validation" / "stl_to_gmsh" / "square" / "cpp",
+            self.root / ".oneflow" / "mesh-validation" / "stl_to_gmsh" / "square" / "single_quad" / "cpp",
         )
 
     def test_workspace_rejects_cases_outside_grid(self):

@@ -20,7 +20,8 @@ Native OneFLOW Cases
 The primary runtime implementation is now available in two normal OneFLOW
 Grid Cases:
 
-* `grid/stl_to_gmsh/square/cpp`: one square, one QUAD_4 cell, four boundary edges;
+* `grid/stl_to_gmsh/square/single_quad/cpp`: one square, one QUAD_4 cell, four boundary edges;
+* `grid/stl_to_gmsh/square/two_triangles/cpp`: the same square, two TRI_3 cells;
 * `grid/stl_to_gmsh/two_square_cells/cpp`: a 2 x 1 rectangle, two QUAD_4 cells,
   six exterior boundary edges.
 
@@ -78,9 +79,30 @@ grid/stl currently provides:
 * rejection of open/branched boundaries, multiple loops, non-manifold edges,
   zero-area triangles and self-intersecting outer polygons;
 * a sidecar reader that requires every outer edge to be assigned exactly once;
-* Gmsh geometry generation, including physical curves and an optional single
-  quadrilateral cell configuration;
+* Gmsh geometry generation, including physical curves, transfinite structured
+  layouts, and automatic unstructured triangle meshing;
 * optional invocation of a separately installed Gmsh executable.
+
+Automatic triangular meshing
+-----------------------------
+
+For a directly bounded planar region, omit the transfinite_cells field from the
+layout. The converter then leaves the surface unstructured and lets Gmsh
+choose the triangulation. mesh_size controls the target characteristic length;
+it is not a requested element count. Smaller values normally produce more,
+smaller elements, but exact node and triangle counts depend on the Gmsh version,
+meshing algorithm and geometry.
+
+The automatic mode sets Mesh.MeshSizeMin and Mesh.MeshSizeMax to the configured
+value, enables point-based sizing and boundary-size extension, and does not
+apply transfinite constraints or recombination. C++ and Python use the same
+layout semantics. Validation checks non-empty first-order triangles, boundary
+LINE_2 correspondence, manifold edge incidence, the disk Euler characteristic,
+and declared Physical Groups rather than exact element counts.
+
+Use transfinite_cells only when a specific structured topology is required.
+In that mode integer x/y cell counts control the structured layout and
+recombine_surface selects QUAD_4 versus TRI_3 output.
 
 External-flow obstacle domain
 ------------------------------
@@ -218,6 +240,20 @@ ZMax share wall; fluid_domain names the volume.
 The cube is a restricted geometry-recovery prototype, not a general STL
 volume mesher. Mesh-to-CFD Validation passes it through MSH, CGNS and OneFLOW
 grid conversion and verifies FaceCenter boundary semantics and the boundary
-region map. It deliberately stops before the flat-plate CFD consumer: a
-single-cell cube is a topology/interoperability fixture, not a meaningful
-CFD accuracy case.
+region map. The current validation graph then runs a short, dimension-adjusted
+solver smoke test using shared consumer parameters. A single-cell cube remains
+a topology/interoperability fixture, not a meaningful CFD accuracy case.
+
+
+Automatic square triangulation Case
+-----------------------------------
+
+The square automatic-triangulation native C++ Case and independent Python
+reference Case are registered in the shared Case catalog. Both reuse the
+same two-facet square STL and four outer Physical Curve groups. They omit
+``transfinite_cells`` and ``recombine_surface``. Gmsh determines the TRI_3
+topology from the configured ``mesh_size``, which is a target characteristic
+length rather than an exact triangle count. Both implementations are
+selectable through Run Development Cases / Python reference cases and either
+can be selected in Mesh-to-CFD Validation. The downstream CFD consumer remains
+a smoke test, not an accuracy benchmark for this geometry.

@@ -77,6 +77,28 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(len(linked_tests), 1)
         self.assertEqual(linked_tests[0].status, "linked_not_executed")
 
+    def test_stl_planar_to_gmsh_contract_uses_conversion_template_path(self) -> None:
+        contract_path = (
+            self.repository_root
+            / "tools"
+            / "verification"
+            / "contracts"
+            / "mesh"
+            / "stl_planar_to_gmsh.json"
+        )
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        referenced_paths = (
+            contract["implementation"]["case_paths"]
+            + contract["documentation"]["paths"]
+        )
+        self.assertNotIn("grid/cgns_to_oneflow/README.md", referenced_paths)
+        self.assertIn(
+            "grid/conversion/cgns_to_oneflow/README.md", referenced_paths
+        )
+        self.assertTrue(
+            (self.repository_root / "grid" / "conversion" / "cgns_to_oneflow" / "README.md").is_file()
+        )
+
     def test_stl_native_io_contract_is_available_to_mesh_workbench(self) -> None:
         definitions, issues = load_contract_catalog(self.repository_root)
         self.assertEqual(issues, (), "\\n".join(issues))

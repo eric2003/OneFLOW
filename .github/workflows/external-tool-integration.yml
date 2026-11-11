@@ -103,7 +103,7 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Run STL-to-Gmsh development Cases and STL-to-CFD pipeline
+      - name: Run STL-to-Gmsh development Cases and Mesh-to-CFD Validation
         env:
           HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/1.14.3
           CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/4.5.2
@@ -127,15 +127,29 @@ jobs:
           python -m unittest tests.python.grid.test_stl_to_gmsh_cases
           if ($LASTEXITCODE -ne 0) { throw "STL-to-Gmsh Python tests failed with exit code $LASTEXITCODE." }
 
-          python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline --gmsh gmsh --stage-root "${{ runner.temp }}/stl-to-cfd"
+          python -m unittest tools.oneflow_gui.test_mesh_validation
+          if ($LASTEXITCODE -ne 0) { throw "Mesh-to-CFD Validation unit tests failed with exit code $LASTEXITCODE." }
+
+          python grid/stl_to_gmsh/develop_test/run_cases.py --gmsh gmsh --stage-root "${{ runner.temp }}/stl-to-cfd/development-cases"
           if ($LASTEXITCODE -ne 0) {
-              throw "The STL-to-Gmsh development Cases or STL-to-CFD pipeline failed with exit code $LASTEXITCODE."
+              throw "The STL-to-Gmsh development Cases failed with exit code $LASTEXITCODE."
           }
 
-      - name: Upload STL-to-CFD pipeline evidence
+          $oneflow = @(
+              "${{ github.workspace }}/build/bin/Release/OneFLOW.exe",
+              "${{ github.workspace }}/build/bin/OneFLOW.exe"
+          ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $oneflow) { throw "The built OneFLOW executable was not found." }
+
+          python -m tools.oneflow_gui.mesh_validation --oneflow-executable $oneflow --gmsh gmsh --mesh-case-id stl_to_gmsh_square_2x2 --max-steps 50 --stage-root "${{ runner.temp }}/stl-to-cfd/mesh-validation"
+          if ($LASTEXITCODE -ne 0) {
+              throw "Mesh-to-CFD Validation failed with exit code $LASTEXITCODE."
+          }
+
+      - name: Upload Mesh-to-CFD validation evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: stl-to-gmsh-and-cfd-development-evidence
+          name: stl-to-gmsh-and-mesh-validation-evidence
           path: ${{ runner.temp }}/stl-to-cfd/
           if-no-files-found: warn

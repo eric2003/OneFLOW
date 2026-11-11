@@ -77,7 +77,7 @@ def prepare_case_database_workspace(
     """Refresh the grid workspace and stage cases at their catalog-relative paths."""
     root = workspace_root.expanduser().resolve()
     destinations: dict[str, Path] = {}
-    occupied: list[Path] = []
+    sources: dict[str, Path] = {}
     for case in cases:
         source = case.case_directory.expanduser().resolve()
         destination = _case_database_destination(root, case)
@@ -87,17 +87,32 @@ def prepare_case_database_workspace(
             )
         if case.case_id in destinations:
             raise ValueError(f"Duplicate Case Database id: {case.case_id}")
-        if any(
-            destination == existing
-            or destination in existing.parents
-            or existing in destination.parents
-            for existing in occupied
-        ):
-            raise ValueError(
-                f"Overlapping Case Database destination for {case.case_id}: {destination}"
-            )
         destinations[case.case_id] = destination
-        occupied.append(destination)
+        sources[case.case_id] = source
+
+    # Each catalog Case must be independently stageable. Parent/child
+    # source or destination trees make refresh and ownership ambiguous.
+    for index, case in enumerate(cases):
+        for other in cases[index + 1:]:
+            source = sources[case.case_id]
+            other_source = sources[other.case_id]
+            destination = destinations[case.case_id]
+            other_destination = destinations[other.case_id]
+            if source == other_source or destination == other_destination:
+                raise ValueError(
+                    "Duplicate Case Database source or destination: "
+                    f"{case.case_id} ({destination}) and {other.case_id} ({other_destination})"
+                )
+            source_overlap = source in other_source.parents or other_source in source.parents
+            destination_overlap = (
+                destination in other_destination.parents
+                or other_destination in destination.parents
+            )
+            if source_overlap or destination_overlap:
+                raise ValueError(
+                    "Overlapping Case Database paths are not allowed: "
+                    f"{case.case_id} ({destination}) and {other.case_id} ({other_destination})"
+                )
 
     root.mkdir(parents=True, exist_ok=True)
     for child in root.iterdir():

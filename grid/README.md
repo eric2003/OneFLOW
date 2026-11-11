@@ -12,10 +12,7 @@ future GUI. It gives each case a stable ID and locates its runtime entry point,
 layout, and optional richer profile. A GUI should discover cases from this
 catalog instead of hard-coding case names or directory paths.
 
-The `minimal_rectangle`, `minimal_cube`, `two_connected_cubes`, and
-`two_connected_squares` cases have versioned `case.json` profiles. Each profile describes the generation
-dimension, layout, runtime parameter-file list, inspection outputs, and
-expected mesh counts and bounds. The flat-plate cases also provide profiles
+The foundational 2D and 3D layout cases have versioned `case.json` profiles. Each profile describes the generation dimension, layout, runtime parameter-file list, inspection outputs, and expected mesh counts and bounds. The flat-plate cases also provide profiles
 with mesh expectations; `turbulent_flat_plate` follows the laminar reference
 layout but uses 81 points in the wall-normal direction. The catalog remains an
 index; profile validation checks that its layout agrees with the catalog and
@@ -27,8 +24,9 @@ Use the standard-library command-line tool to discover and validate cases:
 python tools/mesh_cases.py list
 python tools/mesh_cases.py show minimal_cube
 python tools/mesh_cases.py validate
-python tools/mesh_cases.py validate two_connected_cubes
-python tools/mesh_cases.py validate two_connected_squares
+python tools/mesh_cases.py validate two_blocks_shared_face_corners_only
+python tools/mesh_cases.py validate two_blocks_shared_edge_endpoints_only
+python tools/mesh_cases.py validate two_blocks_shared_edge_one_interior_node
 python tools/mesh_cases.py validate turbulent_flat_plate
 python tools/test_mesh_cases.py
 ```
@@ -45,37 +43,67 @@ duplicate parameter values in the catalog.
 
 | Case | Purpose | Configuration and execution |
 |---|---|---|
-| `minimal_rectangle` | Generate a small structured grid, inspect geometry and topology, and export SVG/VTU views | `case.json`, `run.ps1` |
-| `minimal_cube` | Generate one 3D block from a readable point-line-face-block layout | `case.json`, `script/control.txt` |
-| `two_connected_cubes` | Generate two adjacent 3D blocks with one shared interface face | `case.json`, `script/control.txt` |
-| `two_connected_squares` | Generate two adjacent 2D blocks with one shared interface edge; carries the current grid options in the versioned profile | `case.json`, `script/control.txt` |
+| `minimal_rectangle` | Generate a small structured grid, inspect geometry and topology, and export SVG/VTU views | `grid/mesh-layout/2d/minimal_rectangle` |
+| `minimal_rectangle_vertical_midpoints` | Rectangle layout with one midpoint on each vertical side | `grid/mesh-layout/2d/minimal_rectangle_vertical_midpoints` |
+| `minimal_cube` | Generate one 3D block from a readable point-line-face-block layout | `grid/mesh-layout/3d/minimal_cube` |
+| `two_blocks_shared_face_corners_only` | Two 3D blocks sharing a face represented by its four corner nodes | `grid/mesh-layout/3d/two_blocks_shared_face_corners_only` |
+| `two_blocks_shared_edge_endpoints_only` | Minimum 2D two-block case: one QUAD per block and two shared-edge endpoints | `grid/mesh-layout/2d/two_blocks_shared_edge_endpoints_only` |
+| `two_blocks_shared_edge_one_interior_node` | Two 2D blocks whose shared edge contains one interior node | `grid/mesh-layout/2d/two_blocks_shared_edge_one_interior_node` |
 | `mesh_workflow` | Convert the RAE 2822 Plot3D grid to OneFLOW format and write a metadata summary | `script/control.txt`, parameter files, `tools/validate_case.py` |
-| `gmsh_to_cgns` | Manual GUI example for Gmsh MSH 4.1 ASCII to CGNS conversion | `script/control.txt`, `grid/square.msh`, `README.md` |
-| `gmsh_to_oneflow` | Manual GUI example for Gmsh MSH 4.1 ASCII through CGNS to a native OneFLOW grid | `script/control.txt`, `grid/single_quad.msh`, `README.md` |
-| `two_quads` | Self-contained two-cell Gmsh conversion example with an explicitly ungrouped internal interface | `grid/conversion/cases/two_quads` |
+| `gmsh_to_cgns` | Gmsh MSH 4.1 ASCII to CGNS conversion template | `grid/conversion/gmsh_to_cgns` |
+| `gmsh_to_oneflow` | Gmsh MSH 4.1 ASCII through CGNS to a native OneFLOW grid | `grid/conversion/gmsh_to_oneflow` |
 | `stl_to_gmsh_square`, `stl_to_gmsh_two_square_cells` | Native C++ OneFLOW STL-to-Gmsh Cases with independent Python references | `grid/stl_to_gmsh/<case>/cpp`, `grid/stl_to_gmsh/<case>/python` |
-| `laminar_flat_plate` | Reference two-block flat-plate mesh with 85 wall-normal points | `case.json`, `grid/laminarFlatPlateLayout.txt` |
-| `laminar_flat_plate_10_edges` | Two-block laminar flat plate with ten geometric line segments and 41 points across the first 0.02 near-wall region | `case.json`, `grid/laminarFlatPlate10EdgeLayout.txt` |
-| `turbulent_flat_plate` | Flat-plate mesh variant with 81 wall-normal points and updated expected topology counts | `case.json`, `grid/turbulentFlatPlateLayout.txt` |
+| `laminar_flat_plate` | Reference two-block flat-plate layout template with 85 wall-normal points | `grid/mesh-layout/2d/laminar_flat_plate` |
+| `laminar_flat_plate_10_edges` | Two-block laminar flat-plate layout with ten geometric line segments and 41 points across the first 0.02 near-wall region | `grid/mesh-layout/2d/laminar_flat_plate_10_edges` |
+| `turbulent_flat_plate` | Flat-plate layout variant with 81 wall-normal points and updated expected topology counts | `grid/mesh-layout/2d/turbulent_flat_plate` |
 
-The native `stl_to_gmsh` Cases run through the OneFLOW Grid task and use the configured Gmsh CLI to generate MSH 4.1. Their outputs can feed the existing Gmsh-to-CGNS/OneFLOW conversion paths. Each problem keeps its Native C++ and Python Reference implementations side by side under `grid/stl_to_gmsh/<case>/cpp` and `grid/stl_to_gmsh/<case>/python`.
+The native `stl_to_gmsh` Cases run through the OneFLOW Grid task and use the configured Gmsh CLI to generate MSH 4.1. Their outputs can feed the existing Gmsh-to-CGNS/OneFLOW conversion paths. Each STL-to-Gmsh geometry family groups topology variants first and implementation language second; for example, the square variants live under `grid/stl_to_gmsh/square/single_quad/{cpp,python}` and `grid/stl_to_gmsh/square/two_triangles/{cpp,python}`.
 
-## Conversion Case organization
+## Mesh layout templates
 
-Conversion examples are grouped under grid/conversion/cases/<case-id>/.
-The directory name describes the mesh/topology, not a source/target format
-pair. Each runnable Case owns its source mesh and runtime configuration so it
-can be copied and executed independently. The central
-grid/interoperability/conversion_matrix.json records implemented routes
-and the concrete Cases that cover them. Existing route-named Cases remain
-registered for backward compatibility; new examples use topology-oriented
-names.
+Foundational layout cases are grouped by dimension:
 
-The first example, two_quads, contains two adjacent QUAD_4 cells, six
-nodes, six exterior LINE_2 elements, and one internal interface line. Its
-four exterior Physical Groups demonstrate that a single named group can span
-multiple geometric entities. See grid/conversion/README.md and the
-Grid conversion Cases documentation for the current collection and scope.
+- `2d/`: rectangle baselines, the two-block shared-edge progression, and flat-plate layouts.
+- `3d/`: the minimal cube and the two-block shared-face baseline.
+
+The two-block 2D examples are deliberately separate. The endpoint-only case
+has two nodes on the shared edge and one QUAD per block. The next case adds
+one interior node to that edge. Each case tests only its stated topology
+condition; more complex geometry and boundary-condition behavior belong in
+separate examples.
+
+Each template remains a self-contained case with its own profile where
+applicable, runtime parameter files, layout source, and editable specification.
+Generated artifacts belong in an external workspace.
+
+## Conversion templates and examples
+
+Reusable conversion Cases are grouped under `grid/conversion/`. Each route
+directory is a runnable template with its own input and configuration contract.
+Focused examples live beneath the route that owns their execution workflow.
+The Gmsh-to-CGNS examples are under
+`grid/conversion/gmsh_to_cgns/examples/<contract>/<case-id>/`. Each example owns its
+source mesh, runtime configuration, expected topology, and instructions, so
+it can be copied and run independently.
+
+The three reusable route templates are `cgns_to_oneflow`, `gmsh_to_cgns`,
+and `gmsh_to_oneflow`. They are runnable Case templates, not converter
+implementation modules. `mesh-validation` stages and composes them in an
+external workspace rather than duplicating their runtime configuration.
+
+The conversion matrix at `grid/interoperability/conversion_matrix.json`
+remains the central inventory of supported format routes and the runnable
+Cases that cover them. The Case catalog registers examples for GUI and CLI
+discovery. These registries describe different things: the catalog locates a
+runnable Case, while the matrix records conversion coverage.
+
+The Gmsh-to-CGNS route owns a `grid/two_quads.msh` input fixture with two
+adjacent QUAD_4 cells, six nodes, six exterior LINE_2 elements, and one
+internal interface line. Its four exterior Physical Groups demonstrate that
+a single named group can span multiple geometric entities. The fixture is
+used by the automated conversion integration test and is not a separate
+catalog Case. See the Gmsh-to-CGNS examples README and the Grid conversion
+Cases documentation for its scope.
 
 ## Target integration model
 

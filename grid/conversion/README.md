@@ -1,30 +1,73 @@
-# Grid Conversion Cases
+# Mesh Conversion Templates
 
-This directory groups runnable conversion examples by the mesh being
-demonstrated, not by the converter used to process it.
+This directory contains reusable, runnable Case templates for mesh-format
+conversion routes. It does not contain the C++ converter implementations;
+those remain in the corresponding reader, writer, and mesh-construction
+modules.
 
-## Organization
+## Route templates
 
-- cases/<case-id>/ contains a self-contained, independently runnable mesh
-  Case: its source mesh, OneFLOW parameter files, expected topology, and
-  instructions.
-- ../interoperability/conversion_matrix.json records supported format routes
-  and the runnable Cases that provide concrete coverage.
-- ../case_catalog.json registers each Case for GUI and command-line discovery.
-- doc/source/grid_conversion_cases.rst is the documentation entry point.
+| Template | Route | Responsibility |
+|---|---|---|
+| `cgns_to_oneflow` | CGNS -> OneFLOW | Read a CGNS mesh and write the native OneFLOW grid plus boundary/grid metadata |
+| `gmsh_to_cgns` | Gmsh -> CGNS | Read Gmsh MSH input and write a CGNS interchange mesh with boundary semantics |
+| `gmsh_to_oneflow` | Gmsh -> CGNS -> OneFLOW | Compose the Gmsh reader/writer and CGNS reader into a complete native-grid conversion |
 
-A case ID describes geometry or topology (for example, two_quads or mixed_2d).
-It must not include a route prefix such as gmsh_to_cgns_. The same mesh may
-eventually be exercised by multiple conversion routes without copying or
-renaming the geometric example.
+Each template owns its runtime parameters, required input contract, and
+instructions. Preserve these directories as independently stageable Cases.
+Do not place generated outputs in the checked-in template directories.
 
-Each Case owns its input mesh and runtime configuration. The current OneFLOW
-parameter file selects a source/target pair through sourceGridType and
-targetGridType. Route selection is explicit and reproducible today; a future
-GUI route selector can stage a route profile into the isolated run workspace
-without changing the source Case.
+## Composition in larger workflows
 
-Conversion Cases are manually launched from the GUI Case Workbench. They are
-not automatically executed by CTest, Python unittest, or GitHub Actions.
-Generated files belong in the external run workspace or a Case-local results
-directory when run manually; do not commit generated artifacts.
+A workflow such as Mesh-to-CFD Validation can stage these templates into an
+external workspace and bind artifact paths between stages:
+
+```text
+STL -> Gmsh producer
+       |
+       v
+conversion/gmsh_to_cgns
+       |
+       v
+CGNS interchange artifact
+       |
+       v
+conversion/cgns_to_oneflow
+       |
+       v
+native OneFLOW grid + boundary metadata
+       |
+       v
+CFD consumer and validation evidence
+```
+
+The composed `gmsh_to_oneflow` template is also available when a workflow
+needs the complete route as one Case. It uses the same Gmsh-to-CGNS mapping
+and CGNS interchange boundary; it is not a second direct Gmsh converter.
+
+## Route-owned input fixtures
+
+Small topology inputs belong to the conversion route they exercise. The
+`gmsh_to_cgns` template owns the MSH 4.1 fixtures in
+`grid/conversion/gmsh_to_cgns/grid/`, including `square.msh`,
+`two_quads.msh`, and `cube_single_hex.msh`. The two-quad fixture exercises
+adjacent QUAD_4 cells, their shared internal edge, and Physical Group
+membership. It is consumed by automated conversion integration tests; it is
+not a separate GUI Case or a second conversion route.
+
+The Case catalog therefore lists route templates, not every input mesh used
+to test a route. The conversion matrix records fixture-level coverage and
+links it to the owning route.
+
+## Inventory and implementation boundaries
+
+- `grid/case_catalog.json` locates runnable Cases for GUI and CLI discovery.
+- `grid/interoperability/conversion_matrix.json` records supported routes,
+  templates, implementation status, and coverage.
+- `grid/interoperability/` owns format descriptions and shared semantic
+  contracts; it does not duplicate runnable route templates.
+- C++/Python converter implementations remain in their implementation
+  modules. Templates configure and exercise those implementations.
+
+Tests and workflows must copy/stage templates into temporary or user-data
+workspaces. Source fixtures and template parameter files remain unchanged.

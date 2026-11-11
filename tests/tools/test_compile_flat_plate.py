@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 MODULE_PATH = ROOT / "tools" / "mesh_layout" / "compile_flat_plate.py"
-SPEC_PATH = ROOT / "grid" / "laminar_flat_plate" / "flat_plate.json"
+SPEC_PATH = ROOT / "grid" / "mesh-layout" / "2d" / "laminar_flat_plate" / "flat_plate.json"
 
 module_spec = importlib.util.spec_from_file_location("compile_flat_plate", MODULE_PATH)
 compiler = importlib.util.module_from_spec(module_spec)
@@ -40,7 +40,7 @@ class CompileFlatPlateTest(unittest.TestCase):
         self.assertIn("Boundary(5)={6}", output)
         self.assertIn("Add F2B 2 1 2", output)
         checked_in_layout = (
-            ROOT / "grid" / "laminar_flat_plate" / "grid" / "laminarFlatPlateLayout.txt"
+            ROOT / "grid" / "mesh-layout" / "2d" / "laminar_flat_plate" / "grid" / "laminarFlatPlateLayout.txt"
         ).read_text(encoding="utf-8")
         self.assertEqual(output, checked_in_layout)
 
@@ -121,7 +121,7 @@ class CompileFlatPlateTest(unittest.TestCase):
 
     def test_semantic_tanh_spacing_compiles_to_legacy_ds_syntax(self):
         spec = json.loads(
-            (ROOT / "grid" / "turbulent_flat_plate" / "flat_plate.json").read_text(
+            (ROOT / "grid" / "mesh-layout" / "2d" / "turbulent_flat_plate" / "flat_plate.json").read_text(
                 encoding="utf-8"
             )
         )
@@ -138,7 +138,7 @@ class CompileFlatPlateTest(unittest.TestCase):
         for line in expected:
             self.assertIn(line, output)
         checked_in_layout = (
-            ROOT / "grid" / "turbulent_flat_plate" / "grid" / "turbulentFlatPlateLayout.txt"
+            ROOT / "grid" / "mesh-layout" / "2d" / "turbulent_flat_plate" / "grid" / "turbulentFlatPlateLayout.txt"
         ).read_text(encoding="utf-8")
         self.assertEqual(output, checked_in_layout)
 

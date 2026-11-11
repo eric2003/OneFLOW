@@ -17,7 +17,7 @@ class MeshLayoutProjectsTest(unittest.TestCase):
     def test_template_copy_includes_project_files_and_preserves_source(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             workspace = Path(directory) / "projects"
-            source_json = REPOSITORY_ROOT / "grid" / "turbulent_flat_plate" / "flat_plate.json"
+            source_json = REPOSITORY_ROOT / "grid" / "mesh-layout" / "2d" / "turbulent_flat_plate" / "flat_plate.json"
             original = source_json.read_text(encoding="utf-8")
 
             project = ensure_template_project(REPOSITORY_ROOT, workspace, "flat_plate")
@@ -33,6 +33,18 @@ class MeshLayoutProjectsTest(unittest.TestCase):
             edited["plateLength"] = 3.0
             (project / "flat_plate.json").write_text(json.dumps(edited), encoding="utf-8")
             self.assertEqual(source_json.read_text(encoding="utf-8"), original)
+
+    def test_rectangle_template_is_copied_from_mesh_layout_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            project = ensure_template_project(
+                REPOSITORY_ROOT,
+                Path(directory),
+                "rectangle",
+            )
+            self.assertTrue((project / "rectangle.json").is_file())
+            self.assertTrue(
+                (project / "grid" / "minimalRectangleLayout.txt").is_file()
+            )
 
     def test_existing_project_is_reused_without_overwriting_user_edits(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -39,6 +39,7 @@ Mesh and engineering workflows
 * :doc:`stl_to_gmsh_2d` — planar STL boundary extraction, explicit CFD boundary groups, and Gmsh 2D generation.
 * :doc:`boundary_condition_architecture` — physical boundary semantics, Gmsh/CGNS/OneFLOW mappings, required state data, and verification boundaries.
 * :doc:`grid_conversion_cases` — runnable mesh conversion Cases, topology coverage, and format-route matrix.
+* :doc:`development_case_methodology` — how to design, implement, document, and verify reusable 2D/3D Development Cases.
 * :doc:`grid_topology` — topology contracts, boundary normalization, and derived connectivity.
 * :doc:`face_stage_pipeline` — staged face write path, BC export, reorder contract, identity vs orientation.
 * `Grid case guide <https://github.com/eric2003/OneFLOW/blob/hexin/grid/README.md>`_ — mesh cases and conversion workflows.
@@ -156,6 +157,7 @@ The existing reference library covers programming languages, build systems, para
    gmsh_interface
    stl_to_gmsh_2d
    grid_conversion_cases
+   development_case_methodology
    grid_topology
    boundary_condition_architecture
    face_stage_pipeline

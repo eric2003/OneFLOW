@@ -1,0 +1,35 @@
+int gridObj = 0;
+string topoType = "u";
+int multiBlock = 1;
+
+int fileFormat = 1;
+Real gridScale = 1.0;
+Real gridTrans[3] = 0, 0, 0;
+int axis_dir = 0;
+int ignoreNoBc = 0;
+
+string gridLayoutFileName = "grid/twoBlocksSharedEdgeEndpointsOnlyLayout.txt";
+int igene = 4;
+
+int codeOfOversetGrid = 0;
+string oversetGridFileName = "grid/iBlank.ovs";
+int parallelStrategy = 1;
+
+string sourceGridType = "plot3d";
+string targetGridType = "oneflow";
+int iplot3d = 0;
+
+string sourceGridFileName = "results/twoBlocksSharedEdgeEndpointsOnly.generated.grd";
+string sourceGridBcName = "results/twoBlocksSharedEdgeEndpointsOnly.inp";
+string targetGridFileName = "results/twoBlocksSharedEdgeEndpointsOnly.ofl";
+string gridInfoFileName = "results/twoBlocksSharedEdgeEndpointsOnly.info.json";
+string tecplotGridFileName = "results/twoBlocksSharedEdgeEndpointsOnly.tecplot.dat";
+string patchFileName = "grid/twoBlocksSharedEdgeEndpointsOnly.patch";
+
+string projectRoot = ".";
+string inputRoot = "case";
+string outputRoot = "case";
+string meshInputRoot = "case";
+string flowInputRoot = "case";
+string meshOutputRoot = "case";
+string flowOutputRoot = "case";

@@ -4,24 +4,23 @@ Grid Conversion Cases
 Purpose
 -------
 
-The conversion Case collection measures more than whether one element can be
-parsed. A converter is only credible when it has been exercised against
-multiple concrete meshes with different cell counts, adjacency patterns,
-element families, and boundary semantics.
+The conversion route templates are validated against small, deterministic
+mesh inputs with distinct cell counts, adjacency patterns, element families,
+and boundary semantics.
 
 For the architectural ownership of the shared unstructured path (readers →
 ``UnstructuredMeshData`` → ``UnstructuredCgnsZoneWriter`` → CGNS Unstructured
 Zone), including proves/does_not_prove and external manual references, see
 the **Shared unstructured mesh conversion boundary** subsection of
-:doc:`mesh_architecture`. Runnable Cases here exercise that boundary; they do
-not redefine it.
+:doc:`mesh_architecture`. The runnable GUI Cases describe workflows; the
+small input fixtures described here provide route-level test coverage.
 
-Runnable Cases are named and grouped by the mesh they describe, not by a
-conversion route. A directory such as grid/conversion/cases/two_quads remains
-meaningful if the same input is later sent through Gmsh-to-CGNS,
-Gmsh-to-OneFLOW, or another supported route. This avoids multiplying
-directories with gmsh_to_cgns_ prefixes and keeps geometry coverage
-independent from converter coverage.
+Conversion input fixtures are owned by their route templates. The Gmsh
+two-cell topology fixture lives at
+``grid/conversion/gmsh_to_cgns/grid/two_quads.msh`` and is consumed by the
+automated Gmsh-to-CGNS-to-OneFLOW integration test. It is not a standalone
+GUI Case. The Case catalog lists runnable route templates, while the
+conversion matrix records fixture-level coverage.
 
 Directory and metadata model
 ----------------------------
@@ -30,41 +29,30 @@ Directory and metadata model
 
    grid/
      case_catalog.json
-     interoperability/
-       conversion_matrix.json
      conversion/
        README.md
-       cases/
-         two_quads/
-           README.md
-           grid/
-             two_quads.msh
-           script/
-             control.txt
-             simu.txt
-             dimension.txt
-             tolerence.txt
-             grid.txt
+       cgns_to_oneflow/
+       gmsh_to_cgns/
+         grid/
+           square.msh
+           two_quads.msh
+           cube_single_hex.msh
 
 The responsibilities are deliberately separate:
 
-* case_catalog.json registers each runnable Case for the GUI and CLI.
-* A Case directory owns its input mesh, runtime parameters, expected topology,
-  and human-readable explanation.
-* conversion_matrix.json records which source/target routes are implemented
-  and which runnable Cases exercise them.
+* ``case_catalog.json`` registers runnable Cases for GUI and CLI discovery.
+* A route template owns its runtime parameters and input fixtures.
+* ``conversion_matrix.json`` records implemented routes and fixture-level
+  conversion coverage.
+* C++ reader and conversion tests stage generated outputs in temporary
+  directories; checked-in input fixtures remain unchanged.
 * This document explains topology, semantic contracts, and remaining gaps.
 
-A Case must be independently copyable and runnable. Do not make it depend on
-a mesh file hidden in another Case directory. Shared low-level test fixtures
-may still exist for unit tests, but they are not runtime dependencies of the
-runnable Case collection.
+Gmsh-to-CGNS topology fixture: two_quads
+---------------------------------------
 
-Current runnable example: two_quads
------------------------------------
-
-The two_quads Case is a two-dimensional rectangle split into two adjacent
-quadrilateral cells.
+The ``two_quads.msh`` fixture is a two-dimensional rectangle split into
+two adjacent quadrilateral cells.
 
 .. list-table::
    :header-rows: 1
@@ -95,17 +83,16 @@ named Physical Groups: inflow, outflow, symmetry, and farfield. The bottom
 and top groups each contain two curve entities. Both surface entities belong
 to fluid_domain.
 
-
 3D conversion reference fixture: cube_single_hex
--------------------------------------------------
+------------------------------------------------
 
 The automated Gmsh-to-CGNS conversion suite also includes
-``grid/gmsh_to_cgns/grid/cube_single_hex.msh``, a deterministic MSH 4.1
-fixture with eight nodes, one HEXA_8 volume cell, and six QUAD_4 boundary
-elements. Its five Physical Groups are inflow (XMin), outflow (XMax),
-symmetry (YMin), farfield (YMax), and wall (ZMin and ZMax). The fixture is
-used to verify the 3D conversion boundary; it is not yet an STL geometry
-reconstruction Case.
+``grid/conversion/gmsh_to_cgns/grid/cube_single_hex.msh``, a deterministic
+MSH 4.1 fixture with eight nodes, one HEXA_8 volume cell, and six QUAD_4
+boundary elements. Its five Physical Groups are inflow (XMin), outflow
+(XMax), symmetry (YMin), farfield (YMax), and wall (ZMin and ZMax). The
+fixture is used to verify the 3D conversion boundary; it is not yet an STL
+geometry reconstruction Case.
 
 For unstructured CGNS zones, boundary elements have codimension one relative
 to the cell dimension. The writer therefore uses ``EdgeCenter`` for 2D
@@ -117,31 +104,23 @@ The 3D test additionally sends the CGNS file through CgnsFactory and checks
 that OneFLOW reconstructs the expected 8-node, 1-cell, 6-boundary-face
 unstructured grid.
 
-
 Conversion route and execution
 ------------------------------
 
-The current Case runtime configuration selects gmsh -> cgns. It is registered
-in grid/case_catalog.json, so it appears in the standard GUI Case Workbench.
-Run it manually from the GUI after building OneFLOW with CGNS support. The GUI
-uses an isolated run workspace; the checked-in Case and input MSH file must
-remain unchanged.
+The two-quad fixture is consumed by
+``GmshTwoQuadsOneFlowTest``. The test copies the MSH input to a temporary
+directory and exercises the composed Gmsh -> CGNS -> OneFLOW route. The CGNS
+interchange file and native OneFLOW grid are written only under that temporary
+workspace; no generated files are written into the source tree.
 
-The command
-
-.. code-block:: console
-
-   python tools/mesh_cases.py validate two_quads
-
-checks the catalog entry and its runtime parameter includes. It is a
-preflight check, not a conversion run. The Gmsh-to-CGNS runtime example is
-intentionally excluded from CTest, Python unittest, and GitHub Actions.
-
-The expected output path configured by the Case is
-results/two_quads.cgns. Inspect the CGNS Base/Zone, coordinate arrays,
-quadrilateral section, boundary sections, BC names and BC types. Also inspect
-the reader/conversion reports. Process success or file existence alone is not
-a complete topology acceptance criterion.
+This fixture is not a catalog entry and is not validated through
+``tools/mesh_cases.py``. ``GmshMeshReaderTest`` checks its six nodes, two
+quadrilateral cells, seven line elements, Physical Group assignments, and
+ungrouped internal curve. ``GmshTwoQuadsOneFlowTest`` exercises the composed
+conversion route and currently checks that non-empty CGNS and native-grid
+artifacts are produced in a temporary workspace. It does not yet independently
+read back and assert the two-cell CGNS topology. Separate CGNS round-trip tests
+cover the triangle and single-hexahedron fixtures.
 
 The current Gmsh conversion boundary is independent of SU2 parsing. The MSH
 reader produces a GmshMesh value, the adapter maps supported first-order
@@ -159,7 +138,7 @@ STL-to-Gmsh generation workflow
 -------------------------------
 
 The geometry-generation stage has native OneFLOW Cases under
-`grid/stl_to_gmsh/square/cpp` and `grid/stl_to_gmsh/two_square_cells/cpp`.
+`grid/stl_to_gmsh/square/single_quad/cpp` and `grid/stl_to_gmsh/two_square_cells/cpp`.
 They run through the standard C++ Grid task, recover the planar STL boundary,
 write Gmsh geometry, invoke the configured Gmsh CLI, and validate the MSH 4.1
 output. Independent Python reference Cases live beside the native Cases under each
@@ -227,9 +206,9 @@ is still exercised rather than silently skipped.
 Coverage plan
 -------------
 
-The first runnable Case establishes a multi-cell 2-D baseline. Extend the
-collection with independent Cases, each carrying its own mesh, configuration,
-expected counts, semantic description, and documentation:
+The first route-owned two-cell fixture establishes a multi-cell 2-D baseline.
+Extend the fixture set only when each new input adds a distinct parser,
+topology, element-family, or boundary-semantic contract:
 
 .. list-table::
    :header-rows: 1
@@ -272,78 +251,71 @@ parameter files remain the source of runtime configuration, while the matrix
 describes route and coverage metadata.
 
 
-STL-to-CFD dependency workflow
--------------------------------
+Mesh-to-CFD validation chain
+----------------------------
 
-The STL-to-Gmsh development Cases now include a square_2x2 variant. It uses
-the same square STL input as the one-cell square Case; only the transfinite
-cell counts change to 2 x 2. The expected MSH 4.1 topology is nine nodes,
-eight exterior LINE_2 elements, and four QUAD_4 cells. Its four external
-Physical Groups remain inflow, outflow, symmetry, and farfield, with
-fluid_domain on the surface.
-
-The optional development pipeline composes four standard OneFLOW Cases:
+The STL-to-Gmsh producer Cases can be composed with the shared Mesh-to-CFD
+Validation Workbench. The Workbench accepts a registered native C++ or
+Python producer and constructs an artifact-bound graph:
 
 .. code-block:: text
 
-   STL square_2x2
+   selected STL-to-Gmsh Case
        |
        v
-   native STL -> Gmsh MSH 4.1
+   Gmsh MSH 4.1 (validated)
        |
        v
-   Gmsh -> CGNS
+   grid/conversion/gmsh_to_cgns
        |
        v
-   CGNS -> OneFLOW native grid + bcRegionMap.txt + grid-info JSON
+   CGNS interchange artifact
        |
        v
-   cfd_uns2dslau2: SLAU2 CFD Solve (50 steps)
+   grid/conversion/cgns_to_oneflow
+       |
+       v
+   native OneFLOW grid + boundary-region map + grid-info JSON
+       |
+       v
+   test/cfd/plateuns2dslau2 (runtime-overridden CFD smoke test)
        |
        v
    residual + restart flow + visualization
 
-The workflow definition is
-grid/stl_to_gmsh/develop_test/stl_square_to_cfd.json. Its solver stage uses
-the dedicated pipeline Case at grid/stl_to_gmsh/pipeline/cfd_uns2dslau2,
-with the 50-step SLAU2 parameter set. It reuses the
-Qt-independent dependency planner and graph runner in tools/oneflow_gui.
-Each stage declares its required input artifact and output artifact. The
-runner copies source Cases to a unique run directory outside the repository,
-binds producer outputs through sourceGridCaseDir and relative filenames,
-and prevents a consumer from starting when a dependency or declared
-artifact has failed. The checked-in Case parameter files remain unchanged.
+The reusable `grid/conversion/cgns_to_oneflow` Case is a conversion-stage template. The
+graph runner injects the upstream CGNS artifact and binds the selected mesh
+stem to the native-grid, boundary-region-map and grid-info outputs. The
+existing `test/cfd/plateuns2dslau2` Case is staged as the CFD consumer; its
+smoke-test iteration count, output cadence and initialization mode are
+overridden only in the staged copy. This avoids maintaining a second solver
+parameter tree solely for the STL workflow.
 
-Run the workflow from the repository root after building OneFLOW and making
-Gmsh available on PATH:
+Run a selected producer from the repository root after building OneFLOW and
+making Gmsh available on PATH:
 
 .. code-block:: console
 
-   python grid/stl_to_gmsh/develop_test/run_cases.py --pipeline-only
+   python -m tools.oneflow_gui.mesh_validation --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh --mesh-case-id stl_to_gmsh_square_2x2 --max-steps 2
 
-The default staging root is
-%USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows and
-$HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. A unique
-pipelines/<run-id>/ directory contains each staged Case, process logs,
-pipeline-report.json, environment.json, run-manifest.json and a snapshot of
-the workflow definition. Each executed Case also receives
-results/runtime-environment.json and development_case.log; each validated
-Case writes validation.json.
-The source repository is not used as a runtime workspace. The manually
-dispatched OneFLOW External Tool Integration GitHub Actions workflow also
-runs this complete pipeline on Windows and uploads its run evidence.
+The default workspace is under
+`%USERPROFILE%/.oneflow/mesh-validation/` on Windows and
+`$HOME/.oneflow/mesh-validation/` on Linux. Each selected mesh Case has an
+independent workspace containing the staged producer, conversion stages,
+CFD consumer, logs and `mesh-validation-report.json`. Re-running one Case
+recreates only its own workspace; sibling Case evidence is preserved. The
+source repository is not used as a runtime workspace.
 
-Before CGNS conversion, the pipeline independently reopens the MSH 4.1 file
-and checks the expected node, boundary-line and quadrilateral counts as well
-as all five Physical Names. After CFD, it requires non-empty residual,
-restart-flow and visualization files. The conversion stages additionally
-exercise OneFLOW's own Gmsh, CGNS and native-grid readers/writers.
+The former `grid/stl_to_gmsh/pipeline/` tree, fixed
+`stl_square_to_cfd.json` workflow and `run_pipeline.py` entry point have
+been retired. The standalone STL development runner now executes only the
+STL-to-Gmsh producer Cases; end-to-end validation has one owner.
 
-This is an end-to-end runtime smoke test, not a numerical-accuracy proof.
-A successful 50-step run does not establish convergence, conservation,
-boundary-condition correctness, or grid independence. Those require
-subsequent residual-history, finite/positive flow-state, flux-balance, and
-analytical or manufactured-solution verification.
+This is a runtime smoke test, not a numerical-accuracy proof. A successful
+CFD run does not establish convergence, conservation, boundary-condition
+correctness, or grid independence. Those require residual-history,
+finite/positive flow-state, flux-balance, and analytical or
+manufactured-solution verification.
 
 
 STL cube single-hexahedron validation
@@ -366,3 +338,23 @@ axis-aligned cubes with equal edge lengths; it is not a general STL-to-hex
 mesher. The unit-test suite is stored under tests/python/grid rather than in
 the grid/stl_to_gmsh Case tree, and all executable Cases are staged outside
 the source repository before running.
+
+
+The `square/automatic_triangles` C++ and Python reference Cases are separate
+catalog entries. They are discoverable in the development-case selectors and
+Mesh-to-CFD Validation. Unlike `two_triangles`, the automatic case does not
+promise an exact cell count: `mesh_size` controls the target refinement and
+Gmsh determines the resulting unstructured TRI_3 topology.
+
+
+Case construction as a reusable engineering method
+---------------------------------------------------
+
+A Development Case is more than a test mesh. It is a small, reproducible
+engineering procedure with an explicit question, controlled inputs, a
+construction method, a named artifact contract, and evidence at each
+workflow boundary. The companion :doc:`development_case_methodology`
+describes the Case template and the responsibilities of native C++ and
+Python reference implementations. The GUI organizes these Cases by spatial
+dimension and family; dimension is catalog metadata, not inferred from a
+display title.
