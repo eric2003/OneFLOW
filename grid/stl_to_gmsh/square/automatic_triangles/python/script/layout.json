@@ -1,0 +1,58 @@
+{
+  "surface_name": "fluid_domain",
+  "mesh_size": 0.25,
+  "boundaries": [
+    {
+      "name": "inflow",
+      "endpoints": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "outflow",
+      "endpoints": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "symmetry",
+      "endpoints": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "name": "farfield",
+      "endpoints": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    }
+  ]
+}
