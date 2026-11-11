@@ -289,6 +289,18 @@
       "reference": "StlToGmshCaseTest.test_automatic_triangle_mode_uses_mesh_size_without_transfinite_constraints",
       "status": "linked_not_executed",
       "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; checks automatic mode emits global size controls, omits transfinite/recombine commands, and rejects recombination in automatic mode."
+    },
+    {
+      "kind": "google_test",
+      "reference": "StlMeshIOTest.NativeStlToGmshAutomaticallyTriangulatesSquare",
+      "status": "linked_not_executed",
+      "scope": "tests/geometry/StlMeshIOTest.cpp; executes native automatic TRI_3 meshing and checks subdivided boundary lines, manifold edge incidence, Euler characteristic and Physical Groups."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlToGmshCaseTest.test_python_automatic_mesh_size_controls_progressive_refinement",
+      "status": "linked_not_executed",
+      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; meshes the same square STL at three target sizes and checks increasing node/triangle counts without fixed expected counts."
     }
   ],
   "group": {

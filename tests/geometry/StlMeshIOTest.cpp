@@ -577,6 +577,84 @@ TEST(StlMeshIOTest, NativeStlToGmshGeneratesTwoTrianglesFromSquareGeometry)
     ValidateNativeStlToGmshCase(temporary, 1.0, 1, 1, 4, 4, 0, 2, false);
 }
 
+TEST(StlMeshIOTest, NativeStlToGmshAutomaticallyTriangulatesSquare)
+{
+    TemporaryDirectory temporary;
+    const auto inputDirectory = temporary.File("input");
+    const auto scriptDirectory = temporary.File("script");
+    std::filesystem::create_directories(inputDirectory);
+    std::filesystem::create_directories(scriptDirectory);
+    ONEFLOW::StlMeshWriter::WriteASCII(
+        (inputDirectory / "model.stl").string(), MakeRectangleStl(1.0));
+    WriteText(scriptDirectory / "layout.json",
+        R"({"surface_name":"fluid_domain","mesh_size":0.25,"boundaries":["
+        R"({"name":"inflow","endpoints":[[0,0],[0,1]]},"
+        R"({"name":"outflow","endpoints":[[1,0],[1,1]]},"
+        R"({"name":"symmetry","endpoints":[[0,0],[1,0]]},"
+        R"({"name":"farfield","endpoints":[[0,1],[1,1]]}]})");
+    ONEFLOW::GridConfig config;
+    config.sourceType = ONEFLOW::GridFileType::STL;
+    config.targetType = ONEFLOW::GridFileType::Gmsh;
+    config.sourceCaseDir = temporary.File("").string();
+    config.sourceFile = "input/model.stl";
+    config.layoutFile = "script/layout.json";
+    config.targetFile = "results/automatic.msh";
+    config.gmshExecutable = "gmsh";
+    config.stlWeldTolerance = 1.0e-10;
+    ONEFLOW::ConvertGrid(config, temporary.File("").string());
+
+    std::ifstream input(temporary.File("results/automatic.msh"), std::ios::binary);
+    ASSERT_TRUE(input.good());
+    const std::string content{std::istreambuf_iterator<char>(input),
+                              std::istreambuf_iterator<char>()};
+    const auto mesh = ONEFLOW::ReadGmsh41AsciiMesh(content);
+    EXPECT_GT(mesh.nodes.size(), 4u);
+    std::size_t lines = 0, triangles = 0, quads = 0;
+    std::map<std::pair<long long, long long>, int> edgeIncidence;
+    std::set<std::pair<long long, long long>> boundaryLines;
+    for (const auto& element : mesh.elements)
+    {
+        if (element.type == 1)
+        {
+            ++lines;
+            ASSERT_EQ(element.nodeTags.size(), 2u);
+            boundaryLines.insert(std::minmax(element.nodeTags[0], element.nodeTags[1]));
+        }
+        else if (element.type == 2)
+        {
+            ++triangles;
+            ASSERT_EQ(element.nodeTags.size(), 3u);
+            for (int edge = 0; edge < 3; ++edge)
+                ++edgeIncidence[std::minmax(
+                    element.nodeTags[edge], element.nodeTags[(edge + 1) % 3])];
+        }
+        else if (element.type == 3) ++quads;
+    }
+    EXPECT_GE(lines, 4u);
+    EXPECT_GT(triangles, 0u);
+    EXPECT_EQ(quads, 0u);
+    std::size_t boundaryEdges = 0;
+    for (const auto& edge : edgeIncidence)
+    {
+        if (edge.second == 1) ++boundaryEdges;
+        else EXPECT_EQ(edge.second, 2);
+    }
+    EXPECT_EQ(boundaryEdges, lines);
+    EXPECT_EQ(boundaryLines.size(), lines);
+    EXPECT_EQ(static_cast<long long>(mesh.nodes.size()) -
+              static_cast<long long>(edgeIncidence.size()) +
+              static_cast<long long>(triangles), 1);
+    for (const auto& edge : boundaryLines)
+        EXPECT_EQ(edgeIncidence[edge], 1);
+
+    std::set<std::pair<int, std::string>> groups;
+    for (const auto& group : mesh.physicalNames)
+        groups.emplace(group.first.first, group.second);
+    EXPECT_EQ(groups, (std::set<std::pair<int, std::string>>{
+        {1,"inflow"},{1,"outflow"},{1,"symmetry"},{1,"farfield"},
+        {2,"fluid_domain"}}));
+}
+
 TEST(StlMeshIOTest, NativeStlToGmshGeneratesTwoSquareCells)
 {
     TemporaryDirectory temporary;

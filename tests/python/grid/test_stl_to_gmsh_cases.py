@@ -305,6 +305,53 @@ class StlToGmshCaseTest(unittest.TestCase):
                 build_geo(loop, assignments, config)
         self.assertFalse((source / "results").exists())
 
+    def test_python_automatic_mesh_size_controls_progressive_refinement(self):
+        gmsh = shutil.which("gmsh")
+        if gmsh is None:
+            self.skipTest("Gmsh executable is not available")
+        source = ROOT / "grid/stl_to_gmsh/square/two_triangles/python"
+        triangle_counts = []
+        node_counts = []
+        expected_groups = {
+            (1, "inflow"), (1, "outflow"), (1, "symmetry"),
+            (1, "farfield"), (2, "fluid_domain"),
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            base = json.loads((source / "script/layout.json").read_text(encoding="utf-8"))
+            base.pop("transfinite_cells")
+            base.pop("recombine_surface")
+            for index, mesh_size in enumerate((0.5, 0.25, 0.125)):
+                layout = dict(base, mesh_size=mesh_size)
+                sidecar = root / f"layout_{index}.json"
+                sidecar.write_text(json.dumps(layout), encoding="utf-8")
+                from grid.stl.stl_to_gmsh import build_geo, extract_boundary, read_stl, _read_sidecar
+                loop = extract_boundary(read_stl(source / "input/model.stl"), 1.0e-10)
+                config, assignments = _read_sidecar(sidecar, loop, 1.0e-10)
+                geo = root / f"automatic_{index}.geo"
+                geo.write_text(build_geo(loop, assignments, config), encoding="utf-8")
+                msh = root / f"automatic_{index}.msh"
+                result = subprocess.run(
+                    [gmsh, str(geo), "-2", "-format", "msh4", "-o", str(msh)],
+                    cwd=root, text=True, capture_output=True, check=False,
+                )
+                self.assertEqual(result.returncode, 0, msg=result.stdout + "\n" + result.stderr)
+                mesh = inspect_msh4(msh)
+                self.assertGreater(mesh["nodes"], 4)
+                self.assertGreater(mesh["line_elements"], 4)
+                self.assertGreater(mesh["triangle_elements"], 0)
+                self.assertEqual(mesh["quadrilateral_elements"], 0)
+                self.assertEqual(
+                    {(group["dimension"], group["name"]) for group in mesh["physical_groups"]},
+                    expected_groups,
+                )
+                triangle_counts.append(mesh["triangle_elements"])
+                node_counts.append(mesh["nodes"])
+        self.assertEqual(triangle_counts, sorted(triangle_counts))
+        self.assertEqual(node_counts, sorted(node_counts))
+        self.assertLess(triangle_counts[0], triangle_counts[-1])
+        self.assertLess(node_counts[0], node_counts[-1])
+
     def test_expected_mesh_counts_distinguish_the_two_examples(self):
         square = json.loads(
             (ROOT / "grid/stl_to_gmsh/square/single_quad/python/expected.json").read_text()
