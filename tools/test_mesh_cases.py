@@ -144,11 +144,13 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertEqual(set(entries), {
             "stl_to_gmsh_square",
             "stl_to_gmsh_square_two_triangles",
+            "stl_to_gmsh_square_automatic_triangles",
             "stl_to_gmsh_square_2x2",
             "stl_to_gmsh_two_square_cells",
             "stl_to_gmsh_circle_external_flow",
             "stl_to_gmsh_python_square",
             "stl_to_gmsh_python_square_two_triangles",
+            "stl_to_gmsh_python_square_automatic_triangles",
             "stl_to_gmsh_python_two_square_cells",
             "stl_to_gmsh_python_circle_external_flow",
             "stl_to_gmsh_python_channel_internal_flow",
@@ -157,6 +159,8 @@ class MeshCaseCatalogTest(unittest.TestCase):
         })
         for case_id in (
             "stl_to_gmsh_square",
+            "stl_to_gmsh_square_two_triangles",
+            "stl_to_gmsh_square_automatic_triangles",
             "stl_to_gmsh_square_2x2",
             "stl_to_gmsh_two_square_cells",
             "stl_to_gmsh_circle_external_flow",
