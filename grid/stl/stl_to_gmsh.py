@@ -242,7 +242,22 @@ def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: 
     ):
         raise Stl2DError("outer_mesh_size must be positive and finite")
     cell_layout = _transfinite_cell_layout(loop, config)
+    if cell_layout is None and "_domain_bounds" not in config:
+        recombine_surface = config.get("recombine_surface", False)
+        if not isinstance(recombine_surface, bool):
+            raise Stl2DError("recombine_surface must be a boolean")
+        if recombine_surface:
+            raise Stl2DError(
+                "Automatic triangle meshing does not support recombine_surface"
+            )
     lines = ['// Generated from planar STL by OneFLOW.', 'SetFactory("Built-in");', f"lc = {size:.17g};"]
+    if cell_layout is None and "_domain_bounds" not in config:
+        lines.extend([
+            f"Mesh.MeshSizeMin = {size:.17g};",
+            f"Mesh.MeshSizeMax = {size:.17g};",
+            "Mesh.MeshSizeFromPoints = 1;",
+            "Mesh.MeshSizeExtendFromBoundary = 1;",
+        ])
     if "_domain_bounds" in config:
         lines.extend([
             f"lc_outer = {outer_size:.17g};",

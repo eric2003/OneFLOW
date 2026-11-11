@@ -274,6 +274,37 @@ class StlToGmshCaseTest(unittest.TestCase):
                 self.assertIn('Physical Surface("fluid_domain")', text)
             self.assertFalse((case / "results").exists())
 
+    def test_automatic_triangle_mode_uses_mesh_size_without_transfinite_constraints(self):
+        source = ROOT / "grid/stl_to_gmsh/square/two_triangles/python"
+        with tempfile.TemporaryDirectory() as temporary:
+            sidecar_path = Path(temporary) / "layout.json"
+            sidecar = json.loads(
+                (source / "script/layout.json").read_text(encoding="utf-8")
+            )
+            sidecar.pop("transfinite_cells")
+            sidecar.pop("recombine_surface")
+            sidecar["mesh_size"] = 0.25
+            sidecar_path.write_text(json.dumps(sidecar), encoding="utf-8")
+            from grid.stl.stl_to_gmsh import (
+                build_geo, extract_boundary, read_stl, _read_sidecar,
+            )
+            loop = extract_boundary(read_stl(source / "input/model.stl"), 1.0e-10)
+            config, assignments = _read_sidecar(sidecar_path, loop, 1.0e-10)
+            generated = build_geo(loop, assignments, config)
+            self.assertIn("Mesh.MeshSizeMin = 0.25;", generated)
+            self.assertIn("Mesh.MeshSizeMax = 0.25;", generated)
+            self.assertIn("Mesh.MeshSizeFromPoints = 1;", generated)
+            self.assertNotIn("Transfinite Curve", generated)
+            self.assertNotIn("Transfinite Surface", generated)
+            self.assertNotIn("Recombine Surface", generated)
+            self.assertIn('Physical Surface("fluid_domain")', generated)
+            sidecar["recombine_surface"] = True
+            sidecar_path.write_text(json.dumps(sidecar), encoding="utf-8")
+            config, assignments = _read_sidecar(sidecar_path, loop, 1.0e-10)
+            with self.assertRaisesRegex(ValueError, "does not support recombine_surface"):
+                build_geo(loop, assignments, config)
+        self.assertFalse((source / "results").exists())
+
     def test_expected_mesh_counts_distinguish_the_two_examples(self):
         square = json.loads(
             (ROOT / "grid/stl_to_gmsh/square/single_quad/python/expected.json").read_text()
