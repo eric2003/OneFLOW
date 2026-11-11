@@ -104,15 +104,19 @@ class MeshValidationDialog(QDialog):
         self._repository_root = Path(repository_root).resolve()
         self._worker: MeshValidationWorker | None = None
         self.setWindowTitle("Mesh-to-CFD Validation")
-        self.resize(920, 700)
+        self.resize(860, 680)
+        self.setMinimumSize(720, 560)
 
         layout = QVBoxLayout(self)
-        layout.addWidget(QLabel(
-            "Select one or more native C++ or Python STL-to-Gmsh Cases. Each selected "
-            "Case runs its applicable "
-            "STL → Gmsh → CGNS → OneFLOW validation chain and a short solver smoke test. For 3D meshes, the shared consumer configuration is dimension-adjusted; this is not a numerical-accuracy claim. Re-running a Case "
-            "clears only that Case's previous validation directory."
-        ))
+        introduction = QLabel(
+            "Select native C++ or Python STL-to-Gmsh Cases. Each Case runs the "
+            "STL → Gmsh → CGNS → OneFLOW chain and a short solver smoke test. "
+            "For 3D meshes, the consumer dimension is adjusted; this is not a "
+            "numerical-accuracy claim. Re-running a Case clears only its previous "
+            "validation directory."
+        )
+        introduction.setWordWrap(True)
+        layout.addWidget(introduction)
 
         self.case_tree = QTreeWidget()
         self.case_tree.setColumnCount(2)
@@ -161,9 +165,13 @@ class MeshValidationDialog(QDialog):
         layout.addLayout(selection_actions)
 
         form = QFormLayout()
+        form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.executable_combo = QComboBox()
         self.executable_combo.setEditable(True)
-        self.executable_combo.setMinimumContentsLength(48)
+        self.executable_combo.setMinimumContentsLength(28)
+        self.executable_combo.setToolTip(
+            "Path to the OneFLOW executable. The field can be resized with the dialog."
+        )
         self.executable_combo.addItems(
             [str(path) for path in executable_candidates(self._repository_root)]
         )
@@ -179,7 +187,11 @@ class MeshValidationDialog(QDialog):
         self.steps_spin.setValue(2)
         self.steps_spin.setToolTip("Short CFD solver smoke-test iteration count.")
         form.addRow("OneFLOW executable", self.executable_combo)
-        form.addRow("CFD consumer template (3D dimension is overridden from mesh metadata)", self.template_combo)
+        template_label = QLabel("CFD consumer template")
+        template_label.setToolTip(
+            "For 3D meshes, the runtime dimension is overridden from mesh metadata."
+        )
+        form.addRow(template_label, self.template_combo)
         form.addRow("CFD smoke-test steps", self.steps_spin)
         layout.addLayout(form)
 
