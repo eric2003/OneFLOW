@@ -165,7 +165,7 @@ $EndElements
         )
 
     def test_cube_single_hex_uses_layout_boundary_groups_for_all_six_faces(self):
-        case = Path(__file__).parents[1] / "stl_to_gmsh" / "cube_single_hex" / "python"
+        case = Path(__file__).parents[1] / "stl_to_gmsh" / "cube/single_hex" / "python"
         with tempfile.TemporaryDirectory() as temp:
             geo = Path(temp) / "cube_single_hex.geo"
             report = convert(
@@ -189,7 +189,7 @@ $EndElements
         self.assertIn('Physical Volume("fluid_domain") = {1};', geometry)
 
     def test_cube_single_hex_rejects_incomplete_boundary_groups(self):
-        case = Path(__file__).parents[1] / "stl_to_gmsh" / "cube_single_hex" / "python"
+        case = Path(__file__).parents[1] / "stl_to_gmsh" / "cube/single_hex" / "python"
         config = json.loads(
             (case / "script" / "layout.json").read_text(encoding="utf-8")
         )

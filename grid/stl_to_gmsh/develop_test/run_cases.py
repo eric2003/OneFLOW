@@ -23,7 +23,9 @@ NATIVE_CASES = {
     "square_2x2/cpp": ("square_2x2/cpp", "square_2x2.msh"),
     "two_square_cells/cpp": ("two_square_cells/cpp", "two_square_cells.msh"),
     "circle_external_flow/cpp": ("circle_external_flow/cpp", "circle_external_flow.msh"),
-    "cube_single_hex/cpp": ("cube_single_hex/cpp", "cube_single_hex.msh"),
+    "cube/single_hex/cpp": ("cube/single_hex/cpp", "cube_single_hex.msh"),
+    "cube/six_tetrahedra/cpp": ("cube/six_tetrahedra/cpp", "cube_six_tetrahedra.msh"),
+    "cube/automatic_tetrahedra/cpp": ("cube/automatic_tetrahedra/cpp", "cube_automatic_tetrahedra.msh"),
 }
 PYTHON_CASES = {
     "square/single_quad/python": "square/single_quad/python",
@@ -32,7 +34,9 @@ PYTHON_CASES = {
     "two_square_cells/python": "two_square_cells/python",
     "circle_external_flow/python": "circle_external_flow/python",
     "channel_internal_flow/python": "channel_internal_flow/python",
-    "cube_single_hex/python": "cube_single_hex/python",
+    "cube/single_hex/python": "cube/single_hex/python",
+    "cube/six_tetrahedra/python": "cube/six_tetrahedra/python",
+    "cube/automatic_tetrahedra/python": "cube/automatic_tetrahedra/python",
 }
 
 

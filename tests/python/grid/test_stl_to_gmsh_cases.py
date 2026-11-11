@@ -31,6 +31,10 @@ EXPECTED_IDS = {
     "stl_to_gmsh_python_channel_internal_flow",
     "stl_to_gmsh_cube_single_hex",
     "stl_to_gmsh_python_cube_single_hex",
+    "stl_to_gmsh_cube_six_tetrahedra",
+    "stl_to_gmsh_python_cube_six_tetrahedra",
+    "stl_to_gmsh_cube_automatic_tetrahedra",
+    "stl_to_gmsh_python_cube_automatic_tetrahedra",
 }
 
 
@@ -58,7 +62,9 @@ class StlToGmshCaseTest(unittest.TestCase):
             "circle_external_flow/cpp": (
                 "circle_external_flow/cpp", "circle_external_flow.msh"
             ),
-            "cube_single_hex/cpp": ("cube_single_hex/cpp", "cube_single_hex.msh"),
+            "cube/single_hex/cpp": ("cube/single_hex/cpp", "cube_single_hex.msh"),
+            "cube/six_tetrahedra/cpp": ("cube/six_tetrahedra/cpp", "cube_six_tetrahedra.msh"),
+            "cube/automatic_tetrahedra/cpp": ("cube/automatic_tetrahedra/cpp", "cube_automatic_tetrahedra.msh"),
         })
         self.assertEqual(PYTHON_CASES, {
             "square/single_quad/python": "square/single_quad/python",
@@ -67,15 +73,17 @@ class StlToGmshCaseTest(unittest.TestCase):
             "two_square_cells/python": "two_square_cells/python",
             "circle_external_flow/python": "circle_external_flow/python",
             "channel_internal_flow/python": "channel_internal_flow/python",
-            "cube_single_hex/python": "cube_single_hex/python",
+            "cube/single_hex/python": "cube/single_hex/python",
+            "cube/six_tetrahedra/python": "cube/six_tetrahedra/python",
+            "cube/automatic_tetrahedra/python": "cube/automatic_tetrahedra/python",
         })
 
     def test_cube_cases_are_registered_and_staged_for_both_implementations(self):
         native = self.entries["stl_to_gmsh_cube_single_hex"]
         python = self.entries["stl_to_gmsh_python_cube_single_hex"]
-        self.assertEqual(native["directory"], "grid/stl_to_gmsh/cube_single_hex/cpp")
+        self.assertEqual(native["directory"], "grid/stl_to_gmsh/cube/single_hex/cpp")
         self.assertNotIn("execution", native)
-        self.assertEqual(python["directory"], "grid/stl_to_gmsh/cube_single_hex/python")
+        self.assertEqual(python["directory"], "grid/stl_to_gmsh/cube/single_hex/python")
         self.assertEqual(python["execution"]["kind"], "python")
         self.assertEqual(validate_case(ROOT, native), [])
         self.assertEqual(validate_case(ROOT, python), [])
@@ -100,8 +108,12 @@ class StlToGmshCaseTest(unittest.TestCase):
                 "zmax": "symmetry",
             },
         )
-        self.assertIn("cube_single_hex/cpp", NATIVE_CASES)
-        self.assertIn("cube_single_hex/python", PYTHON_CASES)
+        self.assertIn("cube/single_hex/cpp", NATIVE_CASES)
+        self.assertIn("cube/single_hex/python", PYTHON_CASES)
+        self.assertIn("cube/six_tetrahedra/cpp", NATIVE_CASES)
+        self.assertIn("cube/six_tetrahedra/python", PYTHON_CASES)
+        self.assertIn("cube/automatic_tetrahedra/cpp", NATIVE_CASES)
+        self.assertIn("cube/automatic_tetrahedra/python", PYTHON_CASES)
         for entry in (native, python):
             self.assertTrue((ROOT / entry["directory"] / "input/model.stl").is_file())
             self.assertTrue((ROOT / entry["directory"] / "script/layout.json").is_file())
@@ -558,7 +570,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         gmsh = shutil.which("gmsh")
         if gmsh is None:
             self.skipTest("Gmsh executable is not available")
-        source = ROOT / "grid/stl_to_gmsh/cube_single_hex/python"
+        source = ROOT / "grid/stl_to_gmsh/cube/single_hex/python"
         with tempfile.TemporaryDirectory() as temporary:
             staged = Path(temporary) / "cube_single_hex"
             shutil.copytree(source, staged)
