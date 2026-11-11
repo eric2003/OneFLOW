@@ -6,6 +6,7 @@
     "line_elements": 0,
     "triangle_elements": 0,
     "quadrilateral_elements": 6,
+    "tetrahedron_elements": 0,
     "hexahedron_elements": 1
   },
   "physical_groups": [
