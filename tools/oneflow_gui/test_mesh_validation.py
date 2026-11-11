@@ -10,10 +10,11 @@ from unittest import mock
 from pathlib import Path
 
 from tools.oneflow_gui.mesh_validation import (
-    build_mesh_validation_cases, cfd_template_choices, mesh_case_choices,
+    build_mesh_validation_cases, cfd_template_choices, mesh_case_choices, mesh_case_groups,
     mesh_validation_workspace, reset_mesh_validation_workspace,
     _graph_step_records, _mesh_case_command,
 )
+from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
     CaseExecutionResult, WorkflowGraphRunResult,
 )
@@ -36,39 +37,39 @@ class MeshValidationCatalogTest(unittest.TestCase):
             "schema": "oneflow.case-catalog",
             "cases": [
                 {"id": "stl_to_gmsh_square", "title": "One Square QUAD_4 Cell",
-                 "directory": "grid/stl_to_gmsh/square/single_quad/cpp", "group": "STL to Gmsh"},
+                 "directory": "grid/stl_to_gmsh/square/single_quad/cpp", "group": "STL to Gmsh", "dimension": 2},
                 {"id": "stl_to_gmsh_square_two_triangles",
                  "title": "Square with Two TRI_3 Cells (Native C++)",
                  "directory": "grid/stl_to_gmsh/square/two_triangles/cpp",
-                 "group": "STL to Gmsh"},
+                 "group": "STL to Gmsh", "dimension": 2},
                 {"id": "stl_to_gmsh_square_automatic_triangles",
                  "title": "Square with Automatic TRI_3 Refinement (Native C++)",
                  "directory": "grid/stl_to_gmsh/square/automatic_triangles/cpp",
-                 "group": "STL to Gmsh"},
+                 "group": "STL to Gmsh", "dimension": 2},
                 {"id": "stl_to_gmsh_circle_external_flow",
                  "title": "Circle External Flow (Native C++)",
                  "directory": "grid/stl_to_gmsh/circle_external_flow/cpp",
-                 "group": "STL to Gmsh"},
+                 "group": "STL to Gmsh", "dimension": 2},
                 {"id": "native_cube", "title": "Cube Single Hex (Native C++)",
                  "directory": "grid/stl_to_gmsh/cube_single_hex/cpp",
-                 "group": "STL to Gmsh"},
+                 "group": "STL to Gmsh", "dimension": 3},
                 {"id": "python_cube", "title": "Cube Single Hex (Python Reference)",
                  "directory": "grid/stl_to_gmsh/cube_single_hex/python",
-                 "group": "STL to Gmsh",
+                 "group": "STL to Gmsh", "dimension": 3,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
                 {"id": "python_square", "title": "One Square QUAD_4 Cell (Python Reference)",
                  "directory": "grid/stl_to_gmsh/square/single_quad/python",
-                 "group": "STL to Gmsh",
+                 "group": "STL to Gmsh", "dimension": 2,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
                 {"id": "stl_to_gmsh_python_square_two_triangles",
                  "title": "Square with Two TRI_3 Cells (Python Reference)",
                  "directory": "grid/stl_to_gmsh/square/two_triangles/python",
-                 "group": "STL to Gmsh",
+                 "group": "STL to Gmsh", "dimension": 2,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
                 {"id": "stl_to_gmsh_python_square_automatic_triangles",
                  "title": "Square with Automatic TRI_3 Refinement (Python Reference)",
                  "directory": "grid/stl_to_gmsh/square/automatic_triangles/python",
-                 "group": "STL to Gmsh",
+                 "group": "STL to Gmsh", "dimension": 2,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
             ],
         }), encoding="utf-8")
@@ -104,6 +105,26 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def tearDown(self):
         self.temporary.cleanup()
 
+    def test_case_dimension_uses_explicit_metadata_then_layout_or_directory(self):
+        two_d = {"directory": "grid/mesh-layout/2d/minimal"}
+        self.assertEqual(_case_dimension(two_d, self.root), 2)
+
+        layout_case = self.root / "grid/mesh-layout/2d/custom_volume_case"
+        (layout_case / "script").mkdir(parents=True)
+        (layout_case / "script/layout.json").write_text(
+            json.dumps({"mesh_dimension": 3}), encoding="utf-8"
+        )
+        self.assertEqual(
+            _case_dimension({"directory": "grid/mesh-layout/2d/custom_volume_case"}, layout_case), 3
+        )
+        self.assertEqual(
+            _case_dimension(
+                {"directory": "grid/mesh-layout/2d/custom_volume_case", "dimension": 2}, layout_case
+            ),
+            2,
+        )
+        self.assertIsNone(_case_dimension({"directory": "grid/unknown_case"}, self.root))
+
     def test_mesh_selector_contains_native_and_python_implementations(self):
         self.assertEqual(mesh_case_choices(self.root), (
             ("stl_to_gmsh_square", "One Square QUAD_4 Cell"),
@@ -116,6 +137,26 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ("stl_to_gmsh_python_square_two_triangles", "Square with Two TRI_3 Cells (Python Reference)"),
             ("stl_to_gmsh_python_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Python Reference)"),
         ))
+    def test_mesh_selector_groups_cases_by_spatial_dimension(self):
+        groups = mesh_case_groups(self.root)
+        self.assertEqual([dimension for dimension, _cases in groups], ["2D", "3D"])
+        self.assertEqual(
+            [case_id for case_id, _title in groups[0][1]],
+            [
+                "stl_to_gmsh_square",
+                "stl_to_gmsh_square_two_triangles",
+                "stl_to_gmsh_square_automatic_triangles",
+                "stl_to_gmsh_circle_external_flow",
+                "python_square",
+                "stl_to_gmsh_python_square_two_triangles",
+                "stl_to_gmsh_python_square_automatic_triangles",
+            ],
+        )
+        self.assertEqual(
+            [case_id for case_id, _title in groups[1][1]],
+            ["native_cube", "python_cube"],
+        )
+
     def test_mesh_producer_command_dispatches_by_implementation(self):
         python_entry = {
             "execution": {

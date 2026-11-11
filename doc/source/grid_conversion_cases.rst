@@ -345,3 +345,16 @@ catalog entries. They are discoverable in the development-case selectors and
 Mesh-to-CFD Validation. Unlike `two_triangles`, the automatic case does not
 promise an exact cell count: `mesh_size` controls the target refinement and
 Gmsh determines the resulting unstructured TRI_3 topology.
+
+
+Case construction as a reusable engineering method
+---------------------------------------------------
+
+A Development Case is more than a test mesh. It is a small, reproducible
+engineering procedure with an explicit question, controlled inputs, a
+construction method, a named artifact contract, and evidence at each
+workflow boundary. The companion :doc:`development_case_methodology`
+describes the Case template and the responsibilities of native C++ and
+Python reference implementations. The GUI organizes these Cases by spatial
+dimension and family; dimension is catalog metadata, not inferred from a
+display title.

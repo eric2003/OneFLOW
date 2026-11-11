@@ -112,7 +112,10 @@
       "tests/python/grid/test_stl_to_gmsh_cases.py",
       "grid/conversion/cgns_to_oneflow/README.md",
       "grid/stl_to_gmsh/square/README.md",
-      "tools/oneflow_gui/test_mesh_validation.py"
+      "tools/oneflow_gui/test_mesh_validation.py",
+      "doc/source/development_case_methodology.rst",
+      "doc/source/workbench_user_guide_zh.rst",
+      "grid/stl_to_gmsh/square/automatic_triangles/README.md"
     ]
   },
   "claims": {
@@ -137,7 +140,8 @@
       "The same unit-square STL and four named outer boundaries can produce either one QUAD_4 cell or exactly two TRI_3 cells by enabling or disabling Gmsh surface recombination while retaining a 1 x 1 transfinite boundary layout.",
       "The native C++ planar STL-to-Gmsh route supports an automatic unstructured TRI_3 mode when transfinite_cells is omitted, validates boundary-edge incidence and the Euler characteristic, and reports the configured mesh size without asserting an exact cell count.",
       "The Python reference geometry generator emits the same automatic mesh-size controls without transfinite constraints or recombination when transfinite_cells is omitted.",
-      "The automatic square triangulation C++ and Python reference Cases are separately registered in the shared Case catalog and exposed to Run Development Cases, Python reference cases and Mesh-to-CFD Validation."
+      "The automatic square triangulation C++ and Python reference Cases are separately registered in the shared Case catalog and exposed to Run Development Cases, Python reference cases and Mesh-to-CFD Validation.",
+      "The Case Catalog exposes explicit 2D/3D metadata for mesh producers, and both Development Case selection and Mesh-to-CFD Validation group supported Cases by spatial dimension without conflating implementation language with Case family."
     ],
     "does_not_prove": [
       "Generated outer-flow meshes have been converted through CGNS into a OneFLOW native grid.",

@@ -45,6 +45,9 @@ def load_catalog(catalog_path: Path) -> dict[str, Any]:
         seen_ids.add(case_id)
         if not isinstance(directory, str) or not directory:
             raise ValueError(f"Case {case_id} must have a directory")
+        dimension = entry.get("dimension")
+        if dimension is not None and (not isinstance(dimension, int) or isinstance(dimension, bool) or dimension not in (2, 3)):
+            raise ValueError(f"Case {case_id} dimension must be 2 or 3 when provided")
         if python_case:
             script = execution.get("script")
             if not isinstance(script, str) or not script:

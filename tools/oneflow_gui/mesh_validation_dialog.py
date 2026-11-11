@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
 )
 
 from .executable_discovery import executable_candidates
-from .mesh_validation import cfd_template_choices, mesh_case_choices
+from .mesh_validation import cfd_template_choices, mesh_case_groups
 from .process_control import process_group_options, terminate_process_tree
 from .user_data_paths import UserDataPaths
 
@@ -110,7 +110,7 @@ class MeshValidationDialog(QDialog):
         layout.addWidget(QLabel(
             "Select one or more native C++ or Python STL-to-Gmsh Cases. Each selected "
             "Case runs its applicable "
-            "STL → Gmsh → CGNS → OneFLOW validation chain; 3D single-cell topology fixtures stop before CFD. Re-running a Case "
+            "STL → Gmsh → CGNS → OneFLOW validation chain and a short solver smoke test. For 3D meshes, the shared consumer configuration is dimension-adjusted; this is not a numerical-accuracy claim. Re-running a Case "
             "clears only that Case's previous validation directory."
         ))
 
@@ -122,20 +122,29 @@ class MeshValidationDialog(QDialog):
         self.case_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         self._case_items: dict[str, QTreeWidgetItem] = {}
         try:
-            choices = mesh_case_choices(self._repository_root)
-            group = QTreeWidgetItem(self.case_tree)
-            group.setText(1, "STL to Gmsh")
-            group.setFlags(group.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-            for case_id, title in choices:
-                item = QTreeWidgetItem(group)
-                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-                item.setText(1, title)
-                item.setData(0, Qt.ItemDataRole.UserRole, case_id)
-                item.setCheckState(0, Qt.CheckState.Checked)
-                self._case_items[case_id] = item
-            group.setCheckState(0, Qt.CheckState.Checked)
+            dimension_groups = mesh_case_groups(self._repository_root)
+            for dimension_label, choices in dimension_groups:
+                dimension_item = QTreeWidgetItem(self.case_tree)
+                dimension_item.setText(1, dimension_label)
+                dimension_item.setFlags(
+                    dimension_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
+                )
+                category_item = QTreeWidgetItem(dimension_item)
+                category_item.setText(1, "STL to Gmsh")
+                category_item.setFlags(
+                    category_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
+                )
+                for case_id, title in choices:
+                    item = QTreeWidgetItem(category_item)
+                    item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                    item.setText(1, title)
+                    item.setData(0, Qt.ItemDataRole.UserRole, case_id)
+                    item.setCheckState(0, Qt.CheckState.Checked)
+                    self._case_items[case_id] = item
+                category_item.setCheckState(0, Qt.CheckState.Checked)
+                dimension_item.setCheckState(0, Qt.CheckState.Checked)
             self.case_tree.itemChanged.connect(self._update_group_state)
-            self.case_tree.expandAll()
+            self.case_tree.expandToDepth(1)
         except (OSError, ValueError, KeyError) as error:
             self.case_tree.setEnabled(False)
             layout.addWidget(QLabel(f"Mesh Case catalog unavailable: {error}"))
@@ -170,7 +179,7 @@ class MeshValidationDialog(QDialog):
         self.steps_spin.setValue(2)
         self.steps_spin.setToolTip("Short CFD solver smoke-test iteration count.")
         form.addRow("OneFLOW executable", self.executable_combo)
-        form.addRow("CFD consumer template (not used by 3D topology-only cases)", self.template_combo)
+        form.addRow("CFD consumer template (3D dimension is overridden from mesh metadata)", self.template_combo)
         form.addRow("CFD smoke-test steps", self.steps_spin)
         layout.addLayout(form)
 
@@ -199,31 +208,44 @@ class MeshValidationDialog(QDialog):
         buttons.addWidget(close_button)
         layout.addLayout(buttons)
 
+    def _set_subtree_state(self, item: QTreeWidgetItem, state: Qt.CheckState) -> None:
+        item.setCheckState(0, state)
+        for index in range(item.childCount()):
+            self._set_subtree_state(item.child(index), state)
+
+    def _refresh_ancestor_states(self, item: QTreeWidgetItem | None) -> None:
+        while item is not None:
+            states = [
+                item.child(index).checkState(0)
+                for index in range(item.childCount())
+            ]
+            if states and all(state == Qt.CheckState.Checked for state in states):
+                item.setCheckState(0, Qt.CheckState.Checked)
+            elif states and all(state == Qt.CheckState.Unchecked for state in states):
+                item.setCheckState(0, Qt.CheckState.Unchecked)
+            else:
+                item.setCheckState(0, Qt.CheckState.PartiallyChecked)
+            item = item.parent()
+
     def _set_all(self, checked: bool) -> None:
         state = Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked
         self.case_tree.blockSignals(True)
-        for item in self._case_items.values():
-            item.setCheckState(0, state)
-        if self.case_tree.topLevelItemCount():
-            self.case_tree.topLevelItem(0).setCheckState(0, state)
+        for index in range(self.case_tree.topLevelItemCount()):
+            self._set_subtree_state(self.case_tree.topLevelItem(index), state)
         self.case_tree.blockSignals(False)
 
     def _update_group_state(self, item: QTreeWidgetItem, column: int) -> None:
         if column != 0:
             return
         self.case_tree.blockSignals(True)
-        if item.parent() is not None:
-            parent = item.parent()
-            states = [parent.child(i).checkState(0) for i in range(parent.childCount())]
-            if all(state == Qt.CheckState.Checked for state in states):
-                parent.setCheckState(0, Qt.CheckState.Checked)
-            elif all(state == Qt.CheckState.Unchecked for state in states):
-                parent.setCheckState(0, Qt.CheckState.Unchecked)
-            else:
-                parent.setCheckState(0, Qt.CheckState.PartiallyChecked)
-        else:
+        if item.childCount():
+            state = item.checkState(0)
+            if state == Qt.CheckState.PartiallyChecked:
+                state = Qt.CheckState.Unchecked
             for index in range(item.childCount()):
-                item.child(index).setCheckState(0, item.checkState(0))
+                self._set_subtree_state(item.child(index), state)
+            item.setCheckState(0, state)
+        self._refresh_ancestor_states(item.parent())
         self.case_tree.blockSignals(False)
 
     def _start(self) -> None:

@@ -240,9 +240,9 @@ ZMax share wall; fluid_domain names the volume.
 The cube is a restricted geometry-recovery prototype, not a general STL
 volume mesher. Mesh-to-CFD Validation passes it through MSH, CGNS and OneFLOW
 grid conversion and verifies FaceCenter boundary semantics and the boundary
-region map. It deliberately stops before the flat-plate CFD consumer: a
-single-cell cube is a topology/interoperability fixture, not a meaningful
-CFD accuracy case.
+region map. The current validation graph then runs a short, dimension-adjusted
+solver smoke test using shared consumer parameters. A single-cell cube remains
+a topology/interoperability fixture, not a meaningful CFD accuracy case.
 
 
 Automatic square triangulation Case
