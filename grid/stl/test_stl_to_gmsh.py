@@ -165,7 +165,7 @@ $EndElements
         )
 
     def test_cube_single_hex_uses_layout_boundary_groups_for_all_six_faces(self):
-        case = Path(__file__).parents[1] / "stl_to_gmsh" / "cube/single_hex" / "python"
+        case = Path(__file__).parents[1] / "stl_to_gmsh" / "cube" / "single_hex" / "python"
         with tempfile.TemporaryDirectory() as temp:
             geo = Path(temp) / "cube_single_hex.geo"
             report = convert(
@@ -187,6 +187,62 @@ $EndElements
         self.assertEqual(report["physical_groups"], sorted([*expected, "fluid_domain"]))
         self.assertEqual(geometry.count('Physical Surface("'), 6)
         self.assertIn('Physical Volume("fluid_domain") = {1};', geometry)
+
+
+    def test_cube_volume_mesh_strategies_keep_the_same_geometry_and_distinct_topology(self):
+        root = Path(__file__).parents[1] / "stl_to_gmsh" / "cube"
+        gmsh = shutil.which("gmsh")
+        cases = {
+            "single_hex": ("axis_aligned_cube_single_hex", 1, True),
+            "six_tetrahedra": ("axis_aligned_cube_six_tetrahedra", 6, False),
+            "automatic_tetrahedra": ("axis_aligned_cube_automatic_tetrahedra", None, False),
+        }
+        source_stl = (root / "single_hex/python/input/model.stl").read_bytes()
+        for name, (strategy, expected_tetrahedra, recombine) in cases.items():
+            case = root / name / "python"
+            self.assertEqual((case / "input/model.stl").read_bytes(), source_stl)
+            layout = json.loads((case / "script/layout.json").read_text(encoding="utf-8"))
+            self.assertEqual(layout["volume_mesh"], strategy)
+            with tempfile.TemporaryDirectory() as temp:
+                geo = Path(temp) / f"{name}.geo"
+                convert(case / "input/model.stl", case / "script/layout.json", geo)
+                geometry = geo.read_text(encoding="utf-8")
+                self.assertIn('Physical Volume("fluid_domain")', geometry)
+                if recombine:
+                    self.assertIn("Recombine Volume {1};", geometry)
+                elif name == "six_tetrahedra":
+                    self.assertIn("Transfinite Volume {1};", geometry)
+                    self.assertNotIn("Recombine Volume", geometry)
+                    self.assertNotIn("Recombine Surface", geometry)
+                else:
+                    self.assertIn("Mesh.MeshSizeMin = 0.5;", geometry)
+                    self.assertNotIn("Transfinite Volume", geometry)
+                if gmsh is None:
+                    continue
+                msh = Path(temp) / f"{name}.msh"
+                subprocess.run([gmsh, str(geo), "-3", "-format", "msh4", "-o", str(msh)],
+                               check=True, capture_output=True, text=True)
+                summary = inspect_msh4(msh)
+                self.assertEqual(summary["physical_groups"], [
+                    {"dimension": 2, "name": "xmin_inflow"},
+                    {"dimension": 2, "name": "xmax_outflow"},
+                    {"dimension": 2, "name": "ymin_wall"},
+                    {"dimension": 2, "name": "ymax_farfield"},
+                    {"dimension": 2, "name": "zmin_symmetry"},
+                    {"dimension": 2, "name": "zmax_symmetry"},
+                    {"dimension": 3, "name": "fluid_domain"},
+                ])
+                if name == "single_hex":
+                    self.assertEqual(summary["hexahedron_elements"], 1)
+                elif name == "six_tetrahedra":
+                    self.assertEqual(summary["nodes"], 8)
+                    self.assertEqual(summary["triangle_elements"], 12)
+                    self.assertEqual(summary["tetrahedron_elements"], 6)
+                else:
+                    self.assertGreater(summary["tetrahedron_elements"], 0)
+                    self.assertGreater(summary["triangle_elements"], 0)
+                    self.assertEqual(summary["quadrilateral_elements"], 0)
+                    self.assertEqual(summary["hexahedron_elements"], 0)
 
     def test_cube_single_hex_rejects_incomplete_boundary_groups(self):
         case = Path(__file__).parents[1] / "stl_to_gmsh" / "cube/single_hex" / "python"

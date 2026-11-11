@@ -358,3 +358,13 @@ describes the Case template and the responsibilities of native C++ and
 Python reference implementations. The GUI organizes these Cases by spatial
 dimension and family; dimension is catalog metadata, not inferred from a
 display title.
+
+
+STL-to-Gmsh 3D cube Cases
+-------------------------
+
+The STL volume-meshing Cases are distinct from the checked-in Gmsh-to-CGNS
+conversion fixture above. They share one closed cube STL and progressively
+change the volume topology: one HEXA_8 cell, a fixed six-TETRA_4 subdivision,
+and an automatic Gmsh tetrahedral mesh. See :doc:`stl_to_gmsh_3d` for the
+input geometry, construction strategy, and acceptance contract.
