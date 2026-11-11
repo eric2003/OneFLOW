@@ -118,6 +118,37 @@ class StlToGmshCaseTest(unittest.TestCase):
             self.assertTrue((ROOT / entry["directory"] / "input/model.stl").is_file())
             self.assertTrue((ROOT / entry["directory"] / "script/layout.json").is_file())
 
+
+    def test_cube_tetrahedral_cases_are_registered_in_native_and_python_pairs(self):
+        for suffix in ("six_tetrahedra", "automatic_tetrahedra"):
+            native = self.entries[f"stl_to_gmsh_cube_{suffix}"]
+            python = self.entries[f"stl_to_gmsh_python_cube_{suffix}"]
+            self.assertEqual(native["directory"], f"grid/stl_to_gmsh/cube/{suffix}/cpp")
+            self.assertEqual(python["directory"], f"grid/stl_to_gmsh/cube/{suffix}/python")
+            self.assertNotIn("execution", native)
+            self.assertEqual(python["execution"]["kind"], "python")
+            self.assertEqual(validate_case(ROOT, native), [])
+            self.assertEqual(validate_case(ROOT, python), [])
+            native_dir, python_dir = ROOT / native["directory"], ROOT / python["directory"]
+            self.assertEqual(
+                (native_dir / "input/model.stl").read_bytes(),
+                (python_dir / "input/model.stl").read_bytes(),
+            )
+            native_layout = json.loads((native_dir / "script/layout.json").read_text())
+            python_layout = json.loads((python_dir / "script/layout.json").read_text())
+            self.assertEqual(native_layout, python_layout)
+            self.assertEqual(native_layout["mesh_dimension"], 3)
+            expected = json.loads((python_dir / "expected.json").read_text())
+            if suffix == "six_tetrahedra":
+                self.assertEqual(expected["mesh"]["nodes"], 8)
+                self.assertEqual(expected["mesh"]["triangle_elements"], 12)
+                self.assertEqual(expected["mesh"]["tetrahedron_elements"], 6)
+            else:
+                self.assertEqual(expected["mesh"]["hexahedron_elements"], 0)
+                self.assertGreater(expected["mesh_minimum"]["tetrahedron_elements"], 0)
+            self.assertFalse((native_dir / "results").exists())
+            self.assertFalse((python_dir / "results").exists())
+
     def test_native_and_python_cases_are_registered_separately(self):
         self.assertEqual(set(self.entries), EXPECTED_IDS)
         for case_id in (

@@ -94,7 +94,7 @@ The orchestrator stages all eighteen Cases under
 %USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows or
 $HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. Staging paths mirror
 the Case layout, for example square/single_quad/cpp and square/single_quad/python; each has its own
-results directory. It recreates only the fourteen named Case staging directories
+results directory. It recreates only the eighteen named Case staging directories
 and leaves generated meshes, reports, and logs outside the repository source tree.
 
 ## Mesh-to-CFD validation
@@ -138,7 +138,7 @@ standalone STL-to-Gmsh producer Cases.
     python tools/mesh_cases.py validate circle_external_flow/cpp
 
 When Gmsh is available, the Python test suite executes the circle reference
-Case and cube_single_hex in temporary directories, validating their MSH 4.1
+Case and cube/single_hex in temporary directories, validating their MSH 4.1
 element topology and Physical Groups. The native C++ circle integration test is enabled
 by `ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS` and is exercised by the
 `OneFLOW External Tool Integration` workflow.
