@@ -26,6 +26,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
         (self.root / "grid/stl_to_gmsh/square/single_quad/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/square/two_triangles/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/square/two_triangles/python").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/square/automatic_triangles/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/square/automatic_triangles/python").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/circle_external_flow/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/cube_single_hex/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/square/single_quad/python").mkdir(parents=True)
@@ -38,6 +40,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 {"id": "stl_to_gmsh_square_two_triangles",
                  "title": "Square with Two TRI_3 Cells (Native C++)",
                  "directory": "grid/stl_to_gmsh/square/two_triangles/cpp",
+                 "group": "STL to Gmsh"},
+                {"id": "stl_to_gmsh_square_automatic_triangles",
+                 "title": "Square with Automatic TRI_3 Refinement (Native C++)",
+                 "directory": "grid/stl_to_gmsh/square/automatic_triangles/cpp",
                  "group": "STL to Gmsh"},
                 {"id": "stl_to_gmsh_circle_external_flow",
                  "title": "Circle External Flow (Native C++)",
@@ -57,6 +63,11 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 {"id": "stl_to_gmsh_python_square_two_triangles",
                  "title": "Square with Two TRI_3 Cells (Python Reference)",
                  "directory": "grid/stl_to_gmsh/square/two_triangles/python",
+                 "group": "STL to Gmsh",
+                 "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
+                {"id": "stl_to_gmsh_python_square_automatic_triangles",
+                 "title": "Square with Automatic TRI_3 Refinement (Python Reference)",
+                 "directory": "grid/stl_to_gmsh/square/automatic_triangles/python",
                  "group": "STL to Gmsh",
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
             ],
@@ -79,6 +90,12 @@ class MeshValidationCatalogTest(unittest.TestCase):
         (self.root / "grid/stl_to_gmsh/square/two_triangles/python/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "square_two_triangles.msh"}}),
             encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/square/automatic_triangles/cpp/script/grid.txt").write_text(
+            'string targetGridFileName = "results/square_automatic_triangles.msh";\n',
+            encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/square/automatic_triangles/python/expected.json").write_text(
+            json.dumps({"artifact": {"mesh_file": "square_automatic_triangles.msh"}}),
+            encoding="utf-8")
         (self.root / "test/cfd/plateuns2dslau2/script/cfd.txt").write_text(
             'string resFile = "results/res.dat";\n'
             'string flowFile = "restart/flow.dat";\n'
@@ -91,11 +108,13 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(mesh_case_choices(self.root), (
             ("stl_to_gmsh_square", "One Square QUAD_4 Cell"),
             ("stl_to_gmsh_square_two_triangles", "Square with Two TRI_3 Cells (Native C++)"),
+            ("stl_to_gmsh_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Native C++)"),
             ("stl_to_gmsh_circle_external_flow", "Circle External Flow (Native C++)"),
             ("native_cube", "Cube Single Hex (Native C++)"),
             ("python_cube", "Cube Single Hex (Python Reference)"),
             ("python_square", "One Square QUAD_4 Cell (Python Reference)"),
             ("stl_to_gmsh_python_square_two_triangles", "Square with Two TRI_3 Cells (Python Reference)"),
+            ("stl_to_gmsh_python_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Python Reference)"),
         ))
     def test_mesh_producer_command_dispatches_by_implementation(self):
         python_entry = {
@@ -192,6 +211,26 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(
             python[0]["outputs"][0]["path"], "results/square_two_triangles.msh"
         )
+        self.assertEqual(native[1]["id"], "gmsh_to_cgns")
+        self.assertEqual(python[1]["id"], "gmsh_to_cgns")
+
+    def test_automatic_triangle_cases_are_available_to_mesh_to_cfd_validation(self):
+        native = build_mesh_validation_cases(
+            self.root, "stl_to_gmsh_square_automatic_triangles", "laminar_flat_plate"
+        )
+        python = build_mesh_validation_cases(
+            self.root, "stl_to_gmsh_python_square_automatic_triangles", "laminar_flat_plate"
+        )
+        self.assertEqual(len(native), 4)
+        self.assertEqual(len(python), 4)
+        self.assertEqual(native[0]["directory"],
+                         "grid/stl_to_gmsh/square/automatic_triangles/cpp")
+        self.assertEqual(python[0]["directory"],
+                         "grid/stl_to_gmsh/square/automatic_triangles/python")
+        self.assertEqual(native[0]["outputs"][0]["path"],
+                         "results/square_automatic_triangles.msh")
+        self.assertEqual(python[0]["outputs"][0]["path"],
+                         "results/square_automatic_triangles.msh")
         self.assertEqual(native[1]["id"], "gmsh_to_cgns")
         self.assertEqual(python[1]["id"], "gmsh_to_cgns")
 
