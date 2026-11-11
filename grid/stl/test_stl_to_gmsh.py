@@ -245,7 +245,7 @@ $EndElements
                 if recombine:
                     self.assertIn("Recombine Volume {1};", geometry)
                 elif name == "six_tetrahedra":
-                    self.assertIn("Transfinite Volume {1};", geometry)
+                    self.assertIn("Transfinite Volume {1} = {1, 2, 3, 4, 5, 6, 7, 8};", geometry)
                     self.assertNotIn("Recombine Volume", geometry)
                     self.assertNotIn("Recombine Surface", geometry)
                 else:
@@ -302,7 +302,7 @@ $EndElements
                 if name == "single_hex":
                     self.assertIn("Recombine Volume {1};", geometry)
                 elif name == "six_tetrahedra":
-                    self.assertIn("Transfinite Volume {1};", geometry)
+                    self.assertIn("Transfinite Volume {1} = {1, 2, 3, 4, 5, 6, 7, 8};", geometry)
                     self.assertNotIn("Recombine Volume", geometry)
                     self.assertNotIn("Recombine Surface", geometry)
                 else:
