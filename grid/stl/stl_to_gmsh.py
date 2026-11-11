@@ -333,10 +333,12 @@ def build_geo(loop: list[Point], assignments: dict[tuple[int,int],str], config: 
     lines.extend(["Mesh 2;", ""])
     return "\n".join(lines)
 
-def _cube_single_hex_geo(
+def _cube_volume_geo(
     triangles: list[Triangle],
     tolerance: float,
     boundary_groups: dict[str, str],
+    volume_mesh: str,
+    mesh_size: float = 0.5,
 ) -> tuple[str, dict]:
     surface_by_side = {
         "xmin": 3, "xmax": 4, "ymin": 5,
@@ -344,7 +346,7 @@ def _cube_single_hex_geo(
     }
     if not isinstance(boundary_groups, dict) or set(boundary_groups) != set(surface_by_side):
         raise Stl2DError(
-            "cube_single_hex boundary_groups must define xmin, xmax, ymin, ymax, zmin and zmax"
+            "cube volume boundary_groups must define xmin, xmax, ymin, ymax, zmin and zmax"
         )
     physical_groups: dict[str, int] = {}
     for side, surface_id in surface_by_side.items():
@@ -352,16 +354,16 @@ def _cube_single_hex_geo(
         if not isinstance(semantic, str) or semantic.lower() not in {
             "inflow", "outflow", "wall", "farfield", "symmetry"
         }:
-            raise Stl2DError(f"cube_single_hex has an unsupported boundary semantic for {side}")
+            raise Stl2DError(f"cube volume has an unsupported boundary semantic for {side}")
         physical_name = f"{side}_{semantic.lower()}"
         if not re.fullmatch(r"[A-Za-z0-9_.-]{1,32}", physical_name):
-            raise Stl2DError(f"cube_single_hex has an invalid Physical Group name: {physical_name}")
+            raise Stl2DError(f"cube volume has an invalid Physical Group name: {physical_name}")
         if physical_name in physical_groups:
-            raise Stl2DError(f"cube_single_hex Physical Group names must be unique: {physical_name}")
+            raise Stl2DError(f"cube volume Physical Group names must be unique: {physical_name}")
         physical_groups[physical_name] = surface_id
 
     if len(triangles) != 12:
-        raise Stl2DError("cube_single_hex requires exactly 12 STL surface triangles")
+        raise Stl2DError("cube volume requires exactly 12 STL surface triangles")
     points = [point for triangle in triangles for point in triangle]
     lower = tuple(min(point[axis] for point in points) for axis in range(3))
     upper = tuple(max(point[axis] for point in points) for axis in range(3))
@@ -369,7 +371,7 @@ def _cube_single_hex_geo(
         raise Stl2DError("cube STL must have finite positive extent on all three axes")
     extents = tuple(upper[a] - lower[a] for a in range(3))
     if max(extents) - min(extents) > tolerance:
-        raise Stl2DError("cube_single_hex requires equal axis-aligned edge lengths")
+        raise Stl2DError("cube volume requires equal axis-aligned edge lengths")
 
     corners: tuple[Point, ...] = (
         (lower[0],lower[1],lower[2]), (upper[0],lower[1],lower[2]),
@@ -412,9 +414,23 @@ def _cube_single_hex_geo(
              "{2, 11, -6, -10}", "{1, 10, -5, -9}", "{3, 12, -7, -11}")
     for i, loop in enumerate(loops, 1):
         lines.extend((f"Curve Loop({i}) = {loop};", f"Plane Surface({i}) = {{{i}}};"))
-    lines.extend(("Surface Loop(1) = {-1, 2, 3, 4, 5, 6};", "Volume(1) = {1};",
-        "Transfinite Curve {1:12} = 2;", "Transfinite Surface {1:6};",
-        "Recombine Surface {1:6};", "Transfinite Volume {1};", "Recombine Volume {1};"))
+    lines.extend(("Surface Loop(1) = {-1, 2, 3, 4, 5, 6};", "Volume(1) = {1};"))
+    if volume_mesh == "axis_aligned_cube_single_hex":
+        lines.extend(("Transfinite Curve {1:12} = 2;", "Transfinite Surface {1:6};",
+                      "Recombine Surface {1:6};", "Transfinite Volume {1};",
+                      "Recombine Volume {1};"))
+    elif volume_mesh == "axis_aligned_cube_six_tetrahedra":
+        lines.extend(("Transfinite Curve {1:12} = 2;", "Transfinite Surface {1:6};",
+                      "Transfinite Volume {1};"))
+    elif volume_mesh == "axis_aligned_cube_automatic_tetrahedra":
+        if not math.isfinite(mesh_size) or mesh_size <= 0:
+            raise Stl2DError("mesh_size must be positive and finite")
+        lines.extend((f"Mesh.MeshSizeMin = {mesh_size:.17g};",
+                      f"Mesh.MeshSizeMax = {mesh_size:.17g};",
+                      "Mesh.MeshSizeFromPoints = 1;",
+                      "Mesh.MeshSizeExtendFromBoundary = 1;"))
+    else:
+        raise Stl2DError(f"unsupported cube volume mesh strategy: {volume_mesh}")
     for name, surface_id in physical_groups.items():
         lines.append(f'Physical Surface("{name}") = {{{surface_id}}};')
     lines.append('Physical Volume("fluid_domain") = {1};')
@@ -428,9 +444,15 @@ def _cube_single_hex_geo(
 def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dict:
     triangles = read_stl(stl)
     sidecar_data = json.loads(sidecar.read_text(encoding="utf-8"))
-    if sidecar_data.get("volume_mesh") == "axis_aligned_cube_single_hex":
-        geometry, report = _cube_single_hex_geo(
-            triangles, tolerance, sidecar_data.get("boundary_groups"))
+    volume_mesh = sidecar_data.get("volume_mesh")
+    if volume_mesh in {
+        "axis_aligned_cube_single_hex",
+        "axis_aligned_cube_six_tetrahedra",
+        "axis_aligned_cube_automatic_tetrahedra",
+    }:
+        geometry, report = _cube_volume_geo(
+            triangles, tolerance, sidecar_data.get("boundary_groups"),
+            volume_mesh, float(sidecar_data.get("mesh_size", 0.5)))
         geo.parent.mkdir(parents=True, exist_ok=True)
         geo.write_text(geometry, encoding="utf-8", newline="\n")
         report["geo"] = str(geo)
@@ -529,7 +551,7 @@ def inspect_msh4(path: Path) -> dict:
             int, element_tokens[cursor:cursor + 4]
         )
         cursor += 4
-        arity = {1: 2, 2: 3, 3: 4, 5: 8}.get(element_type)
+        arity = {1: 2, 2: 3, 3: 4, 4: 4, 5: 8}.get(element_type)
         if arity is None:
             raise Stl2DError(f"unsupported element type {element_type} in reference mesh")
         element_types[element_type] += count
@@ -611,6 +633,7 @@ def inspect_msh4(path: Path) -> dict:
         "line_elements": element_types.get(1, 0),
         "triangle_elements": element_types.get(2, 0),
         "quadrilateral_elements": element_types.get(3, 0),
+        "tetrahedron_elements": element_types.get(4, 0),
         "hexahedron_elements": element_types.get(5, 0),
         "physical_groups": physical_groups,
         "coordinate_bounds": bounds,

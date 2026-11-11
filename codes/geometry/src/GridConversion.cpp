@@ -1164,8 +1164,11 @@ void ConvertStlCubeToGmsh(
     const std::filesystem::path& target)
 {
     namespace fs = std::filesystem;
-    if (options.value("volume_mesh", std::string{}) != "axis_aligned_cube_single_hex")
-        throw std::invalid_argument("Unsupported STL volume_mesh contract");
+    const std::string volumeMesh = options.value("volume_mesh", std::string{});
+    if (volumeMesh != "axis_aligned_cube_single_hex" &&
+        volumeMesh != "axis_aligned_cube_six_tetrahedra" &&
+        volumeMesh != "axis_aligned_cube_automatic_tetrahedra")
+        throw std::invalid_argument("Unsupported STL cube volume_mesh contract");
     const double tolerance = config.stlWeldTolerance;
     if (!std::isfinite(tolerance) || tolerance <= 0.0)
         throw std::invalid_argument("STL weld tolerance must be positive and finite");
@@ -1189,7 +1192,7 @@ void ConvertStlCubeToGmsh(
         maximum[0] - minimum[0], maximum[1] - minimum[1], maximum[2] - minimum[2]}};
     if (*std::max_element(extents.begin(), extents.end()) -
         *std::min_element(extents.begin(), extents.end()) > tolerance)
-        throw std::invalid_argument("cube_single_hex requires equal axis-aligned edge lengths");
+        throw std::invalid_argument("Cube volume requires equal axis-aligned edge lengths");
 
 
     const std::array<Point, 8> corners{{
@@ -1225,10 +1228,24 @@ void ConvertStlCubeToGmsh(
         geo << "Curve Loop(" << i + 1 << ") = " << loops[i] << ";\n"
             << "Plane Surface(" << i + 1 << ") = {" << i + 1 << "};\n";
     geo << "Surface Loop(1) = {-1, 2, 3, 4, 5, 6};\n"
-        << "Volume(1) = {1};\n"
-        << "Transfinite Curve {1:12} = 2;\n"
-        << "Transfinite Surface {1:6};\nRecombine Surface {1:6};\n"
-        << "Transfinite Volume {1};\nRecombine Volume {1};\n";
+        << "Volume(1) = {1};\n";
+    if (volumeMesh == "axis_aligned_cube_single_hex")
+        geo << "Transfinite Curve {1:12} = 2;\n"
+            << "Transfinite Surface {1:6};\nRecombine Surface {1:6};\n"
+            << "Transfinite Volume {1};\nRecombine Volume {1};\n";
+    else if (volumeMesh == "axis_aligned_cube_six_tetrahedra")
+        geo << "Transfinite Curve {1:12} = 2;\n"
+            << "Transfinite Surface {1:6};\nTransfinite Volume {1};\n";
+    else
+    {
+        const double meshSize = options.value("mesh_size", 0.5);
+        if (!std::isfinite(meshSize) || meshSize <= 0.0)
+            throw std::invalid_argument("cube automatic tetrahedra mesh_size must be positive and finite");
+        geo << "Mesh.MeshSizeMin = " << meshSize << ";\n"
+            << "Mesh.MeshSizeMax = " << meshSize << ";\n"
+            << "Mesh.MeshSizeFromPoints = 1;\n"
+            << "Mesh.MeshSizeExtendFromBoundary = 1;\n";
+    }
 
     // The six CAD surface IDs follow the cube construction above:
     // ZMin=1, ZMax=2, XMin=3, XMax=4, YMin=5, YMax=6.
@@ -1240,7 +1257,7 @@ void ConvertStlCubeToGmsh(
     if (boundaryGroupsIter == options.end() || !boundaryGroupsIter->is_object() ||
         boundaryGroupsIter->size() != surfaceBySide.size())
         throw std::invalid_argument(
-            "cube_single_hex layout must define exactly xmin, xmax, ymin, ymax, zmin and zmax boundary_groups");
+            "Cube volume layout must define exactly xmin, xmax, ymin, ymax, zmin and zmax boundary_groups");
 
     std::set<std::string> expectedPhysicalNames;
     for (const auto& side : surfaceBySide)
@@ -1248,17 +1265,17 @@ void ConvertStlCubeToGmsh(
         const auto semanticIter = boundaryGroupsIter->find(side.first);
         if (semanticIter == boundaryGroupsIter->end() || !semanticIter->is_string())
             throw std::invalid_argument(
-                "cube_single_hex boundary_groups." + side.first + " must be a string");
+                "Cube volume boundary_groups." + side.first + " must be a string");
         const std::string physicalName = side.first + "_" + semanticIter->get<std::string>();
         if (physicalName.size() > 32 ||
             GmshPhysicalNameToCgnsBcType(physicalName) ==
                 static_cast<int>(CGNS_ENUMV(BCTypeUserDefined)))
             throw std::invalid_argument(
-                "Unsupported cube_single_hex boundary semantic for " + side.first +
+                "Unsupported cube volume boundary semantic for " + side.first +
                 ": " + semanticIter->get<std::string>());
         if (!expectedPhysicalNames.insert(physicalName).second)
             throw std::invalid_argument(
-                "cube_single_hex boundary patch names must be unique: " + physicalName);
+                "Cube volume boundary patch names must be unique: " + physicalName);
         geo << "Physical Surface(\"" << physicalName << "\") = {"
             << side.second << "};\n";
     }
@@ -1282,9 +1299,18 @@ void ConvertStlCubeToGmsh(
     const GmshMesh generated = ReadGmsh41AsciiMesh(content);
     std::map<int, std::size_t> counts;
     for (const auto& element : generated.elements) ++counts[element.type];
-    if (generated.nodes.size() != 8 || counts[5] != 1 || counts[3] != 6 ||
-        counts.size() != 2 || generated.elements.size() != 7)
-        throw std::runtime_error("cube_single_hex must generate exactly 8 nodes, 6 QUAD_4 faces and 1 HEXA_8 cell");
+    bool validTopology = false;
+    if (volumeMesh == "axis_aligned_cube_single_hex")
+        validTopology = generated.nodes.size() == 8 && counts[5] == 1 &&
+            counts[3] == 6 && counts[4] == 0 && counts[2] == 0;
+    else if (volumeMesh == "axis_aligned_cube_six_tetrahedra")
+        validTopology = generated.nodes.size() == 8 && counts[4] == 6 &&
+            counts[2] == 12 && counts[3] == 0 && counts[5] == 0;
+    else
+        validTopology = generated.nodes.size() > 8 && counts[4] > 0 &&
+            counts[2] > 0 && counts[3] == 0 && counts[5] == 0;
+    if (!validTopology)
+        throw std::runtime_error("Generated cube volume mesh does not satisfy the declared HEXA_8 or TETRA_4 topology contract");
     std::set<std::pair<int, std::string>> expected;
     for (const std::string& name : expectedPhysicalNames)
         expected.emplace(2, name);
@@ -1303,23 +1329,26 @@ void ConvertStlCubeToGmsh(
         if (entity == generated.entityPhysicalTags.end() ||
             entity->second.size() != 1)
             throw std::runtime_error(
-                "cube_single_hex surface " + side.first +
+                "Cube volume surface " + side.first +
                 " must belong to exactly one Physical Group");
         const auto name = generated.physicalNames.find({2, entity->second.front()});
         if (name == generated.physicalNames.end() || name->second != physicalName)
             throw std::runtime_error(
-                "cube_single_hex Physical Group is attached to the wrong surface: " +
+                "Cube volume Physical Group is attached to the wrong surface: " +
                 side.first);
     }
 
     nlohmann::json report;
     report["schema"] = "oneflow.stl-to-gmsh-validation-report";
     report["version"] = 1;
-    report["case"] = "cube_single_hex";
+    report["case"] = options.value("case_name", volumeMesh);
+    report["volume_mesh"] = volumeMesh;
     report["input_triangles"] = 12;
-    report["mesh_nodes"] = 8;
-    report["hexahedron_elements"] = 1;
-    report["quadrilateral_boundary_elements"] = 6;
+    report["mesh_nodes"] = generated.nodes.size();
+    report["tetrahedron_elements"] = counts[4];
+    report["triangle_boundary_elements"] = counts[2];
+    report["hexahedron_elements"] = counts[5];
+    report["quadrilateral_boundary_elements"] = counts[3];
     report["physical_groups"] = nlohmann::json::array();
     for (const std::string& name : expectedPhysicalNames)
         report["physical_groups"].push_back(name);
@@ -1371,7 +1400,9 @@ void ConvertStlCubeToGmsh(
         {
             const std::string volumeMesh =
                 options.value("volume_mesh", std::string{});
-            if (volumeMesh != "axis_aligned_cube_single_hex")
+            if (volumeMesh != "axis_aligned_cube_single_hex" &&
+                volumeMesh != "axis_aligned_cube_six_tetrahedra" &&
+                volumeMesh != "axis_aligned_cube_automatic_tetrahedra")
                 throw std::invalid_argument(
                     "Unsupported 3-D STL-to-Gmsh volume_mesh contract: " + volumeMesh);
             std::cout << "STL to Gmsh: selected 3-D volume pipeline ("
