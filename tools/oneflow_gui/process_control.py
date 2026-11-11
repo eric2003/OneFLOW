@@ -140,6 +140,91 @@ def close_process_job(process: subprocess.Popen[object]) -> bool:
     return True
 
 
+
+def _terminate_windows_descendants(parent_pid: int) -> None:
+    """Terminate descendants still alive after the root process was stopped.
+
+    taskkill /T and Job Object assignment can both miss a child created during
+    process startup. A Toolhelp snapshot taken after stopping the root closes
+    that race: descendants retain their parent PID even after the parent exits.
+    """
+    if os.name != "nt":
+        return
+
+    from ctypes import wintypes
+
+    class ProcessEntry32W(ctypes.Structure):
+        _fields_ = [
+            ("dwSize", wintypes.DWORD),
+            ("cntUsage", wintypes.DWORD),
+            ("th32ProcessID", wintypes.DWORD),
+            ("th32DefaultHeapID", ctypes.c_size_t),
+            ("th32ModuleID", wintypes.DWORD),
+            ("cntThreads", wintypes.DWORD),
+            ("th32ParentProcessID", wintypes.DWORD),
+            ("pcPriClassBase", ctypes.c_long),
+            ("dwFlags", wintypes.DWORD),
+            ("szExeFile", wintypes.WCHAR * 260),
+        ]
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CreateToolhelp32Snapshot.argtypes = [wintypes.DWORD, wintypes.DWORD]
+    kernel32.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+    kernel32.Process32FirstW.argtypes = [
+        wintypes.HANDLE, ctypes.POINTER(ProcessEntry32W)
+    ]
+    kernel32.Process32FirstW.restype = wintypes.BOOL
+    kernel32.Process32NextW.argtypes = [
+        wintypes.HANDLE, ctypes.POINTER(ProcessEntry32W)
+    ]
+    kernel32.Process32NextW.restype = wintypes.BOOL
+    kernel32.OpenProcess.argtypes = [
+        wintypes.DWORD, wintypes.BOOL, wintypes.DWORD
+    ]
+    kernel32.OpenProcess.restype = wintypes.HANDLE
+    kernel32.TerminateProcess.argtypes = [wintypes.HANDLE, wintypes.UINT]
+    kernel32.TerminateProcess.restype = wintypes.BOOL
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel32.CloseHandle.restype = wintypes.BOOL
+
+    snapshot = kernel32.CreateToolhelp32Snapshot(0x00000002, 0)
+    if snapshot == wintypes.HANDLE(-1).value:
+        return
+
+    try:
+        children: dict[int, list[int]] = {}
+        entry = ProcessEntry32W()
+        entry.dwSize = ctypes.sizeof(entry)
+        if kernel32.Process32FirstW(snapshot, ctypes.byref(entry)):
+            while True:
+                children.setdefault(int(entry.th32ParentProcessID), []).append(
+                    int(entry.th32ProcessID)
+                )
+                if not kernel32.Process32NextW(snapshot, ctypes.byref(entry)):
+                    break
+    finally:
+        kernel32.CloseHandle(snapshot)
+
+    descendants: list[int] = []
+    pending = list(children.get(parent_pid, ()))
+    seen = {parent_pid}
+    while pending:
+        process_id = pending.pop()
+        if process_id in seen:
+            continue
+        seen.add(process_id)
+        descendants.append(process_id)
+        pending.extend(children.get(process_id, ()))
+
+    # Terminate deepest descendants first so they cannot keep creating children.
+    for process_id in reversed(descendants):
+        handle = kernel32.OpenProcess(0x0001, False, process_id)
+        if handle:
+            try:
+                kernel32.TerminateProcess(handle, 1)
+            finally:
+                kernel32.CloseHandle(handle)
+
 def terminate_process_tree(
     process: subprocess.Popen[object],
     *,
@@ -167,17 +252,21 @@ def terminate_process_tree(
         except OSError:
             result = None
         if result is not None and result.returncode == 0:
+            # taskkill may report success while a child created during startup
+            # remains alive. The root is now stopped, so its descendants can
+            # be enumerated reliably by their recorded parent-process IDs.
+            _terminate_windows_descendants(process.pid)
             return True
 
         # Keep the Job Object as a second termination mechanism when taskkill
         # is unavailable or cannot terminate the process tree.
         job = _process_job(process)
-        if job is not None:
-            kernel32, job_handle = job
-            if kernel32.TerminateJobObject(job_handle, 1):
-                return True
+        if job is not None and job[0].TerminateJobObject(job[1], 1):
+            _terminate_windows_descendants(process.pid)
+            return True
         if process.poll() is None:
-            process.terminate()
+            process.kill()
+        _terminate_windows_descendants(process.pid)
         return True
 
     try:
