@@ -243,3 +243,17 @@ grid conversion and verifies FaceCenter boundary semantics and the boundary
 region map. It deliberately stops before the flat-plate CFD consumer: a
 single-cell cube is a topology/interoperability fixture, not a meaningful
 CFD accuracy case.
+
+
+Automatic square triangulation Case
+-----------------------------------
+
+The square automatic-triangulation native C++ Case and independent Python
+reference Case are registered in the shared Case catalog. Both reuse the
+same two-facet square STL and four outer Physical Curve groups. They omit
+``transfinite_cells`` and ``recombine_surface``. Gmsh determines the TRI_3
+topology from the configured ``mesh_size``, which is a target characteristic
+length rather than an exact triangle count. Both implementations are
+selectable through Run Development Cases / Python reference cases and either
+can be selected in Mesh-to-CFD Validation. The downstream CFD consumer remains
+a smoke test, not an accuracy benchmark for this geometry.

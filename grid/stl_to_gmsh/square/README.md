@@ -9,9 +9,12 @@ interface.
 |---|---|---|---|
 | square/single_quad/cpp and square/single_quad/python | 1 x 1 | enabled | 1 QUAD_4 |
 | two_triangles/cpp and two_triangles/python | 1 x 1 | disabled | 2 TRI_3 |
+| automatic_triangles/cpp and automatic_triangles/python | automatic | not used | unstructured TRI_3 controlled by mesh_size |
 
-Both variants have four nodes, four exterior LINE_2 elements and the same
-Physical Groups: inflow, outflow, symmetry, farfield and fluid_domain.
+The fixed-topology variants have four nodes, four exterior LINE_2 elements and the same
+Physical Groups: inflow, outflow, symmetry, farfield and fluid_domain. The
+`automatic_triangles` pair omits `transfinite_cells` and lets Gmsh choose the
+unstructured triangle topology from `mesh_size`; the element count is not fixed.
 
 The native C++ Case uses OneFLOW's Grid task. The Python reference uses the
 independent STL-to-Gmsh implementation. The development runner stages both

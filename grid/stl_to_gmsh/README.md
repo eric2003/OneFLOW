@@ -155,3 +155,6 @@ The `cube_single_hex` pair is a deliberately restricted 3D STL-to-Gmsh prototype
 The acceptance contract is exactly 8 nodes, 6 QUAD_4 boundary elements and 1 HEXA_8 volume cell. Each geometric face has its own Physical Group: `xmin_inflow`, `xmax_outflow`, `ymin_wall`, `ymax_farfield`, `zmin_symmetry`, and `zmax_symmetry`; `fluid_domain` is the volume group. The two Z faces have the same CGNS `BCSymmetryPlane` type but retain distinct patch names and independent face lists. The YMin wall is the only face mapped to `BCWall`.
 
 This is not a general STL-to-hexahedral mesher. It accepts only the axis-aligned cube topology described above; arbitrary closed STL geometry requires a different volume-meshing strategy. Mesh-to-CFD Validation uses this case to verify STL/Gmsh/CGNS/OneFLOW topology and boundary handoff, and deliberately does not run the flat-plate CFD template on this one-cell cube.
+
+
+The `square/automatic_triangles` native C++ and Python reference Cases reuse the same square STL and boundary Physical Groups as the fixed-topology variants. They omit `transfinite_cells` so Gmsh controls unstructured TRI_3 refinement through `mesh_size`; the exact element count is intentionally not prescribed.

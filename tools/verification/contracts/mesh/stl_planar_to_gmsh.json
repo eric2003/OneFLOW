@@ -90,7 +90,15 @@
       "grid/stl_to_gmsh/square/two_triangles/cpp/input/model.stl",
       "grid/stl_to_gmsh/square/two_triangles/python/expected.json",
       "grid/stl_to_gmsh/square/two_triangles/python/input/model.stl",
-      "grid/stl_to_gmsh/square/two_triangles/python/script/layout.json"
+      "grid/stl_to_gmsh/square/two_triangles/python/script/layout.json",
+      "grid/stl_to_gmsh/square/automatic_triangles/cpp/script/dimension.txt",
+      "grid/stl_to_gmsh/square/automatic_triangles/cpp/script/simu.txt",
+      "grid/stl_to_gmsh/square/automatic_triangles/cpp/script/grid.txt",
+      "grid/stl_to_gmsh/square/automatic_triangles/cpp/script/layout.json",
+      "grid/stl_to_gmsh/square/automatic_triangles/cpp/input/model.stl",
+      "grid/stl_to_gmsh/square/automatic_triangles/python/expected.json",
+      "grid/stl_to_gmsh/square/automatic_triangles/python/input/model.stl",
+      "grid/stl_to_gmsh/square/automatic_triangles/python/script/layout.json"
     ]
   },
   "documentation": {
@@ -102,7 +110,9 @@
       "doc/source/grid_conversion_cases.rst",
       "grid/stl_to_gmsh/cube_single_hex/README.md",
       "tests/python/grid/test_stl_to_gmsh_cases.py",
-      "grid/conversion/cgns_to_oneflow/README.md"
+      "grid/conversion/cgns_to_oneflow/README.md",
+      "grid/stl_to_gmsh/square/README.md",
+      "tools/oneflow_gui/test_mesh_validation.py"
     ]
   },
   "claims": {
@@ -126,7 +136,8 @@
       "The legacy root-level script/run.py and its root input/results/script data were removed; Python reference Cases reject execution from checked-in source directories, and Python unit tests live under tests/python/grid.",
       "The same unit-square STL and four named outer boundaries can produce either one QUAD_4 cell or exactly two TRI_3 cells by enabling or disabling Gmsh surface recombination while retaining a 1 x 1 transfinite boundary layout.",
       "The native C++ planar STL-to-Gmsh route supports an automatic unstructured TRI_3 mode when transfinite_cells is omitted, validates boundary-edge incidence and the Euler characteristic, and reports the configured mesh size without asserting an exact cell count.",
-      "The Python reference geometry generator emits the same automatic mesh-size controls without transfinite constraints or recombination when transfinite_cells is omitted."
+      "The Python reference geometry generator emits the same automatic mesh-size controls without transfinite constraints or recombination when transfinite_cells is omitted.",
+      "The automatic square triangulation C++ and Python reference Cases are separately registered in the shared Case catalog and exposed to Run Development Cases, Python reference cases and Mesh-to-CFD Validation."
     ],
     "does_not_prove": [
       "Generated outer-flow meshes have been converted through CGNS into a OneFLOW native grid.",
@@ -301,6 +312,18 @@
       "reference": "StlToGmshCaseTest.test_python_automatic_mesh_size_controls_progressive_refinement",
       "status": "linked_not_executed",
       "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; meshes the same square STL at three target sizes and checks increasing node/triangle counts without fixed expected counts."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlToGmshCaseTest.test_automatic_triangle_case_pair_is_registered_and_uses_mesh_size_only",
+      "status": "linked_not_executed",
+      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; validates byte-identical STL input, matching automatic layouts, mesh-size-only control and variable-count assertions."
+    },
+    {
+      "kind": "python_test",
+      "reference": "MeshValidationCatalogTest.test_automatic_triangle_cases_are_available_to_mesh_to_cfd_validation",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_mesh_validation.py; checks both implementations are selectable and produce the shared conversion dependency graph."
     }
   ],
   "group": {

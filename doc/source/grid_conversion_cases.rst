@@ -338,3 +338,10 @@ axis-aligned cubes with equal edge lengths; it is not a general STL-to-hex
 mesher. The unit-test suite is stored under tests/python/grid rather than in
 the grid/stl_to_gmsh Case tree, and all executable Cases are staged outside
 the source repository before running.
+
+
+The `square/automatic_triangles` C++ and Python reference Cases are separate
+catalog entries. They are discoverable in the development-case selectors and
+Mesh-to-CFD Validation. Unlike `two_triangles`, the automatic case does not
+promise an exact cell count: `mesh_size` controls the target refinement and
+Gmsh determines the resulting unstructured TRI_3 topology.
