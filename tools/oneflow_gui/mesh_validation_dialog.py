@@ -168,6 +168,9 @@ class MeshValidationDialog(QDialog):
         form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.executable_combo = QComboBox()
         self.executable_combo.setEditable(True)
+        self.executable_combo.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon
+        )
         self.executable_combo.setMinimumContentsLength(28)
         self.executable_combo.setToolTip(
             "Path to the OneFLOW executable. The field can be resized with the dialog."
