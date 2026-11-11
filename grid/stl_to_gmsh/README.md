@@ -11,13 +11,15 @@ and the C++ Geometry conversion pipeline.
 | Native C++ | square/automatic_triangles/cpp | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
 | Native C++ | square_2x2/cpp | 2 x 2 | 9 | 4 QUAD_4 | 8 |
 | Native C++ | two_square_cells/cpp | 2 x 1 | 6 | 2 QUAD_4 | 6 |
-| Native C++ | circle_external_flow/cpp | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |\n| Native C++ | cube_single_hex/cpp | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
+| Native C++ | circle_external_flow/cpp | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
+| Native C++ | cube_single_hex/cpp | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
 | Python | square/single_quad/python | 1 x 1 | 4 | 1 QUAD_4 | 4 |
 | Python | square/two_triangles/python | 1 x 1 | 4 | 2 TRI_3 | 4 |
 | Python | square/automatic_triangles/python | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
 | Python | two_square_cells/python | 2 x 1 | 6 | 2 QUAD_4 | 6 |
 | Python | circle_external_flow/python | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
-| Python | channel_internal_flow/python | 20 x 5 | 126 | 100 QUAD_4 | 50 |\n| Python | cube_single_hex/python | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
+| Python | channel_internal_flow/python | 20 x 5 | 126 | 100 QUAD_4 | 50 |
+| Python | cube_single_hex/python | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
 
 For the square Cases, the STL describes the outer domain boundary. The
 single-quad and two-triangle variants use the same STL and 1 x 1 transfinite
