@@ -53,7 +53,7 @@ Each strategy has a native C++ Case and an independent Python reference Case.
 Both read byte-identical STL inputs and equivalent layout JSON. The native
 implementation exercises the standard OneFLOW Grid task and
 ``GridConversion.cpp`; the Python reference exercises
-``grid/stl/stl_to_gmsh.py`. Both write MSH 4.1 and validate element families,
+``grid/stl_to_gmsh/converter.py`. Both write MSH 4.1 and validate element families,
 counts (exact or minimum, depending on the Case), and Physical Groups.
 
 Run all registered STL-to-Gmsh development Cases using the isolated runner:

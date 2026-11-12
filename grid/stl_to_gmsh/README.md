@@ -9,7 +9,7 @@ and the C++ Geometry conversion pipeline.
 | Native C++ | 2d/square/single_quad/cpp | 1 x 1 | 4 | 1 QUAD_4 | 4 |
 | Native C++ | 2d/square/two_triangles/cpp | 1 x 1 | 4 | 2 TRI_3 | 4 |
 | Native C++ | 2d/2d/square/automatic_triangles/cpp | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
-| Native C++ | square_2x2/cpp | 2 x 2 | 9 | 4 QUAD_4 | 8 |
+| Native C++ | 2d/square_2x2/cpp | 2 x 2 | 9 | 4 QUAD_4 | 8 |
 | Native C++ | 2d/two_square_cells/cpp | 2 x 1 | 6 | 2 QUAD_4 | 6 |
 | Native C++ | 2d/2d/circle_external_flow/cpp | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
 | Native C++ | 3d/cube/single_hex/cpp | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
@@ -159,7 +159,7 @@ The former root-level `script/run.py` workflow was removed because it wrote gene
 
 ## 3D cube volume-mesh progression
 
-The `cube/` family holds one axis-aligned cube STL and six semantic boundary
+The `3d/cube/` family holds one axis-aligned cube STL and six semantic boundary
 patches constant while changing only the volume-mesh strategy. Start with
 `single_hex` for one HEXA_8 cell, continue to `six_tetrahedra` for an exact
 six-cell tetrahedral decomposition, and then use `automatic_tetrahedra` to

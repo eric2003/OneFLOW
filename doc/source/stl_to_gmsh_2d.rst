@@ -20,9 +20,9 @@ Native OneFLOW Cases
 The primary runtime implementation is now available in two normal OneFLOW
 Grid Cases:
 
-* `grid/stl_to_gmsh/square/single_quad/cpp`: one square, one QUAD_4 cell, four boundary edges;
-* `grid/stl_to_gmsh/square/two_triangles/cpp`: the same square, two TRI_3 cells;
-* `grid/stl_to_gmsh/two_square_cells/cpp`: a 2 x 1 rectangle, two QUAD_4 cells,
+* `grid/stl_to_gmsh/2d/square/single_quad/cpp`: one square, one QUAD_4 cell, four boundary edges;
+* `grid/stl_to_gmsh/2d/square/two_triangles/cpp`: the same square, two TRI_3 cells;
+* `grid/stl_to_gmsh/2d/two_square_cells/cpp`: a 2 x 1 rectangle, two QUAD_4 cells,
   six exterior boundary edges.
 
 Both Cases use the standard C++ STL reader and Grid conversion path. The
@@ -148,9 +148,9 @@ Parser and geometry-generation tests do not require Gmsh:
 Native C++ circle external-flow Case
 ------------------------------------
 
-The native Case at `grid/stl_to_gmsh/circle_external_flow/cpp` uses the same
+The native Case at `grid/stl_to_gmsh/2d/circle_external_flow/cpp` uses the same
 32-segment circular STL and layout as the independent Python reference at
-`grid/stl_to_gmsh/circle_external_flow/python`. Its layout defines an outer
+`grid/stl_to_gmsh/2d/circle_external_flow/python`. Its layout defines an outer
 rectangular computational domain and the four outer boundary labels. The C++
 converter creates the outer loop, reverses the body loop orientation to form
 a hole, and creates one fluid Plane Surface. The upper and lower outer curves
@@ -194,12 +194,12 @@ External- and internal-flow reference Cases
 Two independent Python reference Cases make the computational-domain
 distinction executable:
 
-* `grid/stl_to_gmsh/circle_external_flow/cpp` and `grid/stl_to_gmsh/circle_external_flow/python`:
+* `grid/stl_to_gmsh/2d/circle_external_flow/cpp` and `grid/stl_to_gmsh/2d/circle_external_flow/python`:
   a 32-segment circular STL obstacle is placed inside a rectangular outer
   domain. The fluid surface is the outer loop with the obstacle loop as a
   hole. The body is `wall`; the outer curves are `inflow`, `outflow` and
   `farfield` (the top and bottom edges share the farfield group).
-* `grid/stl_to_gmsh/channel_internal_flow/python`: a rectangular STL loop
+* `grid/stl_to_gmsh/2d/channel_internal_flow/python`: a rectangular STL loop
   directly bounds the fluid region. Its four edges are `Inlet`, `Outlet`,
   `LowerWall` and `UpperWall`. A transfinite 20 x 5 layout produces 100
   quadrilateral cells.
