@@ -39,8 +39,8 @@ Outputs
 For ``--output "$HOME/.oneflow/mesh-generation/sphere.msh"``, the command writes:
 
 * ``$HOME/.oneflow/mesh-generation/sphere.msh`` — MSH 4.1 tetrahedral volume mesh.
-* ``results/sphere.geo`` — generated Gmsh geometry script.
-* ``results/sphere.report.json`` — input topology, mesh counts, Physical
+* ``$HOME/.oneflow/mesh-generation/sphere.geo`` — generated Gmsh geometry script.
+* ``$HOME/.oneflow/mesh-generation/sphere.report.json`` — input topology, mesh counts, Physical
   Groups and validation summary.
 
 The command validates one connected, closed, consistently oriented,
