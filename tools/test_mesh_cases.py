@@ -146,6 +146,8 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_python_cube_six_tetrahedra",
             "stl_to_gmsh_cube_automatic_tetrahedra",
             "stl_to_gmsh_python_cube_automatic_tetrahedra",
+            "stl_to_gmsh_sphere_automatic_tetrahedra",
+            "stl_to_gmsh_python_sphere_automatic_tetrahedra",
         })
         for case_id in (
             "stl_to_gmsh_square",
