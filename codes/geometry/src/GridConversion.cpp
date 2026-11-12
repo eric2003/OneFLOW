@@ -1169,6 +1169,239 @@ std::string PathUtf8(const std::filesystem::path& path)
 }
 
 
+void ValidateClosedStlSphereSurface(const StlMesh& mesh, double tolerance)
+{
+    if (mesh.triangles.size() < 20)
+        throw std::invalid_argument("Closed STL volume requires at least 20 triangles");
+    if (!std::isfinite(tolerance) || tolerance <= 0.0)
+        throw std::invalid_argument("STL weld tolerance must be positive and finite");
+
+    RealField minimum(3), maximum(3);
+    for (int axis = 0; axis < 3; ++axis)
+    {
+        minimum[axis] = std::numeric_limits<Real>::max();
+        maximum[axis] = -std::numeric_limits<Real>::max();
+    }
+    for (const StlTriangle& triangle : mesh.triangles)
+        for (const Point& point : triangle.vertices)
+            for (int axis = 0; axis < 3; ++axis)
+            {
+                if (!std::isfinite(point[axis]))
+                    throw std::invalid_argument("STL surface contains a non-finite coordinate");
+                minimum[axis] = std::min(minimum[axis], static_cast<Real>(point[axis]));
+                maximum[axis] = std::max(maximum[axis], static_cast<Real>(point[axis]));
+            }
+
+    PointLocator locator;
+    locator.Initialize(minimum, maximum, static_cast<Real>(tolerance));
+    struct EdgeUse { int count = 0; int direction = 0; };
+    std::map<Edge, EdgeUse> edges;
+    std::map<int, std::vector<int>> adjacency;
+    std::set<std::array<int, 3>> uniqueFaces;
+    std::size_t vertexCount = 0;
+    double signedVolume = 0.0;
+
+    for (const StlTriangle& triangle : mesh.triangles)
+    {
+        std::array<int, 3> ids{};
+        for (int vertex = 0; vertex < 3; ++vertex)
+        {
+            const Point& point = triangle.vertices[vertex];
+            ids[vertex] = locator.AddPoint(
+                static_cast<Real>(point[0]),
+                static_cast<Real>(point[1]),
+                static_cast<Real>(point[2]));
+            if (ids[vertex] < 0)
+                throw std::runtime_error("STL vertex welding returned an invalid point ID");
+        }
+        if (ids[0] == ids[1] || ids[1] == ids[2] || ids[2] == ids[0])
+            throw std::invalid_argument("STL contains a degenerate triangle after vertex welding");
+
+        const Point& a = triangle.vertices[0];
+        const Point& b = triangle.vertices[1];
+        const Point& d = triangle.vertices[2];
+        const std::array<double, 3> ab{{b[0]-a[0], b[1]-a[1], b[2]-a[2]}};
+        const std::array<double, 3> ac{{d[0]-a[0], d[1]-a[1], d[2]-a[2]}};
+        const std::array<double, 3> cross{{
+            ab[1]*ac[2]-ab[2]*ac[1],
+            ab[2]*ac[0]-ab[0]*ac[2],
+            ab[0]*ac[1]-ab[1]*ac[0]}};
+        const double area2 = std::sqrt(
+            cross[0]*cross[0] + cross[1]*cross[1] + cross[2]*cross[2]);
+        if (!std::isfinite(area2) || area2 <= tolerance*tolerance)
+            throw std::invalid_argument("STL contains a zero-area triangle");
+
+        std::array<int, 3> face = ids;
+        std::sort(face.begin(), face.end());
+        if (!uniqueFaces.insert(face).second)
+            throw std::invalid_argument("STL contains a duplicate triangle");
+
+        for (int edge = 0; edge < 3; ++edge)
+        {
+            const int from = ids[edge];
+            const int to = ids[(edge + 1) % 3];
+            const Edge key{std::min(from, to), std::max(from, to)};
+            EdgeUse& use = edges[key];
+            ++use.count;
+            use.direction += from < to ? 1 : -1;
+            adjacency[from].push_back(to);
+            adjacency[to].push_back(from);
+        }
+        signedVolume += (
+            a[0]*(b[1]*d[2]-b[2]*d[1]) +
+            a[1]*(b[2]*d[0]-b[0]*d[2]) +
+            a[2]*(b[0]*d[1]-b[1]*d[0])) / 6.0;
+    }
+
+    vertexCount = adjacency.size();
+    if (vertexCount == 0 || edges.empty())
+        throw std::invalid_argument("STL surface has no usable topology");
+    for (const auto& item : edges)
+        if (item.second.count != 2 || item.second.direction != 0)
+            throw std::invalid_argument(
+                "STL surface must be closed, two-manifold and consistently oriented");
+
+    std::set<int> visited;
+    std::vector<int> pending{adjacency.begin()->first};
+    while (!pending.empty())
+    {
+        const int current = pending.back();
+        pending.pop_back();
+        if (!visited.insert(current).second) continue;
+        for (int next : adjacency[current])
+            if (!visited.contains(next)) pending.push_back(next);
+    }
+    if (visited.size() != vertexCount)
+        throw std::invalid_argument("STL surface must contain exactly one connected component");
+
+    const long long euler = static_cast<long long>(vertexCount) -
+        static_cast<long long>(edges.size()) +
+        static_cast<long long>(mesh.triangles.size());
+    if (euler != 2)
+        throw std::invalid_argument("The sphere STL must have genus-zero closed-surface topology");
+    if (!std::isfinite(signedVolume) || signedVolume <= tolerance*tolerance*tolerance)
+        throw std::invalid_argument("STL triangle winding must point outward and enclose positive volume");
+}
+
+void ConvertStlSurfaceVolumeToGmsh(
+    const GridConfig& config,
+    const std::string& caseDirectory,
+    const nlohmann::json& options,
+    const std::filesystem::path& source,
+    const std::filesystem::path& target)
+{
+    namespace fs = std::filesystem;
+    const double tolerance = config.stlWeldTolerance;
+    const StlMesh mesh = StlMeshReader::Read(source.string());
+    ValidateClosedStlSphereSurface(mesh, tolerance);
+
+    const double meshSize = options.value("mesh_size", 0.25);
+    const double surfaceAngle = options.value("surface_angle_degrees", 40.0);
+    const double curveAngle = options.value("curve_angle_degrees", 180.0);
+    if (!std::isfinite(meshSize) || meshSize <= 0.0)
+        throw std::invalid_argument("3D STL automatic tetrahedra mesh_size must be positive and finite");
+    if (!std::isfinite(surfaceAngle) || surfaceAngle <= 0.0 || surfaceAngle >= 180.0)
+        throw std::invalid_argument("surface_angle_degrees must be between 0 and 180");
+    if (!std::isfinite(curveAngle) || curveAngle <= 0.0 || curveAngle > 180.0)
+        throw std::invalid_argument("curve_angle_degrees must be in (0, 180]");
+    const std::string boundaryName = options.value("boundary_name", std::string("wall"));
+    const std::string volumeName = options.value("surface_name", std::string("fluid_domain"));
+    const auto validName = [](const std::string& name)
+    {
+        return !name.empty() && name.size() <= 32 &&
+            std::all_of(name.begin(), name.end(), [](unsigned char ch)
+            {
+                return std::isalnum(ch) || ch == '_' || ch == '.' || ch == '-';
+            });
+    };
+    if (!validName(boundaryName) || !validName(volumeName) || boundaryName == volumeName)
+        throw std::invalid_argument("3D STL Physical Group names must be distinct valid names of at most 32 characters");
+
+    const fs::path caseRoot(caseDirectory);
+    const fs::path results = caseRoot / "results";
+    fs::create_directories(results);
+    if (!target.parent_path().empty()) fs::create_directories(target.parent_path());
+    const fs::path geoPath = results / (target.stem().string() + ".geo");
+    const fs::path reportPath = results / (target.stem().string() + ".stl-to-gmsh-report.json");
+    const auto sourceUtf8 = PathUtf8(fs::absolute(source));
+    std::string sourcePath(sourceUtf8);
+    std::replace(sourcePath.begin(), sourcePath.end(), '\\', '/');
+    if (sourcePath.find('"') != std::string::npos)
+        throw std::invalid_argument("STL source path must not contain a quote character");
+
+    std::ofstream geo(geoPath, std::ios::trunc);
+    if (!geo) throw std::runtime_error("Cannot create Gmsh geometry: " + geoPath.string());
+    geo << std::setprecision(std::numeric_limits<double>::max_digits10)
+        << "SetFactory(\"Built-in\");\n"
+        << "Mesh.MshFileVersion = 4.1;\n"
+        << "Mesh.Binary = 0;\n"
+        << "Mesh.ElementOrder = 1;\n"
+        << "Merge \"" << sourcePath << "\";\n"
+        << "ClassifySurfaces{" << surfaceAngle << " * Pi / 180, 1, 1, "
+        << curveAngle << " * Pi / 180};\n"
+        << "CreateGeometry;\n"
+        << "surfaceEntities() = Surface{:};\n"
+        << "Surface Loop(1) = {surfaceEntities()};\n"
+        << "Volume(1) = {1};\n"
+        << "Mesh.MeshSizeMin = " << meshSize << ";\n"
+        << "Mesh.MeshSizeMax = " << meshSize << ";\n"
+        << "Mesh.MeshSizeFromPoints = 1;\n"
+        << "Mesh.MeshSizeExtendFromBoundary = 1;\n"
+        << "Physical Surface(\"" << boundaryName << "\") = {surfaceEntities()};\n"
+        << "Physical Volume(\"" << volumeName << "\") = {1};\n";
+    geo.close();
+    if (!geo) throw std::runtime_error("Failed writing Gmsh geometry: " + geoPath.string());
+
+    if (config.gmshExecutable.empty())
+        throw std::invalid_argument("gmshExecutable must not be empty");
+    const ProcessResult process = RunProcess(
+        config.gmshExecutable,
+        {PathUtf8(fs::absolute(geoPath)), "-3", "-format", "msh4",
+         "-o", PathUtf8(fs::absolute(target))},
+        PathUtf8(fs::absolute(caseRoot)));
+    if (!process.started || process.exitCode != 0)
+        throw std::runtime_error("Gmsh closed-surface volume generation failed (exit " +
+            std::to_string(process.exitCode) + "): " + process.output + process.errorMessage);
+
+    std::ifstream input(target, std::ios::binary);
+    if (!input) throw std::runtime_error("Gmsh did not create mesh: " + target.string());
+    const std::string content{std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+    const GmshMesh generated = ReadGmsh41AsciiMesh(content);
+    (void)ValidateGmshTetrahedralTopology(generated);
+
+    std::map<int, std::size_t> counts;
+    for (const GmshElement& element : generated.elements) ++counts[element.type];
+    if (counts[4] == 0 || counts[2] == 0 || counts[3] != 0 || counts[5] != 0)
+        throw std::runtime_error("Closed STL volume must generate TETRA_4 cells and TRI_3 boundary facets only");
+
+    std::set<std::pair<int, std::string>> expected{
+        {2, boundaryName}, {3, volumeName}};
+    std::set<std::pair<int, std::string>> actual;
+    for (const auto& item : generated.physicalNames)
+        actual.emplace(item.first.first, item.second);
+    if (actual != expected)
+        throw std::runtime_error("Closed STL volume Physical Groups do not match the declared boundary and volume names");
+
+    nlohmann::json report;
+    report["schema"] = "oneflow.stl-to-gmsh-validation-report";
+    report["version"] = 1;
+    report["case"] = options.value("case_name", std::string("automatic_tetrahedra"));
+    report["volume_mesh"] = "closed_surface_automatic_tetrahedra";
+    report["input_triangles"] = mesh.triangles.size();
+    report["mesh_nodes"] = generated.nodes.size();
+    report["tetrahedron_elements"] = counts[4];
+    report["triangle_boundary_elements"] = counts[2];
+    report["hexahedron_elements"] = counts[5];
+    report["quadrilateral_boundary_elements"] = counts[3];
+    report["physical_groups"] = {boundaryName, volumeName};
+    report["validated"] = true;
+    std::ofstream reportOutput(reportPath, std::ios::trunc);
+    if (!reportOutput) throw std::runtime_error("Cannot create STL-to-Gmsh report: " + reportPath.string());
+    reportOutput << report.dump(2) << '\n';
+    if (!reportOutput) throw std::runtime_error("Failed writing STL-to-Gmsh report: " + reportPath.string());
+}
+
+
 void ConvertStlCubeToGmsh(
     const GridConfig& config,
     const std::string& caseDirectory,
@@ -1422,12 +1655,19 @@ void ConvertStlCubeToGmsh(
         {
             const std::string volumeMesh =
                 options.value("volume_mesh", std::string{});
+            if (volumeMesh == "closed_surface_automatic_tetrahedra")
+            {
+                std::cout << "STL to Gmsh: selected closed-surface 3-D volume pipeline."
+                          << std::endl;
+                ConvertStlSurfaceVolumeToGmsh(config, caseDir, options, source, target);
+                return;
+            }
             if (volumeMesh != "axis_aligned_cube_single_hex" &&
                 volumeMesh != "axis_aligned_cube_six_tetrahedra" &&
                 volumeMesh != "axis_aligned_cube_automatic_tetrahedra")
                 throw std::invalid_argument(
                     "Unsupported 3-D STL-to-Gmsh volume_mesh contract: " + volumeMesh);
-            std::cout << "STL to Gmsh: selected 3-D volume pipeline ("
+            std::cout << "STL to Gmsh: selected 3-D cube volume pipeline ("
                       << volumeMesh << ")." << std::endl;
             ConvertStlCubeToGmsh(config, caseDir, options, source, target);
             return;

@@ -1,9 +1,11 @@
 from __future__ import annotations
 import json, shutil, struct, subprocess, tempfile, unittest
 from pathlib import Path
+import sys
 from grid.stl_to_gmsh.converter import (
     Stl2DError, _validate_tetrahedral_boundary, _weld_vertices,
     build_geo, convert, extract_boundary, inspect_msh4, read_stl,
+    validate_closed_sphere_surface,
 )
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -198,6 +200,90 @@ $EndElements
             {group["name"] for group in summary["physical_groups"]},
             {"inflow", "outflow", "symmetry", "farfield", "fluid_domain"},
         )
+
+    def test_unit_sphere_stl_is_closed_outward_and_genus_zero(self):
+        case = ROOT / "grid" / "stl_to_gmsh" / "3d" / "sphere" / "automatic_tetrahedra" / "python"
+        triangles = read_stl(case / "input" / "model.stl")
+        report = validate_closed_sphere_surface(triangles, 1.0e-10)
+        self.assertEqual(report["triangles"], 1280)
+        self.assertEqual(report["euler_characteristic"], 2)
+        self.assertGreater(report["signed_volume"], 0.0)
+        points = [point for triangle in triangles for point in triangle]
+        self.assertAlmostEqual(min(point[0] for point in points), -1.0, delta=1.0e-6)
+        self.assertAlmostEqual(max(point[0] for point in points), 1.0, delta=1.0e-6)
+        for point in points:
+            self.assertAlmostEqual(sum(value * value for value in point), 1.0, delta=2.0e-6)
+
+    def test_unit_sphere_geo_uses_stl_classification_and_one_volume(self):
+        case = ROOT / "grid" / "stl_to_gmsh" / "3d" / "sphere" / "automatic_tetrahedra" / "python"
+        with tempfile.TemporaryDirectory() as temp:
+            geo = Path(temp) / "sphere.geo"
+            report = convert(
+                case / "input/model.stl",
+                case / "script/layout.json",
+                geo,
+                tolerance=1.0e-10,
+            )
+            content = geo.read_text(encoding="utf-8")
+        self.assertEqual(report["euler_characteristic"], 2)
+        self.assertIn("Merge ", content)
+        self.assertIn("ClassifySurfaces{", content)
+        self.assertIn(", 1, 1,", content)
+        self.assertIn("CreateGeometry;", content)
+        self.assertIn("Surface Loop(1) = {surfaceEntities()};", content)
+        self.assertIn("Volume(1) = {1};", content)
+        self.assertIn('Physical Surface("wall")', content)
+        self.assertIn('Physical Volume("fluid_domain")', content)
+        self.assertIn("Mesh.MeshSizeMax = 0.25;", content)
+        self.assertFalse((case / "results").exists())
+
+    def test_unit_sphere_mesh_refinement_reuses_one_stl(self):
+        gmsh = shutil.which("gmsh")
+        if not gmsh:
+            self.skipTest("Gmsh executable is not installed")
+        source = ROOT / "grid" / "stl_to_gmsh" / "3d" / "sphere" / "automatic_tetrahedra" / "python"
+        source_stl = (source / "input/model.stl").read_bytes()
+        counts = []
+        with tempfile.TemporaryDirectory() as temp:
+            for level, size in (("coarse", 0.40), ("medium", 0.20), ("fine", 0.10)):
+                staged = Path(temp) / level
+                shutil.copytree(source, staged)
+                self.assertEqual((staged / "input/model.stl").read_bytes(), source_stl)
+                layout_path = staged / "script/layout.json"
+                layout = json.loads(layout_path.read_text(encoding="utf-8"))
+                layout["mesh_size"] = size
+                layout_path.write_text(
+                    json.dumps(layout, indent=2) + "\n",
+                    encoding="utf-8",
+                    newline="\n",
+                )
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(ROOT / "grid/stl_to_gmsh/run_python_case.py"),
+                        "--case-directory",
+                        str(staged),
+                        "--gmsh",
+                        gmsh,
+                    ],
+                    cwd=staged,
+                    text=True,
+                    capture_output=True,
+                    check=False,
+                )
+                self.assertEqual(result.returncode, 0, msg=result.stdout + "\n" + result.stderr)
+                mesh = inspect_msh4(staged / "results/sphere_automatic_tetrahedra.msh")
+                self.assertGreater(mesh["tetrahedron_elements"], 0)
+                self.assertGreater(mesh["triangle_elements"], 0)
+                self.assertEqual(mesh["hexahedron_elements"], 0)
+                groups = {(item["dimension"], item["name"]) for item in mesh["physical_groups"]}
+                self.assertEqual(groups, {(2, "wall"), (3, "fluid_domain")})
+                counts.append((mesh["nodes"], mesh["tetrahedron_elements"]))
+        self.assertLess(counts[0][0], counts[1][0])
+        self.assertLess(counts[1][0], counts[2][0])
+        self.assertLess(counts[0][1], counts[1][1])
+        self.assertLess(counts[1][1], counts[2][1])
+        self.assertFalse((source / "results").exists())
 
     def test_cube_single_hex_uses_layout_boundary_groups_for_all_six_faces(self):
         case = ROOT / "grid" / "stl_to_gmsh" / "3d" / "cube" / "single_hex" / "python"

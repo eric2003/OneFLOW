@@ -96,6 +96,42 @@ class TestInventoryDiscoveryTest(unittest.TestCase):
             self.assertIn("tools.oneflow_gui.test_sample.SampleTest.test_behavior",
                           record["execution"])
 
+    def test_discovers_python_tests_under_grid_domain_test_root(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            grid_tests = root / "grid" / "tests" / "python" / "stl_to_gmsh"
+            grid_tests.mkdir(parents=True)
+            (grid_tests / "test_sphere.py").write_text(
+                "import unittest\n"
+                "class SphereGeometryTest(unittest.TestCase):\n"
+                "    def test_closed_surface(self):\n"
+                "        self.assertTrue(True)\n",
+                encoding="utf-8",
+            )
+
+            records = discover_tests(root)
+
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0]["framework"], "unittest")
+            self.assertEqual(
+                records[0]["source"],
+                "grid/tests/python/stl_to_gmsh/test_sphere.py",
+            )
+            self.assertEqual(records[0]["name"], "test_closed_surface")
+
+    def test_repository_inventory_includes_moved_stl_to_gmsh_tests(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        records = discover_tests(repository_root)
+        sources = {item["source"] for item in records if item["framework"] == "unittest"}
+        self.assertIn(
+            "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py",
+            sources,
+        )
+        self.assertIn(
+            "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_geometry.py",
+            sources,
+        )
+
     def test_discovery_order_is_stable(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

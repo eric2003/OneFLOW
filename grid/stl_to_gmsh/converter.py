@@ -335,17 +335,156 @@ def _cube_volume_geo(
     }
 
 
+
+def validate_closed_sphere_surface(
+    triangles: list[Triangle], tolerance: float = 1e-10
+) -> dict:
+    """Validate one outward-oriented, closed, genus-zero STL surface."""
+    if not math.isfinite(tolerance) or tolerance <= 0:
+        raise Stl2DError("tolerance must be positive and finite")
+    if len(triangles) < 20:
+        raise Stl2DError("closed STL volume requires at least 20 triangles")
+    raw = [point for triangle in triangles for point in triangle]
+    points, triangle_ids = _weld_vertices(raw, tolerance)
+    edge_uses: dict[tuple[int, int], list[int]] = defaultdict(list)
+    adjacency: dict[int, set[int]] = defaultdict(set)
+    unique_faces: set[tuple[int, int, int]] = set()
+    signed_volume = 0.0
+
+    for triangle, ids in zip(triangles, triangle_ids):
+        if len(set(ids)) != 3:
+            raise Stl2DError("STL contains a degenerate triangle after vertex welding")
+        a, b, c = triangle
+        ab = (b[0] - a[0], b[1] - a[1], b[2] - a[2])
+        ac = (c[0] - a[0], c[1] - a[1], c[2] - a[2])
+        cross = (
+            ab[1] * ac[2] - ab[2] * ac[1],
+            ab[2] * ac[0] - ab[0] * ac[2],
+            ab[0] * ac[1] - ab[1] * ac[0],
+        )
+        area2 = math.sqrt(sum(value * value for value in cross))
+        if not math.isfinite(area2) or area2 <= tolerance * tolerance:
+            raise Stl2DError("STL contains a zero-area triangle")
+        face = tuple(sorted(ids))
+        if face in unique_faces:
+            raise Stl2DError("STL contains a duplicate triangle")
+        unique_faces.add(face)
+        for index in range(3):
+            start, end = ids[index], ids[(index + 1) % 3]
+            edge = tuple(sorted((start, end)))
+            edge_uses[edge].append(1 if start < end else -1)
+            adjacency[start].add(end)
+            adjacency[end].add(start)
+        signed_volume += (
+            a[0] * (b[1] * c[2] - b[2] * c[1])
+            + a[1] * (b[2] * c[0] - b[0] * c[2])
+            + a[2] * (b[0] * c[1] - b[1] * c[0])
+        ) / 6.0
+
+    if any(len(uses) != 2 or sum(uses) != 0 for uses in edge_uses.values()):
+        raise Stl2DError(
+            "STL surface must be closed, two-manifold and consistently oriented"
+        )
+    if not points or not edge_uses:
+        raise Stl2DError("STL surface has no usable topology")
+    pending = [0]
+    visited: set[int] = set()
+    while pending:
+        current = pending.pop()
+        if current in visited:
+            continue
+        visited.add(current)
+        pending.extend(adjacency[current] - visited)
+    if len(visited) != len(points):
+        raise Stl2DError("STL surface must contain exactly one connected component")
+    euler = len(points) - len(edge_uses) + len(triangles)
+    if euler != 2:
+        raise Stl2DError("the sphere STL must have genus-zero closed-surface topology")
+    if not math.isfinite(signed_volume) or signed_volume <= tolerance ** 3:
+        raise Stl2DError("STL triangle winding must point outward and enclose positive volume")
+    return {
+        "vertices": len(points),
+        "edges": len(edge_uses),
+        "triangles": len(triangles),
+        "euler_characteristic": euler,
+        "signed_volume": signed_volume,
+    }
+
+
+def _closed_surface_volume_geo(
+    stl: Path, triangles: list[Triangle], config: dict, tolerance: float
+) -> tuple[str, dict]:
+    topology = validate_closed_sphere_surface(triangles, tolerance)
+    mesh_size = float(config.get("mesh_size", 0.25))
+    surface_angle = float(config.get("surface_angle_degrees", 40.0))
+    curve_angle = float(config.get("curve_angle_degrees", 180.0))
+    if not math.isfinite(mesh_size) or mesh_size <= 0:
+        raise Stl2DError("mesh_size must be positive and finite")
+    if not math.isfinite(surface_angle) or not 0 < surface_angle < 180:
+        raise Stl2DError("surface_angle_degrees must be between 0 and 180")
+    if not math.isfinite(curve_angle) or not 0 < curve_angle <= 180:
+        raise Stl2DError("curve_angle_degrees must be in (0, 180]")
+    boundary_name = str(config.get("boundary_name", "wall")).strip()
+    volume_name = str(config.get("surface_name", "fluid_domain")).strip()
+    valid_name = re.compile(r"[A-Za-z0-9_.-]{1,32}\Z")
+    if (
+        not valid_name.fullmatch(boundary_name)
+        or not valid_name.fullmatch(volume_name)
+        or boundary_name == volume_name
+    ):
+        raise Stl2DError("3D STL Physical Group names must be distinct valid names of at most 32 characters")
+    source_path = stl.resolve().as_posix()
+    if '"' in source_path:
+        raise Stl2DError("STL source path must not contain a quote character")
+    geo = "\\n".join([
+        '// Generated from a closed triangulated STL surface by OneFLOW.',
+        'SetFactory("Built-in");',
+        'Mesh.MshFileVersion = 4.1;',
+        'Mesh.Binary = 0;',
+        'Mesh.ElementOrder = 1;',
+        f'Merge "{source_path}";',
+        f'ClassifySurfaces{{{surface_angle:.17g} * Pi / 180, 1, 1, {curve_angle:.17g} * Pi / 180}};',
+        'CreateGeometry;',
+        'surfaceEntities() = Surface{:};',
+        'Surface Loop(1) = {surfaceEntities()};',
+        'Volume(1) = {1};',
+        f'Mesh.MeshSizeMin = {mesh_size:.17g};',
+        f'Mesh.MeshSizeMax = {mesh_size:.17g};',
+        'Mesh.MeshSizeFromPoints = 1;',
+        'Mesh.MeshSizeExtendFromBoundary = 1;',
+        f'Physical Surface("{boundary_name}") = {{surfaceEntities()}};',
+        f'Physical Volume("{volume_name}") = {{1}};',
+        '',
+    ])
+    return geo, {
+        **topology,
+        "surface_name": boundary_name,
+        "volume_name": volume_name,
+        "mesh_size": mesh_size,
+        "surface_angle_degrees": surface_angle,
+        "curve_angle_degrees": curve_angle,
+    }
+
+
 def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dict:
     triangles = read_stl(stl)
     sidecar_data = json.loads(sidecar.read_text(encoding="utf-8"))
     volume_mesh = sidecar_data.get("volume_mesh")
+    if sidecar_data.get("mesh_dimension") == 3 and volume_mesh == "closed_surface_automatic_tetrahedra":
+        geometry, report = _closed_surface_volume_geo(
+            stl, triangles, sidecar_data, tolerance
+        )
+        geo.parent.mkdir(parents=True, exist_ok=True)
+        geo.write_text(geometry, encoding="utf-8", newline="\n")
+        report["geo"] = str(geo)
+        return report
     supported_volume_meshes = {
         "axis_aligned_cube_single_hex",
         "axis_aligned_cube_six_tetrahedra",
         "axis_aligned_cube_automatic_tetrahedra",
     }
     if sidecar_data.get("mesh_dimension") == 3 and volume_mesh not in supported_volume_meshes:
-        raise Stl2DError(f"unsupported 3D cube volume mesh strategy: {volume_mesh}")
+        raise Stl2DError(f"unsupported 3D volume mesh strategy: {volume_mesh}")
     if volume_mesh in {
         "axis_aligned_cube_single_hex",
         "axis_aligned_cube_six_tetrahedra",

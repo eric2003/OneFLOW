@@ -79,7 +79,7 @@ that would place generated files in the repository.
 
 The Python Cases use `grid/stl_to_gmsh/converter.py`, built on the shared STL reader (`grid/stl_import/reader.py`) and surface-topology utilities (`grid/stl_import/surface.py`). They emit the same Case-specific mesh and report filenames as their native counterparts. The native C++ and Python `2d/square/automatic_triangles` Cases use byte-identical STL input and the same automatic layout. They omit transfinite constraints and rely on mesh_size for Gmsh refinement. The native C++ and Python `2d/circle_external_flow` Cases use byte-identical STL input and the same domain, mesh-size and Physical Group settings. The native Case exercises OneFLOW's C++ STL reader, outer-domain/hole construction, Gmsh invocation and MSH validation; the Python Case is an independent implementation reference. The `2d/circle_external_flow` Case treats a polygonal STL obstacle as an internal Wall loop and subtracts it from a rectangular outer domain. The `2d/channel_internal_flow` Case treats the STL loop itself as the fluid domain, with inlet, outlet and wall groups; a transfinite 20 x 5 layout produces a reproducible quadrilateral channel mesh. The external case validates minimum mesh counts rather than exact counts because unstructured meshing can vary slightly between Gmsh versions. Both implementations also validate the generated coordinate bounds against the configured planar domain, reject degenerate triangles, and enforce the shared minimum normalized triangle quality (0.01) and minimum angle (1 degree). Python reports the measured minimum area, normalized quality, and minimum angle; native C++ reports the same quality thresholds alongside its MSH topology report. The two triangulations are not expected to have identical element counts or connectivity.
 
-## Run all eighteen STL-to-Gmsh Cases
+## Run all registered STL-to-Gmsh Cases
 
 After building OneFLOW and installing Gmsh, run the orchestrator from the
 repository root:
@@ -90,11 +90,11 @@ If the executable is not in the standard build/bin locations:
 
     python grid/stl_to_gmsh/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
 
-The orchestrator stages all eighteen Cases under
+The orchestrator stages the 18 fixed Cases plus six sphere mesh-size variants under
 %USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows or
 $HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. Staging paths mirror
 the Case layout, for example 2d/square/single_quad/cpp and 2d/square/single_quad/python; each has its own
-results directory. It recreates only the eighteen named Case staging directories
+results directory. It recreates only the 24 named Case staging directories
 and leaves generated meshes, reports, and logs outside the repository source tree.
 
 ## Mesh-to-CFD validation
@@ -165,3 +165,16 @@ patches constant while changing only the volume-mesh strategy. Start with
 six-cell tetrahedral decomposition, and then use `automatic_tetrahedra` to
 let Gmsh choose an unstructured tetrahedral volume mesh. See
 [`3d/cube/README.md`](cube/README.md) for each Case's acceptance contract.
+
+
+## 3D unit-sphere volume-mesh progression
+
+The `3d/sphere/automatic_tetrahedra` native and Python Cases use one byte-identical,
+watertight unit-sphere STL (center `(0, 0, 0)`, radius `1`). Gmsh classifies
+the curved STL facets, reconstructs parametrizable patches, creates one closed
+surface loop and meshes its interior with first-order tetrahedra. The runner
+reuses this exact STL at coarse (0.40), medium (0.20) and fine (0.10) target
+characteristic lengths for both implementations. These are mesh-size controls,
+not requested element counts. The sphere surface is one `wall` Physical
+Group and the interior is `fluid_domain`. See the 3D volume cases in
+`../../doc/source/stl_to_gmsh_3d.rst` for the geometric contract and validation scope.

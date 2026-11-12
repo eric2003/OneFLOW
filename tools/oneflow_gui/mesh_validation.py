@@ -70,6 +70,7 @@ def mesh_case_choices(repository_root: Path) -> tuple[tuple[str, str], ...]:
         (str(item["id"]), str(item.get("title", item["id"])))
         for item in entries
         if item.get("group") == "STL to Gmsh"
+        and item.get("mesh_validation", True) is not False
         and (item.get("execution") or {}).get("kind", "oneflow") in {"oneflow", "python"}
     )
     if not choices:
@@ -109,6 +110,10 @@ def build_mesh_validation_cases(
     implementation = execution.get("kind", "oneflow")
     if mesh.get("group") != "STL to Gmsh" or implementation not in {"oneflow", "python"}:
         raise ValueError(f"Case {mesh_case_id!r} is not a supported STL-to-Gmsh Case.")
+    if mesh.get("mesh_validation", True) is False:
+        raise ValueError(
+            f"Case {mesh_case_id!r} is a geometry-only mesh Case, not a CFD validation input."
+        )
     template = next((x for x in _CFD_TEMPLATES if x["id"] == cfd_template_id), None)
     if template is None:
         raise ValueError(f"Unknown CFD template: {cfd_template_id!r}")

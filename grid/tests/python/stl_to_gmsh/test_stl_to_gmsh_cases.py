@@ -13,8 +13,8 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tools"))
 
 from mesh_cases import load_catalog, validate_case  # noqa: E402
-from grid.stl_to_gmsh.converter import convert, inspect_msh4  # noqa: E402
-from grid.stl_to_gmsh.run_cases import NATIVE_CASES, PYTHON_CASES  # noqa: E402
+from grid.stl_to_gmsh.converter import convert, inspect_msh4, read_stl  # noqa: E402
+from grid.stl_to_gmsh.run_cases import NATIVE_CASES, PYTHON_CASES, REFINEMENT_LEVELS, SPHERE_REFINEMENT_CASES  # noqa: E402
 
 EXPECTED_IDS = {
     "stl_to_gmsh_square",
@@ -35,6 +35,8 @@ EXPECTED_IDS = {
     "stl_to_gmsh_python_cube_six_tetrahedra",
     "stl_to_gmsh_cube_automatic_tetrahedra",
     "stl_to_gmsh_python_cube_automatic_tetrahedra",
+    "stl_to_gmsh_sphere_automatic_tetrahedra",
+    "stl_to_gmsh_python_sphere_automatic_tetrahedra",
 }
 
 
@@ -148,6 +150,51 @@ class StlToGmshCaseTest(unittest.TestCase):
                 self.assertGreater(expected["mesh_minimum"]["tetrahedron_elements"], 0)
             self.assertFalse((native_dir / "results").exists())
             self.assertFalse((python_dir / "results").exists())
+
+    def test_unit_sphere_cases_are_registered_as_a_native_python_pair(self):
+        native = self.entries["stl_to_gmsh_sphere_automatic_tetrahedra"]
+        python = self.entries["stl_to_gmsh_python_sphere_automatic_tetrahedra"]
+        self.assertEqual(
+            native["directory"],
+            "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp",
+        )
+        self.assertEqual(
+            python["directory"],
+            "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python",
+        )
+        self.assertNotIn("execution", native)
+        self.assertEqual(python["execution"]["kind"], "python")
+        self.assertEqual(validate_case(ROOT, native), [])
+        self.assertEqual(validate_case(ROOT, python), [])
+        native_dir, python_dir = ROOT / native["directory"], ROOT / python["directory"]
+        self.assertEqual(
+            (native_dir / "input/model.stl").read_bytes(),
+            (python_dir / "input/model.stl").read_bytes(),
+        )
+        native_layout = json.loads(
+            (native_dir / "script/layout.json").read_text(encoding="utf-8")
+        )
+        python_layout = json.loads(
+            (python_dir / "script/layout.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(native_layout, python_layout)
+        self.assertEqual(native_layout["volume_mesh"], "closed_surface_automatic_tetrahedra")
+        self.assertEqual(native_layout["reference_geometry"]["type"], "unit_sphere")
+        self.assertEqual(native_layout["reference_geometry"]["center"], [0.0, 0.0, 0.0])
+        self.assertEqual(native_layout["reference_geometry"]["radius"], 1.0)
+        self.assertEqual(native_layout["surface_name"], "fluid_domain")
+        self.assertEqual(native_layout["boundary_name"], "wall")
+        self.assertEqual(
+            len(read_stl(native_dir / "input/model.stl")),
+            1280,
+        )
+        self.assertFalse((native_dir / "results").exists())
+        self.assertFalse((python_dir / "results").exists())
+        self.assertEqual(REFINEMENT_LEVELS, {"coarse": 0.40, "medium": 0.20, "fine": 0.10})
+        self.assertEqual(SPHERE_REFINEMENT_CASES, {
+            "cpp": "3d/sphere/automatic_tetrahedra/cpp",
+            "python": "3d/sphere/automatic_tetrahedra/python",
+        })
 
     def test_native_and_python_cases_are_registered_separately(self):
         self.assertEqual(set(self.entries), EXPECTED_IDS)

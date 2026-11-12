@@ -39,6 +39,17 @@ PYTHON_CASES = {
     "3d/cube/automatic_tetrahedra/python": "3d/cube/automatic_tetrahedra/python",
 }
 
+REFINEMENT_LEVELS = {
+    "coarse": 0.40,
+    "medium": 0.20,
+    "fine": 0.10,
+}
+SPHERE_REFINEMENT_CASES = {
+    "cpp": "3d/sphere/automatic_tetrahedra/cpp",
+    "python": "3d/sphere/automatic_tetrahedra/python",
+}
+
+
 
 def find_oneflow_executable(explicit: str | None) -> Path:
     if explicit:
@@ -151,6 +162,58 @@ def run_all(stage_root: Path, oneflow: Path, gmsh: str) -> list[tuple[str, Path]
                 f"{destination / 'results'}"
             )
         outputs.append((case_id, destination))
+    python_runner = REPOSITORY_ROOT / "grid/stl_to_gmsh/run_python_case.py"
+    for implementation, relative_directory in SPHERE_REFINEMENT_CASES.items():
+        for level, mesh_size in REFINEMENT_LEVELS.items():
+            implementation_id = (
+                "stl_to_gmsh_sphere_automatic_tetrahedra"
+                if implementation == "cpp"
+                else "stl_to_gmsh_python_sphere_automatic_tetrahedra"
+            )
+            case_id = f"{implementation_id}_{level}"
+            source = REPOSITORY_ROOT / "grid/stl_to_gmsh" / relative_directory
+            destination = stage_root / case_id
+            stage_case(source, destination)
+
+            layout_path = destination / "script" / "layout.json"
+            layout = json.loads(layout_path.read_text(encoding="utf-8"))
+            layout["mesh_size"] = mesh_size
+            layout_path.write_text(
+                json.dumps(layout, indent=2) + "\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+
+            if implementation == "cpp":
+                execute([str(oneflow), "r", str(destination)], destination)
+                mesh_name = "sphere_automatic_tetrahedra.msh"
+            else:
+                execute(
+                    [
+                        sys.executable,
+                        str(python_runner),
+                        "--case-directory",
+                        str(destination),
+                        "--gmsh",
+                        gmsh,
+                    ],
+                    destination,
+                )
+                expected = json.loads(
+                    (destination / "expected.json").read_text(encoding="utf-8")
+                )
+                mesh_name = expected["artifact"]["mesh_file"]
+
+            report = destination / "results" / (
+                f"{Path(mesh_name).stem}.stl-to-gmsh-report.json"
+            )
+            mesh = destination / "results" / mesh_name
+            if not mesh.is_file() or not report.is_file():
+                raise RuntimeError(
+                    f"{case_id}: expected mesh/report outputs are missing under "
+                    f"{destination / 'results'}"
+                )
+            outputs.append((case_id, destination))
     return outputs
 
 

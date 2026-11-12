@@ -31,6 +31,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
         (self.root / "grid/stl_to_gmsh/2d/square/automatic_triangles/python").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/2d/circle_external_flow/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/3d/cube/single_hex/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/python").mkdir(parents=True)
         (self.root / "test/cfd/plateuns2dslau2/script").mkdir(parents=True)
         (self.root / "grid/case_catalog.json").write_text(json.dumps({
@@ -55,6 +57,13 @@ class MeshValidationCatalogTest(unittest.TestCase):
                  "group": "STL to Gmsh", "dimension": 3},
                 {"id": "python_cube", "title": "Cube Single Hex (Python Reference)",
                  "directory": "grid/stl_to_gmsh/3d/cube/single_hex/python",
+                 "group": "STL to Gmsh", "dimension": 3,
+                 "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
+                {"id": "native_sphere", "title": "Unit Sphere Automatic Tetrahedra (Native C++)",
+                 "directory": "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp",
+                 "group": "STL to Gmsh", "dimension": 3, "mesh_validation": False},
+                {"id": "python_sphere", "title": "Unit Sphere Automatic Tetrahedra (Python Reference)",
+                 "directory": "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python",
                  "group": "STL to Gmsh", "dimension": 3,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
                 {"id": "python_square", "title": "One Square QUAD_4 Cell (Python Reference)",
@@ -84,6 +93,14 @@ class MeshValidationCatalogTest(unittest.TestCase):
             'string targetGridFileName = "results/cube_single_hex.msh";\n', encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/3d/cube/single_hex/cpp/script/layout.json").write_text(
             json.dumps({"mesh_dimension": 3}), encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/script/grid.txt").write_text(
+            'string targetGridFileName = "results/sphere_automatic_tetrahedra.msh";\n',
+            encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/script/layout.json").write_text(
+            json.dumps({"mesh_dimension": 3}), encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/expected.json").write_text(
+            json.dumps({"artifact": {"mesh_file": "sphere_automatic_tetrahedra.msh"}}),
+            encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/square.msh";\n', encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/two_triangles/cpp/script/grid.txt").write_text(
@@ -314,6 +331,19 @@ class MeshValidationCatalogTest(unittest.TestCase):
             {"id": "grid_info", "path": "results/cube_single_hex.info.json",
              "parameter_file": "script/grid.txt", "setting": "gridInfoFileName"},
         ])
+
+    def test_geometry_only_sphere_cases_are_not_offered_for_cfd_validation(self):
+        choices = dict(mesh_case_choices(self.root))
+        self.assertNotIn("native_sphere", choices)
+        self.assertNotIn("python_sphere", choices)
+        with self.assertRaisesRegex(ValueError, "geometry-only"):
+            build_mesh_validation_cases(
+                self.root, "native_sphere", "laminar_flat_plate"
+            )
+        with self.assertRaisesRegex(ValueError, "geometry-only"):
+            build_mesh_validation_cases(
+                self.root, "python_sphere", "laminar_flat_plate"
+            )
 
     def test_python_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
         cube_dir = self.root / "grid/stl_to_gmsh/3d/cube/single_hex/python"

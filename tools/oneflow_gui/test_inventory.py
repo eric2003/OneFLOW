@@ -104,7 +104,7 @@ def _cpp_tests(
 def _python_test_roots(repository_root: Path) -> tuple[Path, ...]:
     return tuple(
         repository_root / relative
-        for relative in ("tools", "tests", Path("gui/python/tkinter"))
+        for relative in ("tools", "tests", Path("grid/tests/python"), Path("gui/python/tkinter"))
         if (repository_root / relative).is_dir()
     )
 

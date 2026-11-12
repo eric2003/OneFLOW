@@ -442,6 +442,28 @@
         "script": "grid/stl_to_gmsh/run_python_case.py"
       },
       "dimension": 3
+    },
+    {
+      "id": "stl_to_gmsh_sphere_automatic_tetrahedra",
+      "title": "STL to Gmsh: Unit Sphere with Automatic TETRA_4 Volume Mesh (Native C++)",
+      "directory": "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp",
+      "profile": null,
+      "layout": null,
+      "group": "STL to Gmsh",
+      "dimension": 3,
+      "mesh_validation": false
+    },
+    {
+      "id": "stl_to_gmsh_python_sphere_automatic_tetrahedra",
+      "title": "STL to Gmsh: Unit Sphere with Automatic TETRA_4 Volume Mesh (Python Reference)",
+      "directory": "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/run_python_case.py"
+      },
+      "dimension": 3,
+      "mesh_validation": false
     }
   ]
 }

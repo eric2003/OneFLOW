@@ -81,7 +81,7 @@ def run_case(case_directory: Path, gmsh: str) -> dict:
     if layout.get("mesh_dimension") == 3 and not (
         observed["hexahedron_elements"] or observed["tetrahedron_elements"]
     ):
-        raise RuntimeError("3D cube mesh must contain HEXA_8 or TETRA_4 volume cells")
+        raise RuntimeError("3D mesh must contain HEXA_8 or TETRA_4 volume cells")
     groups = {(g["dimension"], g["name"]) for g in mesh["physical_groups"]}
     wanted_groups = {(g["dimension"], g["name"]) for g in expected["physical_groups"]}
     expected_mesh = expected.get("mesh", {})
