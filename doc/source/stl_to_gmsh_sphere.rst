@@ -111,8 +111,43 @@ with a companion ``.stl-to-gmsh-report.json`` validation report.
 Commands
 --------
 
-Build OneFLOW and make Gmsh available on ``PATH``. From the repository root,
-run the registered STL-to-Gmsh producer suite:
+Build OneFLOW and make Gmsh available on ``PATH``. To generate only the
+native C++ sphere mesh on Windows, stage the Case outside the repository and
+run the OneFLOW Grid task:
+
+.. code-block:: powershell
+
+   $case = Join-Path $env:USERPROFILE ".oneflow/mesh-layout-test/grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp"
+   New-Item -ItemType Directory -Force (Split-Path $case) | Out-Null
+   Copy-Item -Recurse -Force "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp" $case
+   build/bin/Debug/OneFLOW.exe r $case
+
+For the Python reference implementation, use a separate staging directory:
+
+.. code-block:: powershell
+
+   $case = Join-Path $env:USERPROFILE ".oneflow/mesh-layout-test/grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python"
+   New-Item -ItemType Directory -Force (Split-Path $case) | Out-Null
+   Copy-Item -Recurse -Force "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python" $case
+   python grid/stl_to_gmsh/run_python_case.py --case-directory $case --gmsh gmsh
+
+The generated mesh and validation report are written under the staged Case's
+``results`` directory. Never run either producer directly in the checked-in
+source Case directory.
+
+On Linux, the same procedure uses ``$HOME/.oneflow/mesh-layout-test`` as the
+staging root and the built executable path, commonly
+``build/bin/OneFLOW``:
+
+.. code-block:: bash
+
+   case="$HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp"
+   mkdir -p "$(dirname "$case")"
+   cp -a grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp "$case"
+   build/bin/OneFLOW r "$case"
+
+To run the registered STL-to-Gmsh producer suite, including both sphere
+implementations at coarse, medium and fine target sizes:
 
 .. code-block:: console
 
