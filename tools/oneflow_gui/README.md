@@ -365,3 +365,31 @@ remain under Unclassified rather than being guessed.
 STL-to-Gmsh producer Cases. It keeps the CFD consumer and smoke-test controls
 outside the Case tree, so 2D and 3D producer selection does not create
 duplicate controls or an overly wide list. 3D topology Cases retain the conversion handoff and may run a short dimension-adjusted solver smoke test; this does not establish 2D flat-plate physics or numerical accuracy.
+
+## Mesh Generation & Conversion Workbench
+
+The home screen exposes **Mesh Generation...** as the single entry to mesh activities.
+The hub currently routes to:
+
+- **Mesh Layout Editor**: the existing structured-layout editor, retained without changing its layout compiler or project data contract.
+- **STL to Gmsh**: a direct 3-D closed-STL volume-mesh interface backed by
+  `grid/stl_to_gmsh/generate_volume_mesh.py`. Select the STL and output path,
+  choose Coarse / Medium / Fine or custom minimum and maximum sizes, optionally
+  select a Gmsh executable, and set the surface/volume Physical Group names.
+
+The STL page shows the complete platform-specific command before execution and
+supports copying it. Execution uses `QProcess` with an argument list (not shell
+interpolation), displays merged process output, and reports the exit code. The
+command is reproducible outside the GUI. The default output is under
+`UserDataPaths.discover().root / mesh-generation`, not in the source tree.
+
+The geometry preset identifies the intended workflow; it does not manufacture
+or silently substitute an STL file. The user must select the actual STL input.
+The current volume mesher requires a closed, connected, consistently oriented,
+genus-zero shell. Its generated mesh is the volume enclosed by that shell, not
+an exterior-flow domain. Mesh-size values are target characteristic lengths,
+not exact edge lengths or fixed element counts.
+
+The hub is intentionally small. STL inspection/repair, mesh conversion, quality
+visualization, additional backends and the shared Mesh Knowledge catalog remain
+separate incremental capabilities rather than placeholder buttons.
