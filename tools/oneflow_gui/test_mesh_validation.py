@@ -61,12 +61,12 @@ class MeshValidationCatalogTest(unittest.TestCase):
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
                 {"id": "native_sphere", "title": "Unit Sphere Automatic Tetrahedra (Native C++)",
                  "directory": "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp",
-                 "group": "STL to Gmsh", "dimension": 3, "mesh_validation": False},
+                 "group": "STL to Gmsh", "dimension": 3, "mesh_validation": "mesh_handoff"},
                 {"id": "python_sphere", "title": "Unit Sphere Automatic Tetrahedra (Python Reference)",
                  "directory": "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python",
                  "group": "STL to Gmsh", "dimension": 3,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"},
-                 "mesh_validation": False},
+                 "mesh_validation": "mesh_handoff"},
                 {"id": "python_square", "title": "One Square QUAD_4 Cell (Python Reference)",
                  "directory": "grid/stl_to_gmsh/2d/square/single_quad/python",
                  "group": "STL to Gmsh", "dimension": 2,
@@ -151,6 +151,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ("stl_to_gmsh_circle_external_flow", "Circle External Flow (Native C++)"),
             ("native_cube", "Cube Single Hex (Native C++)"),
             ("python_cube", "Cube Single Hex (Python Reference)"),
+            ("native_sphere", "Unit Sphere Automatic Tetrahedra (Native C++)"),
+            ("python_sphere", "Unit Sphere Automatic Tetrahedra (Python Reference)"),
             ("python_square", "One Square QUAD_4 Cell (Python Reference)"),
             ("stl_to_gmsh_python_square_two_triangles", "Square with Two TRI_3 Cells (Python Reference)"),
             ("stl_to_gmsh_python_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Python Reference)"),
@@ -172,7 +174,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertEqual(
             [case_id for case_id, _title in groups[1][1]],
-            ["native_cube", "python_cube"],
+            ["native_cube", "python_cube", "native_sphere", "python_sphere"],
         )
 
     def test_mesh_producer_command_dispatches_by_implementation(self):
