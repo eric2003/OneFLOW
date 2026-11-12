@@ -5,7 +5,7 @@
   "domain": "mesh",
   "kind": "mesh_format_adapter",
   "status": "partially_verified",
-  "overview": "Native C++ STL surface reader and writer in OneFLOW Geometry. The implementation preserves source facets, binary headers and attributes while keeping parsing separate from topology construction. The Python grid/stl utility remains a separate planar-boundary and Gmsh-generation tool. The native grid/stl_import/ascii_basic Case runs through OneFLOW's standard Grid task and converts its ASCII STL fixture to a surface CGNS mesh. Python STL reference cases are retained under grid/stl_import/python rather than discarded or treated as competing production backends. The native ASCII scientific-notation Case additionally exercises exponent-form finite numeric tokens through the normal OneFLOW Grid task. Native runtime Cases now cover baseline ASCII, CRLF, scientific notation, conventional binary, and binary with a header beginning with `solid`. Two further native runtime Cases cover a folded non-planar surface and repeated shared vertices within the configured weld tolerance.",
+  "overview": "Native C++ STL surface reader and writer in OneFLOW Geometry. The implementation preserves source facets, binary headers and attributes while keeping parsing separate from topology construction. The Python grid/stl_import package provides STL parsing and triangle-surface utilities; planar boundary conversion to Gmsh is owned by grid/stl_to_gmsh/converter.py. The native grid/stl_import/ascii_basic Case runs through OneFLOW's standard Grid task and converts its ASCII STL fixture to a surface CGNS mesh. Python STL reference cases are retained under each grid/stl_import/<case>/python directory rather than discarded or treated as competing production backends. The native ASCII scientific-notation Case additionally exercises exponent-form finite numeric tokens through the normal OneFLOW Grid task. Native runtime Cases now cover baseline ASCII, CRLF, scientific notation, conventional binary, and binary with a header beginning with `solid`. Two further native runtime Cases cover a folded non-planar surface and repeated shared vertices within the configured weld tolerance.",
   "principle": "STL stores an ordered sequence of triangle facets, not a shared-vertex mesh or CFD volume mesh. Preserve each facet's stored normal, ordered vertices, binary attribute value and binary header. Do not weld vertices, repair normals, infer units, invent boundary groups or assign solver boundary conditions during parsing. Binary records require explicit little-endian decoding; a header beginning with 'solid' is not proof of ASCII.",
   "architecture": "ASCII/Binary STL -> C++ StlMeshReader -> value-based StlMesh -> explicit tolerance-based vertex welding -> UnstructuredMeshData triangle surface -> UnstructuredCgnsZoneWriter. The reader/writer remain independent; the Case-level conversion composes them with the existing CGNS writer.",
   "references": [
@@ -30,10 +30,10 @@
       "grid/stl_import/ascii_crlf/script/simu.txt",
       "grid/stl_import/ascii_crlf/script/grid.txt",
       "grid/stl_import/ascii_crlf/input/model.stl",
-      "grid/stl_import/python/ascii_basic/expected.json",
-      "grid/stl_import/python/ascii_basic/input/model.stl",
-      "grid/stl_import/python/ascii_crlf/expected.json",
-      "grid/stl_import/python/ascii_crlf/input/model.stl",
+      "grid/stl_import/ascii_basic/python/expected.json",
+      "grid/stl_import/ascii_basic/python/input/model.stl",
+      "grid/stl_import/ascii_crlf/python/expected.json",
+      "grid/stl_import/ascii_crlf/python/input/model.stl",
       "grid/stl_import/ascii_scientific_notation/README.md",
       "grid/stl_import/ascii_scientific_notation/script/dimension.txt",
       "grid/stl_import/ascii_scientific_notation/script/simu.txt",
@@ -156,7 +156,7 @@
       "kind": "python_test",
       "reference": "DesktopServiceTest.test_python_stl_development_cases_run_from_staged_workspaces",
       "status": "linked_not_executed",
-      "scope": "tools/oneflow_gui/test_services.py; executes Python STL reference cases under grid/stl_import/python in isolated temporary workspaces, separate from native C++ runtime execution."
+      "scope": "tools/oneflow_gui/test_services.py; executes Python STL reference cases under each grid/stl_import/<case>/python directory in isolated temporary workspaces, separate from native C++ runtime execution."
     },
     {
       "kind": "python_test",
