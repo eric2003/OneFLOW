@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 from mesh_cases import load_catalog, validate_case  # noqa: E402
 from grid.stl_to_gmsh.converter import convert, inspect_msh4  # noqa: E402
-from grid.stl_to_gmsh.develop_test.run_cases import NATIVE_CASES, PYTHON_CASES  # noqa: E402
+from grid.stl_to_gmsh.run_cases import NATIVE_CASES, PYTHON_CASES  # noqa: E402
 
 EXPECTED_IDS = {
     "stl_to_gmsh_square",
@@ -48,7 +48,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             if entry.get("group") == "STL to Gmsh"
         }
 
-    def test_development_staging_paths_mirror_case_implementation_layout(self):
+    def test_staging_paths_mirror_case_implementation_layout(self):
         self.assertEqual(NATIVE_CASES, {
             "2d/square/single_quad/cpp": ("2d/square/single_quad/cpp", "square.msh"),
             "2d/square/two_triangles/cpp": (
