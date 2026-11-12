@@ -238,6 +238,53 @@ $EndElements
         self.assertIn("Mesh.MeshSizeMax = 0.25;", content)
         self.assertFalse((case / "results").exists())
 
+    def test_unit_sphere_geo_supports_independent_mesh_size_bounds(self):
+        case = ROOT / "grid" / "stl_to_gmsh" / "3d" / "sphere" / "automatic_tetrahedra" / "python"
+        with tempfile.TemporaryDirectory() as temporary:
+            sidecar = Path(temporary) / "layout.json"
+            geo = Path(temporary) / "sphere.geo"
+            config = json.loads((case / "script/layout.json").read_text(encoding="utf-8"))
+            config.pop("mesh_size", None)
+            config["mesh_size_min"] = 0.08
+            config["mesh_size_max"] = 0.20
+            sidecar.write_text(json.dumps(config), encoding="utf-8")
+            report = convert(case / "input/model.stl", sidecar, geo, tolerance=1.0e-10)
+            generated = geo.read_text(encoding="utf-8")
+        self.assertEqual(report["mesh_size_min"], 0.08)
+        self.assertEqual(report["mesh_size_max"], 0.20)
+        self.assertIn("Mesh.MeshSizeMin = 0.08;", generated)
+        self.assertIn("Mesh.MeshSizeMax = 0.2;", generated)
+        self.assertFalse((case / "results").exists())
+
+    def test_direct_stl_volume_mesh_command_generates_tetrahedra(self):
+        gmsh = shutil.which("gmsh")
+        if not gmsh:
+            self.skipTest("Gmsh executable is not installed")
+        source = ROOT / "grid" / "stl_to_gmsh" / "3d" / "sphere" / "automatic_tetrahedra" / "python" / "input" / "model.stl"
+        runner = ROOT / "grid" / "stl_to_gmsh" / "generate_volume_mesh.py"
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "sphere.msh"
+            result = subprocess.run(
+                [
+                    sys.executable, str(runner),
+                    "--stl", str(source),
+                    "--output", str(output),
+                    "--mesh-size-min", "0.2",
+                    "--mesh-size-max", "0.2",
+                    "--gmsh", gmsh,
+                ],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 0, msg=result.stdout + "\\n" + result.stderr)
+            report = json.loads(output.with_suffix(".report.json").read_text(encoding="utf-8"))
+            self.assertTrue(report["validated"])
+            self.assertGreater(report["mesh_summary"]["tetrahedron_elements"], 0)
+            self.assertGreater(report["mesh_summary"]["triangle_elements"], 0)
+            self.assertTrue(output.with_suffix(".geo").is_file())
+
     def test_unit_sphere_mesh_refinement_reuses_one_stl(self):
         gmsh = shutil.which("gmsh")
         if not gmsh:
