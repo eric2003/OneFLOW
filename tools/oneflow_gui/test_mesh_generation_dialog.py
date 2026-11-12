@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QPushButton
 
 from tools.oneflow_gui.mesh_generation_dialog import (
     MeshGenerationDialog,
@@ -27,9 +27,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
     def test_mesh_generation_hub_exposes_layout_and_stl_tools(self) -> None:
         dialog = MeshGenerationDialog(self.repository_root)
         try:
-            buttons = dialog.findChildren(type(dialog.findChild(__import__(
-                "PySide6.QtWidgets", fromlist=["QPushButton"]
-            ).QPushButton)))
+            buttons = dialog.findChildren(QPushButton)
             labels = {button.text() for button in buttons}
             self.assertIn("Mesh Layout Editor", labels)
             self.assertIn("STL to Gmsh", labels)
