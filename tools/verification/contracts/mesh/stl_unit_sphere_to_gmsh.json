@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "id": "mesh/stl-unit-sphere-to-gmsh",
+  "title": "Unit sphere STL to Gmsh 3D tetrahedral volume mesh",
+  "domain": "mesh",
+  "kind": "mesh_generation_pipeline",
+  "status": "partially_verified",
+  "overview": "Generates one unstructured tetrahedral volume mesh from a closed, triangulated unit-sphere STL. The native C++ and Python reference Cases validate the shell, classify and reconstruct Gmsh surface patches, create one surface loop and volume, and emit MSH 4.1 with a wall Physical Surface and fluid_domain Physical Volume.",
+  "principle": "STL is a discrete triangle shell, not a CAD sphere and not a volume. A valid input for this Case must be one connected, closed, consistently oriented, non-degenerate genus-zero manifold shell. Gmsh ClassifySurfaces partitions the discrete facets into parametrizable patches; CreateGeometry reconstructs those patches; a Surface Loop and Volume define the enclosed fluid region. Physical Groups are dimension-tagged mesh semantics: wall is a dimension-2 exterior patch and fluid_domain is a dimension-3 volume. Neither name defines solver state data.",
+  "architecture": "STL facets -> shell topology/orientation validation -> Gmsh merge and ClassifySurfaces -> parametrizable surface reconstruction -> one Surface Loop -> one Volume -> Physical Surface wall and Physical Volume fluid_domain -> first-order tetrahedral MSH 4.1. Native C++ runs through the OneFLOW Grid task and GridConversion; Python uses the shared STL surface utilities and converter as an independent reference. Both paths are registered as Cases and feed the shared Mesh-to-CFD Validation graph.",
+  "references": [
+    "Gmsh Reference Manual: https://gmsh.info/doc/texinfo/gmsh.html",
+    "Gmsh API - ClassifySurfaces and CreateGeometry: https://gmsh.info/doc/texinfo/gmsh.html#Gmsh-API",
+    "Gmsh MSH file format: https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format",
+    "doc/source/stl_to_gmsh_sphere.rst"
+  ],
+  "implementation": {
+    "source_paths": [
+      "codes/geometry/src/GridConversion.cpp",
+      "grid/stl_import/surface.py",
+      "grid/stl_to_gmsh/converter.py",
+      "grid/stl_to_gmsh/run_cases.py",
+      "grid/stl_to_gmsh/run_python_case.py",
+      "tools/oneflow_gui/mesh_validation.py",
+      "tools/oneflow_gui/workflow_graph_runner.py"
+    ],
+    "case_paths": [
+      "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/input/model.stl",
+      "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/script/layout.json",
+      "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/script/grid.txt",
+      "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl",
+      "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/script/layout.json",
+      "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/expected.json",
+      "grid/case_catalog.json"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/stl_to_gmsh_sphere.rst",
+      "doc/source/stl_to_gmsh_3d.rst",
+      "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/README.md",
+      "grid/stl_to_gmsh/README.md",
+      "doc/source/contract_workbench_information_architecture.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The checked-in reference input is a closed, outward-oriented, connected unit-sphere STL shell with 1,280 triangular facets.",
+      "Native C++ and Python reference Cases consume byte-identical sphere STL inputs and share the same geometry and mesh-size contract.",
+      "The producer reconstructs one closed Gmsh surface loop and one volume and emits first-order tetrahedral MSH 4.1 with wall and fluid_domain Physical Groups.",
+      "The sphere mesh-size sweep varies target characteristic length at 0.40, 0.20 and 0.10 without asserting exact element counts.",
+      "The Mesh-to-CFD Workbench exposes the native and Python sphere Cases as a 3-D CFD smoke chain."
+    ],
+    "does_not_prove": [
+      "The piecewise-planar STL is an exact analytic sphere or preserves exact CAD curvature.",
+      "The mesh-size parameter prescribes an exact number of nodes or tetrahedra.",
+      "The wall-only closed sphere setup represents external flow around a sphere.",
+      "A successful smoke run establishes CFD accuracy, convergence, conservation, grid independence or sphere aerodynamic coefficients.",
+      "Multiple shells, cavities, non-manifold surfaces, multi-volume assemblies, boundary-layer prisms or high-order tetrahedra are supported."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "python_test",
+      "reference": "StlToGmshCaseTest.test_unit_sphere_cases_are_registered_as_a_native_python_pair",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py; checks paired native/Python registration, byte-identical input and unit-sphere layout contract."
+    },
+    {
+      "kind": "python_test",
+      "reference": "MeshValidationCatalogTest.test_unit_sphere_cases_run_the_complete_3d_cfd_smoke_chain",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_mesh_validation.py; checks both sphere Cases produce the four-stage STL-to-Gmsh, Gmsh-to-CGNS, CGNS-to-OneFLOW and 3-D CFD smoke graph."
+    }
+  ],
+  "group": {
+    "id": "mesh_generation",
+    "title": "Mesh Generation",
+    "order": 30
+  }
+}
