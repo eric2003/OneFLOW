@@ -1340,14 +1340,14 @@ void ConvertStlSurfaceVolumeToGmsh(
         << "ClassifySurfaces{" << surfaceAngle << " * Pi / 180, 1, 1, "
         << curveAngle << " * Pi / 180};\n"
         << "CreateGeometry;\n"
-        << "surfaceEntities() = Surface{:};\n"
-        << "Surface Loop(1) = {surfaceEntities()};\n"
+        << "surfaceEntities[] = Surface{:};\n"
+        << "Surface Loop(1) = {surfaceEntities[]};\n"
         << "Volume(1) = {1};\n"
         << "Mesh.MeshSizeMin = " << meshSize << ";\n"
         << "Mesh.MeshSizeMax = " << meshSize << ";\n"
         << "Mesh.MeshSizeFromPoints = 1;\n"
         << "Mesh.MeshSizeExtendFromBoundary = 1;\n"
-        << "Physical Surface(\"" << boundaryName << "\") = {surfaceEntities()};\n"
+        << "Physical Surface(\"" << boundaryName << "\") = {surfaceEntities[]};\n"
         << "Physical Volume(\"" << volumeName << "\") = {1};\n";
     geo.close();
     if (!geo) throw std::runtime_error("Failed writing Gmsh geometry: " + geoPath.string());

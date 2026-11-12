@@ -230,7 +230,7 @@ $EndElements
         self.assertIn("ClassifySurfaces{", content)
         self.assertIn(", 1, 1,", content)
         self.assertIn("CreateGeometry;", content)
-        self.assertIn("Surface Loop(1) = {surfaceEntities()};", content)
+        self.assertIn("Surface Loop(1) = {surfaceEntities[]};", content)
         self.assertIn("Volume(1) = {1};", content)
         self.assertIn('Physical Surface("wall")', content)
         self.assertIn('Physical Volume("fluid_domain")', content)
