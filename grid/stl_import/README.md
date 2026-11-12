@@ -45,10 +45,10 @@ must remain outside the repository.
 
 Runtime and development Cases keep their own `input/model.stl` so each Case
 remains independently runnable and understandable. Test-only compatibility
-data belongs under `tests/fixtures/`, not in this production STL I/O module.
+data belongs under `grid/tests/fixtures/`, not in this production STL I/O module.
 The legacy square boundary-sidecar fixture used by the STL-to-Gmsh converter
 tests is maintained at
-`tests/fixtures/stl_to_gmsh/legacy_square/`.
+`grid/tests/fixtures/stl_to_gmsh/legacy_square/`.
 
 ## Related conversion workflow
 

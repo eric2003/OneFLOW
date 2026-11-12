@@ -102,3 +102,8 @@ Run only this test with:
 
 The fixture must remain isolated in the binary tree. It must not create or
 modify files below the OneFLOW source tree.
+
+
+## Python test ownership
+
+Python tests for grid tooling are maintained separately under `grid/tests/python/`, grouped by tool (`stl_to_gmsh/` and `mesh_layout/`). Their test-only input fixtures live under `grid/tests/fixtures/`. They are run by the Python tooling workflow and are not part of this directory's CMake/CTest tree. This keeps the existing C++ test layout and registration unchanged.

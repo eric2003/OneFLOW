@@ -12,7 +12,7 @@ from tools.mesh_layout.editor_document import (
 )
 
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[4]
 
 
 class MeshLayoutEditorDocumentTest(unittest.TestCase):

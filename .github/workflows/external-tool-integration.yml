@@ -124,7 +124,7 @@ jobs:
               }
           }
 
-          python -m unittest tests.python.grid.test_stl_to_gmsh_cases
+          python -m unittest grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases
           if ($LASTEXITCODE -ne 0) { throw "STL-to-Gmsh Python tests failed with exit code $LASTEXITCODE." }
 
           python -m unittest tools.oneflow_gui.test_mesh_validation

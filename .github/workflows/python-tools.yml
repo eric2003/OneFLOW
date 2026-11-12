@@ -8,8 +8,8 @@ on:
       - "tools/mesh_layout/**"
       - "grid/stl_import/**"
       - "grid/stl_to_gmsh/**"
-      - "tests/tools/**"
-      - "tests/python/**"
+      - "grid/tests/**"
+      - "grid/tests/**"
       - "tools/test_mesh_cases.py"
       - "tools/oneflow_gui/**"
       - "tools/verification/**"
@@ -25,8 +25,8 @@ on:
       - "tools/mesh_layout/**"
       - "grid/stl_import/**"
       - "grid/stl_to_gmsh/**"
-      - "tests/tools/**"
-      - "tests/python/**"
+      - "grid/tests/**"
+      - "grid/tests/**"
       - "tools/test_mesh_cases.py"
       - "tools/oneflow_gui/**"
       - "tools/verification/**"
@@ -65,19 +65,19 @@ jobs:
       - name: Test case catalog
         run: python tools/test_mesh_cases.py
       - name: Test planar STL to Gmsh geometry generation
-        run: python -m unittest tests.python.grid.test_stl_to_gmsh_geometry
+        run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_geometry
       - name: Test native and Python STL-to-Gmsh Cases
-        run: python -m unittest tests.python.grid.test_stl_to_gmsh_cases
+        run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases
       - name: Test Mesh-to-CFD Validation graph
         run: python -m unittest tools.oneflow_gui.test_mesh_validation
       - name: Test rectangle layout compiler
-        run: python -m unittest tests.tools.test_compile_rectangle
+        run: python -m unittest grid.tests.python.mesh_layout.test_compile_rectangle
       - name: Test flat plate layout compiler
-        run: python -m unittest tests.tools.test_compile_flat_plate
+        run: python -m unittest grid.tests.python.mesh_layout.test_compile_flat_plate
       - name: Test mesh layout editor document
-        run: python -m unittest tests.tools.test_editor_document
+        run: python -m unittest grid.tests.python.mesh_layout.test_editor_document
       - name: Test explicit layout topology
-        run: python -m unittest tests.tools.test_layout_topology
+        run: python -m unittest grid.tests.python.mesh_layout.test_layout_topology
       - name: Test desktop services
         run: python -m unittest tools.oneflow_gui.test_services
       - name: Test background task host lifecycle

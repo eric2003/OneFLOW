@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[4]
 MODULE_PATH = ROOT / "tools" / "mesh_layout" / "compile_flat_plate.py"
 SPEC_PATH = ROOT / "grid" / "mesh-layout" / "2d" / "laminar_flat_plate" / "flat_plate.json"
 
