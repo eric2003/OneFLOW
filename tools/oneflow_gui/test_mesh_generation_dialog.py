@@ -66,6 +66,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             labels = {button.text() for button in buttons}
             self.assertIn("Mesh Layout Editor", labels)
             self.assertIn("STL to Gmsh", labels)
+            self.assertIn("Mesh Knowledge", labels)
             with patch(
                 "tools.oneflow_gui.mesh_generation_dialog.MeshLayoutDialog"
             ) as layout_type:
@@ -78,6 +79,14 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 dialog._open_stl_to_gmsh()
             stl_type.assert_called_once_with(self.repository_root.resolve(), dialog)
             stl_type.return_value.exec.assert_called_once()
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.ContractDomainDialog"
+            ) as knowledge_type:
+                dialog._open_mesh_knowledge()
+            knowledge_type.assert_called_once_with(
+                self.repository_root.resolve(), "mesh", dialog
+            )
+            knowledge_type.return_value.exec.assert_called_once()
         finally:
             dialog.close()
 
