@@ -48,6 +48,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_geometry",
             "tools.verification.test_cmake_test_catalog",
             "tools.oneflow_gui.test_contract_workbench_dialog",
+            "tools.oneflow_gui.test_mesh_generation_dialog",
             "tools.oneflow_gui.test_source_editor",
             "tools.oneflow_gui.test_test_inventory",
             "tools.oneflow_gui.test_test_diagnostics",
