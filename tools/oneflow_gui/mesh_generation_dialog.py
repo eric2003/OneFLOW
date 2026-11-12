@@ -271,8 +271,6 @@ class StlToGmshDialog(QDialog):
         self.maximum_size.setEnabled(custom)
         if not custom:
             self.mesh_size.setText(sizes[preset])
-            self.minimum_size.setText(sizes[preset])
-            self.maximum_size.setText(sizes[preset])
         self._refresh_command()
 
     def _arguments(self) -> list[str]:
