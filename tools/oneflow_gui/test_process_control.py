@@ -185,10 +185,10 @@ class ProcessControlTest(unittest.TestCase):
             child_code = (
                 "import pathlib, time; "
                 f"pathlib.Path({str(started_marker)!r}).write_text('ready'); "
-                f"release = pathlib.Path({str(release_marker)!r})\\n"
-                "deadline = time.monotonic() + 10\\n"
-                "while not release.exists() and time.monotonic() < deadline:\\n"
-                "    time.sleep(0.01)\\n"
+                f"release = pathlib.Path({str(release_marker)!r})\n"
+                "deadline = time.monotonic() + 10\n"
+                "while not release.exists() and time.monotonic() < deadline:\n"
+                "    time.sleep(0.01)\n"
                 f"pathlib.Path({str(marker)!r}).write_text('alive')"
             )
             parent_code = (
