@@ -8,19 +8,19 @@ and the C++ Geometry conversion pipeline.
 |---|---|---:|---:|---:|---:|
 | Native C++ | 2d/square/single_quad/cpp | 1 x 1 | 4 | 1 QUAD_4 | 4 |
 | Native C++ | 2d/square/two_triangles/cpp | 1 x 1 | 4 | 2 TRI_3 | 4 |
-| Native C++ | 2d/2d/square/automatic_triangles/cpp | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
+| Native C++ | 2d/square/automatic_triangles/cpp | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
 | Native C++ | 2d/square_2x2/cpp | 2 x 2 | 9 | 4 QUAD_4 | 8 |
 | Native C++ | 2d/two_square_cells/cpp | 2 x 1 | 6 | 2 QUAD_4 | 6 |
-| Native C++ | 2d/2d/circle_external_flow/cpp | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
+| Native C++ | 2d/circle_external_flow/cpp | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
 | Native C++ | 3d/cube/single_hex/cpp | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
 | Native C++ | 3d/cube/six_tetrahedra/cpp | Fixed | 8 | 6 TETRA_4 | 12 TRI_3 |
 | Native C++ | 3d/cube/automatic_tetrahedra/cpp | Automatic | Gmsh-generated | TETRA_4 | Triangular boundary |
 | Python | 2d/square/single_quad/python | 1 x 1 | 4 | 1 QUAD_4 | 4 |
 | Python | 2d/square/two_triangles/python | 1 x 1 | 4 | 2 TRI_3 | 4 |
-| Python | 2d/2d/square/automatic_triangles/python | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
+| Python | 2d/square/automatic_triangles/python | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
 | Python | 2d/two_square_cells/python | 2 x 1 | 6 | 2 QUAD_4 | 6 |
-| Python | 2d/2d/circle_external_flow/python | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
-| Python | 2d/2d/channel_internal_flow/python | 20 x 5 | 126 | 100 QUAD_4 | 50 |
+| Python | 2d/circle_external_flow/python | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
+| Python | 2d/channel_internal_flow/python | 20 x 5 | 126 | 100 QUAD_4 | 50 |
 | Python | 3d/cube/single_hex/python | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
 | Python | 3d/cube/six_tetrahedra/python | Fixed | 8 | 6 TETRA_4 | 12 TRI_3 |
 | Python | 3d/cube/automatic_tetrahedra/python | Automatic | Gmsh-generated | TETRA_4 | Triangular boundary |
@@ -29,7 +29,7 @@ For the square Cases, the STL describes the outer domain boundary. The
 single-quad and two-triangle variants use the same STL and 1 x 1 transfinite
 boundary layout: the former recombines the surface into one QUAD_4, while the
 latter leaves it un-recombined and produces two TRI_3 cells.
-For 2d/circle_external_flow, the STL describes the inner body boundary and the
+For the 2D circle external-flow Case, the STL describes the inner body boundary and the
 rectangular outer domain is supplied by the layout. In every case, STL
 triangle diagonals are triangulation edges, not CFD cell interfaces. The
 square and square_2x2 Cases use byte-identical STL geometry: only
@@ -69,7 +69,7 @@ Group names. Outputs are written only under each Case results/ directory.
 
 ## Shared output contract
 
-Each implementation writes its mesh using the Case-specific canonical name: `square.msh`, `two_square_cells.msh`, `2d/circle_external_flow.msh`, or `2d/channel_internal_flow.msh`. Python declares this name in `expected.json` under `artifact.mesh_file`; its geometry and validation report use the same basename. In particular, the fixed square outputs are `results/square.msh`, while the automatic pair uses `results/square_automatic_triangles.msh`; each report shares its mesh basename. The producer language does not change the artifact naming contract, so downstream conversion and validation stages can consume either implementation without filename-specific branching.
+Each implementation writes its mesh using the Case-specific canonical name: `square.msh`, `two_square_cells.msh`, `circle_external_flow.msh`, or `channel_internal_flow.msh`. Python declares this name in `expected.json` under `artifact.mesh_file`; its geometry and validation report use the same basename. In particular, the fixed square outputs are `results/square.msh`, while the automatic pair uses `results/square_automatic_triangles.msh`; each report shares its mesh basename. The producer language does not change the artifact naming contract, so downstream conversion and validation stages can consume either implementation without filename-specific branching.
 
 ## Python reference
 
