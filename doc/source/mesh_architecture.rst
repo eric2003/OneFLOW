@@ -126,9 +126,8 @@ Run the focused contract tests from the repository root:
    python -m unittest tools.mesh_contracts.test_snapshot -v
 
 The same tests are included in Linux and Windows Python CI. They validate the
-manifest contract only; they are not an experimental Gmsh Case regression.
-The latter remains a GUI manual test and is intentionally excluded from
-automatic GitHub execution.
+manifest contract only. Gmsh reader and conversion behavior is covered by
+separate C++ integration tests and the shared Mesh-to-CFD Validation workflow.
 
 The intended adapter flow is:
 
