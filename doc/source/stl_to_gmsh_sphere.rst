@@ -118,15 +118,15 @@ different densities from exactly the same surface:
 
 .. code-block:: console
 
-   python grid/stl_to_gmsh/generate_volume_mesh.py --stl grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl --output results/sphere_coarse.msh --mesh-size 0.40
-   python grid/stl_to_gmsh/generate_volume_mesh.py --stl grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl --output results/sphere_medium.msh --mesh-size 0.20
-   python grid/stl_to_gmsh/generate_volume_mesh.py --stl grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl --output results/sphere_fine.msh --mesh-size 0.10
+   python grid/stl_to_gmsh/generate_volume_mesh.py --stl grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl --output $HOME/.oneflow/mesh-generation/sphere_coarse.msh --mesh-size 0.40
+   python grid/stl_to_gmsh/generate_volume_mesh.py --stl grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl --output $HOME/.oneflow/mesh-generation/sphere_medium.msh --mesh-size 0.20
+   python grid/stl_to_gmsh/generate_volume_mesh.py --stl grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl --output $HOME/.oneflow/mesh-generation/sphere_fine.msh --mesh-size 0.10
 
 To bound Gmsh's characteristic length instead of using one target value:
 
 .. code-block:: console
 
-   python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output results/sphere.msh --mesh-size-min 0.10 --mesh-size-max 0.20
+   python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output $HOME/.oneflow/mesh-generation/sphere.msh --mesh-size-min 0.10 --mesh-size-max 0.20
 
 The command writes the requested MSH file plus matching GEO and JSON
 validation-report files. The size values are constraints, not exact edge
