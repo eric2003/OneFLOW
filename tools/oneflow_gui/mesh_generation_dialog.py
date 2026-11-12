@@ -333,13 +333,9 @@ class StlToGmshDialog(QDialog):
         self.output_view.appendPlainText(f"Script: {script}")
         self.output_view.appendPlainText(f"Arguments: {shlex.join(script_arguments)}")
         self._process.setWorkingDirectory(str(self._repository_root))
-        self._process.start(sys.executable, [script, *script_arguments])
-        if not self._process.waitForStarted(3000):
-            self.status_label.setText("Failed to start mesh generation.")
-            self.run_button.setEnabled(True)
-            return
         self.run_button.setEnabled(False)
-        self.status_label.setText("Generating mesh...")
+        self.status_label.setText("Starting mesh generation...")
+        self._process.start(sys.executable, [script, *script_arguments])
 
     def _read_output(self) -> None:
         data = bytes(self._process.readAllStandardOutput()).decode("utf-8", errors="replace")
