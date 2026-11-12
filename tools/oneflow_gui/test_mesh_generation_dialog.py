@@ -145,6 +145,8 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 dialog.stl_path.setText(str(stl))
                 dialog.output_path.setText(str(root / "surface.msh"))
                 dialog.density.setCurrentIndex(dialog.density.findData("custom"))
+                self.assertEqual(dialog.minimum_size.text(), "0.10")
+                self.assertEqual(dialog.maximum_size.text(), "0.20")
                 dialog.minimum_size.setText("0.05")
                 dialog.maximum_size.setText("0.15")
                 dialog.gmsh_path.setText(str(root / "gmsh"))
