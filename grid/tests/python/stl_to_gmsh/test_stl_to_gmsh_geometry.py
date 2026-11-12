@@ -271,7 +271,11 @@ $EndElements
                     capture_output=True,
                     check=False,
                 )
-                self.assertEqual(result.returncode, 0, msg=result.stdout + "\n" + result.stderr)
+                diagnostic = result.stdout + "\n" + result.stderr
+                geo_path = staged / "results/sphere_automatic_tetrahedra.geo"
+                if geo_path.is_file():
+                    diagnostic += "\nGenerated GEO:\n" + geo_path.read_text(encoding="utf-8")
+                self.assertEqual(result.returncode, 0, msg=diagnostic)
                 mesh = inspect_msh4(staged / "results/sphere_automatic_tetrahedra.msh")
                 self.assertGreater(mesh["tetrahedron_elements"], 0)
                 self.assertGreater(mesh["triangle_elements"], 0)
