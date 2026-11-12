@@ -213,7 +213,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         stl_cases = [case for case in catalog["cases"] if case.get("group") == "STL"]
         self.assertEqual(len(stl_cases), 16)
-        stl_root = REPOSITORY_ROOT / "grid" / "stl"
+        stl_root = REPOSITORY_ROOT / "grid" / "stl_import"
         for legacy in ("input", "results", "script", "python"):
             self.assertFalse((stl_root / legacy).exists(), legacy)
 
@@ -226,7 +226,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
                 self.assertEqual(len(parts), 4)
                 self.assertEqual(entry["id"], f"stl_python_{parts[-2]}")
             else:
-                self.assertEqual(parts[:2], ["grid", "stl"])
+                self.assertEqual(parts[:2], ["grid", "stl_import"])
                 self.assertEqual(parts[-1], "cpp")
                 self.assertEqual(len(parts), 4)
                 self.assertEqual(entry["id"], f"stl_{parts[-2]}")
