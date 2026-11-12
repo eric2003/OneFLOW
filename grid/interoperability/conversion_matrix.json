@@ -11,10 +11,10 @@
       "source": "stl",
       "target": "gmsh",
       "status": "implemented",
-      "implementation": "grid/stl/stl_to_gmsh.py",
+      "implementation": "grid/stl_to_gmsh/converter.py",
       "input_scope": "One connected, closed, axis-aligned planar quadrilateral boundary in ASCII or binary STL; explicit four-edge boundary sidecar; structured QUAD_4 layouts.",
       "output_scope": "Gmsh MSH 4.1 ASCII with LINE_2 Physical Curves and a QUAD_4 Physical Surface.",
-      "evidence": "grid/stl/test_stl_to_gmsh.py checks geometry construction, MSH 4.1 inspection, one-cell and two-cell topology, and Physical Group names."
+      "evidence": "tests/python/grid/test_stl_to_gmsh_geometry.py checks geometry construction, MSH 4.1 inspection, one-cell and two-cell topology, and Physical Group names."
     },
     {
       "source": "gmsh",

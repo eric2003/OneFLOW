@@ -10,15 +10,14 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from grid.stl.stl_to_gmsh import Stl2DError, extract_boundary, read_stl
+from grid.stl.reader import StlReadError, is_binary_stl, read_stl
+from grid.stl.surface import StlGeometryError, extract_boundary
 
 
 def _format(path: Path) -> str:
     data = path.read_bytes()
-    if len(data) >= 84:
-        count = int.from_bytes(data[80:84], "little")
-        if 84 + count * 50 == len(data):
-            return "binary"
+    if is_binary_stl(path):
+        return "binary"
     try:
         data.decode("ascii")
     except UnicodeDecodeError:
@@ -34,14 +33,14 @@ def run_case(case_directory: Path) -> dict:
               "readable": False, "triangle_count": None, "topology": "not_checked"}
     try:
         triangles = read_stl(source)
-    except (OSError, Stl2DError) as error:
+    except (OSError, StlReadError) as error:
         report["read_error"] = str(error)
     else:
         report["readable"] = True
         report["triangle_count"] = len(triangles)
         try:
             boundary = extract_boundary(triangles)
-        except Stl2DError as error:
+        except StlGeometryError as error:
             report["topology"] = "invalid"
             report["topology_error"] = str(error)
         else:

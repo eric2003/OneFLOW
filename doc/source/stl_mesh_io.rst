@@ -8,7 +8,7 @@ This page defines the target architecture and verification contract for native
 STL surface-file support in the C++ codes/geometry module.
 
 **Status: first C++ I/O slice implemented; CI verification pending.** The current Python implementation in
-grid/stl/stl_to_gmsh.py is a separate planar-surface conversion tool. Its tests
+grid/stl_to_gmsh/converter.py is a separate planar-surface conversion tool. Its tests
 do not exercise OneFLOW's C++ geometry code. The native reader and writer
 are now implemented in StlMeshIO.h and StlMeshIO.cpp. Native GoogleTests are
 registered in tests/geometry/StlMeshIOTest.cpp; their execution status is

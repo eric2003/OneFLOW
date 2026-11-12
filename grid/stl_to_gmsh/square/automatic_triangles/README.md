@@ -35,7 +35,7 @@ reads the MSH 4.1 result for topology and boundary validation.
 ### Python reference
 
 The Python Case uses the independent
-`grid/stl/stl_to_gmsh.py` implementation through
+`grid/stl_to_gmsh/converter.py` implementation through
 `grid/stl_to_gmsh/run_python_case.py`. Its `expected.json` describes
 stable mesh invariants and the shared artifact name. It does not call the
 native C++ producer.

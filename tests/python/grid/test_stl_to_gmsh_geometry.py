@@ -1,12 +1,13 @@
 from __future__ import annotations
 import json, shutil, struct, subprocess, tempfile, unittest
 from pathlib import Path
-from .stl_to_gmsh import (
+from grid.stl_to_gmsh.converter import (
     Stl2DError, _validate_tetrahedral_boundary, _weld_vertices,
     build_geo, convert, extract_boundary, inspect_msh4, read_stl,
 )
 
-DATA = Path(__file__).parent / "fixtures"
+ROOT = Path(__file__).resolve().parents[3]
+DATA = ROOT / "grid" / "stl" / "fixtures"
 
 class Stl2DGmshTest(unittest.TestCase):
     def test_tetrahedral_boundary_validation_accepts_arbitrary_two_cell_mesh(self):
@@ -112,7 +113,7 @@ class Stl2DGmshTest(unittest.TestCase):
         gmsh = shutil.which("gmsh")
         if not gmsh:
             self.skipTest("Gmsh executable is not installed")
-        case = Path(__file__).parents[1] / "stl_to_gmsh" / "two_square_cells" / "python"
+        case = ROOT / "grid" / "stl_to_gmsh" / "two_square_cells" / "python"
         with tempfile.TemporaryDirectory() as temp:
             geo = Path(temp) / "two_quads.geo"
             msh = Path(temp) / "two_quads.msh"
@@ -131,7 +132,7 @@ class Stl2DGmshTest(unittest.TestCase):
             self.assertEqual(names, {"inflow", "outflow", "symmetry", "farfield", "fluid_domain"})
 
     def test_stl_to_gmsh_case_uses_two_adjacent_unit_square_cells(self):
-        case = Path(__file__).parents[1] / "stl_to_gmsh" / "two_square_cells" / "python"
+        case = ROOT / "grid" / "stl_to_gmsh" / "two_square_cells" / "python"
         triangles = read_stl(case / "input" / "model.stl")
         loop = extract_boundary(triangles)
         self.assertEqual(len(loop), 4)
@@ -199,7 +200,7 @@ $EndElements
         )
 
     def test_cube_single_hex_uses_layout_boundary_groups_for_all_six_faces(self):
-        case = Path(__file__).parents[1] / "stl_to_gmsh" / "cube" / "single_hex" / "python"
+        case = ROOT / "grid" / "stl_to_gmsh" / "cube" / "single_hex" / "python"
         with tempfile.TemporaryDirectory() as temp:
             geo = Path(temp) / "cube_single_hex.geo"
             report = convert(
@@ -224,7 +225,7 @@ $EndElements
 
 
     def test_cube_volume_mesh_strategies_keep_the_same_geometry_and_distinct_topology(self):
-        root = Path(__file__).parents[1] / "stl_to_gmsh" / "cube"
+        root = ROOT / "grid" / "stl_to_gmsh" / "cube"
         gmsh = shutil.which("gmsh")
         cases = {
             "single_hex": ("axis_aligned_cube_single_hex", 1, True),
@@ -281,7 +282,7 @@ $EndElements
 
 
     def test_cube_volume_mesh_strategies_keep_the_same_geometry_and_distinct_topology(self):
-        root = Path(__file__).parents[1] / "stl_to_gmsh" / "cube"
+        root = ROOT / "grid" / "stl_to_gmsh" / "cube"
         gmsh = shutil.which("gmsh")
         cases = {
             "single_hex": "axis_aligned_cube_single_hex",
@@ -336,7 +337,7 @@ $EndElements
                     self.assertEqual(summary["hexahedron_elements"], 0)
 
     def test_cube_single_hex_rejects_incomplete_boundary_groups(self):
-        case = Path(__file__).parents[1] / "stl_to_gmsh" / "cube/single_hex" / "python"
+        case = ROOT / "grid" / "stl_to_gmsh" / "cube/single_hex" / "python"
         config = json.loads(
             (case / "script" / "layout.json").read_text(encoding="utf-8")
         )
@@ -474,7 +475,7 @@ $EndElements
 
     def test_stl_inspection_case_writes_report_without_touching_source_tree(self):
         import sys
-        script = Path(__file__).parent / "inspect.py"
+        script = ROOT / "grid" / "stl" / "inspect.py"
         with tempfile.TemporaryDirectory() as temp:
             report = Path(temp) / "stl_report.json"
             subprocess.run(
@@ -485,7 +486,8 @@ $EndElements
             result = json.loads(report.read_text(encoding="utf-8"))
             self.assertEqual(result["format"], "ascii")
             self.assertEqual(result["triangle_count"], 2)
-            self.assertEqual(result["boundary_edge_count"], 4)
+            self.assertTrue(result["planar_xy"])
+            self.assertEqual(result["constant_z"], 0.0)
 
 
     def test_welding_matches_across_rounding_cell_boundary(self):

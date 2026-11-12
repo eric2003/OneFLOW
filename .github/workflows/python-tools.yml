@@ -65,7 +65,7 @@ jobs:
       - name: Test case catalog
         run: python tools/test_mesh_cases.py
       - name: Test planar STL to Gmsh geometry generation
-        run: python -m unittest grid.stl.test_stl_to_gmsh
+        run: python -m unittest tests.python.grid.test_stl_to_gmsh_geometry
       - name: Test native and Python STL-to-Gmsh Cases
         run: python -m unittest tests.python.grid.test_stl_to_gmsh_cases
       - name: Test Mesh-to-CFD Validation graph

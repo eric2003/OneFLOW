@@ -138,13 +138,13 @@ Example
 
 .. code-block:: bash
 
-   python grid/stl/stl_to_gmsh.py grid/stl/fixtures/square.stl --boundaries grid/stl/fixtures/square.boundary.json --geo /tmp/square.geo --gmsh gmsh --msh /tmp/square.msh
+   python grid/stl_to_gmsh/converter.py grid/stl/fixtures/square.stl --boundaries grid/stl/fixtures/square.boundary.json --geo /tmp/square.geo --gmsh gmsh --msh /tmp/square.msh
 
 Parser and geometry-generation tests do not require Gmsh:
 
 .. code-block:: bash
 
-   python -m unittest grid.stl.test_stl_to_gmsh
+   python -m unittest tests.python.grid.test_stl_to_gmsh_geometry
 
 Native C++ circle external-flow Case
 ------------------------------------
