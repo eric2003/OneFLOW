@@ -9,13 +9,13 @@ one closed surface loop and generates a tetrahedral volume mesh.
 Use the direct command; no OneFLOW Case directory is required:
 
 ```powershell
-python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output $HOME/.oneflow/mesh-generation/sphere.msh --mesh-size 0.20
+python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output "$HOME/.oneflow/mesh-generation/sphere.msh" --mesh-size 0.20
 ```
 
 Set a size interval instead of one uniform target:
 
 ```powershell
-python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output $HOME/.oneflow/mesh-generation/sphere.msh --mesh-size-min 0.10 --mesh-size-max 0.20
+python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output "$HOME/.oneflow/mesh-generation/sphere.msh" --mesh-size-min 0.10 --mesh-size-max 0.20
 ```
 
 For coarse / medium / fine meshes, reuse the same STL and change only
