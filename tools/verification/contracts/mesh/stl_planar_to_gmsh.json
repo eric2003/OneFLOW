@@ -16,7 +16,7 @@
   "implementation": {
     "source_paths": [
       "grid/stl_to_gmsh/converter.py",
-      "grid/stl_import/fixtures/square.stl",
+      "grid/stl_to_gmsh/2d/square/single_quad/cpp/input/model.stl",
       "codes/geometry/include/StlMeshIO.h",
       "codes/geometry/src/StlMeshIO.cpp",
       "codes/geometry/include/GridTypes.h",
@@ -30,7 +30,7 @@
       "grid/stl_to_gmsh/3d/cube/automatic_tetrahedra/README.md",
       "codes/geometry/src/GridConversion.cpp",
       "tests/geometry/StlMeshIOTest.cpp",
-      "tests/python/grid/test_stl_to_gmsh_cases.py",
+      "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py",
       "tools/oneflow_gui/mesh_validation.py",
       "tools/oneflow_gui/workflow_plan.py",
       "tools/oneflow_gui/workflow_graph_runner.py"
@@ -113,7 +113,7 @@
       "doc/source/gmsh_interface.rst",
       "doc/source/grid_conversion_cases.rst",
       "grid/stl_to_gmsh/3d/cube/README.md",
-      "tests/python/grid/test_stl_to_gmsh_cases.py",
+      "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py",
       "grid/conversion/cgns_to_oneflow/README.md",
       "grid/stl_to_gmsh/2d/square/README.md",
       "tools/oneflow_gui/test_mesh_validation.py",
@@ -140,7 +140,7 @@
       "The native circle external-flow Case is registered for both Run Development Cases and Mesh-to-CFD Validation; the latter executes the selected MSH through the existing CGNS, OneFLOW-grid and CFD smoke-test chain.",
       "The native C++ and independent Python cube Cases validate one closed axis-aligned cube STL with twelve triangles and reconstruct six boundary surfaces plus one volume. The registered progression verifies one HEXA_8 cell, a fixed six-TETRA_4 decomposition, and automatic tetrahedral refinement with no fixed cell count.",
       "The cube_single_hex Case pair is registered in Run Development Cases, Python Reference Cases and Mesh-to-CFD Validation; its validation graph checks MSH-to-CGNS-to-OneFLOW topology, boundary-region-map handoff and a two-step CFD smoke run using the staged laminar flat-plate template with dimension overridden to 3.",
-      "The legacy root-level script/run.py and its root input/results/script data were removed; Python reference Cases reject execution from checked-in source directories, and Python unit tests live under tests/python/grid.",
+      "The legacy root-level script/run.py and its root input/results/script data were removed; Python reference Cases reject execution from checked-in source directories, and Python unit tests live under grid/tests/python.",
       "The same unit-square STL and four named outer boundaries can produce either one QUAD_4 cell or exactly two TRI_3 cells by enabling or disabling Gmsh surface recombination while retaining a 1 x 1 transfinite boundary layout.",
       "The native C++ planar STL-to-Gmsh route supports an automatic unstructured TRI_3 mode when transfinite_cells is omitted, validates boundary-edge incidence and the Euler characteristic, and reports the configured mesh size without asserting an exact cell count.",
       "The Python reference geometry generator emits the same automatic mesh-size controls without transfinite constraints or recombination when transfinite_cells is omitted.",
@@ -193,13 +193,13 @@
       "kind": "python_test",
       "reference": "StlToGmshCaseTest.test_native_and_python_cases_are_registered_separately",
       "status": "linked_not_executed",
-      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; validates distinct catalog entries and native Case parameter layout."
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py; validates distinct catalog entries and native Case parameter layout."
     },
     {
       "kind": "python_test",
       "reference": "StlToGmshCaseTest.test_python_geometry_compiles_square_and_two_cell_layouts",
       "status": "linked_not_executed",
-      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; exercises independent Python geometry generation into temporary output."
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py; exercises independent Python geometry generation into temporary output."
     },
     {
       "kind": "google_test",
@@ -223,13 +223,13 @@
       "kind": "python_test",
       "reference": "StlToGmshCaseTest.test_square_2x2_reuses_square_stl_and_changes_only_mesh_density",
       "status": "linked_not_executed",
-      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; checks byte-identical STL input and the 2 x 2 transfinite layout."
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py; checks byte-identical STL input and the 2 x 2 transfinite layout."
     },
     {
       "kind": "python_test",
       "reference": "StlToGmshCaseTest.test_external_and_internal_flow_cases_build_distinct_fluid_domains",
       "status": "linked_not_executed",
-      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; verifies external obstacle subtraction versus directly bounded internal channel geometry and named Physical Curves."
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py; verifies external obstacle subtraction versus directly bounded internal channel geometry and named Physical Curves."
     },
     {
       "kind": "google_test",
@@ -241,7 +241,7 @@
       "kind": "python_test",
       "reference": "StlToGmshCaseTest.test_native_circle_external_flow_uses_same_stl_and_domain_as_python_reference",
       "status": "linked_not_executed",
-      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; checks byte-identical native/reference STL geometry and identical external-domain layout."
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py; checks byte-identical native/reference STL geometry and identical external-domain layout."
     },
     {
       "kind": "python_test",
@@ -259,7 +259,7 @@
       "kind": "python_test",
       "reference": "StlToGmshCaseTest.test_python_circle_external_flow_generates_valid_gmsh_mesh",
       "status": "linked_not_executed",
-      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; runs the Python external-flow reference through Gmsh in a temporary Case directory and checks MSH 4.1 cells and all five Physical Groups."
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py; runs the Python external-flow reference through Gmsh in a temporary Case directory and checks MSH 4.1 cells and all five Physical Groups."
     },
     {
       "kind": "google_test",
@@ -271,7 +271,7 @@
       "kind": "python_test",
       "reference": "StlToGmshCaseTest.test_cube_tetrahedral_cases_are_registered_in_native_and_python_pairs",
       "status": "linked_not_executed",
-      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; independently generates and validates the cube MSH 4.1 reference mesh in an external temporary directory."
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py; independently generates and validates the cube MSH 4.1 reference mesh in an external temporary directory."
     },
     {
       "kind": "python_test",
@@ -295,7 +295,7 @@
       "kind": "python_test",
       "reference": "StlToGmshCaseTest.test_python_square_two_triangles_generates_exactly_two_triangle_cells",
       "status": "linked_not_executed",
-      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; Python reference runs Gmsh in a temporary directory and validates exact two-triangle topology and unchanged Physical Groups."
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py; Python reference runs Gmsh in a temporary directory and validates exact two-triangle topology and unchanged Physical Groups."
     },
     {
       "kind": "python_test",
@@ -307,7 +307,7 @@
       "kind": "python_test",
       "reference": "StlToGmshCaseTest.test_automatic_triangle_mode_uses_mesh_size_without_transfinite_constraints",
       "status": "linked_not_executed",
-      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; checks automatic mode emits global size controls, omits transfinite/recombine commands, and rejects recombination in automatic mode."
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py; checks automatic mode emits global size controls, omits transfinite/recombine commands, and rejects recombination in automatic mode."
     },
     {
       "kind": "google_test",
@@ -319,13 +319,13 @@
       "kind": "python_test",
       "reference": "StlToGmshCaseTest.test_python_automatic_mesh_size_controls_progressive_refinement",
       "status": "linked_not_executed",
-      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; meshes the same square STL at three target sizes and checks increasing node/triangle counts without fixed expected counts."
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py; meshes the same square STL at three target sizes and checks increasing node/triangle counts without fixed expected counts."
     },
     {
       "kind": "python_test",
       "reference": "StlToGmshCaseTest.test_automatic_triangle_case_pair_is_registered_and_uses_mesh_size_only",
       "status": "linked_not_executed",
-      "scope": "tests/python/grid/test_stl_to_gmsh_cases.py; validates byte-identical STL input, matching automatic layouts, mesh-size-only control and variable-count assertions."
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py; validates byte-identical STL input, matching automatic layouts, mesh-size-only control and variable-count assertions."
     },
     {
       "kind": "python_test",
