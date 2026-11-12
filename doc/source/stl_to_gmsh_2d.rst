@@ -37,7 +37,7 @@ after building OneFLOW and installing Gmsh:
 
 .. code-block:: console
 
-   python grid/stl_to_gmsh/develop_test/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
+   python grid/stl_to_gmsh/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
 
 The orchestrator copies each Case to the user's .oneflow staging directory
 and launches OneFLOW with that staged Case as its working directory. Do not
