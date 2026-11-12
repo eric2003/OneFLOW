@@ -157,6 +157,28 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ("stl_to_gmsh_python_square_two_triangles", "Square with Two TRI_3 Cells (Python Reference)"),
             ("stl_to_gmsh_python_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Python Reference)"),
         ))
+    def test_repository_catalog_exposes_unit_sphere_in_mesh_validation_3d(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        choices = dict(mesh_case_choices(repository_root))
+        expected_ids = {
+            "stl_to_gmsh_sphere_automatic_tetrahedra",
+            "stl_to_gmsh_python_sphere_automatic_tetrahedra",
+        }
+        self.assertTrue(expected_ids.issubset(choices))
+
+        groups = dict(mesh_case_groups(repository_root))
+        sphere_ids = {case_id for case_id, _title in groups["3D"]}
+        self.assertTrue(expected_ids.issubset(sphere_ids))
+
+        for case_id in sorted(expected_ids):
+            steps = build_mesh_validation_cases(
+                repository_root, case_id, "laminar_flat_plate"
+            )
+            self.assertEqual(
+                [step["id"] for step in steps],
+                ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
+            )
+
     def test_mesh_selector_groups_cases_by_spatial_dimension(self):
         groups = mesh_case_groups(self.root)
         self.assertEqual([dimension for dimension, _cases in groups], ["2D", "3D"])
