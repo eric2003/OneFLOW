@@ -306,8 +306,8 @@ Mesh Generation & Conversion Workbench
 --------------------------------------
 
 The home window exposes one Mesh Generation entry point. The hub currently
-routes to the existing structured Mesh Layout Editor and the direct STL-to-Gmsh
-volume-mesh page. The layout editor remains the owner of its current layout
+routes to the existing structured Mesh Layout Editor, the direct STL-to-Gmsh
+volume-mesh page, and the existing Mesh domain in Contract Workbench. The layout editor remains the owner of its current layout
 specification and compiler contract; moving its navigation must not rewrite or
 weaken that behavior.
 
