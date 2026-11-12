@@ -1,7 +1,7 @@
 OneFLOW Workbench 用户手册
 ==========================
 
-本手册介绍 tools/oneflow_gui 中的可选桌面工作台。Workbench 负责项目浏览、运行编排、测试入口、网格布局编辑和运行记录；OneFLOW 求解器仍作为独立进程运行，GUI 不是求解器的替代品。
+本手册介绍 tools/oneflow_gui 中的可选桌面工作台。Workbench 负责项目浏览、运行编排、测试入口、网格生成与转换、网格布局编辑、知识导航和运行记录；OneFLOW 求解器仍作为独立进程运行，GUI 不是求解器的替代品。
 
 本页按 hexin 当前实现编写。按钮细节、模板列表和完整服务测试命令见模块 README：
 https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md
