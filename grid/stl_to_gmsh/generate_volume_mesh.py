@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import shutil
 import subprocess
 import sys
@@ -36,8 +37,11 @@ def generate(
         raise ValueError("output path must use the .msh extension")
     if output == stl:
         raise ValueError("output mesh must not overwrite the input STL")
-    if mesh_size_min <= 0 or mesh_size_max <= 0:
-        raise ValueError("mesh sizes must be positive")
+    if (
+        not math.isfinite(mesh_size_min) or mesh_size_min <= 0
+        or not math.isfinite(mesh_size_max) or mesh_size_max <= 0
+    ):
+        raise ValueError("mesh sizes must be positive and finite")
     if mesh_size_min > mesh_size_max:
         raise ValueError("--mesh-size-min must not exceed --mesh-size-max")
 
@@ -69,7 +73,10 @@ def generate(
         raise RuntimeError("Gmsh output contains no TETRA_4 volume elements")
     if mesh["triangle_elements"] <= 0:
         raise RuntimeError("Gmsh output contains no TRI_3 boundary elements")
-    groups = {(item["dimension"], item["name"]) for item in mesh["physical_groups"]}
+    groups = {
+        (item["dimension"], item["name"])
+        for item in mesh["physical_groups"]
+    }
     expected_groups = {(2, boundary_name), (3, volume_name)}
     if groups != expected_groups:
         raise RuntimeError(
@@ -99,13 +106,24 @@ def generate(
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Generate a tetrahedral volume mesh from a closed, genus-zero STL shell."
+        description=(
+            "Generate a tetrahedral volume mesh from a closed, genus-zero STL shell."
+        )
     )
     parser.add_argument("--stl", type=Path, required=True, help="input closed STL surface")
     parser.add_argument("--output", type=Path, required=True, help="output .msh file")
-    parser.add_argument("--mesh-size", type=float, help="set minimum and maximum size to one value")
-    parser.add_argument("--mesh-size-min", type=float, help="minimum target characteristic length")
-    parser.add_argument("--mesh-size-max", type=float, help="maximum target characteristic length")
+    parser.add_argument(
+        "--mesh-size", type=float,
+        help="set minimum and maximum size to one value",
+    )
+    parser.add_argument(
+        "--mesh-size-min", type=float,
+        help="minimum target characteristic length",
+    )
+    parser.add_argument(
+        "--mesh-size-max", type=float,
+        help="maximum target characteristic length",
+    )
     parser.add_argument("--gmsh", default=shutil.which("gmsh"), help="Gmsh executable")
     parser.add_argument("--boundary-name", default="wall")
     parser.add_argument("--volume-name", default="fluid_domain")
@@ -120,7 +138,10 @@ def main() -> int:
         mesh_size_min = mesh_size_max = args.mesh_size
     else:
         if args.mesh_size_min is None or args.mesh_size_max is None:
-            parser.error("provide --mesh-size, or provide both --mesh-size-min and --mesh-size-max")
+            parser.error(
+                "provide --mesh-size, or provide both "
+                "--mesh-size-min and --mesh-size-max"
+            )
         mesh_size_min, mesh_size_max = args.mesh_size_min, args.mesh_size_max
     try:
         generate(
@@ -129,7 +150,10 @@ def main() -> int:
             args.boundary_name, args.volume_name,
             args.surface_angle, args.curve_angle,
         )
-    except (OSError, ValueError, Stl2DError, subprocess.CalledProcessError, RuntimeError) as error:
+    except (
+        OSError, ValueError, Stl2DError,
+        subprocess.CalledProcessError, RuntimeError,
+    ) as error:
         parser.exit(2, f"STL volume mesh generation failed: {error}\n")
     return 0
 
