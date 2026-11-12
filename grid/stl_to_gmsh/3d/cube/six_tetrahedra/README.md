@@ -20,4 +20,4 @@ connectivity rather than a prescribed cube diagonal.
 
 Native C++ and Python reference Cases share the same STL and layout. See
 [the cube progression](../README.md) and
-[Development Case Methodology](../../../../doc/source/development_case_methodology.rst).
+[Development Case Methodology](../../../../../doc/source/development_case_methodology.rst).

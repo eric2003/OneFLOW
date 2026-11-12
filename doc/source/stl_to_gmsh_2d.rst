@@ -48,8 +48,7 @@ The native path writes .geo, MSH 4.1 and a validation report under each
 staged Case's results directory. It reads the generated MSH again with the existing
 C++ Gmsh reader and checks node, boundary-line, QUAD_4 and Physical Group
 counts. Independent Python reference Cases are maintained under
-`grid/stl_to_gmsh/<case>/python/`; the existing external-flow Python Case remains at
-`grid/stl_to_gmsh/script/run.py` with `config/external_flow.json`.
+`grid/stl_to_gmsh/2d/<case>/python/`; the external- and internal-flow Python Cases are registered beside their native C++ counterparts.
 
 Input and boundary semantics
 ----------------------------

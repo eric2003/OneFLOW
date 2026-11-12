@@ -118,7 +118,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         for legacy_directory in ("input", "results", "script", "config", "pipeline", "python"):
             self.assertFalse((case_root / legacy_directory).exists(), legacy_directory)
 
-        two_square_cells = case_root / "two_square_cells"
+        two_square_cells = case_root / "2d" / "two_square_cells"
         for implementation in ("cpp", "python"):
             case_dir = two_square_cells / implementation
             self.assertTrue((case_dir / "input" / "model.stl").is_file())

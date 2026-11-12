@@ -36,6 +36,6 @@ For the third Case, `mesh_size` is a target characteristic length, not an
 exact element count. The C++ and Python implementations use byte-identical
 STL and equivalent layout inputs, but their generated triangulations need not
 have identical connectivity. See
-`../automatic_triangles/README.md` for the complete input-to-evidence
-walkthrough and [Development Case Methodology](../../../doc/source/development_case_methodology.rst) for the reusable authoring
+`automatic_triangles/README.md` for the complete input-to-evidence
+walkthrough and [Development Case Methodology](../../../../doc/source/development_case_methodology.rst) for the reusable authoring
 standard.

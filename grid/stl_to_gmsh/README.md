@@ -6,30 +6,30 @@ and the C++ Geometry conversion pipeline.
 
 | Implementation | Case | Layout | Nodes | Cells | Boundary elements |
 |---|---|---:|---:|---:|---:|
-| Native C++ | square/single_quad/cpp | 1 x 1 | 4 | 1 QUAD_4 | 4 |
-| Native C++ | square/two_triangles/cpp | 1 x 1 | 4 | 2 TRI_3 | 4 |
-| Native C++ | square/automatic_triangles/cpp | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
+| Native C++ | 2d/square/single_quad/cpp | 1 x 1 | 4 | 1 QUAD_4 | 4 |
+| Native C++ | 2d/square/two_triangles/cpp | 1 x 1 | 4 | 2 TRI_3 | 4 |
+| Native C++ | 2d/2d/square/automatic_triangles/cpp | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
 | Native C++ | square_2x2/cpp | 2 x 2 | 9 | 4 QUAD_4 | 8 |
-| Native C++ | two_square_cells/cpp | 2 x 1 | 6 | 2 QUAD_4 | 6 |
-| Native C++ | circle_external_flow/cpp | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
-| Native C++ | cube/single_hex/cpp | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
-| Native C++ | cube/six_tetrahedra/cpp | Fixed | 8 | 6 TETRA_4 | 12 TRI_3 |
-| Native C++ | cube/automatic_tetrahedra/cpp | Automatic | Gmsh-generated | TETRA_4 | Triangular boundary |
-| Python | square/single_quad/python | 1 x 1 | 4 | 1 QUAD_4 | 4 |
-| Python | square/two_triangles/python | 1 x 1 | 4 | 2 TRI_3 | 4 |
-| Python | square/automatic_triangles/python | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
-| Python | two_square_cells/python | 2 x 1 | 6 | 2 QUAD_4 | 6 |
-| Python | circle_external_flow/python | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
-| Python | channel_internal_flow/python | 20 x 5 | 126 | 100 QUAD_4 | 50 |
-| Python | cube/single_hex/python | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
-| Python | cube/six_tetrahedra/python | Fixed | 8 | 6 TETRA_4 | 12 TRI_3 |
-| Python | cube/automatic_tetrahedra/python | Automatic | Gmsh-generated | TETRA_4 | Triangular boundary |
+| Native C++ | 2d/two_square_cells/cpp | 2 x 1 | 6 | 2 QUAD_4 | 6 |
+| Native C++ | 2d/2d/circle_external_flow/cpp | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
+| Native C++ | 3d/cube/single_hex/cpp | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
+| Native C++ | 3d/cube/six_tetrahedra/cpp | Fixed | 8 | 6 TETRA_4 | 12 TRI_3 |
+| Native C++ | 3d/cube/automatic_tetrahedra/cpp | Automatic | Gmsh-generated | TETRA_4 | Triangular boundary |
+| Python | 2d/square/single_quad/python | 1 x 1 | 4 | 1 QUAD_4 | 4 |
+| Python | 2d/square/two_triangles/python | 1 x 1 | 4 | 2 TRI_3 | 4 |
+| Python | 2d/2d/square/automatic_triangles/python | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
+| Python | 2d/two_square_cells/python | 2 x 1 | 6 | 2 QUAD_4 | 6 |
+| Python | 2d/2d/circle_external_flow/python | Unstructured | Gmsh-generated | TRI_3 | Boundary groups |
+| Python | 2d/2d/channel_internal_flow/python | 20 x 5 | 126 | 100 QUAD_4 | 50 |
+| Python | 3d/cube/single_hex/python | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
+| Python | 3d/cube/six_tetrahedra/python | Fixed | 8 | 6 TETRA_4 | 12 TRI_3 |
+| Python | 3d/cube/automatic_tetrahedra/python | Automatic | Gmsh-generated | TETRA_4 | Triangular boundary |
 
 For the square Cases, the STL describes the outer domain boundary. The
 single-quad and two-triangle variants use the same STL and 1 x 1 transfinite
 boundary layout: the former recombines the surface into one QUAD_4, while the
 latter leaves it un-recombined and produces two TRI_3 cells.
-For circle_external_flow, the STL describes the inner body boundary and the
+For 2d/circle_external_flow, the STL describes the inner body boundary and the
 rectangular outer domain is supplied by the layout. In every case, STL
 triangle diagonals are triangulation edges, not CFD cell interfaces. The
 square and square_2x2 Cases use byte-identical STL geometry: only
@@ -69,7 +69,7 @@ Group names. Outputs are written only under each Case results/ directory.
 
 ## Shared output contract
 
-Each implementation writes its mesh using the Case-specific canonical name: `square.msh`, `two_square_cells.msh`, `circle_external_flow.msh`, or `channel_internal_flow.msh`. Python declares this name in `expected.json` under `artifact.mesh_file`; its geometry and validation report use the same basename. In particular, the fixed square outputs are `results/square.msh`, while the automatic pair uses `results/square_automatic_triangles.msh`; each report shares its mesh basename. The producer language does not change the artifact naming contract, so downstream conversion and validation stages can consume either implementation without filename-specific branching.
+Each implementation writes its mesh using the Case-specific canonical name: `square.msh`, `two_square_cells.msh`, `2d/circle_external_flow.msh`, or `2d/channel_internal_flow.msh`. Python declares this name in `expected.json` under `artifact.mesh_file`; its geometry and validation report use the same basename. In particular, the fixed square outputs are `results/square.msh`, while the automatic pair uses `results/square_automatic_triangles.msh`; each report shares its mesh basename. The producer language does not change the artifact naming contract, so downstream conversion and validation stages can consume either implementation without filename-specific branching.
 
 ## Python reference
 
@@ -77,7 +77,7 @@ Run the Python reference Cases through the staging orchestrator below. Do not
 pass checked-in source Case directories to the Python runner directly, because
 that would place generated files in the repository.
 
-The Python Cases use `grid/stl_to_gmsh/converter.py`, built on the shared STL reader (`grid/stl_import/reader.py`) and surface-topology utilities (`grid/stl_import/surface.py`). They emit the same Case-specific mesh and report filenames as their native counterparts. The native C++ and Python `square/automatic_triangles` Cases use byte-identical STL input and the same automatic layout. They omit transfinite constraints and rely on mesh_size for Gmsh refinement. The native C++ and Python `circle_external_flow` Cases use byte-identical STL input and the same domain, mesh-size and Physical Group settings. The native Case exercises OneFLOW's C++ STL reader, outer-domain/hole construction, Gmsh invocation and MSH validation; the Python Case is an independent implementation reference. The `circle_external_flow` Case treats a polygonal STL obstacle as an internal Wall loop and subtracts it from a rectangular outer domain. The `channel_internal_flow` Case treats the STL loop itself as the fluid domain, with inlet, outlet and wall groups; a transfinite 20 x 5 layout produces a reproducible quadrilateral channel mesh. The external case validates minimum mesh counts rather than exact counts because unstructured meshing can vary slightly between Gmsh versions. Both implementations also validate the generated coordinate bounds against the configured planar domain, reject degenerate triangles, and enforce the shared minimum normalized triangle quality (0.01) and minimum angle (1 degree). Python reports the measured minimum area, normalized quality, and minimum angle; native C++ reports the same quality thresholds alongside its MSH topology report. The two triangulations are not expected to have identical element counts or connectivity.
+The Python Cases use `grid/stl_to_gmsh/converter.py`, built on the shared STL reader (`grid/stl_import/reader.py`) and surface-topology utilities (`grid/stl_import/surface.py`). They emit the same Case-specific mesh and report filenames as their native counterparts. The native C++ and Python `2d/square/automatic_triangles` Cases use byte-identical STL input and the same automatic layout. They omit transfinite constraints and rely on mesh_size for Gmsh refinement. The native C++ and Python `2d/circle_external_flow` Cases use byte-identical STL input and the same domain, mesh-size and Physical Group settings. The native Case exercises OneFLOW's C++ STL reader, outer-domain/hole construction, Gmsh invocation and MSH validation; the Python Case is an independent implementation reference. The `2d/circle_external_flow` Case treats a polygonal STL obstacle as an internal Wall loop and subtracts it from a rectangular outer domain. The `2d/channel_internal_flow` Case treats the STL loop itself as the fluid domain, with inlet, outlet and wall groups; a transfinite 20 x 5 layout produces a reproducible quadrilateral channel mesh. The external case validates minimum mesh counts rather than exact counts because unstructured meshing can vary slightly between Gmsh versions. Both implementations also validate the generated coordinate bounds against the configured planar domain, reject degenerate triangles, and enforce the shared minimum normalized triangle quality (0.01) and minimum angle (1 degree). Python reports the measured minimum area, normalized quality, and minimum angle; native C++ reports the same quality thresholds alongside its MSH topology report. The two triangulations are not expected to have identical element counts or connectivity.
 
 ## Run all eighteen development Cases
 
@@ -93,7 +93,7 @@ If the executable is not in the standard build/bin locations:
 The orchestrator stages all eighteen Cases under
 %USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows or
 $HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. Staging paths mirror
-the Case layout, for example square/single_quad/cpp and square/single_quad/python; each has its own
+the Case layout, for example 2d/square/single_quad/cpp and 2d/square/single_quad/python; each has its own
 results directory. It recreates only the eighteen named Case staging directories
 and leaves generated meshes, reports, and logs outside the repository source tree.
 
@@ -135,7 +135,7 @@ standalone STL-to-Gmsh producer Cases.
     python tools/mesh_cases.py validate stl_to_gmsh_square_two_triangles
     python tools/mesh_cases.py validate stl_to_gmsh_square_2x2
     python tools/mesh_cases.py validate stl_to_gmsh_two_square_cells
-    python tools/mesh_cases.py validate circle_external_flow/cpp
+    python tools/mesh_cases.py validate 2d/circle_external_flow/cpp
 
 When Gmsh is available, the Python test suite executes the circle reference
 Case and all three cube reference Cases in temporary directories, validating
@@ -149,13 +149,13 @@ Tests use temporary output directories. The structured native Cases support
 one connected, axis-aligned rectangular XY boundary and QUAD_4 layouts. The
 native circle external-flow Case additionally supports one closed planar STL
 body loop inside a rectangular outer domain, producing a triangular fluid
-region with a hole. The three cube/* pairs are the supported 3-D volume prototypes and are restricted to the same axis-aligned cube STL. They progress from one HEXA_8 cell, to a fixed six-TETRA_4 decomposition, to an automatic tetrahedral mesh. Arbitrary multiple body
+region with a hole. The three 3d/cube/* pairs are the supported 3-D volume prototypes and are restricted to the same axis-aligned cube STL. They progress from one HEXA_8 cell, to a fixed six-TETRA_4 decomposition, to an automatic tetrahedral mesh. Arbitrary multiple body
 loops, self-intersections, curved CAD entities, and general STL-to-volume
 meshing are not claimed.
 
 ## Retired legacy entry point
 
-The former root-level `script/run.py` workflow was removed because it wrote generated files into the source Case tree. Use the registered `circle_external_flow/cpp` and `circle_external_flow/python` Cases through the isolated development runner instead.
+The former root-level `script/run.py` workflow was removed because it wrote generated files into the source Case tree. Use the registered `2d/circle_external_flow/cpp` and `2d/circle_external_flow/python` Cases through the isolated development runner instead.
 
 ## 3D cube volume-mesh progression
 
@@ -164,4 +164,4 @@ patches constant while changing only the volume-mesh strategy. Start with
 `single_hex` for one HEXA_8 cell, continue to `six_tetrahedra` for an exact
 six-cell tetrahedral decomposition, and then use `automatic_tetrahedra` to
 let Gmsh choose an unstructured tetrahedral volume mesh. See
-[`cube/README.md`](cube/README.md) for each Case's acceptance contract.
+[`3d/cube/README.md`](cube/README.md) for each Case's acceptance contract.

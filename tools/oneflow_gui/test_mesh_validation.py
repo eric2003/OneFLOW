@@ -24,77 +24,77 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
-        (self.root / "grid/stl_to_gmsh/square/single_quad/cpp/script").mkdir(parents=True)
-        (self.root / "grid/stl_to_gmsh/square/two_triangles/cpp/script").mkdir(parents=True)
-        (self.root / "grid/stl_to_gmsh/square/two_triangles/python").mkdir(parents=True)
-        (self.root / "grid/stl_to_gmsh/square/automatic_triangles/cpp/script").mkdir(parents=True)
-        (self.root / "grid/stl_to_gmsh/square/automatic_triangles/python").mkdir(parents=True)
-        (self.root / "grid/stl_to_gmsh/circle_external_flow/cpp/script").mkdir(parents=True)
-        (self.root / "grid/stl_to_gmsh/cube_single_hex/cpp/script").mkdir(parents=True)
-        (self.root / "grid/stl_to_gmsh/square/single_quad/python").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/2d/square/single_quad/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/2d/square/two_triangles/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/2d/square/two_triangles/python").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/2d/square/automatic_triangles/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/2d/square/automatic_triangles/python").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/2d/circle_external_flow/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/3d/cube/single_hex/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/2d/square/single_quad/python").mkdir(parents=True)
         (self.root / "test/cfd/plateuns2dslau2/script").mkdir(parents=True)
         (self.root / "grid/case_catalog.json").write_text(json.dumps({
             "schema": "oneflow.case-catalog",
             "cases": [
                 {"id": "stl_to_gmsh_square", "title": "One Square QUAD_4 Cell",
-                 "directory": "grid/stl_to_gmsh/square/single_quad/cpp", "group": "STL to Gmsh", "dimension": 2},
+                 "directory": "grid/stl_to_gmsh/2d/square/single_quad/cpp", "group": "STL to Gmsh", "dimension": 2},
                 {"id": "stl_to_gmsh_square_two_triangles",
                  "title": "Square with Two TRI_3 Cells (Native C++)",
-                 "directory": "grid/stl_to_gmsh/square/two_triangles/cpp",
+                 "directory": "grid/stl_to_gmsh/2d/square/two_triangles/cpp",
                  "group": "STL to Gmsh", "dimension": 2},
                 {"id": "stl_to_gmsh_square_automatic_triangles",
                  "title": "Square with Automatic TRI_3 Refinement (Native C++)",
-                 "directory": "grid/stl_to_gmsh/square/automatic_triangles/cpp",
+                 "directory": "grid/stl_to_gmsh/2d/square/automatic_triangles/cpp",
                  "group": "STL to Gmsh", "dimension": 2},
                 {"id": "stl_to_gmsh_circle_external_flow",
                  "title": "Circle External Flow (Native C++)",
-                 "directory": "grid/stl_to_gmsh/circle_external_flow/cpp",
+                 "directory": "grid/stl_to_gmsh/2d/circle_external_flow/cpp",
                  "group": "STL to Gmsh", "dimension": 2},
                 {"id": "native_cube", "title": "Cube Single Hex (Native C++)",
-                 "directory": "grid/stl_to_gmsh/cube_single_hex/cpp",
+                 "directory": "grid/stl_to_gmsh/3d/cube/single_hex/cpp",
                  "group": "STL to Gmsh", "dimension": 3},
                 {"id": "python_cube", "title": "Cube Single Hex (Python Reference)",
-                 "directory": "grid/stl_to_gmsh/cube_single_hex/python",
+                 "directory": "grid/stl_to_gmsh/3d/cube/single_hex/python",
                  "group": "STL to Gmsh", "dimension": 3,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
                 {"id": "python_square", "title": "One Square QUAD_4 Cell (Python Reference)",
-                 "directory": "grid/stl_to_gmsh/square/single_quad/python",
+                 "directory": "grid/stl_to_gmsh/2d/square/single_quad/python",
                  "group": "STL to Gmsh", "dimension": 2,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
                 {"id": "stl_to_gmsh_python_square_two_triangles",
                  "title": "Square with Two TRI_3 Cells (Python Reference)",
-                 "directory": "grid/stl_to_gmsh/square/two_triangles/python",
+                 "directory": "grid/stl_to_gmsh/2d/square/two_triangles/python",
                  "group": "STL to Gmsh", "dimension": 2,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
                 {"id": "stl_to_gmsh_python_square_automatic_triangles",
                  "title": "Square with Automatic TRI_3 Refinement (Python Reference)",
-                 "directory": "grid/stl_to_gmsh/square/automatic_triangles/python",
+                 "directory": "grid/stl_to_gmsh/2d/square/automatic_triangles/python",
                  "group": "STL to Gmsh", "dimension": 2,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
             ],
         }), encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/square/single_quad/python/expected.json").write_text(
+        (self.root / "grid/stl_to_gmsh/2d/square/single_quad/python/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "square.msh"}}), encoding="utf-8"
         )
-        (self.root / "grid/stl_to_gmsh/circle_external_flow/cpp/script/grid.txt").write_text(
+        (self.root / "grid/stl_to_gmsh/2d/circle_external_flow/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/circle_external_flow.msh";\n',
             encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/cube_single_hex/cpp/script/grid.txt").write_text(
+        (self.root / "grid/stl_to_gmsh/3d/cube/single_hex/cpp/script/grid.txt").write_text(
             'string sourceGridFileName = "input/model.stl";\n'
             'string targetGridFileName = "results/cube_single_hex.msh";\n', encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/cube_single_hex/cpp/script/layout.json").write_text(
+        (self.root / "grid/stl_to_gmsh/3d/cube/single_hex/cpp/script/layout.json").write_text(
             json.dumps({"mesh_dimension": 3}), encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/square/single_quad/cpp/script/grid.txt").write_text(
+        (self.root / "grid/stl_to_gmsh/2d/square/single_quad/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/square.msh";\n', encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/square/two_triangles/cpp/script/grid.txt").write_text(
+        (self.root / "grid/stl_to_gmsh/2d/square/two_triangles/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/square_two_triangles.msh";\n', encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/square/two_triangles/python/expected.json").write_text(
+        (self.root / "grid/stl_to_gmsh/2d/square/two_triangles/python/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "square_two_triangles.msh"}}),
             encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/square/automatic_triangles/cpp/script/grid.txt").write_text(
+        (self.root / "grid/stl_to_gmsh/2d/square/automatic_triangles/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/square_automatic_triangles.msh";\n',
             encoding="utf-8")
-        (self.root / "grid/stl_to_gmsh/square/automatic_triangles/python/expected.json").write_text(
+        (self.root / "grid/stl_to_gmsh/2d/square/automatic_triangles/python/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "square_automatic_triangles.msh"}}),
             encoding="utf-8")
         (self.root / "test/cfd/plateuns2dslau2/script/cfd.txt").write_text(
@@ -196,7 +196,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertEqual(len(cases), 4)
         self.assertEqual(
-            cases[0]["directory"], "grid/stl_to_gmsh/circle_external_flow/cpp"
+            cases[0]["directory"], "grid/stl_to_gmsh/2d/circle_external_flow/cpp"
         )
         self.assertEqual(
             cases[0]["outputs"][0]["path"],
@@ -241,13 +241,13 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(len(native), 4)
         self.assertEqual(len(python), 4)
         self.assertEqual(
-            native[0]["directory"], "grid/stl_to_gmsh/square/two_triangles/cpp"
+            native[0]["directory"], "grid/stl_to_gmsh/2d/square/two_triangles/cpp"
         )
         self.assertEqual(
             native[0]["outputs"][0]["path"], "results/square_two_triangles.msh"
         )
         self.assertEqual(
-            python[0]["directory"], "grid/stl_to_gmsh/square/two_triangles/python"
+            python[0]["directory"], "grid/stl_to_gmsh/2d/square/two_triangles/python"
         )
         self.assertEqual(
             python[0]["outputs"][0]["path"], "results/square_two_triangles.msh"
@@ -265,9 +265,9 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(len(native), 4)
         self.assertEqual(len(python), 4)
         self.assertEqual(native[0]["directory"],
-                         "grid/stl_to_gmsh/square/automatic_triangles/cpp")
+                         "grid/stl_to_gmsh/2d/square/automatic_triangles/cpp")
         self.assertEqual(python[0]["directory"],
-                         "grid/stl_to_gmsh/square/automatic_triangles/python")
+                         "grid/stl_to_gmsh/2d/square/automatic_triangles/python")
         self.assertEqual(native[0]["outputs"][0]["path"],
                          "results/square_automatic_triangles.msh")
         self.assertEqual(python[0]["outputs"][0]["path"],
@@ -280,7 +280,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             self.root, "python_square", "laminar_flat_plate"
         )
         self.assertEqual(len(cases), 4)
-        self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/square/single_quad/python")
+        self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/2d/square/single_quad/python")
         self.assertEqual(cases[0]["outputs"], [
             {"id": "gmsh_mesh", "path": "results/square.msh"}
         ])
@@ -299,7 +299,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual([item["id"] for item in cases],
                          ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow",
                           "oneflow_cfd_solve"])
-        self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/cube_single_hex/cpp")
+        self.assertEqual(cases[0]["directory"], "grid/stl_to_gmsh/3d/cube/single_hex/cpp")
         self.assertEqual(cases[0]["runtime_directory"], "stl_to_gmsh")
         self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
         self.assertEqual(cases[3]["runtime_directory"], "oneflow_cfd_solve")
@@ -316,7 +316,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         ])
 
     def test_python_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
-        cube_dir = self.root / "grid/stl_to_gmsh/cube_single_hex/python"
+        cube_dir = self.root / "grid/stl_to_gmsh/3d/cube/single_hex/python"
         (cube_dir / "script").mkdir(parents=True, exist_ok=True)
         (cube_dir / "script/layout.json").write_text(
             json.dumps({"mesh_dimension": 3}), encoding="utf-8"
@@ -443,8 +443,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def test_reset_clears_only_the_selected_case_directory(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            selected = root / "mesh-validation/stl_to_gmsh/square"
-            sibling = root / "mesh-validation/stl_to_gmsh/square_2x2"
+            selected = root / "mesh-validation/stl_to_gmsh/2d/square"
+            sibling = root / "mesh-validation/stl_to_gmsh/2d/square_2x2"
             selected.mkdir(parents=True)
             sibling.mkdir(parents=True)
             (selected / "stale.txt").write_text("old", encoding="utf-8")

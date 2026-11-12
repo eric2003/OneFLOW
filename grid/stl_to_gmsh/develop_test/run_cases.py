@@ -13,30 +13,30 @@ from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 NATIVE_CASES = {
-    "square/single_quad/cpp": ("square/single_quad/cpp", "square.msh"),
-    "square/two_triangles/cpp": (
-        "square/two_triangles/cpp", "square_two_triangles.msh"
+    "2d/square/single_quad/cpp": ("2d/square/single_quad/cpp", "square.msh"),
+    "2d/square/two_triangles/cpp": (
+        "2d/square/two_triangles/cpp", "square_two_triangles.msh"
     ),
-    "square/automatic_triangles/cpp": (
-        "square/automatic_triangles/cpp", "square_automatic_triangles.msh"
+    "2d/square/automatic_triangles/cpp": (
+        "2d/square/automatic_triangles/cpp", "square_automatic_triangles.msh"
     ),
-    "square_2x2/cpp": ("square_2x2/cpp", "square_2x2.msh"),
-    "two_square_cells/cpp": ("two_square_cells/cpp", "two_square_cells.msh"),
-    "circle_external_flow/cpp": ("circle_external_flow/cpp", "circle_external_flow.msh"),
-    "cube/single_hex/cpp": ("cube/single_hex/cpp", "cube_single_hex.msh"),
-    "cube/six_tetrahedra/cpp": ("cube/six_tetrahedra/cpp", "cube_six_tetrahedra.msh"),
-    "cube/automatic_tetrahedra/cpp": ("cube/automatic_tetrahedra/cpp", "cube_automatic_tetrahedra.msh"),
+    "2d/square_2x2/cpp": ("2d/square_2x2/cpp", "square_2x2.msh"),
+    "2d/two_square_cells/cpp": ("2d/two_square_cells/cpp", "two_square_cells.msh"),
+    "2d/circle_external_flow/cpp": ("2d/circle_external_flow/cpp", "circle_external_flow.msh"),
+    "3d/cube/single_hex/cpp": ("3d/cube/single_hex/cpp", "cube_single_hex.msh"),
+    "3d/cube/six_tetrahedra/cpp": ("3d/cube/six_tetrahedra/cpp", "cube_six_tetrahedra.msh"),
+    "3d/cube/automatic_tetrahedra/cpp": ("3d/cube/automatic_tetrahedra/cpp", "cube_automatic_tetrahedra.msh"),
 }
 PYTHON_CASES = {
-    "square/single_quad/python": "square/single_quad/python",
-    "square/two_triangles/python": "square/two_triangles/python",
-    "square/automatic_triangles/python": "square/automatic_triangles/python",
-    "two_square_cells/python": "two_square_cells/python",
-    "circle_external_flow/python": "circle_external_flow/python",
-    "channel_internal_flow/python": "channel_internal_flow/python",
-    "cube/single_hex/python": "cube/single_hex/python",
-    "cube/six_tetrahedra/python": "cube/six_tetrahedra/python",
-    "cube/automatic_tetrahedra/python": "cube/automatic_tetrahedra/python",
+    "2d/square/single_quad/python": "2d/square/single_quad/python",
+    "2d/square/two_triangles/python": "2d/square/two_triangles/python",
+    "2d/square/automatic_triangles/python": "2d/square/automatic_triangles/python",
+    "2d/two_square_cells/python": "2d/two_square_cells/python",
+    "2d/circle_external_flow/python": "2d/circle_external_flow/python",
+    "2d/channel_internal_flow/python": "2d/channel_internal_flow/python",
+    "3d/cube/single_hex/python": "3d/cube/single_hex/python",
+    "3d/cube/six_tetrahedra/python": "3d/cube/six_tetrahedra/python",
+    "3d/cube/automatic_tetrahedra/python": "3d/cube/automatic_tetrahedra/python",
 }
 
 

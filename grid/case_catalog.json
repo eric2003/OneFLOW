@@ -266,7 +266,7 @@
     {
       "id": "stl_to_gmsh_square",
       "title": "STL to Gmsh: One Square QUAD_4 Cell (Native C++)",
-      "directory": "grid/stl_to_gmsh/square/single_quad/cpp",
+      "directory": "grid/stl_to_gmsh/2d/square/single_quad/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh",
@@ -275,7 +275,7 @@
     {
       "id": "stl_to_gmsh_square_two_triangles",
       "title": "STL to Gmsh: Square with Two TRI_3 Cells (Native C++)",
-      "directory": "grid/stl_to_gmsh/square/two_triangles/cpp",
+      "directory": "grid/stl_to_gmsh/2d/square/two_triangles/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh",
@@ -284,7 +284,7 @@
     {
       "id": "stl_to_gmsh_square_automatic_triangles",
       "title": "STL to Gmsh: Square with Automatic TRI_3 Refinement (Native C++)",
-      "directory": "grid/stl_to_gmsh/square/automatic_triangles/cpp",
+      "directory": "grid/stl_to_gmsh/2d/square/automatic_triangles/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh",
@@ -293,7 +293,7 @@
     {
       "id": "stl_to_gmsh_square_2x2",
       "title": "STL to Gmsh: Four Cells on the Same Square Geometry (Native C++)",
-      "directory": "grid/stl_to_gmsh/square_2x2/cpp",
+      "directory": "grid/stl_to_gmsh/2d/square_2x2/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh",
@@ -302,7 +302,7 @@
     {
       "id": "stl_to_gmsh_two_square_cells",
       "title": "STL to Gmsh: Two Adjacent Square Cells (Native C++)",
-      "directory": "grid/stl_to_gmsh/two_square_cells/cpp",
+      "directory": "grid/stl_to_gmsh/2d/two_square_cells/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh",
@@ -311,7 +311,7 @@
     {
       "id": "stl_to_gmsh_circle_external_flow",
       "title": "STL to Gmsh: 2D Circle External Flow (Native C++)",
-      "directory": "grid/stl_to_gmsh/circle_external_flow/cpp",
+      "directory": "grid/stl_to_gmsh/2d/circle_external_flow/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh",
@@ -320,7 +320,7 @@
     {
       "id": "stl_to_gmsh_python_square",
       "title": "STL to Gmsh: One Square QUAD_4 Cell (Python Reference)",
-      "directory": "grid/stl_to_gmsh/square/single_quad/python",
+      "directory": "grid/stl_to_gmsh/2d/square/single_quad/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",
@@ -331,7 +331,7 @@
     {
       "id": "stl_to_gmsh_python_square_two_triangles",
       "title": "STL to Gmsh: Square with Two TRI_3 Cells (Python Reference)",
-      "directory": "grid/stl_to_gmsh/square/two_triangles/python",
+      "directory": "grid/stl_to_gmsh/2d/square/two_triangles/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",
@@ -342,7 +342,7 @@
     {
       "id": "stl_to_gmsh_python_square_automatic_triangles",
       "title": "STL to Gmsh: Square with Automatic TRI_3 Refinement (Python Reference)",
-      "directory": "grid/stl_to_gmsh/square/automatic_triangles/python",
+      "directory": "grid/stl_to_gmsh/2d/square/automatic_triangles/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",
@@ -353,7 +353,7 @@
     {
       "id": "stl_to_gmsh_python_two_square_cells",
       "title": "STL to Gmsh: Two Adjacent Square Cells (Python Reference)",
-      "directory": "grid/stl_to_gmsh/two_square_cells/python",
+      "directory": "grid/stl_to_gmsh/2d/two_square_cells/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",
@@ -364,7 +364,7 @@
     {
       "id": "stl_to_gmsh_python_circle_external_flow",
       "title": "STL to Gmsh: 2D Circle External Flow (Python Reference)",
-      "directory": "grid/stl_to_gmsh/circle_external_flow/python",
+      "directory": "grid/stl_to_gmsh/2d/circle_external_flow/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",
@@ -375,7 +375,7 @@
     {
       "id": "stl_to_gmsh_python_channel_internal_flow",
       "title": "STL to Gmsh: 2D Channel Internal Flow (Python Reference)",
-      "directory": "grid/stl_to_gmsh/channel_internal_flow/python",
+      "directory": "grid/stl_to_gmsh/2d/channel_internal_flow/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",
@@ -386,7 +386,7 @@
     {
       "id": "stl_to_gmsh_cube_single_hex",
       "title": "STL to Gmsh: Cube with One HEXA_8 Cell (Native C++)",
-      "directory": "grid/stl_to_gmsh/cube/single_hex/cpp",
+      "directory": "grid/stl_to_gmsh/3d/cube/single_hex/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh",
@@ -395,7 +395,7 @@
     {
       "id": "stl_to_gmsh_python_cube_single_hex",
       "title": "STL to Gmsh: Cube with One HEXA_8 Cell (Python Reference)",
-      "directory": "grid/stl_to_gmsh/cube/single_hex/python",
+      "directory": "grid/stl_to_gmsh/3d/cube/single_hex/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",
@@ -406,7 +406,7 @@
     {
       "id": "stl_to_gmsh_cube_six_tetrahedra",
       "title": "STL to Gmsh: Cube with Six TETRA_4 Cells (Native C++)",
-      "directory": "grid/stl_to_gmsh/cube/six_tetrahedra/cpp",
+      "directory": "grid/stl_to_gmsh/3d/cube/six_tetrahedra/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh",
@@ -415,7 +415,7 @@
     {
       "id": "stl_to_gmsh_python_cube_six_tetrahedra",
       "title": "STL to Gmsh: Cube with Six TETRA_4 Cells (Python Reference)",
-      "directory": "grid/stl_to_gmsh/cube/six_tetrahedra/python",
+      "directory": "grid/stl_to_gmsh/3d/cube/six_tetrahedra/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",
@@ -426,7 +426,7 @@
     {
       "id": "stl_to_gmsh_cube_automatic_tetrahedra",
       "title": "STL to Gmsh: Cube with Automatic TETRA_4 Refinement (Native C++)",
-      "directory": "grid/stl_to_gmsh/cube/automatic_tetrahedra/cpp",
+      "directory": "grid/stl_to_gmsh/3d/cube/automatic_tetrahedra/cpp",
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh",
@@ -435,7 +435,7 @@
     {
       "id": "stl_to_gmsh_python_cube_automatic_tetrahedra",
       "title": "STL to Gmsh: Cube with Automatic TETRA_4 Refinement (Python Reference)",
-      "directory": "grid/stl_to_gmsh/cube/automatic_tetrahedra/python",
+      "directory": "grid/stl_to_gmsh/3d/cube/automatic_tetrahedra/python",
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",

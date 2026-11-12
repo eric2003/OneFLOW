@@ -19,13 +19,13 @@ Progression
    * - Case
      - Expected volume mesh
      - Construction contract
-   * - ``cube/single_hex``
+   * - ``3d/cube/single_hex``
      - 1 HEXA_8, 6 QUAD_4 boundary faces
      - Transfinite curves, surfaces and volume; recombine surface and volume.
-   * - ``cube/six_tetrahedra``
+   * - ``3d/cube/six_tetrahedra``
      - 6 TETRA_4, 12 TRI_3 boundary facets
      - Transfinite curves, surfaces and volume; do not recombine.
-   * - ``cube/automatic_tetrahedra``
+   * - ``3d/cube/automatic_tetrahedra``
      - Gmsh-generated TETRA_4 count
      - No transfinite constraints; ``mesh_size`` controls characteristic size.
 

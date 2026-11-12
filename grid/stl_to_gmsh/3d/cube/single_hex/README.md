@@ -17,7 +17,7 @@ Both native C++ and Python reference implementations are registered in the
 Case catalog and appear in the 3D sections of Run Development Cases, Python
 Reference Cases and Mesh-to-CFD Validation. Runtime outputs are staged outside
 the repository. See [the cube progression](../README.md) and
-[Development Case Methodology](../../../../doc/source/development_case_methodology.rst).
+[Development Case Methodology](../../../../../doc/source/development_case_methodology.rst).
 
 This Case demonstrates only one axis-aligned cube and one HEXA_8 cell. It is
 not a general STL-to-hexahedral mesher or a numerical-accuracy benchmark.
