@@ -61,7 +61,7 @@ jobs:
       - name: Install GUI test dependency
         run: python -m pip install -r tools/requirements-gui.txt
       - name: Compile Python tooling
-        run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout grid/stl grid/stl_to_gmsh tools/oneflow_gui tools/verification
+        run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout grid/stl_import grid/stl_to_gmsh tools/oneflow_gui tools/verification
       - name: Test case catalog
         run: python tools/test_mesh_cases.py
       - name: Test planar STL to Gmsh geometry generation
