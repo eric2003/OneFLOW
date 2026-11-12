@@ -111,7 +111,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             stl = root / "unit_sphere.stl"
-            stl.write_text("solid sphere\\nendsolid sphere\\n", encoding="ascii")
+            stl.write_text("solid sphere\nendsolid sphere\n", encoding="ascii")
             output = root / "sphere.msh"
             dialog = StlToGmshDialog(self.repository_root)
             try:
@@ -139,7 +139,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             stl = root / "surface.stl"
-            stl.write_text("solid surface\\nendsolid surface\\n", encoding="ascii")
+            stl.write_text("solid surface\nendsolid surface\n", encoding="ascii")
             dialog = StlToGmshDialog(self.repository_root)
             try:
                 dialog.stl_path.setText(str(stl))
