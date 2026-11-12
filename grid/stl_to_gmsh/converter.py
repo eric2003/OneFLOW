@@ -415,11 +415,18 @@ def _closed_surface_volume_geo(
     stl: Path, triangles: list[Triangle], config: dict, tolerance: float
 ) -> tuple[str, dict]:
     topology = validate_closed_sphere_surface(triangles, tolerance)
-    mesh_size = float(config.get("mesh_size", 0.25))
+    legacy_mesh_size = float(config.get("mesh_size", 0.25))
+    mesh_size_min = float(config.get("mesh_size_min", legacy_mesh_size))
+    mesh_size_max = float(config.get("mesh_size_max", legacy_mesh_size))
     surface_angle = float(config.get("surface_angle_degrees", 40.0))
     curve_angle = float(config.get("curve_angle_degrees", 180.0))
-    if not math.isfinite(mesh_size) or mesh_size <= 0:
-        raise Stl2DError("mesh_size must be positive and finite")
+    if (
+        not math.isfinite(mesh_size_min) or mesh_size_min <= 0
+        or not math.isfinite(mesh_size_max) or mesh_size_max <= 0
+    ):
+        raise Stl2DError("mesh_size_min and mesh_size_max must be positive and finite")
+    if mesh_size_min > mesh_size_max:
+        raise Stl2DError("mesh_size_min must not exceed mesh_size_max")
     if not math.isfinite(surface_angle) or not 0 < surface_angle < 180:
         raise Stl2DError("surface_angle_degrees must be between 0 and 180")
     if not math.isfinite(curve_angle) or not 0 < curve_angle <= 180:
@@ -448,8 +455,8 @@ def _closed_surface_volume_geo(
         'surfaceEntities[] = Surface{:};',
         'Surface Loop(1) = {surfaceEntities[]};',
         'Volume(1) = {1};',
-        f'Mesh.MeshSizeMin = {mesh_size:.17g};',
-        f'Mesh.MeshSizeMax = {mesh_size:.17g};',
+        f'Mesh.MeshSizeMin = {mesh_size_min:.17g};',
+        f'Mesh.MeshSizeMax = {mesh_size_max:.17g};',
         'Mesh.MeshSizeFromPoints = 1;',
         'Mesh.MeshSizeExtendFromBoundary = 1;',
         f'Physical Surface("{boundary_name}") = {{surfaceEntities[]}};',
@@ -460,7 +467,8 @@ def _closed_surface_volume_geo(
         **topology,
         "surface_name": boundary_name,
         "volume_name": volume_name,
-        "mesh_size": mesh_size,
+        "mesh_size_min": mesh_size_min,
+        "mesh_size_max": mesh_size_max,
         "surface_angle_degrees": surface_angle,
         "curve_angle_degrees": curve_angle,
     }
