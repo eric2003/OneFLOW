@@ -117,10 +117,15 @@ class ContractCatalogTest(unittest.TestCase):
                       contract.implementation_paths)
         self.assertIn("doc/source/stl_to_gmsh_sphere.rst",
                       contract.documentation_paths)
-        self.assertEqual(len(contract.evidence), 2)
+        self.assertEqual(len(contract.evidence), 3)
+        self.assertIn("generate_volume_mesh.py", contract.implementation_paths)
+        self.assertIn("doc/source/stl_to_gmsh_commands.rst",
+                      contract.documentation_paths)
+        self.assertIn("--mesh-size-min 0.10 --mesh-size-max 0.20",
+                      contract.overview)
         resolutions = resolve_contract_evidence(self.repository_root, contract)
         self.assertEqual([item.status for item in resolutions],
-                         ["resolved", "resolved"])
+                         ["resolved", "resolved", "resolved"])
 
     def test_stl_native_io_contract_is_available_to_mesh_workbench(self) -> None:
         definitions, issues = load_contract_catalog(self.repository_root)
