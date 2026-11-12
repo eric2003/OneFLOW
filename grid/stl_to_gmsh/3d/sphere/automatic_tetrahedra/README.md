@@ -18,3 +18,5 @@ genus-zero STL surface, non-empty first-order TETRA_4 volume cells, matching
 TRI_3 exterior facets, no QUAD_4/HEXA_8 cells, and the `wall` and
 `fluid_domain` Physical Groups. Exact node and element counts are deliberately
 not fixed because they depend on Gmsh version and meshing algorithm.
+
+For the complete generation method, commands, STL input contract and validation limits, see [`stl_to_gmsh_sphere`](../../../../../../doc/source/stl_to_gmsh_sphere.rst) and the Mesh Knowledge entry `mesh/stl-unit-sphere-to-gmsh`.
