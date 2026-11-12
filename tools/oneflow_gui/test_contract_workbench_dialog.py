@@ -148,6 +148,8 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             sphere_overview = dialog.overview_view.toPlainText()
             self.assertIn("unit-sphere", sphere_overview)
             self.assertIn("partially_verified", sphere_overview)
+            self.assertIn("generate_volume_mesh.py", sphere_overview)
+            self.assertIn("--mesh-size-min 0.10 --mesh-size-max 0.20", sphere_overview)
             self.assertIn(
                 "Geometry reconstruction and volume creation",
                 dialog.documentation_view.toPlainText(),
