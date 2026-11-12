@@ -143,7 +143,7 @@ class StlToGmshDialog(QDialog):
         form.addRow("Advanced size bounds", size_row)
 
         self.output_path = QLineEdit(
-            str(UserDataPaths.discover().root / "mesh-generation" / "sphere.msh")
+            str(UserDataPaths.discover().mesh_generation / "sphere.msh")
         )
         output_row = QHBoxLayout()
         output_row.addWidget(self.output_path, 1)
