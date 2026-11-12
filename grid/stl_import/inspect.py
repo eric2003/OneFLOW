@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from grid.stl.reader import StlReadError, is_binary_stl, read_stl
+from grid.stl_import.reader import StlReadError, is_binary_stl, read_stl
 
 def inspect(path: Path, tolerance: float = 1e-9) -> dict:
     if not math.isfinite(tolerance) or tolerance < 0:

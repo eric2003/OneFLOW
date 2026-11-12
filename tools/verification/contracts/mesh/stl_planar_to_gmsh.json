@@ -16,7 +16,7 @@
   "implementation": {
     "source_paths": [
       "grid/stl_to_gmsh/converter.py",
-      "grid/stl/fixtures/square.stl",
+      "grid/stl_import/fixtures/square.stl",
       "codes/geometry/include/StlMeshIO.h",
       "codes/geometry/src/StlMeshIO.cpp",
       "codes/geometry/include/GridTypes.h",
@@ -107,7 +107,7 @@
   },
   "documentation": {
     "paths": [
-      "grid/stl/README.md",
+      "grid/stl_import/README.md",
       "grid/stl_to_gmsh/README.md",
       "doc/source/stl_to_gmsh_2d.rst",
       "doc/source/gmsh_interface.rst",

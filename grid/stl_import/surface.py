@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from collections import Counter, defaultdict
 from typing import Iterable
-from grid.stl.reader import Point, Triangle
+from grid.stl_import.reader import Point, Triangle
 
 class StlGeometryError(ValueError):
     """Unsupported or invalid STL surface geometry."""

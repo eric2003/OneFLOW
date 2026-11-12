@@ -10,8 +10,8 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from grid.stl.reader import StlReadError, is_binary_stl, read_stl
-from grid.stl.surface import StlGeometryError, extract_boundary
+from grid.stl_import.reader import StlReadError, is_binary_stl, read_stl
+from grid.stl_import.surface import StlGeometryError, extract_boundary
 
 
 def _format(path: Path) -> str:

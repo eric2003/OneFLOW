@@ -6,7 +6,7 @@ on:
     paths:
       - "tools/mesh_cases.py"
       - "tools/mesh_layout/**"
-      - "grid/stl/**"
+      - "grid/stl_import/**"
       - "grid/stl_to_gmsh/**"
       - "tests/tools/**"
       - "tests/python/**"
@@ -23,7 +23,7 @@ on:
     paths:
       - "tools/mesh_cases.py"
       - "tools/mesh_layout/**"
-      - "grid/stl/**"
+      - "grid/stl_import/**"
       - "grid/stl_to_gmsh/**"
       - "tests/tools/**"
       - "tests/python/**"

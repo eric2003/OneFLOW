@@ -661,7 +661,7 @@ STL surface format adapter
 STL is a triangle-surface interchange format, not a volume-mesh or CFD
 boundary-condition format. Its native reader and writer belong in the C++
 Geometry module. They must not be implemented only in the Python conversion
-utility under grid/stl, and they must not depend on Gmsh or CGNS.
+utility under grid/stl_import, and they must not depend on Gmsh or CGNS.
 
 The native I/O boundary is described in the :doc:`stl_mesh_io` page and
 catalogued as mesh/stl-native-io in the Mesh Contract Workbench. The first C++

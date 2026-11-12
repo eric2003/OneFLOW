@@ -138,7 +138,7 @@ Example
 
 .. code-block:: bash
 
-   python grid/stl_to_gmsh/converter.py grid/stl/fixtures/square.stl --boundaries grid/stl/fixtures/square.boundary.json --geo /tmp/square.geo --gmsh gmsh --msh /tmp/square.msh
+   python grid/stl_to_gmsh/converter.py grid/stl_import/fixtures/square.stl --boundaries grid/stl_import/fixtures/square.boundary.json --geo /tmp/square.geo --gmsh gmsh --msh /tmp/square.msh
 
 Parser and geometry-generation tests do not require Gmsh:
 

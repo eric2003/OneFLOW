@@ -22,7 +22,7 @@ It does not own planar topology reconstruction or STL-to-Gmsh conversion.
 ## Inspection
 
 ```sh
-python grid/stl/inspect.py --input path/to/model.stl --output path/to/report.json
+python grid/stl_import/inspect.py --input path/to/model.stl --output path/to/report.json
 ```
 
 The JSON report contains the detected representation, triangle count,
@@ -35,7 +35,7 @@ command's scope.
 Run a catalogued Case through the staging-aware runner:
 
 ```sh
-python grid/stl/run_case.py --case-directory <staged-case-directory>
+python grid/stl_import/run_case.py --case-directory <staged-case-directory>
 ```
 
 Do not pass a checked-in source Case directory directly: generated results
