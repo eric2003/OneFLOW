@@ -103,8 +103,9 @@ def main() -> int:
     )
     parser.add_argument("--stl", type=Path, required=True, help="input closed STL surface")
     parser.add_argument("--output", type=Path, required=True, help="output .msh file")
-    parser.add_argument("--mesh-size-min", type=float, required=True)
-    parser.add_argument("--mesh-size-max", type=float, required=True)
+    parser.add_argument("--mesh-size", type=float, help="set minimum and maximum size to one value")
+    parser.add_argument("--mesh-size-min", type=float, help="minimum target characteristic length")
+    parser.add_argument("--mesh-size-max", type=float, help="maximum target characteristic length")
     parser.add_argument("--gmsh", default=shutil.which("gmsh"), help="Gmsh executable")
     parser.add_argument("--boundary-name", default="wall")
     parser.add_argument("--volume-name", default="fluid_domain")
@@ -113,10 +114,18 @@ def main() -> int:
     args = parser.parse_args()
     if not args.gmsh:
         parser.error("Gmsh was not found; install it or pass --gmsh")
+    if args.mesh_size is not None:
+        if args.mesh_size_min is not None or args.mesh_size_max is not None:
+            parser.error("use --mesh-size OR the --mesh-size-min/--mesh-size-max pair")
+        mesh_size_min = mesh_size_max = args.mesh_size
+    else:
+        if args.mesh_size_min is None or args.mesh_size_max is None:
+            parser.error("provide --mesh-size, or provide both --mesh-size-min and --mesh-size-max")
+        mesh_size_min, mesh_size_max = args.mesh_size_min, args.mesh_size_max
     try:
         generate(
             args.stl, args.output, args.gmsh,
-            args.mesh_size_min, args.mesh_size_max,
+            mesh_size_min, mesh_size_max,
             args.boundary_name, args.volume_name,
             args.surface_angle, args.curve_angle,
         )
