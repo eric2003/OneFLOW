@@ -262,7 +262,7 @@ class StlToGmshDialog(QDialog):
         if path:
             self.gmsh_path.setText(path)
 
-    def _density_changed(self) -> None:
+    def _density_changed(self, *_args) -> None:
         preset = self.density.currentData()
         sizes = {"coarse": "0.40", "medium": "0.20", "fine": "0.10"}
         custom = preset == "custom"
