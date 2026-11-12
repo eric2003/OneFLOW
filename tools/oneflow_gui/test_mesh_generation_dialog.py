@@ -12,6 +12,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import QApplication, QPushButton
 from tools.oneflow_gui.application_settings import ApplicationSettings
+from tools.oneflow_gui.user_data_paths import UserDataPaths
 
 from tools.oneflow_gui.mesh_generation_dialog import (
     MeshGenerationDialog,
@@ -92,8 +93,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             self.assertEqual(dialog.geometry_preset.currentData(), "sphere")
             self.assertEqual(
                 Path(dialog.output_path.text()),
-                __import__("tools.oneflow_gui.user_data_paths", fromlist=["UserDataPaths"])
-                .UserDataPaths.discover().mesh_generation / "sphere.msh",
+                UserDataPaths.discover().mesh_generation / "sphere.msh",
             )
         finally:
             dialog.close()
