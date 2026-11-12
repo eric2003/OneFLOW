@@ -7,7 +7,7 @@ from grid.stl_to_gmsh.converter import (
 )
 
 ROOT = Path(__file__).resolve().parents[3]
-DATA = ROOT / "grid" / "stl_import" / "fixtures"
+DATA = ROOT / "tests" / "fixtures" / "stl_to_gmsh" / "legacy_square"
 
 class Stl2DGmshTest(unittest.TestCase):
     def test_tetrahedral_boundary_validation_accepts_arbitrary_two_cell_mesh(self):

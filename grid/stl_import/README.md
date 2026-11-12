@@ -41,11 +41,14 @@ python grid/stl_import/run_case.py --case-directory <staged-case-directory>
 Do not pass a checked-in source Case directory directly: generated results
 must remain outside the repository.
 
-## Shared fixtures
+## Test data ownership
 
-`fixtures/` contains small stable STL inputs used by focused unit tests. A
-runtime Case keeps its own `input/model.stl` so it remains independently
-runnable and understandable.
+Runtime and development Cases keep their own `input/model.stl` so each Case
+remains independently runnable and understandable. Test-only compatibility
+data belongs under `tests/fixtures/`, not in this production STL I/O module.
+The legacy square boundary-sidecar fixture used by the STL-to-Gmsh converter
+tests is maintained at
+`tests/fixtures/stl_to_gmsh/legacy_square/`.
 
 ## Related conversion workflow
 
