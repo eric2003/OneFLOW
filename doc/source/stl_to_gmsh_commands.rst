@@ -9,14 +9,14 @@ One mesh size
 
 .. code-block:: console
 
-   python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output $HOME/.oneflow/mesh-generation/sphere.msh --mesh-size 0.20
+   python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output "$HOME/.oneflow/mesh-generation/sphere.msh" --mesh-size 0.20
 
 Mesh-size range
 ---------------
 
 .. code-block:: console
 
-   python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output $HOME/.oneflow/mesh-generation/sphere.msh --mesh-size-min 0.10 --mesh-size-max 0.20
+   python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output "$HOME/.oneflow/mesh-generation/sphere.msh" --mesh-size-min 0.10 --mesh-size-max 0.20
 
 The first command sets both Gmsh size limits to 0.20. The second allows Gmsh
 to choose characteristic sizes in the 0.10 to 0.20 range. These are meshing
@@ -29,14 +29,14 @@ Use the same STL input for each run and change only the size:
 
 .. code-block:: console
 
-   python grid/stl_to_gmsh/generate_volume_mesh.py --stl grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl --output $HOME/.oneflow/mesh-generation/sphere_coarse.msh --mesh-size 0.40
-   python grid/stl_to_gmsh/generate_volume_mesh.py --stl grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl --output $HOME/.oneflow/mesh-generation/sphere_medium.msh --mesh-size 0.20
-   python grid/stl_to_gmsh/generate_volume_mesh.py --stl grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl --output $HOME/.oneflow/mesh-generation/sphere_fine.msh --mesh-size 0.10
+   python grid/stl_to_gmsh/generate_volume_mesh.py --stl grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl --output "$HOME/.oneflow/mesh-generation/sphere_coarse.msh" --mesh-size 0.40
+   python grid/stl_to_gmsh/generate_volume_mesh.py --stl grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl --output "$HOME/.oneflow/mesh-generation/sphere_medium.msh" --mesh-size 0.20
+   python grid/stl_to_gmsh/generate_volume_mesh.py --stl grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl --output "$HOME/.oneflow/mesh-generation/sphere_fine.msh" --mesh-size 0.10
 
 Outputs
 -------
 
-For ``--output $HOME/.oneflow/mesh-generation/sphere.msh``, the command writes:
+For ``--output "$HOME/.oneflow/mesh-generation/sphere.msh"``, the command writes:
 
 * ``$HOME/.oneflow/mesh-generation/sphere.msh`` — MSH 4.1 tetrahedral volume mesh.
 * ``results/sphere.geo`` — generated Gmsh geometry script.
