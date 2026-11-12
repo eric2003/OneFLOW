@@ -185,6 +185,7 @@ Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动�
 
 * **Mesh Layout Editor**：编辑结构化网格布局，保留现有模板、边界设置、预览和布局编译能力。
 * **STL to Gmsh**：从用户选择的封闭 STL 表面生成三维四面体体网格。
+* **Mesh Knowledge**：进入现有 Contract Workbench 的 Mesh 知识域，浏览网格原理、格式、实现代码和验证证据。
 
 在 STL to Gmsh 页面中，先选择 STL 文件和输出文件，再选择 Coarse、Medium、Fine
 或自定义最小/最大网格尺寸。可以指定 Gmsh 可执行文件；留空时通过系统 PATH
