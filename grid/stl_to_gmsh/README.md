@@ -1,5 +1,25 @@
 # STL to Gmsh: native OneFLOW Cases
 
+## Direct 3-D STL volume mesh command
+
+Generate a tetrahedral volume mesh from a closed STL surface:
+
+```powershell
+python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/surface.stl --output results/volume.msh --mesh-size 0.20
+```
+
+To allow a size interval, specify both bounds:
+
+```powershell
+python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/surface.stl --output results/volume.msh --mesh-size-min 0.10 --mesh-size-max 0.20
+```
+
+Use the same STL and vary `--mesh-size` (for example 0.40, 0.20, 0.10)
+to compare coarse, medium and fine meshes. The command writes MSH, GEO and
+JSON validation-report files. See
+[`stl_to_gmsh_commands`](../../doc/source/stl_to_gmsh_commands.rst).
+
+
 This directory contains native C++ STL-to-Gmsh Cases and independent Python
 reference Cases. The native Cases run through the standard OneFLOW Grid task
 and the C++ Geometry conversion pipeline.
