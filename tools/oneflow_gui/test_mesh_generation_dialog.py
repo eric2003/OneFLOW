@@ -11,6 +11,7 @@ from unittest.mock import patch
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtWidgets import QApplication, QPushButton
+from tools.oneflow_gui.application_settings import ApplicationSettings
 
 from tools.oneflow_gui.mesh_generation_dialog import (
     MeshGenerationDialog,
@@ -23,6 +24,39 @@ class MeshGenerationDialogTest(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.application = QApplication.instance() or QApplication([])
         cls.repository_root = Path(__file__).resolve().parents[2]
+
+    def test_home_window_exposes_mesh_generation_as_single_entry(self) -> None:
+        from tools.oneflow_gui.home_window import WorkbenchHomeWindow
+
+        settings = ApplicationSettings(
+            repository_root=self.repository_root,
+            build_configuration="Debug",
+            executable_path="",
+            run_mode="single_case",
+        )
+        with patch(
+            "tools.oneflow_gui.home_window.ApplicationSettings.load",
+            return_value=settings,
+        ), patch("tools.oneflow_gui.home_window.QTimer.singleShot"):
+            window = WorkbenchHomeWindow(self.repository_root)
+        try:
+            buttons = window.findChildren(QPushButton)
+            mesh_buttons = [
+                button.text() for button in buttons
+                if "Mesh" in button.text()
+            ]
+            self.assertIn("Mesh Generation...", mesh_buttons)
+            self.assertNotIn("Mesh Layout Editor...", mesh_buttons)
+            with patch(
+                "tools.oneflow_gui.home_window.MeshGenerationDialog"
+            ) as dialog_type:
+                window._open_mesh_generation()
+            dialog_type.assert_called_once_with(
+                self.repository_root.resolve(), window
+            )
+            dialog_type.return_value.exec.assert_called_once()
+        finally:
+            window.close()
 
     def test_mesh_generation_hub_exposes_layout_and_stl_tools(self) -> None:
         dialog = MeshGenerationDialog(self.repository_root)
