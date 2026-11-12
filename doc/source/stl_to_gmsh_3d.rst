@@ -46,6 +46,11 @@ wall patch; there is no inlet or outlet, so this run verifies the complete
 mesh-to-runtime execution path, not an external-flow solution or a physical
 CFD accuracy benchmark.
 
+The sphere's detailed generation contract, runnable commands, input STL
+requirements and verification boundaries are documented in
+:doc:`stl_to_gmsh_sphere` and exposed as a dedicated Mesh Knowledge entry in
+the Contract Workbench.
+
 Unit-sphere geometry contract
 -----------------------------
 
