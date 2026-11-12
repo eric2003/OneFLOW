@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from grid.stl.stl_to_gmsh import convert, inspect_msh4  # noqa: E402
+from grid.stl_to_gmsh.converter import convert, inspect_msh4  # noqa: E402
 
 def run_case(case_directory: Path, gmsh: str) -> dict:
     case = case_directory.expanduser().resolve()

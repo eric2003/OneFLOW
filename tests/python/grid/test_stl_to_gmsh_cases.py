@@ -13,7 +13,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tools"))
 
 from mesh_cases import load_catalog, validate_case  # noqa: E402
-from grid.stl.stl_to_gmsh import convert, inspect_msh4  # noqa: E402
+from grid.stl_to_gmsh.converter import convert, inspect_msh4  # noqa: E402
 from grid.stl_to_gmsh.develop_test.run_cases import NATIVE_CASES, PYTHON_CASES  # noqa: E402
 
 EXPECTED_IDS = {
@@ -358,7 +358,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             sidecar.pop("recombine_surface")
             sidecar["mesh_size"] = 0.25
             sidecar_path.write_text(json.dumps(sidecar), encoding="utf-8")
-            from grid.stl.stl_to_gmsh import (
+            from grid.stl_to_gmsh.converter import (
                 build_geo, extract_boundary, read_stl, _read_sidecar,
             )
             loop = extract_boundary(read_stl(source / "input/model.stl"), 1.0e-10)
@@ -398,7 +398,7 @@ class StlToGmshCaseTest(unittest.TestCase):
                 layout = dict(base, mesh_size=mesh_size)
                 sidecar = root / f"layout_{index}.json"
                 sidecar.write_text(json.dumps(layout), encoding="utf-8")
-                from grid.stl.stl_to_gmsh import build_geo, extract_boundary, read_stl, _read_sidecar
+                from grid.stl_to_gmsh.converter import build_geo, extract_boundary, read_stl, _read_sidecar
                 loop = extract_boundary(read_stl(source / "input/model.stl"), 1.0e-10)
                 config, assignments = _read_sidecar(sidecar, loop, 1.0e-10)
                 geo = root / f"automatic_{index}.geo"
