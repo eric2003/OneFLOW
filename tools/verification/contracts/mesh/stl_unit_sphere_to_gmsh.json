@@ -5,7 +5,7 @@
   "domain": "mesh",
   "kind": "mesh_generation_pipeline",
   "status": "partially_verified",
-  "overview": "Generates one unstructured tetrahedral volume mesh from a closed, triangulated unit-sphere STL. The native C++ and Python reference Cases validate the shell, classify and reconstruct Gmsh surface patches, create one surface loop and volume, and emit MSH 4.1 with a wall Physical Surface and fluid_domain Physical Volume.",
+  "overview": "QUICK COMMAND — closed STL to a 3-D TETRA_4 volume mesh:\npython grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output results/sphere.msh --mesh-size 0.20\n\nSIZE RANGE — allow Gmsh to choose between lower and upper target sizes:\npython grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output results/sphere.msh --mesh-size-min 0.10 --mesh-size-max 0.20\n\nOne --mesh-size value sets both limits. Reuse the same STL and change only the size for coarse/medium/fine meshes. The command writes .msh, .geo and .report.json outputs. The native C++ and Python reference Cases remain available for the complete OneFLOW validation workflow.",
   "principle": "STL is a discrete triangle shell, not a CAD sphere and not a volume. A valid input for this Case must be one connected, closed, consistently oriented, non-degenerate genus-zero manifold shell. Gmsh ClassifySurfaces partitions the discrete facets into parametrizable patches; CreateGeometry reconstructs those patches; a Surface Loop and Volume define the enclosed fluid region. Physical Groups are dimension-tagged mesh semantics: wall is a dimension-2 exterior patch and fluid_domain is a dimension-3 volume. Neither name defines solver state data.",
   "architecture": "STL facets -> shell topology/orientation validation -> Gmsh merge and ClassifySurfaces -> parametrizable surface reconstruction -> one Surface Loop -> one Volume -> Physical Surface wall and Physical Volume fluid_domain -> first-order tetrahedral MSH 4.1. Native C++ runs through the OneFLOW Grid task and GridConversion; Python uses the shared STL surface utilities and converter as an independent reference. Both paths are registered as Cases and feed the shared Mesh-to-CFD Validation graph.",
   "references": [
@@ -16,6 +16,7 @@
   ],
   "implementation": {
     "source_paths": [
+      "grid/stl_to_gmsh/generate_volume_mesh.py",
       "codes/geometry/src/GridConversion.cpp",
       "grid/stl_import/surface.py",
       "grid/stl_to_gmsh/converter.py",
@@ -36,6 +37,7 @@
   },
   "documentation": {
     "paths": [
+      "doc/source/stl_to_gmsh_commands.rst",
       "doc/source/stl_to_gmsh_sphere.rst",
       "doc/source/stl_to_gmsh_3d.rst",
       "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/README.md",
@@ -49,7 +51,8 @@
       "Native C++ and Python reference Cases consume byte-identical sphere STL inputs and share the same geometry and mesh-size contract.",
       "The producer reconstructs one closed Gmsh surface loop and one volume and emits first-order tetrahedral MSH 4.1 with wall and fluid_domain Physical Groups.",
       "The sphere mesh-size sweep varies target characteristic length at 0.40, 0.20 and 0.10 without asserting exact element counts.",
-      "The Mesh-to-CFD Workbench exposes the native and Python sphere Cases as a 3-D CFD smoke chain."
+      "The Mesh-to-CFD Workbench exposes the native and Python sphere Cases as a 3-D CFD smoke chain.",
+      "The direct STL volume mesh command exposes one-size and independent minimum/maximum characteristic-length controls and validates TETRA_4 volume output."
     ],
     "does_not_prove": [
       "The piecewise-planar STL is an exact analytic sphere or preserves exact CAD curvature.",
@@ -71,6 +74,12 @@
       "reference": "MeshValidationCatalogTest.test_unit_sphere_cases_run_the_complete_3d_cfd_smoke_chain",
       "status": "linked_not_executed",
       "scope": "tools/oneflow_gui/test_mesh_validation.py; checks both sphere Cases produce the four-stage STL-to-Gmsh, Gmsh-to-CGNS, CGNS-to-OneFLOW and 3-D CFD smoke graph."
+    },
+    {
+      "kind": "python_test",
+      "reference": "Stl2DGmshTest.test_direct_stl_volume_mesh_command_generates_tetrahedra",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_geometry.py; executes the direct command against the reference sphere STL when Gmsh is available and checks TETRA_4/TRI_3 output and report."
     }
   ],
   "group": {
