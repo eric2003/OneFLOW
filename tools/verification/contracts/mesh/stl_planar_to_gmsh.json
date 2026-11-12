@@ -22,7 +22,7 @@
       "codes/geometry/include/GridTypes.h",
       "codes/geometry/src/GridTypes.cpp",
       "codes/geometry/src/GridConversion.cpp",
-      "grid/stl_to_gmsh/develop_test/run_cases.py",
+      "grid/stl_to_gmsh/run_cases.py",
       "grid/stl_to_gmsh/run_python_case.py",
       "grid/stl_to_gmsh/3d/cube/README.md",
       "grid/stl_to_gmsh/3d/cube/single_hex/README.md",
