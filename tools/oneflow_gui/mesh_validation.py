@@ -117,7 +117,7 @@ def build_mesh_validation_cases(
         raise ValueError(
             f"Case {mesh_case_id!r} is not enabled for Mesh-to-CFD validation."
         )
-    if validation_scope not in (True, "mesh_handoff"):
+    if validation_scope not in (True, "mesh_handoff", "cfd_smoke"):
         raise ValueError(
             f"Unsupported Mesh-to-CFD validation scope for {mesh_case_id!r}: "
             f"{validation_scope!r}"
@@ -395,9 +395,13 @@ def run_mesh_validation(
             "mesh conversion and OneFLOW ingestion, not an external-flow CFD solve."
             if mesh_entry.get("mesh_validation") == "mesh_handoff"
             else (
-                "3D single-cell cube validation ends after OneFLOW grid and boundary-map handoff; it is not a CFD accuracy test."
-                if len(cases) == 3
-                else "The selected CFD consumer is a runtime smoke test. For a 3-D mesh, the staged CFD template dimension is overridden to 3; the flat-plate template supplies common solver parameters only and does not establish flat-plate physics or numerical accuracy."
+                "The closed unit-sphere volume runs the 3-D CFD smoke stage with its entire exterior assigned as wall. The flat-plate template supplies common solver parameters only; this checks the runtime pipeline, not external-flow physics or CFD accuracy."
+                if mesh_entry.get("mesh_validation") == "cfd_smoke"
+                else (
+                    "3D single-cell cube validation ends after OneFLOW grid and boundary-map handoff; it is not a CFD accuracy test."
+                    if len(cases) == 3
+                    else "The selected CFD consumer is a runtime smoke test. For a 3-D mesh, the staged CFD template dimension is overridden to 3; the flat-plate template supplies common solver parameters only and does not establish flat-plate physics or numerical accuracy."
+                )
             )
         ),
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
