@@ -426,7 +426,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             workspace = mesh_validation_workspace(self.root, "stl_to_gmsh_square")
         self.assertEqual(
             workspace,
-            self.root / ".oneflow" / "mesh-validation" / "stl_to_gmsh" / "square" / "single_quad" / "cpp",
+            self.root / ".oneflow" / "mesh-validation" / "stl_to_gmsh" / "2d" / "square" / "single_quad" / "cpp",
         )
 
     def test_workspace_rejects_cases_outside_grid(self):
