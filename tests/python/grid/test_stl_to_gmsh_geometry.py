@@ -7,7 +7,7 @@ from grid.stl_to_gmsh.converter import (
 )
 
 ROOT = Path(__file__).resolve().parents[3]
-DATA = ROOT / "grid" / "stl" / "fixtures"
+DATA = ROOT / "grid" / "stl_import" / "fixtures"
 
 class Stl2DGmshTest(unittest.TestCase):
     def test_tetrahedral_boundary_validation_accepts_arbitrary_two_cell_mesh(self):
@@ -475,7 +475,7 @@ $EndElements
 
     def test_stl_inspection_case_writes_report_without_touching_source_tree(self):
         import sys
-        script = ROOT / "grid" / "stl" / "inspect.py"
+        script = ROOT / "grid" / "stl_import" / "inspect.py"
         with tempfile.TemporaryDirectory() as temp:
             report = Path(temp) / "stl_report.json"
             subprocess.run(
