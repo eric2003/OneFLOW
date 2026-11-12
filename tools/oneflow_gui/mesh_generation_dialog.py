@@ -221,6 +221,7 @@ class StlToGmshDialog(QDialog):
         root.addWidget(self.output_view, 1)
 
         self.status_label = QLabel("Ready. Generated files are written outside the repository.")
+        self.status_label.setWordWrap(True)
         self.status_label.setStyleSheet("color: #475569;")
         root.addWidget(self.status_label)
 
@@ -354,7 +355,11 @@ class StlToGmshDialog(QDialog):
         self.output_view.appendPlainText(f"Working directory: {self._repository_root}")
         self.output_view.appendPlainText(f"Program: {sys.executable}")
         self.output_view.appendPlainText(f"Script: {script}")
-        self.output_view.appendPlainText(f"Arguments: {shlex.join(script_arguments)}")
+        rendered_arguments = (
+            subprocess.list2cmdline(script_arguments)
+            if os.name == "nt" else shlex.join(script_arguments)
+        )
+        self.output_view.appendPlainText(f"Arguments: {rendered_arguments}")
         self._process.setWorkingDirectory(str(self._repository_root))
         self.run_button.setEnabled(False)
         self.status_label.setText("Starting mesh generation...")
@@ -373,8 +378,12 @@ class StlToGmshDialog(QDialog):
         self._read_output()
         self.run_button.setEnabled(True)
         if exit_code == 0:
-            mesh = self.output_path.text().strip()
-            self.status_label.setText(f"Completed. Mesh: {mesh}")
+            mesh_path = Path(self.output_path.text()).expanduser()
+            self.status_label.setText(
+                "Completed and validated. Outputs: "
+                f"{mesh_path}, {mesh_path.with_suffix('.geo')}, "
+                f"{mesh_path.with_suffix('.report.json')}"
+            )
         else:
             self.status_label.setText(f"Generation failed (exit code {exit_code}). See execution output.")
 
@@ -382,6 +391,17 @@ class StlToGmshDialog(QDialog):
         self._read_output()
         self.run_button.setEnabled(True)
         self.status_label.setText("Mesh generation process error. See execution output.")
+
+    def closeEvent(self, event) -> None:
+        if self._process.state() != QProcess.ProcessState.NotRunning:
+            QMessageBox.information(
+                self,
+                "Mesh generation is running",
+                "Wait for the mesh-generation process to finish before closing this page.",
+            )
+            event.ignore()
+            return
+        event.accept()
 
 
 __all__ = ["MeshGenerationDialog", "StlToGmshDialog"]
