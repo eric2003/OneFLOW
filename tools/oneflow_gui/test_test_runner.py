@@ -45,7 +45,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             "tools.oneflow_gui.test_parameter_consumer_catalog",
             "tools.verification.test_contract_catalog",
             "tools.oneflow_gui.test_mesh_validation",
-            "tests.python.grid.test_stl_to_gmsh_geometry",
+            "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_geometry",
             "tools.verification.test_cmake_test_catalog",
             "tools.oneflow_gui.test_contract_workbench_dialog",
             "tools.oneflow_gui.test_source_editor",
