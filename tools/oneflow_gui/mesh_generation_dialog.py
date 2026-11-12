@@ -114,6 +114,12 @@ class StlToGmshDialog(QDialog):
 
         stl_row = QHBoxLayout()
         self.stl_path = QLineEdit()
+        default_sphere_stl = (
+            self._repository_root / "grid" / "stl_to_gmsh" / "3d" / "sphere"
+            / "automatic_tetrahedra" / "python" / "input" / "model.stl"
+        )
+        if default_sphere_stl.is_file():
+            self.stl_path.setText(str(default_sphere_stl))
         self.stl_path.setPlaceholderText("Select a closed STL surface...")
         stl_browse = QPushButton("Browse...")
         stl_browse.clicked.connect(self._browse_stl)
