@@ -301,3 +301,45 @@ not be conflated. A code identifier is an implementation name, not a canonical
 mathematical symbol. The OneFLOW source mapping is therefore explicit and
 scoped. Bibliographic references and URLs are stored with the contract, while
 assumptions and unresolved physical interpretations remain visible caveats.
+
+Mesh Generation & Conversion Workbench
+--------------------------------------
+
+The home window exposes one Mesh Generation entry point. The hub currently
+routes to the existing structured Mesh Layout Editor and the direct STL-to-Gmsh
+volume-mesh page. The layout editor remains the owner of its current layout
+specification and compiler contract; moving its navigation must not rewrite or
+weaken that behavior.
+
+The STL page is a presentation adapter for
+``grid/stl_to_gmsh/generate_volume_mesh.py``. It collects an explicit input
+STL, output path, density preset or size bounds, optional Gmsh executable and
+Physical Group names. The command preview is built from the same argument
+model used to launch ``QProcess``; process execution passes an argument list
+rather than interpolating a shell command. The displayed command is therefore
+copyable and independently reproducible. Process output and exit status remain
+visible to the user.
+
+The default output root is the user-owned ``mesh-generation`` directory under
+``UserDataPaths``, keeping generated meshes and sidecar reports out of the
+repository source tree. A geometry preset is a workflow hint, not an implicit
+input file: the user selects the actual STL. The current STL volume route
+requires a closed, connected, consistently oriented, genus-zero shell and
+creates the volume enclosed by that shell. It does not create an external-flow
+domain and does not establish mesh-quality or CFD-accuracy claims.
+
+Keep the responsibilities separate as the workbench grows:
+
+* **Presentation** owns forms, previews, command display and user feedback.
+* **Mesh task services** own parameter validation, execution lifecycle, logs,
+  output inspection and durable task records.
+* **Backend adapters** own tool-specific argument construction and result
+  interpretation (Gmsh, existing OneFLOW layout compiler, and future engines).
+* **Mesh Knowledge** links geometry concepts, algorithms, parameters, code,
+  documentation, examples and validation evidence; it is not merely a help page.
+
+The first GUI integration deliberately reuses the existing Python CLI rather
+than embedding Gmsh calls in Qt. A future task-service extraction should preserve
+this command contract and the distinction between declared capability and
+executed evidence. STL repair, mesh conversion, quality visualization and
+additional backends are future work, not implied by the current navigation.
