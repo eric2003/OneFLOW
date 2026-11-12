@@ -38,6 +38,7 @@ Mesh and engineering workflows
 * :doc:`gmsh_interface` — Gmsh MSH 4.1-first input adapter, version support, semantic mapping, and conversion validation.
 * :doc:`stl_to_gmsh_2d` — planar STL boundary extraction, explicit CFD boundary groups, and Gmsh 2D generation.
 * :doc:`stl_to_gmsh_3d` — cube STL volume reconstruction, fixed HEXA_8/TETRA_4 topology, and automatic tetrahedral meshing.
+* :doc:`stl_to_gmsh_sphere` — unit-sphere STL validation, Gmsh surface reconstruction, tetrahedral volume generation, commands, and evidence.
 * :doc:`boundary_condition_architecture` — physical boundary semantics, Gmsh/CGNS/OneFLOW mappings, required state data, and verification boundaries.
 * :doc:`grid_conversion_cases` — runnable mesh conversion Cases, topology coverage, and format-route matrix.
 * :doc:`development_case_methodology` — how to design, implement, document, and verify reusable 2D/3D Development Cases.
@@ -157,6 +158,8 @@ The existing reference library covers programming languages, build systems, para
    stl_mesh_io
    gmsh_interface
    stl_to_gmsh_2d
+   stl_to_gmsh_3d
+   stl_to_gmsh_sphere
    grid_conversion_cases
    development_case_methodology
    grid_topology
