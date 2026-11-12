@@ -112,9 +112,15 @@ def build_mesh_validation_cases(
     implementation = execution.get("kind", "oneflow")
     if mesh.get("group") != "STL to Gmsh" or implementation not in {"oneflow", "python"}:
         raise ValueError(f"Case {mesh_case_id!r} is not a supported STL-to-Gmsh Case.")
-    if mesh.get("mesh_validation", True) is False:
+    validation_scope = mesh.get("mesh_validation", True)
+    if validation_scope is False:
         raise ValueError(
-            f"Case {mesh_case_id!r} is a geometry-only mesh Case, not a CFD validation input."
+            f"Case {mesh_case_id!r} is not enabled for Mesh-to-CFD validation."
+        )
+    if validation_scope not in (True, "mesh_handoff"):
+        raise ValueError(
+            f"Unsupported Mesh-to-CFD validation scope for {mesh_case_id!r}: "
+            f"{validation_scope!r}"
         )
     template = next((x for x in _CFD_TEMPLATES if x["id"] == cfd_template_id), None)
     if template is None:
@@ -195,6 +201,10 @@ def build_mesh_validation_cases(
              {"id": "visual", "path": _setting(cfd_config, "visualFile")},
          ]},
     ]
+    if validation_scope == "mesh_handoff":
+        # A closed unit-sphere volume with only a wall patch is a mesh-ingestion
+        # validation input, not an external-flow CFD setup.
+        return steps[:3]
     return steps
 
 
@@ -379,7 +389,17 @@ def run_mesh_validation(
         "mesh_implementation": mesh_implementation,
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
-        "note": ("3D single-cell cube validation ends after OneFLOW grid and boundary-map handoff; it is not a CFD accuracy test." if len(cases) == 3 else "The selected CFD consumer is a runtime smoke test. For a 3-D mesh, the staged CFD template dimension is overridden to 3; the flat-plate template supplies common solver parameters only and does not establish flat-plate physics or numerical accuracy."),
+        "note": (
+            "The unit-sphere Case ends after OneFLOW grid and boundary-map handoff. "
+            "Its closed fluid volume has only a wall Physical Group, so this validates "
+            "mesh conversion and OneFLOW ingestion, not an external-flow CFD solve."
+            if mesh_entry.get("mesh_validation") == "mesh_handoff"
+            else (
+                "3D single-cell cube validation ends after OneFLOW grid and boundary-map handoff; it is not a CFD accuracy test."
+                if len(cases) == 3
+                else "The selected CFD consumer is a runtime smoke test. For a 3-D mesh, the staged CFD template dimension is overridden to 3; the flat-plate template supplies common solver parameters only and does not establish flat-plate physics or numerical accuracy."
+            )
+        ),
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
     report_path = run_root / "mesh-validation-report.json"

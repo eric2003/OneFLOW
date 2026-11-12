@@ -333,18 +333,44 @@ class MeshValidationCatalogTest(unittest.TestCase):
              "parameter_file": "script/grid.txt", "setting": "gridInfoFileName"},
         ])
 
-    def test_geometry_only_sphere_cases_are_not_offered_for_cfd_validation(self):
+    def test_unit_sphere_cases_are_available_for_mesh_handoff_validation(self):
         choices = dict(mesh_case_choices(self.root))
-        self.assertNotIn("native_sphere", choices)
-        self.assertNotIn("python_sphere", choices)
-        with self.assertRaisesRegex(ValueError, "geometry-only"):
-            build_mesh_validation_cases(
-                self.root, "native_sphere", "laminar_flat_plate"
-            )
-        with self.assertRaisesRegex(ValueError, "geometry-only"):
-            build_mesh_validation_cases(
-                self.root, "python_sphere", "laminar_flat_plate"
-            )
+        self.assertIn("native_sphere", choices)
+        self.assertIn("python_sphere", choices)
+        groups = dict(mesh_case_groups(self.root))
+        self.assertIn("native_sphere", dict(groups["3D"]))
+        self.assertIn("python_sphere", dict(groups["3D"]))
+
+        native = build_mesh_validation_cases(
+            self.root, "native_sphere", "laminar_flat_plate"
+        )
+        python = build_mesh_validation_cases(
+            self.root, "python_sphere", "laminar_flat_plate"
+        )
+        expected_steps = ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"]
+        self.assertEqual([item["id"] for item in native], expected_steps)
+        self.assertEqual([item["id"] for item in python], expected_steps)
+        self.assertEqual(
+            native[0]["directory"],
+            "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp",
+        )
+        self.assertEqual(
+            native[0]["outputs"][0]["path"],
+            "results/sphere_automatic_tetrahedra.msh",
+        )
+        self.assertEqual(
+            python[0]["directory"],
+            "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python",
+        )
+        self.assertEqual(
+            python[0]["outputs"][0]["path"],
+            "results/sphere_automatic_tetrahedra.msh",
+        )
+        self.assertEqual(
+            native[2]["outputs"][0]["path"],
+            "results/sphere_automatic_tetrahedra.oneflow.grid",
+        )
+        self.assertNotIn("oneflow_cfd_solve", [item["id"] for item in native])
 
     def test_python_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
         cube_dir = self.root / "grid/stl_to_gmsh/3d/cube/single_hex/python"

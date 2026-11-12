@@ -37,6 +37,12 @@ while changing only the volume-mesh strategy. The sphere adds a curved closed
 surface and one physical wall group. It does not add inlet/outlet semantics or
 CFD physics.
 
+Both sphere implementations are selectable in the Mesh-to-CFD Validation
+Workbench. Their route intentionally ends after CGNS-to-OneFLOW conversion
+and boundary-map handoff: a closed fluid volume with only a wall patch is not
+an external-flow CFD configuration. This checks geometry conversion and
+OneFLOW mesh ingestion without claiming a CFD solve or accuracy result.
+
 Unit-sphere geometry contract
 -----------------------------
 

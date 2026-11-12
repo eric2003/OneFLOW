@@ -15,6 +15,7 @@ and the C++ Geometry conversion pipeline.
 | Native C++ | 3d/cube/single_hex/cpp | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
 | Native C++ | 3d/cube/six_tetrahedra/cpp | Fixed | 8 | 6 TETRA_4 | 12 TRI_3 |
 | Native C++ | 3d/cube/automatic_tetrahedra/cpp | Automatic | Gmsh-generated | TETRA_4 | Triangular boundary |
+| Native C++ | 3d/sphere/automatic_tetrahedra/cpp | Automatic | Gmsh-generated | TETRA_4 | Closed wall surface |
 | Python | 2d/square/single_quad/python | 1 x 1 | 4 | 1 QUAD_4 | 4 |
 | Python | 2d/square/two_triangles/python | 1 x 1 | 4 | 2 TRI_3 | 4 |
 | Python | 2d/square/automatic_triangles/python | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
@@ -24,6 +25,7 @@ and the C++ Geometry conversion pipeline.
 | Python | 3d/cube/single_hex/python | 1 x 1 x 1 | 8 | 1 HEXA_8 | 6 QUAD_4 |
 | Python | 3d/cube/six_tetrahedra/python | Fixed | 8 | 6 TETRA_4 | 12 TRI_3 |
 | Python | 3d/cube/automatic_tetrahedra/python | Automatic | Gmsh-generated | TETRA_4 | Triangular boundary |
+| Python | 3d/sphere/automatic_tetrahedra/python | Automatic | Gmsh-generated | TETRA_4 | Closed wall surface |
 
 For the square Cases, the STL describes the outer domain boundary. The
 single-quad and two-triangle variants use the same STL and 1 x 1 transfinite
@@ -112,6 +114,13 @@ STL-to-Gmsh Case; the Workbench builds the same artifact-bound chain:
 4. CFD Solve: stage the existing `test/cfd/plateuns2dslau2` consumer and
    apply runtime overrides for a short smoke test. No STL-specific duplicate
    solver template is maintained.
+
+The unit-sphere native and Python Cases are also selectable. Because the sphere
+is a closed fluid volume with only one `wall` Physical Group (no inlet, outlet
+or farfield), its Mesh-to-CFD route intentionally stops after CGNS-to-OneFLOW
+conversion and boundary-map handoff. This validates the complete geometry and
+mesh-ingestion chain without presenting an all-wall sphere as an external-flow
+CFD case. The report records this limited validation scope explicitly.
 
 From the repository root, run one selected Case after building OneFLOW and
 making Gmsh available on PATH:
