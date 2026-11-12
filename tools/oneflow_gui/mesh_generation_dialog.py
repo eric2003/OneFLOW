@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
+from .contract_workbench_dialog import ContractDomainDialog
 from .mesh_layout_dialog import MeshLayoutDialog
 from .user_data_paths import UserDataPaths
 
@@ -60,6 +61,14 @@ class MeshGenerationDialog(QDialog):
         stl_button.clicked.connect(self._open_stl_to_gmsh)
         root.addWidget(stl_button)
 
+        knowledge_button = QPushButton("Mesh Knowledge")
+        knowledge_button.setMinimumHeight(54)
+        knowledge_button.setToolTip(
+            "Browse mesh principles, formats, algorithms, implementation and evidence."
+        )
+        knowledge_button.clicked.connect(self._open_mesh_knowledge)
+        root.addWidget(knowledge_button)
+
         future = QLabel(
             "More tools can be added here: STL inspection and repair, mesh conversion, "
             "mesh quality checks and mesh knowledge."
@@ -74,6 +83,9 @@ class MeshGenerationDialog(QDialog):
 
     def _open_stl_to_gmsh(self) -> None:
         StlToGmshDialog(self._repository_root, self).exec()
+
+    def _open_mesh_knowledge(self) -> None:
+        ContractDomainDialog(self._repository_root, "mesh", self).exec()
 
 
 class StlToGmshDialog(QDialog):
