@@ -56,7 +56,7 @@ treatment require separate configuration.
 
 Make Gmsh available on PATH, or change gmshExecutable in script/grid.txt.
 
-    python grid/stl_to_gmsh/develop_test/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
+    python grid/stl_to_gmsh/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
 
 The runner copies each Case to the external staging root before execution. Do
 not execute a checked-in Case directly: relative output paths would create
@@ -79,16 +79,16 @@ that would place generated files in the repository.
 
 The Python Cases use `grid/stl_to_gmsh/converter.py`, built on the shared STL reader (`grid/stl_import/reader.py`) and surface-topology utilities (`grid/stl_import/surface.py`). They emit the same Case-specific mesh and report filenames as their native counterparts. The native C++ and Python `2d/square/automatic_triangles` Cases use byte-identical STL input and the same automatic layout. They omit transfinite constraints and rely on mesh_size for Gmsh refinement. The native C++ and Python `2d/circle_external_flow` Cases use byte-identical STL input and the same domain, mesh-size and Physical Group settings. The native Case exercises OneFLOW's C++ STL reader, outer-domain/hole construction, Gmsh invocation and MSH validation; the Python Case is an independent implementation reference. The `2d/circle_external_flow` Case treats a polygonal STL obstacle as an internal Wall loop and subtracts it from a rectangular outer domain. The `2d/channel_internal_flow` Case treats the STL loop itself as the fluid domain, with inlet, outlet and wall groups; a transfinite 20 x 5 layout produces a reproducible quadrilateral channel mesh. The external case validates minimum mesh counts rather than exact counts because unstructured meshing can vary slightly between Gmsh versions. Both implementations also validate the generated coordinate bounds against the configured planar domain, reject degenerate triangles, and enforce the shared minimum normalized triangle quality (0.01) and minimum angle (1 degree). Python reports the measured minimum area, normalized quality, and minimum angle; native C++ reports the same quality thresholds alongside its MSH topology report. The two triangulations are not expected to have identical element counts or connectivity.
 
-## Run all eighteen development Cases
+## Run all eighteen STL-to-Gmsh Cases
 
 After building OneFLOW and installing Gmsh, run the orchestrator from the
 repository root:
 
-    python grid/stl_to_gmsh/develop_test/run_cases.py
+    python grid/stl_to_gmsh/run_cases.py
 
 If the executable is not in the standard build/bin locations:
 
-    python grid/stl_to_gmsh/develop_test/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
+    python grid/stl_to_gmsh/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
 
 The orchestrator stages all eighteen Cases under
 %USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows or
@@ -105,8 +105,8 @@ STL-specific pipeline runner. Select any supported native C++ or Python
 STL-to-Gmsh Case; the Workbench builds the same artifact-bound chain:
 
 1. STL -> Gmsh: execute the selected producer and inspect its MSH 4.1 output.
-2. Gmsh -> CGNS: use the shared `grid/gmsh_to_cgns` conversion Case.
-3. CGNS -> OneFLOW: use the shared `grid/cgns_to_oneflow` conversion-stage
+2. Gmsh -> CGNS: use the shared `grid/conversion/gmsh_to_cgns` conversion Case.
+3. CGNS -> OneFLOW: use the shared `grid/conversion/cgns_to_oneflow` conversion-stage
    template, binding native-grid, boundary-region-map and grid-info outputs
    to the selected mesh stem.
 4. CFD Solve: stage the existing `test/cfd/plateuns2dslau2` consumer and
@@ -125,7 +125,7 @@ logs and outputs. The source Cases are copied to the external workspace and
 are never used as runtime directories.
 
 The dedicated `grid/stl_to_gmsh/pipeline/` tree and its fixed Square workflow
-have been retired. The STL development runner below now runs only the
+have been retired. The STL Case runner below now runs only the
 standalone STL-to-Gmsh producer Cases.
 
 ## Development tests
@@ -155,7 +155,7 @@ meshing are not claimed.
 
 ## Retired legacy entry point
 
-The former root-level `script/run.py` workflow was removed because it wrote generated files into the source Case tree. Use the registered `2d/circle_external_flow/cpp` and `2d/circle_external_flow/python` Cases through the isolated development runner instead.
+The former root-level `script/run.py` workflow was removed because it wrote generated files into the source Case tree. Use the registered `2d/circle_external_flow/cpp` and `2d/circle_external_flow/python` Cases through the isolated Case runner instead.
 
 ## 3D cube volume-mesh progression
 
