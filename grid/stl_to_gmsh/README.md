@@ -122,17 +122,21 @@ STL-to-Gmsh Case; the Workbench builds the same artifact-bound chain:
    apply runtime overrides for a short smoke test. No STL-specific duplicate
    solver template is maintained.
 
-The unit-sphere native and Python Cases are also selectable. Because the sphere
-is a closed fluid volume with only one `wall` Physical Group (no inlet, outlet
-or farfield), its Mesh-to-CFD route intentionally stops after CGNS-to-OneFLOW
-conversion and boundary-map handoff. This validates the complete geometry and
-mesh-ingestion chain without presenting an all-wall sphere as an external-flow
-CFD case. The report records this limited validation scope explicitly.
+The unit-sphere native and Python Cases are also selectable. Both run the
+complete Mesh-to-CFD smoke chain, including the 3-D OneFLOW runtime. Because
+the closed sphere has only one `wall` Physical Group (no inlet, outlet or
+farfield), this is a runtime-pipeline smoke test, not an external-flow model or
+a CFD accuracy benchmark. The staged flat-plate template supplies common
+solver parameters only; the mesh dimension is overridden to 3.
 
 From the repository root, run one selected Case after building OneFLOW and
-making Gmsh available on PATH:
+making Gmsh available on PATH. For the native unit sphere:
 
-    python -m tools.oneflow_gui.mesh_validation --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh --mesh-case-id stl_to_gmsh_square_2x2 --max-steps 2
+    python -m tools.oneflow_gui.mesh_validation --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh --mesh-case-id stl_to_gmsh_sphere_automatic_tetrahedra --max-steps 2
+
+For the Python reference, use `stl_to_gmsh_python_sphere_automatic_tetrahedra`
+as the `--mesh-case-id`. These commands execute the selected sphere through
+the complete Mesh-to-CFD smoke chain.
 
 The default validation workspace is under
 `%USERPROFILE%/.oneflow/mesh-validation/` on Windows or
