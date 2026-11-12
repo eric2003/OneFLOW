@@ -49,6 +49,11 @@ class UserDataPaths:
         return self.root / "workspaces"
 
     @property
+    def mesh_generation(self) -> Path:
+        """Default output root for generated meshes and their reports."""
+        return self.root / "mesh-generation"
+
+    @property
     def mesh_layout_workspace(self) -> Path:
         """Keep editable mesh specifications and generated layouts outside the repository."""
         return self.root / "mesh-layout-workspace"
