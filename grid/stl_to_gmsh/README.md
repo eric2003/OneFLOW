@@ -54,6 +54,13 @@ to OneFLOW boundary IDs. The original patch names remain intact. This is a
 type-level mapping only: inlet/outlet state values and solver-specific wall
 treatment require separate configuration.
 
+The unit-sphere Cases also run the complete Mesh-to-CFD smoke chain. Their
+closed volume has a wall-only exterior (no inlet or outlet); the workflow
+reuses the laminar-flat-plate CFD template for common solver settings and
+overrides the staged dimension to 3. This deliberately exercises the 3-D
+OneFLOW runtime after mesh handoff. It is a pipeline smoke test, not a
+physically representative external-flow calculation or an accuracy benchmark.
+
 ## Native C++ execution
 
 Make Gmsh available on PATH, or change gmshExecutable in script/grid.txt.
