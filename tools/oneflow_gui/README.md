@@ -372,6 +372,7 @@ The home screen exposes **Mesh Generation...** as the single entry to mesh activ
 The hub currently routes to:
 
 - **Mesh Layout Editor**: the existing structured-layout editor, retained without changing its layout compiler or project data contract.
+- **Mesh Knowledge**: opens the existing Mesh domain in Contract Workbench, including principles, format contracts, implementation links and verification evidence.
 - **STL to Gmsh**: a direct 3-D closed-STL volume-mesh interface backed by
   `grid/stl_to_gmsh/generate_volume_mesh.py`. Select the STL and output path,
   choose Coarse / Medium / Fine or custom minimum and maximum sizes, optionally
