@@ -80,6 +80,24 @@ class MeshGenerationDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_stl_dialog_starts_with_repository_unit_sphere_fixture(self) -> None:
+        dialog = StlToGmshDialog(self.repository_root)
+        try:
+            self.assertEqual(
+                Path(dialog.stl_path.text()),
+                self.repository_root / "grid" / "stl_to_gmsh" / "3d" / "sphere"
+                / "automatic_tetrahedra" / "python" / "input" / "model.stl",
+            )
+            self.assertTrue(Path(dialog.stl_path.text()).is_file())
+            self.assertEqual(dialog.geometry_preset.currentData(), "sphere")
+            self.assertEqual(
+                Path(dialog.output_path.text()),
+                __import__("tools.oneflow_gui.user_data_paths", fromlist=["UserDataPaths"])
+                .UserDataPaths.discover().mesh_generation / "sphere.msh",
+            )
+        finally:
+            dialog.close()
+
     def test_stl_dialog_builds_coarse_medium_and_fine_commands(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
