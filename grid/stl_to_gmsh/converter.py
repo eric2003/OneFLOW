@@ -436,7 +436,7 @@ def _closed_surface_volume_geo(
     source_path = stl.resolve().as_posix()
     if '"' in source_path:
         raise Stl2DError("STL source path must not contain a quote character")
-    geo = "\\n".join([
+    geo = "\n".join([
         '// Generated from a closed triangulated STL surface by OneFLOW.',
         'SetFactory("Built-in");',
         'Mesh.MshFileVersion = 4.1;',

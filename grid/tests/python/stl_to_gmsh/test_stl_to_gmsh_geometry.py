@@ -227,6 +227,7 @@ $EndElements
             content = geo.read_text(encoding="utf-8")
         self.assertEqual(report["euler_characteristic"], 2)
         self.assertIn("Merge ", content)
+        self.assertGreater(len(content.splitlines()), 10)
         self.assertIn("ClassifySurfaces{", content)
         self.assertIn(", 1, 1,", content)
         self.assertIn("CreateGeometry;", content)
