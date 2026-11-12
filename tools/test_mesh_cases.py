@@ -221,7 +221,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
             parts = entry["directory"].split("/")
             execution = entry.get("execution")
             if isinstance(execution, dict) and execution.get("kind") == "python":
-                self.assertEqual(parts[:2], ["grid", "stl"])
+                self.assertEqual(parts[:2], ["grid", "stl_import"])
                 self.assertEqual(parts[-1], "python")
                 self.assertEqual(len(parts), 4)
                 self.assertEqual(entry["id"], f"stl_python_{parts[-2]}")
