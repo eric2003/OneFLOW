@@ -322,8 +322,7 @@ visible to the user.
 
 The default output root is the user-owned ``mesh-generation`` directory under
 ``UserDataPaths``, keeping generated meshes and sidecar reports out of the
-repository source tree. A geometry preset is a workflow hint, not an implicit
-input file: the user selects the actual STL. The current STL volume route
+repository source tree. The Unit Sphere preset preselects the checked-in sphere fixture as a starting point; users may browse to another STL. A preset never manufactures or silently substitutes geometry. The current STL volume route
 requires a closed, connected, consistently oriented, genus-zero shell and
 creates the volume enclosed by that shell. It does not create an external-flow
 domain and does not establish mesh-quality or CFD-accuracy claims.
