@@ -7,7 +7,7 @@ TRI_3 cells.
 
 Run from the repository root:
 
-    OneFLOW.exe r grid/stl/binary_header_solid
+    OneFLOW.exe r grid/stl_import/binary_header_solid
 
 The Case has no `script/control.txt`; runtime parameters are discovered from
 `script/dimension.txt`, `script/grid.txt`, and `script/simu.txt`.

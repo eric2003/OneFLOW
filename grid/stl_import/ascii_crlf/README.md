@@ -6,7 +6,7 @@ endings.
 
 Run it through the standard application entry point:
 
-    OneFLOW.exe r grid/stl/ascii_crlf
+    OneFLOW.exe r grid/stl_import/ascii_crlf
 
 The Case intentionally has no `script/control.txt`. The runtime discovers
 `dimension.txt`, `grid.txt`, and `simu.txt` from the script directory.

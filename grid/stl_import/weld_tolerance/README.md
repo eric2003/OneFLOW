@@ -9,7 +9,7 @@ Euclidean distance is strictly smaller than the configured tolerance.
 
 Run from the repository root:
 
-    OneFLOW.exe r grid/stl/weld_tolerance
+    OneFLOW.exe r grid/stl_import/weld_tolerance
 
 The conversion must use the exact spatial tolerance predicate and write two
 TRI_3 cells with four unique nodes.

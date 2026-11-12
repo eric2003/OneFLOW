@@ -107,7 +107,7 @@
     },
     {
       "id": "stl_to_gmsh",
-      "directory": "grid/stl_import/stl_to_gmsh",
+      "directory": "grid/stl_to_gmsh",
       "source": "stl",
       "dimension": 2,
       "topology": "one unit-square QUAD_4 or two adjacent unit-square QUAD_4 cells",

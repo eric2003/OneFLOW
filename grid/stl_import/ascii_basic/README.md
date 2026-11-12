@@ -3,7 +3,7 @@
 This is a normal OneFLOW grid Case, not a Python utility case or a GoogleTest.
 Run it through the standard application entry point:
 
-    OneFLOW.exe r grid/stl/ascii_basic
+    OneFLOW.exe r grid/stl_import/ascii_basic
 
 The Case does not require `script/control.txt`. OneFLOW discovers and loads
 the parameter files in `script/` using its filename-order loading rule.

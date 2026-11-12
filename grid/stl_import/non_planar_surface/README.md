@@ -5,7 +5,7 @@ surface. It deliberately has no single constant-Z plane.
 
 Run from the repository root:
 
-    OneFLOW.exe r grid/stl/non_planar_surface
+    OneFLOW.exe r grid/stl_import/non_planar_surface
 
 The standard Grid task reads the STL, welds the shared edge vertices and
 writes an unstructured triangle surface to CGNS. Expected report:

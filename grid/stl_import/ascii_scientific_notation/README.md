@@ -6,7 +6,7 @@ scientific notation (for example, `1.0e+00` and `1.0e-10`).
 
 Run from the repository root:
 
-    OneFLOW.exe r grid/stl/ascii_scientific_notation
+    OneFLOW.exe r grid/stl_import/ascii_scientific_notation
 
 The Case intentionally has no `script/control.txt`. The runtime discovers
 `dimension.txt`, `grid.txt`, and `simu.txt` in the script directory.
