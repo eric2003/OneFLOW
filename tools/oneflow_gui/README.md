@@ -383,8 +383,7 @@ interpolation), displays merged process output, and reports the exit code. The
 command is reproducible outside the GUI. The default output is under
 `UserDataPaths.discover().root / mesh-generation`, not in the source tree.
 
-The geometry preset identifies the intended workflow; it does not manufacture
-or silently substitute an STL file. The user must select the actual STL input.
+The Unit Sphere preset preselects the checked-in unit-sphere STL fixture as a convenient starting point; users can replace it with any compatible STL. The preset does not manufacture or silently substitute geometry.
 The current volume mesher requires a closed, connected, consistently oriented,
 genus-zero shell. Its generated mesh is the volume enclosed by that shell, not
 an exterior-flow domain. Mesh-size values are target characteristic lengths,
