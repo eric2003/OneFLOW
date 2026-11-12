@@ -237,10 +237,13 @@ def terminate_process_tree(
 
     platform_value = (platform_name or os.name).lower()
     if platform_value in {"nt", "windows"}:
-        # A child can be spawned in the short interval between Popen returning
-        # and attach_process_job assigning the parent to its Job Object. Use
-        # taskkill while the parent is still alive so Windows enumerates its
-        # current process tree, including any child that escaped that race.
+        # Snapshot and stop descendants before terminating the root. Once the
+        # root exits, Windows may re-parent a surviving child and taskkill /T
+        # can no longer discover it through the original process tree.
+        # A second sweep after taskkill catches children created during the
+        # first sweep / root-termination window.
+        _terminate_windows_descendants(process.pid)
+
         runner = command_runner or subprocess.run
         try:
             result = runner(
