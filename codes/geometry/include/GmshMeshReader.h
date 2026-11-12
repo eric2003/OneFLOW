@@ -17,6 +17,12 @@ struct GmshMesh {
     std::map<std::pair<int, long long>, std::string> physicalNames;
     std::map<std::pair<int, long long>, std::vector<long long>> entityPhysicalTags;
 };
+struct GmshTetrahedralTopologyReport {
+    std::size_t tetrahedronCount{0};
+    std::size_t boundaryFaceCount{0};
+    std::size_t internalFaceCount{0};
+    std::size_t surfaceTriangleCount{0};
+};
 struct GmshMeshReadReport {
     std::string version;
     std::size_t nodeCount{0};
@@ -37,6 +43,7 @@ struct GmshMeshReadReport {
     double maximumTriangleArea{0.0};
 };
 GmshMesh ReadGmsh41AsciiMesh(const std::string& content);
+GmshTetrahedralTopologyReport ValidateGmshTetrahedralTopology(const GmshMesh& mesh);
 GmshMeshReadReport BuildGmshMeshReadReport(const GmshMesh& mesh);
 std::string GmshMeshReadReportToJson(const GmshMeshReadReport& report);
 std::string GmshMeshReportToMarkdown(const GmshMesh& mesh, const std::string& cgnsOutputFile);

@@ -181,10 +181,13 @@ class ProcessControlTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             started_marker = Path(directory) / "child-started.txt"
             marker = Path(directory) / "child-survived.txt"
+            release_marker = Path(directory) / "release-child.txt"
             child_code = (
                 "import pathlib, time; "
                 f"pathlib.Path({str(started_marker)!r}).write_text('ready'); "
-                "time.sleep(1); "
+                f"release = pathlib.Path({str(release_marker)!r})\n"
+                "while not release.exists():\n"
+                "    time.sleep(0.01)\n"
                 f"pathlib.Path({str(marker)!r}).write_text('alive')"
             )
             parent_code = (
@@ -211,9 +214,18 @@ class ProcessControlTest(unittest.TestCase):
                     terminate_process_tree(process, platform_name="nt")
                 )
                 process.wait(timeout=10)
-                time.sleep(1.2)
+                # Release the child only after the tree-termination call. If
+                # it survived, it must create the marker; no sleep-based race
+                # can let the child finish before termination is attempted.
+                release_marker.write_text("release", encoding="utf-8")
+                deadline = time.monotonic() + 5
+                while not marker.exists() and time.monotonic() < deadline:
+                    time.sleep(0.01)
                 self.assertFalse(marker.exists())
             finally:
+                # Always release a surviving child, including when an earlier
+                # assertion aborts the test before the normal release point.
+                release_marker.write_text("release", encoding="utf-8")
                 if process.poll() is None:
                     terminate_process_tree(process, platform_name="nt")
                     process.wait(timeout=10)

@@ -8,7 +8,7 @@ This page defines the target architecture and verification contract for native
 STL surface-file support in the C++ codes/geometry module.
 
 **Status: first C++ I/O slice implemented; CI verification pending.** The current Python implementation in
-grid/stl/stl_to_gmsh.py is a separate planar-surface conversion tool. Its tests
+grid/stl_to_gmsh/converter.py is a separate planar-surface conversion tool. Its tests
 do not exercise OneFLOW's C++ geometry code. The native reader and writer
 are now implemented in StlMeshIO.h and StlMeshIO.cpp. Native GoogleTests are
 registered in tests/geometry/StlMeshIOTest.cpp; their execution status is
@@ -374,12 +374,12 @@ extraction and Gmsh geometry generation. They have a different responsibility:
 * Later conversion adapter: validated surface topology into a mesher or
   OneFLOW Mesh Core representation.
 
-The Python STL development cases under ``grid/stl/python/`` currently registered in the development
+The Python STL development cases under ``grid/stl_import/python/`` currently registered in the development
 case catalog exercise the Python utility only. They must not be described as
 native C++ STL reader tests. Python reference cases remain useful when they
 exercise distinct behavior or provide an independent cross-check; they are
 not duplicate production backends. In particular, the original
-``grid/stl/python/ascii_basic`` Python case is retained and registered as
+``grid/stl_import/python/ascii_basic`` Python case is retained and registered as
 ``stl_python_ascii_basic`` alongside the native ``stl_ascii_basic`` Case.
 They share a simple input shape but verify different implementation paths:
 Python checks the reference utility's parsing and planar-boundary extraction,
@@ -418,7 +418,7 @@ References
 Native OneFLOW grid Case
 ========================
 
-``grid/stl/ascii_basic`` is a normal OneFLOW grid Case. It is registered in
+``grid/stl_import/ascii_basic`` is a normal OneFLOW grid Case. It is registered in
 ``grid/case_catalog.json`` without a Python execution backend and is launched
 through the standard ``OneFLOW.exe r <case-directory>`` entry point. It does not require a ``script/control.txt`` manifest. The runtime discovers
 parameter files in ``script/`` according to its filename-order loading rule;
@@ -431,7 +431,7 @@ through ``UnstructuredCgnsZoneWriter``. Shared coordinates are welded using
 the explicit ``stlWeldTolerance`` Case parameter. The bundled two-triangle
 square is expected to produce four nodes and two TRI_3 cells. A JSON read
 report is written under the Case ``results`` directory. The companion
-``grid/stl/ascii_crlf`` Case uses the same geometry encoded with CRLF line
+``grid/stl_import/ascii_crlf`` Case uses the same geometry encoded with CRLF line
 endings to verify the native text parser through the production entry point.
 Both native Cases omit ``control.txt`` and rely on automatic parameter file
 discovery. This is a surface
@@ -442,7 +442,7 @@ and physical units are not inferred.
 Native OneFLOW grid Case configuration
 --------------------------------------
 
-The native `grid/stl/ascii_basic` Case is a two-dimensional surface conversion
+The native `grid/stl_import/ascii_basic` Case is a two-dimensional surface conversion
 fixture and intentionally has no `script/control.txt`. The runtime discovers
 the parameter files in `script/` using its filename-order loading rule:
 `dimension.txt`, `grid.txt`, and `simu.txt`. The dimension declaration is
@@ -456,9 +456,9 @@ STL case directory convention
 ------------------------------
 
 STL Case names describe the input and expected behavior, not the implementation
-language. Native OneFLOW Cases live directly under ``grid/stl/<case>`` and use
+language. Native OneFLOW Cases live directly under ``grid/stl_import/<case>`` and use
 IDs such as ``stl_ascii_crlf``. Python reference Cases live under
-``grid/stl/python/<case>`` and use the ``stl_python_<case>`` catalog namespace
+``grid/stl_import/python/<case>`` and use the ``stl_python_<case>`` catalog namespace
 because catalog IDs are globally unique. This keeps the case identity readable
 while making the implementation boundary explicit in the directory and
 execution metadata. New STL Cases must follow this convention.

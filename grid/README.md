@@ -52,12 +52,12 @@ duplicate parameter values in the catalog.
 | `mesh_workflow` | Convert the RAE 2822 Plot3D grid to OneFLOW format and write a metadata summary | `script/control.txt`, parameter files, `tools/validate_case.py` |
 | `gmsh_to_cgns` | Gmsh MSH 4.1 ASCII to CGNS conversion template | `grid/conversion/gmsh_to_cgns` |
 | `gmsh_to_oneflow` | Gmsh MSH 4.1 ASCII through CGNS to a native OneFLOW grid | `grid/conversion/gmsh_to_oneflow` |
-| `stl_to_gmsh_square`, `stl_to_gmsh_two_square_cells` | Native C++ OneFLOW STL-to-Gmsh Cases with independent Python references | `grid/stl_to_gmsh/<case>/cpp`, `grid/stl_to_gmsh/<case>/python` |
+| `stl_to_gmsh_square`, `stl_to_gmsh_two_square_cells` | Native C++ OneFLOW STL-to-Gmsh Cases with independent Python references | `grid/stl_to_gmsh/2d/<case>/cpp`, `grid/stl_to_gmsh/3d/<case>/cpp` and the matching Python references |
 | `laminar_flat_plate` | Reference two-block flat-plate layout template with 85 wall-normal points | `grid/mesh-layout/2d/laminar_flat_plate` |
 | `laminar_flat_plate_10_edges` | Two-block laminar flat-plate layout with ten geometric line segments and 41 points across the first 0.02 near-wall region | `grid/mesh-layout/2d/laminar_flat_plate_10_edges` |
 | `turbulent_flat_plate` | Flat-plate layout variant with 81 wall-normal points and updated expected topology counts | `grid/mesh-layout/2d/turbulent_flat_plate` |
 
-The native `stl_to_gmsh` Cases run through the OneFLOW Grid task and use the configured Gmsh CLI to generate MSH 4.1. Their outputs can feed the existing Gmsh-to-CGNS/OneFLOW conversion paths. Each STL-to-Gmsh geometry family groups topology variants first and implementation language second; for example, the square variants live under `grid/stl_to_gmsh/square/single_quad/{cpp,python}` and `grid/stl_to_gmsh/square/two_triangles/{cpp,python}`.
+The native `stl_to_gmsh` Cases run through the OneFLOW Grid task and use the configured Gmsh CLI to generate MSH 4.1. Their outputs can feed the existing Gmsh-to-CGNS/OneFLOW conversion paths. Each STL-to-Gmsh geometry family groups topology variants first and implementation language second; for example, the square variants live under `grid/stl_to_gmsh/2d/square/single_quad/{cpp,python}` and `grid/stl_to_gmsh/2d/square/two_triangles/{cpp,python}`.
 
 ## Mesh layout templates
 

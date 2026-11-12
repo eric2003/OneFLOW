@@ -15,7 +15,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
-from grid.stl.stl_to_gmsh import inspect_msh4
+from grid.stl_to_gmsh.converter import inspect_msh4
 from tools.oneflow_gui.user_data_paths import UserDataPaths
 from tools.oneflow_gui.workflow_graph_runner import run_case_graph
 from tools.oneflow_gui.workflow_plan import build_case_graph_plan

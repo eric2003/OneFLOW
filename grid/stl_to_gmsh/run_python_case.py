@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from grid.stl.stl_to_gmsh import convert, inspect_msh4  # noqa: E402
+from grid.stl_to_gmsh.converter import convert, inspect_msh4  # noqa: E402
 
 def run_case(case_directory: Path, gmsh: str) -> dict:
     case = case_directory.expanduser().resolve()
@@ -76,14 +76,12 @@ def run_case(case_directory: Path, gmsh: str) -> dict:
                 f"is below {minimum_angle:.6g} degrees"
             )
     observed = {key: mesh[key] for key in (
-        "nodes", "line_elements", "triangle_elements", "quadrilateral_elements", "hexahedron_elements")}
-    if layout.get("mesh_dimension") == 3:
-        if (observed["nodes"] != 8 or observed["hexahedron_elements"] != 1
-                or observed["quadrilateral_elements"] != 6
-                or observed["triangle_elements"] != 0):
-            raise RuntimeError(
-                "cube_single_hex must contain 8 nodes, 6 QUAD_4 faces and 1 HEXA_8 cell"
-            )
+        "nodes", "line_elements", "triangle_elements", "quadrilateral_elements",
+        "tetrahedron_elements", "hexahedron_elements")}
+    if layout.get("mesh_dimension") == 3 and not (
+        observed["hexahedron_elements"] or observed["tetrahedron_elements"]
+    ):
+        raise RuntimeError("3D cube mesh must contain HEXA_8 or TETRA_4 volume cells")
     groups = {(g["dimension"], g["name"]) for g in mesh["physical_groups"]}
     wanted_groups = {(g["dimension"], g["name"]) for g in expected["physical_groups"]}
     expected_mesh = expected.get("mesh", {})

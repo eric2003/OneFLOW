@@ -92,7 +92,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
     def test_stl_ascii_basic_is_a_native_oneflow_case(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         entry = next(case for case in catalog["cases"] if case["id"] == "stl_ascii_basic")
-        self.assertEqual(entry["directory"], "grid/stl/ascii_basic/cpp")
+        self.assertEqual(entry["directory"], "grid/stl_import/ascii_basic/cpp")
         self.assertNotIn("runtimeConfig", entry)
         self.assertNotIn("execution", entry)
         case_dir = REPOSITORY_ROOT / entry["directory"]
@@ -112,31 +112,17 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertTrue((case_dir.parent / "python" / "input" / "model.stl").is_file())
         self.assertTrue((case_dir.parent / "python" / "expected.json").is_file())
         self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
-    def test_stl_to_gmsh_generation_case_has_two_structured_mesh_examples(self) -> None:
-        case_dir = REPOSITORY_ROOT / "grid" / "stl" / "stl_to_gmsh"
-        for relative in (
-            "README.md",
-            "run_case.py",
-            "input/square.stl",
-            "input/two_square_cells.stl",
-            "script/single_quad.json",
-            "script/two_quads.json",
-            "results/.gitkeep",
-            ".gitignore",
-        ):
-            self.assertTrue((case_dir / relative).is_file(), relative)
-        single = json.loads((case_dir / "script" / "single_quad.json").read_text(encoding="utf-8"))
-        two = json.loads((case_dir / "script" / "two_quads.json").read_text(encoding="utf-8"))
-        self.assertEqual(single["transfinite_cells"], {"x": 1, "y": 1})
-        self.assertEqual(two["transfinite_cells"], {"x": 2, "y": 1})
-        self.assertEqual(
-            {entry["name"] for entry in single["boundaries"]},
-            {"inflow", "outflow", "symmetry", "farfield"},
-        )
-        self.assertEqual(
-            {entry["name"] for entry in two["boundaries"]},
-            {"inflow", "outflow", "symmetry", "farfield"},
-        )
+    def test_stl_to_gmsh_case_family_has_no_legacy_flat_layout(self) -> None:
+        case_root = REPOSITORY_ROOT / "grid" / "stl_to_gmsh"
+        self.assertTrue((case_root / "README.md").is_file())
+        for legacy_directory in ("input", "results", "script", "config", "pipeline", "python"):
+            self.assertFalse((case_root / legacy_directory).exists(), legacy_directory)
+
+        two_square_cells = case_root / "2d" / "two_square_cells"
+        for implementation in ("cpp", "python"):
+            case_dir = two_square_cells / implementation
+            self.assertTrue((case_dir / "input" / "model.stl").is_file())
+            self.assertTrue((case_dir / "script" / "layout.json").is_file())
 
     def test_stl_to_gmsh_cases_register_native_cpp_and_python_variants(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
@@ -156,6 +142,10 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_python_channel_internal_flow",
             "stl_to_gmsh_cube_single_hex",
             "stl_to_gmsh_python_cube_single_hex",
+            "stl_to_gmsh_cube_six_tetrahedra",
+            "stl_to_gmsh_python_cube_six_tetrahedra",
+            "stl_to_gmsh_cube_automatic_tetrahedra",
+            "stl_to_gmsh_python_cube_automatic_tetrahedra",
         })
         for case_id in (
             "stl_to_gmsh_square",
@@ -165,6 +155,8 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_two_square_cells",
             "stl_to_gmsh_circle_external_flow",
             "stl_to_gmsh_cube_single_hex",
+            "stl_to_gmsh_cube_six_tetrahedra",
+            "stl_to_gmsh_cube_automatic_tetrahedra",
         ):
             entry = entries[case_id]
             self.assertNotIn("execution", entry)
@@ -187,6 +179,8 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_python_circle_external_flow",
             "stl_to_gmsh_python_channel_internal_flow",
             "stl_to_gmsh_python_cube_single_hex",
+            "stl_to_gmsh_python_cube_six_tetrahedra",
+            "stl_to_gmsh_python_cube_automatic_tetrahedra",
         ):
             entry = entries[case_id]
             self.assertEqual(entry["execution"]["kind"], "python")
@@ -199,7 +193,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         entry = next(
             case for case in catalog["cases"] if case["id"] == "stl_ascii_crlf"
         )
-        self.assertEqual(entry["directory"], "grid/stl/ascii_crlf/cpp")
+        self.assertEqual(entry["directory"], "grid/stl_import/ascii_crlf/cpp")
         self.assertNotIn("runtimeConfig", entry)
         self.assertNotIn("execution", entry)
 
@@ -219,7 +213,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
         stl_cases = [case for case in catalog["cases"] if case.get("group") == "STL"]
         self.assertEqual(len(stl_cases), 16)
-        stl_root = REPOSITORY_ROOT / "grid" / "stl"
+        stl_root = REPOSITORY_ROOT / "grid" / "stl_import"
         for legacy in ("input", "results", "script", "python"):
             self.assertFalse((stl_root / legacy).exists(), legacy)
 
@@ -227,12 +221,12 @@ class MeshCaseCatalogTest(unittest.TestCase):
             parts = entry["directory"].split("/")
             execution = entry.get("execution")
             if isinstance(execution, dict) and execution.get("kind") == "python":
-                self.assertEqual(parts[:2], ["grid", "stl"])
+                self.assertEqual(parts[:2], ["grid", "stl_import"])
                 self.assertEqual(parts[-1], "python")
                 self.assertEqual(len(parts), 4)
                 self.assertEqual(entry["id"], f"stl_python_{parts[-2]}")
             else:
-                self.assertEqual(parts[:2], ["grid", "stl"])
+                self.assertEqual(parts[:2], ["grid", "stl_import"])
                 self.assertEqual(parts[-1], "cpp")
                 self.assertEqual(len(parts), 4)
                 self.assertEqual(entry["id"], f"stl_{parts[-2]}")

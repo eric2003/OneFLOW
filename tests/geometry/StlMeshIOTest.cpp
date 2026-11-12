@@ -565,6 +565,77 @@ TEST(StlMeshIOTest, NativeStlToGmshGeneratesSingleHexahedron)
               static_cast<int>(CGNS_ENUMV(BCSymmetryPlane)));
 }
 
+
+TEST(StlMeshIOTest, NativeStlToGmshGeneratesSixCubeTetrahedra)
+{
+    TemporaryDirectory temporary;
+    const auto inputDirectory = temporary.File("input");
+    const auto scriptDirectory = temporary.File("script");
+    std::filesystem::create_directories(inputDirectory);
+    std::filesystem::create_directories(scriptDirectory);
+    ONEFLOW::StlMeshWriter::WriteASCII(
+        (inputDirectory / "model.stl").string(), MakeCubeStl());
+    WriteText(scriptDirectory / "layout.json",
+        R"({"volume_mesh":"axis_aligned_cube_six_tetrahedra","mesh_dimension":3,"boundary_groups":{"xmin":"inflow","xmax":"outflow","ymin":"wall","ymax":"farfield","zmin":"symmetry","zmax":"symmetry"}})");
+    ONEFLOW::GridConfig config;
+    config.sourceType = ONEFLOW::GridFileType::STL;
+    config.targetType = ONEFLOW::GridFileType::Gmsh;
+    config.sourceCaseDir = temporary.File("").string();
+    config.sourceFile = "input/model.stl";
+    config.layoutFile = "script/layout.json";
+    config.targetFile = "results/cube_six_tetrahedra.msh";
+    config.gmshExecutable = "gmsh";
+    config.stlWeldTolerance = 1.0e-10;
+    ONEFLOW::ConvertGrid(config, temporary.File("").string());
+    std::ifstream input(temporary.File("results/cube_six_tetrahedra.msh"), std::ios::binary);
+    ASSERT_TRUE(input.good());
+    const std::string content{std::istreambuf_iterator<char>(input),
+                              std::istreambuf_iterator<char>()};
+    const auto generated = ONEFLOW::ReadGmsh41AsciiMesh(content);
+    EXPECT_EQ(generated.nodes.size(), 8u);
+    std::map<int, std::size_t> counts;
+    for (const auto& element : generated.elements) ++counts[element.type];
+    EXPECT_EQ(counts[2], 12u);
+    EXPECT_EQ(counts[4], 6u);
+    EXPECT_EQ(counts[3], 0u);
+    EXPECT_EQ(counts[5], 0u);
+}
+
+TEST(StlMeshIOTest, NativeStlToGmshAutomaticallyGeneratesCubeTetrahedra)
+{
+    TemporaryDirectory temporary;
+    const auto inputDirectory = temporary.File("input");
+    const auto scriptDirectory = temporary.File("script");
+    std::filesystem::create_directories(inputDirectory);
+    std::filesystem::create_directories(scriptDirectory);
+    ONEFLOW::StlMeshWriter::WriteASCII(
+        (inputDirectory / "model.stl").string(), MakeCubeStl());
+    WriteText(scriptDirectory / "layout.json",
+        R"({"volume_mesh":"axis_aligned_cube_automatic_tetrahedra","mesh_dimension":3,"mesh_size":0.5,"boundary_groups":{"xmin":"inflow","xmax":"outflow","ymin":"wall","ymax":"farfield","zmin":"symmetry","zmax":"symmetry"}})");
+    ONEFLOW::GridConfig config;
+    config.sourceType = ONEFLOW::GridFileType::STL;
+    config.targetType = ONEFLOW::GridFileType::Gmsh;
+    config.sourceCaseDir = temporary.File("").string();
+    config.sourceFile = "input/model.stl";
+    config.layoutFile = "script/layout.json";
+    config.targetFile = "results/cube_automatic_tetrahedra.msh";
+    config.gmshExecutable = "gmsh";
+    config.stlWeldTolerance = 1.0e-10;
+    ONEFLOW::ConvertGrid(config, temporary.File("").string());
+    std::ifstream input(temporary.File("results/cube_automatic_tetrahedra.msh"), std::ios::binary);
+    ASSERT_TRUE(input.good());
+    const std::string content{std::istreambuf_iterator<char>(input),
+                              std::istreambuf_iterator<char>()};
+    const auto generated = ONEFLOW::ReadGmsh41AsciiMesh(content);
+    EXPECT_GT(generated.nodes.size(), 8u);
+    std::map<int, std::size_t> counts;
+    for (const auto& element : generated.elements) ++counts[element.type];
+    EXPECT_GT(counts[2], 0u);
+    EXPECT_GT(counts[4], 0u);
+    EXPECT_EQ(counts[3], 0u);
+    EXPECT_EQ(counts[5], 0u);
+}
+
 TEST(StlMeshIOTest, NativeStlToGmshGeneratesOneSquareCell)
 {
     TemporaryDirectory temporary;

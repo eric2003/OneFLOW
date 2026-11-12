@@ -2,7 +2,7 @@
 
 This reusable Case is the CGNS input stage of the Mesh-to-CFD Validation
 workflow. It consumes the CGNS artifact produced by the preceding
-`grid/gmsh_to_cgns` Case and writes a native OneFLOW unstructured grid.
+`grid/conversion/gmsh_to_cgns` Case and writes a native OneFLOW unstructured grid.
 
 The workflow graph supplies the producer Case directory and relative CGNS
 artifact path through `sourceGridCaseDir` and `sourceGridFileName`. It also

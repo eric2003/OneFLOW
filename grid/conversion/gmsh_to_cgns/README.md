@@ -1,6 +1,8 @@
-# Gmsh to CGNS bootstrap Case
+# Gmsh-to-CGNS conversion template
 
-This is an experimental, GUI-only manual Case for the Gmsh input adapter.
+This reusable conversion template is consumed by the Mesh-to-CFD Validation
+Workbench and by the automated reader/conversion integration tests. It is
+not a standalone manual GUI test Case.
 The primary sample is ASCII MSH 4.1; the C++ reader also retains the legacy
 ASCII MSH 2.x path. Binary MSH and MSH 4.0 are not currently supported.
 
@@ -43,12 +45,16 @@ string targetGridType = "cgns";
 - Entity-to-physical-group membership is retained and used for lower-dimensional
   boundary elements. Periodicity, partition and ghost metadata are not yet mapped.
 
-## Manual execution
+## Workbench execution
 
-Run this Case only from the OneFLOW Tests GUI using the experimental
-`Gmsh-to-CGNS Case (manual)` option. The GUI runner copies the Case to a
-system temporary directory before invoking the standard Case entry point, so
-the checked-in Case is not modified.
+The Mesh-to-CFD Validation Workbench stages this template in an isolated
+workspace after the selected STL-to-Gmsh producer has generated its MSH
+artifact. The stage consumes that artifact through the normal OneFLOW Grid
+task and writes the CGNS interchange file for the following CGNS-to-OneFLOW
+stage. The checked-in template and fixtures are never used as runtime output
+directories. Focused reader and conversion behavior is covered by automated
+C++ integration tests; the full artifact handoff is covered by Workbench tests
+and the external-tool integration workflow.
 
 The current milestone is a first-order unstructured conversion path built
 around a shared staging model and CGNS writer. The Gmsh reader does not pass
@@ -169,9 +175,10 @@ Separate the automated checks into three layers:
    through the CGNS API, and compare Base/Zone dimensions, coordinates,
    element sections, connectivity, BC_t names, BCType_t values, and point lists.
    Keep fixtures tiny and deterministic so these tests are suitable for CI.
-3. **Manual Case tests**: exercise the complete Case entry point, result
-   reports, and GUI workflow. Do not make large or experimental GUI Cases
-   prerequisites for the fast parser unit tests.
+3. **Workflow integration tests**: exercise the conversion template through
+   an isolated Workbench stage, verify the generated CGNS artifact, and pass
+   it to the CGNS-to-OneFLOW consumer. Keep this end-to-end path separate from
+   fast parser unit tests.
 
 Each fixture should state the exact capability it proves and its expected
 node/element/section counts. Avoid one oversized mesh that mixes many

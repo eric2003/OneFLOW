@@ -124,13 +124,13 @@ jobs:
               }
           }
 
-          python -m unittest tests.python.grid.test_stl_to_gmsh_cases
+          python -m unittest grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases
           if ($LASTEXITCODE -ne 0) { throw "STL-to-Gmsh Python tests failed with exit code $LASTEXITCODE." }
 
           python -m unittest tools.oneflow_gui.test_mesh_validation
           if ($LASTEXITCODE -ne 0) { throw "Mesh-to-CFD Validation unit tests failed with exit code $LASTEXITCODE." }
 
-          python grid/stl_to_gmsh/develop_test/run_cases.py --gmsh gmsh --stage-root "${{ runner.temp }}/stl-to-cfd/development-cases"
+          python grid/stl_to_gmsh/run_cases.py --gmsh gmsh --stage-root "${{ runner.temp }}/stl-to-cfd/development-cases"
           if ($LASTEXITCODE -ne 0) {
               throw "The STL-to-Gmsh development Cases failed with exit code $LASTEXITCODE."
           }

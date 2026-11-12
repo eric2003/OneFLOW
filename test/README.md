@@ -38,14 +38,12 @@ test/
   belongs in workflow artifacts; durable conclusions update the stable report.
 
 The regular `ci-serial.txt` suite covers the established CFD residual
-cases and the existing Plot3D grid conversion. The experimental Gmsh bootstrap
-is deliberately not part of CTest, Python unittest, the standard regression
-suites, or GitHub Actions. It is exposed only as a manual option in the GUI's
-OneFLOW Tests dialog. The GUI runner copies `grid/gmsh_to_cgns` to a system
-temporary directory, invokes the normal Case entry point, and checks the
-explicit placeholder marker and mesh counts. The checked-in Case is never
-modified. This is an early parameter-ingestion and conversion-path check;
-the generated `.cgns` artifact is not a standards-compliant CGNS file.
+cases and the existing Plot3D grid conversion. Gmsh-to-CGNS conversion is
+validated through the shared conversion template
+`grid/conversion/gmsh_to_cgns`, the C++ reader/conversion integration tests,
+and the Mesh-to-CFD Validation Workbench. The obsolete GUI-only experimental
+manual runner has been removed; the conversion template and its MSH fixtures
+remain part of the supported conversion and validation workflow.
 
 ## CPU regression baseline
 

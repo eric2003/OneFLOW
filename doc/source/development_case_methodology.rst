@@ -217,3 +217,15 @@ Before merging a new Case into the main development branch, check:
 * [ ] GUI registration and selector grouping are correct;
 * [ ] documentation and verification-contract links are complete;
 * [ ] limitations and unverified capabilities are explicit.
+
+
+3D cube progression
+-------------------
+
+The STL-to-Gmsh cube family is organized under
+``grid/stl_to_gmsh/cube/<strategy>/{cpp,python}``. The three strategies
+share one byte-identical cube STL: ``single_hex`` (one HEXA_8),
+``six_tetrahedra`` (fixed six TETRA_4), and
+``automatic_tetrahedra`` (Gmsh-controlled tetrahedral refinement).
+This sequence separates a fixed topology contract from automatic meshing;
+the latter must not assert a fixed element count.
