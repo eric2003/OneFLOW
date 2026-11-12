@@ -149,7 +149,7 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             self.assertIn("unit-sphere", sphere_overview)
             self.assertIn("partially_verified", sphere_overview)
             self.assertIn(
-                "doc/source/stl_to_gmsh_sphere.rst",
+                "Geometry reconstruction and volume creation",
                 dialog.documentation_view.toPlainText(),
             )
             gmsh_row = next(i for i in range(dialog.contract_list.count())
