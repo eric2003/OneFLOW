@@ -186,8 +186,7 @@ class ProcessControlTest(unittest.TestCase):
                 "import pathlib, time; "
                 f"pathlib.Path({str(started_marker)!r}).write_text('ready'); "
                 f"release = pathlib.Path({str(release_marker)!r})\n"
-                "deadline = time.monotonic() + 10\n"
-                "while not release.exists() and time.monotonic() < deadline:\n"
+                "while not release.exists():\n"
                 "    time.sleep(0.01)\n"
                 f"pathlib.Path({str(marker)!r}).write_text('alive')"
             )
@@ -224,6 +223,9 @@ class ProcessControlTest(unittest.TestCase):
                     time.sleep(0.01)
                 self.assertFalse(marker.exists())
             finally:
+                # Always release a surviving child, including when an earlier
+                # assertion aborts the test before the normal release point.
+                release_marker.write_text("release", encoding="utf-8")
                 if process.poll() is None:
                     terminate_process_tree(process, platform_name="nt")
                     process.wait(timeout=10)
