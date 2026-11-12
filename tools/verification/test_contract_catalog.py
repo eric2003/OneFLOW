@@ -111,9 +111,9 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(contract.kind, "mesh_generation_pipeline")
         self.assertEqual(contract.group_id, "mesh_generation")
         self.assertEqual(contract.group_title, "Mesh Generation")
-        self.assertIn("grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/input/model.stl",
+        self.assertIn("grid/stl_to_gmsh/converter.py",
                       contract.implementation_paths)
-        self.assertIn("grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/input/model.stl",
+        self.assertIn("codes/geometry/src/GridConversion.cpp",
                       contract.implementation_paths)
         self.assertIn("doc/source/stl_to_gmsh_sphere.rst",
                       contract.documentation_paths)
