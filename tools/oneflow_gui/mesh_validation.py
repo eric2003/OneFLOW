@@ -44,6 +44,8 @@ def mesh_case_groups(
     for item in entries:
         if item.get("group") != "STL to Gmsh":
             continue
+        if item.get("mesh_validation", True) is False:
+            continue
         if (item.get("execution") or {}).get("kind", "oneflow") not in {"oneflow", "python"}:
             continue
         dimension = item.get("dimension")
