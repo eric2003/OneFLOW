@@ -1,0 +1,729 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneFLOW Native STL Surface I/O &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Gmsh MSH Interface" href="gmsh_interface.html" />
+    <link rel="prev" title="OneFLOW Mesh Architecture" href="mesh_architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake_build_architecture.html">CMake Build Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OneFLOW Native STL Surface I/O</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose-and-status">Purpose and status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stl-s-role-in-the-geometry-architecture">STL’s role in the geometry architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#proposed-c-module-boundary">Proposed C++ module boundary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stl-data-semantics">STL data semantics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ascii-stl">ASCII STL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#binary-stl">Binary STL</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#facet-identity-normals-and-topology">Facet identity, normals and topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reader-writer-acceptance-criteria">Reader/writer acceptance criteria</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#development-case-and-verification-matrix">Development Case and verification matrix</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#native-c-oneflow-development-cases">Native C++ OneFLOW Development Cases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-reference-development-cases">Python reference Development Cases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#native-c-googletests">Native C++ GoogleTests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#relationship-to-existing-python-tools">Relationship to existing Python tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mesh-contract-workbench-entry">Mesh Contract Workbench entry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#native-oneflow-grid-case">Native OneFLOW grid Case</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#native-oneflow-grid-case-configuration">Native OneFLOW grid Case configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stl-case-directory-convention">STL case directory convention</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tolerance-based-vertex-identity-and-spatial-data-structures">Tolerance-based vertex identity and spatial data structures</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_2d.html">Planar STL to Gmsh 2D Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_conversion_cases.html">Grid Conversion Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_case_methodology.html">Development Case Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_condition_architecture.html">Boundary Condition Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_to_cfd_validation.html">Mesh-to-CFD Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OneFLOW Native STL Surface I/O</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/stl_mesh_io.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oneflow-native-stl-surface-i-o">
+<h1>OneFLOW Native STL Surface I/O<a class="headerlink" href="#oneflow-native-stl-surface-i-o" title="Link to this heading"></a></h1>
+<section id="purpose-and-status">
+<h2>Purpose and status<a class="headerlink" href="#purpose-and-status" title="Link to this heading"></a></h2>
+<p>This page defines the target architecture and verification contract for native
+STL surface-file support in the C++ codes/geometry module.</p>
+<p><strong>Status: first C++ I/O slice implemented; CI verification pending.</strong> The current Python implementation in
+grid/stl_to_gmsh/converter.py is a separate planar-surface conversion tool. Its tests
+do not exercise OneFLOW’s C++ geometry code. The native reader and writer
+are now implemented in StlMeshIO.h and StlMeshIO.cpp. Native GoogleTests are
+registered in tests/geometry/StlMeshIOTest.cpp; their execution status is
+tracked separately by the Mesh Contract Workbench.</p>
+</section>
+<section id="stl-s-role-in-the-geometry-architecture">
+<h2>STL’s role in the geometry architecture<a class="headerlink" href="#stl-s-role-in-the-geometry-architecture" title="Link to this heading"></a></h2>
+<p>STL is a triangle-surface interchange format. It is not a volume mesh format,
+and it does not carry the semantic information required to directly configure
+a CFD solver. The ownership boundary is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ASCII STL / Binary STL
+          |
+          v
+   C++ StlMeshReader
+          |
+          v
+     StlMesh value
+          |
+          +----&gt; C++ StlMeshWriter ----&gt; ASCII / Binary STL
+          |
+          v
+   explicit surface validation
+          |
+          v
+   explicit topology construction
+          |
+          v
+   Geometry / Mesh Core adapters
+          |
+          +----&gt; Gmsh / CGNS / OneFLOW mesh routes
+</pre></div>
+</div>
+<p>The format adapter owns byte/text decoding, STL record validation and
+serialization. It does not own vertex welding, manifold repair, boundary
+condition assignment, volume meshing or solver mesh initialization. Those
+operations belong to later, explicit services with their own contracts.</p>
+</section>
+<section id="proposed-c-module-boundary">
+<h2>Proposed C++ module boundary<a class="headerlink" href="#proposed-c-module-boundary" title="Link to this heading"></a></h2>
+<p>The implementation belongs beside the existing geometry format adapters:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>codes/geometry/
+    include/
+        StlMeshIO.h
+    src/
+        StlMeshIO.cpp
+</pre></div>
+</div>
+<p>The public API should be value-based and independent of Gmsh, CGNS, Qt and
+Python. A first version can expose:</p>
+<ul class="simple">
+<li><p>StlFormat with ASCII, Binary and Auto values;</p></li>
+<li><p>StlTriangle: stored normal, three ordered vertices and a 16-bit binary
+attribute value;</p></li>
+<li><p>StlMesh: source header and ordered facet records;</p></li>
+<li><p>StlMeshReader::Read(path, format);</p></li>
+<li><p>StlMeshWriter::WriteASCII(path, mesh) and WriteBinary(path, mesh).</p></li>
+</ul>
+<p>Exact names may be adjusted to match existing OneFLOW naming conventions, but
+the ownership and data-preservation rules below are architectural invariants.
+The reader should return a value or throw a documented parse/I/O exception;
+it must not leave partially initialized global mesh state.</p>
+</section>
+<section id="stl-data-semantics">
+<h2>STL data semantics<a class="headerlink" href="#stl-data-semantics" title="Link to this heading"></a></h2>
+<section id="ascii-stl">
+<h3>ASCII STL<a class="headerlink" href="#ascii-stl" title="Link to this heading"></a></h3>
+<p>The conventional facet grammar is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>solid name
+  facet normal nx ny nz
+    outer loop
+      vertex x1 y1 z1
+      vertex x2 y2 z2
+      vertex x3 y3 z3
+    endloop
+  endfacet
+endsolid name
+</pre></div>
+</div>
+<p>The parser should accept ordinary whitespace and line-ending variation,
+including LF and CRLF. Keywords should follow a documented case policy.
+Numeric values must parse completely and be finite. The parser should reject
+incomplete facets, missing terminators, malformed numbers and unsupported
+facet structures with diagnostics that identify the file and parsing context.</p>
+<p>ASCII STL has no standard per-facet attribute field. Writing a mesh that
+contains nonzero binary attributes to ASCII is therefore lossy; the writer or
+conversion report must state this rather than silently implying a lossless
+round trip.</p>
+</section>
+<section id="binary-stl">
+<h3>Binary STL<a class="headerlink" href="#binary-stl" title="Link to this heading"></a></h3>
+<p>The conventional binary layout is:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Offset</p></th>
+<th class="head"><p>Size</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>80 bytes</p></td>
+<td><p>Header (opaque bytes; not necessarily a null-terminated string)</p></td>
+</tr>
+<tr class="row-odd"><td><p>80</p></td>
+<td><p>4 bytes</p></td>
+<td><p>Unsigned triangle count, little-endian</p></td>
+</tr>
+<tr class="row-even"><td><p>84</p></td>
+<td><p>50 bytes per facet</p></td>
+<td><p>12 float32 values followed by one uint16 attribute value</p></td>
+</tr>
+</tbody>
+</table>
+<p>Each facet contains three float32 normal components, nine float32 vertex
+components and one uint16 attribute. The expected conventional file size is
+84 + 50 * triangle_count. Implementations must check integer overflow before
+computing the expected size, validate truncation, and use explicit little-endian
+decoding/encoding. Do not rely on compiler struct packing or host endianness.</p>
+<p>The 80-byte header is opaque. It may begin with “solid”; therefore, checking
+the first five bytes is not sufficient to distinguish ASCII from binary.
+Automatic detection should combine file length and structural parsing, and
+must report ambiguous or malformed inputs instead of guessing silently.
+Any policy for trailing bytes should be explicit and tested.</p>
+</section>
+</section>
+<section id="facet-identity-normals-and-topology">
+<h2>Facet identity, normals and topology<a class="headerlink" href="#facet-identity-normals-and-topology" title="Link to this heading"></a></h2>
+<p>STL repeats three vertex coordinates in every facet. It does not provide
+authoritative shared node IDs. The reader must preserve facet order and vertex
+order and must not weld coordinates as a side effect of parsing.</p>
+<p>The stored normal and vertex winding are source records. A normal may be zero,
+non-unit or inconsistent with the winding. Reading should preserve the source
+normal; validation may report its magnitude and its agreement with the
+geometric normal. Automatic normal recomputation, winding reversal and
+coordinate welding are repair/transform operations and must never happen
+silently inside the reader.</p>
+<p>For vertices x1, x2, x3, the geometric area is</p>
+<div class="math notranslate nohighlight">
+\[A = \frac{1}{2}
+    \left\|
+    (\mathbf{x}_2-\mathbf{x}_1) \times
+    (\mathbf{x}_3-\mathbf{x}_1)
+    \right\|.\]</div>
+<p>A zero or tolerance-degenerate area is a geometric diagnostic. Whether such a
+facet is rejected at parse time or retained with a validation finding must be
+an explicit API policy; the recommended separation is to parse finite records
+first and let a surface validator classify degeneracy.</p>
+<p>STL does not standardize units, coordinate reference systems, material
+semantics, named boundary patches, physical groups, volume elements or solver
+boundary conditions. Those must come from external project metadata or later
+mapping contracts. A file being syntactically valid does not imply a closed,
+manifold or CFD-ready surface.</p>
+</section>
+<section id="reader-writer-acceptance-criteria">
+<h2>Reader/writer acceptance criteria<a class="headerlink" href="#reader-writer-acceptance-criteria" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 24.0%" />
+<col style="width: 48.0%" />
+<col style="width: 28.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Area</p></th>
+<th class="head"><p>Required behavior</p></th>
+<th class="head"><p>Evidence</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ASCII reader</p></td>
+<td><p>Basic facet, whitespace, CRLF, numeric notation, malformed and truncated records</p></td>
+<td><p>C++ GoogleTests</p></td>
+</tr>
+<tr class="row-odd"><td><p>Binary reader</p></td>
+<td><p>Header, count, little-endian values, attributes, solid-prefixed header, truncation and count/length mismatch</p></td>
+<td><p>C++ GoogleTests</p></td>
+</tr>
+<tr class="row-even"><td><p>Format detection</p></td>
+<td><p>ASCII/binary discrimination based on structural evidence, including ambiguous headers</p></td>
+<td><p>C++ GoogleTests</p></td>
+</tr>
+<tr class="row-odd"><td><p>ASCII writer</p></td>
+<td><p>Stable precision, valid grammar, finite-value policy</p></td>
+<td><p>Parse-after-write test</p></td>
+</tr>
+<tr class="row-even"><td><p>Binary writer</p></td>
+<td><p>Exact header/count/facet layout, little-endian output, attribute preservation</p></td>
+<td><p>Byte-level assertions and parse-after-write test</p></td>
+</tr>
+<tr class="row-odd"><td><p>Round trip</p></td>
+<td><p>Compare facet count, order, coordinates, normals and all representable attributes</p></td>
+<td><p>ASCII and binary round-trip tests</p></td>
+</tr>
+<tr class="row-even"><td><p>Error handling</p></td>
+<td><p>File-open failures, invalid numbers, truncated records, unsupported structure, overflow and output failures</p></td>
+<td><p>Exception/diagnostic tests</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cross-platform</p></td>
+<td><p>No host-endian or Windows-only path assumptions</p></td>
+<td><p>Windows and Linux CI</p></td>
+</tr>
+</tbody>
+</table>
+<p>The initial tests should be native C++ tests linked to OneFLOW_GeometryCore.
+A fixture may be shared with Python, but a Python test invoking
+stl_to_gmsh.py is not evidence for this C++ contract. Integration tests that
+build shared topology or convert STL to a OneFLOW mesh are a later milestone
+and must be reported separately from parser tests.</p>
+</section>
+<section id="development-case-and-verification-matrix">
+<h2>Development Case and verification matrix<a class="headerlink" href="#development-case-and-verification-matrix" title="Link to this heading"></a></h2>
+<p>The Development Tests catalog separates native OneFLOW Cases from Python
+reference Cases. In the Tests dialog, the <strong>Python examples</strong> checkbox is an
+execution-mode selector:</p>
+<ul class="simple">
+<li><p>Unchecked (default): run only native C++ OneFLOW Cases through the normal
+<cite>OneFLOW.exe r &lt;case-directory&gt;</cite> entry point.</p></li>
+<li><p>Checked: run only Python reference Cases through their declared Python
+script. No OneFLOW executable is required in this mode.</p></li>
+<li><p>The case selection is shared and retained when switching modes. Each Run
+executes only the selected cases belonging to the active mode.</p></li>
+</ul>
+<p>This separation is essential: a Python parser passing says nothing about
+whether <cite>StlMeshReader</cite>, the C++ Grid conversion dispatcher, or the CGNS
+writer works. Conversely, a native runtime Case does not validate the
+independent Python geometry helper.</p>
+<section id="native-c-oneflow-development-cases">
+<h3>Native C++ OneFLOW Development Cases<a class="headerlink" href="#native-c-oneflow-development-cases" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 23.0%" />
+<col style="width: 31.0%" />
+<col style="width: 24.0%" />
+<col style="width: 22.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Case</p></th>
+<th class="head"><p>Purpose</p></th>
+<th class="head"><p>What PASS establishes</p></th>
+<th class="head"><p>Not covered</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><cite>stl_ascii_basic</cite></p></td>
+<td><p>Baseline ASCII two-triangle square through the production Grid task</p></td>
+<td><p>C++ STL read, tolerance-based shared-vertex construction, TRI_3 surface and CGNS output are connected; expected four nodes and two triangles</p></td>
+<td><p>Volume meshing, units, physical groups, BC assignment, manifold or watertight proof</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>stl_ascii_crlf</cite></p></td>
+<td><p>Same geometry with CRLF line endings</p></td>
+<td><p>Native C++ ASCII parsing is independent of Windows/Linux text line endings</p></td>
+<td><p>Other encodings, arbitrary malformed grammar, geometry repair or volume generation</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>stl_ascii_scientific_notation</cite></p></td>
+<td><p>Same geometry with exponent-form finite coordinates and normals</p></td>
+<td><p>Native C++ numeric token parsing accepts scientific notation through the runtime conversion route</p></td>
+<td><p>Extreme exponent/overflow boundaries, locale-specific decimal separators, geometric quality or solver suitability</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>stl_binary_basic</cite></p></td>
+<td><p>Two-triangle square encoded as standard binary STL</p></td>
+<td><p>Native C++ runtime decodes the 80-byte header, little-endian count and 50-byte facets and writes the surface CGNS output</p></td>
+<td><p>All binary corruption cases, arbitrary vendor extensions, attribute semantic interpretation, volume meshing</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>stl_binary_header_solid</cite></p></td>
+<td><p>Binary STL whose opaque header begins with the word <cite>solid</cite></p></td>
+<td><p>Native C++ runtime detects binary structure rather than relying on the header prefix</p></td>
+<td><p>Every ambiguous/trailing-byte variant or all possible format-detection ambiguities</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>stl_non_planar_surface</cite></p></td>
+<td><p>Two adjacent facets form a folded, non-planar 3D surface</p></td>
+<td><p>Native C++ STL-to-CGNS conversion preserves Z coordinates without assuming a single planar XY boundary</p></td>
+<td><p>Surface repair, self-intersection detection, manifoldness, volume meshing or solver boundary assignment</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>stl_weld_tolerance</cite></p></td>
+<td><p>Adjacent facets repeat a shared vertex with a small coordinate perturbation</p></td>
+<td><p>Configured <cite>stlWeldTolerance</cite> maps near-coincident coordinates to one node; expected output is four nodes and two triangles</p></td>
+<td><p>Robust spatial clustering for arbitrary point distributions, tolerance sensitivity studies, and topology quality beyond vertex identity</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="python-reference-development-cases">
+<h3>Python reference Development Cases<a class="headerlink" href="#python-reference-development-cases" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 23.0%" />
+<col style="width: 31.0%" />
+<col style="width: 24.0%" />
+<col style="width: 22.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Case</p></th>
+<th class="head"><p>Purpose</p></th>
+<th class="head"><p>What PASS establishes</p></th>
+<th class="head"><p>Not covered</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><cite>stl_python_ascii_basic</cite></p></td>
+<td><p>Baseline ASCII parser and planar-boundary extraction</p></td>
+<td><p>Python utility reads the fixture and extracts the expected simple closed boundary</p></td>
+<td><p>Native C++ parsing, CGNS writing, general 3D topology</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>stl_python_ascii_crlf</cite></p></td>
+<td><p>ASCII line-ending compatibility</p></td>
+<td><p>Python reference path handles CRLF input</p></td>
+<td><p>Native C++ line-ending behavior or other encodings</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>stl_python_binary_basic</cite></p></td>
+<td><p>Conventional 80-byte header and binary triangle record</p></td>
+<td><p>Python utility recognizes and reads a structurally valid binary STL</p></td>
+<td><p>C++ binary reader/writer, attribute round trip, large-file robustness</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>stl_python_binary_header_solid</cite></p></td>
+<td><p>Binary header whose first bytes spell <cite>solid</cite></p></td>
+<td><p>Python format detection does not classify binary solely from the header prefix</p></td>
+<td><p>Native C++ auto-detection (covered separately by C++ unit tests), all ambiguous files</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>stl_python_scientific_notation</cite></p></td>
+<td><p>ASCII exponent notation</p></td>
+<td><p>Python numeric parser accepts the fixture’s finite scientific notation</p></td>
+<td><p>Native C++ numeric parsing or arbitrary numeric edge cases</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>stl_python_degenerate_triangle</cite></p></td>
+<td><p>Zero-area / collapsed triangle diagnostic in planar extraction</p></td>
+<td><p>Python topology stage detects and reports this invalid geometry</p></td>
+<td><p>Whether the C++ STL reader rejects it; parsing and geometric validation are separate contracts</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>stl_python_truncated_binary</cite></p></td>
+<td><p>Incomplete binary STL payload</p></td>
+<td><p>Python reader reports the expected truncated-input diagnostic rather than accepting partial data</p></td>
+<td><p>C++ binary truncation behavior (covered by C++ unit test), all corrupt binary variants</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>stl_python_non_planar_surface</cite></p></td>
+<td><p>Non-planar input to a planar-boundary workflow</p></td>
+<td><p>Python utility refuses to treat unsupported non-planar geometry as a valid planar boundary</p></td>
+<td><p>Surface remeshing, projection, repair, or general 3D surface validity</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="native-c-googletests">
+<h3>Native C++ GoogleTests<a class="headerlink" href="#native-c-googletests" title="Link to this heading"></a></h3>
+<p>The focused <cite>StlMeshIOTest</cite> suite checks the I/O API in isolation using
+temporary fixtures. Its individual test purposes are:</p>
+<ul class="simple">
+<li><p><cite>ReadsAsciiFacetAndPreservesVertexOrder</cite>: proves the ASCII reader returns
+the stored normal and ordered vertices; it does not prove CGNS conversion.</p></li>
+<li><p><cite>ReadsBinaryAndPreservesSolidHeaderAndAttribute</cite>: proves binary layout
+decoding and preservation of the opaque header and 16-bit facet attribute;
+it does not prove topology construction or all vendor-specific attributes.</p></li>
+<li><p><cite>RejectsTruncatedBinaryFacet</cite>: proves a size/count mismatch is rejected;
+it does not exhaust every malformed-file condition.</p></li>
+<li><p><cite>RejectsNonFiniteAsciiCoordinates</cite>: proves non-finite numeric data is
+rejected at the I/O boundary; it does not assess finite but poor-quality
+geometry.</p></li>
+<li><p><cite>WritesBinaryAndRoundTripsAttributeAndFacetData</cite>: proves binary output
+can be read back with facet data and attributes preserved; it does not
+guarantee byte-identical output for arbitrary source headers.</p></li>
+<li><p><cite>WritesAsciiAndRoundTripsFacetGeometry</cite>: proves ASCII serialization
+preserves representable facet geometry; ASCII has no binary attribute field.</p></li>
+<li><p><cite>RejectsAsciiWriteWhenBinaryAttributesWouldBeLost</cite>: proves the writer
+refuses a known lossy conversion; it does not define every downstream
+interchange policy.</p></li>
+<li><p><cite>RejectsBinaryWriterValuesOutsideFloat32Range</cite>: proves binary output
+rejects values that cannot be represented as finite float32; it does not
+guarantee adequate precision for every engineering scale.</p></li>
+</ul>
+<p>For the native runtime Development Cases, the current runner records the OneFLOW process exit status. The STL read report contains triangle/node/cell counts, but the GUI runner does not yet compare those fields against per-Case expected-result assertions. Therefore a green Case run currently proves successful execution of the declared runtime path; the documented node/cell counts are expected outputs to inspect, not yet an independently enforced numerical oracle. Adding machine-checked result manifests is a separate next step.</p>
+<p>A passing GoogleTest establishes the named parser/writer behavior only.
+A passing native Development Case additionally exercises runtime parameter
+ingestion, Grid dispatch, topology staging and CGNS output. Neither alone
+proves that an imported surface is watertight, manifold, consistently
+oriented, correctly scaled, physically labelled, or suitable for CFD volume
+generation. Those require independent geometry, topology, unit/provenance
+and meshing contracts.</p>
+</section>
+</section>
+<section id="relationship-to-existing-python-tools">
+<h2>Relationship to existing Python tools<a class="headerlink" href="#relationship-to-existing-python-tools" title="Link to this heading"></a></h2>
+<p>The existing grid/stl Python utilities remain useful for planar boundary
+extraction and Gmsh geometry generation. They have a different responsibility:</p>
+<ul class="simple">
+<li><p>Python utility: planar boundary extraction, sidecar-driven domain setup,
+Gmsh generation, and independent reference checks for selected format cases.</p></li>
+<li><p>C++ Geometry adapter: native STL file I/O and source-facet preservation,
+integrated into the standard OneFLOW runtime and mesh conversion pipeline.</p></li>
+<li><p>Later topology service: explicit vertex welding, connected components,
+edge incidence, manifold checks and surface orientation diagnostics.</p></li>
+<li><p>Later conversion adapter: validated surface topology into a mesher or
+OneFLOW Mesh Core representation.</p></li>
+</ul>
+<p>The Python STL development cases under <code class="docutils literal notranslate"><span class="pre">grid/stl_import/python/</span></code> currently registered in the development
+case catalog exercise the Python utility only. They must not be described as
+native C++ STL reader tests. Python reference cases remain useful when they
+exercise distinct behavior or provide an independent cross-check; they are
+not duplicate production backends. In particular, the original
+<code class="docutils literal notranslate"><span class="pre">grid/stl_import/python/ascii_basic</span></code> Python case is retained and registered as
+<code class="docutils literal notranslate"><span class="pre">stl_python_ascii_basic</span></code> alongside the native <code class="docutils literal notranslate"><span class="pre">stl_ascii_basic</span></code> Case.
+They share a simple input shape but verify different implementation paths:
+Python checks the reference utility’s parsing and planar-boundary extraction,
+while C++ checks OneFLOW’s native reader, topology conversion and CGNS output. The native <code class="docutils literal notranslate"><span class="pre">stl_ascii_basic</span></code> and
+<code class="docutils literal notranslate"><span class="pre">stl_ascii_crlf</span></code> Cases exercise the production C++ route, with the latter
+preserving CRLF line endings in its fixture. The first native C++ GoogleTest target is now
+registered with CTest through the geometry test helper. Additional STL cases should be added there as reader/writer coverage expands.
+The registered Python <code class="docutils literal notranslate"><span class="pre">stl_python_ascii_basic</span></code> and
+<code class="docutils literal notranslate"><span class="pre">stl_python_ascii_crlf</span></code> reference cases and native
+<code class="docutils literal notranslate"><span class="pre">stl_ascii_crlf</span></code> integration Case have distinct responsibilities:
+the former checks the Python utility, while the latter exercises the C++
+reader through OneFLOW’s normal Grid task and CGNS conversion path.</p>
+</section>
+<section id="mesh-contract-workbench-entry">
+<h2>Mesh Contract Workbench entry<a class="headerlink" href="#mesh-contract-workbench-entry" title="Link to this heading"></a></h2>
+<p>The machine-readable contract is
+tools/verification/contracts/mesh/stl-native-io.json, with ID
+mesh/stl-native-io. It is grouped under Mesh / Interchange Formats and
+currently has status partially_verified. The Overview, Principle, Reference and
+Architecture tabs describe the contract. The Implementation tab links the C++ header/source and the Verification
+tab links native GoogleTests. Linked tests are declarations, not PASS results;
+CI must provide execution evidence before the contract can be promoted to
+verified. This prevents a source declaration from being mistaken for a
+passing test.</p>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Library of Congress, STL (STereoLithography) File Format:
+<a class="reference external" href="https://www.loc.gov/preservation/digital/formats/fdd/fdd000504.shtml">https://www.loc.gov/preservation/digital/formats/fdd/fdd000504.shtml</a></p></li>
+<li><p>Gmsh Reference Manual, file formats and geometry import:
+<a class="reference external" href="https://gmsh.info/doc/texinfo/gmsh.html">https://gmsh.info/doc/texinfo/gmsh.html</a></p></li>
+<li><p>OneFLOW mesh_architecture, gmsh_interface and stl_to_gmsh_2d pages.</p></li>
+</ul>
+</section>
+</section>
+<section id="native-oneflow-grid-case">
+<h1>Native OneFLOW grid Case<a class="headerlink" href="#native-oneflow-grid-case" title="Link to this heading"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">grid/stl_import/ascii_basic</span></code> is a normal OneFLOW grid Case. It is registered in
+<code class="docutils literal notranslate"><span class="pre">grid/case_catalog.json</span></code> without a Python execution backend and is launched
+through the standard <code class="docutils literal notranslate"><span class="pre">OneFLOW.exe</span> <span class="pre">r</span> <span class="pre">&lt;case-directory&gt;</span></code> entry point. It does not require a <code class="docutils literal notranslate"><span class="pre">script/control.txt</span></code> manifest. The runtime discovers
+parameter files in <code class="docutils literal notranslate"><span class="pre">script/</span></code> according to its filename-order loading rule;
+<code class="docutils literal notranslate"><span class="pre">grid.txt</span></code> selects <code class="docutils literal notranslate"><span class="pre">sourceGridType</span> <span class="pre">=</span> <span class="pre">&quot;stl&quot;</span></code> and
+<code class="docutils literal notranslate"><span class="pre">targetGridType</span> <span class="pre">=</span> <span class="pre">&quot;cgns&quot;</span></code>.</p>
+<p>The C++ grid-conversion dispatcher reads the STL through <code class="docutils literal notranslate"><span class="pre">StlMeshReader</span></code>,
+constructs a two-dimensional unstructured triangle surface, and writes CGNS
+through <code class="docutils literal notranslate"><span class="pre">UnstructuredCgnsZoneWriter</span></code>. Shared coordinates are welded using
+the explicit <code class="docutils literal notranslate"><span class="pre">stlWeldTolerance</span></code> Case parameter. The bundled two-triangle
+square is expected to produce four nodes and two TRI_3 cells. A JSON read
+report is written under the Case <code class="docutils literal notranslate"><span class="pre">results</span></code> directory. The companion
+<code class="docutils literal notranslate"><span class="pre">grid/stl_import/ascii_crlf</span></code> Case uses the same geometry encoded with CRLF line
+endings to verify the native text parser through the production entry point.
+Both native Cases omit <code class="docutils literal notranslate"><span class="pre">control.txt</span></code> and rely on automatic parameter file
+discovery. This is a surface
+conversion milestone, not a volume mesher; STL boundary-condition semantics
+and physical units are not inferred.</p>
+<section id="native-oneflow-grid-case-configuration">
+<h2>Native OneFLOW grid Case configuration<a class="headerlink" href="#native-oneflow-grid-case-configuration" title="Link to this heading"></a></h2>
+<p>The native <cite>grid/stl_import/ascii_basic</cite> Case is a two-dimensional surface conversion
+fixture and intentionally has no <cite>script/control.txt</cite>. The runtime discovers
+the parameter files in <cite>script/</cite> using its filename-order loading rule:
+<cite>dimension.txt</cite>, <cite>grid.txt</cite>, and <cite>simu.txt</cite>. The dimension declaration is
+explicit (<cite>int dimension = 2;</cite>); it is a runtime parameter, not an inferred
+property of the STL file. The Case catalog and preflight validator also support
+native Cases without a runtime manifest and validate their discovered
+<cite>script/*.txt</cite> parameter files.</p>
+</section>
+<section id="stl-case-directory-convention">
+<h2>STL case directory convention<a class="headerlink" href="#stl-case-directory-convention" title="Link to this heading"></a></h2>
+<p>STL Case names describe the input and expected behavior, not the implementation
+language. Native OneFLOW Cases live directly under <code class="docutils literal notranslate"><span class="pre">grid/stl_import/&lt;case&gt;</span></code> and use
+IDs such as <code class="docutils literal notranslate"><span class="pre">stl_ascii_crlf</span></code>. Python reference Cases live under
+<code class="docutils literal notranslate"><span class="pre">grid/stl_import/python/&lt;case&gt;</span></code> and use the <code class="docutils literal notranslate"><span class="pre">stl_python_&lt;case&gt;</span></code> catalog namespace
+because catalog IDs are globally unique. This keeps the case identity readable
+while making the implementation boundary explicit in the directory and
+execution metadata. New STL Cases must follow this convention.</p>
+</section>
+<section id="tolerance-based-vertex-identity-and-spatial-data-structures">
+<h2>Tolerance-based vertex identity and spatial data structures<a class="headerlink" href="#tolerance-based-vertex-identity-and-spatial-data-structures" title="Link to this heading"></a></h2>
+<p>The previous native conversion and Python planar helper used coordinate-wise
+rounding by the weld tolerance. Rounding is not a geometric distance test:
+near points can fall on opposite cells, while points in one cell can be farther
+apart than the tolerance.</p>
+<p>The native C++ conversion now reuses the existing ADT-backed PointLocator.
+The ADT is only a broad-phase spatial index; the locator applies an exact
+squared Euclidean distance check in the narrow phase. The Python reference
+uses a tolerance-sized spatial hash, searches the 27 neighboring buckets, and
+applies the same Euclidean predicate. Both retain the first inserted point as
+the representative and reuse the nearest matching representative.</p>
+<p>This is representative-based welding, not transitive connected-component
+clustering. For A-B-C where A-B and B-C are within tolerance but A-C is not,
+the algorithm does not merge C merely because B matched A. This policy is
+explicit because transitive closure can change topology and can chain together
+points whose total spread is much larger than the tolerance.</p>
+<p>ADT, KD-tree and uniform-grid hashing are candidate lookup structures; none
+defines geometric identity. A candidate must pass the narrow-phase metric.
+OneFLOW already vendors nanoflann, but a second spatial dependency is not
+justified here: the existing ADT PointLocator serves the native path, while
+nanoflann remains an option to benchmark if profiling later shows a need.</p>
+<p>StlVertexWeldingTest and the Python reference tests cover cell-boundary misses,
+same-cell false merges and non-transitive representative behavior. This does
+not port Gmsh .geo generation, sidecar physical-boundary assignment or the
+external Gmsh CLI tests into C++; those belong to a separate Gmsh conversion
+adapter and must not be represented as STL parser coverage.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mesh_architecture.html" class="btn btn-neutral float-left" title="OneFLOW Mesh Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gmsh_interface.html" class="btn btn-neutral float-right" title="Gmsh MSH Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,601 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boundary Condition Architecture &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Face Stage Pipeline" href="face_stage_pipeline.html" />
+    <link rel="prev" title="Grid Topology and Validation" href="grid_topology.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake_build_architecture.html">CMake Build Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html">OneFLOW Native STL Surface I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html#native-oneflow-grid-case">Native OneFLOW grid Case</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_2d.html">Planar STL to Gmsh 2D Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_conversion_cases.html">Grid Conversion Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_case_methodology.html">Development Case Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Boundary Condition Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#three-layers-that-must-remain-distinct">Three layers that must remain distinct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-physical-condition-families">Common physical condition families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gmsh-physical-group-name-to-cgns-type">Gmsh Physical Group name to CGNS type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cgns-bctype-t-reference">CGNS BCType_t reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cgns-type-to-oneflow-category">CGNS type to OneFLOW category</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#information-that-must-be-preserved">Information that must be preserved</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contract-ownership-and-verification-lifecycle">Contract ownership and verification lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workbench-presentation">Workbench presentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dedicated-boundary-conditions-workbench">Dedicated Boundary Conditions Workbench</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_to_cfd_validation.html">Mesh-to-CFD Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Boundary Condition Architecture</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/boundary_condition_architecture.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="boundary-condition-architecture">
+<h1>Boundary Condition Architecture<a class="headerlink" href="#boundary-condition-architecture" title="Link to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>Boundary conditions are a first-class physical and numerical domain in
+OneFLOW. They connect the physical problem to the mathematical model, mesh
+boundary entities, discretization, solver implementation and runtime state
+data. They are not merely mesh labels or converter string substitutions.</p>
+<p>This page records current Gmsh-to-CGNS-to-OneFLOW type mappings and the
+information required for a richer, loss-aware semantic contract. A mapped
+type is not proof that a compatible CFD model or boundary state is configured.</p>
+</section>
+<section id="three-layers-that-must-remain-distinct">
+<h2>Three layers that must remain distinct<a class="headerlink" href="#three-layers-that-must-remain-distinct" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Boundary identity identifies a patch or interface in a mesh: Inlet,
+Outlet, UpperWall, Cylinder, PeriodicA or Fluid. Names, source IDs,
+dimensions, entity membership, orientation and provenance belong to Mesh.</p></li>
+<li><p>Physical boundary semantics states what the boundary means in the
+mathematical problem: prescribed velocity, mass flow, static pressure,
+characteristic inflow, pressure outlet, no-slip wall, inviscid slip wall,
+isothermal wall, specified heat flux, symmetry, farfield, overset or
+periodic interface.</p></li>
+<li><p>Numerical realization and state data describe how a solver enforces
+the condition: ghost-cell reconstruction, flux constraints, characteristic
+relations, viscous wall treatment, thermal closure, turbulence variables,
+reference states, gradients and normal direction.</p></li>
+</ol>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Mesh patch identity
+    (name, source ID, dimension, members, provenance)
+                      |
+                      v
+Physical boundary semantic contract
+    (condition family, mathematical constraints, required state)
+                      |
+           +----------+----------+
+           |                     |
+           v                     v
+    Format representation   Solver realization
+    Gmsh Physical Group     OneFLOW BC category,
+    CGNS BC_t / BCType_t    numerical treatment and runtime data
+           |                     |
+           +----------+----------+
+                      v
+             Verification evidence
+</pre></div>
+</div>
+<p>The semantic contract is the bridge. A format adapter must not invent
+physical data, and a solver adapter must not claim a physical condition was
+realized merely because it received a broad boundary ID.</p>
+</section>
+<section id="common-physical-condition-families">
+<h2>Common physical condition families<a class="headerlink" href="#common-physical-condition-families" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Inlet: velocity, mass-flow, total-condition, pressure or characteristic
+inflow. The formulation determines which state variables are prescribed.</p></li>
+<li><p>Outlet: static-pressure, extrapolative, characteristic or other outflow.
+Subsonic and supersonic formulations have different data needs.</p></li>
+<li><p>Wall: impermeability and tangential velocity constraints, distinguishing
+inviscid slip, viscous no-slip, isothermal and specified heat-flux treatments.</p></li>
+<li><p>Symmetry: zero normal velocity and appropriate normal-gradient/flux
+constraints for the governing equations.</p></li>
+<li><p>Farfield: free-stream/reference state and a formulation appropriate to
+local characteristic direction and flow regime.</p></li>
+<li><p>Interface: internal connectivity, periodic transforms, overset
+interpolation or another coupling contract.</p></li>
+<li><p>Special geometric boundaries: axis, pole, degenerate edge/point and wedge
+constraints, dependent on dimension and coordinate system.</p></li>
+</ul>
+<p>These are semantic families, not a claim that every formulation is
+implemented by every OneFLOW solver.</p>
+</section>
+<section id="gmsh-physical-group-name-to-cgns-type">
+<h2>Gmsh Physical Group name to CGNS type<a class="headerlink" href="#gmsh-physical-group-name-to-cgns-type" title="Link to this heading"></a></h2>
+<p>The current adapter removes non-alphanumeric characters and compares
+case-insensitively. The original patch name remains a separate boundary
+identity; the mapping selects a coarse CGNS type.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 32.0%" />
+<col style="width: 24.0%" />
+<col style="width: 44.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Gmsh Physical Group aliases</p></th>
+<th class="head"><p>CGNS BCType_t</p></th>
+<th class="head"><p>Meaning and limitation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Inlet, Inflow, VelocityInlet, MassFlowInlet, PressureInlet</p></td>
+<td><p>BCInflow (9)</p></td>
+<td><p>Generic inflow. Alias spelling does not encode prescribed state variables.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Outlet, Outflow, PressureOutlet</p></td>
+<td><p>BCOutflow (13)</p></td>
+<td><p>Generic outflow. Target pressure and characteristic treatment are separate.</p></td>
+</tr>
+<tr class="row-even"><td><p>Symmetry, SymmetryPlane</p></td>
+<td><p>BCSymmetryPlane (16)</p></td>
+<td><p>Symmetry-plane representation.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Farfield, Freestream</p></td>
+<td><p>BCFarfield (7)</p></td>
+<td><p>Farfield representation; free-stream state is separate.</p></td>
+</tr>
+<tr class="row-even"><td><p>NoSlipWall, ViscousWall</p></td>
+<td><p>BCWallViscous (22)</p></td>
+<td><p>Viscous-wall type; thermal treatment is not specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p>SlipWall, InviscidWall</p></td>
+<td><p>BCWallInviscid (21)</p></td>
+<td><p>Inviscid-wall type.</p></td>
+</tr>
+<tr class="row-even"><td><p>Wall, LowerWall, UpperWall, BodyWall</p></td>
+<td><p>BCWall (20)</p></td>
+<td><p>Broad wall type; do not infer slip/no-slip or thermal behavior.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Unrecognized names</p></td>
+<td><p>BCTypeUserDefined (1)</p></td>
+<td><p>Unknown semantics remain unknown; do not guess.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Physical Group names are user-defined, not a standardized Gmsh physical
+boundary vocabulary. PressureInlet and VelocityInlet both map to BCInflow.
+Their distinction must remain in semantic metadata and boundary-state data.
+Likewise, LowerWall and UpperWall identify different patches but do not state
+their physical wall treatment.</p>
+</section>
+<section id="cgns-bctype-t-reference">
+<h2>CGNS BCType_t reference<a class="headerlink" href="#cgns-bctype-t-reference" title="Link to this heading"></a></h2>
+<p>The following numeric values are the CGNS header enumeration values, not
+OneFLOW boundary IDs.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 8.0%" />
+<col style="width: 36.0%" />
+<col style="width: 56.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>CGNS enum</p></th>
+<th class="head"><p>Type-level meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0</p></td>
+<td><p>BCTypeNull</p></td>
+<td><p>Null / no boundary classification.</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>BCTypeUserDefined</p></td>
+<td><p>User-defined classification.</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>BCAxisymmetricWedge</p></td>
+<td><p>Axisymmetric wedge.</p></td>
+</tr>
+<tr class="row-odd"><td><p>3</p></td>
+<td><p>BCDegenerateLine</p></td>
+<td><p>Degenerate line.</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>BCDegeneratePoint</p></td>
+<td><p>Degenerate point.</p></td>
+</tr>
+<tr class="row-odd"><td><p>5</p></td>
+<td><p>BCDirichlet</p></td>
+<td><p>Dirichlet-type condition.</p></td>
+</tr>
+<tr class="row-even"><td><p>6</p></td>
+<td><p>BCExtrapolate</p></td>
+<td><p>Extrapolation.</p></td>
+</tr>
+<tr class="row-odd"><td><p>7</p></td>
+<td><p>BCFarfield</p></td>
+<td><p>Farfield.</p></td>
+</tr>
+<tr class="row-even"><td><p>8</p></td>
+<td><p>BCGeneral</p></td>
+<td><p>General condition.</p></td>
+</tr>
+<tr class="row-odd"><td><p>9</p></td>
+<td><p>BCInflow</p></td>
+<td><p>Inflow.</p></td>
+</tr>
+<tr class="row-even"><td><p>10</p></td>
+<td><p>BCInflowSubsonic</p></td>
+<td><p>Subsonic inflow.</p></td>
+</tr>
+<tr class="row-odd"><td><p>11</p></td>
+<td><p>BCInflowSupersonic</p></td>
+<td><p>Supersonic inflow.</p></td>
+</tr>
+<tr class="row-even"><td><p>12</p></td>
+<td><p>BCNeumann</p></td>
+<td><p>Neumann-type condition.</p></td>
+</tr>
+<tr class="row-odd"><td><p>13</p></td>
+<td><p>BCOutflow</p></td>
+<td><p>Outflow.</p></td>
+</tr>
+<tr class="row-even"><td><p>14</p></td>
+<td><p>BCOutflowSubsonic</p></td>
+<td><p>Subsonic outflow.</p></td>
+</tr>
+<tr class="row-odd"><td><p>15</p></td>
+<td><p>BCOutflowSupersonic</p></td>
+<td><p>Supersonic outflow.</p></td>
+</tr>
+<tr class="row-even"><td><p>16</p></td>
+<td><p>BCSymmetryPlane</p></td>
+<td><p>Symmetry plane.</p></td>
+</tr>
+<tr class="row-odd"><td><p>17</p></td>
+<td><p>BCSymmetryPolar</p></td>
+<td><p>Polar symmetry.</p></td>
+</tr>
+<tr class="row-even"><td><p>18</p></td>
+<td><p>BCTunnelInflow</p></td>
+<td><p>Tunnel inflow.</p></td>
+</tr>
+<tr class="row-odd"><td><p>19</p></td>
+<td><p>BCTunnelOutflow</p></td>
+<td><p>Tunnel outflow.</p></td>
+</tr>
+<tr class="row-even"><td><p>20</p></td>
+<td><p>BCWall</p></td>
+<td><p>Wall.</p></td>
+</tr>
+<tr class="row-odd"><td><p>21</p></td>
+<td><p>BCWallInviscid</p></td>
+<td><p>Inviscid wall.</p></td>
+</tr>
+<tr class="row-even"><td><p>22</p></td>
+<td><p>BCWallViscous</p></td>
+<td><p>Viscous wall.</p></td>
+</tr>
+<tr class="row-odd"><td><p>23</p></td>
+<td><p>BCWallViscousHeatFlux</p></td>
+<td><p>Viscous wall with prescribed heat flux.</p></td>
+</tr>
+<tr class="row-even"><td><p>24</p></td>
+<td><p>BCWallViscousIsothermal</p></td>
+<td><p>Isothermal viscous wall.</p></td>
+</tr>
+<tr class="row-odd"><td><p>25</p></td>
+<td><p>FamilySpecified</p></td>
+<td><p>Family-specified condition.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A CGNS BC node also has a grid location and point/element list, and may carry
+additional BC data or datasets. Correctly writing BCType_t alone does not
+establish that patch entities, normals, location, state arrays or units are
+correct. Periodic interfaces are normally represented through zone
+connectivity and periodic transform metadata, not inferred from a name alias
+or a BCType_t member.</p>
+</section>
+<section id="cgns-type-to-oneflow-category">
+<h2>CGNS type to OneFLOW category<a class="headerlink" href="#cgns-type-to-oneflow-category" title="Link to this heading"></a></h2>
+<p>The current BcTypeMap::Init implementation explicitly maps:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 48.0%" />
+<col style="width: 28.0%" />
+<col style="width: 24.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>CGNS type(s)</p></th>
+<th class="head"><p>OneFLOW category</p></th>
+<th class="head"><p>Current meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>BCTypeNull</p></td>
+<td><p>BC::INTERFACE</p></td>
+<td><p>Interface classification.</p></td>
+</tr>
+<tr class="row-odd"><td><p>BCTypeUserDefined</p></td>
+<td><p>BC::GENERIC_2</p></td>
+<td><p>Generic fallback.</p></td>
+</tr>
+<tr class="row-even"><td><p>BCSymmetryPlane</p></td>
+<td><p>BC::SYMMETRY</p></td>
+<td><p>Symmetry.</p></td>
+</tr>
+<tr class="row-odd"><td><p>BCInflow, BCInflowSubsonic, BCInflowSupersonic, BCTunnelInflow</p></td>
+<td><p>BC::INFLOW</p></td>
+<td><p>Inflow variants collapse to one ID.</p></td>
+</tr>
+<tr class="row-even"><td><p>BCOutflow, BCOutflowSubsonic, BCOutflowSupersonic, BCTunnelOutflow</p></td>
+<td><p>BC::OUTFLOW</p></td>
+<td><p>Outflow variants collapse to one ID.</p></td>
+</tr>
+<tr class="row-odd"><td><p>BCWall, BCWallInviscid, BCWallViscous, BCWallViscousHeatFlux, BCWallViscousIsothermal</p></td>
+<td><p>BC::SOLID_SURFACE</p></td>
+<td><p>Wall subtypes collapse to one broad ID.</p></td>
+</tr>
+<tr class="row-even"><td><p>BCDegenerateLine</p></td>
+<td><p>BC::POLE</p></td>
+<td><p>Pole / degenerate line.</p></td>
+</tr>
+<tr class="row-odd"><td><p>BCFarfield</p></td>
+<td><p>BC::FARFIELD</p></td>
+<td><p>Farfield.</p></td>
+</tr>
+<tr class="row-even"><td><p>BCGeneral</p></td>
+<td><p>BC::OVERSET</p></td>
+<td><p>General / overset.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The reverse mapping is not perfectly symmetric. BC::EXTRAPOLATION maps to
+BCExtrapolate on export, but BCExtrapolate is not explicitly mapped on import
+and reaches the generic fallback. Other CGNS types not listed above also use
+the current default BC::GENERIC_2. This is a coverage gap, not a semantic
+equivalence.</p>
+</section>
+<section id="information-that-must-be-preserved">
+<h2>Information that must be preserved<a class="headerlink" href="#information-that-must-be-preserved" title="Link to this heading"></a></h2>
+<p>A robust boundary contract must retain, where applicable:</p>
+<ul class="simple">
+<li><p>stable patch identity, original name, source format, source entity IDs and
+dimension;</p></li>
+<li><p>physical condition family and formulation (pressure inlet versus velocity
+inlet, for example);</p></li>
+<li><p>governing-equation/model applicability and flow-regime assumptions;</p></li>
+<li><p>prescribed values, functions/profiles, units, reference quantities and
+coordinate frame;</p></li>
+<li><p>required and derived variables, including thermodynamic and turbulence
+quantities where relevant;</p></li>
+<li><p>wall thermal model (adiabatic, isothermal, heat flux or another declared
+treatment), wall motion and roughness where supported;</p></li>
+<li><p>face/edge membership, grid location, orientation, outward normal and
+interface/periodic connectivity;</p></li>
+<li><p>mapping decisions, source/target enum values, adapter version and explicit
+loss/unsupported diagnostics;</p></li>
+<li><p>solver implementation, parameter consumers, run configuration and
+verification artifacts.</p></li>
+</ul>
+<p>Missing data is not a default value. Unknown semantics remain unknown until
+supplied or deliberately selected.</p>
+</section>
+<section id="contract-ownership-and-verification-lifecycle">
+<h2>Contract ownership and verification lifecycle<a class="headerlink" href="#contract-ownership-and-verification-lifecycle" title="Link to this heading"></a></h2>
+<p>Boundary Conditions owns physical semantics and format/solver mapping
+knowledge. Mesh owns geometric patch identity, entity membership, topology
+and orientation. Parameter owns runtime settings and consumers. Case owns
+the physical scenario and selected conditions. Runtime owns when and how the
+solver consumes them. Workflow connects conversion and solver steps through
+explicit artifact contracts.</p>
+<p>The intended evidence chain is:</p>
+<ol class="arabic simple">
+<li><p>declare a physical boundary contract and required state data;</p></li>
+<li><p>bind it to mesh patch identities without changing those identities;</p></li>
+<li><p>map it to source/target format representations and report information loss;</p></li>
+<li><p>resolve it to a supported OneFLOW category and solver treatment;</p></li>
+<li><p>validate required state data before launching the solver;</p></li>
+<li><p>run a representative numerical/physical case and retain logs, outputs,
+comparisons and revision information.</p></li>
+</ol>
+<p>A successful format conversion verifies only the conversion claims it checks.
+It does not prove solver compatibility, correct physical state, numerical
+stability or physical accuracy. Mesh-to-native-grid validation, boundary
+semantic validation and CFD physical validation are separate evidence levels.</p>
+</section>
+<section id="workbench-presentation">
+<h2>Workbench presentation<a class="headerlink" href="#workbench-presentation" title="Link to this heading"></a></h2>
+<p>Boundary Conditions is a first-class entry on the OneFLOW Workbench home
+screen and a first-class domain in Contract Workbench. Its shared navigation
+covers Overview, Principle, Reference, Architecture, Implementation, Code,
+Documentation and Verification / Evidence. Its domain-specific Boundary Model
+view presents semantic and format/solver mapping contracts. It is not
+embedded in the Mesh Validation dialog.</p>
+<p>Mesh continues to describe boundary entities and topology. Mesh Validation
+invokes conversion and verification services and links to Boundary Conditions
+contracts; it does not own the semantic catalog.</p>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>CGNS SIDS: <a class="reference external" href="https://cgns.github.io/CGNS_docs_current/sids/">https://cgns.github.io/CGNS_docs_current/sids/</a></p></li>
+<li><p>CGNS Mid-Level Library: <a class="reference external" href="https://cgns.github.io/CGNS_docs_current/midlevel/">https://cgns.github.io/CGNS_docs_current/midlevel/</a></p></li>
+<li><p>Gmsh Reference Manual: <a class="reference external" href="https://gmsh.info/doc/texinfo/gmsh.html">https://gmsh.info/doc/texinfo/gmsh.html</a></p></li>
+<li><p>Implementation: codes/geometry/src/Boundary.cpp,
+codes/geometry/src/GridConversion.cpp</p></li>
+<li><p>mesh_architecture</p></li>
+<li><p>mesh_to_cfd_validation</p></li>
+<li><p>contract_workbench_information_architecture</p></li>
+</ul>
+</section>
+<section id="dedicated-boundary-conditions-workbench">
+<h2>Dedicated Boundary Conditions Workbench<a class="headerlink" href="#dedicated-boundary-conditions-workbench" title="Link to this heading"></a></h2>
+<p>The home-screen Boundary Conditions entry opens a dedicated domain workbench. Contract Workbench retains a separate Boundary Conditions contract domain for cross-domain governance; it is not the primary knowledge browser.</p>
+<p>The versioned data catalog is tools/verification/boundary_conditions/registry.json. Stable semantic IDs are independent of CFL3D type numbers and OneFLOW enum values. Entries describe physical formulation, equations, parameters, data location, format mapping, implementation status and verification state.</p>
+<p>The first curated entries cover CFL3D Version 5.0 types 1002, 1003, 2002, 2003 and 2004. The manual version and section are retained with each entry. Compact equations in the catalog are reference summaries; complete coordinate conventions, assumptions, normalization and derivations must be transcribed before implementing an equivalent solver treatment.</p>
+<p>Mappings are qualified, not treated as equivalences. CGNS BCOutflow and OneFLOW OUTFLOW do not encode a prescribed pressure ratio. SOLID_SURFACE does not distinguish wall velocity or thermal closure. Such information must remain in the semantic definition and parameter payload.</p>
+<p>The GUI is read-only in this first slice. It does not configure solver runs or claim numerical support. not_verified and category_only are explicit capability states. Future stages include exact equation transcription, typed parameter validation, solver capability registration and executable formula/numerical verification.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="grid_topology.html" class="btn btn-neutral float-left" title="Grid Topology and Validation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="face_stage_pipeline.html" class="btn btn-neutral float-right" title="Face Stage Pipeline" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

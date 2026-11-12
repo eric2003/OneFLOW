@@ -1,0 +1,473 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verification and Evidence Lifecycle &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="OneFLOW Runtime Architecture and Development Guide" href="runtime_architecture.html" />
+    <link rel="prev" title="CMake Build Architecture" href="cmake_build_architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake_build_architecture.html">CMake Build Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Verification and Evidence Lifecycle</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#evidence-states-and-their-meaning">Evidence states and their meaning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verification-validation-and-regression">Verification, validation, and regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#numerical-evidence-should-grow-in-strength">Numerical evidence should grow in strength</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reference-policy">Reference policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#recommended-starting-references">Recommended starting references</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#source-comments-and-generated-api-documentation">Source comments and generated API documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#diagrams-and-figures">Diagrams and figures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contract-workbench-navigation">Contract Workbench navigation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#evolution-review">Evolution review</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html">OneFLOW Native STL Surface I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html#native-oneflow-grid-case">Native OneFLOW grid Case</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_2d.html">Planar STL to Gmsh 2D Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_conversion_cases.html">Grid Conversion Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_case_methodology.html">Development Case Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_condition_architecture.html">Boundary Condition Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_to_cfd_validation.html">Mesh-to-CFD Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Verification and Evidence Lifecycle</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/verification_evidence_lifecycle.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="verification-and-evidence-lifecycle">
+<h1>Verification and Evidence Lifecycle<a class="headerlink" href="#verification-and-evidence-lifecycle" title="Link to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>OneFLOW is a scientific-computing system. A successful process exit is
+necessary for many checks, but it is not sufficient evidence that a numerical
+method is correct or that a simulation represents physical reality. This
+guide defines the evidence chain used by the Contract Workbench and explains
+how it connects software engineering practice with scientific verification.</p>
+<p>The lifecycle is intentionally layered:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>physical model and assumptions
+           |
+           v
+mathematical formulation
+           |
+           v
+discrete method and boundary treatment
+           |
+           v
+implementation contract
+           |
+           v
+declared source / test / case / reference
+           |
+           v
+static source / CMake declaration resolution
+           |
+           v
+configured-build CTest discovery
+           |
+           v
+executed run + revision + configuration
+           |
+           v
+numerical comparison and uncertainty assessment
+           |
+           v
+reviewed claim status and updated documentation
+</pre></div>
+</div>
+<p>Each arrow is a relationship that needs evidence. A declaration is not an
+execution. A source declaration is not a built test. A successful test is not
+automatically proof of every claim in its contract. A regression match is not
+independent physical validation.</p>
+</section>
+<section id="evidence-states-and-their-meaning">
+<h2>Evidence states and their meaning<a class="headerlink" href="#evidence-states-and-their-meaning" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 35.0%" />
+<col style="width: 45.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Layer</p></th>
+<th class="head"><p>What it establishes</p></th>
+<th class="head"><p>What it does not establish</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Contract-declared</p></td>
+<td><p>A contract names a source, test, case, or reference.</p></td>
+<td><p>That the path exists or the item was executed.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Resolved</p></td>
+<td><p>A supported static resolver found the declared artifact or source declaration.</p></td>
+<td><p>Build success, test discovery, or runtime success.</p></td>
+</tr>
+<tr class="row-even"><td><p>CMake-declared</p></td>
+<td><p>Source-level CMake parsing finds a target and a gtest_discover_tests() declaration.</p></td>
+<td><p>That CMake executed the declaration or that CTest lists the test.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Discovered</p></td>
+<td><p>The configured build tree’s CTest JSON lists the test for the selected configuration.</p></td>
+<td><p>That the test was executed or passed.</p></td>
+</tr>
+<tr class="row-even"><td><p>Executed</p></td>
+<td><p>A run record identifies command, revision, platform, outcome, and artifacts.</p></td>
+<td><p>That the numerical result is scientifically accurate.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Passed</p></td>
+<td><p>The declared test or comparison satisfied its encoded acceptance criteria.</p></td>
+<td><p>That all contract claims, configurations, or physical regimes are verified.</p></td>
+</tr>
+<tr class="row-even"><td><p>Fresh</p></td>
+<td><p>Evidence was produced from the revision being assessed.</p></td>
+<td><p>That the test scope is adequate or the acceptance criteria are valid.</p></td>
+</tr>
+</tbody>
+</table>
+<p>CTest’s <code class="docutils literal notranslate"><span class="pre">--show-only=json-v1</span></code> is the configured-build discovery source;
+it lists tests without executing them and provides command/configuration and
+backtrace metadata. The source-level CMake parser is only a navigation hint.
+The Workbench keeps these layers separate. A passing test record must not
+promote an entire contract to verified unless the contract’s full claim set
+and verification obligations have been evaluated.</p>
+</section>
+<section id="verification-validation-and-regression">
+<h2>Verification, validation, and regression<a class="headerlink" href="#verification-validation-and-regression" title="Link to this heading"></a></h2>
+<p>Use the terms precisely:</p>
+<ul class="simple">
+<li><p><strong>Code verification</strong> asks whether the implementation correctly represents
+the intended mathematical or conceptual model.</p></li>
+<li><p><strong>Solution verification</strong> estimates numerical error in a particular
+calculation, including iterative, spatial, and temporal discretization error.</p></li>
+<li><p><strong>Validation</strong> assesses whether the model represents physical observations
+for a stated application domain, accounting for experimental uncertainty.</p></li>
+<li><p><strong>Regression testing</strong> checks whether a result remains consistent with an
+accepted baseline under a controlled configuration. It is valuable, but a
+baseline match alone is neither independent verification nor validation.</p></li>
+</ul>
+<p>This distinction is central to interpreting OneFLOW case results. A solver
+case can pass output comparison while still lacking grid-convergence evidence,
+independent analytical comparison, or experimental validation.</p>
+</section>
+<section id="numerical-evidence-should-grow-in-strength">
+<h2>Numerical evidence should grow in strength<a class="headerlink" href="#numerical-evidence-should-grow-in-strength" title="Link to this heading"></a></h2>
+<p>For an algorithm, begin with the narrowest meaningful checks and increase
+scientific scope deliberately:</p>
+<ol class="arabic simple">
+<li><p>Algebraic identities, limiting cases, and local unit tests.</p></li>
+<li><p>Component tests for reconstruction, fluxes, gradients, source terms, and
+boundary treatment.</p></li>
+<li><p>Manufactured solutions or exact analytical solutions where available.</p></li>
+<li><p>Conservation and consistency checks.</p></li>
+<li><p>Iterative convergence and residual behavior.</p></li>
+<li><p>Spatial and temporal refinement studies.</p></li>
+<li><p>Comparison with trusted benchmark data and experimental measurements.</p></li>
+</ol>
+<p>For a family of grids with refinement ratio <span class="math notranslate nohighlight">\(r\)</span>, an observed order may
+be estimated from errors <span class="math notranslate nohighlight">\(E_h\)</span> and <span class="math notranslate nohighlight">\(E_{h/r}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[p_{obs} = \frac{\ln(E_h/E_{h/r})}{\ln(r)}.\]</div>
+<p>This two-grid expression is only a diagnostic under restrictive assumptions.
+A defensible observed-order and discretization-uncertainty assessment normally
+requires at least three systematically refined grids, consistent quantities
+of interest, converged iterative solutions, and evidence that the results are
+in the asymptotic range. Do not report an order estimate without stating the
+refinement ratio, error norm, grid family, solver tolerances, and relevant
+assumptions.</p>
+<p>A verification-curve page should identify the governing equation, reference
+solution, axes and units, discretization parameters, error definition, data
+provenance, and what the comparison does not prove.</p>
+</section>
+<section id="reference-policy">
+<h2>Reference policy<a class="headerlink" href="#reference-policy" title="Link to this heading"></a></h2>
+<p>Cite external theory when it materially supports an equation, numerical
+method, uncertainty procedure, physical model, or verification claim. A
+reference should be specific enough that another developer can locate the
+original source.</p>
+<p>Prefer, in order:</p>
+<ol class="arabic simple">
+<li><p>Original peer-reviewed papers or standards for the method or procedure.</p></li>
+<li><p>Authoritative technical manuals from recognized scientific organizations.</p></li>
+<li><p>Textbooks for established derivations and broader context.</p></li>
+<li><p>Maintained software manuals for implementation-specific behavior.</p></li>
+<li><p>Secondary tutorials as an accessible introduction, not the sole authority
+for a high-impact scientific claim.</p></li>
+</ol>
+<p>For each important formula, record the source and distinguish it from
+OneFLOW’s own choices: notation, assumptions, boundary conditions, limiting
+cases, discretization, stabilization, and implementation details. A citation
+does not transfer correctness to the implementation; the implementation still
+needs tests and numerical evidence. Respect licenses and do not copy large
+sections of external manuals.</p>
+</section>
+<section id="recommended-starting-references">
+<h2>Recommended starting references<a class="headerlink" href="#recommended-starting-references" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>NASA NPARC Alliance, Tutorial on CFD Verification and Validation:
+<a class="reference external" href="https://www.grc.nasa.gov/www/wind/valid/tutorial/tutorial.html">https://www.grc.nasa.gov/www/wind/valid/tutorial/tutorial.html</a>
+Useful for code verification, solution verification, validation, iterative
+convergence, consistency, and grid convergence.</p></li>
+<li><p>Ismail B. Celik et al., “Procedure for Estimation and Reporting of
+Uncertainty Due to Discretization in CFD Applications”, Journal of Fluids
+Engineering, 130(7), 078001, 2008.
+DOI: <a class="reference external" href="https://doi.org/10.1115/1.2960953">https://doi.org/10.1115/1.2960953</a>
+A reference procedure for reporting discretization uncertainty.</p></li>
+<li><p>NASA, Verification Assessment:
+<a class="reference external" href="https://www.grc.nasa.gov/www/wind/valid/tutorial/verassess.html">https://www.grc.nasa.gov/www/wind/valid/tutorial/verassess.html</a>
+and Spatial Grid Convergence:
+<a class="reference external" href="https://www.grc.nasa.gov/www/wind/valid/tutorial/spatconv.html">https://www.grc.nasa.gov/www/wind/valid/tutorial/spatconv.html</a>
+Practical explanations of code and solution verification.</p></li>
+<li><p>Breathe, Sphinx and Doxygen integration:
+<a class="reference external" href="https://github.com/breathe-doc/breathe">https://github.com/breathe-doc/breathe</a>
+A possible bridge for publishing selected C++ API comments in Sphinx.</p></li>
+</ul>
+<p>The reference list is a starting point, not an endorsement of every procedure
+for every OneFLOW model. The applicable physical model and numerical method
+must determine the relevant literature.</p>
+</section>
+<section id="source-comments-and-generated-api-documentation">
+<h2>Source comments and generated API documentation<a class="headerlink" href="#source-comments-and-generated-api-documentation" title="Link to this heading"></a></h2>
+<p>Use source comments for information closest to the code:</p>
+<ul class="simple">
+<li><p>public API intent and invariants;</p></li>
+<li><p>units, ownership, lifetime, and mutation rules;</p></li>
+<li><p>preconditions, postconditions, side effects, and failure behavior;</p></li>
+<li><p>non-obvious numerical derivation steps and references to the governing
+equation or method.</p></li>
+</ul>
+<p>Do not duplicate the full architecture or mathematical derivation in a header.
+A useful long-term pipeline is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>C++ public headers
+       |
+       v
+Doxygen XML (selected documented API)
+       |
+       v
+Breathe bridge
+       |
+       v
+Sphinx API reference
+       |
+       +------&gt; curated architecture and theory guides
+       |
+       +------&gt; contract catalog and verification workbench
+</pre></div>
+</div>
+<p>Sphinx is already used for curated documentation under doc/source. Doxygen
+and Breathe should be introduced incrementally: first document a small,
+stable public API slice, inspect the generated output, then expand. Do not
+enable project-wide extraction until comment quality, exclusions, generated
+file handling, and CI build cost are understood. Generated API pages
+complement rather than replace reviewed architecture, algorithm, and user
+documentation.</p>
+</section>
+<section id="diagrams-and-figures">
+<h2>Diagrams and figures<a class="headerlink" href="#diagrams-and-figures" title="Link to this heading"></a></h2>
+<p>Prefer a diagram when it explains a relationship that is difficult to infer
+from prose:</p>
+<ul class="simple">
+<li><p>lifecycle/state diagrams for ownership and cleanup;</p></li>
+<li><p>dataflow diagrams for configuration, mesh, and solver stages;</p></li>
+<li><p>topology sketches for entity identity and orientation;</p></li>
+<li><p>annotated plots for convergence, residuals, and analytical comparisons.</p></li>
+</ul>
+<p>Every figure should have a caption, define symbols or colors, and identify
+whether it describes current behavior or a proposed design. Keep source files
+for generated figures and plots beside the relevant documentation or in a
+documented generator. Avoid screenshots as the only record of a technical
+contract.</p>
+</section>
+<section id="contract-workbench-navigation">
+<h2>Contract Workbench navigation<a class="headerlink" href="#contract-workbench-navigation" title="Link to this heading"></a></h2>
+<p>The Workbench is intended to make the evidence chain explorable:</p>
+<ul class="simple">
+<li><p>Contract to implementation and documentation.</p></li>
+<li><p>Contract to declared test source.</p></li>
+<li><p>Test to the existing typed runner.</p></li>
+<li><p>Run to immutable command, revision, configuration, outcome, and artifacts.</p></li>
+<li><p>Numerical result to formula, reference curve, error metric, and limitations.</p></li>
+</ul>
+<p>The current Open declared test sources action is a navigation step only.
+Execution remains owned by the existing test runner. A future Run action must
+reuse that runner, record the exact invocation, and preserve the distinction
+between a test passing and a scientific claim being established.</p>
+</section>
+<section id="evolution-review">
+<h2>Evolution review<a class="headerlink" href="#evolution-review" title="Link to this heading"></a></h2>
+<p>At each substantial change, record:</p>
+<ul class="simple">
+<li><p>the system-level risk reduced and why this area outranks alternatives;</p></li>
+<li><p>the code and architecture boundary changed;</p></li>
+<li><p>the exact contract claims affected;</p></li>
+<li><p>the tests, CI jobs, and numerical experiments actually executed;</p></li>
+<li><p>revision, compiler/backend/configuration, and result artifacts;</p></li>
+<li><p>limitations that remain and the next highest-value uncertainty.</p></li>
+</ul>
+<p>The intended outcome is a system in which documentation, code, tests, and
+scientific evidence continuously correct one another, rather than four
+separate collections maintained by hand.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cmake_build_architecture.html" class="btn btn-neutral float-left" title="CMake Build Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="runtime_architecture.html" class="btn btn-neutral float-right" title="OneFLOW Runtime Architecture and Development Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mesh-to-CFD Validation &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Contract Workbench Information Architecture" href="contract_workbench_information_architecture.html" />
+    <link rel="prev" title="OneFLOW Workbench Architecture" href="workbench_architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake_build_architecture.html">CMake Build Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html">OneFLOW Native STL Surface I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html#native-oneflow-grid-case">Native OneFLOW grid Case</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_2d.html">Planar STL to Gmsh 2D Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_conversion_cases.html">Grid Conversion Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_case_methodology.html">Development Case Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_condition_architecture.html">Boundary Condition Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Mesh-to-CFD Validation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#boundary-type-mapping">Boundary type mapping</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Mesh-to-CFD Validation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mesh_to_cfd_validation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mesh-to-cfd-validation">
+<h1>Mesh-to-CFD Validation<a class="headerlink" href="#mesh-to-cfd-validation" title="Link to this heading"></a></h1>
+<p>Mesh-to-CFD Validation is a dedicated mode in the OneFLOW Tests dialog. It is
+separate from <strong>Run Development Cases</strong>, which continues to execute individual
+preconfigured Cases.</p>
+<p>The initial conversion route is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>selected STL-to-Gmsh Case -&gt; Gmsh MSH -&gt; Gmsh-to-CGNS Case
+    -&gt; CGNS-to-OneFLOW Case -&gt; selected CFD template
+</pre></div>
+</div>
+<p>The mesh producer can be either the native C++ OneFLOW Grid task or an
+independent Python reference Case. Both implementations publish the same
+Case-specific MSH artifact contract. Native Cases declare the artifact path in
+<code class="docutils literal notranslate"><span class="pre">script/grid.txt</span></code>; Python Cases declare the mesh filename in
+<code class="docutils literal notranslate"><span class="pre">expected.json</span></code>. The language-specific producer is selected from the Case
+Catalog, while the downstream conversion and validation graph is shared.</p>
+<p>The first CFD consumer is the existing <code class="docutils literal notranslate"><span class="pre">test/cfd/plateuns2dslau2</span></code> Laminar
+Flat Plate Case. Each source Case is copied into a unique directory under
+<code class="docutils literal notranslate"><span class="pre">~/.oneflow/mesh-validation</span></code> (or the equivalent user-home directory on
+Windows). Runtime parameter changes are applied only to those copies. Every
+producer and consumer process runs with its own staged Case directory as its
+working directory. Users do not edit workflow JSON or manually copy
+intermediate files.</p>
+<p>The default solver smoke test advances two steps. A square mesh with the
+flat-plate template tests conversion, native-grid ingestion, initialization,
+and short time advancement; it is not a physical flat-plate validation.
+Each stage writes a log, and the run writes <code class="docutils literal notranslate"><span class="pre">mesh-validation-report.json</span></code>.
+Additional CFD templates, including a turbulent flat plate, can be registered
+as this mode evolves.</p>
+<section id="boundary-type-mapping">
+<h2>Boundary type mapping<a class="headerlink" href="#boundary-type-mapping" title="Link to this heading"></a></h2>
+<p>The Gmsh-to-CGNS adapter maps common Physical Group name aliases to CGNS
+<code class="docutils literal notranslate"><span class="pre">BCType_t</span></code> values. Matching is case-insensitive and ignores punctuation;
+the original Physical Group name is retained as the boundary patch name.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Gmsh Physical Group name</p></th>
+<th class="head"><p>CGNS <code class="docutils literal notranslate"><span class="pre">BCType_t</span></code></p></th>
+<th class="head"><p>OneFLOW boundary category</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Inlet</span></code>, <code class="docutils literal notranslate"><span class="pre">Inflow</span></code>, <code class="docutils literal notranslate"><span class="pre">VelocityInlet</span></code>, <code class="docutils literal notranslate"><span class="pre">MassFlowInlet</span></code>, <code class="docutils literal notranslate"><span class="pre">PressureInlet</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCInflow</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::INFLOW</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Outlet</span></code>, <code class="docutils literal notranslate"><span class="pre">Outflow</span></code>, <code class="docutils literal notranslate"><span class="pre">PressureOutlet</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCOutflow</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::OUTFLOW</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Wall</span></code>, <code class="docutils literal notranslate"><span class="pre">LowerWall</span></code>, <code class="docutils literal notranslate"><span class="pre">UpperWall</span></code>, <code class="docutils literal notranslate"><span class="pre">BodyWall</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCWall</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::SOLID_SURFACE</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">NoSlipWall</span></code>, <code class="docutils literal notranslate"><span class="pre">ViscousWall</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCWallViscous</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::SOLID_SURFACE</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SlipWall</span></code>, <code class="docutils literal notranslate"><span class="pre">InviscidWall</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCWallInviscid</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::SOLID_SURFACE</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Symmetry</span></code>, <code class="docutils literal notranslate"><span class="pre">SymmetryPlane</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCSymmetryPlane</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::SYMMETRY</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Farfield</span></code>, <code class="docutils literal notranslate"><span class="pre">Freestream</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCFarfield</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::FARFIELD</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>unrecognized names</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCTypeUserDefined</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::GENERIC_2</span></code> (existing fallback)</p></td>
+</tr>
+</tbody>
+</table>
+<p>This mapping is deliberately a boundary-type mapping, not a complete
+physical boundary-state definition. <code class="docutils literal notranslate"><span class="pre">BCInflow</span></code> does not specify velocity,
+mass flow, temperature or turbulence quantities. <code class="docutils literal notranslate"><span class="pre">BCOutflow</span></code> does not
+specify a target pressure. Mapping <code class="docutils literal notranslate"><span class="pre">NoSlipWall</span></code> to the broad OneFLOW
+<code class="docutils literal notranslate"><span class="pre">SOLID_SURFACE</span></code> category does not prove that a particular viscous wall
+treatment is configured. The original name and CGNS type are retained for
+diagnostics and later richer contracts.</p>
+<p>Periodic connectivity is not inferred from a name such as <code class="docutils literal notranslate"><span class="pre">Periodic</span></code>:
+CGNS periodic interfaces are represented through zone connectivity metadata,
+not as a <code class="docutils literal notranslate"><span class="pre">BCType_t</span></code> member in the enum. Neumann, Dirichlet, degenerate
+and other CGNS types remain unmapped until their OneFLOW semantics and
+numerical treatment are explicitly defined.</p>
+<p>The Mesh-to-CFD dialog displays this common mapping as a quick reference.
+It is not a compatibility approval: physical problem type, required boundary
+state data and solver support must still be checked before a CFD template runs.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="workbench_architecture.html" class="btn btn-neutral float-left" title="OneFLOW Workbench Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="contract_workbench_information_architecture.html" class="btn btn-neutral float-right" title="Contract Workbench Information Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

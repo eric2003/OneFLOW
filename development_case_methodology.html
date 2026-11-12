@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Development Case Methodology &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Grid Topology and Validation" href="grid_topology.html" />
+    <link rel="prev" title="Grid Conversion Cases" href="grid_conversion_cases.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake_build_architecture.html">CMake Build Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html">OneFLOW Native STL Surface I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html#native-oneflow-grid-case">Native OneFLOW grid Case</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_2d.html">Planar STL to Gmsh 2D Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_conversion_cases.html">Grid Conversion Cases</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Development Case Methodology</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#case-design-principles">Case design principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-and-3d-organization">2D and 3D organization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#recommended-case-contents">Recommended Case contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#construction-and-execution-sequence">Construction and execution sequence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#native-c-and-python-reference-responsibilities">Native C++ and Python reference responsibilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-and-validation-layers">Test and validation layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#catalog-and-gui-registration">Catalog and GUI registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation-requirements">Documentation requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#review-checklist">Review checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-cube-progression">3D cube progression</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_condition_architecture.html">Boundary Condition Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_to_cfd_validation.html">Mesh-to-CFD Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Development Case Methodology</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/development_case_methodology.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="development-case-methodology">
+<h1>Development Case Methodology<a class="headerlink" href="#development-case-methodology" title="Link to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>OneFLOW Development Cases are reusable engineering examples, not merely
+small regression tests. They demonstrate how to formulate a mesh or CFD
+problem, construct its inputs, invoke the relevant implementation, transfer
+artifacts between stages, and establish evidence that the result satisfies a
+specific contract. A well-designed Case should teach a future contributor
+how to build the next Case without copying accidental details from an
+unrelated example.</p>
+<p>This guide defines the common method for 2D and 3D mesh-development Cases.
+It complements the executable catalog in <code class="docutils literal notranslate"><span class="pre">grid/case_catalog.json</span></code>, the
+source tests, the Workbench selectors, and the workflow evidence records.</p>
+</section>
+<section id="case-design-principles">
+<h2>Case design principles<a class="headerlink" href="#case-design-principles" title="Link to this heading"></a></h2>
+<p>Each Case must answer one bounded engineering question. Its name and
+acceptance criteria must say exactly what it demonstrates. Do not label a
+Case “two connected blocks” if the shared interface has extra interior nodes,
+or “automatic triangles” if the element count is hard-coded.</p>
+<p>Use a progressive sequence:</p>
+<ul class="simple">
+<li><p>establish the smallest valid geometry and topology;</p></li>
+<li><p>add one new topological or algorithmic property;</p></li>
+<li><p>add automatic or more general construction only after the simpler
+contract is independently verified;</p></li>
+<li><p>add multi-block, curved, internal-boundary, or 3D complexity as separate
+Cases rather than hiding it in a minimal example.</p></li>
+</ul>
+<p>A Case is complete only when its inputs, procedure, outputs, limitations,
+tests, documentation, and GUI discovery agree.</p>
+</section>
+<section id="d-and-3d-organization">
+<h2>2D and 3D organization<a class="headerlink" href="#d-and-3d-organization" title="Link to this heading"></a></h2>
+<p>The Case Catalog carries optional <code class="docutils literal notranslate"><span class="pre">dimension</span></code> metadata with value 2 or 3.
+The GUI presents a dimension-first hierarchy, followed by the Case family and
+individual Case. The native C++ and Python reference variants are siblings
+under the same family; they are not separate conceptual categories.</p>
+<p>Recommended source organization:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>grid/
+  mesh-layout/
+    2d/&lt;case_name&gt;/
+    3d/&lt;case_name&gt;/
+  stl_to_gmsh/
+    &lt;geometry_or_problem&gt;/
+      cpp/
+      python/
+</pre></div>
+</div>
+<p>The existing repository contains legacy paths and domain-specific families;
+do not relocate a Case solely to make the tree look uniform. New Cases should
+follow the dimension-first convention where it improves discoverability.
+A missing or ambiguous dimension belongs in the Unclassified group until
+the actual mesh/layout/profile establishes it. Do not infer dimension from
+the title alone.</p>
+<p>A 2D surface mesh and a 3D volume mesh are different contracts. A 3D STL is
+usually a surface representation used to construct a volume mesh; its
+triangle facets do not make the resulting volume mesh 2D. Record both the
+input representation and the target mesh dimension where that distinction
+matters.</p>
+</section>
+<section id="recommended-case-contents">
+<h2>Recommended Case contents<a class="headerlink" href="#recommended-case-contents" title="Link to this heading"></a></h2>
+<p>A producer Case should keep only the files needed to describe and reproduce
+that Case:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;case&gt;/
+  README.md
+  input/                 # immutable source geometry/data
+  script/                # runtime parameters and construction layout
+  cpp/                   # only when source/build glue is Case-specific
+  python/                # only for an independent reference implementation
+  expected.json          # Python reference output contract, when applicable
+</pre></div>
+</div>
+<p>Use the actual existing family conventions when they differ. Do not add empty
+folders or duplicate shared scripts just to satisfy a template. Shared
+algorithms belong in shared implementation modules; per-Case folders should
+contain declarative inputs and only genuinely Case-specific code.</p>
+</section>
+<section id="construction-and-execution-sequence">
+<h2>Construction and execution sequence<a class="headerlink" href="#construction-and-execution-sequence" title="Link to this heading"></a></h2>
+<p>Document the following sequence for each mesh producer:</p>
+<ol class="arabic simple">
+<li><p><strong>Question and scope</strong> — what single capability is being demonstrated,
+and what is deliberately outside its scope?</p></li>
+<li><p><strong>Input model</strong> — geometry source, units, coordinate frame, topology,
+boundary labels, and whether the input is shared with a reference Case.</p></li>
+<li><p><strong>Construction</strong> — how geometry entities, curves, surfaces, blocks,
+transfinite constraints, mesh sizes, and physical groups are created.</p></li>
+<li><p><strong>Generation</strong> — the exact entry point, configuration files, external
+tools, versions/options that affect reproducibility, and the expected
+artifact path.</p></li>
+<li><p><strong>Inspection</strong> — nodes, element types/counts, boundary elements,
+connected components, manifold/incidence checks, orientation, and
+geometric quality as relevant.</p></li>
+<li><p><strong>Conversion</strong> — how the artifact is handed to CGNS and OneFLOW, including
+boundary-condition mapping and identity preservation.</p></li>
+<li><p><strong>CFD use</strong> — whether a solver is actually run, and whether that run is a
+smoke test, regression, verification, or accuracy benchmark.</p></li>
+<li><p><strong>Evidence</strong> — link every claim to the relevant unit/integration test,
+workflow result, artifact, or numerical reference.</p></li>
+</ol>
+<p>Do not claim every Case must run a CFD solve. A single-cell topology fixture
+may correctly stop after mesh import and boundary-map verification. Conversely,
+a Case intended to establish numerical accuracy needs more than a successful
+mesh conversion or a two-step solver smoke test.</p>
+</section>
+<section id="native-c-and-python-reference-responsibilities">
+<h2>Native C++ and Python reference responsibilities<a class="headerlink" href="#native-c-and-python-reference-responsibilities" title="Link to this heading"></a></h2>
+<p>When both implementations are provided:</p>
+<ul class="simple">
+<li><p>use the same immutable geometry input and equivalent declarative settings;</p></li>
+<li><p>keep generated artifacts and reports outside the source tree;</p></li>
+<li><p>define the artifact basename and semantic boundary names consistently;</p></li>
+<li><p>compare invariants and acceptance criteria, not necessarily node numbering,
+element ordering, or unstructured connectivity;</p></li>
+<li><p>keep Python implementation independent enough to serve as a useful
+reference, rather than calling the C++ implementation under test;</p></li>
+<li><p>record implementation-specific limitations and external dependencies.</p></li>
+</ul>
+<p>The Python <code class="docutils literal notranslate"><span class="pre">expected.json</span></code> should express stable properties: element
+families, minimum counts, named Physical Groups, bounds, quality thresholds,
+or expected artifact names. Avoid exact counts when the mesher is explicitly
+in automatic mode and the count is allowed to vary with mesh size or Gmsh
+version.</p>
+</section>
+<section id="test-and-validation-layers">
+<h2>Test and validation layers<a class="headerlink" href="#test-and-validation-layers" title="Link to this heading"></a></h2>
+<p>Separate the evidence by what it proves:</p>
+<ul class="simple">
+<li><p><strong>Unit tests</strong> — parsing, layout interpretation, topology checks, naming,
+parameter validation, and error diagnostics.</p></li>
+<li><p><strong>Producer integration tests</strong> — run the real C++ or Python producer and
+inspect the resulting mesh artifact.</p></li>
+<li><p><strong>Conversion integration tests</strong> — Gmsh to CGNS and CGNS to OneFLOW,
+including element types, boundary locations, BC types, region maps, and
+grid metadata.</p></li>
+<li><p><strong>Mesh-to-CFD workflow tests</strong> — prove that the producer’s artifacts are
+correctly bound into the next stages. A solver smoke test proves runtime
+compatibility only, not numerical accuracy.</p></li>
+<li><p><strong>Numerical verification</strong> — compare against analytic solutions,
+manufactured solutions, trusted references, convergence rates, and
+conservation/error metrics when the Case claims numerical correctness.</p></li>
+</ul>
+<p>Tests belong in the test hierarchy (for example <code class="docutils literal notranslate"><span class="pre">tests/python/grid</span></code> and
+the configured C++ test targets), not beside immutable source geometry when
+they create runtime outputs. Every executable Case must be staged under the
+user/build workspace. Never run a checked-in Case in-place if its relative
+paths can create files in the repository.</p>
+</section>
+<section id="catalog-and-gui-registration">
+<h2>Catalog and GUI registration<a class="headerlink" href="#catalog-and-gui-registration" title="Link to this heading"></a></h2>
+<p>Register each runnable implementation in <code class="docutils literal notranslate"><span class="pre">grid/case_catalog.json</span></code> with
+a unique ID, descriptive title, source directory, family <code class="docutils literal notranslate"><span class="pre">group</span></code>, and
+spatial <code class="docutils literal notranslate"><span class="pre">dimension</span></code> when known. A Python reference entry also declares
+its execution kind and shared runner script. Keep the conceptual Case name
+and implementation variant visible in the title, but avoid encoding every
+configuration option into the name.</p>
+<p>The GUI is a selector, not the source of truth. It should read the catalog
+and show:</p>
+<ul class="simple">
+<li><p>dimension: 2D, 3D, or Unclassified;</p></li>
+<li><p>family: for example STL, STL to Gmsh, or Mesh Layout;</p></li>
+<li><p>Case: the actual runnable producer or fixture.</p></li>
+</ul>
+<p>Mesh-to-CFD Validation has a narrower list of supported mesh producers. It
+should reuse the same dimension metadata but only expose Cases for which a
+valid artifact-bound conversion graph exists. Do not list arbitrary
+development tests there simply because they produce a file.</p>
+</section>
+<section id="documentation-requirements">
+<h2>Documentation requirements<a class="headerlink" href="#documentation-requirements" title="Link to this heading"></a></h2>
+<p>Each Case README should explain its own inputs, construction choices,
+execution command, output contract, acceptance criteria, limitations, and
+where its automated tests live. Family-level documents should explain the
+progression and shared conventions. This methodology document should explain
+the reusable engineering process, not repeat every Case’s data.</p>
+<p>Update documentation in the same functional change as the implementation.
+Keep claims synchronized across Case README, family README, Sphinx docs,
+catalog metadata, tests, and verification contracts. Mark unverified claims
+as such rather than implying they passed.</p>
+</section>
+<section id="review-checklist">
+<h2>Review checklist<a class="headerlink" href="#review-checklist" title="Link to this heading"></a></h2>
+<p>Before merging a new Case into the main development branch, check:</p>
+<ul class="simple">
+<li><p>[ ] one clearly bounded question and honest name;</p></li>
+<li><p>[ ] dimension and family metadata are correct;</p></li>
+<li><p>[ ] inputs are minimal, immutable, and documented;</p></li>
+<li><p>[ ] C++ and Python variants share the same source data where applicable;</p></li>
+<li><p>[ ] output paths are isolated from the repository;</p></li>
+<li><p>[ ] artifact names and boundary semantics are stable;</p></li>
+<li><p>[ ] tests cover both expected behavior and invalid inputs;</p></li>
+<li><p>[ ] downstream conversion claims are supported by integration evidence;</p></li>
+<li><p>[ ] GUI registration and selector grouping are correct;</p></li>
+<li><p>[ ] documentation and verification-contract links are complete;</p></li>
+<li><p>[ ] limitations and unverified capabilities are explicit.</p></li>
+</ul>
+</section>
+<section id="d-cube-progression">
+<h2>3D cube progression<a class="headerlink" href="#d-cube-progression" title="Link to this heading"></a></h2>
+<p>The STL-to-Gmsh cube family is organized under
+<code class="docutils literal notranslate"><span class="pre">grid/stl_to_gmsh/cube/&lt;strategy&gt;/{cpp,python}</span></code>. The three strategies
+share one byte-identical cube STL: <code class="docutils literal notranslate"><span class="pre">single_hex</span></code> (one HEXA_8),
+<code class="docutils literal notranslate"><span class="pre">six_tetrahedra</span></code> (fixed six TETRA_4), and
+<code class="docutils literal notranslate"><span class="pre">automatic_tetrahedra</span></code> (Gmsh-controlled tetrahedral refinement).
+This sequence separates a fixed topology contract from automatic meshing;
+the latter must not assert a fixed element count.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="grid_conversion_cases.html" class="btn btn-neutral float-left" title="Grid Conversion Cases" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="grid_topology.html" class="btn btn-neutral float-right" title="Grid Topology and Validation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

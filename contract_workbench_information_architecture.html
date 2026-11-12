@@ -1,0 +1,428 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contract Workbench Information Architecture &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Case Parameter Design and GUI Editing" href="case_parameter_design.html" />
+    <link rel="prev" title="Mesh-to-CFD Validation" href="mesh_to_cfd_validation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake_build_architecture.html">CMake Build Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html">OneFLOW Native STL Surface I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html#native-oneflow-grid-case">Native OneFLOW grid Case</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_2d.html">Planar STL to Gmsh 2D Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_conversion_cases.html">Grid Conversion Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_case_methodology.html">Development Case Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_condition_architecture.html">Boundary Condition Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_to_cfd_validation.html">Mesh-to-CFD Validation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contract Workbench Information Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#shared-navigation">Shared navigation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#domain-specific-knowledge-and-visualizers">Domain-specific knowledge and visualizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#shared-contract-envelope-and-typed-payload">Shared contract envelope and typed payload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#evidence-semantics">Evidence semantics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#architecture-and-ownership">Architecture and ownership</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#current-implementation-status">Current implementation status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#related-documents">Related documents</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Contract Workbench Information Architecture</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/contract_workbench_information_architecture.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="contract-workbench-information-architecture">
+<h1>Contract Workbench Information Architecture<a class="headerlink" href="#contract-workbench-information-architecture" title="Link to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>The Contract Workbench is a shared information architecture for engineering
+knowledge and verification evidence. It is not a formula workbench with other
+domains forced into formula-shaped fields. Formula Knowledge is one domain
+among several; Case, Runtime, Workflow, Mesh, Geometry and Algorithm have
+different native concepts and evidence.</p>
+<p>The common structure provides predictable navigation and traceability while
+each domain retains a typed payload and domain-specific visualizers.</p>
+</section>
+<section id="shared-navigation">
+<h2>Shared navigation<a class="headerlink" href="#shared-navigation" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 42.0%" />
+<col style="width: 38.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Section</p></th>
+<th class="head"><p>Question answered</p></th>
+<th class="head"><p>Typical content</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Overview</p></td>
+<td><p>What is it, what problem does it solve, and what is its current status?</p></td>
+<td><p>Intent, scope, owner, domain/kind, status, claims and limitations.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Principle</p></td>
+<td><p>Why is it designed this way?</p></td>
+<td><p>Physical or mathematical theory, engineering rationale, invariants,
+assumptions, lifecycle rules and limiting cases.</p></td>
+</tr>
+<tr class="row-even"><td><p>Reference</p></td>
+<td><p>Which external or internal authorities inform it?</p></td>
+<td><p>Papers, standards, software manuals, upstream implementations, ADRs
+and related contracts.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Architecture</p></td>
+<td><p>Where does it sit in OneFLOW and what interacts with it?</p></td>
+<td><p>Module boundaries, dependencies, ownership, data flow, state diagrams
+and sequence diagrams.</p></td>
+</tr>
+<tr class="row-even"><td><p>Implementation</p></td>
+<td><p>How is the behavior realized?</p></td>
+<td><p>Algorithms, data structures, lifecycle, configuration, adapters,
+execution steps and important invariants.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Code</p></td>
+<td><p>Where is the implementation in the repository?</p></td>
+<td><p>Source paths, symbols, call chains, bounded source excerpts and tests.
+Code excerpts must be traceable to repository files.</p></td>
+</tr>
+<tr class="row-even"><td><p>Documentation</p></td>
+<td><p>Where is the maintained explanation or user guidance?</p></td>
+<td><p>Sphinx pages, developer guides, user manuals and design documents.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Verification / Evidence</p></td>
+<td><p>What has actually been checked, and what remains unverified?</p></td>
+<td><p>Test targets, exact commands/configuration, case runs, artifacts,
+platform/revision, outcome, freshness and explicit evidence limits.</p></td>
+</tr>
+</tbody>
+</table>
+<p>These sections are common navigation, not a requirement that every contract
+must contain every kind of content. Empty or undeclared information must be
+shown as such; the UI must not invent a formula, diagram, reference or PASS
+state merely to fill a tab.</p>
+</section>
+<section id="domain-specific-knowledge-and-visualizers">
+<h2>Domain-specific knowledge and visualizers<a class="headerlink" href="#domain-specific-knowledge-and-visualizers" title="Link to this heading"></a></h2>
+<p>Shared navigation does not erase domain distinctions. Each domain has a
+typed payload and may add focused views:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 42.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Domain</p></th>
+<th class="head"><p>Native knowledge structure</p></th>
+<th class="head"><p>Optional domain-specific views</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Formula Knowledge</p></td>
+<td><p>Equations, symbols, notation aliases, assumptions, dimensional
+consistency, derivations and limiting behavior.</p></td>
+<td><p>Formula / LaTeX preview, theory curves, worked examples.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Parameter</p></td>
+<td><p>Parameter identity, aliases, type, units, source/load order, default,
+override behavior, consumers and runtime read timing.</p></td>
+<td><p>Formula association, runtime consumers, examples, declaration history.</p></td>
+</tr>
+<tr class="row-even"><td><p>Case</p></td>
+<td><p>Physical setup, solver/model, mesh, numerical methods, initial and
+boundary conditions, expected outputs and comparison policy.</p></td>
+<td><p>Case setup, input files, suite membership, run artifacts and baselines.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Runtime</p></td>
+<td><p>Process/task state machine, resource ownership, transitions, failure
+handling, cancellation, recovery and concurrency constraints.</p></td>
+<td><p>State-transition diagram, event timeline, resource/lifecycle trace.</p></td>
+</tr>
+<tr class="row-even"><td><p>Workflow</p></td>
+<td><p>Steps, dependencies, artifact contracts, input/output bindings,
+scheduling and failure propagation.</p></td>
+<td><p>Workflow graph, run history, artifact lineage and diagnostics.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Boundary Conditions</p></td>
+<td><p>Physical meaning, mathematical boundary constraints, required state data, format mappings, solver realization and applicability.</p></td>
+<td><p>Boundary semantic catalog, Gmsh/CGNS/OneFLOW mapping matrix and compatibility/evidence view.</p></td>
+</tr>
+<tr class="row-even"><td><p>Mesh</p></td>
+<td><p>Format-neutral entities and topology, coordinates, connectivity,
+boundaries, regions, identity, orientation and quality; plus Gmsh,
+Plot3D, CGNS and future adapter semantics.</p></td>
+<td><p>Grouped Mesh Knowledge catalog, topology inspector, format mapping,
+boundary map, quality metrics and round-trip comparison.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Geometry</p></td>
+<td><p>Geometric entities, CAD topology, construction history and geometry-to-mesh
+association.</p></td>
+<td><p>Geometry scenarios, entity graph, topology fixtures and geometry checks.</p></td>
+</tr>
+<tr class="row-even"><td><p>Algorithm</p></td>
+<td><p>Mathematical model, discretization, data dependencies, algorithm
+stages, complexity, stability/conservation properties and assumptions.</p></td>
+<td><p>Pseudocode, dependency graph, convergence/order plots and benchmarks.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Formula, curve, mesh, workflow graph and case setup are domain visualizers,
+not mandatory shared tabs. A mesh contract should show topology and boundary
+semantics rather than a fake equation; a Runtime contract should show a state
+machine rather than a curve; an Algorithm contract may show both equations
+and a data-flow diagram where each is relevant.</p>
+</section>
+<section id="shared-contract-envelope-and-typed-payload">
+<h2>Shared contract envelope and typed payload<a class="headerlink" href="#shared-contract-envelope-and-typed-payload" title="Link to this heading"></a></h2>
+<p>The shared envelope should remain small and versioned:</p>
+<ul class="simple">
+<li><p>stable contract ID and schema version;</p></li>
+<li><p>domain, kind, title, status and tags;</p></li>
+<li><p>overview, claims and limitations;</p></li>
+<li><p>links to principle, references, architecture, implementation and
+documentation;</p></li>
+<li><p>typed evidence declarations and their resolution/execution state;</p></li>
+<li><p>a domain-specific payload validated by its own schema.</p></li>
+</ul>
+<p>Domain details belong in the typed payload rather than an ever-growing set of
+unrelated optional fields. The existing Formula Knowledge catalog and
+geometry scenario fixtures remain authoritative in their own domains while
+adapters expose their shared navigation metadata. Do not duplicate their
+editable source data into a second catalog during migration.</p>
+</section>
+<section id="evidence-semantics">
+<h2>Evidence semantics<a class="headerlink" href="#evidence-semantics" title="Link to this heading"></a></h2>
+<p>Evidence is a bounded claim, not a decoration. Each evidence record should
+identify its kind, target, exact command and configuration where applicable,
+source revision, platform/backend, outcome, artifact location and limitations.
+Useful evidence kinds include schema/static checks, unit/analytical tests,
+subsystem integration, production-path integration, representative case
+regressions, cross-platform/backend checks and independent benchmarks.</p>
+<p>Keep declaration and execution separate. A linked test path means the test is
+declared; it does not mean it ran. A passing unit test does not establish
+physical accuracy, and a successful mesh parse does not establish semantic
+boundary preservation. Display not-run, stale, blocked, failed and passed
+states explicitly, with evidence scope and freshness.</p>
+</section>
+<section id="architecture-and-ownership">
+<h2>Architecture and ownership<a class="headerlink" href="#architecture-and-ownership" title="Link to this heading"></a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Domain sources / typed payloads
+   Formula catalog | Boundary contracts | Case contracts | Runtime contracts
+   Workflow definitions | Mesh scenarios | Algorithm records
+                      |
+                      v
+          Shared contract envelope
+                      |
+                      v
+    Qt-independent catalog / validation
+                      |
+          +-----------+-----------+
+          |                       |
+   Evidence resolver        Typed domain adapters
+          |                 (case, runtime, mesh, ...)
+          +-----------+-----------+
+                      |
+                      v
+          Shared Workbench navigation
+                      |
+                      v
+     Domain-specific views and evidence
+</pre></div>
+</div>
+<p>Catalog validation, evidence resolution and domain logic must remain Qt
+independent. GUI code presents data and invokes explicit adapters; it must
+not duplicate solver algorithms or infer verification outcomes. Execution
+continues to use the authoritative CTest, Python unittest, CFD/grid, Case and
+Workflow services.</p>
+</section>
+<section id="current-implementation-status">
+<h2>Current implementation status<a class="headerlink" href="#current-implementation-status" title="Link to this heading"></a></h2>
+<p>The GUI Contract Workbench currently exposes the common Overview, Principle,
+Reference, Architecture, Implementation, Code, Documentation and
+Verification / Evidence navigation for the typed contract domains. Formula
+and Parameter retain formula and parameter-specific views; Case and Workflow
+retain their setup/graph views; Geometry continues to use its fixture-backed
+topology explorer. The common tab layout is a navigation milestone, not a
+claim that every domain’s content has been fully populated.</p>
+<p>Remaining work is to improve domain payload coverage, especially Mesh and
+Algorithm; connect production-backed mesh evidence; enrich Runtime and
+Workflow execution evidence; and audit each tab for source-backed content.
+Each new claim must distinguish implemented, declared, tested and not yet
+verified behavior.</p>
+</section>
+<section id="related-documents">
+<h2>Related documents<a class="headerlink" href="#related-documents" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="workbench_architecture.html"><span class="doc">OneFLOW Workbench Architecture</span></a></p></li>
+<li><p><a class="reference internal" href="workbench_user_guide_zh.html"><span class="doc">OneFLOW Workbench 用户手册</span></a></p></li>
+<li><p><a class="reference internal" href="mesh_architecture.html"><span class="doc">OneFLOW Mesh Architecture</span></a></p></li>
+<li><p><a class="reference internal" href="gmsh_interface.html"><span class="doc">Gmsh MSH Interface</span></a></p></li>
+<li><p><a class="reference internal" href="case_parameter_design.html"><span class="doc">Case Parameter Design and GUI Editing</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mesh_to_cfd_validation.html" class="btn btn-neutral float-left" title="Mesh-to-CFD Validation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="case_parameter_design.html" class="btn btn-neutral float-right" title="Case Parameter Design and GUI Editing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

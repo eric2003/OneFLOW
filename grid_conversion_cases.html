@@ -1,0 +1,556 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grid Conversion Cases &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Development Case Methodology" href="development_case_methodology.html" />
+    <link rel="prev" title="Planar STL to Gmsh 2D Geometry" href="stl_to_gmsh_2d.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake_build_architecture.html">CMake Build Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html">OneFLOW Native STL Surface I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html#native-oneflow-grid-case">Native OneFLOW grid Case</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_2d.html">Planar STL to Gmsh 2D Geometry</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Grid Conversion Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#directory-and-metadata-model">Directory and metadata model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gmsh-to-cgns-topology-fixture-two-quads">Gmsh-to-CGNS topology fixture: two_quads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-conversion-reference-fixture-cube-single-hex">3D conversion reference fixture: cube_single_hex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conversion-route-and-execution">Conversion route and execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stl-to-gmsh-generation-workflow">STL-to-Gmsh generation workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#external-process-execution">External process execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-external-tool-test-policy">Optional external-tool test policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coverage-plan">Coverage plan</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mesh-to-cfd-validation-chain">Mesh-to-CFD validation chain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stl-cube-single-hexahedron-validation">STL cube single-hexahedron validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#case-construction-as-a-reusable-engineering-method">Case construction as a reusable engineering method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stl-to-gmsh-3d-cube-cases">STL-to-Gmsh 3D cube Cases</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="development_case_methodology.html">Development Case Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_condition_architecture.html">Boundary Condition Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_to_cfd_validation.html">Mesh-to-CFD Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Grid Conversion Cases</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/grid_conversion_cases.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="grid-conversion-cases">
+<h1>Grid Conversion Cases<a class="headerlink" href="#grid-conversion-cases" title="Link to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>The conversion route templates are validated against small, deterministic
+mesh inputs with distinct cell counts, adjacency patterns, element families,
+and boundary semantics.</p>
+<p>For the architectural ownership of the shared unstructured path (readers →
+<code class="docutils literal notranslate"><span class="pre">UnstructuredMeshData</span></code> → <code class="docutils literal notranslate"><span class="pre">UnstructuredCgnsZoneWriter</span></code> → CGNS Unstructured
+Zone), including proves/does_not_prove and external manual references, see
+the <strong>Shared unstructured mesh conversion boundary</strong> subsection of
+<a class="reference internal" href="mesh_architecture.html"><span class="doc">OneFLOW Mesh Architecture</span></a>. The runnable GUI Cases describe workflows; the
+small input fixtures described here provide route-level test coverage.</p>
+<p>Conversion input fixtures are owned by their route templates. The Gmsh
+two-cell topology fixture lives at
+<code class="docutils literal notranslate"><span class="pre">grid/conversion/gmsh_to_cgns/grid/two_quads.msh</span></code> and is consumed by the
+automated Gmsh-to-CGNS-to-OneFLOW integration test. It is not a standalone
+GUI Case. The Case catalog lists runnable route templates, while the
+conversion matrix records fixture-level coverage.</p>
+</section>
+<section id="directory-and-metadata-model">
+<h2>Directory and metadata model<a class="headerlink" href="#directory-and-metadata-model" title="Link to this heading"></a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>grid/
+  case_catalog.json
+  conversion/
+    README.md
+    cgns_to_oneflow/
+    gmsh_to_cgns/
+      grid/
+        square.msh
+        two_quads.msh
+        cube_single_hex.msh
+</pre></div>
+</div>
+<p>The responsibilities are deliberately separate:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">case_catalog.json</span></code> registers runnable Cases for GUI and CLI discovery.</p></li>
+<li><p>A route template owns its runtime parameters and input fixtures.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">conversion_matrix.json</span></code> records implemented routes and fixture-level
+conversion coverage.</p></li>
+<li><p>C++ reader and conversion tests stage generated outputs in temporary
+directories; checked-in input fixtures remain unchanged.</p></li>
+<li><p>This document explains topology, semantic contracts, and remaining gaps.</p></li>
+</ul>
+</section>
+<section id="gmsh-to-cgns-topology-fixture-two-quads">
+<h2>Gmsh-to-CGNS topology fixture: two_quads<a class="headerlink" href="#gmsh-to-cgns-topology-fixture-two-quads" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">two_quads.msh</span></code> fixture is a two-dimensional rectangle split into
+two adjacent quadrilateral cells.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 67.7%" />
+<col style="width: 32.3%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Quantity</p></th>
+<th class="head"><p>Expected</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Topological dimension</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p>Nodes</p></td>
+<td><p>6</p></td>
+</tr>
+<tr class="row-even"><td><p>Top-dimensional cells</p></td>
+<td><p>2 QUAD_4</p></td>
+</tr>
+<tr class="row-odd"><td><p>Exterior boundary elements</p></td>
+<td><p>6 LINE_2</p></td>
+</tr>
+<tr class="row-even"><td><p>Internal interface</p></td>
+<td><p>1 shared edge</p></td>
+</tr>
+<tr class="row-odd"><td><p>Gmsh element records</p></td>
+<td><p>9 (7 LINE_2 + 2 QUAD_4)</p></td>
+</tr>
+</tbody>
+</table>
+<p>The cell connectivities are (1, 2, 5, 4) and (2, 3, 6, 5). Both cells share
+edge (2, 5). The shared curve is present in the Gmsh input but has no
+external Physical Group assignment. It must not be mistaken for an exterior
+boundary condition during conversion.</p>
+<p>The exterior boundary is split into six line elements and grouped into four
+named Physical Groups: inflow, outflow, symmetry, and farfield. The bottom
+and top groups each contain two curve entities. Both surface entities belong
+to fluid_domain.</p>
+</section>
+<section id="d-conversion-reference-fixture-cube-single-hex">
+<h2>3D conversion reference fixture: cube_single_hex<a class="headerlink" href="#d-conversion-reference-fixture-cube-single-hex" title="Link to this heading"></a></h2>
+<p>The automated Gmsh-to-CGNS conversion suite also includes
+<code class="docutils literal notranslate"><span class="pre">grid/conversion/gmsh_to_cgns/grid/cube_single_hex.msh</span></code>, a deterministic
+MSH 4.1 fixture with eight nodes, one HEXA_8 volume cell, and six QUAD_4
+boundary elements. Its five Physical Groups are inflow (XMin), outflow
+(XMax), symmetry (YMin), farfield (YMax), and wall (ZMin and ZMax). The
+fixture is used to verify the 3D conversion boundary; it is not yet an STL
+geometry reconstruction Case.</p>
+<p>For unstructured CGNS zones, boundary elements have codimension one relative
+to the cell dimension. The writer therefore uses <code class="docutils literal notranslate"><span class="pre">EdgeCenter</span></code> for 2D
+boundary LINE_2 elements and <code class="docutils literal notranslate"><span class="pre">FaceCenter</span></code> for 3D boundary TRI_3 or QUAD_4
+elements. BC_t PointList values reference the corresponding boundary-element
+section, not volume-cell IDs. The 2D and 3D conversion tests independently
+read the written CGNS files and verify the GridLocation and element references.
+The 3D test additionally sends the CGNS file through CgnsFactory and checks
+that OneFLOW reconstructs the expected 8-node, 1-cell, 6-boundary-face
+unstructured grid.</p>
+</section>
+<section id="conversion-route-and-execution">
+<h2>Conversion route and execution<a class="headerlink" href="#conversion-route-and-execution" title="Link to this heading"></a></h2>
+<p>The two-quad fixture is consumed by
+<code class="docutils literal notranslate"><span class="pre">GmshTwoQuadsOneFlowTest</span></code>. The test copies the MSH input to a temporary
+directory and exercises the composed Gmsh -&gt; CGNS -&gt; OneFLOW route. The CGNS
+interchange file and native OneFLOW grid are written only under that temporary
+workspace; no generated files are written into the source tree.</p>
+<p>This fixture is not a catalog entry and is not validated through
+<code class="docutils literal notranslate"><span class="pre">tools/mesh_cases.py</span></code>. <code class="docutils literal notranslate"><span class="pre">GmshMeshReaderTest</span></code> checks its six nodes, two
+quadrilateral cells, seven line elements, Physical Group assignments, and
+ungrouped internal curve. <code class="docutils literal notranslate"><span class="pre">GmshTwoQuadsOneFlowTest</span></code> exercises the composed
+conversion route and currently checks that non-empty CGNS and native-grid
+artifacts are produced in a temporary workspace. It does not yet independently
+read back and assert the two-cell CGNS topology. Separate CGNS round-trip tests
+cover the triangle and single-hexahedron fixtures.</p>
+<p>The current Gmsh conversion boundary is independent of SU2 parsing. The MSH
+reader produces a GmshMesh value, the adapter maps supported first-order
+cells and boundary patches into UnstructuredMeshData, and
+UnstructuredCgnsZoneWriter constructs the CGNS Unstructured Zone. SU2
+uses the same writer through a separate source-format adapter. The current
+Plot3D path preserves structured blocks through GridMediator / CGNS
+Structured Zones. An optional Plot3D-to-Unstructured route could expand
+structured block connectivity into QUAD_4 / HEXA_8 cells and use the shared
+writer, but it must explicitly handle IBLANK, block interfaces and boundary
+semantics; that route is not yet implemented.</p>
+</section>
+<section id="stl-to-gmsh-generation-workflow">
+<h2>STL-to-Gmsh generation workflow<a class="headerlink" href="#stl-to-gmsh-generation-workflow" title="Link to this heading"></a></h2>
+<p>The geometry-generation stage has native OneFLOW Cases under
+<cite>grid/stl_to_gmsh/2d/square/single_quad/cpp</cite> and <cite>grid/stl_to_gmsh/2d/two_square_cells/cpp</cite>.
+They run through the standard C++ Grid task, recover the planar STL boundary,
+write Gmsh geometry, invoke the configured Gmsh CLI, and validate the MSH 4.1
+output. Independent Python reference Cases live beside the native Cases under each
+problem directory in <cite>python/</cite>. The existing external-flow Python preprocessing Case remains available at
+<cite>grid/stl_to_gmsh/script/run.py</cite> with <cite>config/external_flow.json</cite>.</p>
+</section>
+<section id="external-process-execution">
+<h2>External process execution<a class="headerlink" href="#external-process-execution" title="Link to this heading"></a></h2>
+<p>Native grid conversion invokes external tools through the shared
+<code class="docutils literal notranslate"><span class="pre">ONEFLOW::RunProcess</span></code> service in <code class="docutils literal notranslate"><span class="pre">codes/io</span></code>. It passes the executable
+and each argument separately; it does not construct a shell command or rely on
+<code class="docutils literal notranslate"><span class="pre">std::system</span></code>. Windows uses the wide-character process API and applies
+Windows command-line argument escaping. POSIX uses <code class="docutils literal notranslate"><span class="pre">posix_spawnp</span></code>, preserving
+argument boundaries and searching the process PATH.</p>
+<p>The process result records whether startup succeeded, the exit code, captured
+standard output/error (merged into one diagnostic stream), and a startup or
+wait error when applicable. The STL-to-Gmsh adapter includes this information,
+the executable and working directory in its failure message. This is important
+because a nonzero Gmsh exit code alone does not explain whether the failure
+came from process startup, geometry parsing, meshing, or output writing.</p>
+<p>The C++ <code class="docutils literal notranslate"><span class="pre">ProcessRunnerTest</span></code> covers argument boundaries, captured output,
+nonzero exit codes, and missing executables. The native STL-to-Gmsh integration
+tests use the same service for Gmsh discovery and invocation. When conversion
+fails, the integration fixture preserves its temporary Case directory and
+prints its location so that the generated <code class="docutils literal notranslate"><span class="pre">.geo</span></code> file and related artifacts
+can be inspected rather than disappearing during test cleanup.</p>
+</section>
+<section id="optional-external-tool-test-policy">
+<h2>Optional external-tool test policy<a class="headerlink" href="#optional-external-tool-test-policy" title="Link to this heading"></a></h2>
+<p>Gmsh is an optional executable dependency. The ordinary OneFLOW test suite
+must remain useful on machines where Gmsh is not installed. Configure the
+test policy with <code class="docutils literal notranslate"><span class="pre">ONEFLOW_EXTERNAL_TOOL_TESTS</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cmake -S . -B build -DONEFLOW_EXTERNAL_TOOL_TESTS=AUTO</span>
+<span class="go">cmake -S . -B build -DONEFLOW_EXTERNAL_TOOL_TESTS=ON</span>
+<span class="go">cmake -S . -B build -DONEFLOW_EXTERNAL_TOOL_TESTS=OFF</span>
+</pre></div>
+</div>
+<p>The modes are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AUTO</span></code> (default): register the Gmsh integration tests only when the
+<code class="docutils literal notranslate"><span class="pre">gmsh</span></code> executable is discoverable on PATH. No skipped tests are reported
+when Gmsh is absent.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ON</span></code>: require Gmsh at configure time and fail configuration if it is
+unavailable. Use this in a dedicated external-integration environment.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OFF</span></code>: do not register Gmsh integration tests, even if Gmsh is installed.</p></li>
+</ul>
+<p>STL parsing, planar-boundary extraction, geometry-script construction,
+MSH parsing, and ProcessRunner behavior remain core tests and do not require
+Gmsh. Only tests that launch the actual Gmsh executable are conditional.
+This setting currently controls Gmsh; additional external tools should be
+added to the same policy only when their integration tests are introduced.</p>
+<p>The regular Windows and Linux CI jobs explicitly use <code class="docutils literal notranslate"><span class="pre">OFF</span></code> so their core
+test results do not depend on the runner image’s optional software inventory.
+A separate Windows Gmsh integration workflow installs a pinned Gmsh release
+and configures the test suite with <code class="docutils literal notranslate"><span class="pre">ON</span></code>, ensuring that real CLI invocation
+is still exercised rather than silently skipped.</p>
+</section>
+<section id="coverage-plan">
+<h2>Coverage plan<a class="headerlink" href="#coverage-plan" title="Link to this heading"></a></h2>
+<p>The first route-owned two-cell fixture establishes a multi-cell 2-D baseline.
+Extend the fixture set only when each new input adds a distinct parser,
+topology, element-family, or boundary-semantic contract:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 24.0%" />
+<col style="width: 32.0%" />
+<col style="width: 44.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Case family</p></th>
+<th class="head"><p>Candidate Cases</p></th>
+<th class="head"><p>Main additional evidence</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Basic 2-D</p></td>
+<td><p>single_triangle, single_quad</p></td>
+<td><p>Element arity and minimal geometry</p></td>
+</tr>
+<tr class="row-odd"><td><p>Multi-cell 2-D</p></td>
+<td><p>two_triangles, two_quads</p></td>
+<td><p>Cell adjacency, shared-face identity and orientation</p></td>
+</tr>
+<tr class="row-even"><td><p>Mixed 2-D</p></td>
+<td><p>mixed_2d</p></td>
+<td><p>Mixed cell sections and topology normalization</p></td>
+</tr>
+<tr class="row-odd"><td><p>Boundary semantics</p></td>
+<td><p>boundary_groups</p></td>
+<td><p>Multiple Physical Groups, group names and boundary mapping</p></td>
+</tr>
+<tr class="row-even"><td><p>Basic 3-D</p></td>
+<td><p>single_tetra, single_hexa</p></td>
+<td><p>Volume cell and codimension-one boundary faces</p></td>
+</tr>
+<tr class="row-odd"><td><p>Multi-cell 3-D</p></td>
+<td><p>two_tetrahedra</p></td>
+<td><p>Shared triangular face and orientation</p></td>
+</tr>
+<tr class="row-even"><td><p>Mixed 3-D</p></td>
+<td><p>mixed_3d</p></td>
+<td><p>Mixed volume cell sections and boundary semantics</p></td>
+</tr>
+</tbody>
+</table>
+<p>These are planned examples, not claims of current support. Each should be
+added only with a valid input file, an independently runnable Case, expected
+topology, and a documentation page. Keep Gmsh MSH 4.1 ASCII as the initial
+baseline; record high-order, periodic, partition and ghost limitations
+explicitly until implemented.</p>
+<p>The Case catalog and conversion matrix have different jobs. Do not duplicate
+runtime parameter values in either registry. The Case’s existing OneFLOW
+parameter files remain the source of runtime configuration, while the matrix
+describes route and coverage metadata.</p>
+</section>
+<section id="mesh-to-cfd-validation-chain">
+<h2>Mesh-to-CFD validation chain<a class="headerlink" href="#mesh-to-cfd-validation-chain" title="Link to this heading"></a></h2>
+<p>The STL-to-Gmsh producer Cases can be composed with the shared Mesh-to-CFD
+Validation Workbench. The Workbench accepts a registered native C++ or
+Python producer and constructs an artifact-bound graph:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>selected STL-to-Gmsh Case
+    |
+    v
+Gmsh MSH 4.1 (validated)
+    |
+    v
+grid/conversion/gmsh_to_cgns
+    |
+    v
+CGNS interchange artifact
+    |
+    v
+grid/conversion/cgns_to_oneflow
+    |
+    v
+native OneFLOW grid + boundary-region map + grid-info JSON
+    |
+    v
+test/cfd/plateuns2dslau2 (runtime-overridden CFD smoke test)
+    |
+    v
+residual + restart flow + visualization
+</pre></div>
+</div>
+<p>The reusable <cite>grid/conversion/cgns_to_oneflow</cite> Case is a conversion-stage template. The
+graph runner injects the upstream CGNS artifact and binds the selected mesh
+stem to the native-grid, boundary-region-map and grid-info outputs. The
+existing <cite>test/cfd/plateuns2dslau2</cite> Case is staged as the CFD consumer; its
+smoke-test iteration count, output cadence and initialization mode are
+overridden only in the staged copy. This avoids maintaining a second solver
+parameter tree solely for the STL workflow.</p>
+<p>Run a selected producer from the repository root after building OneFLOW and
+making Gmsh available on PATH:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python -m tools.oneflow_gui.mesh_validation --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh --mesh-case-id stl_to_gmsh_square_2x2 --max-steps 2</span>
+</pre></div>
+</div>
+<p>The default workspace is under
+<cite>%USERPROFILE%/.oneflow/mesh-validation/</cite> on Windows and
+<cite>$HOME/.oneflow/mesh-validation/</cite> on Linux. Each selected mesh Case has an
+independent workspace containing the staged producer, conversion stages,
+CFD consumer, logs and <cite>mesh-validation-report.json</cite>. Re-running one Case
+recreates only its own workspace; sibling Case evidence is preserved. The
+source repository is not used as a runtime workspace.</p>
+<p>The former <cite>grid/stl_to_gmsh/pipeline/</cite> tree, fixed
+<cite>stl_square_to_cfd.json</cite> workflow and <cite>run_pipeline.py</cite> entry point have
+been retired. The standalone STL development runner now executes only the
+STL-to-Gmsh producer Cases; end-to-end validation has one owner.</p>
+<p>This is a runtime smoke test, not a numerical-accuracy proof. A successful
+CFD run does not establish convergence, conservation, boundary-condition
+correctness, or grid independence. Those require residual-history,
+finite/positive flow-state, flux-balance, and analytical or
+manufactured-solution verification.</p>
+</section>
+<section id="stl-cube-single-hexahedron-validation">
+<h2>STL cube single-hexahedron validation<a class="headerlink" href="#stl-cube-single-hexahedron-validation" title="Link to this heading"></a></h2>
+<p>The <cite>grid/stl_to_gmsh/cube_single_hex</cite> Case pair adds a constrained 3-D
+producer to the STL-to-Gmsh collection. The native C++ and independent Python
+reference implementations accept an axis-aligned cube STL with twelve
+triangles and reconstruct six planar faces plus one volume. Gmsh must generate
+exactly eight nodes, six QUAD_4 boundary elements and one HEXA_8 volume cell.
+The boundary Physical Groups are XMin/inflow, XMax/outflow, YMin/symmetry,
+YMax/farfield, and ZMin+ZMax/wall; fluid_domain is the volume group.</p>
+<p>The Case appears in both Run Development Cases and Python Reference Cases,
+and is discoverable by Mesh-to-CFD Validation through the Case catalog. Its
+validation graph ends after STL -&gt; Gmsh -&gt; CGNS -&gt; OneFLOW, where the
+FaceCenter boundary locations and boundary-region map are checked. It does
+not run the unrelated flat-plate CFD template. This prototype is limited to
+axis-aligned cubes with equal edge lengths; it is not a general STL-to-hex
+mesher. The unit-test suite is stored under tests/python/grid rather than in
+the grid/stl_to_gmsh Case tree, and all executable Cases are staged outside
+the source repository before running.</p>
+<p>The <cite>square/automatic_triangles</cite> C++ and Python reference Cases are separate
+catalog entries. They are discoverable in the development-case selectors and
+Mesh-to-CFD Validation. Unlike <cite>two_triangles</cite>, the automatic case does not
+promise an exact cell count: <cite>mesh_size</cite> controls the target refinement and
+Gmsh determines the resulting unstructured TRI_3 topology.</p>
+</section>
+<section id="case-construction-as-a-reusable-engineering-method">
+<h2>Case construction as a reusable engineering method<a class="headerlink" href="#case-construction-as-a-reusable-engineering-method" title="Link to this heading"></a></h2>
+<p>A Development Case is more than a test mesh. It is a small, reproducible
+engineering procedure with an explicit question, controlled inputs, a
+construction method, a named artifact contract, and evidence at each
+workflow boundary. The companion <a class="reference internal" href="development_case_methodology.html"><span class="doc">Development Case Methodology</span></a>
+describes the Case template and the responsibilities of native C++ and
+Python reference implementations. The GUI organizes these Cases by spatial
+dimension and family; dimension is catalog metadata, not inferred from a
+display title.</p>
+</section>
+<section id="stl-to-gmsh-3d-cube-cases">
+<h2>STL-to-Gmsh 3D cube Cases<a class="headerlink" href="#stl-to-gmsh-3d-cube-cases" title="Link to this heading"></a></h2>
+<p>The STL volume-meshing Cases are distinct from the checked-in Gmsh-to-CGNS
+conversion fixture above. They share one closed cube STL and progressively
+change the volume topology: one HEXA_8 cell, a fixed six-TETRA_4 subdivision,
+and an automatic Gmsh tetrahedral mesh. See <a class="reference internal" href="stl_to_gmsh_3d.html"><span class="doc">3D STL-to-Gmsh Cube Volume Cases</span></a> for the
+input geometry, construction strategy, and acceptance contract.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="stl_to_gmsh_2d.html" class="btn btn-neutral float-left" title="Planar STL to Gmsh 2D Geometry" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="development_case_methodology.html" class="btn btn-neutral float-right" title="Development Case Methodology" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

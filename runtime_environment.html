@@ -1,0 +1,486 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneFLOW Runtime Environment and Dependency Information &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake_build_architecture.html">CMake Build Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html">OneFLOW Native STL Surface I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html#native-oneflow-grid-case">Native OneFLOW grid Case</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_2d.html">Planar STL to Gmsh 2D Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_conversion_cases.html">Grid Conversion Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_case_methodology.html">Development Case Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_condition_architecture.html">Boundary Condition Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_to_cfd_validation.html">Mesh-to-CFD Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OneFLOW Runtime Environment and Dependency Information</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/runtime_environment.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oneflow-runtime-environment-and-dependency-information">
+<h1>OneFLOW Runtime Environment and Dependency Information<a class="headerlink" href="#oneflow-runtime-environment-and-dependency-information" title="Link to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>OneFLOW exposes runtime and build-environment information through the
+OneFLOW executable. The first implementation focuses on CGNS because the
+actual CGNS library loaded by a process is important evidence when diagnosing
+mesh conversion and file I/O behavior.</p>
+<p>The Workbench does not link to CGNS. It asks the selected OneFLOW executable
+for a versioned JSON document and displays the information returned by the
+runtime. This keeps the GUI independent of third-party library headers and
+ABI details.</p>
+</section>
+<section id="running-oneflow">
+<h2>Running OneFLOW<a class="headerlink" href="#running-oneflow" title="Link to this heading"></a></h2>
+<p>The examples below assume a Windows Debug build from the repository root.
+Adjust the executable path and configuration for Release or an installed
+build.</p>
+<p>Informational commands do not require a Case directory:</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="p">&amp;</span> <span class="p">.\</span><span class="n">build</span><span class="p">\</span><span class="n">bin</span><span class="p">\</span><span class="n">Debug</span><span class="p">\</span><span class="n">OneFLOW</span><span class="p">.</span><span class="n">exe</span> <span class="p">-</span><span class="n">-version</span>
+<span class="p">&amp;</span> <span class="p">.\</span><span class="n">build</span><span class="p">\</span><span class="n">bin</span><span class="p">\</span><span class="n">Debug</span><span class="p">\</span><span class="n">OneFLOW</span><span class="p">.</span><span class="n">exe</span> <span class="p">-</span><span class="n">-environment</span>
+<span class="p">&amp;</span> <span class="p">.\</span><span class="n">build</span><span class="p">\</span><span class="n">bin</span><span class="p">\</span><span class="n">Debug</span><span class="p">\</span><span class="n">OneFLOW</span><span class="p">.</span><span class="n">exe</span> <span class="p">-</span><span class="n">-environment</span> <span class="p">-</span><span class="n">-format</span> <span class="n">json</span>
+</pre></div>
+</div>
+<p>Equivalent Linux commands (from the repository root):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./build/bin/OneFLOW --version</span>
+<span class="go">./build/bin/OneFLOW --environment</span>
+<span class="go">./build/bin/OneFLOW --environment --format json</span>
+</pre></div>
+</div>
+<p>The version command prints the OneFLOW application version. The environment
+command prints a human-readable report. The JSON form writes a machine-readable
+document to standard output. Its schema_version field versions the JSON
+contract independently of the application version.</p>
+<p>To run a normal CFD Case, pass the r command and the Case directory:</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="p">&amp;</span> <span class="p">.\</span><span class="n">build</span><span class="p">\</span><span class="n">bin</span><span class="p">\</span><span class="n">Debug</span><span class="p">\</span><span class="n">OneFLOW</span><span class="p">.</span><span class="n">exe</span> <span class="nb">r </span><span class="p">.\</span><span class="n">test</span><span class="p">\</span><span class="n">cfd</span><span class="p">\</span><span class="n">plateuns2dslau2</span>
+</pre></div>
+</div>
+<p>Use the actual Case directory and executable selected for the run. Informational
+commands are handled before the simulation lifecycle starts; they do not
+initialize a Case, MPI process environment, solver, or mesh.</p>
+</section>
+<section id="saving-and-consuming-the-json-report">
+<h2>Saving and consuming the JSON report<a class="headerlink" href="#saving-and-consuming-the-json-report" title="Link to this heading"></a></h2>
+<p>The JSON command writes to standard output and does not create a file by
+itself. To save a point-in-time report, redirect standard output:</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="p">&amp;</span> <span class="p">.\</span><span class="n">build</span><span class="p">\</span><span class="n">bin</span><span class="p">\</span><span class="n">Debug</span><span class="p">\</span><span class="n">OneFLOW</span><span class="p">.</span><span class="n">exe</span> <span class="p">-</span><span class="n">-environment</span> <span class="p">-</span><span class="n">-format</span> <span class="n">json</span> <span class="p">|</span>
+    <span class="nb">Set-Content</span> <span class="n">-Encoding</span> <span class="n">utf8</span> <span class="p">.\</span><span class="n">environment-report</span><span class="p">.</span><span class="n">json</span>
+</pre></div>
+</div>
+<p>On Linux:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">./build/bin/OneFLOW --environment --format json &gt; environment-report.json</span>
+</pre></div>
+</div>
+<p>A Python caller can invoke OneFLOW directly and parse the response:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+
+<span class="n">executable</span> <span class="o">=</span> <span class="s2">"build/bin/Debug/OneFLOW.exe"</span>
+<span class="n">completed</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">executable</span><span class="p">,</span> <span class="s2">"--environment"</span><span class="p">,</span> <span class="s2">"--format"</span><span class="p">,</span> <span class="s2">"json"</span><span class="p">],</span>
+    <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">environment</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">completed</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The Workbench uses this same process boundary. It invokes the configured
+OneFLOW executable with the JSON command and parses standard output. The GUI
+does not link to CGNS and does not infer a runtime version from an installation
+directory.</p>
+</section>
+<section id="hdf5-version-evidence">
+<h2>HDF5 version evidence<a class="headerlink" href="#hdf5-version-evidence" title="Link to this heading"></a></h2>
+<p>HDF5 is inspected at runtime only. OneFLOW searches modules already loaded
+into its process for the public <code class="docutils literal notranslate"><span class="pre">H5get_libversion</span></code> symbol and reports the
+version returned by that API when available. Header version is left
+unavailable because the runtime report does not independently discover or
+verify the exact HDF5 header used during compilation. A runtime version alone
+must not be used to infer a header version or ABI compatibility.</p>
+</section>
+<section id="cgns-version-evidence">
+<h2>CGNS version evidence<a class="headerlink" href="#cgns-version-evidence" title="Link to this heading"></a></h2>
+<p>The report deliberately separates three kinds of information:</p>
+<ul class="simple">
+<li><p>runtime_version is populated only when the configured CGNS headers and
+linked library expose the optional cg_get_cgns_version and
+cg_get_cgns_version_string APIs. CMake checks declaration and linkability
+so OneFLOW can compile the corresponding call. This is a build-capability
+check; it is not itself evidence of the version loaded at runtime.</p></li>
+<li><p>header_version is derived from the CGNS_VERSION macro in the header used to
+compile OneFLOW. It is compile-time evidence, not proof of the version of a
+different library that the operating system may load.</p></li>
+<li><p>runtime_library.module_path and runtime_library.linkage identify the module
+containing the actual cg_open function address. On Windows this identifies
+the loaded DLL or the executable when CGNS is linked into it. On Linux and
+macOS it uses dynamic-loader module information. A static build may
+therefore report the OneFLOW executable as the containing module.</p></li>
+<li><p>version_compatibility summarizes the evidence without confusing inference
+with an independent runtime query. If both versions are available, OneFLOW
+reports verified_match or mismatch. If only the header version is available,
+it reports assumed_match and explicitly records header_version as the basis.
+If neither side provides enough evidence, it reports unknown.</p></li>
+</ul>
+<p>The public CGNS 4.5.2 header does not declare the two optional version-query
+functions. For that version the runtime API field remains unavailable, while
+the header version and loaded-module information remain visible. The
+compatibility result is therefore assumed_match, not a runtime verification.
+The default assumption is a reporting convention, not a guarantee of ABI
+compatibility.</p>
+<p>Do not confuse the library version with cg_version(fn, &amp;version). The latter
+queries the CGNS file-format version stored in an opened file; it does not
+identify the version of the CGNS library used by the process.</p>
+</section>
+<section id="workbench-usage">
+<h2>Workbench usage<a class="headerlink" href="#workbench-usage" title="Link to this heading"></a></h2>
+<p>Start the GUI from the repository root:</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">-r</span> <span class="n">tools</span><span class="p">/</span><span class="n">requirements-gui</span><span class="p">.</span><span class="n">txt</span>
+<span class="n">python</span> <span class="n">-m</span> <span class="n">tools</span><span class="p">.</span><span class="n">oneflow_gui</span>
+</pre></div>
+</div>
+<p>Open Runtime Environment… on the home screen. The dialog queries the
+currently selected executable when opened/refreshed. If the executable is
+changed in the Configuration dialog, the report describes that selected
+executable, not necessarily the executable used by an earlier Case run.</p>
+<p>The table columns mean:</p>
+<ul class="simple">
+<li><p>Dependency: dependency name.</p></li>
+<li><p>Runtime version: version returned by a runtime API, including its source.
+Unavailable means no reliable runtime version was returned.</p></li>
+<li><p>Header version: version macro from the header used at compile time.</p></li>
+<li><p>Version consistency: verified_match when independently obtained versions
+agree, mismatch when they differ, assumed_match when only the header version
+is available, or unknown when evidence is insufficient. The basis and
+diagnostic detail are included in the JSON report.</p></li>
+<li><p>Status: whether the dependency is enabled/available and, where applicable,
+the runtime-version query status.</p></li>
+<li><p>Loaded module: actual module path containing the queried library function,
+plus linkage classification when known.</p></li>
+</ul>
+<p>Status available together with Runtime version Unavailable means the CGNS
+library is loaded and usable, but this CGNS build does not expose the optional
+library-version query functions. It is not a load failure.</p>
+</section>
+<section id="current-persistence-behavior">
+<h2>Current persistence behavior<a class="headerlink" href="#current-persistence-behavior" title="Link to this heading"></a></h2>
+<p>The standalone JSON command writes to standard output; it does not create a file
+by itself. The Project Workbench and Case Workbench queue capture the selected
+executable’s environment at run start and store it under
+<code class="docutils literal notranslate"><span class="pre">~/.oneflow/workflow-data/executions/&lt;run-id&gt;/</span></code> (or the equivalent
+<code class="docutils literal notranslate"><span class="pre">ONEFLOW_HOME</span></code> root). The snapshot is written even if the query fails: a
+failed query produces a small JSON diagnostic document and does not prevent
+the CFD run from starting. A user can still save a standalone point-in-time
+report using the redirection examples above.</p>
+<p>Workbench settings, workflow definitions, run history, and execution
+workspaces have separate storage responsibilities under the OneFLOW user data
+root (<code class="docutils literal notranslate"><span class="pre">~/.oneflow</span></code> by default; <code class="docutils literal notranslate"><span class="pre">ONEFLOW_HOME</span></code> can relocate that root).
+Workflow definitions and history are stored under
+<code class="docutils literal notranslate"><span class="pre">~/.oneflow/workflow-data/definitions</span></code> and
+<code class="docutils literal notranslate"><span class="pre">~/.oneflow/workflow-data/runs</span></code>. Project run artifacts and environment
+evidence are stored under <code class="docutils literal notranslate"><span class="pre">~/.oneflow/workflow-data/executions</span></code>.</p>
+</section>
+<section id="case-results-snapshot">
+<h2>Case results snapshot<a class="headerlink" href="#case-results-snapshot" title="Link to this heading"></a></h2>
+<p>Every production Case execution writes a runtime-environment snapshot after
+the Case configuration and I/O roots have been initialized, and before the
+selected calculation or grid task starts. The file name is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>results/runtime_environment.json
+</pre></div>
+</div>
+<p>The path is resolved independently against the configured mesh and flow
+output roots. When both roots are the same directory, only one file is
+written. When they differ, both output trees receive a copy so that a mesh
+generation result and a flow result each retain the environment evidence
+associated with the Case execution. Parent directories are created as needed.</p>
+<p>The file uses the same versioned JSON schema as
+<code class="docutils literal notranslate"><span class="pre">OneFLOW</span> <span class="pre">--environment</span> <span class="pre">--format</span> <span class="pre">json</span></code>. It records the OneFLOW build and
+the dependency evidence visible to that process. A subsequent execution
+refreshes the snapshot at that output path. The report is diagnostic evidence,
+not a complete reproducibility manifest: Case parameters, input files,
+commands, and solver results remain separate artifacts.</p>
+<p>Failure to write this optional diagnostic file produces a warning and does
+not prevent the calculation or grid task from running. This keeps environment
+reporting from changing the numerical execution path.</p>
+</section>
+<section id="persisted-workbench-run-evidence">
+<h2>Persisted Workbench run evidence<a class="headerlink" href="#persisted-workbench-run-evidence" title="Link to this heading"></a></h2>
+<p>For each Project Workbench run, the background runner captures the environment
+from the exact selected executable before launching the Case or workflow. The
+Case Workbench queue captures the same information once before launching its
+selected Case batch. Snapshots are stored under the user data root, independently
+of whether Case files run in the default workspace, a custom workspace, or in place.</p>
+<p>The current layout is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>~/.oneflow/
+  workflow-data/
+    executions/
+      &lt;run-id&gt;/
+        run-manifest.json
+        environment.json
+        &lt;project-name&gt;/             (Project Workbench default mode)
+          ... project and Case files ...
+        &lt;case-id&gt;/                  (Case Workbench default mode)
+          ... staged Case files ...
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">environment.json</span></code> is the JSON document returned by
+<code class="docutils literal notranslate"><span class="pre">OneFLOW</span> <span class="pre">--environment</span> <span class="pre">--format</span> <span class="pre">json</span></code>. It is written once at run start and is
+not modified when the run finishes. If the environment query fails, the file
+contains a diagnostic JSON object with <code class="docutils literal notranslate"><span class="pre">capture_status:</span> <span class="pre">failed</span></code> and the
+error message; this does not prevent the CFD run from starting.</p>
+<p><code class="docutils literal notranslate"><span class="pre">run-manifest.json</span></code> is created before execution and finalized afterward. It
+records its schema version, Run ID, status, start and finish times, executable
+path, command template, working directory, source project directory,
+execution mode, relative environment report path, environment schema/query
+status, and process return code. The Project Workbench run-history record
+links to the absolute paths of both evidence files in its project-step
+metadata. The Run History dialog resolves those links when a record is
+selected and displays the parsed Environment Report and Run Manifest JSON in
+the run-details pane. Legacy history records without evidence links remain
+readable and are marked as not linked.</p>
+<p>A retry creates a new Run ID and a new evidence directory. Existing snapshots
+are not overwritten. The environment report is evidence, not configuration;
+editing it does not change the executable or reproduce a previous runtime.</p>
+<p>This persistence integration covers Project Workbench runs and Case Workbench
+queues. A queue captures one environment snapshot for its selected executable
+and Run ID; all Cases in that queue reference the same snapshot. Project
+workflows may launch multiple Case processes and currently record the common
+executable and command template. A future enhancement may record per-process
+environment snapshots when process-specific launch environments differ.</p>
+</section>
+<section id="external-interface-and-schema-policy">
+<h2>External interface and schema policy<a class="headerlink" href="#external-interface-and-schema-policy" title="Link to this heading"></a></h2>
+<p>The JSON command is the first supported external information interface. It
+can be used by Python tools, scripts, diagnostics collectors, and other
+applications without including OneFLOW or CGNS headers.</p>
+<p>Consumers should validate required fields and ignore unknown fields. A
+dedicated stable C ABI may be added later if embedding OneFLOW in third-party
+applications becomes a concrete requirement. Until then, the CLI and its
+versioned JSON schema avoid exposing internal C++ classes or ownership rules.</p>
+</section>
+<section id="dependency-expansion-policy">
+<h2>Dependency expansion policy<a class="headerlink" href="#dependency-expansion-policy" title="Link to this heading"></a></h2>
+<p>Additional dependencies should be registered through the same typed report,
+not through GUI-specific probes. Each dependency entry should distinguish
+runtime API version, loaded module path and linkage, compile-time/header
+version, build configuration and enabled/disabled state, query status
+with diagnostic detail when unavailable or failed, and a version-consistency
+assessment.</p>
+<p>The consistency assessment is implemented by the dependency-independent
+<code class="docutils literal notranslate"><span class="pre">AssessVersionCompatibility</span></code> helper in the I/O module. Its unit tests
+exercise all four states without relying on which optional libraries happen
+to be installed on the test machine. Empty strings and the literal
+<code class="docutils literal notranslate"><span class="pre">unknown</span></code> are treated as missing evidence. When both versions are present,
+OneFLOW compares their strings exactly; it does not normalize or reinterpret
+version numbering.</p>
+<p>The consistency assessment uses four states: verified_match, mismatch,
+assumed_match, and unknown. OneFLOW compares independently obtained version
+strings when both are present. When only a usable header version is available,
+it defaults to assumed_match and records header_version as the basis. This
+assumption must never be presented as an independent runtime observation or
+as proof of binary/ABI compatibility. If only a runtime version is known, or
+neither version is known, the assessment remains unknown.</p>
+<p>HDF5 is inspected at runtime only; no additional CMake header search
+or compile-time version probe is performed. OneFLOW searches the modules
+already loaded into its process for the public <code class="docutils literal notranslate"><span class="pre">H5get_libversion</span></code> symbol. On Windows it uses the Windows Process Status API (PSAPI) to enumerate
+loaded process modules, then resolves the symbol with <code class="docutils literal notranslate"><span class="pre">GetProcAddress</span></code>.
+The PSAPI calls are isolated inside the runtime symbol-discovery helper; the
+report-building and JSON layers use platform-neutral C++ data structures.
+The Windows executable links <code class="docutils literal notranslate"><span class="pre">Psapi</span></code> for <code class="docutils literal notranslate"><span class="pre">EnumProcessModules</span></code>. On Linux
+and macOS the helper uses the dynamic loader’s default symbol scope
+(<code class="docutils literal notranslate"><span class="pre">dlsym</span></code>), and obtains the containing module with <code class="docutils literal notranslate"><span class="pre">dladdr</span></code>. These
+platform-specific loader calls are kept behind the same helper boundary. If found,
+OneFLOW calls the function and reports the returned major, minor, and release
+numbers together with the module containing the symbol. If the symbol is not
+exported by any loaded module, the report uses <code class="docutils literal notranslate"><span class="pre">status:</span> <span class="pre">not_detected</span></code> and
+<code class="docutils literal notranslate"><span class="pre">runtime_version_status:</span> <span class="pre">runtime_api_symbol_not_found</span></code>. A successful lookup
+reports the actual runtime API result; it does not infer HDF5 presence merely
+because CGNS may use HDF5 internally.</p>
+<p>This is a process-level symbol probe, not a guarantee that every private or
+statically embedded HDF5 build can be identified. A static copy hidden inside
+another library may not export <code class="docutils literal notranslate"><span class="pre">H5get_libversion</span></code> to the process symbol
+lookup and will therefore remain not detected. OneFLOW does not add HDF5
+headers or a direct HDF5 link dependency for this probe. The platform dynamic
+loader library is linked where required.</p>
+<p>MPI should use MPI_Get_library_version after MPI initialization or an
+explicitly documented implementation-safe query path. METIS and JSON support
+should report only evidence available from their public APIs or build
+metadata. Compiler and accelerator-backend information should be reported
+separately from third-party library versions.</p>
+</section>
+<section id="verification">
+<h2>Verification<a class="headerlink" href="#verification" title="Link to this heading"></a></h2>
+<p>The C++ runtime_environment_test target verifies the JSON schema, CGNS and
+HDF5 dependency entries, text-report output, and command dispatch without
+running a simulation. The Python
+test_runtime_environment_dialog suite verifies executable invocation, JSON
+validation, process errors, missing executables, and timeout handling.</p>
+<p>Actual dependency values are process- and installation-specific. HDF5 may be
+reported as available only when its runtime API symbol is visible in the
+process; otherwise it is explicitly not detected. Tests verify the response
+contract and status semantics, not a developer machine’s CGNS/HDF5 path or
+version.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

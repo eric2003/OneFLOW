@@ -1,0 +1,553 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Time stepping: CFL, physical time, and dual-time status &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Vencat analytic reference profile" href="vencat_reference.html" />
+    <link rel="prev" title="OneFLOW Time-Integration Control" href="time_integral_control.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mpi.html">MPI</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Numerical analysis</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tdma.html">Tridiagonal matrix algorithm</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ctdma.html">Cyclic Tridiagonal Systems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fourier_transform.html">FOURIER TRANSFORMS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fftw.html">FFTW</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limiter.html">Limiter face contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gradient.html">Green-Gauss gradient contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vis_face_geometry.html">Viscous face geometry contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="limited_face_reconstruction.html">Limited face reconstruction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="euler_convective_flux.html">Euler convective face flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roe_average.html">Roe average state</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ausm_splits.html">AUSM Mach and pressure splits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ideal_gas_thermo.html">Ideal-gas thermodynamic contracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roe_dissipation.html">Roe dissipation coefficients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_heat_flux.html">Viscous conductive heat flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sutherland_viscosity.html">Sutherland viscosity law</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spectral_radius.html">Face spectral radius and local time step</a></li>
+<li class="toctree-l2"><a class="reference internal" href="references.html">References and external manuals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boundary_velocity.html">Boundary velocity images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="isothermal_wall.html">Isothermal wall density and temperature images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_scalar_upwind.html">Turbulence scalar convective upwind flux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_spectrum.html">Turbulence face spectral radius</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_closure.html">Spalart-Allmaras closure functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_source.html">Spalart-Allmaras source residual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_eddy_viscosity.html">SA eddy viscosity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_k_source.html">SST k-equation production and dissipation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_f1_blending.html">SST blending function F1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verification_layers.html">Verification layers (copyable policy)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wilcox_fbeta.html">Wilcox f_k and f_w modifiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_residual_assembly.html">SST residual assembly (Menter linearization)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_lusgs.html">Turbulence LUSGS scalar sweep kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_eddy_viscosity.html">SST eddy viscosity and F2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_wall_bc.html">Turbulence viscous-wall boundary values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_update_bounds.html">SA working-variable bounds after update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sst_update_floors.html">SST and transition update floors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="turb_farfield_bc.html">Turbulence far-field state selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sa_under_relax.html">SA under-relaxed working-variable update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lusgs_viscous_spectrum.html">LUSGS viscous spectral contribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_integral_control.html">OneFLOW Time-Integration Control</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Time stepping: CFL, physical time, and dual-time status</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#purpose-and-evidence-boundary">Purpose and evidence boundary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cfl-schedule">CFL schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#from-cfl-to-cell-time-step">From CFL to cell time step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#time-step-model-dispatch">Time-step model dispatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#physical-time-accumulation-and-stopping">Physical-time accumulation and stopping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#physical-time-pseudo-time-and-history-intervals">Physical time, pseudo time, and history intervals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#previous-step-interval-bootstrap-and-remaining-lifecycle-gap">Previous-step interval bootstrap and remaining lifecycle gap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#known-risks-and-questions-to-retain">Known risks and questions to retain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#verification-backlog">Verification backlog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#source-map">Source map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-this-proves-does-not-prove">What this proves / does not prove</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#evolution-policy">Evolution policy</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="vencat_reference.html">Vencat analytic reference profile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_spectral_radius.html">Viscous face spectral radius (overview)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_spectral_radius_model1.html">Viscous face spectral radius (model 1)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_spectral_radius_model2.html">Viscous face spectral radius (model 2)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viscous_spectral_radius_model3.html">Viscous face spectral radius (model 3)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cmake_build_architecture.html">CMake Build Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stl_mesh_io.html">OneFLOW Native STL Surface I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stl_mesh_io.html#native-oneflow-grid-case">Native OneFLOW grid Case</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stl_to_gmsh_2d.html">Planar STL to Gmsh 2D Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grid_conversion_cases.html">Grid Conversion Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development_case_methodology.html">Development Case Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../boundary_condition_architecture.html">Boundary Condition Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mesh_to_cfd_validation.html">Mesh-to-CFD Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Numerical analysis</a></li>
+      <li class="breadcrumb-item active">Time stepping: CFL, physical time, and dual-time status</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/numerical/cfl_ramp.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="time-stepping-cfl-physical-time-and-dual-time-status">
+<h1>Time stepping: CFL, physical time, and dual-time status<a class="headerlink" href="#time-stepping-cfl-physical-time-and-dual-time-status" title="Link to this heading"></a></h1>
+<section id="purpose-and-evidence-boundary">
+<h2>Purpose and evidence boundary<a class="headerlink" href="#purpose-and-evidence-boundary" title="Link to this heading"></a></h2>
+<p>This page is a living source-trace and verification memorandum for the
+current time-stepping implementation. It records what the checked-in source
+does, the mathematical relationships needed to reason about it, known
+verification gaps, and the tests/cases that should be added later.</p>
+<p>An implementation declaration is not a verification result. A linked test
+declaration is not evidence that the test was built or executed. A passing
+regression comparison is not, by itself, independent numerical validation.
+The maturity of each claim must remain explicit.</p>
+<p>Recommended evidence levels:</p>
+<ul class="simple">
+<li><p>implemented: a source path exists;</p></li>
+<li><p>unit-tested: an isolated policy or numerical kernel has executed tests;</p></li>
+<li><p>integration-tested: the connected runtime path has executed tests;</p></li>
+<li><p>numerically verified: results have been compared with an analytical or
+independently computed reference, with error behavior assessed;</p></li>
+<li><p>case-validated: a representative CFD case has been run and assessed;</p></li>
+<li><p>regression-tested: a previously accepted result is reproduced within a
+declared comparison policy.</p></li>
+</ul>
+<p>These levels are complementary, not interchangeable.</p>
+</section>
+<section id="cfl-schedule">
+<h2>CFL schedule<a class="headerlink" href="#cfl-schedule" title="Link to this heading"></a></h2>
+<p>The parameters <code class="docutils literal notranslate"><span class="pre">cflst</span></code>, <code class="docutils literal notranslate"><span class="pre">cfled</span></code>, and <code class="docutils literal notranslate"><span class="pre">ncfl</span></code> define a CFL
+schedule for the unstructured Navier-Stokes time-step path. They do not
+directly specify a physical time increment.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Iteration::Init</span></code> reads the three values from the runtime parameter
+database. <code class="docutils literal notranslate"><span class="pre">UTimeStep::CalcTimeStep</span></code> calls <code class="docutils literal notranslate"><span class="pre">CalcCfl()</span></code> before selecting
+the CPU or supported HIP path. The optional <code class="docutils literal notranslate"><span class="pre">idualtime</span></code> parameter is loaded
+into <code class="docutils literal notranslate"><span class="pre">Iteration::dualtime</span></code> (default zero for older parameter files).
+<code class="docutils literal notranslate"><span class="pre">TimeStep::CalcCfl</span></code> selects <code class="docutils literal notranslate"><span class="pre">outerSteps</span></code> for physical-time stepping
+and <code class="docutils literal notranslate"><span class="pre">innerSteps</span></code> when <code class="docutils literal notranslate"><span class="pre">idualtime</span> <span class="pre">==</span> <span class="pre">1</span></code>.</p>
+<p>The pure schedule is</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathrm{CFL}(i) =
+\begin{cases}
+  \mathrm{CFL}_{start}
+    + (\mathrm{CFL}_{end}-\mathrm{CFL}_{start})\,i/n_{CFL},
+    &amp; i &lt; n_{CFL}, \\
+  \mathrm{CFL}_{end}, &amp; i \ge n_{CFL}.
+\end{cases}\end{split}\]</div>
+<p>The initial iteration uses <code class="docutils literal notranslate"><span class="pre">cflst</span></code>, the ramp reaches <code class="docutils literal notranslate"><span class="pre">cfled</span></code> at
+<code class="docutils literal notranslate"><span class="pre">ncfl</span></code>, and later iterations retain the end value. The current code does
+not validate a positive ramp length or constrain either CFL value. A zero
+ramp length selects the end value for non-negative iteration indices.</p>
+</section>
+<section id="from-cfl-to-cell-time-step">
+<h2>From CFL to cell time step<a class="headerlink" href="#from-cfl-to-cell-time-step" title="Link to this heading"></a></h2>
+<p>For the CPU local-step branch, the inviscid cell estimate is</p>
+<div class="math notranslate nohighlight">
+\[\Delta t_{inv,c}
+  = \frac{\mathrm{CFL}\,V_c}{\lambda_{inv,c}}.\]</div>
+<p>When the viscous time-step contribution is enabled, the estimates are
+combined as</p>
+<div class="math notranslate nohighlight">
+\[\Delta t_c =
+  \frac{\Delta t_{inv,c}\,\Delta t_{vis,c}}
+       {\Delta t_{inv,c}+\Delta t_{vis,c}}.\]</div>
+<p>The spectral radii are assembled from face contributions. The viscous
+contribution depends on the selected viscous spectral-radius model and is
+only included when a viscous model and <code class="docutils literal notranslate"><span class="pre">visTimeStepModel</span></code> enable it.
+The local path also applies <code class="docutils literal notranslate"><span class="pre">max_time_ratio</span></code> as an upper cap relative to
+the minimum local step when that ratio is positive.</p>
+</section>
+<section id="time-step-model-dispatch">
+<h2>Time-step model dispatch<a class="headerlink" href="#time-step-model-dispatch" title="Link to this heading"></a></h2>
+<p>The current unstructured NS path in <code class="docutils literal notranslate"><span class="pre">UTimeStep::CalcTimeStep</span></code> has three
+branches:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">timestepModel</span> <span class="pre">==</span> <span class="pre">0</span></code>: retain per-cell local time steps.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">timestepModel</span> <span class="pre">==</span> <span class="pre">1</span></code>: fill cells with <code class="docutils literal notranslate"><span class="pre">ctrl.pdt</span></code>, initialized from
+<code class="docutils literal notranslate"><span class="pre">global_dt</span></code>. This branch does not derive the step from the CFL ramp.</p></li>
+<li><p>Other values: compute local steps, find the minimum, fill all cells with
+that minimum, and update <code class="docutils literal notranslate"><span class="pre">ctrl.pdt</span></code>. Checked-in case comments label
+value 2 as the local-global mode; the implementation’s final <code class="docutils literal notranslate"><span class="pre">else</span></code>
+branch is broader than that documented value.</p></li>
+</ul>
+<p>The supported HIP fast path is currently gated to local time stepping
+(<code class="docutils literal notranslate"><span class="pre">timestepModel</span> <span class="pre">==</span> <span class="pre">0</span></code>) and computes the inviscid local step. Do not
+interpret it as evidence that the HIP path has the CPU viscous combination.</p>
+</section>
+<section id="physical-time-accumulation-and-stopping">
+<h2>Physical-time accumulation and stopping<a class="headerlink" href="#physical-time-accumulation-and-stopping" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Ctrl::Init</span></code> initializes <code class="docutils literal notranslate"><span class="pre">ctrl.pdt</span></code> from <code class="docutils literal notranslate"><span class="pre">global_dt</span></code> and sets
+<code class="docutils literal notranslate"><span class="pre">ctrl.currTime</span></code> to zero. It also seeds <code class="docutils literal notranslate"><span class="pre">ctrl.pdt1</span> <span class="pre">=</span> <span class="pre">ctrl.pdt</span></code> for
+the first history-dependent calculation.</p>
+<p>In the audited <code class="docutils literal notranslate"><span class="pre">MG::Run</span></code> implementation, <code class="docutils literal notranslate"><span class="pre">ctrl.currTime</span> <span class="pre">+=</span> <span class="pre">ctrl.pdt</span></code>
+is the physical-time accumulator update. Its placement depends on
+<code class="docutils literal notranslate"><span class="pre">startStrategy</span></code>:</p>
+<ul class="simple">
+<li><p>For <code class="docutils literal notranslate"><span class="pre">startStrategy</span> <span class="pre">==</span> <span class="pre">2</span></code> or <code class="docutils literal notranslate"><span class="pre">3</span></code>, the increment occurs inside the
+inner loop before <code class="docutils literal notranslate"><span class="pre">SolveInnerIter</span></code>; both <code class="docutils literal notranslate"><span class="pre">outerSteps</span></code> and
+<code class="docutils literal notranslate"><span class="pre">innerSteps</span></code> are incremented there.</p></li>
+<li><p>In the other branch, the increment occurs once per outer-loop pass before
+the inner convergence loop.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">SimuIterState::Running</span></code> chooses the stop condition:
+<code class="docutils literal notranslate"><span class="pre">outerSteps</span> <span class="pre">&gt;=</span> <span class="pre">maxSteps</span></code> when <code class="docutils literal notranslate"><span class="pre">iexitflag</span> <span class="pre">==</span> <span class="pre">0</span></code>; otherwise
+<code class="docutils literal notranslate"><span class="pre">currTime</span> <span class="pre">&gt;=</span> <span class="pre">maxTime</span></code>. Since the time increment occurs before the next
+outer-loop running check, the audited path does not show a final-step clip to
+<code class="docutils literal notranslate"><span class="pre">maxTime</span></code>. The actual accumulation cadence is therefore coupled to
+<code class="docutils literal notranslate"><span class="pre">startStrategy</span></code> and should not be generalized to every solver without
+tracing its run loop.</p>
+<p>This is a source observation, not a statement that either cadence is
+numerically correct for every configuration. In particular, the increment
+before the solve raises questions about rejected, interrupted, or
+non-converged physical steps. These need explicit lifecycle tests before
+changing the behavior.</p>
+</section>
+<section id="physical-time-pseudo-time-and-history-intervals">
+<h2>Physical time, pseudo time, and history intervals<a class="headerlink" href="#physical-time-pseudo-time-and-history-intervals" title="Link to this heading"></a></h2>
+<p>Use distinct notation for the physical interval and the pseudo-time
+iteration:</p>
+<ul class="simple">
+<li><p>(t^n): accepted physical time at level (n);</p></li>
+<li><p>(Delta t_n = t^{n+1}-t^n): current physical interval;</p></li>
+<li><p>(Delta t_{n-1}): previous accepted physical interval;</p></li>
+<li><p>(tau): pseudo-time used to converge the current physical level.</p></li>
+</ul>
+<p>For a variable-step method, define the interval ratio</p>
+<div class="math notranslate nohighlight">
+\[r_n = \frac{\Delta t_n}{\Delta t_{n-1}}.\]</div>
+<p>For reference, the variable-step BDF2 derivative is</p>
+<div class="math notranslate nohighlight">
+\[\left.\frac{dQ}{dt}\right|_{n+1}
+\approx \frac{1}{\Delta t_n}
+\left[
+  \frac{1+2r_n}{1+r_n}Q^{n+1}
+  -(1+r_n)Q^n
+  +\frac{r_n^2}{1+r_n}Q^{n-1}
+\right].\]</div>
+<p>This formula is included as a mathematical reference for history-dependent
+integration. It is not a claim that every <code class="docutils literal notranslate"><span class="pre">linearTwoStepMethods</span></code> selector
+currently implements this variable-step BDF2 formula. The exact mapping from
+the legacy coefficient table to each method must be derived and independently
+checked before assigning formal order or stability properties.</p>
+<p>A generic dual-time residual equation can be written as</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial Q}{\partial \tau}
++ \frac{\alpha_0 Q^{n+1}
+         +\alpha_1 Q^n
+         +\alpha_2 Q^{n-1}}{\Delta t_n}
++ R(Q^{n+1}) = 0.\]</div>
+<p>The pseudo-time iteration solves for the current physical level. Advancing
+(tau) is not the same operation as accepting another physical time
+level. A correct lifecycle must define when the physical solution and its
+history are committed, and must not rotate physical history on every
+pseudo-time or multigrid smoothing iteration.</p>
+</section>
+<section id="previous-step-interval-bootstrap-and-remaining-lifecycle-gap">
+<h2>Previous-step interval bootstrap and remaining lifecycle gap<a class="headerlink" href="#previous-step-interval-bootstrap-and-remaining-lifecycle-gap" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Ctrl::Init</span></code> seeds <code class="docutils literal notranslate"><span class="pre">ctrl.pdt1</span> <span class="pre">=</span> <span class="pre">ctrl.pdt</span></code> immediately after loading
+<code class="docutils literal notranslate"><span class="pre">global_dt</span></code>. This gives the first history-dependent unsteady calculation
+a nonzero previous-step interval when the configured step is valid.
+<code class="docutils literal notranslate"><span class="pre">TimeIntegration::CalcSrcCoeff</span></code> uses</p>
+<div class="math notranslate nohighlight">
+\[sc_1 = \frac{bsc_1}{\Delta t_n}, \qquad
+sc_3 = \frac{bsc_3}{\Delta t_{n-1}}, \qquad
+sc_2 = -sc_1-sc_3,\]</div>
+<p>with the current implementation represented by <code class="docutils literal notranslate"><span class="pre">ctrl.pdt</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ctrl.pdt1</span></code>.</p>
+<p>This is only an initialization seed. The audited source tree has no
+subsequent assignment that shifts the accepted current interval into
+<code class="docutils literal notranslate"><span class="pre">pdt1</span></code> when <code class="docutils literal notranslate"><span class="pre">pdt</span></code> changes. In particular,
+<code class="docutils literal notranslate"><span class="pre">UTimeStep::CalcLgTimeStep</span></code> can replace <code class="docutils literal notranslate"><span class="pre">pdt</span></code> with the minimum local
+step, while the history interval remains unchanged. The startup seed removes
+the zero-initialized interval; it does not complete variable-step history
+management.</p>
+</section>
+<section id="known-risks-and-questions-to-retain">
+<h2>Known risks and questions to retain<a class="headerlink" href="#known-risks-and-questions-to-retain" title="Link to this heading"></a></h2>
+<p>The following are tracked verification gaps, not all confirmed numerical
+failures. They must remain visible until a test or source change resolves
+them.</p>
+<ol class="arabic simple">
+<li><p><strong>History rotation:</strong> there is no explicit accepted-physical-step operation
+that advances <code class="docutils literal notranslate"><span class="pre">pdt1</span></code> to the prior accepted <code class="docutils literal notranslate"><span class="pre">pdt</span></code>. A changing step
+can therefore make the history coefficient use a stale interval.</p></li>
+<li><p><strong>Time-step ownership:</strong> local-global time-step selection writes
+<code class="docutils literal notranslate"><span class="pre">ctrl.pdt</span></code>. It is not yet established that every consumer sees a
+consistent current interval or that history is captured at the correct
+boundary.</p></li>
+<li><p><strong>Physical-time acceptance:</strong> <code class="docutils literal notranslate"><span class="pre">MG::Run</span></code> increments <code class="docutils literal notranslate"><span class="pre">currTime</span></code>
+before <code class="docutils literal notranslate"><span class="pre">SolveInnerIter</span></code> in the audited paths. Failure, early exit,
+divergence, or cancellation may leave time and solution state out of
+sync unless another layer restores or rejects the step.</p></li>
+<li><p><strong>Dual-time evidence:</strong> <code class="docutils literal notranslate"><span class="pre">idualtime</span></code> currently affects CFL iteration
+indexing, and history-dependent spectrum/source paths exist, but this is
+not evidence of an end-to-end dual-time solver lifecycle.</p></li>
+<li><p><strong>Pseudo-time convergence:</strong> residual thresholds, maximum pseudo-time
+iterations, multigrid cycles, and the physical-step acceptance condition
+need separate definitions and tests.</p></li>
+<li><p><strong>Startup method:</strong> multistep methods require a defined first-step
+bootstrap. The current initialization of <code class="docutils literal notranslate"><span class="pre">pdt1</span></code> alone does not prove
+that the solution history required by every method is initialized
+consistently.</p></li>
+<li><p><strong>Invalid intervals:</strong> divisions by <code class="docutils literal notranslate"><span class="pre">pdt</span></code> and <code class="docutils literal notranslate"><span class="pre">pdt1</span></code> require
+finite positive intervals. The relevant parameter and runtime validation
+boundaries have not yet been established.</p></li>
+<li><p><strong>Final-time handling:</strong> the audited loop does not show clipping the last
+physical interval to <code class="docutils literal notranslate"><span class="pre">maxTime</span> <span class="pre">-</span> <span class="pre">currTime</span></code>. Overshoot behavior should be
+tested and specified rather than assumed.</p></li>
+<li><p><strong>Strategy dependence:</strong> the two <code class="docutils literal notranslate"><span class="pre">MG::Run</span></code> branches use different
+counter and time-accumulation cadences. Other solver paths may differ and
+require their own call-chain audit.</p></li>
+<li><p><strong>CPU/HIP equivalence:</strong> the supported HIP local-step path currently does
+not establish equivalence with the CPU viscous contribution.</p></li>
+</ol>
+</section>
+<section id="verification-backlog">
+<h2>Verification backlog<a class="headerlink" href="#verification-backlog" title="Link to this heading"></a></h2>
+<p>The work should be added incrementally as real solver paths and representative
+cases become available. Do not mark these items verified merely because the
+contract or test declaration has been added.</p>
+<p>Unit and policy tests:</p>
+<ul class="simple">
+<li><p>finite-positive interval validation, including zero, negative, NaN, and
+infinity;</p></li>
+<li><p>fixed-step history bootstrap and constant-step history rotation;</p></li>
+<li><p>variable-step history rotation and interval-ratio coefficient evaluation;</p></li>
+<li><p>startup behavior for each supported time-integration method;</p></li>
+<li><p>CFL schedule selection for physical-time and dual-time modes;</p></li>
+<li><p>stopping-time and final-interval clipping policy.</p></li>
+</ul>
+<p>Runtime lifecycle and integration tests:</p>
+<ul class="simple">
+<li><p>one physical step with an observable accepted/rejected outcome;</p></li>
+<li><p>multiple physical steps with changing (Delta t_n);</p></li>
+<li><p>pseudo-time iteration that does not advance physical time per inner
+iteration;</p></li>
+<li><p>multigrid smoothing/cycles that do not rotate physical history;</p></li>
+<li><p>early convergence, maximum-iteration exit, divergence, and cancellation;</p></li>
+<li><p>both audited <code class="docutils literal notranslate"><span class="pre">startStrategy</span></code> branches;</p></li>
+<li><p>local, global, and local-global time-step models;</p></li>
+<li><p>CPU/HIP parity for configurations claimed to be supported.</p></li>
+</ul>
+<p>Numerical verification and case validation:</p>
+<ul class="simple">
+<li><p>manufactured time-dependent solution with known temporal error;</p></li>
+<li><p>constant-step temporal refinement and observed order;</p></li>
+<li><p>variable-step temporal refinement with controlled interval ratios;</p></li>
+<li><p>a dual-time benchmark with independently checked residual and physical
+time histories;</p></li>
+<li><p>at least one unsteady compressible and one unsteady incompressible
+representative case, when their runtime paths are ready;</p></li>
+<li><p>comparison of physical observables, not only residual convergence.</p></li>
+</ul>
+<p>For each numerical result, retain the governing equation, initial and boundary
+conditions, mesh/time-step parameters, solver configuration, reference
+solution, error norm, observed convergence rate, command, revision, and
+artifacts. A regression baseline should be labelled as reproducibility
+evidence unless it is independently tied to a numerical reference.</p>
+</section>
+<section id="source-map">
+<h2>Source map<a class="headerlink" href="#source-map" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Parameter loading: <code class="docutils literal notranslate"><span class="pre">Iteration::Init</span></code> in
+<code class="docutils literal notranslate"><span class="pre">codes/global/src/Iteration.cpp</span></code></p></li>
+<li><p>Iteration selection and CFL policy call: <code class="docutils literal notranslate"><span class="pre">TimeStep::CalcCfl</span></code> in
+<code class="docutils literal notranslate"><span class="pre">codes/ns/src/TimeStep.cpp</span></code></p></li>
+<li><p>Pure interpolation: <code class="docutils literal notranslate"><span class="pre">CflAtIteration</span></code> in
+<code class="docutils literal notranslate"><span class="pre">codes/ns/src/TimeStepPolicy.cpp</span></code></p></li>
+<li><p>Time-step model dispatch and cell assembly:
+<code class="docutils literal notranslate"><span class="pre">UTimeStep::CalcTimeStep</span></code> in <code class="docutils literal notranslate"><span class="pre">codes/uns/src/UTimeStep.cpp</span></code></p></li>
+<li><p>Fixed/global step input: <code class="docutils literal notranslate"><span class="pre">Ctrl::Init</span></code> in
+<code class="docutils literal notranslate"><span class="pre">codes/global/src/Ctrl.cpp</span></code> and the solver-specific control
+initializers</p></li>
+<li><p>Physical-time loop: <code class="docutils literal notranslate"><span class="pre">MG::Run</span></code> in
+<code class="docutils literal notranslate"><span class="pre">codes/multigrid/src/Multigrid.cpp</span></code></p></li>
+<li><p>History-dependent coefficients: <code class="docutils literal notranslate"><span class="pre">TimeIntegration::CalcSrcCoeff</span></code> in
+<code class="docutils literal notranslate"><span class="pre">codes/unsteady/src/TimeIntegration.cpp</span></code></p></li>
+<li><p>Dual-time spectrum consumers: <code class="docutils literal notranslate"><span class="pre">UNsSpectrum.cpp</span></code>,
+<code class="docutils literal notranslate"><span class="pre">UINsSpectrum.cpp</span></code>, and <code class="docutils literal notranslate"><span class="pre">UTurbSpectrum.cpp</span></code></p></li>
+<li><p>Existing CFL policy tests: <code class="docutils literal notranslate"><span class="pre">tests/solver/timestep_policy_test.cpp</span></code></p></li>
+<li><p>Existing parameter contract: <code class="docutils literal notranslate"><span class="pre">parameter/cfl-ramp</span></code></p></li>
+</ul>
+</section>
+<section id="what-this-proves-does-not-prove">
+<h2>What this proves / does not prove<a class="headerlink" href="#what-this-proves-does-not-prove" title="Link to this heading"></a></h2>
+<p><strong>Proves:</strong> source-level parameter loading, iteration-counter selection,
+linear interpolation, dual-time iteration-index selection, pure-policy test
+declarations, current unstructured NS time-step dispatch, and the formulas
+documented above as implementation/reference relationships.</p>
+<p><strong>Does not prove:</strong> that every linked test has run; that every solver uses
+this path; that variable-step history is rotated correctly; that dual-time
+integration is exercised end-to-end; that a configured CFL is stable for a
+given mesh/flow; that the selected time integrator has its claimed formal
+order; or that a case reaches a converged or accurate solution. Units and
+nondimensional interpretation of <code class="docutils literal notranslate"><span class="pre">global_dt</span></code> remain case/solver
+dependent.</p>
+</section>
+<section id="evolution-policy">
+<h2>Evolution policy<a class="headerlink" href="#evolution-policy" title="Link to this heading"></a></h2>
+<p>This memorandum is intentionally allowed to contain unresolved items.
+As refactoring and case coverage expand, each item should move through
+explicit states such as <code class="docutils literal notranslate"><span class="pre">observed</span></code>, <code class="docutils literal notranslate"><span class="pre">test_planned</span></code>,
+<code class="docutils literal notranslate"><span class="pre">test_declared</span></code>, <code class="docutils literal notranslate"><span class="pre">executed</span></code>, <code class="docutils literal notranslate"><span class="pre">numerically_verified</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">resolved</span></code>. Keep the original observation and link the resolving
+commit and evidence; do not erase the history when implementation changes.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="time_integral_control.html" class="btn btn-neutral float-left" title="OneFLOW Time-Integration Control" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vencat_reference.html" class="btn btn-neutral float-right" title="Vencat analytic reference profile" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
