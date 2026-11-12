@@ -61,12 +61,12 @@ class MeshValidationCatalogTest(unittest.TestCase):
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
                 {"id": "native_sphere", "title": "Unit Sphere Automatic Tetrahedra (Native C++)",
                  "directory": "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp",
-                 "group": "STL to Gmsh", "dimension": 3, "mesh_validation": "mesh_handoff"},
+                 "group": "STL to Gmsh", "dimension": 3, "mesh_validation": "cfd_smoke"},
                 {"id": "python_sphere", "title": "Unit Sphere Automatic Tetrahedra (Python Reference)",
                  "directory": "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python",
                  "group": "STL to Gmsh", "dimension": 3,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"},
-                 "mesh_validation": "mesh_handoff"},
+                 "mesh_validation": "cfd_smoke"},
                 {"id": "python_square", "title": "One Square QUAD_4 Cell (Python Reference)",
                  "directory": "grid/stl_to_gmsh/2d/square/single_quad/python",
                  "group": "STL to Gmsh", "dimension": 2,
@@ -176,8 +176,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
             )
             self.assertEqual(
                 [step["id"] for step in steps],
-                ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
+                ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
             )
+            self.assertEqual(steps[3]["runtime_directory"], "oneflow_cfd_solve")
+            self.assertEqual(steps[3]["directory"], "test/cfd/plateuns2dslau2")
 
     def test_mesh_selector_groups_cases_by_spatial_dimension(self):
         groups = mesh_case_groups(self.root)
@@ -357,7 +359,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
              "parameter_file": "script/grid.txt", "setting": "gridInfoFileName"},
         ])
 
-    def test_unit_sphere_cases_are_available_for_mesh_handoff_validation(self):
+    def test_unit_sphere_cases_run_the_complete_3d_cfd_smoke_chain(self):
         choices = dict(mesh_case_choices(self.root))
         self.assertIn("native_sphere", choices)
         self.assertIn("python_sphere", choices)
@@ -371,7 +373,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         python = build_mesh_validation_cases(
             self.root, "python_sphere", "laminar_flat_plate"
         )
-        expected_steps = ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"]
+        expected_steps = ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"]
         self.assertEqual([item["id"] for item in native], expected_steps)
         self.assertEqual([item["id"] for item in python], expected_steps)
         self.assertEqual(
@@ -394,7 +396,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
             native[2]["outputs"][0]["path"],
             "results/sphere_automatic_tetrahedra.oneflow.grid",
         )
-        self.assertNotIn("oneflow_cfd_solve", [item["id"] for item in native])
+        self.assertEqual(native[3]["runtime_directory"], "oneflow_cfd_solve")
+        self.assertEqual(python[3]["runtime_directory"], "oneflow_cfd_solve")
+        self.assertEqual(native[3]["directory"], "test/cfd/plateuns2dslau2")
+        self.assertEqual(python[3]["directory"], "test/cfd/plateuns2dslau2")
 
     def test_python_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
         cube_dir = self.root / "grid/stl_to_gmsh/3d/cube/single_hex/python"
