@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import os
 import shlex
 import shutil
@@ -70,8 +71,8 @@ class MeshGenerationDialog(QDialog):
         root.addWidget(knowledge_button)
 
         future = QLabel(
-            "More tools can be added here: STL inspection and repair, mesh conversion, "
-            "mesh quality checks and mesh knowledge."
+            "More tools can be added here: STL inspection and repair, mesh conversion "
+            "and mesh quality checks."
         )
         future.setWordWrap(True)
         future.setStyleSheet("color: #64748b;")
@@ -144,6 +145,7 @@ class StlToGmshDialog(QDialog):
         self.density.addItem("Medium (0.20)", "medium")
         self.density.addItem("Fine (0.10)", "fine")
         self.density.addItem("Custom size range", "custom")
+        self.density.setCurrentIndex(self.density.findData("medium"))
         self.density.currentIndexChanged.connect(self._density_changed)
         form.addRow("Mesh density", self.density)
 
@@ -289,13 +291,16 @@ class StlToGmshDialog(QDialog):
         if self.density.currentData() == "custom":
             minimum = float(self.minimum_size.text())
             maximum = float(self.maximum_size.text())
-            if minimum <= 0 or maximum <= 0 or minimum > maximum:
+            if (
+                not math.isfinite(minimum) or not math.isfinite(maximum)
+                or minimum <= 0 or maximum <= 0 or minimum > maximum
+            ):
                 raise ValueError("Mesh size bounds must be positive and minimum must not exceed maximum.")
             args.extend(["--mesh-size-min", self.minimum_size.text().strip(),
                          "--mesh-size-max", self.maximum_size.text().strip()])
         else:
             size = float(self.mesh_size.text())
-            if size <= 0:
+            if not math.isfinite(size) or size <= 0:
                 raise ValueError("Mesh size must be positive.")
             args.extend(["--mesh-size", self.mesh_size.text().strip()])
         gmsh = self.gmsh_path.text().strip()
