@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from PySide6.QtCore import QProcess
+from PySide6.QtCore import QProcess, QTextCursor
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -344,8 +344,10 @@ class StlToGmshDialog(QDialog):
     def _read_output(self) -> None:
         data = bytes(self._process.readAllStandardOutput()).decode("utf-8", errors="replace")
         if data:
-            self.output_view.moveCursor(self.output_view.textCursor().MoveOperation.End)
-            self.output_view.insertPlainText(data)
+            cursor = self.output_view.textCursor()
+            cursor.movePosition(QTextCursor.MoveOperation.End)
+            cursor.insertText(data)
+            self.output_view.setTextCursor(cursor)
             self.output_view.ensureCursorVisible()
 
     def _process_finished(self, exit_code: int, _exit_status) -> None:
