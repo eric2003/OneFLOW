@@ -110,7 +110,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 Path(dialog.output_path.text()),
                 UserDataPaths.discover().mesh_generation / "sphere.msh",
             )
-            self.assertFalse(dialog.advanced_settings.isVisible())
+            self.assertTrue(dialog.advanced_settings.isHidden())
             self.assertEqual(dialog.gmsh_path.text(), discover_gmsh() or "")
             self.assertEqual(dialog.mesh_size.text(), "0.20")
             self.assertTrue(dialog.run_button.isEnabled())
