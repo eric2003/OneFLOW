@@ -209,7 +209,7 @@ def main() -> int:
         OSError, ValueError, Stl2DError,
         subprocess.CalledProcessError, RuntimeError,
     ) as error:
-        parser.exit(2, f"STL volume mesh generation failed: {error}\\n")
+        parser.exit(2, f"STL volume mesh generation failed: {error}\n")
     return 0
 
 
