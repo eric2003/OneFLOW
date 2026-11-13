@@ -143,9 +143,9 @@ def generate(
         "validated": True,
     }
     report_path.write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\\n",
+        json.dumps(report, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
-        newline="\\n",
+        newline="\n",
     )
     print(json.dumps(report, indent=2))
     return report
@@ -167,7 +167,7 @@ def main() -> int:
         help=f"output .msh file (default: {default_output_path()})",
     )
     parser.add_argument(
-        "--mesh-size", type=float, default=DEFAULT_MESH_SIZE,
+        "--mesh-size", type=float,
         help=f"set minimum and maximum size to one value (default: {DEFAULT_MESH_SIZE})",
     )
     parser.add_argument("--mesh-size-min", type=float, help="minimum target characteristic length")
@@ -183,13 +183,15 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.mesh_size_min is not None or args.mesh_size_max is not None:
-        if args.mesh_size is not None and args.mesh_size != DEFAULT_MESH_SIZE:
+        if args.mesh_size is not None:
             parser.error("use --mesh-size OR the --mesh-size-min/--mesh-size-max pair")
         if args.mesh_size_min is None or args.mesh_size_max is None:
             parser.error("provide both --mesh-size-min and --mesh-size-max")
         mesh_size_min, mesh_size_max = args.mesh_size_min, args.mesh_size_max
-    else:
+    elif args.mesh_size is not None:
         mesh_size_min = mesh_size_max = args.mesh_size
+    else:
+        mesh_size_min = mesh_size_max = DEFAULT_MESH_SIZE
 
     if not args.gmsh:
         parser.error(
