@@ -5,13 +5,13 @@
 Generate a tetrahedral volume mesh from a closed STL surface:
 
 ```powershell
-python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/surface.stl --output "$HOME/.oneflow/mesh-generation/volume.msh" --mesh-size 0.20
+python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/surface.stl --output "$HOME/.oneflow/mesh-generation/surface/volume.msh" --mesh-size 0.20
 ```
 
 To allow a size interval, specify both bounds:
 
 ```powershell
-python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/surface.stl --output "$HOME/.oneflow/mesh-generation/volume.msh" --mesh-size-min 0.10 --mesh-size-max 0.20
+python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/surface.stl --output "$HOME/.oneflow/mesh-generation/surface/volume.msh" --mesh-size-min 0.10 --mesh-size-max 0.20
 ```
 
 Use the same STL and vary `--mesh-size` (for example 0.40, 0.20, 0.10)
