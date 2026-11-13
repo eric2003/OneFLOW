@@ -17,8 +17,8 @@ This uses the repository's unit-sphere STL, a target mesh size of 0.20,
 Physical Surface ``wall``, Physical Volume ``fluid_domain``, and writes the
 mesh and supporting artifacts under the user's OneFLOW data directory:
 
-* ``%USERPROFILE%\\.oneflow\\mesh-generation\\sphere.msh`` on Windows.
-* ``$HOME/.oneflow/mesh-generation/sphere.msh`` on Linux and macOS.
+* ``%USERPROFILE%\\.oneflow\\mesh-generation\\sphere\\sphere.msh`` on Windows.
+* ``$HOME/.oneflow/mesh-generation/sphere/sphere.msh`` on Linux and macOS.
 
 Set ``ONEFLOW_HOME`` to move the OneFLOW data root. The output directory is
 created automatically. Gmsh is discovered from ``GMSH_EXECUTABLE``, ``PATH``,
@@ -30,7 +30,7 @@ One mesh size
 
 .. code-block:: console
 
-   python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output "$HOME/.oneflow/mesh-generation/sphere.msh" --mesh-size 0.20
+   python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output "$HOME/.oneflow/mesh-generation/sphere/sphere.msh" --mesh-size 0.20
 
 The command sets both Gmsh size limits to 0.20. A mesh size is a target
 characteristic length, not an exact tetrahedron edge length or element count.
@@ -40,7 +40,7 @@ Mesh-size range
 
 .. code-block:: console
 
-   python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output "$HOME/.oneflow/mesh-generation/sphere.msh" --mesh-size-min 0.10 --mesh-size-max 0.20
+   python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --output "$HOME/.oneflow/mesh-generation/sphere/sphere.msh" --mesh-size-min 0.10 --mesh-size-max 0.20
 
 Sphere refinement examples
 --------------------------
@@ -49,9 +49,9 @@ Use the same STL input for each run and change only the size:
 
 .. code-block:: console
 
-   python grid/stl_to_gmsh/generate_volume_mesh.py --mesh-size 0.40 --output "$HOME/.oneflow/mesh-generation/sphere_coarse.msh"
-   python grid/stl_to_gmsh/generate_volume_mesh.py --mesh-size 0.20 --output "$HOME/.oneflow/mesh-generation/sphere_medium.msh"
-   python grid/stl_to_gmsh/generate_volume_mesh.py --mesh-size 0.10 --output "$HOME/.oneflow/mesh-generation/sphere_fine.msh"
+   python grid/stl_to_gmsh/generate_volume_mesh.py --mesh-size 0.40 --output "$HOME/.oneflow/mesh-generation/sphere/sphere_coarse.msh"
+   python grid/stl_to_gmsh/generate_volume_mesh.py --mesh-size 0.20 --output "$HOME/.oneflow/mesh-generation/sphere/sphere_medium.msh"
+   python grid/stl_to_gmsh/generate_volume_mesh.py --mesh-size 0.10 --output "$HOME/.oneflow/mesh-generation/sphere/sphere_fine.msh"
 
 Outputs
 -------
