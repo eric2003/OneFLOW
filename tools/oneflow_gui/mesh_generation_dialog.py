@@ -24,11 +24,18 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QPushButton,
     QVBoxLayout,
+    QWidget,
 )
 
 from .contract_workbench_dialog import ContractDomainDialog
 from .mesh_layout_dialog import MeshLayoutDialog
 from .user_data_paths import UserDataPaths
+from grid.stl_to_gmsh.generate_volume_mesh import (
+    DEFAULT_MESH_SIZE,
+    DEFAULT_SPHERE_STL,
+    default_output_path,
+    discover_gmsh,
+)
 
 
 class MeshGenerationDialog(QDialog):
@@ -120,7 +127,7 @@ class StlToGmshDialog(QDialog):
         form = QFormLayout()
         self.geometry_preset = QComboBox()
         self.geometry_preset.addItem("Unit Sphere STL", "sphere")
-        self.geometry_preset.addItem("General STL", "general")
+        self.geometry_preset.addItem("Closed STL shell (genus zero)", "closed_shell")
         self.geometry_preset.setToolTip(
             "The preset describes the geometry workflow; select the actual STL file below."
         )
@@ -128,10 +135,7 @@ class StlToGmshDialog(QDialog):
 
         stl_row = QHBoxLayout()
         self.stl_path = QLineEdit()
-        default_sphere_stl = (
-            self._repository_root / "grid" / "stl_to_gmsh" / "3d" / "sphere"
-            / "automatic_tetrahedra" / "python" / "input" / "model.stl"
-        )
+        default_sphere_stl = DEFAULT_SPHERE_STL
         if default_sphere_stl.is_file():
             self.stl_path.setText(str(default_sphere_stl))
         self.stl_path.setPlaceholderText("Select a closed STL surface...")
@@ -150,7 +154,7 @@ class StlToGmshDialog(QDialog):
         self.density.currentIndexChanged.connect(self._density_changed)
         form.addRow("Mesh density", self.density)
 
-        self.mesh_size = QLineEdit("0.20")
+        self.mesh_size = QLineEdit(f"{DEFAULT_MESH_SIZE:.2f}")
         self.mesh_size.setToolTip("One target size; maps to both MeshSizeMin and MeshSizeMax.")
         form.addRow("Target size", self.mesh_size)
 
@@ -161,27 +165,30 @@ class StlToGmshDialog(QDialog):
         size_row.addWidget(self.minimum_size)
         size_row.addWidget(QLabel("Maximum"))
         size_row.addWidget(self.maximum_size)
-        form.addRow("Advanced size bounds", size_row)
 
-        self.output_path = QLineEdit(
-            str(UserDataPaths.discover().mesh_generation / "sphere.msh")
-        )
+        self.output_path = QLineEdit(str(default_output_path()))
         output_row = QHBoxLayout()
         output_row.addWidget(self.output_path, 1)
         output_browse = QPushButton("Browse...")
         output_browse.clicked.connect(self._browse_output)
         output_row.addWidget(output_browse)
         form.addRow("Output mesh", output_row)
+        root.addLayout(form)
 
-        self.gmsh_path = QLineEdit(shutil.which("gmsh") or "")
-        self.gmsh_path.setPlaceholderText("Optional: leave blank to search PATH")
+        advanced_toggle = QPushButton("Advanced settings")
+        advanced_toggle.setCheckable(True)
+        root.addWidget(advanced_toggle)
+        self.advanced_settings = QWidget()
+        advanced_form = QFormLayout(self.advanced_settings)
+        advanced_form.addRow("Size bounds", size_row)
+        self.gmsh_path = QLineEdit(discover_gmsh() or "")
+        self.gmsh_path.setPlaceholderText("Auto-detected; set only if needed")
         gmsh_row = QHBoxLayout()
         gmsh_row.addWidget(self.gmsh_path, 1)
         gmsh_browse = QPushButton("Browse...")
         gmsh_browse.clicked.connect(self._browse_gmsh)
         gmsh_row.addWidget(gmsh_browse)
-        form.addRow("Gmsh executable", gmsh_row)
-
+        advanced_form.addRow("Gmsh executable", gmsh_row)
         self.boundary_name = QLineEdit("wall")
         self.volume_name = QLineEdit("fluid_domain")
         groups_row = QHBoxLayout()
@@ -189,9 +196,10 @@ class StlToGmshDialog(QDialog):
         groups_row.addWidget(self.boundary_name)
         groups_row.addWidget(QLabel("Volume"))
         groups_row.addWidget(self.volume_name)
-        form.addRow("Physical Groups", groups_row)
-        root.addLayout(form)
-
+        advanced_form.addRow("Physical Groups", groups_row)
+        self.advanced_settings.setVisible(False)
+        root.addWidget(self.advanced_settings)
+        advanced_toggle.toggled.connect(self.advanced_settings.setVisible)
         command_heading = QLabel("Command Preview")
         command_heading.setStyleSheet("font-weight: 650;")
         root.addWidget(command_heading)
@@ -241,7 +249,7 @@ class StlToGmshDialog(QDialog):
         )
         if path:
             self.stl_path.setText(path)
-            if "sphere" in Path(path).name.lower():
+            if Path(path).resolve() == DEFAULT_SPHERE_STL.resolve():
                 self.geometry_preset.setCurrentIndex(0)
             else:
                 self.geometry_preset.setCurrentIndex(1)
