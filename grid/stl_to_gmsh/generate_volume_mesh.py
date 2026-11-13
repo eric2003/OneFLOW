@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import shutil
 import subprocess
 import sys
@@ -16,6 +17,49 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from grid.stl_to_gmsh.converter import Stl2DError, convert, inspect_msh4  # noqa: E402
+
+
+DEFAULT_SPHERE_STL = (
+    ROOT / "grid" / "stl_to_gmsh" / "3d" / "sphere"
+    / "automatic_tetrahedra" / "python" / "input" / "model.stl"
+)
+DEFAULT_MESH_SIZE = 0.20
+
+
+def default_output_path() -> Path:
+    """Return the platform-independent OneFLOW user-data output location."""
+    configured_home = os.environ.get("ONEFLOW_HOME", "").strip()
+    user_root = Path(configured_home).expanduser() if configured_home else Path.home() / ".oneflow"
+    return user_root / "mesh-generation" / "sphere.msh"
+
+
+def discover_gmsh() -> str | None:
+    """Find Gmsh without requiring beginners to enter its executable path."""
+    configured = os.environ.get("GMSH_EXECUTABLE", "").strip()
+    if configured and Path(configured).is_file():
+        return str(Path(configured).expanduser().resolve())
+
+    on_path = shutil.which("gmsh") or shutil.which("gmsh.exe")
+    if on_path:
+        return on_path
+
+    candidates: list[Path] = []
+    if os.name == "nt":
+        for variable in ("ProgramFiles", "ProgramFiles(x86)", "LOCALAPPDATA"):
+            base = os.environ.get(variable)
+            if base:
+                candidates.extend(sorted(Path(base).glob("Gmsh*/gmsh.exe")))
+        software = Path("C:/software")
+        if software.is_dir():
+            candidates.extend(sorted(software.glob("gmsh*/gmsh.exe")))
+            candidates.extend(sorted(software.glob("gmsh*/gmsh.EXE")))
+    else:
+        candidates.extend((Path("/usr/local/bin/gmsh"), Path("/usr/bin/gmsh")))
+
+    for candidate in candidates:
+        if candidate.is_file():
+            return str(candidate.resolve())
+    return None
 
 
 def generate(
@@ -44,6 +88,8 @@ def generate(
         raise ValueError("mesh sizes must be positive and finite")
     if mesh_size_min > mesh_size_max:
         raise ValueError("--mesh-size-min must not exceed --mesh-size-max")
+    if not gmsh:
+        raise ValueError("Gmsh was not found; install it, add it to PATH, or set GMSH_EXECUTABLE")
 
     output.parent.mkdir(parents=True, exist_ok=True)
     geo = output.with_suffix(".geo")
@@ -89,6 +135,7 @@ def generate(
         "input_stl": str(stl),
         "geometry": str(geo),
         "mesh": str(output),
+        "gmsh_executable": gmsh,
         "mesh_size_min": mesh_size_min,
         "mesh_size_max": mesh_size_max,
         "geometry_validation": geometry_report,
@@ -96,9 +143,9 @@ def generate(
         "validated": True,
     }
     report_path.write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n",
+        json.dumps(report, indent=2, sort_keys=True) + "\\n",
         encoding="utf-8",
-        newline="\n",
+        newline="\\n",
     )
     print(json.dumps(report, indent=2))
     return report
@@ -107,42 +154,48 @@ def generate(
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Generate a tetrahedral volume mesh from a closed, genus-zero STL shell."
+            "Generate a tetrahedral volume mesh from a closed, genus-zero STL shell. "
+            "Defaults run the bundled unit-sphere example without extra arguments."
         )
     )
-    parser.add_argument("--stl", type=Path, required=True, help="input closed STL surface")
-    parser.add_argument("--output", type=Path, required=True, help="output .msh file")
     parser.add_argument(
-        "--mesh-size", type=float,
-        help="set minimum and maximum size to one value",
+        "--stl", type=Path, default=DEFAULT_SPHERE_STL,
+        help=f"input closed STL surface (default: {DEFAULT_SPHERE_STL})",
     )
     parser.add_argument(
-        "--mesh-size-min", type=float,
-        help="minimum target characteristic length",
+        "--output", type=Path, default=default_output_path(),
+        help=f"output .msh file (default: {default_output_path()})",
     )
     parser.add_argument(
-        "--mesh-size-max", type=float,
-        help="maximum target characteristic length",
+        "--mesh-size", type=float, default=DEFAULT_MESH_SIZE,
+        help=f"set minimum and maximum size to one value (default: {DEFAULT_MESH_SIZE})",
     )
-    parser.add_argument("--gmsh", default=shutil.which("gmsh"), help="Gmsh executable")
+    parser.add_argument("--mesh-size-min", type=float, help="minimum target characteristic length")
+    parser.add_argument("--mesh-size-max", type=float, help="maximum target characteristic length")
+    parser.add_argument(
+        "--gmsh", default=discover_gmsh(),
+        help="Gmsh executable (auto-detected from GMSH_EXECUTABLE, PATH and common install folders)",
+    )
     parser.add_argument("--boundary-name", default="wall")
     parser.add_argument("--volume-name", default="fluid_domain")
     parser.add_argument("--surface-angle", type=float, default=40.0)
     parser.add_argument("--curve-angle", type=float, default=180.0)
     args = parser.parse_args()
-    if not args.gmsh:
-        parser.error("Gmsh was not found; install it or pass --gmsh")
-    if args.mesh_size is not None:
-        if args.mesh_size_min is not None or args.mesh_size_max is not None:
+
+    if args.mesh_size_min is not None or args.mesh_size_max is not None:
+        if args.mesh_size is not None and args.mesh_size != DEFAULT_MESH_SIZE:
             parser.error("use --mesh-size OR the --mesh-size-min/--mesh-size-max pair")
-        mesh_size_min = mesh_size_max = args.mesh_size
-    else:
         if args.mesh_size_min is None or args.mesh_size_max is None:
-            parser.error(
-                "provide --mesh-size, or provide both "
-                "--mesh-size-min and --mesh-size-max"
-            )
+            parser.error("provide both --mesh-size-min and --mesh-size-max")
         mesh_size_min, mesh_size_max = args.mesh_size_min, args.mesh_size_max
+    else:
+        mesh_size_min = mesh_size_max = args.mesh_size
+
+    if not args.gmsh:
+        parser.error(
+            "Gmsh was not found. Install Gmsh, add it to PATH, set GMSH_EXECUTABLE, "
+            "or pass --gmsh."
+        )
     try:
         generate(
             args.stl, args.output, args.gmsh,
@@ -154,7 +207,7 @@ def main() -> int:
         OSError, ValueError, Stl2DError,
         subprocess.CalledProcessError, RuntimeError,
     ) as error:
-        parser.exit(2, f"STL volume mesh generation failed: {error}\n")
+        parser.exit(2, f"STL volume mesh generation failed: {error}\\n")
     return 0
 
 
