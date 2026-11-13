@@ -189,7 +189,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
         with patch.dict(os.environ, {"ONEFLOW_HOME": "C:/OneFLOWData"}):
             self.assertEqual(
                 default_output_path(),
-                Path("C:/OneFLOWData/mesh-generation/sphere.msh"),
+                Path("C:/OneFLOWData/mesh-generation/sphere/sphere.msh"),
             )
 
     def test_gmsh_can_be_discovered_from_environment_without_cli_argument(self) -> None:
