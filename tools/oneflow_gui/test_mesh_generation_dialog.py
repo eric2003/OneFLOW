@@ -13,6 +13,12 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtWidgets import QApplication, QPushButton
 from tools.oneflow_gui.application_settings import ApplicationSettings
 from tools.oneflow_gui.user_data_paths import UserDataPaths
+from grid.stl_to_gmsh.generate_volume_mesh import (
+    DEFAULT_MESH_SIZE,
+    DEFAULT_SPHERE_STL,
+    default_output_path,
+    discover_gmsh,
+)
 
 from tools.oneflow_gui.mesh_generation_dialog import (
     MeshGenerationDialog,
@@ -172,6 +178,22 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 dialog._arguments()
         finally:
             dialog.close()
+
+    def test_volume_mesh_cli_has_beginner_friendly_defaults(self) -> None:
+        self.assertTrue(DEFAULT_SPHERE_STL.is_file())
+        self.assertEqual(DEFAULT_MESH_SIZE, 0.20)
+        with patch.dict(os.environ, {"ONEFLOW_HOME": "C:/OneFLOWData"}):
+            self.assertEqual(
+                default_output_path(),
+                Path("C:/OneFLOWData/mesh-generation/sphere.msh"),
+            )
+
+    def test_gmsh_can_be_discovered_from_environment_without_cli_argument(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            executable = Path(directory) / "gmsh.exe"
+            executable.write_text("", encoding="ascii")
+            with patch.dict(os.environ, {"GMSH_EXECUTABLE": str(executable)}):
+                self.assertEqual(discover_gmsh(), str(executable.resolve()))
 
 
 if __name__ == "__main__":
