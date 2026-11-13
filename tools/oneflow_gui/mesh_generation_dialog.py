@@ -5,7 +5,6 @@ from __future__ import annotations
 import math
 import os
 import shlex
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -29,7 +28,6 @@ from PySide6.QtWidgets import (
 
 from .contract_workbench_dialog import ContractDomainDialog
 from .mesh_layout_dialog import MeshLayoutDialog
-from .user_data_paths import UserDataPaths
 from grid.stl_to_gmsh.generate_volume_mesh import (
     DEFAULT_MESH_SIZE,
     DEFAULT_SPHERE_STL,
