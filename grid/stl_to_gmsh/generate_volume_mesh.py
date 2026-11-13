@@ -30,7 +30,7 @@ def default_output_path() -> Path:
     """Return the platform-independent OneFLOW user-data output location."""
     configured_home = os.environ.get("ONEFLOW_HOME", "").strip()
     user_root = Path(configured_home).expanduser() if configured_home else Path.home() / ".oneflow"
-    return user_root / "mesh-generation" / "sphere.msh"
+    return user_root / "mesh-generation" / "sphere" / "sphere.msh"
 
 
 def discover_gmsh() -> str | None:
