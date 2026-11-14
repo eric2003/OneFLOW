@@ -389,7 +389,10 @@ def refine(z, report):
     cell_faces = build_cell_faces(z)
 
     # --- Pass A: edge midpoints (id on first sight) and face centers -------
+    # Edge keys are packed into one integer (a * node_stride + b, a < b) so an
+    # O(60M) midpoint table costs a few GB instead of tens of GB with tuples.
     mid_id = {}
+    stride = V + 1
     mid_x = array("d"); mid_y = array("d"); mid_z = array("d")
     fc_x = array("d"); fc_y = array("d"); fc_z = array("d")
     fn = z.fnmem
@@ -398,7 +401,7 @@ def refine(z, report):
         b = 4 * f
         p0 = fn[b]; p1 = fn[b + 1]; p2 = fn[b + 2]; p3 = fn[b + 3]
         for a, e in ((p0, p1), (p1, p2), (p2, p3), (p3, p0)):
-            key = (a, e) if a < e else (e, a)
+            key = a * stride + e if a < e else e * stride + a
             mid = mid_id.get(key)
             if mid is None:
                 mid = V + len(mid_x)
@@ -464,7 +467,7 @@ def refine(z, report):
             ring = (fn[b], fn[b + 1], fn[b + 2], fn[b + 3])
             for i in range(4):
                 a, e = ring[i], ring[(i + 1) % 4]
-                key = (a, e) if a < e else (e, a)
+                key = a * stride + e if a < e else e * stride + a
                 lst = edge_faces.get(key)
                 if lst is None:
                     edge_faces[key] = [f]
@@ -472,7 +475,7 @@ def refine(z, report):
                     lst.append(f)
         for ia, ib in cell_edges(corners):
             pa, pb = corners[ia], corners[ib]
-            key = (pa, pb) if pa < pb else (pb, pa)
+            key = pa * stride + pb if pa < pb else pb * stride + pa
             fs = edge_faces[key]
             if len(fs) != 2:
                 fail("cell %d edge %s has %d adjacent faces" % (c, key, len(fs)))
@@ -506,10 +509,10 @@ def refine(z, report):
     for f in range(F):
         b = 4 * f
         p0 = fn[b]; p1 = fn[b + 1]; p2 = fn[b + 2]; p3 = fn[b + 3]
-        m01 = mid_id[(p0, p1) if p0 < p1 else (p1, p0)]
-        m12 = mid_id[(p1, p2) if p1 < p2 else (p2, p1)]
-        m23 = mid_id[(p2, p3) if p2 < p3 else (p3, p2)]
-        m30 = mid_id[(p3, p0) if p3 < p0 else (p0, p3)]
+        m01 = mid_id[p0 * stride + p1 if p0 < p1 else p1 * stride + p0]
+        m12 = mid_id[p1 * stride + p2 if p1 < p2 else p2 * stride + p1]
+        m23 = mid_id[p2 * stride + p3 if p2 < p3 else p3 * stride + p2]
+        m30 = mid_id[p3 * stride + p0 if p3 < p0 else p0 * stride + p3]
         g = fc_base + f
         lc = left[f]
         rc = right[f]
@@ -838,43 +841,47 @@ def label_directions(z, cell_faces, corners_flat, report):
 
 
 def canonicalize_labels(z, corners_flat, labels, report):
-    """Renumber global labels so label 0 is the direction best aligned with a
-    single global axis (the span of an extruded grid); 1/2 keep BFS order.
+    """Renumber global labels so label 0 is the THICKEST direction.
 
-    Returns new labels (array('b'), 3 per cell).
+    Cutting the thickest direction first keeps the child cells well shaped and,
+    on an O-grid whose pole layers are already zero-thickness in one direction,
+    guarantees the cut never runs along a collapsed layer.  Median edge length
+    per label decides the order; the axis alignment is reported for context.
     """
     n = z.n_cells
-    score = [[0.0] * 3 for _ in range(3)]  # score[label][axis]
-    count = [0, 0, 0]
     step = max(1, n // 20000)
+    lens = [[], [], []]
+    axis_hits = [[0, 0, 0] for _ in range(3)]
     for c in range(0, n, step):
         base = 8 * c
         corners = corners_flat[base : base + 8]
-        for ia, ib, d in cell_dir_edge_pairs(corners):
+        for a, b, d in cell_dir_edge_pairs(corners):
             g = labels[3 * c + d]
-            dx = z.xn[corners[ib]] - z.xn[corners[ia]]
-            dy = z.yn[corners[ib]] - z.yn[corners[ia]]
-            dz = z.zn[corners[ib]] - z.zn[corners[ia]]
-            ln = (dx * dx + dy * dy + dz * dz) ** 0.5
-            if ln <= 0.0:
+            if g < 0:
                 continue
-            count[g] += 1
-            score[g][0] += abs(dx) / ln
-            score[g][1] += abs(dy) / ln
-            score[g][2] += abs(dz) / ln
-    if min(count) == 0:
-        fail("a direction has no measurable edges")
-    best = []
-    for g in range(3):
-        axis = max(range(3), key=lambda a: score[g][a])
-        best.append((score[g][axis] / count[g], axis, g))
-    best.sort(reverse=True)
+            dx = z.xn[corners[b]] - z.xn[corners[a]]
+            dy = z.yn[corners[b]] - z.yn[corners[a]]
+            dz = z.zn[corners[b]] - z.zn[corners[a]]
+            ln = (dx * dx + dy * dy + dz * dz) ** 0.5
+            lens[g].append(ln)
+            ax = max(range(3), key=lambda k: abs((dx, dy, dz)[k]))
+            axis_hits[g][ax] += 1
+
+    def median(values):
+        if not values:
+            return 0.0
+        values.sort()
+        return values[len(values) // 2]
+
+    med = [median(v) for v in lens]
+    order = sorted(range(3), key=lambda g: -med[g])
     perm = [0, 0, 0]
-    for rank, (s, axis, g) in enumerate(best):
+    for rank, g in enumerate(order):
         perm[g] = rank
+        axis = max(range(3), key=lambda k: axis_hits[g][k])
         report.append(
-            "direction g=%d rank=%d axis-align=%.3f (axis %s) edges=%d"
-            % (g, rank, s, "xyz"[axis], count[g])
+            "direction g=%d med-edge=%.6e rank=%d (dominant axis %s)"
+            % (g, med[g], rank, "xyz"[axis])
         )
     new = array("b", bytes(3 * n))
     for i in range(3 * n):
@@ -1071,14 +1078,55 @@ def apply_cut(st, cut_label, report):
             print("    cand=%s set=%s" % (cand, sorted(set(cand))), file=sys.stderr)
         fail("child %d has no canonical face with nodes %s" % (child, sorted(target)))
 
+    # Ownership is decided geometrically: a face belongs to the child on its
+    # side of the parent's mid-sheet plane.  Using the same rule for both cells
+    # of an interface keeps degenerate (folded) pairs consistent, where a
+    # node-set test cannot distinguish the two children because they share
+    # nodes.  Coincident faces then cancel exactly as they do in the input.
+    sheet_mid = array("d", bytes(8 * 3 * n_cells))
+    sheet_n = array("d", bytes(8 * 3 * n_cells))
+    for c in range(n_cells):
+        b8 = 16 * c
+        c0 = [0.0, 0.0, 0.0]
+        c1 = [0.0, 0.0, 0.0]
+        for k in range(4):
+            n0 = frames[b8 + k]
+            n1 = frames[b8 + 8 + k]
+            c0[0] += xn[n0]; c0[1] += yn[n0]; c0[2] += zn[n0]
+            c1[0] += xn[n1]; c1[1] += yn[n1]; c1[2] += zn[n1]
+        for k in range(3):
+            c0[k] *= 0.25
+            c1[k] *= 0.25
+            sheet_mid[3 * c + k] = 0.5 * (c0[k] + c1[k])
+            sheet_n[3 * c + k] = c1[k] - c0[k]
+
+    degenerate = array("b", bytes(n_cells))
+
     def owner(c, quad):
-        """Child of cell c whose frame contains all four nodes of `quad`."""
+        """Child of cell c on the side of the mid-sheet plane holding `quad`.
+
+        Collapsed cells (zero thickness along the cut) make the signed test
+        meaningless, so they fall back to node containment and are flagged so
+        the caller can keep the two halves on different siblings.
+        """
+        qx = (xn[quad[0]] + xn[quad[1]] + xn[quad[2]] + xn[quad[3]]) * 0.25
+        qy = (yn[quad[0]] + yn[quad[1]] + yn[quad[2]] + yn[quad[3]]) * 0.25
+        qz = (zn[quad[0]] + zn[quad[1]] + zn[quad[2]] + zn[quad[3]]) * 0.25
+        t = ((qx - sheet_mid[3 * c]) * sheet_n[3 * c]
+             + (qy - sheet_mid[3 * c + 1]) * sheet_n[3 * c + 1]
+             + (qz - sheet_mid[3 * c + 2]) * sheet_n[3 * c + 2])
+        nn = (sheet_n[3 * c] ** 2 + sheet_n[3 * c + 1] ** 2
+              + sheet_n[3 * c + 2] ** 2) ** 0.5
+        if nn > 1e-9:
+            return 2 * c + (0 if t < 0.0 else 1)
+        degenerate[c] = 1
         quad_set = set(quad)
-        for k in (0, 1):
-            b4 = 16 * c + 8 * k
-            if quad_set <= set(frames[b4 : b4 + 8]):
-                return 2 * c + k
-        fail("cell %d has no child containing face %s" % (c, sorted(quad_set)))
+        b4 = 16 * c
+        if quad_set <= set(frames[b4 : b4 + 8]):
+            return 2 * c
+        if quad_set <= set(frames[b4 + 8 : b4 + 16]):
+            return 2 * c + 1
+        return 2 * c
 
     # --- emit: boundary sub-faces first, then interior --------------------
     out_frings = array("i")
@@ -1134,18 +1182,16 @@ def apply_cut(st, cut_label, report):
             if len(quads) != 2:
                 fail("face %d produced %d halves" % (f, len(quads)))
 
-        # A parent that is degenerate in the cut direction produces two
-        # coincident children, so node-set ownership becomes ambiguous and both
-        # halves would land on the same child pair (two hexes sharing two
-        # faces).  Keep the topology conforming by forcing the halves onto the
-        # two siblings in order whenever the ownership test collides.
         lc_children = [owner(la, q) for q in quads]
         rc_children = [owner(ra, q) for q in quads] if ra >= 0 else []
-        if len(quads) == 2:
-            if lc_children[0] == lc_children[1]:
-                lc_children[1] = lc_children[0] ^ 1
-            if rc_children and rc_children[0] == rc_children[1]:
-                rc_children[1] = rc_children[0] ^ 1
+        # Only for collapsed cells are the two children coincident; there the
+        # halves must be forced onto different siblings or both would describe
+        # the same interface twice.
+        if len(quads) == 2 and degenerate[la] and lc_children[0] == lc_children[1]:
+            lc_children[1] = lc_children[0] ^ 1
+        if (len(quads) == 2 and ra >= 0 and degenerate[ra]
+                and rc_children[0] == rc_children[1]):
+            rc_children[1] = rc_children[0] ^ 1
         for idx, quad in enumerate(quads):
             lc_child = lc_children[idx]
             out_frings.extend(canonical(lc_child, quad))
