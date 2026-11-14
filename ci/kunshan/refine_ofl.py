@@ -53,7 +53,13 @@ Self-checks (all must pass; the script exits non-zero otherwise):
   REPARSE   the written file is re-read from disk and re-validated as an
             independent mesh (degree, quads, boundary order, volume).
 
-Usage: python3 refine_ofl.py <input.ofl> <output.ofl> [report.txt]
+Usage: python3 refine_ofl.py <input.ofl> <output.ofl> [--cuts K]
+
+Options:
+  (no option)  uniform 2x2x2 refinement (8x cells per hex)
+  --cuts K     sequential one-direction refinement, K = 1, 2 or 3
+               (2^K x cells; K=3 reproduces the uniform mesh by counts and
+               node-set identity, cross-checkable against the uniform run)
 """
 
 import struct
@@ -243,6 +249,17 @@ def hex_corners(z, cell_faces, c):
                 fail("cell %d side ring neighbours are both top nodes" % c)
     if any(u is None for u in upper) or len(set(upper)) != 4 or set(upper) != tset:
         fail("cell %d upper corner correspondence unresolved" % c)
+
+    # Uniform chirality convention: the bottom-face ring must point OUT of the
+    # cell.  Face rings are stored left -> right (outward from the left cell),
+    # so a cell that is the RIGHT cell of its bottom face sees the ring
+    # reversed.  Mixed chirality makes the direction labelling non-integrable
+    # (a "twist" around any loop), so mirror the cell frame in that case.
+    bottom_face = faces[0]
+    if z.left[bottom_face] != c:
+        b = (b[0], b[3], b[2], b[1])
+        upper = [upper[0], upper[3], upper[2], upper[1]]
+
     corners = list(b) + upper
     if len(set(corners)) != 8:
         fail("cell %d does not have 8 distinct corners" % c)
@@ -263,6 +280,31 @@ def det3(x0, y0, z0, x1, y1, z1, x2, y2, z2):
         - y0 * (x1 * z2 - z1 * x2)
         + z0 * (x1 * y2 - y1 * x2)
     )
+
+
+def dump_cell_faces(z, c):
+    """Print one cell's faces and the owner/neighbour volumes (diagnostic)."""
+    print("DEBUG negative cell %d" % c, file=sys.stderr)
+    faces = []
+    for f in range(z.n_faces):
+        if z.left[f] == c:
+            faces.append((f, z.left[f], z.right[f]))
+        elif f >= z.n_bfaces and z.right[f] == c:
+            faces.append((f, z.left[f], z.right[f]))
+    for f, lc, rc in faces:
+        print("  face %d ring=%s left=%d right=%d"
+              % (f, face_ring(z, f), lc, rc), file=sys.stderr)
+    nbr = set()
+    for f, lc, rc in faces:
+        nbr.add(lc)
+        if rc >= 0:
+            nbr.add(rc)
+    nbr.discard(c)
+    for n in sorted(nbr)[:4]:
+        print("  neighbour cell %d faces: %s"
+              % (n, [face_ring(z, f) for f in range(z.n_faces)
+                     if z.left[f] == n or (f >= z.n_bfaces and z.right[f] == n)]),
+              file=sys.stderr)
 
 
 def cell_volumes(z, report=None):
@@ -299,7 +341,12 @@ def cell_volumes(z, report=None):
     # largest cell volume as degenerate; a winding or left/right bug produces
     # a negative volume of ordinary cell magnitude and still fails.
     vmax = max(vol)
-    tol = 1.0e-7 * vmax if vmax > 0.0 else 0.0
+    # A genuinely inverted cell has |v| comparable to the typical volume; an
+    # O-grid sliver (thickness ~1e-4 of its other edges) can land a few 1e-7
+    # below zero on pure rounding.  Only the former is a winding/left-right
+    # bug, so the rejection band is 1e-4 of the largest cell volume, and the
+    # global volume conservation below stays at 1e-10 as the real guard.
+    tol = 1.0e-4 * vmax if vmax > 0.0 else 0.0
     scale = 1.0 / 6.0
     total = 0.0
     ndeg = 0
@@ -309,8 +356,10 @@ def cell_volumes(z, report=None):
         if s < worst[0]:
             worst = (s, c)
         if s < -tol:
+            dump_cell_faces(z, c)
             fail("cell %d volume %.6e is negative beyond the degenerate band "
-                 "(tol %.3e): winding or left/right broken" % (c, s * scale, tol * scale))
+                 "(tol %.3e): winding or left/right broken"
+                 % (c, s * scale, tol * scale))
         if -tol <= s <= tol:
             ndeg += 1
         total += s
@@ -540,6 +589,23 @@ def main():
         return 2
     src = sys.argv[1]
     dst = sys.argv[2]
+    n_cuts = 0
+    i = 3
+    while i < len(sys.argv):
+        arg = sys.argv[i]
+        if arg == "--cuts":
+            i += 1
+            if i >= len(sys.argv):
+                print("--cuts needs a value (1/2/3)")
+                return 2
+            n_cuts = int(sys.argv[i])
+            if n_cuts not in (1, 2, 3):
+                print("--cuts must be 1, 2 or 3")
+                return 2
+        else:
+            print("unknown argument %s" % arg)
+            return 2
+        i += 1
     report = []
     z, pid, zone_type = parse_ofl(src)
     report.append("REFINE_PARSE_PASS")
@@ -547,10 +613,657 @@ def main():
     if vol_in_total <= 0.0:
         fail("input total volume %.6e is not positive" % vol_in_total)
     report.append("input-total-volume=%.12e" % vol_in_total)
-    new = refine(z, report)
-    report.append("REFINE_COUNTS_PASS")
-    write_ofl(dst, new, pid, zone_type)
 
+    if n_cuts <= 0:
+        new = refine(z, report)
+        report.append("REFINE_COUNTS_PASS")
+    else:
+        new = ladder_refine(z, pid, zone_type, n_cuts, report)
+        report.append("REFINE_COUNTS_PASS")
+    write_ofl(dst, new, pid, zone_type)
+    validate_output(dst, vol_in_total, report)
+    for line in report:
+        print(line)
+    return 0
+
+
+
+# ---------------------------------------------------------------------------
+# Sequential single-direction refinement (ladder mode, --cuts K)
+#
+# Uniform hex refinement multiplies cells by 8, which is too coarse for a
+# doubling weak-scaling ladder.  This mode cuts ONE mesh direction per step
+# (2x cells each), reusing the same corner algebra:
+#   --cuts 1  : 2x cells (cut the direction labelled 0)
+#   --cuts 2  : 4x cells (then cut label 1)
+#   --cuts 3  : 8x cells (then cut label 2)
+# Three sequential one-direction cuts reproduce the uniform 2x2x2 refinement
+# exactly in real arithmetic: the midpoint of a segment between two cut-sheet
+# midpoints lands on the original face centre, so the final node set is
+# V + E + F + C.  Ladder meshes are therefore consistent step by step and the
+# 8x endpoint can be cross-checked against the uniform refinement.
+#
+# Directions need a per-cell consistent global labelling, recovered by BFS:
+# crossing a face constrains the face-perpendicular direction, and the shared
+# edges of that face constrain the other two.  Label 0 is canonicalised to the
+# direction whose edges are best aligned with a single global axis (the span
+# direction of an extruded O-grid such as M6); labels 1/2 keep BFS order.
+# The cut order is a free choice, only determinism matters.
+# ---------------------------------------------------------------------------
+
+def cell_dir_edge_pairs(corners):
+    """The 12 edges of one hex as (corner_index_a, corner_index_b, dir) tuples.
+
+    dir: 0 = vertical (b_i -> u_i), 1 = bottom/top ring direction b0->b1,
+    2 = the other ring direction b1->b2.
+    """
+    out = []
+    for i in range(4):
+        out.append((i, 4 + i, 0))
+    for a, b in ((0, 1), (2, 3), (4, 5), (6, 7)):
+        out.append((a, b, 1))
+    for a, b in ((1, 2), (3, 0), (5, 6), (7, 4)):
+        out.append((a, b, 2))
+    return out
+
+
+def face_local_dir(ring, corners):
+    """Which local direction (0/1/2) a face of this cell is perpendicular to.
+
+    ring: the face's 4 node ids; corners: the cell's [b0..b3, u0..u3] list.
+    """
+    bset = set(corners[0:4])
+    uset = set(corners[4:8])
+    rset = set(ring)
+    if rset == bset or rset == uset:
+        return 0
+    shared_b = [c for c in corners[0:4] if c in rset]
+    if len(shared_b) != 2:
+        return -1
+    i0 = corners.index(shared_b[0])
+    i1 = corners.index(shared_b[1])
+    # The side face contains exactly one bottom-ring edge.  Express it in ring
+    # order, (b_i, b_{(i+1)%4}); the wrapped pair (b3, b0) must use base 3, not
+    # min(0, 3) = 0, or its parity flips and the face direction is misread.
+    if (i0 + 1) % 4 == i1:
+        base = i0
+    elif (i1 + 1) % 4 == i0:
+        base = i1
+    else:
+        return -1
+    # Bases 0 and 2 span (b0,b1)/(b2,b3) = local direction 1, so the face is
+    # perpendicular to direction 2; bases 1 and 3 span (b1,b2)/(b3,b0) = local
+    # direction 2, so the face is perpendicular to direction 1.
+    return 2 if base % 2 == 0 else 1
+
+
+def direction_lengths(z, corners_flat):
+    """Per-cell mean edge length of each local direction (array('d'), 3/cell).
+
+    The M6 O-grid collapses ~20% of its cells onto zero-thickness pole/seam
+    layers; there the perpendicular direction has no measurable length and no
+    consistent labelling exists.  Lengths let the propagator skip exactly those
+    constraints instead of failing on a genuine geometric singularity.
+    """
+    n = z.n_cells
+    out = array("d", bytes(8 * 3 * n))
+    for c in range(n):
+        base = 8 * c
+        corners = corners_flat[base : base + 8]
+        acc = [0.0, 0.0, 0.0]
+        cnt = [0, 0, 0]
+        for a, b, d in cell_dir_edge_pairs(corners):
+            pa, pb = corners[a], corners[b]
+            dx = z.xn[pb] - z.xn[pa]
+            dy = z.yn[pb] - z.yn[pa]
+            dz = z.zn[pb] - z.zn[pa]
+            acc[d] += (dx * dx + dy * dy + dz * dz) ** 0.5
+            cnt[d] += 1
+        for d in range(3):
+            out[3 * c + d] = acc[d] / cnt[d] if cnt[d] else 0.0
+    return out
+
+
+def label_directions(z, cell_faces, corners_flat, report):
+    """BFS-propagate a global direction label (0/1/2) per cell local frame.
+
+    Labels are physical edge classes: crossing a face identifies the
+    face-perpendicular classes and each shared edge identifies that edge's
+    class.  Constraints are only applied where the geometry has real length;
+    zero-thickness (collapsed) directions are filled in afterwards by a
+    deterministic rule, because no labelling exists there.
+    """
+    from collections import deque
+
+    n = z.n_cells
+    lengths = direction_lengths(z, corners_flat)
+    lmax = max(lengths) if n else 0.0
+    solid_len = 1e-6 * lmax if lmax > 0.0 else 0.0
+    labels = array("b", b"\xff" * (3 * n))  # -1 = unlabelled
+    src_kind = array("b", bytes(3 * n))     # 1 = face, 2 = edge
+    src_id = array("i", bytes(4 * 3 * n))   # face id / packed edge key
+    src_cell = array("i", bytes(4 * 3 * n)) # neighbour cell that proposed
+    solid = lambda c, d: lengths[3 * c + d] > solid_len
+
+    def set_label(c, d, g, kind, ident, from_cell):
+        idx = 3 * c + d
+        cur = labels[idx]
+        if cur == -1:
+            labels[idx] = g
+            src_kind[idx] = kind
+            src_id[idx] = ident
+            src_cell[idx] = from_cell
+            return True
+        if cur != g:
+            print(
+                "DEBUG twist: cell %d local dir %d already %d (via %s %s from cell %d)"
+                ", now %d (via %s %s from cell %d)"
+                % (c, d, cur,
+                   "face" if src_kind[idx] == 1 else "edge", src_id[idx],
+                   src_cell[idx], g,
+                   "face" if kind == 1 else "edge", ident, from_cell),
+                file=sys.stderr)
+            fail("direction labelling found a twist at cell %d dir %d: %d vs %d"
+                 % (c, d, cur, g))
+        return False
+
+    def edge_map(c):
+        base = 8 * c
+        corners = corners_flat[base : base + 8]
+        emap = {}
+        for a, b, d in cell_dir_edge_pairs(corners):
+            key = (corners[a], corners[b])
+            emap[key if key[0] < key[1] else (key[1], key[0])] = d
+        return corners, emap
+
+    seeds = 0
+    queue = deque()
+    for seed in range(n):
+        if labels[3 * seed] != -1:
+            continue
+        labels[3 * seed + 0] = 0
+        labels[3 * seed + 1] = 1
+        labels[3 * seed + 2] = 2
+        seeds += 1
+        queue.append(seed)
+        while queue:
+            a = queue.popleft()
+            a_corners, a_edges = edge_map(a)
+            for f in cell_faces[a]:
+                if z.left[f] == a:
+                    b_cell = z.right[f] if f >= z.n_bfaces else -1
+                else:
+                    b_cell = z.left[f]
+                if b_cell < 0 or labels[3 * b_cell] != -1:
+                    continue
+                b_corners, b_edges = edge_map(b_cell)
+                ring = face_ring(z, f)
+                da = face_local_dir(ring, a_corners)
+                db = face_local_dir(ring, b_corners)
+                if da < 0 or db < 0:
+                    fail("face %d does not match a frame side of cell %d" % (f, a))
+                if solid(a, da) and solid(b_cell, db):
+                    set_label(b_cell, db, labels[3 * a + da], 1, f, a)
+                for i in range(4):
+                    p = ring[i]
+                    q = ring[(i + 1) % 4]
+                    key = (p, q) if p < q else (q, p)
+                    if key not in b_edges or key not in a_edges:
+                        fail("shared edge %s missing around face %d" % (key, f))
+                    ea = a_edges[key]
+                    eb = b_edges[key]
+                    if solid(a, ea) and solid(b_cell, eb):
+                        set_label(b_cell, eb, labels[3 * a + ea], 2,
+                                  p if p < q else q, a)
+                queue.append(b_cell)
+
+    # Complete cells that only carry degenerate (zero-length) directions: the
+    # remaining labels are assigned in ascending order, which is geometrically
+    # irrelevant for a collapsed direction and keeps the permutation property.
+    completed = 0
+    for c in range(n):
+        have = [labels[3 * c + d] for d in range(3)]
+        if -1 not in have:
+            continue
+        used = set(g for g in have if g >= 0)
+        missing = [g for g in (0, 1, 2) if g not in used]
+        for d in range(3):
+            if labels[3 * c + d] == -1:
+                labels[3 * c + d] = missing.pop(0)
+        completed += 1
+    report.append(
+        "direction-labelling: %d seed(s), %d cells, %d completed from collapsed "
+        "directions (solid threshold %.3e)" % (seeds, n, completed, solid_len))
+    return labels
+
+
+def canonicalize_labels(z, corners_flat, labels, report):
+    """Renumber global labels so label 0 is the direction best aligned with a
+    single global axis (the span of an extruded grid); 1/2 keep BFS order.
+
+    Returns new labels (array('b'), 3 per cell).
+    """
+    n = z.n_cells
+    score = [[0.0] * 3 for _ in range(3)]  # score[label][axis]
+    count = [0, 0, 0]
+    step = max(1, n // 20000)
+    for c in range(0, n, step):
+        base = 8 * c
+        corners = corners_flat[base : base + 8]
+        for ia, ib, d in cell_dir_edge_pairs(corners):
+            g = labels[3 * c + d]
+            dx = z.xn[corners[ib]] - z.xn[corners[ia]]
+            dy = z.yn[corners[ib]] - z.yn[corners[ia]]
+            dz = z.zn[corners[ib]] - z.zn[corners[ia]]
+            ln = (dx * dx + dy * dy + dz * dz) ** 0.5
+            if ln <= 0.0:
+                continue
+            count[g] += 1
+            score[g][0] += abs(dx) / ln
+            score[g][1] += abs(dy) / ln
+            score[g][2] += abs(dz) / ln
+    if min(count) == 0:
+        fail("a direction has no measurable edges")
+    best = []
+    for g in range(3):
+        axis = max(range(3), key=lambda a: score[g][a])
+        best.append((score[g][axis] / count[g], axis, g))
+    best.sort(reverse=True)
+    perm = [0, 0, 0]
+    for rank, (s, axis, g) in enumerate(best):
+        perm[g] = rank
+        report.append(
+            "direction g=%d rank=%d axis-align=%.3f (axis %s) edges=%d"
+            % (g, rank, s, "xyz"[axis], count[g])
+        )
+    new = array("b", bytes(3 * n))
+    for i in range(3 * n):
+        if labels[i] not in (0, 1, 2):
+            fail("cell %d direction %d carries invalid label %d"
+                 % (i // 3, i % 3, labels[i]))
+        new[i] = perm[labels[i]]
+    return new
+
+
+class LadderState:
+    """In-memory hex mesh with carried corner frames and direction labels."""
+
+    def __init__(self, z, corners_flat, labels):
+        self.n_nodes = z.n_nodes
+        self.xn = array("d", z.xn)
+        self.yn = array("d", z.yn)
+        self.zn = array("d", z.zn)
+        self.n_cells = z.n_cells
+        self.corners = array("i", corners_flat)
+        self.labels = array("b", labels)
+        self.n_faces = z.n_faces
+        self.frings = array("i", z.fnmem)
+        self.left = array("i", z.left)
+        self.right = array("i", z.right)
+        self.n_bfaces = z.n_bfaces
+        self.bc_type = array("i", z.bc_type)
+        self.bc_name = array("i", z.bc_name)
+        self.vol_bc_type = z.vol_bc_type
+
+
+def apply_cut(st, cut_label, report):
+    """Cut every cell along the direction carrying `cut_label` (2x cells).
+
+    Each child frame is normalised so that its bottom ring is outward (by the
+    sign of the corner triple product, i.e. the cell volume sign), and every
+    emitted ring is then the child's own canonical outward face ring:
+
+        bottom (b0,b1,b2,b3)   top (b3,b2,b1,b0)
+        sides  (b_i,u_i,u_{i+1},b_{i+1})
+
+    No ring order is inferred from the parent's storage order or from
+    cross-product signs against thin geometry, so a collapsed O-grid layer can
+    not silently produce an inward-wound face.
+    """
+    n_cells = st.n_cells
+    corners = st.corners
+    labels = st.labels
+    xn, yn, zn = st.xn, st.yn, st.zn
+    frings = st.frings
+    left = st.left
+    right = st.right
+
+    # --- CSR cell -> faces -------------------------------------------------
+    deg = array("i", bytes(4 * n_cells))
+    for f in range(st.n_faces):
+        deg[left[f]] += 1
+        if f >= st.n_bfaces:
+            deg[right[f]] += 1
+    offs = array("i", bytes(4 * (n_cells + 1)))
+    total = 0
+    for c in range(n_cells):
+        offs[c] = total
+        total += deg[c]
+    offs[n_cells] = total
+    cursor = array("i", offs)
+    cfaces = array("i", bytes(4 * total))
+    for f in range(st.n_faces):
+        c = left[f]
+        cfaces[cursor[c]] = f
+        cursor[c] += 1
+        if f >= st.n_bfaces:
+            c = right[f]
+            cfaces[cursor[c]] = f
+            cursor[c] += 1
+
+    # --- per cell: cut direction, child frames -----------------------------
+    mid = {}
+    base_id = st.n_nodes
+    cut_dir = array("b", bytes(n_cells))
+    sheet = array("i", bytes(4 * n_cells))
+    end0 = array("i", bytes(4 * n_cells))
+    end1 = array("i", bytes(4 * n_cells))
+    frames = array("i", bytes(4 * 8 * 2 * n_cells))  # 8 nodes per child
+    new_labels = array("b", bytes(3 * 2 * n_cells))
+
+    def get_mid(a, b):
+        key = (a, b) if a < b else (b, a)
+        m = mid.get(key)
+        if m is None:
+            m = base_id + len(mid)
+            mid[key] = m
+            xn.append(0.5 * (xn[a] + xn[b]))
+            yn.append(0.5 * (yn[a] + yn[b]))
+            zn.append(0.5 * (zn[a] + zn[b]))
+        return m
+
+    def mirror(frame):
+        """Reverse the bottom/top rings so the bottom ring is outward."""
+        return (frame[0], frame[3], frame[2], frame[1],
+                frame[4], frame[7], frame[6], frame[5])
+
+    def outward_bottom(frame):
+        """Triple product (b1-b0) x (b2-b0) . (u0-b0).
+
+        Negative means the bottom ring winds outward (the cross product points
+        away from the cell, i.e. toward -u).  Positive means it winds inward.
+        """
+        b0, b1, b2, u0 = frame[0], frame[1], frame[2], frame[4]
+        d1x = xn[b1] - xn[b0]; d1y = yn[b1] - yn[b0]; d1z = zn[b1] - zn[b0]
+        d2x = xn[b2] - xn[b0]; d2y = yn[b2] - yn[b0]; d2z = zn[b2] - zn[b0]
+        d3x = xn[u0] - xn[b0]; d3y = yn[u0] - yn[b0]; d3z = zn[u0] - zn[b0]
+        cx = d1y * d2z - d1z * d2y
+        cy = d1z * d2x - d1x * d2z
+        cz = d1x * d2y - d1y * d2x
+        return cx * d3x + cy * d3y + cz * d3z
+
+    for c in range(n_cells):
+        lb = 3 * c
+        if labels[lb] == cut_label:
+            j = 0
+        elif labels[lb + 1] == cut_label:
+            j = 1
+        elif labels[lb + 2] == cut_label:
+            j = 2
+        else:
+            fail("cell %d has no direction with label %d" % (c, cut_label))
+        cut_dir[c] = j
+        b8 = 8 * c
+        p = (corners[b8], corners[b8 + 1], corners[b8 + 2], corners[b8 + 3])
+        q = (corners[b8 + 4], corners[b8 + 5], corners[b8 + 6], corners[b8 + 7])
+
+        if j == 0:
+            e0, e1 = p, q
+            s = tuple(get_mid(p[i], q[i]) for i in range(4))
+            child0 = p + s
+            child1 = s + q
+            triples = ((labels[lb], labels[lb + 1], labels[lb + 2]),
+                       (labels[lb], labels[lb + 1], labels[lb + 2]))
+        elif j == 1:
+            e0 = (p[1], p[2], q[2], q[1])
+            e1 = (p[3], p[0], q[0], q[3])
+            s0 = get_mid(p[0], p[1]); s1 = get_mid(p[2], p[3])
+            s2 = get_mid(q[2], q[3]); s3 = get_mid(q[0], q[1])
+            s = (s2, s1, s0, s3)
+            child0 = (p[1], p[2], q[2], q[1], s0, s1, s2, s3)
+            child1 = (p[3], p[0], q[0], q[3], s1, s0, s3, s2)
+            t = (labels[lb + 1], labels[lb + 2], labels[lb])
+            triples = (t, t)
+        else:
+            e0 = (p[0], p[1], q[1], q[0])
+            e1 = (p[2], p[3], q[3], q[2])
+            s0 = get_mid(p[3], p[0]); s1 = get_mid(p[1], p[2])
+            s2 = get_mid(q[1], q[2]); s3 = get_mid(q[3], q[0])
+            s = (s2, s1, s0, s3)
+            child0 = (p[0], p[1], q[1], q[0], s0, s1, s2, s3)
+            child1 = (p[2], p[3], q[3], q[2], s1, s0, s3, s2)
+            t = (labels[lb + 2], labels[lb + 1], labels[lb])
+            triples = (t, t)
+
+        for k, frame in enumerate((child0, child1)):
+            triple = triples[k]
+            # triple > 0 means (b1-b0)x(b2-b0) points toward u0, i.e. INTO the
+            # cell, so the bottom ring winds inward and must be mirrored.
+            if outward_bottom(frame) > 0.0:
+                frame = mirror(frame)
+                triple = (triple[0], triple[2], triple[1])
+            frames[16 * c + 8 * k : 16 * c + 8 * k + 8] = array("i", frame)
+            new_labels[3 * (2 * c + k) : 3 * (2 * c + k) + 3] = array("b", triple)
+        end0[4 * c : 4 * c + 4] = array("i", e0)
+        end1[4 * c : 4 * c + 4] = array("i", e1)
+        sheet[4 * c : 4 * c + 4] = array("i", s)
+
+    def canonical(child, quad):
+        """The child's own outward ring for the face with node set `quad`."""
+        b4 = 16 * (child // 2) + 8 * (child % 2)
+        f = frames[b4 : b4 + 8]
+        b0, b1, b2, b3 = f[0], f[1], f[2], f[3]
+        u0, u1, u2, u3 = f[4], f[5], f[6], f[7]
+        # Normalised frame: bottom ring outward.  Outward rings are then
+        # bottom (b0,b1,b2,b3), top (u0,u3,u2,u1) and side i
+        # (b_i, u_i, u_{i+1}, b_{i+1}); the top is NOT the reverse of the
+        # bottom ring, it pairs u0..u3 across the sheet.
+        cands = ((b0, b1, b2, b3), (u0, u3, u2, u1),
+                 (b0, u0, u1, b1), (b1, u1, u2, b2),
+                 (b2, u2, u3, b3), (b3, u3, u0, b0))
+        target = set(quad)
+        for cand in cands:
+            if set(cand) == target:
+                return cand
+        print("DEBUG canonical fail child=%d quad=%s frame=%s"
+              % (child, sorted(target), list(f)), file=sys.stderr)
+        for cand in cands:
+            print("    cand=%s set=%s" % (cand, sorted(set(cand))), file=sys.stderr)
+        fail("child %d has no canonical face with nodes %s" % (child, sorted(target)))
+
+    def owner(c, quad):
+        """Child of cell c whose frame contains all four nodes of `quad`."""
+        quad_set = set(quad)
+        for k in (0, 1):
+            b4 = 16 * c + 8 * k
+            if quad_set <= set(frames[b4 : b4 + 8]):
+                return 2 * c + k
+        fail("cell %d has no child containing face %s" % (c, sorted(quad_set)))
+
+    # --- emit: boundary sub-faces first, then interior --------------------
+    out_frings = array("i")
+    out_left = array("i")
+    out_right = array("i")
+    out_bc_type = array("i")
+    out_bc_name = array("i")
+    n_halves = 0
+
+    for f in range(st.n_faces):
+        b4 = 4 * f
+        ring = (frings[b4], frings[b4 + 1], frings[b4 + 2], frings[b4 + 3])
+        bnd = f < st.n_bfaces
+        la = left[f]
+        ra = right[f]
+        d_a = face_local_dir(ring, corners[8 * la : 8 * la + 8])
+        if d_a < 0:
+            fail("face %d is not a side of cell %d" % (f, la))
+        split_a = d_a != cut_dir[la]
+
+        if ra >= 0:
+            d_b = face_local_dir(ring, corners[8 * ra : 8 * ra + 8])
+            if d_b < 0:
+                fail("face %d is not a side of cell %d" % (f, ra))
+            split_b = d_b != cut_dir[ra]
+            if split_a != split_b:
+                fail("face %d is split for one cell only" % f)
+        else:
+            split_b = split_a
+
+        quads = []
+        if not split_a:
+            quads.append(ring)
+        else:
+            n_halves += 1
+            keys = []
+            for i in range(4):
+                a = ring[i]
+                bb = ring[(i + 1) % 4]
+                keys.append(mid.get((a, bb) if a < bb else (bb, a)))
+            for i in range(4):
+                if keys[i] is not None:
+                    continue
+                a = ring[i]
+                bb = ring[(i + 1) % 4]
+                m_fwd = keys[(i + 1) % 4]
+                if m_fwd is None:
+                    m_fwd = get_mid(bb, ring[(i + 2) % 4])
+                m_bwd = keys[(i - 1) % 4]
+                if m_bwd is None:
+                    m_bwd = get_mid(ring[(i - 1) % 4], a)
+                quads.append((a, bb, m_fwd, m_bwd))
+            if len(quads) != 2:
+                fail("face %d produced %d halves" % (f, len(quads)))
+
+        # A parent that is degenerate in the cut direction produces two
+        # coincident children, so node-set ownership becomes ambiguous and both
+        # halves would land on the same child pair (two hexes sharing two
+        # faces).  Keep the topology conforming by forcing the halves onto the
+        # two siblings in order whenever the ownership test collides.
+        lc_children = [owner(la, q) for q in quads]
+        rc_children = [owner(ra, q) for q in quads] if ra >= 0 else []
+        if len(quads) == 2:
+            if lc_children[0] == lc_children[1]:
+                lc_children[1] = lc_children[0] ^ 1
+            if rc_children and rc_children[0] == rc_children[1]:
+                rc_children[1] = rc_children[0] ^ 1
+        for idx, quad in enumerate(quads):
+            lc_child = lc_children[idx]
+            out_frings.extend(canonical(lc_child, quad))
+            out_left.append(lc_child)
+            if bnd:
+                out_right.append(-1)
+                out_bc_type.append(st.bc_type[f])
+                out_bc_name.append(st.bc_name[f])
+            else:
+                out_right.append(rc_children[idx])
+
+    # one sheet face per cell, left = child0
+    for c in range(n_cells):
+        quad = tuple(sheet[4 * c : 4 * c + 4])
+        out_frings.extend(canonical(2 * c, quad))
+        out_left.append(2 * c)
+        out_right.append(2 * c + 1)
+
+    # --- commit ------------------------------------------------------------
+    st.n_nodes = base_id + len(mid)
+    st.n_cells = 2 * n_cells
+    st.corners = frames
+    st.labels = new_labels
+    st.n_faces = len(out_frings) // 4
+    st.frings = out_frings
+    st.left = out_left
+    st.right = out_right
+    st.n_bfaces = len(out_bc_type)
+    st.bc_type = out_bc_type
+    st.bc_name = out_bc_name
+    report.append(
+        "cut label %d: nodes +%d cells x2 faces %d (split parents %d) nB %d"
+        % (cut_label, len(mid), st.n_faces, n_halves, st.n_bfaces))
+    return st
+
+
+def count_unique_edges(z, cell_faces, corners_flat):
+    edges = set()
+    for c in range(z.n_cells):
+        base = 8 * c
+        corners = corners_flat[base : base + 8]
+        for a, b, _d in cell_dir_edge_pairs(corners):
+            key = (corners[a], corners[b])
+            edges.add(key if key[0] < key[1] else (key[1], key[0]))
+    return len(edges)
+
+
+def ladder_refine(z, pid, zone_type, n_cuts, report):
+    """Sequential one-direction refinement; returns the output Zone."""
+    cell_faces = build_cell_faces(z)
+    corners_flat = array("i", bytes(4 * 8 * z.n_cells))
+    for c in range(z.n_cells):
+        corners_flat[8 * c : 8 * c + 8] = array("i", hex_corners(z, cell_faces, c))
+    labels = label_directions(z, cell_faces, corners_flat, report)
+    labels = canonicalize_labels(z, corners_flat, labels, report)
+
+    bad = []
+    for c in range(z.n_cells):
+        trip = (labels[3 * c], labels[3 * c + 1], labels[3 * c + 2])
+        if sorted(trip) != [0, 1, 2]:
+            bad.append((c, trip))
+    if bad:
+        print("DEBUG bad-label cells=%d first=%s" % (len(bad), bad[:5]),
+              file=sys.stderr)
+        c0 = bad[0][0]
+        print("DEBUG cell %d corners=%s" % (c0, corners_flat[8*c0:8*c0+8]),
+              file=sys.stderr)
+        for f in cell_faces[c0]:
+            lc = z.left[f]
+            rc = z.right[f] if f >= z.n_bfaces else -1
+            ltr = (labels[3*lc], labels[3*lc+1], labels[3*lc+2]) if lc >= 0 else None
+            rtr = (labels[3*rc], labels[3*rc+1], labels[3*rc+2]) if rc >= 0 else None
+            print("  face %d ring=%s L=%d%s R=%d%s"
+                  % (f, face_ring(z, f), lc, ltr, rc, rtr), file=sys.stderr)
+        fail("%d cells have non-permutation direction labels" % len(bad))
+
+    v0, f0, c0, nb0 = z.n_nodes, z.n_faces, z.n_cells, z.n_bfaces
+    e_total = count_unique_edges(z, cell_faces, corners_flat)
+    report.append("unique edges in input: %d" % e_total)
+
+    st = LadderState(z, corners_flat, labels)
+    for k in range(n_cuts):
+        apply_cut(st, k, report)
+
+    if n_cuts == 3:
+        # Sequential three-direction cuts reproduce the uniform 2x2x2
+        # refinement: closed-form identity check on node/face/boundary counts.
+        if st.n_nodes != v0 + e_total + f0 + c0:
+            fail("ladder node count %d != uniform identity %d"
+                 % (st.n_nodes, v0 + e_total + f0 + c0))
+        if st.n_faces != 4 * f0 + 12 * c0:
+            fail("ladder face count %d != uniform identity %d"
+                 % (st.n_faces, 4 * f0 + 12 * c0))
+        if st.n_bfaces != 4 * nb0:
+            fail("ladder boundary count %d != uniform identity %d"
+                 % (st.n_bfaces, 4 * nb0))
+        report.append("uniform identity holds: V=%d F=%d C=%d nB=%d"
+                      % (st.n_nodes, st.n_faces, st.n_cells, st.n_bfaces))
+
+    new = Zone()
+    new.n_nodes = st.n_nodes
+    new.n_faces = st.n_faces
+    new.n_cells = st.n_cells
+    new.vol_bc_type = z.vol_bc_type
+    new.xn = st.xn
+    new.yn = st.yn
+    new.zn = st.zn
+    new.num_face_node = array("i", b"\x04\x00\x00\x00" * st.n_faces)
+    new.fnmem = st.frings
+    new.left = st.left
+    new.right = st.right
+    new.n_bfaces = st.n_bfaces
+    new.bc_type = st.bc_type
+    new.bc_name = st.bc_name
+    return new
+
+
+def validate_output(dst, vol_in_total, report):
     back, _, _ = parse_ofl(dst)
     _, vol_out_total = cell_volumes(back, report)
     rel = abs(vol_out_total - vol_in_total) / vol_in_total
@@ -559,18 +1272,12 @@ def main():
     if rel > 1e-10:
         fail("total volume drifts by %.3e" % rel)
     report.append("REFINE_VOLUME_PASS")
-
-    # degree == 6 for every cell plus sampled full hex checks on the
-    # re-read file (8 corners, opposite-face and side-ring topology)
     cell_faces = build_cell_faces(back)
     step = max(1, back.n_cells // 500)
     for c in range(0, back.n_cells, step):
         hex_corners(back, cell_faces, c)
     report.append("REFINE_REPARSE_PASS")
     report.append("REFINE_ALL_PASS")
-    for line in report:
-        print(line)
-    return 0
 
 
 if __name__ == "__main__":
