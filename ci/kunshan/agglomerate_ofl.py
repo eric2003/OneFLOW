@@ -96,6 +96,14 @@ def main():
             R.fail("parent lattice produced %d positions, expected 27" % len(out))
         return out
 
+    # Per-parent boundary records: at a collapsed cell a merged sub-face need
+    # not be a node subset of one parent face, so the parent's own boundary
+    # faces are the reliable source.
+    pbc = {}
+    for f in range(z.n_bfaces):
+        pbc.setdefault(z.left[f] // 8, []).append(
+            (frozenset(R.face_ring(z, f)), z.bc_type[f], z.bc_name[f]))
+
     # parent boundary faces for bc inheritance
     bnode = {}
     for f in range(z.n_bfaces):
@@ -179,6 +187,37 @@ def main():
                 # the volume exactly like the input's fold duplicates).
                 pairs.append((rest[i][0], rest[i][1], None))
                 used[i] = True
+    # Second pass: pair leftovers through a node bucket (linear, not O(L^2)).
+    # A genuine interface face shares all four nodes; three still distinguishes
+    # it from a neighbour that merely touches an edge.
+    node_bucket = {}
+    for idx, pr in enumerate(pairs):
+        if pr[2] is None:
+            for n in pr[1]:
+                node_bucket.setdefault(n, []).append(idx)
+    taken = set()
+    n_repair = 0
+    for idx, pr in enumerate(pairs):
+        if pr[2] is not None or idx in taken:
+            continue
+        qi = set(pr[1])
+        partner = None
+        for n in pr[1]:
+            for j in node_bucket.get(n, ()):
+                if j <= idx or j in taken or pairs[j][0] == pr[0]:
+                    continue
+                if len(qi & set(pairs[j][1])) >= 3:
+                    partner = j
+                    break
+            if partner is not None:
+                break
+        if partner is not None:
+            pairs[idx] = (pr[0], pr[1], pairs[partner][0])
+            taken.add(idx)
+            taken.add(partner)
+            n_repair += 1
+    report.append("second-pass interface repair: %d face(s)" % n_repair)
+
     for bid, quad, other in pairs:
         quad_set = frozenset(quad)
         # orient: normal from `bid` toward the neighbour (or outward)
@@ -230,6 +269,13 @@ def main():
                         best = overlap
                         bc = (bt, bn)
                 if bc is None or best < 2:
+                    parent = bid // group
+                    for (fset, bt, bn) in pbc.get(parent, ()):
+                        overlap = len(quad_set & fset)
+                        if overlap > best:
+                            best = overlap
+                            bc = (bt, bn)
+                if bc is None:
                     R.fail("merged boundary face has no parent bc record")
                 report.append("bc fallback: subset failed, overlap=%d" % best)
             out_bc_type.append(bc[0])

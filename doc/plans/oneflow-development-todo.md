@@ -768,6 +768,29 @@ nBFaces=7,680 / nIFaces=4,785`，**114,432 个面全部是四边形 → 六面�
 **不要做**：靠加卡提升（§4.8b 已说明）；"一 rank 多 zone"（A1.8 实测更慢）；
 继续端到端盲试（曾因读数噪声或归因错误返工三次）。
 
+#### 5.7 支线（暂停）：gmsh 网格阶梯
+
+**2026-11-15 暂停**（按用户决定：本轮比赛无对应模型，先回主线）。已确认与已验证的事实：
+
+- 集群计算节点**无外网**，`pip install gmsh` 不可用；预编译 `gmsh-4.13.1-Linux64` 需要
+  **glibc 2.23**，集群 CentOS 7.6 是 2.17，无法运行（`/lib64/libm.so.6: GLIBC_2.23 not found`）。
+- 源码编译路线可行且已走到 66%：需 `-DCMAKE_POLICY_VERSION_MINIMUM=3.5`（cmake 4.4.3 拒绝旧
+  policy）、`-DENABLE_FLTK=OFF -DENABLE_BLAS_LAPACK=OFF -DENABLE_HXT=OFF`（HXT 编译失败且本任务
+  不需要四面体）。**当前失败点**：内置 METIS 的 `GKlib/string.c` 里 `strptime` 隐式声明，
+  修法是加 `-DCMAKE_C_FLAGS=-D_GNU_SOURCE -DCMAKE_CXX_FLAGS=-D_GNU_SOURCE`。
+- 模块目录可写：`/public/home/luql/apprepo/modules`（与 `module avail` 同一批），安装前缀定为
+  `/public/home/luql/apprepo/gmsh/4.13.1`，modulefile 写 `gmsh/4.13.1`。脚本见集群
+  `scripts/of-build-gmsh3.sh`。
+- 网格生成与转换脚本已就绪（未成功运行）：集群 `scripts/ogrid.geo`（参数化 4 块 O 型
+  transfinite + 展向拉伸，`4*nc*nn*ns` 个六面体）与 `scripts/of-fixture-gmsh.sh`
+  （逐级 `gmsh -3` → 用生产 `gridObj=3` 的 gmsh→oneflow 转换出 `.ofl`）。
+- 阶梯尺寸（每卡恒定 294,912 cell）：N 64×64×72、2N ×2、4N ×4、8N 128×128×144、
+  16N ×16、32N ×32。
+
+**恢复条件**：gmsh 编译通过并装成 module。届时 2N/4N/16N/32N 由 gmsh 直接生成，
+不再走自研的 `refine_ofl.py --cuts`（该模式在 M6 O 型极线的 72 对折叠单元处不可用）
+或 `agglomerate_ofl.py`（反向合并，晶格映射已通，bc 继承在折叠面仍失败）。
+
 #### 5.6 交付 2026-11-14：网格加密完成，M6 DCU 弱扩展已测
 
 **基线**：`dev @ 727c1ed75` 部署树（本轮无 C++ 改动，未重建）。工具与作业脚本：
