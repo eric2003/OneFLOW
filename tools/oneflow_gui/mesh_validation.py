@@ -311,8 +311,9 @@ def run_mesh_validation(
     executable = oneflow.expanduser().resolve()
     if not executable.is_file():
         raise FileNotFoundError(f"OneFLOW executable not found: {executable}")
+    source_mesh = mesh_file.expanduser().resolve() if mesh_file is not None else None
     gmsh_path = Path(gmsh).expanduser()
-    if not gmsh_path.is_file():
+    if source_mesh is None and not gmsh_path.is_file():
         found = shutil.which(gmsh)
         if not found:
             raise FileNotFoundError(f"Gmsh executable not found: {gmsh}")
@@ -328,7 +329,6 @@ def run_mesh_validation(
     if mesh_entry is None:
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
     mesh_execution = mesh_entry.get("execution") or {}
-    source_mesh = mesh_file.expanduser().resolve() if mesh_file is not None else None
     mesh_implementation = (
         "existing_mesh" if source_mesh is not None
         else mesh_execution.get("kind", "oneflow")
@@ -352,7 +352,8 @@ def run_mesh_validation(
     run_root = _external(selected_stage_root)
     run_root = reset_mesh_validation_workspace(run_root)
     run_id = run_root.name
-    os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
+    if gmsh_path.is_file():
+        os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
     def execute(step):
         if step.case_id == "oneflow_cfd_solve":
             layout_path = REPOSITORY_ROOT / mesh_entry["directory"] / "script/layout.json"
@@ -432,6 +433,11 @@ def run_mesh_validation(
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
         "note": (
+            "The supplied MSH4 file is validated as an existing 3-D input; the sphere "
+            "catalog entry supplies the current 3-D conversion and consumer profile. "
+            "The run checks the runtime pipeline, not geometry-specific physics or CFD accuracy."
+            if source_mesh is not None
+            else (
             "The unit-sphere Case ends after OneFLOW grid and boundary-map handoff. "
             "Its closed fluid volume has only a wall Physical Group, so this validates "
             "mesh conversion and OneFLOW ingestion, not an external-flow CFD solve."
@@ -444,6 +450,7 @@ def run_mesh_validation(
                     if len(cases) == 3
                     else "The selected CFD consumer is a runtime smoke test. For a 3-D mesh, the staged CFD template dimension is overridden to 3; the flat-plate template supplies common solver parameters only and does not establish flat-plate physics or numerical accuracy."
                 )
+            )
             )
         ),
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
