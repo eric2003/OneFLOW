@@ -292,6 +292,7 @@ class StlGeometryDialog(QDialog):
         is_sphere = geometry == "sphere"
         is_spheroid = geometry == "prolate_spheroid"
         is_cylinder = geometry == "cylinder_internal_flow"
+        self.radius.setEnabled(is_sphere or is_cylinder)
         self.subdivisions.setEnabled(is_sphere or is_spheroid)
         for widget in (self.semi_axis_a, self.semi_axis_b, self.semi_axis_c):
             widget.setEnabled(is_spheroid)
