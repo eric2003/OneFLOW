@@ -107,7 +107,7 @@ def run_case_graph(
             missing_outputs = [
                 str(staged_directory / output.relative_path)
                 for output in step.outputs
-                if not (staged_directory / output.relative_path).is_file()
+                if not (staged_directory / output.relative_path).exists()
             ]
             if missing_outputs:
                 status = "failed"
