@@ -63,7 +63,7 @@ The reference sphere is defined by
 
    x^2 + y^2 + z^2 = R^2
 
-The current reference uses center (0, 0, 0) and R = 1. A suitable
+The current reference uses center (0, 0, 0) and R = 1. The implemented
 deterministic triangulation is an icosphere:
 
 1. Start with a regular icosahedron.
@@ -119,7 +119,7 @@ controlled pair: topology and facet count stay fixed while shape changes.
 Cylinder internal-flow surface construction
 -------------------------------------------
 
-The planned first cylinder is a straight circular cylinder whose enclosed
+The first cylinder generator creates a straight circular cylinder whose enclosed
 volume represents the fluid region, not a solid body to be meshed. Its axis
 is the x-axis, with radius R and length L:
 
@@ -138,8 +138,7 @@ geometric closure surfaces, not solid walls. Their future CFD boundary
 identities are inflow and outflow; only the lateral patch is wall. The
 enclosed region is fluid_domain.
 
-A deterministic triangulation can use N_theta circumferential divisions and
-N_x axial intervals:
+The generator uses N_theta circumferential divisions and N_x axial intervals:
 
 1. Create N_x + 1 circular rings at evenly spaced axial positions.
 2. Create N_theta shared vertices on each ring using one angular convention.
@@ -161,8 +160,8 @@ every triangle exactly once, and cap boundary loops must coincide exactly
 with the ends of the wall patch.
 
 STL has no portable standard Physical Group mechanism. The cylinder generator
-must therefore preserve patch identity in an explicit companion manifest
-(for example, a per-facet region array tied to a checksum of the STL).
+therefore preserves patch identity in an explicit companion manifest as
+per-facet index lists tied to a checksum of the STL.
 Gmsh import must use that manifest to reconstruct three separate surface
 entities before creating one Surface Loop and one Volume. Importing the
 combined STL through the current generic closed-shell path would classify
