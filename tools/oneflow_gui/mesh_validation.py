@@ -8,6 +8,7 @@ import os
 import re
 import shutil
 import sys
+import uuid
 from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -365,7 +366,7 @@ def run_mesh_validation(
         selected_stage_root = mesh_validation_workspace(REPOSITORY_ROOT, mesh_case_id)
     run_root = _external(selected_stage_root)
     run_root = create_mesh_validation_run_workspace(run_root)
-    run_id = mesh_case_id
+    run_id = uuid.uuid4().hex
     if gmsh_path.is_file():
         os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
     def execute(step):
