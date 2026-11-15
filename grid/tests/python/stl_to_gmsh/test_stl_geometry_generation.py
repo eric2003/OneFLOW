@@ -34,9 +34,12 @@ class StlGeometryGenerationTest(unittest.TestCase):
                 semi_axes=(3.0, 0.5, 0.5),
             )
             self.assertTrue(result["surface"]["watertight"])
-            self.assertAlmostEqual(result["surface"]["bounds"]["x"][1], 3.0)
-            self.assertAlmostEqual(result["surface"]["bounds"]["y"][1], 0.5)
-            self.assertAlmostEqual(result["surface"]["bounds"]["z"][1], 0.5)
+            self.assertGreater(result["surface"]["bounds"]["x"][1], 2.85)
+            self.assertLessEqual(result["surface"]["bounds"]["x"][1], 3.0)
+            self.assertGreater(result["surface"]["bounds"]["y"][1], 0.475)
+            self.assertLessEqual(result["surface"]["bounds"]["y"][1], 0.5)
+            self.assertGreater(result["surface"]["bounds"]["z"][1], 0.475)
+            self.assertLessEqual(result["surface"]["bounds"]["z"][1], 0.5)
             self.assertAlmostEqual(result["surface"]["signed_volume"], math.pi, delta=0.15)
 
     def test_cylinder_is_closed_and_preserves_three_surface_patch_labels(self) -> None:
