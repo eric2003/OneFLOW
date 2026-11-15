@@ -2032,6 +2032,41 @@ CD 在 9.44e-3..1.06e-2 之间，最后 100 步 dCL 仍有 +4.0e-3；
 
 ### 5.35 旗舰设备化进度看板（2026-11-15 夜）
 
+<!-- FLAGSHIP-BOARD:BEGIN -->
+
+**本块由 `ci/kunshan/flagship-board.py` 生成，勿手改。**
+
+进度：**20/29** 勾选（含已排除项）。未完成：
+- C1 **测 SA 成本构成：循环开销 vs 数学函数** ← *子 agent 正在测*
+- C2 若 C1 显示数学主导 → SA 源项/vist 设备内核（1 方程标量族）
+- C3 SA 标量对流 + 扩散通量内核
+- C4 SA 契约测试（现有设备契约只有 Roe 和 limiter，都无粘）
+- E2 **气动力未收敛**：1500 步时 CL 仍在 1.359e-1..1.421e-1 振荡，
+- E3 为算例建立真正的稳态基线（自带参考是 50 步瞬态，按 1e-8 比对）
+- F1 **HIP 后端选择改变 host 数值**：全 host stage 仍与纯 CPU 差 6.3e-6 / aer
+- F2 多 zone/rank 跑不完（非物理态 + 超时），推翻旧坑 18 的"能完成只是更慢"
+- F3 32-zone 网格在两节点启动时挂起（单节点同网格正常）
+
+集群：**6 个活动作业**
+- `128135394` RUNNING — of-probe-tintegral-conv
+- `128148649` COMPLETED — 1d-ad
+- `128148468` RUNNING — of-probe-saabl
+- `128148779` COMPLETED — of-probe-saperf
+- `128149088` COMPLETED — of-probe-saattr
+- `128148047` RUNNING — of-probe-saresplit
+
+近一天作业：30 个（状态见上面活动列表）
+
+按看板条目（仅活动作业可分类，历史作业不计）：
+- C1  SA cost split (loop vs math): `128148468` RUNNING — of-probe-saabl, `128148779` COMPLETED — of-probe-saperf, `128148047` RUNNING — of-probe-saresplit
+- D   viscous flux scope: 无活动作业
+- E1  LU-SGS convergence: `128135394` RUNNING — of-probe-tintegral-conv
+- A4  vismodel guard build/verify: 无活动作业
+- cfg 2-card / scaling probes: 无活动作业
+- other: `128148649` COMPLETED — 1d-ad, `128149088` COMPLETED — of-probe-saattr
+
+<!-- FLAGSHIP-BOARD:END -->
+
 **目标**：`test/cfd/m6wingroe_sa`（Roe + LU-SGS + SA，vismodel=3）在 DCU 上跑并加速。
 当前 host 基线 **2,814 ms/步**（1 rank），设备简化配置 **9.98 ms/步**，天花板 **282×**。
 
@@ -2070,12 +2105,42 @@ CD 在 9.44e-3..1.06e-2 之间，最后 100 步 dCL 仍有 +4.0e-3；
 
 #### D. 粘性通量 B3（前置，且可能是更大的一半）— 探测中
 
-- [ ] D1 **主机粘性链清点**：`NsCalcVisFlux` → `UNsVisFlux::CalcFlux` 全阶段，
-      逐项标注 cell-local / face 依赖 / 循环形态 ← *子 agent 正在做*
-- [ ] D2 **设备缺失字段表**：`visl`/`vist`/`tempr`/温度梯度/法向/切向 逐个 grep 确认
-- [ ] D3 **数值对齐风险清单**：哪些 host policy 是纯算术（可镜像）、哪些碰全局态（阻塞）
-- [ ] D4 **坑 41 交互**：设备粘性通量是否继承"读陈旧梯度"缺陷，契约该怎么断言
-- [ ] D5 **工作量三档**：仅层流 / +湍流粘度耦合 / 全算例对齐，各给天-周估算
+- [x] D1 主机粘性链清点：`NsCalcVisFlux`(`NsRhs.cpp:202`) → `UNsVisFlux::CalcFlux`
+      (`UNsVisFlux.cpp:95`)，每 RK stage：温度梯度(3 pass，face 依赖) →
+      896k 面循环(`PrepareFaceValue` 读两侧 lc/rc 的全部量 + `VisGrad` 五变体) →
+      `CalcFaceVisFlux`(Stokes 应力 / 动量投影 / 能量通量 / 壁面热流) →
+      `AddVisFlux` 累加进 **host** 残差；另有独立的 `CalcLaminarViscosity` 全场 Sutherland
+- [x] D2 设备缺失字段表（`HipFluxBackend.hip` grep 计数）：
+      **`visl` 0、`vist` 0、`Sutherland` 0、`tempr`/temperature 0、
+      `dtdx`/`dtdn` 0、`oreynolds` 0、`oprl`/`const_cp` 0、`twall` 0、切向 0**；
+      已有：`faceArea` 36、`xNormal` 43、`cellVolume` 17、`cellGradient` 16、
+      `boundaryMask` 54、`residual` 137、`bcQ` 21。
+      **确认 `UpdatePrimitiveStateKernel:1535` 只写 rho/u/v/w/p，不建温度。**
+- [x] D3 数值对齐风险：**纯算术可镜像**——`NsVisFluxPolicy` 全部
+      (`StokesStressTensor`/`ProjectStressMomentumFlux`/`ViscousEnergyFlux`/
+      `EffectiveThermalConductivity`/`ConductiveHeatFluxNormal`/`FaceNormalDot`)、
+      `SutherlandViscosityNondim`(`Sutherland.cpp:65`，注意是**无量纲 `sqrt(t³)` 形式**，
+      不是有量纲 `pow(...,1.5)`)、`InverseDistanceFaceWeights`/`CorrectFaceGradient`。
+      **碰全局态的**：`VisGradGeom`/`VisGrad` 读 `vgg`/`gcom`/`ug.fId/lc/rc`；
+      `CalcC1C2`(`VisGrad.cpp:206`) 读 `bcRecord->bcType`；`Grad::SwapBcGrad` 是 host MPI；
+      `HeatFlux`(`HeatFlux.cpp:52`) 是 zone 索引的 host 全局
+- [x] D4 坑 41 交互：**通量本身不受影响**（设备通量用新的驻留梯度，不是陈旧镜像），
+      但**诊断上更糟**——残差门禁 1e-17 过而 aero 差 8.2e-3，多一个梯度消费者更容易漏。
+      契约必须断言三条：(a) 单 zone 设备梯度 ≠ 初值且等于 host 重算；
+      (b) 逐面粘性通量 vs host `UNsVisFlux` 到 1e-14 相对；
+      (c) **aero/热流回读与残差分开门禁**
+- [x] D5 工作量三档：
+      **仅层流(vismodel=1) 2–3 周**（阻塞：无驻留温度场 + 需第二套梯度槽位，
+      因为 `CellGradientView` 是固定 `[5]` 槽、存储按 bound `Ns3D` 态单属）；
+      **+SA 粘度耦合 +4–6 周**；**全旗舰对齐 +1–2 周集成 ⇒ 共 7–11 周**
+      （阻塞：LU-SGS 从不把残差变设备驻留，所有权与 host 扫描冲突）
+- [x] D6 **B3 vs B4 的判断修正**：B4 行数更多（TurbCom+UTurbSrcFlux+
+      UTurbVisFlux+UTurbInvFlux ≈ 2354 行 vs 粘性链 ≈ 1075），
+      但 **B3 的设备工作量更大**——它要新增驻留热力学场 + 第二套梯度槽位 +
+      五变体 `VisGrad` 镜像，而 B4 是自足方程族。
+      **旧判断"B3 更大"在风险和改动数据模型的意义上成立，不是行数上成立。**
+- [x] D7 门禁要同时放宽三处：`EulerInvFluxCapability.cpp:62`、
+      `NsSolverImp.cpp:121`、`HipProductionPolicy.h:310`
 
 #### E. 收敛基准（比性能更根本的缺口）
 
