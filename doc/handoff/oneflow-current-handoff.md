@@ -118,6 +118,129 @@ CPU 气动力一致 0.2%。弱扩展（36,864 cell/rank，8 ranks/卡，同作�
 8 卡 22.2 ms/步（+31%），归因全部在 `interface_mpi`（2.12→7.70 ms/步）。
 新 fixture：集群 `fixtures/m6-refined-r1/`（只读登记）。
 
+**2026-11-15 交付：M6 阶梯完成 + 全阶梯弱扩展已测**。2N/4N 由
+`agglomerate2_ofl.py` 生成（方向分配 PASS、A(c) 映射、边界走线恢复面环），16N/32N 由
+已验证八倍细化器派生。全部结构+几何验证通过（精确 cell 数、面积闭合 1e-15、体积守恒
+1e-12、BC 身份保留），分区 16/32/128/256 zone。弱扩展全阶梯实测（`probe/128098635`，
+36,864 cell/rank，3 发交错）：1/2/4/8/16/32 卡 = 14.75/15.78/17.90/22.05/33.22/38.86
+ms/步（1.00×–2.63×），16 卡（4 节点）跳变 +50%，与跨节点 interface_mpi 归因一致。
+强扩展见 todo §5.6。已知未顺带：512-rank VMFault（64N 那张）、坑 41（单 zone aero）。
+
+H2 根因与修复：`d41650729`（已有集群构建与多卡数值对照，**未跑完整门禁**）。
+
+> **这是唯一的交接文档，就地更新，不再按日期新建。**
+> 当前状态与路线图勾选在 [`../plans/oneflow-development-todo.md`](../plans/oneflow-development-todo.md)；
+> 长期阶段的取舍与里程碑在 [`../plans/oneflow-development-plan.md`](../plans/oneflow-development-plan.md)；
+> 规则以仓库根 `AGENTS.md` 为准；集群操作流程见
+> [`../runbooks/oneflow-kunshan-workspace-runbook.md`](../runbooks/oneflow-kunshan-workspace-runbook.md)。
+>
+> 本文只放"接手时立刻需要"的东西：**环境与固定路径、启动顺序、常量和坑、当前任务指针**。
+> 能力边界、性能数字、Phase A–F 进度**不在这里重复**，一律以 todo 为准。
+
+## 0. 60 秒上手
+
+1. 读 `AGENTS.md`（分支模型、门禁顺序、口径纪律、工作区规则）。
+2. 打开 todo **§0.1 checkbox 总览与 §5 下一轮任务**：H1 已完成；
+   下一开发项为 **H2 多卡 VMFault** → A4 → A2′/A3。多卡结论在 H2 修复前暂停。
+   **主线优先级只以 todo §4/§5 为准**；本文只记“怎么跑”和“已经踩过的坑”，
+   两边不一致时改本文，不要改 todo 的台账。
+3. 要动集群先读 §1（固定路径）与 runbook：**SSH 已不可用，只能走 OpenAPI 技能**，
+   因此一切远端操作必须写成作业脚本提交，不能在交互 shell 里敲。
+4. 收尾：勾选 todo、证据落 `evidence/<gate>/<jobid>/`、更新本文 §4 与 §5；
+   环境或路径变化同步 runbook 与 todo §1.1。
+
+## 1. 环境与固定路径（不要另建目录）
+
+| 位置 | 路径 | 用途 | 规则 |
+|---|---|---|---|
+| 本地仓库 | 本 checkout 根（`git rev-parse --show-toplevel`） | 源码、文档、提交 | 只在 `dev` 上提交；`master` 只读、与 upstream 同步 |
+| 本地临时 | `/tmp` | 一次性脚本、打包、比较 | 不入库；需要保留的结论写进文档 |
+| 集群接入 | scnet-hpc 技能（按当前安装位置解析入口） | 查询、提交、上传、探测 | 按当前记录只用 OpenAPI；不要手搓 ssh/scp 循环，也不要静默切换后端 |
+| 昆山工作区 | **`$HOME/oneflow/`（唯一）** | `src/ build/ fixtures/ evidence/ snapshots/ scripts/ logs/ _attic/` | 固定布局，见下表与 runbook |
+| 门禁证据 | `$HOME/oneflow/evidence/<category>/<jobid>/` | **6 个固定 category**：`gate` / `paired-ab` / `cpu-regression` / `probe` / `fixture` / `build` | 只增不改；不要按实验临时起目录名（规则见 runbook §1c）；`*.stage` 等大二进制提取指标后可删 |
+| 源码快照 | `$HOME/oneflow/src/OneFLOW` + `src/REVISION` | 每轮覆盖 | 不建 `OneFLOW-<hash>` 目录 |
+| 构建 | `$HOME/oneflow/build/app` | 唯一增量构建 | 日常不重新 configure；必要时按 runbook 的 SDK 接口在 DCU 分配内处理 |
+| fixture | `$HOME/oneflow/fixtures/m6-8zone-cpu8/` | 唯一**登记**的分区算例（8 zone / 294,912 cell） | 只读；派生副本用 `prep-case.sh`。其它 zone 数用 runbook §1b 的配方现生成 |
+| 快照归档 | `$HOME/oneflow/snapshots/*.tgz` | 保留最近 5 个 | `cleanup.sh` 轮转 |
+| 日志 | `$HOME/oneflow/logs/` | 作业 stdout/stderr | 保留 14 天 |
+| 弃用 | `$HOME/oneflow/_attic/<date>/` | 待删物 | 观察一轮后清（`cleanup.sh`，7 天） |
+
+**集群接入现状（2026-11-08）**：`ssh kseshell` 返回 `Permission denied (publickey)`（密钥
+失效或 IP 白名单变更），**只能用 OpenAPI**。由此带来的硬约束：
+
+- 一切远端动作都要写成**作业脚本**用 `submit --command` 提交（建目录、解包、构建、清理都是）；
+- OpenAPI 没有 `exec`，所以不能交互式 `make`，也不能 rsync；源码以
+  `git archive` 打 tgz → `upload` 到 `snapshots/` → 作业内解包到 `src/OneFLOW`；
+- 提交参数有内存/CPU 比例上限（`--memory` 过大直接被 sbatch 拒绝），4 核请用 ≤8G；
+- 偶发 `Socket timed out` / `HTTP 502`：隔十几秒原样重试即可，不要当成作业失败。
+
+**禁止清单**（写在这里就是为了不再重复）：
+
+- 在 `$HOME` 根目录或 `softwares/projects/` 下新建 OneFLOW 目录、日志、一次性脚本；
+- 按 job 号或轮次新建 build/run 目录（`build/<jobid>`、`runs/<name>-<jobid>`）；
+- 在仓库里提交绝对私有路径、主机名、账号、作业号、原始 CI/Slurm 日志；
+- 为一次会话新建 dated handoff 或多份并行计划（本文就地更新）；
+- 直接跑 `scnet`/`ssh` 绕开技能去改远端状态；
+- 按实验内容临时给证据目录或作业起名（`a17`/`ab2`/`attr` 这类）。作业名固定
+  `of-<category>[-<purpose>]`，证据目录固定 `evidence/<category>/<jobid>/`，规则见 runbook §1c。
+
+## 2. 昆山环境常量
+
+| 项 | 值 | 原因 |
+|---|---|---|
+| 启动 | **只能 `mpirun --bind-to core --map-by slot`** | `srun` 下 MPI size=1，每个 rank 会解全部 zone |
+| 环境 | 常规作业 source `scripts/env.sh` | MPI/UCX/DTK 必须显式进 PATH；rocprof 另需坑 31 的已验证 module 初始化 |
+| HCA | `UCX_NET_DEVICES=mlx5_0:1`、`UCX_IB_DEVICES=mlx5_0` | 其它 HCA 的 `ibv_create_ah` 返回 EINVAL |
+| MPI coll | `OMPI_MCA_coll=^hcoll,han` | 非均匀分布会崩在 `coll/han` |
+| CMake | `/public/home/luql/apprepo/cmake/4.4.3/bin/cmake`（`env.sh` 已把它加入 `PATH`） | 旧的 `$HOME/tools/cmake-3.30.5` 已随家目录清理删除；模块里的 cmake 是死链 |
+| DTK | `dtk-26.04`（显式加 `bin/llvm/bin/hip/lib` 等） | 不显式设会落到系统旧 ROCm |
+| 资源口径 | 1 DCU 槽 = 8 核；CPU 基线在 `kshcnormal` | 跨队列比较必须换算到同一口径 |
+| 基准 | 1000 步、50 步 warmup、`nFieldSave/nResSave/nForceSave=100000`、CFL 0.01 | 100 步或 kernel-only 不能作生产结论 |
+
+## 3. 常用命令
+
+**注意：SSH 不可用（见 §1），下面的 `sbatch` 只是作业脚本名；实际提交走 OpenAPI 技能。**
+
+```bash
+# 仓库侧
+git -C <repo> status --short          # 提交前必须干净
+# 集群侧脚本（都在固定工作区，由作业内执行）
+source $HOME/oneflow/scripts/env.sh
+$HOME/oneflow/scripts/build-app.sh                    # 增量编译（两步 make，见坑 12）
+$HOME/oneflow/scripts/gate.slurm                      # 3 步 trace + 200 步 XB + 500 步分项 + 3x1000 步
+$HOME/oneflow/scripts/paired-ab.slurm                 # 同二进制 paired A/B
+$HOME/oneflow/scripts/cpu-regression.slurm            # CPU 五算例 normal/strict
+$HOME/oneflow/scripts/cleanup.sh                      # 日志/快照/attic 轮转
+
+# 提交（唯一方式，OpenAPI）
+SKILL=$HOME/.agents/skills/scnet-hpc
+python3 $SKILL/scripts/scnet.py --region 11250 submit --name of-gate \
+  --command "bash /public/home/<user>/oneflow/scripts/gate.slurm" \
+  --work-dir <ws>/logs --queue kshdnormal \
+  --nodes 1 --cpus 8 --dcus 1 --memory 27G --walltime 01:30:00 \
+  --stdout <ws>/logs/of-gate-%j.out --stderr <ws>/logs/of-gate-%j.err
+python3 $SKILL/scripts/scnet.py --region 11250 --details job <jobid>
+python3 $SKILL/scripts/scnet.py --region 11250 logs --path <abs path> --lines 200
+python3 $SKILL/scripts/scnet.py --region 11250 --timeout 180 upload <local tgz> <ws>/snapshots
+```
+
+门禁顺序固定：3 步多区 trace（含 resident contract）→ 200 步跨后端 → CPU 五算例
+normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失败都不算完成。
+
+## 4. 当前任务指针（每次会话就地更新）
+
+**修订与证据边界**：工作分支 `dev`（本轮新增：`ci/kunshan/refine_ofl.py` + 文档提交，见
+`git log`）。集群部署树仍为 `727c1ed75`（本轮无 C++ 改动，未重建）；加密工具本轮从
+`snapshots/` 暂存运行，下轮快照随 dev 提交进入 `src/OneFLOW/ci/kunshan/`。数值门禁基准
+仍为 `6f7a49e3d`；接手前核对真实 HEAD 与 `src/REVISION`。
+
+**本轮（2026-11-14 下午）交付：网格加密 + M6 DCU 弱扩展测量**。全部数字与证据链在
+todo §5.6，要点：M6 单 zone `.ofl` 加密至 2,359,296 cell（体积守恒 5e-15）；METIS 分区
+8/32/64 zone 带 manifest；单 zone XB 残差 3.07e-17；64-zone XB 全绿；加密 vs 原
+CPU 气动力一致 0.2%。弱扩展（36,864 cell/rank，8 ranks/卡，同作业交错）：1 卡 17.0 →
+8 卡 22.2 ms/步（+31%），归因全部在 `interface_mpi`（2.12→7.70 ms/步）。
+新 fixture：集群 `fixtures/m6-refined-r1/`（只读登记）。
+
 **2026-11-15 更正：定向合并 2N/4N 可行**。此前"严格判否/O 型接缝不可积"是两个
 生产缺陷（坐标集合匹配丢失节点身份、DSU 误判可满足网络为 UNSAT）造成的，
 均已由用户提供的回归定位并修复（`test_merge_dirs.py` 回归 + 200 小图穷举交叉验证，
