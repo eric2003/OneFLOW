@@ -336,7 +336,7 @@ def _cube_volume_geo(
 
 
 
-def validate_closed_sphere_surface(
+def validate_closed_genus_zero_surface(
     triangles: list[Triangle], tolerance: float = 1e-10
 ) -> dict:
     """Validate one outward-oriented, closed, genus-zero STL surface."""
@@ -399,7 +399,7 @@ def validate_closed_sphere_surface(
         raise Stl2DError("STL surface must contain exactly one connected component")
     euler = len(points) - len(edge_uses) + len(triangles)
     if euler != 2:
-        raise Stl2DError("the sphere STL must have genus-zero closed-surface topology")
+        raise Stl2DError("STL surface must have genus-zero closed-surface topology")
     if not math.isfinite(signed_volume) or signed_volume <= tolerance ** 3:
         raise Stl2DError("STL triangle winding must point outward and enclose positive volume")
     return {
@@ -414,7 +414,7 @@ def validate_closed_sphere_surface(
 def _closed_surface_volume_geo(
     stl: Path, triangles: list[Triangle], config: dict, tolerance: float
 ) -> tuple[str, dict]:
-    topology = validate_closed_sphere_surface(triangles, tolerance)
+    topology = validate_closed_genus_zero_surface(triangles, tolerance)
     legacy_mesh_size = float(config.get("mesh_size", 0.25))
     mesh_size_min = float(config.get("mesh_size_min", legacy_mesh_size))
     mesh_size_max = float(config.get("mesh_size_max", legacy_mesh_size))

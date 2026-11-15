@@ -5,7 +5,7 @@ Purpose
 -------
 
 This entry documents the closed-surface volume-meshing path for the unit
-sphere Case. It is the first curved, closed 3-D STL example in the STL-to-Gmsh
+sphere Case, which is the first geometry in a generic closed-surface workflow. It is the first curved, closed 3-D STL example in the STL-to-Gmsh
 progression. The objective is to make the geometry-to-volume-mesh operations,
 their assumptions, commands and acceptance checks discoverable and
 reproducible.
@@ -227,7 +227,7 @@ pipeline. It does not represent external flow around a sphere, and it does
 not establish physical accuracy, convergence, conservation, grid
 independence or a meaningful sphere drag coefficient.
 
-This first sphere Case supports one connected, closed, consistently oriented
+This volume-meshing strategy supports one connected, closed, consistently oriented
 genus-zero STL shell and one tetrahedral volume. Multiple shells, cavities,
 multi-volume assemblies, boundary-layer prisms, hybrid meshes, high-order
 elements and exact CAD curvature preservation remain outside its scope.
