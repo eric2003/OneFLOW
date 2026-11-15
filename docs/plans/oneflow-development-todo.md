@@ -2163,3 +2163,50 @@ CD 在 9.44e-3..1.06e-2 之间，最后 100 步 dCL 仍有 +4.0e-3；
 - **C1 若数学 > 70%**：GPU 移植是唯一路，按 D5 估算排期。
 - **中间地带**：两者都做，host 优化先落地作为可交付小胜。
 - **任何路径**：E2/E3 未解决前，不宣称"旗舰加速 N 倍"——因为没有可信的收敛态可比。
+
+#### 5.36 backend 灵活性现状（攻粘性前必读，2026-11-16）
+
+**结论：当前 backend 抽象是"半抽象的"，直接加粘性会锁死 HIP。**
+
+**三层现状**：
+
+| 层 | 位置 | 状态 |
+|---|---|---|
+| `AccelBackend` | `AccelBackend.h:55` | ✅ 纯虚，但**只有内存管理**（Allocate/Copy/Sync），无任何 kernel |
+| `FluxBackend` | `FluxBackend.h:24` | ✅ 纯虚（`CalcInvFlux`/`AddFaceFlux`），但**只有 `CpuFluxBackend` 在用** |
+| `EulerDomainBackend` | `EulerDomain.h:301` | ✅ 纯虚四件套（`CreateState`/`Upload`/`Advance`/`Download`），**只有 `CpuEulerDomainBackend`**，且仅 CPU 垂直切片用（`TimeIntegral.cpp:376`） |
+| **`HipFluxBackend`** | `HipFluxBackend.h:274` | ❌ **5208 行具体类**，生产代码直调 `Shared()` 的 **20+ 个方法** |
+
+**问题**：生产 HIP 路径绕开了所有抽象层——
+```cpp
+HipFluxBackend::Shared().CalcGradient( view );          // UNsGrad.cpp:168
+HipFluxBackend::Shared().ReconstructFaceValues( ... );
+HipFluxBackend::Shared().ScaleCurrentResidual( view );  // ULhs.cpp:117
+HipFluxBackend::Shared().UpdateBoundaryState( view );   // NsSolverImp.cpp:234
+HipFluxBackend::Shared().CalcLocalInviscidTimeStep( view ); // UTimeStep.cpp:136
+```
+
+**若照此加粘性**，会是 `HipFluxBackend::Shared().CalcVisFlux(view)`——CUDA/Kokkos 彻底锁死，
+**直接违反本项目 E4**（"清掉把 `IsAccelerator()` 当 HIP 用的地方，为 CUDA/Kokkos 留真实入口"）。
+
+**唯一正确的形状**：仿 `AccelViews.h` 已有的 **13 个 backend-neutral view**
+（`CellGradientView`/`CellFaceReconstructionView`/`ResidualView`/`BoundaryStateView`…），
+**新增 `ViscousFluxView` + `CellVisFluxView`，并把它挂在纯虚接口上**，而不是加到具体类。
+
+**但有一个前置决策**：粘性该挂在哪个接口？
+- **`FluxBackend`**：已有 `CalcInvFlux`/`AddFaceFlux` 两个面算子，粘性也是面算子——**语义最贴合**，
+  但它是按「face loop」设计的，而粘性要两步（温度梯度 + 面通量）。
+- **`EulerDomainBackend`**：`Advance` 是宏步级、设备驻留，**这才是 A4 的目标形状**，
+  但 HIP 侧目前完全没接入这条抽象。
+
+**建议**：粘性视图（`ViscousFluxView`）先做 backend-neutral，
+**入口挂在 `EulerDomainBackend` 上并同时把 HIP 接进来**——这样：
+1. 粘性实现天然对 CUDA/Kokkos 开放（它们只需实现同一个纯虚接口）
+2. 顺手补上 HIP 缺失的抽象接入，也顺手满足 E4
+3. `Advance` 成为 A4 与粘性的共同入口，不重复造两套
+
+**风险**：把 HIP 接入 `EulerDomainBackend` 本身是一个独立重构（要把 20+ 个直调收进接口），
+**不应与粘性实现混在一个切片里**。建议拆成两步：
+- **第一步**：粘性视图 + 纯虚入口定义（不接线，编译通过即可）
+- **第二步**：HIP 接入该接口（重构）
+- **第三步**：粘性实现（用它自己的接口）
