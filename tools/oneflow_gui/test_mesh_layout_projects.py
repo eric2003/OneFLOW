@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 
 from tools.oneflow_gui.mesh_layout_projects import ensure_template_project
+from tools.oneflow_gui.path_utils import paths_equal
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -22,7 +23,7 @@ class MeshLayoutProjectsTest(unittest.TestCase):
 
             project = ensure_template_project(REPOSITORY_ROOT, workspace, "flat_plate")
 
-            self.assertEqual(project, (workspace / "turbulent_flat_plate").resolve())
+            self.assertTrue(paths_equal(project, workspace / "turbulent_flat_plate"))
             self.assertTrue((project / "flat_plate.json").is_file())
             self.assertTrue((project / "case.json").is_file())
             self.assertTrue((project / "script" / "control.txt").is_file())
@@ -56,7 +57,7 @@ class MeshLayoutProjectsTest(unittest.TestCase):
 
             result = ensure_template_project(REPOSITORY_ROOT, workspace, "rectangle")
 
-            self.assertEqual(result, project.resolve())
+            self.assertTrue(paths_equal(result, project))
             self.assertEqual(
                 specification.read_text(encoding="utf-8"),
                 '{"type":"rectangle","userEdit":true}',
