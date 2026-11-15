@@ -14,6 +14,7 @@ License
 #pragma once
 
 #include "AccelBackend.h"
+#include "AccelViews.h"
 #include "HXTypeBasic.h"
 
 #include <cstdint>
@@ -318,6 +319,32 @@ public:
     virtual void Download(
         const EulerDomainState & state,
         EulerDomainFieldView & field ) const = 0;
+
+    // Viscous and heat-conduction flux for one stage of the mean-flow residual.
+    //
+    // This lives on the domain seam, not on a concrete backend, because the
+    // production HIP path bypasses every abstraction and calls
+    // HipFluxBackend::Shared() directly; extending that pattern to viscous flux
+    // would hard-wire CUDA and Kokkos out of the feature.  A backend that
+    // cannot evaluate viscous flux must leave this default, which reports
+    // "unsupported" so the caller falls back to the host chain instead of
+    // silently producing a residual that omits a term.
+    //
+    // Non-pure deliberately: adding a requirement to every execution space at
+    // once would force unimplemented stubs that throw, which is what the
+    // default already does, and would break existing CPU call sites for no
+    // gain.  A backend opts in by overriding.
+    virtual bool SupportsViscousFlux() const { return false; }
+
+    virtual void CalcViscousFlux(
+        EulerDomainState & state,
+        const ViscousFluxView & view ) const
+    {
+        ( void ) state;
+        ( void ) view;
+        throw std::logic_error(
+            "viscous flux is not implemented for this execution space" );
+    }
 };
 
 EndNameSpace

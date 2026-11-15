@@ -143,6 +143,129 @@ TEST( AccelViewsContract, ValidatesCellGradientLayoutAndGhostExtent )
     EXPECT_THROW( ValidateCellGradientView( view ), std::invalid_argument );
 }
 
+// Builds a complete viscous view so the rejections below are exercised one
+// field at a time rather than all at once.
+ViscousFluxView CompleteViscousView()
+{
+    static Real q[ 5 ] = {};
+    static Real grad[ 5 ] = {};
+    static Real temperature[ 5 ] = {};
+    static Real dT[ 5 ] = {};
+    static Real viscosity[ 5 ] = {};
+    static Real faceValues[ 4 ] = {};
+    static Real cellValues[ 4 ] = {};
+    static Real volume[ 2 ] = { 1.0, 1.0 };
+    static Real flux[ 16 ] = {};
+    static int left[ 3 ] = { 0, 1, 0 };
+    static int right[ 3 ] = { 2, 3, 1 };
+
+    ViscousFluxView view;
+    view.nCells = 2;
+    view.nFaces = 3;
+    view.nBoundaryFaces = 2;
+    view.nEquations = 5;
+    view.xFace = faceValues;
+    view.yFace = faceValues;
+    view.zFace = faceValues;
+    view.xNormal = faceValues;
+    view.yNormal = faceValues;
+    view.zNormal = faceValues;
+    view.faceArea = faceValues;
+    view.xCell = cellValues;
+    view.yCell = cellValues;
+    view.zCell = cellValues;
+    view.cellVolume = volume;
+    view.leftCell = left;
+    view.rightCell = right;
+    for ( int equation = 0; equation < view.nEquations; ++ equation )
+    {
+        view.q[ equation ] = q;
+        view.dqdx[ equation ] = grad;
+        view.dqdy[ equation ] = grad;
+        view.dqdz[ equation ] = grad;
+    }
+    view.temperature = temperature;
+    view.dTdx = dT;
+    view.dTdy = dT;
+    view.dTdz = dT;
+    view.laminarViscosity = viscosity;
+    view.faceFlux = flux;
+    view.faceFluxStride = view.nEquations;
+    return view;
+}
+
+TEST( AccelViewsContract, ValidatesViscousFluxViewFieldByField )
+{
+    EXPECT_NO_THROW( ValidateViscousFluxView( CompleteViscousView() ) );
+
+    // Each removal must be rejected: a missing field is exactly the wiring
+    // mistake that would make a device residual silently omit a term and
+    // diverge from the host oracle.
+    struct Case
+    {
+        const char * what;
+        void ( * clear )( ViscousFluxView & );
+    };
+    const Case cases[] = {
+        { "state", []( auto & v ) { v.q[ 0 ] = nullptr; } },
+        { "dqdx", []( auto & v ) { v.dqdx[ 0 ] = nullptr; } },
+        { "dqdy", []( auto & v ) { v.dqdy[ 0 ] = nullptr; } },
+        { "dqdz", []( auto & v ) { v.dqdz[ 0 ] = nullptr; } },
+        { "temperature", []( auto & v ) { v.temperature = nullptr; } },
+        { "dTdx", []( auto & v ) { v.dTdx = nullptr; } },
+        { "dTdy", []( auto & v ) { v.dTdy = nullptr; } },
+        { "dTdz", []( auto & v ) { v.dTdz = nullptr; } },
+        { "laminar viscosity", []( auto & v ) { v.laminarViscosity = nullptr; } },
+        { "left cell", []( auto & v ) { v.leftCell = nullptr; } },
+        { "right cell", []( auto & v ) { v.rightCell = nullptr; } },
+        { "face area", []( auto & v ) { v.faceArea = nullptr; } },
+        { "face normal", []( auto & v ) { v.xNormal = nullptr; } },
+        { "face flux", []( auto & v ) { v.faceFlux = nullptr; } },
+    };
+    for ( const Case & testCase : cases )
+    {
+        ViscousFluxView view = CompleteViscousView();
+        testCase.clear( view );
+        EXPECT_THROW( ValidateViscousFluxView( view ), std::invalid_argument )
+            << "expected rejection when " << testCase.what << " is missing";
+    }
+
+    // A short output buffer is as dangerous as a missing input.
+    ViscousFluxView shortStride = CompleteViscousView();
+    shortStride.faceFluxStride = shortStride.nEquations - 1;
+    EXPECT_THROW( ValidateViscousFluxView( shortStride ),
+                  std::invalid_argument );
+}
+
+// A backend that cannot do viscous flux must say so rather than throw from a
+// capability query, and the default entry point must fail loudly instead of
+// producing an incomplete residual.
+TEST( EulerDomainContract, ViscousFluxIsOptInAndFailsClosed )
+{
+    struct InertBackend final : EulerDomainBackend
+    {
+        const char * Name() const override { return "inert"; }
+        bool IsAccelerator() const override { return false; }
+        std::unique_ptr< EulerDomainState > CreateState(
+            const EulerDomainProblem &, const EulerDomainStateKey & )
+            const override
+        {
+            return nullptr;
+        }
+        void Upload( EulerDomainState &, const EulerDomainConstFieldView & )
+            const override {}
+        void Advance( EulerDomainState &, int,
+                      const EulerDomainRunOptions & ) const override {}
+        void Download( const EulerDomainState &, EulerDomainFieldView & )
+            const override {}
+    };
+
+    InertBackend backend;
+    EXPECT_FALSE( backend.SupportsViscousFlux() );
+
+
+}
+
 TEST( AccelViewsContract, ValidatesDeviceReconstructionContract )
 {
     Real cellValues[ 4 ] = {};

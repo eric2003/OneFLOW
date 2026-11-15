@@ -643,6 +643,143 @@ inline void ValidateSolverFieldView( const SolverConstFieldView & field )
     }
 }
 
+// Viscous and heat-conduction slice of the mean-flow residual.
+//
+// This is the backend-neutral contract for what the host UNsVisFlux chain
+// computes per RK stage: a temperature gradient, then per-face stress, energy
+// and conduction fluxes.  It exists as a view rather than as methods on a
+// concrete backend because the production HIP path currently bypasses every
+// abstraction and calls HipFluxBackend::Shared() directly; adding viscous flux
+// in that style would hard-wire CUDA and Kokkos out of the feature entirely.
+//
+// Fields deliberately mirror the host inputs one for one, including the ones
+// the device does not have yet: the resident temperature field and its
+// gradient are new storage the backend must allocate, because
+// CellGradientView is a fixed five-slot view owned by a single bound state.
+//
+// Everything here is plain pointers and scalars.  No HIP/CUDA/Kokkos type
+// appears, so an implementation can be written for any execution space.
+struct ViscousFluxView
+{
+    int nCells = 0;
+    int nGhostCells = 0;
+    int nFaces = 0;
+    int nBoundaryFaces = 0;
+    int nEquations = 0;
+
+    // Geometry.  The device already carries equivalents; the view keeps them
+    // so an implementation is not required to reach into backend storage.
+    const Real * xFace = nullptr;
+    const Real * yFace = nullptr;
+    const Real * zFace = nullptr;
+    const Real * xNormal = nullptr;
+    const Real * yNormal = nullptr;
+    const Real * zNormal = nullptr;
+    const Real * faceArea = nullptr;
+    const Real * xCell = nullptr;
+    const Real * yCell = nullptr;
+    const Real * zCell = nullptr;
+    const Real * cellVolume = nullptr;
+    const int * leftCell = nullptr;
+    const int * rightCell = nullptr;
+
+    // Primitive state and its gradient, as consumed by the stress and energy
+    // flux terms.  Equation-major, length totalCells = nCells + nGhostCells.
+    const Real * q[ 5 ] = {};
+    const Real * dqdx[ 5 ] = {};
+    const Real * dqdy[ 5 ] = {};
+    const Real * dqdz[ 5 ] = {};
+
+    // Temperature and its gradient.  The device does not build either today:
+    // UpdatePrimitiveStateKernel derives pressure from total energy and never
+    // constructs tempr, so a viscous backend has to own this storage.
+    const Real * temperature = nullptr;
+    const Real * dTdx = nullptr;
+    const Real * dTdy = nullptr;
+    const Real * dTdz = nullptr;
+
+    // Transport coefficients.  laminarViscosity is Sutherland on the device
+    // call site; turbulentViscosity arrives from the SA solve when a
+    // turbulence model is active.
+    const Real * laminarViscosity = nullptr;
+    const Real * turbulentViscosity = nullptr;
+
+    // Thermodynamic and non-dimensional constants the host chain reads from
+    // ambient globals.  Passing them explicitly keeps the view self-contained
+    // and is the shape the E1 de-globalisation work wants.
+    Real gamma = 1.4;
+    Real gasConstant = 0.0;
+    Real prandtlLaminar = 0.72;
+    Real prandtlTurbulent = 0.9;
+    Real specificHeatCp = 0.0;
+    Real inverseReynolds = 0.0;
+    Real wallTemperature = 0.0;
+
+    // Face tangents for the skew correction.  Optional: an implementation may
+    // reconstruct them from the normal and cell centres, but supplying them
+    // matches the host path exactly.
+    const Real * t1x = nullptr;
+    const Real * t1y = nullptr;
+    const Real * t1z = nullptr;
+    const Real * t2x = nullptr;
+    const Real * t2y = nullptr;
+    const Real * t2z = nullptr;
+
+    // Output: per-face viscous flux in the same equation-major face layout the
+    // inviscid fused-flux path already produces, so the existing add-face-flux
+    // scatter can consume it unchanged.
+    Real * faceFlux = nullptr;
+    int faceFluxStride = 0;
+
+    // Optional wall heat flux, one value per solid boundary face.
+    Real * wallHeatFlux = nullptr;
+    int nWallFaces = 0;
+
+    const void * cacheKey = nullptr;
+};
+
+// A viscous configuration is only meaningful when every field the host chain
+// reads is present.  Rejecting early keeps a mis-wired backend from producing a
+// residual that silently omits a term, which is exactly the failure mode that
+// makes an inviscid-only device result diverge from the host oracle.
+inline void ValidateViscousFluxView( const ViscousFluxView & view )
+{
+    if ( view.nCells <= 0 || view.nFaces <= 0 || view.nEquations <= 0 )
+    {
+        throw std::invalid_argument(
+            "viscous flux view requires cells, faces and equations" );
+    }
+    if ( view.q[ 0 ] == nullptr || view.dqdx[ 0 ] == nullptr
+         || view.dqdy[ 0 ] == nullptr || view.dqdz[ 0 ] == nullptr )
+    {
+        throw std::invalid_argument(
+            "viscous flux view requires primitive state and its gradient" );
+    }
+    if ( view.temperature == nullptr || view.dTdx == nullptr
+         || view.dTdy == nullptr || view.dTdz == nullptr )
+    {
+        throw std::invalid_argument(
+            "viscous flux view requires temperature and its gradient" );
+    }
+    if ( view.laminarViscosity == nullptr )
+    {
+        throw std::invalid_argument(
+            "viscous flux view requires a laminar viscosity field" );
+    }
+    if ( view.leftCell == nullptr || view.rightCell == nullptr
+         || view.faceArea == nullptr || view.xNormal == nullptr )
+    {
+        throw std::invalid_argument(
+            "viscous flux view requires face geometry and connectivity" );
+    }
+    if ( view.faceFlux == nullptr || view.faceFluxStride < view.nEquations )
+    {
+        throw std::invalid_argument(
+            "viscous flux view requires an output buffer of at least nEquations "
+            "stride" );
+    }
+}
+
 inline void ValidateFaceGeometryView( const FaceGeometryView & geometry )
 {
     if ( geometry.nFaces <= 0 || geometry.faceArea == nullptr )
