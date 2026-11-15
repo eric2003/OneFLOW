@@ -544,7 +544,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             project = Path(temporary) / "mesh-generation" / "sphere"
             project.mkdir(parents=True)
             workspace = project_mesh_validation_workspace(project)
-            self.assertEqual(workspace, project / "validation")
+            self.assertEqual(workspace, (project / "validation").resolve())
             self.assertEqual(workspace.name, "validation")
             self.assertNotIn("T", workspace.name)
 
