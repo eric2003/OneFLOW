@@ -121,6 +121,26 @@ def create_mesh_project_from_template(
     return _write_manifest(directory, manifest)
 
 
+def _validate_region_metadata_compatibility(stl_file: Path) -> None:
+    """Prevent region-tagged STL geometry from entering the wall-only adapter."""
+    manifest_path = Path(stl_file).with_suffix(".geometry.json")
+    if not manifest_path.is_file():
+        return
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(f"Cannot read STL geometry manifest: {manifest_path}: {error}") from error
+    if manifest.get("schema") != "oneflow.stl-geometry-manifest":
+        return
+    if manifest.get("geometry") == "cylinder_internal_flow":
+        raise ValueError(
+            "This STL contains distinct wall/inflow/outflow patches. The current "
+            "STL-to-Gmsh adapter is wall-only and cannot preserve these regions; "
+            "region-aware Gmsh import must be implemented before this cylinder "
+            "can be used as a mesh project."
+        )
+
+
 def create_mesh_project_from_stl(
     repository_root: Path, stl_file: Path, project_name: str | None = None,
 ) -> dict:
@@ -128,6 +148,7 @@ def create_mesh_project_from_stl(
     source = Path(stl_file).expanduser().resolve()
     if not source.is_file() or source.suffix.lower() != ".stl":
         raise FileNotFoundError(f"Select an existing STL file: {source}")
+    _validate_region_metadata_compatibility(source)
     directory = _new_project_directory(project_name or source.stem)
     input_directory = directory / "input"
     input_directory.mkdir()
@@ -172,6 +193,7 @@ def import_mesh_project_directory(repository_root: Path, source_directory: Path)
         ignore=shutil.ignore_patterns(".git", "build", "results", "__pycache__"),
     )
     selected_stl = normalize_path(selected_stl)
+    _validate_region_metadata_compatibility(selected_stl)
     if not is_path_within(selected_stl, source):
         raise ValueError("Prepared project STL must remain inside the selected directory.")
     relative_stl = relative_path_within(selected_stl, source)
@@ -239,6 +261,7 @@ def replace_project_stl(project: dict, stl_file: Path) -> dict:
     source = Path(stl_file).expanduser().resolve()
     if not source.is_file() or source.suffix.lower() != ".stl":
         raise FileNotFoundError(f"Select an existing STL file: {source}")
+    _validate_region_metadata_compatibility(source)
     manifest_path = root / "project.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     relative = Path(str(manifest.get("input_stl", "")))
