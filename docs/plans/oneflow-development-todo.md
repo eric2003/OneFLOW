@@ -1316,3 +1316,34 @@ card3 0000:43:00.0 numa=2   card4 0000:63:00.0 numa=3
   无需 hook，今天可用，但要求数据源由我方分配。
 
 （此前 §"dmabuf 缺失"相关表述应以本节为准。）
+
+#### 5.18 dmabuf 导出：内核不支持，此路关闭（2026-11-15，实测）
+
+§5.17 判定"缺的是符号不是功能"，本节的 ioctl 实测把最后一层也判死了：
+**内核根本没有 dmabuf 导出处理程序，用户态 shim 无法凭空造出 fd。**
+
+**决定性对照**（`evidence/probe/128121785`，kernel 3.10.0-957.el7，KFD 1.3）：
+
+| 尝试 | ioctl | errno |
+|---|---|---|
+| `AMDKFD_IOC_EXPORT_DMABUF` | `0xc0104b24` | `EINVAL` |
+| 伪造的不存在命令 `_IOWR('K',0x7e,…)` | `0xc0104b7e` | `EINVAL`（**相同**） |
+
+未实现命令由 `kfd_ioctl()` default 分支返回 `-EINVAL`；两者 errno 相同 ⇒ 并非参数
+被拒，而是**命令未派发**。
+
+**`/proc/kallsyms` 独立佐证**：
+`kfd_ioctl_import_dmabuf` PRESENT、`kfd_ioctl_export_dmabuf` **ABSENT**、
+`amdgpu_dma_buf_export` **ABSENT**（根因：DRM 侧导出原语就没有）、
+`drm_gem_prime_handle_to_fd` PRESENT。
+
+**三条路径的终局**：
+- HIP/`hipMalloc` 内存导出 dmabuf：❌ **不可达**（内核缺 handler；`LD_PRELOAD` shim 无济于事）
+- 导入方向：✅ 可用（`hsa_amd_interop_map_buffer` + `drm_gem_prime_handle_to_fd`）
+- DRM GEM bo 导出：✅ 能拿到合法 dmabuf fd，但那是**另一套分配域**，
+  与 `hipMalloc` 内存不互通，不能替换求解器的显存分配
+
+**结论**：任何"把求解器显存导出给外部设备（GPU Direct RDMA）"的设计在本集群不可行。
+跨节点 GPU 直传只能走 host staging（现状）。不要再在这条路上投入。
+
+**同时确认**：`hsaKmt*` 入口经 `dlsym` 与 `RTLD_DEFAULT` 均不可达，shim 也无法绕经 thunk。
