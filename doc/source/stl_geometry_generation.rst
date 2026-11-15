@@ -24,6 +24,36 @@ a mesh project. The cylinder manifest preserves patch identity, but the generic
 closed-shell Gmsh adapter does not yet reconstruct those patch identities as
 separate Physical Surfaces.
 
+Geometry library defaults
+-------------------------
+
+The Generate STL Geometry dialog uses these starting values. They are
+convenient reference defaults, not physical-unit requirements or fixed mesh
+resolutions.
+
++----------------------+--------------------------+------------------------------+
+| Geometry             | Analytic parameters      | Surface discretization      |
++======================+==========================+==============================+
+| Sphere               | radius = 1               | icosphere subdivisions = 3   |
++----------------------+--------------------------+------------------------------+
+| Prolate spheroid     | a = 3, b = 0.5, c = 0.5  | icosphere subdivisions = 3   |
++----------------------+--------------------------+------------------------------+
+| Cylinder internal    | radius = 1, length = 4   | N_theta = 48, N_x = 16       |
+| flow                 |                          |                              |
++----------------------+--------------------------+------------------------------+
+
+The default coordinate unit is metres. The GUI allows m, mm, cm and in as
+metadata labels; it does not silently scale coordinates when the unit changes.
+The cylinder axis is the x-axis. Its radius and length are analytic dimensions,
+while N_theta and N_x control only the triangulation of its boundary.
+
+Generated assets are written by default to
+~/.oneflow/mesh-generation/generated_stl/<geometry-id>/<geometry-id>.stl,
+with a sibling .geometry.json manifest. ONEFLOW_HOME relocates the workspace.
+The manifest records the intended Gmsh Physical Group names; it does not mean
+that STL itself contains Gmsh entities or that a Gmsh volume mesh has already
+been created.
+
 Geometry parameters define the STL surface. Gmsh mesh-size parameters define
 the volume mesh. Keep these controls independent so mesh-refinement studies
 can reuse exactly the same STL input.
