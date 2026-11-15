@@ -35,7 +35,9 @@ one connected, genus-zero closed shell. Each undirected edge is used by
 exactly two facets with consistent orientation, and the Euler characteristic
 is two. The vertices lie on the unit sphere to the precision stored in the
 STL. The STL is a piecewise-planar approximation, not an exact analytic CAD
-surface.
+surface. Its geometric construction, facet-count interpretation, units and
+current generator-provenance gap are recorded in
+:doc:`stl_geometry_generation`.
 
 The native C++ and Python reference Cases use byte-identical STL files. The
 input shell must be closed, connected, consistently oriented, non-degenerate,
