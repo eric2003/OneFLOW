@@ -1,4 +1,5 @@
 #include "EulerDomainStateRegistry.h"
+#include "Ns3DDomain.h"
 
 #include <gtest/gtest.h>
 

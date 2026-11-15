@@ -11,7 +11,6 @@ License
 #include "FluxBackend.h"
 #include "BoundaryExchangeContract.h"
 #include "DeviceBuffer.h"
-#include "EulerDomain.h"
 #include "ResidentStateContract.h"
 
 #include <cstddef>
@@ -25,6 +24,12 @@ namespace ONEFLOW
 {
 
 struct PrimitiveFaceStateView;
+
+// The NS 3D state is only named here through a reference, an owning factory
+// return type and a pointer map, so no domain header is needed. Callers that
+// construct or dereference these types include Ns3DDomain.h themselves.
+class Ns3DBackendState;
+class Ns3DDeviceState;
 
 // Per-zone residual diagnostics computed from the state-owned device residual.
 // The solver consumes the same quantities the host residual task used to

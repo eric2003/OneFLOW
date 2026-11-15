@@ -15,6 +15,7 @@ License
 #include "PrimitiveFaceContract.h"
 #include "DeviceBuffer.h"
 #include "HipProductionPolicy.h"
+#include "Ns3DDomain.h"
 #include "StageProfiler.h"
 
 #include <hip/hip_runtime.h>

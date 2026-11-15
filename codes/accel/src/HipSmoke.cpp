@@ -11,6 +11,7 @@ License
 #include "EulerCpuAdapter.h"
 #include "HipFluxBackend.h"
 #include "HipKernel.h"
+#include "Ns3DDomain.h"
 
 #include <algorithm>
 #include <cmath>

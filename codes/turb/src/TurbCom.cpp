@@ -773,10 +773,17 @@ void TurbCom::CalcSrcSa()
     // Keep ostd/r5/g6 for Jacobian terms below.
     Real ostd = one / ( std + SMALL );
     Real r = SaRRatio( rs, std );
-    Real r5 = pow( r, 5 );
-    Real g = SaG( r, cw2 );
-    Real g6 = pow( g, 6 );
-    fw = SaFw( g, cw36 );
+    // Multiplicative powers: libm's pow is generic over a runtime exponent, so
+    // pow(r,5) costs the same as a fractional power. These are shared with the
+    // Jacobian terms below, so they are computed once here instead of being
+    // recomputed inside SaG/SaFw and again for dgdr/dfwdg.
+    const Real r2 = r * r;
+    const Real r6 = r2 * r2 * r2;
+    const Real r5 = r6 / r;
+    Real g = r + cw2 * ( r6 - r );
+    const Real g2 = g * g;
+    const Real g6 = g2 * g2 * g2;
+    fw = g * std::pow( ( one + cw36 ) / ( g6 + cw36 ), one / six );
 
     //calculate "negative" production term in order to assure a zero
     //solution in the laminar region
@@ -797,7 +804,10 @@ void TurbCom::CalcSrcSa()
     diff = SaLimitedDiffusion( diff, rprod, prod );
     Real srcTerm = SaSourceResidual( prod, dest, diff );
 
-    Real dfv2dk = ( three * cv13 * pow( fv1 / ( xsi + SMALL ), 2 ) - one ) / pow( one + xsi * fv1, 2 );
+    const Real fv1Ratio = fv1 / ( xsi + SMALL );
+    const Real fv1Denom = one + xsi * fv1;
+    Real dfv2dk = ( three * cv13 * fv1Ratio * fv1Ratio - one )
+                / ( fv1Denom * fv1Denom );
     Real dsdnu  = oreynolds * okarm2 * od2 * ( fv2 + xsi * dfv2dk );
 
     Real dfwdg   = fw / ( g + SMALL ) * ( one - g6 / ( g6 + cw36 ) );
