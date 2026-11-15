@@ -164,7 +164,11 @@ def import_mesh_project_directory(repository_root: Path, source_directory: Path)
         copied,
         ignore=shutil.ignore_patterns(".git", "build", "results", "__pycache__"),
     )
-    relative_stl = selected_stl.relative_to(source)
+    selected_stl = selected_stl.resolve()
+    try:
+        relative_stl = selected_stl.relative_to(source)
+    except ValueError as error:
+        raise ValueError("Prepared project STL must remain inside the selected directory.") from error
     copied_stl = copied / relative_stl
     layout_path = copied / "script/layout.json"
     layout = {}
@@ -207,7 +211,16 @@ def load_mesh_project(directory: Path) -> dict:
     if not stl_path.is_file() or stl_path.suffix.lower() != ".stl":
         raise FileNotFoundError(f"Project input STL does not exist: {stl_path}")
     output_value = Path(str(manifest.get("output_mesh", "")))
-    output_path = output_value if output_value.is_absolute() else (root / output_value)
+    if output_value.is_absolute():
+        output_path = output_value
+    else:
+        if ".." in output_value.parts:
+            raise ValueError("Project output_mesh must not escape the project directory.")
+        output_path = (root / output_value).resolve()
+        try:
+            output_path.relative_to(root)
+        except ValueError as error:
+            raise ValueError("Project output_mesh must remain inside the project directory.") from error
     if output_path.suffix.lower() != ".msh":
         raise ValueError("Project output_mesh must use the .msh extension.")
     return {
@@ -230,6 +243,10 @@ def replace_project_stl(project: dict, stl_file: Path) -> dict:
     if relative.is_absolute() or ".." in relative.parts:
         raise ValueError("Project input_stl must be a project-relative path.")
     destination = (root / relative).resolve()
+    try:
+        destination.relative_to(root)
+    except ValueError as error:
+        raise ValueError("Project input STL must remain inside the project directory.") from error
     destination.parent.mkdir(parents=True, exist_ok=True)
     if source != destination:
         shutil.copy2(source, destination)

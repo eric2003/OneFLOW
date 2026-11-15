@@ -126,9 +126,10 @@ class MeshGenerationDialog(QDialog):
         if not case_id:
             QMessageBox.warning(self, "No mesh template", "No supported mesh template is available.")
             return
+        default_name = str(case_id).replace("stl_to_gmsh_python_", "")
+        default_name = default_name.replace("_automatic_tetrahedra", "")
         name, accepted = QInputDialog.getText(
-            self, "Create Mesh Project", "Project name:",
-            text=self.project_template.currentText().split(":")[0].strip().lower().replace(" ", "_"),
+            self, "Create Mesh Project", "Project name:", text=default_name,
         )
         if not accepted:
             return
@@ -380,7 +381,9 @@ class StlToGmshDialog(QDialog):
         )
         if path:
             selected = Path(path).expanduser().resolve()
-            if self._project is not None:
+            previous = Path(self.stl_path.text()).expanduser().resolve() if self.stl_path.text().strip() else None
+            same_project_input = self._project is not None and selected == previous
+            if self._project is not None and not same_project_input:
                 try:
                     self._project = replace_project_stl(self._project, selected)
                 except (OSError, ValueError, KeyError) as error:
@@ -389,12 +392,18 @@ class StlToGmshDialog(QDialog):
                 self._project_directory = Path(self._project["directory"])
             self.stl_path.setText(str(self._project["stl_path"]) if self._project else str(selected))
             template_id = self._project.get("template_case_id") if self._project else None
-            if selected == DEFAULT_SPHERE_STL.resolve() or template_id == "stl_to_gmsh_python_sphere_automatic_tetrahedra":
+            if selected == DEFAULT_SPHERE_STL.resolve():
                 self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("sphere"))
-            elif template_id == "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra":
+                if self._project is None:
+                    self._mesh_case_id = "stl_to_gmsh_sphere_automatic_tetrahedra"
+            elif same_project_input and template_id == "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra":
                 self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("prolate_spheroid"))
+            elif same_project_input and template_id == "stl_to_gmsh_python_sphere_automatic_tetrahedra":
+                self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("sphere"))
             else:
                 self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("closed_shell"))
+                if self._project is None:
+                    self._mesh_case_id = "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra"
 
     def _browse_output(self) -> None:
         path, _ = QFileDialog.getSaveFileName(
