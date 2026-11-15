@@ -438,6 +438,8 @@ matters:
   components by platform-aware spelling.
 - `is_path_within(path, root)` checks containment after path resolution, so
   symlinks cannot silently escape a protected workspace.
+- `relative_path_within(path, root)` returns the relative path only when the
+  target is inside the root, including when Windows path aliases are involved.
 
 Do not compare path strings, or raw `Path` objects, to determine filesystem
 identity. Do not replace containment checks with equality checks: workspace
