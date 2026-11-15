@@ -208,6 +208,7 @@ class StlGeometryDialog(QDialog):
         super().__init__(parent)
         self._repository_root = repository_root.resolve()
         self.generated_stl: Path | None = None
+        self.generated_geometry: str | None = None
         self._active_geometry: str | None = None
         self.setWindowTitle("Generate STL Geometry")
         self.resize(720, 650)
@@ -303,7 +304,7 @@ class StlGeometryDialog(QDialog):
         self.length.setEnabled(is_cylinder)
         self.circumferential.setEnabled(is_cylinder)
         self.axial.setEnabled(is_cylinder)
-        self.open_gmsh_button.setEnabled(self.generated_stl is not None and not is_cylinder)
+        self.open_gmsh_button.setEnabled(self.generated_stl is not None and self.generated_geometry == geometry and not is_cylinder)
         self.patch_note.setText(
             "One closed wall surface; the STL is a piecewise-planar approximation."
             if not is_cylinder else
@@ -345,6 +346,7 @@ class StlGeometryDialog(QDialog):
             QMessageBox.warning(self, "STL generation failed", str(error))
             return
         self.generated_stl = Path(report["stl"])
+        self.generated_geometry = geometry
         self.open_gmsh_button.setEnabled(geometry != "cylinder_internal_flow")
         surface = report["surface"]
         patch_counts = {name: len(indices) for name, indices in report["patch_triangle_indices"].items()}
