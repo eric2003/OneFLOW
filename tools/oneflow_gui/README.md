@@ -433,8 +433,9 @@ matters:
   path, including existing symlink components. It also supports paths that do
   not exist yet.
 - `paths_equal(left, right)` compares existing paths by filesystem identity
-  (including Windows 8.3 aliases and symlinks), then falls back to normalized,
-  platform-aware lexical comparison for paths that do not exist.
+  (including Windows 8.3 aliases and symlinks). For missing descendants, the
+  nearest existing ancestors are compared by identity and the remaining path
+  components by platform-aware spelling.
 - `is_path_within(path, root)` checks containment after path resolution, so
   symlinks cannot silently escape a protected workspace.
 
