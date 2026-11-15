@@ -50,16 +50,16 @@ class WorkflowCaseRuntimeTest(unittest.TestCase):
                 ]},
             ], root)
             run_root = root / "validation"
-            stage = run_root / "stl_to_gmsh"
-            open_visual = stage / "results" / "visual"
+            staged_case = run_root / "cases" / "mesh"
+            open_visual = staged_case / "results" / "visual"
             open_visual.mkdir(parents=True)
             (open_visual / "view.dat").write_text("keep", encoding="utf-8")
 
             prepared = prepare_case_directory(plan.steps[0], run_root, {})
 
-            self.assertEqual(prepared, stage)
+            self.assertEqual(prepared, staged_case)
             self.assertTrue((open_visual / "view.dat").is_file())
-            self.assertFalse((stage / "results" / "grid.msh").exists())
+            self.assertFalse((staged_case / "results" / "grid.msh").exists())
 
     def test_rejects_parameter_file_traversal(self):
         with tempfile.TemporaryDirectory() as temporary:
