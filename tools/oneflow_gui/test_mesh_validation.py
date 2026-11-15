@@ -593,20 +593,30 @@ class MeshValidationCatalogTest(unittest.TestCase):
             self.assertTrue((sibling / "keep.txt").is_file())
 
 
-    def test_run_workspace_is_the_stable_validation_directory(self):
+    def test_each_run_clears_and_recreates_the_stable_validation_directory(self):
         with tempfile.TemporaryDirectory() as temporary:
             base = Path(temporary) / "project" / "validation"
-            locked_output = base / "oneflow_cfd_solve" / "visual"
-            locked_output.mkdir(parents=True)
-            (locked_output / "visual.dat").write_text("keep", encoding="utf-8")
+            old_run = base / "run-20261115T173711-ae8d11f2"
+            old_run.mkdir(parents=True)
+            (old_run / "stale-report.json").write_text("old", encoding="utf-8")
 
             first = create_mesh_validation_run_workspace(base)
-            second = create_mesh_validation_run_workspace(base)
 
             self.assertEqual(first, base.resolve())
+            self.assertTrue(base.is_dir())
+            self.assertFalse(old_run.exists())
+            self.assertEqual(list(base.iterdir()), [])
+
+            stale_output = base / "oneflow_cfd_solve" / "visual" / "visual.dat"
+            stale_output.parent.mkdir(parents=True)
+            stale_output.write_text("old run", encoding="utf-8")
+
+            second = create_mesh_validation_run_workspace(base)
+
             self.assertEqual(second, first)
-            self.assertTrue((locked_output / "visual.dat").is_file())
-            self.assertFalse(any(base.glob("run-*")))
+            self.assertTrue(base.is_dir())
+            self.assertFalse(stale_output.exists())
+            self.assertEqual(list(base.iterdir()), [])
 
 
 if __name__ == "__main__":
