@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 from typing import Mapping
 
+from .path_utils import is_path_within, normalize_path, paths_equal
 from .workflow_plan import WorkflowPlanStep
 from .workflow_runtime_overrides import apply_runtime_overrides
 
@@ -15,15 +16,17 @@ def prepare_case_directory(
     runtime_directories: Mapping[str, Path | str],
 ) -> Path:
     """Copy a case and apply artifact bindings to the staged parameter files."""
-    root = Path(run_root).expanduser().resolve()
-    source = step.directory.resolve()
+    root = normalize_path(run_root)
+    source = normalize_path(step.directory)
     runtime_directory = step.runtime_directory or Path("cases") / step.case_id
-    target = (root / runtime_directory).resolve()
-    try:
-        target.relative_to(root)
-    except ValueError as error:
-        raise ValueError("Staged case directory must stay within the run workspace.") from error
-    if source == target or source in target.parents or target in source.parents:
+    target = normalize_path(root / runtime_directory)
+    if not is_path_within(target, root):
+        raise ValueError("Staged case directory must stay within the run workspace.")
+    if (
+        paths_equal(source, target)
+        or is_path_within(source, target)
+        or is_path_within(target, source)
+    ):
         raise ValueError("Run directory must be separate from the source case tree.")
     if not source.is_dir():
         raise FileNotFoundError(f"Case directory not found: {source}")
