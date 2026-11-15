@@ -48,9 +48,11 @@ when their typed contracts have concrete repository evidence. The root
 The Mesh Generation workspace exposes Generate STL Geometry separately from
 STL to Gmsh. The geometry library currently includes a unit sphere, a
 parameterized prolate spheroid, and a capped cylinder for internal-flow domain
-meshing. Geometry parameters (radius, semi-axes, cylinder length) and surface
-discretization (icosphere subdivision, cylinder circumferential/axial divisions)
-are independent of Gmsh volume mesh size. Generated binary STL files and their
+meshing. The GUI switches between separate Sphere, Prolate Spheroid and Cylinder
+parameter panels; each geometry owns its own analytic dimensions and surface
+resolution controls, and values are retained when switching between panels.
+Only coordinate units and output path are shared. Geometry parameters and surface
+discretization are independent of Gmsh volume mesh size. Generated binary STL files and their
 .geometry.json manifests are written under
 ~/.oneflow/mesh-generation/generated_stl/<geometry-id>/ (or the equivalent
 ONEFLOW_HOME workspace). The manifest records units, parameters, topology
