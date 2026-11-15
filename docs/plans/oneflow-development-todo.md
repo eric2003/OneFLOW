@@ -1263,3 +1263,30 @@ card3 0000:43:00.0 numa=2   card4 0000:63:00.0 numa=3
 
 **同时确认的负面结果**：`probe/128116476` 的 4/8 rank GPU-aware FAIL 是探针程序
 本身要求恰好 2 rank，**不是 MPI 失败**；2 rank 在当前构建上 pass=1。
+
+#### 5.16 归因框架（2026-11-15，源码核实）
+
+后续所有"加卡/加节点为什么变慢"的分析，都应基于以下已核实的代码事实，而不是猜测：
+
+**生产默认下，跨 rank 交换在 1 卡、多卡、多节点走的是同一条 host staging 路径**
+（`codes/task/src/InterfaceTask.cpp:306-324`）：
+`useDeviceDirect` 需要 `ONEFLOW_ENABLE_UNS_GPU_AWARE_MPI=1` **且**
+`ONEFLOW_GPU_AWARE_MPI_CONFIRMED=1`，两者默认都不设；因此每轮交换恒为
+设备 pack kernel → 阻塞 `CopyToHost` → host 缓冲上的阻塞 `MPI_Sendrecv` →
+阻塞 `CopyFromHost` → unpack kernel。
+
+**推论**：卡数/节点数增加**不改变代码路径**，只改变底下 MPI 的传输距离
+（同卡 SHM → 跨卡 PCIe → 跨节点 IB）。所以归因时应表述为"同一路径下传输距离变长"，
+除非数据明确显示别的机制。
+
+**每步 4 轮交换**（3 个 RK stage + 1 个 post 轮），已核实于
+`NsResidentMacroStep.cpp:117`、`NsSolverImp.cpp:382`（`NsPostprocess` →`CommInterfaceData`）。
+每轮每 rank 在**每个相邻 zone 对**上阻塞一次，所以邻居数为 3 的 rank 每步付 6 次阻塞调用、
+邻居数为 2 的付 4 次——这解释了此前测到的"消息多反而单条延迟低"
+（固定每轮成本被并行 pair 数摊薄）。
+
+**归因时的判别口径**：
+- `interface_mpi` 增长 → 传输延迟
+- `interface_pack` / `post_upload_host` 增长 → 设备侧拷贝异常（**本应节点内不变**，
+  若随节点数增长要单独查，说明有非预期的跨节点数据流）
+- `cells/rank` 下降 → 粒度效应，与传输无关
