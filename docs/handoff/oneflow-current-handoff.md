@@ -613,3 +613,20 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
 - **不新建 dated handoff**：每次会话结束就地更新 §4（任务指针）和 §5（新坑）。
 - §1/§2 只在环境或固定路径变化时改，并同步 `runbook` 与 todo §1.1。
 - 能力边界、性能数字、Phase A–F 进度不写进本文，避免与 todo 双份维护。
+
+45. **bash `local` 同一语句内不能引用刚声明的变量（2026-11-15，一天内踩了四次）**：
+    在 `set -u` 下，
+    ```bash
+    local tag="$1" dir="$EV/case-$tag"     # ✗ tag: unbound variable
+    ```
+    会失败——bash 把同一条 `local` 里的多个赋值视为**同时求值**，`$tag` 在展开时
+    还未定义。必须分行：
+    ```bash
+    local tag="$1"
+    local dir="$EV/case-$tag"               # ✓
+    ```
+    互不引用的同行赋值（`local a=$1 b=$2`）是安全的。
+    **后果不只是报错**：如果这段代码在计时之后才执行，作业会以 FAILED 收场
+    但**所有测量数据已经落盘且有效**——不要因为作业状态是 FAILED 就丢掉数据，
+    先看 `summary.tsv` 是否完整；也不要因为数据有效就忽略这个 bug。
+    排查顺序：`grep -n 'local .*=.*\$' script.sh` 找出所有同行引用。
