@@ -36,6 +36,10 @@ class MeshProjectTest(unittest.TestCase):
             "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
             {case_id for case_id, _title in choices},
         )
+        self.assertIn(
+            "stl_to_gmsh_python_sphere_automatic_tetrahedra",
+            {case_id for case_id, _title in choices},
+        )
 
     def test_create_and_reopen_project_from_prolate_template(self) -> None:
         project = create_mesh_project_from_template(

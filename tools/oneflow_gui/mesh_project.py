@@ -10,9 +10,6 @@ from pathlib import Path
 from .user_data_paths import UserDataPaths
 
 _PROJECT_SCHEMA = "oneflow.mesh-generation-project"
-_GENERIC_3D_VALIDATION_CASE = "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra"
-
-
 def _catalog(repository_root: Path) -> dict:
     value = json.loads(
         (Path(repository_root).resolve() / "grid/case_catalog.json").read_text(
@@ -40,10 +37,7 @@ def mesh_project_templates(repository_root: Path) -> tuple[tuple[str, str], ...]
             continue
         if (item.get("execution") or {}).get("kind") != "python":
             continue
-        if item.get("id") not in {
-            "stl_to_gmsh_python_sphere_automatic_tetrahedra",
-            _GENERIC_3D_VALIDATION_CASE,
-        }:
+        if item.get("mesh_project_template") is not True:
             continue
         result.append((str(item["id"]), str(item.get("title", item["id"]))))
     return tuple(result)
@@ -54,7 +48,11 @@ def _entry(repository_root: Path, case_id: str) -> dict:
         (item for item in _catalog(repository_root)["cases"] if item.get("id") == case_id),
         None,
     )
-    if entry is None or entry.get("group") != "STL to Gmsh":
+    if (
+        entry is None
+        or entry.get("group") != "STL to Gmsh"
+        or entry.get("mesh_project_template") is not True
+    ):
         raise ValueError(f"Unknown STL-to-Gmsh project template: {case_id!r}")
     return entry
 

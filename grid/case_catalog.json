@@ -463,7 +463,8 @@
         "script": "grid/stl_to_gmsh/run_python_case.py"
       },
       "dimension": 3,
-      "mesh_validation": "cfd_smoke"
+      "mesh_validation": "cfd_smoke",
+      "mesh_project_template": true
     },
     {
       "id": "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra",
@@ -485,7 +486,8 @@
         "script": "grid/stl_to_gmsh/run_python_case.py"
       },
       "dimension": 3,
-      "mesh_validation": "cfd_smoke"
+      "mesh_validation": "cfd_smoke",
+      "mesh_project_template": true
     }
   ]
 }
