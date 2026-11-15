@@ -513,6 +513,16 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
     时间和为 **1.77 ms/step**，不是三个 kernel 的合计，也不是同配置直接测得的忙碌率。
     **kernel 相关排期应使用设备侧计时证据**
     （配方坑 31），不要用分项表；分项表只用来分 host 段。
+    **补强（2026-11-15，8 rank / 1 卡分项实测）**：`HipDrain` 的计数器是
+    **每进程（每 rank）** 的 static，`DEFER_SYNC=1`（默认）下每 32 次启动才真正
+    `hipDeviceSynchronize` 一次。但 `hipDeviceSynchronize` 是**设备级**同步：
+    它等的是整张卡空闲，包含同卡其他 rank 的在飞工作。所以 drain 落在哪个 rank、
+    落在那一步的什么位置，决定了这次排空要替同卡其他 rank 背多少排队时间。
+    后果：同一作业内、每 rank cell 数完全相同（36,864）时，`gradient_kernel` 在
+    8 个 rank 间差 **5.46 倍**（16.7 vs 91.1 ms/1000 步），`recon_kernel` 差 2.85 倍。
+    **因此 per-rank 的 `*_kernel` 行逐 rank 横比无效**；要比较必须同时跑
+    `DEFER_SYNC=0` 对照。同理 `swap_download` 是延迟队列下一个阻塞点的承接，
+    不是它自己的拷贝成本。
 
 33. **上游 `ProcessRunner.cpp` 假定 glibc ≥ 2.29**（2026-11-10 合入 upstream 后暴露）：
     `posix_spawn_file_actions_addchdir_np` 是 glibc 2.29 才有的扩展，而昆山节点是
@@ -564,6 +574,17 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
     若一侧 1 rank 独占卡、另一侧 8 ranks/卡，差异主要来自卡内分时而非扩展性
     （本轮 294,912/rank 系列因此只能作参考）。设计系列时保证两侧都是 8 ranks/卡，
     或从 16 rank/2 卡起（前一轮立方体弱扩展即从 2 卡起）。
+44. **`rank.sh` 的卡映射已验证正确，不要再怀疑“跑错卡”（2026-11-15 复验）**：
+    `scripts/rank.sh` 设 `HIP_VISIBLE_DEVICES=$((n/RPC))` 后 `unset ROCR_VISIBLE_DEVICES`。
+    按 ROCm 文档语义这看似会退化成“全机物理卡下标”，但**HIP 运行时实测**
+    （`evidence/probe/128108949`，`hipGetDeviceCount` + `hipDeviceGetPCIBusId`）表明：
+    ROCR 清掉后 HIP 下标仍限于分配到的设备，下标越界直接报
+    `no ROCm-capable device is detected`，**不会静默跑到别人的卡上**。
+    同批探测也确认 `rocminfo` **不理会** `ROCR_*`/`HIP_VISIBLE_DEVICES`
+    （五种视图都列出全部物理卡），所以**不能用 rocminfo 判断设备视图**；
+    要判断就用 `hipGetDeviceCount`+`hipDeviceGetPCIBusId`（探针源码
+    `scripts/gpu-view.cpp`）。另注意 `SLURM_JOB_GPUS` 是物理卡号、
+    `ROCR_VISIBLE_DEVICES` 是重编号后的视图，两者数值不相等是正常的，不是缺陷。
 
 ## 6. 本文维护规则
 

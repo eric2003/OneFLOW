@@ -796,6 +796,62 @@ nBFaces=7,680 / nIFaces=4,785`，**114,432 个面全部是四边形 → 六面�
 | 64N（18,874,368） | ✅ | ✅（结构+体积守恒） | ✅ METIS 512 zone | ✅（512 rank/64 卡 1000 步 ×3 跑通，`probe/128104413`；原 VMFault 判定为 i02 节点态，非代码缺陷） |
 | 2N / 4N / 16N / 32N | 生成中（拓扑可行性已 PASS） | — | — | — |
 
+#### 5.10 进行中 2026-11-15：M6 DCU 每步等待归因（H1/H2/H3）
+
+**目标**：回答"慢 rank 的 interface_mpi 到底在等什么"，只做归因 + 一个最小干预，
+不同时启动 A4、分区器重写、kernel 融合或 GPU-aware MPI。
+
+**已完成（只读审计 + 两个判别作业）**
+
+1. **调用链已核实**（`NsResidentMacroStep.cpp` → `InterfaceTask.cpp` →
+   `DistributedDomainPlan.cpp` → `UNsGrad.cpp` → `HipFluxBackend.hip`）：
+   每 RK stage 末尾一次 `CUPDATE_INTERFACE`，跨 rank **只交换 q**
+   （`ExchangeHipInterfaceQ`；host DataBook 交换被 `ONEFLOW_HIP_SKIP_HOST_INTERFACE`
+   跳过，`interface_host_*` 计时恒为 0）。梯度 halo 不每 stage 跨 rank：
+   接收侧每 stage 解包一份**每步只打包一次**的载荷。`NsPostprocess` 另有每步一次、
+   含 q+梯度的第 4 轮，保留 legacy 一步滞后。
+2. **H3（rank→DCU 映射/租户争用）已证伪**：`evidence/probe/128108949` 用 HIP 运行时
+   （`hipGetDeviceCount` + `hipDeviceGetPCIBusId`）验证 `rank.sh` 的卡映射正确；
+   ROCR 清掉后下标越界会直接报 `no ROCm-capable device is detected`，不会静默跑错卡。
+   同批探测确认 `rocminfo` 不理会这两个变量，**不能用它判断设备视图**。
+3. **分项表逐 rank 横比无效**（补强坑 32）：每 rank cell 数相同（36,864）时
+   `gradient_kernel` 差 5.46 倍。原因是 `hipDeviceSynchronize` 是设备级同步，
+   drain 落在哪个 rank 就替同卡全部 rank 背排队时间。
+
+**判别作业**（`probe/128109059`，1 节点 / 8 rank / 1 卡 / 1000 步 / 三变体 ×3 发交错）：
+`a` 默认、`b` `DIAG_NO_COMM=1`（仅计时）、`c` `DEFER_SYNC=0`。判据：
+`b` 的 per-rank 计算段离散度塌缩 ⇒ H1 证伪；`a` vs `c` 的差异量 ⇒ 计时污染幅度；
+per-rank MPI trace 的 `recv` 秒数是否覆盖 `interface_mpi` ⇒ 等待在 MPI 还是设备拷贝。
+
+**结论（2026-11-15，`probe/128109059` + 对照 `probe/128109153`）**：
+
+| 变体 | 1 卡 8 rk/卡 | 2 卡 4 rk/卡 |
+|---|---:|---:|
+| a 默认 | **15.41** ms/步 | **9.00** ms/步 |
+| b 通信全断 | 11.41（离散度 1.02×） | 6.85 |
+| c `DEFER_SYNC=0` | 13.95 | — |
+
+- **H1 证伪**：通信关闭后 8 个 rank 的 `macro_update_residuals` 为 7,309–7,420 ms
+  （离散度 **1.02×**），每 rank 36,864 cell 完全一致。分区没有把负担分歪。
+- **H3 证伪**：卡映射正确（见 §5.10 第 2 条）。但其**近亲**成立并被量化：
+  同 8 rank、同 8 zone、同分区、只把卡从 1 张变 2 张（rank/卡 8→4），
+  r3..r7 的 `recv` 等待均值 **2,455 → 1,192 ms（2.06× 少）**，rank3 单消息延迟
+  **1.031 → 0.412 ms（2.50× 少）**。消息数与字节数不变，所以这是**同卡进程争用
+  拉长 rendezvous 往返**，不是带宽。
+- **H2 成立为主因**：`recv` 占 `interface_mpi` 的 **96.3–98.8%**；1000 步
+  `send` 合计 414 ms 而 `recv` 18,716 ms（**45×**）。~420 MB 走 18.7 s ≈ 22 MB/s，
+  远低于卡间带宽，说明每次都在等对端到齐而非传不动。邻居数与等待**负相关**（−0.64）：
+  rank3 每步 3.02 次 recv、1.031 ms/次（最慢）；rank2/6 每步 6.03 次、0.275/0.379 ms/次。
+- **`DEFER_SYNC=0` 更快 1.45 ms/步**（13.95 vs 15.41）：当前 8-rk/卡配置下
+  延迟同步是净负债。同步模式下 rank3 的 `recv` 仍为 3.34 s，所以等待不是计时伪影。
+- **每卡吞吐随资源增加而下降**：19,141 → 16,386 cell/ms/card（−14%），
+  即 2 卡对同一工作只有 1.71×（理想 2×）。
+- **通信成本口径更新**：默认 − 断通信 = **4.0 ms/步（26%）**（1 卡），
+  取代历史"关通信省 2.2 ms"的旧口径（后者是不同配置、不同步数）。
+
+**未定位（唯一必要实验）**：`DEFER_SYNC=0` 省下的 1.45 ms 与 MPI 等待是否重叠。
+`c` 变体未落 MPI trace；补跑 `c` 的 per-rank trace 即可判定"先动 drain 还是先动交换"。
+
 #### 5.9 交付 2026-11-15：2N/4N/16N/32N 生成并全阶梯弱扩展已测
 
 **网格生成链**（全部从 N 派生，保留 M6 几何、边界定义与测量家族）：
