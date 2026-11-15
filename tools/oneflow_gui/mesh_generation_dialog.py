@@ -335,7 +335,11 @@ class StlToGmshDialog(QDialog):
     def _refresh_command(self, *_args) -> None:
         try:
             self.command_view.setPlainText(self._command_text())
-            self.run_button.setEnabled(self._process.state() == QProcess.ProcessState.NotRunning)
+            idle = self._process.state() == QProcess.ProcessState.NotRunning
+            self.run_button.setEnabled(idle)
+            self.validate_button.setEnabled(
+                idle and Path(self.output_path.text()).expanduser().is_file()
+            )
             self.status_label.setText("Command is valid.")
         except (ValueError, OSError) as error:
             self.command_view.setPlainText(f"Command cannot be prepared:\n{error}")
