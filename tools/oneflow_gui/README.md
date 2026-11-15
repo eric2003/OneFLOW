@@ -369,27 +369,56 @@ duplicate controls or an overly wide list. 3D topology Cases retain the conversi
 ## Mesh Generation & Conversion Workbench
 
 The home screen exposes **Mesh Generation...** as the single entry to mesh activities.
-The hub currently routes to:
+The hub routes to:
 
-- **Mesh Layout Editor**: the existing structured-layout editor, retained without changing its layout compiler or project data contract.
-- **Mesh Knowledge**: opens the existing Mesh domain in Contract Workbench, including principles, format contracts, implementation links and verification evidence.
-- **STL to Gmsh**: a direct 3-D closed-STL volume-mesh interface backed by
+- **Mesh Projects**: choose a catalog-declared template, import an STL from the
+  repository Grid database or disk, open a OneFLOW project, or import a prepared
+  directory containing `input/model.stl` (or exactly one STL file).
+- **Mesh Layout Editor**: the existing structured-layout editor, retained without
+  changing its layout compiler or project data contract.
+- **STL to Gmsh**: a 3-D closed-STL volume-mesh interface backed by
   `grid/stl_to_gmsh/generate_volume_mesh.py`. Select the STL and output path,
   choose Coarse / Medium / Fine or custom minimum and maximum sizes, optionally
   select a Gmsh executable, and set the surface/volume Physical Group names.
+- **Mesh Knowledge**: opens the existing Mesh domain in Contract Workbench,
+  including principles, format contracts, implementation links and evidence.
+
+A template is enabled by the `mesh_project_template` flag on a 3-D Python
+STL-to-Gmsh Case Catalog entry. The current templates are Unit Sphere and 6:1
+Prolate Spheroid. Template files are copied into a user-owned project; checked-in
+Cases remain read-only. Imported prepared directories are also copied, with
+their relative structure preserved under `source_project/`.
+
+Each project is stored below
+`UserDataPaths.discover().mesh_generation / <project-name>` and has a
+`project.json` manifest, a private STL input, a `results/` directory and an
+independent `validation/` workspace. The STL page displays the selected project
+and its geometry path. Mesh size, Physical Group names and output path can be
+edited and saved with **Save Project Settings** without launching Gmsh; running
+the mesher also saves the settings. Generated MSH files can be passed directly
+to Mesh-to-CFD Validation without regenerating the mesh, and validation outputs
+stay inside that project's `validation/` directory.
 
 The STL page shows the complete platform-specific command before execution and
 supports copying it. Execution uses `QProcess` with an argument list (not shell
 interpolation), displays merged process output, and reports the exit code. The
-command is reproducible outside the GUI. The default output is under
-`UserDataPaths.discover().root / mesh-generation`, not in the source tree.
+command is reproducible outside the GUI. The default standalone output is under
+the user data `mesh-generation` directory, not in the source tree.
 
-The Unit Sphere preset preselects the checked-in unit-sphere STL fixture as a convenient starting point; users can replace it with any compatible STL. The preset does not manufacture or silently substitute geometry.
+The Unit Sphere and 6:1 Prolate Spheroid templates preselect their checked-in
+STL fixtures as starting geometry; the presets do not manufacture or silently
+substitute geometry. Both geometries have Native C++ Development Cases and
+independent Python reference Cases. Both are selectable in the 3-D
+Mesh-to-CFD Validation tree. The prolate spheroid has a wall-only Physical Group,
+so its current downstream run is a mesh-handoff/runtime smoke test, not an
+external-flow accuracy benchmark.
+
 The current volume mesher requires a closed, connected, consistently oriented,
 genus-zero shell. Its generated mesh is the volume enclosed by that shell, not
 an exterior-flow domain. Mesh-size values are target characteristic lengths,
-not exact edge lengths or fixed element counts.
+not exact edge lengths or fixed element counts. Disconnected shells, non-zero
+genus surfaces and self-intersecting STL inputs are outside this contract.
 
-The hub is intentionally small. STL inspection/repair, mesh conversion, quality
-visualization, additional backends and the shared Mesh Knowledge catalog remain
-separate incremental capabilities rather than placeholder buttons.
+STL inspection/repair, general mesh-quality visualization and additional
+meshing backends remain separate incremental capabilities rather than
+placeholder buttons.
