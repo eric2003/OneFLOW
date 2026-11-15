@@ -43,6 +43,23 @@ promoted to PASS by the UI. Workflow and Performance entry points will be added
 when their typed contracts have concrete repository evidence. The root
 `gui/` directory is outside this Workbench integration.
 
+## Mesh Generation geometry library
+
+The Mesh Generation workspace exposes Generate STL Geometry separately from
+STL to Gmsh. The geometry library currently includes a unit sphere, a
+parameterized prolate spheroid, and a capped cylinder for internal-flow domain
+meshing. Geometry parameters (radius, semi-axes, cylinder length) and surface
+discretization (icosphere subdivision, cylinder circumferential/axial divisions)
+are independent of Gmsh volume mesh size. Generated binary STL files and their
+.geometry.json manifests are written under
+~/.oneflow/mesh-generation/generated_stl/<geometry-id>/ (or the equivalent
+ONEFLOW_HOME workspace). The manifest records units, parameters, topology
+metrics, patch facet indices and the STL SHA-256. For the cylinder, inlet and
+outlet caps close the surface geometrically but are not wall boundaries; its
+patch metadata is preserved, while region-aware Gmsh Physical Surface
+reconstruction remains a follow-up integration step. See
+doc/source/stl_geometry_generation.rst.
+
 ## Workspace files
 
 A workspace is stored as a readable JSON document with the `.ofw` extension (schema version 2). Version-1 files without artifact fields load and migrate on save. Its schema records a workspace ID and name, an execution mode (`single_case`, `sequential_cases`, `independent_cases`, or `dependency_workflow`), and an ordered list of case IDs and paths. Paths are stored relative to the workspace file when possible. Dependency workflows record `depends_on` case IDs; validation rejects unknown dependencies and cycles. The independent mode rejects declared dependencies, while sequential mode uses the case list order.
