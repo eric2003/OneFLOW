@@ -57,7 +57,7 @@ class WorkflowCaseRuntimeTest(unittest.TestCase):
 
             prepared = prepare_case_directory(plan.steps[0], run_root, {})
 
-            self.assertEqual(prepared, staged_case)
+            self.assertEqual(prepared.resolve(), staged_case.resolve())
             self.assertTrue((open_visual / "view.dat").is_file())
             self.assertFalse((staged_case / "results" / "grid.msh").exists())
 
