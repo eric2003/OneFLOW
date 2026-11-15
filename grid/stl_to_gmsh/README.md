@@ -22,7 +22,9 @@ JSON validation-report files. See
 
 This directory contains native C++ STL-to-Gmsh Cases and independent Python
 reference Cases. The native Cases run through the standard OneFLOW Grid task
-and the C++ Geometry conversion pipeline.
+and the C++ Geometry conversion pipeline. The geometric definitions and STL
+construction rules for the sphere, prolate spheroid and planned internal-flow
+cylinder are documented in [STL geometry generation](../../doc/source/stl_geometry_generation.rst).
 
 | Implementation | Case | Layout | Nodes | Cells | Boundary elements |
 |---|---|---:|---:|---:|---:|
