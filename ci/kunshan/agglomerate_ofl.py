@@ -119,12 +119,24 @@ def main():
             cache[lookup] = cache["__lat__"][lookup]
         return cache[lookup]
 
+    cache_all = {}
+    # NOTE (open defect): bkey is keyed on 8N boundary sub-faces.  A parent
+    # (N-level) boundary face no longer exists as a face after refinement -- it
+    # is split into four sub-faces -- so a lookup built from parent corner sets
+    # can never match, and every merged boundary face reports "no parent bc
+    # record".  The correct source is the parent face identity obtained from the
+    # parent mesh itself (see the A(c) plan in the module docstring), not this
+    # table.
+    bkey = {}
+    for f in range(z.n_bfaces):
+        bkey.setdefault(frozenset(R.face_ring(z, f)), (z.bc_type[f], z.bc_name[f]))
     brick_corners = []
     brick_centroid = array("d")
     face_cells = {}
     for p in range(parents):
         pset = [set(corners[8 * (8 * p + k):8 * (8 * p + k) + 8]) for k in range(8)]
-        cache = {}
+        cache = {"__lat__": lattice_map(pset)}
+        cache_all[p] = cache["__lat__"]
         for a0 in range(0, 2, dims[0]):
             for b0 in range(0, 2, dims[1]):
                 for c0 in range(0, 2, dims[2]):
@@ -154,7 +166,7 @@ def main():
                                           c0 + coord[2] * dims[2])
                                 quad.append(cache_ensure(cache, pset, lookup))
                             key = frozenset(quad)
-                            face_cells.setdefault(key, []).append((bid, quad))
+                            face_cells.setdefault(key, []).append((bid, quad, a0, b0, c0, axis, side, p))
     # emit
     out_frings = array("i")
     out_left = array("i")
@@ -177,7 +189,7 @@ def main():
             for j in range(i + 1, len(rest)):
                 if used[j] or rest[j][0] == rest[i][0]:
                     continue
-                pairs.append((rest[i][0], rest[i][1], rest[j][0]))
+                pairs.append((rest[i][0], rest[i][1], rest[j][0], rest[i][2:]))
                 used[i] = used[j] = True
                 paired = True
                 break
@@ -185,7 +197,7 @@ def main():
                 # No partner from a different brick: a boundary face, or one of
                 # several coincident faces of a collapsed brick (which cancel in
                 # the volume exactly like the input's fold duplicates).
-                pairs.append((rest[i][0], rest[i][1], None))
+                pairs.append((rest[i][0], rest[i][1], None, rest[i][2:]))
                 used[i] = True
     # Second pass: pair leftovers through a node bucket (linear, not O(L^2)).
     # A genuine interface face shares all four nodes; three still distinguishes
@@ -218,7 +230,7 @@ def main():
             n_repair += 1
     report.append("second-pass interface repair: %d face(s)" % n_repair)
 
-    for bid, quad, other in pairs:
+    for bid, quad, other, meta in pairs:
         quad_set = frozenset(quad)
         # orient: normal from `bid` toward the neighbour (or outward)
         fx = sum(z.xn[n] for n in quad) / 4.0
@@ -251,6 +263,24 @@ def main():
             n_boundary += 1
             out_right.append(-1)
             bc = None
+            a0_, b0_, c0_, axis_, side_, parent_ = meta
+            # Parent corners in lattice order, then the parent's face for this
+            # (axis, side); the merged sub-face sits inside exactly that face.
+            latp = cache_all.get(parent_)
+            if latp is not None:
+                P = [latp[(0,0,0)], latp[(2,0,0)], latp[(2,2,0)], latp[(0,2,0)],
+                     latp[(0,0,2)], latp[(2,0,2)], latp[(2,2,2)], latp[(0,2,2)]]
+                fsets = {
+                    (0, 0): (P[0], P[3], P[7], P[4]),
+                    (0, 1): (P[1], P[2], P[6], P[5]),
+                    (1, 0): (P[0], P[1], P[5], P[4]),
+                    (1, 1): (P[3], P[2], P[6], P[7]),
+                    (2, 0): (P[0], P[1], P[2], P[3]),
+                    (2, 1): (P[4], P[5], P[6], P[7]),
+                }[ (axis_, side_) ]
+                rec = bkey.get(frozenset(fsets))
+                if rec is not None:
+                    bc = rec
             cands = []
             for n in quad:
                 cands.extend(bnode.get(n, ()))
