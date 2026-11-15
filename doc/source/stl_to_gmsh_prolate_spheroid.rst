@@ -26,11 +26,13 @@ change.
 Case registration
 -----------------
 
-The Python reference Case is registered as
-stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra in the case catalog.
-It appears in Python reference producer lists and the 3-D Mesh-to-CFD
-Validation list. There is deliberately no native C++ Case: generic closed-
-surface reconstruction currently uses the Python/Gmsh adapter.
+The native C++ Case is registered as
+stl_to_gmsh_prolate_spheroid_automatic_tetrahedra and the Python reference Case
+as stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra. Both use the same
+byte-identical STL and equivalent layout contracts. The native Case appears
+under Run Development Cases; the independent Python implementation appears
+under Python reference cases. Both are available in the 3-D Mesh-to-CFD
+Validation selection tree.
 
 Mesh-to-CFD Validation
 ----------------------

@@ -196,7 +196,7 @@ Mesh Generation & Conversion 首先按“网格工程”组织工作，而不再
 
 进入 STL to Gmsh 后，可以修改 STL 路径、Coarse/Medium/Fine 或自定义尺寸、Physical Group 名称、输出 MSH 路径和 Gmsh 可执行文件。界面显示完整命令并支持复制；运行参数和项目清单同步保存，重新打开工程时可以继续编辑和生成。项目生成的当前 MSH 可直接进入 Mesh-to-CFD Validation，不会重新生成网格，验证结果写入该项目自己的 `validation/`。
 
-在 Case Catalog 中，6:1 Prolate Spheroid 作为 Python reference Case 登记，因此可在 **Python reference cases** 中执行，也出现在 3D **Mesh-to-CFD Validation** 选择树中。它目前不是原生 C++ 网格生成案例；Run Development Cases 与 Python reference cases 的实现类型仍按 Catalog 分开显示，不把 Python 实现冒充为 C++。
+在 Case Catalog 中，6:1 Prolate Spheroid 同时登记 Native C++ 和 Python Reference 两个实现：前者出现在 **Run Development Cases**，后者出现在 **Python reference cases**，两个实现也都出现在 3D **Mesh-to-CFD Validation** 选择树中。两者使用相同 STL 和布局契约，但仍按真实实现类型分别显示。
 
 默认输出位置为用户数据目录下的 `mesh-generation`，不会写入仓库源代码目录。
 默认的 Unit Sphere 预设会预选仓库中的单位球 STL 示例，用户也可以通过 Browse... 换成自己的 STL 文件；预设不会生成或替换几何内容。

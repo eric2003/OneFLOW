@@ -151,6 +151,5 @@ topology; it is not yet a physical CFD validation case.
 6:1 prolate spheroid
 --------------------
 
-See :doc:`stl_to_gmsh_prolate_spheroid` for a separate generic closed-surface
-Python reference Case using a 6:1 prolate spheroid. It is not a native C++
-meshing implementation.
+See :doc:`stl_to_gmsh_prolate_spheroid` for the native C++ and Python
+reference Case pair using a 6:1 prolate spheroid.
