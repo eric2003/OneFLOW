@@ -23,6 +23,7 @@ from grid.stl_to_gmsh.generate_volume_mesh import (
 from tools.oneflow_gui import mesh_validation_dialog
 from tools.oneflow_gui.mesh_generation_dialog import (
     MeshGenerationDialog,
+    StlGeometryDialog,
     StlToGmshDialog,
 )
 from tools.oneflow_gui.mesh_project import (
@@ -77,6 +78,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             labels = {button.text() for button in buttons}
             self.assertIn("Mesh Layout Editor", labels)
             self.assertIn("STL to Gmsh", labels)
+            self.assertIn("Generate STL Geometry", labels)
             self.assertIn("Mesh Knowledge", labels)
             self.assertIn("New from Template", labels)
             self.assertIn("Open Existing Project...", labels)
@@ -107,6 +109,37 @@ class MeshGenerationDialogTest(unittest.TestCase):
             knowledge_type.return_value.exec.assert_called_once()
         finally:
             dialog.close()
+
+
+    def test_generate_stl_geometry_dialog_creates_cylinder_and_manifest(self) -> None:
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory) / "mesh-generation"
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                dialog = StlGeometryDialog(self.repository_root)
+                try:
+                    self.assertEqual(dialog.geometry.currentData(), "sphere")
+                    dialog.geometry.setCurrentIndex(
+                        dialog.geometry.findData("cylinder_internal_flow")
+                    )
+                    self.assertTrue(dialog.length.isEnabled())
+                    self.assertTrue(dialog.circumferential.isEnabled())
+                    self.assertIn("not solid walls", dialog.patch_note.text())
+                    output = Path(directory) / "cylinder.stl"
+                    dialog.output.setText(str(output))
+                    dialog._generate()
+                    self.assertTrue(output.is_file())
+                    manifest = output.with_suffix(".geometry.json")
+                    self.assertTrue(manifest.is_file())
+                    self.assertEqual(dialog.generated_stl, output.resolve())
+                    self.assertIn("inflow", dialog.result_view.toPlainText())
+                    self.assertIn("outflow", dialog.result_view.toPlainText())
+                finally:
+                    dialog.close()
 
     def test_stl_dialog_starts_with_repository_unit_sphere_fixture(self) -> None:
         dialog = StlToGmshDialog(self.repository_root)
