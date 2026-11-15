@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.oneflow_gui.path_utils import paths_equal
 from tools.oneflow_gui.workflow_case_runtime import prepare_case_directory
 from tools.oneflow_gui.workflow_plan import build_case_graph_plan
 
@@ -57,7 +58,7 @@ class WorkflowCaseRuntimeTest(unittest.TestCase):
 
             prepared = prepare_case_directory(plan.steps[0], run_root, {})
 
-            self.assertEqual(prepared.resolve(), staged_case.resolve())
+            self.assertTrue(paths_equal(prepared, staged_case))
             self.assertTrue((open_visual / "view.dat").is_file())
             self.assertFalse((staged_case / "results" / "grid.msh").exists())
 
