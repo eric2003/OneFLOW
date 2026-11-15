@@ -39,12 +39,11 @@ unit sphere. The checked-in 6:1 prolate spheroid uses the same surface
 topology transformed by semi-axis scale factors (3, 0.5, 0.5).
 
 The native C++ and Python reference Cases consume byte-identical copies of
-each checked-in STL. The historical program that emitted these binary STL
-files is not currently checked in as a dedicated canonical geometry-generator
-command. Therefore, the checked-in STL files and their documented geometric
-contracts are the current authoritative inputs. The icosphere construction
-above is a geometric reconstruction consistent with the facet count, not a
-verified record of the original file-writing implementation.
+each checked-in STL. The original historical program that emitted these binary
+STL files is not currently checked in as a dedicated canonical generator. The
+new deterministic generator below is a reproducible replacement, not a claim
+about the original fixture bytes. The icosphere construction is consistent
+with the checked-in facet count and defines the new generator algorithm.
 
 The current deterministic generator is
 grid/stl_to_gmsh/generate_stl_geometry.py (version 1.0). It uses only the Python
