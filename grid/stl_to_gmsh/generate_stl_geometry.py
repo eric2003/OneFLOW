@@ -13,6 +13,7 @@ from pathlib import Path
 
 GENERATOR_NAME = "oneflow_stl_geometry"
 GENERATOR_VERSION = "1.0"
+SOURCE_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _orient_outward(vertices: list[tuple[float, float, float]], faces: list[tuple[int, int, int]]) -> list[tuple[int, int, int]]:
@@ -215,6 +216,11 @@ def generate_geometry(
     output_stl = Path(output_stl).expanduser().resolve()
     if output_stl.suffix.lower() != ".stl":
         raise ValueError("STL output path must use the .stl extension.")
+    if output_stl == SOURCE_ROOT or SOURCE_ROOT in output_stl.parents:
+        raise ValueError(
+            "Generated STL assets must be written outside the OneFLOW source tree; "
+            "use the .oneflow mesh-generation workspace."
+        )
     if not units.strip():
         raise ValueError("A geometry unit must be declared.")
     if geometry in {"sphere", "prolate_spheroid"}:
