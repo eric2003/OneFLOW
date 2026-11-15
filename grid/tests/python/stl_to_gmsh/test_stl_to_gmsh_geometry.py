@@ -233,8 +233,8 @@ $EndElements
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             stl = root / "prolate_spheroid_6_to_1.stl"
-            with stl.open("w", encoding="ascii", newline="\\n") as stream:
-                stream.write("solid prolate_spheroid_6_to_1\\n")
+            with stl.open("w", encoding="ascii", newline="\n") as stream:
+                stream.write("solid prolate_spheroid_6_to_1\n")
                 for triangle in spheroid:
                     a, b, c = triangle
                     ab = tuple(b[i] - a[i] for i in range(3))
@@ -246,12 +246,12 @@ $EndElements
                     )
                     length = sum(value * value for value in normal) ** 0.5
                     normal = tuple(value / length for value in normal)
-                    stream.write(" facet normal " + " ".join(f"{v:.9g}" for v in normal) + "\\n")
-                    stream.write("  outer loop\\n")
+                    stream.write(" facet normal " + " ".join(f"{v:.9g}" for v in normal) + "\n")
+                    stream.write("  outer loop\n")
                     for point in triangle:
-                        stream.write("   vertex " + " ".join(f"{v:.9g}" for v in point) + "\\n")
-                    stream.write("  endloop\\n endfacet\\n")
-                stream.write("endsolid prolate_spheroid_6_to_1\\n")
+                        stream.write("   vertex " + " ".join(f"{v:.9g}" for v in point) + "\n")
+                    stream.write("  endloop\n endfacet\n")
+                stream.write("endsolid prolate_spheroid_6_to_1\n")
             sidecar = root / "layout.json"
             sidecar.write_text(json.dumps({
                 "volume_mesh": "closed_surface_automatic_tetrahedra",
