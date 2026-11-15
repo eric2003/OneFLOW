@@ -1393,10 +1393,11 @@ rank0 652→263 µs，rank3 1031→550 µs。**1 卡时 8 个进程争同一条 
 **`s_gradient` 与 `swap_download` 在 16 个 rank 样本上相差 3–10%**，说明它是
 **阻塞 D2H 排空**，不是 host 算术。每次拷贝 1.26 ms，与卡数无关。
 
-**方向修正**：既然通信只占 1 卡总时间的 3.3 ms、且随卡数下降，**修传输
-（UCX/dmabuf/GPU-aware）的上限只有 ~0.3–0.5 ms/步**，且动不了 3.12 的地板。
-真正的目标是**消灭那对阻塞 D2H**（`s_gradient` + `post_upload_host`），
-这是 A4 形态的工作，不是传输工作。
+**方向修正**：既然通信只占 1 卡总时间的 3.3 ms、且随卡数下降，**单看现有栈，
+修传输的上限只有 ~0.3–0.5 ms/步**，且动不了 3.12 的地板。
+但**这个上界只在"当前这套不支持 ROCm 的 UCX"下成立**——一旦换成 ROCm-aware 的栈，
+设备指针路径快 82 倍（§5.22），前提随之改变。真正要消灭的仍是那对阻塞 D2H
+（`s_gradient` + `post_upload_host`），但消除它们的手段可能与换栈合并。
 
 **待确认**：线性律 `F + u·k` 需要第三点（rpc=2 / 4 卡）验证，预测 5.21 ms/步。
 
@@ -1471,3 +1472,50 @@ A = 1 节点 4 卡；B = 2 节点各 2 卡。另加 **A2 = 只用第二台节点
 这个测量区分不了，只有时间线 trace 能。
 
 **`card-ms/步` 几乎不变**（11.05 vs 11.98），即每卡工作量守恒——加卡确实买到墙钟。
+
+#### 5.22 ROCm-aware UCX + OpenMPI 重编成功，设备指针快 82 倍（2026-11-15）
+
+**这条推翻了 §5.19 里"传输不是主杠杆"的判断**——那个判断只在现有这套
+`--without-rocm` 的栈下成立。
+
+**构建结果**（新前缀，生产栈分毫未动）：
+- `ucx-1.22-rocm`（`evidence/build/128120872-ucx-rocm`）：`HAVE_ROCM=1`、
+  `HAVE_HIP=1`，`hsa.h`/`hsa_ext_amd.h`/`hsa_init` 全部探测通过，`dmabuf: no`（无害，见下）。**约 5.5 分钟**。
+- `openmpi-5.0.11-rocm`（`evidence/build/128121628-ompi-rocm`）：`ROCm support: yes`、
+  `OPAL_ROCM_SUPPORT 1`、`MPI Extension rocm: yes`。**约 15 分钟**。
+
+**唯一障碍是路径布局**：`config/m4/rocm.m4` 写死 `-I$DIR/include/hsa`，而本 DTK 把
+HSA 头放在 `.hyhal/include/hsa/`。做一组 symlink shim 即可，不需要改源码。
+`hsa_amd_portable_export_dmabuf` 的缺失被 `#if HAVE_HSA_AMD_PORTABLE_EXPORT_DMABUF`
+保护，只关掉 RDMA dmabuf 路径，不影响节点内。
+
+**关键证据（`evidence/build/128123285-newstack/out.txt`，4 KB ping-pong，2 rank/卡）**：
+
+| | 生产栈 | 新栈 | 变化 |
+|---|---:|---:|---|
+| **device 指针 → MPI** | **1300.97 µs** | **15.89 µs** | **快 82×** |
+| host 指针 → MPI | 2.35 | 7.68 | **慢 3.3×** |
+| 显式 staging | 11.05 | 35.92 | **慢 3.3×** |
+| HIP 往返（基线） | 32.29 | 31.94 | 持平 |
+
+**lane 对照是机制证据**：
+```
+生产栈: knem / self / sysv                      ← 没有 rocm 通道
+新栈  : knem / rocm_copy / rocm_ipc / self / sysv  ← 多了两条 rocm 通道
+```
+`rocm_ipc_md.c` 通过 `hsa_amd_ipc_memory_create` 注册 `UCS_MEMORY_TYPE_ROCM`，
+数据真的走设备 IPC handle。
+
+**必须一起知道的耦合**：新栈只对**设备指针**路径快。host 指针和显式 staging 都变慢 3.3×。
+**生产现在用的是显式 staging，所以单独换栈会让求解器变慢**，必须同时把交换切到
+设备指针路径。两个改动耦合，不能只做一个。
+
+**OpenMPI 必须一起重编**（`evidence/build/128122057-needompi`）：生产 OpenMPI +
+新 UCX 仍是 1300 µs、lane 只有 `self/knem/sysv`——没有 `OPAL_ROCM_SUPPORT` 时
+OpenMPI 在 UCX 之前就把设备指针处理错了。
+
+**边界（不可省略）**：单卡单节点、rank ≤ 2、每点一次测量，不是扩展性研究；
+64 KB–1 MB 区间**没有**观察到收益（原因未定位）；4 MB 直接比 staging 快 1.46×；
+1 MB 处测量不稳定。最小复现配方见本节提交信息与集群 `scripts/of-*ucx*.sh`。
+
+**回退**：删掉两个新前缀即可，生产 `ucx/1.22.0`、`openmpi/5.0.11`、`env.sh` 均未被改动。
