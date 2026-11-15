@@ -39,6 +39,7 @@ from .mesh_project import (
     replace_project_stl,
     save_mesh_project_settings,
 )
+from grid.stl_to_gmsh.generate_stl_geometry import generate_geometry
 from grid.stl_to_gmsh.generate_volume_mesh import (
     DEFAULT_MESH_SIZE,
     DEFAULT_SPHERE_STL,
@@ -98,6 +99,12 @@ class MeshGenerationDialog(QDialog):
         layout_button.setToolTip("Edit structured mesh layouts and compile OneFLOW layout files.")
         layout_button.clicked.connect(self._open_mesh_layout)
         root.addWidget(layout_button)
+
+        generate_stl_button = QPushButton("Generate STL Geometry")
+        generate_stl_button.setMinimumHeight(64)
+        generate_stl_button.setToolTip("Create parameterized sphere, prolate spheroid or cylinder STL surfaces from the geometry library.")
+        generate_stl_button.clicked.connect(self._open_stl_geometry)
+        root.addWidget(generate_stl_button)
 
         stl_button = QPushButton("STL to Gmsh")
         stl_button.setMinimumHeight(64)
@@ -184,11 +191,170 @@ class MeshGenerationDialog(QDialog):
     def _open_mesh_layout(self) -> None:
         MeshLayoutDialog(self._repository_root, self).exec()
 
+    def _open_stl_geometry(self) -> None:
+        StlGeometryDialog(self._repository_root, self).exec()
+
     def _open_stl_to_gmsh(self) -> None:
         StlToGmshDialog(self._repository_root, self).exec()
 
     def _open_mesh_knowledge(self) -> None:
         ContractDomainDialog(self._repository_root, "mesh", self).exec()
+
+
+class StlGeometryDialog(QDialog):
+    """Generate deterministic STL assets from the built-in geometry library."""
+
+    def __init__(self, repository_root: Path, parent=None) -> None:
+        super().__init__(parent)
+        self._repository_root = repository_root.resolve()
+        self.generated_stl: Path | None = None
+        self._active_geometry: str | None = None
+        self.setWindowTitle("Generate STL Geometry")
+        self.resize(720, 650)
+        root = QVBoxLayout(self)
+        heading = QLabel("Generate STL Geometry")
+        heading.setStyleSheet("font-size: 22px; font-weight: 650;")
+        root.addWidget(heading)
+        description = QLabel(
+            "Choose a geometry from the built-in library, adjust its analytic parameters "
+            "and surface discretization, then generate an STL plus a checksum-bound "
+            "geometry manifest. Geometry resolution is independent of Gmsh volume-mesh size."
+        )
+        description.setWordWrap(True)
+        root.addWidget(description)
+
+        form = QFormLayout()
+        self.geometry = QComboBox()
+        self.geometry.addItem("Sphere", "sphere")
+        self.geometry.addItem("Prolate Spheroid", "prolate_spheroid")
+        self.geometry.addItem("Cylinder — Internal Flow", "cylinder_internal_flow")
+        self.geometry.currentIndexChanged.connect(self._geometry_changed)
+        form.addRow("Geometry library", self.geometry)
+
+        self.radius = QLineEdit("1.0")
+        form.addRow("Radius", self.radius)
+        self.subdivisions = QLineEdit("3")
+        form.addRow("Sphere subdivision level", self.subdivisions)
+        self.semi_axis_a = QLineEdit("3.0")
+        self.semi_axis_b = QLineEdit("0.5")
+        self.semi_axis_c = QLineEdit("0.5")
+        axes = QHBoxLayout()
+        for label, widget in (("a", self.semi_axis_a), ("b", self.semi_axis_b), ("c", self.semi_axis_c)):
+            axes.addWidget(QLabel(label))
+            axes.addWidget(widget)
+        form.addRow("Spheroid semi-axes", axes)
+        self.length = QLineEdit("4.0")
+        form.addRow("Cylinder length", self.length)
+        self.circumferential = QLineEdit("48")
+        form.addRow("Circumferential divisions", self.circumferential)
+        self.axial = QLineEdit("16")
+        form.addRow("Axial divisions", self.axial)
+        self.units = QComboBox()
+        self.units.addItems(["m", "mm", "cm", "in"])
+        form.addRow("Coordinate units", self.units)
+
+        self.output = QLineEdit()
+        output_row = QHBoxLayout()
+        output_row.addWidget(self.output, 1)
+        browse = QPushButton("Browse...")
+        browse.clicked.connect(self._browse_output)
+        output_row.addWidget(browse)
+        form.addRow("Output STL", output_row)
+        root.addLayout(form)
+
+        self.patch_note = QLabel()
+        self.patch_note.setWordWrap(True)
+        self.patch_note.setStyleSheet("color: #475569;")
+        root.addWidget(self.patch_note)
+
+        self.generate_button = QPushButton("Generate STL")
+        self.generate_button.setMinimumHeight(42)
+        self.generate_button.clicked.connect(self._generate)
+        root.addWidget(self.generate_button)
+        self.result_view = QPlainTextEdit()
+        self.result_view.setReadOnly(True)
+        self.result_view.setMinimumHeight(170)
+        root.addWidget(self.result_view, 1)
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(self.accept)
+        root.addWidget(close_button)
+        self._geometry_changed()
+
+    def _default_output(self, geometry: str) -> Path:
+        return UserDataPaths.discover().mesh_generation / "generated_stl" / geometry / f"{geometry}.stl"
+
+    def _geometry_changed(self, *_args) -> None:
+        geometry = str(self.geometry.currentData())
+        previous_default = self._default_output(self._active_geometry) if self._active_geometry else None
+        current = Path(self.output.text()).expanduser() if self.output.text().strip() else None
+        if current is None or current == previous_default:
+            self.output.setText(str(self._default_output(geometry)))
+        is_sphere = geometry == "sphere"
+        is_spheroid = geometry == "prolate_spheroid"
+        is_cylinder = geometry == "cylinder_internal_flow"
+        self.subdivisions.setEnabled(is_sphere or is_spheroid)
+        for widget in (self.semi_axis_a, self.semi_axis_b, self.semi_axis_c):
+            widget.setEnabled(is_spheroid)
+        self.length.setEnabled(is_cylinder)
+        self.circumferential.setEnabled(is_cylinder)
+        self.axial.setEnabled(is_cylinder)
+        self.patch_note.setText(
+            "One closed wall surface; the STL is a piecewise-planar approximation."
+            if not is_cylinder else
+            "The closed STL contains wall, inflow and outflow patches. End caps close "
+            "the shell geometrically but are not solid walls. Patch identities are "
+            "stored in the companion .geometry.json manifest. The generic STL-to-Gmsh "
+            "path does not yet reconstruct these separate Physical Surfaces."
+        )
+        self._active_geometry = geometry
+
+    def _browse_output(self) -> None:
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Save generated STL", self.output.text(), "STL files (*.stl);;All files (*)"
+        )
+        if path:
+            self.output.setText(path if path.lower().endswith(".stl") else path + ".stl")
+
+    def _generate(self) -> None:
+        try:
+            geometry = str(self.geometry.currentData())
+            kwargs = {
+                "radius": float(self.radius.text()),
+                "subdivisions": int(self.subdivisions.text()),
+                "semi_axes": (
+                    float(self.semi_axis_a.text()),
+                    float(self.semi_axis_b.text()),
+                    float(self.semi_axis_c.text()),
+                ),
+                "length": float(self.length.text()),
+                "circumferential_divisions": int(self.circumferential.text()),
+                "axial_divisions": int(self.axial.text()),
+                "units": str(self.units.currentText()),
+            }
+            output = Path(self.output.text()).expanduser()
+            if not self.output.text().strip():
+                raise ValueError("Choose an output STL path.")
+            report = generate_geometry(geometry, output, **kwargs)
+        except (OSError, ValueError) as error:
+            QMessageBox.warning(self, "STL generation failed", str(error))
+            return
+        self.generated_stl = Path(report["stl"])
+        surface = report["surface"]
+        patch_counts = {name: len(indices) for name, indices in report["patch_triangle_indices"].items()}
+        self.result_view.setPlainText(
+            "STL generated successfully.\n"
+            f"Geometry: {geometry}\n"
+            f"STL: {report['stl']}\n"
+            f"Manifest: {report['manifest']}\n"
+            f"Units: {report['units']}\n"
+            f"Vertices: {surface['vertex_count']}\n"
+            f"Triangles: {surface['triangle_count']}\n"
+            f"Surface area: {surface['surface_area']:.9g}\n"
+            f"Signed volume: {surface['signed_volume']:.9g}\n"
+            f"Watertight: {surface['watertight']}\n"
+            f"Patch triangles: {patch_counts}\n"
+            f"SHA-256: {report['stl_sha256']}"
+        )
 
 
 class StlToGmshDialog(QDialog):
