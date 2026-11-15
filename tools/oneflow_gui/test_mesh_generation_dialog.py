@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication, QPushButton
+from PySide6.QtWidgets import QApplication, QPushButton, QScrollArea
 from tools.oneflow_gui.application_settings import ApplicationSettings
 from tools.oneflow_gui.user_data_paths import UserDataPaths
 from grid.stl_to_gmsh.generate_volume_mesh import (
@@ -142,6 +142,20 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     self.assertIn("outflow", dialog.result_view.toPlainText())
                 finally:
                     dialog.close()
+
+    def test_geometry_dialog_settings_are_scrollable_on_short_screens(self) -> None:
+        dialog = StlGeometryDialog(self.repository_root)
+        try:
+            self.assertEqual(dialog.minimumHeight(), 480)
+            scroll = dialog.findChild(QScrollArea, "geometrySettingsScrollArea")
+            self.assertIsNotNone(scroll)
+            self.assertTrue(scroll.widgetResizable())
+            self.assertIs(scroll.widget().layout().parentWidget(), scroll.widget())
+            self.assertIs(dialog.sphere_group.parentWidget(), scroll.widget())
+            self.assertIs(dialog.spheroid_group.parentWidget(), scroll.widget())
+            self.assertIs(dialog.cylinder_group.parentWidget(), scroll.widget())
+        finally:
+            dialog.close()
 
     def test_geometry_parameter_panels_are_independent_and_retain_values(self) -> None:
         dialog = StlGeometryDialog(self.repository_root)
