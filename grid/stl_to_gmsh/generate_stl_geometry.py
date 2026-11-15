@@ -18,7 +18,22 @@ GENERATOR_VERSION = "1.0"
 
 def _orient_outward(vertices: list[tuple[float, float, float]], faces: list[tuple[int, int, int]]) -> list[tuple[int, int, int]]:
     oriented = []
+    parent = list(range(len(vertices)))
+
+    def find(item: int) -> int:
+        while parent[item] != item:
+            parent[item] = parent[parent[item]]
+            item = parent[item]
+        return item
+
+    def union(left: int, right: int) -> None:
+        left_root, right_root = find(left), find(right)
+        if left_root != right_root:
+            parent[right_root] = left_root
+
     for a, b, c in faces:
+        union(a, b)
+        union(b, c)
         pa, pb, pc = vertices[a], vertices[b], vertices[c]
         ab = tuple(pb[i] - pa[i] for i in range(3))
         ac = tuple(pc[i] - pa[i] for i in range(3))
@@ -141,6 +156,7 @@ def _surface_metrics(vertices: list[tuple[float, float, float]], faces: list[tup
             edge_uses[key] += 1
             directed[(left, right)] += 1
     bad_edges = sum(count != 2 for count in edge_uses.values())
+    component_count = len({find(index) for index in range(len(vertices))})
     inconsistent = sum(
         1 for left, right in edge_uses
         if directed[(left, right)] + directed[(right, left)] != 2
@@ -154,6 +170,7 @@ def _surface_metrics(vertices: list[tuple[float, float, float]], faces: list[tup
     return {
         "vertex_count": len(vertices),
         "triangle_count": len(faces),
+        "connected_component_count": component_count,
         "surface_area": area,
         "signed_volume": signed_volume,
         "bounds": bounds,
@@ -202,7 +219,7 @@ def generate_geometry(
     if not units.strip():
         raise ValueError("A geometry unit must be declared.")
     if geometry in {"sphere", "prolate_spheroid"}:
-        vertices, faces = _icosphere(subdivisions, radius)
+        vertices, faces = _icosphere(subdivisions, radius if geometry == "sphere" else 1.0)
         if geometry == "prolate_spheroid":
             if len(semi_axes) != 3 or any(not math.isfinite(v) or v <= 0 for v in semi_axes):
                 raise ValueError("All spheroid semi-axes must be positive and finite.")
@@ -212,8 +229,8 @@ def generate_geometry(
             ]
         patch_labels = ["wall"] * len(faces)
         parameters = {
-            "radius": radius, "subdivisions": subdivisions,
-            **({"semi_axes": list(semi_axes)} if geometry == "prolate_spheroid" else {}),
+            **({"radius": radius} if geometry == "sphere" else {"semi_axes": list(semi_axes)}),
+            "subdivisions": subdivisions,
         }
     elif geometry == "cylinder_internal_flow":
         vertices, faces, patch_labels = _cylinder(
