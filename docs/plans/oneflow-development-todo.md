@@ -1856,3 +1856,43 @@ solver/chem/`nTModel` 但**没查 `vismodel`**；`UseHipBatchAdapter`
 **两个格式的 aero 失败幅度相同（8.2e-3 vs 8.8e-3），残差都 1e-17 一致。**
 这正是坑 41 的签名（单 zone HIP 读陈旧 host 梯度，文档记 8.2e-3；多 zone aero 为 0.0），
 **与 Roe 无关**。所以 "Roe 设备化" 这个结论站得住：纯配置改动、+0.7%、残差门禁 PASS；
+
+#### 5.31 ✅ 交付 2026-11-15：旗舰算例 8 rank 快 6.85×（零代码改动）
+
+**这是可直接用的生产加速，不需要任何代码修改。**
+
+旗舰 `test/cfd/m6wingroe_sa`（Roe + LU-SGS + SA，CFL 0.1→10 over 100）CPU 基线
+（`probe/128126776-cpu`、`probe/128130453-cpu8rank1000`，1000 步直测，
+二进制 sha `8b491b4a…` / rev `95c991cf3`）：
+
+| 配置 | ms/步 | 1000 步 | 加速 |
+|---|---:|---:|---:|
+| 1 rank（仓库自带 1-zone 网格） | **2,814.2** | 46.9 min | 1.00× |
+| **8 rank（派生的 8-zone 分区）** | **411.1** | 6.9 min | **6.85×** |
+
+**前提（重要）**：仓库自带算例只有 **1 个 zone**，`VerifyZoneRankContract`
+（`codes/zone/src/Zone.cpp:281`）会拒绝 `nZones % nProc != 0`。
+实测报错：`grid has 1 zones but the run has 2 ranks`。所以 8 rank 需要
+**先派生 8-zone 分区**——这是配置工作，不是代码工作。
+
+**启动占比只有 0.71%**（20.1 s / 2814 s），所以此表无需扣启动。
+**警告**：1→20 步的斜率读数是 3558 ms/步，**偏高 27%**（暖机未完成）。
+以后的数字必须来自 20→1000，不能用 1→20。
+
+**同时确认的两件事**：
+1. **DCU 上是硬失败不是回退**——与 §5.30 一致，`HIP primitive update requires
+   resident state and residual`（`HipFluxBackend.hip:3416`），1/20/1000 步都 rc=1。
+   根因是 `UseHipDeviceStateUpdate` 漏查 `vismodel`（已在 `5d3f0aeef` 修复，待验证）。
+2. **无粘通量其实已经在设备上跑**：只禁用 state-update 一级，算例就能完成，
+   rocprof 确认每步 2 次 dispatch（`GatherFaceFluxEulerKernel` +
+   `CalcAndScatterPrimitiveEulerKernel`，1.08 ms/步内核）。
+   **但只省了整步的 3.3%**——周围的 H2D/D2H 把收益吃掉了。
+
+**上限**：简化配置在 DCU 上 9.98 ms/步，所以 2814 → 9.98 是 **282× 天花板**。
+不可达，因为 SA 约占旗舰 69% 且零设备实现、LU-SGS 扫描约占 47%。
+**真正值得投入的是 SA，不是 LU-SGS**（LU-SGS 本来就是更便宜的积分器）。
+
+**未闭合的缺陷（新）**：**选中 HIP 后端但所有 stage 都走 host 时，结果仍与纯 CPU 进程
+不同**（残差 6.3e-6、aero 4.0e-2；CPU vs CPU 是逐位相同）。已排除
+`ONEFLOW_HIP_DEVICE_AUTHORITATIVE_Q` 与 `ONEFLOW_HIP_BOUNDARY_STATE_MIRROR`
+两个开关。**后端选择本身改变了 host 数值**，需要单独开单。
