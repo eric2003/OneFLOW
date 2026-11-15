@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import math
 import os
 import shlex
@@ -236,7 +237,7 @@ class StlToGmshDialog(QDialog):
         self.geometry_preset.addItem("6:1 Prolate Spheroid STL", "prolate_spheroid")
         self.geometry_preset.addItem("Closed STL shell (genus zero)", "closed_shell")
         self.geometry_preset.setToolTip(
-            "The preset describes the geometry workflow; select the actual STL file below."
+            "Selects a bundled geometry, its STL input, validation Case and default output location."
         )
         form.addRow("Geometry preset", self.geometry_preset)
 
@@ -376,7 +377,83 @@ class StlToGmshDialog(QDialog):
             maximum = float(project.get("mesh_size_max", target))
             self.minimum_size.setText(f"{minimum:.6g}")
             self.maximum_size.setText(f"{maximum:.6g}")
+        self._active_geometry_preset = str(self.geometry_preset.currentData() or "sphere")
+        self.geometry_preset.currentIndexChanged.connect(self._geometry_preset_changed)
         self._density_changed()
+        self._refresh_command()
+
+    def _geometry_preset_paths(self, preset: str) -> tuple[Path, str, str] | None:
+        """Return the bundled STL, native validation Case and Python template Case."""
+        if preset not in {"sphere", "prolate_spheroid"}:
+            return None
+        case_directory = (
+            self._repository_root / "grid" / "stl_to_gmsh" / "3d" / preset
+            / "automatic_tetrahedra"
+        )
+        stl = case_directory / "python" / "input" / "model.stl"
+        return (
+            stl,
+            f"stl_to_gmsh_{preset}_automatic_tetrahedra",
+            f"stl_to_gmsh_python_{preset}_automatic_tetrahedra",
+        )
+
+    def _geometry_default_output(self, preset: str) -> Path:
+        return UserDataPaths.discover().mesh_generation / preset / f"{preset}.msh"
+
+    def _geometry_preset_changed(self, *_args) -> None:
+        """Switch every geometry-dependent input when a preset is selected."""
+        preset = str(self.geometry_preset.currentData() or "closed_shell")
+        previous = self._active_geometry_preset
+        previous_output = self._geometry_default_output(previous)
+        current_output = Path(self.output_path.text()).expanduser()
+        definition = self._geometry_preset_paths(preset)
+
+        if definition is None:
+            self._mesh_case_id = "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra"
+            self._active_geometry_preset = preset
+            self._refresh_command()
+            return
+
+        stl, native_case_id, project_template_id = definition
+        if not stl.is_file():
+            QMessageBox.warning(
+                self, "Geometry preset unavailable",
+                f"The bundled STL for '{preset}' does not exist: {stl}",
+            )
+            self.geometry_preset.blockSignals(True)
+            self.geometry_preset.setCurrentIndex(
+                self.geometry_preset.findData(previous)
+            )
+            self.geometry_preset.blockSignals(False)
+            return
+
+        try:
+            if self._project is not None:
+                self._project = replace_project_stl(self._project, stl)
+                manifest_path = Path(self._project["directory"]) / "project.json"
+                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                manifest["template_case_id"] = project_template_id
+                manifest["mesh_case_id"] = project_template_id
+                manifest_path.write_text(
+                    json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                    newline="\n",
+                )
+                self._project["template_case_id"] = project_template_id
+                self._project["mesh_case_id"] = project_template_id
+                self._project = load_mesh_project(Path(self._project["directory"]))
+                self.stl_path.setText(str(self._project["stl_path"]))
+                self._mesh_case_id = project_template_id
+            else:
+                self.stl_path.setText(str(stl))
+                self._mesh_case_id = native_case_id
+                if current_output.resolve() == previous_output.resolve():
+                    self.output_path.setText(str(self._geometry_default_output(preset)))
+        except (OSError, ValueError, KeyError) as error:
+            QMessageBox.warning(self, "Cannot switch geometry preset", str(error))
+            return
+
+        self._active_geometry_preset = preset
         self._refresh_command()
 
     def _browse_stl(self) -> None:
