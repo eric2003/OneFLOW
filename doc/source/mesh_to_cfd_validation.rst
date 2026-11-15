@@ -34,6 +34,11 @@ Each stage writes a log, and the run writes ``mesh-validation-report.json``.
 Additional CFD templates, including a turbulent flat plate, can be registered
 as this mode evolves.
 
+The 6:1 prolate spheroid is registered as a Python reference mesh producer and
+appears in the same 3-D Mesh-to-CFD selection tree. Its wall-only Physical Group
+makes this a conversion and runtime smoke test, not an external-flow accuracy
+benchmark.
+
 Boundary type mapping
 ---------------------
 

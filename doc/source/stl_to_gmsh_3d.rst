@@ -146,3 +146,11 @@ volume. Multiple shells, cavities, non-manifold input, arbitrary multi-volume
 assemblies, boundary-layer prisms and curved CAD surface fidelity studies are
 not yet covered. The sphere case validates geometry conversion and volume-mesh
 topology; it is not yet a physical CFD validation case.
+
+
+6:1 prolate spheroid
+--------------------
+
+See :doc:`stl_to_gmsh_prolate_spheroid` for a separate generic closed-surface
+Python reference Case using a 6:1 prolate spheroid. It is not a native C++
+meshing implementation.

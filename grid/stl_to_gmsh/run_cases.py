@@ -37,6 +37,7 @@ PYTHON_CASES = {
     "3d/cube/single_hex/python": "3d/cube/single_hex/python",
     "3d/cube/six_tetrahedra/python": "3d/cube/six_tetrahedra/python",
     "3d/cube/automatic_tetrahedra/python": "3d/cube/automatic_tetrahedra/python",
+    "3d/prolate_spheroid/automatic_tetrahedra/python": "3d/prolate_spheroid/automatic_tetrahedra/python",
 }
 
 REFINEMENT_LEVELS = {

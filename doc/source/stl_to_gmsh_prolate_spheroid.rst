@@ -1,0 +1,41 @@
+6:1 Prolate Spheroid STL to Gmsh
+=================================
+
+Purpose
+-------
+
+The 6:1 prolate spheroid is a representative elongated, closed 3-D geometry
+for exercising generic STL surface reconstruction and tetrahedral volume
+meshing. This is a mesh-generation example and pipeline smoke case, not a
+complete aerodynamic benchmark.
+
+Geometry
+--------
+
+The spheroid is centered at the origin with semi-axes 3, 0.5 and 0.5:
+
+.. math::
+
+   x^2/9 + y^2/0.25 + z^2/0.25 = 1
+
+Its full length is 6, maximum diameter is 1, aspect ratio is 6:1, and analytic
+volume is pi. The checked-in STL scales the triangulated unit-sphere surface
+by (3, 0.5, 0.5). Topology and facet count remain constant while proportions
+change.
+
+Case registration
+-----------------
+
+The Python reference Case is registered as
+stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra in the case catalog.
+It appears in Python reference producer lists and the 3-D Mesh-to-CFD
+Validation list. There is deliberately no native C++ Case: generic closed-
+surface reconstruction currently uses the Python/Gmsh adapter.
+
+Mesh-to-CFD Validation
+----------------------
+
+The Case uses the existing STL -> Gmsh -> CGNS -> OneFLOW -> CFD smoke graph.
+The default short 3-D runtime check verifies mesh handoff and solver execution.
+The STL has only a wall Physical Group; this does not define an external-flow
+problem or a physical accuracy, grid-independence or drag-coefficient test.
