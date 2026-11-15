@@ -7,6 +7,7 @@ import re
 import shutil
 from pathlib import Path
 
+from .path_utils import is_path_within, normalize_path, paths_equal
 from .user_data_paths import UserDataPaths
 
 _PROJECT_SCHEMA = "oneflow.mesh-generation-project"
@@ -165,11 +166,10 @@ def import_mesh_project_directory(repository_root: Path, source_directory: Path)
         copied,
         ignore=shutil.ignore_patterns(".git", "build", "results", "__pycache__"),
     )
-    selected_stl = selected_stl.resolve()
-    try:
-        relative_stl = selected_stl.relative_to(source)
-    except ValueError as error:
-        raise ValueError("Prepared project STL must remain inside the selected directory.") from error
+    selected_stl = normalize_path(selected_stl)
+    if not is_path_within(selected_stl, source):
+        raise ValueError("Prepared project STL must remain inside the selected directory.")
+    relative_stl = selected_stl.relative_to(source)
     copied_stl = copied / relative_stl
     layout_path = copied / "script/layout.json"
     layout = {}
@@ -204,11 +204,9 @@ def load_mesh_project(directory: Path) -> dict:
     stl_relative = Path(str(manifest.get("input_stl", "")))
     if stl_relative.is_absolute() or ".." in stl_relative.parts:
         raise ValueError("Project input_stl must be a project-relative path.")
-    stl_path = (root / stl_relative).resolve()
-    try:
-        stl_path.relative_to(root)
-    except ValueError as error:
-        raise ValueError("Project input STL must remain inside the project directory.") from error
+    stl_path = normalize_path(root / stl_relative)
+    if not is_path_within(stl_path, root):
+        raise ValueError("Project input STL must remain inside the project directory.")
     if not stl_path.is_file() or stl_path.suffix.lower() != ".stl":
         raise FileNotFoundError(f"Project input STL does not exist: {stl_path}")
     output_value = Path(str(manifest.get("output_mesh", "")))
@@ -217,11 +215,9 @@ def load_mesh_project(directory: Path) -> dict:
     else:
         if ".." in output_value.parts:
             raise ValueError("Project output_mesh must not escape the project directory.")
-        output_path = (root / output_value).resolve()
-        try:
-            output_path.relative_to(root)
-        except ValueError as error:
-            raise ValueError("Project output_mesh must remain inside the project directory.") from error
+        output_path = normalize_path(root / output_value)
+        if not is_path_within(output_path, root):
+            raise ValueError("Project output_mesh must remain inside the project directory.")
     if output_path.suffix.lower() != ".msh":
         raise ValueError("Project output_mesh must use the .msh extension.")
     return {
@@ -243,13 +239,11 @@ def replace_project_stl(project: dict, stl_file: Path) -> dict:
     relative = Path(str(manifest.get("input_stl", "")))
     if relative.is_absolute() or ".." in relative.parts:
         raise ValueError("Project input_stl must be a project-relative path.")
-    destination = (root / relative).resolve()
-    try:
-        destination.relative_to(root)
-    except ValueError as error:
-        raise ValueError("Project input STL must remain inside the project directory.") from error
+    destination = normalize_path(root / relative)
+    if not is_path_within(destination, root):
+        raise ValueError("Project input STL must remain inside the project directory.")
     destination.parent.mkdir(parents=True, exist_ok=True)
-    if source != destination:
+    if not paths_equal(source, destination):
         shutil.copy2(source, destination)
     manifest["source_stl"] = str(source)
     return _write_manifest(root, manifest)
@@ -263,10 +257,10 @@ def save_mesh_project_settings(project: dict, settings: dict) -> dict:
     for key in ("mesh_size", "mesh_size_min", "mesh_size_max", "boundary_name", "volume_name"):
         if key in settings:
             manifest[key] = settings[key]
-    output = Path(settings.get("output_path", project["output_path"])).expanduser().resolve()
-    try:
+    output = normalize_path(settings.get("output_path", project["output_path"]))
+    if is_path_within(output, root):
         manifest["output_mesh"] = output.relative_to(root).as_posix()
-    except ValueError:
+    else:
         manifest["output_mesh"] = str(output)
     return _write_manifest(root, manifest)
 
