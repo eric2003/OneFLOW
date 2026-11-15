@@ -1290,3 +1290,29 @@ card3 0000:43:00.0 numa=2   card4 0000:63:00.0 numa=3
 - `interface_pack` / `post_upload_host` 增长 → 设备侧拷贝异常（**本应节点内不变**，
   若随节点数增长要单独查，说明有非预期的跨节点数据流）
 - `cells/rank` 下降 → 粒度效应，与传输无关
+
+#### 5.17 dmabuf 反编译结论（2026-11-15，REA）
+
+**推翻了此前"海光把 dmabuf 功能阉割"的判断。** 反编译 `libamdhip64.so`（DTK 26.04）
+与 `libhsa-runtime64.so.1.5.0` 的事实：
+
+| 事实 | 证据 |
+|---|---|
+| `hipMemGetHandleForAddressRange` 的 dmabuf 分支**完整实现** | 0x54f840，type==1 分支在 0x5503fd，参数正确传递设备指针+size+fd 输出 |
+| 它调 `dlsym("hsa_amd_portable_export_dmabuf")` | 0x83ee31 处加载符号到 .bss 槽 0xdd9aa0 |
+| **失败在 dlsym 返回 NULL** | 该 HSA 库 226 个导出函数、48 个 `hsa_amd_*`，三个 dmabuf 函数全缺 |
+| 空指针 → 返回 801 `hipErrorNotSupported` | 0x550a42，正是实测到的 "operation not supported" |
+| 内核/驱动侧 `AMDKFD_IOC_EXPORT_DMABUF` 常量在用户态 thunk 中不存在 | 扫描全部 `_IOWR('K',nr,size)`，行 0x00–0x3f 均无 |
+| **导入方向可用**：`hsa_amd_interop_map_buffer` 已导出 | DRM fd → 设备指针这条路今天就能走 |
+| HIP 支持 `LD_PRELOAD` 补符号 | 其 dlsym 走全局作用域，预加载的自定义 .so 可满足 |
+
+**所以不是"功能缺失"，是"符号缺失"** —— 一个是死路，一个可补。
+
+**两条候选路径**：
+- **(a) LD_PRELOAD shim**：自己实现 `hsa_amd_portable_export_dmabuf`。阻塞点：
+  内核是否接受 `AMDKFD_IOC_EXPORT_DMABUF`（用户态 thunk 没调用，不代表内核不支持）。
+  正在用一个 ioctl 探针实测判定。
+- **(b) 导入方向**：用 DRM/PRIME 自行分配 + `hsa_amd_interop_map_buffer` 映射进 HIP。
+  无需 hook，今天可用，但要求数据源由我方分配。
+
+（此前 §"dmabuf 缺失"相关表述应以本节为准。）
