@@ -65,7 +65,7 @@ class StlGeometryGenerationTest(unittest.TestCase):
                 surface["triangle_count"],
             )
             manifest = json.loads(result["manifest"].read_text(encoding="utf-8"))
-            self.assertEqual(manifest["physical_groups"]["surface"], ["wall", "inflow", "outflow"])
+            self.assertEqual(manifest["intended_gmsh_physical_groups"]["surface"], ["wall", "inflow", "outflow"])
             self.assertIn("not solid walls", manifest["notes"])
 
     def test_invalid_geometry_parameters_are_rejected(self) -> None:
