@@ -422,3 +422,37 @@ genus surfaces and self-intersecting STL inputs are outside this contract.
 STL inspection/repair, general mesh-quality visualization and additional
 meshing backends remain separate incremental capabilities rather than
 placeholder buttons.
+
+## Cross-platform path handling
+
+Python Workbench code must use the shared helpers in
+`tools.oneflow_gui.path_utils` when filesystem path identity or containment
+matters:
+
+- `normalize_path(path)` expands the user directory and resolves an absolute
+  path, including existing symlink components. It also supports paths that do
+  not exist yet.
+- `paths_equal(left, right)` compares existing paths by filesystem identity
+  (including Windows 8.3 aliases and symlinks), then falls back to normalized,
+  platform-aware lexical comparison for paths that do not exist.
+- `is_path_within(path, root)` checks containment after path resolution, so
+  symlinks cannot silently escape a protected workspace.
+
+Do not compare path strings, or raw `Path` objects, to determine filesystem
+identity. Do not replace containment checks with equality checks: workspace
+and project boundaries must use `is_path_within`. Keep relative artifact
+paths as relative paths until they are resolved against their owning Case or
+project directory.
+
+Run the shared path regression suite with:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_path_utils
+```
+
+The test suite covers normalized and missing paths, Windows case folding,
+Windows 8.3 short-path aliases when the filesystem provides them, symlink
+identity, and symlink-based workspace escape prevention. Platform-specific
+cases are skipped only when the operating system or filesystem does not
+support the feature being tested.
+
