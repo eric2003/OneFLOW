@@ -13,7 +13,7 @@ Status: proposed (only a human changes this)
 
 审计基线 `7328dc504342f6f8027065e9b8ac2894234e5878`。
 
-`doc/AI_CONTEXT.md` 的 R1 路线与 `doc/plans/setup-case-environment-integration-test.md`
+`docs/AI_CONTEXT.md` 的 R1 路线与 `docs/plans/setup-case-environment-integration-test.md`
 的最后一节把剩余缺口列为：生产 `SimuContext::TeardownCase()`、完整的
 `SimuImp::RunCase()` 异常边界、进程运行时保持。审计确认这三项都无法用现有测试目标
 表达，原因是**链接边界**，而不是断言缺失：
@@ -35,7 +35,7 @@ Status: proposed (only a human changes this)
 3. 生产可执行目标 `OneFLOW` 用 `ConstructSolutionDirTree` 递归收集 `codes/` 全部源码
    （`codes/CMakeLists.txt:347-414`）再加全局编译定义，**没有可复用的库目标**；
    测试目标只能手写源清单。手写清单已经产生两次构建事故（参见
-   `doc/AI_CONTEXT.md`：`control_configuration_test` 源文件名错误、
+   `docs/AI_CONTEXT.md`：`control_configuration_test` 源文件名错误、
    `OneFLOW_GeometryCore` 漏列 `PIOFileAccess.cpp`）。
 
 结论：缺少一个"生产与测试共用、源清单只写一次"的构建边界。审计不修改 CMake，
@@ -154,7 +154,7 @@ target_link_libraries(oneflow_case_runtime PUBLIC ${PRJ_LIBRARIES})
 
 ## Impact on verification cases
 
-- 不新增数值 verification case；`doc/AI_CONTEXT.md` 的记录显示
+- 不新增数值 verification case；`docs/AI_CONTEXT.md` 的记录显示
   `.agentlab/verification/run_all.sh` 仍是 `UNVERIFIED` 占位，本 RFC 不改变这一点。
 - 生效后新增的契约测试（见报告 §6 的 M1/M2）：
   `CaseTeardownContract.ClearsCaseStateButKeepsProcessBinding`、

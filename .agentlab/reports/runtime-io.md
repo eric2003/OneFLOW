@@ -16,9 +16,9 @@ gate_status: PASS
 - 本地检出的审计基线：`agent/runtime-io` HEAD `7328dc504342f6f8027065e9b8ac2894234e5878`
   （`dev` 为 `df8676fc24a35439d355eff20a6fdca71b342313`，即 HEAD 的后续提交；审计对象为 HEAD 内容）。
   未切分支、未 rebase、未 push、未 merge。
-- 阅读并交叉核对的文档：仓库根 `AGENTS.md`、`doc/AI_CONTEXT.md`、
-  `doc/source/runtime_architecture.rst`、`doc/plans/setup-case-environment-integration-test.md`、
-  `doc/source/database_architecture.rst`（存在性）、`doc/README.md` 索引约定。
+- 阅读并交叉核对的文档：仓库根 `AGENTS.md`、`docs/AI_CONTEXT.md`、
+  `docs/source/runtime_architecture.rst`、`docs/plans/setup-case-environment-integration-test.md`、
+  `docs/source/database_architecture.rst`（存在性）、`docs/README.md` 索引约定。
 - 阅读的代码：`codes/main/**`、`codes/io/**`、`codes/basic/src/Fatal.cpp`、
   `codes/parallel/src/Parallel.cpp`、`codes/database/{include,src}` 的公开接口、
   `codes/CMakeLists.txt`、`tests/CMakeLists.txt`、`tests/main/CMakeLists.txt`、`tests/io/CMakeLists.txt`。
@@ -26,7 +26,7 @@ gate_status: PASS
   CTest、运行 `mpirun`，也没有查看任何 CI 运行结论（环境中未做网络访问）。
   因此本报告不使用 "verified by test run" 一类表述；凡"现有测试覆盖 X"均指
   "源码中存在断言 X 的测试用例"，不是"X 已在本机通过"。
-- 依据 `AGENTS.md` "source + tests 决定实现状态"：本报告不采信 `doc/AI_CONTEXT.md`
+- 依据 `AGENTS.md` "source + tests 决定实现状态"：本报告不采信 `docs/AI_CONTEXT.md`
   中可能滞后的状态描述，凡与代码不一致处显式标出（见 §8）。
 
 ## 1. 入口与调用者（生产调用链）
@@ -134,7 +134,7 @@ gate_status: PASS
 |---|---|---|
 | `codes/io/src/Prj.cpp` + `codes/io/include/Prj.h` | 41 个文件 / 17 个目录（io 8、geometry 6、scalar 5、main 5、special 4、global 3、zone/visual/usolver/theory/test/solver/register/physics/force/cgns 各 1） | 路径规则一改，全部 mesh/solver/post 的输入输出位置同时变化；`geometry/src/CalcGrid.cpp:172,422`、`scalar/src/ScalarGrid.cpp:825,1815` 直接决定网格文件落盘位置 |
 | `codes/io/include/LogFile.h` + `src/LogFile.cpp` | io 3、main 2、zone/parallel/geometry 各 1 | 全局 `logFile` 的 case 绑定是 `SetupCaseEnvironment` 与 `TeardownCase` 双方的契约 |
-| `codes/io/src/PIOFileAccess.cpp` | 生产可执行 + `tests/geometry/CMakeLists.txt` 的 `OneFLOW_GeometryCore` | 曾因源清单未同步导致 `GeometryCore.lib(Zone.obj)` 链接失败（`doc/AI_CONTEXT.md` 已记录该历史），属跨 workstream 的构建边界 |
+| `codes/io/src/PIOFileAccess.cpp` | 生产可执行 + `tests/geometry/CMakeLists.txt` 的 `OneFLOW_GeometryCore` | 曾因源清单未同步导致 `GeometryCore.lib(Zone.obj)` 链接失败（`docs/AI_CONTEXT.md` 已记录该历史），属跨 workstream 的构建边界 |
 | `codes/io/src/{ControlFileReader,ControlScriptReader,ControlScriptParser,ControlManifestReader,ControlDatabaseIO}.cpp` + `codes/io/include/ParaFile.h` | 一个头文件承载 9 个函数的声明，生产者是 io、主要消费者是 `codes/main/src/SimuContextBootstrap.cpp` | 任何签名变动同时影响 main 与 tests/io 的 4 个测试目标 |
 | `codes/main/src/SimuTaskReg.cpp` | 同时包含 io 语义（`ctx.CaseDir()`）与 numerics 入口（`FieldSimu.h`、`GridGeneration.h`、`Theory.h`） | 任务名表是 runtime 与 numerics 之间唯一的字符串契约；两侧都会想改 |
 | `codes/main/include/SimuContext.h` | 被 `codes/main/*`、`codes/main/src/SimuTaskReg.cpp`、`codes/time`? 否；被 `SimuTask.h`/`SimuTaskRequire.h` 共享 | `SetupCaseEnvironment`（配置侧）、`ResolveTaskFromControl`（生命周期侧）、`accelStates_`（数值侧）三类消费者 |
@@ -202,7 +202,7 @@ gate_status: PASS
   `SimuContextCaseEnvironment.cpp:28`），却经 `Prj::WriteIOPathInfo` →
   `Prj::OpenPrjFile`（`Prj.cpp:437`）以 `out|trunc` 打开同一路径
   （`SimuContextIO.cpp:63,70`），没有 `PIO::OpenPrjFile` 的
-  `pid != GetFid()` 过滤（`PIOFileAccess.cpp:39-47`）。这与 `doc/AI_CONTEXT.md`
+  `pid != GetFid()` 过滤（`PIOFileAccess.cpp:39-47`）。这与 `docs/AI_CONTEXT.md`
   记录的 `database.log` 修复是**同一类缺陷**，`database.log` 已改用
   `PIO::OpenCaseFile`（`ControlDatabaseIO.cpp:50`），`io_paths.txt` 尚未。
   并发 `trunc` + 并发写相同内容，实际后果是内容交错/半写；且
@@ -245,7 +245,7 @@ gate_status: PASS
 
 ## 8. 当前 R1 gap（与文档的差异）
 
-`doc/AI_CONTEXT.md` 与 `doc/plans/setup-case-environment-integration-test.md` 的
+`docs/AI_CONTEXT.md` 与 `docs/plans/setup-case-environment-integration-test.md` 的
 最新记录（"Implementation update: exercise the production context setup method"）
 已经把 R1 分解为"读 → 装配 → 就绪位"，并指出还剩三项：生产 `TeardownCase()`、
 `SimuImp::RunCase()` 异常边界、进程运行时保持。
@@ -259,13 +259,13 @@ gate_status: PASS
 - **仍然缺失**：`TeardownCase` 生产清理契约（M1）、`SimuImp::RunCase` 异常边界（M2）、
   多 rank 广播与单写者（M3，并带出 R-1 缺陷）、`io_paths.txt` 去重分支（M4）、
   进程入口 `Prj::Init`（M5）。
-- `doc/AI_CONTEXT.md` 的 "Remaining R1 gap" 段落（"A real integration test still needs
+- `docs/AI_CONTEXT.md` 的 "Remaining R1 gap" 段落（"A real integration test still needs
   to exercise … effective `Prj` root application, `io_paths.txt`/database diagnostics,
   sequential-case reset"）**已部分过时**：其中的 effective root application、
   `io_paths.txt` 诊断、跨 case 复位现在都有断言
   （`ControlReaderIntegration.CaseBootstrapAppliesSettingsAndRebindsNextCase`）。
   但该文件"Next single action"仍停留在实现这些测试上，与最新 plan 记录不一致。
-  本报告不修改 `doc/AI_CONTEXT.md`（不在 audit scope 内），仅指出漂移，供人工在
+  本报告不修改 `docs/AI_CONTEXT.md`（不在 audit scope 内），仅指出漂移，供人工在
   下一个工作切片中一并修正。
 
 ## 9. 可并行的未来 scope 提案
@@ -314,10 +314,10 @@ gate_status: PASS
 
 ## 11. 与本次审计无关但需人工记录的事项
 
-- `doc/AI_CONTEXT.md` 的 R1 状态段落已滞后于 `tests/io/control_configuration_ingestion_test.cpp`
+- `docs/AI_CONTEXT.md` 的 R1 状态段落已滞后于 `tests/io/control_configuration_ingestion_test.cpp`
   的 `ControlReaderIntegration` 四个用例（见 §8）。修正该文档不在 audit scope 内。
 - 本报告 §5 的“现有测试”是源码中存在性清单；**未在本机运行**，不得引用为本机通过证据。
-  用户侧最近一次报告的本地基线（`doc/AI_CONTEXT.md` 记录为 987/987）属**用户报告**，
+  用户侧最近一次报告的本地基线（`docs/AI_CONTEXT.md` 记录为 987/987）属**用户报告**，
   与本审计基线 `7328dc504` 不是同一 revision。
 
 ## 12. 交付记录
@@ -365,5 +365,5 @@ GATE PASS (mode: audit, read-only)
   §5 的覆盖判断均来自测试源码阅读，可能与"实际能否编译/通过"存在差异。
 - 未审计 `codes/ns` 等数值模块内部；`spatial`/`temporal` 的职责划分属 `numerics`
   workstream（A2）。§3 只给出 runtime-io 视角下可用的三条边界。
-- `doc/plans/setup-case-environment-integration-test.md` 的完整 1183 行只按章节标题与
+- `docs/plans/setup-case-environment-integration-test.md` 的完整 1183 行只按章节标题与
   末尾进展段落阅读，未逐段核对历史细节。

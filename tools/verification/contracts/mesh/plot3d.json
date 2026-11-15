@@ -11,7 +11,7 @@
   "references": [
     "NASA Plot3D reference: https://www.grc.nasa.gov/www/wind/valid/plot3d.html",
     "tools/verification/contracts/parameter/iplot3d.json",
-    "doc/source/mesh_architecture.rst"
+    "docs/source/mesh_architecture.rst"
   ],
   "implementation": {
     "source_paths": [
@@ -20,7 +20,7 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/mesh_architecture.rst"
+      "docs/source/mesh_architecture.rst"
     ]
   },
   "claims": {

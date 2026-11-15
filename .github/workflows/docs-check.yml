@@ -4,12 +4,12 @@ on:
   push:
     branches: [hexin]
     paths:
-      - "doc/**"
+      - "docs/**"
       - ".github/workflows/docs-check.yml"
   pull_request:
     branches: [hexin]
     paths:
-      - "doc/**"
+      - "docs/**"
       - ".github/workflows/docs-check.yml"
   workflow_dispatch:
 
@@ -37,4 +37,4 @@ jobs:
           python -m pip install sphinx sphinx-rtd-theme
 
       - name: Build Sphinx HTML
-        run: sphinx-build --keep-going -b html doc/source doc/build/html
+        run: sphinx-build --keep-going -b html docs/source docs/build/html

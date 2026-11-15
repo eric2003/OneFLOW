@@ -15,7 +15,7 @@ v0.1 therefore starts with two **read-only audits**:
 
 | Workstream | Reads | Produces |
 |---|---|---|
-| `runtime-io` | `codes/main/`, `codes/io/`, `tests/main/`, `tests/io/`, `doc/AI_CONTEXT.md` | boundary map, R1 gap, shared files, proposed scopes, one question |
+| `runtime-io` | `codes/main/`, `codes/io/`, `tests/main/`, `tests/io/`, `docs/AI_CONTEXT.md` | boundary map, R1 gap, shared files, proposed scopes, one question |
 | `numerics` | `codes/ns/`, `codes/residual/`, `codes/grad/`, `codes/solver/`, `codes/lhs/`, `codes/time/`, `codes/unsteady/`, `codes/update/`, relevant tests | spatial/temporal/shared responsibility map, test gaps, proposed scopes, one question |
 
 ## Install

@@ -28,8 +28,8 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/numerical/cfl_ramp.rst",
-      "doc/source/numerical/index.rst"
+      "docs/source/numerical/cfl_ramp.rst",
+      "docs/source/numerical/index.rst"
     ]
   },
   "claims": {

@@ -1,7 +1,7 @@
 # Kunshan regression workflow
 
 > Current accelerator sessions use the fixed workspace and OpenAPI submission in
-> [`doc/runbooks/oneflow-kunshan-workspace-runbook.md`](../../doc/runbooks/oneflow-kunshan-workspace-runbook.md).
+> [`docs/runbooks/oneflow-kunshan-workspace-runbook.md`](../../docs/runbooks/oneflow-kunshan-workspace-runbook.md).
 > The SSH-based Actions workflow below is a separate automation path; the recorded SSH
 > failure means its per-run layout is not the procedure for current manual sessions.
 > This documentation review (2026-11-11) did not retest either access path.
@@ -284,7 +284,7 @@ the cluster-side `README.md`; the structure is:
 ```
 
 The layout and the submission rules are documented in
-[`doc/runbooks/oneflow-kunshan-workspace-runbook.md`](../../doc/runbooks/oneflow-kunshan-workspace-runbook.md).
+[`docs/runbooks/oneflow-kunshan-workspace-runbook.md`](../../docs/runbooks/oneflow-kunshan-workspace-runbook.md).
 Builds are incremental and fixed per target: do not create `build/<jobid>`,
 and do not routinely re-run CMake configure; use `scripts/build-app.sh`
 (`make ... OneFLOW_RuntimeObjects`, then `make ... OneFLOW/fast`). If configuration
@@ -364,7 +364,7 @@ their gates. A passing pointer probe alone does not validate the solver.
 
 `lifecycle_*_ms` sums over `repeats`; only datasets recorded with the same
 `repeats` value are comparable (see the erratum in
-`doc/reports/performance/oneflow-euler-performance-20260913.md`).
+`docs/reports/performance/oneflow-euler-performance-20260913.md`).
 
 ### Run artifacts
 

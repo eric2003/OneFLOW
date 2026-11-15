@@ -5,7 +5,7 @@ Current mode: **audit (read-only)**. Workers must not edit solver code.
 ## runtime-io
 
 - A1 [todo] Read-only audit of the runtime/case-I/O boundary.
-  Read the repository root `AGENTS.md`, `doc/AI_CONTEXT.md`, `doc/source/runtime_architecture.rst`,
+  Read the repository root `AGENTS.md`, `docs/AI_CONTEXT.md`, `docs/source/runtime_architecture.rst`,
   `codes/main/`, `codes/io/`, `tests/main/`, `tests/io/`.
   Produce `.agentlab/reports/runtime-io.md` with:
   entry points and callers; state/resource ownership; current R1 gap; relevant tests;
@@ -15,7 +15,7 @@ Current mode: **audit (read-only)**. Workers must not edit solver code.
 ## numerics
 
 - A2 [todo] Read-only audit of the numerics boundary.
-  Read the repository root `AGENTS.md`, `doc/AI_CONTEXT.md`,
+  Read the repository root `AGENTS.md`, `docs/AI_CONTEXT.md`,
   `codes/ns/`, `codes/residual/`, `codes/grad/`, `codes/solver/`, `codes/lhs/`,
   `codes/time/`, `codes/unsteady/`, `codes/update/`, `tests/solver/`, `tests/euler/`, `tests/main/`.
   Produce `.agentlab/reports/numerics.md` with:

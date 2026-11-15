@@ -1,6 +1,6 @@
 # OneFLOW Workbench
 
-For the user-manual entry in the main OneFLOW documentation, see [OneFLOW Workbench User Guide](../../doc/source/workbench_user_guide_zh.rst). This README remains the detailed module-level reference for current UI behavior and service tests. The architecture overview is [Workbench Architecture](../../doc/source/workbench_architecture.rst). Case parameter file ownership, runtime database limitations, and the proposed schema-backed editor are documented in [Case Parameter Design](../../doc/source/case_parameter_design.rst).
+For the user-manual entry in the main OneFLOW documentation, see [OneFLOW Workbench User Guide](../../docs/source/workbench_user_guide_zh.rst). This README remains the detailed module-level reference for current UI behavior and service tests. The architecture overview is [Workbench Architecture](../../docs/source/workbench_architecture.rst). Case parameter file ownership, runtime database limitations, and the proposed schema-backed editor are documented in [Case Parameter Design](../../docs/source/case_parameter_design.rst).
 
 **Run Development Cases** runs selected native C++ OneFLOW cases through `OneFLOW.exe r <case-directory>`; **Python reference cases** runs selected catalogued Python reference cases through their declared scripts. When both are checked, the two execution kinds run in one batch. When only one is checked, only that kind runs. Each kind retains its own selection.
 
@@ -17,7 +17,7 @@ The home page's **Contract Workbench...** button opens the cross-domain contract
 navigator. **Boundary Conditions...** is also a direct first-class home-screen
 entry, separate from Mesh Validation. Current Contract Workbench domain entries are:
 
-- **Boundary Conditions** browses physical boundary semantics and Gmsh/CGNS/OneFLOW mapping contracts. See `doc/source/boundary_condition_architecture.rst` for the detailed model and limitations.
+- **Boundary Conditions** browses physical boundary semantics and Gmsh/CGNS/OneFLOW mapping contracts. See `docs/source/boundary_condition_architecture.rst` for the detailed model and limitations.
 - **Parameter** browses source-backed parameter definition contracts,
   including runtime consumers, implementation paths, related Formula &
   Knowledge IDs, and declared verification evidence. The first contracts cover
@@ -211,7 +211,7 @@ suite:
   runtime-file de-duplication, and configured source-editor launch behavior.
 
 The architecture and rationale are documented in
-[OneFLOW Testing Architecture](../../doc/plans/testing-architecture.md).
+[OneFLOW Testing Architecture](../../docs/plans/testing-architecture.md).
 
 ## Service tests
 

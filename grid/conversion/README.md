@@ -11,7 +11,7 @@ demonstrated, not by the converter used to process it.
 - ../interoperability/conversion_matrix.json records supported format routes
   and the runnable Cases that provide concrete coverage.
 - ../case_catalog.json registers each Case for GUI and command-line discovery.
-- doc/source/grid_conversion_cases.rst is the documentation entry point.
+- docs/source/grid_conversion_cases.rst is the documentation entry point.
 
 A case ID describes geometry or topology (for example, two_quads or mixed_2d).
 It must not include a route prefix such as gmsh_to_cgns_. The same mesh may

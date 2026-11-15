@@ -11,7 +11,7 @@
   "references": [
     "Gmsh transfinite meshes: https://gmsh.info/doc/texinfo/gmsh.html#t6",
     "Gmsh MSH physical groups: https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format",
-    "doc/source/stl_to_gmsh_2d.rst"
+    "docs/source/stl_to_gmsh_2d.rst"
   ],
   "implementation": {
     "source_paths": [
@@ -93,9 +93,9 @@
     "paths": [
       "grid/stl/README.md",
       "grid/stl_to_gmsh/README.md",
-      "doc/source/stl_to_gmsh_2d.rst",
-      "doc/source/gmsh_interface.rst",
-      "doc/source/grid_conversion_cases.rst",
+      "docs/source/stl_to_gmsh_2d.rst",
+      "docs/source/gmsh_interface.rst",
+      "docs/source/grid_conversion_cases.rst",
       "grid/stl_to_gmsh/cube_single_hex/README.md",
       "tests/python/grid/test_stl_to_gmsh_cases.py"
     ]

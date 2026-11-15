@@ -11,8 +11,8 @@
   "references": [
     "Library of Congress STL format description: https://www.loc.gov/preservation/digital/formats/fdd/fdd000504.shtml",
     "Gmsh Reference Manual: https://gmsh.info/doc/texinfo/gmsh.html",
-    "doc/source/stl_mesh_io.rst",
-    "doc/source/mesh_architecture.rst"
+    "docs/source/stl_mesh_io.rst",
+    "docs/source/mesh_architecture.rst"
   ],
   "implementation": {
     "source_paths": [
@@ -63,9 +63,9 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/stl_mesh_io.rst",
-      "doc/source/mesh_architecture.rst",
-      "doc/source/contract_workbench_information_architecture.rst",
+      "docs/source/stl_mesh_io.rst",
+      "docs/source/mesh_architecture.rst",
+      "docs/source/contract_workbench_information_architecture.rst",
       "grid/stl/ascii_basic/README.md",
       "grid/stl/README.md"
     ]

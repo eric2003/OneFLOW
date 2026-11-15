@@ -145,14 +145,14 @@ struct StageRequest
 // 后置条件：只修改该阶段允许的字段（见下）；不重建拓扑；不发起 MPI 集合操作
 // 阶段允许的副作用（取代"靠注释约定"）：
 //   stage 内：LOAD_RESIDUALS / UPDATE_RESIDUALS / CALC_LHS / UPDATE_FLOWFIELD / CALC_BOUNDARY
-//   阶段末：UPDATE_INTERFACE_DATA（仅多 zone 时，见 doc/plans/oneflow-development-todo.md §4.1 A2）
+//   阶段末：UPDATE_INTERFACE_DATA（仅多 zone 时，见 docs/plans/oneflow-development-todo.md §4.1 A2）
 bool RunStage( const StageRequest &, StageHost & host );
 ```
 
 要求：
 - 阶段序列与系数由**一个**所有者提供。当前 `rk_coef` 的构造在
   `Ctrl.cpp`、`NsCtrl.cpp`、`INsCtrl.cpp`、`TurbCtrl.cpp` **复制了 4 份**；契约要求
-  单一实现 + 一张表（对应 `doc/plans/oneflow-development-todo.md` §4.5 E2）。
+  单一实现 + 一张表（对应 `docs/plans/oneflow-development-todo.md` §4.5 E2）。
 - `TimeIntegration::InitCoef()` 的 12 组 `(thet, xi, phi)` 与派生的
   `resc1..3`/`sp1/sp2`/`bsc1..3` 属于契约的一部分：必须表驱动 + 单测，且
   `linearTwoStepMethods` 越界时**不得静默退化为显式 Euler**（当前行为是打印后继续）。
@@ -210,7 +210,7 @@ halo × dualtime）真值表，并由生产路径在初始化期调用一次，�
    可行但会退化：C1（逐面 vs 批处理等价）与 C2（scheme 覆盖）都需要一个"面通量
    是什么"的定义，否则测试只能照抄实现、无法判断对错。
 4. **先拆 `Ctrl`/`NsCom`（globals 化）再立契约**。
-   顺序相反。`doc/plans/oneflow-development-todo.md` §4.5 E1（去 ambient globals）
+   顺序相反。`docs/plans/oneflow-development-todo.md` §4.5 E1（去 ambient globals）
    已列为正确方向，但如果先拆 globals，契约测试就失去稳定的被测量；先立契约
    （纯函数 + 表驱动）可以让拆分变成"实现替换"，测试保持不变。建议 E1 在本 RFC
    的契约被批准之后再排期。

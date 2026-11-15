@@ -8,7 +8,7 @@
   "overview": "Ensure commands launched by the OneFLOW GUI have process-tree cancellation, direct-child reaping, output-pipe completion, and an explicit task outcome.",
   "principle": "A task owns the process it starts and must not report final completion before its direct child has exited and its output reader has finished. Cancellation is a lifecycle transition, not merely a request to terminate the root PID. Platform-specific process-tree operations belong at the process-control boundary; task-specific result semantics remain with each runner.",
   "references": [
-    "doc/plans/verification-contract-workbench.md",
+    "docs/plans/verification-contract-workbench.md",
     "tools/verification/README.md"
   ],
   "architecture": "The GUI test worker, Case Database runner, and workflow process runner create isolated process groups and delegate shutdown to process_control. terminate_and_reap applies a shared escalation policy. Each caller retains ownership of its output forwarding and typed result. This contract is separate from the accelerator runtime lifecycle contract: it governs operating-system processes launched by the desktop workbench, not backend resource finalization inside the solver.",
@@ -23,7 +23,7 @@
   "documentation": {
     "paths": [
       "tools/verification/README.md",
-      "doc/plans/verification-contract-workbench.md"
+      "docs/plans/verification-contract-workbench.md"
     ]
   },
   "verification": [

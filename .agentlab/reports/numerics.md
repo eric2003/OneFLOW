@@ -27,7 +27,7 @@ gate_status: PASS
 - 本审计为 **read-only**：没有编辑求解器代码/CMake/contracts/verification，**没有构建、没有运行任何 gtest/ctest/算例**。
 - 因此本报告**不对任何测试是否通过作出声明**。文中出现的 `cell`/`line` 引用均来自源码阅读。
 - 未复用 starter 的 `spatial`/`temporal` 划分；边界全部由实际调用链推导（§3、§4）。
-- 用户/文档记录的基线仅作为"改前基线"引用，不作为本轮证据：`doc/AI_CONTEXT.md` 记录 982/982（用户报告）；`doc/plans/oneflow-development-todo.md` §0 记录 CPU 五算例 normal 5/5 + strict 5/5（上一轮证据）。
+- 用户/文档记录的基线仅作为"改前基线"引用，不作为本轮证据：`docs/AI_CONTEXT.md` 记录 982/982（用户报告）；`docs/plans/oneflow-development-todo.md` §0 记录 CPU 五算例 normal 5/5 + strict 5/5（上一轮证据）。
 - 审计范围以 `.agentlab/TASKS.md` A2 列出的目录为主；实际调用链把它强制扩到 `codes/uns`、`codes/usolver`、`codes/multigrid`、`codes/interface`、`codes/accel`，因为没有这些目录就无法描述 numerics 的真实入口。这一点本身就是主要发现之一。
 
 ---
@@ -209,7 +209,7 @@ NsCalcInvFlux()                                  codes/ns/src/NsRhs.cpp:186
 | `m6wingroe_sa` | 1 | 2 | 0 | 0 |
 | `turbplateuns2droe_sa` | 1 | 2 | 0 | 0 |
 
-- `.github/workflows/linux.yml` 用 `1e-8` 跑 `suites/ci-serial.txt`；strict `1e-15` 是人工口径（`test/README.md`、`doc/plans/oneflow-development-todo.md` §7）。
+- `.github/workflows/linux.yml` 用 `1e-8` 跑 `suites/ci-serial.txt`；strict `1e-15` 是人工口径（`test/README.md`、`docs/plans/oneflow-development-todo.md` §7）。
 - `test/baselines/residual-baseline.json`：`absolute_tolerance: 1e-15`、`nan_policy: reject`、50 步逐通道残差。
 
 ### 5.3 覆盖结论（可核验的负面事实）
@@ -261,16 +261,16 @@ bool SolverState::Converge()
 **C4. 每个 RK 阶段的残差基底契约**
 - 边界：`DeviceOwnsExplicitRkBookkeeping()`（`codes/solver/src/ResidualBasePolicy.cpp`）+ `LoadResiduals`/`LoadQ` + `UNsInvFlux` 的设备残差基底。
 - 现有：`HipSkipHostRkSlotCopy` 纯谓词已有测试（`tests/hip_resident_state_contract_test.cpp:265`）。
-- 缺失：用纯 host 路径证明"3 阶段后 `res` 不等于单阶段累加"（`doc/plans/oneflow-development-todo.md` §5 第 2 项记录过该回归：残差拓到 `5.52e-4`）。可用一个 1 单元/2 面的合成状态，断言"每阶段不累积上一阶段残差"。
+- 缺失：用纯 host 路径证明"3 阶段后 `res` 不等于单阶段累加"（`docs/plans/oneflow-development-todo.md` §5 第 2 项记录过该回归：残差拓到 `5.52e-4`）。可用一个 1 单元/2 面的合成状态，断言"每阶段不累积上一阶段残差"。
 
 **C5. LUSGS 单扫的正确性（合成 2×2 三角块）**
 - 边界：`UNsLusgs::LowerSweep`/`UpperSweep`（前扫正序、后扫倒序、`Update()` 写 `dq`）。
-- 断言：2 个单元 1 个内面的解析 A 阵，一次 lower+upper 后 `dq` 等于直接求解的解析解（对标 `doc/source/numerical/lusgs_flux_increment.rst`、`tdma.rst`）。当前只有 `NsLusgsPolicy` 的标量片段有测试。
+- 断言：2 个单元 1 个内面的解析 A 阵，一次 lower+upper 后 `dq` 等于直接求解的解析解（对标 `docs/source/numerical/lusgs_flux_increment.rst`、`tdma.rst`）。当前只有 `NsLusgsPolicy` 的标量片段有测试。
 - 附带断言：`UNsLusgs::LowerSweep()` 会重建 `CellTopo::CalcC2f`，测试应固定"拓扑不被数值扫描改变"。
 
 **C6. 梯度边界交换的一次滞后契约**
 - 边界：`Grad::SwapBcGrad()`（`codes/grad/src/Grad.cpp:122`）与 `uns_grad.CalcGradHip(...)` 的 `mirrorBoundaryGradient` 决策。
-- 断言：串行 2 zone 合成网格上，`SwapBcGrad` 后 ghost 梯度等于"邻居上一轮值"，且 `ONEFLOW_HIP_GRADIENT_MIRROR_ON_DEMAND=0` 与默认值产生相同 ghost 值（只影响 host 镜像时机，不影响物理）。这条直接对应 `doc/plans/oneflow-development-todo.md` §4.1 A2 被门禁否掉的"删第 4 轮界面交换"。
+- 断言：串行 2 zone 合成网格上，`SwapBcGrad` 后 ghost 梯度等于"邻居上一轮值"，且 `ONEFLOW_HIP_GRADIENT_MIRROR_ON_DEMAND=0` 与默认值产生相同 ghost 值（只影响 host 镜像时机，不影响物理）。这条直接对应 `docs/plans/oneflow-development-todo.md` §4.1 A2 被门禁否掉的"删第 4 轮界面交换"。
 
 **C7. 状态更新的非物理回退契约**
 - 边界：`NsUpdate::CalcFlowField()` + `WeekSolutionFix()`/`SolutionFix()`/`PositiveUpdate`。
@@ -306,7 +306,7 @@ bool SolverState::Converge()
 
 ## 8. 风险
 
-**R1（高）显式多阶段 RK 无回归基线。** 设备主路径（`MULTI_STAGE`）与 `time_integral=1` 在 `test/` 里没有任何残差基线；一旦有人改动 `LoadQ`/`LoadResiduals`/`rk_coef`，只有昆山跨后端脚本能发现。`doc/plans/oneflow-development-todo.md` §5.2 已记录过一次真实回归（`5.52e-4`）。建议把"注册一个显式三阶段 CPU 算例"提到 B1 之前。
+**R1（高）显式多阶段 RK 无回归基线。** 设备主路径（`MULTI_STAGE`）与 `time_integral=1` 在 `test/` 里没有任何残差基线；一旦有人改动 `LoadQ`/`LoadResiduals`/`rk_coef`，只有昆山跨后端脚本能发现。`docs/plans/oneflow-development-todo.md` §5.2 已记录过一次真实回归（`5.52e-4`）。建议把"注册一个显式三阶段 CPU 算例"提到 B1 之前。
 
 **R2（高）`ischeme`/`ilim` 无取值范围校验。** `SetPointer` 未知值静默退化为 Roe；`ISCHEME_HYBRIDROE=11` 映射到**空函数** → 零面通量、零残差、迭代"收敛"。算例脚本里 `ischeme` 是自由整数（`// 1 roe ... 12 slau2`），没有 schema 校验。
 
@@ -377,7 +377,7 @@ tests/numerics/unsteady/CMakeLists.txt
 
 > **问题：双时间（`ctrl.idualtime == 1`）在当前树里是要"补齐成可用能力"，还是"显式声明不支持"？**
 
-证据：`SolverState::Converge()` 在内层第 1 次之后恒返回 `true`（`codes/solver/src/SolverState.cpp:117-131`，局部 `flag` 从未被修改）；`UnsteadyConvergence::conv` 全树无读取者；5 个回归算例全部 `idualtime = 0`；`doc/plans/oneflow-development-todo.md` §1 把"双时间"列在"尚未覆盖"。
+证据：`SolverState::Converge()` 在内层第 1 次之后恒返回 `true`（`codes/solver/src/SolverState.cpp:117-131`，局部 `flag` 从未被修改）；`UnsteadyConvergence::conv` 全树无读取者；5 个回归算例全部 `idualtime = 0`；`docs/plans/oneflow-development-todo.md` §1 把"双时间"列在"尚未覆盖"。
 
 **建议：先声明不支持并 fail-fast（把 `idualtime == 1` 加入 `EulerRungeKuttaCapability`/启动校验的拒绝原因），等 B5（LU-SGS 设备化）之后再作为独立工作项补齐。**
 

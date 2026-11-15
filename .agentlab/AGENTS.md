@@ -63,7 +63,7 @@ Workstreams are defined by the target's `.agentlab/TASKS.md` and `.agentlab/scop
 
 # OneFLOW target rules
 
-1. Read the repository root `AGENTS.md` and `doc/AI_CONTEXT.md` before anything else.
+1. Read the repository root `AGENTS.md` and `docs/AI_CONTEXT.md` before anything else.
    The root file is authoritative for branch policy, source ownership, and evidence rules.
 2. Base on `BASE_REF=dev` for this local checkout. Do not touch `master`. Do not push.
    For PR-compatible work, the human may switch `BASE_REF` to `upstream/hexin`.

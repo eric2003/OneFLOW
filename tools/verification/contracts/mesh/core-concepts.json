@@ -11,7 +11,7 @@
   "references": [
     "CGNS SIDS: https://cgns.github.io/CGNS_docs_current/sids/",
     "Gmsh Reference Manual: https://gmsh.info/doc/texinfo/gmsh.html",
-    "doc/source/mesh_architecture.rst"
+    "docs/source/mesh_architecture.rst"
   ],
   "implementation": {
     "source_paths": [
@@ -21,7 +21,7 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/mesh_architecture.rst"
+      "docs/source/mesh_architecture.rst"
     ]
   },
   "claims": {
