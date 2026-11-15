@@ -10,7 +10,6 @@ import math
 import struct
 from collections import Counter
 from pathlib import Path
-from typing import Iterable
 
 GENERATOR_NAME = "oneflow_stl_geometry"
 GENERATOR_VERSION = "1.0"
@@ -19,8 +18,6 @@ GENERATOR_VERSION = "1.0"
 def _orient_outward(vertices: list[tuple[float, float, float]], faces: list[tuple[int, int, int]]) -> list[tuple[int, int, int]]:
     oriented = []
     for a, b, c in faces:
-        union(a, b)
-        union(b, c)
         pa, pb, pc = vertices[a], vertices[b], vertices[c]
         ab = tuple(pb[i] - pa[i] for i in range(3))
         ac = tuple(pc[i] - pa[i] for i in range(3))
