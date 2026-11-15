@@ -195,7 +195,9 @@ Mesh Generation & Conversion 首先按“网格工程”组织工作，而不再
 * **Open Existing Project**：打开已有 OneFLOW 工程（``project.json``），或导入包含 ``input/model.stl`` 的准备好工程目录；若目录只有一个 STL，也可自动识别并复制为独立工程。
 * 每个工程保存在用户数据目录 ``mesh-generation/<project>/``，包括输入几何、项目清单、生成结果和独立的 ``validation/``。模板只读保留在仓库，工程副本可独立修改。
 
-进入 Generate STL Geometry 后，可以选择几何类型并调整几何参数和表面离散精度；生成的 STL 与 .geometry.json 元数据默认保存在用户数据目录的 ``mesh-generation/generated_stl/<geometry>/``。Sphere 使用 Icosphere 细分，Prolate Spheroid 使用三个半轴对球面拓扑进行缩放，Cylinder 使用周向和轴向划分生成侧壁及两个端盖。\n\n进入 STL to Gmsh 后，可以修改 STL 路径、Coarse/Medium/Fine 或自定义尺寸、Physical Group 名称、输出 MSH 路径和 Gmsh 可执行文件。界面显示完整命令并支持复制；工程模式提供 **Save Project Settings**，无需启动 Gmsh 即可保存修改，运行时也会自动保存。重新打开工程后可继续编辑和生成。项目生成的当前 MSH 可直接进入 Mesh-to-CFD Validation，不会重新生成网格，验证结果写入该项目自己的 ``validation/``。
+进入 Generate STL Geometry 后，可以选择几何类型并调整几何参数和表面离散精度；生成的 STL 与 .geometry.json 元数据默认保存在用户数据目录的 ``mesh-generation/generated_stl/<geometry>/``。Sphere 使用 Icosphere 细分，Prolate Spheroid 使用三个半轴对球面拓扑进行缩放，Cylinder 使用周向和轴向划分生成侧壁及两个端盖。
+
+进入 STL to Gmsh 后，可以修改 STL 路径、Coarse/Medium/Fine 或自定义尺寸、Physical Group 名称、输出 MSH 路径和 Gmsh 可执行文件。界面显示完整命令并支持复制；工程模式提供 **Save Project Settings**，无需启动 Gmsh 即可保存修改，运行时也会自动保存。重新打开工程后可继续编辑和生成。项目生成的当前 MSH 可直接进入 Mesh-to-CFD Validation，不会重新生成网格，验证结果写入该项目自己的 ``validation/``。
 
 在 Case Catalog 中，6:1 Prolate Spheroid 同时登记 Native C++ 和 Python Reference 两个实现：前者出现在 **Run Development Cases**，后者出现在 **Python reference cases**，两个实现也都出现在 3D **Mesh-to-CFD Validation** 选择树中。两者使用相同 STL 和布局契约，但仍按真实实现类型分别显示。
 
