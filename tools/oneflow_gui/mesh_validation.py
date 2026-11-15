@@ -259,12 +259,8 @@ def reset_mesh_validation_workspace(path: Path) -> Path:
 
 
 def create_mesh_validation_run_workspace(path: Path) -> Path:
-    """Return the stable validation directory, preserving outputs that may be in use."""
-    workspace = _external(path)
-    if workspace.is_symlink():
-        raise ValueError(f"Mesh validation workspace must not be a symbolic link: {workspace}")
-    workspace.mkdir(parents=True, exist_ok=True)
-    return workspace
+    """Clear and recreate the validation directory before each new run."""
+    return reset_mesh_validation_workspace(path)
 
 
 def _graph_step_records(result) -> list[dict[str, str]]:
@@ -366,7 +362,7 @@ def run_mesh_validation(
     else:
         selected_stage_root = mesh_validation_workspace(REPOSITORY_ROOT, mesh_case_id)
     run_root = _external(selected_stage_root)
-    run_root = create_mesh_validation_run_workspace(run_root)
+    run_root = reset_mesh_validation_workspace(run_root)
     run_id = uuid.uuid4().hex
     if gmsh_path.is_file():
         os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
