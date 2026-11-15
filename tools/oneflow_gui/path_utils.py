@@ -62,23 +62,37 @@ def paths_equal(left: Path | str, right: Path | str) -> bool:
     return left_key == right_key
 
 
-def is_path_within(path: Path | str, root: Path | str) -> bool:
-    """Return whether path is equal to or below root.
+def relative_path_within(path: Path | str, root: Path | str) -> Path:
+    """Return path relative to root, accounting for filesystem path aliases.
 
-    Both paths are resolved before the containment check so existing symlinks
-    cannot be used to escape a protected workspace. Ancestor identity checks
-    also support missing descendants reached through path aliases.
+    Raises ValueError when path is outside root. Unlike Path.relative_to,
+    this also handles Windows short-path spellings for an existing ancestor.
     """
     candidate = normalize_path(path)
     boundary = normalize_path(root)
     current = candidate
-    while True:
-        if paths_equal(current, boundary):
-            return True
+    suffix: list[str] = []
+    while not paths_equal(current, boundary):
         parent = current.parent
         if parent == current:
-            return False
+            raise ValueError(f"Path is outside the requested root: {candidate}")
+        suffix.append(current.name)
         current = parent
+    return Path(*reversed(suffix)) if suffix else Path(".")
 
 
-__all__ = ["is_path_within", "normalize_path", "paths_equal"]
+def is_path_within(path: Path | str, root: Path | str) -> bool:
+    """Return whether path is equal to or below root."""
+    try:
+        relative_path_within(path, root)
+    except ValueError:
+        return False
+    return True
+
+
+__all__ = [
+    "is_path_within",
+    "normalize_path",
+    "paths_equal",
+    "relative_path_within",
+]
