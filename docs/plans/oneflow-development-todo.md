@@ -1971,3 +1971,40 @@ commit `5d3f0aeef` 的修复经实测确认（`probe/128131577-vismodel`，
 - `UseHipBatchAdapter`（`UNsInvFlux.cpp:724`）与 `UseHipDeviceStateUpdate`
   （`UNsUpdate.cpp:156`）都检查 `vismodel != 0`
 - 检查顺序放在拓扑条件之前，粘性多区算例报 `viscous_model_active` 而不是误导性的拓扑原因
+
+#### 5.34 ❌ 否证 2026-11-15：RK3 不能替代 LU-SGS，捷径关闭
+
+**想法**：稳态解与时间推进格式无关，所以旗舰算例可以改用设备已支持的显式 RK3，
+绕开需要顺序 Gauss-Seidel 的 LU-SGS 移植。**实测否决。**
+
+两臂都是从 `test/cfd/m6wingroe_sa` 派生的副本，**只改 `time_integral`/`rk_stage`**。
+LU-SGS 臂复现 `autotest/res.dat` 到 **4.9e-20**（50 行全对），所以harness 数值可信。
+
+| | LU-SGS（`=2`） | RK3（`=1`，`rk_stage=3`） |
+|---|---|---|
+| 按算例 CFL（0.1→10 ramp） | 收敛，3556–3624 ms/步 | **发散**：第 1 步 res5 就是参考的 260 倍，约 19 步 Fatal |
+| 稳定 CFL 上限（固定 CFL，60 步） | CFL 10 仍稳 | **在 0.5 与 1.0 之间**（CFL 1.0 → res 4.1e+5、峰值 2.8e+14、rc=1） |
+| 各自稳定 CFL 下的 ms/步 | 3480（CFL 10） | **7790（CFL 0.5），慢 2.2×** |
+| 有效时间推进量 | CFL 10 | CFL ≤0.5 → **同样的物理推进需要 ≥20× 步数** |
+
+**合计代价 ≥20× 步数 × 2.2× 单步 ≈ 慢 40 倍以上。** 这直接推翻了"用设备 RK3 加速旗舰"的前提。
+
+**为什么 RK3 在这里脆弱**：本项目的"RK3"是非经典排程 `a_s = 1/(s+1)`，
+而 `docs/source/numerical/time_integral_rk_stage_weight.rst` 明确声明它**不保证
+Butcher 表格式的阶数与稳定性**。这与实测的严格 CFL 限制一致。
+
+**另一个独立阻塞**：旗舰对设备链**两种格式都不合格**——
+`vismodel != 0`（SA）被 `UNsUpdate.cpp:186` 与 `UNsInvFlux.cpp:663` 拒绝；
+RK 门禁要求 Lax-Friedrichs（`EulerRungeKuttaCapability.cpp:35`）而算例用 Roe。
+
+**⚠ 一个比性能更重要的发现：这个算例没有确立收敛解。**
+- 两种模式在可用墙钟内都**未收敛**。LU-SGS 在生产 CFL 下到第 431 步仍在漂移
+  （最后 86 步 dCL +7.0e-4、dCD −3.1e-3）。
+- **仓库自带的参考数据本身只是 50 步的瞬态**，按 1e-8 比对，不是收敛态。
+- 所以"稳态解唯一、与格式无关"这个理论论证**在本算例的长度下无法验证**。
+
+**含义**：任何"旗舰在设备上快 N 倍"的主张，都必须同时说明**比的是哪个状态**。
+在算例先收敛之前，性能与数值的对照都缺一个可靠基准。这条对 B-exit 的验收定义也有影响。
+
+**建议**：如果继续，移植 LU-SGS；廉价 RK3 捷径关闭，除非算例先在真正收敛的状态上
+重新基线化（而那先要解释为什么 LU-SGS 在第 400+ 步仍在漂移）。
