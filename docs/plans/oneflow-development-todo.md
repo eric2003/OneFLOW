@@ -2036,8 +2036,7 @@ CD 在 9.44e-3..1.06e-2 之间，最后 100 步 dCL 仍有 +4.0e-3；
 
 **本块由 `ci/kunshan/flagship-board.py` 生成，勿手改。**
 
-进度：**26/39** 勾选（含已排除项）。未完成：
-- C1 **测 SA 成本构成：循环开销 vs 数学函数** ← *子 agent 正在测*
+进度：**27/39** 勾选（含已排除项）。未完成：
 - C2 若 C1 显示数学主导 → SA 源项/vist 设备内核（1 方程标量族）
 - C3 SA 标量对流 + 扩散通量内核
 - C4 SA 契约测试（现有设备契约只有 Roe 和 limiter，都无粘）
@@ -2049,8 +2048,11 @@ CD 在 9.44e-3..1.06e-2 之间，最后 100 步 dCL 仍有 +4.0e-3；
 - E3 为算例建立真正的稳态基线（自带参考是 50 步瞬态，按 1e-8 比对）
 - F1 **HIP 后端选择改变 host 数值**：全 host stage 仍与纯 CPU 差 6.3e-6 / aer
 - F2 多 zone/rank 跑不完（非物理态 + 超时），推翻旧坑 18 的"能完成只是更慢"
+- F3 32-zone 网格在两节点启动时挂起（单节点同网格正常）
 
-集群：**12 个活动作业**
+集群：**11 个活动作业**
+- `128150875` RUNNING — of-probe-kfd-peer
+- `128150830` COMPLETED — of-probe-kfd-targeted
 - `128148468` COMPLETED — of-probe-saabl
 - `128150731` RUNNING — 1d-ad
 - `128150737` COMPLETED — of-probe-kfd-deep
@@ -2059,10 +2061,7 @@ CD 在 9.44e-3..1.06e-2 之间，最后 100 步 dCL 仍有 +4.0e-3；
 - `128150596` RUNNING — of-probe-sacount2
 - `128150582` COMPLETED — of-build-visseam
 - `128150309` COMPLETED — of-probe-sacount
-- `128150398` COMPLETED — of-probe-kfd-src
 - `128148047` COMPLETED — of-probe-saresplit
-- `128150273` COMPLETED — of-build-visview
-- `128150242` COMPLETED — 1d-ad
 
 近一天作业：30 个（状态见上面活动列表）
 
@@ -2072,7 +2071,7 @@ CD 在 9.44e-3..1.06e-2 之间，最后 100 步 dCL 仍有 +4.0e-3；
 - E1  LU-SGS convergence: 无活动作业
 - A4  vismodel guard build/verify: 无活动作业
 - cfg 2-card / scaling probes: 无活动作业
-- other: `128150731` RUNNING — 1d-ad, `128150737` COMPLETED — of-probe-kfd-deep, `128150656` COMPLETED — of-probe-kfd-locate
+- other: `128150875` RUNNING — of-probe-kfd-peer, `128150830` COMPLETED — of-probe-kfd-targeted, `128150731` RUNNING — 1d-ad
 
 <!-- FLAGSHIP-BOARD:END -->
 
@@ -2103,7 +2102,23 @@ CD 在 9.44e-3..1.06e-2 之间，最后 100 步 dCL 仍有 +4.0e-3；
 
 #### C. SA（B4 内容）— 阻塞中
 
-- [ ] C1 **测 SA 成本构成：循环开销 vs 数学函数** ← *子 agent 正在测*
+- [x] C1 **SA 成本构成已测（`probe/128148468` 消融，300+ 步/臂）**：
+
+      | 配置 | ms/步 | 相对无粘 |
+      |---|---:|---:|
+      | `vismodel=0` 纯 Euler | **1,220** | 基准 |
+      | `vismodel=1` 层流 NS | **1,819** | **+599（+49%）** |
+      | `vismodel=3` 层流+SA | **2,974** | **+1,754（+144%）** |
+
+      **拆分：B3 粘性通量 +599 ms（34%），B4 SA 额外 +1,155 ms（66%）。**
+
+      **这裁决了"SA 占 69% vs SA 符号只占 4.19%"的矛盾**：两者都对。
+      profile（`probe/128148047`，SA vs 无粘）显示符号分布**极度分散**，
+      最大单函数 `NsCom::NsCom` 仅 0.69%，SA 命名符号合计 ~4%。
+      即 **SA 的成本摊在几十个函数上**——突增的梯度、粘度全场扫描、
+      湍流面通量、额外 LU-SGS 扫描，每个都不多，加起来是多数。
+      **因此不存在"优化某个 SA 热点"的捷径**；要么整体搬上设备，要么不动。
+
       已从源码看出：`CalcSrcFlux1Equ` 每 cell 调 21 次 `(*field)[eq][cId]`，
       而 `Marray<T>` = `HXVector<HXVector<T>>`（二维 vector），每次访问跨两层；
       `CalcVist` 每步跑 3 次 ⇒ 每步约 1860 万次间接寻址，且内层 vector 各自分配。
