@@ -126,9 +126,21 @@ int main( int argc, char ** argv )
     const int next = ( rank + 1 ) % size;
     const bool ringIsTrivial = size < 2;
 
+    // Per-round exchange cost, measured the way the solver pays it.
+    //
+    // device mode: the MPI call runs straight on hipMalloc memory; the GPU
+    //   work that produced that memory is already enqueued on the same stream,
+    //   so a real solver pays one queue drain here (which the vendor runtime
+    //   may fold into the copy).  Timed as-is.
+    // staged mode: D2H, host MPI, H2D.  These are three blocking operations.
+    //   Copy time is accumulated separately so a reader can tell whether the
+    //   mode loses on copy or on the MPI call, instead of only seeing the sum.
+    double stagedCopySeconds = 0.0;
+
     auto exchange_device = [&]( int tag ) -> double {
         const double start = Now();
-        // Two neighbours per round, matching a solver rank with two halos.
+        // Two neighbours per round, matching a solver rank with two halos:
+        // Sendrecv sends to `next` and receives from `previous` in one call.
         if ( ! ringIsTrivial )
         {
             CheckMpi( MPI_Sendrecv( deviceSend, static_cast< int >( valueCount ),
@@ -143,6 +155,7 @@ int main( int argc, char ** argv )
 
     auto exchange_staged = [&]( int tag ) -> double {
         const double start = Now();
+        const double copyStart = start;
         CheckHip( hipMemcpy( hostSend.data(), deviceSend, valueBytes,
                              hipMemcpyDeviceToHost ),
                   "D2H stage" );
@@ -159,6 +172,7 @@ int main( int argc, char ** argv )
         CheckHip( hipMemcpy( deviceRecv, hostRecv.data(), valueBytes,
                              hipMemcpyHostToDevice ),
                   "H2D stage" );
+        stagedCopySeconds += Now() - copyStart;
         return Now() - start;
     };
 
@@ -206,10 +220,14 @@ int main( int argc, char ** argv )
 
     double maxDevice = 0.0;
     double maxStaged = 0.0;
+    double maxStagedCopy = 0.0;
     CheckMpi( MPI_Allreduce( &deviceSeconds, &maxDevice, 1, MPI_DOUBLE, MPI_MAX,
                              MPI_COMM_WORLD ), "Allreduce device time" );
     CheckMpi( MPI_Allreduce( &stagedSeconds, &maxStaged, 1, MPI_DOUBLE, MPI_MAX,
                              MPI_COMM_WORLD ), "Allreduce staged time" );
+    CheckMpi( MPI_Allreduce( &stagedCopySeconds, &maxStagedCopy, 1, MPI_DOUBLE,
+                             MPI_MAX, MPI_COMM_WORLD ),
+              "Allreduce staged copy time" );
 
     char hostName[ MPI_MAX_PROCESSOR_NAME ] = {};
     int hostNameLength = 0;
@@ -225,11 +243,19 @@ int main( int argc, char ** argv )
     {
         const double perRoundDevice = maxDevice * 1000.0 / rounds;
         const double perRoundStaged = maxStaged * 1000.0 / rounds;
+        const double perRoundStagedCopy = maxStagedCopy * 1000.0 / rounds;
+        // staged_copy_share separates the two reasons staged mode loses: the
+        // host round-trip copies, versus the MPI call itself.  The solver's
+        // post round pays copies once per step, so a large copy share here
+        // overstates what a real step would pay; read it as an upper bound.
         std::printf(
             "HALO_PROBE_SUMMARY size=%d bytes=%zu device_per_round_ms=%.4f "
-            "staged_per_round_ms=%.4f speedup=%.3f device_correct=%d "
+            "staged_per_round_ms=%.4f staged_copy_ms=%.4f "
+            "staged_copy_share=%.2f speedup=%.3f device_correct=%d "
             "staged_correct=%d\n",
             size, valueBytes, perRoundDevice, perRoundStaged,
+            perRoundStagedCopy,
+            perRoundStaged > 0.0 ? perRoundStagedCopy / perRoundStaged : 0.0,
             perRoundStaged > 0.0 ? perRoundStaged / perRoundDevice : 0.0,
             minDeviceCorrect, minStagedCorrect );
     }
