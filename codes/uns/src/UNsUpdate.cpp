@@ -178,6 +178,17 @@ bool UseHipDeviceStateUpdate( int solverType )
         throw std::runtime_error(
             "HIP state update requires a single ideal-gas temperature field" );
     }
+    // No device implementation exists for the viscous/turbulence source or the
+    // viscous flux, so a viscous case never produces the resident residual this
+    // update consumes. Without this guard the LU-SGS + SA flagship reached the
+    // update and aborted with "requires resident state and residual"; falling
+    // back keeps it on the host path it already used.
+    if ( vis_model.vismodel != 0 )
+    {
+        if ( ! explicitRequest ) return false;
+        throw std::runtime_error(
+            "HIP state update does not support a viscous or turbulence model" );
+    }
 #ifndef ONEFLOW_ENABLE_HIP
     throw std::runtime_error(
         "HIP state update was requested without HIP support" );

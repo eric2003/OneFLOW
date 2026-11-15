@@ -743,6 +743,7 @@ bool UNsInvFlux::UseHipBatchAdapter() const
     request.laxFriedrichsScheme =
         nscom.ischeme == ISCHEME_LAX_FRIEDRICHS;
     request.roeScheme = nscom.ischeme == ISCHEME_ROE;
+    request.viscousModelActive = vis_model.vismodel != 0;
     request.hasInterfaceExchange =
         ZoneState::nZones > 1 || ZoneState::nLocal > 1;
     request.backendSupportsInterfaceExchange =

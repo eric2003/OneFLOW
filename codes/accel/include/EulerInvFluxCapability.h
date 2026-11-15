@@ -17,6 +17,7 @@ enum class EulerInvFluxCapabilityReason
     UnsupportedEquationCount,
     UnsupportedLimiterEquationCount,
     UnsupportedInviscidScheme,
+    ViscousModelActive,
     InterfaceExchangeEnabled
 };
 
@@ -39,6 +40,12 @@ struct EulerInvFluxCapabilityRequest
     // Harten entropy fix; the enum stays explicit so a new scheme must be
     // added here (and to DeviceFluxScheme) instead of silently running.
     bool roeScheme = false;
+    // Any active viscous/turbulence model moves the state update off the
+    // device: the SA source and the viscous flux terms have no device
+    // implementation, so the residual the device path would consume is never
+    // produced. Without this flag the LU-SGS + SA flagship reached the device
+    // state update and aborted with "requires resident state and residual".
+    bool viscousModelActive = false;
     // Multi-zone partitions can have one local zone per rank while still
     // requiring cross-rank interface exchange. Keep this explicit so the HIP
     // path cannot infer support from localZoneCount alone.

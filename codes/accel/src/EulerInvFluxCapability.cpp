@@ -59,6 +59,13 @@ EulerInvFluxCapabilityDecision EvaluateEulerInvFluxCapability(
             EulerInvFluxCapabilityReason::UnsupportedInviscidScheme;
         return decision;
     }
+    if ( request.viscousModelActive )
+    {
+        // Checked before the interface/zone conditions so a viscous case gets
+        // this exact reason rather than a misleading topology rejection.
+        decision.reason = EulerInvFluxCapabilityReason::ViscousModelActive;
+        return decision;
+    }
     if ( request.hasInterfaceExchange
          && ! request.backendSupportsInterfaceExchange )
     {
@@ -106,6 +113,8 @@ const char * EulerInvFluxCapabilityReasonName(
         return "unsupported_limiter_equation_count";
     case EulerInvFluxCapabilityReason::UnsupportedInviscidScheme:
         return "unsupported_inviscid_scheme";
+    case EulerInvFluxCapabilityReason::ViscousModelActive:
+        return "viscous_model_active";
     case EulerInvFluxCapabilityReason::InterfaceExchangeEnabled:
         return "interface_exchange_enabled";
     }
