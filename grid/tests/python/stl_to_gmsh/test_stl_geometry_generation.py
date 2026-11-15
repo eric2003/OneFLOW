@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import tempfile
@@ -18,10 +19,11 @@ class StlGeometryGenerationTest(unittest.TestCase):
             self.assertEqual(result["surface"]["triangle_count"], 1280)
             self.assertEqual(result["surface"]["vertex_count"], 642)
             self.assertTrue(result["surface"]["watertight"])
+            self.assertEqual(result["surface"]["connected_component_count"], 1)
             self.assertGreater(result["surface"]["signed_volume"], 0.0)
             self.assertEqual(result["patch_triangle_indices"]["wall"], list(range(1280)))
             self.assertEqual(result["units"], "m")
-            self.assertEqual(result["stl_sha256"], result["stl_sha256"])
+            self.assertEqual(result["stl_sha256"], hashlib.sha256(result["stl"].read_bytes()).hexdigest())
             self.assertTrue(result["manifest"].is_file())
 
     def test_prolate_spheroid_uses_configured_semi_axes(self) -> None:
@@ -50,6 +52,7 @@ class StlGeometryGenerationTest(unittest.TestCase):
             surface = result["surface"]
             labels = result["patch_triangle_indices"]
             self.assertTrue(surface["watertight"])
+            self.assertEqual(surface["connected_component_count"], 1)
             self.assertAlmostEqual(surface["signed_volume"], 32 * 0.5 * 0.5 * math.sin(2 * math.pi / 32) * 4.0 / 2, delta=0.02)
             self.assertEqual(len(labels["inflow"]), 32)
             self.assertEqual(len(labels["outflow"]), 32)
