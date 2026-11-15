@@ -173,6 +173,25 @@ def load_mesh_project(directory: Path) -> dict:
     }
 
 
+def replace_project_stl(project: dict, stl_file: Path) -> dict:
+    """Replace a project's source geometry with a private copy of another STL."""
+    root = Path(project["directory"]).resolve()
+    source = Path(stl_file).expanduser().resolve()
+    if not source.is_file() or source.suffix.lower() != ".stl":
+        raise FileNotFoundError(f"Select an existing STL file: {source}")
+    manifest_path = root / "project.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    relative = Path(str(manifest.get("input_stl", "")))
+    if relative.is_absolute() or ".." in relative.parts:
+        raise ValueError("Project input_stl must be a project-relative path.")
+    destination = (root / relative).resolve()
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if source != destination:
+        shutil.copy2(source, destination)
+    manifest["source_stl"] = str(source)
+    return _write_manifest(root, manifest)
+
+
 def save_mesh_project_settings(project: dict, settings: dict) -> dict:
     """Persist editable generation settings without changing the source template."""
     root = Path(project["directory"]).resolve()
@@ -194,5 +213,6 @@ __all__ = [
     "create_mesh_project_from_template",
     "load_mesh_project",
     "mesh_project_templates",
+    "replace_project_stl",
     "save_mesh_project_settings",
 ]

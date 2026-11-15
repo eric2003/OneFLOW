@@ -34,6 +34,7 @@ from .mesh_project import (
     create_mesh_project_from_template,
     load_mesh_project,
     mesh_project_templates,
+    replace_project_stl,
     save_mesh_project_settings,
 )
 from grid.stl_to_gmsh.generate_volume_mesh import (
@@ -52,7 +53,7 @@ class MeshGenerationDialog(QDialog):
         super().__init__(parent)
         self._repository_root = repository_root.resolve()
         self.setWindowTitle("Mesh Generation & Conversion")
-        self.resize(620, 420)
+        self.resize(760, 560)
 
         root = QVBoxLayout(self)
         title = QLabel("Mesh Generation & Conversion")
@@ -157,9 +158,10 @@ class MeshGenerationDialog(QDialog):
         StlToGmshDialog(self._repository_root, self, project=project).exec()
 
     def _open_mesh_project(self) -> None:
+        project_root = UserDataPaths.discover().mesh_generation
+        project_root.mkdir(parents=True, exist_ok=True)
         path = QFileDialog.getExistingDirectory(
-            self, "Open OneFLOW Mesh Project",
-            str(UserDataPaths.discover().mesh_generation),
+            self, "Open OneFLOW Mesh Project", str(project_root),
         )
         if not path:
             return
@@ -212,6 +214,13 @@ class StlToGmshDialog(QDialog):
         )
         description.setWordWrap(True)
         root.addWidget(description)
+        if project:
+            project_label = QLabel(
+                f"Project: {project['name']}  |  Directory: {project['directory']}"
+            )
+            project_label.setWordWrap(True)
+            project_label.setStyleSheet("color: #475569;")
+            root.addWidget(project_label)
 
         form = QFormLayout()
         self.geometry_preset = QComboBox()
@@ -349,10 +358,12 @@ class StlToGmshDialog(QDialog):
                 self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("prolate_spheroid"))
             elif template_id == "stl_to_gmsh_python_sphere_automatic_tetrahedra":
                 self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("sphere"))
-            target = float(project.get("mesh_size", DEFAULT_MESH_SIZE))
             self.density.setCurrentIndex(self.density.findData("custom"))
-            self.minimum_size.setText(f"{target * 0.5:.2f}")
-            self.maximum_size.setText(f"{target:.2f}")
+            target = float(project.get("mesh_size", DEFAULT_MESH_SIZE))
+            minimum = float(project.get("mesh_size_min", target * 0.5))
+            maximum = float(project.get("mesh_size_max", target))
+            self.minimum_size.setText(f"{minimum:.6g}")
+            self.maximum_size.setText(f"{maximum:.6g}")
         self._density_changed()
         self._refresh_command()
 
@@ -361,11 +372,22 @@ class StlToGmshDialog(QDialog):
             self, "Select STL surface", str(Path.home()), "STL files (*.stl);;All files (*)"
         )
         if path:
-            self.stl_path.setText(path)
-            if Path(path).resolve() == DEFAULT_SPHERE_STL.resolve():
-                self.geometry_preset.setCurrentIndex(0)
+            selected = Path(path).expanduser().resolve()
+            if self._project is not None:
+                try:
+                    self._project = replace_project_stl(self._project, selected)
+                except (OSError, ValueError, KeyError) as error:
+                    QMessageBox.warning(self, "Cannot replace project STL", str(error))
+                    return
+                self._project_directory = Path(self._project["directory"])
+            self.stl_path.setText(str(self._project["stl_path"]) if self._project else str(selected))
+            template_id = self._project.get("template_case_id") if self._project else None
+            if selected == DEFAULT_SPHERE_STL.resolve() or template_id == "stl_to_gmsh_python_sphere_automatic_tetrahedra":
+                self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("sphere"))
+            elif template_id == "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra":
+                self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("prolate_spheroid"))
             else:
-                self.geometry_preset.setCurrentIndex(1)
+                self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("closed_shell"))
 
     def _browse_output(self) -> None:
         path, _ = QFileDialog.getSaveFileName(

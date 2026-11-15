@@ -187,11 +187,16 @@ Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动�
 * **STL to Gmsh**：从用户选择的封闭 STL 表面生成三维四面体体网格。
 * **Mesh Knowledge**：进入现有 Contract Workbench 的 Mesh 知识域，浏览网格原理、格式、实现代码和验证证据。
 
-在 STL to Gmsh 页面中，先选择 STL 文件和输出文件，再选择 Coarse、Medium、Fine
-或自定义最小/最大网格尺寸。可以指定 Gmsh 可执行文件；留空时通过系统 PATH
-查找。界面会显示完整命令，支持复制，然后通过参数列表启动进程，并显示执行输出和
-退出码。界面与命令行使用同一个 `generate_volume_mesh.py` 实现，便于脱离 GUI
-复现操作。
+Mesh Generation & Conversion 首先按“网格工程”组织工作，而不再只有一个临时 STL 输入框：
+
+* **New from Template**：从已登记的网格工程模板创建独立用户工程。目前提供 Unit Sphere 和 6:1 Prolate Spheroid。
+* **Import STL / Grid Database**：从仓库 `grid/` 下的 STL 数据库或磁盘选择 STL，复制到新工程的 `input/`，不会修改原始数据。
+* **Open Existing Project**：打开包含 `project.json` 的准备好工程目录，重新读取 STL、网格尺寸、边界组和输出文件设置。
+* 每个工程保存在用户数据目录 `mesh-generation/<project>/`，包括输入几何、项目清单、生成结果和独立的 `validation/`。模板只读保留在仓库，工程副本可独立修改。
+
+进入 STL to Gmsh 后，可以修改 STL 路径、Coarse/Medium/Fine 或自定义尺寸、Physical Group 名称、输出 MSH 路径和 Gmsh 可执行文件。界面显示完整命令并支持复制；运行参数和项目清单同步保存，重新打开工程时可以继续编辑和生成。项目生成的当前 MSH 可直接进入 Mesh-to-CFD Validation，不会重新生成网格，验证结果写入该项目自己的 `validation/`。
+
+在 Case Catalog 中，6:1 Prolate Spheroid 作为 Python reference Case 登记，因此可在 **Python reference cases** 中执行，也出现在 3D **Mesh-to-CFD Validation** 选择树中。它目前不是原生 C++ 网格生成案例；Run Development Cases 与 Python reference cases 的实现类型仍按 Catalog 分开显示，不把 Python 实现冒充为 C++。
 
 默认输出位置为用户数据目录下的 `mesh-generation`，不会写入仓库源代码目录。
 默认的 Unit Sphere 预设会预选仓库中的单位球 STL 示例，用户也可以通过 Browse... 换成自己的 STL 文件；预设不会生成或替换几何内容。
