@@ -593,22 +593,20 @@ class MeshValidationCatalogTest(unittest.TestCase):
             self.assertTrue((sibling / "keep.txt").is_file())
 
 
-    def test_run_workspace_creation_preserves_previous_runs(self):
+    def test_run_workspace_is_the_stable_validation_directory(self):
         with tempfile.TemporaryDirectory() as temporary:
             base = Path(temporary) / "project" / "validation"
-            previous = base / "run-previous"
-            previous.mkdir(parents=True)
-            locked_output = previous / "oneflow_cfd_solve" / "visual"
+            locked_output = base / "oneflow_cfd_solve" / "visual"
             locked_output.mkdir(parents=True)
             (locked_output / "visual.dat").write_text("keep", encoding="utf-8")
 
             first = create_mesh_validation_run_workspace(base)
             second = create_mesh_validation_run_workspace(base)
 
-            self.assertNotEqual(first, second)
+            self.assertEqual(first, base.resolve())
+            self.assertEqual(second, first)
             self.assertTrue((locked_output / "visual.dat").is_file())
-            self.assertTrue(first.is_dir())
-            self.assertTrue(second.is_dir())
+            self.assertFalse(any(base.glob("run-*")))
 
 
 if __name__ == "__main__":
