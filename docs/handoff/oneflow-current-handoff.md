@@ -124,7 +124,16 @@ CPU 气动力一致 0.2%。弱扩展（36,864 cell/rank，8 ranks/卡，同作�
 1e-12、BC 身份保留），分区 16/32/128/256 zone。弱扩展全阶梯实测（`probe/128098635`，
 36,864 cell/rank，3 发交错）：1/2/4/8/16/32 卡 = 14.75/15.78/17.90/22.05/33.22/38.86
 ms/步（1.00×–2.63×），16 卡（4 节点）跳变 +50%，与跨节点 interface_mpi 归因一致。
-强扩展见 todo §5.6。已知未顺带：512-rank VMFault（64N 那张）、坑 41（单 zone aero）。
+强扩展见 todo §5.6。
+
+**2026-11-15（下午）：512-rank VMFault 已排除代码缺陷，64N 档解锁**。原失败
+`probe/128043090`（i02 系节点）在同一配置上零复现：`probe/128103456`（3 步 ×
+DEFER_SYNC on/off 判别 3 发）+ `probe/128104413`（1000 步 ×3，默认环境）全部 rc=0。
+kernel 参数转储逐字节解码自洽，故障地址在全部参数缓冲区之外；判定为 i02 系节点态问题
+（先例：kshdnormal e12r1n04 无法打开 /dev/kfd）。64N 档实测 **56.9 ms/步**（中位，
+61.7/51.4/56.9，`probe/128104413`，36,864 cell/rank 恒定，8 卡档的 2.58×）。
+诊断脚本：集群 `scripts/of-probe-rung2defer.sh`（判别用，勿再用 rank 阶梯二分——
+zone 数必须等于 rank 数，坑 18）。未顺带：坑 41（单 zone aero）。
 
 H2 根因与修复：`d41650729`（已有集群构建与多卡数值对照，**未跑完整门禁**）。
 
@@ -248,7 +257,8 @@ CPU 气动力一致 0.2%。弱扩展（36,864 cell/rank，8 ranks/卡，同作�
 PASS**，2N 分配独立复核 0 违反。下一动作：按 PASS 的方向分配实现 2N 生成
 （合并逻辑沿真实 face ID 与 A(c) 映射），随后 4N，再 refine8 派生 16N/32N。
 
-**下一刀（按归因排序，详见 todo §5.6）**：① `partition_type=2` 重切 64 zone 压 halo；
+**下一刀（按归因排序，详见 todo §5.6）**：① `partition_type=2` 重切 64 zone 压 halo
+（64N 档 512 zone 的等块重切待做，若开做需先扩 `StructuredPartition` 支持非立方块排列）；
 ② A4 设备驻留宏步循环；③ 大 per-rank 网格的 rank/卡 packing。另有一个独立小修候选：
 坑 41（单 zone HIP aero）——`UNsInvFlux::CalcInvFace` 的 `mirrorBoundaryGradient`
 依赖 `packedExchange`（要求 nZones>1），单 zone 时 host 梯度镜像从不更新，aero 力积分
