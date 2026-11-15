@@ -306,6 +306,7 @@ void UNsInvFlux::CalcInvFace()
 {
     {
         ScopedStageTimer timer( "gradient" );
+        ScopedHostTimer hostGradientTimer( "s_gradient" );
         uns_grad.Init();
         const bool hipGradient = this->UseHipGradient();
         const bool hipReconstruction = this->UseHipDeviceReconstruction();
@@ -531,6 +532,7 @@ void UNsInvFlux::CalcInvFace()
         return;
     }
     { ScopedStageTimer timer( "reconstruction" );
+        ScopedHostTimer hostReconTimer( "s_reconstruction" );
         this->GetQlQrField();
         this->ReconstructFaceValueField();
     }
@@ -562,23 +564,34 @@ void UNsInvFlux::BoundaryQlQrFixField()
 void UNsInvFlux::CalcFlux()
 {
     if ( nscom.icmpInv == 0 ) return;
+    // Host accounting for the RK-stage interior.  The parent
+    // macro_update_residuals scope (NsResidentMacroStep) covers 5.3 ms/step on
+    // the production configuration but contained no ScopedHostTimer at all, so
+    // its breakdown was unreadable: the A4 budget needs to know whether that
+    // time sits in host-side loops, in blocking copies, or in queue drains.
+    // These scopes are children of macro_update_residuals and add no
+    // synchronization of their own (ScopedHostTimer only reads steady_clock).
     inv.Init();
     ug.Init();
     unsf.Init();
 
-    this->Alloc();
-
-    this->SetPointer( nscom.ischeme );
+    {
+        ScopedHostTimer hostTimer( "s_init" );
+        this->Alloc();
+        this->SetPointer( nscom.ischeme );
+    }
 
     this->CalcInvFace();
     if ( this->UseHipBatchAdapter() )
     {
         ScopedStageTimer fluxTimer( "flux_assembly" );
+        ScopedHostTimer hostFluxTimer( "s_flux_assembly" );
         this->CalcAndAddInvFluxHipBatch();
         this->DumpInvFluxTrace();
     }
     else
     {
+        ScopedHostTimer hostFluxTimer( "s_flux_host" );
         this->CalcInvFlux();
         this->DumpInvFluxTrace();
         this->AddInvFlux();

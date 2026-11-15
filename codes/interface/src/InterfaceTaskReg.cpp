@@ -227,6 +227,7 @@ void UploadInterfaceData( StringField & data )
         fieldManager->GetInterfaceFieldProperty().GetData();
 
     ScopedStageTimer uploadTimer( "post_upload" );
+    ScopedHostTimer hostUploadTimer( "post_upload_host" );
 #ifdef ONEFLOW_ENABLE_HIP
     if ( SkipHostFieldPackFor( "dqdx" ) )
     {
@@ -275,6 +276,7 @@ void DownloadInterfaceData( StringField & data )
         fieldManager->GetInterfaceFieldProperty().GetData();
 
     ScopedStageTimer downloadTimer( "post_download" );
+    ScopedHostTimer hostDownloadTimer( "post_download_host" );
 #ifdef ONEFLOW_ENABLE_HIP
     if ( SkipHostFieldPackFor( "dqdx" ) )
     {
