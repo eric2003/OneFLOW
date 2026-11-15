@@ -18,7 +18,9 @@ from tools.oneflow_gui.path_utils import (
 
 class PathUtilsTest(unittest.TestCase):
     def test_normalize_path_expands_and_resolves(self) -> None:
-        with tempfile.TemporaryDirectory() as temporary:
+        # Keep the temporary directory on the checkout drive: Windows cannot
+        # compute a relative path between different drive letters.
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as temporary:
             root = Path(temporary)
             relative = Path(os.path.relpath(root, Path.cwd()))
             self.assertEqual(normalize_path(relative), root.resolve())
