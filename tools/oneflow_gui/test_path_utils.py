@@ -55,12 +55,14 @@ class PathUtilsTest(unittest.TestCase):
             child = long_directory / "mesh.msh"
             child.write_text("mesh", encoding="utf-8")
             self.assertTrue(paths_equal(child, short_directory / child.name))
+            missing_mesh = short_directory / "not-created" / "mesh.msh"
             self.assertTrue(
                 paths_equal(
                     long_directory / "not-created" / "mesh.msh",
-                    short_directory / "not-created" / "mesh.msh",
+                    missing_mesh,
                 )
             )
+            self.assertTrue(is_path_within(missing_mesh, long_directory))
 
     def test_paths_equal_handles_symlink_alias(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
