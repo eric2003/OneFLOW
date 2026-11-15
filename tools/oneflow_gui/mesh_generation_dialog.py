@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QInputDialog,
     QPushButton,
+    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
@@ -213,6 +214,7 @@ class StlGeometryDialog(QDialog):
         self._active_geometry: str | None = None
         self.setWindowTitle("Generate STL Geometry")
         self.resize(720, 650)
+        self.setMinimumSize(560, 480)
         root = QVBoxLayout(self)
         heading = QLabel("Generate STL Geometry")
         heading.setStyleSheet("font-size: 22px; font-weight: 650;")
@@ -225,6 +227,18 @@ class StlGeometryDialog(QDialog):
         description.setWordWrap(True)
         root.addWidget(description)
 
+        # Keep configuration controls in a scroll area. On Windows, the
+        # combined size hints of all geometry groups and the result pane can
+        # otherwise force a minimum height larger than the available screen.
+        settings_scroll = QScrollArea(self)
+        settings_scroll.setObjectName("geometrySettingsScrollArea")
+        settings_scroll.setWidgetResizable(True)
+        settings_content = QWidget()
+        settings_layout = QVBoxLayout(settings_content)
+        settings_layout.setContentsMargins(0, 0, 0, 0)
+        settings_scroll.setWidget(settings_content)
+        root.addWidget(settings_scroll, 1)
+
         selector_form = QFormLayout()
         self.geometry = QComboBox()
         self.geometry.addItem("Sphere", "sphere")
@@ -232,7 +246,7 @@ class StlGeometryDialog(QDialog):
         self.geometry.addItem("Cylinder — Internal Flow", "cylinder_internal_flow")
         self.geometry.currentIndexChanged.connect(self._geometry_changed)
         selector_form.addRow("Geometry library", self.geometry)
-        root.addLayout(selector_form)
+        settings_layout.addLayout(selector_form)
 
         # Keep one widget set per geometry. Hiding inactive groups preserves
         # their independent values when the user switches between shapes.
@@ -242,7 +256,7 @@ class StlGeometryDialog(QDialog):
         sphere_form.addRow("Radius", self.radius)
         self.subdivisions = QLineEdit("3")
         sphere_form.addRow("Icosphere subdivision level", self.subdivisions)
-        root.addWidget(self.sphere_group)
+        settings_layout.addWidget(self.sphere_group)
 
         self.spheroid_group = QGroupBox("Prolate Spheroid Parameters")
         spheroid_form = QFormLayout(self.spheroid_group)
@@ -256,7 +270,7 @@ class StlGeometryDialog(QDialog):
         spheroid_form.addRow("Semi-axes", axes)
         self.spheroid_subdivisions = QLineEdit("3")
         spheroid_form.addRow("Surface subdivision level", self.spheroid_subdivisions)
-        root.addWidget(self.spheroid_group)
+        settings_layout.addWidget(self.spheroid_group)
 
         self.cylinder_group = QGroupBox("Cylinder Parameters")
         cylinder_form = QFormLayout(self.cylinder_group)
@@ -268,7 +282,7 @@ class StlGeometryDialog(QDialog):
         cylinder_form.addRow("Circumferential divisions", self.circumferential)
         self.axial = QLineEdit("16")
         cylinder_form.addRow("Axial divisions", self.axial)
-        root.addWidget(self.cylinder_group)
+        settings_layout.addWidget(self.cylinder_group)
 
         common_group = QGroupBox("Common Output Settings")
         common_form = QFormLayout(common_group)
@@ -283,12 +297,12 @@ class StlGeometryDialog(QDialog):
         browse.clicked.connect(self._browse_output)
         output_row.addWidget(browse)
         common_form.addRow("Output STL", output_row)
-        root.addWidget(common_group)
+        settings_layout.addWidget(common_group)
 
         self.patch_note = QLabel()
         self.patch_note.setWordWrap(True)
         self.patch_note.setStyleSheet("color: #475569;")
-        root.addWidget(self.patch_note)
+        settings_layout.addWidget(self.patch_note)
 
         self.generate_button = QPushButton("Generate STL")
         self.generate_button.setMinimumHeight(42)
@@ -300,7 +314,7 @@ class StlGeometryDialog(QDialog):
         root.addWidget(self.open_gmsh_button)
         self.result_view = QPlainTextEdit()
         self.result_view.setReadOnly(True)
-        self.result_view.setMinimumHeight(170)
+        self.result_view.setMinimumHeight(110)
         root.addWidget(self.result_view, 1)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.accept)
