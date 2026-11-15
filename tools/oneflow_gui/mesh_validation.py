@@ -8,8 +8,6 @@ import os
 import re
 import shutil
 import sys
-from datetime import datetime, timezone
-import uuid
 from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -259,19 +257,12 @@ def reset_mesh_validation_workspace(path: Path) -> Path:
 
 
 def create_mesh_validation_run_workspace(path: Path) -> Path:
-    """Create a fresh run directory without deleting prior or potentially locked outputs."""
+    """Return the stable validation directory, preserving outputs that may be in use."""
     workspace = _external(path)
     if workspace.is_symlink():
         raise ValueError(f"Mesh validation workspace must not be a symbolic link: {workspace}")
     workspace.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
-    while True:
-        run_directory = workspace / f"run-{stamp}-{uuid.uuid4().hex[:8]}"
-        try:
-            run_directory.mkdir()
-        except FileExistsError:
-            continue
-        return run_directory
+    return workspace
 
 
 def _graph_step_records(result) -> list[dict[str, str]]:
@@ -374,7 +365,7 @@ def run_mesh_validation(
         selected_stage_root = mesh_validation_workspace(REPOSITORY_ROOT, mesh_case_id)
     run_root = _external(selected_stage_root)
     run_root = create_mesh_validation_run_workspace(run_root)
-    run_id = run_root.name
+    run_id = mesh_case_id
     if gmsh_path.is_file():
         os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
     def execute(step):
