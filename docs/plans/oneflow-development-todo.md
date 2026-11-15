@@ -1347,3 +1347,16 @@ card3 0000:43:00.0 numa=2   card4 0000:63:00.0 numa=3
 跨节点 GPU 直传只能走 host staging（现状）。不要再在这条路上投入。
 
 **同时确认**：`hsaKmt*` 入口经 `dlsym` 与 `RTLD_DEFAULT` 均不可达，shim 也无法绕经 thunk。
+
+**重要边界：本节只关闭 dmabuf（跨节点 GPU Direct RDMA），不关闭 UCX 重编。**
+两者是不同机制，不要混为一谈：
+
+| 机制 | 用途 | 状态 | 依赖 |
+|---|---|---|---|
+| IPC handle（`hsa_amd_ipc_memory_create/attach`） | 同机进程间共享显存，UCX 的 `rocm_copy` 传输层用它做节点内显存搬运 | ✅ 可用 | 不需要 dmabuf |
+| dmabuf 导出 | 让网卡直接 DMA 读写显存（跨节点 GPU Direct RDMA） | ❌ 内核无 handler | 需要 dmabuf |
+
+当前 UCX 构建为 `--without-rocm`，因此**完全不认 ROCm 内存**，设备指针会退化成
+普通内存走 PCIe 注册——这正是实测到"device 指针比 host staging 慢 2–67 倍"的
+最可能原因（2 rank 时 13.54 vs 0.20 ms/round）。重编 `--with-rocm` 针对的是这个
+**节点内**问题，与 dmabuf 无关，价值不受本节影响。
