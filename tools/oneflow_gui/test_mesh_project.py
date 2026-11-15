@@ -9,6 +9,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from tools.oneflow_gui.path_utils import paths_equal
 from tools.oneflow_gui.mesh_project import (
     create_mesh_project_from_stl,
     create_mesh_project_from_template,
@@ -48,10 +49,10 @@ class MeshProjectTest(unittest.TestCase):
             "prolate_spheroid",
         )
         self.assertTrue(project["stl_path"].is_file())
-        self.assertEqual(project["directory"].parent, self.home / "mesh-generation")
+        self.assertTrue(paths_equal(project["directory"].parent, self.home / "mesh-generation"))
         self.assertEqual(project["mesh_case_id"], "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra")
         reopened = load_mesh_project(project["directory"])
-        self.assertEqual(reopened["output_path"], project["output_path"])
+        self.assertTrue(paths_equal(reopened["output_path"], project["output_path"]))
         saved = save_mesh_project_settings(
             reopened,
             {"mesh_size": 0.12, "boundary_name": "body_wall"},
@@ -88,7 +89,7 @@ class MeshProjectTest(unittest.TestCase):
         self.assertNotEqual(project["stl_path"], source / "input/model.stl")
         self.assertEqual(project["mesh_size"], 0.15)
         self.assertEqual(project["boundary_name"], "body")
-        self.assertEqual(load_mesh_project(project["directory"])["output_path"], project["output_path"])
+        self.assertTrue(paths_equal(load_mesh_project(project["directory"])["output_path"], project["output_path"]))
 
     def test_import_stl_copies_database_geometry_into_independent_project(self) -> None:
         source = self.repository_root / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python/input/model.stl"
