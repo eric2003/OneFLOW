@@ -7,7 +7,12 @@ import re
 import shutil
 from pathlib import Path
 
-from .path_utils import is_path_within, normalize_path, paths_equal
+from .path_utils import (
+    is_path_within,
+    normalize_path,
+    paths_equal,
+    relative_path_within,
+)
 from .user_data_paths import UserDataPaths
 
 _PROJECT_SCHEMA = "oneflow.mesh-generation-project"
@@ -169,7 +174,7 @@ def import_mesh_project_directory(repository_root: Path, source_directory: Path)
     selected_stl = normalize_path(selected_stl)
     if not is_path_within(selected_stl, source):
         raise ValueError("Prepared project STL must remain inside the selected directory.")
-    relative_stl = selected_stl.relative_to(source)
+    relative_stl = relative_path_within(selected_stl, source)
     copied_stl = copied / relative_stl
     layout_path = copied / "script/layout.json"
     layout = {}
@@ -259,7 +264,7 @@ def save_mesh_project_settings(project: dict, settings: dict) -> dict:
             manifest[key] = settings[key]
     output = normalize_path(settings.get("output_path", project["output_path"]))
     if is_path_within(output, root):
-        manifest["output_mesh"] = output.relative_to(root).as_posix()
+        manifest["output_mesh"] = relative_path_within(output, root).as_posix()
     else:
         manifest["output_mesh"] = str(output)
     return _write_manifest(root, manifest)
