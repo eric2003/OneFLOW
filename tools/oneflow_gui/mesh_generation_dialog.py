@@ -271,6 +271,10 @@ class StlGeometryDialog(QDialog):
         self.generate_button.setMinimumHeight(42)
         self.generate_button.clicked.connect(self._generate)
         root.addWidget(self.generate_button)
+        self.open_gmsh_button = QPushButton("Open Generated STL in STL to Gmsh")
+        self.open_gmsh_button.setEnabled(False)
+        self.open_gmsh_button.clicked.connect(self._open_in_gmsh)
+        root.addWidget(self.open_gmsh_button)
         self.result_view = QPlainTextEdit()
         self.result_view.setReadOnly(True)
         self.result_view.setMinimumHeight(170)
@@ -299,6 +303,7 @@ class StlGeometryDialog(QDialog):
         self.length.setEnabled(is_cylinder)
         self.circumferential.setEnabled(is_cylinder)
         self.axial.setEnabled(is_cylinder)
+        self.open_gmsh_button.setEnabled(self.generated_stl is not None and not is_cylinder)
         self.patch_note.setText(
             "One closed wall surface; the STL is a piecewise-planar approximation."
             if not is_cylinder else
@@ -340,6 +345,7 @@ class StlGeometryDialog(QDialog):
             QMessageBox.warning(self, "STL generation failed", str(error))
             return
         self.generated_stl = Path(report["stl"])
+        self.open_gmsh_button.setEnabled(geometry != "cylinder_internal_flow")
         surface = report["surface"]
         patch_counts = {name: len(indices) for name, indices in report["patch_triangle_indices"].items()}
         self.result_view.setPlainText(
@@ -356,6 +362,23 @@ class StlGeometryDialog(QDialog):
             f"Patch triangles: {patch_counts}\n"
             f"SHA-256: {report['stl_sha256']}"
         )
+
+    def _open_in_gmsh(self) -> None:
+        if self.generated_stl is None or not self.generated_stl.is_file():
+            QMessageBox.warning(self, "No generated STL", "Generate an STL before opening it in Gmsh.")
+            return
+        if self.geometry.currentData() == "cylinder_internal_flow":
+            QMessageBox.information(
+                self, "Region-aware import required",
+                "The cylinder manifest preserves wall/inflow/outflow patches, but the current Gmsh adapter cannot yet reconstruct them. The STL is not opened to avoid classifying inlet and outlet as walls.",
+            )
+            return
+        try:
+            project = create_mesh_project_from_stl(self._repository_root, self.generated_stl)
+        except (OSError, ValueError, KeyError) as error:
+            QMessageBox.warning(self, "Cannot create mesh project", str(error))
+            return
+        StlToGmshDialog(self._repository_root, self, project=project).exec()
 
 
 class StlToGmshDialog(QDialog):
