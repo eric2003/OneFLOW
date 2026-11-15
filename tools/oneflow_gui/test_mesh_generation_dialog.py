@@ -25,6 +25,10 @@ from tools.oneflow_gui.mesh_generation_dialog import (
     MeshGenerationDialog,
     StlToGmshDialog,
 )
+from tools.oneflow_gui.mesh_project import (
+    create_mesh_project_from_template,
+    load_mesh_project,
+)
 
 
 class MeshGenerationDialogTest(unittest.TestCase):
@@ -146,6 +150,42 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     parent=dialog,
                 )
                 dialog_type.return_value.exec.assert_called_once()
+            finally:
+                dialog.close()
+
+    def test_project_settings_can_be_edited_and_saved_without_running_gmsh(self) -> None:
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory) / "mesh-generation"
+            with patch(
+                "tools.oneflow_gui.mesh_project.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                project = create_mesh_project_from_template(
+                    self.repository_root,
+                    "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
+                    "editable_spheroid",
+                )
+            dialog = StlToGmshDialog(self.repository_root, project=project)
+            try:
+                self.assertTrue(dialog.save_project_button.isVisible())
+                self.assertEqual(dialog.geometry_preset.currentData(), "prolate_spheroid")
+                dialog.minimum_size.setText("0.08")
+                dialog.maximum_size.setText("0.16")
+                dialog.boundary_name.setText("body_wall")
+                dialog.volume_name.setText("spheroid_fluid")
+                dialog.output_path.setText(
+                    str(project["directory"] / "results" / "edited.msh")
+                )
+                with patch("tools.oneflow_gui.mesh_generation_dialog.QMessageBox.information"):
+                    self.assertTrue(dialog._save_project_settings())
+                saved = load_mesh_project(project["directory"])
+                self.assertEqual(saved["mesh_size_min"], 0.08)
+                self.assertEqual(saved["mesh_size_max"], 0.16)
+                self.assertEqual(saved["boundary_name"], "body_wall")
+                self.assertEqual(saved["volume_name"], "spheroid_fluid")
+                self.assertEqual(saved["output_path"].name, "edited.msh")
             finally:
                 dialog.close()
 

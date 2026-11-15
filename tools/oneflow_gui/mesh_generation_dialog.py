@@ -328,6 +328,10 @@ class StlToGmshDialog(QDialog):
         self.copy_button.clicked.connect(self._copy_command)
         actions.addWidget(self.copy_button)
         actions.addStretch(1)
+        self.save_project_button = QPushButton("Save Project Settings")
+        self.save_project_button.setVisible(project is not None)
+        self.save_project_button.clicked.connect(self._save_project_settings)
+        actions.addWidget(self.save_project_button)
         self.run_button = QPushButton("Generate Mesh")
         self.run_button.setMinimumWidth(150)
         self.run_button.clicked.connect(self._run)
@@ -498,6 +502,36 @@ class StlToGmshDialog(QDialog):
             QApplication.clipboard().setText(self.command_view.toPlainText())
             self.status_label.setText("Command copied to clipboard.")
 
+    def _save_project_settings(
+        self, _checked: bool = False, *, show_message: bool = True,
+    ) -> bool:
+        if self._project is None:
+            return True
+        try:
+            self._arguments()
+            output = Path(self.output_path.text()).expanduser().resolve()
+            settings = {
+                "output_path": output,
+                "boundary_name": self.boundary_name.text().strip(),
+                "volume_name": self.volume_name.text().strip(),
+            }
+            if self.density.currentData() == "custom":
+                settings["mesh_size_min"] = float(self.minimum_size.text())
+                settings["mesh_size_max"] = float(self.maximum_size.text())
+            else:
+                settings["mesh_size"] = float(self.mesh_size.text())
+            self._project = save_mesh_project_settings(self._project, settings)
+        except (OSError, ValueError, KeyError) as error:
+            QMessageBox.warning(self, "Cannot save mesh project", str(error))
+            return False
+        self.status_label.setText("Project settings saved.")
+        if show_message:
+            QMessageBox.information(
+                self, "Mesh project saved",
+                f"Settings were saved to {self._project['directory'] / 'project.json'}",
+            )
+        return True
+
     def _run(self) -> None:
         try:
             arguments = self._arguments()
@@ -508,18 +542,8 @@ class StlToGmshDialog(QDialog):
             if output == stl:
                 raise ValueError("Output mesh must not overwrite the input STL.")
             output.parent.mkdir(parents=True, exist_ok=True)
-            if self._project is not None:
-                settings = {
-                    "output_path": output,
-                    "boundary_name": self.boundary_name.text().strip(),
-                    "volume_name": self.volume_name.text().strip(),
-                }
-                if self.density.currentData() == "custom":
-                    settings["mesh_size_min"] = float(self.minimum_size.text())
-                    settings["mesh_size_max"] = float(self.maximum_size.text())
-                else:
-                    settings["mesh_size"] = float(self.mesh_size.text())
-                self._project = save_mesh_project_settings(self._project, settings)
+            if not self._save_project_settings(show_message=False):
+                return
         except (OSError, ValueError, KeyError) as error:
             QMessageBox.warning(self, "Cannot generate mesh", str(error))
             return
