@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QDialog,
     QFileDialog,
     QFormLayout,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -224,18 +225,27 @@ class StlGeometryDialog(QDialog):
         description.setWordWrap(True)
         root.addWidget(description)
 
-        form = QFormLayout()
+        selector_form = QFormLayout()
         self.geometry = QComboBox()
         self.geometry.addItem("Sphere", "sphere")
         self.geometry.addItem("Prolate Spheroid", "prolate_spheroid")
         self.geometry.addItem("Cylinder — Internal Flow", "cylinder_internal_flow")
         self.geometry.currentIndexChanged.connect(self._geometry_changed)
-        form.addRow("Geometry library", self.geometry)
+        selector_form.addRow("Geometry library", self.geometry)
+        root.addLayout(selector_form)
 
+        # Keep one widget set per geometry. Hiding inactive groups preserves
+        # their independent values when the user switches between shapes.
+        self.sphere_group = QGroupBox("Sphere Parameters")
+        sphere_form = QFormLayout(self.sphere_group)
         self.radius = QLineEdit("1.0")
-        form.addRow("Radius", self.radius)
+        sphere_form.addRow("Radius", self.radius)
         self.subdivisions = QLineEdit("3")
-        form.addRow("Sphere subdivision level", self.subdivisions)
+        sphere_form.addRow("Icosphere subdivision level", self.subdivisions)
+        root.addWidget(self.sphere_group)
+
+        self.spheroid_group = QGroupBox("Prolate Spheroid Parameters")
+        spheroid_form = QFormLayout(self.spheroid_group)
         self.semi_axis_a = QLineEdit("3.0")
         self.semi_axis_b = QLineEdit("0.5")
         self.semi_axis_c = QLineEdit("0.5")
@@ -243,16 +253,28 @@ class StlGeometryDialog(QDialog):
         for label, widget in (("a", self.semi_axis_a), ("b", self.semi_axis_b), ("c", self.semi_axis_c)):
             axes.addWidget(QLabel(label))
             axes.addWidget(widget)
-        form.addRow("Spheroid semi-axes", axes)
+        spheroid_form.addRow("Semi-axes", axes)
+        self.spheroid_subdivisions = QLineEdit("3")
+        spheroid_form.addRow("Surface subdivision level", self.spheroid_subdivisions)
+        root.addWidget(self.spheroid_group)
+
+        self.cylinder_group = QGroupBox("Cylinder Parameters")
+        cylinder_form = QFormLayout(self.cylinder_group)
+        self.cylinder_radius = QLineEdit("1.0")
+        cylinder_form.addRow("Radius", self.cylinder_radius)
         self.length = QLineEdit("4.0")
-        form.addRow("Cylinder length", self.length)
+        cylinder_form.addRow("Length", self.length)
         self.circumferential = QLineEdit("48")
-        form.addRow("Circumferential divisions", self.circumferential)
+        cylinder_form.addRow("Circumferential divisions", self.circumferential)
         self.axial = QLineEdit("16")
-        form.addRow("Axial divisions", self.axial)
+        cylinder_form.addRow("Axial divisions", self.axial)
+        root.addWidget(self.cylinder_group)
+
+        common_group = QGroupBox("Common Output Settings")
+        common_form = QFormLayout(common_group)
         self.units = QComboBox()
         self.units.addItems(["m", "mm", "cm", "in"])
-        form.addRow("Coordinate units", self.units)
+        common_form.addRow("Coordinate units", self.units)
 
         self.output = QLineEdit()
         output_row = QHBoxLayout()
@@ -260,8 +282,8 @@ class StlGeometryDialog(QDialog):
         browse = QPushButton("Browse...")
         browse.clicked.connect(self._browse_output)
         output_row.addWidget(browse)
-        form.addRow("Output STL", output_row)
-        root.addLayout(form)
+        common_form.addRow("Output STL", output_row)
+        root.addWidget(common_group)
 
         self.patch_note = QLabel()
         self.patch_note.setWordWrap(True)
@@ -297,13 +319,9 @@ class StlGeometryDialog(QDialog):
         is_sphere = geometry == "sphere"
         is_spheroid = geometry == "prolate_spheroid"
         is_cylinder = geometry == "cylinder_internal_flow"
-        self.radius.setEnabled(is_sphere or is_cylinder)
-        self.subdivisions.setEnabled(is_sphere or is_spheroid)
-        for widget in (self.semi_axis_a, self.semi_axis_b, self.semi_axis_c):
-            widget.setEnabled(is_spheroid)
-        self.length.setEnabled(is_cylinder)
-        self.circumferential.setEnabled(is_cylinder)
-        self.axial.setEnabled(is_cylinder)
+        self.sphere_group.setVisible(is_sphere)
+        self.spheroid_group.setVisible(is_spheroid)
+        self.cylinder_group.setVisible(is_cylinder)
         self.open_gmsh_button.setEnabled(self.generated_stl is not None and self.generated_geometry == geometry and not is_cylinder)
         self.patch_note.setText(
             "One closed wall surface; the STL is a piecewise-planar approximation."
@@ -325,19 +343,30 @@ class StlGeometryDialog(QDialog):
     def _generate(self) -> None:
         try:
             geometry = str(self.geometry.currentData())
-            kwargs = {
-                "radius": float(self.radius.text()),
-                "subdivisions": int(self.subdivisions.text()),
-                "semi_axes": (
-                    float(self.semi_axis_a.text()),
-                    float(self.semi_axis_b.text()),
-                    float(self.semi_axis_c.text()),
-                ),
-                "length": float(self.length.text()),
-                "circumferential_divisions": int(self.circumferential.text()),
-                "axial_divisions": int(self.axial.text()),
-                "units": str(self.units.currentText()),
-            }
+            # Pass only the active geometry's parameters. Inactive panels
+            # retain their values but cannot accidentally affect generation.
+            if geometry == "sphere":
+                kwargs = {
+                    "radius": float(self.radius.text()),
+                    "subdivisions": int(self.subdivisions.text()),
+                }
+            elif geometry == "prolate_spheroid":
+                kwargs = {
+                    "semi_axes": (
+                        float(self.semi_axis_a.text()),
+                        float(self.semi_axis_b.text()),
+                        float(self.semi_axis_c.text()),
+                    ),
+                    "subdivisions": int(self.spheroid_subdivisions.text()),
+                }
+            else:
+                kwargs = {
+                    "radius": float(self.cylinder_radius.text()),
+                    "length": float(self.length.text()),
+                    "circumferential_divisions": int(self.circumferential.text()),
+                    "axial_divisions": int(self.axial.text()),
+                }
+            kwargs["units"] = str(self.units.currentText())
             output = Path(self.output.text()).expanduser()
             if not self.output.text().strip():
                 raise ValueError("Choose an output STL path.")
