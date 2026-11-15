@@ -61,7 +61,6 @@ class MeshProjectTest(unittest.TestCase):
         self.assertEqual(manifest["boundary_name"], "body_wall")
 
     def test_replacing_project_stl_updates_private_geometry_copy(self) -> None:
-        source = self.repository_root / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python/input/model.stl"
         alternate = self.home / "alternate.stl"
         alternate.write_text("solid replacement\\nendsolid replacement\\n", encoding="ascii")
         project = create_mesh_project_from_template(

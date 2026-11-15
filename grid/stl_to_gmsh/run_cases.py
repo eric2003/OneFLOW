@@ -26,7 +26,10 @@ NATIVE_CASES = {
     "3d/cube/single_hex/cpp": ("3d/cube/single_hex/cpp", "cube_single_hex.msh"),
     "3d/cube/six_tetrahedra/cpp": ("3d/cube/six_tetrahedra/cpp", "cube_six_tetrahedra.msh"),
     "3d/cube/automatic_tetrahedra/cpp": ("3d/cube/automatic_tetrahedra/cpp", "cube_automatic_tetrahedra.msh"),
-    "3d/prolate_spheroid/automatic_tetrahedra/cpp": ("3d/prolate_spheroid/automatic_tetrahedra/cpp", "prolate_spheroid_automatic_tetrahedra.msh"),
+    "3d/prolate_spheroid/automatic_tetrahedra/cpp": (
+        "3d/prolate_spheroid/automatic_tetrahedra/cpp",
+        "prolate_spheroid_automatic_tetrahedra.msh",
+    ),
 }
 PYTHON_CASES = {
     "2d/square/single_quad/python": "2d/square/single_quad/python",
@@ -38,7 +41,9 @@ PYTHON_CASES = {
     "3d/cube/single_hex/python": "3d/cube/single_hex/python",
     "3d/cube/six_tetrahedra/python": "3d/cube/six_tetrahedra/python",
     "3d/cube/automatic_tetrahedra/python": "3d/cube/automatic_tetrahedra/python",
-    "3d/prolate_spheroid/automatic_tetrahedra/python": "3d/prolate_spheroid/automatic_tetrahedra/python",
+    "3d/prolate_spheroid/automatic_tetrahedra/python": (
+        "3d/prolate_spheroid/automatic_tetrahedra/python"
+    ),
 }
 
 REFINEMENT_LEVELS = {

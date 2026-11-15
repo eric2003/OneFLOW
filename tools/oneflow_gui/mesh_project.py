@@ -11,6 +11,8 @@ from .user_data_paths import UserDataPaths
 
 _PROJECT_SCHEMA = "oneflow.mesh-generation-project"
 _GENERIC_3D_VALIDATION_CASE = "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra"
+
+
 def _catalog(repository_root: Path) -> dict:
     value = json.loads(
         (Path(repository_root).resolve() / "grid/case_catalog.json").read_text(
