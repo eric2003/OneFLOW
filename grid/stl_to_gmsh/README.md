@@ -36,6 +36,7 @@ and the C++ Geometry conversion pipeline.
 | Native C++ | 3d/cube/six_tetrahedra/cpp | Fixed | 8 | 6 TETRA_4 | 12 TRI_3 |
 | Native C++ | 3d/cube/automatic_tetrahedra/cpp | Automatic | Gmsh-generated | TETRA_4 | Triangular boundary |
 | Native C++ | 3d/sphere/automatic_tetrahedra/cpp | Automatic | Gmsh-generated | TETRA_4 | Closed wall surface |
+| Native C++ | 3d/prolate_spheroid/automatic_tetrahedra/cpp | Automatic | Gmsh-generated | TETRA_4 | Closed wall surface |
 | Python | 2d/square/single_quad/python | 1 x 1 | 4 | 1 QUAD_4 | 4 |
 | Python | 2d/square/two_triangles/python | 1 x 1 | 4 | 2 TRI_3 | 4 |
 | Python | 2d/square/automatic_triangles/python | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
@@ -46,6 +47,7 @@ and the C++ Geometry conversion pipeline.
 | Python | 3d/cube/six_tetrahedra/python | Fixed | 8 | 6 TETRA_4 | 12 TRI_3 |
 | Python | 3d/cube/automatic_tetrahedra/python | Automatic | Gmsh-generated | TETRA_4 | Triangular boundary |
 | Python | 3d/sphere/automatic_tetrahedra/python | Automatic | Gmsh-generated | TETRA_4 | Closed wall surface |
+| Python | 3d/prolate_spheroid/automatic_tetrahedra/python | Automatic | Gmsh-generated | TETRA_4 | Closed wall surface |
 
 For the square Cases, the STL describes the outer domain boundary. The
 single-quad and two-triangle variants use the same STL and 1 x 1 transfinite
@@ -74,12 +76,13 @@ to OneFLOW boundary IDs. The original patch names remain intact. This is a
 type-level mapping only: inlet/outlet state values and solver-specific wall
 treatment require separate configuration.
 
-The unit-sphere Cases also run the complete Mesh-to-CFD smoke chain. Their
-closed volume has a wall-only exterior (no inlet or outlet); the workflow
-reuses the laminar-flat-plate CFD template for common solver settings and
-overrides the staged dimension to 3. This deliberately exercises the 3-D
-OneFLOW runtime after mesh handoff. It is a pipeline smoke test, not a
-physically representative external-flow calculation or an accuracy benchmark.
+The unit-sphere and 6:1 prolate-spheroid Cases also run the complete Mesh-to-CFD
+smoke chain. Their closed volumes have a wall-only exterior (no inlet or
+outlet); the workflow reuses the laminar-flat-plate CFD template for common
+solver settings and overrides the staged dimension to 3. This deliberately
+exercises the 3-D OneFLOW runtime after mesh handoff. It is a pipeline smoke
+test, not a physically representative external-flow calculation or an
+accuracy benchmark.
 
 ## Native C++ execution
 
@@ -119,7 +122,7 @@ If the executable is not in the standard build/bin locations:
 
     python grid/stl_to_gmsh/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
 
-The orchestrator stages the 18 fixed Cases plus six sphere mesh-size variants under
+The orchestrator stages the 20 fixed Cases plus six sphere mesh-size variants under
 %USERPROFILE%/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Windows or
 $HOME/.oneflow/mesh-layout-test/grid/stl_to_gmsh on Linux. Staging paths mirror
 the Case layout, for example 2d/square/single_quad/cpp and 2d/square/single_quad/python; each has its own
@@ -155,8 +158,10 @@ making Gmsh available on PATH. For the native unit sphere:
     python -m tools.oneflow_gui.mesh_validation --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh --mesh-case-id stl_to_gmsh_sphere_automatic_tetrahedra --max-steps 2
 
 For the Python reference, use `stl_to_gmsh_python_sphere_automatic_tetrahedra`
-as the `--mesh-case-id`. These commands execute the selected sphere through
-the complete Mesh-to-CFD smoke chain.
+as the `--mesh-case-id`. For the prolate spheroid, use either
+`stl_to_gmsh_prolate_spheroid_automatic_tetrahedra` or
+`stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra`. These commands
+execute the selected mesh through the complete Mesh-to-CFD smoke chain.
 
 The default validation workspace is under
 `%USERPROFILE%/.oneflow/mesh-validation/` on Windows or
@@ -178,9 +183,9 @@ standalone STL-to-Gmsh producer Cases.
     python tools/mesh_cases.py validate 2d/circle_external_flow/cpp
 
 When Gmsh is available, the Python test suite executes the circle reference
-Case and all three cube reference Cases in temporary directories, validating
-their MSH 4.1 element families, fixed or minimum topology contracts, and
-Physical Groups. The native C++ integration suite separately exercises the
+Case, all three cube reference Cases and the prolate-spheroid reference Case in
+temporary directories, validating their MSH 4.1 element families, fixed or
+minimum topology contracts, coordinate bounds and Physical Groups. The native C++ integration suite separately exercises the
 single-hex, six-tetrahedron, and automatic-tetrahedron cube strategies. The native C++ circle integration test is enabled
 by `ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS` and is exercised by the
 `OneFLOW External Tool Integration` workflow.
@@ -189,9 +194,13 @@ Tests use temporary output directories. The structured native Cases support
 one connected, axis-aligned rectangular XY boundary and QUAD_4 layouts. The
 native circle external-flow Case additionally supports one closed planar STL
 body loop inside a rectangular outer domain, producing a triangular fluid
-region with a hole. The three 3d/cube/* pairs are the supported 3-D volume prototypes and are restricted to the same axis-aligned cube STL. They progress from one HEXA_8 cell, to a fixed six-TETRA_4 decomposition, to an automatic tetrahedral mesh. Arbitrary multiple body
-loops, self-intersections, curved CAD entities, and general STL-to-volume
-meshing are not claimed.
+region with a hole. The three 3d/cube/* pairs remain the structured 3-D volume prototypes and are
+restricted to the same axis-aligned cube STL. They progress from one HEXA_8
+cell, to a fixed six-TETRA_4 decomposition, to an automatic tetrahedral mesh.
+The separate 6:1 prolate-spheroid pair exercises the generic closed, connected,
+consistently oriented genus-zero STL volume-meshing path. This does not claim
+support for disconnected shells, non-zero genus surfaces, self-intersections,
+or arbitrary invalid STL input.
 
 ## Retired legacy entry point
 
