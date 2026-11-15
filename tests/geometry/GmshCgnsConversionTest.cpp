@@ -58,7 +58,7 @@ TEST(CgnsBaseDimensionTest, UsesActiveTopologyDimensionAndThreeCoordinateCompone
 TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
     const std::filesystem::path source =
         std::filesystem::path(ONEFLOW_SOURCE_DIR) /
-        "grid" / "gmsh_to_cgns" / "grid" / "square.msh";
+        "grid" / "conversion" / "gmsh_to_cgns" / "grid" / "square.msh";
     ASSERT_TRUE(std::filesystem::is_regular_file(source));
 
     const std::filesystem::path caseDirectory = MakeTemporaryCaseDirectory();
@@ -236,7 +236,7 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
 TEST(GmshCgnsConversionTest, ConvertsGmshThroughCgnsIntoOneFlowGrid) {
     const std::filesystem::path source =
         std::filesystem::path(ONEFLOW_SOURCE_DIR) /
-        "grid" / "gmsh_to_cgns" / "grid" / "square.msh";
+        "grid" / "conversion" / "gmsh_to_cgns" / "grid" / "square.msh";
     ASSERT_TRUE(std::filesystem::is_regular_file(source));
 
     const std::filesystem::path caseDirectory = MakeTemporaryCaseDirectory();
@@ -374,7 +374,7 @@ TEST(GmshCgnsConversionTest, ConvertsGmshThroughCgnsIntoOneFlowGrid) {
 TEST(GmshCgnsConversionTest, ConvertsSingleHexahedronWithFaceCenterBoundaries) {
     const std::filesystem::path source =
         std::filesystem::path(ONEFLOW_SOURCE_DIR) /
-        "grid" / "gmsh_to_cgns" / "grid" / "cube_single_hex.msh";
+        "grid" / "conversion" / "gmsh_to_cgns" / "grid" / "cube_single_hex.msh";
     ASSERT_TRUE(std::filesystem::is_regular_file(source));
 
     const std::filesystem::path caseDirectory = MakeTemporaryCaseDirectory();

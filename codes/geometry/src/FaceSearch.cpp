@@ -402,9 +402,6 @@ bool FaceSearch::TrySplitLineAtMidpoint(
 {
     PointLocator & pointLocator = iFaceLink.GetPointLocator();
 
-    const int soleZoneId = RequireSoleZoneIdForGlobalFace(
-        iFaceLink.GetGlobalToZoneIds(), globalFaceId );
-
     const int p0 = nodeId[ 0 ];
     const int p1 = nodeId[ 1 ];
     RealField coor0( 3 ), coor1( 3 ), coor2( 3 );
@@ -417,6 +414,11 @@ bool FaceSearch::TrySplitLineAtMidpoint(
     const int midpointGlobalNode =
         pointLocator.FindPoint( coor2[ 0 ], coor2[ 1 ], coor2[ 2 ] );
     if ( midpointGlobalNode == ONEFLOW::INVALID_INDEX ) return false;
+
+    // No midpoint means this edge does not need splitting. Only a real
+    // midpoint candidate needs the current single-zone mutation target.
+    const int soleZoneId = RequireSoleZoneIdForGlobalFace(
+        iFaceLink.GetGlobalToZoneIds(), globalFaceId );
 
     // Resolve and validate registered child identities before mutating the
     // zone mesh. An edge with no registered child cannot publish a split map.

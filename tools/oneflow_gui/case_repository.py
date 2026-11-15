@@ -2,11 +2,45 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from tools.mesh_cases import load_catalog, validate_case
 
 from .models import CaseDefinition
+
+
+def _case_dimension(entry: dict, case_directory: Path) -> int | None:
+    """Resolve a Case's spatial dimension from metadata or its inputs."""
+    value = entry.get("dimension")
+    if value in (2, 3):
+        return value
+    layout_path = case_directory / "script" / "layout.json"
+    if layout_path.is_file():
+        try:
+            layout = json.loads(layout_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            layout = {}
+        value = layout.get("mesh_dimension") if isinstance(layout, dict) else None
+        if value in (2, 3):
+            return value
+    profile_value = entry.get("profile")
+    if profile_value:
+        try:
+            profile = json.loads((case_directory / profile_value).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            profile = {}
+        parameters = profile.get("parameters", {}) if isinstance(profile, dict) else {}
+        runtime = parameters.get("runtime", {}) if isinstance(parameters, dict) else {}
+        value = runtime.get("dimension") if isinstance(runtime, dict) else None
+        if value in (2, 3):
+            return value
+    directory_parts = {part.lower() for part in Path(entry["directory"]).parts}
+    if "2d" in directory_parts:
+        return 2
+    if "3d" in directory_parts:
+        return 3
+    return None
 
 
 def load_cases(repository_root: Path) -> list[CaseDefinition]:
@@ -48,6 +82,7 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
                 execution_kind=execution_kind,
                 execution_script=execution_script,
                 workspace_relative_directory=workspace_relative_directory,
+                dimension=_case_dimension(entry, case_directory),
             )
         )
 

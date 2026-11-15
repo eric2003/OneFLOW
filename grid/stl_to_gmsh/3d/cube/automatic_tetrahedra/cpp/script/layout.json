@@ -1,0 +1,15 @@
+{
+  "volume_mesh": "axis_aligned_cube_automatic_tetrahedra",
+  "case_name": "automatic_tetrahedra",
+  "mesh_size": 0.5,
+  "mesh_dimension": 3,
+  "surface_name": "fluid_domain",
+  "boundary_groups": {
+    "xmin": "inflow",
+    "xmax": "outflow",
+    "ymin": "wall",
+    "ymax": "farfield",
+    "zmin": "symmetry",
+    "zmax": "symmetry"
+  }
+}

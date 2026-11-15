@@ -343,6 +343,19 @@ namespace
             cellDimension = std::max( cellDimension, element.entityDimension );
         if ( cellDimension < 1 || cellDimension > 3 )
             throw std::runtime_error( "Gmsh mesh has no supported cell dimension" );
+        if ( cellDimension == 3 )
+        {
+            bool hasVolumeCells = false;
+            bool allVolumeCellsAreTetrahedra = true;
+            for ( const GmshElement & element : mesh.elements )
+            {
+                if ( element.entityDimension != 3 ) continue;
+                hasVolumeCells = true;
+                if ( element.type != 4 ) allVolumeCellsAreTetrahedra = false;
+            }
+            if ( hasVolumeCells && allVolumeCellsAreTetrahedra )
+                (void)ValidateGmshTetrahedralTopology( mesh );
+        }
         if ( mesh.nodes.size() > static_cast< size_t >( std::numeric_limits< int >::max() ) )
             throw std::runtime_error( "Gmsh node count exceeds OneFLOW index range" );
 
@@ -1164,8 +1177,11 @@ void ConvertStlCubeToGmsh(
     const std::filesystem::path& target)
 {
     namespace fs = std::filesystem;
-    if (options.value("volume_mesh", std::string{}) != "axis_aligned_cube_single_hex")
-        throw std::invalid_argument("Unsupported STL volume_mesh contract");
+    const std::string volumeMesh = options.value("volume_mesh", std::string{});
+    if (volumeMesh != "axis_aligned_cube_single_hex" &&
+        volumeMesh != "axis_aligned_cube_six_tetrahedra" &&
+        volumeMesh != "axis_aligned_cube_automatic_tetrahedra")
+        throw std::invalid_argument("Unsupported STL cube volume_mesh contract");
     const double tolerance = config.stlWeldTolerance;
     if (!std::isfinite(tolerance) || tolerance <= 0.0)
         throw std::invalid_argument("STL weld tolerance must be positive and finite");
@@ -1189,7 +1205,7 @@ void ConvertStlCubeToGmsh(
         maximum[0] - minimum[0], maximum[1] - minimum[1], maximum[2] - minimum[2]}};
     if (*std::max_element(extents.begin(), extents.end()) -
         *std::min_element(extents.begin(), extents.end()) > tolerance)
-        throw std::invalid_argument("cube_single_hex requires equal axis-aligned edge lengths");
+        throw std::invalid_argument("Cube volume requires equal axis-aligned edge lengths");
 
 
     const std::array<Point, 8> corners{{
@@ -1225,10 +1241,30 @@ void ConvertStlCubeToGmsh(
         geo << "Curve Loop(" << i + 1 << ") = " << loops[i] << ";\n"
             << "Plane Surface(" << i + 1 << ") = {" << i + 1 << "};\n";
     geo << "Surface Loop(1) = {-1, 2, 3, 4, 5, 6};\n"
-        << "Volume(1) = {1};\n"
-        << "Transfinite Curve {1:12} = 2;\n"
-        << "Transfinite Surface {1:6};\nRecombine Surface {1:6};\n"
-        << "Transfinite Volume {1};\nRecombine Volume {1};\n";
+        << "Volume(1) = {1};\n";
+    if (volumeMesh == "axis_aligned_cube_single_hex")
+        geo << "Transfinite Curve {1:12} = 2;\n"
+            << "Transfinite Surface {1:6};\nRecombine Surface {1:6};\n"
+            << "Transfinite Volume {1};\nRecombine Volume {1};\n";
+    else if (volumeMesh == "axis_aligned_cube_six_tetrahedra")
+        geo << "Transfinite Curve {1:12} = 2;\n"
+            << "Transfinite Surface {1} = {1, 2, 3, 4};\n"
+            << "Transfinite Surface {2} = {5, 6, 7, 8};\n"
+            << "Transfinite Surface {3} = {4, 1, 5, 8} Right;\n"
+            << "Transfinite Surface {4} = {2, 3, 7, 6};\n"
+            << "Transfinite Surface {5} = {1, 2, 6, 5};\n"
+            << "Transfinite Surface {6} = {3, 4, 8, 7} Right;\n"
+            << "Transfinite Volume {1} = {1, 2, 3, 4, 5, 6, 7, 8};\n";
+    else
+    {
+        const double meshSize = options.value("mesh_size", 0.5);
+        if (!std::isfinite(meshSize) || meshSize <= 0.0)
+            throw std::invalid_argument("cube automatic tetrahedra mesh_size must be positive and finite");
+        geo << "Mesh.MeshSizeMin = " << meshSize << ";\n"
+            << "Mesh.MeshSizeMax = " << meshSize << ";\n"
+            << "Mesh.MeshSizeFromPoints = 1;\n"
+            << "Mesh.MeshSizeExtendFromBoundary = 1;\n";
+    }
 
     // The six CAD surface IDs follow the cube construction above:
     // ZMin=1, ZMax=2, XMin=3, XMax=4, YMin=5, YMax=6.
@@ -1240,7 +1276,7 @@ void ConvertStlCubeToGmsh(
     if (boundaryGroupsIter == options.end() || !boundaryGroupsIter->is_object() ||
         boundaryGroupsIter->size() != surfaceBySide.size())
         throw std::invalid_argument(
-            "cube_single_hex layout must define exactly xmin, xmax, ymin, ymax, zmin and zmax boundary_groups");
+            "Cube volume layout must define exactly xmin, xmax, ymin, ymax, zmin and zmax boundary_groups");
 
     std::set<std::string> expectedPhysicalNames;
     for (const auto& side : surfaceBySide)
@@ -1248,17 +1284,17 @@ void ConvertStlCubeToGmsh(
         const auto semanticIter = boundaryGroupsIter->find(side.first);
         if (semanticIter == boundaryGroupsIter->end() || !semanticIter->is_string())
             throw std::invalid_argument(
-                "cube_single_hex boundary_groups." + side.first + " must be a string");
+                "Cube volume boundary_groups." + side.first + " must be a string");
         const std::string physicalName = side.first + "_" + semanticIter->get<std::string>();
         if (physicalName.size() > 32 ||
             GmshPhysicalNameToCgnsBcType(physicalName) ==
                 static_cast<int>(CGNS_ENUMV(BCTypeUserDefined)))
             throw std::invalid_argument(
-                "Unsupported cube_single_hex boundary semantic for " + side.first +
+                "Unsupported cube volume boundary semantic for " + side.first +
                 ": " + semanticIter->get<std::string>());
         if (!expectedPhysicalNames.insert(physicalName).second)
             throw std::invalid_argument(
-                "cube_single_hex boundary patch names must be unique: " + physicalName);
+                "Cube volume boundary patch names must be unique: " + physicalName);
         geo << "Physical Surface(\"" << physicalName << "\") = {"
             << side.second << "};\n";
     }
@@ -1280,11 +1316,23 @@ void ConvertStlCubeToGmsh(
     if (!input) throw std::runtime_error("Gmsh did not create mesh: " + target.string());
     const std::string content{std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
     const GmshMesh generated = ReadGmsh41AsciiMesh(content);
+    if ( volumeMesh == "axis_aligned_cube_six_tetrahedra" ||
+         volumeMesh == "axis_aligned_cube_automatic_tetrahedra" )
+        (void)ValidateGmshTetrahedralTopology( generated );
     std::map<int, std::size_t> counts;
     for (const auto& element : generated.elements) ++counts[element.type];
-    if (generated.nodes.size() != 8 || counts[5] != 1 || counts[3] != 6 ||
-        counts.size() != 2 || generated.elements.size() != 7)
-        throw std::runtime_error("cube_single_hex must generate exactly 8 nodes, 6 QUAD_4 faces and 1 HEXA_8 cell");
+    bool validTopology = false;
+    if (volumeMesh == "axis_aligned_cube_single_hex")
+        validTopology = generated.nodes.size() == 8 && counts[5] == 1 &&
+            counts[3] == 6 && counts[4] == 0 && counts[2] == 0;
+    else if (volumeMesh == "axis_aligned_cube_six_tetrahedra")
+        validTopology = generated.nodes.size() == 8 && counts[4] == 6 &&
+            counts[2] == 12 && counts[3] == 0 && counts[5] == 0;
+    else
+        validTopology = generated.nodes.size() > 8 && counts[4] > 0 &&
+            counts[2] > 0 && counts[3] == 0 && counts[5] == 0;
+    if (!validTopology)
+        throw std::runtime_error("Generated cube volume mesh does not satisfy the declared HEXA_8 or TETRA_4 topology contract");
     std::set<std::pair<int, std::string>> expected;
     for (const std::string& name : expectedPhysicalNames)
         expected.emplace(2, name);
@@ -1303,23 +1351,26 @@ void ConvertStlCubeToGmsh(
         if (entity == generated.entityPhysicalTags.end() ||
             entity->second.size() != 1)
             throw std::runtime_error(
-                "cube_single_hex surface " + side.first +
+                "Cube volume surface " + side.first +
                 " must belong to exactly one Physical Group");
         const auto name = generated.physicalNames.find({2, entity->second.front()});
         if (name == generated.physicalNames.end() || name->second != physicalName)
             throw std::runtime_error(
-                "cube_single_hex Physical Group is attached to the wrong surface: " +
+                "Cube volume Physical Group is attached to the wrong surface: " +
                 side.first);
     }
 
     nlohmann::json report;
     report["schema"] = "oneflow.stl-to-gmsh-validation-report";
     report["version"] = 1;
-    report["case"] = "cube_single_hex";
+    report["case"] = options.value("case_name", volumeMesh);
+    report["volume_mesh"] = volumeMesh;
     report["input_triangles"] = 12;
-    report["mesh_nodes"] = 8;
-    report["hexahedron_elements"] = 1;
-    report["quadrilateral_boundary_elements"] = 6;
+    report["mesh_nodes"] = generated.nodes.size();
+    report["tetrahedron_elements"] = counts[4];
+    report["triangle_boundary_elements"] = counts[2];
+    report["hexahedron_elements"] = counts[5];
+    report["quadrilateral_boundary_elements"] = counts[3];
     report["physical_groups"] = nlohmann::json::array();
     for (const std::string& name : expectedPhysicalNames)
         report["physical_groups"].push_back(name);
@@ -1371,7 +1422,9 @@ void ConvertStlCubeToGmsh(
         {
             const std::string volumeMesh =
                 options.value("volume_mesh", std::string{});
-            if (volumeMesh != "axis_aligned_cube_single_hex")
+            if (volumeMesh != "axis_aligned_cube_single_hex" &&
+                volumeMesh != "axis_aligned_cube_six_tetrahedra" &&
+                volumeMesh != "axis_aligned_cube_automatic_tetrahedra")
                 throw std::invalid_argument(
                     "Unsupported 3-D STL-to-Gmsh volume_mesh contract: " + volumeMesh);
             std::cout << "STL to Gmsh: selected 3-D volume pipeline ("
@@ -1401,11 +1454,21 @@ void ConvertStlCubeToGmsh(
         if (!std::isfinite(meshSize) || meshSize <= 0.0)
             throw std::invalid_argument("STL-to-Gmsh mesh_size must be positive and finite");
 
-        const Json cells = options.at("transfinite_cells");
-        const int cellsX = cells.at("x").get<int>();
-        const int cellsY = cells.at("y").get<int>();
-        if (cellsX < 1 || cellsY < 1)
-            throw std::invalid_argument("STL-to-Gmsh transfinite cell counts must be positive");
+        const bool structured = options.contains("transfinite_cells");
+        int cellsX = 0;
+        int cellsY = 0;
+        if (structured)
+        {
+            const Json& cells = options.at("transfinite_cells");
+            cellsX = cells.at("x").get<int>();
+            cellsY = cells.at("y").get<int>();
+            if (cellsX < 1 || cellsY < 1)
+                throw std::invalid_argument("STL-to-Gmsh transfinite cell counts must be positive");
+        }
+        const bool recombineSurface = options.value("recombine_surface", structured);
+        if (!structured && recombineSurface)
+            throw std::invalid_argument(
+                "Automatic STL-to-Gmsh triangle meshing does not support recombine_surface");
 
         const StlMesh stl = StlMeshReader::Read(source.string());
         const StlPlanarBoundary boundary =
@@ -1537,8 +1600,13 @@ void ConvertStlCubeToGmsh(
         geo << "SetFactory(\"Built-in\");\n"
             << "Mesh.MshFileVersion = 4.1;\n"
             << "Mesh.Binary = 0;\n"
-            << "Mesh.ElementOrder = 1;\n"
-            << "Mesh.RecombineAll = 1;\n";
+            << "Mesh.ElementOrder = 1;\n";
+        geo << "Mesh.MeshSizeMin = " << meshSize << ";\n"
+            << "Mesh.MeshSizeMax = " << meshSize << ";\n"
+            << "Mesh.MeshSizeFromPoints = 1;\n"
+            << "Mesh.MeshSizeExtendFromBoundary = 1;\n";
+        if (recombineSurface)
+            geo << "Mesh.RecombineAll = 1;\n";
         for (std::size_t i = 0; i < boundary.vertices.size(); ++i)
         {
             const auto& point = boundary.vertices[i];
@@ -1551,17 +1619,21 @@ void ConvertStlCubeToGmsh(
                 << i + 1 << ", " << (i + 1) % boundary.vertices.size() + 1 << "};\n";
         geo << "Curve Loop(1) = {1, 2, 3, 4};\n"
             << "Plane Surface(1) = {1};\n";
-        for (std::size_t i = 0; i < boundary.vertices.size(); ++i)
+        if (structured)
         {
-            const auto& a = boundary.vertices[i];
-            const auto& b = boundary.vertices[(i + 1) % boundary.vertices.size()];
-            const bool horizontal =
-                std::abs(a[1] - b[1]) <= config.stlWeldTolerance;
-            geo << "Transfinite Curve {" << i + 1 << "} = "
-                << (horizontal ? cellsX + 1 : cellsY + 1) << ";\n";
+            for (std::size_t i = 0; i < boundary.vertices.size(); ++i)
+            {
+                const auto& a = boundary.vertices[i];
+                const auto& b = boundary.vertices[(i + 1) % boundary.vertices.size()];
+                const bool horizontal =
+                    std::abs(a[1] - b[1]) <= config.stlWeldTolerance;
+                geo << "Transfinite Curve {" << i + 1 << "} = "
+                    << (horizontal ? cellsX + 1 : cellsY + 1) << ";\n";
+            }
+            geo << "Transfinite Surface {1};\n";
+            if (recombineSurface)
+                geo << "Recombine Surface {1};\n";
         }
-        geo << "Transfinite Surface {1};\n"
-            << "Recombine Surface {1};\n";
         for (const auto& assignment : assignedCurves)
             geo << "Physical Curve(\"" << assignment.first << "\") = {"
                 << assignment.second << "};\n";
@@ -1621,26 +1693,82 @@ void ConvertStlCubeToGmsh(
             else if (element.type == 2) ++triangleElements;
             else if (element.type == 3) ++quadrilateralElements;
         }
-        const std::size_t expectedNodes =
-            static_cast<std::size_t>(cellsX + 1) * static_cast<std::size_t>(cellsY + 1);
-        const std::size_t expectedLines =
-            2u * (static_cast<std::size_t>(cellsX) + static_cast<std::size_t>(cellsY));
-        const std::size_t expectedQuads =
-            static_cast<std::size_t>(cellsX) * static_cast<std::size_t>(cellsY);
-        if (generated.nodes.size() != expectedNodes ||
-            generated.elements.size() != expectedLines + expectedQuads ||
-            lineElements != expectedLines ||
-            quadrilateralElements != expectedQuads ||
-            triangleElements != 0)
-            throw std::runtime_error(
-                "Generated MSH topology mismatch: expected " +
-                std::to_string(expectedNodes) + " nodes, " +
-                std::to_string(expectedLines) + " boundary lines, " +
-                std::to_string(expectedQuads) + " QUAD_4 cells; observed " +
-                std::to_string(generated.nodes.size()) + ", " +
-                std::to_string(lineElements) + ", " +
-                std::to_string(quadrilateralElements) + " quads and " +
-                std::to_string(triangleElements) + " triangles");
+        if (structured)
+        {
+            const std::size_t expectedNodes =
+                static_cast<std::size_t>(cellsX + 1) * static_cast<std::size_t>(cellsY + 1);
+            const std::size_t expectedLines =
+                2u * (static_cast<std::size_t>(cellsX) + static_cast<std::size_t>(cellsY));
+            const std::size_t expectedCells =
+                static_cast<std::size_t>(cellsX) * static_cast<std::size_t>(cellsY);
+            const std::size_t expectedQuads = recombineSurface ? expectedCells : 0u;
+            const std::size_t expectedTriangles = recombineSurface ? 0u : 2u * expectedCells;
+            if (generated.nodes.size() != expectedNodes ||
+                generated.elements.size() != expectedLines + expectedQuads + expectedTriangles ||
+                lineElements != expectedLines ||
+                quadrilateralElements != expectedQuads ||
+                triangleElements != expectedTriangles)
+                throw std::runtime_error(
+                    "Generated MSH topology mismatch: expected " +
+                    std::to_string(expectedNodes) + " nodes, " +
+                    std::to_string(expectedLines) + " boundary lines, " +
+                    std::to_string(expectedQuads) + " QUAD_4 cells and " +
+                    std::to_string(expectedTriangles) + " TRI_3 cells; observed " +
+                    std::to_string(generated.nodes.size()) + ", " +
+                    std::to_string(lineElements) + ", " +
+                    std::to_string(quadrilateralElements) + " quads and " +
+                    std::to_string(triangleElements) + " triangles");
+        }
+        else
+        {
+            if (generated.nodes.size() <= 4 || lineElements < 4 ||
+                triangleElements == 0 || quadrilateralElements != 0 ||
+                generated.elements.size() != lineElements + triangleElements)
+                throw std::runtime_error(
+                    "Automatic STL-to-Gmsh meshing must produce a non-empty "
+                    "unstructured TRI_3 mesh with a subdivided rectangular boundary");
+            std::map<std::pair<long long, long long>, int> edgeIncidence;
+            std::set<std::pair<long long, long long>> boundaryLineEdges;
+            for (const GmshElement& element : generated.elements)
+            {
+                if (element.type == 2)
+                {
+                    if (element.nodeTags.size() != 3)
+                        throw std::runtime_error("Automatic TRI_3 element has invalid connectivity");
+                    for (int edge = 0; edge < 3; ++edge)
+                    {
+                        const long long a = element.nodeTags[edge];
+                        const long long b = element.nodeTags[(edge + 1) % 3];
+                        edgeIncidence[std::minmax(a, b)]++;
+                    }
+                }
+                else if (element.type == 1)
+                {
+                    if (element.nodeTags.size() != 2)
+                        throw std::runtime_error("Automatic boundary LINE_2 element has invalid connectivity");
+                    boundaryLineEdges.insert(std::minmax(
+                        element.nodeTags[0], element.nodeTags[1]));
+                }
+            }
+            std::size_t boundaryEdges = 0;
+            for (const auto& edge : edgeIncidence)
+            {
+                if (edge.second == 1) ++boundaryEdges;
+                else if (edge.second != 2)
+                    throw std::runtime_error("Automatic TRI_3 mesh has non-manifold edge incidence");
+            }
+            if (boundaryEdges != lineElements ||
+                boundaryLineEdges.size() != lineElements ||
+                static_cast<long long>(generated.nodes.size()) -
+                    static_cast<long long>(edgeIncidence.size()) +
+                    static_cast<long long>(triangleElements) != 1)
+                throw std::runtime_error(
+                    "Automatic TRI_3 mesh failed boundary-edge or Euler topology validation");
+            for (const auto& edge : boundaryLineEdges)
+                if (edgeIncidence.count(edge) == 0 || edgeIncidence.at(edge) != 1)
+                    throw std::runtime_error(
+                        "Automatic boundary LINE_2 does not match a TRI_3 boundary edge");
+        }
 
         const std::set<std::pair<int, std::string>> expectedGroups{
             {1, "inflow"}, {1, "outflow"}, {1, "symmetry"},
@@ -1661,7 +1789,11 @@ void ConvertStlCubeToGmsh(
         report["gmsh_version"] = generated.version;
         report["stl_triangles"] = stl.triangles.size();
         report["stl_boundary_vertices"] = boundary.vertices.size();
-        report["transfinite_cells"] = {{"x", cellsX}, {"y", cellsY}};
+        report["mesh_mode"] = structured ? "transfinite" : "automatic_triangles";
+        report["mesh_size"] = meshSize;
+        if (structured)
+            report["transfinite_cells"] = {{"x", cellsX}, {"y", cellsY}};
+        report["recombine_surface"] = recombineSurface;
         report["mesh_summary"] = {
             {"nodes", generated.nodes.size()},
             {"line_elements", lineElements},
@@ -1683,8 +1815,8 @@ void ConvertStlCubeToGmsh(
             throw std::runtime_error("Failed writing STL-to-Gmsh report: " + reportPath.string());
 
         std::cout << "STL to Gmsh completed: " << generated.nodes.size()
-                  << " nodes, " << quadrilateralElements
-                  << " QUAD_4 cells, " << lineElements
+                  << " nodes, " << quadrilateralElements << " QUAD_4 cells, "
+                  << triangleElements << " TRI_3 cells, " << lineElements
                   << " boundary LINE_2 elements." << std::endl;
     }
 

@@ -175,10 +175,10 @@ verification levels are:
    region assignments. Comparisons must account for permitted node/element
    renumbering rather than requiring identical file ordering.
 
-The GUI exposes this prototype only as a manual experimental Case check.
-It is not part of CTest, Python unittest, the regular CFD/grid suites, or
-GitHub Actions. The Case is copied to a temporary workspace before execution;
-the repository's sample input remains unchanged.
+The Gmsh reader and Gmsh-to-CGNS adapter are exercised by focused C++ reader
+and conversion integration tests. The shared Mesh-to-CFD Validation Workbench
+stages the reusable conversion template in an isolated workspace; no
+GUI-only experimental manual Case is maintained.
 
 Gmsh API integration and cross-platform policy
 ----------------------------------------------

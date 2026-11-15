@@ -67,11 +67,56 @@ TEST( GridLayoutParserTest, ClassifiesBoundaryTypes )
         GridBoundaryKind::Physical );
 }
 
-TEST( GridLayoutParserTest, ParsesTwoConnectedThreeDimensionalCubes )
+
+TEST( GridLayoutParserTest, ParsesTwoBlocksWithSharedEdgeEndpointsOnly )
 {
     const std::string fileName =
         std::string( ONEFLOW_SOURCE_DIR ) +
-        "/grid/two_connected_cubes/grid/twoConnectedCubesLayout.txt";
+        "/grid/mesh-layout/2d/two_blocks_shared_edge_endpoints_only/grid/twoBlocksSharedEdgeEndpointsOnlyLayout.txt";
+
+    const GridLayout layout = GridLayoutParser().Parse( fileName );
+
+    EXPECT_EQ( layout.points.size(), 6u );
+    EXPECT_EQ( layout.lines.size(), 7u );
+    EXPECT_EQ( layout.dimensions.size(), 7u );
+    EXPECT_EQ( layout.distributions.size(), 7u );
+    EXPECT_EQ( layout.boundaries.size(), 7u );
+    EXPECT_EQ( layout.lineToFaces.size(), 8u );
+    EXPECT_EQ( layout.faceToBlocks.size(), 2u );
+    for ( const auto & dimension : layout.dimensions )
+    {
+        EXPECT_EQ( dimension.pointCount, 2 );
+    }
+    EXPECT_EQ( layout.boundaries[ 1 ].boundaryType, -1 );
+}
+
+TEST( GridLayoutParserTest, ParsesTwoBlocksWithOneInteriorSharedEdgeNode )
+{
+    const std::string fileName =
+        std::string( ONEFLOW_SOURCE_DIR ) +
+        "/grid/mesh-layout/2d/two_blocks_shared_edge_one_interior_node/grid/twoConnectedSquaresLayout.txt";
+
+    const GridLayout layout = GridLayoutParser().Parse( fileName );
+
+    EXPECT_EQ( layout.points.size(), 6u );
+    EXPECT_EQ( layout.lines.size(), 7u );
+    EXPECT_EQ( layout.dimensions.size(), 7u );
+    EXPECT_EQ( layout.distributions.size(), 7u );
+    EXPECT_EQ( layout.boundaries.size(), 7u );
+    EXPECT_EQ( layout.lineToFaces.size(), 8u );
+    EXPECT_EQ( layout.faceToBlocks.size(), 2u );
+    for ( const auto & dimension : layout.dimensions )
+    {
+        EXPECT_EQ( dimension.pointCount, 3 );
+    }
+    EXPECT_EQ( layout.boundaries[ 1 ].boundaryType, -1 );
+}
+
+TEST( GridLayoutParserTest, ParsesTwoBlocksWithSharedFaceCornersOnly )
+{
+    const std::string fileName =
+        std::string( ONEFLOW_SOURCE_DIR ) +
+        "/grid/mesh-layout/3d/two_blocks_shared_face_corners_only/grid/twoConnectedCubesLayout.txt";
 
     const GridLayout layout = GridLayoutParser().Parse( fileName );
 
@@ -107,7 +152,7 @@ TEST( GridLayoutParserTest, ParsesLaminarFlatPlateLayout )
 {
     const std::string fileName =
         std::string( ONEFLOW_SOURCE_DIR ) +
-        "/grid/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
+        "/grid/mesh-layout/2d/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
 
     const GridLayout layout = GridLayoutParser().Parse( fileName );
 
@@ -139,7 +184,7 @@ TEST( GridLayoutParserTest, ParsesBoundaryLayerDistribution )
 {
     const std::string fileName =
         std::string( ONEFLOW_SOURCE_DIR ) +
-        "/grid/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
+        "/grid/mesh-layout/2d/laminar_flat_plate/grid/laminarFlatPlateLayout.txt";
 
     const GridLayout layout = GridLayoutParser().Parse( fileName );
 

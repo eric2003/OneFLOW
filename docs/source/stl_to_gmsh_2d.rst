@@ -20,8 +20,9 @@ Native OneFLOW Cases
 The primary runtime implementation is now available in two normal OneFLOW
 Grid Cases:
 
-* `grid/stl_to_gmsh/square/cpp`: one square, one QUAD_4 cell, four boundary edges;
-* `grid/stl_to_gmsh/two_square_cells/cpp`: a 2 x 1 rectangle, two QUAD_4 cells,
+* `grid/stl_to_gmsh/2d/square/single_quad/cpp`: one square, one QUAD_4 cell, four boundary edges;
+* `grid/stl_to_gmsh/2d/square/two_triangles/cpp`: the same square, two TRI_3 cells;
+* `grid/stl_to_gmsh/2d/two_square_cells/cpp`: a 2 x 1 rectangle, two QUAD_4 cells,
   six exterior boundary edges.
 
 Both Cases use the standard C++ STL reader and Grid conversion path. The
@@ -36,7 +37,7 @@ after building OneFLOW and installing Gmsh:
 
 .. code-block:: console
 
-   python grid/stl_to_gmsh/develop_test/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
+   python grid/stl_to_gmsh/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
 
 The orchestrator copies each Case to the user's .oneflow staging directory
 and launches OneFLOW with that staged Case as its working directory. Do not
@@ -47,8 +48,7 @@ The native path writes .geo, MSH 4.1 and a validation report under each
 staged Case's results directory. It reads the generated MSH again with the existing
 C++ Gmsh reader and checks node, boundary-line, QUAD_4 and Physical Group
 counts. Independent Python reference Cases are maintained under
-`grid/stl_to_gmsh/<case>/python/`; the existing external-flow Python Case remains at
-`grid/stl_to_gmsh/script/run.py` with `config/external_flow.json`.
+`grid/stl_to_gmsh/2d/<case>/python/`; the external- and internal-flow Python Cases are registered beside their native C++ counterparts.
 
 Input and boundary semantics
 ----------------------------
@@ -78,9 +78,30 @@ grid/stl currently provides:
 * rejection of open/branched boundaries, multiple loops, non-manifold edges,
   zero-area triangles and self-intersecting outer polygons;
 * a sidecar reader that requires every outer edge to be assigned exactly once;
-* Gmsh geometry generation, including physical curves and an optional single
-  quadrilateral cell configuration;
+* Gmsh geometry generation, including physical curves, transfinite structured
+  layouts, and automatic unstructured triangle meshing;
 * optional invocation of a separately installed Gmsh executable.
+
+Automatic triangular meshing
+-----------------------------
+
+For a directly bounded planar region, omit the transfinite_cells field from the
+layout. The converter then leaves the surface unstructured and lets Gmsh
+choose the triangulation. mesh_size controls the target characteristic length;
+it is not a requested element count. Smaller values normally produce more,
+smaller elements, but exact node and triangle counts depend on the Gmsh version,
+meshing algorithm and geometry.
+
+The automatic mode sets Mesh.MeshSizeMin and Mesh.MeshSizeMax to the configured
+value, enables point-based sizing and boundary-size extension, and does not
+apply transfinite constraints or recombination. C++ and Python use the same
+layout semantics. Validation checks non-empty first-order triangles, boundary
+LINE_2 correspondence, manifold edge incidence, the disk Euler characteristic,
+and declared Physical Groups rather than exact element counts.
+
+Use transfinite_cells only when a specific structured topology is required.
+In that mode integer x/y cell counts control the structured layout and
+recombine_surface selects QUAD_4 versus TRI_3 output.
 
 External-flow obstacle domain
 ------------------------------
@@ -116,20 +137,20 @@ Example
 
 .. code-block:: bash
 
-   python grid/stl/stl_to_gmsh.py grid/stl/fixtures/square.stl --boundaries grid/stl/fixtures/square.boundary.json --geo /tmp/square.geo --gmsh gmsh --msh /tmp/square.msh
+   python grid/stl_to_gmsh/converter.py grid/stl_import/fixtures/square.stl --boundaries grid/stl_import/fixtures/square.boundary.json --geo /tmp/square.geo --gmsh gmsh --msh /tmp/square.msh
 
 Parser and geometry-generation tests do not require Gmsh:
 
 .. code-block:: bash
 
-   python -m unittest grid.stl.test_stl_to_gmsh
+   python -m unittest tests.python.grid.test_stl_to_gmsh_geometry
 
 Native C++ circle external-flow Case
 ------------------------------------
 
-The native Case at `grid/stl_to_gmsh/circle_external_flow/cpp` uses the same
+The native Case at `grid/stl_to_gmsh/2d/circle_external_flow/cpp` uses the same
 32-segment circular STL and layout as the independent Python reference at
-`grid/stl_to_gmsh/circle_external_flow/python`. Its layout defines an outer
+`grid/stl_to_gmsh/2d/circle_external_flow/python`. Its layout defines an outer
 rectangular computational domain and the four outer boundary labels. The C++
 converter creates the outer loop, reverses the body loop orientation to form
 a hole, and creates one fluid Plane Surface. The upper and lower outer curves
@@ -173,12 +194,12 @@ External- and internal-flow reference Cases
 Two independent Python reference Cases make the computational-domain
 distinction executable:
 
-* `grid/stl_to_gmsh/circle_external_flow/cpp` and `grid/stl_to_gmsh/circle_external_flow/python`:
+* `grid/stl_to_gmsh/2d/circle_external_flow/cpp` and `grid/stl_to_gmsh/2d/circle_external_flow/python`:
   a 32-segment circular STL obstacle is placed inside a rectangular outer
   domain. The fluid surface is the outer loop with the obstacle loop as a
   hole. The body is `wall`; the outer curves are `inflow`, `outflow` and
   `farfield` (the top and bottom edges share the farfield group).
-* `grid/stl_to_gmsh/channel_internal_flow/python`: a rectangular STL loop
+* `grid/stl_to_gmsh/2d/channel_internal_flow/python`: a rectangular STL loop
   directly bounds the fluid region. Its four edges are `Inlet`, `Outlet`,
   `LowerWall` and `UpperWall`. A transfinite 20 x 5 layout produces 100
   quadrilateral cells.
@@ -218,6 +239,20 @@ ZMax share wall; fluid_domain names the volume.
 The cube is a restricted geometry-recovery prototype, not a general STL
 volume mesher. Mesh-to-CFD Validation passes it through MSH, CGNS and OneFLOW
 grid conversion and verifies FaceCenter boundary semantics and the boundary
-region map. It deliberately stops before the flat-plate CFD consumer: a
-single-cell cube is a topology/interoperability fixture, not a meaningful
-CFD accuracy case.
+region map. The current validation graph then runs a short, dimension-adjusted
+solver smoke test using shared consumer parameters. A single-cell cube remains
+a topology/interoperability fixture, not a meaningful CFD accuracy case.
+
+
+Automatic square triangulation Case
+-----------------------------------
+
+The square automatic-triangulation native C++ Case and independent Python
+reference Case are registered in the shared Case catalog. Both reuse the
+same two-facet square STL and four outer Physical Curve groups. They omit
+``transfinite_cells`` and ``recombine_surface``. Gmsh determines the TRI_3
+topology from the configured ``mesh_size``, which is a target characteristic
+length rather than an exact triangle count. Both implementations are
+selectable through Run Development Cases / Python reference cases and either
+can be selected in Mesh-to-CFD Validation. The downstream CFD consumer remains
+a smoke test, not an accuracy benchmark for this geometry.
