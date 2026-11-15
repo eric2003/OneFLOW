@@ -8,13 +8,21 @@ This document records the geometric definitions and surface-construction
 rules for the built-in curved 3-D STL geometries. It is separate from the
 Gmsh volume-meshing contract.
 
-The geometry families are:
+The built-in geometry library currently provides three parameterized surface
+generators:
 
 * Sphere: a closed spherical surface.
 * Prolate spheroid: a closed elongated ellipsoidal surface.
 * Cylinder internal flow: a closed cylindrical fluid-domain boundary with
-  separately identified inlet, outlet and wall patches. This is a planned
-  geometry case, not yet an implemented or registered Case.
+  separately identified inlet, outlet and wall patches.
+
+The GUI entry is Mesh Generation -> Generate STL Geometry. Generated STL files
+and their companion .geometry.json manifests are written to the user workspace,
+not to the source tree. This geometry library is distinct from the checked-in
+STL Case database used by STL to Gmsh; either can supply the input surface for
+a mesh project. The cylinder manifest preserves patch identity, but the generic
+closed-shell Gmsh adapter does not yet reconstruct those patch identities as
+separate Physical Surfaces.
 
 Geometry parameters define the STL surface. Gmsh mesh-size parameters define
 the volume mesh. Keep these controls independent so mesh-refinement studies
@@ -38,12 +46,13 @@ contracts are the current authoritative inputs. The icosphere construction
 above is a geometric reconstruction consistent with the facet count, not a
 verified record of the original file-writing implementation.
 
-A follow-up implementation should add one deterministic, standard-library
-geometry generator for sphere, spheroid and cylinder surfaces, with tests for
-geometry measures, topology, orientation and stable region labels. It should
-write to an external workspace by default and must not overwrite checked-in
-fixtures during normal runs. Its exact algorithm version and parameters must
-be recorded here when implemented.
+The current deterministic generator is
+grid/stl_to_gmsh/generate_stl_geometry.py (version 1.0). It uses only the Python
+standard library, writes binary STL, and emits a companion manifest containing
+parameters, units, geometric metrics, patch-to-facet indices and the STL
+SHA-256. It writes to the user workspace by default and does not overwrite
+checked-in Case fixtures during normal runs. Regression tests are in
+grid/tests/python/stl_to_gmsh/test_stl_geometry_generation.py.
 
 Sphere surface construction
 ---------------------------
@@ -193,8 +202,9 @@ orientation checks; patch names and per-patch triangle counts; STL checksum
 and output path.
 
 Generated STL, manifests, reports and Gmsh outputs belong in the user's
-OneFLOW workspace under .oneflow/mesh-generation/<geometry-id>/, not in the
-source tree. Checked-in STL files are immutable Case inputs during normal
+OneFLOW workspace under .oneflow/mesh-generation/, not in the source tree.
+The GUI defaults to generated_stl/<geometry-id>/<geometry-id>.stl and keeps
+the matching .geometry.json beside it. Checked-in STL files are immutable Case inputs during normal
 runs. Fixture regeneration must be an explicit, reviewed maintenance action.
 
 Related mesh cases
