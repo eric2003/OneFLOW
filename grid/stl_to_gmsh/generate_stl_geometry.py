@@ -267,7 +267,7 @@ def generate_geometry(
         "patch_triangle_indices": patch_ranges,
         "stl_file": output_stl.name,
         "stl_sha256": digest,
-        "physical_groups": (
+        "intended_gmsh_physical_groups": (
             {"surface": ["wall", "inflow", "outflow"], "volume": ["fluid_domain"]}
             if geometry == "cylinder_internal_flow"
             else {"surface": ["wall"], "volume": ["fluid_domain"]}
