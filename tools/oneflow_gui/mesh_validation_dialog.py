@@ -225,7 +225,7 @@ class MeshValidationDialog(QDialog):
         layout.addLayout(form)
 
         workspace = (
-            self._project_directory / "validation" / "<new-run>"
+            self._project_directory / "validation"
             if self._mesh_file is not None and self._project_directory is not None
             else UserDataPaths.discover().mesh_validation
         )

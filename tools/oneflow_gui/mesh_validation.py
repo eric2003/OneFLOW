@@ -240,8 +240,14 @@ def mesh_validation_workspace(repository_root: Path, mesh_case_id: str) -> Path:
     return UserDataPaths.discover().mesh_validation / relative_case
 
 
+def project_mesh_validation_workspace(project_directory: Path) -> Path:
+    """Return the stable validation directory belonging to one generated mesh project."""
+    project_root = _external(project_directory)
+    return project_root / "validation"
+
+
 def reset_mesh_validation_workspace(path: Path) -> Path:
-    """Clear and recreate one Case workspace without touching sibling Cases."""
+    """Clear and recreate one validation workspace without touching its mesh project."""
     workspace = _external(path)
     if workspace.is_symlink():
         raise ValueError(f"Mesh validation workspace must not be a symbolic link: {workspace}")
@@ -344,9 +350,9 @@ def run_mesh_validation(
     if stage_root is not None:
         selected_stage_root = stage_root
     elif source_mesh is not None:
-        project_root = _external(project_directory or source_mesh.parent)
-        run_stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
-        selected_stage_root = project_root / "validation" / run_stamp
+        selected_stage_root = project_mesh_validation_workspace(
+            project_directory or source_mesh.parent
+        )
     else:
         selected_stage_root = mesh_validation_workspace(REPOSITORY_ROOT, mesh_case_id)
     run_root = _external(selected_stage_root)
@@ -474,7 +480,7 @@ def main() -> int:
     parser.add_argument("--mesh-file", type=Path,
                         help="Validate an existing MSH4 file without rerunning its producer.")
     parser.add_argument("--project-directory", type=Path,
-                        help="Mesh project root; each validation run is stored below validation/.")
+                        help="Mesh project root; validation stages are written directly below its validation/ directory.")
     args = parser.parse_args()
     try:
         return run_mesh_validation(args.oneflow_executable, args.gmsh,

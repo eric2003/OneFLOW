@@ -11,8 +11,9 @@ from pathlib import Path
 
 from tools.oneflow_gui.mesh_validation import (
     build_mesh_validation_cases, cfd_template_choices, mesh_case_choices, mesh_case_groups,
-    mesh_validation_workspace, reset_mesh_validation_workspace,
-    _copy_existing_mesh, _graph_step_records, _mesh_case_command,
+    mesh_validation_workspace, project_mesh_validation_workspace,
+    reset_mesh_validation_workspace, _copy_existing_mesh, _graph_step_records,
+    _mesh_case_command,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
@@ -536,6 +537,16 @@ class MeshValidationCatalogTest(unittest.TestCase):
             workspace,
             self.root / ".oneflow" / "mesh-validation" / "stl_to_gmsh" / "2d" / "square" / "single_quad" / "cpp",
         )
+
+
+    def test_existing_mesh_validation_uses_project_validation_directory_without_run_stamp(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            project = Path(temporary) / "mesh-generation" / "sphere"
+            project.mkdir(parents=True)
+            workspace = project_mesh_validation_workspace(project)
+            self.assertEqual(workspace, project / "validation")
+            self.assertEqual(workspace.name, "validation")
+            self.assertNotIn("T", workspace.name)
 
     def test_workspace_rejects_cases_outside_grid(self):
         catalog = json.loads(
