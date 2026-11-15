@@ -721,5 +721,54 @@ class StlToGmshCaseTest(unittest.TestCase):
             )["validated"])
         self.assertFalse((source / "results").exists())
 
+    def test_python_prolate_spheroid_generates_valid_tetrahedral_volume_mesh(self):
+        gmsh = shutil.which("gmsh")
+        if gmsh is None:
+            self.skipTest("Gmsh executable is not available")
+        source = ROOT / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python"
+        with tempfile.TemporaryDirectory() as temporary:
+            staged = Path(temporary) / "prolate_spheroid"
+            shutil.copytree(source, staged)
+            command = [
+                sys.executable,
+                str(ROOT / "grid/stl_to_gmsh/run_python_case.py"),
+                "--case-directory",
+                str(staged),
+                "--gmsh",
+                gmsh,
+            ]
+            result = subprocess.run(
+                command, cwd=staged, text=True, capture_output=True, check=False
+            )
+            self.assertEqual(
+                result.returncode, 0,
+                msg=result.stdout + "\n" + result.stderr,
+            )
+            mesh = inspect_msh4(
+                staged / "results/prolate_spheroid_automatic_tetrahedra.msh"
+            )
+            self.assertGreater(mesh["nodes"], 0)
+            self.assertGreater(mesh["triangle_elements"], 0)
+            self.assertGreater(mesh["tetrahedron_elements"], 0)
+            self.assertEqual(mesh["hexahedron_elements"], 0)
+            bounds = mesh["coordinate_bounds"]
+            for actual, expected in zip(bounds["minimum"], (-3.0, -0.5, -0.5)):
+                self.assertAlmostEqual(actual, expected, delta=1.0e-6)
+            for actual, expected in zip(bounds["maximum"], (3.0, 0.5, 0.5)):
+                self.assertAlmostEqual(actual, expected, delta=1.0e-6)
+            groups = {
+                (item["dimension"], item["name"])
+                for item in mesh["physical_groups"]
+            }
+            self.assertEqual(groups, {(2, "wall"), (3, "fluid_domain")})
+            report = json.loads(
+                (
+                    staged / "results/prolate_spheroid_automatic_tetrahedra"
+                    ".stl-to-gmsh-report.json"
+                ).read_text(encoding="utf-8")
+            )
+            self.assertTrue(report["validated"])
+        self.assertFalse((source / "results").exists())
+
 if __name__ == "__main__":
     unittest.main()

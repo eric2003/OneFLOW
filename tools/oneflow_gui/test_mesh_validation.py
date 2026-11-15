@@ -493,6 +493,25 @@ class MeshValidationCatalogTest(unittest.TestCase):
              "message": "Blocked by unsuccessful dependencies: cgns_to_oneflow"},
         ])
 
+    def test_prolate_spheroid_native_and_python_cases_are_validation_choices(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        choices = {case_id for case_id, _title in mesh_case_choices(repository_root)}
+        for case_id in (
+            "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra",
+            "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
+        ):
+            self.assertIn(case_id, choices)
+            graph = build_mesh_validation_cases(
+                repository_root, case_id, "laminar_flat_plate"
+            )
+            self.assertEqual(len(graph), 4)
+            self.assertEqual(graph[0]["id"], "stl_to_gmsh")
+            self.assertEqual(
+                graph[0]["outputs"][0]["path"],
+                "results/prolate_spheroid_automatic_tetrahedra.msh",
+            )
+            self.assertEqual(graph[-1]["id"], "oneflow_cfd_solve")
+
     def test_unknown_mesh_case_and_template_are_rejected(self):
         with self.assertRaisesRegex(ValueError, "Unknown mesh-generation Case"):
             build_mesh_validation_cases(self.root, "missing", "laminar_flat_plate")
