@@ -50,7 +50,7 @@ class StlGeometryGenerationTest(unittest.TestCase):
             surface = result["surface"]
             labels = result["patch_triangle_indices"]
             self.assertTrue(surface["watertight"])
-            self.assertAlmostEqual(surface["signed_volume"], 32 * 0.5 * 0.5 * math.sin(2 * math.pi / 32) / 2, delta=0.2)
+            self.assertAlmostEqual(surface["signed_volume"], 32 * 0.5 * 0.5 * math.sin(2 * math.pi / 32) * 4.0 / 2, delta=0.02)
             self.assertEqual(len(labels["inflow"]), 32)
             self.assertEqual(len(labels["outflow"]), 32)
             self.assertEqual(len(labels["wall"]), 2 * 32 * 8)
