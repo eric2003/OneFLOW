@@ -630,3 +630,16 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
     但**所有测量数据已经落盘且有效**——不要因为作业状态是 FAILED 就丢掉数据，
     先看 `summary.tsv` 是否完整；也不要因为数据有效就忽略这个 bug。
     排查顺序：`grep -n 'local .*=.*\$' script.sh` 找出所有同行引用。
+
+46. **作业脚本里 `mpirun ./rank.sh` 要求 rank.sh 与 cwd 同目录（2026-11-15，踩了两次）**：
+    `rank.sh` 在 `$SCRIPTS` 下，但 `mpirun` 的相对路径 `./rank.sh` 是相对**当前工作
+    目录**解析的。做法照抄别处脚本时容易漏掉这行：
+    ```bash
+    EV="$ONEFLOW_ROOT/evidence/probe/${SLURM_JOB_ID:-manual}/<name>"
+    mkdir -p "$EV"
+    cp "$SCRIPTS/rank.sh" "$EV/rank.sh"; chmod +x "$EV/rank.sh"   # ← 必须
+    # ... 之后 ( cd "$EV" && mpirun ... ./rank.sh ... )
+    ```
+    漏了会得到
+    `prterun was unable to launch ... could not access an executable: ./rank.sh`，
+    而且**只在 mpirun 那一步失败**，前面的检查全部通过，容易误判为"环境问题"。
