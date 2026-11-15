@@ -1959,7 +1959,7 @@ commit `5d3f0aeef` 的修复经实测确认（`probe/128131577-vismodel`，
 |---|---|
 | 能力表单测（含新 `ViscousModelActive` 行 + 优先级测试） | **5/5 PASS** |
 | 旗舰算例在 HIP 上 | **rc=0，无 Fatal**，正常回退（`OneFLOW compute backend: HIP/DCU`） |
-| 无粘 8 rank 回归（1000 步） | 运行中 |
+| 无粘 8 rank 回归（1000 步） | **rc=0，0 次 `viscous_model_active` 拒绝，0 次 fatal，读到 8 zones**（15.70 ms/步，偏高属已知节点间变异，今天实测节点差可达 30%） |
 
 **意义**：在此之前旗舰算例在 DCU 上**根本无法测**（第 1 步 fatal）。
 现在它能跑、能计时、能作为后续设备加速的基线。这本身不提升性能，
