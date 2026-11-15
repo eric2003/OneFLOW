@@ -1949,3 +1949,25 @@ SA 源/vist 内核、标量输运/离散扩散内核、B-exit 门禁）是**单�
 `CalcVist` 每步 ≥2 次（实际含 `CalcVistMax` 是 3 次）。但**主要成本更可能是
 294,912 cell 的串行 host 循环 + 每 cell 的 `MRField` 间接寻址**，而不是 `pow` 本身。
 这是推断不是测量，**排期前应先测**。
+
+#### 5.33 ✅ 修复验证 2026-11-15：vismodel 门控生效，旗舰不再 fatal
+
+commit `5d3f0aeef` 的修复经实测确认（`probe/128131577-vismodel`，
+二进制 sha `7c813a5b…`）：
+
+| 检查 | 结果 |
+|---|---|
+| 能力表单测（含新 `ViscousModelActive` 行 + 优先级测试） | **5/5 PASS** |
+| 旗舰算例在 HIP 上 | **rc=0，无 Fatal**，正常回退（`OneFLOW compute backend: HIP/DCU`） |
+| 无粘 8 rank 回归（1000 步） | 运行中 |
+
+**意义**：在此之前旗舰算例在 DCU 上**根本无法测**（第 1 步 fatal）。
+现在它能跑、能计时、能作为后续设备加速的基线。这本身不提升性能，
+但它是**所有旗舰设备化工作的前提条件**——没有它，任何"旗舰在设备上快多少"
+的主张都无从验证。
+
+改动内容（`5d3f0aeef`）：
+- `EulerInvFluxCapability` 新增 `viscousModelActive` 字段与 `ViscousModelActive` 原因
+- `UseHipBatchAdapter`（`UNsInvFlux.cpp:724`）与 `UseHipDeviceStateUpdate`
+  （`UNsUpdate.cpp:156`）都检查 `vismodel != 0`
+- 检查顺序放在拓扑条件之前，粘性多区算例报 `viscous_model_active` 而不是误导性的拓扑原因
