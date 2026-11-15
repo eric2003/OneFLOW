@@ -20,6 +20,20 @@ JSON validation-report files. See
 [`stl_to_gmsh_commands`](../../doc/source/stl_to_gmsh_commands.rst).
 
 
+Generate parameterized geometry from the Mesh Generation GUI or CLI before
+meshing:
+
+.. code-block:: powershell
+
+   python grid/stl_to_gmsh/generate_stl_geometry.py --geometry sphere --radius 1 --subdivisions 3 --output "$HOME/.oneflow/mesh-generation/generated_stl/sphere/sphere.stl"
+   python grid/stl_to_gmsh/generate_stl_geometry.py --geometry prolate_spheroid --semi-axis-a 3 --semi-axis-b 0.5 --semi-axis-c 0.5 --output "$HOME/.oneflow/mesh-generation/generated_stl/prolate_spheroid/prolate_spheroid.stl"
+   python grid/stl_to_gmsh/generate_stl_geometry.py --geometry cylinder_internal_flow --radius 0.5 --length 4 --circumferential-divisions 48 --axial-divisions 16 --output "$HOME/.oneflow/mesh-generation/generated_stl/cylinder_internal_flow/cylinder_internal_flow.stl"
+
+Each command also writes a .geometry.json manifest. The cylinder manifest
+retains wall/inflow/outflow facet identities; do not use the generic wall-only
+STL-to-Gmsh Physical Surface path for it until region-aware Gmsh reconstruction
+is implemented. See doc/source/stl_geometry_generation.rst.
+
 This directory contains native C++ STL-to-Gmsh Cases and independent Python
 reference Cases. The native Cases run through the standard OneFLOW Grid task
 and the C++ Geometry conversion pipeline. The geometric definitions and STL
