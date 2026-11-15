@@ -35,7 +35,9 @@ Progression
 The cube family preserves one geometry and six independent boundary patches
 while changing only the volume-mesh strategy. The sphere adds a curved closed
 surface and one physical wall group. It does not add inlet/outlet semantics or
-CFD physics.
+CFD physics. The planned cylinder internal-flow geometry will add two closure
+caps that remain distinct inlet and outlet patches; it is not yet an
+implemented mesh Case.
 
 Both sphere implementations are selectable in the Mesh-to-CFD Validation
 Workbench. Their route continues through the 3-D OneFLOW CFD smoke stage after
@@ -147,6 +149,18 @@ assemblies, boundary-layer prisms and curved CAD surface fidelity studies are
 not yet covered. The sphere case validates geometry conversion and volume-mesh
 topology; it is not yet a physical CFD validation case.
 
+
+Planned cylinder internal-flow geometry
+----------------------------------------
+
+A future cylinder case will represent the fluid volume inside a straight
+circular pipe. Its closed STL will contain three separately identified
+patches: lateral wall, inlet cap and outlet cap. The caps close the geometric
+shell but must not be classified as solid wall boundaries. The current
+generic closed-shell import path creates one wall group, so region-aware STL
+import and Gmsh surface reconstruction are prerequisites before registering
+this Case. See :doc:`stl_geometry_generation` for the proposed construction
+and validation contract.
 
 6:1 prolate spheroid
 --------------------
