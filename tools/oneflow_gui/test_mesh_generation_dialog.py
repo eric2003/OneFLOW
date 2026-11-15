@@ -128,7 +128,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     )
                     self.assertFalse(dialog.sphere_group.isVisible())
                     self.assertFalse(dialog.spheroid_group.isVisible())
-                    self.assertTrue(dialog.cylinder_group.isVisible())
+                    self.assertFalse(dialog.cylinder_group.isHidden())
                     self.assertEqual(dialog.cylinder_radius.text(), "1.0")
                     self.assertIn("not solid walls", dialog.patch_note.text())
                     output = Path(directory) / "cylinder.stl"
@@ -146,7 +146,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
     def test_geometry_parameter_panels_are_independent_and_retain_values(self) -> None:
         dialog = StlGeometryDialog(self.repository_root)
         try:
-            self.assertTrue(dialog.sphere_group.isVisible())
+            self.assertFalse(dialog.sphere_group.isHidden())
             self.assertTrue(dialog.spheroid_group.isHidden())
             self.assertTrue(dialog.cylinder_group.isHidden())
 
@@ -165,7 +165,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             dialog.geometry.setCurrentIndex(
                 dialog.geometry.findData("prolate_spheroid")
             )
-            self.assertTrue(dialog.spheroid_group.isVisible())
+            self.assertFalse(dialog.spheroid_group.isHidden())
             self.assertTrue(dialog.cylinder_group.isHidden())
             dialog.semi_axis_a.setText("4.0")
             dialog.semi_axis_b.setText("0.8")
