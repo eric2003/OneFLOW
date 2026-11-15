@@ -79,7 +79,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             self.assertIn("Import STL / Grid Database...", labels)
             self.assertIn(
                 "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
-                {self.project_template.itemData(i) for i in range(self.project_template.count())},
+                {dialog.project_template.itemData(i) for i in range(dialog.project_template.count())},
             )
             with patch(
                 "tools.oneflow_gui.mesh_generation_dialog.MeshLayoutDialog"

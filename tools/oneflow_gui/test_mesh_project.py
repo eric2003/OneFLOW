@@ -14,6 +14,7 @@ from tools.oneflow_gui.mesh_project import (
     create_mesh_project_from_template,
     load_mesh_project,
     mesh_project_templates,
+    replace_project_stl,
     save_mesh_project_settings,
 )
 
@@ -53,6 +54,20 @@ class MeshProjectTest(unittest.TestCase):
         manifest = json.loads((saved["directory"] / "project.json").read_text(encoding="utf-8"))
         self.assertEqual(manifest["mesh_size"], 0.12)
         self.assertEqual(manifest["boundary_name"], "body_wall")
+
+    def test_replacing_project_stl_updates_private_geometry_copy(self) -> None:
+        source = self.repository_root / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python/input/model.stl"
+        alternate = self.home / "alternate.stl"
+        alternate.write_text("solid replacement\\nendsolid replacement\\n", encoding="ascii")
+        project = create_mesh_project_from_template(
+            self.repository_root,
+            "stl_to_gmsh_python_sphere_automatic_tetrahedra",
+            "replaceable",
+        )
+        updated = replace_project_stl(project, alternate)
+        self.assertEqual(updated["stl_path"].read_text(encoding="ascii"), alternate.read_text(encoding="ascii"))
+        self.assertNotEqual(updated["stl_path"], alternate)
+        self.assertEqual(updated["mesh_case_id"], project["mesh_case_id"])
 
     def test_import_stl_copies_database_geometry_into_independent_project(self) -> None:
         source = self.repository_root / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python/input/model.stl"

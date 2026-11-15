@@ -37,6 +37,7 @@ EXPECTED_IDS = {
     "stl_to_gmsh_python_cube_automatic_tetrahedra",
     "stl_to_gmsh_sphere_automatic_tetrahedra",
     "stl_to_gmsh_python_sphere_automatic_tetrahedra",
+    "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
 }
 
 
@@ -78,6 +79,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             "3d/cube/single_hex/python": "3d/cube/single_hex/python",
             "3d/cube/six_tetrahedra/python": "3d/cube/six_tetrahedra/python",
             "3d/cube/automatic_tetrahedra/python": "3d/cube/automatic_tetrahedra/python",
+            "3d/prolate_spheroid/automatic_tetrahedra/python": "3d/prolate_spheroid/automatic_tetrahedra/python",
         })
 
     def test_cube_cases_are_registered_and_staged_for_both_implementations(self):
@@ -195,6 +197,33 @@ class StlToGmshCaseTest(unittest.TestCase):
             "cpp": "3d/sphere/automatic_tetrahedra/cpp",
             "python": "3d/sphere/automatic_tetrahedra/python",
         })
+
+    def test_prolate_spheroid_is_a_generic_python_reference_case(self):
+        entry = self.entries["stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra"]
+        self.assertEqual(
+            entry["directory"],
+            "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python",
+        )
+        self.assertEqual(entry["execution"]["kind"], "python")
+        self.assertEqual(entry["mesh_validation"], "cfd_smoke")
+        self.assertEqual(validate_case(ROOT, entry), [])
+        case_dir = ROOT / entry["directory"]
+        self.assertEqual(len(read_stl(case_dir / "input/model.stl")), 1280)
+        layout = json.loads((case_dir / "script/layout.json").read_text(encoding="utf-8"))
+        self.assertEqual(layout["reference_geometry"]["type"], "prolate_spheroid")
+        self.assertEqual(layout["reference_geometry"]["semi_axes"], [3.0, 0.5, 0.5])
+        self.assertEqual(layout["reference_geometry"]["aspect_ratio"], 6.0)
+        self.assertEqual(layout["reference_geometry"]["volume"], 3.141592653589793)
+        expected = json.loads((case_dir / "expected.json").read_text(encoding="utf-8"))
+        self.assertEqual(
+            {(item["dimension"], item["name"]) for item in expected["physical_groups"]},
+            {(2, "wall"), (3, "fluid_domain")},
+        )
+        self.assertIn(
+            "3d/prolate_spheroid/automatic_tetrahedra/python",
+            PYTHON_CASES,
+        )
+        self.assertFalse((case_dir / "results").exists())
 
     def test_native_and_python_cases_are_registered_separately(self):
         self.assertEqual(set(self.entries), EXPECTED_IDS)
