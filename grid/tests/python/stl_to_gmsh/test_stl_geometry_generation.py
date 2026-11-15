@@ -68,6 +68,13 @@ class StlGeometryGenerationTest(unittest.TestCase):
             self.assertEqual(manifest["intended_gmsh_physical_groups"]["surface"], ["wall", "inflow", "outflow"])
             self.assertIn("not solid walls", manifest["notes"])
 
+
+    def test_generated_stl_cannot_pollute_repository_source_tree(self) -> None:
+        repository_root = Path(__file__).resolve().parents[4]
+        protected_output = repository_root / "build" / "should_not_be_created.stl"
+        with self.assertRaisesRegex(ValueError, "outside the OneFLOW source tree"):
+            generate_geometry("sphere", protected_output)
+
     def test_invalid_geometry_parameters_are_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             with self.assertRaises(ValueError):
