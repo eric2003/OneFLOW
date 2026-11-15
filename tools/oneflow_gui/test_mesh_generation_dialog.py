@@ -109,7 +109,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             self.assertEqual(dialog.geometry_preset.currentData(), "sphere")
             self.assertEqual(
                 Path(dialog.output_path.text()),
-                UserDataPaths.discover().mesh_generation / "sphere.msh",
+                UserDataPaths.discover().mesh_generation / "sphere" / "sphere.msh",
             )
             self.assertTrue(dialog.advanced_settings.isHidden())
             self.assertEqual(dialog.gmsh_path.text(), discover_gmsh() or "")
