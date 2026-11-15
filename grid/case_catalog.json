@@ -466,6 +466,16 @@
       "mesh_validation": "cfd_smoke"
     },
     {
+      "id": "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra",
+      "title": "STL to Gmsh: 6:1 Prolate Spheroid with Automatic TETRA_4 Volume Mesh (Native C++)",
+      "directory": "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/cpp",
+      "profile": null,
+      "layout": null,
+      "group": "STL to Gmsh",
+      "dimension": 3,
+      "mesh_validation": "cfd_smoke"
+    },
+    {
       "id": "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
       "title": "STL to Gmsh: 6:1 Prolate Spheroid with Automatic TETRA_4 Volume Mesh (Python Reference)",
       "directory": "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python",
