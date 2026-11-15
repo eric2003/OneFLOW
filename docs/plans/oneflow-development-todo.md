@@ -1797,3 +1797,57 @@ rpc8 离散更宽，所以诚实的头条数字是 **32%**，不是 33% 或 35%�
 在 `libgalaxyhip` AQL 溢出 abort 之后加的。移除它会**精确重开那个失败**，
 而且卡已 84–93% 忙，更深的排队可能把"等待"换成"争用"，净收益为零。
 **任何改动必须在 8 rank/卡和当初触发上限的 16/32 rank 两条腿上重验。**
+
+#### 5.30 ★ 原始目的的量化：旗舰算例慢 368 倍，瓶颈是 SA（2026-11-15）
+
+**这是本轮最重要的结果——它把"离目标多远"测出来了。**
+
+全部在 `test/cfd/m6wingroe_sa` 树、`grid/m6wing.ofl`（294,912 cell）、
+**1 zone / 1 rank / 1 卡**、CFL 0.01、关闭输出、两次长度斜率扣启动、
+`date` 墙钟。
+
+| 配置 | host ms/步 | DCU ms/步 |
+|---|---:|---:|
+| **LU-SGS + Roe + SA（旗舰）** | **3,668** | **第 1 步 fatal** |
+| LU-SGS + Roe（无 SA） | 1,139 | 未测 |
+| RK3 + Roe | 1,736 | 10.05 |
+| RK3 + LF（简化配置） | 1,616 | **9.98** |
+
+- **奖赏规模：368×**（3668 / 9.98），同 cell/rank/zone
+- **仅设备驻留：162×**（1616 / 9.98，两侧同配置，6+4 样本，区间无重叠）
+
+**逐特性成本（源码定位）**：
+
+| 特性 | host 成本 | 设备状态 |
+|---|---|---|
+| **SA 湍流** | **+2,529 ms/步（占旗舰 69%）** | **完全没有**：`HipFluxBackend.hip` 里零个 SA/湍流符号；`CalcSrcSa`（`codes/turb/src/TurbCom.cpp:747`）纯 host |
+| **LU-SGS** | 比 RK3 **便宜** 597 ms/步 | host；`UNsLusgs::CanNotLowerSolve`（`codes/uns/src/UNsLusgs.cpp:174`）是顺序 Gauss-Seidel |
+| **Roe** | +120 ms/步（+7%） | **已设备化**：`RoeFaceFlux`（`HipFluxBackend.hip:468`），有契约测试 |
+
+**两个对既有认知的纠正**：
+1. **LU-SGS 不是贵的那个**：LU-SGS 无 SA（1139）比 RK3 无 SA（1736）**每步快 34%**。
+   所以"保留 host LU-SGS、把扫描搬设备"是**反向优化**。
+2. **`ExchangeInterfaceDq` 是空函数**（`codes/interface/src/InterfaceTaskReg.cpp:354`）：
+   根本没有 `dq` 交换要移植。
+
+**新发现的缺陷：旗舰在 HIP 上是硬失败，不是回退**
+```
+Fatal Error: HIP primitive update requires resident state and residual
+（HipFluxBackend.hip:3416）
+```
+根因：`UseHipDeviceStateUpdate`（`codes/uns/src/UNsUpdate.cpp:156`）的门控检查了
+solver/chem/`nTModel` 但**没查 `vismodel`**；`UseHipBatchAdapter`
+（`UNsInvFlux.cpp:724`）同样不查。`time_integral=2` 时 LU-SGS 驱动从不把残差
+变成设备驻留，然后状态更新却要求它驻留。**两次复现，均 rc=1。**
+建议修法（未实施）：两个谓词各加一条 `vis_model.vismodel != 0 → false`。
+
+**启用的排序**（按 收益/代价）：
+1. **Roe 已免费**（实测）：9.98 → 10.05 ms/步，+0.7%，纯配置改动；
+   门禁残差 **1.12e-17** / 200 步 PASS。
+2. **用 `vismodel` 守住状态更新**——两个单行谓词，把 fatal 变成有文档的回退。极小代价。
+3. **SA 上设备**——旗舰 host 时间的 69%，1 个方程约 8 个超越函数/cell，
+   但 `CalcVist` 每步跑 ≥2 次全场。**这是唯一能实质推动旗舰的一步，也是工作量最大的。**
+4. **LU-SGS 上设备——不要优先**：顺序扫描，且 host 路径本来就是更便宜的那个方案。
+
+**门禁的一条注意**：aero 差 **8.810e-03** 是坑 41（单 zone HIP 读陈旧 host 梯度，
+文档记录 cl 8.2e-3），**不是 Roe 的缺陷**——残差一致到 1e-17。
