@@ -38,7 +38,7 @@ Mesh and engineering workflows
 * :doc:`gmsh_interface` — Gmsh MSH 4.1-first input adapter, version support, semantic mapping, and conversion validation.
 * :doc:`stl_to_gmsh_2d` — planar STL boundary extraction, explicit CFD boundary groups, and Gmsh 2D generation.
 * :doc:`stl_to_gmsh_3d` — cube STL volume reconstruction, fixed HEXA_8/TETRA_4 topology, and automatic tetrahedral meshing.
-* :doc:`stl_geometry_generation` — documented sphere, spheroid and planned cylinder STL construction, topology, patch identity, units and artifact policy.
+* :doc:`stl_geometry_generation` — parameterized STL geometry library, GUI workflow, sphere/spheroid/cylinder construction, patch identity, units and artifact policy.
 * :doc:`stl_to_gmsh_sphere` — unit-sphere STL validation, Gmsh surface reconstruction, tetrahedral volume generation, commands, and evidence.
 * :doc:`stl_to_gmsh_prolate_spheroid` — 6:1 prolate spheroid STL, automatic tetrahedral meshing, and Mesh-to-CFD smoke route.
 * :doc:`stl_to_gmsh_commands` — copy-and-run commands for generating 3-D tetrahedral meshes from closed STL surfaces and controlling mesh size.
