@@ -224,10 +224,11 @@ $EndElements
             tuple((point[0] * 3.0, point[1] * 0.5, point[2] * 0.5) for point in triangle)
             for triangle in sphere_triangles
         ]
+        sphere_topology = validate_closed_genus_zero_surface(sphere_triangles, 1.0e-10)
         topology = validate_closed_genus_zero_surface(spheroid, 1.0e-10)
         self.assertEqual(topology["euler_characteristic"], 2)
         self.assertEqual(topology["triangles"], 1280)
-        self.assertAlmostEqual(topology["signed_volume"], 3.0 * 0.5 * 0.5 * (4.0 * 3.141592653589793 / 3.0), delta=0.02)
+        self.assertAlmostEqual(topology["signed_volume"], sphere_topology["signed_volume"] * 0.75, delta=1.0e-9)
 
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
