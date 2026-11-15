@@ -9,7 +9,10 @@ License
 #include "HipFluxBackend.h"
 
 #include "AccelRuntime.h"
-#include "EulerCpuAdapter.h"
+// Only PrimitiveFaceStateView is used here, and that struct is execution-space
+// independent. Including the CPU adapter for it made the accelerator backend
+// depend on a host header it never calls into.
+#include "PrimitiveFaceContract.h"
 #include "DeviceBuffer.h"
 #include "HipProductionPolicy.h"
 #include "StageProfiler.h"
