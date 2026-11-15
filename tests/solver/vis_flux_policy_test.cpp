@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include "NsVisFluxPolicy.h"
+#include "ViscousFluxArithmetic.h"
+#include "Sutherland.h"
 #include "HXMath.h"
 using namespace ONEFLOW;
 
@@ -214,4 +216,95 @@ TEST( VisFluxPolicy, ViscousFaceFluxCoefficientLinearInInvReynolds )
         ViscousFaceFluxCoefficient( 0.2, 3.0 ),
         2.0 * ViscousFaceFluxCoefficient( 0.1, 3.0 ),
         1.0e-12 );
+}
+
+// The device port evaluates the same physics from a header shared by every
+// execution space. These tests pin the shared arithmetic to the host policy
+// function it must reproduce; without them the two transcriptions can drift
+// apart silently and only a full cross-backend run would notice.
+TEST( VisFluxPolicy, SharedArithmeticMatchesHostStokesStress )
+{
+    // A non-trivial state: every velocity derivative non-zero, so the
+    // divergence correction and all three shear terms are exercised.
+    const Real viscosity = 3.7e-4;
+    const Real dudx = 0.11, dudy = -0.23, dudz = 0.37;
+    const Real dvdx = 0.05, dvdy = 0.19, dvdz = -0.41;
+    const Real dwdx = -0.07, dwdy = 0.29, dwdz = 0.13;
+
+    Real txx, tyy, tzz, txy, txz, tyz;
+    StokesStressTensor( viscosity, dudx, dudy, dudz, dvdx, dvdy, dvdz,
+                        dwdx, dwdy, dwdz, txx, tyy, tzz, txy, txz, tyz );
+
+    Real sxx, syy, szz, sxy, sxz, syz;
+    ViscousFluxArithmetic::StokesStress(
+        viscosity, dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz,
+        sxx, syy, szz, sxy, sxz, syz );
+
+    EXPECT_DOUBLE_EQ( sxx, txx );
+    EXPECT_DOUBLE_EQ( syy, tyy );
+    EXPECT_DOUBLE_EQ( szz, tzz );
+    EXPECT_DOUBLE_EQ( sxy, txy );
+    EXPECT_DOUBLE_EQ( sxz, txz );
+    EXPECT_DOUBLE_EQ( syz, tyz );
+}
+
+TEST( VisFluxPolicy, SharedArithmeticMatchesHostProjectionAndEnergy )
+{
+    const Real xNormal = 0.6, yNormal = -0.48, zNormal = 0.64;
+    const Real txx = 1.3, tyy = -0.7, tzz = 0.4;
+    const Real txy = 0.22, txz = -0.35, tyz = 0.11;
+
+    Real fx, fy, fz;
+    ProjectStressMomentumFlux( xNormal, yNormal, zNormal,
+                               txx, tyy, tzz, txy, txz, tyz, fx, fy, fz );
+    Real sx, sy, sz;
+    ViscousFluxArithmetic::ProjectStressMomentum(
+        xNormal, yNormal, zNormal, txx, tyy, tzz, txy, txz, tyz, sx, sy, sz );
+    EXPECT_DOUBLE_EQ( sx, fx );
+    EXPECT_DOUBLE_EQ( sy, fy );
+    EXPECT_DOUBLE_EQ( sz, fz );
+
+    const Real u = 2.1, v = -0.4, w = 0.9, heat = 0.027;
+    EXPECT_DOUBLE_EQ(
+        ViscousFluxArithmetic::ViscousEnergy( u, v, w, fx, fy, fz, heat ),
+        ViscousEnergyFlux( u, v, w, fx, fy, fz, heat ) );
+}
+
+TEST( VisFluxPolicy, SharedArithmeticMatchesHostCoefficients )
+{
+    EXPECT_DOUBLE_EQ(
+        ViscousFluxArithmetic::ThermalConductivity( 1.7e-4, 2.3e-5, 1.0 / 0.72,
+                                                    1.0 / 0.9, 1004.5 ),
+        EffectiveThermalConductivity( 1.7e-4, 2.3e-5, 1.0 / 0.72, 1.0 / 0.9,
+                                      1004.5 ) );
+    EXPECT_DOUBLE_EQ(
+        ViscousFluxArithmetic::ConductiveHeatFlux( 0.031, -2.7 ),
+        ConductiveHeatFluxNormal( 0.031, -2.7 ) );
+    EXPECT_DOUBLE_EQ(
+        ViscousFluxArithmetic::NormalDot( 0.6, -0.48, 0.64, 1.0, 2.0, 3.0 ),
+        FaceNormalDot( 0.6, -0.48, 0.64, 1.0, 2.0, 3.0 ) );
+    EXPECT_DOUBLE_EQ(
+        ViscousFluxArithmetic::FaceFluxCoefficient( 2.5e5, 0.013 ),
+        ViscousFaceFluxCoefficient( 2.5e5, 0.013 ) );
+}
+
+// The Sutherland form is the classic place to be "mathematically right but
+// numerically different": sqrt(t^3) and pow(t, 1.5) disagree in the last bits,
+// and the host uses the sqrt form.
+TEST( VisFluxPolicy, SharedArithmeticMatchesHostSutherland )
+{
+    const Real ts = 0.5;
+    for ( Real t = 0.6; t <= 1.6; t += 0.2 )
+    {
+        EXPECT_DOUBLE_EQ(
+            ViscousFluxArithmetic::SutherlandViscosityNondim( t, ts ),
+            SutherlandViscosityNondim( t, ts ) )
+            << "at nondimensional temperature " << t;
+    }
+    // And it must not equal the pow(t,1.5) transcription, or the test above
+    // would be passing for the wrong reason.
+    const Real t = 1.1;
+    const Real viaPow = std::pow( t, 1.5 ) * ( 1.0 + ts ) / ( t + ts );
+    EXPECT_NE( ViscousFluxArithmetic::SutherlandViscosityNondim( t, ts ),
+               viaPow );
 }
