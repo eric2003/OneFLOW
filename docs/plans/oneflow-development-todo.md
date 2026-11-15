@@ -1343,8 +1343,10 @@ card3 0000:43:00.0 numa=2   card4 0000:63:00.0 numa=3
 - DRM GEM bo 导出：✅ 能拿到合法 dmabuf fd，但那是**另一套分配域**，
   与 `hipMalloc` 内存不互通，不能替换求解器的显存分配
 
-**结论**：任何"把求解器显存导出给外部设备（GPU Direct RDMA）"的设计在本集群不可行。
-跨节点 GPU 直传只能走 host staging（现状）。不要再在这条路上投入。
+**⚠ 本节结论已被 §5.37 推翻。** 保留原文以示记录。
+
+**原始结论（错）**：任何"把求解器显存导出给外部设备（GPU Direct RDMA）"的设计
+在本集群不可行，跨节点 GPU 直传只能走 host staging。
 
 **同时确认**：`hsaKmt*` 入口经 `dlsym` 与 `RTLD_DEFAULT` 均不可达，shim 也无法绕经 thunk。
 
@@ -2262,3 +2264,43 @@ HipFluxBackend::Shared().CalcLocalInviscidTimeStep( view ); // UTimeStep.cpp:136
 - **第一步**：粘性视图 + 纯虚入口定义（不接线，编译通过即可）
 - **第二步**：HIP 接入该接口（重构）
 - **第三步**：粘性实现（用它自己的接口）
+
+#### 5.37 ★ 推翻 §5.18：GPU Direct RDMA 已经可用，不需要 dmabuf（2026-11-16）
+
+**我之前的结论是错的。** 我用"dmabuf 导出缺失"推断"GPU Direct 不可用"，
+但这两件事没有因果关系——**驱动自带 PeerDirect 客户端，走的是另一条路。**
+
+**实测证据**（`probe/128151853`，独立复现子 agent 的结果）：
+
+```
+=== PeerDirect 已初始化 ===
+[    7.311526] amdgpu: PeerDirect support was initialized successfully
+=== 模块其实就是 4.0-30.el7 ===
+modinfo amdgpu: version 5.6.20a  srcversion 533BB7E5866E52F63B9ACCB
+dkms tree: 4.0-30.el7   ← 同一个构建，4.0-30 是包版本，5.6.20a 是 MODULE_VERSION
+=== 决定性测试：网卡能注册 hipMalloc 的显存吗 ===
+device=mlx5_0  pd=0x1720b10
+hipMalloc ptr=0x2ac279a00000
+ibv_reg_mr OK  lkey=14f9d7 rkey=14f9d7     ← ★ 直接接受，无需 dmabuf
+```
+
+**机制**：驱动里编译了 `kfd_peerdirect.c`（PeerDirect 客户端）和 `kfd_rdma.c`。
+导出路径不是 `AMDKFD_IOC_EXPORT_DMABUF` ioctl，而是
+`amdgpu_amdkfd_gpuvm_export_ipc_obj` → `amdgpu_gem_prime_export` → 内部
+`share_handle`（16 字节，经 `AMDKFD_IOC_IPC_EXPORT_HANDLE` = `_IOWR(0x81)`）。
+**PeerDirect 让 `ibv_reg_mr` 直接认设备内存，绕开了用户态的 dmabuf 需求。**
+
+**我之前为什么判错**：我 grep `amdgpu_dma_buf_export` 找不到就下结论，
+但真正导出的是 `amdgpu_gem_prime_export`（我在 host 上 grep 时符号表被隐藏，
+两次都读到 0）。**"某个符号不存在"不等于"能力不存在"。**
+
+**含义（重要）**：
+- **跨节点 GPU 直传不需要改内核、不需要 dmabuf、不需要 root**
+- 真正的缺口在**用户态传输层**：UCX 编译时 `--without-rocm`
+- 于是 §5.22 的 UCX 重编从"节点内优化"升级为**跨节点也能直传**，
+  价值比之前评估的大
+
+**仍成立的边界**：PeerDirect 已验证到 `ibv_reg_mr` 成功 + 子 agent 的 loopback
+RDMA-WRITE 4 KiB 写入显存并读回一致；**尚未接入求解器的 interface 交换**，
+所以"跨节点加速多少"仍未测。内核补丁这条路确认**不需要走**（自服务也做不到：
+`CapEff: 0`、`/usr/src` 和 `/lib/modules` 都是 root 所有）。
