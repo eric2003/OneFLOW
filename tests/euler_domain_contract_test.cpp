@@ -1,5 +1,6 @@
 #include "EulerDomain.h"
 #include "AccelViews.h"
+#include "FluxBackend.h"
 
 #include <gtest/gtest.h>
 
@@ -237,33 +238,16 @@ TEST( AccelViewsContract, ValidatesViscousFluxViewFieldByField )
                   std::invalid_argument );
 }
 
-// A backend that cannot do viscous flux must say so rather than throw from a
-// capability query, and the default entry point must fail loudly instead of
-// producing an incomplete residual.
-TEST( EulerDomainContract, ViscousFluxIsOptInAndFailsClosed )
+// A flux backend that cannot do viscous flux must say so rather than throw from
+// a capability query, and the default entry point must fail loudly instead of
+// producing a residual that silently omits the viscous terms.
+TEST( AccelViewsContract, ViscousFluxIsOptInAndFailsClosed )
 {
-    struct InertBackend final : EulerDomainBackend
-    {
-        const char * Name() const override { return "inert"; }
-        bool IsAccelerator() const override { return false; }
-        std::unique_ptr< EulerDomainState > CreateState(
-            const EulerDomainProblem &, const EulerDomainStateKey & )
-            const override
-        {
-            return nullptr;
-        }
-        void Upload( EulerDomainState &, const EulerDomainConstFieldView & )
-            const override {}
-        void Advance( EulerDomainState &, int,
-                      const EulerDomainRunOptions & ) const override {}
-        void Download( const EulerDomainState &, EulerDomainFieldView & )
-            const override {}
-    };
-
-    InertBackend backend;
+    UnimplementedFluxBackend backend;
     EXPECT_FALSE( backend.SupportsViscousFlux() );
 
-
+    ViscousFluxView view = CompleteViscousView();
+    EXPECT_THROW( backend.CalcViscousFaceFlux( view ), std::logic_error );
 }
 
 TEST( AccelViewsContract, ValidatesDeviceReconstructionContract )

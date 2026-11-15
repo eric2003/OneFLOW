@@ -35,6 +35,30 @@ public:
         const FaceFluxView & flux,
         const FaceConnectivityView & connectivity,
         ResidualView & residual ) = 0;
+
+    // Viscous and heat-conduction flux for one stage of the mean-flow residual.
+    //
+    // This belongs on the flux seam rather than on a concrete backend: the
+    // production HIP path currently reaches HipFluxBackend::Shared() directly
+    // for every stage kernel, and adding viscous flux in that style would leave
+    // CUDA and Kokkos with nothing to implement against.  The payload is the
+    // backend-neutral ViscousFluxView, so an execution space opts in by
+    // overriding and needs no new plumbing.
+    //
+    // Non-pure on purpose. A viscous case is a capability, not a requirement:
+    // making it pure would force throwaway stubs into every existing
+    // implementation - including the CPU one, whose host chain computes viscous
+    // flux outside this seam - and would break call sites for no gain. The
+    // default fails closed, so a caller that asks anyway gets a clear error
+    // instead of a residual that silently omits the viscous terms.
+    virtual bool SupportsViscousFlux() const { return false; }
+
+    virtual void CalcViscousFaceFlux( const ViscousFluxView & view )
+    {
+        ( void ) view;
+        throw std::logic_error(
+            "viscous flux is not implemented for this execution space" );
+    }
 };
 
 class UnimplementedFluxBackend final : public FluxBackend
