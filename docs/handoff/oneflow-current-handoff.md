@@ -561,7 +561,10 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
 36. **集群资源按节点算**：`max_cpus_per_node=32`、`max_dcus_per_node=4`；
     `--dcus` 是每节点值；`mpirun --host` 必须带槽位（`h1:32,h2:32`），否则 `-np 64` 报槽位不足；
     内存 ≤2 GB/core。`NDEV = local_rank % 4`，不是 8。
-37. **GPU 占用率要按分配到的卡读**：取 `/sys/class/drm/card*/gpu_busy_percent` 的最大值
+37. **GPU 占用率要按分配到的卡读**：**正确路径是
+    `/sys/class/drm/cardN/device/gpu_busy_percent`**（`device/` 这一层必须有；
+    写成 `cardN/gpu_busy_percent` 读不到文件，2026-11-15 实测确认）。
+    不能取 `/sys/class/drm/card*/device/gpu_busy_percent` 的最大值
     会把同节点其他租户的 100% 当成自己的（本轮因此误判一次）。先看哪个卡在我们的运行期间
     从 0 起变化。
 38. **作业脚本里的 `python3` 必须先 `source scripts/env.sh`**，否则 `command not found`。
