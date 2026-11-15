@@ -1182,3 +1182,46 @@ cell 严格等分）现生成并用 `src_elements` 与块排列行双重校验
 40 步与 1000 步的墙钟比在所有配置下都近似 4.5:1，说明 40 步几乎全被启动占据；
 第一发（冷）与后续发差 20%+。**该规模只能用同分配内交错、多发的 1000 步墙钟比较**，
 不能用短步数扣启动。
+
+#### 5.14 交付 2026-11-15：单节点生产配置的完整每步账本
+
+**配置**：生产默认（N=294,912 cell / 8 zone / 8 rank / 1 卡 / `DEFER_SYNC=1`），
+1000 步，3 发交错；二进制 sha256 `33c62105…`，部署树 `95c991cf3`（含 H1 全套
+host 记账）。证据 `probe/128113967`：`.host.tsv`（incl/excl）、`break-%r.tsv`、
+`mpi trace`（收尾段脚本 bug 未汇总，核心账不依赖它）。
+
+**完整性门（先过再读数）**：闭合恒等式 `mg_run.incl = Σ scope.excl` 三发全
+CLOSED（11695/11878/11693 ms）；`mg_inner_iteration` count=1000 确认步数生效；
+host 账本与 stage 分项在 4 个共同段上差 <0.5%（互证）；同 rank 跨发离散 <15%。
+
+**12.90 ms/step 的去向**（rank0，启动扣减后 mg_run=11.69）：
+
+| 段 | ms/步 | 占比 | 性质 |
+|---|---:|---:|---|
+| `macro_update_residuals`（3 个 RK stage 的 host 包装：gradient/recon/flux 入队+等待） | 5.29 | 41% | host |
+| `task_execute` 自有池（= 每步 post 轮的 gradient pack/upload/download 3.12 + ~0.2 杂项） | 3.33 | 26% | host |
+| 设备 kernel 纯执行（rocprof 既有证据） | ~1.77 | 14% | device |
+| `interface_mpi`（recv 主导的 MPI 等待） | 1.37 | 11% | 通信 |
+| `interface_pack`（每 stage 设备打包+D2H） | 1.08 | 8% | 通信 |
+| `interface_unpack` + time step/LHS/boundary/flowfield | 0.55 | 4% | host |
+| 派发/计划/任务开销（7000 次/步） | 0.04 | 0.3% | host |
+| mg_run 之外（启动 + mg_run 外段） | ~1.2 | 9% | — |
+
+（`interface_*` 是 3 个 stage 界面派发 + post 批次的子 scope；`post_upload` 2.46 +
+`post_download` 0.66 与 task_execute 自有池 3.33 吻合——池的主体就是 post 轮
+gradient 打包上传下载。`swap_upload/swap_download` 是嵌套计时，不可与 5.29 相加。）
+
+**结构性发现：等待与包装是同一现象的两面。** rank0（MPI 等待 1.4–1.6，stage 包装
+5.2–5.6）与 rank3（MPI 等待 4.6–6.2，stage 包装 2.9–3.7）三桶之和几乎相同
+（10.0–10.5 vs 11.0–11.4）：先到交换点的 rank 把等待记在 `MPI_Recv`，后到的把
+同一个等待记在 stage 包装里（等设备队列/下一次入队）。**因此"interface_mpi 只占
+11%"不成立为"通信便宜"的论据**——真实 rendezvous 等待总量约等于
+`interface_mpi + interface_pack + 两 rank 包装差`，在关键路径上约为 4–5 ms/步。
+
+**对下一步的含义（A4 预算的依据）**：
+- 每步可归给 host 编排/同步的池：41%（5.29）+ 26%（3.33）中可压缩的部分。
+  A4（设备驻留宏步已含 RK 循环，现状 `resident_macrostep` excl 仅 0.031）要消的
+  是 5.29 里的入队-等待与 3.33 里的 post 轮 host 打包，不是任务派发（仅 0.04）。
+- 明确**不是** A4 目标的：设备 kernel 1.77、mg_run 外的启动、task_plan/dispatch。
+- 通信轮次合并/重叠的收益上界：~2.5 ms/步（1.37 等待 + 1.08 pack），与此前
+  §5.11 的 1.49 上限同量级。
