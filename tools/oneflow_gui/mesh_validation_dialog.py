@@ -99,16 +99,32 @@ class MeshValidationWorker(QThread):
 class MeshValidationDialog(QDialog):
     """Select multiple mesh producer Cases and run each complete validation chain."""
 
-    def __init__(self, repository_root: Path, *, executable: str = "", parent=None) -> None:
+    def __init__(
+        self, repository_root: Path, *, executable: str = "",
+        mesh_file: Path | None = None, project_directory: Path | None = None,
+        mesh_case_id: str = "stl_to_gmsh_sphere_automatic_tetrahedra",
+        parent=None,
+    ) -> None:
         super().__init__(parent)
         self._repository_root = Path(repository_root).resolve()
         self._worker: MeshValidationWorker | None = None
+        self._mesh_file = Path(mesh_file).expanduser().resolve() if mesh_file else None
+        self._project_directory = (
+            Path(project_directory).expanduser().resolve()
+            if project_directory else (self._mesh_file.parent if self._mesh_file else None)
+        )
+        self._mesh_case_id = mesh_case_id
         self.setWindowTitle("Mesh-to-CFD Validation")
         self.resize(860, 680)
         self.setMinimumSize(720, 560)
 
         layout = QVBoxLayout(self)
         introduction = QLabel(
+            "Validate the current MSH file without regenerating it. The mesh is "
+            "copied into an isolated run directory, then passed through CGNS "
+            "conversion and OneFLOW ingestion. The CFD stage is a short runtime "
+            "smoke test, not a numerical-accuracy claim."
+            if self._mesh_file is not None else
             "Select native C++ or Python STL-to-Gmsh Cases. Each Case runs the "
             "STL → Gmsh → CGNS → OneFLOW chain and a short solver smoke test. "
             "For 3D meshes, the consumer dimension is adjusted; this is not a "
@@ -117,6 +133,13 @@ class MeshValidationDialog(QDialog):
         )
         introduction.setWordWrap(True)
         layout.addWidget(introduction)
+
+        self.current_mesh_label = QLabel(
+            "Current mesh: " + str(self._mesh_file) if self._mesh_file is not None else ""
+        )
+        self.current_mesh_label.setWordWrap(True)
+        if self._mesh_file is not None:
+            layout.addWidget(self.current_mesh_label)
 
         self.case_tree = QTreeWidget()
         self.case_tree.setColumnCount(2)
@@ -153,6 +176,7 @@ class MeshValidationDialog(QDialog):
             self.case_tree.setEnabled(False)
             layout.addWidget(QLabel(f"Mesh Case catalog unavailable: {error}"))
         layout.addWidget(self.case_tree, 1)
+        self.case_tree.setVisible(self._mesh_file is None)
 
         selection_actions = QHBoxLayout()
         select_all = QPushButton("Select all")
@@ -163,6 +187,8 @@ class MeshValidationDialog(QDialog):
         selection_actions.addWidget(select_none)
         selection_actions.addStretch(1)
         layout.addLayout(selection_actions)
+        select_all.setVisible(self._mesh_file is None)
+        select_none.setVisible(self._mesh_file is None)
 
         form = QFormLayout()
         form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
@@ -198,8 +224,12 @@ class MeshValidationDialog(QDialog):
         form.addRow("CFD smoke-test steps", self.steps_spin)
         layout.addLayout(form)
 
-        workspace = UserDataPaths.discover().mesh_validation
-        self.workspace_label = QLabel("Workspace: " + str(workspace))
+        workspace = (
+            self._project_directory / "validation" / "<new-run>"
+            if self._mesh_file is not None and self._project_directory is not None
+            else UserDataPaths.discover().mesh_validation
+        )
+        self.workspace_label = QLabel("Validation output: " + str(workspace))
         self.workspace_label.setWordWrap(True)
         layout.addWidget(self.workspace_label)
 
@@ -266,11 +296,14 @@ class MeshValidationDialog(QDialog):
     def _start(self) -> None:
         if self._worker is not None and self._worker.isRunning():
             return
-        selected = [
-            (case_id, item.text(1))
-            for case_id, item in self._case_items.items()
-            if item.checkState(0) == Qt.CheckState.Checked
-        ]
+        selected = (
+            [(self._mesh_case_id, self._mesh_file.name)]
+            if self._mesh_file is not None else [
+                (case_id, item.text(1))
+                for case_id, item in self._case_items.items()
+                if item.checkState(0) == Qt.CheckState.Checked
+            ]
+        )
         if not selected:
             QMessageBox.information(self, "No mesh Cases selected", "Select at least one mesh Case.")
             return
@@ -281,14 +314,24 @@ class MeshValidationDialog(QDialog):
             return
         commands = []
         for case_id, title in selected:
-            arguments = (
+            arguments = [
                 sys.executable, "-m", "tools.oneflow_gui.mesh_validation",
                 "--oneflow-executable", str(executable),
                 "--mesh-case-id", case_id,
                 "--cfd-template-id", str(self.template_combo.currentData()),
                 "--max-steps", str(self.steps_spin.value()),
-            )
-            commands.append((f"Mesh-to-CFD: {title}", arguments, self._repository_root))
+            ]
+            if self._mesh_file is not None:
+                if not self._mesh_file.is_file():
+                    QMessageBox.warning(
+                        self, "Mesh file required",
+                        f"The current mesh no longer exists: {self._mesh_file}",
+                    )
+                    return
+                arguments.extend(["--mesh-file", str(self._mesh_file)])
+                if self._project_directory is not None:
+                    arguments.extend(["--project-directory", str(self._project_directory)])
+            commands.append((f"Mesh-to-CFD: {title}", tuple(arguments), self._repository_root))
         self.log_view.clear()
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)

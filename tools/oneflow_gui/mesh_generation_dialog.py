@@ -219,6 +219,13 @@ class StlToGmshDialog(QDialog):
         self.run_button.setMinimumWidth(150)
         self.run_button.clicked.connect(self._run)
         actions.addWidget(self.run_button)
+        self.validate_button = QPushButton("Validate with OneFLOW")
+        self.validate_button.setEnabled(Path(self.output_path.text()).is_file())
+        self.validate_button.setToolTip(
+            "Validate the current MSH file without rerunning Gmsh."
+        )
+        self.validate_button.clicked.connect(self._validate_current_mesh)
+        actions.addWidget(self.validate_button)
         root.addLayout(actions)
 
         root.addWidget(QLabel("Execution Output"))
@@ -367,6 +374,7 @@ class StlToGmshDialog(QDialog):
         self.output_view.appendPlainText(f"Arguments: {rendered_arguments}")
         self._process.setWorkingDirectory(str(self._repository_root))
         self.run_button.setEnabled(False)
+        self.validate_button.setEnabled(False)
         self.status_label.setText("Starting mesh generation...")
         self._process.start(sys.executable, [script, *script_arguments])
 
@@ -379,11 +387,31 @@ class StlToGmshDialog(QDialog):
             self.output_view.setTextCursor(cursor)
             self.output_view.ensureCursorVisible()
 
+    def _validate_current_mesh(self) -> None:
+        mesh_path = Path(self.output_path.text()).expanduser().resolve()
+        if not mesh_path.is_file():
+            QMessageBox.warning(
+                self, "Mesh file not found",
+                f"Generate or select an existing MSH file first: {mesh_path}",
+            )
+            return
+        from .mesh_validation_dialog import MeshValidationDialog
+
+        dialog = MeshValidationDialog(
+            self._repository_root,
+            mesh_file=mesh_path,
+            project_directory=mesh_path.parent,
+            mesh_case_id="stl_to_gmsh_sphere_automatic_tetrahedra",
+            parent=self,
+        )
+        dialog.exec()
+
     def _process_finished(self, exit_code: int, _exit_status) -> None:
         self._read_output()
         self.run_button.setEnabled(True)
         if exit_code == 0:
             mesh_path = Path(self.output_path.text()).expanduser()
+            self.validate_button.setEnabled(mesh_path.is_file())
             self.status_label.setText(
                 "Completed and validated. Outputs: "
                 f"{mesh_path}, {mesh_path.with_suffix('.geo')}, "
@@ -395,6 +423,7 @@ class StlToGmshDialog(QDialog):
     def _process_error(self, _error) -> None:
         self._read_output()
         self.run_button.setEnabled(True)
+        self.validate_button.setEnabled(False)
         self.status_label.setText("Mesh generation process error. See execution output.")
 
     def closeEvent(self, event) -> None:

@@ -12,7 +12,7 @@ from pathlib import Path
 from tools.oneflow_gui.mesh_validation import (
     build_mesh_validation_cases, cfd_template_choices, mesh_case_choices, mesh_case_groups,
     mesh_validation_workspace, reset_mesh_validation_workspace,
-    _graph_step_records, _mesh_case_command,
+    _copy_existing_mesh, _graph_step_records, _mesh_case_command,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
@@ -499,6 +499,28 @@ class MeshValidationCatalogTest(unittest.TestCase):
             build_mesh_validation_cases(self.root, "stl_to_gmsh_square", "missing")
 
 
+
+    def test_existing_mesh_is_copied_to_an_isolated_stage(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "project" / "mesh.msh"
+            source.parent.mkdir()
+            source.write_text("$MeshFormat\\n4.1 0 8\\n$EndMeshFormat\\n", encoding="ascii")
+            destination = root / "validation" / "run-1" / "producer" / "results" / "mesh.msh"
+            _copy_existing_mesh(source, destination)
+            self.assertEqual(destination.read_bytes(), source.read_bytes())
+            self.assertTrue(source.is_file())
+            self.assertNotEqual(source.resolve(), destination.resolve())
+
+    def test_existing_mesh_copy_rejects_missing_or_non_msh_sources(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            with self.assertRaisesRegex(FileNotFoundError, "not found"):
+                _copy_existing_mesh(root / "missing.msh", root / "stage" / "mesh.msh")
+            invalid = root / "mesh.stl"
+            invalid.write_text("solid mesh\\nendsolid mesh\\n", encoding="ascii")
+            with self.assertRaisesRegex(ValueError, "extension"):
+                _copy_existing_mesh(invalid, root / "stage" / "mesh.msh")
 
     def test_workspace_uses_mesh_case_relative_directory(self):
         paths = type(

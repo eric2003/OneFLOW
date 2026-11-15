@@ -20,6 +20,7 @@ from grid.stl_to_gmsh.generate_volume_mesh import (
     discover_gmsh,
 )
 
+from tools.oneflow_gui import mesh_validation_dialog
 from tools.oneflow_gui.mesh_generation_dialog import (
     MeshGenerationDialog,
     StlToGmshDialog,
@@ -114,8 +115,32 @@ class MeshGenerationDialogTest(unittest.TestCase):
             self.assertEqual(dialog.gmsh_path.text(), discover_gmsh() or "")
             self.assertEqual(dialog.mesh_size.text(), "0.20")
             self.assertTrue(dialog.run_button.isEnabled())
+            self.assertEqual(dialog.validate_button.isEnabled(),
+                             Path(dialog.output_path.text()).is_file())
         finally:
             dialog.close()
+
+    def test_validate_current_mesh_opens_single_mesh_validation_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            mesh = Path(directory) / "sphere.msh"
+            mesh.write_text("mesh", encoding="ascii")
+            dialog = StlToGmshDialog(self.repository_root)
+            try:
+                dialog.output_path.setText(str(mesh))
+                with patch(
+                    "tools.oneflow_gui.mesh_validation_dialog.MeshValidationDialog"
+                ) as dialog_type:
+                    dialog._validate_current_mesh()
+                dialog_type.assert_called_once_with(
+                    self.repository_root.resolve(),
+                    mesh_file=mesh.resolve(),
+                    project_directory=mesh.parent.resolve(),
+                    mesh_case_id="stl_to_gmsh_sphere_automatic_tetrahedra",
+                    parent=dialog,
+                )
+                dialog_type.return_value.exec.assert_called_once()
+            finally:
+                dialog.close()
 
     def test_stl_dialog_builds_coarse_medium_and_fine_commands(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
