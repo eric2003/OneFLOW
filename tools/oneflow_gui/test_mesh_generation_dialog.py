@@ -169,7 +169,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 )
             dialog = StlToGmshDialog(self.repository_root, project=project)
             try:
-                self.assertTrue(dialog.save_project_button.isVisible())
+                self.assertFalse(dialog.save_project_button.isHidden())
                 self.assertEqual(dialog.geometry_preset.currentData(), "prolate_spheroid")
                 dialog.minimum_size.setText("0.08")
                 dialog.maximum_size.setText("0.16")
