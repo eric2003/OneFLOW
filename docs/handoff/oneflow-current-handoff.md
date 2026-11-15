@@ -318,8 +318,18 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
     （5.87 / 23.32 / 7.54）。**只比同作业内交错重复的中位**，跨节点单发一律不算数。
 16. **延迟 drain 会让队列溢出**：`ONEFLOW_HIP_DEFER_SYNC=1` 下不设上限时，16/32 rank 会在
     `libgalaxyhip` 里 AQL 溢出 abort。`ONEFLOW_HIP_MAX_LAUNCHES_PER_DRAIN`（默认 32）必须保留。
-17. **GPU-aware 探针通过 ≠ 求解器可用**：`gpu-aware-mpi-probe` 2 rank 单节点 PASS，但求解器
-    开 `ONEFLOW_ENABLE_UNS_GPU_AWARE_MPI=1` 后 8/32 rank 都 abort。别再据此放行。
+17. **GPU-aware 探针通过 ≠ 求解器可用（该结论的证据基础已失效，2026-11-15 复核）**：
+    旧记录称 `gpu-aware-mpi-probe` 2 rank 单节点 PASS，但求解器开
+    `ONEFLOW_ENABLE_UNS_GPU_AWARE_MPI=1` 后 8/32 rank 都 abort。
+    **但那次 abort 发生在 H2 修复（`d41650729`）之前，根因是 `DEFER_STATUS` 下
+    状态缓冲空指针（VMFault），与 GPU-aware 无关**——同一类 abort 在 host 路径也会
+    触发。所以"8/32 rank abort"不能归给 GPU-aware。
+    **2026-11-15 在当前构建上重测**（`probe/128116476`）：2 rank 设备指针 **pass=1**
+    通过（UCX 默认传输）。但**8 rank/卡 的生产密度至今没有测过**——仓库里的探针
+    程序写死 `requires exactly two MPI ranks`，4/8 rank 会直接 rc=4 退出
+    （**这是探针限制，不是 MPI 失败，不要再把它读成失败证据**）。
+    待验证：多 rank/卡的设备指针路径。在此之前保持开关关闭，但**理由是"未验证"，
+    不是"已验证不可用"**。
 
 **集群作业与算例（同上）**
 
@@ -406,9 +416,15 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
     每步 7.7 ms，实际总 2193 ms / 300 步、只在第 0/50/100… 步输出；把 `nVisualSave`
     设成不输出后降到 0.055 ms/step。误把均值当每步开销会选错优化方向（踩过一次）。
     `ONEFLOW_STAGE_BREAKDOWN_FILE` 的 `.tsv` 是嵌套计时，不能相加求总量。
-15. **GPU-aware MPI 探针通过不代表该用**：同节点两 rank 设备指针直达 `pass=1`，但接到
-    真实界面交换后是 48–50 ms/step，host staging 是 15.7。这条 MPI 配置下设备指针路径
-    实际更贵。开关是 `ONEFLOW_ENABLE_UNS_GPU_AWARE_MPI` + `..._CONFIRMED`，保持关闭。
+15. **GPU-aware MPI 的"更贵 48–50 vs 15.7"读数不可作为定论（2026-11-15 复核）**：
+    旧记录：同节点两 rank 设备指针直达 `pass=1`，但接到真实界面交换后 48–50 ms/step，
+    host staging 15.7，结论"设备指针路径实际更贵，保持关闭"。
+    **该对照是在 `DEFER_SYNC`/`MAX_LAUNCHES_PER_DRAIN` 成为默认之前测的**，当时
+    每 kernel 后强制 drain、队列深度无上限，与现在的排队行为不同，所以"更贵"的
+    结论**需要在新默认下重测**才能引用。
+    当前状态：设备指针能力本身**可用**（`probe/128116476` 2 rank pass=1），
+    端到端收益未测。开关 `ONEFLOW_ENABLE_UNS_GPU_AWARE_MPI` + `..._CONFIRMED`
+    保持关闭，理由是"未验证收益"，不是"已验证更慢"。
 16. **固定基数必须先扣启动再归账**：旧通信开关对照约省 2.2 ms；
     `rk_stage=1` 的 8.93 ms 含短基准启动摊销，已由 todo A1.7b 修正，不能继续当稳态基数。
     单配置通信开关差值不是 A2 收益保证；H1 同配置归账已完成，结果见 todo §5.2。

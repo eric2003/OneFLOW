@@ -611,11 +611,15 @@ MPI trace 的已覆盖调用中，稳态等待主要在 `recv_char`；该工具�
       约占该次墙钟 16%，不能与其它配置的 kernel 比例相加。多卡历史接口分项受 H2
       与等待归因影响，暂不据其排期。Isend/Irecv 尝试已否，见 handoff 坑 30。
       2026-11-08 已验证两条路：
-      - **GPU-aware 设备直发不可用**：`ci/kunshan/gpu-aware-mpi-probe.cpp` 在 2 rank/2 DCU
-        单节点 **PASS**（device→device 点对点），但求解器开
-        `ONEFLOW_ENABLE_UNS_GPU_AWARE_MPI=1 ONEFLOW_GPU_AWARE_MPI_CONFIRMED=1` 后，
-        8 rank 与 32 rank 都在 `libgalaxyhip`/`hsa-runtime64` 里 abort（signal 6，
-        rc=134）。探针不足以放行求解器路径。
+      - **GPU-aware 设备直发（2026-11-15 复核：旧"不可用"结论作废）**：
+        旧记录说 2 rank 探针 PASS 但求解器 8/32 rank abort（rc=134）。
+        **那次 abort 在 H2 修复 `d41650729` 之前，根因是 `DEFER_STATUS` 下状态缓冲
+        空指针 VMFault，与 GPU-aware 无关**（同类 abort 在 host 路径同样触发）。
+        `probe/128116476` 在当前构建重测：2 rank 设备指针 **pass=1**（UCX 默认传输）；
+        显式加 GPUDirect 提示反而失败；**4/8 rank 的 FAIL 是探针程序写死
+        `requires exactly two MPI ranks` 所致，不是 MPI 失败**。
+        因此 **8 rank/卡 生产密度是否可用，至今无证据**——需要写一个多 rank 探针。
+        开关仍保持关闭，理由改为"未验证"而非"已验证不可用"。
       - 减轮次或聚合消息仅作为待验证方案；MPI 计数未显示消息量随 rank 增长，
         尚无证据证明聚合或 allgather 能改善端到端性能
       - **轮次 4→3 已再次验证不可行**：`ONEFLOW_SKIP_POST_INTERFACE=1` 后
@@ -1225,3 +1229,32 @@ gradient 打包上传下载。`swap_upload/swap_download` 是嵌套计时，不�
 - 明确**不是** A4 目标的：设备 kernel 1.77、mg_run 外的启动、task_plan/dispatch。
 - 通信轮次合并/重叠的收益上界：~2.5 ms/步（1.37 等待 + 1.08 pack），与此前
   §5.11 的 1.49 上限同量级。
+
+#### 5.15 新发现 2026-11-15：rank 与卡的 NUMA 错配（未验证收益）
+
+**实测拓扑**（`probe/128116197`，kshdnormal 节点）：
+
+```
+NUMA node0: cpu 0-7    node1: 8-15    node2: 16-23    node3: 24-31
+card0 0000:23:00.0 numa=1   card1 0000:04:00.0 numa=0   card2 0000:26:00.0 numa=1
+card3 0000:43:00.0 numa=2   card4 0000:63:00.0 numa=3
+```
+
+`--bind-to core` 把 8 个 rank 全部绑到 **CPU 8-15（NUMA node 1）**，与 Slurm 分到哪张卡
+无关；本次分到 `SLURM_JOB_GPUS=1` → card1 → **NUMA node 0**。
+即 **8 个 rank 的 CPU 在一个 NUMA node，显卡在另一个**，每次 H2D/D2H 跨 NUMA。
+
+**为什么值得追**：账本（§5.14）显示每步有 3 处阻塞 D2H（`post_upload_host`
+1.2–2.3 ms、`interface_pack` 1.1–1.4、`s_gradient` 内的 unpack 等待），
+跨 NUMA 的拷贝延迟正是这类阻塞成本的候选解释之一。
+
+**但当前无法做对照**：Slurm 的 cgroup 只授予核 8-15，`--cpu-set 0-7` 直接报
+"not enough slots"，**rank 无法挪到卡所在的 NUMA node**。`--mem-bind local` 只约束
+内存分配、不改变 CPU 位置。`probe/128116411` 因此只跑完 baseline 一发即中止
+（且该节点 baseline 17.05 ms/步，与他节点 12.9 差 32%，跨节点不可比）。
+
+**要验证需要**：申请更多 CPU（多点 NUMA node）或 `--gres=dcu:4` 拿全卡，
+再按卡所在 NUMA 分布 rank。这是一个独立实验设计，不是调 mpirun 参数。
+
+**同时确认的负面结果**：`probe/128116476` 的 4/8 rank GPU-aware FAIL 是探针程序
+本身要求恰好 2 rank，**不是 MPI 失败**；2 rank 在当前构建上 pass=1。
