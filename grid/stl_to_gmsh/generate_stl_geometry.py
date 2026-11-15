@@ -18,19 +18,6 @@ GENERATOR_VERSION = "1.0"
 
 def _orient_outward(vertices: list[tuple[float, float, float]], faces: list[tuple[int, int, int]]) -> list[tuple[int, int, int]]:
     oriented = []
-    parent = list(range(len(vertices)))
-
-    def find(item: int) -> int:
-        while parent[item] != item:
-            parent[item] = parent[parent[item]]
-            item = parent[item]
-        return item
-
-    def union(left: int, right: int) -> None:
-        left_root, right_root = find(left), find(right)
-        if left_root != right_root:
-            parent[right_root] = left_root
-
     for a, b, c in faces:
         union(a, b)
         union(b, c)
@@ -136,7 +123,22 @@ def _surface_metrics(vertices: list[tuple[float, float, float]], faces: list[tup
     directed: Counter[tuple[int, int]] = Counter()
     area = 0.0
     signed_volume = 0.0
+    parent = list(range(len(vertices)))
+
+    def find(item: int) -> int:
+        while parent[item] != item:
+            parent[item] = parent[parent[item]]
+            item = parent[item]
+        return item
+
+    def union(left: int, right: int) -> None:
+        left_root, right_root = find(left), find(right)
+        if left_root != right_root:
+            parent[right_root] = left_root
+
     for a, b, c in faces:
+        union(a, b)
+        union(b, c)
         pa, pb, pc = vertices[a], vertices[b], vertices[c]
         ab = tuple(pb[i] - pa[i] for i in range(3))
         ac = tuple(pc[i] - pa[i] for i in range(3))
