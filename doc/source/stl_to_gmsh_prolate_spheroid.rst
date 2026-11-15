@@ -21,7 +21,8 @@ The spheroid is centered at the origin with semi-axes 3, 0.5 and 0.5:
 Its full length is 6, maximum diameter is 1, aspect ratio is 6:1, and analytic
 volume is pi. The checked-in STL scales the triangulated unit-sphere surface
 by (3, 0.5, 0.5). Topology and facet count remain constant while proportions
-change.
+change. The surface construction, affine transform, units and current
+generator-provenance gap are recorded in :doc:`stl_geometry_generation`.
 
 Case registration
 -----------------
