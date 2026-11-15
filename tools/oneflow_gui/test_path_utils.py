@@ -8,7 +8,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools.oneflow_gui.path_utils import is_path_within, normalize_path, paths_equal
+from tools.oneflow_gui.path_utils import (
+    is_path_within,
+    normalize_path,
+    paths_equal,
+    relative_path_within,
+)
 
 
 class PathUtilsTest(unittest.TestCase):
@@ -63,6 +68,10 @@ class PathUtilsTest(unittest.TestCase):
                 )
             )
             self.assertTrue(is_path_within(missing_mesh, long_directory))
+            self.assertEqual(
+                relative_path_within(missing_mesh, long_directory),
+                Path("not-created/mesh.msh"),
+            )
 
     def test_paths_equal_handles_symlink_alias(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -88,6 +97,13 @@ class PathUtilsTest(unittest.TestCase):
             sibling = Path(temporary) / "workspace-other"
             self.assertFalse(is_path_within(sibling / "mesh.msh", root))
             self.assertFalse(is_path_within(root.parent, root))
+
+
+    def test_relative_path_within_rejects_escape(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            with self.assertRaises(ValueError):
+                relative_path_within(base / "outside" / "mesh.msh", base / "workspace")
 
     def test_is_path_within_rejects_symlink_escape(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
