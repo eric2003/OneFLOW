@@ -65,14 +65,28 @@ def analyse_face(ring, latL, latR):
     nR = lattice_normal(ringR)
     if nL is None or nR is None:
         return None, "face not lattice-planar"
-    # enumerate axis maps: 3! permutations x 2^3 sign patterns
+    # Node-identity correspondence: the SAME node id n must satisfy
+    # latL[n] == T(latR[n]) + offset on all four ring nodes.  The ring start
+    # may rotate, but a node may never be remapped to a different node whose
+    # coordinates happen to match.  T = permutation x signs (48 candidates);
+    # the offset follows from any one node and is then verified on the rest.
     import itertools
     for perm in itertools.permutations(range(3)):
         for signs in itertools.product((1, -1), repeat=3):
             rmap = {r: (perm[r], signs[r]) for r in range(3)}
-            if affine_ok(ringR, ringL, rmap):
+            # offset from the first ring node, then verify all four BY ID
+            n0 = ring[0]
+            t0 = apply_rmap(latR[n0], rmap)
+            off = tuple(latL[n0][j] - t0[j] for j in range(3))
+            ok = True
+            for n in ring:
+                t = apply_rmap(latR[n], rmap)
+                if tuple(t[j] + off[j] for j in range(3)) != latL[n]:
+                    ok = False
+                    break
+            if ok:
                 return (nL, nR, rmap), None
-    return None, "no affine corner correspondence"
+    return None, "no node-identity affine correspondence"
 
 
 def lattice_normal(ring):
@@ -86,26 +100,6 @@ def lattice_normal(ring):
     if len(axes) != 2:
         return None
     return ({0, 1, 2} - axes).pop()
-
-
-def affine_ok(ringR, ringL, rmap):
-    """True if some offset makes rmap map ringR exactly onto ringL's set."""
-    posL = set(ringL)
-    for start in range(4):
-        off = [ringL[0][j] - apply_rmap(ringR[start], rmap)[j] for j in range(3)]
-        got = set()
-        ok = True
-        for r in ringR:
-            m = apply_rmap(r, rmap)
-            q = tuple(m[j] + off[j] for j in range(3))
-            if q in posL:
-                got.add(q)
-            else:
-                ok = False
-                break
-        if ok and len(got) == 4:
-            return True
-    return False
 
 
 def apply_rmap(p, rmap):
@@ -173,60 +167,18 @@ def fixed_points(p):
 
 
 def solve_perm_network(n_cells, cons):
-    """Exact solver when every face constraint is a bijection dR = P(dL).
+    """Deterministic exact solver for a bijection-constraint network.
 
-    Coloured union-find.  Invariant: perm[c] maps label(find(c)) -> label(c);
-    path compression composes as perm[y] = perm[y] o perm[parent] (parent's
-    mapping applied FIRST), i.e. label(y) = perm[y](label(root)).
-
-    Constraint label(b) = p(label(a)) with a rooted at ra, b rooted at rb:
-        label(b) = perm[b](label(rb)), label(a) = perm[a](label(ra))
-        => perm[b](label(rb)) = p(perm[a](label(ra)))
-    Attaching rb under ra needs perm[rb]_new: label(ra) -> label(rb):
-        perm[rb]_new = inverse(perm[b]) o p o perm[a]
-    Cycle edge (ra == rb) forces l = label(ra) to satisfy
-        cyc(l) = l  with cyc = inverse(perm[b]) o p o perm[a]
-    so the admissible root labels are the intersection of the fixed-point
-    sets of all cycle permutations; empty intersection -> UNSAT with that
-    cycle as witness.  Deterministic, near O(n alpha(n)); no search.
+    For each connected component, tries each root direction 0/1/2; BFS along
+    forward and inverse permutations propagates labels edge by edge; any
+    contradiction aborts that seed.  A component is UNSAT only when all three
+    seeds fail, with the blocking path recorded per seed.  At most three graph
+    traversals per component, no data structure beyond adjacency lists.
     """
-    parent = list(range(n_cells))
-    perm = [tuple(range(3)) for _ in range(n_cells)]
-    size = [1] * n_cells
-    cycles = []
+    from collections import deque
 
-    def find(x):
-        root = x
-        while parent[root] != root:
-            root = parent[root]
-        # first pass: compose perms bottom-up correctly
-        while parent[x] != root:
-            nxt = parent[x]
-            perm[x] = compose(perm[x], perm[nxt])
-            parent[x] = root
-            x = nxt
-        return root
-
-    def union(a, b, p):
-        ra, rb = find(a), find(b)
-        pa, pb = perm[a], perm[b]
-        if ra == rb:
-            cyc = compose(inverse(pb), compose(p, pa))
-            if cyc != tuple(range(3)):
-                cycles.append((a, b, cyc))
-            return
-        shift = compose(inverse(pb), compose(p, pa))   # label(ra)->label(rb)
-        if size[ra] < size[rb]:
-            # attach ra under rb instead: need label(rb)->label(ra)
-            parent[ra] = rb
-            # perm[ra]_new: label(rb) -> label(ra); perm[ra]_old maps ra->ra
-            perm[ra] = compose(inverse(shift), perm[ra])
-            size[rb] += size[ra]
-        else:
-            parent[rb] = ra
-            perm[rb] = compose(shift, perm[rb])
-            size[ra] += size[rb]
-
+    # verify each constraint is a bijection and extract P
+    edges = []
     for (f, l, r, am) in cons:
         P = [None] * 3
         ok = True
@@ -239,28 +191,79 @@ def solve_perm_network(n_cells, cons):
         if not ok or len(set(P)) != 3:
             return ("INCOMPLETE",
                     "face %d allowed matrix is not a bijection: %s" % (f, am))
-        union(l, r, tuple(P))
+        edges.append((f, l, r, tuple(P)))
 
-    allowed = {}
-    for c in range(n_cells):
-        find(c)
-        rt = parent[c]
-        if rt not in allowed:
-            allowed[rt] = frozenset(range(3))
-    for (a, b, cyc) in cycles:
-        rt = parent[a]
-        allowed[rt] = allowed[rt] & fixed_points(cyc)
-        if not allowed[rt]:
+    adj = [[] for _ in range(n_cells)]
+    for (f, l, r, P) in edges:
+        adj[l].append((f, r, P))
+        adj[r].append((f, l, inverse(P)))
+
+    seen = [False] * n_cells
+    assign = [-1] * n_cells
+    for root in range(n_cells):
+        if seen[root]:
+            continue
+        comp = [root]
+        seen[root] = True
+        dq = deque([root])
+        while dq:
+            c = dq.popleft()
+            for (f, o, P) in adj[c]:
+                if not seen[o]:
+                    seen[o] = True
+                    comp.append(o)
+                    dq.append(o)
+
+        solved = None
+        failures = []
+        for seed in range(3):
+            val = {root: seed}
+            path = [root]
+            block = None
+            dq = deque([root])
+            while dq and block is None:
+                c = dq.popleft()
+                for (f, o, P) in adj[c]:
+                    if o == c:
+                        # self-loop: consistency check
+                        if P[val[c]] != val[c]:
+                            block = (f, c, c, P)
+                            break
+                        continue
+                    nv = P[val[c]]
+                    if o in val:
+                        if val[o] != nv:
+                            block = (f, c, o, P)
+                            break
+                    else:
+                        val[o] = nv
+                        path.append(o)
+                        dq.append(o)
+            if block is None:
+                # full re-check over every edge of the component
+                for (f, l, r, P) in edges:
+                    if l in val and r in val:
+                        if P[val[l]] != val[r]:
+                            block = (f, l, r, P)
+                            break
+            if block is None:
+                solved = val
+                break
+            failures.append((seed, block))
+
+        if solved is None:
             return ("UNSAT",
-                    "cycle (cells %d,%d) composes to permutation %s with no "
-                    "fixed point: every candidate split direction is "
-                    "excluded around this loop" % (a, b, cyc))
-    assign = {}
-    for c in range(n_cells):
-        rt = parent[c]
-        if not allowed.get(rt):
-            return ("UNSAT", "component root %d has empty label set" % rt)
-        assign[c] = perm[c][min(allowed[rt])]
+                    "component rooted at cell %d: all 3 root directions fail; "
+                    "per-seed blocking edges: %s"
+                    % (root, failures))
+        for c, v in solved.items():
+            assign[c] = v
+
+    # final independent pass: every constraint verified against the assignment
+    for (f, l, r, am) in cons:
+        if not am[assign[l]][assign[r]]:
+            return ("INCOMPLETE",
+                    "post-check violation at face %d (%d,%d)" % (f, l, r))
     return ("PASS", assign)
 
 
@@ -326,7 +329,7 @@ def main():
         return 3
     from collections import Counter
     print("VERDICT=PASS mode=%s histogram=%s"
-          % (mode, dict(Counter(assign.values()))))
+          % (mode, dict(Counter(assign))))
     return 0
 
 

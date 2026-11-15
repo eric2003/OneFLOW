@@ -268,7 +268,7 @@ def test_perm_network():
     # 3) transposition loop: PASS, label forced to the fixed point 0
     v, d = solve_perm_network(3, [(0, 0, 1, am(TRA)), (1, 1, 2, am(TRA)),
                                   (2, 2, 0, am(TRA))])
-    assert v == "PASS" and all(x == 0 for x in d.values()), (v, d)
+    assert v == "PASS" and all(x == 0 for x in d), (v, d)
     # 4) identity chain + one transposition edge: PASS, half free? check
     v, d = solve_perm_network(3, [(0, 0, 1, am(ID)), (1, 1, 2, am(TRA))])
     assert v == "PASS", v
@@ -286,7 +286,88 @@ def test_perm_network():
     assert v == "PASS" and d[0] == d[1] == d[2], (v, d)
     print("  perm-network synthetics: PASS/UNSAT/forced/transposition all verified")
 
+
+
+def test_node_identity_regression():
+    """The mapping must be recovered per NODE ID, not per coordinate set."""
+    import sys
+    sys.path.insert(0, "ci/kunshan")
+    from check_merge_dirs import analyse_face
+    ring = (10, 11, 12, 13)
+    latL = {10: (1,0,0), 11: (1,1,0), 12: (1,1,1), 13: (1,0,1)}
+    latR = {10: (0,0,0), 11: (0,0,1), 12: (0,1,1), 13: (0,1,0)}
+    got, err = analyse_face(ring, latL, latR)
+    assert got is not None, err
+    nL, nR, rmap = got
+    assert rmap == {0: (0, 1), 1: (2, 1), 2: (1, 1)}, rmap
+    print("  node-identity regression: expected rmap recovered")
+
+
+def test_solver_regressions():
+    """The reduced DSU-misjudgement case, plus invariance variants."""
+    import sys
+    sys.path.insert(0, "ci/kunshan")
+    from check_merge_dirs import solve_perm_network
+
+    def to_cons(edges):
+        return [(f, l, r, [[1 if P[a] == b else 0 for b in range(3)]
+                           for a in range(3)])
+                for (f, l, r, P) in edges]
+
+    edges = [
+        (5,  9,12,(2,1,0)), (10, 2,11,(0,1,2)), (13,13,12,(1,2,0)),
+        (15,15, 5,(2,1,0)), (18, 9, 4,(1,2,0)), (28, 2,15,(0,1,2)),
+        (31, 4,10,(0,2,1)), (34,11,10,(0,2,1)), (44,13, 0,(1,0,2)),
+        (47, 5, 0,(1,0,2)),
+    ]
+    good = {0:0, 2:1, 4:1, 5:1, 9:0, 10:2, 11:1, 12:2, 13:1, 15:1}
+    v, d = solve_perm_network(16, to_cons(edges))
+    assert v == "PASS", (v, d)
+    cons = to_cons(edges)
+    assert all(c[3][good[c[1]]][good[c[2]]] for c in cons)
+    print("  reduced UNSAT-misjudgement case: PASS with known-good verified")
+
+    # edge-order invariance: reverse the list
+    v2, _ = solve_perm_network(16, to_cons(list(reversed(edges))))
+    assert v2 == "PASS", v2
+    print("  edge-order invariance: PASS")
+
+    # separate components: duplicate the structure on cells 200+ with no edges
+    v3, _ = solve_perm_network(17, to_cons(edges))
+    assert v3 == "PASS", v3
+    print("  isolated extra cell handled")
+
+    # small-graph exhaustive cross-check: random-ish 6-cell networks vs
+    # brute force (deterministic seeds, 200 cases)
+    import itertools, random
+    rng = random.Random(1234)
+    for case in range(200):
+        n = 6
+        m = rng.randint(4, 10)
+        eds = []
+        for i in range(m):
+            a = rng.randrange(n); b = rng.randrange(n)
+            if a == b:
+                b = (a + 1) % n
+            perm = rng.choice(list(itertools.permutations(range(3))))
+            eds.append((i, a, b, perm))
+        cs = to_cons(eds)
+        brute = []
+        for combo in itertools.product(range(3), repeat=n):
+            if all(c[3][combo[c[1]]][combo[c[2]]] for c in cs):
+                brute.append(combo)
+                break
+        v4, d4 = solve_perm_network(n, cs)
+        if brute:
+            assert v4 == "PASS", (case, v4, eds)
+        else:
+            assert v4 == "UNSAT", (case, v4, eds)
+    print("  200 small-graph exhaustive cross-checks: consistent")
+
+
 if __name__ == "__main__":
     main()
     test_perm_network()
+    test_node_identity_regression()
+    test_solver_regressions()
     print("ALL_TESTS_DONE")
