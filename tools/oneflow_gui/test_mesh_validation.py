@@ -12,7 +12,8 @@ from pathlib import Path
 from tools.oneflow_gui.mesh_validation import (
     build_mesh_validation_cases, cfd_template_choices, mesh_case_choices, mesh_case_groups,
     mesh_validation_workspace, project_mesh_validation_workspace,
-    reset_mesh_validation_workspace, _copy_existing_mesh, _graph_step_records,
+    reset_mesh_validation_workspace, create_mesh_validation_run_workspace,
+    _copy_existing_mesh, _graph_step_records,
     _mesh_case_command,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
@@ -590,6 +591,24 @@ class MeshValidationCatalogTest(unittest.TestCase):
             reset_mesh_validation_workspace(selected)
             self.assertFalse((selected / "stale.txt").exists())
             self.assertTrue((sibling / "keep.txt").is_file())
+
+
+    def test_run_workspace_creation_preserves_previous_runs(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary) / "project" / "validation"
+            previous = base / "run-previous"
+            previous.mkdir(parents=True)
+            locked_output = previous / "oneflow_cfd_solve" / "visual"
+            locked_output.mkdir(parents=True)
+            (locked_output / "visual.dat").write_text("keep", encoding="utf-8")
+
+            first = create_mesh_validation_run_workspace(base)
+            second = create_mesh_validation_run_workspace(base)
+
+            self.assertNotEqual(first, second)
+            self.assertTrue((locked_output / "visual.dat").is_file())
+            self.assertTrue(first.is_dir())
+            self.assertTrue(second.is_dir())
 
 
 if __name__ == "__main__":
