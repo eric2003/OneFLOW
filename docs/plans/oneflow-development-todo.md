@@ -2036,34 +2036,43 @@ CD 在 9.44e-3..1.06e-2 之间，最后 100 步 dCL 仍有 +4.0e-3；
 
 **本块由 `ci/kunshan/flagship-board.py` 生成，勿手改。**
 
-进度：**20/29** 勾选（含已排除项）。未完成：
+进度：**26/39** 勾选（含已排除项）。未完成：
 - C1 **测 SA 成本构成：循环开销 vs 数学函数** ← *子 agent 正在测*
 - C2 若 C1 显示数学主导 → SA 源项/vist 设备内核（1 方程标量族）
 - C3 SA 标量对流 + 扩散通量内核
 - C4 SA 契约测试（现有设备契约只有 Roe 和 limiter，都无粘）
+- G7 **Euler/NS 交叉混用审计** ← *子 agent 正在做*
+- G8 按审计结果拆分（待定）
+- G9 NS 粘性入口在 `CpuFluxBackend` / `HipFluxBackend` 各自实现
+- G10 温度场与温度梯度驻留（`Ns3DDeviceState` 需新增第二套梯度槽位）
 - E2 **气动力未收敛**：1500 步时 CL 仍在 1.359e-1..1.421e-1 振荡，
 - E3 为算例建立真正的稳态基线（自带参考是 50 步瞬态，按 1e-8 比对）
 - F1 **HIP 后端选择改变 host 数值**：全 host stage 仍与纯 CPU 差 6.3e-6 / aer
 - F2 多 zone/rank 跑不完（非物理态 + 超时），推翻旧坑 18 的"能完成只是更慢"
-- F3 32-zone 网格在两节点启动时挂起（单节点同网格正常）
 
-集群：**6 个活动作业**
-- `128135394` RUNNING — of-probe-tintegral-conv
-- `128148649` COMPLETED — 1d-ad
-- `128148468` RUNNING — of-probe-saabl
-- `128148779` COMPLETED — of-probe-saperf
-- `128149088` COMPLETED — of-probe-saattr
-- `128148047` RUNNING — of-probe-saresplit
+集群：**12 个活动作业**
+- `128148468` COMPLETED — of-probe-saabl
+- `128150731` RUNNING — 1d-ad
+- `128150737` COMPLETED — of-probe-kfd-deep
+- `128150656` COMPLETED — of-probe-kfd-locate
+- `128150607` COMPLETED — of-probe-kfd-src
+- `128150596` RUNNING — of-probe-sacount2
+- `128150582` COMPLETED — of-build-visseam
+- `128150309` COMPLETED — of-probe-sacount
+- `128150398` COMPLETED — of-probe-kfd-src
+- `128148047` COMPLETED — of-probe-saresplit
+- `128150273` COMPLETED — of-build-visview
+- `128150242` COMPLETED — 1d-ad
 
 近一天作业：30 个（状态见上面活动列表）
 
 按看板条目（仅活动作业可分类，历史作业不计）：
-- C1  SA cost split (loop vs math): `128148468` RUNNING — of-probe-saabl, `128148779` COMPLETED — of-probe-saperf, `128148047` RUNNING — of-probe-saresplit
+- C1  SA cost split (loop vs math): `128148468` COMPLETED — of-probe-saabl, `128148047` COMPLETED — of-probe-saresplit
 - D   viscous flux scope: 无活动作业
-- E1  LU-SGS convergence: `128135394` RUNNING — of-probe-tintegral-conv
+- E1  LU-SGS convergence: 无活动作业
 - A4  vismodel guard build/verify: 无活动作业
 - cfg 2-card / scaling probes: 无活动作业
-- other: `128148649` COMPLETED — 1d-ad, `128149088` COMPLETED — of-probe-saattr
+- other: `128150731` RUNNING — 1d-ad, `128150737` COMPLETED — of-probe-kfd-deep, `128150656` COMPLETED — of-probe-kfd-locate
 
 <!-- FLAGSHIP-BOARD:END -->
 
@@ -2141,6 +2150,34 @@ CD 在 9.44e-3..1.06e-2 之间，最后 100 步 dCL 仍有 +4.0e-3；
       **旧判断"B3 更大"在风险和改动数据模型的意义上成立，不是行数上成立。**
 - [x] D7 门禁要同时放宽三处：`EulerInvFluxCapability.cpp:62`、
       `NsSolverImp.cpp:121`、`HipProductionPolicy.h:310`
+
+#### G. 粘性 DCU 化（backend 灵活性优先）
+
+- [x] G1 **backend 抽象审计**：`AccelBackend` 只有内存管理；`FluxBackend` 纯虚但仅 CPU 适配器用；
+      `EulerDomainBackend` 四方法仅 CPU 切片用；**`HipFluxBackend` 5208 行具体类，
+      生产代码直调 20+ 方法**（`UNsGrad.cpp:168`、`ULhs.cpp:117`、`NsSolverImp.cpp:234`、
+      `UTimeStep.cpp:136` 等）→ 照此加粘性会锁死 CUDA/Kokkos
+- [x] G2 **`ViscousFluxView` 定义**（`AccelViews.h`）：backend-neutral，逐项镜像 host 输入——
+      几何、状态+梯度、**温度及其梯度**（设备目前完全没有）、两种粘度、
+      **热力学常数**（gamma/R/Pr/cp/1Re/Tw，原来散在全局）、可选切向、
+      逐面输出缓冲。无任何加速器类型
+- [x] G3 **`ValidateViscousFluxView`**：14 个字段逐个删除都必须被拒，
+      输出 stride 过短也要拒。缺字段正是"设备残差静默丢项"的成因
+- [x] G4 **入口挂载修正**：先误放 `EulerDomainBackend`（1D/精简接口），
+      经用户指出后改挂 **`FluxBackend`**（backend-neutral 面算子，已有 CPU/HIP/
+      unimplemented 三实现）。粘性本来就是面算子，语义最贴合
+- [x] G5 入口保持**非纯虚**：粘性是能力不是要求；CPU host 链在别处算粘性；
+      默认 fail-closed（`SupportsViscousFlux()` 返回 false、入口抛错）
+- [x] G6 契约测试 13/13 通过（`probe` 见 `build/128150582`），含新粘性视图逐字段拒绝
+- [ ] G7 **Euler/NS 交叉混用审计** ← *子 agent 正在做*
+      已知：`EulerDomain.h` 装着 273 行 NS 专用代码（`Ns3DBackendState:149`、
+      `Ns3DDeviceState:161`）；`HipFluxBackend.hip` 包含 `EulerCpuAdapter.h`
+      只为拿共享契约 `PrimitiveFaceStateView`
+- [ ] G8 按审计结果拆分（待定）
+- [ ] G9 NS 粘性入口在 `CpuFluxBackend` / `HipFluxBackend` 各自实现
+- [ ] G10 温度场与温度梯度驻留（`Ns3DDeviceState` 需新增第二套梯度槽位）
+
+**顺带发现**：`Ns3DDeviceState::viscousTurbulence` 声明并初始化，但**从未被读取**——死字段。
 
 #### E. 收敛基准（比性能更根本的缺口）
 
