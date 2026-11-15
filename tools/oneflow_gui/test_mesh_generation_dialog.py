@@ -131,6 +131,45 @@ class MeshGenerationDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_geometry_preset_switches_stl_output_and_validation_case(self) -> None:
+        dialog = StlToGmshDialog(self.repository_root)
+        try:
+            spheroid_stl = (
+                self.repository_root / "grid" / "stl_to_gmsh" / "3d"
+                / "prolate_spheroid" / "automatic_tetrahedra" / "python"
+                / "input" / "model.stl"
+            )
+            dialog.geometry_preset.setCurrentIndex(
+                dialog.geometry_preset.findData("prolate_spheroid")
+            )
+            self.assertEqual(Path(dialog.stl_path.text()), spheroid_stl)
+            self.assertTrue(spheroid_stl.is_file())
+            self.assertEqual(
+                Path(dialog.output_path.text()),
+                UserDataPaths.discover().mesh_generation
+                / "prolate_spheroid" / "prolate_spheroid.msh",
+            )
+            self.assertEqual(
+                dialog._mesh_case_id,
+                "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra",
+            )
+            self.assertIn(str(spheroid_stl), dialog._command_text())
+
+            dialog.geometry_preset.setCurrentIndex(
+                dialog.geometry_preset.findData("sphere")
+            )
+            self.assertEqual(Path(dialog.stl_path.text()), DEFAULT_SPHERE_STL)
+            self.assertEqual(
+                Path(dialog.output_path.text()),
+                UserDataPaths.discover().mesh_generation / "sphere" / "sphere.msh",
+            )
+            self.assertEqual(
+                dialog._mesh_case_id,
+                "stl_to_gmsh_sphere_automatic_tetrahedra",
+            )
+        finally:
+            dialog.close()
+
     def test_validate_current_mesh_opens_single_mesh_validation_mode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             mesh = Path(directory) / "sphere.msh"
