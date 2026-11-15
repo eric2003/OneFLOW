@@ -12,6 +12,7 @@ from unittest.mock import patch
 from tools.oneflow_gui.mesh_project import (
     create_mesh_project_from_stl,
     create_mesh_project_from_template,
+    import_mesh_project_directory,
     load_mesh_project,
     mesh_project_templates,
     replace_project_stl,
@@ -68,6 +69,23 @@ class MeshProjectTest(unittest.TestCase):
         self.assertEqual(updated["stl_path"].read_text(encoding="ascii"), alternate.read_text(encoding="ascii"))
         self.assertNotEqual(updated["stl_path"], alternate)
         self.assertEqual(updated["mesh_case_id"], project["mesh_case_id"])
+
+    def test_import_prepared_project_directory_and_reopen_it(self) -> None:
+        source = self.home / "prepared_case"
+        (source / "input").mkdir(parents=True)
+        (source / "script").mkdir()
+        stl = self.repository_root / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python/input/model.stl"
+        (source / "input/model.stl").write_bytes(stl.read_bytes())
+        (source / "script/layout.json").write_text(
+            json.dumps({"mesh_dimension": 3, "mesh_size": 0.15, "boundary_name": "body", "surface_name": "fluid"}),
+            encoding="utf-8",
+        )
+        project = import_mesh_project_directory(self.repository_root, source)
+        self.assertTrue(project["stl_path"].is_file())
+        self.assertNotEqual(project["stl_path"], source / "input/model.stl")
+        self.assertEqual(project["mesh_size"], 0.15)
+        self.assertEqual(project["boundary_name"], "body")
+        self.assertEqual(load_mesh_project(project["directory"])["output_path"], project["output_path"])
 
     def test_import_stl_copies_database_geometry_into_independent_project(self) -> None:
         source = self.repository_root / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python/input/model.stl"

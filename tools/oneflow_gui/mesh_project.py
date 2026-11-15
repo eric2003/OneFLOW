@@ -142,6 +142,51 @@ def create_mesh_project_from_stl(
     return _write_manifest(directory, manifest)
 
 
+def import_mesh_project_directory(repository_root: Path, source_directory: Path) -> dict:
+    """Copy a prepared project directory into user data and adopt its STL input."""
+    source = Path(source_directory).expanduser().resolve()
+    if not source.is_dir():
+        raise NotADirectoryError(f"Select an existing project directory: {source}")
+    preferred = source / "input/model.stl"
+    if preferred.is_file():
+        selected_stl = preferred
+    else:
+        candidates = sorted(path for path in source.rglob("*.stl") if path.is_file())
+        if len(candidates) != 1:
+            raise ValueError(
+                "Prepared project must contain input/model.stl or exactly one STL file."
+            )
+        selected_stl = candidates[0]
+    directory = _new_project_directory(source.name)
+    copied = directory / "source_project"
+    shutil.copytree(
+        source,
+        copied,
+        ignore=shutil.ignore_patterns(".git", "build", "results", "__pycache__"),
+    )
+    relative_stl = selected_stl.relative_to(source)
+    copied_stl = copied / relative_stl
+    layout_path = copied / "script/layout.json"
+    layout = {}
+    if layout_path.is_file():
+        layout = json.loads(layout_path.read_text(encoding="utf-8"))
+    manifest = {
+        "schema": _PROJECT_SCHEMA,
+        "version": 1,
+        "name": directory.name,
+        "template_case_id": None,
+        "mesh_case_id": _GENERIC_3D_VALIDATION_CASE,
+        "input_stl": (Path("source_project") / relative_stl).as_posix(),
+        "output_mesh": f"results/{directory.name}.msh",
+        "mesh_size": float(layout.get("mesh_size", 0.20)),
+        "boundary_name": str(layout.get("boundary_name", "wall")),
+        "volume_name": str(layout.get("surface_name", "fluid_domain")),
+        "source_directory": str(source),
+    }
+    (directory / "results").mkdir()
+    return _write_manifest(directory, manifest)
+
+
 def load_mesh_project(directory: Path) -> dict:
     """Load and validate a prepared project directory."""
     root = Path(directory).expanduser().resolve()
@@ -211,6 +256,7 @@ def save_mesh_project_settings(project: dict, settings: dict) -> dict:
 __all__ = [
     "create_mesh_project_from_stl",
     "create_mesh_project_from_template",
+    "import_mesh_project_directory",
     "load_mesh_project",
     "mesh_project_templates",
     "replace_project_stl",

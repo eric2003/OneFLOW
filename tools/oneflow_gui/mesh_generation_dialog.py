@@ -32,6 +32,7 @@ from .mesh_layout_dialog import MeshLayoutDialog
 from .mesh_project import (
     create_mesh_project_from_stl,
     create_mesh_project_from_template,
+    import_mesh_project_directory,
     load_mesh_project,
     mesh_project_templates,
     replace_project_stl,
@@ -166,7 +167,13 @@ class MeshGenerationDialog(QDialog):
         if not path:
             return
         try:
-            project = load_mesh_project(Path(path))
+            selected_directory = Path(path)
+            if (selected_directory / "project.json").is_file():
+                project = load_mesh_project(selected_directory)
+            else:
+                project = import_mesh_project_directory(
+                    self._repository_root, selected_directory
+                )
         except (OSError, ValueError, KeyError) as error:
             QMessageBox.warning(self, "Cannot open mesh project", str(error))
             return
