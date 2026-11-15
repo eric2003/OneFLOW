@@ -74,6 +74,13 @@ class MeshGenerationDialogTest(unittest.TestCase):
             self.assertIn("Mesh Layout Editor", labels)
             self.assertIn("STL to Gmsh", labels)
             self.assertIn("Mesh Knowledge", labels)
+            self.assertIn("New from Template", labels)
+            self.assertIn("Open Existing Project...", labels)
+            self.assertIn("Import STL / Grid Database...", labels)
+            self.assertIn(
+                "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
+                {self.project_template.itemData(i) for i in range(self.project_template.count())},
+            )
             with patch(
                 "tools.oneflow_gui.mesh_generation_dialog.MeshLayoutDialog"
             ) as layout_type:

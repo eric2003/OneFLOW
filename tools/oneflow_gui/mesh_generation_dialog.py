@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QMessageBox,
     QPlainTextEdit,
+    QInputDialog,
     QPushButton,
     QVBoxLayout,
     QWidget,
@@ -28,12 +29,20 @@ from PySide6.QtWidgets import (
 
 from .contract_workbench_dialog import ContractDomainDialog
 from .mesh_layout_dialog import MeshLayoutDialog
+from .mesh_project import (
+    create_mesh_project_from_stl,
+    create_mesh_project_from_template,
+    load_mesh_project,
+    mesh_project_templates,
+    save_mesh_project_settings,
+)
 from grid.stl_to_gmsh.generate_volume_mesh import (
     DEFAULT_MESH_SIZE,
     DEFAULT_SPHERE_STL,
     default_output_path,
     discover_gmsh,
 )
+from .user_data_paths import UserDataPaths
 
 
 class MeshGenerationDialog(QDialog):
@@ -55,6 +64,31 @@ class MeshGenerationDialog(QDialog):
         )
         intro.setWordWrap(True)
         root.addWidget(intro)
+
+        project_heading = QLabel("Mesh Projects")
+        project_heading.setStyleSheet("font-size: 16px; font-weight: 600;")
+        root.addWidget(project_heading)
+        project_row = QHBoxLayout()
+        self.project_template = QComboBox()
+        try:
+            for case_id, title in mesh_project_templates(self._repository_root):
+                self.project_template.addItem(title, case_id)
+        except (OSError, ValueError, KeyError) as error:
+            self.project_template.addItem(f"Templates unavailable: {error}", "")
+        self.create_project_button = QPushButton("New from Template")
+        self.create_project_button.clicked.connect(self._create_mesh_project)
+        project_row.addWidget(self.project_template, 1)
+        project_row.addWidget(self.create_project_button)
+        root.addLayout(project_row)
+
+        project_actions = QHBoxLayout()
+        open_project_button = QPushButton("Open Existing Project...")
+        open_project_button.clicked.connect(self._open_mesh_project)
+        import_stl_button = QPushButton("Import STL / Grid Database...")
+        import_stl_button.clicked.connect(self._import_stl_project)
+        project_actions.addWidget(open_project_button)
+        project_actions.addWidget(import_stl_button)
+        root.addLayout(project_actions)
 
         layout_button = QPushButton("Mesh Layout Editor")
         layout_button.setMinimumHeight(64)
@@ -85,6 +119,57 @@ class MeshGenerationDialog(QDialog):
         root.addWidget(future)
         root.addStretch(1)
 
+    def _create_mesh_project(self) -> None:
+        case_id = self.project_template.currentData()
+        if not case_id:
+            QMessageBox.warning(self, "No mesh template", "No supported mesh template is available.")
+            return
+        name, accepted = QInputDialog.getText(
+            self, "Create Mesh Project", "Project name:",
+            text=self.project_template.currentText().split(":")[0].strip().lower().replace(" ", "_"),
+        )
+        if not accepted:
+            return
+        try:
+            project = create_mesh_project_from_template(
+                self._repository_root, str(case_id), name
+            )
+        except (OSError, ValueError, KeyError) as error:
+            QMessageBox.warning(self, "Cannot create mesh project", str(error))
+            return
+        StlToGmshDialog(self._repository_root, self, project=project).exec()
+
+    def _import_stl_project(self) -> None:
+        start = self._repository_root / "grid"
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Import STL from Grid database or disk", str(start),
+            "STL files (*.stl);;All files (*)",
+        )
+        if not path:
+            return
+        try:
+            project = create_mesh_project_from_stl(
+                self._repository_root, Path(path)
+            )
+        except (OSError, ValueError, KeyError) as error:
+            QMessageBox.warning(self, "Cannot import STL", str(error))
+            return
+        StlToGmshDialog(self._repository_root, self, project=project).exec()
+
+    def _open_mesh_project(self) -> None:
+        path = QFileDialog.getExistingDirectory(
+            self, "Open OneFLOW Mesh Project",
+            str(UserDataPaths.discover().mesh_generation),
+        )
+        if not path:
+            return
+        try:
+            project = load_mesh_project(Path(path))
+        except (OSError, ValueError, KeyError) as error:
+            QMessageBox.warning(self, "Cannot open mesh project", str(error))
+            return
+        StlToGmshDialog(self._repository_root, self, project=project).exec()
+
     def _open_mesh_layout(self) -> None:
         MeshLayoutDialog(self._repository_root, self).exec()
 
@@ -98,9 +183,15 @@ class MeshGenerationDialog(QDialog):
 class StlToGmshDialog(QDialog):
     """Configure, preview and execute the direct closed-STL volume mesher."""
 
-    def __init__(self, repository_root: Path, parent=None) -> None:
+    def __init__(self, repository_root: Path, parent=None, *, project: dict | None = None) -> None:
         super().__init__(parent)
         self._repository_root = repository_root.resolve()
+        self._project = project
+        self._project_directory = Path(project["directory"]) if project else None
+        self._mesh_case_id = (
+            str(project.get("mesh_case_id"))
+            if project else "stl_to_gmsh_sphere_automatic_tetrahedra"
+        )
         self._process = QProcess(self)
         self._process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
         self._process.readyReadStandardOutput.connect(self._read_output)
@@ -125,6 +216,7 @@ class StlToGmshDialog(QDialog):
         form = QFormLayout()
         self.geometry_preset = QComboBox()
         self.geometry_preset.addItem("Unit Sphere STL", "sphere")
+        self.geometry_preset.addItem("6:1 Prolate Spheroid STL", "prolate_spheroid")
         self.geometry_preset.addItem("Closed STL shell (genus zero)", "closed_shell")
         self.geometry_preset.setToolTip(
             "The preset describes the geometry workflow; select the actual STL file below."
@@ -134,7 +226,9 @@ class StlToGmshDialog(QDialog):
         stl_row = QHBoxLayout()
         self.stl_path = QLineEdit()
         default_sphere_stl = DEFAULT_SPHERE_STL
-        if default_sphere_stl.is_file():
+        if project:
+            self.stl_path.setText(str(project["stl_path"]))
+        elif default_sphere_stl.is_file():
             self.stl_path.setText(str(default_sphere_stl))
         self.stl_path.setPlaceholderText("Select a closed STL surface...")
         stl_browse = QPushButton("Browse...")
@@ -164,7 +258,9 @@ class StlToGmshDialog(QDialog):
         size_row.addWidget(QLabel("Maximum"))
         size_row.addWidget(self.maximum_size)
 
-        self.output_path = QLineEdit(str(default_output_path()))
+        self.output_path = QLineEdit(
+            str(project["output_path"]) if project else str(default_output_path())
+        )
         output_row = QHBoxLayout()
         output_row.addWidget(self.output_path, 1)
         output_browse = QPushButton("Browse...")
@@ -245,6 +341,18 @@ class StlToGmshDialog(QDialog):
         ):
             if isinstance(widget, QLineEdit):
                 widget.textChanged.connect(self._refresh_command)
+        if project:
+            self.boundary_name.setText(str(project.get("boundary_name", "wall")))
+            self.volume_name.setText(str(project.get("volume_name", "fluid_domain")))
+            template_id = project.get("template_case_id")
+            if template_id == "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra":
+                self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("prolate_spheroid"))
+            elif template_id == "stl_to_gmsh_python_sphere_automatic_tetrahedra":
+                self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("sphere"))
+            target = float(project.get("mesh_size", DEFAULT_MESH_SIZE))
+            self.density.setCurrentIndex(self.density.findData("custom"))
+            self.minimum_size.setText(f"{target * 0.5:.2f}")
+            self.maximum_size.setText(f"{target:.2f}")
         self._density_changed()
         self._refresh_command()
 
@@ -362,7 +470,19 @@ class StlToGmshDialog(QDialog):
             if output == stl:
                 raise ValueError("Output mesh must not overwrite the input STL.")
             output.parent.mkdir(parents=True, exist_ok=True)
-        except (OSError, ValueError) as error:
+            if self._project is not None:
+                settings = {
+                    "output_path": output,
+                    "boundary_name": self.boundary_name.text().strip(),
+                    "volume_name": self.volume_name.text().strip(),
+                }
+                if self.density.currentData() == "custom":
+                    settings["mesh_size_min"] = float(self.minimum_size.text())
+                    settings["mesh_size_max"] = float(self.maximum_size.text())
+                else:
+                    settings["mesh_size"] = float(self.mesh_size.text())
+                self._project = save_mesh_project_settings(self._project, settings)
+        except (OSError, ValueError, KeyError) as error:
             QMessageBox.warning(self, "Cannot generate mesh", str(error))
             return
 
@@ -404,8 +524,8 @@ class StlToGmshDialog(QDialog):
         dialog = MeshValidationDialog(
             self._repository_root,
             mesh_file=mesh_path,
-            project_directory=mesh_path.parent,
-            mesh_case_id="stl_to_gmsh_sphere_automatic_tetrahedra",
+            project_directory=self._project_directory or mesh_path.parent,
+            mesh_case_id=self._mesh_case_id,
             parent=self,
         )
         dialog.exec()
