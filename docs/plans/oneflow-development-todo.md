@@ -1896,3 +1896,56 @@ solver/chem/`nTModel` 但**没查 `vismodel`**；`UseHipBatchAdapter`
 不同**（残差 6.3e-6、aero 4.0e-2；CPU vs CPU 是逐位相同）。已排除
 `ONEFLOW_HIP_DEVICE_AUTHORITATIVE_Q` 与 `ONEFLOW_HIP_BOUNDARY_STATE_MIRROR`
 两个开关。**后端选择本身改变了 host 数值**，需要单独开单。
+
+#### 5.32 SA 上设备的范围评估：这不是"加一个方程"，是 B3+B4（2026-11-15）
+
+**结论先说：真正的交付物比"把 SA 搬到设备"大得多，而唯一的捷径被否决了。**
+
+**1. 一个诱人但错误的方案被排除了**：把 5 方程内核扩到 6 方程。
+看起来只需改 `nEquations`——设备链确实大量参数化了 `nEq`
+（`GradientCellKernel` `:811-865`、`ReconstructFaceEulerKernel` `:1304` 等）。
+**但不行，两个硬理由**：
+- 多处固定 5 元素数组按 `eq < nEq` 索引（`Real fL[5]/fR[5]` `:344`、
+  `q1[5]/q2[5]/dq[5]/f[5]` `:532`、`roeFlux[5]` `:631`、
+  `BarthLimiterKernel` 的 `lo[5]/hi[5]/phi[5]` `:1236`）——第 6 个方程会越界写。
+- `UpdatePrimitiveStateKernel`（`:1535`）**从总能算出压力**，这只对 5 个守恒量成立；
+  nuet 是带源项的输运标量，不是守恒量，塞进去**数值上就是错的**。
+
+**正确的形状**：独立的 1 方程设备内核族（对标量对流 + 标量扩散 + 源项），
+镜像已有的 `nEq == 1` 标量路径（`CalcInvFluxScalarKernel` `:192`），
+但那条路径只覆盖 `CalcInvFlux`、远不如 Euler 链成熟。
+
+**2. 粘性通量是必需的，不是可选的**
+`vismodel=3` 时 `NsCalcRHS` 无条件调 `NsCalcVisFlux`，`NsCalcBoundary` 算 Sutherland
+`visl`，`UTimeStep` 把 `visl+vist` 并入粘性谱半径。**没有粘性通量，设备残差
+就少了主机路径有的一项——不会收敛到同一个答案。**
+而 `HipFluxBackend.hip` 里 `visl`/`vist`/`viscos` **零次出现**（实测 grep），
+设备连 Sutherland 需要的温度场都没有。
+
+**3. 所以这是项目的 B3 + B4，且 B3 是更大的那一半**
+- **B3**（层流粘性：面粘性通量、温度梯度、壁面热流）—— 文档自己标注为 B4 的前置
+- **B4**（SA 1 方程输运）
+- **B-exit** 还要求 B2（limiter，当前差 1.1e-6）
+
+**三档评估**：
+| 档 | 内容 | 结论 |
+|---|---|---|
+| Tier 1 | 只做 SA 源 + 湍流粘度，粘性通量留 host | **不可行**——主机残差不能一半设备一半 host，`GatherFaceFluxEulerKernel` 原子地累加进常驻残差 |
+| Tier 2 | 加主机程粘性通量、完整设备粘性 | **真正的交付物**。阻塞项：温度场 + 面法向梯度机制。`VisGrad` 的 `CalcGradCoef`/`CorrectFaceGrad`/`CalcNormalGrad` 必须逐项镜像（像 B1.1 对齐 `RoeFaceFlux` 那样），否则过不了 1e-12/1e-17 门禁 |
+| Tier 3 | = B3+B4+B-exit | 与文档 backlog 一致 |
+
+**测试缺口**：现有设备契约只有 `oneflow_device_roe_contract_test` 和
+`oneflow_device_limiter_contract_test`，**都是无粘的**。粘性移植**必须先加一个
+粘性单面/单胞契约测试**，否则没有任何东西能抓住移植错误。CPU 五算例能抓主机侧错误，
+抓不了设备侧。
+
+**工作量（诚实估计）**：Tier 2 完整做（设备粘性通量逐项对齐、新契约测试、
+SA 源/vist 内核、标量输运/离散扩散内核、B-exit 门禁）是**单人多月**；
+缩减里程碑（SA + 粘性通量上设备、旗舰用 RK3 而非 LU-SGS、单 zone、`ilim=0`）
+现实估计 **6–10 周**。剩下的差距主要被 B2 的 limiter 数值偏差（1.1e-6）和 B5 主导，
+**不是 SA 本身**。
+
+**一条待验证的推断**：文档估计 SA 贵在"每 cell ~8 个超越函数"，源码确认了数量和
+`CalcVist` 每步 ≥2 次（实际含 `CalcVistMax` 是 3 次）。但**主要成本更可能是
+294,912 cell 的串行 host 循环 + 每 cell 的 `MRField` 间接寻址**，而不是 `pow` 本身。
+这是推断不是测量，**排期前应先测**。
