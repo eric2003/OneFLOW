@@ -48,6 +48,10 @@ def paths_equal(left: Path | str, right: Path | str) -> bool:
 
     if _same_file(left_path, right_path):
         return True
+    if left_path.exists() and right_path.exists():
+        # Do not case-fold two distinct existing entries: Windows can enable
+        # case-sensitive behavior for individual directories.
+        return os.fspath(left_path) == os.fspath(right_path)
 
     left_ancestor, left_suffix = _existing_ancestor(left_path)
     right_ancestor, right_suffix = _existing_ancestor(right_path)
