@@ -28,13 +28,12 @@ def prepare_case_directory(
     if not source.is_dir():
         raise FileNotFoundError(f"Case directory not found: {source}")
     if target.exists():
-        # A workflow workspace may pre-create an empty runtime root (for
-        # example, the cpp/python implementation directory). Reuse only an
-        # empty directory; never merge into or overwrite existing user data.
-        if target.is_dir() and not any(target.iterdir()):
-            shutil.copytree(source, target, dirs_exist_ok=True)
-        else:
-            raise FileExistsError(f"Staged case directory already exists: {target}")
+        if not target.is_dir():
+            raise FileExistsError(f"Staged case path is not a directory: {target}")
+        # Reuse the stable validation workspace. Overlay the case template so
+        # existing output directories (which may be open in a Windows viewer)
+        # are not recursively deleted.
+        shutil.copytree(source, target, dirs_exist_ok=True)
     else:
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(source, target)
@@ -44,8 +43,8 @@ def prepare_case_directory(
         output_path = target / output.relative_path
         if output_path.is_file():
             output_path.unlink()
-        elif output_path.exists():
-            raise ValueError(f"Declared output path is not a file: {output_path}")
+        elif output_path.exists() and not output_path.is_dir():
+            raise ValueError(f"Declared output path has an unsupported type: {output_path}")
         output_path.parent.mkdir(parents=True, exist_ok=True)
         if output.parameter_file is not None and output.producer_setting is not None:
             parameter_file = target / output.parameter_file
