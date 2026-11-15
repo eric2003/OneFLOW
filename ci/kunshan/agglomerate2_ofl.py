@@ -55,10 +55,16 @@ def build_assignment(z, mode="2N"):
 
 
 def main():
-    src = sys.argv[1]
-    dst = sys.argv[2]
-    if len(sys.argv) < 4:
-        print("usage: agglomerate2_ofl.py <refined8.ofl> <out2N.ofl> <parent.ofl>")
+    mode = "2N"
+    args = [a for a in sys.argv[1:] if not a.startswith("--mode")]
+    if "--mode" in sys.argv:
+        mode = sys.argv[sys.argv.index("--mode") + 1]
+    if mode not in ("2N", "4N"):
+        print("--mode must be 2N or 4N"); return 2
+    src, dst = args[0], args[1]
+    if len(args) < 3:
+        print("usage: agglomerate2_ofl.py <refined8.ofl> <out.ofl> <parent.ofl> "
+              "[--mode 2N|4N]")
         return 2
     z, pid, zone_type = R.parse_ofl(src)
     zp, _, _ = R.parse_ofl(sys.argv[3])
@@ -67,7 +73,7 @@ def main():
     P = z.n_cells // 8
     if zp.n_cells != P:
         R.fail("parent cell count %d != refined/8 %d" % (zp.n_cells, P))
-    cons, d_parent = build_assignment(zp, "2N")
+    cons, d_parent = build_assignment(zp, mode)
 
 
     # --- A(c): fine cell -> brick -------------------------------------------
@@ -76,11 +82,25 @@ def main():
     # axis.  Child octant lattice coords come from CHILD_LATTICE.
     import agglomerate_ofl as A0
     CH = A0.CHILD_LATTICE
-    A = array("i", bytes(4 * z.n_cells))     # per FINE cell -> brick
-    for p in range(P):
-        d = d_parent[p]
-        for k in range(8):
-            A[8 * p + k] = 2 * p + CH[k][d]
+    A = array("i", bytes(4 * z.n_cells))     # per FINE cell -> merged cell
+    if mode == "2N":
+        for p in range(P):
+            d = d_parent[p]
+            for k in range(8):
+                A[8 * p + k] = 2 * p + CH[k][d]
+    else:
+        # 4N: merge PAIRS along the lattice axis d -> 4 bricks per parent.
+        # The pair index drops the d coordinate: the remaining two lattice
+        # coords (in their original order) index the 2x2 plane.
+        for p in range(P):
+            d = d_parent[p]
+            for k in range(8):
+                a, b, c = CH[k]
+                rest = [x for x in (a, b, c) if True]
+                coords = [a, b, c]
+                others = [coords[i] for i in range(3) if i != d]
+                idx = 2 * others[0] + others[1]
+                A[8 * p + k] = 4 * p + idx
 
     # --- faces ---------------------------------------------------------------
     # Coarse faces are built by MERGING fine faces into quads:
@@ -132,9 +152,11 @@ def main():
             continue       # dropped: interior to a brick
         gm[(al, ar) if al < ar else (ar, al)].append(f)
     for key, fs in gm.items():
-        if len(fs) != 4:
-            R.fail("brick interface group has %d faces (expected 4): %s"
-                   % (len(fs), fs[:8]))
+        # In 4N mode pair-pair boundaries consist of two sheets; in 2N mode
+        # each brick interface consists of four sheets.  Any size 1..4 merges
+        # into one coarse quad by the same boundary-walk rule.
+        if not 1 <= len(fs) <= 4:
+            R.fail("brick interface group has %d faces: %s" % (len(fs), fs[:8]))
         al = A[z.left[fs[0]]]
         ar = A[z.right[fs[0]]]
         groups.append((fs, None, None, al, ar))
@@ -237,7 +259,7 @@ def main():
         out_right.append(ar)
 
     # --- orient every emitted face outward from its left brick ---------------
-    n_bricks = 2 * P
+    n_bricks = (2 if mode == "2N" else 4) * P
     cf = R.build_cell_faces(z)
     bcx = array("d", bytes(8 * n_bricks))
     bcy = array("d", bytes(8 * n_bricks))
