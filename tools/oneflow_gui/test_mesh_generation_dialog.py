@@ -126,8 +126,10 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     dialog.geometry.setCurrentIndex(
                         dialog.geometry.findData("cylinder_internal_flow")
                     )
-                    self.assertTrue(dialog.length.isEnabled())
-                    self.assertTrue(dialog.circumferential.isEnabled())
+                    self.assertFalse(dialog.sphere_group.isVisible())
+                    self.assertFalse(dialog.spheroid_group.isVisible())
+                    self.assertTrue(dialog.cylinder_group.isVisible())
+                    self.assertEqual(dialog.cylinder_radius.text(), "1.0")
                     self.assertIn("not solid walls", dialog.patch_note.text())
                     output = Path(directory) / "cylinder.stl"
                     dialog.output.setText(str(output))
@@ -140,6 +142,49 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     self.assertIn("outflow", dialog.result_view.toPlainText())
                 finally:
                     dialog.close()
+
+    def test_geometry_parameter_panels_are_independent_and_retain_values(self) -> None:
+        dialog = StlGeometryDialog(self.repository_root)
+        try:
+            self.assertTrue(dialog.sphere_group.isVisible())
+            self.assertTrue(dialog.spheroid_group.isHidden())
+            self.assertTrue(dialog.cylinder_group.isHidden())
+
+            dialog.radius.setText("2.5")
+            dialog.subdivisions.setText("4")
+            dialog.geometry.setCurrentIndex(
+                dialog.geometry.findData("cylinder_internal_flow")
+            )
+            self.assertTrue(dialog.sphere_group.isHidden())
+            self.assertTrue(dialog.cylinder_group.isVisible())
+            dialog.cylinder_radius.setText("0.75")
+            dialog.length.setText("6.0")
+            dialog.circumferential.setText("64")
+            dialog.axial.setText("20")
+
+            dialog.geometry.setCurrentIndex(
+                dialog.geometry.findData("prolate_spheroid")
+            )
+            self.assertTrue(dialog.spheroid_group.isVisible())
+            self.assertTrue(dialog.cylinder_group.isHidden())
+            dialog.semi_axis_a.setText("4.0")
+            dialog.semi_axis_b.setText("0.8")
+            dialog.semi_axis_c.setText("0.6")
+            dialog.spheroid_subdivisions.setText("5")
+
+            dialog.geometry.setCurrentIndex(dialog.geometry.findData("sphere"))
+            self.assertEqual(dialog.radius.text(), "2.5")
+            self.assertEqual(dialog.subdivisions.text(), "4")
+            self.assertEqual(dialog.cylinder_radius.text(), "0.75")
+            self.assertEqual(dialog.length.text(), "6.0")
+            self.assertEqual(dialog.circumferential.text(), "64")
+            self.assertEqual(dialog.axial.text(), "20")
+            self.assertEqual(dialog.semi_axis_a.text(), "4.0")
+            self.assertEqual(dialog.semi_axis_b.text(), "0.8")
+            self.assertEqual(dialog.semi_axis_c.text(), "0.6")
+            self.assertEqual(dialog.spheroid_subdivisions.text(), "5")
+        finally:
+            dialog.close()
 
     def test_stl_dialog_starts_with_repository_unit_sphere_fixture(self) -> None:
         dialog = StlToGmshDialog(self.repository_root)
