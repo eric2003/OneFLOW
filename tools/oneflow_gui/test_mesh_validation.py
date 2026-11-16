@@ -559,6 +559,23 @@ class MeshValidationCatalogTest(unittest.TestCase):
              "parameter_file": "script/grid.txt", "setting": "gridInfoFileName"},
         ])
 
+    def test_existing_cylinder_mesh_runs_the_complete_3d_cfd_smoke_chain(self):
+        cases = build_mesh_validation_cases(
+            self.root, "cylinder_existing_mesh", "laminar_flat_plate"
+        )
+        self.assertEqual(
+            [item["id"] for item in cases],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
+        )
+        self.assertEqual(cases[0]["directory"],
+                         "grid/stl_to_gmsh/3d/cylinder_internal_flow")
+        self.assertEqual(cases[0]["outputs"][0]["path"],
+                         "results/cylinder_internal_flow.msh")
+        self.assertEqual(cases[3]["runtime_directory"], "oneflow_cfd_solve")
+        self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
+        self.assertEqual(cases[3]["inputs"][0]["artifact"], "oneflow_grid")
+        self.assertEqual(cases[3]["inputs"][1]["artifact"], "bc_region_map")
+
     def test_unit_sphere_cases_run_the_complete_3d_cfd_smoke_chain(self):
         choices = dict(mesh_case_choices(self.root))
         self.assertIn("native_sphere", choices)
