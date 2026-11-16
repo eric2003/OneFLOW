@@ -82,6 +82,8 @@ def generate(
         "physical_groups": stage_result("NOT_RUN"),
         "mesh_quality": stage_result("NOT_CHECKED",
             "Tetrahedron quality acceptance criteria are not implemented yet."),
+        "cfd_validation": stage_result("NOT_RUN",
+            "Run Mesh-to-CFD Validation separately; it is outside this mesh-generation command."),
     }
     geometry_report = None
     mesh = None

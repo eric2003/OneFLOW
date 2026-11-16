@@ -29,6 +29,8 @@ def build_run_report(workflow: str, stages: dict[str, dict[str, Any]], exit_code
     for name, result in stages.items():
         if result.get("status") not in STAGE_STATUSES:
             raise ValueError(f"Invalid status for stage {name!r}")
+    if exit_code == 0 and any(result.get("status") == "FAIL" for result in stages.values()):
+        raise ValueError("A successful run report cannot contain a failed stage")
     return {
         "schema": "oneflow.run-report", "version": 1, "workflow": workflow,
         "status": "success" if exit_code == 0 else "failed",

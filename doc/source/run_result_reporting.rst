@@ -26,7 +26,9 @@ Do not collapse these independent claims into one generic validated flag:
 
 A successful mesh-generation process can therefore have successful execution
 and structural checks while mesh quality remains NOT_CHECKED and CFD
-validation remains NOT_RUN.
+validation remains NOT_RUN. The STL-to-Gmsh report explicitly records the
+separate CFD validation stage as NOT_RUN; that does not invalidate a successful
+mesh-generation result because CFD validation is outside this command.
 
 Stage states
 ------------
@@ -73,7 +75,8 @@ The stable envelope is oneflow.run-report version 1:
        "gmsh": {"status": "PASS"},
        "mesh_structure": {"status": "PASS"},
        "physical_groups": {"status": "PASS"},
-       "mesh_quality": {"status": "NOT_CHECKED"}
+       "mesh_quality": {"status": "NOT_CHECKED"},
+       "cfd_validation": {"status": "NOT_RUN"}
      },
      "metrics": {},
      "artifacts": {},

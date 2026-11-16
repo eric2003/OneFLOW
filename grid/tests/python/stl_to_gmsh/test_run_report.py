@@ -58,6 +58,7 @@ class GenerateVolumeMeshReportTest(unittest.TestCase):
             for stage in ("geometry","gmsh","mesh_structure","physical_groups"):
                 self.assertEqual(saved["stages"][stage]["status"],"PASS")
             self.assertEqual(saved["stages"]["mesh_quality"]["status"],"NOT_CHECKED")
+            self.assertEqual(saved["stages"]["cfd_validation"]["status"],"NOT_RUN")
             rendered="\n".join(str(c.args[0]) for c in printed.call_args_list)
             self.assertIn("STL -> Gmsh: SUCCESS",rendered)
             self.assertIn("[NOT CHECKED] mesh_quality",rendered)
