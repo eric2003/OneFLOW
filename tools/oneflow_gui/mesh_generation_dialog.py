@@ -604,6 +604,7 @@ class StlToGmshDialog(QDialog):
             elif template_id == "stl_to_gmsh_python_sphere_automatic_tetrahedra":
                 self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("sphere"))
             elif project.get("geometry") == "cylinder_internal_flow":
+                self._mesh_case_id = "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow"
                 self.geometry_preset.setCurrentIndex(
                     self.geometry_preset.findData("cylinder_internal_flow")
                 )
