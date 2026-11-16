@@ -648,7 +648,7 @@ class StlToGmshDialog(QDialog):
 
         if definition is None:
             self._mesh_case_id = (
-                "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra"
+                "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow"
                 if preset == "cylinder_internal_flow"
                 else "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra"
             )
