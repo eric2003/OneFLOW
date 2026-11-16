@@ -465,6 +465,7 @@ namespace
         const std::filesystem::path targetName( config.targetFile );
         const std::filesystem::path target = targetName.is_absolute()
             ? targetName : std::filesystem::path( caseDir ) / targetName;
+        std::filesystem::remove( runReportPath );
 
         std::ifstream input( source, std::ios::binary );
         if ( ! input ) throw std::runtime_error( "Cannot open Gmsh input: " + source.string() );

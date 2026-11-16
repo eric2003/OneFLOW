@@ -497,6 +497,8 @@ def run_mesh_validation(
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
         "mesh_summary": mesh_evidence or None,
+        "note": "This report records execution and ingestion smoke checks only; it does not establish mesh-quality acceptance or CFD physical accuracy.",
+        "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     })
     write_run_report(report_path, report)
     print(format_run_summary(report), flush=True)

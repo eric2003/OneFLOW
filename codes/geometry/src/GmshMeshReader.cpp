@@ -388,9 +388,9 @@ std::string GmshMeshReportToMarkdown(
 
     std::ostringstream out;
     out << std::setprecision(10);
-    out << "# Gmsh -> CGNS: SUCCESS\\n\\n**Overall status: PASS**\\n\\n"
-        << "The MSH file was read and the CGNS writer completed.\\n\\n"
-        << "## Overall Summary\\n\\n";
+    out << "# Gmsh -> CGNS: SUCCESS\n\n**Overall status: PASS**\n\n"
+        << "The MSH file was read and the CGNS writer completed.\n\n"
+        << "## Overall Summary\n\n";
     out << "- **Format version:** Gmsh MSH " << report.version << " (ASCII)\n";
     out << "- **Topological dimension:** " << dimension << "D\n";
     out << "- **Coordinate embedding:** " << (planarXY ? "planar in XY" : "3D coordinates") << "\n";
