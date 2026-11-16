@@ -79,7 +79,12 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 "tools.oneflow_gui.mesh_generation_dialog.GeometryLibraryDialog"
             ) as library_type:
                 dialog._open_geometry_library()
-            library_type.assert_called_once_with(self.repository_root.resolve(), dialog)
+            library_type.assert_called_once()
+            self.assertEqual(
+                library_type.call_args.args,
+                (self.repository_root.resolve(), dialog),
+            )
+            self.assertTrue(callable(library_type.call_args.kwargs["on_edit_asset"]))
             library_type.return_value.exec.assert_called_once()
         finally:
             dialog.close()

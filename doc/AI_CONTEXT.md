@@ -1,3 +1,29 @@
+## 2026-11-16 continuation: Geometry Library as the STL generation entry point
+
+Starting `hexin` HEAD: `a0e860de08fcd1f7d8ddc3b2c2caa4f9e6b19780`.
+
+- Generated STL sidecars now bind stable asset IDs to a canonical geometry
+  definition snapshot and SHA-256, separate definition parameters from
+  tessellation parameters, and record generator version/source path/source
+  checksum plus STL checksum. The legacy `parameters` field is retained.
+- The Mesh Generation hub now has one Geometry Library entry. Selecting a
+  supported asset opens its matching parameter editor; assets without an
+  implemented editor remain browse-only. The duplicate standalone
+  Generate STL Geometry entry was removed.
+- Historical STL fixtures are not retroactively attributed to the current
+  generator. Source SHA-256 identifies source bytes, not a Git revision.
+- Added focused generator-manifest and GUI asset-selection assertions.
+
+The exact-commit Python Tooling, Windows and Linux workflows are pending;
+no local GUI test execution is claimed.
+
+Next action: propagate geometry provenance and representation hashes through
+mesh projects and Mesh-to-CFD run reports, explicitly marking historical cube
+fixture origins unknown where no source evidence exists. Then render that
+lineage in the Mesh-to-CFD result panel.
+
+---
+
 ## 2026-11-16 continuation: enforce consumer-visible text formatting checks
 
 Starting `hexin` HEAD: `386c2adbde0ef883415ff42d65de8a570814d688`.

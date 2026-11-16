@@ -125,9 +125,17 @@ can supply a verified revision. Historical assets must not inherit this
 manifest retroactively: their original generator and revision remain unknown
 unless independent evidence establishes them.
 
-The remaining integration work is to let Geometry Library launch the
-asset-specific parameter editor, carry the manifest through STL-to-Gmsh and
-MSH-to-CGNS, and display the derivation chain in Mesh-to-CFD Validation.
+Geometry Library is the user-facing entry point for registered assets. Its
+asset selection action opens the matching parameter editor when an adapter
+exists. The initial sphere, spheroid and cylinder assets use the STL generator;
+assets without an implemented editor remain browsable but are not presented as
+generatable. The standalone Generate STL Geometry navigation item has been
+removed so that generation starts from an asset selection.
+
+The remaining integration work is to carry the manifest through STL-to-Gmsh
+and MSH-to-CGNS, and display the full derivation chain in Mesh-to-CFD
+Validation. CAD, point-cloud and implicit asset adapters remain future
+capabilities, not implied by their registry representation types.
 
 References
 ----------
