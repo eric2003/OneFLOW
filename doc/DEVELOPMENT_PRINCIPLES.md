@@ -72,7 +72,7 @@ normalized path policy, containment, and filesystem identity are different quest
 ## 4. Verify text and serialization boundaries
 
 - Distinguish an actual control character from its escaped textual spelling. For
-  example, Python `"\\n"` is a line-feed, while `"\\\\n"` is the two visible
+  example, Python `"\n"` is a line-feed, while `"\\n"` is the two visible
   characters backslash and `n`. When joining display lines, use the actual newline
   delimiter unless the output format explicitly requires escaped text.
 - Check the final representation at the consumer boundary: plain-text widgets,
@@ -92,11 +92,11 @@ normalized path policy, containment, and filesystem identity are different quest
 
 ### Text-formatting regression to remember
 
-The Geometry Library details were joined with the two-character literal `\\\\n`
+The Geometry Library details were joined with the two-character literal `\\n`
 instead of a real line-feed. The dialog therefore displayed visible escape sequences
 and collapsed the intended multiline structure. The fix uses a real newline delimiter;
 the GUI test checks both the expected newline boundary and absence of the literal
-`\\\\nDefinition` sequence. Preserve this distinction whenever text crosses a
+`\\nDefinition` sequence. Preserve this distinction whenever text crosses a
 serialization or UI-rendering boundary.
 
 ## 5. Respect module ownership and dependency direction
@@ -157,9 +157,11 @@ After editing:
 1. Add a regression test for the root cause, not only the visible symptom.
 2. Run the narrowest relevant tests first, then broader tests appropriate to the change.
 3. Check that no generated artifacts or temporary files are written into the source tree.
-4. Update the owning principle/architecture/experience record when the change teaches a
+4. Review displayed and serialized text for actual versus escaped newlines, indentation,
+   section spacing, and format-appropriate rendering; test the consumer-visible value.
+5. Update the owning principle/architecture/experience record when the change teaches a
    reusable lesson.
-5. Report the exact commit, test commands and outcomes, CI status for that exact commit,
+6. Report the exact commit, test commands and outcomes, CI status for that exact commit,
    and anything not verified. Never claim success without evidence.
 
 ## 9. When to record an engineering lesson
