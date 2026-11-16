@@ -62,7 +62,7 @@ def import_geometry_asset(source_file: Path) -> dict:
         "id": asset_id,
         "name": source.name[:-len(suffix)],
         "description": f"User-imported {format_name} geometry representation.",
-        "dimension": 3,
+        "dimension": None,
         "tags": ["imported", format_name.lower().replace(" ", "-")],
         "definition": {
             "kind": definition_kind,

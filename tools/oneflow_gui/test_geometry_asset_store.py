@@ -28,6 +28,7 @@ class GeometryAssetStoreTest(unittest.TestCase):
                 copied = user_root / asset["representations"][0]["path"]
                 self.assertTrue(copied.is_file())
                 digest = hashlib.sha256(source.read_bytes()).hexdigest()
+                self.assertIsNone(asset["dimension"])
                 self.assertEqual(asset["provenance"]["source_sha256"], digest)
                 self.assertEqual(asset["representations"][0]["sha256"], digest)
                 self.assertEqual(asset["representations"][0]["role"], "cad_brep")

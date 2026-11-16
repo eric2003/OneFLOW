@@ -1,3 +1,24 @@
+## 2026-11-16 continuation: non-STL Geometry Library import entry
+
+Starting `hexin` HEAD: `f87c23b13b47397c6dd0a77fbe42d8ccf586de7c`.
+
+- Added user-owned metadata registration for STEP/STP, IGES/IGS, BREP, OBJ,
+  PLY, XYZ, PTS, PCD and OneFLOW `.implicit.json` files.
+- Imports are content-addressed and copied below `.oneflow/geometry-library`;
+  original filename and source SHA-256 are retained. Unknown dimensionality
+  is null, not guessed. This does not claim parsers, preview, meshing or CAD
+  reconstruction support.
+- Added the explicit Python Tooling workflow step for the new asset-store tests.
+- Updated the asset schema, GUI module documentation and Geometry Library details.
+
+Exact-commit Windows, Linux, Python Tooling and documentation workflows are
+pending. No local test execution is claimed.
+
+Next action: preserve asset lineage through Gmsh-to-CGNS and project lifecycle,
+then implement one actual non-STL parser/preview adapter with tests.
+
+---
+
 ## 2026-11-16 continuation: metadata-only non-STL asset registration
 
 Starting `hexin` HEAD: `edc101a526fda6af1e7e2a1b594e37c04017c00b`.

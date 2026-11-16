@@ -74,6 +74,8 @@ jobs:
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases
       - name: Test Mesh-to-CFD Validation graph
         run: python -m unittest tools.oneflow_gui.test_mesh_validation
+      - name: Test non-STL geometry asset registration
+        run: python -m unittest tools.oneflow_gui.test_geometry_asset_store
       - name: Test rectangle layout compiler
         run: python -m unittest grid.tests.python.mesh_layout.test_compile_rectangle
       - name: Test flat plate layout compiler
