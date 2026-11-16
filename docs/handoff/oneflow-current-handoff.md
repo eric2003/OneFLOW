@@ -653,3 +653,15 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
     - 只 `git add <具体路径>`，不用 `-A` / `.`；
     - 如果发现已经混进去了且**已推送**，不要重写历史，改用说明性提交澄清，
       并把这次的归属记在提交信息里。
+**2026-11-16 SA 设备端口：内核族 + 契约，未接线、未过门禁**（todo §5.30 C2/C3/C4）。
+`TurbSaArithmetic.h` 是 host/device 共享的标量算术（`ONEFLOW_TURB_SA_HD` 在普通主机
+编译器下展开为空，否则 HIP 会拒绝从 `__global__` 调用 host 函数）；`TurbulenceBackend`
+是新的 SA 专用 seam（**没有**加到 `EulerDomainBackend`/`FluxBackend`）；
+`HipTurbulenceBackend` 实现 grad/source/vist/标量对流/标量扩散/update。
+主机侧对照 `turb_sa_arithmetic_test` **11/11**，带区分力验证（cb1/cw1K/cb2σ/1e-10
+扰动全部被拒）；设备侧 `oneflow_device_sa_contract_test` 在 DCU 上 **12/12 PASSED**
+（`probe/128156945`，configure/build/root binary 均 rc=0）。
+**这些内核还没有接入求解器**，所以旗舰算例的 ms/步没有任何变化，不能据此宣称加速。
+已知缺口：多 zone interface 面需要 `interfaceMask`（当前按非 interface 处理）；
+梯度核是 O(nCells×nFaces) 的正确性优先版本。证据：`evidence/probe/<jobid>-sa/`。
+

@@ -2126,8 +2126,35 @@ CD 在 9.44e-3..1.06e-2 之间，最后 100 步 dCL 仍有 +4.0e-3；
       `CalcVist` 每步跑 3 次 ⇒ 每步约 1860 万次间接寻址，且内层 vector 各自分配。
       **若循环占大头 → 有个几天级 host 优化可先拿到收益，不必等 GPU 移植。**
 - [ ] C2 若 C1 显示数学主导 → SA 源项/vist 设备内核（1 方程标量族）
+      **2026-11-16 部分交付（内核 + 契约已成，未接线、未上门禁）**：
+      `TurbSaArithmetic.h` 把 SA 闭包/源项/vist/面通量写成 host+device 共享的
+      标量内联函数（`ONEFLOW_TURB_SA_HD`，主机侧退化为空）；`HipTurbulenceBackend`
+      提供 grad/source/vist/标量对流/标量扩散/update 六个入口，挂在新的
+      `TurbulenceBackend` seam 上（**没有**加到 `EulerDomainBackend`）。
+      主机侧对照已跑：`turb_sa_arithmetic_test` 11/11，源项与 `TurbCom::CalcSrcSa`
+      逐位一致（3 个状态，其中一个是 `spec_sa` 非零的近壁态）。
+      **设备侧已验证（2026-11-16，`probe/128156945`）**：`oneflow_device_sa_contract_test`
+      在 DCU 上 **12/12 PASSED**，覆盖单胞源项（3 个状态，含 `spec_sa` 非零的近壁态）、
+      vist + ratio cap、单面标量对流、VIS_TEST 法向梯度（含壁面单侧权重分支）、
+      有效扩散系数、扩散通量符号/面积、update。主机侧 `turb_sa_arithmetic_test` **11/11**。
+      构建 `configure/build/root binary` 全为 rc=0。
+      **仍未做**：内核未接入求解器，没有端到端残差/气动力证据，
+      **因此旗舰算例 ms/步没有任何变化**；梯度核是 O(nCells×nFaces) 的正确性优先版本；
+      多 zone interface 面需要 `interfaceMask`。
 - [ ] C3 SA 标量对流 + 扩散通量内核
+      **2026-11-16 已写、未验证**：标量对流镜像 `TurbInv::RoeFlux` + `UpdateFaceInvFlux`；
+      标量扩散镜像 `UTurbVisFlux::CalcFaceVisFlux1Equ` 的 **VIS_TEST**（`iturb_visflux=2`）
+      变体，含 `VisGrad` 的 skew/c1c2/切向重构。其它四个变体显式拒绝而不是替代。
+      **未做**：`bcType` 数组没有进视图，interface 面目前按非 interface 处理
+      （旗舰单 zone 无 interface，多 zone 必须补 `interfaceMask`）。
 - [ ] C4 SA 契约测试（现有设备契约只有 Roe 和 limiter，都无粘）
+      **2026-11-16 交付（设备侧）**：`tests/euler/device_sa_contract_test.cpp`
+      在 DCU 上 **12/12 PASSED**（`probe/128156945`），1e-14 相对容差，
+      主机侧参照是生产函数本身（`TurbCom::CalcSrcSa`、`SaComputeEddyViscosity`、
+      `TurbInvFluxPolicy`/`TurbVisFluxPolicy`）。主机侧
+      `turb_sa_arithmetic_test` **11/11**，含区分力验证（cb1/cw1K/cb2σ 各 +1%
+      以及 1e-10 相对误差全部被拒，基线通过）。
+      **仍未做**：`interfaceMask` 未接、梯度核未优化、未接求解器、未过 200 步 XB 门禁。
 
 #### D. 粘性通量 B3（前置，且可能是更大的一半）— 探测中
 

@@ -299,6 +299,30 @@ target_link_libraries(turb_sa_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(turb_sa_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(turb_sa_policy_test DISCOVERY_MODE PRE_TEST)
 
+# Parity between the shared Spalart-Allmaras arithmetic (the header the HIP
+# kernels compile) and the production host chain.  This one links the runtime
+# objects because the reference for the source term is the real
+# TurbCom::CalcSrcSa driven through `turbcom`, not a re-derivation; a
+# hand-written reference would only prove the test agrees with itself.
+add_executable(turb_sa_arithmetic_test
+  turb_sa_arithmetic_test.cpp
+)
+target_include_directories(turb_sa_arithmetic_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/accel/include
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/ns/include
+  ${CMAKE_SOURCE_DIR}/codes/array/include
+  ${CMAKE_SOURCE_DIR}/codes/usolver/include
+  ${CMAKE_SOURCE_DIR}/codes/global/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_sa_arithmetic_test PRIVATE
+  OneFLOW_RuntimeObjects
+  GTest::gtest_main
+)
+target_compile_features(turb_sa_arithmetic_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_sa_arithmetic_test DISCOVERY_MODE PRE_TEST)
+
 # Shared eddy-viscosity cap used by multiple turbulence closures.
 add_executable(turb_viscosity_policy_test
   turb_viscosity_policy_test.cpp

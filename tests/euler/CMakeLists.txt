@@ -261,4 +261,38 @@ if (ONEFLOW_ENABLE_HIP_TESTS)
   set_tests_properties(
     HIP.MainSolverFluxOneCall
     PROPERTIES LABELS "hardware;hip;dcu")
+  # Spalart-Allmaras one-equation contract: single-cell source and single-face
+  # scalar fluxes, compared against the production host functions
+  # (TurbCom::CalcSrcSa, SaComputeEddyViscosity, the TurbInvFluxPolicy and
+  # TurbVisFluxPolicy helpers).
+  #
+  # Linked against OneFLOW_RuntimeObjects rather than a hand-picked source
+  # list: the host reference is the real TurbCom::CalcSrcSa driven through the
+  # `turbcom` singleton, and that translation unit drags in nscom, turb_trans,
+  # vis_model, chem and the parallel/zone globals.  Enumerating them here would
+  # be a fragile list that breaks whenever the host chain gains a dependency.
+  # RuntimeObjects already carries HipTurbulenceBackend.hip when HIP is enabled,
+  # so the device functions under test are the shipped ones and are not
+  # compiled twice.
+  #
+  # The include list names array/ and global/ because the host reference's own
+  # include graph reaches NsCom.h -> HXArray.h; an OBJECT-library link does not
+  # publish those directories to this target.
+  add_executable(oneflow_device_sa_contract_test
+    ${CMAKE_CURRENT_SOURCE_DIR}/device_sa_contract_test.cpp)
+  target_include_directories(oneflow_device_sa_contract_test PRIVATE
+    ${CMAKE_SOURCE_DIR}/codes/accel/include
+    ${CMAKE_SOURCE_DIR}/codes/turb/include
+    ${CMAKE_SOURCE_DIR}/codes/ns/include
+    ${CMAKE_SOURCE_DIR}/codes/array/include
+    ${CMAKE_SOURCE_DIR}/codes/global/include
+    ${CMAKE_SOURCE_DIR}/codes/basic/include
+    ${CMAKE_SOURCE_DIR}/codes/project/include)
+  target_link_libraries(oneflow_device_sa_contract_test PRIVATE
+    OneFLOW_RuntimeObjects
+    GTest::gtest_main
+    hip::host)
+  gtest_discover_tests(oneflow_device_sa_contract_test
+    DISCOVERY_MODE PRE_TEST)
+
 endif()

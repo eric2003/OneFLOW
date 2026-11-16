@@ -788,4 +788,414 @@ inline void ValidateFaceGeometryView( const FaceGeometryView & geometry )
     }
 }
 
+// ---------------------------------------------------------------------------
+// Spalart-Allmaras one-equation turbulence transport.
+//
+// SA is deliberately NOT a sixth slot in the Euler/NS views.  Two properties
+// of the mean-flow contract do not hold for it:
+//
+//   * several fixed five-slot arrays are indexed by equation up to nEquations,
+//     so a sixth slot writes past them;
+//   * UpdatePrimitiveStateKernel derives pressure from total energy, which is
+//     only meaningful for the conserved mean-flow set.  The SA working
+//     variable is a transported scalar with a source term, so treating it as a
+//     conserved sixth equation is numerically wrong, not merely awkward.
+//
+// The host chain is UTurbSrcFlux / UTurbInvFlux / UTurbVisFlux over the
+// `turb` solver's own fields, so these views mirror those fields one for one.
+// ---------------------------------------------------------------------------
+
+// SaModelConstants is the derived constant set a view and a kernel must agree
+// on, so it is declared here rather than in TurbSaArithmetic.h.  Keeping it in
+// this shared header is what lets an execution space carry the constants
+// without including the arithmetic: AccelViews.h is reachable from every
+// backend, so a dependency the other way would drag the SA kernels into CUDA's
+// and Kokkos's include graph for a plain POD.
+//
+// Every value is the derived constant the host carries in `turbcom` after
+// TurbCom::InitConst (codes/turb/src/TurbCom.cpp:119-357), not a raw model
+// coefficient that this header would re-derive.  That way the device provably
+// uses whatever the host initialised, including `cw1` and `cw1k`, which depend
+// on karm and sigma.
+struct SaModelConstants
+{
+    Real cb1 = 0.1355;              // cb1
+    Real cb2OverSigma = 0.0;        // cb2s = osigma * cb2
+    Real cv1Cubed = 0.0;            // cv13 = cv1^3, cv1 = 7.1
+    Real cw1 = 0.0;                 // cb1*okarm2 + (1 + cb2)/sigma
+    Real cw1K = 0.0;                // cw1k = cw1 * karm2
+    Real cw2 = 0.3;
+    Real cw3ToSix = 64.0;           // cw36 = cw3^6, cw3 = 2.0
+    Real ct3 = 1.2;
+    Real ct4 = 0.5;
+    Real karm2 = 0.0;               // karm^2, karm = 0.41
+    Real okarm2 = 0.0;              // 1/karm2
+    Real sac2 = 0.7;
+    Real sac3 = 0.9;
+    Real fwStar = 0.424;
+    Real productionRatio = 1.0;     // rprod
+    Real invReynolds = 0.0;         // oreynolds = 1/reynolds
+    Real invSigma = 1.5;            // osigma = 1/sigma, sigma = 2/3
+    Real maxViscosityRatio = 0.0;   // max_vis_ratio
+    bool ft2Enabled = false;        // ft2_flag != 0
+    // TurbCom::CalcSaProd branch selector (iprod_sa).  The flagship case sets
+    // iprod_sa = 2, which matches none of the branches and leaves work4 at the
+    // vorticity magnitude.
+    int productionOption = 2;
+};
+
+// Fields the SA residual chain reads for one zone.  Every array is cell-major
+// with length nCells + nGhostCells, matching the host MRField layout for a
+// single-equation field; the velocity-gradient planes are the nine mean-flow
+// gradients in host order dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy,
+// dwdz.
+struct TurbSaStateView
+{
+    int nCells = 0;
+    int nGhostCells = 0;
+
+    // Turbulence solution field and its gradient (uturbf.q / dqdx..dqdz).
+    const Real * workingVariable = nullptr;
+    const Real * workingVariableGradientX = nullptr;
+    const Real * workingVariableGradientY = nullptr;
+    const Real * workingVariableGradientZ = nullptr;
+
+    // Mean-flow coupling (uturbf.meanFlow).
+    const Real * density = nullptr;
+    const Real * velocity[ 3 ] = {};
+    const Real * velocityGradient[ 9 ] = {};
+
+    // Wall distance (grid CellMesh().dist), one value per owned cell.  It is
+    // precomputed at setup (WallDist.cpp) and never updated per step.
+    const Real * wallDistance = nullptr;
+    // Optional SA length scale (uturbf.len_scale).  When null, wallDistance is
+    // used, which is what CalcLengthScaleOfWallDist writes for the plain model.
+    const Real * lengthScale = nullptr;
+
+    // Transport coefficients: laminar from Sutherland, eddy an output here.
+    const Real * laminarViscosity = nullptr;
+    Real * turbulentViscosity = nullptr;
+
+    const Real * cellVolume = nullptr;
+
+    SaModelConstants constants;
+    const void * cacheKey = nullptr;
+};
+
+inline void ValidateTurbSaStateView( const TurbSaStateView & view )
+{
+    if ( view.nCells <= 0 || view.nGhostCells < 0
+         || view.workingVariable == nullptr
+         || view.workingVariableGradientX == nullptr
+         || view.workingVariableGradientY == nullptr
+         || view.workingVariableGradientZ == nullptr
+         || view.density == nullptr || view.wallDistance == nullptr
+         || view.laminarViscosity == nullptr
+         || view.turbulentViscosity == nullptr
+         || view.cellVolume == nullptr || view.density == nullptr
+         || view.constants.cv1Cubed <= 0.0 || view.constants.karm2 <= 0.0
+         || view.constants.invReynolds <= 0.0 )
+    {
+        throw std::invalid_argument(
+            "invalid Spalart-Allmaras state view" );
+    }
+    for ( int component = 0; component < 3; ++ component )
+    {
+        if ( view.velocity[ component ] == nullptr )
+        {
+            throw std::invalid_argument(
+                "SA state view has a missing velocity component" );
+        }
+    }
+    for ( int component = 0; component < 9; ++ component )
+    {
+        if ( view.velocityGradient[ component ] == nullptr )
+        {
+            throw std::invalid_argument(
+                "SA state view has a missing velocity-gradient component" );
+        }
+    }
+}
+
+// Per-cell source term: the inputs TurbCom::CalcSrcSa reads and the two values
+// UTurbSrcFlux::Update1Equ accumulates into the residual and the implicit
+// spectrum, already multiplied by the cell volume.
+struct TurbSaSourceView
+{
+    int nCells = 0;
+    const TurbSaStateView * state = nullptr;
+
+    // Output, length nCells.  residual receives res_sa * cellVolume and
+    // implicitSpectrum receives spec_sa * cellVolume, matching
+    // UTurbSrcFlux::Update1Equ:242.
+    Real * residual = nullptr;
+    Real * implicitSpectrum = nullptr;
+
+    // false accumulates into the existing values, true overwrites them.  The
+    // host always accumulates, so the default matches Update1Equ.
+    bool overwrite = false;
+
+    const void * cacheKey = nullptr;
+};
+
+inline void ValidateTurbSaSourceView( const TurbSaSourceView & view )
+{
+    if ( view.nCells <= 0 || view.state == nullptr
+         || view.residual == nullptr || view.implicitSpectrum == nullptr )
+    {
+        throw std::invalid_argument( "invalid SA source view" );
+    }
+    if ( view.state->nCells < view.nCells )
+    {
+        throw std::invalid_argument(
+            "SA source view covers more cells than its state" );
+    }
+}
+
+// Per-cell eddy viscosity.  Same inputs as TurbSaStateView carries, minus the
+// gradient the closure does not read; it is a separate view because the host
+// calls CalcVist at least twice per step while the source runs once, and a
+// backend may want to keep the two entries and their caching independent.
+struct TurbSaEddyViscosityView
+{
+    int nCells = 0;
+    const Real * workingVariable = nullptr;
+    const Real * density = nullptr;
+    const Real * laminarViscosity = nullptr;
+    Real * turbulentViscosity = nullptr;
+    SaModelConstants constants;
+    const void * cacheKey = nullptr;
+};
+
+inline void ValidateTurbSaEddyViscosityView(
+    const TurbSaEddyViscosityView & view )
+{
+    if ( view.nCells <= 0 || view.workingVariable == nullptr
+         || view.density == nullptr || view.laminarViscosity == nullptr
+         || view.turbulentViscosity == nullptr
+         || view.constants.cv1Cubed <= 0.0
+         || view.constants.maxViscosityRatio <= 0.0 )
+    {
+        throw std::invalid_argument(
+            "invalid Spalart-Allmaras eddy-viscosity view" );
+    }
+}
+
+// Green-Gauss cell gradient of the working variable, the turbulence solver's
+// counterpart of CellGradientView.
+struct TurbSaGradientView
+{
+    int nCells = 0;
+    int nGhostCells = 0;
+    int nFaces = 0;
+    int nBoundaryFaces = 0;
+    const Real * workingVariable = nullptr;
+    const Real * xFace = nullptr;
+    const Real * yFace = nullptr;
+    const Real * zFace = nullptr;
+    const Real * xNormal = nullptr;
+    const Real * yNormal = nullptr;
+    const Real * zNormal = nullptr;
+    const Real * faceArea = nullptr;
+    const Real * xCell = nullptr;
+    const Real * yCell = nullptr;
+    const Real * zCell = nullptr;
+    const Real * cellVolume = nullptr;
+    const int * leftCell = nullptr;
+    const int * rightCell = nullptr;
+    Real * gradientX = nullptr;
+    Real * gradientY = nullptr;
+    Real * gradientZ = nullptr;
+    const void * cacheKey = nullptr;
+};
+
+inline void ValidateTurbSaGradientView( const TurbSaGradientView & view )
+{
+    if ( view.nCells <= 0 || view.nGhostCells < 0 || view.nFaces <= 0
+         || view.nBoundaryFaces < 0 || view.nBoundaryFaces > view.nFaces
+         || view.workingVariable == nullptr || view.xFace == nullptr
+         || view.yFace == nullptr || view.zFace == nullptr
+         || view.xNormal == nullptr || view.yNormal == nullptr
+         || view.zNormal == nullptr || view.faceArea == nullptr
+         || view.xCell == nullptr || view.yCell == nullptr
+         || view.zCell == nullptr || view.cellVolume == nullptr
+         || view.leftCell == nullptr || view.rightCell == nullptr
+         || view.gradientX == nullptr || view.gradientY == nullptr
+         || view.gradientZ == nullptr )
+    {
+        throw std::invalid_argument(
+            "invalid Spalart-Allmaras gradient view" );
+    }
+}
+
+// Explicit update of the turbulence solution field.
+struct TurbSaUpdateView
+{
+    int nCells = 0;
+    const Real * oldValue = nullptr;
+    const Real * delta = nullptr;
+    Real * workingVariable = nullptr;
+    Real relaxationCoefficient = 1.0;
+    const void * cacheKey = nullptr;
+};
+
+inline void ValidateTurbSaUpdateView( const TurbSaUpdateView & view )
+{
+    if ( view.nCells <= 0 || view.oldValue == nullptr
+         || view.delta == nullptr || view.workingVariable == nullptr
+         || view.relaxationCoefficient <= 0.0
+         || view.relaxationCoefficient > 1.0 )
+    {
+        throw std::invalid_argument(
+            "invalid Spalart-Allmaras update view" );
+    }
+}
+
+// Per-face scalar flux.  leftCell/rightCell follow the same convention as
+// FaceConnectivityView: boundary faces occupy [0, nBoundaryFaces) by default,
+// and their right cell is a ghost.
+struct TurbSaFaceView
+{
+    int nFaces = 0;
+    int nBoundaryFaces = 0;
+    const Real * xNormal = nullptr;
+    const Real * yNormal = nullptr;
+    const Real * zNormal = nullptr;
+    const Real * meshVelocityNormal = nullptr;
+    const Real * faceArea = nullptr;
+    const int * leftCell = nullptr;
+    const int * rightCell = nullptr;
+    const unsigned char * boundaryMask = nullptr;
+
+    // Face geometry needed by the scalar diffusion normal gradient.
+    const Real * xFace = nullptr;
+    const Real * yFace = nullptr;
+    const Real * zFace = nullptr;
+    const Real * xCell = nullptr;
+    const Real * yCell = nullptr;
+    const Real * zCell = nullptr;
+
+    // Reconstructed face values: the turbulence limiter output.  These feed the
+    // inviscid flux only, because UTurbInvFlux::PrepareFaceValue:126 reads
+    // qf1/qf2 and the NS limiter's face densities and velocities.
+    const Real * faceWorkingVariableLeft = nullptr;
+    const Real * faceWorkingVariableRight = nullptr;
+    const Real * faceDensityLeft = nullptr;
+    const Real * faceDensityRight = nullptr;
+    const Real * faceVelocityLeft[ 3 ] = {};
+    const Real * faceVelocityRight[ 3 ] = {};
+
+    // Cell-centred values, cell-major over nCells + nGhostCells.  The diffusive
+    // flux reads these at each face's left/right cell, not the reconstructed
+    // ones: UTurbVisFlux::PrepareFaceValue copies `(*uturbf.q)[IKE][lc]` into
+    // visTurb.q1 (:303-311), and for the one-equation model IKE == ISA.
+    // Its laminar viscosity and density are also per cell (`visl[0][lc]`,
+    // meanFlow.q[IR][lc]).  Mixing the two sources would change the face
+    // diffusivity.
+    const Real * cellWorkingVariable = nullptr;
+    const Real * cellLaminarViscosity = nullptr;
+    const Real * cellDensity = nullptr;
+
+    // Cell gradient of the working variable, cell-major.  Required when a
+    // diffusive flux is requested: the VIS_TEST normal gradient reads both
+    // cell gradients and both cell centres.
+    const Real * workingVariableGradientX = nullptr;
+    const Real * workingVariableGradientY = nullptr;
+    const Real * workingVariableGradientZ = nullptr;
+
+    // rho_coef: 1 for SA, 0 for the two-equation pair (TurbInv::Init:47).
+    Real densityWeight = 1.0;
+
+    // Diffusion constants.  The backend forms the per-side kinematic laminar
+    // viscosity as visl * (1/rho) exactly as CalcFaceVisFlux1Equ:339 does.
+    Real invSigma = 1.5;
+    Real invReynolds = 0.0;
+    // iturb_visflux: the host maps 2 to the VIS_TEST normal-gradient variant,
+    // which is what the flagship uses.  A backend that cannot reproduce the
+    // requested variant must refuse rather than substitute another one.
+    int viscousFluxVariant = 2;
+
+    // Optional explicit boundary mask for "this face is an interface".  The
+    // host's CalcC1C2 (VisGrad.cpp:206) forces c1 = 1 for a boundary face whose
+    // bc type is not INTERFACE; without this mask every boundary face is
+    // treated as non-interface, which is correct for solid/farfield/inflow but
+    // not for a multizone interface face.
+    const unsigned char * interfaceMask = nullptr;
+
+    // Output, length nFaces.  Kept separate so a stage can add the inviscid and
+    // diffusive contributions independently, as UTurbInvFlux and UTurbVisFlux
+    // do on the host.
+    Real * inviscidFlux = nullptr;
+    Real * diffusiveFlux = nullptr;
+
+    const void * cacheKey = nullptr;
+};
+
+inline void ValidateTurbSaFaceView( const TurbSaFaceView & view )
+{
+    if ( view.nFaces <= 0 || view.nBoundaryFaces < 0
+         || view.nBoundaryFaces > view.nFaces
+         || view.xNormal == nullptr || view.yNormal == nullptr
+         || view.zNormal == nullptr || view.meshVelocityNormal == nullptr
+         || view.faceArea == nullptr || view.leftCell == nullptr
+         || view.rightCell == nullptr )
+    {
+        throw std::invalid_argument( "invalid SA face view" );
+    }
+    if ( view.inviscidFlux == nullptr && view.diffusiveFlux == nullptr )
+    {
+        throw std::invalid_argument( "SA face view has no output buffer" );
+    }
+    if ( view.inviscidFlux != nullptr )
+    {
+        if ( view.faceWorkingVariableLeft == nullptr
+             || view.faceWorkingVariableRight == nullptr
+             || view.faceDensityLeft == nullptr
+             || view.faceDensityRight == nullptr )
+        {
+            throw std::invalid_argument(
+                "SA inviscid flux requires reconstructed face values and face "
+                "densities" );
+        }
+        for ( int component = 0; component < 3; ++ component )
+        {
+            if ( view.faceVelocityLeft[ component ] == nullptr
+                 || view.faceVelocityRight[ component ] == nullptr )
+            {
+                throw std::invalid_argument(
+                    "SA inviscid flux has a missing face velocity component" );
+            }
+        }
+    }
+    if ( view.diffusiveFlux != nullptr )
+    {
+        if ( view.xFace == nullptr || view.yFace == nullptr
+             || view.zFace == nullptr || view.xCell == nullptr
+             || view.yCell == nullptr || view.zCell == nullptr
+             || view.cellWorkingVariable == nullptr
+             || view.cellLaminarViscosity == nullptr
+             || view.cellDensity == nullptr
+             || view.workingVariableGradientX == nullptr
+             || view.workingVariableGradientY == nullptr
+             || view.workingVariableGradientZ == nullptr )
+        {
+            throw std::invalid_argument(
+                "SA diffusive flux requires face geometry, the cell working "
+                "variable, its cell gradient, the cell laminar viscosity and "
+                "the cell density" );
+        }
+        if ( view.invReynolds <= 0.0 )
+        {
+            throw std::invalid_argument(
+                "SA diffusive flux requires a positive inverse Reynolds number" );
+        }
+        if ( view.viscousFluxVariant != 2 )
+        {
+            throw std::invalid_argument(
+                "only the VIS_TEST (iturb_visflux = 2) normal-gradient variant "
+                "is implemented; refusing to substitute another one" );
+        }
+    }
+}
+
 EndNameSpace
