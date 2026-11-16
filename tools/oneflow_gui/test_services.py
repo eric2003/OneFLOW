@@ -268,7 +268,7 @@ class DesktopServiceTest(unittest.TestCase):
             source = root / "source_case"
             source.mkdir()
             (source / "control.txt").write_text("fresh", encoding="utf-8")
-            workspace = root / "mesh-layout-test" / "grid"
+            workspace = root / "grid-development" / "cases
             stale = workspace / "old_case"
             stale.mkdir(parents=True)
             (stale / "stale.dat").write_text("stale", encoding="utf-8")
@@ -298,7 +298,7 @@ class DesktopServiceTest(unittest.TestCase):
             source = root / "repository" / "grid" / "stl_import" / "ascii_crlf" / "cpp"
             source.mkdir(parents=True)
             (source / "model.stl").write_text("fixture", encoding="ascii")
-            workspace = root / "mesh-layout-test" / "grid"
+            workspace = root / "grid-development" / "cases
             case = CaseDefinition(
                 case_id="stl_ascii_crlf",
                 title="STL ASCII CRLF",
@@ -326,7 +326,7 @@ class DesktopServiceTest(unittest.TestCase):
             parent_source = root / "repository" / "grid" / "conversion" / "gmsh_to_cgns"
             nested_source = parent_source / "examples" / "convert_2d" / "two_quads"
             nested_source.mkdir(parents=True)
-            workspace = root / "mesh-layout-test" / "grid"
+            workspace = root / "grid-development" / "cases
             parent = CaseDefinition(
                 case_id="gmsh_to_cgns",
                 title="Gmsh to CGNS",
