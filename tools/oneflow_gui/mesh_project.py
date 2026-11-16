@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import shutil
@@ -221,6 +222,91 @@ def import_mesh_project_directory(repository_root: Path, source_directory: Path)
     return _write_manifest(directory, manifest)
 
 
+
+def _project_geometry_lineage(
+    root: Path, stl_path: Path, output_path: Path,
+) -> dict:
+    """Discover project geometry lineage using only checksum-verified records."""
+    source_digest = hashlib.sha256(stl_path.read_bytes()).hexdigest()
+    try:
+        source_label = stl_path.relative_to(root).as_posix()
+    except ValueError:
+        source_label = str(stl_path)
+    lineage = {
+        "provenance": {
+            "kind": "unknown",
+            "notes": "No checksum-verified geometry asset manifest is available.",
+        },
+        "source_representation": {
+            "format": "STL", "path": source_label, "sha256": source_digest,
+        },
+    }
+    manifest_path = stl_path.with_suffix(".geometry.json")
+    if manifest_path.is_file():
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if (
+                isinstance(manifest, dict)
+                and manifest.get("schema") == "oneflow.stl-geometry-manifest"
+                and manifest.get("stl_sha256") == source_digest
+            ):
+                lineage.update({
+                    "asset_id": manifest.get("asset_id"),
+                    "definition_sha256": manifest.get("definition_sha256"),
+                    "generator": manifest.get("generator", {}),
+                    "provenance": {
+                        "kind": "generated",
+                        "notes": "The project STL matches its geometry manifest checksum.",
+                    },
+                })
+            else:
+                lineage["manifest_status"] = "invalid_or_checksum_mismatch"
+        except (OSError, json.JSONDecodeError):
+            lineage["manifest_status"] = "unreadable"
+    if output_path.is_file():
+        lineage["derived_mesh"] = {
+            "format": "Gmsh MSH",
+            "path": output_path.relative_to(root).as_posix()
+                if is_path_within(output_path, root) else str(output_path),
+            "sha256": hashlib.sha256(output_path.read_bytes()).hexdigest(),
+            "parent": "source_representation",
+        }
+
+    downstream = []
+    validation_root = root / "validation"
+    if validation_root.is_dir():
+        suffix = ".geometry-lineage.json"
+        for sidecar in sorted(validation_root.rglob("*" + suffix)):
+            artifact = sidecar.with_name(sidecar.name[:-len(suffix)])
+            if not artifact.is_file():
+                continue
+            try:
+                record = json.loads(sidecar.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            metadata = record.get("artifact") if isinstance(record, dict) else None
+            if (
+                not isinstance(record, dict)
+                or record.get("schema") != "oneflow.geometry-artifact-lineage"
+                or not isinstance(metadata, dict)
+                or metadata.get("file_name") != artifact.name
+                or metadata.get("sha256") != hashlib.sha256(artifact.read_bytes()).hexdigest()
+            ):
+                continue
+            downstream.append({
+                "role": str(metadata.get("role", "Derived artifact")),
+                "format": str(metadata.get("format", artifact.suffix.lstrip(".").upper())),
+                "path": artifact.relative_to(root).as_posix()
+                    if is_path_within(artifact, root) else str(artifact),
+                "sha256": metadata["sha256"],
+                "parent": record.get("parent_artifact"),
+                "sidecar": sidecar.relative_to(root).as_posix(),
+            })
+    if downstream:
+        lineage["downstream_artifacts"] = downstream
+    return lineage
+
+
 def load_mesh_project(directory: Path) -> dict:
     """Load and validate a prepared project directory."""
     root = Path(directory).expanduser().resolve()
@@ -254,6 +340,7 @@ def load_mesh_project(directory: Path) -> dict:
         "directory": root,
         "stl_path": stl_path,
         "output_path": output_path.resolve(),
+        "geometry_lineage": _project_geometry_lineage(root, stl_path, output_path.resolve()),
     }
 
 

@@ -152,3 +152,16 @@ References
 * :doc:`stl_geometry_generation` — current parameterized surface generator,
   mathematical definitions, patch identity and generated-artifact policy.
 * :doc:`mesh_architecture` — mesh representations, snapshots and adapters.
+
+Mesh project reopen and lineage
+--------------------------------
+
+Opening a mesh project recomputes a read-only lineage view from its private
+STL input, a checksum-matching ``.geometry.json`` manifest, the current MSH
+output, and checksum-verified CGNS/native-grid companion sidecars under the
+project validation workspace. A stale or mismatched STL manifest is marked
+untrusted and its asset ID is not exposed. Validation artifacts whose bytes
+no longer match their sidecar are omitted from the trusted derived-artifact
+list. This keeps the project view grounded in the files currently present,
+rather than copying stale lineage claims into ``project.json``.
+

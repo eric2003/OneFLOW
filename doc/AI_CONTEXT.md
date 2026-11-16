@@ -1,3 +1,25 @@
+## 2026-11-16 continuation: restore lineage when reopening mesh projects
+
+Starting `hexin` HEAD: `7286c7600ffa2c658db639e9e1bc11aa2e1022e4`.
+
+- `load_mesh_project()` now reconstructs a read-only geometry lineage from
+  the project STL, its checksum-matching `.geometry.json`, the current MSH,
+  and verified CGNS/native-grid sidecars under `validation/`.
+- `StlToGmshDialog` displays provenance, source STL checksum, asset/generator
+  identity, MSH checksum and downstream conversion artifacts for opened projects.
+- Reopening a project does not trust a sidecar whose STL or derived artifact
+  checksum no longer matches. Unknown history remains unknown.
+- Added project reopen tests for valid lineage and tampered source manifests,
+  plus a GUI test for the project lineage panel.
+
+No local execution or exact-commit CI pass is claimed.
+
+Next: make the Geometry Library and mesh project share an explicit project
+asset reference for non-STL sources, then implement a first real non-STL
+format adapter rather than broadening metadata-only claims.
+
+---
+
 ## 2026-11-16 continuation: persist lineage beside conversion artifacts
 
 Starting `hexin` HEAD: `8e56d3b23e592d5af9a342a73afd7d8076d62a18`.

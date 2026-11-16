@@ -485,6 +485,12 @@ class StlToGmshDialog(QDialog):
             project_label.setWordWrap(True)
             project_label.setStyleSheet("color: #475569;")
             root.addWidget(project_label)
+            root.addWidget(QLabel("Geometry provenance and derived artifacts"))
+            self.geometry_lineage_view = QPlainTextEdit()
+            self.geometry_lineage_view.setReadOnly(True)
+            self.geometry_lineage_view.setMaximumHeight(130)
+            root.addWidget(self.geometry_lineage_view)
+            self._refresh_geometry_lineage()
 
         form = QFormLayout()
         self.geometry_preset = QComboBox()
@@ -917,6 +923,46 @@ class StlToGmshDialog(QDialog):
             self.output_view.setTextCursor(cursor)
             self.output_view.ensureCursorVisible()
 
+    def _refresh_geometry_lineage(self) -> None:
+        if self._project is None:
+            return
+        lineage = self._project.get("geometry_lineage") or {}
+        provenance = lineage.get("provenance") or {}
+        lines = [
+            f"Provenance: {provenance.get('kind', 'unknown').upper()}",
+            str(provenance.get("notes", "No verified source record is available.")),
+        ]
+        asset_id = lineage.get("asset_id")
+        if asset_id:
+            lines.append(f"Geometry asset: {asset_id}")
+        if lineage.get("manifest_status"):
+            lines.append(f"Geometry manifest: UNTRUSTED ({lineage['manifest_status']})")
+        source = lineage.get("source_representation") or {}
+        if source:
+            lines.append(
+                f"Source STL: {source.get('path', 'unknown')} | "
+                f"SHA-256: {source.get('sha256', 'unknown')}"
+            )
+        generator = lineage.get("generator") or {}
+        if generator:
+            lines.append(
+                f"Generator: {generator.get('name', 'unknown')} "
+                f"{generator.get('version', '')}"
+            )
+        mesh = lineage.get("derived_mesh") or {}
+        if mesh:
+            lines.append(
+                f"Gmsh MSH: {mesh.get('path', 'unknown')} | "
+                f"SHA-256: {mesh.get('sha256', 'unknown')}"
+            )
+        for artifact in lineage.get("downstream_artifacts", []):
+            lines.append(
+                f"{artifact.get('role', 'Derived artifact')}: "
+                f"{artifact.get('path', 'unknown')} | "
+                f"SHA-256: {artifact.get('sha256', 'unknown')}"
+            )
+        self.geometry_lineage_view.setPlainText("\\n".join(lines))
+
     def _validate_current_mesh(self) -> None:
         mesh_path = Path(self.output_path.text()).expanduser().resolve()
         if not mesh_path.is_file():
@@ -935,6 +981,12 @@ class StlToGmshDialog(QDialog):
             parent=self,
         )
         dialog.exec()
+        if self._project_directory is not None:
+            try:
+                self._project = load_mesh_project(self._project_directory)
+                self._refresh_geometry_lineage()
+            except (OSError, ValueError, KeyError) as error:
+                self.status_label.setText(f"Cannot refresh project geometry lineage: {error}")
 
     def _process_finished(self, exit_code: int, _exit_status) -> None:
         self._read_output()
@@ -942,6 +994,12 @@ class StlToGmshDialog(QDialog):
         if exit_code == 0:
             mesh_path = Path(self.output_path.text()).expanduser()
             self.validate_button.setEnabled(mesh_path.is_file())
+            if self._project_directory is not None:
+                try:
+                    self._project = load_mesh_project(self._project_directory)
+                    self._refresh_geometry_lineage()
+                except (OSError, ValueError, KeyError) as error:
+                    self.status_label.setText(f"Mesh generated; project refresh failed: {error}")
             self.status_label.setText(
                 "Completed and validated. Outputs: "
                 f"{mesh_path}, {mesh_path.with_suffix('.geo')}, "

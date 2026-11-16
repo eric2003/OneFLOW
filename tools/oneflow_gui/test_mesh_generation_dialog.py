@@ -389,6 +389,26 @@ class MeshGenerationDialogTest(unittest.TestCase):
             finally:
                 dialog.close()
 
+    def test_open_mesh_project_displays_geometry_lineage(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory) / "mesh-generation"
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                project = create_mesh_project_from_template(
+                    self.repository_root,
+                    "stl_to_gmsh_python_sphere_automatic_tetrahedra",
+                    "lineage_display",
+                )
+            dialog = StlToGmshDialog(self.repository_root, project=project)
+            try:
+                displayed = dialog.geometry_lineage_view.toPlainText()
+                self.assertIn("Provenance: UNKNOWN", displayed)
+                self.assertIn("Source STL:", displayed)
+            finally:
+                dialog.close()
+
     def test_project_settings_can_be_edited_and_saved_without_running_gmsh(self) -> None:
         from types import SimpleNamespace
 
