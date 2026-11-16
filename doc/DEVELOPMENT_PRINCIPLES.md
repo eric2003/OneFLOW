@@ -69,7 +69,37 @@ file, but direct `Path` equality (and normalization alone) did not express files
 identity. The test now uses `os.path.samefile`. Preserve that distinction: path spelling,
 normalized path policy, containment, and filesystem identity are different questions.
 
-## 4. Respect module ownership and dependency direction
+## 4. Verify text and serialization boundaries
+
+- Distinguish an actual control character from its escaped textual spelling. For
+  example, Python `"\\n"` is a line-feed, while `"\\\\n"` is the two visible
+  characters backslash and `n`. When joining display lines, use the actual newline
+  delimiter unless the output format explicitly requires escaped text.
+- Check the final representation at the consumer boundary: plain-text widgets,
+  Markdown renderers, HTML views, JSON/YAML serializers, terminal output, and log
+  viewers do not interpret escape sequences in the same way. Do not assume that
+  syntactically valid source produces readable rendered output.
+- For multiline UI or report content, inspect section boundaries, blank lines,
+  indentation, headings, and list markers. Choose a widget appropriate to the
+  intended format (plain text versus rich text) rather than relying on accidental
+  rendering behavior.
+- Add a regression assertion against the actual displayed/exported value. For a
+  newline contract, assert that expected sections are separated by real newline
+  characters and that unintended literal escape sequences are absent.
+- During review, inspect string escaping at both the source-code and rendered-output
+  levels, especially when code is generated, templated, serialized, or edited through
+  JSON/API payloads.
+
+### Text-formatting regression to remember
+
+The Geometry Library details were joined with the two-character literal `\\\\n`
+instead of a real line-feed. The dialog therefore displayed visible escape sequences
+and collapsed the intended multiline structure. The fix uses a real newline delimiter;
+the GUI test checks both the expected newline boundary and absence of the literal
+`\\\\nDefinition` sequence. Preserve this distinction whenever text crosses a
+serialization or UI-rendering boundary.
+
+## 5. Respect module ownership and dependency direction
 
 - Trace the real entry point, callers, ownership, and cleanup path before changing an
   interface.
@@ -84,7 +114,7 @@ normalized path policy, containment, and filesystem identity are different quest
 - Keep platform-specific behavior at a narrow boundary and expose portable semantics to
   callers.
 
-## 5. Keep examples and tests honest
+## 6. Keep examples and tests honest
 
 - Each example should demonstrate one clearly named concept at an appropriate level of
   complexity. Do not label a multi-cell or multi-feature example as a single-cell case.
@@ -98,7 +128,7 @@ normalized path policy, containment, and filesystem identity are different quest
   Report exactly what was run; do not infer a pass from an unrelated suite or an older CI
   run.
 
-## 6. Make each change a complete, reviewable slice
+## 7. Make each change a complete, reviewable slice
 
 - Prefer a coherent functional slice: implementation, discriminating tests, directly
   related documentation, test inventory/CI registration, and evidence as applicable.
@@ -110,7 +140,7 @@ normalized path policy, containment, and filesystem identity are different quest
 - Keep source files within the repository's encoding/style constraints, including the
   C++ ASCII-source requirement.
 
-## 7. Required pre-change and post-change review
+## 8. Required pre-change and post-change review
 
 Before editing:
 
@@ -132,7 +162,7 @@ After editing:
 5. Report the exact commit, test commands and outcomes, CI status for that exact commit,
    and anything not verified. Never claim success without evidence.
 
-## 8. When to record an engineering lesson
+## 9. When to record an engineering lesson
 
 Add or update a durable lesson when any of these occurs:
 
