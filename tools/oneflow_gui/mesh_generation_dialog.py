@@ -599,17 +599,17 @@ class StlToGmshDialog(QDialog):
             self.boundary_name.setText(str(project.get("boundary_name", "wall")))
             self.volume_name.setText(str(project.get("volume_name", "fluid_domain")))
             template_id = project.get("template_case_id")
-            if template_id == "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra":
-                self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("prolate_spheroid"))
-            elif template_id == "stl_to_gmsh_python_sphere_automatic_tetrahedra":
-                self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("sphere"))
-            elif project.get("geometry") == "cylinder_internal_flow":
+            if project.get("geometry") == "cylinder_internal_flow":
                 self._mesh_case_id = "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow"
                 self.geometry_preset.setCurrentIndex(
                     self.geometry_preset.findData("cylinder_internal_flow")
                 )
                 self.boundary_name.setEnabled(False)
                 self.volume_name.setEnabled(False)
+            elif template_id == "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra":
+                self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("prolate_spheroid"))
+            elif template_id == "stl_to_gmsh_python_sphere_automatic_tetrahedra":
+                self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("sphere"))
             self.density.setCurrentIndex(self.density.findData("custom"))
             target = float(project.get("mesh_size", DEFAULT_MESH_SIZE))
             minimum = float(project.get("mesh_size_min", target * 0.5))
