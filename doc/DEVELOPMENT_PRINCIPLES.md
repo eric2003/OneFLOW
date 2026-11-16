@@ -17,6 +17,7 @@ deviate, explain why, keep the exception narrow, and add evidence for the behavi
 - When a fix reveals a reusable lesson, update this document or the owning architecture
   page in the same logical change. Record the symptom, root cause, durable rule, and
   regression test. Do not rely on chat history or a commit message as the only record.
+- When a workflow graph is built from declarative case definitions, post-run reporting and artifact-lineage collection must consume that same canonical definition list (or the typed plan). Keep report aggregation in a focused helper so the reporting contract can be tested independently of process execution.
 - Prefer updating an existing authoritative document over creating overlapping notes.
   Keep chronological handoff notes concise; do not turn them into the only place where
   permanent rules live.
