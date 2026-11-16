@@ -177,26 +177,27 @@ class MeshValidationDialog(QDialog):
         case_header.resizeSection(1, 430)
         self._case_items: dict[str, QTreeWidgetItem] = {}
         try:
-            dimension_groups = mesh_case_groups(self._repository_root)
-            for dimension_label, choices in dimension_groups:
+            dimension_groups = mesh_case_group_categories(self._repository_root)
+            for dimension_label, categories in dimension_groups:
                 dimension_item = QTreeWidgetItem(self.case_tree)
                 dimension_item.setText(1, dimension_label)
                 dimension_item.setFlags(
                     dimension_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
                 )
-                category_item = QTreeWidgetItem(dimension_item)
-                category_item.setText(1, "STL to Gmsh")
-                category_item.setFlags(
-                    category_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
-                )
-                for case_id, title in choices:
-                    item = QTreeWidgetItem(category_item)
-                    item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-                    item.setText(1, title)
-                    item.setData(0, Qt.ItemDataRole.UserRole, case_id)
-                    item.setCheckState(0, Qt.CheckState.Checked)
-                    self._case_items[case_id] = item
-                category_item.setCheckState(0, Qt.CheckState.Checked)
+                for category_label, choices in categories:
+                    category_item = QTreeWidgetItem(dimension_item)
+                    category_item.setText(1, category_label)
+                    category_item.setFlags(
+                        category_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
+                    )
+                    for case_id, title in choices:
+                        item = QTreeWidgetItem(category_item)
+                        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                        item.setText(1, title)
+                        item.setData(0, Qt.ItemDataRole.UserRole, case_id)
+                        item.setCheckState(0, Qt.CheckState.Checked)
+                        self._case_items[case_id] = item
+                    category_item.setCheckState(0, Qt.CheckState.Checked)
                 dimension_item.setCheckState(0, Qt.CheckState.Checked)
             self.case_tree.itemChanged.connect(self._update_group_state)
             self.case_tree.expandToDepth(1)
