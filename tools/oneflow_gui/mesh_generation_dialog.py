@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import os
@@ -703,7 +704,22 @@ class StlToGmshDialog(QDialog):
             # companion checksum/provenance manifest beside the STL.
             try:
                 manifest = stl.with_suffix(".geometry.json")
-                if not stl.is_file() or not manifest.is_file():
+                metadata = None
+                if stl.is_file() and manifest.is_file():
+                    try:
+                        metadata = json.loads(manifest.read_text(encoding="utf-8"))
+                    except (OSError, json.JSONDecodeError):
+                        metadata = None
+                source_is_valid = bool(
+                    metadata
+                    and metadata.get("schema") == "oneflow.stl-geometry-manifest"
+                    and metadata.get("version") == 1
+                    and metadata.get("asset_id") == "geometry.cylinder.internal_flow"
+                    and metadata.get("geometry") == "cylinder_internal_flow"
+                    and metadata.get("stl_sha256")
+                    == hashlib.sha256(stl.read_bytes()).hexdigest()
+                ) if stl.is_file() and metadata else False
+                if not source_is_valid:
                     report = generate_geometry(
                         "cylinder_internal_flow",
                         stl,
@@ -715,10 +731,6 @@ class StlToGmshDialog(QDialog):
                     )
                     if not report["surface"]["watertight"]:
                         raise ValueError("Generated cylinder STL is not watertight.")
-                else:
-                    metadata = json.loads(manifest.read_text(encoding="utf-8"))
-                    if metadata.get("asset_id") != "geometry.cylinder.internal_flow":
-                        raise ValueError("Existing cylinder STL manifest has an unexpected asset ID.")
             except (OSError, ValueError, KeyError) as error:
                 self.stl_path.clear()
                 self._mesh_case_id = native_case_id
