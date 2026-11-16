@@ -171,6 +171,9 @@ auto & Totals()
         { "g_prep", 0.0 },
         { "g_contract", 0.0 },
         { "g_geom", 0.0 },
+        { "v_upload", 0.0 },
+        { "v_kernel", 0.0 },
+        { "v_download", 0.0 },
         { "r_prep", 0.0 },
         { "fused_scale", 0.0 },
     };

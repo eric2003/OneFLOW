@@ -483,3 +483,18 @@ target_link_libraries(time_integral_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(time_integral_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(time_integral_policy_test DISCOVERY_MODE PRE_TEST)
 
+# The solver-side view assembly, which the device contract tests do not cover:
+# they construct TurbSaStateView by hand, so a wrong field-to-slot mapping in
+# UTurbSrcFlux compiles and passes while producing wrong residuals.
+add_executable(sa_state_assembly_test
+  sa_state_assembly_test.cpp
+)
+target_include_directories(sa_state_assembly_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/accel/include
+  ${CMAKE_SOURCE_DIR}/codes/uturb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(sa_state_assembly_test PRIVATE GTest::gtest_main)
+target_compile_features(sa_state_assembly_test PRIVATE cxx_std_20)
+gtest_discover_tests(sa_state_assembly_test DISCOVERY_MODE PRE_TEST)
+

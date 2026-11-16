@@ -45,8 +45,14 @@ License
 #include "Iteration.h"
 #include "StageProfiler.h"
 #include "Ctrl.h"
+#include "HipProductionPolicy.h"
+#ifdef ONEFLOW_ENABLE_HIP
+#include "HipFluxBackend.h"
+#endif
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
+#include <vector>
 
 
 
@@ -110,7 +116,13 @@ void UNsVisFlux::CalcFlux()
     { ScopedStageTimer gradientTimer( "gradient" );
         this->PrepareField();
     }
-    this->CalcVisFlux();
+    // One device face loop when the feature is enabled and the resident state is
+    // bound; otherwise the unchanged host per-face loop below.  The choice is
+    // made here, before either path produces output.
+    if ( ! this->CalcVisFluxHip() )
+    {
+        this->CalcVisFlux();
+    }
     this->AddVisFlux();
 
     visflux.reset();
@@ -137,6 +149,115 @@ void UNsVisFlux::CalcVisFlux()
 
         this->UpdateFaceVisFlux();
     }
+}
+
+bool UNsVisFlux::UseHipVisFlux() const
+{
+    return HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UNS_HIP_VISFLUX" );
+}
+
+// Device face loop for the viscous flux, mirroring CalcVisFlux one-for-one.
+//
+// The host version above walks every face and, for each one, reads a dozen
+// per-cell scalars out of the grid arrays.  On the device that becomes one
+// thread per face reading the same arrays from resident storage, so the only
+// per-call traffic is the two viscosity planes (Sutherland and the SA output
+// are per-call inputs, not resident state) and the nFaces-wide result.
+//
+// Returns false when the device path is not selected, so the caller runs the
+// host loop exactly as before.  It does not fall back after writing part of
+// visflux: the choice is made before any output is produced.
+bool UNsVisFlux::CalcVisFluxHip()
+{
+#ifdef ONEFLOW_ENABLE_HIP
+    if ( ! this->UseHipVisFlux() ) return false;
+    if ( visflux == nullptr || unsf.q == nullptr || unsf.visl == nullptr
+         || unsf.vist == nullptr || unsf.tempr == nullptr
+         || unsf.dtdx == nullptr || unsf.dtdy == nullptr || unsf.dtdz == nullptr )
+    {
+        return false;
+    }
+    const int nEqu = nscom.nEqu;
+    if ( nEqu != 5 )
+    {
+        // The device kernel is the five-equation NS form.  Declining keeps a
+        // three-equation case on the host path instead of failing it.
+        return false;
+    }
+    UnsGrid * grid = Zone::GetUnsGrid();
+    const int totalCells = ug.nTCell;
+
+    // Contiguous equation-major staging for the device result.  visflux is an
+    // MRField, i.e. one RealField per equation with no single data() spanning
+    // them, so the device needs a flat buffer and the loop below scatters it
+    // back.
+    std::vector< Real > visfluxBuffer(
+        static_cast< std::size_t >( nscom.nEqu ) * ug.nFaces, 0.0 );
+
+    ViscousFluxView view;
+    view.nCells = ug.nCells;
+    view.nGhostCells = totalCells - ug.nCells;
+    view.nFaces = ug.nFaces;
+    view.nBoundaryFaces = ug.nBFaces;
+    view.nEquations = nEqu;
+    view.xFace = ug.xfc->data();
+    view.yFace = ug.yfc->data();
+    view.zFace = ug.zfc->data();
+    view.xNormal = ug.xfn->data();
+    view.yNormal = ug.yfn->data();
+    view.zNormal = ug.zfn->data();
+    view.faceArea = ug.farea->data();
+    view.xCell = ug.xcc->data();
+    view.yCell = ug.ycc->data();
+    view.zCell = ug.zcc->data();
+    view.cellVolume = ug.cvol->data();
+    view.leftCell = ug.lcf->data();
+    view.rightCell = ug.rcf->data();
+    for ( int equation = 0; equation < nEqu; ++ equation )
+    {
+        view.q[ equation ] = ( * unsf.q )[ equation ].data();
+        view.dqdx[ equation ] = ( * unsf.dqdx )[ equation ].data();
+        view.dqdy[ equation ] = ( * unsf.dqdy )[ equation ].data();
+        view.dqdz[ equation ] = ( * unsf.dqdz )[ equation ].data();
+    }
+    view.temperature = ( * unsf.tempr )[ 0 ].data();
+    view.dTdx = ( * unsf.dtdx )[ 0 ].data();
+    view.dTdy = ( * unsf.dtdy )[ 0 ].data();
+    view.dTdz = ( * unsf.dtdz )[ 0 ].data();
+    view.laminarViscosity = ( * unsf.visl )[ 0 ].data();
+    view.turbulentViscosity = ( * unsf.vist )[ 0 ].data();
+    view.gamma = nscom.gama;
+    view.prandtlLaminar = nscom.prl;
+    view.prandtlTurbulent = nscom.prt;
+    view.inverseReynolds = nscom.oreynolds;
+    // cp comes from ConstCp(); the host reads nscom.const_cp through the
+    // conductivity helper, so pass the same value rather than re-deriving it.
+    view.specificHeatCp = nscom.const_cp;
+    view.faceFlux = visfluxBuffer.data();
+    view.faceFluxStride = nEqu;
+    // grid, not nullptr: the resident gradient state was bound under this key by
+    // UNsGrad::CalcGradHip, which is what lets the kernel reuse the device-side
+    // primitive state and gradient instead of re-uploading them.
+    view.cacheKey = grid;
+
+    HipFluxBackend::Shared().CalcViscousFaceFlux( view );
+
+    // MRField is Marray<Real>, a two-level vector with no contiguous data(),
+    // so the device result has to be scattered back into the solver's layout.
+    // This is the only host-side pass in the device path and it is a straight
+    // memory walk, not arithmetic.
+    for ( int equation = 0; equation < nEqu; ++ equation )
+    {
+        RealField & plane = ( * visflux )[ equation ];
+        const Real * source =
+            visfluxBuffer.data()
+            + static_cast< std::size_t >( equation ) * ug.nFaces;
+        std::copy( source, source + ug.nFaces, plane.data() );
+    }
+    return true;
+#else
+    return false;
+#endif
 }
 
 void UNsVisFlux::CalcFaceVisFlux()

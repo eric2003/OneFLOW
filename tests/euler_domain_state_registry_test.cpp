@@ -197,6 +197,12 @@ TEST( Ns3DDeviceState, OwnsPersistentVerticalSliceBuffers )
     EXPECT_EQ( state.faceFlux.size(), 15u );
     EXPECT_EQ( state.leftCell.size(), 3u );
     EXPECT_EQ( state.haloMetadata.size(), 3u );
+    // Temperature and its gradient are per cell including ghosts (4 owned + 2
+    // ghost), not per equation: they are derived fields, not a sixth variable.
+    EXPECT_EQ( state.temperature.size(), 6u );
+    EXPECT_EQ( state.temperatureGradientX.size(), 6u );
+    EXPECT_EQ( state.temperatureGradientY.size(), 6u );
+    EXPECT_EQ( state.temperatureGradientZ.size(), 6u );
 }
 
 TEST( Ns3DDeviceState, OwnsOpaqueBackendStateAndGenerationTokens )

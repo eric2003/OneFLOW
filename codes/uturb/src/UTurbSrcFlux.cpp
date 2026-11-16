@@ -38,6 +38,11 @@ License
 #include "BcRecord.h"
 #include "Boundary.h"
 #include "Fatal.h"
+#include "HipProductionPolicy.h"
+#include "SaStateAssembly.h"
+#ifdef ONEFLOW_ENABLE_HIP
+#include "HipTurbulenceBackend.h"
+#endif
 #include <iostream>
 
 
@@ -164,6 +169,29 @@ void UTurbSrcFlux::CalcVistMax()
 
 void UTurbSrcFlux::CalcVist1Equ()
 {
+    // Device counterpart: one thread per cell evaluates the same closure.  The
+    // host loop below stays as the reference and as the fallback, and the
+    // choice is made before any output is written, so a declining device path
+    // leaves vist untouched rather than partially filled.
+#ifdef ONEFLOW_ENABLE_HIP
+    if ( HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UTURB_HIP_VIST" ) )
+    {
+        UnsGrid * grid = Zone::GetUnsGrid();
+        TurbSaEddyViscosityView view;
+        view.nCells = ug.nCells;
+        view.workingVariable = ( * uturbf.q )[ ISA ].data();
+        view.density = ( * uturbf.meanFlow.q )[ IDX::IR ].data();
+        view.laminarViscosity = ( * uturbf.visl )[ 0 ].data();
+        view.turbulentViscosity = ( * uturbf.vist )[ 0 ].data();
+        view.constants.cv1Cubed = turbcom.cv13;
+        view.constants.maxViscosityRatio = turbcom.max_vis_ratio;
+        // grid, so the device can reuse whatever resident state the mean-flow
+        // and turbulence gradients already bound under the same key.
+        view.cacheKey = grid;
+        HipTurbulenceBackend::Shared().CalcEddyViscosity( view );
+        return;
+    }
+#endif
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
@@ -213,6 +241,85 @@ void UTurbSrcFlux::CalcVist2Equ()
 
 void UTurbSrcFlux::CalcSrcFlux1Equ()
 {
+    // Device counterpart of the whole PrepareCellValue1Equ -> CalcSrcSa ->
+    // Update1Equ triple.  The host version drives that chain through the
+    // `turbcom` singleton one cell at a time, which is exactly the shape a
+    // device kernel cannot use: the kernel needs the fields as arrays, so the
+    // view carries them.  Every field below is the same array the host reads at
+    // the cited line, not a re-derived copy.
+#ifdef ONEFLOW_ENABLE_HIP
+    if ( HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UTURB_HIP_SOURCE" ) )
+    {
+        UnsGrid * grid = Zone::GetUnsGrid();
+        TurbSaStateView state;
+        state.nCells = ug.nCells;
+        state.nGhostCells = ug.nTCell - ug.nCells;
+        state.workingVariable = ( * uturbf.q )[ ISA ].data();
+        state.workingVariableGradientX = ( * uturbf.dqdx )[ ISA ].data();
+        state.workingVariableGradientY = ( * uturbf.dqdy )[ ISA ].data();
+        state.workingVariableGradientZ = ( * uturbf.dqdz )[ ISA ].data();
+        state.density = ( * uturbf.meanFlow.q )[ IDX::IR ].data();
+        state.velocity[ 0 ] = ( * uturbf.meanFlow.q )[ IDX::IU ].data();
+        state.velocity[ 1 ] = ( * uturbf.meanFlow.q )[ IDX::IV ].data();
+        state.velocity[ 2 ] = ( * uturbf.meanFlow.q )[ IDX::IW ].data();
+        // Host order dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz
+        // (PrepareCellValue1Equ:341-349), which is the order the kernel reads
+        // (HipTurbulenceBackend.hip:115-125).  The mapping lives in
+        // SaStateAssembly.h so a test can exercise it without a live grid; the
+        // slot order is easy to transpose here and the transpose is silent.
+        SaMeanFlowGradientFields gradient;
+        gradient.gradient[ 0 ][ 0 ] = ( * uturbf.meanFlow.dqdx )[ IDX::IU ].data();
+        gradient.gradient[ 0 ][ 1 ] = ( * uturbf.meanFlow.dqdy )[ IDX::IU ].data();
+        gradient.gradient[ 0 ][ 2 ] = ( * uturbf.meanFlow.dqdz )[ IDX::IU ].data();
+        gradient.gradient[ 1 ][ 0 ] = ( * uturbf.meanFlow.dqdx )[ IDX::IV ].data();
+        gradient.gradient[ 1 ][ 1 ] = ( * uturbf.meanFlow.dqdy )[ IDX::IV ].data();
+        gradient.gradient[ 1 ][ 2 ] = ( * uturbf.meanFlow.dqdz )[ IDX::IV ].data();
+        gradient.gradient[ 2 ][ 0 ] = ( * uturbf.meanFlow.dqdx )[ IDX::IW ].data();
+        gradient.gradient[ 2 ][ 1 ] = ( * uturbf.meanFlow.dqdy )[ IDX::IW ].data();
+        gradient.gradient[ 2 ][ 2 ] = ( * uturbf.meanFlow.dqdz )[ IDX::IW ].data();
+        FillSaVelocityGradient( gradient, state );
+        state.wallDistance = ( * uturbf.dist ).data();
+        // PrepareCellValue1Equ:364 picks len_scale only for DES and otherwise
+        // falls back to the wall distance.  The view treats null as "use the
+        // wall distance", which is that same default.
+        state.lengthScale = turbcom.des_model
+            ? ( * uturbf.len_scale )[ 0 ].data() : nullptr;
+        state.laminarViscosity = ( * uturbf.visl )[ 0 ].data();
+        state.turbulentViscosity = ( * uturbf.vist )[ 0 ].data();
+        state.cellVolume = ( * ug.cvol ).data();
+        state.constants.cb1 = turbcom.cb1;
+        state.constants.cb2OverSigma = turbcom.cb2s;
+        state.constants.cv1Cubed = turbcom.cv13;
+        state.constants.cw1 = turbcom.cw1;
+        state.constants.cw1K = turbcom.cw1k;
+        state.constants.cw2 = turbcom.cw2;
+        state.constants.cw3ToSix = turbcom.cw36;
+        state.constants.ct3 = turbcom.ct3;
+        state.constants.ct4 = turbcom.ct4;
+        state.constants.karm2 = turbcom.karm2;
+        state.constants.okarm2 = turbcom.okarm2;
+        state.constants.sac2 = turbcom.sac2;
+        state.constants.sac3 = turbcom.sac3;
+        state.constants.fwStar = turbcom.fwStar;
+        state.constants.productionRatio = turbcom.rprod;
+        state.constants.invReynolds = turbcom.oreynolds;
+        state.constants.invSigma = turbcom.osigma;
+        state.constants.maxViscosityRatio = turbcom.max_vis_ratio;
+        state.constants.ft2Enabled = turbcom.ft2_flag != 0;
+        state.constants.productionOption = turbcom.iprod_sa;
+        state.cacheKey = grid;
+
+        TurbSaSourceView view;
+        view.nCells = ug.nCells;
+        view.state = &state;
+        view.residual = ( * uturbf.res )[ ISA ].data();
+        view.implicitSpectrum = ( * uturbf.impsr )[ ISA ].data();
+        view.overwrite = false;
+        view.cacheKey = grid;
+        HipTurbulenceBackend::Shared().CalcSource( view );
+        return;
+    }
+#endif
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;

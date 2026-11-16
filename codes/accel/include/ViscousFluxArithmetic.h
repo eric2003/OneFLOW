@@ -10,27 +10,109 @@ License
 
 #include "HXTypeBasic.h"
 
+#include <cmath>
+
+// Host/device callable marker.
+//
+// These functions are the one implementation that both the host chain and the
+// HIP kernels compile.  Without the attribute the device compiler rejects the
+// call from a __device__ body ("reference to __host__ function ... in
+// __device__ function"), and duplicating the formulas into device-only copies
+// is exactly the transcription drift this header exists to prevent.
+//
+// The guard is written on __HIPCC__ rather than __CUDACC__ so the same header
+// also works in a CUDA translation unit; on a plain host compiler the macro is
+// empty and the functions stay ordinary inline functions.
+#if defined( __HIPCC__ ) || defined( __CUDACC__ )
+#define ONEFLOW_VISCOUS_HD __host__ __device__
+#else
+#define ONEFLOW_VISCOUS_HD
+#endif
+
 BeginNameSpace( ONEFLOW )
 
-// Viscous flux arithmetic, shared by every execution space.
+// Viscous mean-flow flux arithmetic, shared by every execution space.
 //
-// These are the same formulas as codes/ns/src/NsVisFluxPolicy.cpp, written as
-// header-inline so a device kernel and the host chain evaluate identical
-// expressions instead of two transcriptions that can drift.  The host policy
-// file stays as the reference for the general (stateful) host path; this header
-// is what the device port compiles against, and a contract test compares the
-// two.
+// This is the same decomposition the production host chain performs, written as
+// header-inline scalar functions so the HIP kernel and the host reference
+// compile the same expressions instead of two transcriptions that can drift.
+// The host sources stay the reference:
 //
-// Nothing here allocates, reads a global, or touches a container: every input
-// is a scalar.  That is what makes the same code valid inside a HIP kernel,
-// a CUDA kernel, or a plain host loop.
-namespace ViscousFluxArithmetic
-{
+//   codes/uns/src/UNsVisFlux.cpp:262      UNsVisFlux::PrepareFaceValue
+//   codes/usolver/src/VisGrad.cpp:86      VisGradGeom::CalcGradCoef
+//   codes/usolver/src/VisGrad.cpp:144     VisGrad::AverFaceValue
+//   codes/usolver/src/VisGrad.cpp:152     VisGrad::CorrectFaceGrad
+//   codes/usolver/src/VisGrad.cpp:160     VisGrad::CalcNormalGrad
+//   codes/usolver/src/UGradPolicy.cpp:86  CorrectFaceGradient
+//   codes/ns/src/NsVisFluxPolicy.cpp:6    StokesStressTensor
+//   codes/ns/src/NsVisFluxPolicy.cpp:23   ProjectStressMomentumFlux
+//   codes/ns/src/NsVisFluxPolicy.cpp:34   ViscousEnergyFlux
+//   codes/ns/src/NsVisFluxPolicy.cpp:42   EffectiveThermalConductivity
+//   codes/ns/src/NsVisFluxPolicy.cpp:51   ConductiveHeatFluxNormal
+//   codes/ns/src/NsVisFluxPolicy.cpp:65   ViscousFaceFluxCoefficient
+//   codes/uns/src/UNsVisFlux.cpp:439      UNsVisFlux::UpdateFaceVisFlux
+//   codes/uns/src/UNsVisFlux.cpp:162      UNsVisFlux::SaveHeatFlux
+//   codes/model/src/Sutherland.cpp:65     SutherlandViscosityNondim
+//
+// Every function takes scalars or fixed-size arrays and reads no global, so a
+// host translation unit and a device translation unit can both call it.  The
+// host policy headers (NsVisFluxPolicy.h, UGradPolicy.h) cannot serve that role:
+// they are ordinary host declarations with no device annotation, and depending
+// on the toolchain either fail to compile from a __device__ body or compile as
+// separate host functions the kernel cannot reach.
+//
+// Sutherland uses the nondimensional sqrt( t^3 ) form, not pow( t, 1.5 ).  The
+// two differ in the last bits because pow takes a different libm path, and the
+// contract test compares at 1e-14 relative.
+// ---------------------------------------------------------------------------
 
-// Stress tensor for a Newtonian fluid, with the -2/3 divergence correction.
-// Mirrors NsVisFluxPolicy::StokesStressTensor exactly, including the sign of
-// the diagonal term.
-inline void StokesStress(
+// Mirror of SutherlandViscosityNondim (codes/model/src/Sutherland.cpp:65).
+ONEFLOW_VISCOUS_HD inline Real SutherlandViscosityNondimDevice(
+    Real temperatureNondim, Real sutherlandTsNondim )
+{
+    const Real t3 = temperatureNondim * temperatureNondim * temperatureNondim;
+    return sqrt( t3 ) * ( 1.0 + sutherlandTsNondim )
+        / ( temperatureNondim + sutherlandTsNondim );
+}
+
+// Mirror of UnitizeDisplacement (codes/usolver/src/UGradPolicy.cpp:76).
+// Returns 1 / |d|; d is replaced by the unit vector.
+ONEFLOW_VISCOUS_HD inline Real ViscousUnitizeDisplacement(
+    Real & dx, Real & dy, Real & dz )
+{
+    const Real invLength = 1.0 / sqrt( dx * dx + dy * dy + dz * dz );
+    dx *= invLength;
+    dy *= invLength;
+    dz *= invLength;
+    return invLength;
+}
+
+// Mirror of CorrectFaceGradient (codes/usolver/src/UGradPolicy.cpp:86), which
+// VisGrad::CorrectFaceGrad calls through its CorrectGrad wrapper.
+//
+// Project the averaged gradient onto the cell-centre unit direction, replace
+// that component with the finite difference across the face, and add the
+// correction back along the same direction.
+ONEFLOW_VISCOUS_HD inline void CorrectViscousFaceGradient(
+    Real valueLeft, Real valueRight,
+    Real & dqdx, Real & dqdy, Real & dqdz,
+    Real unitDx, Real unitDy, Real unitDz, Real invLength )
+{
+    const Real projected = dqdx * unitDx + dqdy * unitDy + dqdz * unitDz;
+    const Real target = ( valueRight - valueLeft ) * invLength;
+    const Real df = target - projected;
+    dqdx += df * unitDx;
+    dqdy += df * unitDy;
+    dqdz += df * unitDz;
+}
+
+// Stokes stress tensor (codes/ns/src/NsVisFluxPolicy.cpp:6).
+//
+//   tau_ij = mu * ( du_i/dx_j + du_j/dx_i - 2/3 delta_ij div v )
+//
+// The -2/3 div v term is inside the parentheses on the host, so it is inside
+// here too; it is not folded into a separately computed pressure correction.
+ONEFLOW_VISCOUS_HD inline void ViscousStokesStress(
     Real viscosity,
     Real dudx, Real dudy, Real dudz,
     Real dvdx, Real dvdy, Real dvdz,
@@ -38,85 +120,68 @@ inline void StokesStress(
     Real & txx, Real & tyy, Real & tzz,
     Real & txy, Real & txz, Real & tyz )
 {
-    const Real twoThirds = Real( 2 ) / Real( 3 );
-    const Real divergence = dudx + dvdy + dwdz;
-    const Real diagonal = twoThirds * divergence;
-    txx = viscosity * ( Real( 2 ) * dudx - diagonal );
-    tyy = viscosity * ( Real( 2 ) * dvdy - diagonal );
-    tzz = viscosity * ( Real( 2 ) * dwdz - diagonal );
+    const Real divv2p3 = ( 2.0 / 3.0 ) * ( dudx + dvdy + dwdz );
+    txx = viscosity * ( 2.0 * dudx - divv2p3 );
+    tyy = viscosity * ( 2.0 * dvdy - divv2p3 );
+    tzz = viscosity * ( 2.0 * dwdz - divv2p3 );
     txy = viscosity * ( dudy + dvdx );
     txz = viscosity * ( dudz + dwdx );
     tyz = viscosity * ( dvdz + dwdy );
 }
 
-// Project the stress tensor onto the face normal: flux_momentum = n . tau.
-inline void ProjectStressMomentum(
-    Real xNormal, Real yNormal, Real zNormal,
+// Project the stress tensor onto the face normal (NsVisFluxPolicy.cpp:23).
+ONEFLOW_VISCOUS_HD inline void ViscousProjectStressMomentumFlux(
+    Real xfn, Real yfn, Real zfn,
     Real txx, Real tyy, Real tzz,
     Real txy, Real txz, Real tyz,
-    Real & fluxX, Real & fluxY, Real & fluxZ )
+    Real & fluxMx, Real & fluxMy, Real & fluxMz )
 {
-    fluxX = xNormal * txx + yNormal * txy + zNormal * txz;
-    fluxY = xNormal * txy + yNormal * tyy + zNormal * tyz;
-    fluxZ = xNormal * txz + yNormal * tyz + zNormal * tzz;
+    fluxMx = xfn * txx + yfn * txy + zfn * txz;
+    fluxMy = xfn * txy + yfn * tyy + zfn * tyz;
+    fluxMz = xfn * txz + yfn * tyz + zfn * tzz;
 }
 
-// Energy flux carried by the viscous momentum flux plus conduction.
-inline Real ViscousEnergy(
+// Work done by the viscous momentum flux plus the normal heat flux
+// (NsVisFluxPolicy.cpp:34).
+ONEFLOW_VISCOUS_HD inline Real ViscousEnergyFluxDevice(
     Real u, Real v, Real w,
-    Real fluxX, Real fluxY, Real fluxZ,
+    Real fluxMx, Real fluxMy, Real fluxMz,
     Real heatFluxNormal )
 {
-    return u * fluxX + v * fluxY + w * fluxZ + heatFluxNormal;
+    return u * fluxMx + v * fluxMy + w * fluxMz + heatFluxNormal;
 }
 
-// Conductivity from the two viscosities and their inverse Prandtl numbers.
-inline Real ThermalConductivity(
+// k_eff = ( mu_l / Pr_l + mu_t / Pr_t ) * cp (NsVisFluxPolicy.cpp:42).
+// The Prandtl arguments are the host's *inverse* numbers (nscom.oprl/oprt).
+ONEFLOW_VISCOUS_HD inline Real ViscousEffectiveThermalConductivity(
     Real laminarViscosity, Real turbulentViscosity,
-    Real invPrandtlLaminar, Real invPrandtlTurbulent,
+    Real inversePrandtlLaminar, Real inversePrandtlTurbulent,
     Real specificHeat )
 {
-    return ( laminarViscosity * invPrandtlLaminar
-           + turbulentViscosity * invPrandtlTurbulent ) * specificHeat;
+    return ( laminarViscosity * inversePrandtlLaminar
+           + turbulentViscosity * inversePrandtlTurbulent ) * specificHeat;
 }
 
-// Normal conduction flux, q = k * dT/dn.
-inline Real ConductiveHeatFlux( Real conductivity, Real temperatureNormalGrad )
+// ConductiveHeatFluxNormal (NsVisFluxPolicy.cpp:51).
+ONEFLOW_VISCOUS_HD inline Real ViscousConductiveHeatFluxNormal(
+    Real thermalConductivity, Real temperatureNormalGrad )
 {
-    return conductivity * temperatureNormalGrad;
+    return thermalConductivity * temperatureNormalGrad;
 }
 
-inline Real NormalDot( Real xNormal, Real yNormal, Real zNormal,
-                       Real fx, Real fy, Real fz )
-{
-    return xNormal * fx + yNormal * fy + zNormal * fz;
-}
-
-// The flux is assembled in a stress-positive sign and scaled once per face.
-// Mirrors NsVisFluxPolicy::ViscousFaceFluxCoefficient, which carries the minus.
-inline Real FaceFluxCoefficient( Real inverseReynolds, Real faceArea )
+// ViscousFaceFluxCoefficient (NsVisFluxPolicy.cpp:65): -1/Re * A.
+ONEFLOW_VISCOUS_HD inline Real ViscousFaceFluxCoefficientDevice(
+    Real inverseReynolds, Real faceArea )
 {
     return - inverseReynolds * faceArea;
 }
 
-// Nondimensional Sutherland law, copied term for term from
-// model/src/Sutherland.cpp::SutherlandViscosityNondim.
-//
-// The host writes sqrt(t^3) rather than pow(t, 1.5).  The two agree
-// mathematically but not in the last bits, so the device path copies this exact
-// form to stay inside the contract rather than being merely close.  Note there
-// is no separate reference viscosity: this is the nondimensional form and the
-// reference is absorbed into the Reynolds number, so inventing one would be a
-// silent scale error.
-inline Real SutherlandViscosityNondim(
-    Real temperatureNondim, Real sutherlandTsNondim )
+// Wall heat flux as UNsVisFlux::SaveHeatFlux (codes/uns/src/UNsVisFlux.cpp:162)
+// writes it: minus 1/Re times the face-normal conduction flux.
+ONEFLOW_VISCOUS_HD inline Real ViscousWallHeatFlux(
+    Real inverseReynolds, Real normalHeatFlux )
 {
-    const Real t3 = temperatureNondim * temperatureNondim * temperatureNondim;
-    return sqrt( t3 )
-        * ( Real( 1 ) + sutherlandTsNondim )
-        / ( temperatureNondim + sutherlandTsNondim );
-}
-
+    return - inverseReynolds * normalHeatFlux;
 }
 
 EndNameSpace

@@ -59,6 +59,30 @@ public:
         throw std::logic_error(
             "viscous flux is not implemented for this execution space" );
     }
+
+    // Derived temperature field for the viscous and heat-conduction slice.
+    //
+    // Temperature is not a conserved variable, so it cannot ride in the
+    // five-equation state or in CellGradientView.  The host builds it from the
+    // primitive state once per boundary stage (NsCalcGamaT) and the viscous
+    // chain differentiates it.  A backend that supports the viscous port must
+    // therefore own this buffer and its cell gradient; the entry stays on the
+    // flux seam for the same reason as CalcViscousFaceFlux - putting it on the
+    // concrete HIP class would leave CUDA and Kokkos with no contract to
+    // implement.
+    //
+    // Non-pure and fail-closed, exactly like the viscous entry: no existing
+    // implementation should grow a stub, and a caller that asks an unsupported
+    // execution space gets a clear error instead of a residual built from an
+    // uninitialized temperature field.
+    virtual bool SupportsCellTemperature() const { return false; }
+
+    virtual void CalcCellTemperature( const CellTemperatureView & view )
+    {
+        ( void ) view;
+        throw std::logic_error(
+            "cell temperature is not implemented for this execution space" );
+    }
 };
 
 class UnimplementedFluxBackend final : public FluxBackend

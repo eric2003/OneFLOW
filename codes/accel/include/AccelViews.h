@@ -238,6 +238,108 @@ struct CellGradientView
     bool downloadToHost = true;
 };
 
+// Derived thermodynamic field for the viscous and heat-conduction port.
+//
+// Temperature is not a sixth conserved variable and must not be folded into
+// CellGradientView, which is a fixed five-slot view sized nEquations*3 and
+// owned by one bound state.  The host builds temperature from the primitive
+// state once per boundary stage (NsCalcGamaT) and the viscous chain then
+// differentiates it for heat conduction, so the device needs the same derived
+// field plus its cell gradient as separate storage.
+//
+// The relation is exactly what NsCalcGamaT writes for every cell it owns,
+// inner and ghost:
+//
+//     T[cell] = p[cell] / ( stateCoefficient * rho[cell]
+//                           * molecularWeightRatio )
+//
+// stateCoefficient is the solver's nscom.statecoef, initialised to
+// 1 / ( gama_ref * mach_ref^2 ).  Gamma therefore reaches this relation through
+// the coefficient rather than as a compile-time constant: the caller must pass
+// the value the solver actually initialised, because gama_ref is an input
+// field.  molecularWeightRatio is the host routine's `oamw` (the local `one`
+// for the non-chemistry path).
+struct CellTemperatureView
+{
+    int nCells = 0;
+    int nGhostCells = 0;
+    int nFaces = 0;
+    int nBoundaryFaces = 0;
+    int nEquations = 5;
+
+    // Primitive state, equation-major, length totalCells = nCells+nGhostCells.
+    // Only the density (component 0) and pressure (component 4) planes are
+    // read; the remaining planes document the shared primitive layout.
+    const Real * q[ 5 ] = {};
+
+    // Face geometry and cell-face connectivity.  Identical to CellGradientView
+    // so the temperature gradient reuses the same resident geometry cache and
+    // cell-to-face CSR instead of building a second one.
+    const Real * xFace = nullptr;
+    const Real * yFace = nullptr;
+    const Real * zFace = nullptr;
+    const Real * xNormal = nullptr;
+    const Real * yNormal = nullptr;
+    const Real * zNormal = nullptr;
+    const Real * faceArea = nullptr;
+    const Real * xCell = nullptr;
+    const Real * yCell = nullptr;
+    const Real * zCell = nullptr;
+    const Real * cellVolume = nullptr;
+    const int * leftCell = nullptr;
+    const int * rightCell = nullptr;
+
+    // Thermodynamic coefficient of the relation above.
+    Real stateCoefficient = 0.0;
+    Real molecularWeightRatio = 1.0;
+
+    // Outputs, length totalCells each.  Keep the gradient device-resident for
+    // the viscous flux unless downloadToHost requests the diagnostic mirror.
+    Real * temperature = nullptr;
+    Real * dTdx = nullptr;
+    Real * dTdy = nullptr;
+    Real * dTdz = nullptr;
+
+    const void * cacheKey = nullptr;
+    bool downloadToHost = true;
+};
+
+inline void ValidateCellTemperatureView( const CellTemperatureView & view )
+{
+    if ( view.nCells <= 0 || view.nGhostCells < 0
+         || view.nGhostCells != view.nBoundaryFaces || view.nFaces <= 0
+         || view.nBoundaryFaces < 0 || view.nBoundaryFaces > view.nFaces
+         || view.nEquations != 5
+         || view.xFace == nullptr || view.yFace == nullptr
+         || view.zFace == nullptr || view.xNormal == nullptr
+         || view.yNormal == nullptr || view.zNormal == nullptr
+         || view.faceArea == nullptr || view.xCell == nullptr
+         || view.yCell == nullptr || view.zCell == nullptr
+         || view.cellVolume == nullptr || view.leftCell == nullptr
+         || view.rightCell == nullptr
+         || view.stateCoefficient <= 0.0
+         || view.molecularWeightRatio <= 0.0
+         || view.temperature == nullptr || view.dTdx == nullptr
+         || view.dTdy == nullptr || view.dTdz == nullptr
+         || view.cacheKey == nullptr )
+    {
+        throw std::invalid_argument(
+            "invalid solver cell temperature view" );
+    }
+    // All five primitive planes are required even though the relation only
+    // reads density and pressure: a backend that reuses its resident state
+    // binds the whole state, and a missing plane there would fail later with a
+    // much less specific error.
+    for ( int equation = 0; equation < view.nEquations; ++ equation )
+    {
+        if ( view.q[ equation ] == nullptr )
+        {
+            throw std::invalid_argument(
+                "cell temperature view has a missing primitive component" );
+        }
+    }
+}
+
 // Boundary update is separate from reconstruction. The solver provides
 // host-owned primitive state and boundary metadata; an accelerator backend may
 // reuse a compatible resident state, evaluate supported local boundary models,
@@ -863,6 +965,19 @@ struct TurbSaStateView
     // Mean-flow coupling (uturbf.meanFlow).
     const Real * density = nullptr;
     const Real * velocity[ 3 ] = {};
+    // Index convention, and it is NOT the transpose: 0..2 are the x-velocity's
+    // three derivatives, 3..5 the y-velocity's, 6..8 the z-velocity's.
+    //
+    //   [0]=dudx [1]=dudy [2]=dudz
+    //   [3]=dvdx [4]=dvdy [5]=dvdz
+    //   [6]=dwdx [7]=dwdy [8]=dwdz
+    //
+    // This matches the host order in UTurbSrcFlux::PrepareCellValue1Equ:341-349.
+    // It is easy to get backwards here because the source arrays are
+    // `mr[ velocityComponent ][ direction ]`: taking `mr[IU][0], mr[IV][0],
+    // mr[IW][0]` for the first three slots yields the transpose, which compiles,
+    // passes a view-constructed contract test, and produces wrong residuals
+    // without failing anything.
     const Real * velocityGradient[ 9 ] = {};
 
     // Wall distance (grid CellMesh().dist), one value per owned cell.  It is

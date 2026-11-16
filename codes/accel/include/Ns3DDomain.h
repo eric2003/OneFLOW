@@ -84,7 +84,16 @@ public:
         gradient.assign( count * 3, 0.0 );
         limiter.assign( count, 0.0 );
         reconstruction.assign( count, 0.0 );
-        viscousTurbulence.assign( count, 0.0 );
+        // Derived per-cell fields are sized per cell including ghosts, not by
+        // nCells*nEquations, because temperature is a property of the cell and
+        // not a sixth conserved variable.
+        const std::size_t totalCells =
+            static_cast< std::size_t >( problem.nCells )
+            + problem.nGhostCells;
+        temperature.assign( totalCells, 0.0 );
+        temperatureGradientX.assign( totalCells, 0.0 );
+        temperatureGradientY.assign( totalCells, 0.0 );
+        temperatureGradientZ.assign( totalCells, 0.0 );
         uploaded = true;
         MarkFieldChanged();
     }
@@ -177,7 +186,17 @@ public:
     std::vector< int > rightCell;
     std::vector< unsigned char > boundaryMetadata;
     std::vector< unsigned char > haloMetadata;
-    std::vector< Real > viscousTurbulence;
+    // Temperature and its cell gradient, one value (per direction) per cell
+    // including ghosts.  These are derived from the conserved state and are
+    // NOT part of the five-equation layout, so they cannot live in
+    // conservedState or gradient: gradient is exactly nEquations*3*count and a
+    // sixth slot would be misread as another equation.  The viscous and
+    // heat-conduction port is the only consumer; these stay zero until a
+    // backend that supports the port fills them.
+    std::vector< Real > temperature;
+    std::vector< Real > temperatureGradientX;
+    std::vector< Real > temperatureGradientY;
+    std::vector< Real > temperatureGradientZ;
 
 private:
     std::unique_ptr< Ns3DBackendState > backendState;

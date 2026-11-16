@@ -17,6 +17,7 @@ License
 #include "HipProductionPolicy.h"
 #include "Ns3DDomain.h"
 #include "StageProfiler.h"
+#include "ViscousFluxArithmetic.h"
 
 #include <hip/hip_runtime.h>
 
@@ -128,6 +129,113 @@ private:
     HipGradientStorage gradient_;
 };
 
+
+// Geometry and connectivity as the resident cell kernels see them.  Both the
+// mean-flow gradient and the derived temperature gradient consume the identical
+// set, so one cache keyed on these pointers serves both instead of a second
+// copy of the same face/cell geometry.
+void EnsureCellFaceConnectivity(
+    HipGradientStorage & storage,
+    const int * leftCell,
+    const int * rightCell,
+    int nCells,
+    int nFaces,
+    int nBoundaryFaces );
+
+struct ResidentCellGeometry
+{
+    const void * ownerToken = nullptr;
+    std::uint64_t topologyGeneration = 0;
+    int nCells = 0;
+    int nGhostCells = 0;
+    int nFaces = 0;
+    int nBoundaryFaces = 0;
+    const Real * xFace = nullptr;
+    const Real * yFace = nullptr;
+    const Real * zFace = nullptr;
+    const Real * xNormal = nullptr;
+    const Real * yNormal = nullptr;
+    const Real * zNormal = nullptr;
+    const Real * faceArea = nullptr;
+    const Real * xCell = nullptr;
+    const Real * yCell = nullptr;
+    const Real * zCell = nullptr;
+    const Real * cellVolume = nullptr;
+    const int * leftCell = nullptr;
+    const int * rightCell = nullptr;
+};
+
+// Upload face/cell geometry and the cell-to-face CSR only when the resident
+// copy is stale for this binding.  The mean-flow and temperature gradients call
+// this with the same view, so the second one is a pointer comparison.
+bool EnsureResidentCellGeometry(
+    HipGradientStorage & storage,
+    const ResidentCellGeometry & view,
+    const char * stageName )
+{
+    const bool cacheMatches = storage.geometryCacheValid
+        && storage.cachedOwnerToken == view.ownerToken
+        && storage.cachedTopologyGeneration == view.topologyGeneration
+        && storage.cachedXFace == view.xFace
+        && storage.cachedYFace == view.yFace
+        && storage.cachedZFace == view.zFace
+        && storage.cachedXNormal == view.xNormal
+        && storage.cachedYNormal == view.yNormal
+        && storage.cachedZNormal == view.zNormal
+        && storage.cachedFaceArea == view.faceArea
+        && storage.cachedXCell == view.xCell
+        && storage.cachedYCell == view.yCell
+        && storage.cachedZCell == view.zCell
+        && storage.cachedVolume == view.cellVolume
+        && storage.cachedLeftCell == view.leftCell
+        && storage.cachedRightCell == view.rightCell
+        && storage.cachedCells == view.nCells
+        && storage.cachedGhostCells == view.nGhostCells
+        && storage.cachedFaces == view.nFaces
+        && storage.cachedBoundaryFaces == view.nBoundaryFaces;
+    if ( ! cacheMatches )
+    {
+        ScopedStageTimer geomTimer( stageName );
+        const int totalCells = view.nCells + view.nGhostCells;
+        storage.xFaceCenter.CopyFromHost( view.xFace, view.nFaces );
+        storage.yFaceCenter.CopyFromHost( view.yFace, view.nFaces );
+        storage.zFaceCenter.CopyFromHost( view.zFace, view.nFaces );
+        storage.xNormal.CopyFromHost( view.xNormal, view.nFaces );
+        storage.yNormal.CopyFromHost( view.yNormal, view.nFaces );
+        storage.zNormal.CopyFromHost( view.zNormal, view.nFaces );
+        storage.faceArea.CopyFromHost( view.faceArea, view.nFaces );
+        storage.xCellCenter.CopyFromHost( view.xCell, totalCells );
+        storage.yCellCenter.CopyFromHost( view.yCell, totalCells );
+        storage.zCellCenter.CopyFromHost( view.zCell, totalCells );
+        storage.cellVolume.CopyFromHost( view.cellVolume, view.nCells );
+        storage.leftCell.CopyFromHost( view.leftCell, view.nFaces );
+        storage.rightCell.CopyFromHost( view.rightCell, view.nFaces );
+        storage.cachedOwnerToken = view.ownerToken;
+        storage.cachedTopologyGeneration = view.topologyGeneration;
+        storage.cachedXFace = view.xFace;
+        storage.cachedYFace = view.yFace;
+        storage.cachedZFace = view.zFace;
+        storage.cachedXNormal = view.xNormal;
+        storage.cachedYNormal = view.yNormal;
+        storage.cachedZNormal = view.zNormal;
+        storage.cachedFaceArea = view.faceArea;
+        storage.cachedXCell = view.xCell;
+        storage.cachedYCell = view.yCell;
+        storage.cachedZCell = view.zCell;
+        storage.cachedVolume = view.cellVolume;
+        storage.cachedLeftCell = view.leftCell;
+        storage.cachedRightCell = view.rightCell;
+        storage.cachedCells = view.nCells;
+        storage.cachedGhostCells = view.nGhostCells;
+        storage.cachedFaces = view.nFaces;
+        storage.cachedBoundaryFaces = view.nBoundaryFaces;
+        storage.geometryCacheValid = true;
+    }
+    EnsureCellFaceConnectivity(
+        storage, view.leftCell, view.rightCell,
+        view.nCells, view.nFaces, view.nBoundaryFaces );
+    return ! cacheMatches;
+}
 
 // Build the cell-to-face CSR used by the cell-based production kernels.  The
 // face arrays stay the source of truth; this is only a deterministic
@@ -866,6 +974,105 @@ __global__ void GradientCellKernel(
         gradient[ base + 2 * totalCells + cell ] =
             accumulated[ eq * 3 + 2 ] * inverseVolume;
     }
+}
+
+// Temperature from the resident primitive state.
+//
+// This reproduces NsCalcGamaT's relation term for term:
+//
+//     T[cell] = p[cell] / ( stateCoefficient * rho[cell] * oamw )
+//
+// where the host reads rho from q[IDX::IR], p from q[IDX::IP], and oamw is the
+// molecular-weight ratio (the local `one` outside the chemistry path).  The
+// operation order matches the host expression, so an owned cell agrees to
+// round-off rather than merely closely.
+//
+// Gamma does not appear as a literal.  The host gets it through
+// nscom.statecoef = 1 / ( gama_ref * mach_ref^2 ), i.e. gamma enters as a
+// configurable field, so the kernel takes the solved coefficient instead of
+// substituting 1.4.
+__global__ void TemperatureFromPrimitiveKernel(
+    const Real * density,
+    const Real * pressure,
+    int totalCells,
+    Real stateCoefficient,
+    Real molecularWeightRatio,
+    Real * temperature )
+{
+    const int cell = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( cell >= totalCells ) return;
+    temperature[ cell ] =
+        pressure[ cell ]
+        / ( stateCoefficient * density[ cell ] * molecularWeightRatio );
+}
+
+// Cell gradient of the temperature field.  Deliberately the same discrete
+// operator as GradientCellKernel, because the viscous chain differentiates
+// temperature exactly the way it differentiates the mean-flow variables and a
+// different stencil would show up as a heat-flux mismatch.  The inner face
+// interpolation weights and the normal-area projection are copied unchanged;
+// only the scalar field being accumulated differs.
+__global__ void TemperatureGradientCellKernel(
+    const Real * temperature, Real * gradient,
+    const Real * xFace, const Real * yFace, const Real * zFace,
+    const Real * xNormal, const Real * yNormal, const Real * zNormal,
+    const Real * faceArea, const Real * xCell, const Real * yCell,
+    const Real * zCell, const Real * volume,
+    const int * leftCell, const int * rightCell,
+    const int * cellFaceOffsets, const int * cellFaceIds,
+    int nCells, int nBoundaryFaces, int nFaces )
+{
+    const int cell = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( cell >= nCells ) return;
+    const int totalCells = nCells + nBoundaryFaces;
+    Real accumulated[ 3 ] = {};
+    for ( int slot = cellFaceOffsets[ cell ];
+          slot < cellFaceOffsets[ cell + 1 ]; ++ slot )
+    {
+        const int face = cellFaceIds[ slot ];
+        const int left = leftCell[ face ];
+        const int right = rightCell[ face ];
+        const Real dxl = xFace[ face ] - xCell[ left ];
+        const Real dyl = yFace[ face ] - yCell[ left ];
+        const Real dzl = zFace[ face ] - zCell[ left ];
+        const Real dxr = xFace[ face ] - xCell[ right ];
+        const Real dyr = yFace[ face ] - yCell[ right ];
+        const Real dzr = zFace[ face ] - zCell[ right ];
+        const Real delt1 = sqrt( dxl * dxl + dyl * dyl + dzl * dzl );
+        const Real delt2 = sqrt( dxr * dxr + dyr * dyr + dzr * dzr );
+        const Real delta = 1.0 / ( delt1 + delt2 + 1.0e-40 );
+        const Real cl = delt2 * delta;
+        const Real cr = delt1 * delta;
+        const Real ax = xNormal[ face ] * faceArea[ face ];
+        const Real ay = yNormal[ face ] * faceArea[ face ];
+        const Real az = zNormal[ face ] * faceArea[ face ];
+        const Real sign = left == cell ? 1.0 : -1.0;
+        const Real value = cl * temperature[ left ]
+            + cr * temperature[ right ];
+        accumulated[ 0 ] += sign * ax * value;
+        accumulated[ 1 ] += sign * ay * value;
+        accumulated[ 2 ] += sign * az * value;
+    }
+    const Real inverseVolume = 1.0 / volume[ cell ];
+    gradient[ cell ] = accumulated[ 0 ] * inverseVolume;
+    gradient[ totalCells + cell ] = accumulated[ 1 ] * inverseVolume;
+    gradient[ 2 * totalCells + cell ] = accumulated[ 2 ] * inverseVolume;
+}
+
+// Boundary ghost cells have no control volume, so they take the owner cell's
+// gradient exactly as GradientCopyBoundaryKernel does for the mean flow.
+__global__ void TemperatureGradientCopyBoundaryKernel(
+    Real * gradient, const int * leftCell, const int * rightCell,
+    int nCells, int nBoundaryFaces )
+{
+    const int face = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( face >= nBoundaryFaces ) return;
+    const int totalCells = nCells + nBoundaryFaces;
+    const int left = leftCell[ face ];
+    const int ghost = rightCell[ face ];
+    gradient[ ghost ] = gradient[ left ];
+    gradient[ totalCells + ghost ] = gradient[ totalCells + left ];
+    gradient[ 2 * totalCells + ghost ] = gradient[ 2 * totalCells + left ];
 }
 
 __global__ void PackGradientFacesKernel(
@@ -1735,6 +1942,20 @@ PinnedStagingBuffer & LocalPinnedStaging()
     return buffer;
 }
 
+// Copy a cell-scalar component into a staging buffer.
+//
+// Defined once instead of repeating the AccelRuntime::Backend().Copy spell-out:
+// the resident-state copies in this file are already verbose enough that a
+// mixed-up source/destination is hard to see on review.
+void CopyRealComponent(
+    DeviceBuffer< Real > & destination, std::size_t offset, const Real * source,
+    int count, AccelCopyKind kind )
+{
+    AccelRuntime::Instance().Backend().Copy(
+        destination.Data() + offset, source,
+        static_cast< std::size_t >( count ) * sizeof( Real ), kind );
+}
+
 bool ResidentContractCheckRequested()
 {
     const char * value =
@@ -2206,67 +2427,28 @@ void HipFluxBackend::CalcGradient( const CellGradientView & view )
             maximumDifference, ownedMismatches, ghostMismatches,
             firstEquation, firstCell, firstDevice, firstHost );
     }
-    const bool cacheMatches = storage->geometryCacheValid
-        && storage->cachedOwnerToken == ownerToken
-        && storage->cachedTopologyGeneration == topologyGeneration
-        && storage->cachedXFace == view.xFace
-        && storage->cachedYFace == view.yFace
-        && storage->cachedZFace == view.zFace
-        && storage->cachedXNormal == view.xNormal
-        && storage->cachedYNormal == view.yNormal
-        && storage->cachedZNormal == view.zNormal
-        && storage->cachedFaceArea == view.faceArea
-        && storage->cachedXCell == view.xCell
-        && storage->cachedYCell == view.yCell
-        && storage->cachedZCell == view.zCell
-        && storage->cachedVolume == view.cellVolume
-        && storage->cachedLeftCell == view.leftCell
-        && storage->cachedRightCell == view.rightCell
-        && storage->cachedCells == view.nCells
-        && storage->cachedGhostCells == view.nGhostCells
-        && storage->cachedFaces == view.nFaces
-        && storage->cachedBoundaryFaces == view.nBoundaryFaces;
-    if ( ! cacheMatches )
-    {
-        ScopedStageTimer geomTimer( "g_geom" );
-        storage->xFaceCenter.CopyFromHost( view.xFace, view.nFaces );
-        storage->yFaceCenter.CopyFromHost( view.yFace, view.nFaces );
-        storage->zFaceCenter.CopyFromHost( view.zFace, view.nFaces );
-        storage->xNormal.CopyFromHost( view.xNormal, view.nFaces );
-        storage->yNormal.CopyFromHost( view.yNormal, view.nFaces );
-        storage->zNormal.CopyFromHost( view.zNormal, view.nFaces );
-        storage->faceArea.CopyFromHost( view.faceArea, view.nFaces );
-        storage->xCellCenter.CopyFromHost( view.xCell, totalCells );
-        storage->yCellCenter.CopyFromHost( view.yCell, totalCells );
-        storage->zCellCenter.CopyFromHost( view.zCell, totalCells );
-        storage->cellVolume.CopyFromHost( view.cellVolume, view.nCells );
-        storage->leftCell.CopyFromHost( view.leftCell, view.nFaces );
-        storage->rightCell.CopyFromHost( view.rightCell, view.nFaces );
-        storage->cachedOwnerToken = ownerToken;
-        storage->cachedTopologyGeneration = topologyGeneration;
-        storage->cachedXFace = view.xFace;
-        storage->cachedYFace = view.yFace;
-        storage->cachedZFace = view.zFace;
-        storage->cachedXNormal = view.xNormal;
-        storage->cachedYNormal = view.yNormal;
-        storage->cachedZNormal = view.zNormal;
-        storage->cachedFaceArea = view.faceArea;
-        storage->cachedXCell = view.xCell;
-        storage->cachedYCell = view.yCell;
-        storage->cachedZCell = view.zCell;
-        storage->cachedVolume = view.cellVolume;
-        storage->cachedLeftCell = view.leftCell;
-        storage->cachedRightCell = view.rightCell;
-        storage->cachedCells = view.nCells;
-        storage->cachedGhostCells = view.nGhostCells;
-        storage->cachedFaces = view.nFaces;
-        storage->cachedBoundaryFaces = view.nBoundaryFaces;
-        storage->geometryCacheValid = true;
-    }
+    ResidentCellGeometry geometry;
+    geometry.ownerToken = ownerToken;
+    geometry.topologyGeneration = topologyGeneration;
+    geometry.nCells = view.nCells;
+    geometry.nGhostCells = view.nGhostCells;
+    geometry.nFaces = view.nFaces;
+    geometry.nBoundaryFaces = view.nBoundaryFaces;
+    geometry.xFace = view.xFace;
+    geometry.yFace = view.yFace;
+    geometry.zFace = view.zFace;
+    geometry.xNormal = view.xNormal;
+    geometry.yNormal = view.yNormal;
+    geometry.zNormal = view.zNormal;
+    geometry.faceArea = view.faceArea;
+    geometry.xCell = view.xCell;
+    geometry.yCell = view.yCell;
+    geometry.zCell = view.zCell;
+    geometry.cellVolume = view.cellVolume;
+    geometry.leftCell = view.leftCell;
+    geometry.rightCell = view.rightCell;
+    EnsureResidentCellGeometry( *storage, geometry, "g_geom" );
     storage->cellGradient.Resize( totalGradient );
-    EnsureCellFaceConnectivity(
-        *storage, view.leftCell, view.rightCell,
-        view.nCells, view.nFaces, view.nBoundaryFaces );
     const int blockSize = 256;
     { ScopedStageTimer kernelTimer( "gradient_kernel" );
     hipLaunchKernelGGL(
@@ -2327,6 +2509,808 @@ void HipFluxBackend::CalcGradient( const CellGradientView & view )
                 view.dqdz[ equation ] );
         }
     }
+}
+
+void HipFluxBackend::CalcCellTemperature( const CellTemperatureView & view )
+{
+    ValidateCellTemperatureView( view );
+
+    // Resolve the resident storage the same way CalcGradient does: the bound
+    // state owns it so temperature survives across stages, and the fallback
+    // keeps the unbound diagnostic path working.
+    HipGradientStorage * storage = &fallbackGradientStorage_;
+    Ns3DDeviceState * owner = nullptr;
+    const void * ownerToken = view.cacheKey;
+    std::uint64_t fieldGeneration = 0;
+    std::uint64_t topologyGeneration = 0;
+    const auto binding = boundStates_.find( view.cacheKey );
+    if ( binding != boundStates_.end() )
+    {
+        owner = binding->second;
+        auto * hipState =
+            dynamic_cast< HipNs3DBackendState * >( owner->BackendState() );
+        if ( hipState == nullptr )
+        {
+            throw std::logic_error(
+                "bound HIP Ns3D state lost its backend ownership" );
+        }
+        storage = &hipState->Gradient();
+        ownerToken = owner->OwnerToken();
+        fieldGeneration = owner->FieldGeneration();
+        topologyGeneration = owner->TopologyGeneration();
+    }
+
+    const int totalCells = view.nCells + view.nGhostCells;
+    storage->cellState.Resize(
+        static_cast< std::size_t >( view.nEquations ) * totalCells );
+
+    // Temperature must be built from the newest primitive state, so consume the
+    // same resident-state contract the gradient uses.  This also makes a stale
+    // host mirror fail loudly rather than silently producing a temperature
+    // field from an old q.
+    RefreshResidentPrimitiveState(
+        * storage, owner, ownerToken, topologyGeneration, fieldGeneration,
+        view.nCells, view.nGhostCells, view.nEquations, view.q );
+
+    // The density and pressure planes are already resident, so the kernel reads
+    // them from the device copy instead of uploading them again.
+    const Real * density = storage->cellState.Data();
+    const Real * pressure =
+        storage->cellState.Data() + 4 * static_cast< std::size_t >( totalCells );
+
+    storage->temperature.Resize( totalCells );
+    storage->temperatureGradient.Resize(
+        static_cast< std::size_t >( 3 ) * totalCells );
+
+    ResidentCellGeometry geometry;
+    geometry.ownerToken = ownerToken;
+    geometry.topologyGeneration = topologyGeneration;
+    geometry.nCells = view.nCells;
+    geometry.nGhostCells = view.nGhostCells;
+    geometry.nFaces = view.nFaces;
+    geometry.nBoundaryFaces = view.nBoundaryFaces;
+    geometry.xFace = view.xFace;
+    geometry.yFace = view.yFace;
+    geometry.zFace = view.zFace;
+    geometry.xNormal = view.xNormal;
+    geometry.yNormal = view.yNormal;
+    geometry.zNormal = view.zNormal;
+    geometry.faceArea = view.faceArea;
+    geometry.xCell = view.xCell;
+    geometry.yCell = view.yCell;
+    geometry.zCell = view.zCell;
+    geometry.cellVolume = view.cellVolume;
+    geometry.leftCell = view.leftCell;
+    geometry.rightCell = view.rightCell;
+    // Reuses the geometry and cell-face CSR the mean-flow gradient already
+    // uploaded for the same binding.
+    EnsureResidentCellGeometry( * storage, geometry, "t_geom" );
+
+    const int blockSize = 256;
+    {
+        ScopedStageTimer timer( "temperature_kernel" );
+        hipLaunchKernelGGL(
+            TemperatureFromPrimitiveKernel,
+            dim3( ( totalCells + blockSize - 1 ) / blockSize ),
+            dim3( blockSize ), 0, 0,
+            density, pressure, totalCells,
+            view.stateCoefficient, view.molecularWeightRatio,
+            storage->temperature.Data() );
+        hipLaunchKernelGGL(
+            TemperatureGradientCellKernel,
+            dim3( ( view.nCells + blockSize - 1 ) / blockSize ),
+            dim3( blockSize ), 0, 0,
+            storage->temperature.Data(), storage->temperatureGradient.Data(),
+            storage->xFaceCenter.Data(), storage->yFaceCenter.Data(),
+            storage->zFaceCenter.Data(), storage->xNormal.Data(),
+            storage->yNormal.Data(), storage->zNormal.Data(),
+            storage->faceArea.Data(), storage->xCellCenter.Data(),
+            storage->yCellCenter.Data(), storage->zCellCenter.Data(),
+            storage->cellVolume.Data(),
+            storage->leftCell.Data(), storage->rightCell.Data(),
+            storage->cellFaceOffsets.Data(), storage->cellFaceIds.Data(),
+            view.nCells, view.nBoundaryFaces, view.nFaces );
+        if ( view.nBoundaryFaces > 0 )
+        {
+            hipLaunchKernelGGL(
+                TemperatureGradientCopyBoundaryKernel,
+                dim3( ( view.nBoundaryFaces + blockSize - 1 ) / blockSize ),
+                dim3( blockSize ), 0, 0,
+                storage->temperatureGradient.Data(),
+                storage->leftCell.Data(), storage->rightCell.Data(),
+                view.nCells, view.nBoundaryFaces );
+        }
+        CheckHip( hipGetLastError(), "temperature kernel launch" );
+        HipDrain( "temperature kernel synchronize" );
+    }
+
+    // Mirror the derived fields into the state-owned host storage so a host
+    // reader (and the contract test) can compare them without reaching into
+    // device buffers.  The device gradient is [component][cell] while the state
+    // stores one plane per direction, so one contiguous copy is split on the
+    // host.  A caller that also asked for the diagnostic mirror uses the same
+    // staging buffer rather than repeating the transfer.
+    //
+    // Nothing is transferred when neither consumer asked for it.  The previous
+    // version pulled the three gradient planes unconditionally, which is
+    // 3 * totalCells * 8 bytes - about 7 MB for a 300k-cell zone - on every
+    // call even when the caller wanted the field only on the device.  No host
+    // code reads owner->temperature* today, so that transfer was pure waste.
+    const bool mirrorWanted = ( owner != nullptr ) || view.downloadToHost;
+    const std::size_t totalValues = static_cast< std::size_t >( 3 ) * totalCells;
+    const Real * staging = nullptr;
+    if ( mirrorWanted )
+    {
+        staging = LocalPinnedStaging().Get( totalValues );
+        AccelRuntime::Instance().Backend().Copy(
+            const_cast< Real * >( staging ),
+            storage->temperatureGradient.Data(),
+            totalValues * sizeof( Real ), AccelCopyKind::DeviceToHost );
+    }
+    if ( owner != nullptr )
+    {
+        ScopedStageTimer timer( "t_download" );
+        // The state sizes these in Upload(); a reservation-only state or a
+        // grid whose ghost extent grew would otherwise be too short to receive
+        // the mirror, so make the destination match the device extent first.
+        const std::size_t mirrorSize = static_cast< std::size_t >( totalCells );
+        if ( owner->temperature.size() != mirrorSize )
+        {
+            owner->temperature.assign( mirrorSize, 0.0 );
+            owner->temperatureGradientX.assign( mirrorSize, 0.0 );
+            owner->temperatureGradientY.assign( mirrorSize, 0.0 );
+            owner->temperatureGradientZ.assign( mirrorSize, 0.0 );
+        }
+        storage->temperature.CopyToHost(
+            owner->temperature.data(), totalCells );
+        std::copy(
+            staging, staging + totalCells,
+            owner->temperatureGradientX.data() );
+        std::copy(
+            staging + totalCells, staging + 2 * totalCells,
+            owner->temperatureGradientY.data() );
+        std::copy(
+            staging + 2 * totalCells, staging + 3 * totalCells,
+            owner->temperatureGradientZ.data() );
+    }
+
+    if ( ! view.downloadToHost ) return;
+    storage->temperature.CopyToHost( view.temperature, totalCells );
+    std::copy( staging, staging + totalCells, view.dTdx );
+    std::copy( staging + totalCells, staging + 2 * totalCells, view.dTdy );
+    std::copy( staging + 2 * totalCells, staging + 3 * totalCells, view.dTdz );
+}
+
+// ---------------------------------------------------------------------------
+// Viscous mean-flow flux (laminar + turbulent stress and heat conduction)
+//
+// The host chain this mirrors, in execution order:
+//
+//   UNsVisFlux::CalcFlux            per-face loop, per RK stage
+//   UNsVisFlux::PrepareFaceValue    geometry, side gradients, averaged viscosity
+//   UNsVisFlux::StdMethod           VIS_STD (ivischeme == 0) face-gradient build
+//   UNsVisFlux::CalcFaceVisFlux     heat flux -> stress -> NS viscous flux
+//   UNsVisFlux::UpdateFaceVisFlux   coeff = -invReynolds * faceArea
+//
+// Every arithmetic step keeps the host operation order, because the contract is
+// round-off agreement with the host face flux, not merely "the same formula".
+//
+// Packed index convention for cell fields, totalCells = nCells + nGhostCells:
+//   cellState[ eq * totalCells + cell ]                     rho,u,v,w,p
+//   cellGradient[ (eq*3 + component) * totalCells + cell ]  component 0=x,1=y,2=z
+//   temperatureGradient[ component * totalCells + cell ]
+//   temperature[ cell ]
+// ---------------------------------------------------------------------------
+
+namespace
+{
+
+// Sutherland viscosity: the nondimensional sqrt( t^3 ) form.
+//
+// The expression lives in ViscousFluxArithmetic.h so this kernel and the host
+// reference compile the same function rather than two transcriptions.  The
+// header is plain inline arithmetic, which the device toolchain accepts from a
+// __device__ body; the host policy headers are not.
+__device__ Real DeviceSutherlandViscosity(
+    Real temperatureNondim, Real sutherlandTsNondim )
+{
+    return ONEFLOW::SutherlandViscosityNondimDevice(
+        temperatureNondim, sutherlandTsNondim );
+}
+
+// One face of UNsVisFlux::CalcFaceVisFlux under the VIS_STD face preparation.
+//
+// Host correspondence, term by term:
+//   PrepareFaceValue   gcom normals/area, side gradients, visl1/2, vist1/2,
+//                      the two averages, the face state q1/q2
+//   AverGrad           VisGrad::AverGrad, arithmetic mean of the two sides
+//   CalcGradCoef       VisGradGeom::CalcGradCoef (unit cell-centre displacement)
+//   AverFaceValue      VisGrad::AverFaceValue (arithmetic mean, both fields)
+//   CorrectFaceGrad    CorrectFaceGradient (UGradPolicy.cpp:86), both fields
+//   CalcNormalGrad     VisGrad::CalcNormalGrad (both fields)
+//   StokesStressTensor / ProjectStressMomentumFlux / ViscousEnergyFlux
+//   EffectiveThermalConductivity / ConductiveHeatFluxNormal
+//   UpdateFaceVisFlux  coeff = -invReynolds * faceArea
+//
+// Two orders that matter and are easy to get wrong:
+//   * AverGrad runs before CorrectFaceGrad, and CalcNormalGrad runs after it,
+//     so the normal gradient is taken from the corrected gradient.  Swapping
+//     either pair changes the heat flux.
+//   * nscom.vis is visl + vist of the *averaged* coefficients, so each field is
+//     averaged between the two cells and the results are added.
+//
+// The temperature field is needed even though no temperature average enters the
+// flux: CorrectFaceGrad corrects the temperature gradient using the two cells'
+// temperature values, exactly as VisGrad::CorrectFaceGrad does for visT.
+//
+// qNormal is returned unscaled; the caller applies SaveHeatFlux's
+// -oreynolds * qNormal for solid faces.
+__device__ void ViscousFaceFlux(
+    const Real * cellState,
+    const Real * cellGradient,
+    const Real * temperature,
+    const Real * temperatureGradient,
+    const Real * laminarViscosity,
+    const Real * turbulentViscosity,
+    int totalCells,
+    Real xfn, Real yfn, Real zfn, Real faceArea,
+    Real xCellL, Real yCellL, Real zCellL,
+    Real xCellR, Real yCellR, Real zCellR,
+    int left, int right,
+    Real prandtlLaminar, Real prandtlTurbulent,
+    Real specificHeatCp, Real inverseReynolds,
+    Real flux[ 5 ], Real & qNormal )
+{
+    // --- AverGrad -----------------------------------------------------------
+    // The stress tensor reads du/dx..dw/dz, i.e. the three momentum equations
+    // (1, 2, 3).  The density and pressure gradients are not read by any term
+    // of the host chain either.
+    Real dqdx[ 3 ] = {};
+    Real dqdy[ 3 ] = {};
+    Real dqdz[ 3 ] = {};
+    for ( int m = 0; m < 3; ++ m )
+    {
+        const int eq = 1 + m;
+        const std::size_t base =
+            static_cast< std::size_t >( eq ) * 3 * totalCells;
+        dqdx[ m ] = 0.5 * ( cellGradient[ base + left ]
+                          + cellGradient[ base + right ] );
+        dqdy[ m ] = 0.5 * ( cellGradient[ base + totalCells + left ]
+                          + cellGradient[ base + totalCells + right ] );
+        dqdz[ m ] = 0.5 * ( cellGradient[ base + 2 * totalCells + left ]
+                          + cellGradient[ base + 2 * totalCells + right ] );
+    }
+
+    // --- CalcGradCoef -------------------------------------------------------
+    Real dx = xCellR - xCellL;
+    Real dy = yCellR - yCellL;
+    Real dz = zCellR - zCellL;
+    const Real ods = ViscousUnitizeDisplacement( dx, dy, dz );
+
+    // --- AverFaceValue ------------------------------------------------------
+    // The energy flux uses the face-averaged velocity, not either side's.
+    const Real uFace = 0.5 * ( cellState[ 1 * totalCells + left ]
+                             + cellState[ 1 * totalCells + right ] );
+    const Real vFace = 0.5 * ( cellState[ 2 * totalCells + left ]
+                             + cellState[ 2 * totalCells + right ] );
+    const Real wFace = 0.5 * ( cellState[ 3 * totalCells + left ]
+                             + cellState[ 3 * totalCells + right ] );
+
+    Real dTdx = 0.5 * ( temperatureGradient[ left ]
+                      + temperatureGradient[ right ] );
+    Real dTdy = 0.5 * ( temperatureGradient[ totalCells + left ]
+                      + temperatureGradient[ totalCells + right ] );
+    Real dTdz = 0.5 * ( temperatureGradient[ 2 * totalCells + left ]
+                      + temperatureGradient[ 2 * totalCells + right ] );
+
+    // --- CorrectFaceGrad ----------------------------------------------------
+    // CorrectFaceGradient (codes/usolver/src/UGradPolicy.cpp:86): project the
+    // averaged gradient onto the cell-centre direction, replace that component
+    // with the finite difference across the face, and add the correction back
+    // along the same unit direction.
+    for ( int m = 0; m < 3; ++ m )
+    {
+        const int eq = 1 + m;
+        CorrectViscousFaceGradient(
+            cellState[ eq * totalCells + left ],
+            cellState[ eq * totalCells + right ],
+            dqdx[ m ], dqdy[ m ], dqdz[ m ],
+            dx, dy, dz, ods );
+    }
+    CorrectViscousFaceGradient(
+        temperature[ left ], temperature[ right ],
+        dTdx, dTdy, dTdz, dx, dy, dz, ods );
+
+    // --- CalcNormalGrad -----------------------------------------------------
+    const Real dTdn = xfn * dTdx + yfn * dTdy + zfn * dTdz;
+
+    // --- PrepareFaceValue: viscosity averages -------------------------------
+    const Real visl = 0.5 * ( laminarViscosity[ left ]
+                            + laminarViscosity[ right ] );
+    const Real vist = turbulentViscosity != nullptr
+        ? 0.5 * ( turbulentViscosity[ left ] + turbulentViscosity[ right ] )
+        : 0.0;
+    const Real vis = visl + vist;
+
+    // --- StokesStressTensor / ProjectStressMomentumFlux ----------------------
+    Real txx = 0.0;
+    Real tyy = 0.0;
+    Real tzz = 0.0;
+    Real txy = 0.0;
+    Real txz = 0.0;
+    Real tyz = 0.0;
+    ViscousStokesStress(
+        vis,
+        dqdx[ 0 ], dqdy[ 0 ], dqdz[ 0 ],
+        dqdx[ 1 ], dqdy[ 1 ], dqdz[ 1 ],
+        dqdx[ 2 ], dqdy[ 2 ], dqdz[ 2 ],
+        txx, tyy, tzz, txy, txz, tyz );
+    Real fluxMx = 0.0;
+    Real fluxMy = 0.0;
+    Real fluxMz = 0.0;
+    ViscousProjectStressMomentumFlux(
+        xfn, yfn, zfn,
+        txx, tyy, tzz, txy, txz, tyz,
+        fluxMx, fluxMy, fluxMz );
+
+    // --- AddHeatFlux ---------------------------------------------------------
+    // The host zeroes qx/qy/qz (AddChemHeatFlux is empty for chemModel != 1),
+    // adds FaceNormalDot( n, 0, 0, 0 ) == 0, then adds the conduction term, so
+    // qNormal reduces to kcp * dTdn.  Both dropped terms are identically zero
+    // in this path, not unmodelled physics.
+    const Real kcp = ViscousEffectiveThermalConductivity(
+        visl, vist, prandtlLaminar, prandtlTurbulent, specificHeatCp );
+    qNormal = ViscousConductiveHeatFluxNormal( kcp, dTdn );
+
+    // --- UpdateFaceVisFlux ---------------------------------------------------
+    // The host sets fvis[IR] = 0 and scales every component, so the energy term
+    // consumes the pre-coefficient momentum flux.
+    const Real coeff = ViscousFaceFluxCoefficientDevice(
+        inverseReynolds, faceArea );
+    flux[ 0 ] = coeff * 0.0;
+    flux[ 1 ] = coeff * fluxMx;
+    flux[ 2 ] = coeff * fluxMy;
+    flux[ 3 ] = coeff * fluxMz;
+    flux[ 4 ] = coeff * ViscousEnergyFluxDevice(
+        uFace, vFace, wFace, fluxMx, fluxMy, fluxMz, qNormal );
+}
+
+// Face normal orientation.
+//
+// The host's GCom::SetGeometry has an rc == cId swap that reverses the normal,
+// but the viscous chain never calls it: UNsVisFlux::PrepareFaceValue assigns
+// gcom.xfn straight from ug.xfn[fId] and both cell ids from ug.lcf/ug.rcf.  The
+// kernel therefore uses the stored normal unchanged, which is what keeps the
+// stress and heat projections on the host sign.
+//
+// Whole-face-array kernel.  The per-face body is the same function the
+// single-face contract entry calls, so the two cannot drift.
+__global__ void ViscousFluxKernel(
+    const Real * cellState,
+    const Real * cellGradient,
+    const Real * temperature,
+    const Real * temperatureGradient,
+    const Real * laminarViscosity,
+    const Real * turbulentViscosity,
+    int totalCells,
+    const Real * xNormal,
+    const Real * yNormal,
+    const Real * zNormal,
+    const Real * faceArea,
+    const Real * xCell,
+    const Real * yCell,
+    const Real * zCell,
+    const int * leftCell,
+    const int * rightCell,
+    int nEquations,
+    int nFaces,
+    Real prandtlLaminar,
+    Real prandtlTurbulent,
+    Real specificHeatCp,
+    Real inverseReynolds,
+    Real * faceFlux,
+    int faceFluxStride,
+    Real * wallHeatFlux,
+    const int * wallSlot,
+    int nWallFaces )
+{
+    const int face = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( face >= nFaces ) return;
+
+    const int left = leftCell[ face ];
+    const int right = rightCell[ face ];
+    Real flux[ 5 ] = {};
+    Real qNormal = 0.0;
+    ViscousFaceFlux(
+        cellState, cellGradient, temperature, temperatureGradient,
+        laminarViscosity, turbulentViscosity, totalCells,
+        xNormal[ face ], yNormal[ face ], zNormal[ face ], faceArea[ face ],
+        xCell[ left ], yCell[ left ], zCell[ left ],
+        xCell[ right ], yCell[ right ], zCell[ right ],
+        left, right,
+        prandtlLaminar, prandtlTurbulent,
+        specificHeatCp, inverseReynolds,
+        flux, qNormal );
+
+    for ( int eq = 0; eq < nEquations; ++ eq )
+    {
+        faceFlux[ eq * faceFluxStride + face ] = flux[ eq ];
+    }
+    if ( wallHeatFlux != nullptr && wallSlot != nullptr )
+    {
+        const int slot = wallSlot[ face ];
+        // UNsVisFlux::SaveHeatFlux: non_dim_heatflux = -oreynolds * qNormal.
+        if ( slot >= 0 && slot < nWallFaces )
+        {
+            wallHeatFlux[ slot ] = ViscousWallHeatFlux(
+                inverseReynolds, qNormal );
+        }
+    }
+}
+
+__global__ void EvaluateDeviceSutherlandKernel(
+    Real temperatureNondim, Real sutherlandTsNondim, Real * result )
+{
+    *result = DeviceSutherlandViscosity(
+        temperatureNondim, sutherlandTsNondim );
+}
+
+}
+
+void HipFluxBackend::CalcViscousFaceFlux( const ViscousFluxView & view )
+{
+    // The FluxBackend entry has no boundary classification, so it cannot
+    // produce wall heat flux.  Fail closed rather than leave the caller's
+    // buffer untouched, which would hand the solver stale values.
+    if ( view.wallHeatFlux != nullptr || view.nWallFaces != 0 )
+    {
+        throw std::invalid_argument(
+            "HIP viscous flux: wall heat flux needs the solid face ids, so use "
+            "the CalcViscousFaceFlux( view, wallFaceIds ) overload" );
+    }
+    CalcViscousFaceFlux( view, nullptr );
+}
+
+void HipFluxBackend::CalcViscousFaceFlux(
+    const ViscousFluxView & view, const int * wallFaceIds )
+{
+    ValidateViscousFluxView( view );
+    if ( ( view.wallHeatFlux != nullptr ) != ( wallFaceIds != nullptr ) )
+    {
+        throw std::invalid_argument(
+            "HIP viscous flux: wall heat flux needs both an output buffer and "
+            "the solid face ids" );
+    }
+    if ( view.nEquations != 5 )
+    {
+        // The stress tensor and the energy flux are the five-equation NS form.
+        // A three-equation state would silently index past its own planes.
+        throw std::invalid_argument(
+            "HIP viscous flux requires the five-equation primitive state" );
+    }
+    if ( view.nWallFaces < 0 || view.nWallFaces > view.nFaces )
+    {
+        throw std::invalid_argument(
+            "HIP viscous flux: wall face count is out of range" );
+    }
+    if ( view.faceFluxStride < view.nEquations )
+    {
+        throw std::invalid_argument(
+            "HIP viscous flux: output stride is shorter than the equation "
+            "count" );
+    }
+    // ValidateViscousFluxView deliberately stops at the fields every execution
+    // space needs; the cell-centre coordinates are only read by the face
+    // construction here (corrected gradient direction), and a null one would
+    // read garbage rather than fail.
+    if ( view.xCell == nullptr || view.yCell == nullptr
+         || view.zCell == nullptr )
+    {
+        throw std::invalid_argument(
+            "HIP viscous flux requires cell-centre coordinates" );
+    }
+    if ( view.q[ 1 ] == nullptr || view.q[ 2 ] == nullptr
+         || view.q[ 3 ] == nullptr )
+    {
+        throw std::invalid_argument(
+            "HIP viscous flux requires the full five-component primitive "
+            "state" );
+    }
+    for ( int eq = 0; eq < view.nEquations; ++ eq )
+    {
+        if ( view.dqdx[ eq ] == nullptr || view.dqdy[ eq ] == nullptr
+             || view.dqdz[ eq ] == nullptr )
+        {
+            throw std::invalid_argument(
+                "HIP viscous flux requires a complete primitive gradient" );
+        }
+    }
+
+    const int nFaces = view.nFaces;
+    const int nEq = view.nEquations;
+    const int totalCells = view.nCells + view.nGhostCells;
+
+    // Resident path: when the caller has bound a state for this cache key, the
+    // device already owns the primitive state, its gradient, the temperature
+    // and its gradient, and all of the geometry.  Uploading them again is the
+    // whole cost of this call - 26 cell-sized planes for a 300k-cell zone, so
+    // roughly 60 MB and 5-9 ms per call at measured copy rates - which is more
+    // than the host per-face loop it replaces.  Use the resident storage and
+    // skip the upload entirely.
+    //
+    // The fallback below stays for callers that legitimately have no bound
+    // state (the contract tests drive the kernel directly with hand-built
+    // arrays), and because an unbound call must still work rather than read
+    // whatever an earlier call left behind.
+    HipGradientStorage * resident = nullptr;
+    if ( view.cacheKey != nullptr )
+    {
+        const auto binding = boundStates_.find( view.cacheKey );
+        if ( binding != boundStates_.end() )
+        {
+            auto * hipState = dynamic_cast< HipNs3DBackendState * >(
+                binding->second->BackendState() );
+            if ( hipState != nullptr )
+            {
+                HipGradientStorage & candidate = hipState->Gradient();
+                const std::size_t stateValues =
+                    static_cast< std::size_t >( nEq ) * totalCells;
+                const std::size_t gradientValues =
+                    static_cast< std::size_t >( nEq ) * 3 * totalCells;
+                const bool geometryReady =
+                    candidate.xNormal.Size() >= static_cast< std::size_t >( nFaces )
+                    && candidate.faceArea.Size()
+                        >= static_cast< std::size_t >( nFaces )
+                    && candidate.leftCell.Size()
+                        >= static_cast< std::size_t >( nFaces )
+                    && candidate.rightCell.Size()
+                        >= static_cast< std::size_t >( nFaces )
+                    && candidate.xCellCenter.Size()
+                        >= static_cast< std::size_t >( totalCells );
+                const bool stateReady =
+                    candidate.cellState.Size() >= stateValues
+                    && candidate.cellGradient.Size() >= gradientValues
+                    && candidate.temperature.Size()
+                        >= static_cast< std::size_t >( totalCells )
+                    && candidate.temperatureGradient.Size()
+                        >= static_cast< std::size_t >( 3 ) * totalCells;
+                if ( geometryReady && stateReady )
+                {
+                    resident = &candidate;
+                }
+            }
+        }
+    }
+
+    if ( resident == nullptr )
+    {
+    { ScopedStageTimer timer( "v_upload" );
+    // Primitive state, equation-major.  Only density and the three momenta are
+    // read by the flux body, but the whole state is uploaded because the
+    // stride is part of the contract and a partial upload would hide a
+    // mismatched layout instead of failing it in the contract test.
+    viscousCellState_.Resize(
+        static_cast< std::size_t >( nEq ) * totalCells );
+    for ( int eq = 0; eq < nEq; ++ eq )
+    {
+        CopyRealComponent( viscousCellState_,
+                           static_cast< std::size_t >( eq ) * totalCells,
+                           view.q[ eq ], totalCells, AccelCopyKind::HostToDevice );
+    }
+    viscousCellGradient_.Resize(
+        static_cast< std::size_t >( nEq ) * 3 * totalCells );
+    for ( int eq = 0; eq < nEq; ++ eq )
+    {
+        const std::size_t base =
+            static_cast< std::size_t >( eq ) * 3 * totalCells;
+        CopyRealComponent( viscousCellGradient_, base, view.dqdx[ eq ],
+                           totalCells, AccelCopyKind::HostToDevice );
+        CopyRealComponent( viscousCellGradient_, base + totalCells,
+                           view.dqdy[ eq ], totalCells,
+                           AccelCopyKind::HostToDevice );
+        CopyRealComponent( viscousCellGradient_, base + 2 * totalCells,
+                           view.dqdz[ eq ], totalCells,
+                           AccelCopyKind::HostToDevice );
+    }
+    viscousTemperature_.CopyFromHost( view.temperature, totalCells );
+    viscousTemperatureGradient_.Resize(
+        static_cast< std::size_t >( 3 ) * totalCells );
+    CopyRealComponent( viscousTemperatureGradient_, 0, view.dTdx,
+                       totalCells, AccelCopyKind::HostToDevice );
+    CopyRealComponent( viscousTemperatureGradient_, totalCells, view.dTdy,
+                       totalCells, AccelCopyKind::HostToDevice );
+    CopyRealComponent( viscousTemperatureGradient_, 2 * totalCells, view.dTdz,
+                       totalCells, AccelCopyKind::HostToDevice );
+    viscousFaceNormals_.Resize( static_cast< std::size_t >( 3 ) * nFaces );
+    const Real * normals[ 3 ] = { view.xNormal, view.yNormal, view.zNormal };
+    std::vector< Real > zeroNormal;
+    for ( int component = 0; component < 3; ++ component )
+    {
+        // The validator only requires xNormal, so an absent y/z normal is legal
+        // and means zero.  Upload it explicitly: DeviceBuffer::Resize is
+        // grow-only and does not zero a fresh allocation.
+        if ( normals[ component ] == nullptr )
+        {
+            zeroNormal.assign( nFaces, 0.0 );
+        }
+        CopyRealComponent(
+            viscousFaceNormals_,
+            static_cast< std::size_t >( component ) * nFaces,
+            normals[ component ] != nullptr ? normals[ component ]
+                                            : zeroNormal.data(),
+            nFaces, AccelCopyKind::HostToDevice );
+    }
+    viscousFaceArea_.CopyFromHost( view.faceArea, nFaces );
+    viscousCellCenter_.Resize( static_cast< std::size_t >( 3 ) * totalCells );
+    CopyRealComponent( viscousCellCenter_, 0, view.xCell, totalCells,
+                       AccelCopyKind::HostToDevice );
+    CopyRealComponent( viscousCellCenter_, totalCells, view.yCell, totalCells,
+                       AccelCopyKind::HostToDevice );
+    CopyRealComponent( viscousCellCenter_, 2 * totalCells, view.zCell,
+                       totalCells, AccelCopyKind::HostToDevice );
+    viscousFaceCells_.Resize( static_cast< std::size_t >( 2 ) * nFaces );
+    AccelRuntime::Instance().Backend().Copy(
+        viscousFaceCells_.Data(), view.leftCell, nFaces * sizeof( int ),
+        AccelCopyKind::HostToDevice );
+    AccelRuntime::Instance().Backend().Copy(
+        viscousFaceCells_.Data() + nFaces, view.rightCell,
+        nFaces * sizeof( int ), AccelCopyKind::HostToDevice );
+    }
+    }
+
+    // Source pointers.  On the resident path every one of these already lives on
+    // the device; on the fallback path they are the private staging buffers the
+    // block above just filled.
+    const Real * deviceState = resident != nullptr
+        ? resident->cellState.Data() : viscousCellState_.Data();
+    const Real * deviceGradient = resident != nullptr
+        ? resident->cellGradient.Data() : viscousCellGradient_.Data();
+    const Real * deviceTemperature = resident != nullptr
+        ? resident->temperature.Data() : viscousTemperature_.Data();
+    const Real * deviceTemperatureGradient = resident != nullptr
+        ? resident->temperatureGradient.Data()
+        : viscousTemperatureGradient_.Data();
+    const Real * deviceNormals = resident != nullptr
+        ? resident->xNormal.Data() : viscousFaceNormals_.Data();
+    const Real * deviceFaceArea = resident != nullptr
+        ? resident->faceArea.Data() : viscousFaceArea_.Data();
+    const Real * deviceCellCenter = resident != nullptr
+        ? resident->xCellCenter.Data() : viscousCellCenter_.Data();
+    const int * deviceLeftCell = resident != nullptr
+        ? resident->leftCell.Data() : viscousFaceCells_.Data();
+    const int * deviceRightCell = resident != nullptr
+        ? resident->rightCell.Data() : viscousFaceCells_.Data() + nFaces;
+
+    // Viscosity is a per-call input, not resident state: it is Sutherland on the
+    // laminar side and the SA solve's output on the turbulent side, so it has no
+    // slot in HipGradientStorage.  These two planes stay uploaded in either
+    // path.  They are 2 of the 26 planes the resident path avoids, which is why
+    // this is still a large win rather than a rewrite.
+    viscousLaminar_.CopyFromHost( view.laminarViscosity, totalCells );
+    if ( view.turbulentViscosity != nullptr )
+    {
+        viscousTurbulent_.CopyFromHost( view.turbulentViscosity, totalCells );
+    }
+    else
+    {
+        viscousTurbulent_.Reset();
+    }
+    const Real * deviceLaminar = viscousLaminar_.Data();
+    const Real * deviceTurbulent = view.turbulentViscosity != nullptr
+        ? viscousTurbulent_.Data() : nullptr;
+
+    // Wall classification: face -> slot in the caller's wall list.  Built once
+    // per call so the kernel does not scan the wall list per face.
+    std::vector< int > wallSlot;
+    DeviceBuffer< int > deviceWallSlot;
+    if ( wallFaceIds != nullptr && view.nWallFaces > 0 )
+    {
+        wallSlot.assign( nFaces, -1 );
+        for ( int slot = 0; slot < view.nWallFaces; ++ slot )
+        {
+            const int face = wallFaceIds[ slot ];
+            if ( face < 0 || face >= nFaces )
+            {
+                throw std::invalid_argument(
+                    "HIP viscous flux: wall face id is out of range" );
+            }
+            if ( wallSlot[ face ] != -1 )
+            {
+                throw std::invalid_argument(
+                    "HIP viscous flux: duplicate wall face id" );
+            }
+            wallSlot[ face ] = slot;
+        }
+        deviceWallSlot.CopyFromHost( wallSlot.data(), nFaces );
+    }
+    // The kernel writes the wall heat flux on the device: the view's buffer is
+    // a host pointer and cannot be dereferenced by a kernel (VMFault).
+    if ( view.wallHeatFlux != nullptr && view.nWallFaces > 0 )
+    {
+        viscousWallHeatFlux_.Resize(
+            static_cast< std::size_t >( view.nWallFaces ) );
+    }
+
+    // The kernel writes equation-major with the caller's stride, i.e. the
+    // highest index is ( nEquations - 1 ) * stride + ( nFaces - 1 ).  Sizing by
+    // stride * nFaces is only correct when stride == nEquations; for a wider
+    // stride it under-allocates and the last planes land outside the buffer.
+    viscousFaceFlux_.Resize(
+        static_cast< std::size_t >( nEq - 1 ) * view.faceFluxStride
+        + static_cast< std::size_t >( nFaces ) );
+    {
+        ScopedStageTimer timer( "v_kernel" );
+        const int blockSize = 256;
+        const int gridSize = ( nFaces + blockSize - 1 ) / blockSize;
+        hipLaunchKernelGGL(
+            ViscousFluxKernel,
+            dim3( gridSize ), dim3( blockSize ), 0, 0,
+            deviceState,
+            deviceGradient,
+            deviceTemperature,
+            deviceTemperatureGradient,
+            deviceLaminar,
+            view.turbulentViscosity != nullptr
+                ? deviceTurbulent : nullptr,
+            totalCells,
+            deviceNormals,
+            deviceNormals + nFaces,
+            deviceNormals + 2 * nFaces,
+            deviceFaceArea,
+            deviceCellCenter,
+            deviceCellCenter + totalCells,
+            deviceCellCenter + 2 * totalCells,
+            deviceLeftCell,
+            deviceRightCell,
+            nEq, nFaces,
+            view.prandtlLaminar, view.prandtlTurbulent,
+            view.specificHeatCp, view.inverseReynolds,
+            viscousFaceFlux_.Data(), view.faceFluxStride,
+            view.wallHeatFlux != nullptr && view.nWallFaces > 0
+                ? viscousWallHeatFlux_.Data() : nullptr,
+            deviceWallSlot.Size() > 0 ? deviceWallSlot.Data() : nullptr,
+            view.nWallFaces );
+        CheckHip( hipGetLastError(), "ViscousFluxKernel launch" );
+        HipDrain( "ViscousFluxKernel synchronize" );
+    }
+
+    { ScopedStageTimer timer( "v_download" );
+    // Copy only the nFaces columns of each equation plane: the caller's stride
+    // may exceed nEquations, and a whole-plane copy would overrun its buffer.
+    for ( int eq = 0; eq < nEq; ++ eq )
+    {
+        AccelRuntime::Instance().Backend().Copy(
+            view.faceFlux
+                + static_cast< std::size_t >( eq ) * view.faceFluxStride,
+            viscousFaceFlux_.Data()
+                + static_cast< std::size_t >( eq ) * view.faceFluxStride,
+            nFaces * sizeof( Real ), AccelCopyKind::DeviceToHost );
+    }
+    if ( view.wallHeatFlux != nullptr && view.nWallFaces > 0 )
+    {
+        viscousWallHeatFlux_.CopyToHost(
+            view.wallHeatFlux, view.nWallFaces );
+    }
+    }
+}
+
+Real HipFluxBackend::EvaluateDeviceSutherland(
+    Real temperatureNondim, Real sutherlandTsNondim ) const
+{
+    Real * deviceResult = nullptr;
+    CheckHip( hipMalloc( &deviceResult, sizeof( Real ) ),
+              "sutherland contract alloc" );
+    hipLaunchKernelGGL(
+        EvaluateDeviceSutherlandKernel, dim3( 1 ), dim3( 1 ), 0, 0,
+        temperatureNondim, sutherlandTsNondim, deviceResult );
+    CheckHip( hipGetLastError(), "sutherland contract kernel launch" );
+    CheckHip( hipDeviceSynchronize(),
+              "sutherland contract kernel synchronize" );
+    Real result = 0.0;
+    CheckHip( hipMemcpy( &result, deviceResult, sizeof( Real ),
+                         hipMemcpyDeviceToHost ), "sutherland contract copy" );
+    CheckHip( hipFree( deviceResult ), "sutherland contract free" );
+    return result;
 }
 
 void HipFluxBackend::CalcLocalInviscidTimeStep(

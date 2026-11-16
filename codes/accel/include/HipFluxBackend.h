@@ -86,6 +86,13 @@ struct HipGradientStorage
 {
     DeviceBuffer< Real > cellState;
     DeviceBuffer< Real > cellGradient;
+    // Derived temperature field and its cell gradient.  Temperature is not one
+    // of the five conserved variables, so it has its own device storage next to
+    // the mean-flow state instead of a sixth plane in cellState/cellGradient.
+    // The viscous and heat-conduction kernels read these; nothing allocates
+    // them until a viscous configuration is active.
+    DeviceBuffer< Real > temperature;
+    DeviceBuffer< Real > temperatureGradient;
     DeviceBuffer< Real > xFaceCenter;
     DeviceBuffer< Real > yFaceCenter;
     DeviceBuffer< Real > zFaceCenter;
@@ -348,6 +355,52 @@ public:
         Real orientationSign ) const;
 
     void CalcGradient( const CellGradientView & view );
+
+    // Derived temperature field and its cell gradient for the viscous and
+    // heat-conduction slice.  Overrides the fail-closed FluxBackend defaults.
+    bool SupportsCellTemperature() const override { return true; }
+    void CalcCellTemperature( const CellTemperatureView & view ) override;
+
+    // Viscous stress, energy and conduction flux for one stage.
+    //
+    // Mirrors the production host chain term for term:
+    //   UNsVisFlux::CalcFaceVisFlux (CalcHeatFlux -> CalcStress ->
+    //   CalcNsVisFlux), the VIS_STD face preparation in PrepareFaceValue
+    //   (average gradient, CalcGradCoef, AverFaceValue, CorrectFaceGrad,
+    //   CalcNormalGrad), NsVisFluxPolicy's stress/projection/energy/conductivity
+    //   helpers, and UpdateFaceVisFlux's -A/Re scaling.
+    //
+    // VIS_STD (ivischeme == 0) is the only face scheme implemented: it is the
+    // one every production case sets, and the other four differ only in how the
+    // face normal gradient is built.  A caller cannot select another scheme
+    // through ViscousFluxView, so the kernel cannot silently substitute one.
+    //
+    // The face tangents in the view are not consumed: GCom::CalcTangent computes
+    // them for every face, but their only readers are VisGrad::ModifyFaceGrad
+    // and the VIS_TEST/NEW1/NEW2 paths, which VIS_STD never enters.
+    bool SupportsViscousFlux() const override { return true; }
+    void CalcViscousFaceFlux( const ViscousFluxView & view ) override;
+
+    // Wall heat flux needs the solid faces themselves.  ViscousFluxView carries
+    // the output buffer and the count but deliberately no boundary
+    // classification, because the accel layer does not know the solver's BC
+    // ids.  The caller passes the face ids in the same order it would push the
+    // host heat-flux vector, which is exactly the order
+    // UNsVisFlux::SaveHeatFlux writes (increasing face id), so the result can be
+    // compared element by element with the host field.
+    //
+    // The override above passes no ids, so it produces no wall heat flux; a view
+    // that asks for one through that entry fails closed instead of writing
+    // values for faces nobody classified.
+    void CalcViscousFaceFlux(
+        const ViscousFluxView & view, const int * wallFaceIds );
+
+    // Single-value device mirror of SutherlandViscosityNondim
+    // (codes/model/src/Sutherland.cpp), for the numeric contract test that
+    // pins it to the host expression.  The nondimensional form is
+    // sqrt( t * t * t ) * ( 1 + ts ) / ( t + ts ), not pow( t, 1.5 ).
+    Real EvaluateDeviceSutherland(
+        Real temperatureNondim, Real sutherlandTsNondim ) const;
 
     // Compute the local inviscid spectral radius and timestep from resident
     // primitive state. The resulting timestep can remain device-resident for
@@ -616,6 +669,29 @@ private:
     DeviceBuffer< int > rightCell_;
     DeviceBuffer< unsigned char > boundaryMask_;
     DeviceBuffer< Real > deviceResidual_;
+    // Viscous-flux staging.  ViscousFluxView hands over host pointers (that is
+    // the shape the backend-neutral contract defines, and the shape a CPU
+    // implementation needs), so the HIP implementation uploads one stage's
+    // inputs, runs one kernel and copies the face flux back.  These buffers are
+    // grown and reused across stages; they are not resident solver state.
+    DeviceBuffer< Real > viscousCellState_;    // nEquations * totalCells
+    DeviceBuffer< Real > viscousCellGradient_; // nEquations*3 * totalCells
+    DeviceBuffer< Real > viscousTemperature_;  // totalCells
+    DeviceBuffer< Real > viscousTemperatureGradient_; // 3 * totalCells
+    DeviceBuffer< Real > viscousLaminar_;      // totalCells
+    DeviceBuffer< Real > viscousTurbulent_;    // totalCells
+    DeviceBuffer< Real > viscousCellCenter_;   // 3 * totalCells
+    DeviceBuffer< Real > viscousFaceNormals_;  // 3 * nFaces
+    DeviceBuffer< Real > viscousFaceArea_;     // nFaces
+    DeviceBuffer< int > viscousFaceCells_;     // 2 * nFaces
+    // Equation-major face output with the caller's stride.  The highest index
+    // written is ( nEquations - 1 ) * stride + ( nFaces - 1 ), so the buffer is
+    // not stride * nFaces; see the allocation comment in the implementation.
+    DeviceBuffer< Real > viscousFaceFlux_;
+    // Wall heat flux, one value per classified solid face.  The view's buffer
+    // is a host pointer, so the kernel writes this device buffer and the entry
+    // copies it back; handing the host pointer to the kernel is a VMFault.
+    DeviceBuffer< Real > viscousWallHeatFlux_; // nWallFaces
     HipGradientStorage fallbackGradientStorage_;
     std::unordered_map< const void *, Ns3DDeviceState * > boundStates_;
     int deviceFluxFaces_ = 0;
