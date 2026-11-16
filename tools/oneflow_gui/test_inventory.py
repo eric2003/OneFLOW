@@ -104,7 +104,7 @@ def _cpp_tests(
 def _python_test_roots(repository_root: Path) -> tuple[Path, ...]:
     return tuple(
         repository_root / relative
-        for relative in ("tools", "tests", Path("gui/python/tkinter"))
+        for relative in ("tools", "tests", Path("grid/tests/python"), Path("gui/python/tkinter"))
         if (repository_root / relative).is_dir()
     )
 
@@ -202,14 +202,17 @@ def audit_python_test_registry(
     registered: set[str] = set()
     for _label, arguments in command_entries:
         if len(arguments) >= 3 and arguments[0:2] == ("-m", "unittest"):
-            if arguments[2] == "discover":
+            unittest_arguments = tuple(
+                argument for argument in arguments[2:] if argument != "-v"
+            )
+            if unittest_arguments and unittest_arguments[0] == "discover":
                 start_dir = Path(".")
                 pattern = "test*.py"
-                for index, argument in enumerate(arguments[:-1]):
+                for index, argument in enumerate(unittest_arguments[:-1]):
                     if argument == "-s":
-                        start_dir = Path(arguments[index + 1])
+                        start_dir = Path(unittest_arguments[index + 1])
                     elif argument == "-p":
-                        pattern = arguments[index + 1]
+                        pattern = unittest_arguments[index + 1]
                 search_root = (root / start_dir).resolve()
                 if search_root.is_dir():
                     registered.update(
@@ -217,8 +220,10 @@ def audit_python_test_registry(
                         for path in search_root.rglob(pattern)
                         if path.is_file()
                     )
-            else:
-                module_path = root.joinpath(*arguments[2].split(".")).with_suffix(".py")
+            elif unittest_arguments:
+                module_path = root.joinpath(
+                    *unittest_arguments[0].split(".")
+                ).with_suffix(".py")
                 if module_path.is_file():
                     registered.add(module_path.relative_to(root).as_posix())
         elif arguments:

@@ -10,7 +10,7 @@ The first step is read-only discovery in tools/oneflow_gui/test_inventory.py:
 
 * C++ tests are discovered from GoogleTest TEST, TEST_F and TEST_P declarations
   under tests.
-* Python unittest methods are discovered from test_*.py files under tools.
+* Python unittest methods are discovered from test_*.py files under tools, the domain-owned grid/tests/python tree, and the GUI compatibility test tree. The C++ GoogleTest discovery root remains ``tests`` and is unchanged.
 * The Workbench inventory filters frameworks independently; GoogleTest and
   unittest are not presented as one undifferentiated test type.
 * Each record includes a stable ID, framework, suite, name, source location,

@@ -130,6 +130,20 @@ def summarize_test_output(
         summary.append("Failed unittest cases:")
         summary.extend(f"  - {case_name}" for case_name in failed_unittest_cases)
 
+    skipped_unittest_cases = []
+    for line in output_lines:
+        match = re.match(
+            r"^\s*(test\S+)\s+\(([^)]+)\)\s+\.\.\.\s+skipped(?:\s+.+)?$",
+            line,
+        )
+        if match:
+            case_name = f"{match.group(1)} ({match.group(2)})"
+            if case_name not in skipped_unittest_cases:
+                skipped_unittest_cases.append(case_name)
+    if skipped_unittest_cases:
+        summary.append("Skipped unittest cases:")
+        summary.extend(f"  - {case_name}" for case_name in skipped_unittest_cases)
+
     if failure_start is not None:
         details = output_lines[failure_start:]
         summary.append("Failure details:")
@@ -204,6 +218,8 @@ _PYTHON_UNIT_TESTS = (
     ("Mesh case catalog tests", ("tools/test_mesh_cases.py",)),
     ("Gmsh to OneFLOW case tests", ("tools/test_gmsh_to_oneflow_case.py",)),
     ("STL-to-Gmsh geometry tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_geometry")),
+    ("STL-to-Gmsh run report tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_run_report")),
+    ("STL geometry generator tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_stl_geometry_generation")),
     ("Native and Python STL-to-Gmsh Case tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases")),
     ("Mesh-to-CFD Validation tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_validation")),
     ("MeshSnapshot contract tests", ("-m", "unittest", "tools.mesh_contracts.test_snapshot")),
@@ -222,6 +238,7 @@ _PYTHON_UNIT_TESTS = (
     ("CFD nomenclature knowledge tests", ("-m", "unittest", "tools.verification.test_nomenclature_catalog")),
     ("Parameter catalog database tests", ("-m", "unittest", "tools.oneflow_gui.test_parameter_catalog_store")),
     ("User data path tests", ("-m", "unittest", "tools.oneflow_gui.test_user_data_paths")),
+    ("Cross-platform path utility tests", ("-m", "unittest", "tools.oneflow_gui.test_path_utils")),
     ("Application settings tests", ("-m", "unittest", "tools.oneflow_gui.test_application_settings")),
     ("Runtime environment query tests", ("-m", "unittest", "tools.oneflow_gui.test_runtime_environment_dialog")),
     ("Per-run environment evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_run_environment_evidence")),
@@ -237,6 +254,7 @@ _PYTHON_UNIT_TESTS = (
     ("Runtime override tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_runtime_overrides")),
     ("Workflow case staging tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_case_runtime")),
     ("GUI test command builder tests", ("-m", "unittest", "tools.oneflow_gui.test_test_runner")),
+    ("GUI launcher configuration tests", ("-m", "unittest", "tools.oneflow_gui.test_launcher")),
     ("Structured test diagnostic tests", ("-m", "unittest", "tools.oneflow_gui.test_test_diagnostics")),
     ("Numerical verification catalog tests", ("-m", "unittest", "tools.verification.test_curve_catalog")),
     ("Vencat analytic reference tests", ("-m", "unittest", "tools.verification.test_vencat_reference")),
@@ -250,6 +268,8 @@ _PYTHON_UNIT_TESTS = (
     ("CMake test catalog tests", ("-m", "unittest", "tools.verification.test_cmake_test_catalog")),
     ("Configured CTest discovery tests", ("-m", "unittest", "tools.verification.test_ctest_discovery")),
     ("Contract Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_contract_workbench_dialog")),
+    ("Mesh Generation Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_generation_dialog")),
+    ("Mesh project tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_project")),
     ("Boundary Conditions Workbench tests", ("-m", "unittest", "tools.oneflow_gui.test_boundary_conditions_workbench")),
     ("Source editor process tests", ("-m", "unittest", "tools.oneflow_gui.test_source_editor")),
     ("Repository test inventory discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_test_inventory")),
@@ -317,10 +337,16 @@ def build_python_test_commands(
         raise RuntimeError("Unit tests must execute from the source build tree.")
     root = Path(repository_root).resolve()
     python_executable = python or sys.executable
-    return [
-        TestCommand(label, (python_executable, *arguments), root)
-        for label, arguments in _PYTHON_UNIT_TESTS
-    ]
+    commands = []
+    for label, arguments in _PYTHON_UNIT_TESTS:
+        if arguments[:2] == ("-m", "unittest"):
+            # Keep "discover" in its required position; verbosity follows it.
+            if len(arguments) > 2 and arguments[2] == "discover":
+                arguments = (*arguments[:3], "-v", *arguments[3:])
+            else:
+                arguments = (*arguments[:2], "-v", *arguments[2:])
+        commands.append(TestCommand(label, (python_executable, *arguments), root))
+    return commands
 
 
 def build_unit_test_commands(

@@ -560,7 +560,7 @@ class TestRunnerDialog(QDialog):
         from .runner import build_command
 
         selected_cases = self._selected_development_cases()
-        workspace_root = UserDataPaths.discover().grid_layout_test
+        workspace_root = UserDataPaths.discover().grid_development_cases
         executable_text = self.executable_combo.currentText().strip()
         needs_oneflow = any(case.execution_kind == "oneflow" for case in selected_cases)
         executable = Path(executable_text).expanduser().resolve() if executable_text else None

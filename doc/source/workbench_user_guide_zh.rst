@@ -1,7 +1,7 @@
 OneFLOW Workbench 用户手册
 ==========================
 
-本手册介绍 tools/oneflow_gui 中的可选桌面工作台。Workbench 负责项目浏览、运行编排、测试入口、网格布局编辑和运行记录；OneFLOW 求解器仍作为独立进程运行，GUI 不是求解器的替代品。
+本手册介绍 tools/oneflow_gui 中的可选桌面工作台。Workbench 负责项目浏览、运行编排、测试入口、网格生成与转换、网格布局编辑、知识导航和运行记录；OneFLOW 求解器仍作为独立进程运行，GUI 不是求解器的替代品。
 
 本页按 hexin 当前实现编写。按钮细节、模板列表和完整服务测试命令见模块 README：
 https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md
@@ -177,3 +177,35 @@ Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动�
 **Mesh-to-CFD Validation** 使用相同的维度分组，但只显示具备完整产物绑定和转换图的网格生产算例。CFD consumer 和 smoke-test 参数仍在选择树之外，避免把网格维度、实现语言和求解器配置混在一个列表里。
 
 新增算例时，除了代码和测试，还应说明几何/数据如何构造、配置如何驱动生成、预期产物及其拓扑/边界约束、下游转换如何消费产物，以及测试究竟证明了什么。完整的算例设计与实施规范见 ``doc/source/development_case_methodology.rst``；STL-to-Gmsh 的具体构造步骤见各算例目录中的 README。
+
+网格生成与转换
+--------------
+
+主界面的 **Mesh Generation...** 是网格功能的统一入口，目前包含：
+
+* **Mesh Layout Editor**：编辑结构化网格布局，保留现有模板、边界设置、预览和布局编译能力。
+* **Generate STL Geometry**：从内置几何库选择 Sphere、Prolate Spheroid 或 Cylinder Internal Flow，设置半径、椭球半轴、圆柱长度以及表面离散参数，生成 STL 和伴随的几何元数据。
+* **STL to Gmsh**：从几何库、仓库网格数据库或用户工程读取 STL，独立设置体积网格密度并生成三维四面体体网格。
+* **Mesh Knowledge**：进入现有 Contract Workbench 的 Mesh 知识域，浏览网格原理、格式、实现代码和验证证据。
+
+Mesh Generation & Conversion 首先按“网格工程”组织工作，而不再只有一个临时 STL 输入框：
+
+* **New from Template**：从已登记的网格工程模板创建独立用户工程。目前提供 Unit Sphere 和 6:1 Prolate Spheroid。
+* **Import STL / Grid Database**：从仓库 ``grid/`` 下的 STL 数据库或磁盘选择 STL，复制到新工程的 ``input/``，不会修改原始数据。
+* **Open Existing Project**：打开已有 OneFLOW 工程（``project.json``），或导入包含 ``input/model.stl`` 的准备好工程目录；若目录只有一个 STL，也可自动识别并复制为独立工程。
+* 每个工程保存在用户数据目录 ``mesh-generation/<project>/``，包括输入几何、项目清单、生成结果和独立的 ``validation/``。模板只读保留在仓库，工程副本可独立修改。
+
+进入 Generate STL Geometry 后，选择几何类型会切换到该几何独立的参数面板：Sphere 只显示半径和 Icosphere 细分级别；Prolate Spheroid 只显示三个半轴和自己的表面细分级别；Cylinder 只显示圆柱半径、长度、周向和轴向划分。切换几何类型不会清空其它面板已经设置的值，各类参数彼此独立。单位和输出 STL 路径属于公共设置。生成的 STL 与 .geometry.json 元数据默认保存在用户数据目录的 ``mesh-generation/generated_stl/<geometry>/``。Sphere 使用 Icosphere 细分，Prolate Spheroid 使用三个半轴对球面拓扑进行缩放，Cylinder 使用周向和轴向划分生成侧壁及两个端盖。
+
+进入 STL to Gmsh 后，可以修改 STL 路径、Coarse/Medium/Fine 或自定义尺寸、Physical Group 名称、输出 MSH 路径和 Gmsh 可执行文件。界面显示完整命令并支持复制；工程模式提供 **Save Project Settings**，无需启动 Gmsh 即可保存修改，运行时也会自动保存。重新打开工程后可继续编辑和生成。项目生成的当前 MSH 可直接进入 Mesh-to-CFD Validation，不会重新生成网格，验证结果写入该项目自己的 ``validation/``。
+
+在 Case Catalog 中，6:1 Prolate Spheroid 同时登记 Native C++ 和 Python Reference 两个实现：前者出现在 **Run Development Cases**，后者出现在 **Python reference cases**，两个实现也都出现在 3D **Mesh-to-CFD Validation** 选择树中。两者使用相同 STL 和布局契约，但仍按真实实现类型分别显示。
+
+默认输出位置为用户数据目录下的 `mesh-generation`，不会写入仓库源代码目录。
+默认的 Unit Sphere 预设会预选仓库中的单位球 STL 示例，用户也可以通过 Browse... 换成自己的 STL 文件；预设不会生成或替换几何内容。
+当前自动四面体体网格流程要求 STL 是封闭、连通、方向一致且 genus-zero 的曲面；
+生成的是封闭曲面包围的内部体网格，不是外部流场计算域。圆柱生成器会把入口和出口端盖作为几何封闭面，同时在伴随元数据中保留 wall、inflow、outflow 三组面片身份；当前通用 STL-to-Gmsh 适配器尚不能恢复这三组 Physical Surface，因此会阻止带有该圆柱元数据的 STL 进入 wall-only 网格工程，避免将入口和出口错误识别为壁面。网格尺寸是 Gmsh 的目标
+特征长度控制，不保证每条边精确等于指定值，也不保证固定单元数。
+
+后续将沿用统一入口逐步增加 STL 检查与修复、网格质量检查、圆柱区域感知的 Gmsh 导入、格式转换和 Mesh Knowledge。
+这些功能只有在对应实现和验证齐备后才会作为可操作入口出现。

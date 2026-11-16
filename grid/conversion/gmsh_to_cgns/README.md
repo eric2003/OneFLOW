@@ -219,3 +219,14 @@ The fixture is consumed by the automated
 OneFLOW grid into a temporary directory. It is not exposed as a separate GUI
 Case. See `doc/source/grid_conversion_cases.rst` for its topology and
 acceptance criteria.
+
+
+## Run-result reports
+
+A successful Gmsh-to-CGNS conversion writes <stem>.run-report.json using
+the shared oneflow.run-report version 1 envelope. The concise terminal
+summary gives an explicit SUCCESS verdict and marks MSH reading and CGNS
+writing as PASS. CGNS read-back and mesh-quality acceptance are
+NOT_CHECKED; CFD validation is NOT_RUN. The detailed
+.gmsh-read-report.json and .gmsh-report.md inspection files remain
+available alongside it.

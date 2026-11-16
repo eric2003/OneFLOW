@@ -43,6 +43,25 @@ promoted to PASS by the UI. Workflow and Performance entry points will be added
 when their typed contracts have concrete repository evidence. The root
 `gui/` directory is outside this Workbench integration.
 
+## Mesh Generation geometry library
+
+The Mesh Generation workspace exposes Generate STL Geometry separately from
+STL to Gmsh. The geometry library currently includes a unit sphere, a
+parameterized prolate spheroid, and a capped cylinder for internal-flow domain
+meshing. The GUI switches between separate Sphere, Prolate Spheroid and Cylinder
+parameter panels; each geometry owns its own analytic dimensions and surface
+resolution controls, and values are retained when switching between panels.
+Only coordinate units and output path are shared. Geometry parameters and surface
+discretization are independent of Gmsh volume mesh size. Generated binary STL files and their
+.geometry.json manifests are written under
+~/.oneflow/mesh-generation/generated_stl/<geometry-id>/ (or the equivalent
+ONEFLOW_HOME workspace). The manifest records units, parameters, topology
+metrics, patch facet indices and the STL SHA-256. For the cylinder, inlet and
+outlet caps close the surface geometrically but are not wall boundaries; its
+patch metadata is preserved, while region-aware Gmsh Physical Surface
+reconstruction remains a follow-up integration step. See
+doc/source/stl_geometry_generation.rst.
+
 ## Workspace files
 
 A workspace is stored as a readable JSON document with the `.ofw` extension (schema version 2). Version-1 files without artifact fields load and migrate on save. Its schema records a workspace ID and name, an execution mode (`single_case`, `sequential_cases`, `independent_cases`, or `dependency_workflow`), and an ordered list of case IDs and paths. Paths are stored relative to the workspace file when possible. Dependency workflows record `depends_on` case IDs; validation rejects unknown dependencies and cycles. The independent mode rejects declared dependencies, while sequential mode uses the case list order.
@@ -252,7 +271,7 @@ root. The source checkout remains separate from this directory.
 - `workflow-data/definitions/`: saved workflow definitions.
 - `workflow-data/runs/`: workflow run history.
 - `workflow-data/executions/`: isolated project/workflow run copies and generated results.
-- `mesh-layout-test/grid/`: fixed Development Tests execution directory, cleared as a whole and restaged with selected source cases at the start of each run batch; no per-run directory is created and source cases remain untouched.
+- `grid-development/cases/`: fixed grid Development Tests staging directory, refreshed with selected source cases at the start of each run batch; no per-run directory is created and source cases remain untouched. The separate `mesh-validation/` root stores end-to-end Mesh-to-CFD validation runs.
 - `mesh-layout-workspace/`: mesh layout projects, specifications, and outputs.
 - `cfd-regression/`: staged CFD regression inputs.
 - `background-tasks/`: persistent background task records.
@@ -365,3 +384,97 @@ remain under Unclassified rather than being guessed.
 STL-to-Gmsh producer Cases. It keeps the CFD consumer and smoke-test controls
 outside the Case tree, so 2D and 3D producer selection does not create
 duplicate controls or an overly wide list. 3D topology Cases retain the conversion handoff and may run a short dimension-adjusted solver smoke test; this does not establish 2D flat-plate physics or numerical accuracy.
+
+## Mesh Generation & Conversion Workbench
+
+The home screen exposes **Mesh Generation...** as the single entry to mesh activities.
+The hub routes to:
+
+- **Mesh Projects**: choose a catalog-declared template, import an STL from the
+  repository Grid database or disk, open a OneFLOW project, or import a prepared
+  directory containing `input/model.stl` (or exactly one STL file).
+- **Mesh Layout Editor**: the existing structured-layout editor, retained without
+  changing its layout compiler or project data contract.
+- **STL to Gmsh**: a 3-D closed-STL volume-mesh interface backed by
+  `grid/stl_to_gmsh/generate_volume_mesh.py`. Select the STL and output path,
+  choose Coarse / Medium / Fine or custom minimum and maximum sizes, optionally
+  select a Gmsh executable, and set the surface/volume Physical Group names.
+- **Mesh Knowledge**: opens the existing Mesh domain in Contract Workbench,
+  including principles, format contracts, implementation links and evidence.
+
+A template is enabled by the `mesh_project_template` flag on a 3-D Python
+STL-to-Gmsh Case Catalog entry. The current templates are Unit Sphere and 6:1
+Prolate Spheroid. Template files are copied into a user-owned project; checked-in
+Cases remain read-only. Imported prepared directories are also copied, with
+their relative structure preserved under `source_project/`.
+
+Each project is stored below
+`UserDataPaths.discover().mesh_generation / <project-name>` and has a
+`project.json` manifest, a private STL input, a `results/` directory and an
+independent `validation/` workspace. The STL page displays the selected project
+and its geometry path. Mesh size, Physical Group names and output path can be
+edited and saved with **Save Project Settings** without launching Gmsh; running
+the mesher also saves the settings. Generated MSH files can be passed directly
+to Mesh-to-CFD Validation without regenerating the mesh, and validation outputs
+stay inside that project's `validation/` directory.
+
+The STL page shows the complete platform-specific command before execution and
+supports copying it. Execution uses `QProcess` with an argument list (not shell
+interpolation), displays merged process output, and reports the exit code. The
+command is reproducible outside the GUI. The default standalone output is under
+the user data `mesh-generation` directory, not in the source tree.
+
+The Unit Sphere and 6:1 Prolate Spheroid templates preselect their checked-in
+STL fixtures as starting geometry; the presets do not manufacture or silently
+substitute geometry. Both geometries have Native C++ Development Cases and
+independent Python reference Cases. Both are selectable in the 3-D
+Mesh-to-CFD Validation tree. The prolate spheroid has a wall-only Physical Group,
+so its current downstream run is a mesh-handoff/runtime smoke test, not an
+external-flow accuracy benchmark.
+
+The current volume mesher requires a closed, connected, consistently oriented,
+genus-zero shell. Its generated mesh is the volume enclosed by that shell, not
+an exterior-flow domain. Mesh-size values are target characteristic lengths,
+not exact edge lengths or fixed element counts. Disconnected shells, non-zero
+genus surfaces and self-intersecting STL inputs are outside this contract.
+
+STL inspection/repair, general mesh-quality visualization and additional
+meshing backends remain separate incremental capabilities rather than
+placeholder buttons.
+
+## Cross-platform path handling
+
+Python Workbench code must use the shared helpers in
+`tools.oneflow_gui.path_utils` when filesystem path identity or containment
+matters:
+
+- `normalize_path(path)` expands the user directory and resolves an absolute
+  path, including existing symlink components. It also supports paths that do
+  not exist yet.
+- `paths_equal(left, right)` compares existing paths by filesystem identity
+  (including Windows 8.3 aliases and symlinks). For missing descendants, the
+  nearest existing ancestors are compared by identity and the remaining path
+  components by platform-aware spelling.
+- `is_path_within(path, root)` checks containment after path resolution, so
+  symlinks cannot silently escape a protected workspace.
+- `relative_path_within(path, root)` returns the relative path only when the
+  target is inside the root, including when Windows path aliases are involved.
+
+Do not compare path strings, or raw `Path` objects, to determine filesystem
+identity. Do not replace containment checks with equality checks: workspace
+and project boundaries must use `is_path_within`. Keep relative artifact
+paths as relative paths until they are resolved against their owning Case or
+project directory.
+
+Run the shared path regression suite with:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_path_utils
+```
+
+The test suite covers normalized and missing paths, Windows case folding,
+Windows 8.3 short-path aliases when the filesystem provides them, symlink
+identity, and symlink-based workspace escape prevention. Platform-specific
+cases are skipped only when the operating system or filesystem does not
+support the feature being tested.
+

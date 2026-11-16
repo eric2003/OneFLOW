@@ -70,6 +70,8 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
         resultsDirectory / "square.gmsh-read-report.json";
     const std::filesystem::path markdownReport =
         resultsDirectory / "square.gmsh-report.md";
+    const std::filesystem::path runReport =
+        resultsDirectory / "square.run-report.json";
     std::filesystem::copy_file(source, input);
 
     ONEFLOW::GridConfig config;
@@ -82,10 +84,24 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
     ASSERT_TRUE(std::filesystem::is_regular_file(output));
     ASSERT_TRUE(std::filesystem::is_regular_file(report));
     ASSERT_TRUE(std::filesystem::is_regular_file(markdownReport));
+    ASSERT_TRUE(std::filesystem::is_regular_file(runReport));
+    {
+        std::ifstream reportInput(runReport);
+        const std::string json{std::istreambuf_iterator<char>(reportInput),
+                               std::istreambuf_iterator<char>()};
+        EXPECT_NE(json.find("\"schema\": \"oneflow.run-report\""), std::string::npos);
+        EXPECT_NE(json.find("\"status\": \"success\""), std::string::npos);
+        EXPECT_NE(json.find("\"cgns_write\""), std::string::npos);
+        EXPECT_NE(json.find("\"cfd_validation\""), std::string::npos);
+        EXPECT_NE(json.find("\"NOT_RUN\""), std::string::npos);
+        EXPECT_NE(json.find("\"NOT_CHECKED\""), std::string::npos);
+    }
     {
         std::ifstream reportInput(markdownReport);
         const std::string markdown{std::istreambuf_iterator<char>(reportInput),
                                    std::istreambuf_iterator<char>()};
+        EXPECT_NE(markdown.find("# Gmsh -> CGNS: SUCCESS"), std::string::npos);
+        EXPECT_NE(markdown.find("**Overall status: PASS**"), std::string::npos);
         EXPECT_NE(markdown.find("## Physical Groups"), std::string::npos);
         EXPECT_NE(markdown.find("fluid_domain"), std::string::npos);
         EXPECT_NE(markdown.find("BAR_2"), std::string::npos);

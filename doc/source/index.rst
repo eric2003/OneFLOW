@@ -33,11 +33,16 @@ Using OneFLOW
 Mesh and engineering workflows
 ------------------------------
 
+* :doc:`geometry_asset_architecture` — format-independent geometry assets, definitions, representations, provenance and derivation.
 * :doc:`mesh_architecture` — mesh information levels, snapshots, and format adapters.
 * :doc:`stl_mesh_io` — native C++ STL ASCII/Binary I/O, facet semantics, and reader/writer verification.
 * :doc:`gmsh_interface` — Gmsh MSH 4.1-first input adapter, version support, semantic mapping, and conversion validation.
 * :doc:`stl_to_gmsh_2d` — planar STL boundary extraction, explicit CFD boundary groups, and Gmsh 2D generation.
 * :doc:`stl_to_gmsh_3d` — cube STL volume reconstruction, fixed HEXA_8/TETRA_4 topology, and automatic tetrahedral meshing.
+* :doc:`stl_geometry_generation` — parameterized STL geometry library, GUI workflow, sphere/spheroid/cylinder construction, patch identity, units and artifact policy.
+* :doc:`stl_to_gmsh_sphere` — unit-sphere STL validation, Gmsh surface reconstruction, tetrahedral volume generation, commands, and evidence.
+* :doc:`stl_to_gmsh_prolate_spheroid` — 6:1 prolate spheroid STL, automatic tetrahedral meshing, and Mesh-to-CFD smoke route.
+* :doc:`stl_to_gmsh_commands` — copy-and-run commands for generating 3-D tetrahedral meshes from closed STL surfaces and controlling mesh size.
 * :doc:`boundary_condition_architecture` — physical boundary semantics, Gmsh/CGNS/OneFLOW mappings, required state data, and verification boundaries.
 * :doc:`grid_conversion_cases` — runnable mesh conversion Cases, topology coverage, and format-route matrix.
 * :doc:`development_case_methodology` — how to design, implement, document, and verify reusable 2D/3D Development Cases.
@@ -61,6 +66,7 @@ Developer resources
 * :doc:`database_architecture` — parameter ownership, type-erased storage, const access, field pointer registration, and serialization contracts.
 * :doc:`evolutionary_computation_architecture` — computation-unit contracts, intermediate representations, and the long-term algorithm/dataflow evolution model.
 * :doc:`architecture_review` — whole-system CFD/CAE architecture checklist, major cross-cutting risks, and AI-assisted development review prompts.
+* `Development principles and regression-prevention checklist <https://github.com/eric2003/OneFLOW/blob/hexin/doc/DEVELOPMENT_PRINCIPLES.md>`_ — durable engineering rules, recurring defect patterns, and pre/post-change checks.
 * :doc:`architecture_priority_roadmap` — ranked investment sequence by system-wide return, verification cost, and cross-subsystem leverage.
 * :doc:`verification_evidence_lifecycle` — how claims, tests, runs, artifacts, numerical results, and references form an auditable evidence chain.
 * `AI project context and refactoring handoff <https://github.com/eric2003/OneFLOW/blob/hexin/doc/AI_CONTEXT.md>`_ — current focus, verified findings, open gaps, and next actions for continuing work.
@@ -153,10 +159,16 @@ The existing reference library covers programming languages, build systems, para
    runtime_case_lifecycle
    database_architecture
    evolutionary_computation_architecture
+   geometry_asset_architecture
    mesh_architecture
    stl_mesh_io
    gmsh_interface
    stl_to_gmsh_2d
+   stl_to_gmsh_3d
+   run_result_reporting
+   stl_geometry_generation
+   stl_to_gmsh_sphere
+   stl_to_gmsh_prolate_spheroid
    grid_conversion_cases
    development_case_methodology
    grid_topology

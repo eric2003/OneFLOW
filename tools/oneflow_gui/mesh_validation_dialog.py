@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 import threading
@@ -10,12 +11,15 @@ from pathlib import Path
 from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QFormLayout, QHBoxLayout, QHeaderView, QLabel,
-    QMessageBox, QPlainTextEdit, QPushButton, QSpinBox, QTreeWidget,
-    QTreeWidgetItem, QVBoxLayout,
+    QMessageBox, QPlainTextEdit, QPushButton, QSpinBox, QSplitter, QTreeWidget,
+    QTreeWidgetItem, QVBoxLayout, QWidget,
 )
 
 from .executable_discovery import executable_candidates
-from .mesh_validation import cfd_template_choices, mesh_case_groups
+from .mesh_validation import (
+    cfd_template_choices, existing_mesh_case_paths, mesh_case_group_categories,
+    run_report_stage_rows,
+)
 from .process_control import process_group_options, terminate_process_tree
 from .user_data_paths import UserDataPaths
 
@@ -25,6 +29,7 @@ class MeshValidationWorker(QThread):
 
     output_line = Signal(str)
     completed = Signal(bool, str)
+    report_ready = Signal(str, object)
 
     def __init__(self, commands: list[tuple[str, tuple[str, ...], Path]]) -> None:
         super().__init__()
@@ -48,6 +53,7 @@ class MeshValidationWorker(QThread):
                 break
             self.output_line.emit(f"\n=== {label} ===")
             self.output_line.emit("$ " + subprocess.list2cmdline(list(arguments)))
+            case_output: list[str] = []
             try:
                 with subprocess.Popen(
                     list(arguments), cwd=working_directory,
@@ -60,7 +66,9 @@ class MeshValidationWorker(QThread):
                     try:
                         if process.stdout is not None:
                             for line in process.stdout:
-                                self.output_line.emit(line.rstrip("\r\n"))
+                                rendered_line = line.rstrip("\r\n")
+                                case_output.append(rendered_line)
+                                self.output_line.emit(rendered_line)
                                 if self._cancel.is_set():
                                     terminate_process_tree(process)
                                     break
@@ -75,6 +83,21 @@ class MeshValidationWorker(QThread):
                 continue
             if self._cancel.is_set():
                 break
+            report_path = next(
+                (
+                    Path(line.strip().split(": ", 1)[1]).expanduser()
+                    for line in reversed(case_output)
+                    if line.strip().startswith("report: ")
+                ),
+                None,
+            )
+            if report_path is not None and report_path.is_file():
+                try:
+                    report = json.loads(report_path.read_text(encoding="utf-8"))
+                    if report.get("schema") == "oneflow.run-report":
+                        self.report_ready.emit(label, report)
+                except (OSError, json.JSONDecodeError) as error:
+                    self.output_line.emit(f"WARNING: cannot read run report: {error}")
             if return_code == 0:
                 passed.append(label)
                 self.output_line.emit(f"PASSED: {label}")
@@ -99,16 +122,32 @@ class MeshValidationWorker(QThread):
 class MeshValidationDialog(QDialog):
     """Select multiple mesh producer Cases and run each complete validation chain."""
 
-    def __init__(self, repository_root: Path, *, executable: str = "", parent=None) -> None:
+    def __init__(
+        self, repository_root: Path, *, executable: str = "",
+        mesh_file: Path | None = None, project_directory: Path | None = None,
+        mesh_case_id: str = "stl_to_gmsh_sphere_automatic_tetrahedra",
+        parent=None,
+    ) -> None:
         super().__init__(parent)
         self._repository_root = Path(repository_root).resolve()
         self._worker: MeshValidationWorker | None = None
+        self._mesh_file = Path(mesh_file).expanduser().resolve() if mesh_file else None
+        self._project_directory = (
+            Path(project_directory).expanduser().resolve()
+            if project_directory else (self._mesh_file.parent if self._mesh_file else None)
+        )
+        self._mesh_case_id = mesh_case_id
         self.setWindowTitle("Mesh-to-CFD Validation")
-        self.resize(860, 680)
-        self.setMinimumSize(720, 560)
+        self.resize(980, 700)
+        self.setMinimumSize(800, 560)
 
         layout = QVBoxLayout(self)
         introduction = QLabel(
+            "Validate the current MSH file without regenerating it. The mesh is "
+            "copied into an isolated run directory, then passed through CGNS "
+            "conversion and OneFLOW ingestion. The CFD stage is a short runtime "
+            "smoke test, not a numerical-accuracy claim."
+            if self._mesh_file is not None else
             "Select native C++ or Python STL-to-Gmsh Cases. Each Case runs the "
             "STL → Gmsh → CGNS → OneFLOW chain and a short solver smoke test. "
             "For 3D meshes, the consumer dimension is adjusted; this is not a "
@@ -118,51 +157,82 @@ class MeshValidationDialog(QDialog):
         introduction.setWordWrap(True)
         layout.addWidget(introduction)
 
+        self.current_mesh_label = QLabel(
+            "Current mesh: " + str(self._mesh_file) if self._mesh_file is not None else ""
+        )
+        self.current_mesh_label.setWordWrap(True)
+        if self._mesh_file is not None:
+            layout.addWidget(self.current_mesh_label)
+
         self.case_tree = QTreeWidget()
         self.case_tree.setColumnCount(2)
         self.case_tree.setHeaderLabels(["Run", "STL / Mesh Case"])
         self.case_tree.setRootIsDecorated(True)
         self.case_tree.setAlternatingRowColors(True)
-        self.case_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        case_header = self.case_tree.header()
+        case_header.setSectionResizeMode(0, QHeaderView.ResizeMode.Interactive)
+        case_header.setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
+        case_header.setStretchLastSection(False)
+        case_header.resizeSection(0, 92)
+        case_header.resizeSection(1, 430)
         self._case_items: dict[str, QTreeWidgetItem] = {}
         try:
-            dimension_groups = mesh_case_groups(self._repository_root)
-            for dimension_label, choices in dimension_groups:
+            dimension_groups = mesh_case_group_categories(self._repository_root)
+            for dimension_label, categories in dimension_groups:
                 dimension_item = QTreeWidgetItem(self.case_tree)
                 dimension_item.setText(1, dimension_label)
                 dimension_item.setFlags(
                     dimension_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
                 )
-                category_item = QTreeWidgetItem(dimension_item)
-                category_item.setText(1, "STL to Gmsh")
-                category_item.setFlags(
-                    category_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
-                )
-                for case_id, title in choices:
-                    item = QTreeWidgetItem(category_item)
-                    item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-                    item.setText(1, title)
-                    item.setData(0, Qt.ItemDataRole.UserRole, case_id)
-                    item.setCheckState(0, Qt.CheckState.Checked)
-                    self._case_items[case_id] = item
-                category_item.setCheckState(0, Qt.CheckState.Checked)
+                for category_label, choices in categories:
+                    category_item = QTreeWidgetItem(dimension_item)
+                    category_item.setText(1, category_label)
+                    category_item.setFlags(
+                        category_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
+                    )
+                    for case_id, title in choices:
+                        item = QTreeWidgetItem(category_item)
+                        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                        item.setText(1, title)
+                        item.setData(0, Qt.ItemDataRole.UserRole, case_id)
+                        item.setCheckState(0, Qt.CheckState.Checked)
+                        self._case_items[case_id] = item
+                    category_item.setCheckState(0, Qt.CheckState.Checked)
                 dimension_item.setCheckState(0, Qt.CheckState.Checked)
             self.case_tree.itemChanged.connect(self._update_group_state)
             self.case_tree.expandToDepth(1)
         except (OSError, ValueError, KeyError) as error:
             self.case_tree.setEnabled(False)
             layout.addWidget(QLabel(f"Mesh Case catalog unavailable: {error}"))
-        layout.addWidget(self.case_tree, 1)
+        self.case_tree.setMinimumHeight(180)
+        details_panel = QWidget(self)
+        content_layout = QVBoxLayout(details_panel)
+        content_layout.setContentsMargins(0, 0, 0, 0)
+        splitter = QSplitter(Qt.Orientation.Vertical, self)
+        splitter.setChildrenCollapsible(False)
+        splitter.setHandleWidth(7)
+        splitter.addWidget(self.case_tree)
+        splitter.addWidget(details_panel)
+        splitter.setStretchFactor(0, 3)
+        splitter.setStretchFactor(1, 2)
+        splitter.setSizes([330, 370])
+        layout.addWidget(splitter, 1)
+        self.case_tree.setVisible(self._mesh_file is None)
 
         selection_actions = QHBoxLayout()
         select_all = QPushButton("Select all")
         select_all.clicked.connect(lambda: self._set_all(True))
         select_none = QPushButton("Select none")
         select_none.clicked.connect(lambda: self._set_all(False))
+        for selection_button in (select_all, select_none):
+            selection_button.setFixedHeight(26)
+            selection_button.setStyleSheet("padding: 2px 8px;")
         selection_actions.addWidget(select_all)
         selection_actions.addWidget(select_none)
         selection_actions.addStretch(1)
-        layout.addLayout(selection_actions)
+        content_layout.addLayout(selection_actions)
+        select_all.setVisible(self._mesh_file is None)
+        select_none.setVisible(self._mesh_file is None)
 
         form = QFormLayout()
         form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
@@ -196,18 +266,41 @@ class MeshValidationDialog(QDialog):
         )
         form.addRow(template_label, self.template_combo)
         form.addRow("CFD smoke-test steps", self.steps_spin)
-        layout.addLayout(form)
+        content_layout.addLayout(form)
 
-        workspace = UserDataPaths.discover().mesh_validation
-        self.workspace_label = QLabel("Workspace: " + str(workspace))
+        workspace = (
+            self._project_directory / "validation"
+            if self._mesh_file is not None and self._project_directory is not None
+            else UserDataPaths.discover().mesh_validation
+        )
+        self.workspace_label = QLabel("Validation output: " + str(workspace))
         self.workspace_label.setWordWrap(True)
-        layout.addWidget(self.workspace_label)
+        content_layout.addWidget(self.workspace_label)
+
+        self.result_summary = QLabel("No validation results yet.")
+        self.result_summary.setWordWrap(True)
+        content_layout.addWidget(self.result_summary)
+        self.result_tree = QTreeWidget()
+        self.result_tree.setColumnCount(3)
+        self.result_tree.setHeaderLabels(["Case / stage", "Status", "Details"])
+        self.result_tree.setRootIsDecorated(True)
+        self.result_tree.setAlternatingRowColors(True)
+        result_header = self.result_tree.header()
+        result_header.setSectionResizeMode(0, QHeaderView.ResizeMode.Interactive)
+        result_header.setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
+        result_header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        result_header.setStretchLastSection(False)
+        result_header.resizeSection(0, 190)
+        result_header.resizeSection(1, 100)
+        self.result_tree.setMaximumHeight(190)
+        content_layout.addWidget(self.result_tree)
+        self._reported_outcomes: list[str] = []
 
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
         self.log_view.setMaximumBlockCount(20000)
         self.log_view.setPlaceholderText("Validation output will appear here.")
-        layout.addWidget(self.log_view, 1)
+        content_layout.addWidget(self.log_view, 1)
 
         buttons = QHBoxLayout()
         buttons.addStretch(1)
@@ -221,7 +314,7 @@ class MeshValidationDialog(QDialog):
         buttons.addWidget(self.run_button)
         buttons.addWidget(self.stop_button)
         buttons.addWidget(close_button)
-        layout.addLayout(buttons)
+        content_layout.addLayout(buttons)
 
     def _set_subtree_state(self, item: QTreeWidgetItem, state: Qt.CheckState) -> None:
         item.setCheckState(0, state)
@@ -266,11 +359,14 @@ class MeshValidationDialog(QDialog):
     def _start(self) -> None:
         if self._worker is not None and self._worker.isRunning():
             return
-        selected = [
-            (case_id, item.text(1))
-            for case_id, item in self._case_items.items()
-            if item.checkState(0) == Qt.CheckState.Checked
-        ]
+        selected = (
+            [(self._mesh_case_id, self._mesh_file.name)]
+            if self._mesh_file is not None else [
+                (case_id, item.text(1))
+                for case_id, item in self._case_items.items()
+                if item.checkState(0) == Qt.CheckState.Checked
+            ]
+        )
         if not selected:
             QMessageBox.information(self, "No mesh Cases selected", "Select at least one mesh Case.")
             return
@@ -280,20 +376,58 @@ class MeshValidationDialog(QDialog):
             QMessageBox.warning(self, "OneFLOW executable required", "Select a valid OneFLOW executable.")
             return
         commands = []
+        missing_mesh_inputs: list[str] = []
         for case_id, title in selected:
-            arguments = (
+            arguments = [
                 sys.executable, "-m", "tools.oneflow_gui.mesh_validation",
                 "--oneflow-executable", str(executable),
                 "--mesh-case-id", case_id,
                 "--cfd-template-id", str(self.template_combo.currentData()),
                 "--max-steps", str(self.steps_spin.value()),
+            ]
+            if self._mesh_file is not None:
+                if not self._mesh_file.is_file():
+                    QMessageBox.warning(
+                        self, "Mesh file required",
+                        f"The current mesh no longer exists: {self._mesh_file}",
+                    )
+                    return
+                arguments.extend(["--mesh-file", str(self._mesh_file)])
+                if self._project_directory is not None:
+                    arguments.extend(["--project-directory", str(self._project_directory)])
+            else:
+                existing_mesh_paths = existing_mesh_case_paths(
+                    self._repository_root, case_id
+                )
+                if existing_mesh_paths is not None:
+                    existing_mesh, project_directory = existing_mesh_paths
+                    if not existing_mesh.is_file():
+                        missing_mesh_inputs.append(f"{title}: {existing_mesh}")
+                        item = self._case_items.get(case_id)
+                        if item is not None:
+                            item.setCheckState(0, Qt.CheckState.Unchecked)
+                        continue
+                    arguments.extend(["--mesh-file", str(existing_mesh)])
+                    arguments.extend(["--project-directory", str(project_directory)])
+            commands.append((f"Mesh-to-CFD: {title}", tuple(arguments), self._repository_root))
+        if missing_mesh_inputs:
+            QMessageBox.warning(
+                self, "Generated mesh not available",
+                "The following existing-mesh inputs were skipped. Generate them "
+                "in Mesh Generation before selecting them:\n\n"
+                + "\n".join(missing_mesh_inputs),
             )
-            commands.append((f"Mesh-to-CFD: {title}", arguments, self._repository_root))
+        if not commands:
+            return
         self.log_view.clear()
+        self.result_tree.clear()
+        self._reported_outcomes.clear()
+        self.result_summary.setText("Validation is running…")
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
         self._worker = MeshValidationWorker(commands)
         self._worker.output_line.connect(self.log_view.appendPlainText)
+        self._worker.report_ready.connect(self._report_ready)
         self._worker.completed.connect(self._completed)
         self._worker.finished.connect(self._worker_finished)
         self._worker.start()
@@ -303,9 +437,26 @@ class MeshValidationDialog(QDialog):
             self._worker.request_stop()
             self.stop_button.setEnabled(False)
 
+    def _report_ready(self, label: str, report: dict) -> None:
+        status = str(report.get("status", "unknown")).upper()
+        exit_code = report.get("exit_code", "unknown")
+        self._reported_outcomes.append(status)
+        root = QTreeWidgetItem(self.result_tree, [label, status, f"Exit code: {exit_code}"])
+        for stage_name, stage_status, stage_message in run_report_stage_rows(report):
+            QTreeWidgetItem(root, [stage_name, stage_status, stage_message])
+        root.setExpanded(True)
+        failed = sum(item == "FAILED" for item in self._reported_outcomes)
+        passed = sum(item == "SUCCESS" for item in self._reported_outcomes)
+        self.result_summary.setText(
+            f"Run reports: {len(self._reported_outcomes)}    "
+            f"SUCCESS: {passed}    FAILED: {failed}"
+        )
+
     def _completed(self, passed: bool, message: str) -> None:
         self.log_view.appendPlainText("\n" + message)
-        self.log_view.appendPlainText("OVERALL: " + ("PASSED" if passed else "FAILED / CANCELLED"))
+        verdict = "SUCCESS" if passed else "FAILED / CANCELLED"
+        self.log_view.appendPlainText("OVERALL: " + verdict)
+        self.result_summary.setText("OVERALL: " + verdict)
 
     def _worker_finished(self) -> None:
         self._worker = None

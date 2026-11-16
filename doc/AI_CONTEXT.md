@@ -1,3 +1,128 @@
+## 2026-11-16 continuation: resizable Mesh-to-CFD selection and 3-D cylinder input
+
+Starting `hexin` from `d29a2f5cb95b36b543fa680707335d648def1d95`.
+
+- The Mesh-to-CFD Case tree now gives the `Run` and `Mesh Case` columns
+  interactive resize handles with useful initial widths. The result tree's
+  first two columns are also resizable. The dialog starts wider, and the
+  Select all / Select none buttons use a compact 26 px height.
+- The cylinder is stored under the catalog's top-level `mesh_validation_inputs`
+  collection rather than `cases`. The general Case Catalog validator and
+  Run Development Cases therefore continue to see only executable Cases;
+  Mesh-to-CFD Validation explicitly merges the two collections for its own
+  selector and workflow lookup.
+- Added the 3-D Cylinder Internal Flow generated MSH as an explicit
+  existing-mesh validation entry. It resolves the generated file below
+  `UserDataPaths.mesh_generation/cylinder_internal_flow/results/`, not in
+  the repository source tree. The file is copied into the project's
+  `validation/` workspace before downstream processing.
+- Cylinder validation is intentionally `mesh_handoff`: MSH4 inspection
+  additionally requires `wall`, `inflow`, `outflow` (2-D) and
+  `fluid_domain` (3-D) Physical Groups, followed by Gmsh-to-CGNS conversion
+  and CGNS-to-OneFLOW ingestion. The current
+  flat-plate CFD template is not a physically compatible internal-flow
+  consumer, so this entry does not claim or run a CFD smoke test.
+- The cylinder's prior preset mapping to the prolate-spheroid Python Case was
+  incorrect; it now uses its own catalog ID. Existing-mesh paths are
+  validated as relative paths contained below the user mesh-generation root.
+- Tests cover catalog visibility, 3-D grouping, handoff stage construction,
+  output artifact naming, and user-workspace path containment.
+
+CI and GUI runtime verification are pending for this slice. In particular,
+the Qt column drag handles should be checked interactively after pulling.
+
+---
+
+## 2026-11-16 continuation: Mesh-to-CFD result panel
+
+Starting hexin HEAD: cbff9c452722e577dde6db05a822b68b1a95f56a.
+
+Added a compact result tree to Mesh-to-CFD Validation. The worker reads the
+machine-readable run report after each process exits and emits its stage
+records to the dialog. Each selected Case appears as a parent row with
+PASS/FAIL/NOT_RUN/NOT_CHECKED child rows and the stage message. The live log
+remains available separately.
+
+Added a pure report-row adapter and tests for the GUI data contract. The
+dialog still treats the subprocess exit code as authoritative for the
+overall process result; report data supplies stage-level detail.
+
+No local test or CI result is claimed until the corresponding workflow run
+for the commit is checked.
+
+---
+
+## 2026-11-16 continuation: shared conversion and Mesh-to-CFD run reports
+
+Starting hexin HEAD: f173038a364fa1443c87f52a7431ef32d36c74ad.
+
+Extended the shared oneflow.run-report version 1 envelope beyond STL-to-Gmsh:
+
+- Gmsh-to-CGNS writes a per-mesh run-report JSON, plus an explicit terminal
+  SUCCESS summary and a human Markdown heading. It distinguishes successful
+  MSH reading / CGNS writing from CGNS read-back, mesh quality, and CFD checks
+  that are not performed by this command.
+- Mesh-to-CFD Validation maps workflow graph results into the common
+  PASS/FAIL/NOT_RUN/NOT_CHECKED vocabulary and writes the same report envelope.
+  The report records mesh generation, Gmsh-to-CGNS, CGNS-to-OneFLOW, and CFD
+  smoke stages, with quality and physical accuracy left NOT_CHECKED.
+- The workflow report keeps per-step messages and metadata; the CLI prints
+  the same stage states, which are visible in the GUI's captured output.
+- Added focused Python graph-to-report tests and C++ conversion report
+  assertions. Updated the run-result contract, Mesh-to-CFD documentation,
+  and Gmsh-to-CGNS README.
+
+No claim of local execution or CI success until the new commit's tests and
+workflow results have been checked.
+
+Next action: add a compact structured result panel to Mesh Generation GUI,
+while preserving detailed logs and paths.
+
+---
+
+## 2026-11-16 continuation: human-first mesh run reports
+
+The verified starting hexin HEAD was
+ebdd38891004c29c79180c3502f864213381ef67.
+
+Implemented the first adapter of a versioned run-result contract for
+grid/stl_to_gmsh/generate_volume_mesh.py:
+
+- concise terminal verdict and stage results instead of dumping the full JSON;
+- explicit PASS, FAIL, NOT_RUN, and NOT_CHECKED stage states;
+- process status and exit code in the JSON report;
+- failure reports with the failed stage and actionable error text;
+- stale report invalidation before each run and atomic report replacement;
+- preserve the legacy validated and mesh detail fields for compatibility;
+- explicitly mark tetrahedron mesh-quality acceptance as NOT_CHECKED.
+
+Added the run-result contract document and focused success/failure tests.
+The Python tooling workflow runs the new test on Linux and Windows. This
+record describes implementation scope; test and CI outcomes must be updated
+only after checking the exact resulting commit.
+
+Changed files:
+- grid/stl_to_gmsh/run_report.py (new)
+- grid/stl_to_gmsh/generate_volume_mesh.py
+- grid/tests/python/stl_to_gmsh/test_run_report.py (new)
+- .github/workflows/python-tools.yml
+- grid/stl_to_gmsh/README.md
+- doc/source/run_result_reporting.rst (new)
+- doc/source/index.rst
+- doc/reports/README.md
+- doc/AI_CONTEXT.md
+
+Focused validation:
+python -m unittest grid.tests.python.stl_to_gmsh.test_run_report
+and the existing STL-to-Gmsh Python suites. CI status for the resulting
+commit must be checked before claiming platform validation.
+
+Next action: apply the same envelope to Gmsh-to-CGNS and Mesh-to-CFD
+Validation, keeping mesh-quality and physical-validation claims distinct
+from successful conversion execution.
+
+---
+
 ## 2026-11-07 continuation: mesh boundary algorithm note and contract references
 
 The user reported 1269/1269 tests passing before this slice. Documentation and

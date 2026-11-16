@@ -11,8 +11,12 @@ from pathlib import Path
 
 from tools.oneflow_gui.mesh_validation import (
     build_mesh_validation_cases, cfd_template_choices, mesh_case_choices, mesh_case_groups,
-    mesh_validation_workspace, reset_mesh_validation_workspace,
-    _graph_step_records, _mesh_case_command,
+    mesh_case_group_categories,
+    mesh_validation_workspace, project_mesh_validation_workspace,
+    reset_mesh_validation_workspace, create_mesh_validation_run_workspace,
+    _copy_existing_mesh, _graph_step_records,
+    _mesh_case_command, _mesh_validation_stage_results, run_report_stage_rows,
+    existing_mesh_case_paths, _validate_required_physical_groups,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
@@ -31,6 +35,9 @@ class MeshValidationCatalogTest(unittest.TestCase):
         (self.root / "grid/stl_to_gmsh/2d/square/automatic_triangles/python").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/2d/circle_external_flow/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/3d/cube/single_hex/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/python").mkdir(parents=True)
         (self.root / "test/cfd/plateuns2dslau2/script").mkdir(parents=True)
         (self.root / "grid/case_catalog.json").write_text(json.dumps({
@@ -57,6 +64,28 @@ class MeshValidationCatalogTest(unittest.TestCase):
                  "directory": "grid/stl_to_gmsh/3d/cube/single_hex/python",
                  "group": "STL to Gmsh", "dimension": 3,
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
+                {"id": "native_sphere", "title": "Unit Sphere Automatic Tetrahedra (Native C++)",
+                 "directory": "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp",
+                 "group": "STL to Gmsh", "dimension": 3, "mesh_validation": "cfd_smoke"},
+                {"id": "python_sphere", "title": "Unit Sphere Automatic Tetrahedra (Python Reference)",
+                 "directory": "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python",
+                 "group": "STL to Gmsh", "dimension": 3,
+                 "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"},
+                 "mesh_validation": "cfd_smoke"},
+                {"id": "cylinder_existing_mesh",
+                 "title": "3D Cylinder Internal Flow (Generated MSH)",
+                 "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow",
+                 "group": "STL to Gmsh", "dimension": 3,
+                 "mesh_validation": "mesh_handoff",
+                 "execution": {"kind": "existing_mesh",
+                               "project_directory": "cylinder_internal_flow",
+                               "mesh_file": "results/cylinder_internal_flow.msh"},
+                 "required_physical_groups": [
+                     {"name": "wall", "dimension": 2},
+                     {"name": "inflow", "dimension": 2},
+                     {"name": "outflow", "dimension": 2},
+                     {"name": "fluid_domain", "dimension": 3},
+                 ]},
                 {"id": "python_square", "title": "One Square QUAD_4 Cell (Python Reference)",
                  "directory": "grid/stl_to_gmsh/2d/square/single_quad/python",
                  "group": "STL to Gmsh", "dimension": 2,
@@ -73,6 +102,14 @@ class MeshValidationCatalogTest(unittest.TestCase):
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
             ],
         }), encoding="utf-8")
+        catalog_path = self.root / "grid/case_catalog.json"
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        cylinder_input = next(
+            item for item in catalog["cases"] if item["id"] == "cylinder_existing_mesh"
+        )
+        catalog["cases"].remove(cylinder_input)
+        catalog["mesh_validation_inputs"] = [cylinder_input]
+        catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/python/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "square.msh"}}), encoding="utf-8"
         )
@@ -84,6 +121,17 @@ class MeshValidationCatalogTest(unittest.TestCase):
             'string targetGridFileName = "results/cube_single_hex.msh";\n', encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/3d/cube/single_hex/cpp/script/layout.json").write_text(
             json.dumps({"mesh_dimension": 3}), encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/script/grid.txt").write_text(
+            'string targetGridFileName = "results/sphere_automatic_tetrahedra.msh";\n',
+            encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/script/layout.json").write_text(
+            json.dumps({"mesh_dimension": 3}), encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/expected.json").write_text(
+            json.dumps({"artifact": {"mesh_file": "sphere_automatic_tetrahedra.msh"}}),
+            encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/expected.json").write_text(
+            json.dumps({"artifact": {"mesh_file": "cylinder_internal_flow.msh"}}),
+            encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/square.msh";\n', encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/two_triangles/cpp/script/grid.txt").write_text(
@@ -133,10 +181,67 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ("stl_to_gmsh_circle_external_flow", "Circle External Flow (Native C++)"),
             ("native_cube", "Cube Single Hex (Native C++)"),
             ("python_cube", "Cube Single Hex (Python Reference)"),
+            ("native_sphere", "Unit Sphere Automatic Tetrahedra (Native C++)"),
+            ("python_sphere", "Unit Sphere Automatic Tetrahedra (Python Reference)"),
             ("python_square", "One Square QUAD_4 Cell (Python Reference)"),
             ("stl_to_gmsh_python_square_two_triangles", "Square with Two TRI_3 Cells (Python Reference)"),
             ("stl_to_gmsh_python_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Python Reference)"),
+            ("cylinder_existing_mesh", "3D Cylinder Internal Flow (Generated MSH)"),
         ))
+    def test_existing_cylinder_is_grouped_as_existing_gmsh_mesh_not_stl_producer(self):
+        groups = dict(mesh_case_group_categories(self.root))
+        categories = dict(groups["3D"])
+        self.assertIn("STL to Gmsh", categories)
+        self.assertEqual(
+            categories["Existing Gmsh Mesh"],
+            (("cylinder_existing_mesh", "3D Cylinder Internal Flow (Generated MSH)"),),
+        )
+
+    def test_repository_catalog_exposes_3d_cylinder_existing_mesh(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        case_id = "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow"
+        choices = dict(mesh_case_choices(repository_root))
+        self.assertIn(case_id, choices)
+
+        groups = dict(mesh_case_groups(repository_root))
+        self.assertIn(case_id, {item[0] for item in groups["3D"]})
+
+        steps = build_mesh_validation_cases(
+            repository_root, case_id, "laminar_flat_plate"
+        )
+        self.assertEqual(
+            [step["id"] for step in steps],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
+        )
+        self.assertEqual(
+            steps[0]["outputs"][0]["path"],
+            "results/cylinder_internal_flow.msh",
+        )
+
+    def test_repository_catalog_exposes_unit_sphere_in_mesh_validation_3d(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        choices = dict(mesh_case_choices(repository_root))
+        expected_ids = {
+            "stl_to_gmsh_sphere_automatic_tetrahedra",
+            "stl_to_gmsh_python_sphere_automatic_tetrahedra",
+        }
+        self.assertTrue(expected_ids.issubset(choices))
+
+        groups = dict(mesh_case_groups(repository_root))
+        sphere_ids = {case_id for case_id, _title in groups["3D"]}
+        self.assertTrue(expected_ids.issubset(sphere_ids))
+
+        for case_id in sorted(expected_ids):
+            steps = build_mesh_validation_cases(
+                repository_root, case_id, "laminar_flat_plate"
+            )
+            self.assertEqual(
+                [step["id"] for step in steps],
+                ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
+            )
+            self.assertEqual(steps[3]["runtime_directory"], "oneflow_cfd_solve")
+            self.assertEqual(steps[3]["directory"], "test/cfd/plateuns2dslau2")
+
     def test_mesh_selector_groups_cases_by_spatial_dimension(self):
         groups = mesh_case_groups(self.root)
         self.assertEqual([dimension for dimension, _cases in groups], ["2D", "3D"])
@@ -154,7 +259,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertEqual(
             [case_id for case_id, _title in groups[1][1]],
-            ["native_cube", "python_cube"],
+            ["native_cube", "python_cube", "native_sphere", "python_sphere", "cylinder_existing_mesh"],
         )
 
     def test_mesh_producer_command_dispatches_by_implementation(self):
@@ -315,6 +420,48 @@ class MeshValidationCatalogTest(unittest.TestCase):
              "parameter_file": "script/grid.txt", "setting": "gridInfoFileName"},
         ])
 
+    def test_unit_sphere_cases_run_the_complete_3d_cfd_smoke_chain(self):
+        choices = dict(mesh_case_choices(self.root))
+        self.assertIn("native_sphere", choices)
+        self.assertIn("python_sphere", choices)
+        groups = dict(mesh_case_groups(self.root))
+        self.assertIn("native_sphere", dict(groups["3D"]))
+        self.assertIn("python_sphere", dict(groups["3D"]))
+
+        native = build_mesh_validation_cases(
+            self.root, "native_sphere", "laminar_flat_plate"
+        )
+        python = build_mesh_validation_cases(
+            self.root, "python_sphere", "laminar_flat_plate"
+        )
+        expected_steps = ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"]
+        self.assertEqual([item["id"] for item in native], expected_steps)
+        self.assertEqual([item["id"] for item in python], expected_steps)
+        self.assertEqual(
+            native[0]["directory"],
+            "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp",
+        )
+        self.assertEqual(
+            native[0]["outputs"][0]["path"],
+            "results/sphere_automatic_tetrahedra.msh",
+        )
+        self.assertEqual(
+            python[0]["directory"],
+            "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python",
+        )
+        self.assertEqual(
+            python[0]["outputs"][0]["path"],
+            "results/sphere_automatic_tetrahedra.msh",
+        )
+        self.assertEqual(
+            native[2]["outputs"][0]["path"],
+            "results/sphere_automatic_tetrahedra.oneflow.grid",
+        )
+        self.assertEqual(native[3]["runtime_directory"], "oneflow_cfd_solve")
+        self.assertEqual(python[3]["runtime_directory"], "oneflow_cfd_solve")
+        self.assertEqual(native[3]["directory"], "test/cfd/plateuns2dslau2")
+        self.assertEqual(python[3]["directory"], "test/cfd/plateuns2dslau2")
+
     def test_python_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
         cube_dir = self.root / "grid/stl_to_gmsh/3d/cube/single_hex/python"
         (cube_dir / "script").mkdir(parents=True, exist_ok=True)
@@ -381,6 +528,58 @@ class MeshValidationCatalogTest(unittest.TestCase):
              "parameter_file": "script/cfd.txt"},
         ])
 
+    def test_run_report_rows_are_ready_for_gui_display(self):
+        rows = run_report_stage_rows({
+            "stages": {
+                "mesh_generation": {"status": "PASS", "message": "MSH checked."},
+                "gmsh_to_cgns": {"status": "FAIL", "message": "CGNS writer failed."},
+                "cfd_smoke": {"status": "NOT_RUN"},
+            }
+        })
+        self.assertEqual(rows, (
+            ("mesh_generation", "PASS", "MSH checked."),
+            ("gmsh_to_cgns", "FAIL", "CGNS writer failed."),
+            ("cfd_smoke", "NOT_RUN", ""),
+        ))
+        with self.assertRaisesRegex(ValueError, "must be an object"):
+            run_report_stage_rows({"stages": []})
+
+    def test_workflow_graph_maps_to_common_report_states(self):
+        result = WorkflowGraphRunResult("failed", (
+            CaseExecutionResult("stl_to_gmsh", "succeeded", "MSH generated."),
+            CaseExecutionResult("gmsh_to_cgns", "failed", "CGNS writer failed."),
+            CaseExecutionResult("cgns_to_oneflow", "skipped", "Blocked."),
+        ))
+        stages = _mesh_validation_stage_results(result)
+        self.assertEqual(stages["mesh_generation"]["status"], "PASS")
+        self.assertEqual(stages["gmsh_to_cgns"]["status"], "FAIL")
+        self.assertEqual(stages["cgns_to_oneflow"]["status"], "NOT_RUN")
+        self.assertEqual(stages["cfd_smoke"]["status"], "NOT_RUN")
+        self.assertEqual(stages["mesh_quality"]["status"], "NOT_CHECKED")
+        self.assertEqual(stages["cfd_accuracy"]["status"], "NOT_CHECKED")
+
+    def test_existing_mesh_report_names_the_input_stage_without_claiming_generation(self):
+        result = WorkflowGraphRunResult("succeeded", (
+            CaseExecutionResult("stl_to_gmsh", "succeeded", "Staged existing mesh."),
+            CaseExecutionResult("gmsh_to_cgns", "succeeded", "CGNS written."),
+            CaseExecutionResult("cgns_to_oneflow", "succeeded", "Grid loaded."),
+        ))
+        stages = _mesh_validation_stage_results(result, existing_mesh=True)
+        self.assertIn("existing_msh_input", stages)
+        self.assertNotIn("mesh_generation", stages)
+        self.assertEqual(stages["existing_msh_input"]["status"], "PASS")
+
+    def test_successful_handoff_does_not_claim_cfd_or_quality_validation(self):
+        result = WorkflowGraphRunResult("succeeded", (
+            CaseExecutionResult("stl_to_gmsh", "succeeded", "MSH inspected."),
+            CaseExecutionResult("gmsh_to_cgns", "succeeded", "CGNS written."),
+            CaseExecutionResult("cgns_to_oneflow", "succeeded", "Grid loaded."),
+        ))
+        stages = _mesh_validation_stage_results(result)
+        self.assertEqual(stages["cfd_smoke"]["status"], "NOT_RUN")
+        self.assertEqual(stages["mesh_quality"]["status"], "NOT_CHECKED")
+        self.assertEqual(stages["cfd_accuracy"]["status"], "NOT_CHECKED")
+
     def test_report_records_final_graph_status_and_blocked_steps(self):
         result = WorkflowGraphRunResult("failed", (
             CaseExecutionResult("stl_to_gmsh", "succeeded", "OneFLOW exited successfully."),
@@ -406,6 +605,110 @@ class MeshValidationCatalogTest(unittest.TestCase):
              "message": "Blocked by unsuccessful dependencies: cgns_to_oneflow"},
         ])
 
+    def test_prolate_spheroid_native_and_python_cases_are_validation_choices(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        choices = {case_id for case_id, _title in mesh_case_choices(repository_root)}
+        for case_id in (
+            "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra",
+            "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
+        ):
+            self.assertIn(case_id, choices)
+            graph = build_mesh_validation_cases(
+                repository_root, case_id, "laminar_flat_plate"
+            )
+            self.assertEqual(len(graph), 4)
+            self.assertEqual(graph[0]["id"], "stl_to_gmsh")
+            self.assertEqual(
+                graph[0]["outputs"][0]["path"],
+                "results/prolate_spheroid_automatic_tetrahedra.msh",
+            )
+            self.assertEqual(graph[-1]["id"], "oneflow_cfd_solve")
+
+    def test_existing_cylinder_mesh_is_a_3d_handoff_validation_entry(self):
+        choices = dict(mesh_case_choices(self.root))
+        self.assertIn("cylinder_existing_mesh", choices)
+        groups = dict(mesh_case_groups(self.root))
+        self.assertIn(
+            ("cylinder_existing_mesh", "3D Cylinder Internal Flow (Generated MSH)"),
+            groups["3D"],
+        )
+
+        steps = build_mesh_validation_cases(
+            self.root, "cylinder_existing_mesh", "laminar_flat_plate"
+        )
+        self.assertEqual(
+            [step["id"] for step in steps],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
+        )
+        self.assertEqual(
+            steps[0]["outputs"][0]["path"],
+            "results/cylinder_internal_flow.msh",
+        )
+        self.assertEqual(steps[0]["validation"]["kind"], "gmsh_msh4")
+
+    def test_cylinder_msh_requires_all_three_surface_patches_and_volume(self):
+        entry = {
+            "required_physical_groups": [
+                {"name": "wall", "dimension": 2},
+                {"name": "inflow", "dimension": 2},
+                {"name": "outflow", "dimension": 2},
+                {"name": "fluid_domain", "dimension": 3},
+            ]
+        }
+        mesh_info = {
+            "physical_groups": [
+                {"name": "wall", "dimension": 2},
+                {"name": "inflow", "dimension": 2},
+                {"name": "outflow", "dimension": 2},
+                {"name": "fluid_domain", "dimension": 3},
+            ]
+        }
+        _validate_required_physical_groups(mesh_info, entry)
+
+        mesh_info["physical_groups"].pop(1)
+        with self.assertRaisesRegex(ValueError, "inflow"):
+            _validate_required_physical_groups(mesh_info, entry)
+
+        mesh_info["physical_groups"].append({"name": "inflow", "dimension": 3})
+        with self.assertRaisesRegex(ValueError, "inflow"):
+            _validate_required_physical_groups(mesh_info, entry)
+
+    def test_existing_mesh_case_resolves_only_inside_user_mesh_workspace(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary) / "mesh-generation"
+            paths = type("Paths", (), {"mesh_generation": workspace})()
+            with mock.patch(
+                "tools.oneflow_gui.mesh_validation.UserDataPaths.discover",
+                return_value=paths,
+            ):
+                resolved = existing_mesh_case_paths(self.root, "cylinder_existing_mesh")
+            expected_project = (workspace / "cylinder_internal_flow").resolve()
+            self.assertEqual(
+                resolved,
+                (
+                    expected_project / "results/cylinder_internal_flow.msh",
+                    expected_project,
+                ),
+            )
+
+            catalog = json.loads(
+                (self.root / "grid/case_catalog.json").read_text(encoding="utf-8")
+            )
+            cylinder = next(
+                x for x in catalog["mesh_validation_inputs"]
+                if x["id"] == "cylinder_existing_mesh"
+            )
+            cylinder["execution"]["mesh_file"] = "../../outside.msh"
+            (self.root / "grid/case_catalog.json").write_text(
+                json.dumps(catalog), encoding="utf-8"
+            )
+            with mock.patch(
+                "tools.oneflow_gui.mesh_validation.UserDataPaths.discover",
+                return_value=paths,
+            ):
+                with self.assertRaisesRegex(ValueError, "safe relative"):
+                    existing_mesh_case_paths(self.root, "cylinder_existing_mesh")
+
     def test_unknown_mesh_case_and_template_are_rejected(self):
         with self.assertRaisesRegex(ValueError, "Unknown mesh-generation Case"):
             build_mesh_validation_cases(self.root, "missing", "laminar_flat_plate")
@@ -413,6 +716,28 @@ class MeshValidationCatalogTest(unittest.TestCase):
             build_mesh_validation_cases(self.root, "stl_to_gmsh_square", "missing")
 
 
+
+    def test_existing_mesh_is_copied_to_an_isolated_stage(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "project" / "mesh.msh"
+            source.parent.mkdir()
+            source.write_text("$MeshFormat\\n4.1 0 8\\n$EndMeshFormat\\n", encoding="ascii")
+            destination = root / "validation" / "run-1" / "producer" / "results" / "mesh.msh"
+            _copy_existing_mesh(source, destination)
+            self.assertEqual(destination.read_bytes(), source.read_bytes())
+            self.assertTrue(source.is_file())
+            self.assertNotEqual(source.resolve(), destination.resolve())
+
+    def test_existing_mesh_copy_rejects_missing_or_non_msh_sources(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            with self.assertRaisesRegex(FileNotFoundError, "not found"):
+                _copy_existing_mesh(root / "missing.msh", root / "stage" / "mesh.msh")
+            invalid = root / "mesh.stl"
+            invalid.write_text("solid mesh\\nendsolid mesh\\n", encoding="ascii")
+            with self.assertRaisesRegex(ValueError, "extension"):
+                _copy_existing_mesh(invalid, root / "stage" / "mesh.msh")
 
     def test_workspace_uses_mesh_case_relative_directory(self):
         paths = type(
@@ -428,6 +753,16 @@ class MeshValidationCatalogTest(unittest.TestCase):
             workspace,
             self.root / ".oneflow" / "mesh-validation" / "stl_to_gmsh" / "2d" / "square" / "single_quad" / "cpp",
         )
+
+
+    def test_existing_mesh_validation_uses_project_validation_directory_without_run_stamp(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            project = Path(temporary) / "mesh-generation" / "sphere"
+            project.mkdir(parents=True)
+            workspace = project_mesh_validation_workspace(project)
+            self.assertEqual(workspace, (project / "validation").resolve())
+            self.assertEqual(workspace.name, "validation")
+            self.assertNotIn("T", workspace.name)
 
     def test_workspace_rejects_cases_outside_grid(self):
         catalog = json.loads(
@@ -452,6 +787,32 @@ class MeshValidationCatalogTest(unittest.TestCase):
             reset_mesh_validation_workspace(selected)
             self.assertFalse((selected / "stale.txt").exists())
             self.assertTrue((sibling / "keep.txt").is_file())
+
+
+    def test_each_run_clears_and_recreates_the_stable_validation_directory(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary) / "project" / "validation"
+            old_run = base / "run-20261115T173711-ae8d11f2"
+            old_run.mkdir(parents=True)
+            (old_run / "stale-report.json").write_text("old", encoding="utf-8")
+
+            first = create_mesh_validation_run_workspace(base)
+
+            self.assertEqual(first, base.resolve())
+            self.assertTrue(base.is_dir())
+            self.assertFalse(old_run.exists())
+            self.assertEqual(list(base.iterdir()), [])
+
+            stale_output = base / "oneflow_cfd_solve" / "visual" / "visual.dat"
+            stale_output.parent.mkdir(parents=True)
+            stale_output.write_text("old run", encoding="utf-8")
+
+            second = create_mesh_validation_run_workspace(base)
+
+            self.assertEqual(second, first)
+            self.assertTrue(base.is_dir())
+            self.assertFalse(stale_output.exists())
+            self.assertEqual(list(base.iterdir()), [])
 
 
 if __name__ == "__main__":

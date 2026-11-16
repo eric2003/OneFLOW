@@ -26,6 +26,10 @@ and environment dumps belong in CI artifacts or isolated cluster run directories
 - [GPU backend delivery report](delivery/oneflow-gpu-backend-delivery.md)
 - [GPU backend delivery report (HTML)](delivery/oneflow-gpu-backend-delivery.html)
 
+## Run-result reporting
+
+- [Run-result status and evidence contract](../source/run_result_reporting.rst)
+
 ## Related project documents
 
 - [Architecture](../architecture/)

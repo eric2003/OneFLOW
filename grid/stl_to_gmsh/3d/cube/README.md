@@ -28,4 +28,4 @@ python grid/stl_to_gmsh/develop_test/run_cases.py --oneflow-executable build/bin
 ```
 
 The runner stages all Cases outside the source tree under the user's
-`.oneflow/mesh-layout-test/grid/stl_to_gmsh` directory.
+`.oneflow/grid-development/stl-to-gmsh` directory.

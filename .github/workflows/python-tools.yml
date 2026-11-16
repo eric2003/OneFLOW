@@ -66,6 +66,10 @@ jobs:
         run: python tools/test_mesh_cases.py
       - name: Test planar STL to Gmsh geometry generation
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_geometry
+      - name: Test STL-to-Gmsh run reports
+        run: python -m unittest grid.tests.python.stl_to_gmsh.test_run_report
+      - name: Test parameterized 3-D STL geometry generation
+        run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_geometry_generation
       - name: Test native and Python STL-to-Gmsh Cases
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases
       - name: Test Mesh-to-CFD Validation graph
@@ -86,6 +90,8 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_main_window
       - name: Test GUI test command builder and registry consistency
         run: python -m unittest tools.oneflow_gui.test_test_runner tools.oneflow_gui.test_test_inventory
+      - name: Test GUI launcher configuration
+        run: python -m unittest tools.oneflow_gui.test_launcher
       - name: Test cross-platform executable discovery
         run: python -m unittest tools.oneflow_gui.test_executable_discovery
       - name: Test process tree lifecycle
@@ -104,6 +110,8 @@ jobs:
         run: python -m unittest tools.verification.test_vencat_reference
       - name: Test Contract Workbench dialog
         run: python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+      - name: Test Mesh Generation Workbench
+        run: python -m unittest tools.oneflow_gui.test_mesh_generation_dialog
       - name: Test Boundary Conditions Workbench
         run: python -m unittest tools.oneflow_gui.test_boundary_conditions_workbench
       - name: Test source editor process launch
@@ -116,6 +124,8 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_workflow_execution_capture
       - name: Test worker execution evidence integration
         run: python -m unittest tools.oneflow_gui.test_test_dialog_execution_capture
+      - name: Test cross-platform path identity and containment
+        run: python -m unittest tools.oneflow_gui.test_path_utils
       - name: Test user data paths
         run: python -m unittest tools.oneflow_gui.test_user_data_paths
       - name: Test application settings
