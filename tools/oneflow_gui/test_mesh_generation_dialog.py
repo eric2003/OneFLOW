@@ -52,6 +52,8 @@ class MeshGenerationDialogTest(unittest.TestCase):
             try:
                 self.assertEqual(library.asset_list.count(), 3)
                 self.assertIn("geometry.sphere.unit", library.details.toPlainText())
+                self.assertIn("\nDefinition\n", library.details.toPlainText())
+                self.assertNotIn("\\nDefinition", library.details.toPlainText())
                 self.assertIn("analytic-equation", library.details.toPlainText())
                 library.asset_list.setCurrentRow(1)
                 self.assertIn("geometry.spheroid.prolate_6_to_1", library.details.toPlainText())
