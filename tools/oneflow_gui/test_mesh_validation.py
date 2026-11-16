@@ -215,7 +215,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
                  "title": "3D Cylinder Internal Flow (Generated MSH)",
                  "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow",
                  "group": "STL to Gmsh", "dimension": 3,
-                 "mesh_validation": "mesh_handoff",
+                 "mesh_validation": "cfd_smoke",
                  "execution": {"kind": "existing_mesh",
                                "project_directory": "cylinder_internal_flow",
                                "mesh_file": "results/cylinder_internal_flow.msh"},
@@ -350,7 +350,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertEqual(
             [step["id"] for step in steps],
-            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
         )
         self.assertEqual(
             steps[0]["outputs"][0]["path"],
