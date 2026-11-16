@@ -1,3 +1,29 @@
+## 2026-11-16 continuation: fix post-run geometry lineage reporting
+
+Starting `hexin` HEAD: `5a04bddd842d6b572048ffbc78d5552a1a580151`.
+
+- A user-run 3D cylinder existing-MSH validation completed MSH staging,
+  Gmsh-to-CGNS conversion, and CGNS-to-OneFLOW ingestion, but then raised
+  `NameError: name 'steps' is not defined` while collecting downstream
+  artifacts for the final geometry-lineage report.
+- The graph declarations are held in `cases`; the final reporting block
+  incorrectly referenced a stale local name `steps` after the workflow
+  graph refactor.
+- Added `_downstream_lineage_artifacts()` and now build the report from the
+  same `cases` declarations used to create the graph. Added a focused
+  regression test for CGNS and native-grid paths and their parent links.
+- The reported run reached successful grid ingestion, but did not enter CFD
+  solve. This fix only removes the post-run reporting exception; it does not
+  claim that the CFD smoke stage ran or that physical accuracy was validated.
+- Commits: `103025185e5f3d4bb6bfa26978b594695f8b7cd1` (implementation),
+  `479e36c736b62e60a6c468357f8a59665edf586d` (regression test).
+  Exact-commit CI and local Windows execution have not yet been verified.
+
+Next: run the focused Mesh-to-CFD validation tests and inspect CI for the exact
+`hexin` HEAD before treating this workflow path as verified.
+
+---
+
 ## 2026-11-16 continuation: final geometry lineage handoff and GUI initialization fix
 
 Starting `hexin` HEAD: `b7051a2fa23dd24b09092a483785ae58c59f6add`.
