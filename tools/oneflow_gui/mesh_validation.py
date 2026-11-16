@@ -78,7 +78,7 @@ def mesh_case_groups(
 
 def mesh_case_choices(repository_root: Path) -> tuple[tuple[str, str], ...]:
     """List supported STL-to-Gmsh producers and existing-mesh inputs."""
-    entries = _catalog(Path(repository_root).resolve()).get("cases", [])
+    entries = _mesh_validation_entries(_catalog(Path(repository_root).resolve()))
     choices = tuple(
         (str(item["id"]), str(item.get("title", item["id"])))
         for item in entries
@@ -454,7 +454,7 @@ def run_mesh_validation(
 
     catalog = _catalog(REPOSITORY_ROOT)
     mesh_entry = next(
-        (item for item in catalog["cases"] if item.get("id") == mesh_case_id),
+        (item for item in _mesh_validation_entries(catalog) if item.get("id") == mesh_case_id),
         None,
     )
     if mesh_entry is None:
