@@ -500,7 +500,25 @@
         "kind": "existing_mesh",
         "project_directory": "cylinder_internal_flow",
         "mesh_file": "results/cylinder_internal_flow.msh"
-      }
+      },
+      "required_physical_groups": [
+        {
+          "name": "wall",
+          "dimension": 2
+        },
+        {
+          "name": "inflow",
+          "dimension": 2
+        },
+        {
+          "name": "outflow",
+          "dimension": 2
+        },
+        {
+          "name": "fluid_domain",
+          "dimension": 3
+        }
+      ]
     }
   ]
 }
