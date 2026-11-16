@@ -47,8 +47,8 @@ class GeometryArtifactLineageTest(unittest.TestCase):
             self.assertEqual(cgns_record["geometry_lineage"], lineage)
             self.assertEqual(cgns_record["parent_artifact"]["role"], "Gmsh MSH")
             self.assertTrue(cgns_sidecar.is_file())
-            self.assertTrue(cgns_sidecar.read_bytes().endswith(b"\\n"))
-            self.assertNotIn(b"\\\\n", cgns_sidecar.read_bytes())
+            self.assertTrue(cgns_sidecar.read_bytes().endswith(b"\n"))
+            self.assertNotIn(b"\\n", cgns_sidecar.read_bytes())
 
             native = root / "mesh.oneflow.grid"
             native.write_bytes(b"native-grid")
