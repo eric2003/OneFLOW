@@ -1,3 +1,31 @@
+## 2026-11-16 continuation: final geometry lineage handoff and GUI initialization fix
+
+Starting `hexin` HEAD: `b7051a2fa23dd24b09092a483785ae58c59f6add`.
+
+- CGNS companion lineage records now identify the exact staged MSH parent path,
+  filename and checksum. Native-grid records identify the CGNS parent path,
+  filename and checksum.
+- Project reopen validates each sidecar against its artifact, parent artifact,
+  project STL and (when present) project MSH. Replacing a CGNS artifact also
+  invalidates a native-grid record linked to the previous CGNS checksum.
+- The STL geometry selector now connects its change signal only after all
+  dependent controls have been constructed. CI logs had exposed an early Qt
+  callback during combo-box population, before the output widget existed.
+- The Python Tooling workflow passed on intermediate commit
+  `8572bc06a320fb79f9bb998aba48819930e70ccf` after the new project tests and
+  their registry/CI entries were added. A prior run on `bb5cbca` failed because
+  the GUI test lacked a local `SimpleNamespace` import; that was fixed and the
+  later Python Tooling run passed.
+- Exact-commit Python Tooling, Windows and Linux workflows for
+  `f5421335c60c6152622e2b8b51f340b51b766646` are queued; no exact-commit pass
+  or local execution is claimed.
+
+Next: inspect exact-commit CI results and continue from the verified project
+lineage lifecycle. Do not treat metadata-only non-STL registration as a
+working parser, previewer or meshing adapter.
+
+---
+
 ## 2026-11-16 continuation: verify parent links when reopening projects
 
 Starting `hexin` HEAD: `918b6ca0a574e4c256af94b4f3f721417bc7baf0`.
