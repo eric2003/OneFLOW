@@ -38,6 +38,35 @@ class MeshGenerationDialogTest(unittest.TestCase):
         cls.application = QApplication.instance() or QApplication([])
         cls.repository_root = Path(__file__).resolve().parents[2]
 
+    def test_geometry_library_is_available_from_mesh_generation(self) -> None:
+        from tools.oneflow_gui.geometry_library_dialog import GeometryLibraryDialog
+
+        dialog = MeshGenerationDialog(self.repository_root)
+        try:
+            button = next(
+                item for item in dialog.findChildren(QPushButton)
+                if item.text() == "Geometry Library..."
+            )
+            self.assertIsNotNone(button)
+            library = GeometryLibraryDialog(self.repository_root, dialog)
+            try:
+                self.assertEqual(library.asset_list.count(), 3)
+                self.assertIn("geometry.sphere.unit", library.details.toPlainText())
+                self.assertIn("analytic-equation", library.details.toPlainText())
+                library.asset_list.setCurrentRow(1)
+                self.assertIn("geometry.spheroid.prolate_6_to_1", library.details.toPlainText())
+                self.assertIn("generate_stl_geometry.py", library.details.toPlainText())
+            finally:
+                library.close()
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.GeometryLibraryDialog"
+            ) as library_type:
+                dialog._open_geometry_library()
+            library_type.assert_called_once_with(self.repository_root.resolve(), dialog)
+            library_type.return_value.exec.assert_called_once()
+        finally:
+            dialog.close()
+
     def test_home_window_exposes_mesh_generation_as_single_entry(self) -> None:
         from tools.oneflow_gui.home_window import WorkbenchHomeWindow
 
