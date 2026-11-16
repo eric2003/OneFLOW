@@ -390,7 +390,14 @@ class TestRunnerCommandTest(unittest.TestCase):
             if command.arguments[1:3] == ("-m", "unittest")
         ]
         self.assertTrue(unittest_commands)
-        self.assertTrue(all(command.arguments[3] == "-v" for command in unittest_commands))
+        self.assertTrue(all(
+            (
+                command.arguments[2:4] == ("discover", "-v")
+                if command.arguments[2] == "discover"
+                else command.arguments[3] == "-v"
+            )
+            for command in unittest_commands
+        ))
 
     def test_unittest_output_lists_skipped_case_names(self) -> None:
         report = summarize_test_output([
