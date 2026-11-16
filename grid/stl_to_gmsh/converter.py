@@ -636,9 +636,25 @@ def _cylinder_internal_flow_geo(
 
 
 def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dict:
-    triangles = read_stl(stl)
     sidecar_data = json.loads(sidecar.read_text(encoding="utf-8"))
     volume_mesh = sidecar_data.get("volume_mesh")
+    if sidecar_data.get("mesh_dimension") == 3 and volume_mesh == "cylinder_internal_flow":
+        # Check provenance before parsing the STL. A modified file should
+        # report a manifest/checksum error even if the modification also
+        # makes the STL byte stream malformed.
+        manifest_path = stl.with_suffix(".geometry.json")
+        if not manifest_path.is_file():
+            raise Stl2DError(
+                "cylinder_internal_flow requires its companion .geometry.json manifest"
+            )
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise Stl2DError(f"cannot read cylinder geometry manifest: {exc}") from exc
+        import hashlib
+        if hashlib.sha256(stl.read_bytes()).hexdigest() != manifest.get("stl_sha256"):
+            raise Stl2DError("cylinder STL checksum does not match its geometry manifest")
+    triangles = read_stl(stl)
     if sidecar_data.get("mesh_dimension") == 3 and volume_mesh == "cylinder_internal_flow":
         geometry, report = _cylinder_internal_flow_geo(
             stl, triangles, sidecar_data, tolerance
