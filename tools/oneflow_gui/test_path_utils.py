@@ -18,12 +18,10 @@ from tools.oneflow_gui.path_utils import (
 
 class PathUtilsTest(unittest.TestCase):
     def test_normalize_path_expands_and_resolves(self) -> None:
-        # Keep the temporary directory on the checkout drive: Windows cannot
-        # compute a relative path between different drive letters.
-        with tempfile.TemporaryDirectory(dir=Path.cwd()) as temporary:
-            root = Path(temporary)
-            relative = Path(os.path.relpath(root, Path.cwd()))
-            self.assertEqual(normalize_path(relative), root.resolve())
+        # Exercise relative-path resolution without creating anything in the
+        # checkout. Temporary test data belongs in the system temp directory.
+        self.assertEqual(normalize_path(Path(".")), Path.cwd().resolve())
+        self.assertEqual(normalize_path(Path("~")), Path.home().resolve())
 
     def test_paths_equal_for_same_existing_path(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
