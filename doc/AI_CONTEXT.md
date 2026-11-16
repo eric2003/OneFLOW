@@ -1,3 +1,26 @@
+## 2026-11-16 continuation: metadata-only non-STL asset registration
+
+Starting `hexin` HEAD: `edc101a526fda6af1e7e2a1b594e37c04017c00b`.
+
+- Geometry Library now exposes a non-STL import action for STEP/STP, IGES/IGS,
+  BREP, OBJ, PLY, XYZ, PTS, PCD and OneFLOW `.implicit.json` representations.
+- Imported files are copied to the user-owned `.oneflow/geometry-library`
+  store, assigned content-derived IDs and SHA-256 checksums, and shown beside
+  repository assets. The source filename is recorded; unknown upstream
+  authorship is not inferred.
+- This is deliberately metadata-only registration. No CAD/point-cloud parser,
+  preview, mesher or implicit-field evaluator is claimed. Imported dimensionality
+  remains null until an adapter can establish it.
+- Updated the asset schema, Geometry Library display, module README and tests.
+
+No local test execution or exact-commit CI pass is claimed yet.
+
+Next action: connect the geometry lineage into the Gmsh-to-CGNS artifact and
+project save/open contract, then implement one real non-STL adapter (CAD or
+point-cloud) with explicit capability and validation tests.
+
+---
+
 ## 2026-11-16 continuation: Geometry lineage in Mesh-to-CFD Validation
 
 Starting `hexin` HEAD: `356acdf416a31391821d7a0fa1ed99e36758484f`.

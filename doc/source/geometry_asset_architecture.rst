@@ -132,10 +132,19 @@ assets without an implemented editor remain browsable but are not presented as
 generatable. The standalone Generate STL Geometry navigation item has been
 removed so that generation starts from an asset selection.
 
-The remaining integration work is to carry the manifest through STL-to-Gmsh
-and MSH-to-CGNS, and display the full derivation chain in Mesh-to-CFD
-Validation. CAD, point-cloud and implicit asset adapters remain future
-capabilities, not implied by their registry representation types.
+Mesh-to-CFD Validation now displays source STL and derived MSH paths/checksums,
+plus asset and generator metadata when a checksum-matching sidecar is available.
+Historical cube fixtures are explicitly marked as unknown provenance. The
+remaining lineage gap is to carry this identity through the Gmsh-to-CGNS
+conversion artifact and retain it through project save/open.
+
+Geometry Library also accepts metadata-only registration of STEP/STP, IGES/IGS,
+BREP, OBJ, PLY, XYZ, PTS, PCD and OneFLOW ``.implicit.json`` files. Imports are
+copied into ``~/.oneflow/geometry-library/assets/`` (or ``ONEFLOW_HOME``),
+assigned content-derived IDs and checksums, and shown alongside repository
+assets. The importer does not parse or preview these formats and does not claim
+that meshing or conversion adapters exist. Unknown dimensionality remains
+null until a format adapter can inspect the representation.
 
 References
 ----------

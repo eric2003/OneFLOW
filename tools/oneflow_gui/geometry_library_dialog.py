@@ -5,12 +5,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from PySide6.QtWidgets import QFileDialog
 
-from .geometry_asset_store import import_geometry_asset, load_user_geometry_assets, supported_geometry_imports
+from .geometry_asset_store import (
+    import_geometry_asset,
+    load_user_geometry_assets,
+    supported_geometry_imports,
+)
 
 from PySide6.QtWidgets import (
-    QDialog, QLabel, QListWidget, QPlainTextEdit,
+    QDialog, QFileDialog, QLabel, QListWidget, QPlainTextEdit,
     QPushButton, QSplitter, QVBoxLayout,
 )
 
@@ -78,8 +81,8 @@ class GeometryLibraryDialog(QDialog):
                 raise ValueError("Geometry catalog assets must be a list.")
             return [*assets, *load_user_geometry_assets()]
         except (OSError, ValueError, TypeError) as error:
-            self.status.setText(f"Geometry catalog unavailable: {error}")
-            return []
+            self.status.setText(f"Repository geometry catalog unavailable: {error}")
+            return load_user_geometry_assets()
 
     def _show_asset(self, row: int) -> None:
         if row < 0 or row >= len(self._assets):
@@ -93,7 +96,7 @@ class GeometryLibraryDialog(QDialog):
             asset.get("name", "Unnamed asset"),
             "=" * len(asset.get("name", "Unnamed asset")),
             f"Asset ID: {asset.get('id', '')}",
-            f"Dimension: {asset.get('dimension', 'unknown')}D",
+            f"Dimension: {str(asset.get('dimension')) + 'D' if asset.get('dimension') in (1, 2, 3) else 'unknown'}",
             f"Description: {asset.get('description', '')}",
             "",
             "Definition",
@@ -108,7 +111,7 @@ class GeometryLibraryDialog(QDialog):
         if definition.get("notes"):
             lines.append(f"  Notes: {definition['notes']}")
         lines.extend(["", "Provenance", f"  Kind: {provenance.get('kind', 'unknown')}"])
-        for key in ("source_case", "tutorial", "source_revision", "notes"):
+        for key in ("source_case", "tutorial", "source_revision", "source_file_name", "source_sha256", "notes"):
             if provenance.get(key):
                 lines.append(f"  {key.replace('_', ' ').title()}: {provenance[key]}")
         generator = provenance.get("generator", {})
@@ -127,8 +130,13 @@ class GeometryLibraryDialog(QDialog):
                 lines.append(f"      Path: {item['path']}")
             if item.get("parent_representation"):
                 lines.append(f"      Parent: {item['parent_representation']}")
+            if item.get("sha256"):
+                lines.append(f"      SHA-256: {item['sha256']}")
             if item.get("notes"):
                 lines.append(f"      Notes: {item['notes']}")
+        metadata = asset.get("metadata", {})
+        if metadata.get("registration_status"):
+            lines.extend(["", "Adapter status", f"  {metadata['registration_status']}"])
         tutorials = asset.get("tutorials", [])
         if tutorials:
             lines.extend(["", "Tutorials / examples"])
