@@ -191,10 +191,14 @@ with the ends of the wall patch.
 STL has no portable standard Physical Group mechanism. The cylinder generator
 therefore preserves patch identity in an explicit companion manifest as
 per-facet index lists tied to a checksum of the STL.
-Gmsh import must use that manifest to reconstruct three separate surface
-entities before creating one Surface Loop and one Volume. Importing the
-combined STL through the current generic closed-shell path would classify
-the exterior as one wall group and lose the inlet/outlet distinction.
+The region-aware Gmsh handoff verifies the STL checksum, closed
+surface topology, complete non-overlapping patch-index coverage, and the
+geometric location of both end-cap patches. It then creates the corresponding
+analytic OpenCASCADE cylinder and assigns separate `wall`, `inflow`, and
+`outflow` Physical Surfaces, plus the `fluid_domain` Physical Volume.
+This avoids classifying the inlet and outlet as solid walls. The generated
+volume mesh is checked for tetrahedral cells, matching exterior facets and
+the exact expected Physical Group names.
 
 The initial geometry-only mesh Case should validate analytic bounds, radius,
 length and enclosed volume; watertightness, connectedness, manifold edge
