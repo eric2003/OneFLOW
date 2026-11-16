@@ -135,7 +135,7 @@ staging directory:
 
    python grid/stl_to_gmsh/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
 
-The staging root defaults to the user's ``.oneflow/mesh-layout-test/grid/stl_to_gmsh``
+The staging root defaults to the user's ``.oneflow/grid-development/stl-to-gmsh``
 directory. Checked-in Case directories are inputs only; never run them in place.
 
 Limitations
