@@ -1,4 +1,4 @@
-"""Browse the format-independent Geometry Asset registry."""
+""""Browse the format-independent Geometry Asset registry."""
 
 from __future__ import annotations
 
@@ -118,7 +118,7 @@ class GeometryLibraryDialog(QDialog):
         if tutorials:
             lines.extend(["", "Tutorials / examples"])
             lines.extend(f"  - {item}" for item in tutorials)
-        self.details.setPlainText("\\n".join(lines))
+        self.details.setPlainText("\n".join(lines))
         self.status.setText(
             f"{len(self._assets)} registered assets · metadata only; format support depends on available adapters."
         )
