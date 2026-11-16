@@ -339,8 +339,11 @@ def build_python_test_commands(
     commands = []
     for label, arguments in _PYTHON_UNIT_TESTS:
         if arguments[:2] == ("-m", "unittest"):
-            # Verbose unittest output is required to identify skipped test cases.
-            arguments = (*arguments[:2], "-v", *arguments[2:])
+            # Keep "discover" in its required position; verbosity follows it.
+            if len(arguments) > 2 and arguments[2] == "discover":
+                arguments = (*arguments[:3], "-v", *arguments[3:])
+            else:
+                arguments = (*arguments[:2], "-v", *arguments[2:])
         commands.append(TestCommand(label, (python_executable, *arguments), root))
     return commands
 
