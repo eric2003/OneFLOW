@@ -1,3 +1,22 @@
+## 2026-11-16 continuation: Mesh-to-CFD result panel
+
+Starting hexin HEAD: cbff9c452722e577dde6db05a822b68b1a95f56a.
+
+Added a compact result tree to Mesh-to-CFD Validation. The worker reads the
+machine-readable run report after each process exits and emits its stage
+records to the dialog. Each selected Case appears as a parent row with
+PASS/FAIL/NOT_RUN/NOT_CHECKED child rows and the stage message. The live log
+remains available separately.
+
+Added a pure report-row adapter and tests for the GUI data contract. The
+dialog still treats the subprocess exit code as authoritative for the
+overall process result; report data supplies stage-level detail.
+
+No local test or CI result is claimed until the corresponding workflow run
+for the commit is checked.
+
+---
+
 ## 2026-11-16 continuation: shared conversion and Mesh-to-CFD run reports
 
 Starting hexin HEAD: f173038a364fa1443c87f52a7431ef32d36c74ad.

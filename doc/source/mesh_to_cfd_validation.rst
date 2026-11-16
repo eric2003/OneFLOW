@@ -111,3 +111,8 @@ and compatibility metadata.
 The command prints a short SUCCESS/FAILED summary with stage states, mesh
 counts, output locations and the report path. A successful short solver
 smoke run is not a physical-accuracy validation.
+
+
+The dialog also presents a compact per-Case result tree: one row for each
+workflow stage, its status, and its short diagnostic message. The full
+terminal log remains available separately from that summary.

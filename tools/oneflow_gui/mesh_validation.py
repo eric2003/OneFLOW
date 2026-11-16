@@ -272,6 +272,22 @@ def _graph_step_records(result) -> list[dict[str, str]]:
     ]
 
 
+def run_report_stage_rows(report: dict) -> tuple[tuple[str, str, str], ...]:
+    """Return display-ready stage rows from a shared run report."""
+    stages = report.get("stages", {})
+    if not isinstance(stages, dict):
+        raise ValueError("Run report stages must be an object.")
+    return tuple(
+        (
+            str(name),
+            str(result.get("status", "UNKNOWN")),
+            str(result.get("message", "")),
+        )
+        for name, result in stages.items()
+        if isinstance(result, dict)
+    )
+
+
 def _mesh_validation_stage_results(result) -> dict[str, dict]:
     """Map workflow graph outcomes onto shared run-report states."""
     stage_names = {

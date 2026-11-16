@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 import threading
@@ -15,7 +16,7 @@ from PySide6.QtWidgets import (
 )
 
 from .executable_discovery import executable_candidates
-from .mesh_validation import cfd_template_choices, mesh_case_groups
+from .mesh_validation import cfd_template_choices, mesh_case_groups, run_report_stage_rows
 from .process_control import process_group_options, terminate_process_tree
 from .user_data_paths import UserDataPaths
 
@@ -25,6 +26,7 @@ class MeshValidationWorker(QThread):
 
     output_line = Signal(str)
     completed = Signal(bool, str)
+    report_ready = Signal(str, object)
 
     def __init__(self, commands: list[tuple[str, tuple[str, ...], Path]]) -> None:
         super().__init__()
@@ -48,6 +50,7 @@ class MeshValidationWorker(QThread):
                 break
             self.output_line.emit(f"\n=== {label} ===")
             self.output_line.emit("$ " + subprocess.list2cmdline(list(arguments)))
+            case_output: list[str] = []
             try:
                 with subprocess.Popen(
                     list(arguments), cwd=working_directory,
@@ -60,7 +63,9 @@ class MeshValidationWorker(QThread):
                     try:
                         if process.stdout is not None:
                             for line in process.stdout:
-                                self.output_line.emit(line.rstrip("\r\n"))
+                                rendered_line = line.rstrip("\r\n")
+                                case_output.append(rendered_line)
+                                self.output_line.emit(rendered_line)
                                 if self._cancel.is_set():
                                     terminate_process_tree(process)
                                     break
@@ -75,6 +80,21 @@ class MeshValidationWorker(QThread):
                 continue
             if self._cancel.is_set():
                 break
+            report_path = next(
+                (
+                    Path(line.strip().split(": ", 1)[1]).expanduser()
+                    for line in reversed(case_output)
+                    if line.strip().startswith("report: ")
+                ),
+                None,
+            )
+            if report_path is not None and report_path.is_file():
+                try:
+                    report = json.loads(report_path.read_text(encoding="utf-8"))
+                    if report.get("schema") == "oneflow.run-report":
+                        self.report_ready.emit(label, report)
+                except (OSError, json.JSONDecodeError) as error:
+                    self.output_line.emit(f"WARNING: cannot read run report: {error}")
             if return_code == 0:
                 passed.append(label)
                 self.output_line.emit(f"PASSED: {label}")
@@ -233,6 +253,21 @@ class MeshValidationDialog(QDialog):
         self.workspace_label.setWordWrap(True)
         layout.addWidget(self.workspace_label)
 
+        self.result_summary = QLabel("No validation results yet.")
+        self.result_summary.setWordWrap(True)
+        layout.addWidget(self.result_summary)
+        self.result_tree = QTreeWidget()
+        self.result_tree.setColumnCount(3)
+        self.result_tree.setHeaderLabels(["Case / stage", "Status", "Details"])
+        self.result_tree.setRootIsDecorated(True)
+        self.result_tree.setAlternatingRowColors(True)
+        self.result_tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        self.result_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        self.result_tree.header().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        self.result_tree.setMaximumHeight(190)
+        layout.addWidget(self.result_tree)
+        self._reported_outcomes: list[str] = []
+
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
         self.log_view.setMaximumBlockCount(20000)
@@ -333,10 +368,14 @@ class MeshValidationDialog(QDialog):
                     arguments.extend(["--project-directory", str(self._project_directory)])
             commands.append((f"Mesh-to-CFD: {title}", tuple(arguments), self._repository_root))
         self.log_view.clear()
+        self.result_tree.clear()
+        self._reported_outcomes.clear()
+        self.result_summary.setText("Validation is running…")
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
         self._worker = MeshValidationWorker(commands)
         self._worker.output_line.connect(self.log_view.appendPlainText)
+        self._worker.report_ready.connect(self._report_ready)
         self._worker.completed.connect(self._completed)
         self._worker.finished.connect(self._worker_finished)
         self._worker.start()
@@ -346,9 +385,26 @@ class MeshValidationDialog(QDialog):
             self._worker.request_stop()
             self.stop_button.setEnabled(False)
 
+    def _report_ready(self, label: str, report: dict) -> None:
+        status = str(report.get("status", "unknown")).upper()
+        exit_code = report.get("exit_code", "unknown")
+        self._reported_outcomes.append(status)
+        root = QTreeWidgetItem(self.result_tree, [label, status, f"Exit code: {exit_code}"])
+        for stage_name, stage_status, stage_message in run_report_stage_rows(report):
+            QTreeWidgetItem(root, [stage_name, stage_status, stage_message])
+        root.setExpanded(True)
+        failed = sum(item == "FAILED" for item in self._reported_outcomes)
+        passed = sum(item == "SUCCESS" for item in self._reported_outcomes)
+        self.result_summary.setText(
+            f"Run reports: {len(self._reported_outcomes)}    "
+            f"SUCCESS: {passed}    FAILED: {failed}"
+        )
+
     def _completed(self, passed: bool, message: str) -> None:
         self.log_view.appendPlainText("\n" + message)
-        self.log_view.appendPlainText("OVERALL: " + ("PASSED" if passed else "FAILED / CANCELLED"))
+        verdict = "SUCCESS" if passed else "FAILED / CANCELLED"
+        self.log_view.appendPlainText("OVERALL: " + verdict)
+        self.result_summary.setText("OVERALL: " + verdict)
 
     def _worker_finished(self) -> None:
         self._worker = None

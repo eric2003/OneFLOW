@@ -14,7 +14,7 @@ from tools.oneflow_gui.mesh_validation import (
     mesh_validation_workspace, project_mesh_validation_workspace,
     reset_mesh_validation_workspace, create_mesh_validation_run_workspace,
     _copy_existing_mesh, _graph_step_records,
-    _mesh_case_command, _mesh_validation_stage_results,
+    _mesh_case_command, _mesh_validation_stage_results, run_report_stage_rows,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
@@ -468,6 +468,22 @@ class MeshValidationCatalogTest(unittest.TestCase):
             {"artifact": "bc_region_map", "setting": "bcRegionMapFile",
              "parameter_file": "script/cfd.txt"},
         ])
+
+    def test_run_report_rows_are_ready_for_gui_display(self):
+        rows = run_report_stage_rows({
+            "stages": {
+                "mesh_generation": {"status": "PASS", "message": "MSH checked."},
+                "gmsh_to_cgns": {"status": "FAIL", "message": "CGNS writer failed."},
+                "cfd_smoke": {"status": "NOT_RUN"},
+            }
+        })
+        self.assertEqual(rows, (
+            ("mesh_generation", "PASS", "MSH checked."),
+            ("gmsh_to_cgns", "FAIL", "CGNS writer failed."),
+            ("cfd_smoke", "NOT_RUN", ""),
+        ))
+        with self.assertRaisesRegex(ValueError, "must be an object"):
+            run_report_stage_rows({"stages": []})
 
     def test_workflow_graph_maps_to_common_report_states(self):
         result = WorkflowGraphRunResult("failed", (

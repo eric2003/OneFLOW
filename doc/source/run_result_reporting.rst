@@ -172,3 +172,9 @@ and each stage log remains beside its staged Case outputs.
 The GUI displays the concise terminal summary, including the process exit
 status and each stage. JSON is the machine interface; the process exit code
 remains authoritative for pass/fail control flow.
+
+
+In the Mesh-to-CFD dialog, each completed run report is read after its process
+exits and shown as a compact per-Case tree with stage, status and diagnostic
+message. The detailed live log is retained separately; the report tree is not
+reconstructed by guessing from log text.
