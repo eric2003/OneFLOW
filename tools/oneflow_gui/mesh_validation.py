@@ -630,6 +630,25 @@ def _copy_existing_mesh(source: Path, destination: Path) -> None:
     shutil.copy2(source, destination)
 
 
+def _downstream_lineage_artifacts(steps: list[dict], run_root: Path) -> list[dict]:
+    """Resolve CGNS and native-grid outputs for the final geometry lineage report."""
+    artifacts = []
+    for step in steps:
+        if step.get("id") not in {"gmsh_to_cgns", "cgns_to_oneflow"}:
+            continue
+        for output in step.get("outputs", []):
+            artifact_id = output.get("id")
+            if artifact_id not in {"cgns_mesh", "oneflow_grid"}:
+                continue
+            artifacts.append({
+                "role": "CGNS volume mesh" if artifact_id == "cgns_mesh" else "OneFLOW native grid",
+                "format": "CGNS" if artifact_id == "cgns_mesh" else "OneFLOW native grid",
+                "path": run_root / step["runtime_directory"] / output["path"],
+                "parent": "derived_mesh" if artifact_id == "cgns_mesh" else "cgns_mesh",
+            })
+    return artifacts
+
+
 def run_mesh_validation(
     oneflow: Path, gmsh: str, mesh_case_id: str,
     cfd_template_id: str = "laminar_flat_plate", max_steps: int = 2,
@@ -869,20 +888,7 @@ def run_mesh_validation(
         candidate = run_root / "stl_to_gmsh" / str(mesh_evidence["path"])
         if candidate.is_file():
             staged_mesh = candidate
-    downstream_artifacts = []
-    for step in steps:
-        if step.get("id") not in {"gmsh_to_cgns", "cgns_to_oneflow"}:
-            continue
-        for output in step.get("outputs", []):
-            artifact_id = output.get("id")
-            if artifact_id not in {"cgns_mesh", "oneflow_grid"}:
-                continue
-            downstream_artifacts.append({
-                "role": "CGNS volume mesh" if artifact_id == "cgns_mesh" else "OneFLOW native grid",
-                "format": "CGNS" if artifact_id == "cgns_mesh" else "OneFLOW native grid",
-                "path": run_root / step["runtime_directory"] / output["path"],
-                "parent": "derived_mesh" if artifact_id == "cgns_mesh" else "cgns_mesh",
-            })
+    downstream_artifacts = _downstream_lineage_artifacts(cases, run_root)
     lineage = _geometry_lineage(
         mesh_entry, source_stl, staged_mesh, REPOSITORY_ROOT, downstream_artifacts
     )
