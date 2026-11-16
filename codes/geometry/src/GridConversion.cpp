@@ -465,6 +465,12 @@ namespace
         const std::filesystem::path targetName( config.targetFile );
         const std::filesystem::path target = targetName.is_absolute()
             ? targetName : std::filesystem::path( caseDir ) / targetName;
+        const std::filesystem::path resultDirectory =
+            std::filesystem::path( caseDir ) / "results";
+        std::filesystem::create_directories( resultDirectory );
+        const std::string reportStem = target.stem().string();
+        const std::filesystem::path runReportPath =
+            resultDirectory / ( reportStem + ".run-report.json" );
         std::filesystem::remove( runReportPath );
 
         std::ifstream input( source, std::ios::binary );
@@ -568,10 +574,6 @@ namespace
 
         // Reports belong to the case result area, not beside source files or
         // in the repository. Keep this output local to the conversion case.
-        const std::filesystem::path resultDirectory =
-            std::filesystem::path( caseDir ) / "results";
-        std::filesystem::create_directories( resultDirectory );
-        const std::string reportStem = target.stem().string();
         const std::filesystem::path jsonReportPath =
             resultDirectory / ( reportStem + ".gmsh-read-report.json" );
         std::ofstream jsonReport( jsonReportPath, std::ios::trunc );
@@ -615,8 +617,6 @@ namespace
         if ( ! markdownReport )
             throw std::runtime_error( "Failed writing Gmsh Markdown report: " + markdownReportPath.string() );
 
-        const std::filesystem::path runReportPath =
-            resultDirectory / ( reportStem + ".run-report.json" );
         const GmshMeshReadReport conversionMetrics = BuildGmshMeshReadReport( parsedMesh );
         nlohmann::json runReport = {
             { "schema", "oneflow.run-report" },
