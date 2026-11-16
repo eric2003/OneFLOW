@@ -76,6 +76,33 @@ def mesh_case_groups(
     return result
 
 
+
+def mesh_case_group_categories(
+    repository_root: Path,
+) -> tuple[tuple[str, tuple[tuple[str, tuple[tuple[str, str], ...]], ...]], ...]:
+    """Separate generated STL-to-Gmsh Cases from pre-existing MSH inputs."""
+    catalog = _catalog(Path(repository_root).resolve())
+    entries = {
+        str(item["id"]): item
+        for item in _mesh_validation_entries(catalog)
+        if isinstance(item, dict) and "id" in item
+    }
+    result = []
+    for dimension, choices in mesh_case_groups(repository_root):
+        generated = []
+        existing = []
+        for choice in choices:
+            entry = entries.get(choice[0], {})
+            kind = (entry.get("execution") or {}).get("kind", "oneflow")
+            (existing if kind == "existing_mesh" else generated).append(choice)
+        categories = []
+        if generated:
+            categories.append(("STL to Gmsh", tuple(generated)))
+        if existing:
+            categories.append(("Existing Gmsh Mesh", tuple(existing)))
+        result.append((dimension, tuple(categories)))
+    return tuple(result)
+
 def mesh_case_choices(repository_root: Path) -> tuple[tuple[str, str], ...]:
     """List supported STL-to-Gmsh producers and existing-mesh inputs."""
     entries = _mesh_validation_entries(_catalog(Path(repository_root).resolve()))
