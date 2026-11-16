@@ -390,6 +390,8 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 dialog.close()
 
     def test_open_mesh_project_displays_geometry_lineage(self) -> None:
+        from types import SimpleNamespace
+
         with tempfile.TemporaryDirectory() as directory:
             workspace = Path(directory) / "mesh-generation"
             with patch(

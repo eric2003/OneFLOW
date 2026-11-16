@@ -269,6 +269,7 @@ _PYTHON_UNIT_TESTS = (
     ("Configured CTest discovery tests", ("-m", "unittest", "tools.verification.test_ctest_discovery")),
     ("Contract Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_contract_workbench_dialog")),
     ("Mesh Generation Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_generation_dialog")),
+    ("Mesh project lifecycle tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_project")),
     ("Geometry asset store tests", ("-m", "unittest", "tools.oneflow_gui.test_geometry_asset_store")),
     ("Mesh project tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_project")),
     ("Boundary Conditions Workbench tests", ("-m", "unittest", "tools.oneflow_gui.test_boundary_conditions_workbench")),
