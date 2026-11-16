@@ -27,6 +27,7 @@ License
 #include "HipTurbulenceBackend.h"
 
 #include "AccelRuntime.h"
+#include "DeviceBuffer.h"
 #include "TurbSaArithmetic.h"
 
 #include <hip/hip_runtime.h>
@@ -574,6 +575,27 @@ void CopyFromDevice( Real * destination, const Real * source, int count )
               "SA sample copy" );
 }
 
+// Copy one solver plane onto the device for the duration of a call.
+//
+// Every view in this file carries host addresses: the SA fields are MRFields the
+// solver owns.  A kernel handed a host pointer does not fail at launch - it
+// aborts inside libgalaxyhip with "Invalid address access" the first time a
+// wavefront touches it, which looks like a device-side bug rather than a
+// missing copy.  That is exactly how the four SA entries failed when they were
+// first wired in.
+using PlaneBuffer = std::unique_ptr< DeviceBuffer< Real > >;
+
+PlaneBuffer UploadPlane( const Real * host, int nCells )
+{
+    if ( host == nullptr )
+    {
+        throw std::invalid_argument( "SA plane pointer is null" );
+    }
+    PlaneBuffer buffer( new DeviceBuffer< Real >() );
+    buffer->CopyFromHost( host, static_cast< std::size_t >( nCells ) );
+    return buffer;
+}
+
 std::unique_ptr< HipTurbulenceBackend > sharedHipTurbulenceBackend;
 
 }
@@ -596,15 +618,31 @@ void HipTurbulenceBackend::CalcEddyViscosity(
     const TurbSaEddyViscosityView & view )
 {
     ValidateTurbSaEddyViscosityView( view );
+    const int nCells = view.nCells;
+    const std::size_t count = static_cast< std::size_t >( nCells );
+    // The view's pointers are host addresses from the solver's MRFields.  Copy
+    // the three inputs up and compute into a device output, then bring the
+    // result back: a kernel cannot dereference host memory, and handing it one
+    // aborts inside the driver rather than failing at launch.
+    DeviceBuffer< Real > deviceWorkingVariable;
+    DeviceBuffer< Real > deviceDensity;
+    DeviceBuffer< Real > deviceLaminar;
+    DeviceBuffer< Real > deviceOut;
+    deviceWorkingVariable.CopyFromHost( view.workingVariable, count );
+    deviceDensity.CopyFromHost( view.density, count );
+    deviceLaminar.CopyFromHost( view.laminarViscosity, count );
+    deviceOut.Resize( count );
+
     const int blockSize = LaunchBlockSize();
     hipLaunchKernelGGL(
         SaEddyViscosityKernel,
-        dim3( ( view.nCells + blockSize - 1 ) / blockSize ),
+        dim3( ( nCells + blockSize - 1 ) / blockSize ),
         dim3( blockSize ), 0, 0,
-        view.workingVariable, view.density, view.laminarViscosity,
-        view.turbulentViscosity, view.nCells, view.constants );
+        deviceWorkingVariable.Data(), deviceDensity.Data(), deviceLaminar.Data(),
+        deviceOut.Data(), nCells, view.constants );
     CheckHip( hipGetLastError(), "SA eddy viscosity kernel launch" );
     CheckHip( hipDeviceSynchronize(), "SA eddy viscosity kernel" );
+    deviceOut.CopyToHost( view.turbulentViscosity, count );
 }
 
 bool HipTurbulenceBackend::SupportsSource() const
@@ -616,35 +654,88 @@ void HipTurbulenceBackend::CalcSource( const TurbSaSourceView & view )
 {
     ValidateTurbSaSourceView( view );
     const TurbSaStateView & state = * view.state;
+    const int nCells = view.nCells;
+    const std::size_t count = static_cast< std::size_t >( nCells );
+
+    // Every pointer in the view is a host address from the solver's MRFields, so
+    // each plane is copied up before the kernel sees it.  A kernel that is
+    // handed host memory does not fail at launch: it aborts inside the driver
+    // on first touch, which is the failure this replaced.
+    auto upload = [ nCells ]( const Real * host )
+    {
+        auto buffer = std::make_unique< DeviceBuffer< Real > >();
+        buffer->CopyFromHost( host, static_cast< std::size_t >( nCells ) );
+        return buffer;
+    };
+
+    auto workingVariable = upload( state.workingVariable );
+    auto gradientX = upload( state.workingVariableGradientX );
+    auto gradientY = upload( state.workingVariableGradientY );
+    auto gradientZ = upload( state.workingVariableGradientZ );
+    auto density = upload( state.density );
+    std::unique_ptr< DeviceBuffer< Real > > velocityGradient[ 9 ];
+    for ( int plane = 0; plane < 9; ++ plane )
+    {
+        velocityGradient[ plane ] = upload( state.velocityGradient[ plane ] );
+    }
+    auto wallDistance = upload( state.wallDistance );
+    // A null length scale means "use the wall distance", which is what
+    // PrepareCellValue1Equ:364 does for the non-DES model.
+    auto lengthScale = state.lengthScale != nullptr
+        ? upload( state.lengthScale ) : nullptr;
+    auto laminarViscosity = upload( state.laminarViscosity );
+    auto cellVolume = upload( state.cellVolume );
+
+    auto deviceResidual = std::make_unique< DeviceBuffer< Real > >();
+    auto deviceSpectrum = std::make_unique< DeviceBuffer< Real > >();
+    if ( view.overwrite )
+    {
+        deviceResidual->Resize( count );
+        deviceSpectrum->Resize( count );
+        CheckHip( hipMemset( deviceResidual->Data(), 0, count * sizeof( Real ) ),
+                  "SA source residual zero" );
+        CheckHip( hipMemset( deviceSpectrum->Data(), 0, count * sizeof( Real ) ),
+                  "SA source spectrum zero" );
+    }
+    else
+    {
+        // Accumulate: the kernel adds to what is already there, so the existing
+        // values have to be present on the device.  Zeroing would drop the
+        // inviscid base that Update1Equ is accumulating onto.
+        deviceResidual->CopyFromHost( view.residual, count );
+        deviceSpectrum->CopyFromHost( view.implicitSpectrum, count );
+    }
 
     const int blockSize = LaunchBlockSize();
     hipLaunchKernelGGL(
         SaSourceKernel,
-        dim3( ( view.nCells + blockSize - 1 ) / blockSize ),
+        dim3( ( nCells + blockSize - 1 ) / blockSize ),
         dim3( blockSize ), 0, 0,
-        state.workingVariable,
-        state.workingVariableGradientX,
-        state.workingVariableGradientY,
-        state.workingVariableGradientZ,
-        state.density,
-        state.velocityGradient[ 0 ], state.velocityGradient[ 1 ],
-        state.velocityGradient[ 2 ], state.velocityGradient[ 3 ],
-        state.velocityGradient[ 4 ], state.velocityGradient[ 5 ],
-        state.velocityGradient[ 6 ], state.velocityGradient[ 7 ],
-        state.velocityGradient[ 8 ],
-        state.wallDistance,
-        state.lengthScale,
-        state.laminarViscosity,
-        state.cellVolume,
-        view.residual,
-        view.implicitSpectrum,
-        view.nCells,
+        workingVariable->Data(),
+        gradientX->Data(),
+        gradientY->Data(),
+        gradientZ->Data(),
+        density->Data(),
+        velocityGradient[ 0 ]->Data(), velocityGradient[ 1 ]->Data(),
+        velocityGradient[ 2 ]->Data(), velocityGradient[ 3 ]->Data(),
+        velocityGradient[ 4 ]->Data(), velocityGradient[ 5 ]->Data(),
+        velocityGradient[ 6 ]->Data(), velocityGradient[ 7 ]->Data(),
+        velocityGradient[ 8 ]->Data(),
+        wallDistance->Data(),
+        lengthScale != nullptr ? lengthScale->Data() : nullptr,
+        laminarViscosity->Data(),
+        cellVolume->Data(),
+        deviceResidual->Data(),
+        deviceSpectrum->Data(),
+        nCells,
         state.constants,
         view.overwrite ? 1 : 0 );
     CheckHip( hipGetLastError(), "SA source kernel launch" );
-    // The two outputs live on the device; draining here makes the entry
-    // synchronous like the mean-flow ones that mirror their result back.
     CheckHip( hipDeviceSynchronize(), "SA source kernel" );
+    // Bring the accumulated sums back.  Without this the solver's residual and
+    // spectrum fields never see the device contribution.
+    deviceResidual->CopyToHost( view.residual, count );
+    deviceSpectrum->CopyToHost( view.implicitSpectrum, count );
 }
 
 bool HipTurbulenceBackend::SupportsGradient() const
@@ -694,37 +785,120 @@ void HipTurbulenceBackend::CalcFaceFlux( const TurbSaFaceView & view )
 {
     ValidateTurbSaFaceView( view );
 
+    const int nFaces = view.nFaces;
+    const int nCells = view.nCells + view.nGhostCells;
+    if ( nCells <= 0 )
+    {
+        throw std::invalid_argument(
+            "SA face flux requires the cell extent of its per-cell planes" );
+    }
+
+    // Face-length planes.  The reconstructed face values are only present when
+    // an inviscid flux was requested; the diffusive-only caller leaves them
+    // null, so upload each only when it exists.
+    auto fXNormal = UploadPlane( view.xNormal, nFaces );
+    auto fYNormal = UploadPlane( view.yNormal, nFaces );
+    auto fZNormal = UploadPlane( view.zNormal, nFaces );
+    auto fVelocityNormal = UploadPlane( view.meshVelocityNormal, nFaces );
+    auto fArea = UploadPlane( view.faceArea, nFaces );
+    std::unique_ptr< DeviceBuffer< Real > > fA;
+    std::unique_ptr< DeviceBuffer< Real > > fB;
+    std::unique_ptr< DeviceBuffer< Real > > fRhoA;
+    std::unique_ptr< DeviceBuffer< Real > > fRhoB;
+    std::unique_ptr< DeviceBuffer< Real > > fUa, fVa, fWa;
+    std::unique_ptr< DeviceBuffer< Real > > fUb, fVb, fWb;
+    if ( view.faceWorkingVariableLeft != nullptr )
+    {
+        fA = UploadPlane( view.faceWorkingVariableLeft, nFaces );
+        fB = UploadPlane( view.faceWorkingVariableRight, nFaces );
+        fRhoA = UploadPlane( view.faceDensityLeft, nFaces );
+        fRhoB = UploadPlane( view.faceDensityRight, nFaces );
+        fUa = UploadPlane( view.faceVelocityLeft[ 0 ], nFaces );
+        fVa = UploadPlane( view.faceVelocityLeft[ 1 ], nFaces );
+        fWa = UploadPlane( view.faceVelocityLeft[ 2 ], nFaces );
+        fUb = UploadPlane( view.faceVelocityRight[ 0 ], nFaces );
+        fVb = UploadPlane( view.faceVelocityRight[ 1 ], nFaces );
+        fWb = UploadPlane( view.faceVelocityRight[ 2 ], nFaces );
+    }
+    auto fXFace = UploadPlane( view.xFace, nFaces );
+    auto fYFace = UploadPlane( view.yFace, nFaces );
+    auto fZFace = UploadPlane( view.zFace, nFaces );
+
+    // Cell-length planes, indexed through leftCell/rightCell into the ghosts.
+    auto cX = UploadPlane( view.xCell, nCells );
+    auto cY = UploadPlane( view.yCell, nCells );
+    auto cZ = UploadPlane( view.zCell, nCells );
+    auto cWorking = UploadPlane( view.cellWorkingVariable, nCells );
+    auto cGradX = UploadPlane( view.workingVariableGradientX, nCells );
+    auto cGradY = UploadPlane( view.workingVariableGradientY, nCells );
+    auto cGradZ = UploadPlane( view.workingVariableGradientZ, nCells );
+    auto cLaminar = UploadPlane( view.cellLaminarViscosity, nCells );
+    auto cDensity = UploadPlane( view.cellDensity, nCells );
+
+    // Integer face->cell maps.
+    DeviceBuffer< int > dLeft;
+    DeviceBuffer< int > dRight;
+    dLeft.CopyFromHost( view.leftCell, static_cast< std::size_t >( nFaces ) );
+    dRight.CopyFromHost( view.rightCell, static_cast< std::size_t >( nFaces ) );
+
+    // Optional masks.  Absent means "no mask", which the kernel already treats
+    // as boundary-by-index and non-interface.
+    DeviceBuffer< unsigned char > dBoundary;
+    DeviceBuffer< unsigned char > dInterface;
+    if ( view.boundaryMask != nullptr )
+    {
+        dBoundary.CopyFromHost( view.boundaryMask,
+                                static_cast< std::size_t >( nFaces ) );
+    }
+    if ( view.interfaceMask != nullptr )
+    {
+        dInterface.CopyFromHost( view.interfaceMask,
+                                 static_cast< std::size_t >( nFaces ) );
+    }
+
+    DeviceBuffer< Real > dInviscid;
+    DeviceBuffer< Real > dDiffusive;
+    if ( view.inviscidFlux != nullptr ) dInviscid.Resize( nFaces );
+    if ( view.diffusiveFlux != nullptr ) dDiffusive.Resize( nFaces );
+
     const int blockSize = LaunchBlockSize();
     hipLaunchKernelGGL(
         SaFaceFluxKernel,
-        dim3( ( view.nFaces + blockSize - 1 ) / blockSize ),
+        dim3( ( nFaces + blockSize - 1 ) / blockSize ),
         dim3( blockSize ), 0, 0,
-        view.xNormal, view.yNormal, view.zNormal,
-        view.meshVelocityNormal, view.faceArea,
-        view.leftCell, view.rightCell,
-        view.faceWorkingVariableLeft, view.faceWorkingVariableRight,
-        view.faceDensityLeft, view.faceDensityRight,
-        view.faceVelocityLeft[ 0 ], view.faceVelocityLeft[ 1 ],
-        view.faceVelocityLeft[ 2 ],
-        view.faceVelocityRight[ 0 ], view.faceVelocityRight[ 1 ],
-        view.faceVelocityRight[ 2 ],
-        view.xFace, view.yFace, view.zFace,
-        view.xCell, view.yCell, view.zCell,
-        view.cellWorkingVariable,
-        view.workingVariableGradientX,
-        view.workingVariableGradientY,
-        view.workingVariableGradientZ,
-        // Cell-major planes, indexed by the face's left/right cell exactly as
-        // UTurbVisFlux::PrepareFaceValue does with ug.lc / ug.rc.
-        view.cellLaminarViscosity,
-        view.cellDensity,
-        view.boundaryMask,
-        view.interfaceMask,
-        view.nFaces, view.nBoundaryFaces,
+        fXNormal->Data(), fYNormal->Data(), fZNormal->Data(),
+        fVelocityNormal->Data(), fArea->Data(),
+        dLeft.Data(), dRight.Data(),
+        fA ? fA->Data() : nullptr, fB ? fB->Data() : nullptr,
+        fRhoA ? fRhoA->Data() : nullptr, fRhoB ? fRhoB->Data() : nullptr,
+        fUa ? fUa->Data() : nullptr, fVa ? fVa->Data() : nullptr,
+        fWa ? fWa->Data() : nullptr,
+        fUb ? fUb->Data() : nullptr, fVb ? fVb->Data() : nullptr,
+        fWb ? fWb->Data() : nullptr,
+        fXFace->Data(), fYFace->Data(), fZFace->Data(),
+        cX->Data(), cY->Data(), cZ->Data(),
+        cWorking->Data(),
+        cGradX->Data(), cGradY->Data(), cGradZ->Data(),
+        cLaminar->Data(), cDensity->Data(),
+        view.boundaryMask != nullptr ? dBoundary.Data() : nullptr,
+        view.interfaceMask != nullptr ? dInterface.Data() : nullptr,
+        nFaces, view.nBoundaryFaces,
         view.densityWeight, view.invSigma, view.invReynolds,
-        view.inviscidFlux, view.diffusiveFlux );
+        view.inviscidFlux != nullptr ? dInviscid.Data() : nullptr,
+        view.diffusiveFlux != nullptr ? dDiffusive.Data() : nullptr );
     CheckHip( hipGetLastError(), "SA face flux kernel launch" );
     CheckHip( hipDeviceSynchronize(), "SA face flux kernel" );
+
+    if ( view.inviscidFlux != nullptr )
+    {
+        dInviscid.CopyToHost( view.inviscidFlux,
+                              static_cast< std::size_t >( nFaces ) );
+    }
+    if ( view.diffusiveFlux != nullptr )
+    {
+        dDiffusive.CopyToHost( view.diffusiveFlux,
+                               static_cast< std::size_t >( nFaces ) );
+    }
 }
 
 bool HipTurbulenceBackend::SupportsUpdate() const

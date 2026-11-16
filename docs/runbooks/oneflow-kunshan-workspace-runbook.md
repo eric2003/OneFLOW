@@ -287,3 +287,5 @@ $WORKSPACE/scripts/cleanup.sh                         # 日志/快照轮转 + �
 | `srun` 下 MPI size=1 | `srun` 不做 MPI 启动 | 改用 `mpirun` |
 | `bnd_resize` 报 10 ms/step | 首个 `hipMalloc` 被平均进短基准 | 基准先 warmup 至少一步 |
 | 多 zone 卡死 / 数值发散的假象 | 每 rank 的 cell 数太小 | 固定 per-rank cell 数再比较 |
+| `Could not locate OneFLOW system directory from executable directory: <path>/build/bin` | `Prj::FindSystemRoot`（`codes/io/src/Prj.cpp:150-176`）从**可执行文件目录**逐级向上找 `system/`；`build/app` 在源码树内所以能找到，私有构建目录（`evidence/.../build`）找不到 | 在构建目录里放 `system/`：`ln -sfn "$SRC/system" "$BUILD/system"`。**私有构建目录跑算例必须做这一步**，否则两臂都在启动阶段就 `Fatal`，看起来像"设备路径跑不起来" |
+| `No rule to make target '.../accel/src/AccelBackend.cpp.o'` → `OneFLOW/fast` Error 2 | `<dir>/fast` 是"仅本目录"目标，不构建 `OneFLOW_RuntimeObjects` | 先 `--target OneFLOW_RuntimeObjects`，再 `--target OneFLOW/fast`。**顺序不能反**，且只跑 fast 在增量场景下会产出陈旧二进制（§1 已记录） |

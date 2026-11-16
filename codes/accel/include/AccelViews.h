@@ -1173,6 +1173,11 @@ struct TurbSaFaceView
 {
     int nFaces = 0;
     int nBoundaryFaces = 0;
+    // Cell-extent of the per-cell planes below.  The kernel indexes them through
+    // leftCell/rightCell, which reach into the ghost range, so an implementation
+    // that has to copy those planes needs the full extent and not just nFaces.
+    int nCells = 0;
+    int nGhostCells = 0;
     const Real * xNormal = nullptr;
     const Real * yNormal = nullptr;
     const Real * zNormal = nullptr;

@@ -251,6 +251,7 @@ void UTurbVisFlux::CalcVisFlux1Equ()
 #ifdef ONEFLOW_ENABLE_HIP
     if ( HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UTURB_HIP_VISFLUX" )
          && turbcom.nEqu == 1 && visflux != nullptr
+         && HipTurbulenceBackend::Shared().SupportsFaceFlux()
          // The kernel implements only the VIS_TEST normal-gradient variant,
          // which is what the shipped cases set (iturb_visflux = 2).  Any other
          // scheme must run on the host rather than be silently substituted, so
@@ -263,6 +264,8 @@ void UTurbVisFlux::CalcVisFlux1Equ()
             TurbSaFaceView view;
             view.nFaces = ug.nFaces;
             view.nBoundaryFaces = ug.nBFaces;
+            view.nCells = ug.nCells;
+            view.nGhostCells = ug.nTCell - ug.nCells;
             view.xNormal = ug.xfn->data();
             view.yNormal = ug.yfn->data();
             view.zNormal = ug.zfn->data();

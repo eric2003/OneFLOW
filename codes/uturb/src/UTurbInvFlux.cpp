@@ -124,10 +124,14 @@ void UTurbInvFlux::CalcInvFlux()
 #ifdef ONEFLOW_ENABLE_HIP
     if ( HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UTURB_HIP_INVFLUX" )
          && turbcom.nEqu == 1 && invflux != nullptr
+         // The backend reports whether it can take these views at all; the face
+         // entries currently cannot, because their pointers are host addresses
+         // and there is no upload path yet.  Ask rather than assume.
+         && HipTurbulenceBackend::Shared().SupportsFaceFlux()
          // The kernel implements only the VIS_TEST normal-gradient variant,
-         // which the shipped cases set (iturb_visflux = 2).  Declining here
-         // keeps any other scheme on the working host path instead of letting
-         // the view validator throw.
+         // which the shipped cases set (iturb_visflux = 2).  Declining keeps any
+         // other scheme on the working host path instead of letting the view
+         // validator throw.
          && turbcom.iturb_visflux == 2 )
     {
         UnsGrid * grid = Zone::GetUnsGrid();
@@ -141,6 +145,11 @@ void UTurbInvFlux::CalcInvFlux()
             TurbSaFaceView view;
             view.nFaces = ug.nFaces;
             view.nBoundaryFaces = ug.nBFaces;
+            // The per-cell planes below are indexed through leftCell/rightCell,
+            // which reach into the ghost range, so the backend needs the full
+            // extent to copy them.
+            view.nCells = ug.nCells;
+            view.nGhostCells = ug.nTCell - ug.nCells;
             view.xNormal = ug.xfn->data();
             view.yNormal = ug.yfn->data();
             view.zNormal = ug.zfn->data();

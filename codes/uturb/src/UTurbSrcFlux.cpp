@@ -177,6 +177,33 @@ void UTurbSrcFlux::CalcVist1Equ()
     if ( HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UTURB_HIP_VIST" ) )
     {
         UnsGrid * grid = Zone::GetUnsGrid();
+        // Every source must exist before any pointer is taken.  uturbf is a set
+        // of MRFields handed out by FieldHome, and a field this solver has not
+        // allocated yet comes back null.  Marray::GetNEqu() counts equation
+        // planes, so this also rejects a field with too few of them.  Falling
+        // through to the host loop keeps the run alive; the silent alternative
+        // was a driver abort that named nothing.
+        const bool sourcesReady =
+            uturbf.q != nullptr && uturbf.q->GetNEqu() > 0
+            && uturbf.meanFlow.q != nullptr
+            && uturbf.meanFlow.q->GetNEqu() > 0
+            && uturbf.visl != nullptr && uturbf.visl->GetNEqu() > 0
+            && uturbf.vist != nullptr && uturbf.vist->GetNEqu() > 0
+            && grid != nullptr;
+        if ( ! sourcesReady )
+        {
+            // One diagnostic line, not a silent fallback: without it a declined
+            // hook looks exactly like a working one that happens to be slower,
+            // and the whole point of this exercise is to tell those apart.
+            std::cout << "HIP_SA_VIST_DECLINE"
+                      << " q=" << ( uturbf.q != nullptr ? "ok" : "null" )
+                      << " meanFlowQ=" << ( uturbf.meanFlow.q != nullptr ? "ok" : "null" )
+                      << " visl=" << ( uturbf.visl != nullptr ? "ok" : "null" )
+                      << " vist=" << ( uturbf.vist != nullptr ? "ok" : "null" )
+                      << " nCells=" << ug.nCells << std::endl;
+        }
+        if ( sourcesReady )
+        {
         TurbSaEddyViscosityView view;
         view.nCells = ug.nCells;
         view.workingVariable = ( * uturbf.q )[ ISA ].data();
@@ -190,6 +217,7 @@ void UTurbSrcFlux::CalcVist1Equ()
         view.cacheKey = grid;
         HipTurbulenceBackend::Shared().CalcEddyViscosity( view );
         return;
+        }
     }
 #endif
     for ( int cId = 0; cId < ug.nCells; ++ cId )

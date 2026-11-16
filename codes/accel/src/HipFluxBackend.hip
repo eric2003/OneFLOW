@@ -84,7 +84,13 @@ int MaxLaunchesPerDrain()
 
 void HipDrain( const char * operation )
 {
-    static int sinceDrain = 0;
+    // Per-thread, not per-process.  With several ranks in one process they share
+    // a plain static, so one rank's launches push another's counter past the
+    // limit and drains land at the wrong point: sometimes early (paying a sync
+    // that was not due), sometimes late (letting the hardware queue grow).  The
+    // pinned staging buffer in this same file is already thread_local, so the
+    // intent was per-thread here too.
+    static thread_local int sinceDrain = 0;
     if ( HipDeferSyncEnabled() && ++ sinceDrain < MaxLaunchesPerDrain() ) return;
     sinceDrain = 0;
     CheckHip( hipDeviceSynchronize(), operation );
