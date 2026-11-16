@@ -33,6 +33,7 @@ Using OneFLOW
 Mesh and engineering workflows
 ------------------------------
 
+* :doc:`geometry_asset_architecture` — format-independent geometry assets, definitions, representations, provenance and derivation.
 * :doc:`mesh_architecture` — mesh information levels, snapshots, and format adapters.
 * :doc:`stl_mesh_io` — native C++ STL ASCII/Binary I/O, facet semantics, and reader/writer verification.
 * :doc:`gmsh_interface` — Gmsh MSH 4.1-first input adapter, version support, semantic mapping, and conversion validation.
@@ -157,6 +158,7 @@ The existing reference library covers programming languages, build systems, para
    runtime_case_lifecycle
    database_architecture
    evolutionary_computation_architecture
+   geometry_asset_architecture
    mesh_architecture
    stl_mesh_io
    gmsh_interface
