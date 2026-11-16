@@ -271,7 +271,7 @@ root. The source checkout remains separate from this directory.
 - `workflow-data/definitions/`: saved workflow definitions.
 - `workflow-data/runs/`: workflow run history.
 - `workflow-data/executions/`: isolated project/workflow run copies and generated results.
-- `mesh-layout-test/grid/`: fixed Development Tests execution directory, cleared as a whole and restaged with selected source cases at the start of each run batch; no per-run directory is created and source cases remain untouched.
+- `grid-development/cases/`: fixed grid Development Tests staging directory, refreshed with selected source cases at the start of each run batch; no per-run directory is created and source cases remain untouched. The separate `mesh-validation/` root stores end-to-end Mesh-to-CFD validation runs.
 - `mesh-layout-workspace/`: mesh layout projects, specifications, and outputs.
 - `cfd-regression/`: staged CFD regression inputs.
 - `background-tasks/`: persistent background task records.
