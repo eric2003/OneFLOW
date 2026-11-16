@@ -11,8 +11,8 @@ from pathlib import Path
 from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QFormLayout, QHBoxLayout, QHeaderView, QLabel,
-    QMessageBox, QPlainTextEdit, QPushButton, QSpinBox, QTreeWidget,
-    QTreeWidgetItem, QVBoxLayout,
+    QMessageBox, QPlainTextEdit, QPushButton, QSpinBox, QSplitter, QTreeWidget,
+    QTreeWidgetItem, QVBoxLayout, QWidget,
 )
 
 from .executable_discovery import executable_candidates
@@ -203,7 +203,19 @@ class MeshValidationDialog(QDialog):
         except (OSError, ValueError, KeyError) as error:
             self.case_tree.setEnabled(False)
             layout.addWidget(QLabel(f"Mesh Case catalog unavailable: {error}"))
-        layout.addWidget(self.case_tree, 1)
+        self.case_tree.setMinimumHeight(180)
+        details_panel = QWidget(self)
+        content_layout = QVBoxLayout(details_panel)
+        content_layout.setContentsMargins(0, 0, 0, 0)
+        splitter = QSplitter(Qt.Orientation.Vertical, self)
+        splitter.setChildrenCollapsible(False)
+        splitter.setHandleWidth(7)
+        splitter.addWidget(self.case_tree)
+        splitter.addWidget(details_panel)
+        splitter.setStretchFactor(0, 3)
+        splitter.setStretchFactor(1, 2)
+        splitter.setSizes([330, 370])
+        content_layout.addWidget(splitter, 1)
         self.case_tree.setVisible(self._mesh_file is None)
 
         selection_actions = QHBoxLayout()
@@ -217,7 +229,7 @@ class MeshValidationDialog(QDialog):
         selection_actions.addWidget(select_all)
         selection_actions.addWidget(select_none)
         selection_actions.addStretch(1)
-        layout.addLayout(selection_actions)
+        content_layout.addLayout(selection_actions)
         select_all.setVisible(self._mesh_file is None)
         select_none.setVisible(self._mesh_file is None)
 
@@ -253,7 +265,7 @@ class MeshValidationDialog(QDialog):
         )
         form.addRow(template_label, self.template_combo)
         form.addRow("CFD smoke-test steps", self.steps_spin)
-        layout.addLayout(form)
+        content_layout.addLayout(form)
 
         workspace = (
             self._project_directory / "validation"
@@ -262,11 +274,11 @@ class MeshValidationDialog(QDialog):
         )
         self.workspace_label = QLabel("Validation output: " + str(workspace))
         self.workspace_label.setWordWrap(True)
-        layout.addWidget(self.workspace_label)
+        content_layout.addWidget(self.workspace_label)
 
         self.result_summary = QLabel("No validation results yet.")
         self.result_summary.setWordWrap(True)
-        layout.addWidget(self.result_summary)
+        content_layout.addWidget(self.result_summary)
         self.result_tree = QTreeWidget()
         self.result_tree.setColumnCount(3)
         self.result_tree.setHeaderLabels(["Case / stage", "Status", "Details"])
@@ -280,14 +292,14 @@ class MeshValidationDialog(QDialog):
         result_header.resizeSection(0, 190)
         result_header.resizeSection(1, 100)
         self.result_tree.setMaximumHeight(190)
-        layout.addWidget(self.result_tree)
+        content_layout.addWidget(self.result_tree)
         self._reported_outcomes: list[str] = []
 
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
         self.log_view.setMaximumBlockCount(20000)
         self.log_view.setPlaceholderText("Validation output will appear here.")
-        layout.addWidget(self.log_view, 1)
+        content_layout.addWidget(self.log_view, 1)
 
         buttons = QHBoxLayout()
         buttons.addStretch(1)
@@ -301,7 +313,7 @@ class MeshValidationDialog(QDialog):
         buttons.addWidget(self.run_button)
         buttons.addWidget(self.stop_button)
         buttons.addWidget(close_button)
-        layout.addLayout(buttons)
+        content_layout.addLayout(buttons)
 
     def _set_subtree_state(self, item: QTreeWidgetItem, state: Qt.CheckState) -> None:
         item.setCheckState(0, state)
