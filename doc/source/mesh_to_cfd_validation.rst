@@ -44,7 +44,8 @@ runtime smoke test, not an external-flow accuracy benchmark.
 --------------------------
 
 The generated **3D Cylinder Internal Flow** mesh is available as an
-existing-mesh validation input. The dialog resolves
+existing-mesh validation input. It is recorded in the catalog's separate
+``mesh_validation_inputs`` collection, not as a runnable Development Case. The dialog resolves
 ``~/.oneflow/mesh-generation/cylinder_internal_flow/results/cylinder_internal_flow.msh``
 (or the equivalent Windows user-data path), copies it into the project's
 isolated ``validation/`` workspace, and runs the MSH4 inspection,

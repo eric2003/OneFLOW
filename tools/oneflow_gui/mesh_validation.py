@@ -38,7 +38,7 @@ def _catalog(root: Path) -> dict:
 
 
 def _mesh_validation_entries(catalog: dict) -> list[dict]:
-    """Return runnable mesh Cases plus separate generated-mesh validation inputs."""
+    """Return executable mesh Cases plus explicit validation-only mesh inputs."""
     cases = catalog.get("cases", [])
     inputs = catalog.get("mesh_validation_inputs", [])
     if not isinstance(cases, list) or not isinstance(inputs, list):
