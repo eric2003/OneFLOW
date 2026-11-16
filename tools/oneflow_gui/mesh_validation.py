@@ -386,10 +386,21 @@ def geometry_lineage_rows(report: dict) -> tuple[tuple[str, str, str], ...]:
     if source:
         rows.append(("Source surface", "RECORDED",
                      f"{source.get('format', 'unknown')} | {source.get('path', 'unknown')} | SHA-256: {source.get('sha256', 'unknown')}"))
-    generator = lineage.get("generator") or {}
-    if generator:
-        rows.append(("Geometry generator", "RECORDED",
-                     f"{generator.get('name', 'unknown')} {generator.get('version', '')} | source SHA-256: {generator.get('source_sha256', 'unknown')}"))
+    generator = lineage.get("generator")
+    if isinstance(generator, dict):
+        if generator:
+            name = str(generator.get("name", "unknown"))
+            version = str(generator.get("version", "")).strip()
+            source_sha256 = generator.get("source_sha256")
+            details = " ".join(part for part in (name, version) if part)
+            if source_sha256:
+                details += f" | source SHA-256: {source_sha256}"
+            rows.append(("Geometry generator", "RECORDED", details))
+    elif isinstance(generator, str) and generator.strip():
+        # Older and lightweight manifests may store the generator as a name.
+        rows.append(("Geometry generator", "RECORDED", generator.strip()))
+    elif generator is not None:
+        rows.append(("Geometry generator", "UNRECOGNIZED", str(generator)))
     mesh = lineage.get("derived_mesh") or {}
     if mesh:
         rows.append(("Derived volume mesh", "RECORDED",
