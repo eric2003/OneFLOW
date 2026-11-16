@@ -380,6 +380,8 @@ def geometry_lineage_rows(report: dict) -> tuple[tuple[str, str, str], ...]:
     asset_id = lineage.get("asset_id")
     if asset_id:
         rows.append(("Geometry asset", "IDENTIFIED", str(asset_id)))
+    if lineage.get("manifest_status"):
+        rows.append(("Geometry manifest", "UNTRUSTED", str(lineage["manifest_status"])))
     source = lineage.get("source_representation") or {}
     if source:
         rows.append(("Source surface", "RECORDED",
@@ -420,7 +422,8 @@ def _geometry_lineage(
         if manifest_path.is_file():
             try:
                 candidate = json.loads(manifest_path.read_text(encoding="utf-8"))
-                if (candidate.get("schema") == "oneflow.stl-geometry-manifest"
+                if (isinstance(candidate, dict)
+                        and candidate.get("schema") == "oneflow.stl-geometry-manifest"
                         and candidate.get("stl_sha256") == digest):
                     manifest = candidate
                 else:
@@ -591,7 +594,7 @@ def run_mesh_validation(
                     candidate = None
                 if candidate is not None and candidate.is_file():
                     source_stl = candidate
-    if source_stl is None:
+    if source_stl is None and source_mesh is None and project_directory is None:
         candidate = REPOSITORY_ROOT / mesh_entry["directory"] / "input" / "model.stl"
         if candidate.is_file():
             source_stl = candidate

@@ -89,6 +89,25 @@ class GeometryLineageTest(unittest.TestCase):
 
 
 class MeshValidationCatalogTest(unittest.TestCase):
+    def test_historical_cube_cases_explicitly_declare_unknown_geometry_origin(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        catalog = json.loads(
+            (repository_root / "grid/case_catalog.json").read_text(encoding="utf-8")
+        )
+        cube_ids = {
+            "stl_to_gmsh_cube_single_hex",
+            "stl_to_gmsh_python_cube_single_hex",
+            "stl_to_gmsh_cube_six_tetrahedra",
+            "stl_to_gmsh_python_cube_six_tetrahedra",
+            "stl_to_gmsh_cube_automatic_tetrahedra",
+            "stl_to_gmsh_python_cube_automatic_tetrahedra",
+        }
+        entries = {item["id"]: item for item in catalog["cases"]}
+        self.assertTrue(cube_ids.issubset(entries))
+        for case_id in cube_ids:
+            provenance = entries[case_id]["geometry_provenance"]
+            self.assertEqual(provenance["kind"], "unknown")
+            self.assertIn("unknown", provenance["notes"].lower())
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)

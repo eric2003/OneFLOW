@@ -1,3 +1,27 @@
+## 2026-11-16 continuation: Geometry lineage in Mesh-to-CFD Validation
+
+Starting `hexin` HEAD: `356acdf416a31391821d7a0fa1ed99e36758484f`.
+
+- The six historical 3-D cube STL Cases explicitly declare geometry
+  provenance `unknown`; no generator or author has been inferred.
+- Mesh-to-CFD reports now capture the source STL path and SHA-256, any
+  checksum-verified `.geometry.json` asset/definition/generator metadata,
+  and the derived MSH path and SHA-256.
+- A malformed, missing or checksum-mismatched sidecar is not treated as
+  trusted asset provenance. User-selected MSH files without a project
+  source record are not incorrectly attributed to the default sphere.
+- The result tree renders provenance, source surface, generator and derived
+  mesh rows next to the existing stage outcomes. Focused tests cover unknown
+  historical origin, valid sidecars and tampered sidecar rejection.
+
+No local execution or exact-commit CI pass is claimed yet.
+
+Next action: extend the same lineage envelope across Gmsh-to-CGNS and the
+mesh project save/open lifecycle, then add non-STL import adapters through
+the Geometry Library without advertising unsupported format operations.
+
+---
+
 ## 2026-11-16 continuation: Geometry Library as the STL generation entry point
 
 Starting `hexin` HEAD: `a0e860de08fcd1f7d8ddc3b2c2caa4f9e6b19780`.

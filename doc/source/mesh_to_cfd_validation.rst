@@ -141,3 +141,20 @@ smoke run is not a physical-accuracy validation.
 The dialog also presents a compact per-Case result tree: one row for each
 workflow stage, its status, and its short diagnostic message. The full
 terminal log remains available separately from that summary.
+
+Geometry lineage
+----------------
+
+Each run report includes a ``geometry_lineage`` record. When a companion
+``.geometry.json`` is present, its asset ID, definition hash and generator
+metadata are accepted only if the manifest schema is recognized and its STL
+SHA-256 matches the actual source bytes. The report records the source STL
+checksum and the derived MSH checksum, with the MSH linked to the source
+representation. A missing or mismatched manifest is not silently trusted.
+
+Historical cube STL Cases currently have no verified original source or
+generator record. Their Case Catalog entries explicitly declare provenance
+``unknown``; the validation result still records the actual checked-in STL
+path and checksum and the produced MSH path and checksum. A checksum proves
+which bytes were used, not who authored the geometry or which tool originally
+created it. The GUI shows these lineage rows alongside the workflow stages.
