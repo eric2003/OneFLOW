@@ -63,114 +63,137 @@ def discover_gmsh() -> str | None:
 
 
 def generate(
-    stl: Path,
-    output: Path,
-    gmsh: str,
-    mesh_size_min: float,
-    mesh_size_max: float,
-    boundary_name: str = "wall",
-    volume_name: str = "fluid_domain",
-    surface_angle_degrees: float = 40.0,
-    curve_angle_degrees: float = 180.0,
+    stl: Path, output: Path, gmsh: str, mesh_size_min: float, mesh_size_max: float,
+    boundary_name: str = "wall", volume_name: str = "fluid_domain",
+    surface_angle_degrees: float = 40.0, curve_angle_degrees: float = 180.0,
 ) -> dict:
+    from grid.stl_to_gmsh.run_report import build_run_report, format_run_summary, stage_result, write_run_report
+
     stl = stl.expanduser().resolve()
     output = output.expanduser().resolve()
-    if not stl.is_file():
-        raise FileNotFoundError(f"STL input does not exist: {stl}")
-    if output.suffix.lower() != ".msh":
-        raise ValueError("output path must use the .msh extension")
-    if output == stl:
-        raise ValueError("output mesh must not overwrite the input STL")
-    if (
-        not math.isfinite(mesh_size_min) or mesh_size_min <= 0
-        or not math.isfinite(mesh_size_max) or mesh_size_max <= 0
-    ):
-        raise ValueError("mesh sizes must be positive and finite")
-    if mesh_size_min > mesh_size_max:
-        raise ValueError("--mesh-size-min must not exceed --mesh-size-max")
-    if not gmsh:
-        raise ValueError("Gmsh was not found; install it, add it to PATH, or set GMSH_EXECUTABLE")
-
     output.parent.mkdir(parents=True, exist_ok=True)
     geo = output.with_suffix(".geo")
     report_path = output.with_suffix(".report.json")
-    geometry_manifest = stl.with_suffix(".geometry.json")
-    geometry_kind = None
-    if geometry_manifest.is_file():
-        try:
-            geometry_kind = json.loads(
-                geometry_manifest.read_text(encoding="utf-8")
-            ).get("geometry")
-        except (OSError, json.JSONDecodeError) as error:
-            raise ValueError(
-                f"Cannot read STL geometry manifest: {geometry_manifest}: {error}"
-            ) from error
-    volume_mesh_kind = (
-        "cylinder_internal_flow"
-        if geometry_kind == "cylinder_internal_flow"
-        else "closed_surface_automatic_tetrahedra"
-    )
-    config = {
-        "volume_mesh": volume_mesh_kind,
-        "mesh_dimension": 3,
-        "mesh_size_min": mesh_size_min,
-        "mesh_size_max": mesh_size_max,
-        "surface_name": volume_name,
-        "boundary_name": boundary_name,
-        "surface_angle_degrees": surface_angle_degrees,
-        "curve_angle_degrees": curve_angle_degrees,
+    # A previous successful report must never describe this new attempt.
+    report_path.unlink(missing_ok=True)
+    stages = {
+        "input": stage_result("NOT_RUN"), "geometry": stage_result("NOT_RUN"),
+        "gmsh": stage_result("NOT_RUN"), "mesh_structure": stage_result("NOT_RUN"),
+        "physical_groups": stage_result("NOT_RUN"),
+        "mesh_quality": stage_result("NOT_CHECKED",
+            "Tetrahedron quality acceptance criteria are not implemented yet."),
     }
-    with tempfile.TemporaryDirectory(prefix="oneflow-stl-to-gmsh-") as temporary:
-        sidecar = Path(temporary) / "layout.json"
-        sidecar.write_text(json.dumps(config), encoding="utf-8")
-        geometry_report = convert(stl, sidecar, geo, tolerance=1.0e-10)
+    geometry_report = None
+    mesh = None
+    active_stage = "input"
 
-    subprocess.run(
-        [gmsh, str(geo), "-3", "-format", "msh4", "-o", str(output)],
-        check=True,
-        cwd=output.parent,
-    )
-    mesh = inspect_msh4(output)
-    if mesh["tetrahedron_elements"] <= 0:
-        raise RuntimeError("Gmsh output contains no TETRA_4 volume elements")
-    if mesh["triangle_elements"] <= 0:
-        raise RuntimeError("Gmsh output contains no TRI_3 boundary elements")
-    groups = {
-        (item["dimension"], item["name"])
-        for item in mesh["physical_groups"]
-    }
-    expected_groups = (
-        {(2, "wall"), (2, "inflow"), (2, "outflow"), (3, "fluid_domain")}
-        if volume_mesh_kind == "cylinder_internal_flow"
-        else {(2, boundary_name), (3, volume_name)}
-    )
-    if groups != expected_groups:
-        raise RuntimeError(
-            f"Physical Groups {sorted(groups)} do not match {sorted(expected_groups)}"
+    def make_report(exit_code: int, error: Exception | None = None) -> dict:
+        metrics = {}
+        if mesh:
+            metrics = {"nodes":mesh["nodes"], "elements":mesh["elements"],
+                       "surface_triangles":mesh["triangle_elements"],
+                       "tetrahedra":mesh["tetrahedron_elements"], "msh_format":mesh["format"]}
+            quality = mesh.get("triangle_quality", {})
+            if "minimum_quality" in quality:
+                metrics["minimum_surface_triangle_quality"] = quality["minimum_quality"]
+        message = str(error) if error is not None else None
+        if isinstance(error, subprocess.CalledProcessError):
+            detail = error.stderr or error.stdout or ""
+            detail_lines = detail.strip().splitlines()
+            if detail_lines:
+                message += "\n" + "\n".join(detail_lines[-12:])
+        report = build_run_report(
+            "STL -> Gmsh", stages, exit_code, metrics=metrics,
+            artifacts={"geometry":str(geo),"mesh":str(output),"report":str(report_path)},
+            error=({"type":type(error).__name__,"message":message} if error is not None else None),
         )
+        report.update({
+            "input_stl":str(stl), "geometry":str(geo), "mesh":str(output),
+            "gmsh_executable":gmsh, "mesh_size_min":mesh_size_min,
+            "mesh_size_max":mesh_size_max, "geometry_validation":geometry_report,
+            "mesh_summary":mesh, "validated":exit_code == 0,
+        })
+        return report
 
-    report = {
-        "schema": "oneflow.stl-to-gmsh-volume-report",
-        "version": 1,
-        "input_stl": str(stl),
-        "geometry": str(geo),
-        "mesh": str(output),
-        "gmsh_executable": gmsh,
-        "mesh_size_min": mesh_size_min,
-        "mesh_size_max": mesh_size_max,
-        "geometry_validation": geometry_report,
-        "mesh_summary": mesh,
-        "validated": True,
-    }
-    report_path.write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-        newline="\n",
-    )
-    print(json.dumps(report, indent=2))
-    return report
+    try:
+        if not stl.is_file():
+            raise FileNotFoundError(f"STL input does not exist: {stl}")
+        if output.suffix.lower() != ".msh":
+            raise ValueError("output path must use the .msh extension")
+        if output == stl:
+            raise ValueError("output mesh must not overwrite the input STL")
+        if (not math.isfinite(mesh_size_min) or mesh_size_min <= 0
+                or not math.isfinite(mesh_size_max) or mesh_size_max <= 0):
+            raise ValueError("mesh sizes must be positive and finite")
+        if mesh_size_min > mesh_size_max:
+            raise ValueError("--mesh-size-min must not exceed --mesh-size-max")
+        if not gmsh:
+            raise ValueError("Gmsh was not found; install it, add it to PATH, or set GMSH_EXECUTABLE")
+        stages["input"] = stage_result("PASS", "Input file and mesh-size parameters are valid.")
 
+        active_stage = "geometry"
+        manifest_path = stl.with_suffix(".geometry.json")
+        geometry_kind = None
+        if manifest_path.is_file():
+            try:
+                geometry_kind = json.loads(manifest_path.read_text(encoding="utf-8")).get("geometry")
+            except (OSError, json.JSONDecodeError) as error:
+                raise ValueError(f"Cannot read STL geometry manifest: {manifest_path}: {error}") from error
+        volume_mesh_kind = ("cylinder_internal_flow" if geometry_kind == "cylinder_internal_flow"
+                            else "closed_surface_automatic_tetrahedra")
+        config = {
+            "volume_mesh":volume_mesh_kind, "mesh_dimension":3,
+            "mesh_size_min":mesh_size_min, "mesh_size_max":mesh_size_max,
+            "surface_name":volume_name, "boundary_name":boundary_name,
+            "surface_angle_degrees":surface_angle_degrees,
+            "curve_angle_degrees":curve_angle_degrees,
+        }
+        with tempfile.TemporaryDirectory(prefix="oneflow-stl-to-gmsh-") as temporary:
+            sidecar = Path(temporary) / "layout.json"
+            sidecar.write_text(json.dumps(config), encoding="utf-8")
+            geometry_report = convert(stl, sidecar, geo, tolerance=1.0e-10)
+        stages["geometry"] = stage_result("PASS", "STL topology and geometry checks passed.",
+            {key:geometry_report[key] for key in ("triangles","euler_characteristic","signed_volume")
+             if key in geometry_report})
 
+        active_stage = "gmsh"
+        subprocess.run([gmsh,str(geo),"-3","-format","msh4","-o",str(output)],
+                       check=True,cwd=output.parent,capture_output=True,text=True)
+        stages["gmsh"] = stage_result("PASS", "Gmsh completed with exit code 0.")
+
+        active_stage = "mesh_structure"
+        mesh = inspect_msh4(output)
+        if mesh["tetrahedron_elements"] <= 0:
+            raise RuntimeError("Gmsh output contains no TETRA_4 volume elements")
+        if mesh["triangle_elements"] <= 0:
+            raise RuntimeError("Gmsh output contains no TRI_3 boundary elements")
+        stages["mesh_structure"] = stage_result("PASS",
+            "MSH 4.1 is readable; volume and boundary elements are present.",
+            {"nodes":mesh["nodes"],"elements":mesh["elements"],
+             "tetrahedra":mesh["tetrahedron_elements"],
+             "surface_triangles":mesh["triangle_elements"]})
+
+        active_stage = "physical_groups"
+        groups = {(item["dimension"],item["name"]) for item in mesh["physical_groups"]}
+        expected = ({(2,"wall"),(2,"inflow"),(2,"outflow"),(3,"fluid_domain")}
+                    if volume_mesh_kind == "cylinder_internal_flow"
+                    else {(2,boundary_name),(3,volume_name)})
+        if groups != expected:
+            raise RuntimeError(f"Physical Groups {sorted(groups)} do not match {sorted(expected)}")
+        stages["physical_groups"] = stage_result("PASS",
+            "All expected boundary and volume Physical Groups are present.",
+            {"groups":sorted(f"{dim}:{name}" for dim,name in groups)})
+
+        report = make_report(0)
+        write_run_report(report_path, report)
+        print(format_run_summary(report))
+        return report
+    except Exception as error:
+        stages[active_stage] = stage_result("FAIL", str(error))
+        report = make_report(2, error)
+        write_run_report(report_path, report)
+        print(format_run_summary(report))
+        raise
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
@@ -229,7 +252,8 @@ def main() -> int:
         OSError, ValueError, Stl2DError,
         subprocess.CalledProcessError, RuntimeError,
     ) as error:
-        parser.exit(2, f"STL volume mesh generation failed: {error}\n")
+        print(f"ERROR: {error}", file=sys.stderr)
+        return 2
     return 0
 
 

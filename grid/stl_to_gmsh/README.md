@@ -16,7 +16,10 @@ python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/surface.stl --outp
 
 Use the same STL and vary `--mesh-size` (for example 0.40, 0.20, 0.10)
 to compare coarse, medium and fine meshes. The command writes MSH, GEO and
-JSON validation-report files. See
+JSON validation-report files. The terminal ends with a concise SUCCESS/FAILED
+summary; the JSON report records stage-level PASS/FAIL/NOT_RUN/NOT_CHECKED
+states and the process exit code. See [the run-result contract](../../doc/source/run_result_reporting.rst)
+and
 [`stl_to_gmsh_commands`](../../doc/source/stl_to_gmsh_commands.rst).
 
 

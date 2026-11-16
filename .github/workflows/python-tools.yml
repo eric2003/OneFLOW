@@ -66,6 +66,8 @@ jobs:
         run: python tools/test_mesh_cases.py
       - name: Test planar STL to Gmsh geometry generation
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_geometry
+      - name: Test STL-to-Gmsh run reports
+        run: python -m unittest grid.tests.python.stl_to_gmsh.test_run_report
       - name: Test parameterized 3-D STL geometry generation
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_geometry_generation
       - name: Test native and Python STL-to-Gmsh Cases

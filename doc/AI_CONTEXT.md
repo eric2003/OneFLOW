@@ -1,3 +1,46 @@
+## 2026-11-16 continuation: human-first mesh run reports
+
+The verified starting hexin HEAD was
+ebdd38891004c29c79180c3502f864213381ef67.
+
+Implemented the first adapter of a versioned run-result contract for
+grid/stl_to_gmsh/generate_volume_mesh.py:
+
+- concise terminal verdict and stage results instead of dumping the full JSON;
+- explicit PASS, FAIL, NOT_RUN, and NOT_CHECKED stage states;
+- process status and exit code in the JSON report;
+- failure reports with the failed stage and actionable error text;
+- stale report invalidation before each run and atomic report replacement;
+- preserve the legacy validated and mesh detail fields for compatibility;
+- explicitly mark tetrahedron mesh-quality acceptance as NOT_CHECKED.
+
+Added the run-result contract document and focused success/failure tests.
+The Python tooling workflow runs the new test on Linux and Windows. This
+record describes implementation scope; test and CI outcomes must be updated
+only after checking the exact resulting commit.
+
+Changed files:
+- grid/stl_to_gmsh/run_report.py (new)
+- grid/stl_to_gmsh/generate_volume_mesh.py
+- grid/tests/python/stl_to_gmsh/test_run_report.py (new)
+- .github/workflows/python-tools.yml
+- grid/stl_to_gmsh/README.md
+- doc/source/run_result_reporting.rst (new)
+- doc/source/index.rst
+- doc/reports/README.md
+- doc/AI_CONTEXT.md
+
+Focused validation:
+python -m unittest grid.tests.python.stl_to_gmsh.test_run_report
+and the existing STL-to-Gmsh Python suites. CI status for the resulting
+commit must be checked before claiming platform validation.
+
+Next action: apply the same envelope to Gmsh-to-CGNS and Mesh-to-CFD
+Validation, keeping mesh-quality and physical-validation claims distinct
+from successful conversion execution.
+
+---
+
 ## 2026-11-07 continuation: mesh boundary algorithm note and contract references
 
 The user reported 1269/1269 tests passing before this slice. Documentation and

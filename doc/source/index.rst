@@ -162,6 +162,7 @@ The existing reference library covers programming languages, build systems, para
    gmsh_interface
    stl_to_gmsh_2d
    stl_to_gmsh_3d
+   run_result_reporting
    stl_geometry_generation
    stl_to_gmsh_sphere
    stl_to_gmsh_prolate_spheroid
