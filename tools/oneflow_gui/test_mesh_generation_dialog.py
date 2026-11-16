@@ -143,6 +143,47 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 finally:
                     dialog.close()
 
+    def test_generated_cylinder_can_open_region_aware_stl_to_gmsh(self) -> None:
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory) / "mesh-generation"
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                dialog = StlGeometryDialog(self.repository_root)
+                try:
+                    dialog.geometry.setCurrentIndex(
+                        dialog.geometry.findData("cylinder_internal_flow")
+                    )
+                    output = Path(directory) / "cylinder.stl"
+                    dialog.output.setText(str(output))
+                    dialog._generate()
+                    self.assertTrue(dialog.open_gmsh_button.isEnabled())
+                    with patch(
+                        "tools.oneflow_gui.mesh_generation_dialog.create_mesh_project_from_stl",
+                        return_value={
+                            "directory": workspace / "cylinder",
+                            "name": "cylinder",
+                            "geometry": "cylinder_internal_flow",
+                        },
+                    ) as create_project, patch(
+                        "tools.oneflow_gui.mesh_generation_dialog.StlToGmshDialog"
+                    ) as stl_dialog:
+                        dialog._open_in_gmsh()
+                    create_project.assert_called_once_with(
+                        self.repository_root.resolve(), output.resolve()
+                    )
+                    stl_dialog.assert_called_once()
+                    self.assertEqual(
+                        stl_dialog.call_args.kwargs["project"]["geometry"],
+                        "cylinder_internal_flow",
+                    )
+                    stl_dialog.return_value.exec.assert_called_once()
+                finally:
+                    dialog.close()
+
     def test_geometry_dialog_settings_are_scrollable_on_short_screens(self) -> None:
         dialog = StlGeometryDialog(self.repository_root)
         try:
