@@ -90,6 +90,8 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_main_window
       - name: Test GUI test command builder and registry consistency
         run: python -m unittest tools.oneflow_gui.test_test_runner tools.oneflow_gui.test_test_inventory
+      - name: Test GUI launcher configuration
+        run: python -m unittest tools.oneflow_gui.test_launcher
       - name: Test cross-platform executable discovery
         run: python -m unittest tools.oneflow_gui.test_executable_discovery
       - name: Test process tree lifecycle
