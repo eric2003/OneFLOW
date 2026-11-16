@@ -101,6 +101,14 @@ class MeshValidationCatalogTest(unittest.TestCase):
                  "execution": {"kind": "python", "script": "grid/stl_to_gmsh/run_python_case.py"}},
             ],
         }), encoding="utf-8")
+        catalog_path = self.root / "grid/case_catalog.json"
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        cylinder_input = next(
+            item for item in catalog["cases"] if item["id"] == "cylinder_existing_mesh"
+        )
+        catalog["cases"].remove(cylinder_input)
+        catalog["mesh_validation_inputs"] = [cylinder_input]
+        catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/python/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "square.msh"}}), encoding="utf-8"
         )
@@ -174,10 +182,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ("python_cube", "Cube Single Hex (Python Reference)"),
             ("native_sphere", "Unit Sphere Automatic Tetrahedra (Native C++)"),
             ("python_sphere", "Unit Sphere Automatic Tetrahedra (Python Reference)"),
-            ("cylinder_existing_mesh", "3D Cylinder Internal Flow (Generated MSH)"),
             ("python_square", "One Square QUAD_4 Cell (Python Reference)"),
             ("stl_to_gmsh_python_square_two_triangles", "Square with Two TRI_3 Cells (Python Reference)"),
             ("stl_to_gmsh_python_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Python Reference)"),
+            ("cylinder_existing_mesh", "3D Cylinder Internal Flow (Generated MSH)"),
         ))
     def test_repository_catalog_exposes_3d_cylinder_existing_mesh(self):
         repository_root = Path(__file__).resolve().parents[2]
@@ -665,7 +673,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
             catalog = json.loads(
                 (self.root / "grid/case_catalog.json").read_text(encoding="utf-8")
             )
-            cylinder = next(x for x in catalog["cases"] if x["id"] == "cylinder_existing_mesh")
+            cylinder = next(
+                x for x in catalog["mesh_validation_inputs"]
+                if x["id"] == "cylinder_existing_mesh"
+            )
             cylinder["execution"]["mesh_file"] = "../../outside.msh"
             (self.root / "grid/case_catalog.json").write_text(
                 json.dumps(catalog), encoding="utf-8"
