@@ -653,6 +653,19 @@ class StlToGmshDialog(QDialog):
 
     def _geometry_preset_paths(self, preset: str) -> tuple[Path, str, str] | None:
         """Return the bundled STL, native validation Case and Python template Case."""
+        if preset == "cylinder_internal_flow":
+            # Keep the cylinder preset independent from the sphere fixture. The
+            # cylinder source STL is an optional local input at this canonical
+            # Case location; it is not currently bundled in the repository.
+            stl = (
+                self._repository_root / "grid" / "stl_to_gmsh" / "3d"
+                / "cylinder_internal_flow" / "python" / "input" / "model.stl"
+            )
+            return (
+                stl,
+                "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow",
+                "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow",
+            )
         if preset not in {"sphere", "prolate_spheroid"}:
             return None
         case_directory = (
@@ -678,16 +691,28 @@ class StlToGmshDialog(QDialog):
         definition = self._geometry_preset_paths(preset)
 
         if definition is None:
-            self._mesh_case_id = (
-                "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow"
-                if preset == "cylinder_internal_flow"
-                else "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra"
-            )
+            self._mesh_case_id = "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra"
             self._active_geometry_preset = preset
             self._refresh_command()
             return
 
         stl, native_case_id, project_template_id = definition
+        if preset == "cylinder_internal_flow":
+            # This preset has a canonical source location even when the optional
+            # STL has not yet been supplied. Never leave the previous sphere STL
+            # in the input field when switching geometry.
+            self.stl_path.setText(str(stl))
+            self._mesh_case_id = native_case_id
+            if current_output.resolve() == previous_output.resolve():
+                self.output_path.setText(str(self._geometry_default_output(preset)))
+            self._active_geometry_preset = preset
+            if not stl.is_file():
+                self.status_label.setText(
+                    "Cylinder STL is not bundled. Place the source at: " + str(stl)
+                )
+            self._refresh_command()
+            return
+
         if not stl.is_file():
             QMessageBox.warning(
                 self, "Geometry preset unavailable",
