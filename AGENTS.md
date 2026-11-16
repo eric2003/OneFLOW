@@ -1,14 +1,17 @@
 # AGENTS.md — guide for AI coding agents
 
 This file is the entry point for AI coding agents working in this repository.
-Before changing code, read [`doc/AI_CONTEXT.md`](doc/AI_CONTEXT.md) for the
-current refactoring focus, verified findings, open gaps, and next actions.
-Then follow the relevant architecture page, roadmap, tests, and evidence links.
+Before changing code, read [`doc/DEVELOPMENT_PRINCIPLES.md`](doc/DEVELOPMENT_PRINCIPLES.md)
+for durable engineering rules and regression lessons, then read
+[`doc/AI_CONTEXT.md`](doc/AI_CONTEXT.md) for the current refactoring focus,
+verified findings, open gaps, and next actions. Follow the relevant architecture
+page, roadmap, tests, and evidence links.
 
 ## Fast documentation map
 
 | Topic | Start here |
 |---|---|
+| Durable engineering principles and regression-prevention rules | [`doc/DEVELOPMENT_PRINCIPLES.md`](doc/DEVELOPMENT_PRINCIPLES.md) |
 | Current AI handoff and ongoing refactoring state | [`doc/AI_CONTEXT.md`](doc/AI_CONTEXT.md) |
 | Runtime entry points, lifecycle, configuration, and task dispatch | [`doc/source/runtime_architecture.rst`](doc/source/runtime_architecture.rst) |
 | Runtime refactoring stages and acceptance criteria | [`doc/plans/runtime-refactoring-roadmap.md`](doc/plans/runtime-refactoring-roadmap.md) |
@@ -39,18 +42,24 @@ Then follow the relevant architecture page, roadmap, tests, and evidence links.
    and failure/cleanup path before changing interfaces.
 2. Prefer a focused change for a demonstrated behavior or maintenance problem.
    Do not refactor solely to introduce a pattern or a new abstraction.
-3. Add or update tests for the changed contract at the narrowest meaningful
+3. Search for existing helpers, contracts, and regression tests before
+   implementing path, process, filesystem, UI, mesh, or workflow behavior.
+   Follow [`doc/DEVELOPMENT_PRINCIPLES.md`](doc/DEVELOPMENT_PRINCIPLES.md);
+   do not reintroduce a solved local workaround or duplicate an existing policy.
+4. Add or update tests for the changed contract at the narrowest meaningful
    boundary, followed by relevant integration or regression checks.
-4. Report test commands, outcomes, failures, and platform limitations honestly.
+5. Report test commands, outcomes, failures, and platform limitations honestly.
    A build alone is not full validation; do not claim CI passed without checking
    the exact commit's workflow results.
-5. Keep C++ source files ASCII-only. Preserve existing behavior unless an
+6. Keep C++ source files ASCII-only. Preserve existing behavior unless an
    intentional behavior change is documented and tested.
-6. At a meaningful milestone, update `doc/AI_CONTEXT.md` and the relevant
+7. At a meaningful milestone, update `doc/AI_CONTEXT.md` and the relevant
    architecture/roadmap entry with the verified base commit, change summary,
-   evidence, remaining gaps, and next action. Do not create a command-by-command
-   diary or duplicate full architecture documents.
-7. Keep README and user/developer guidance consistent with current behavior.
+   evidence, remaining gaps, and next action. If a fix reveals a reusable
+   lesson, update the owning durable principle or architecture page in the
+   same logical change. Do not create a command-by-command diary or duplicate
+   full architecture documents.
+8. Keep README and user/developer guidance consistent with current behavior.
    Clearly distinguish implemented, partial, planned, and unverified work.
 
 ## AI execution protocol for ongoing refactoring
@@ -63,9 +72,10 @@ this assistant or another coding agent without relying on conversational memory.
 1. Inspect the current `hexin` HEAD, recent commits, working-tree/source state where
    available, and relevant CI results. Never assume that a handoff note or an old commit
    is still current.
-2. Read `doc/AI_CONTEXT.md`, the relevant architecture/design page, the roadmap or stage
-   record, and the directly related tests. Follow the real entry point and callers; do not
-   scan or rewrite the whole repository without a reason.
+2. Read `doc/DEVELOPMENT_PRINCIPLES.md`, `doc/AI_CONTEXT.md`, the relevant
+   architecture/design page, the roadmap or stage record, and the directly related
+   tests. Follow the real entry point and callers; do not scan or rewrite the whole
+   repository without a reason.
 3. Treat a user-reported test count as the pre-change baseline unless the user explicitly
    says otherwise. It is not evidence that new changes pass.
 
@@ -77,10 +87,10 @@ Before editing, identify one concrete mainline and explain briefly:
 - the exact behavior/acceptance criteria and the evidence that could prove or disprove it.
 
 Prefer the change that closes a meaningful end-to-end gap, removes a real dependency or
-ownership problem, or improves numerical confidence. Do not select work merely because it
-is easy to rename or document. Keep the system-level goal visible while limiting the patch
-to one coherent, independently reviewable slice. Do not start a second mainline in the same
-turn unless the user explicitly asks.
+ownership problem, or improves numerical confidence. Do not select work merely because
+it is easy to rename or document. Keep the system-level goal visible while limiting
+the patch to one coherent, independently reviewable slice. Do not start a second mainline
+in the same turn unless the user explicitly asks.
 
 ### C. Make the smallest complete slice
 
@@ -89,7 +99,8 @@ turn unless the user explicitly asks.
 3. Add the smallest discriminating test at the narrowest useful layer; add integration,
    regression, or numerical checks when the contract crosses component boundaries.
 4. Make the implementation change and update only the documentation that the change makes
-   inaccurate or materially improves.
+   inaccurate or materially improves. Capture generalizable lessons in the owning
+   principle or architecture page rather than relying on chat history.
 5. Preserve compatibility unless a behavior change is intentional, documented, and tested.
    Avoid broad rewrites and abstractions without a demonstrated need.
 
