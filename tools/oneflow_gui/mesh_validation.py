@@ -367,10 +367,10 @@ def run_report_stage_rows(report: dict) -> tuple[tuple[str, str, str], ...]:
     )
 
 
-def _mesh_validation_stage_results(result) -> dict[str, dict]:
+def _mesh_validation_stage_results(result, *, existing_mesh: bool = False) -> dict[str, dict]:
     """Map workflow graph outcomes onto shared run-report states."""
     stage_names = {
-        "stl_to_gmsh": "mesh_generation",
+        "stl_to_gmsh": "existing_msh_input" if existing_mesh else "mesh_generation",
         "gmsh_to_cgns": "gmsh_to_cgns",
         "cgns_to_oneflow": "cgns_to_oneflow",
         "oneflow_cfd_solve": "cfd_smoke",
@@ -599,7 +599,9 @@ def run_mesh_validation(
         return status, message
 
     result = run_case_graph(plan, execute, run_root=run_root)
-    stages = _mesh_validation_stage_results(result)
+    stages = _mesh_validation_stage_results(
+        result, existing_mesh=mesh_implementation == "existing_mesh"
+    )
     exit_code = 0 if result.status == "succeeded" else 130 if result.status == "cancelled" else 1
     failed_step = next((item for item in result.cases if item.status == "failed"), None)
     error = None
