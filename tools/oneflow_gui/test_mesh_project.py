@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import tempfile
@@ -127,7 +128,7 @@ class MeshProjectTest(unittest.TestCase):
     def test_project_reopen_recovers_verified_geometry_and_validation_lineage(self) -> None:
         source = self.home / "generated.stl"
         source.write_bytes(b"project-stl")
-        source_digest = __import__("hashlib").sha256(source.read_bytes()).hexdigest()
+        source_digest = hashlib.sha256(source.read_bytes()).hexdigest()
         source.with_suffix(".geometry.json").write_text(
             json.dumps({
                 "schema": "oneflow.stl-geometry-manifest",
@@ -145,7 +146,7 @@ class MeshProjectTest(unittest.TestCase):
         cgns_dir.mkdir(parents=True)
         cgns = cgns_dir / "lineage.cgns"
         cgns.write_bytes(b"cgns-artifact")
-        cgns_digest = __import__("hashlib").sha256(cgns.read_bytes()).hexdigest()
+        cgns_digest = hashlib.sha256(cgns.read_bytes()).hexdigest()
         (cgns_dir / (cgns.name + ".geometry-lineage.json")).write_text(
             json.dumps({
                 "schema": "oneflow.geometry-artifact-lineage",
@@ -163,7 +164,7 @@ class MeshProjectTest(unittest.TestCase):
         native_dir.mkdir(parents=True)
         native = native_dir / "lineage.oneflow.grid"
         native.write_bytes(b"native-grid")
-        native_digest = __import__("hashlib").sha256(native.read_bytes()).hexdigest()
+        native_digest = hashlib.sha256(native.read_bytes()).hexdigest()
         (native_dir / (native.name + ".geometry-lineage.json")).write_text(
             json.dumps({
                 "schema": "oneflow.geometry-artifact-lineage",
@@ -183,9 +184,15 @@ class MeshProjectTest(unittest.TestCase):
         reopened = load_mesh_project(project["directory"])
         self.assertEqual(reopened["geometry_lineage"]["asset_id"], "geometry.sphere.unit")
         self.assertEqual(reopened["geometry_lineage"]["provenance"]["kind"], "generated")
+        artifacts = reopened["geometry_lineage"]["downstream_artifacts"]
+        by_role = {item["role"]: item for item in artifacts}
         self.assertEqual(
-            reopened["geometry_lineage"]["downstream_artifacts"][0]["role"],
-            "CGNS volume mesh",
+            set(by_role),
+            {"CGNS volume mesh", "OneFLOW native grid"},
+        )
+        self.assertEqual(
+            by_role["OneFLOW native grid"]["parent"]["file_name"],
+            cgns.name,
         )
 
     def test_project_reopen_does_not_trust_mismatched_stl_manifest(self) -> None:
