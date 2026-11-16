@@ -37,11 +37,20 @@ def _catalog(root: Path) -> dict:
     return value
 
 
+def _mesh_validation_entries(catalog: dict) -> list[dict]:
+    """Return runnable mesh Cases plus separate generated-mesh validation inputs."""
+    cases = catalog.get("cases", [])
+    inputs = catalog.get("mesh_validation_inputs", [])
+    if not isinstance(cases, list) or not isinstance(inputs, list):
+        raise ValueError("Case catalog mesh validation entries must be lists.")
+    return [*cases, *inputs]
+
+
 def mesh_case_groups(
     repository_root: Path,
 ) -> tuple[tuple[str, tuple[tuple[str, str], ...]], ...]:
     """Group mesh producers and existing-mesh profiles by spatial dimension."""
-    entries = _catalog(Path(repository_root).resolve()).get("cases", [])
+    entries = _mesh_validation_entries(_catalog(Path(repository_root).resolve()))
     grouped: dict[int | None, list[tuple[str, str]]] = {2: [], 3: [], None: []}
     for item in entries:
         if item.get("group") != "STL to Gmsh":
@@ -87,7 +96,7 @@ def existing_mesh_case_paths(
 ) -> tuple[Path, Path] | None:
     """Resolve a catalog-declared generated mesh below the user's mesh workspace."""
     catalog = _catalog(Path(repository_root).resolve())
-    mesh = next((item for item in catalog["cases"] if item.get("id") == mesh_case_id), None)
+    mesh = next((item for item in _mesh_validation_entries(catalog) if item.get("id") == mesh_case_id), None)
     if mesh is None:
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
     execution = mesh.get("execution") or {}
@@ -145,7 +154,7 @@ def build_mesh_validation_cases(
     """Build the current STL -> Gmsh -> CGNS -> OneFLOW -> CFD route."""
     root = Path(repository_root).resolve()
     catalog = _catalog(root)
-    mesh = next((x for x in catalog["cases"] if x.get("id") == mesh_case_id), None)
+    mesh = next((x for x in _mesh_validation_entries(catalog) if x.get("id") == mesh_case_id), None)
     if mesh is None:
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
     execution = mesh.get("execution") or {}
@@ -266,7 +275,7 @@ def mesh_validation_workspace(repository_root: Path, mesh_case_id: str) -> Path:
     """Return the stable user-data directory for one mesh validation Case."""
     root = Path(repository_root).resolve()
     entry = next(
-        (item for item in _catalog(root)["cases"] if item.get("id") == mesh_case_id),
+        (item for item in _mesh_validation_entries(_catalog(root)) if item.get("id") == mesh_case_id),
         None,
     )
     if entry is None:
