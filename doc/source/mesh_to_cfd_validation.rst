@@ -51,8 +51,12 @@ isolated ``validation/`` workspace, and runs the MSH4 inspection,
 Gmsh-to-CGNS conversion, and CGNS-to-OneFLOW ingestion stages. It does not
 rerun STL/Gmsh generation or modify the source project mesh.
 
-This entry is deliberately ``mesh_handoff``, not a CFD smoke test. The
-internal-flow cylinder has wall, inlet and outlet patch semantics; the
+This entry is deliberately ``mesh_handoff``, not a CFD smoke test. Its
+MSH check requires the two-dimensional Physical Surfaces ``wall``,
+``inflow`` and ``outflow``, plus the three-dimensional Physical Volume
+``fluid_domain``. Missing groups or groups declared with the wrong
+dimension fail the mesh-generation stage before conversion. The internal-flow
+cylinder has wall, inlet and outlet patch semantics; the
 available laminar flat-plate consumer is not a compatible physical setup.
 A dedicated internal-flow cylinder CFD Case with defined boundary states and
 acceptance criteria is required before a solver run can be reported as a
