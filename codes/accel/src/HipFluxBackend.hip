@@ -3088,21 +3088,16 @@ void HipFluxBackend::CalcViscousFaceFlux(
         }
     }
 
-    if ( resident == nullptr )
-    {
-    { ScopedStageTimer timer( "v_upload" );
-    // Primitive state, equation-major.  Only density and the three momenta are
-    // read by the flux body, but the whole state is uploaded because the
-    // stride is part of the contract and a partial upload would hide a
-    // mismatched layout instead of failing it in the contract test.
-    viscousCellState_.Resize(
-        static_cast< std::size_t >( nEq ) * totalCells );
-    for ( int eq = 0; eq < nEq; ++ eq )
-    {
-        CopyRealComponent( viscousCellState_,
-                           static_cast< std::size_t >( eq ) * totalCells,
-                           view.q[ eq ], totalCells, AccelCopyKind::HostToDevice );
-    }
+    // The primitive gradient is uploaded on both paths rather than taken from
+    // the resident storage.
+    //
+    // storage->cellGradient is produced by GradientCellKernel from the resident
+    // state, which is a different computation from the dqdx/dqdy/dqdz the host
+    // chain hands the viscous flux: the solver's UNsGrad owns those, with its own
+    // limiter and face correction.  Reusing the resident gradient to skip this
+    // upload changed the answer.  Isolating the hooks one at a time measured it:
+    // the viscous term alone deviated 6.7e-3 relative from the host arm, while
+    // the four SA hooks were bit-identical.
     viscousCellGradient_.Resize(
         static_cast< std::size_t >( nEq ) * 3 * totalCells );
     for ( int eq = 0; eq < nEq; ++ eq )
@@ -3118,6 +3113,25 @@ void HipFluxBackend::CalcViscousFaceFlux(
                            view.dqdz[ eq ], totalCells,
                            AccelCopyKind::HostToDevice );
     }
+
+    // State, gradient, temperature and its gradient all come from the caller on
+    // both paths.
+    //
+    // These are not the same values the device holds.  Upload() puts a snapshot
+    // of the state there, but the host chain advances state, temperature and
+    // gradients at different points in the step, and the resident copies are
+    // whatever the last device update left.  Using them measured 6.7e-3
+    // relative error against the host arm on the viscous hook alone, with the
+    // four SA hooks bit-identical - so the drift was here, not in a formula.
+    // Only the geometry is shared, because topology does not change per step.
+    viscousCellState_.Resize(
+        static_cast< std::size_t >( nEq ) * totalCells );
+    for ( int eq = 0; eq < nEq; ++ eq )
+    {
+        CopyRealComponent( viscousCellState_,
+                           static_cast< std::size_t >( eq ) * totalCells,
+                           view.q[ eq ], totalCells, AccelCopyKind::HostToDevice );
+    }
     viscousTemperature_.CopyFromHost( view.temperature, totalCells );
     viscousTemperatureGradient_.Resize(
         static_cast< std::size_t >( 3 ) * totalCells );
@@ -3127,6 +3141,10 @@ void HipFluxBackend::CalcViscousFaceFlux(
                        totalCells, AccelCopyKind::HostToDevice );
     CopyRealComponent( viscousTemperatureGradient_, 2 * totalCells, view.dTdz,
                        totalCells, AccelCopyKind::HostToDevice );
+
+    if ( resident == nullptr )
+    {
+    { ScopedStageTimer timer( "v_upload" );
     viscousFaceNormals_.Resize( static_cast< std::size_t >( 3 ) * nFaces );
     const Real * normals[ 3 ] = { view.xNormal, view.yNormal, view.zNormal };
     std::vector< Real > zeroNormal;
@@ -3164,18 +3182,16 @@ void HipFluxBackend::CalcViscousFaceFlux(
     }
     }
 
-    // Source pointers.  On the resident path every one of these already lives on
-    // the device; on the fallback path they are the private staging buffers the
-    // block above just filled.
-    const Real * deviceState = resident != nullptr
-        ? resident->cellState.Data() : viscousCellState_.Data();
-    const Real * deviceGradient = resident != nullptr
-        ? resident->cellGradient.Data() : viscousCellGradient_.Data();
-    const Real * deviceTemperature = resident != nullptr
-        ? resident->temperature.Data() : viscousTemperature_.Data();
-    const Real * deviceTemperatureGradient = resident != nullptr
-        ? resident->temperatureGradient.Data()
-        : viscousTemperatureGradient_.Data();
+    // Source pointers.  Only the geometry may come from the resident storage:
+    // Upload() put exactly those values there and they are static per topology.
+    // The state, the gradient and the temperature all come from the caller,
+    // because each is updated by a different part of the host chain at a
+    // different point in the step, and the resident copies are whatever the last
+    // device update left behind rather than what this call was handed.
+    const Real * deviceState = viscousCellState_.Data();
+    const Real * deviceGradient = viscousCellGradient_.Data();
+    const Real * deviceTemperature = viscousTemperature_.Data();
+    const Real * deviceTemperatureGradient = viscousTemperatureGradient_.Data();
     const Real * deviceNormals = resident != nullptr
         ? resident->xNormal.Data() : viscousFaceNormals_.Data();
     const Real * deviceFaceArea = resident != nullptr
