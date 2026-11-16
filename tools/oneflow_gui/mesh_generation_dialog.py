@@ -654,12 +654,12 @@ class StlToGmshDialog(QDialog):
     def _geometry_preset_paths(self, preset: str) -> tuple[Path, str, str] | None:
         """Return the bundled STL, native validation Case and Python template Case."""
         if preset == "cylinder_internal_flow":
-            # Keep the cylinder preset independent from the sphere fixture. The
-            # cylinder source STL is an optional local input at this canonical
-            # Case location; it is not currently bundled in the repository.
+            # Cylinder geometry is generated from its analytic definition. Keep
+            # generated source assets in the per-user workspace, never in the
+            # read-only repository checkout.
             stl = (
-                self._repository_root / "grid" / "stl_to_gmsh" / "3d"
-                / "cylinder_internal_flow" / "python" / "input" / "model.stl"
+                UserDataPaths.discover().mesh_generation / "generated_stl"
+                / "cylinder_internal_flow" / "cylinder_internal_flow.stl"
             )
             return (
                 stl,
@@ -698,18 +698,44 @@ class StlToGmshDialog(QDialog):
 
         stl, native_case_id, project_template_id = definition
         if preset == "cylinder_internal_flow":
-            # This preset has a canonical source location even when the optional
-            # STL has not yet been supplied. Never leave the previous sphere STL
-            # in the input field when switching geometry.
+            # Generate the analytic cylinder shell on demand, matching the
+            # defaults exposed by Generate STL Geometry. The generator writes a
+            # companion checksum/provenance manifest beside the STL.
+            try:
+                manifest = stl.with_suffix(".geometry.json")
+                if not stl.is_file() or not manifest.is_file():
+                    report = generate_geometry(
+                        "cylinder_internal_flow",
+                        stl,
+                        radius=1.0,
+                        length=4.0,
+                        circumferential_divisions=48,
+                        axial_divisions=16,
+                        units="m",
+                    )
+                    if not report["surface"]["watertight"]:
+                        raise ValueError("Generated cylinder STL is not watertight.")
+                else:
+                    metadata = json.loads(manifest.read_text(encoding="utf-8"))
+                    if metadata.get("asset_id") != "geometry.cylinder.internal_flow":
+                        raise ValueError("Existing cylinder STL manifest has an unexpected asset ID.")
+            except (OSError, ValueError, KeyError) as error:
+                self.stl_path.clear()
+                self._mesh_case_id = native_case_id
+                self._active_geometry_preset = preset
+                self.status_label.setText(f"Cylinder STL generation failed: {error}")
+                self._refresh_command()
+                self.run_button.setEnabled(False)
+                return
+
             self.stl_path.setText(str(stl))
             self._mesh_case_id = native_case_id
             if current_output.resolve() == previous_output.resolve():
                 self.output_path.setText(str(self._geometry_default_output(preset)))
             self._active_geometry_preset = preset
-            if not stl.is_file():
-                self.status_label.setText(
-                    "Cylinder STL is not bundled. Place the source at: " + str(stl)
-                )
+            self.status_label.setText(
+                f"Cylinder STL ready: {stl} | Manifest: {stl.with_suffix('.geometry.json')}"
+            )
             self._refresh_command()
             return
 
