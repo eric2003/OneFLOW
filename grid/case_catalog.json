@@ -488,6 +488,19 @@
       "dimension": 3,
       "mesh_validation": "cfd_smoke",
       "mesh_project_template": true
+    },
+    {
+      "id": "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow",
+      "title": "3D Cylinder Internal Flow (Generated MSH)",
+      "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow",
+      "group": "STL to Gmsh",
+      "dimension": 3,
+      "mesh_validation": "mesh_handoff",
+      "execution": {
+        "kind": "existing_mesh",
+        "project_directory": "cylinder_internal_flow",
+        "mesh_file": "results/cylinder_internal_flow.msh"
+      }
     }
   ]
 }
