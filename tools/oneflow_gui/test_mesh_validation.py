@@ -558,6 +558,17 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(stages["mesh_quality"]["status"], "NOT_CHECKED")
         self.assertEqual(stages["cfd_accuracy"]["status"], "NOT_CHECKED")
 
+    def test_existing_mesh_report_names_the_input_stage_without_claiming_generation(self):
+        result = WorkflowGraphRunResult("succeeded", (
+            CaseExecutionResult("stl_to_gmsh", "succeeded", "Staged existing mesh."),
+            CaseExecutionResult("gmsh_to_cgns", "succeeded", "CGNS written."),
+            CaseExecutionResult("cgns_to_oneflow", "succeeded", "Grid loaded."),
+        ))
+        stages = _mesh_validation_stage_results(result, existing_mesh=True)
+        self.assertIn("existing_msh_input", stages)
+        self.assertNotIn("mesh_generation", stages)
+        self.assertEqual(stages["existing_msh_input"]["status"], "PASS")
+
     def test_successful_handoff_does_not_claim_cfd_or_quality_validation(self):
         result = WorkflowGraphRunResult("succeeded", (
             CaseExecutionResult("stl_to_gmsh", "succeeded", "MSH inspected."),
