@@ -188,3 +188,35 @@ Use this compact format in the owning document:
 
 Do not record every transient command failure. Record the generalizable lesson, link the
 fixing commit or test where useful, and update the rule if later evidence changes it.
+
+
+## 10. Practical text-output review checklist
+
+Use this checklist whenever a change builds, joins, serializes, exports, or renders
+human-readable text. It applies to GUI details, run reports, diagnostics, generated
+documentation, and command-line summaries.
+
+- [ ] Identify the output contract first: plain text, rich text/Markdown, HTML, or
+  serialized data. Do not mix the escaping rules of one format with another.
+- [ ] Inspect the final value at the consumer boundary (for example,
+  \`QPlainTextEdit.toPlainText()\`, the exported file contents, or captured terminal
+  output), not only the source literal or intermediate data structure.
+- [ ] Verify actual line breaks and section boundaries. For Python, \`"\\n"\` is a
+  line-feed delimiter; \`"\\\\n"\` is the visible two-character escape spelling.
+- [ ] Check blank lines between sections, indentation, heading underlines, list
+  markers, and whether long lines remain readable.
+- [ ] Check that no unintended escaped control sequences (such as visible
+  \`\\n\`, \`\\t\`, or \`\\r\`) leak into human-readable output. Escaped spellings
+  are valid only when the output format explicitly requires them.
+- [ ] For JSON/YAML or other machine-readable output, parse the serialized result
+  back and assert the semantic value; do not judge correctness from visual appearance
+  alone.
+- [ ] Add regression assertions for both the required representation and the
+  forbidden representation. Prefer checking the public widget/export result over
+  private formatting helpers.
+- [ ] Review representative empty, single-section, and multi-section cases when
+  those states are supported.
+
+A review is not complete merely because the source compiles or the serializer emits
+syntactically valid data. The rendered or round-tripped consumer value must satisfy
+the declared output contract.
