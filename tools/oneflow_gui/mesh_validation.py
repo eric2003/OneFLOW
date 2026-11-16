@@ -394,12 +394,18 @@ def geometry_lineage_rows(report: dict) -> tuple[tuple[str, str, str], ...]:
     if mesh:
         rows.append(("Derived volume mesh", "RECORDED",
                      f"{mesh.get('format', 'unknown')} | {mesh.get('path', 'unknown')} | SHA-256: {mesh.get('sha256', 'unknown')}"))
+    for artifact in lineage.get("downstream_artifacts", []):
+        rows.append((
+            str(artifact.get("role", "Derived artifact")),
+            "RECORDED",
+            f"{artifact.get('format', 'unknown')} | {artifact.get('path', 'unknown')} | SHA-256: {artifact.get('sha256', 'unknown')}",
+        ))
     return tuple(rows)
 
 
 def _geometry_lineage(
     mesh_entry: dict, source_stl: Path | None, mesh_file: Path | None,
-    repository_root: Path,
+    repository_root: Path, downstream_artifacts: list[dict] | None = None,
 ) -> dict:
     """Capture only verifiable source metadata and hashes for this validation run."""
     provenance = mesh_entry.get("geometry_provenance") or {
@@ -449,6 +455,24 @@ def _geometry_lineage(
             "sha256": hashlib.sha256(mesh_file.read_bytes()).hexdigest(),
             "parent": "source_representation",
         }
+    downstream = []
+    for item in downstream_artifacts or []:
+        path = Path(item["path"]).expanduser().resolve()
+        if not path.is_file():
+            continue
+        try:
+            label = path.relative_to(repository_root.resolve()).as_posix()
+        except ValueError:
+            label = str(path)
+        downstream.append({
+            "role": str(item.get("role", "derived artifact")),
+            "format": str(item.get("format", "unknown")),
+            "path": label,
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "parent": item.get("parent", "derived_mesh"),
+        })
+    if downstream:
+        lineage["downstream_artifacts"] = downstream
     return lineage
 
 def _mesh_validation_stage_results(result, *, existing_mesh: bool = False) -> dict[str, dict]:
@@ -730,7 +754,23 @@ def run_mesh_validation(
         candidate = run_root / "stl_to_gmsh" / str(mesh_evidence["path"])
         if candidate.is_file():
             staged_mesh = candidate
-    lineage = _geometry_lineage(mesh_entry, source_stl, staged_mesh, REPOSITORY_ROOT)
+    downstream_artifacts = []
+    for step in steps:
+        if step.get("id") not in {"gmsh_to_cgns", "cgns_to_oneflow"}:
+            continue
+        for output in step.get("outputs", []):
+            artifact_id = output.get("id")
+            if artifact_id not in {"cgns_mesh", "oneflow_grid"}:
+                continue
+            downstream_artifacts.append({
+                "role": "CGNS volume mesh" if artifact_id == "cgns_mesh" else "OneFLOW native grid",
+                "format": "CGNS" if artifact_id == "cgns_mesh" else "OneFLOW native grid",
+                "path": run_root / step["runtime_directory"] / output["path"],
+                "parent": "derived_mesh" if artifact_id == "cgns_mesh" else "cgns_mesh",
+            })
+    lineage = _geometry_lineage(
+        mesh_entry, source_stl, staged_mesh, REPOSITORY_ROOT, downstream_artifacts
+    )
     report.update({
         "geometry_lineage": lineage,
         "legacy_schema": "oneflow.mesh-to-cfd-validation",

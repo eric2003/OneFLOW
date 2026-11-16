@@ -1,3 +1,23 @@
+## 2026-11-16 continuation: carry lineage through conversion artifacts
+
+Starting `hexin` HEAD: `67d7083d09ecc6f93942692ea644811c5c65230a`.
+
+- Mesh-to-CFD lineage now extends beyond the source STL and MSH: successful
+  CGNS and OneFLOW native-grid outputs are included when present, each with
+  its format, path, SHA-256 and parent artifact.
+- The result tree renders these downstream artifacts beside the geometry
+  source and mesh producer information.
+- Missing downstream files are omitted rather than represented as successful
+  outputs; stage status remains governed by the workflow report.
+
+Exact-commit CI is pending. No local execution is claimed.
+
+Next action: persist lineage on the CGNS artifact itself so it remains
+available outside Mesh-to-CFD Validation, and verify the geometry import
+catalog lifecycle on a clean and existing user workspace.
+
+---
+
 ## 2026-11-16 continuation: non-STL Geometry Library import entry
 
 Starting `hexin` HEAD: `f87c23b13b47397c6dd0a77fbe42d8ccf586de7c`.

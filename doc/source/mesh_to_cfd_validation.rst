@@ -150,7 +150,9 @@ Each run report includes a ``geometry_lineage`` record. When a companion
 metadata are accepted only if the manifest schema is recognized and its STL
 SHA-256 matches the actual source bytes. The report records the source STL
 checksum and the derived MSH checksum, with the MSH linked to the source
-representation. A missing or mismatched manifest is not silently trusted.
+representation. When produced, the CGNS conversion and OneFLOW native-grid
+artifacts are also recorded with their own checksums and parent links. A
+missing or mismatched manifest is not silently trusted.
 
 Historical cube STL Cases currently have no verified original source or
 generator record. Their Case Catalog entries explicitly declare provenance

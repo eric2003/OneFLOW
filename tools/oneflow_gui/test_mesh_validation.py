@@ -47,9 +47,16 @@ class GeometryLineageTest(unittest.TestCase):
                              hashlib.sha256(b"historical-stl").hexdigest())
             self.assertEqual(lineage["derived_mesh"]["sha256"],
                              hashlib.sha256(b"derived-mesh").hexdigest())
+            downstream = root / "model.cgns"
+            downstream.write_bytes(b"cgns")
+            lineage = _geometry_lineage(
+                entry, stl, msh, root,
+                [{"role": "CGNS volume mesh", "format": "CGNS", "path": downstream}],
+            )
             rows = geometry_lineage_rows({"geometry_lineage": lineage})
             self.assertEqual(rows[0][1], "UNKNOWN")
-            self.assertEqual(rows[-1][0], "Derived volume mesh")
+            self.assertEqual(rows[-2][0], "Derived volume mesh")
+            self.assertEqual(rows[-1][0], "CGNS volume mesh")
 
     def test_matching_manifest_provides_asset_and_generator_lineage(self):
         with tempfile.TemporaryDirectory() as directory:
