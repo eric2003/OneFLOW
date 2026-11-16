@@ -6,6 +6,11 @@ Starting `hexin` from `d29a2f5cb95b36b543fa680707335d648def1d95`.
   interactive resize handles with useful initial widths. The result tree's
   first two columns are also resizable. The dialog starts wider, and the
   Select all / Select none buttons use a compact 26 px height.
+- The cylinder is stored under the catalog's top-level `mesh_validation_inputs`
+  collection rather than `cases`. The general Case Catalog validator and
+  Run Development Cases therefore continue to see only executable Cases;
+  Mesh-to-CFD Validation explicitly merges the two collections for its own
+  selector and workflow lookup.
 - Added the 3-D Cylinder Internal Flow generated MSH as an explicit
   existing-mesh validation entry. It resolves the generated file below
   `UserDataPaths.mesh_generation/cylinder_internal_flow/results/`, not in
