@@ -133,7 +133,7 @@ def summarize_test_output(
     skipped_unittest_cases = []
     for line in output_lines:
         match = re.match(
-            r"^\\s*(test\\S+)\\s+\\(([^)]+)\\)\\s+\\.\\.\\.\\s+skipped(?:\\s+.+)?$",
+            r"^\s*(test\S+)\s+\(([^)]+)\)\s+\.\.\.\s+skipped(?:\s+.+)?$",
             line,
         )
         if match:
