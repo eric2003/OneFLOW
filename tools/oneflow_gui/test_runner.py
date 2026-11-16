@@ -130,6 +130,20 @@ def summarize_test_output(
         summary.append("Failed unittest cases:")
         summary.extend(f"  - {case_name}" for case_name in failed_unittest_cases)
 
+    skipped_unittest_cases = []
+    for line in output_lines:
+        match = re.match(
+            r"^\\s*(test\\S+)\\s+\\(([^)]+)\\)\\s+\\.\\.\\.\\s+skipped(?:\\s+.+)?$",
+            line,
+        )
+        if match:
+            case_name = f"{match.group(1)} ({match.group(2)})"
+            if case_name not in skipped_unittest_cases:
+                skipped_unittest_cases.append(case_name)
+    if skipped_unittest_cases:
+        summary.append("Skipped unittest cases:")
+        summary.extend(f"  - {case_name}" for case_name in skipped_unittest_cases)
+
     if failure_start is not None:
         details = output_lines[failure_start:]
         summary.append("Failure details:")
@@ -322,10 +336,13 @@ def build_python_test_commands(
         raise RuntimeError("Unit tests must execute from the source build tree.")
     root = Path(repository_root).resolve()
     python_executable = python or sys.executable
-    return [
-        TestCommand(label, (python_executable, *arguments), root)
-        for label, arguments in _PYTHON_UNIT_TESTS
-    ]
+    commands = []
+    for label, arguments in _PYTHON_UNIT_TESTS:
+        if arguments[:2] == ("-m", "unittest"):
+            # Verbose unittest output is required to identify skipped test cases.
+            arguments = (*arguments[:2], "-v", *arguments[2:])
+        commands.append(TestCommand(label, (python_executable, *arguments), root))
+    return commands
 
 
 def build_unit_test_commands(
