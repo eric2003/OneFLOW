@@ -389,12 +389,11 @@ class MeshValidationDialog(QDialog):
                 if existing_mesh_paths is not None:
                     existing_mesh, project_directory = existing_mesh_paths
                     if not existing_mesh.is_file():
-                        QMessageBox.warning(
-                            self, "Generated mesh required",
-                            "Generate the 3D cylinder mesh first. Expected file:\n"
-                            f"{existing_mesh}",
-                        )
-                        return
+                        missing_mesh_inputs.append(f"{title}: {existing_mesh}")
+                        item = self._case_items.get(case_id)
+                        if item is not None:
+                            item.setCheckState(0, Qt.CheckState.Unchecked)
+                        continue
                     arguments.extend(["--mesh-file", str(existing_mesh)])
                     arguments.extend(["--project-directory", str(project_directory)])
             commands.append((f"Mesh-to-CFD: {title}", tuple(arguments), self._repository_root))
@@ -402,8 +401,8 @@ class MeshValidationDialog(QDialog):
             QMessageBox.warning(
                 self, "Generated mesh not available",
                 "The following existing-mesh inputs were skipped. Generate them "
-                "in Mesh Generation before selecting them:\\n\\n"
-                + "\\n".join(missing_mesh_inputs),
+                "in Mesh Generation before selecting them:\n\n"
+                + "\n".join(missing_mesh_inputs),
             )
         if not commands:
             return
