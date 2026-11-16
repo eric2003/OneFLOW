@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
 
 from .executable_discovery import executable_candidates
 from .mesh_validation import (
-    cfd_template_choices, existing_mesh_case_paths, mesh_case_groups,
+    cfd_template_choices, existing_mesh_case_paths, mesh_case_group_categories,
     run_report_stage_rows,
 )
 from .process_control import process_group_options, terminate_process_tree
