@@ -48,7 +48,7 @@ def mesh_case_groups(
             continue
         if item.get("mesh_validation", True) is False:
             continue
-        if (item.get("execution") or {}).get("kind", "oneflow") not in {"oneflow", "python"}:
+        if (item.get("execution") or {}).get("kind", "oneflow") not in {"oneflow", "python", "existing_mesh"}:
             continue
         dimension = item.get("dimension")
         if dimension not in (2, 3):
@@ -75,11 +75,47 @@ def mesh_case_choices(repository_root: Path) -> tuple[tuple[str, str], ...]:
         for item in entries
         if item.get("group") == "STL to Gmsh"
         and item.get("mesh_validation", True) is not False
-        and (item.get("execution") or {}).get("kind", "oneflow") in {"oneflow", "python"}
+        and (item.get("execution") or {}).get("kind", "oneflow") in {"oneflow", "python", "existing_mesh"}
     )
     if not choices:
         raise ValueError("No supported STL-to-Gmsh Cases are registered.")
     return choices
+
+
+def existing_mesh_case_path(repository_root: Path, mesh_case_id: str) -> Path:
+    """Resolve a catalog-declared generated mesh below the user's mesh workspace."""
+    catalog = _catalog(Path(repository_root).resolve())
+    mesh = next((item for item in catalog["cases"] if item.get("id") == mesh_case_id), None)
+    if mesh is None:
+        raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
+    execution = mesh.get("execution") or {}
+    if execution.get("kind") != "existing_mesh":
+        raise ValueError(f"Case {mesh_case_id!r} does not reference an existing mesh.")
+
+    project_name = execution.get("project_directory")
+    mesh_value = execution.get("mesh_file")
+    if not isinstance(project_name, str) or not isinstance(mesh_value, str):
+        raise ValueError(f"Existing-mesh Case {mesh_case_id!r} must declare its project and mesh path.")
+    project_relative = Path(project_name)
+    mesh_relative = Path(mesh_value)
+    if (
+        project_relative.is_absolute() or not project_relative.parts
+        or ".." in project_relative.parts
+        or mesh_relative.is_absolute() or not mesh_relative.parts
+        or ".." in mesh_relative.parts
+        or mesh_relative.suffix.lower() != ".msh"
+    ):
+        raise ValueError(f"Existing-mesh paths for {mesh_case_id!r} must be safe relative .msh paths.")
+
+    workspace = UserDataPaths.discover().mesh_generation.resolve()
+    project_directory = (workspace / project_relative).resolve()
+    mesh_path = (project_directory / mesh_relative).resolve()
+    try:
+        project_directory.relative_to(workspace)
+        mesh_path.relative_to(project_directory)
+    except ValueError as error:
+        raise ValueError(f"Existing-mesh paths for {mesh_case_id!r} escape the mesh workspace.") from error
+    return mesh_path
 
 
 def cfd_template_choices() -> tuple[tuple[str, str], ...]:
@@ -112,8 +148,8 @@ def build_mesh_validation_cases(
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
     execution = mesh.get("execution") or {}
     implementation = execution.get("kind", "oneflow")
-    if mesh.get("group") != "STL to Gmsh" or implementation not in {"oneflow", "python"}:
-        raise ValueError(f"Case {mesh_case_id!r} is not a supported STL-to-Gmsh Case.")
+    if mesh.get("group") != "STL to Gmsh" or implementation not in {"oneflow", "python", "existing_mesh"}:
+        raise ValueError(f"Case {mesh_case_id!r} is not a supported Mesh-to-CFD validation entry.")
     validation_scope = mesh.get("mesh_validation", True)
     if validation_scope is False:
         raise ValueError(
@@ -142,7 +178,7 @@ def build_mesh_validation_cases(
             or "\\" in mesh_name
         ):
             raise ValueError(
-                f"Python Case {mesh_case_id!r} must declare artifact.mesh_file "
+                f"Mesh Case {mesh_case_id!r} must declare artifact.mesh_file "
                 "as a simple .msh filename."
             )
         msh = f"results/{mesh_name}"
@@ -204,8 +240,8 @@ def build_mesh_validation_cases(
          ]},
     ]
     if validation_scope == "mesh_handoff":
-        # A closed unit-sphere volume with only a wall patch is a mesh-ingestion
-        # validation input, not an external-flow CFD setup.
+        # Handoff-only entries do not have a compatible, fully specified CFD
+        # consumer contract. Validate MSH, CGNS conversion and OneFLOW ingestion.
         return steps[:3]
     return steps
 
@@ -370,12 +406,6 @@ def run_mesh_validation(
     if not executable.is_file():
         raise FileNotFoundError(f"OneFLOW executable not found: {executable}")
     source_mesh = mesh_file.expanduser().resolve() if mesh_file is not None else None
-    gmsh_path = Path(gmsh).expanduser()
-    if source_mesh is None and not gmsh_path.is_file():
-        found = shutil.which(gmsh)
-        if not found:
-            raise FileNotFoundError(f"Gmsh executable not found: {gmsh}")
-        gmsh_path = Path(found).resolve()
     if max_steps < 1:
         raise ValueError("CFD smoke-test steps must be at least one.")
 
@@ -387,6 +417,17 @@ def run_mesh_validation(
     if mesh_entry is None:
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
     mesh_execution = mesh_entry.get("execution") or {}
+    if source_mesh is None and mesh_execution.get("kind") == "existing_mesh":
+        source_mesh = existing_mesh_case_path(REPOSITORY_ROOT, mesh_case_id)
+        if project_directory is None:
+            project_directory = source_mesh.parent.parent
+
+    gmsh_path = Path(gmsh).expanduser()
+    if source_mesh is None and not gmsh_path.is_file():
+        found = shutil.which(gmsh)
+        if not found:
+            raise FileNotFoundError(f"Gmsh executable not found: {gmsh}")
+        gmsh_path = Path(found).resolve()
     mesh_implementation = (
         "existing_mesh" if source_mesh is not None
         else mesh_execution.get("kind", "oneflow")
