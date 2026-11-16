@@ -159,6 +159,27 @@ class MeshProjectTest(unittest.TestCase):
             }),
             encoding="utf-8",
         )
+        native_dir = project["directory"] / "validation/cgns_to_oneflow/results"
+        native_dir.mkdir(parents=True)
+        native = native_dir / "lineage.oneflow.grid"
+        native.write_bytes(b"native-grid")
+        native_digest = __import__("hashlib").sha256(native.read_bytes()).hexdigest()
+        (native_dir / (native.name + ".geometry-lineage.json")).write_text(
+            json.dumps({
+                "schema": "oneflow.geometry-artifact-lineage",
+                "version": 1,
+                "artifact": {
+                    "role": "OneFLOW native grid", "file_name": native.name,
+                    "format": "GRID", "sha256": native_digest,
+                },
+                "geometry_lineage": project["geometry_lineage"],
+                "parent_artifact": {
+                    "role": "CGNS volume mesh", "file_name": cgns.name,
+                    "sha256": cgns_digest,
+                },
+            }),
+            encoding="utf-8",
+        )
         reopened = load_mesh_project(project["directory"])
         self.assertEqual(reopened["geometry_lineage"]["asset_id"], "geometry.sphere.unit")
         self.assertEqual(reopened["geometry_lineage"]["provenance"]["kind"], "generated")

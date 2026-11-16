@@ -291,6 +291,7 @@ def _project_geometry_lineage(
                 or not isinstance(metadata, dict)
                 or metadata.get("file_name") != artifact.name
                 or metadata.get("sha256") != hashlib.sha256(artifact.read_bytes()).hexdigest()
+                or not isinstance(record.get("geometry_lineage"), dict)
             ):
                 continue
             downstream.append({

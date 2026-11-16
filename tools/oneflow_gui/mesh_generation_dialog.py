@@ -943,12 +943,17 @@ class StlToGmshDialog(QDialog):
                 f"Source STL: {source.get('path', 'unknown')} | "
                 f"SHA-256: {source.get('sha256', 'unknown')}"
             )
+        definition_hash = lineage.get("definition_sha256")
+        if definition_hash:
+            lines.append(f"Geometry definition SHA-256: {definition_hash}")
         generator = lineage.get("generator") or {}
         if generator:
             lines.append(
                 f"Generator: {generator.get('name', 'unknown')} "
                 f"{generator.get('version', '')}"
             )
+            if generator.get("source_sha256"):
+                lines.append(f"Generator source SHA-256: {generator['source_sha256']}")
         mesh = lineage.get("derived_mesh") or {}
         if mesh:
             lines.append(
@@ -994,17 +999,21 @@ class StlToGmshDialog(QDialog):
         if exit_code == 0:
             mesh_path = Path(self.output_path.text()).expanduser()
             self.validate_button.setEnabled(mesh_path.is_file())
+            refresh_error = None
             if self._project_directory is not None:
                 try:
                     self._project = load_mesh_project(self._project_directory)
                     self._refresh_geometry_lineage()
                 except (OSError, ValueError, KeyError) as error:
-                    self.status_label.setText(f"Mesh generated; project refresh failed: {error}")
-            self.status_label.setText(
+                    refresh_error = str(error)
+            message = (
                 "Completed and validated. Outputs: "
                 f"{mesh_path}, {mesh_path.with_suffix('.geo')}, "
                 f"{mesh_path.with_suffix('.report.json')}"
             )
+            if refresh_error:
+                message += f" Project lineage refresh failed: {refresh_error}"
+            self.status_label.setText(message)
         else:
             self.status_label.setText(f"Generation failed (exit code {exit_code}). See execution output.")
 
