@@ -258,7 +258,6 @@ class StlGeometryDialog(QDialog):
         self.geometry.addItem("Sphere", "sphere")
         self.geometry.addItem("Prolate Spheroid", "prolate_spheroid")
         self.geometry.addItem("Cylinder — Internal Flow", "cylinder_internal_flow")
-        self.geometry.currentIndexChanged.connect(self._geometry_changed)
         selector_form.addRow("Geometry asset", self.geometry)
         settings_layout.addLayout(selector_form)
         asset_to_geometry = {
@@ -343,6 +342,7 @@ class StlGeometryDialog(QDialog):
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.accept)
         root.addWidget(close_button)
+        self.geometry.currentIndexChanged.connect(self._geometry_changed)
         self._geometry_changed()
 
     def _default_output(self, geometry: str) -> Path:
