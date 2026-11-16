@@ -1,4 +1,4 @@
-""""Browse the format-independent Geometry Asset registry."""
+"""Browse the format-independent Geometry Asset registry."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import json
 from pathlib import Path
 
 from PySide6.QtWidgets import (
-    QDialog, QLabel, QListWidget, QMessageBox, QPlainTextEdit,
-    QPushButton, QSplitter, QVBoxLayout, QWidget,
+    QDialog, QLabel, QListWidget, QPlainTextEdit,
+    QPushButton, QSplitter, QVBoxLayout,
 )
 
 
