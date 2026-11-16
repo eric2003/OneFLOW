@@ -94,8 +94,24 @@ def generate(
     output.parent.mkdir(parents=True, exist_ok=True)
     geo = output.with_suffix(".geo")
     report_path = output.with_suffix(".report.json")
+    geometry_manifest = stl.with_suffix(".geometry.json")
+    geometry_kind = None
+    if geometry_manifest.is_file():
+        try:
+            geometry_kind = json.loads(
+                geometry_manifest.read_text(encoding="utf-8")
+            ).get("geometry")
+        except (OSError, json.JSONDecodeError) as error:
+            raise ValueError(
+                f"Cannot read STL geometry manifest: {geometry_manifest}: {error}"
+            ) from error
+    volume_mesh_kind = (
+        "cylinder_internal_flow"
+        if geometry_kind == "cylinder_internal_flow"
+        else "closed_surface_automatic_tetrahedra"
+    )
     config = {
-        "volume_mesh": "closed_surface_automatic_tetrahedra",
+        "volume_mesh": volume_mesh_kind,
         "mesh_dimension": 3,
         "mesh_size_min": mesh_size_min,
         "mesh_size_max": mesh_size_max,
@@ -123,7 +139,11 @@ def generate(
         (item["dimension"], item["name"])
         for item in mesh["physical_groups"]
     }
-    expected_groups = {(2, boundary_name), (3, volume_name)}
+    expected_groups = (
+        {(2, "wall"), (2, "inflow"), (2, "outflow"), (3, "fluid_domain")}
+        if volume_mesh_kind == "cylinder_internal_flow"
+        else {(2, boundary_name), (3, volume_name)}
+    )
     if groups != expected_groups:
         raise RuntimeError(
             f"Physical Groups {sorted(groups)} do not match {sorted(expected_groups)}"
