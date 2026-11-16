@@ -49,6 +49,7 @@ from grid.stl_to_gmsh.generate_volume_mesh import (
     discover_gmsh,
 )
 from .user_data_paths import UserDataPaths
+from .geometry_library_dialog import GeometryLibraryDialog
 
 
 class MeshGenerationDialog(QDialog):
@@ -70,6 +71,15 @@ class MeshGenerationDialog(QDialog):
         )
         intro.setWordWrap(True)
         root.addWidget(intro)
+
+        geometry_library_button = QPushButton("Geometry Library...")
+        geometry_library_button.setMinimumHeight(54)
+        geometry_library_button.setToolTip(
+            "Browse format-independent geometry assets, mathematical definitions, "
+            "provenance and available representations."
+        )
+        geometry_library_button.clicked.connect(self._open_geometry_library)
+        root.addWidget(geometry_library_button)
 
         project_heading = QLabel("Mesh Projects")
         project_heading.setStyleSheet("font-size: 16px; font-weight: 600;")
@@ -130,6 +140,9 @@ class MeshGenerationDialog(QDialog):
         future.setStyleSheet("color: #64748b;")
         root.addWidget(future)
         root.addStretch(1)
+
+    def _open_geometry_library(self) -> None:
+        GeometryLibraryDialog(self._repository_root, self).exec()
 
     def _create_mesh_project(self) -> None:
         case_id = self.project_template.currentData()
