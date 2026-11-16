@@ -392,8 +392,8 @@ class TestRunnerCommandTest(unittest.TestCase):
         self.assertTrue(unittest_commands)
         self.assertTrue(all(
             (
-                command.arguments[2:4] == ("discover", "-v")
-                if command.arguments[2] == "discover"
+                command.arguments[3:5] == ("discover", "-v")
+                if command.arguments[3] == "discover"
                 else command.arguments[3] == "-v"
             )
             for command in unittest_commands
