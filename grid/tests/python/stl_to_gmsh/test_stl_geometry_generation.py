@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from grid.stl_to_gmsh.generate_stl_geometry import generate_geometry
+from grid.stl_to_gmsh.converter import convert
 
 
 class StlGeometryGenerationTest(unittest.TestCase):
@@ -68,6 +69,57 @@ class StlGeometryGenerationTest(unittest.TestCase):
             self.assertEqual(manifest["intended_gmsh_physical_groups"]["surface"], ["wall", "inflow", "outflow"])
             self.assertIn("not solid walls", manifest["notes"])
 
+
+    def test_cylinder_manifest_generates_distinct_gmsh_physical_surfaces(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            stl = root / "cylinder.stl"
+            generated = generate_geometry(
+                "cylinder_internal_flow",
+                stl,
+                radius=0.5,
+                length=4.0,
+                circumferential_divisions=32,
+                axial_divisions=8,
+            )
+            sidecar = root / "layout.json"
+            sidecar.write_text(
+                json.dumps({
+                    "mesh_dimension": 3,
+                    "volume_mesh": "cylinder_internal_flow",
+                    "mesh_size_min": 0.1,
+                    "mesh_size_max": 0.2,
+                }),
+                encoding="utf-8",
+            )
+            geo = root / "cylinder.geo"
+            report = convert(stl, sidecar, geo)
+            text = geo.read_text(encoding="utf-8")
+            self.assertIn('Physical Surface("wall")', text)
+            self.assertIn('Physical Surface("inflow")', text)
+            self.assertIn('Physical Surface("outflow")', text)
+            self.assertIn('Physical Volume("fluid_domain")', text)
+            self.assertIn("Cylinder(1)", text)
+            self.assertEqual(
+                report["patch_triangle_counts"],
+                {"wall": 512, "inflow": 32, "outflow": 32},
+            )
+            self.assertEqual(report["geometry"], "cylinder_internal_flow")
+            self.assertEqual(generated["stl"], stl)
+
+    def test_cylinder_manifest_checksum_mismatch_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            stl = root / "cylinder.stl"
+            generate_geometry("cylinder_internal_flow", stl)
+            stl.write_bytes(stl.read_bytes() + b"tampered")
+            sidecar = root / "layout.json"
+            sidecar.write_text(
+                json.dumps({"mesh_dimension": 3, "volume_mesh": "cylinder_internal_flow"}),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ValueError, "checksum"):
+                convert(stl, sidecar, root / "cylinder.geo")
 
     def test_generated_stl_cannot_pollute_repository_source_tree(self) -> None:
         repository_root = Path(__file__).resolve().parents[4]
