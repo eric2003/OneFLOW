@@ -27,6 +27,7 @@ License
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <fstream>
 #include <cmath>
 #include <cstddef>
 #include <algorithm>
@@ -2918,7 +2919,8 @@ __global__ void ViscousFluxKernel(
     int faceFluxStride,
     Real * wallHeatFlux,
     const int * wallSlot,
-    int nWallFaces )
+    int nWallFaces,
+    Real * probeOut )
 {
     const int face = blockIdx.x * blockDim.x + threadIdx.x;
     if ( face >= nFaces ) return;
@@ -2941,6 +2943,19 @@ __global__ void ViscousFluxKernel(
     for ( int eq = 0; eq < nEquations; ++ eq )
     {
         faceFlux[ eq * faceFluxStride + face ] = flux[ eq ];
+    }
+
+    // Diagnostic: record the same assembled flux the residual is built from, so
+    // a host arm can be compared over the whole field.  Sampling a few faces
+    // does not work here - most of them sit in uniform flow where both fluxes
+    // are ~1e-25 and the relative difference is meaningless, which is what
+    // wasted an earlier round.
+    if ( probeOut != nullptr )
+    {
+        for ( int eq = 0; eq < 5; ++ eq )
+        {
+            probeOut[ eq * nFaces + face ] = flux[ eq ];
+        }
     }
 
     if ( wallHeatFlux != nullptr && wallSlot != nullptr )
@@ -3276,6 +3291,17 @@ void HipFluxBackend::CalcViscousFaceFlux(
     viscousFaceFlux_.Resize(
         static_cast< std::size_t >( nEq - 1 ) * view.faceFluxStride
         + static_cast< std::size_t >( nFaces ) );
+    // Optional whole-field diagnostic.  ONEFLOW_VISCOUS_PROBE_FILE names an
+    // output path; when set, the kernel records every face's flux and this
+    // writes them out for offline comparison with the host arm.
+    static const char * probePath = std::getenv( "ONEFLOW_VISCOUS_PROBE_FILE" );
+    const bool probing = probePath != nullptr && probePath[ 0 ] != '\0';
+    DeviceBuffer< Real > probeBuffer;
+    if ( probing )
+    {
+        probeBuffer.Resize( static_cast< std::size_t >( 5 ) * nFaces );
+    }
+
     {
         ScopedStageTimer timer( "v_kernel" );
         const int blockSize = 256;
@@ -3307,9 +3333,29 @@ void HipFluxBackend::CalcViscousFaceFlux(
             view.wallHeatFlux != nullptr && view.nWallFaces > 0
                 ? viscousWallHeatFlux_.Data() : nullptr,
             deviceWallSlot.Size() > 0 ? deviceWallSlot.Data() : nullptr,
-            view.nWallFaces );
+            view.nWallFaces,
+            probing ? probeBuffer.Data() : nullptr );
         CheckHip( hipGetLastError(), "ViscousFluxKernel launch" );
         HipDrain( "ViscousFluxKernel synchronize" );
+    }
+
+    if ( probing )
+    {
+        std::vector< Real > host( static_cast< std::size_t >( 5 ) * nFaces );
+        probeBuffer.CopyToHost( host.data(), host.size() );
+        std::ofstream out( probePath, std::ios::app );
+        if ( out )
+        {
+            for ( int face = 0; face < nFaces; ++ face )
+            {
+                out << face;
+                for ( int eq = 0; eq < 5; ++ eq )
+                {
+                    out << ' ' << host[ eq * nFaces + face ];
+                }
+                out << '\n';
+            }
+        }
     }
 
     { ScopedStageTimer timer( "v_download" );

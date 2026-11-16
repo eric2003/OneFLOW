@@ -53,6 +53,8 @@ License
 #include <iomanip>
 #include <algorithm>
 #include <vector>
+#include <cstdlib>
+#include <fstream>
 
 
 
@@ -136,6 +138,16 @@ void UNsVisFlux::PrepareField()
 
 void UNsVisFlux::CalcVisFlux()
 {
+    // Optional whole-field dump for comparing against the device arm.  Same
+    // path name as the backend's; whichever arm runs writes its own file.
+    static const char * probePath = std::getenv( "ONEFLOW_VISCOUS_PROBE_FILE" );
+    const bool probing = probePath != nullptr && probePath[ 0 ] != '\0';
+    std::ofstream probeOut;
+    if ( probing )
+    {
+        probeOut.open( probePath, std::ios::app );
+    }
+
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;
@@ -146,6 +158,21 @@ void UNsVisFlux::CalcVisFlux()
         this->PrepareFaceValue();
 
         this->CalcFaceVisFlux();
+
+        if ( probing && probeOut )
+        {
+            // vis.fvis is the unscaled flux; apply the same coefficient the
+            // caller applies below so the two dumps are the same quantity.
+            const Real coeff = ViscousFaceFluxCoefficient(
+                nscom.oreynolds, gcom.farea );
+            probeOut << fId;
+            probeOut << ' ' << coeff * vis.fvis[ IDX::IR ];
+            probeOut << ' ' << coeff * vis.fvis[ IDX::IRU ];
+            probeOut << ' ' << coeff * vis.fvis[ IDX::IRV ];
+            probeOut << ' ' << coeff * vis.fvis[ IDX::IRW ];
+            probeOut << ' ' << coeff * vis.fvis[ IDX::IRE ];
+            probeOut << '\n';
+        }
 
         this->UpdateFaceVisFlux();
     }
@@ -247,15 +274,24 @@ bool UNsVisFlux::CalcVisFluxHip()
 
     // MRField is Marray<Real>, a two-level vector with no contiguous data(),
     // so the device result has to be scattered back into the solver's layout.
-    // This is the only host-side pass in the device path and it is a straight
-    // memory walk, not arithmetic.
+    //
+    // The kernel writes equation-major with the view's stride:
+    //   faceFlux[ equation * faceFluxStride + face ]   ( faceFluxStride = nEqu )
+    // This loop used to read visfluxBuffer[ equation * ug.nFaces + face ], a
+    // different layout: with stride 5 the kernel only ever wrote the first
+    // 4*5 + nFaces entries, so every plane read back here was almost entirely
+    // zero and the viscous term silently vanished from the residual.  The
+    // per-face flux itself was correct, which is why a whole-field dump showed
+    // agreement while the run diverged to NaN in a hundred steps.
     for ( int equation = 0; equation < nEqu; ++ equation )
     {
         RealField & plane = ( * visflux )[ equation ];
         const Real * source =
-            visfluxBuffer.data()
-            + static_cast< std::size_t >( equation ) * ug.nFaces;
-        std::copy( source, source + ug.nFaces, plane.data() );
+            visfluxBuffer.data() + static_cast< std::size_t >( equation );
+        for ( int face = 0; face < ug.nFaces; ++ face )
+        {
+            plane[ face ] = source[ face * nEqu ];
+        }
     }
     return true;
 #else
