@@ -92,10 +92,11 @@ class MeshProjectTest(unittest.TestCase):
         self.assertTrue(paths_equal(load_mesh_project(project["directory"])["output_path"], project["output_path"]))
 
 
-    def test_cylinder_region_manifest_is_not_sent_to_wall_only_gmsh_import(self) -> None:
+    def test_cylinder_region_manifest_is_preserved_in_mesh_project(self) -> None:
         cylinder = self.home / "cylinder_internal_flow.stl"
         cylinder.write_bytes(b"placeholder")
-        cylinder.with_suffix(".geometry.json").write_text(
+        sidecar = cylinder.with_suffix(".geometry.json")
+        sidecar.write_text(
             json.dumps({
                 "schema": "oneflow.stl-geometry-manifest",
                 "version": 1,
@@ -106,16 +107,22 @@ class MeshProjectTest(unittest.TestCase):
             }),
             encoding="utf-8",
         )
-        with self.assertRaisesRegex(ValueError, "region-aware Gmsh import"):
-            create_mesh_project_from_stl(self.repository_root, cylinder)
-
-        project = create_mesh_project_from_template(
-            self.repository_root,
-            "stl_to_gmsh_python_sphere_automatic_tetrahedra",
-            "cylinder_replacement_guard",
+        project = create_mesh_project_from_stl(
+            self.repository_root, cylinder, "internal_flow"
         )
-        with self.assertRaisesRegex(ValueError, "region-aware Gmsh import"):
-            replace_project_stl(project, cylinder)
+        self.assertEqual(project["geometry"], "cylinder_internal_flow")
+        copied_sidecar = project["stl_path"].with_suffix(".geometry.json")
+        self.assertTrue(copied_sidecar.is_file())
+        copied_manifest = json.loads(copied_sidecar.read_text(encoding="utf-8"))
+        self.assertEqual(
+            copied_manifest["patch_triangle_indices"],
+            {"wall": [0, 1], "inflow": [2], "outflow": [3]},
+        )
+
+        updated = replace_project_stl(project, cylinder)
+        self.assertEqual(updated["geometry"], "cylinder_internal_flow")
+        self.assertTrue(updated["stl_path"].with_suffix(".geometry.json").is_file())
+
 
     def test_import_stl_copies_database_geometry_into_independent_project(self) -> None:
         source = self.repository_root / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python/input/model.stl"
