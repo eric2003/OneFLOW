@@ -254,6 +254,7 @@ _PYTHON_UNIT_TESTS = (
     ("Runtime override tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_runtime_overrides")),
     ("Workflow case staging tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_case_runtime")),
     ("GUI test command builder tests", ("-m", "unittest", "tools.oneflow_gui.test_test_runner")),
+    ("GUI launcher configuration tests", ("-m", "unittest", "tools.oneflow_gui.test_launcher")),
     ("Structured test diagnostic tests", ("-m", "unittest", "tools.oneflow_gui.test_test_diagnostics")),
     ("Numerical verification catalog tests", ("-m", "unittest", "tools.verification.test_curve_catalog")),
     ("Vencat analytic reference tests", ("-m", "unittest", "tools.verification.test_vencat_reference")),
