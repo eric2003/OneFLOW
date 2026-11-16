@@ -11,8 +11,10 @@ Starting `hexin` from `d29a2f5cb95b36b543fa680707335d648def1d95`.
   `UserDataPaths.mesh_generation/cylinder_internal_flow/results/`, not in
   the repository source tree. The file is copied into the project's
   `validation/` workspace before downstream processing.
-- Cylinder validation is intentionally `mesh_handoff`: MSH4 inspection,
-  Gmsh-to-CGNS conversion and CGNS-to-OneFLOW ingestion. The current
+- Cylinder validation is intentionally `mesh_handoff`: MSH4 inspection
+  additionally requires `wall`, `inflow`, `outflow` (2-D) and
+  `fluid_domain` (3-D) Physical Groups, followed by Gmsh-to-CGNS conversion
+  and CGNS-to-OneFLOW ingestion. The current
   flat-plate CFD template is not a physically compatible internal-flow
   consumer, so this entry does not claim or run a CFD smoke test.
 - The cylinder's prior preset mapping to the prolate-spheroid Python Case was
