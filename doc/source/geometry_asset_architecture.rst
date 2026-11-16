@@ -109,11 +109,25 @@ OneFLOW. Import, export, validation and conversion support must be reported by
 the corresponding adapter. The registry itself must not load a CAD kernel or
 assume that a file extension guarantees a valid or exact representation.
 
-The first implementation is metadata-first. Future work can add a shared
-geometry service, format adapters, preview/inspection, asset selection in the
-Workbench, and provenance propagation into Mesh Generation and Mesh-to-CFD
-Validation. Those integrations must consume stable asset IDs and preserve the
-exact input representation and checksum used by each run.
+The first implementation is metadata-first. The deterministic STL
+generator writes a companion ``.geometry.json`` manifest containing the stable
+asset ID, a snapshot of the analytic/parametric definition, definition SHA-256,
+generation parameters, generator name/version/source path/source SHA-256, and
+the generated STL SHA-256. Definition parameters are kept separate from
+representation-generation parameters: changing tessellation density creates a
+new surface representation, not a new geometric identity. The legacy
+``parameters`` field remains for compatibility; new consumers should use
+``definition.parameters`` and ``generation_parameters``.
+
+The source checksum identifies the exact generator source bytes used for the
+run; it is not a Git revision. A Git revision is recorded only when the caller
+can supply a verified revision. Historical assets must not inherit this
+manifest retroactively: their original generator and revision remain unknown
+unless independent evidence establishes them.
+
+The remaining integration work is to let Geometry Library launch the
+asset-specific parameter editor, carry the manifest through STL-to-Gmsh and
+MSH-to-CGNS, and display the derivation chain in Mesh-to-CFD Validation.
 
 References
 ----------

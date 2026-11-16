@@ -27,6 +27,18 @@ class StlGeometryGenerationTest(unittest.TestCase):
             self.assertEqual(result["units"], "m")
             self.assertEqual(result["stl_sha256"], hashlib.sha256(result["stl"].read_bytes()).hexdigest())
             self.assertTrue(result["manifest"].is_file())
+            manifest = json.loads(result["manifest"].read_text(encoding="utf-8"))
+            self.assertEqual(manifest["asset_id"], "geometry.sphere.unit")
+            self.assertEqual(manifest["definition"]["parameters"]["radius"], 1.0)
+            self.assertEqual(manifest["generation_parameters"]["subdivisions"], 3)
+            self.assertEqual(len(manifest["definition_sha256"]), 64)
+            self.assertEqual(len(manifest["generator"]["source_sha256"]), 64)
+            self.assertEqual(
+                manifest["definition_sha256"],
+                hashlib.sha256(json.dumps(
+                    manifest["definition"], sort_keys=True, separators=(",", ":")
+                ).encode("utf-8")).hexdigest(),
+            )
 
     def test_prolate_spheroid_uses_configured_semi_axes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -69,6 +81,9 @@ class StlGeometryGenerationTest(unittest.TestCase):
             manifest = json.loads(result["manifest"].read_text(encoding="utf-8"))
             self.assertEqual(manifest["intended_gmsh_physical_groups"]["surface"], ["wall", "inflow", "outflow"])
             self.assertIn("not solid walls", manifest["notes"])
+            self.assertEqual(manifest["asset_id"], "geometry.cylinder.internal_flow")
+            self.assertEqual(manifest["definition"]["parameters"], {"radius": 0.5, "length": 4.0})
+            self.assertEqual(manifest["generation_parameters"]["circumferential_divisions"], 32)
 
 
     def test_cylinder_manifest_generates_distinct_gmsh_physical_surfaces(self) -> None:
