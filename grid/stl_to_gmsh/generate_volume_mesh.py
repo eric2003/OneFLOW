@@ -63,7 +63,7 @@ def discover_gmsh() -> str | None:
 
 
 def generate(
-    stl: Path, output: Path, gmsh: str, mesh_size_min: float, mesh_size_max: float,
+    stl: Path, output: Path, gmsh: str | None, mesh_size_min: float, mesh_size_max: float,
     boundary_name: str = "wall", volume_name: str = "fluid_domain",
     surface_angle_degrees: float = 40.0, curve_angle_degrees: float = 180.0,
 ) -> dict:
@@ -236,11 +236,6 @@ def main() -> int:
     else:
         mesh_size_min = mesh_size_max = DEFAULT_MESH_SIZE
 
-    if not args.gmsh:
-        parser.error(
-            "Gmsh was not found. Install Gmsh, add it to PATH, set GMSH_EXECUTABLE, "
-            "or pass --gmsh."
-        )
     try:
         generate(
             args.stl, args.output, args.gmsh,

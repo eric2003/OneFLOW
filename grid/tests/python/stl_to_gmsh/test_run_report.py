@@ -63,6 +63,20 @@ class GenerateVolumeMeshReportTest(unittest.TestCase):
             self.assertIn("[NOT CHECKED] mesh_quality",rendered)
             self.assertNotIn('"schema"',rendered)
 
+    def test_missing_gmsh_writes_preflight_failure_report(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary); stl=root/"input.stl"; stl.write_text("test",encoding="utf-8")
+            output=root/"results"/"mesh.msh"
+            with mock.patch("builtins.print") as printed:
+                with self.assertRaisesRegex(ValueError, "Gmsh was not found"):
+                    generate_volume_mesh.generate(stl,output,None,0.1,0.2)
+            saved=json.loads(output.with_suffix(".report.json").read_text(encoding="utf-8"))
+            self.assertEqual(saved["status"],"failed")
+            self.assertEqual(saved["stages"]["input"]["status"],"FAIL")
+            self.assertEqual(saved["stages"]["geometry"]["status"],"NOT_RUN")
+            self.assertIn("Gmsh was not found",saved["error"]["message"])
+            self.assertIn("STL -> Gmsh: FAILED",printed.call_args.args[0])
+
     def test_gmsh_failure_writes_failure_report_and_marks_later_stages_not_run(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary); stl=root/"input.stl"; stl.write_text("test",encoding="utf-8")
