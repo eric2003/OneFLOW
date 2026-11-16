@@ -806,7 +806,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ],
         )
 
-    def test_existing_cylinder_mesh_is_a_3d_handoff_validation_entry(self):
+    def test_existing_cylinder_mesh_is_a_3d_cfd_smoke_validation_entry(self):
         choices = dict(mesh_case_choices(self.root))
         self.assertIn("cylinder_existing_mesh", choices)
         groups = dict(mesh_case_groups(self.root))
@@ -820,7 +820,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertEqual(
             [step["id"] for step in steps],
-            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
         )
         self.assertEqual(
             steps[0]["outputs"][0]["path"],
