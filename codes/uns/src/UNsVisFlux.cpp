@@ -227,8 +227,11 @@ bool UNsVisFlux::CalcVisFluxHip()
     view.laminarViscosity = ( * unsf.visl )[ 0 ].data();
     view.turbulentViscosity = ( * unsf.vist )[ 0 ].data();
     view.gamma = nscom.gama;
-    view.prandtlLaminar = nscom.prl;
-    view.prandtlTurbulent = nscom.prt;
+    // oprl/oprt are the reciprocal Prandtl numbers (NsCom.cpp:106 sets
+    // oprl = one/prl), which is what the conductivity helper multiplies by.
+    // Filling these with prl/prt inverts the thermal term.
+    view.inversePrandtlLaminar = nscom.oprl;
+    view.inversePrandtlTurbulent = nscom.oprt;
     view.inverseReynolds = nscom.oreynolds;
     // cp comes from ConstCp(); the host reads nscom.const_cp through the
     // conductivity helper, so pass the same value rather than re-deriving it.

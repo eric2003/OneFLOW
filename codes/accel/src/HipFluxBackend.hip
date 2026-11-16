@@ -2763,7 +2763,7 @@ __device__ void ViscousFaceFlux(
     Real xCellL, Real yCellL, Real zCellL,
     Real xCellR, Real yCellR, Real zCellR,
     int left, int right,
-    Real prandtlLaminar, Real prandtlTurbulent,
+    Real inversePrandtlLaminar, Real inversePrandtlTurbulent,
     Real specificHeatCp, Real inverseReynolds,
     Real flux[ 5 ], Real & qNormal )
 {
@@ -2865,7 +2865,7 @@ __device__ void ViscousFaceFlux(
     // qNormal reduces to kcp * dTdn.  Both dropped terms are identically zero
     // in this path, not unmodelled physics.
     const Real kcp = ViscousEffectiveThermalConductivity(
-        visl, vist, prandtlLaminar, prandtlTurbulent, specificHeatCp );
+        visl, vist, inversePrandtlLaminar, inversePrandtlTurbulent, specificHeatCp );
     qNormal = ViscousConductiveHeatFluxNormal( kcp, dTdn );
 
     // --- UpdateFaceVisFlux ---------------------------------------------------
@@ -2910,8 +2910,8 @@ __global__ void ViscousFluxKernel(
     const int * rightCell,
     int nEquations,
     int nFaces,
-    Real prandtlLaminar,
-    Real prandtlTurbulent,
+    Real inversePrandtlLaminar,
+    Real inversePrandtlTurbulent,
     Real specificHeatCp,
     Real inverseReynolds,
     Real * faceFlux,
@@ -2934,7 +2934,7 @@ __global__ void ViscousFluxKernel(
         xCell[ left ], yCell[ left ], zCell[ left ],
         xCell[ right ], yCell[ right ], zCell[ right ],
         left, right,
-        prandtlLaminar, prandtlTurbulent,
+        inversePrandtlLaminar, inversePrandtlTurbulent,
         specificHeatCp, inverseReynolds,
         flux, qNormal );
 
@@ -2942,6 +2942,7 @@ __global__ void ViscousFluxKernel(
     {
         faceFlux[ eq * faceFluxStride + face ] = flux[ eq ];
     }
+
     if ( wallHeatFlux != nullptr && wallSlot != nullptr )
     {
         const int slot = wallSlot[ face ];
@@ -3192,12 +3193,27 @@ void HipFluxBackend::CalcViscousFaceFlux(
     const Real * deviceGradient = viscousCellGradient_.Data();
     const Real * deviceTemperature = viscousTemperature_.Data();
     const Real * deviceTemperatureGradient = viscousTemperatureGradient_.Data();
-    const Real * deviceNormals = resident != nullptr
+    // Normals and cell centres are three separate allocations in the resident
+    // storage, each holding exactly one plane.  The fallback staging buffers
+    // pack them contiguously, so the kernel is handed base + nFaces and
+    // base + 2*nFaces.  Doing that to the resident pointers read past the end of
+    // the x plane into whatever the allocator placed next; it only looked right
+    // when the buffers happened to be adjacent.
+    const Real * deviceNormalX = resident != nullptr
         ? resident->xNormal.Data() : viscousFaceNormals_.Data();
+    const Real * deviceNormalY = resident != nullptr
+        ? resident->yNormal.Data() : viscousFaceNormals_.Data() + nFaces;
+    const Real * deviceNormalZ = resident != nullptr
+        ? resident->zNormal.Data() : viscousFaceNormals_.Data() + 2 * nFaces;
     const Real * deviceFaceArea = resident != nullptr
         ? resident->faceArea.Data() : viscousFaceArea_.Data();
-    const Real * deviceCellCenter = resident != nullptr
+    const Real * deviceCellX = resident != nullptr
         ? resident->xCellCenter.Data() : viscousCellCenter_.Data();
+    const Real * deviceCellY = resident != nullptr
+        ? resident->yCellCenter.Data() : viscousCellCenter_.Data() + totalCells;
+    const Real * deviceCellZ = resident != nullptr
+        ? resident->zCellCenter.Data()
+        : viscousCellCenter_.Data() + 2 * totalCells;
     const int * deviceLeftCell = resident != nullptr
         ? resident->leftCell.Data() : viscousFaceCells_.Data();
     const int * deviceRightCell = resident != nullptr
@@ -3275,17 +3291,17 @@ void HipFluxBackend::CalcViscousFaceFlux(
             view.turbulentViscosity != nullptr
                 ? deviceTurbulent : nullptr,
             totalCells,
-            deviceNormals,
-            deviceNormals + nFaces,
-            deviceNormals + 2 * nFaces,
+            deviceNormalX,
+            deviceNormalY,
+            deviceNormalZ,
             deviceFaceArea,
-            deviceCellCenter,
-            deviceCellCenter + totalCells,
-            deviceCellCenter + 2 * totalCells,
+            deviceCellX,
+            deviceCellY,
+            deviceCellZ,
             deviceLeftCell,
             deviceRightCell,
             nEq, nFaces,
-            view.prandtlLaminar, view.prandtlTurbulent,
+            view.inversePrandtlLaminar, view.inversePrandtlTurbulent,
             view.specificHeatCp, view.inverseReynolds,
             viscousFaceFlux_.Data(), view.faceFluxStride,
             view.wallHeatFlux != nullptr && view.nWallFaces > 0

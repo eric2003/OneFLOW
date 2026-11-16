@@ -194,12 +194,14 @@ void UTurbInvFlux::CalcInvFlux()
             invfluxScratch_.assign( static_cast< std::size_t >( ug.nFaces ), 0.0 );
             view.inviscidFlux = invfluxScratch_.data();
             HipTurbulenceBackend::Shared().CalcFaceFlux( view );
-            // UpdateFaceInvFlux:172 scales by face area; the kernel leaves that
-            // to the caller because the diffusive side applies its own factor.
+            // No scaling here: TurbSaArithmetic's inviscid flux already returns
+            // faceArea * flux (TurbSaArithmetic.h:436), matching TurbInvFlux's
+            // own factoring.  The earlier version multiplied by ug.farea again,
+            // which made the device inviscid SA flux too large by the face area
+            // on every face, silently.
             for ( int face = 0; face < ug.nFaces; ++ face )
             {
-                ( * invflux )[ ISA ][ face ] =
-                    invfluxScratch_[ face ] * ( * ug.farea )[ face ];
+                ( * invflux )[ ISA ][ face ] = invfluxScratch_[ face ];
             }
             return;
         }

@@ -811,8 +811,18 @@ struct ViscousFluxView
     // and is the shape the E1 de-globalisation work wants.
     Real gamma = 1.4;
     Real gasConstant = 0.0;
-    Real prandtlLaminar = 0.72;
-    Real prandtlTurbulent = 0.9;
+    // Inverse Prandtl numbers, not Prandtl numbers.  The conductivity is
+    // mu/Pr * cp, and the host spells that as viscosity times oprl/oprt
+    // (NsCom.cpp:106 sets oprl = one/prl), so supplying prl here inverts the
+    // thermal term.  The field is named "inverse" because the earlier
+    // "prandtl*" spelling read as Pr and was filled with Pr, which cost a
+    // 6.7e-3 residual deviation on the viscous hook.
+    //
+    // The defaults are the reciprocals of 0.72 and 0.9 written as literals, so
+    // this header carries no division; the live values always arrive from
+    // nscom.oprl/oprt at run time.
+    Real inversePrandtlLaminar = 1.3888888888888889;
+    Real inversePrandtlTurbulent = 1.1111111111111112;
     Real specificHeatCp = 0.0;
     Real inverseReynolds = 0.0;
     Real wallTemperature = 0.0;

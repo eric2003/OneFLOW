@@ -94,8 +94,13 @@ struct HostViscousInputs
     Real faceArea = 0.0;
 
     Real gamma = 1.4;
-    Real prandtlLaminar = 0.72;    // the view's field name; host reads oprl
-    Real prandtlTurbulent = 0.90;  // host reads oprt
+    // Reciprocals of Pr = 0.72 and 0.9.  These were previously 0.72 and 0.90,
+    // i.e. the Prandtl numbers themselves, which is exactly the mistake the
+    // solver made when filling the view: the test and the call site agreed with
+    // each other and both disagreed with the host, so the contract stayed green
+    // while the viscous residual was off by 6.7e-3.
+    Real inversePrandtlLaminar = 1.3888888888888889;
+    Real inversePrandtlTurbulent = 1.1111111111111112;
     Real specificHeatCp = 0.0;
     Real inverseReynolds = 0.0;
 };
@@ -190,7 +195,7 @@ Real HostFaceViscousFlux(
     // AddChemHeatFlux is empty for chemModel != 1 and FaceNormalDot on the
     // zeroed qx/qy/qz is zero, so this is the whole normal heat flux.
     const Real kcp = EffectiveThermalConductivity(
-        visl, vist, in.prandtlLaminar, in.prandtlTurbulent,
+        visl, vist, in.inversePrandtlLaminar, in.inversePrandtlTurbulent,
         in.specificHeatCp );
     const Real qx = 0.0;
     const Real qy = 0.0;
@@ -270,8 +275,8 @@ void FillView( const HostViscousInputs & in, ViscousFluxView & view,
     view.turbulentViscosity = & in.turbulentViscosity[ 0 ];
 
     view.gamma = in.gamma;
-    view.prandtlLaminar = in.prandtlLaminar;
-    view.prandtlTurbulent = in.prandtlTurbulent;
+    view.inversePrandtlLaminar = in.inversePrandtlLaminar;
+    view.inversePrandtlTurbulent = in.inversePrandtlTurbulent;
     view.specificHeatCp = in.specificHeatCp;
     view.inverseReynolds = in.inverseReynolds;
     view.wallTemperature = 0.0;
@@ -376,8 +381,8 @@ HostViscousInputs MakeInputs()
     in.faceArea = 0.0873;
 
     in.gamma = 1.4;
-    in.prandtlLaminar = 1.0 / 0.72;
-    in.prandtlTurbulent = 1.0 / 0.90;
+    in.inversePrandtlLaminar = 1.3888888888888889;
+    in.inversePrandtlTurbulent = 1.1111111111111112;
     // nscom.const_cp = 1 / ( ( gama_ref - 1 ) * mach_ref^2 ).
     in.specificHeatCp = 1.0 / ( ( 1.4 - 1.0 ) * 0.8395 * 0.8395 );
     in.inverseReynolds = 1.0 / 1.172e7;
@@ -584,8 +589,8 @@ TEST_F( DeviceViscousFluxContract, WallHeatFluxMatchesHost )
     view.laminarViscosity = laminar;
     view.turbulentViscosity = turbulent;
     view.gamma = in.gamma;
-    view.prandtlLaminar = in.prandtlLaminar;
-    view.prandtlTurbulent = in.prandtlTurbulent;
+    view.inversePrandtlLaminar = in.inversePrandtlLaminar;
+    view.inversePrandtlTurbulent = in.inversePrandtlTurbulent;
     view.specificHeatCp = in.specificHeatCp;
     view.inverseReynolds = in.inverseReynolds;
 

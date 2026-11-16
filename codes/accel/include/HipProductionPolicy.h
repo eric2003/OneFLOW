@@ -12,6 +12,7 @@ License
 
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 
 BeginNameSpace( ONEFLOW )
 
@@ -75,7 +76,14 @@ inline bool HipProductionFeatureExplicitlyEnabled( const char * name )
 inline bool HipProductionFeatureEnabled( const char * legacyName )
 {
     const char * value = CachedEnv(  legacyName  );
-    if ( value != nullptr ) return value[ 0 ] == '1';
+    if ( value != nullptr )
+    {
+        // An explicit =1 still has to have a HIP backend behind it.  Without
+        // this check the hook launches HIP kernels over host pointers, which is
+        // the same failure as a missing upload but harder to attribute: the
+        // buffers come from CpuBackend's plain operator new.
+        return value[ 0 ] == '1' && HipProductionBackendSelected();
+    }
     if ( ! HipProductionBackendSelected() ) return false;
 
     // Stages enabled by `ONEFLOW_ACCEL_BACKEND=HIP` alone.  Every one of them
@@ -315,6 +323,21 @@ inline bool HipDeviceGradientInterfaceEnabled( bool viscousModelActive )
     return HipPackedGradientExchangeEnabled()
         && HipSkipHostFieldPackRequested()
         && HipProductionBackendSelected();
+}
+
+// One line whenever a device hook is asked for but cannot run.
+//
+// A decline is not an error - the host loop still computes the right answer -
+// but it is indistinguishable from success in the output otherwise, and a run
+// that looks accelerated while running entirely on the host is worse than no
+// acceleration at all: every measurement taken on it is wrong.  Printing costs
+// one line per declined call, and the message names the hook and the reason so
+// a log answers "did the device path run" without a debugger.
+template < typename Reason >
+inline void ReportHipHookDeclined( const char * hook, const Reason & reason )
+{
+    std::cout << "HIP_HOOK_DECLINED " << hook << " reason=" << reason
+              << std::endl;
 }
 
 EndNameSpace

@@ -279,6 +279,27 @@ void UTurbSrcFlux::CalcSrcFlux1Equ()
     if ( HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UTURB_HIP_SOURCE" ) )
     {
         UnsGrid * grid = Zone::GetUnsGrid();
+        // Unlike the eddy-viscosity hook this one dereferenced ~20 raw pointers
+        // with no readiness check, so a field this solver had not allocated yet
+        // was a segfault rather than a fallback.  Check the same set the view
+        // validator requires, then decline visibly.
+        const bool ready =
+            uturbf.q != nullptr && uturbf.q->GetNEqu() > 0
+            && uturbf.dqdx != nullptr && uturbf.dqdy != nullptr
+            && uturbf.dqdz != nullptr
+            && uturbf.meanFlow.q != nullptr
+            && uturbf.meanFlow.dqdx != nullptr
+            && uturbf.dist != nullptr
+            && uturbf.visl != nullptr && uturbf.vist != nullptr
+            && ug.cvol != nullptr && uturbf.res != nullptr
+            && uturbf.impsr != nullptr && grid != nullptr;
+        if ( ! ready )
+        {
+            ReportHipHookDeclined( "UTURB_HIP_SOURCE",
+                                   "a required turbulence field is unallocated" );
+        }
+        else
+        {
         TurbSaStateView state;
         state.nCells = ug.nCells;
         state.nGhostCells = ug.nTCell - ug.nCells;
@@ -346,6 +367,7 @@ void UTurbSrcFlux::CalcSrcFlux1Equ()
         view.cacheKey = grid;
         HipTurbulenceBackend::Shared().CalcSource( view );
         return;
+        }
     }
 #endif
     for ( int cId = 0; cId < ug.nCells; ++ cId )
