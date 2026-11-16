@@ -562,6 +562,8 @@ namespace
                 "MSH 2.x input is validated but not yet materialized for CGNS conversion" );
         int cellDimension = 0;
         WriteGmshMeshAsCgns( parsedMesh, cellDimension, target );
+        if ( ! std::filesystem::is_regular_file( target ) )
+            throw std::runtime_error( "CGNS writer returned without creating output: " + target.string() );
 
         // Reports belong to the case result area, not beside source files or
         // in the repository. Keep this output local to the conversion case.
@@ -611,6 +613,53 @@ namespace
         }
         if ( ! markdownReport )
             throw std::runtime_error( "Failed writing Gmsh Markdown report: " + markdownReportPath.string() );
+
+        const std::filesystem::path runReportPath =
+            resultDirectory / ( reportStem + ".run-report.json" );
+        const GmshMeshReadReport conversionMetrics = BuildGmshMeshReadReport( parsedMesh );
+        nlohmann::json runReport = {
+            { "schema", "oneflow.run-report" },
+            { "version", 1 },
+            { "workflow", "Gmsh -> CGNS" },
+            { "status", "success" },
+            { "exit_code", 0 },
+            { "stages", {
+                { "input", { { "status", "PASS" }, { "message", "MSH input was opened." } } },
+                { "gmsh_read", { { "status", "PASS" }, { "message", "MSH structure and node references passed reader checks." } } },
+                { "cgns_write", { { "status", "PASS" }, { "message", "CGNS writer completed and the output file was verified." } } },
+                { "cgns_readback", { { "status", "NOT_CHECKED" }, { "message", "Independent CGNS read-back is covered by conversion tests, not performed by this command." } } },
+                { "mesh_quality", { { "status", "NOT_CHECKED" }, { "message", "No numerical mesh-quality acceptance thresholds are applied here." } } },
+                { "cfd_validation", { { "status", "NOT_RUN" }, { "message", "Run Mesh-to-CFD Validation separately." } } }
+            } },
+            { "metrics", {
+                { "nodes", conversionMetrics.nodeCount },
+                { "elements", conversionMetrics.elementCount },
+                { "physical_groups", conversionMetrics.physicalGroupCount }
+            } },
+            { "artifacts", {
+                { "input_msh", source.string() },
+                { "output_cgns", target.string() },
+                { "read_report", jsonReportPath.string() },
+                { "inspection_report", markdownReportPath.string() },
+                { "run_report", runReportPath.string() }
+            } },
+            { "error", nullptr }
+        };
+        std::ofstream runReportFile( runReportPath, std::ios::trunc );
+        if ( ! runReportFile )
+            throw std::runtime_error( "Cannot create Gmsh run report: " + runReportPath.string() );
+        runReportFile << runReport.dump( 2 ) << "\n";
+        if ( ! runReportFile )
+            throw std::runtime_error( "Failed writing Gmsh run report: " + runReportPath.string() );
+
+        std::cout << "Gmsh -> CGNS: SUCCESS" << std::endl;
+        std::cout << "  MSH reader       : PASS" << std::endl;
+        std::cout << "  CGNS writer      : PASS" << std::endl;
+        std::cout << "  CGNS read-back   : NOT_CHECKED (covered by conversion tests)" << std::endl;
+        std::cout << "  Mesh quality     : NOT_CHECKED" << std::endl;
+        std::cout << "  CFD validation   : NOT_RUN" << std::endl;
+        std::cout << "  Output CGNS      : " << target.string() << std::endl;
+        std::cout << "  Run report       : " << runReportPath.string() << std::endl;
 
         std::cout << "Gmsh MSH 4.1 conversion completed: "
                   << parsedMesh.nodes.size() << " nodes, "

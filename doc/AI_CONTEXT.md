@@ -1,3 +1,31 @@
+## 2026-11-16 continuation: shared conversion and Mesh-to-CFD run reports
+
+Starting hexin HEAD: f173038a364fa1443c87f52a7431ef32d36c74ad.
+
+Extended the shared oneflow.run-report version 1 envelope beyond STL-to-Gmsh:
+
+- Gmsh-to-CGNS writes a per-mesh run-report JSON, plus an explicit terminal
+  SUCCESS summary and a human Markdown heading. It distinguishes successful
+  MSH reading / CGNS writing from CGNS read-back, mesh quality, and CFD checks
+  that are not performed by this command.
+- Mesh-to-CFD Validation maps workflow graph results into the common
+  PASS/FAIL/NOT_RUN/NOT_CHECKED vocabulary and writes the same report envelope.
+  The report records mesh generation, Gmsh-to-CGNS, CGNS-to-OneFLOW, and CFD
+  smoke stages, with quality and physical accuracy left NOT_CHECKED.
+- The workflow report keeps per-step messages and metadata; the CLI prints
+  the same stage states, which are visible in the GUI's captured output.
+- Added focused Python graph-to-report tests and C++ conversion report
+  assertions. Updated the run-result contract, Mesh-to-CFD documentation,
+  and Gmsh-to-CGNS README.
+
+No claim of local execution or CI success until the new commit's tests and
+workflow results have been checked.
+
+Next action: add a compact structured result panel to Mesh Generation GUI,
+while preserving detailed logs and paths.
+
+---
+
 ## 2026-11-16 continuation: human-first mesh run reports
 
 The verified starting hexin HEAD was
