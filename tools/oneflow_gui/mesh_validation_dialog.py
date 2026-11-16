@@ -16,7 +16,10 @@ from PySide6.QtWidgets import (
 )
 
 from .executable_discovery import executable_candidates
-from .mesh_validation import cfd_template_choices, mesh_case_groups, run_report_stage_rows
+from .mesh_validation import (
+    cfd_template_choices, existing_mesh_case_paths, mesh_case_groups,
+    run_report_stage_rows,
+)
 from .process_control import process_group_options, terminate_process_tree
 from .user_data_paths import UserDataPaths
 
@@ -166,7 +169,12 @@ class MeshValidationDialog(QDialog):
         self.case_tree.setHeaderLabels(["Run", "STL / Mesh Case"])
         self.case_tree.setRootIsDecorated(True)
         self.case_tree.setAlternatingRowColors(True)
-        self.case_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        case_header = self.case_tree.header()
+        case_header.setSectionResizeMode(0, QHeaderView.ResizeMode.Interactive)
+        case_header.setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
+        case_header.setStretchLastSection(False)
+        case_header.resizeSection(0, 92)
+        case_header.resizeSection(1, 430)
         self._case_items: dict[str, QTreeWidgetItem] = {}
         try:
             dimension_groups = mesh_case_groups(self._repository_root)
@@ -203,6 +211,9 @@ class MeshValidationDialog(QDialog):
         select_all.clicked.connect(lambda: self._set_all(True))
         select_none = QPushButton("Select none")
         select_none.clicked.connect(lambda: self._set_all(False))
+        for selection_button in (select_all, select_none):
+            selection_button.setFixedHeight(26)
+            selection_button.setStyleSheet("padding: 2px 8px;")
         selection_actions.addWidget(select_all)
         selection_actions.addWidget(select_none)
         selection_actions.addStretch(1)
@@ -366,6 +377,21 @@ class MeshValidationDialog(QDialog):
                 arguments.extend(["--mesh-file", str(self._mesh_file)])
                 if self._project_directory is not None:
                     arguments.extend(["--project-directory", str(self._project_directory)])
+            else:
+                existing_mesh_paths = existing_mesh_case_paths(
+                    self._repository_root, case_id
+                )
+                if existing_mesh_paths is not None:
+                    existing_mesh, project_directory = existing_mesh_paths
+                    if not existing_mesh.is_file():
+                        QMessageBox.warning(
+                            self, "Generated mesh required",
+                            "Generate the 3D cylinder mesh first. Expected file:\n"
+                            f"{existing_mesh}",
+                        )
+                        return
+                    arguments.extend(["--mesh-file", str(existing_mesh)])
+                    arguments.extend(["--project-directory", str(project_directory)])
             commands.append((f"Mesh-to-CFD: {title}", tuple(arguments), self._repository_root))
         self.log_view.clear()
         self.result_tree.clear()
