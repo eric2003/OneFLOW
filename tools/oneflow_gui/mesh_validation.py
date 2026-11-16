@@ -734,13 +734,13 @@ def run_mesh_validation(
     def execute(step):
         inherited_cgns_lineage = None
         if step.case_id == "oneflow_cfd_solve":
-            layout_path = REPOSITORY_ROOT / mesh_entry["directory"] / "script/layout.json"
-            if layout_path.is_file():
-                layout_data = json.loads(layout_path.read_text(encoding="utf-8"))
-                if layout_data.get("mesh_dimension") == 3:
-                    apply_runtime_overrides(
-                        step.directory / "script/dimension.txt", {"dimension": 3}
-                    )
+            # Dimension is part of the mesh Case contract. Do not infer it from
+            # an optional layout.json: existing-MSH projects need the same 3D
+            # solver setup as generated sphere and spheroid Cases.
+            if mesh_entry.get("dimension") == 3:
+                apply_runtime_overrides(
+                    step.directory / "script/dimension.txt", {"dimension": 3}
+                )
             apply_runtime_overrides(step.directory / "script/cfd.txt", {
                 "maxSteps": max_steps, "nFieldSave": 1, "nVisualSave": 1,
                 "nResSave": 1, "idump": 0,
