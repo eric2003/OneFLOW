@@ -238,7 +238,7 @@ def main() -> int:
     parser.add_argument(
         "--stage-root",
         type=Path,
-        default=Path.home() / ".oneflow/mesh-layout-test/grid/stl_to_gmsh",
+        default=Path.home() / ".oneflow/grid-development/stl-to-gmsh",
         help="staging directory outside the source tree",
     )
     args = parser.parse_args()
