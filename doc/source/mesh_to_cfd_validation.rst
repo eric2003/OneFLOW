@@ -39,6 +39,26 @@ an independent Python reference Case. Both appear in the same 3-D Mesh-to-CFD
 selection tree. Its wall-only Physical Group makes this a conversion and
 runtime smoke test, not an external-flow accuracy benchmark.
 
+
+3-D internal-flow cylinder
+--------------------------
+
+The generated **3D Cylinder Internal Flow** mesh is available as an
+existing-mesh validation input. The dialog resolves
+``~/.oneflow/mesh-generation/cylinder_internal_flow/results/cylinder_internal_flow.msh``
+(or the equivalent Windows user-data path), copies it into the project's
+isolated ``validation/`` workspace, and runs the MSH4 inspection,
+Gmsh-to-CGNS conversion, and CGNS-to-OneFLOW ingestion stages. It does not
+rerun STL/Gmsh generation or modify the source project mesh.
+
+This entry is deliberately ``mesh_handoff``, not a CFD smoke test. The
+internal-flow cylinder has wall, inlet and outlet patch semantics; the
+available laminar flat-plate consumer is not a compatible physical setup.
+A dedicated internal-flow cylinder CFD Case with defined boundary states and
+acceptance criteria is required before a solver run can be reported as a
+meaningful CFD validation. Mesh quality and physical accuracy remain
+``NOT_CHECKED``.
+
 Boundary type mapping
 ---------------------
 
