@@ -20,7 +20,7 @@ from tools.oneflow_gui.mesh_validation import (
     existing_mesh_case_paths, _validate_required_physical_groups,
     _geometry_lineage, geometry_lineage_rows,
     _geometry_artifact_lineage_path, _write_geometry_artifact_lineage,
-    _read_geometry_artifact_lineage,
+    _read_geometry_artifact_lineage, _downstream_lineage_artifacts,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
@@ -762,6 +762,32 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 "results/prolate_spheroid_automatic_tetrahedra.msh",
             )
             self.assertEqual(graph[-1]["id"], "oneflow_cfd_solve")
+
+    def test_downstream_lineage_artifacts_are_collected_from_validation_cases(self):
+        steps = [
+            {"id": "stl_to_gmsh", "runtime_directory": "stl_to_gmsh",
+             "outputs": [{"id": "gmsh_mesh", "path": "results/mesh.msh"}]},
+            {"id": "gmsh_to_cgns", "runtime_directory": "gmsh_to_cgns",
+             "outputs": [{"id": "cgns_mesh", "path": "results/mesh.cgns"}]},
+            {"id": "cgns_to_oneflow", "runtime_directory": "cgns_to_oneflow",
+             "outputs": [
+                 {"id": "oneflow_grid", "path": "results/mesh.oneflow.grid"},
+                 {"id": "bc_region_map", "path": "results/mesh_bcRegionMap.txt"},
+             ]},
+        ]
+        run_root = Path("validation")
+        artifacts = _downstream_lineage_artifacts(steps, run_root)
+        self.assertEqual(
+            artifacts,
+            [
+                {"role": "CGNS volume mesh", "format": "CGNS",
+                 "path": run_root / "gmsh_to_cgns/results/mesh.cgns",
+                 "parent": "derived_mesh"},
+                {"role": "OneFLOW native grid", "format": "OneFLOW native grid",
+                 "path": run_root / "cgns_to_oneflow/results/mesh.oneflow.grid",
+                 "parent": "cgns_mesh"},
+            ],
+        )
 
     def test_existing_cylinder_mesh_is_a_3d_handoff_validation_entry(self):
         choices = dict(mesh_case_choices(self.root))
