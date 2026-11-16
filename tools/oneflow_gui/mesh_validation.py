@@ -475,6 +475,61 @@ def _geometry_lineage(
         lineage["downstream_artifacts"] = downstream
     return lineage
 
+
+
+
+def _geometry_artifact_lineage_path(artifact_path: Path) -> Path:
+    """Return the companion lineage path without changing the artifact itself."""
+    return artifact_path.with_name(artifact_path.name + ".geometry-lineage.json")
+
+
+def _write_geometry_artifact_lineage(
+    artifact_path: Path, role: str, geometry_lineage: dict,
+    parent_artifact: dict | None = None,
+) -> Path:
+    """Persist a checksum-bound lineage record beside a generated artifact."""
+    artifact = Path(artifact_path).expanduser().resolve()
+    if not artifact.is_file():
+        raise FileNotFoundError(f"Cannot attach geometry lineage to missing artifact: {artifact}")
+    record = {
+        "schema": "oneflow.geometry-artifact-lineage",
+        "version": 1,
+        "artifact": {
+            "role": str(role),
+            "file_name": artifact.name,
+            "format": artifact.suffix.lstrip(".").upper() or "unknown",
+            "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
+        },
+        "geometry_lineage": geometry_lineage,
+        "parent_artifact": parent_artifact,
+    }
+    sidecar = _geometry_artifact_lineage_path(artifact)
+    sidecar.write_text(
+        json.dumps(record, indent=2, ensure_ascii=False) + "\\n",
+        encoding="utf-8", newline="\\n",
+    )
+    return sidecar
+
+
+def _read_geometry_artifact_lineage(artifact_path: Path) -> dict:
+    """Read lineage only when the companion record matches the artifact bytes."""
+    artifact = Path(artifact_path).expanduser().resolve()
+    sidecar = _geometry_artifact_lineage_path(artifact)
+    record = json.loads(sidecar.read_text(encoding="utf-8"))
+    if not isinstance(record, dict) or record.get("schema") != "oneflow.geometry-artifact-lineage":
+        raise ValueError(f"Unsupported geometry lineage sidecar: {sidecar}")
+    metadata = record.get("artifact")
+    if not isinstance(metadata, dict):
+        raise ValueError(f"Geometry lineage sidecar has no artifact record: {sidecar}")
+    actual = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    if metadata.get("sha256") != actual:
+        raise ValueError(f"Geometry lineage checksum mismatch for artifact: {artifact}")
+    lineage = record.get("geometry_lineage")
+    if not isinstance(lineage, dict):
+        raise ValueError(f"Geometry lineage sidecar has no geometry lineage: {sidecar}")
+    return record
+
+
 def _mesh_validation_stage_results(result, *, existing_mesh: bool = False) -> dict[str, dict]:
     """Map workflow graph outcomes onto shared run-report states."""
     stage_names = {
@@ -656,6 +711,7 @@ def run_mesh_validation(
     if gmsh_path.is_file():
         os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
     def execute(step):
+        inherited_cgns_lineage = None
         if step.case_id == "oneflow_cfd_solve":
             layout_path = REPOSITORY_ROOT / mesh_entry["directory"] / "script/layout.json"
             if layout_path.is_file():
@@ -684,6 +740,13 @@ def run_mesh_validation(
         else:
             command = [str(executable), "r", str(step.directory)]
             status, message = "", ""
+        if step.case_id == "cgns_to_oneflow":
+            try:
+                cgns_input = step.inputs[0].source_path
+                inherited_cgns_lineage = _read_geometry_artifact_lineage(cgns_input)
+            except (OSError, ValueError, json.JSONDecodeError, IndexError) as error:
+                status, message = "failed", f"CGNS geometry lineage verification failed: {error}"
+
         output: list[str] = []
         def emit(line: str) -> None:
             output.append(line)
@@ -695,6 +758,55 @@ def run_mesh_validation(
                 status, message = result.status, result.message
             except OSError as error:
                 status, message = "failed", str(error)
+
+        if status == "succeeded" and step.case_id == "gmsh_to_cgns":
+            try:
+                msh_input = step.inputs[0].source_path
+                geometry_lineage = _geometry_lineage(
+                    mesh_entry, source_stl, msh_input, REPOSITORY_ROOT
+                )
+                cgns_output = step.directory / next(
+                    item.relative_path for item in step.outputs
+                    if item.artifact_id == "cgns_mesh"
+                )
+                sidecar = _write_geometry_artifact_lineage(
+                    cgns_output, "CGNS volume mesh", geometry_lineage,
+                    {
+                        "role": "Gmsh MSH", "sha256": hashlib.sha256(
+                            msh_input.read_bytes()
+                        ).hexdigest(),
+                    },
+                )
+                print(
+                    f"[{step.case_id}] geometry lineage: {sidecar.name}",
+                    flush=True,
+                )
+            except (OSError, ValueError, StopIteration) as error:
+                status, message = "failed", f"CGNS geometry lineage persistence failed: {error}"
+
+        if status == "succeeded" and step.case_id == "cgns_to_oneflow":
+            try:
+                cgns_input = step.inputs[0].source_path
+                native_output = step.directory / next(
+                    item.relative_path for item in step.outputs
+                    if item.artifact_id == "oneflow_grid"
+                )
+                cgns_artifact = inherited_cgns_lineage["artifact"]
+                sidecar = _write_geometry_artifact_lineage(
+                    native_output, "OneFLOW native grid",
+                    inherited_cgns_lineage["geometry_lineage"],
+                    {
+                        "role": "CGNS volume mesh",
+                        "file_name": cgns_input.name,
+                        "sha256": cgns_artifact["sha256"],
+                    },
+                )
+                print(
+                    f"[{step.case_id}] geometry lineage: {sidecar.name}",
+                    flush=True,
+                )
+            except (OSError, ValueError, StopIteration, TypeError, KeyError) as error:
+                status, message = "failed", f"OneFLOW grid geometry lineage persistence failed: {error}"
 
         validation = None
         if status == "succeeded" and step.case_id == "stl_to_gmsh":

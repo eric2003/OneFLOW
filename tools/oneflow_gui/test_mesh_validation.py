@@ -19,11 +19,58 @@ from tools.oneflow_gui.mesh_validation import (
     _mesh_case_command, _mesh_validation_stage_results, run_report_stage_rows,
     existing_mesh_case_paths, _validate_required_physical_groups,
     _geometry_lineage, geometry_lineage_rows,
+    _geometry_artifact_lineage_path, _write_geometry_artifact_lineage,
+    _read_geometry_artifact_lineage,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
     CaseExecutionResult, WorkflowGraphRunResult,
 )
+
+
+class GeometryArtifactLineageTest(unittest.TestCase):
+    def test_lineage_is_persisted_and_verified_for_cgns_and_native_grid(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            cgns = root / "mesh.cgns"
+            cgns.write_bytes(b"cgns-bytes")
+            lineage = {
+                "provenance": {"kind": "unknown", "notes": "Historical source unknown."},
+                "source_representation": {"format": "STL", "sha256": "a" * 64},
+                "derived_mesh": {"format": "Gmsh MSH", "sha256": "b" * 64},
+            }
+            cgns_sidecar = _write_geometry_artifact_lineage(
+                cgns, "CGNS volume mesh", lineage,
+                {"role": "Gmsh MSH", "sha256": "b" * 64},
+            )
+            cgns_record = _read_geometry_artifact_lineage(cgns)
+            self.assertEqual(cgns_record["geometry_lineage"], lineage)
+            self.assertEqual(cgns_record["parent_artifact"]["role"], "Gmsh MSH")
+            self.assertTrue(cgns_sidecar.is_file())
+
+            native = root / "mesh.oneflow.grid"
+            native.write_bytes(b"native-grid")
+            native_sidecar = _write_geometry_artifact_lineage(
+                native, "OneFLOW native grid", cgns_record["geometry_lineage"],
+                {
+                    "role": "CGNS volume mesh",
+                    "file_name": cgns.name,
+                    "sha256": cgns_record["artifact"]["sha256"],
+                },
+            )
+            native_record = _read_geometry_artifact_lineage(native)
+            self.assertEqual(native_record["parent_artifact"]["file_name"], cgns.name)
+            self.assertEqual(native_record["geometry_lineage"], lineage)
+            self.assertTrue(native_sidecar.is_file())
+
+    def test_lineage_sidecar_is_rejected_after_artifact_changes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = Path(directory) / "mesh.cgns"
+            artifact.write_bytes(b"original")
+            _write_geometry_artifact_lineage(artifact, "CGNS volume mesh", {})
+            artifact.write_bytes(b"replaced")
+            with self.assertRaisesRegex(ValueError, "checksum mismatch"):
+                _read_geometry_artifact_lineage(artifact)
 
 
 class GeometryLineageTest(unittest.TestCase):

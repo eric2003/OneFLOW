@@ -1,3 +1,26 @@
+## 2026-11-16 continuation: persist lineage beside conversion artifacts
+
+Starting `hexin` HEAD: `8e56d3b23e592d5af9a342a73afd7d8076d62a18`.
+
+- Successful Gmsh-to-CGNS conversion now writes
+  `<output.cgns>.geometry-lineage.json`, containing the verified geometry
+  provenance, source STL (when available), Gmsh MSH checksum and CGNS checksum.
+- CGNS-to-OneFLOW verifies the CGNS artifact checksum against its sidecar
+  before accepting the lineage, then writes the inherited record beside the
+  native grid and links it to the exact CGNS input checksum.
+- Sidecars do not alter CGNS/native-grid binary formats. Unknown historical
+  provenance remains unknown. Missing, malformed or mismatched sidecars fail
+  the lineage handoff stage rather than silently claiming continuity.
+- Added unit coverage for CGNS/native-grid persistence and artifact tampering.
+
+No local execution or exact-commit CI pass is claimed yet.
+
+Next action: add project save/open discovery of these sidecars and expose
+lineage details from the generated mesh project itself, not only the validation
+run. Then consider a real non-STL geometry adapter with format-specific tests.
+
+---
+
 ## 2026-11-16 continuation: carry lineage through conversion artifacts
 
 Starting `hexin` HEAD: `67d7083d09ecc6f93942692ea644811c5c65230a`.
