@@ -40,7 +40,7 @@ def _catalog(root: Path) -> dict:
 def mesh_case_groups(
     repository_root: Path,
 ) -> tuple[tuple[str, tuple[tuple[str, str], ...]], ...]:
-    """Group supported mesh producers by spatial dimension for GUI navigation."""
+    """Group mesh producers and existing-mesh profiles by spatial dimension."""
     entries = _catalog(Path(repository_root).resolve()).get("cases", [])
     grouped: dict[int | None, list[tuple[str, str]]] = {2: [], 3: [], None: []}
     for item in entries:
@@ -63,12 +63,12 @@ def mesh_case_groups(
         if grouped[dimension]
     )
     if not result:
-        raise ValueError("No supported STL-to-Gmsh Cases are registered.")
+        raise ValueError("No supported STL-to-Gmsh or existing-mesh entries are registered.")
     return result
 
 
 def mesh_case_choices(repository_root: Path) -> tuple[tuple[str, str], ...]:
-    """List native and Python STL-to-Gmsh producers in catalog order."""
+    """List supported STL-to-Gmsh producers and existing-mesh inputs."""
     entries = _catalog(Path(repository_root).resolve()).get("cases", [])
     choices = tuple(
         (str(item["id"]), str(item.get("title", item["id"])))
