@@ -129,6 +129,31 @@ class GeometryLineageTest(unittest.TestCase):
             self.assertEqual(lineage["provenance"]["kind"], "generated")
             self.assertEqual(lineage["generator"]["source_sha256"], "b" * 64)
 
+    def test_geometry_lineage_rows_accepts_string_generator_metadata(self):
+        rows = geometry_lineage_rows({
+            "geometry_lineage": {"generator": "oneflow_stl_geometry"}
+        })
+        self.assertIn(
+            ("Geometry generator", "RECORDED", "oneflow_stl_geometry"),
+            rows,
+        )
+
+    def test_geometry_lineage_rows_formats_structured_generator_metadata(self):
+        rows = geometry_lineage_rows({
+            "geometry_lineage": {
+                "generator": {
+                    "name": "oneflow_stl_geometry",
+                    "version": "1.0",
+                    "source_sha256": "b" * 64,
+                }
+            }
+        })
+        self.assertIn(
+            ("Geometry generator", "RECORDED",
+             f"oneflow_stl_geometry 1.0 | source SHA-256: {'b' * 64}"),
+            rows,
+        )
+
     def test_manifest_with_mismatched_stl_checksum_is_not_trusted(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
