@@ -27,6 +27,10 @@ class RunReportTest(unittest.TestCase):
         self.assertIn("[NOT RUN] mesh_structure", summary)
         self.assertIn("[NOT CHECKED] mesh_quality", summary)
 
+    def test_success_report_cannot_contain_a_failed_stage(self):
+        with self.assertRaisesRegex(ValueError, "cannot contain a failed stage"):
+            build_run_report("STL -> Gmsh", {"gmsh": stage_result("FAIL")}, 0)
+
     def test_report_is_written_as_valid_json(self):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "run.report.json"
