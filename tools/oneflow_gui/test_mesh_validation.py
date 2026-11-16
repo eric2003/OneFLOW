@@ -190,11 +190,11 @@ class MeshValidationCatalogTest(unittest.TestCase):
         ))
     def test_existing_cylinder_is_grouped_as_existing_gmsh_mesh_not_stl_producer(self):
         groups = dict(mesh_case_group_categories(self.root))
+        categories = dict(groups["3D"])
+        self.assertIn("STL to Gmsh", categories)
         self.assertEqual(
-            groups["3D"],
-            (("Existing Gmsh Mesh", ((
-                "cylinder_existing_mesh", "3D Cylinder Internal Flow (Generated MSH)"
-            ),)),),
+            categories["Existing Gmsh Mesh"],
+            (("cylinder_existing_mesh", "3D Cylinder Internal Flow (Generated MSH)"),),
         )
 
     def test_repository_catalog_exposes_3d_cylinder_existing_mesh(self):
