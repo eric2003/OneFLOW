@@ -17,6 +17,10 @@ Starting `hexin` HEAD: `5a04bddd842d6b572048ffbc78d5552a1a580151`.
   claim that the CFD smoke stage ran or that physical accuracy was validated.
 - Commits: `103025185e5f3d4bb6bfa26978b594695f8b7cd1` (implementation),
   `479e36c736b62e60a6c468357f8a59665edf586d` (regression test).
+  Added a durable development principle requiring post-run reporting to consume
+  the canonical workflow declarations (or typed plan), with report aggregation
+  kept independently testable. The principle update is commit
+  `a18bd60657495b1765beb303419b4cb25343455b`.
   Exact-commit CI and local Windows execution have not yet been verified.
 
 Next: run the focused Mesh-to-CFD validation tests and inspect CI for the exact
