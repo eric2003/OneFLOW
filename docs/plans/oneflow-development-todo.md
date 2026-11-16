@@ -2219,9 +2219,39 @@ CD 在 9.44e-3..1.06e-2 之间，最后 100 步 dCL 仍有 +4.0e-3；
       只为拿共享契约 `PrimitiveFaceStateView`
 - [ ] G8 按审计结果拆分（待定）
 - [ ] G9 NS 粘性入口在 `CpuFluxBackend` / `HipFluxBackend` 各自实现
-- [ ] G10 温度场与温度梯度驻留（`Ns3DDeviceState` 需新增第二套梯度槽位）
+- [x] G10 温度场与温度梯度驻留（`Ns3DDeviceState` 新增独立存储，**不复用**梯度槽位）
+      - `CellTemperatureView`（`AccelViews.h`）为视图层第 14 个 backend-neutral
+        view；入口挂 `FluxBackend::CalcCellTemperature`（非纯虚、fail-closed，
+        与 `CalcViscousFaceFlux` 同构），**未**挂 `EulerDomainBackend`
+      - 关系与主机逐字一致：`T = p / (nscom.statecoef * rho * oamw)`。
+        **gamma 通过 `statecoef` 进入，不是编译期常数**——`statecoef = 1/(gama_ref*mach_ref^2)`
+        （`Chemical::CalcStateCoefNs`），`gama_ref` 是输入字段
+      - 梯度算子逐项镜像 `GradientCellKernel`（同一套面插值权、法向-面积投影、
+        CSR 遍历、边界 ghost 复制），并**复用**同一 geometry cache 与 cell-face
+        CSR：把原 `CalcGradient` 里的几何块抽成 `EnsureResidentCellGeometry` 共用
+      - 死字段 `viscousTurbulence` **已删除**：全仓库无读者（grep 证实），
+        位置由 `temperature` + 三个方向梯度取代
+      - 存储按 **cell（含 ghost）** 分配，不是 `nCells*nEquations`：温度不是第六个守恒量，
+        塞进 `gradient` 会被当作另一个方程
+      - 契约测试 `tests/euler/device_temperature_contract_test.cpp`：
+        (a) 设备温度对主机重算逐 cell 比对（含 ghost，1e-14）；
+        (b) 设备梯度对主机独立实现的同一离散算子比对，且断言参考值非零
+        （恒返回 0 的梯度无法通过）；(c) 视图逐字段拒绝
+      - 构建注意：该测试 target 必须定义 `ONEFLOW_ENABLE_HIP`，
+        否则 `HipBackend.cpp` 不注册 HIP，整套会以 "skipped" 通过——已改为显式抛错；
+        且需带 `HipKernel.hip`（`Initialize()` 调 `RunHipBackendSelfTest()`）
+      - **证据（隔离构建，gfx906 单卡）**：
+        - `build/128156650`：11/11 device contract 通过，其中温度 3 项 + 视图 1 项全绿；
+          输出确认走真设备（`OneFLOW compute backend: HIP/DCU`，`gcnArch=gfx906`）
+        - **判别力验证（同 job 内两臂）**：正确快照 `rc=0`；把设备关系里的
+          `stateCoefficient` 乘以 1.5 后 `rc=1`，cell 0 差值 0.3688
+          （0.7376 vs 1.1064）→ 测试确实钉住了关系，不是"缓冲区非空"式假测试
+      - 隔离原因：共享 `src/OneFLOW` 被并行 agent 的 `rsync --delete` 多轮清空，
+        三次失败均非本切片缺陷；最终验证在 `evidence/build/<job>/` 内自带
+        `src/`+`build/`，不碰共享树
 
-**顺带发现**：`Ns3DDeviceState::viscousTurbulence` 声明并初始化，但**从未被读取**——死字段。
+**顺带发现**：`Ns3DDeviceState::viscousTurbulence` 声明并初始化，但**从未被读取**——死字段
+（G10 已删除，见上）。
 
 #### E. 收敛基准（比性能更根本的缺口）
 
@@ -2355,3 +2385,515 @@ MPI 的行为**。这与 §5.22 一致：问题在用户态栈，不在驱动。
 
 **内核补丁这条路确认不需要走**（自服务也做不到：
 `CapEff: 0`、`/usr/src` 和 `/lib/modules` 都是 root 所有）。
+
+---
+
+### 5.38 设备拷贝的真实成本与 `swap_download` 的真身（2026-11-16，已实测）
+
+**结论先说**：§5.37 的 332 µs "staging 成本"是**冷启动污染的产物，不是稳态成本**。
+稳态下 40 KB 的一次 D2H + MPI + H2D 只要 **35.2 µs**，其中拷贝 22 µs、网络 13 µs。
+拷贝路径本身**没有缺陷**，不需要优化。
+
+#### (a) 332.5 µs 的证伪（`probe/128155719/copycost4`，复现原协议 R=10 无预热）
+
+| 迭代 | D2H | MPI | H2D | 合计 |
+|---|---:|---:|---:|---:|
+| **iter=0（首次）** | 1076.0 | 1710.0 | 1109.2 | **3895.1** |
+| iter=1 | 14.6 | 17.4 | 13.2 | 45.2 |
+| iter=2 | 11.1 | 32.8 | 12.8 | 56.8 |
+| iter=3–9 | 10.5–11.1 | 11.5–20.1 | 11.4–27.6 | 33.7–52.4 |
+
+原测法取 10 次**平均**，iter=0 的 3895 µs 摊进去就是 427 µs，与记录的 332 µs 同源。
+预热后每轮 barrier、n=40：**total 中位 35.22 µs**（p10 34.64 / p90 36.67），
+拆开是 D2H 10.50、MPI 13.33、H2D 11.56。
+
+**所以 §5.37 的"332 µs 几乎全在 D2H+H2D 上"是错的**：稳态下拷贝 22 µs vs 网络 13 µs，
+是 1.7×，不是 25×。同样地，1 MB / 4 MB 的旧均值按 `us = 7 + bytes/13.5 GB/s`
+拟合后也对得上（预测 347 / 1357，实测 381 / 1382），说明**只有 40 KB 那档被污染**。
+
+#### (b) 单次拷贝的干净成本（`probe/128155563`，1 rank 1 卡，空队列）
+
+| 大小 | D2H pageable | D2H pinned | H2D pageable | H2D pinned |
+|---|---:|---:|---:|---:|
+| 40 KB | 14.1 µs (2.9 GB/s) | **10.4** (3.9) | 14.3 | **11.4** (3.6) |
+| 200 KB | 37.0 (5.5) | **22.1** (9.3) | 37.0 | 24.0 (8.5) |
+| 1 MB | 121.5 (8.6) | **81.9** (12.8) | 128.1 | 89.1 (11.8) |
+| 4 MB | 389.1 (10.8) | **321.2** (13.1) | 414.4 | 347.5 (12.1) |
+
+- pinned 拟合 `us = 7 µs + bytes / 13.5 GB/s`。**13.5 GB/s 是 PCIe 口径上界**，
+  §5.37 记的 1.46 GB/s 是同一冷启动伪影算出来的，作废。
+- 40 KB 档 pinned 比 pageable 快 1.35×（14.1 → 10.4），大块只快 1.2×。
+- `hipMemcpyAsync`+sync 在空队列上与阻塞版无差别（10.99 vs 10.40 µs）：**异步本身不省时间**。
+
+#### (c) 队列深度才是拷贝变慢的机制（`probe/128155563` + `probe/128156286`）
+
+先往设备队列里排 N 个 ~97 µs 的 field kernel，再测同一次 40 KB D2H：
+
+| 队列深度 | 0 | 1 | 2 | 4 | 8 |
+|---|---:|---:|---:|---:|---:|
+| D2H 40 KB (µs) | **10.8** | 63.3 | 98.9 | 171.6 | **332.4** |
+
+- 单个在途 kernel 就 +52 µs，之后每多一个约 +36–40 µs。
+- 生产 `interface_pack` 实测 0.50–1.08 ms/step 摊到约 32 次拷贝 = 16–34 µs/次，
+  对比空队列 10.4 µs，说明**队列深度只有 5–23 µs**，远没到 depth-8 区制。
+  即拷贝阶段里 30–70% 是队列等待，但仍不是主导项。
+
+**`probe/128156286` 把"等谁"这件事分离出来了**（8 ranks 同进程，40 KB D2H）：
+
+| 队内 kernel 数 | 等**自己进程**的队列 | 等**别的进程**的队列 |
+|---|---:|---:|
+| 0 | 10.73 µs | 10.74 µs |
+| 2 | 806.34 | 11.27 |
+| 5 | 1944.84 | 11.22 |
+| 10 | **3968.52** | **11.67** |
+
+**这是本轮最干净的一条证据**：阻塞 `hipMemcpy` 只等**同一进程**已入队的 kernel，
+对别的进程几乎零成本（10.7 → 11.7 µs，几乎不变）。所以：
+- 拷贝的队列等待是**进程内**问题，不是"被同卡邻居拖累"；
+- 反过来说，**同卡 8 个 rank 的互相影响不在拷贝里，在 GPU 执行本身**。
+
+同一探针的争用段（每 rank 15 次 fill，单跑 4.9 ms）：
+
+| 活跃 rank 数 | 总时间 | 每次 fill |
+|---|---:|---:|
+| 1 | 1964.9 µs | 131.0 µs |
+| 8 | 15213.0 µs | **1014.2 µs**（7.74×） |
+
+**8 ranks 共享一张卡时，单位 GPU 工作要付 7.74 倍的墙钟。** 这是卡级资源争用，
+不是同步语义，也不是拷贝路径——它给出了"每卡 8 ranks 为什么效率掉到 18.6%"的
+物理量。任何在单卡上堆更多 rank 的方案都会先撞上这个 7.74×。
+
+#### (c2) 一个已排除的伪热点：CPU 直接读设备内存
+
+`probe/128156229` 在 3 个节点上测了 `memcpy(host, devPtr, n)`：
+
+| 节点 | 40 KB CPU memcpy | 同尺寸 hipMemcpy | 比值 |
+|---|---:|---:|---:|
+| e08r2n06 | 4765 µs (8.6 MB/s) | 21.4 µs | 223× |
+| e08r2n07 | 4869 µs (8.4 MB/s) | 18.9 µs | 258× |
+
+8.4 MB/s 是 PCIe BAR 逐字节读的典型特征。**但生产代码里没有这种访问**：
+`grep '\.Data()\[' codes/accel/src/*.hip codes/uns/src/*.cpp codes/grad/src/*.cpp` 为空。
+所以这条是探针的人为构造，**不是现存缺陷**，记录在此以防以后有人误判。
+
+#### (d) `swap_download` 97% 等待的机制（源码级确认）
+
+`codes/accel/src/HipFluxBackend.hip` 的梯度路径：
+
+```
+2478:  HipDrain( "gradient kernel synchronize" );     // = hipDeviceSynchronize
+2480:  if ( ! view.downloadToHost ) return;           // ← 生产走这条，直接返回
+2486:  ScopedStageTimer timer( "gradient_download" ); // ← 因此实测 0.000
+```
+
+- `gradient_download` 计时器在 `return` **之后**，所以它恒为 0.000——这不是
+  "下载很快"，是**根本没下载**。旧结论把这个 0 当成好消息，是误读。
+- 真正的等待全部记在 `s_gradient` 上，来源是 line 2478 的
+  `HipDrain`→`hipDeviceSynchronize`：**设备级**同步，等这张卡上所有 rank。
+  `HipDrain` 有 `ONEFLOW_HIP_DEFER_SYNC` 每 N 次才真正 drain，但被 defer 掉的那几次
+  仍会在下一次 drain 时一次性付出全部累积时间。
+
+#### (e) 拷贝路径已确认无缺陷（`probe/128155719` 源码核对）
+
+- `PackBoundary`（`:4440-4483`）：一个 `PackBoundaryKernel` 把所有方程打进连续 buffer，
+  再一次 `DeviceToHost`，**没有 per-equation 循环**。
+- `UnpackBoundary`（`~:4706`）：同样一次连续 H2D。
+- `ghostLevel` 只是 map key，不是拷贝循环。
+- 唯一残留浪费是 pinned→`hostValues` 的 host memcpy，各约 3 µs。
+- 合批收益上界：每个被消除的调用省 6.6 µs；4 轮 × 8 endpoint = 32 次/step，
+  最多 **0.19 ms/step（11.55 ms 的 1.6%）**，且会牺牲 MPI 重叠。**不值得做。**
+
+#### (f) ⚠ 更正：「设备级同步」解释已被证伪
+
+我先前写在这里的判断是 `hipDeviceSynchronize` 在 8 ranks/卡时会让每个 rank 等
+全部 rank。**`probe/128156022/syncscope` 证明这是错的**：
+
+让 rank 0 在另外 7 个 rank 压着 W ms 队列时调用 `hipDeviceSynchronize()`：
+
+| 邻居队内工作量 | rank 0 的 `hipDeviceSynchronize` | stream 同步 | rank 0 的 40 KB D2H |
+|---|---:|---:|---:|
+| 0 ms | 1.17 µs | 0.62 | 10.84 |
+| 2 ms | 1.27 | 0.67 | 11.34 |
+| 5 ms | 1.31 | 0.68 | 11.56 |
+| 10 ms | **1.48** | 0.73 | 12.14 |
+
+10 ms 邻居工作压着时，空转 rank 的 `hipDeviceSynchronize` 仍然 1.5 µs 返回。
+**这个驱动上 `hipDeviceSynchronize` 是进程作用域的，没有跨进程设备级等待。**
+
+`syncscope2` 与之一致：阻塞 D2H 在**别人**的 10 ms 队列后面仍是 11.67 µs，
+在**自己**的 10 ms 队列后面是 3969 µs。所以等待是**同进程内的队列有序性**
+（自己的 pack kernel 排在拷贝前面），不是设备级 barrier。
+
+**这条留在这里作为否证记录**：以后谁再报"设备级同步导致 rank 互相等待"，
+上面这张表就是反证。
+
+#### (f2) 那 97% 到底是什么
+
+- `s_gradient` 在 8/4/2 ranks-per-card 下是 4.84/2.84/1.68 ms/step
+  （`probe/128125539/ledger-rpc`）。4× 共租者减少只换来 2.88×，**接近公平份额争用**。
+  设备级同步做不到这个形状——它会随队列长度而非每 rank 工作量变化。
+- `syncscope2` 争用段：同等工作，1 rank 131 µs/fill，8 ranks 1014 µs/fill，
+  **7.74×**。`syncscope3`：8 个 rank 同时做 40 KB D2H，11.0 → 33.2 µs，**3.01×**。
+  拷贝本身只被放大 3×，更大的乘数在**计算**上。
+- 结论：`s_gradient` 的等待 = `swap_download`（`codes/uns/src/UNsGrad.cpp:226`）
+  里 6 次 unpack launch 按流序排在自己的 drain 之后，**每次都被共租争用放大**。
+
+**方向因此改为**：减少 launch 数或做真正的重叠，而不是改同步调用。
+
+#### (f3) `HipDrain` 的 `sinceDrain` 仍是缺陷，但原因不同
+
+```cpp
+static int sinceDrain = 0;      // 普通 static，跨 rank 共享
+```
+
+同文件 1941 行 `LocalPinnedStaging` 用的是 `static thread_local`，说明 per-thread
+状态是已知要求，这里是遗漏。后果是 `ONEFLOW_HIP_MAX_LAUNCHES_PER_DRAIN`（默认 32）
+的语义在多 rank 进程里失真。**它不再被当作 97% 等待的解释**，但它自身的正确性问题
+独立存在，且改动无风险（不改变数值，只改时机）。
+
+#### (g) 剩下的判别实验
+
+`interface_pack` 的真实口径（`probe/128113967/ledger`，24 个 1000 步文件）：
+
+- `interface_pack` **8 次/步**（不是先前写的 ~32），inclusive 中位 0.640 ms/step，
+  即 **80 µs/次**。
+- `interface_unpack` 4 次/步，40 µs/次。
+- **先前记录的 "~32 copies" 和 "16–34 us/call" 是猜的，已作废。**
+
+下一件事：量 `swap_download` 里 6 次 unpack launch 的 exclusive 时间与共租 rank 数的
+关系，确认"减少 launch 数"是否真的能兑现。**在此之前不动 `HipDrain` 的其余 8 处调用。**
+
+#### (h) 本轮并行 agent 互相破坏的教训（已写进 runbook §1d）
+
+08:30–08:55 期间三个作业并发写同一个 `src/OneFLOW` 和 `build/app`
+（`of-build-sa.sh:22` 是 `rm -rf`，其他是 `rsync --delete`），导致同一份代码
+连续三次构建失败且**每次报错不同**。三个报错不是三个缺陷。
+**判别法：真实缺陷稳定复现同一条错误；竞态每次不一样。**
+现在构建类 agent 一律用私有 `$EV/build`（`-S`/`-B`），只有最终合并验证串行用共享构建。
+
+---
+
+### 5.39 PeerDirect 在纯 verbs 下确实生效；4988 µs 的真因是 BAR bounce（2026-11-16）
+
+上一轮结论"PeerDirect 接受指针但不带来收益"需要细分：**它在纯 RDMA verbs 下有效，
+在 OpenMPI 路径下无效**。两者不是一回事。
+
+#### (a) 纯 verbs 双向 RDMA（2 节点，RC QP over mlx5_0 IB，无 MPI 数据路径）
+
+两边设备 buffer 都用 `ibv_reg_mr` 注册 `hipMalloc` 指针（每次运行都成功），
+25 次计时、5 次预热、3 次作业重复，全部 pattern 校验通过，零完成错误。
+
+| 大小 | 方向 | host-host | dev-dev | host-dev |
+|---|---|---:|---:|---:|
+| 40 KB | WRITE | 6.38 µs (6.42 GB/s) | 7.74 (5.29) | 6.38 (6.42) |
+| 40 KB | READ | 6.44 | 15.53 (2.64) | 15.56 |
+| 1 MB | WRITE | 159.6 | 193.4 (5.42) | 159.7 |
+| 1 MB | READ | 160.2 | 392.6 (2.67) | 392.5 |
+| 4 MB | WRITE | 640.5 | 773.1 (5.43) | 639.0 |
+| 4 MB | READ | 640.5 | 1569.0 (2.67) | 1569.6 |
+
+- **WRITE 进设备内存几乎免费**：`host-dev` 与 `host-host` 同速。
+- **RDMA READ 从设备内存读固定慢 2.4×**，与另一端是 host 还是 device 无关。
+- 这是 **NIC 的 opcode 不对称**，不是 PeerDirect 失效。没有任何一档接近 10×，也没有失败。
+
+#### (b) 4988 µs 异常：CPU 经 PCIe BAR 的逐字节 bounce copy
+
+- 成本 **121.6 ns/byte，8 KB–128 KB 完全恒定**（拟合固定项 85.7 µs + 0.1215 µs/byte，R²≈1）。
+  1 KB 时 187 ns/byte（+15 µs 是普通延迟底）。
+- **元素个数无关**：40 KB 用 `MPI_BYTE`×40960、`MPI_INT`×10240、`MPI_DOUBLE`×5120
+  或单条 contig，全是 121.5 ns/byte。排除 datatype 循环。
+- **阻塞发送才是原因**：`MPI_Sendrecv` 4980 µs vs `MPI_Isend/Irecv+Waitall` 26 µs
+  （190×），同一组 buffer。单向 `MPI_Send` 也要 4895 µs。
+- **阈值**：≤128 KB 走慢路径，256 KB 恢复到 106 µs——就是 UCX 的 eager/bcopy 路径。
+- **归因闭合**：`hipMalloc` 的 VA 在 `/proc/self/maps` 里映射为
+  `rw-s /dev/dri/renderD130`。CPU 直接 `memcpy` 从它读是 **119.1 ns/byte (8.4 MB/s)**，
+  MPI 是 121.6 ns/byte——**比值 1.02**。40 KB 的 CPU memcpy 4877 µs vs MPI 4980 µs。
+- 本机 OpenMPI 是 `--disable-rsmi`（accelerator MCA 为 `null`），UCX 是 `--without-rocm`，
+  所以整个栈把设备内存当普通 host 内存，做了逐字节非缓存 BAR 拷贝。
+
+**这解释了为什么 §5.37 的 device 指针直发会更慢**：它不是"走了 PeerDirect 但没收益"，
+而是**根本没走 PeerDirect**，退化成了 8.4 MB/s 的 BAR 拷贝。
+`_attic` §5.22 已记录 ROCm-aware 重编可达 15.89 µs（4 KB），所以这是**可关闭的用户态缺口，
+不是驱动限制**。
+
+#### (c) 因此 §5.37 的结论要改
+
+- "PeerDirect 可用但不能兑现" → **纯 verbs 可兑现（WRITE 免费），MPI 路径需要重编才能兑现**。
+- 40 KB 的 `MPI_Sendrecv` 332–4988 µs 都是 bounce copy 的产物，
+  真实 host-host RDMA 是 **6.4 µs**。
+- 下一步若要吃到这个收益，必须让 OpenMPI/UCX 认设备内存（§5.22 的重编），
+  且**只用 Isend/Irecv，不用阻塞 Sendrecv**——后者在 128 KB 以下必然走 bounce。
+
+#### (d) 已找到可直接部署的修复：`UCX_RNDV_THRESH`
+
+`probe/128155703` 做了完整的尺寸扫描 + 协议隔离，结论比 (b) 更精确：
+
+**不是"固定每次调用 5 ms"，是一个尺寸窗口内的带宽病态。**
+
+| 尺寸 | device 指针 | pinned host | |
+|---|---:|---:|---|
+| 16 KB | 1997 µs | 4.7 | |
+| 40 KB | **4989** | 9.9 | |
+| 98 KB | 11972 | 22.6 | |
+| 196 KB | 23929 | 46.5 | |
+| **212 KB** | **534** | 39.8 | ← 崩塌 44.8×，尺寸只涨 8.3% |
+| 262 KB | 107 | 49.5 | |
+| 1 MB | 392 | 177 | |
+| 4 MB | 1544 | 663 | |
+
+- 16 KB–196 KB **严格线性 124.7 µs/KB（8.21 MB/s）**，偏差 0.2%。
+- 1 MB / 4 MB 看起来"正常"只是因为**已经在悬崖之上**。这也解释了先前
+  "越大的尺寸反而越快"的困惑。
+- **重复调用不摊销**：41 次迭代全在 4986±5 µs，只有 iter 0 多一次 ~6.4 ms 初始化。
+- **注册不是成本**：孤立 `ibv_reg_mr` 只要 21.4 µs，占 0.43%。
+- **决定因素是协议选择**：1 MB 强制 eager 能复现慢路径（2811 vs 404），
+  40 KB 强制 rendezvous 就恢复正常（**21 µs**）。
+
+**修复**：`UCX_RNDV_THRESH=16384`（或 0）
+
+| 尺寸 | device（修复后） | host-only | 比值 |
+|---|---:|---:|---:|
+| 40 KB | **26.7 µs** | 12.9 | 2.1× |
+| 1 MB | 392 | 177 | 2.2× |
+| 4 MB | 1536 | 663 | 2.3× |
+
+已在 3 组独立节点对上验证。相对生产 staging 的 332.5 µs（也是冷启动伪影，
+真实 35.2 µs，见 §5.38）**快 12.5×**。
+
+**警告**：`RNDV_THRESH=0` 下 4 KB 报文的行为未测。4 KB 若仍走 eager 可能仍慢，
+上线前需补测。
+
+**这条已写进 runbook §2 网络行和 §4 故障表**，可以直接部署。
+
+---
+
+### 5.40 粘性 DCU 化：从「能过契约测试」到「真被求解器调用」（2026-11-16）
+
+#### (a) 发现：实现了但没有调用者
+
+`HipFluxBackend::CalcViscousFaceFlux` 实现完整、契约测试能过，但
+`grep -rn "CalcViscousFaceFlux" codes/` 在**生产代码里零调用点**。它只是一个
+可被测试驱动、求解器从不走到的分支。这不是移植，是移植的壳。
+
+#### (b) 第二个问题：每次调用全量上传 61 MB
+
+原实现开头是 `v_upload`：把 `q[5]`、`dqdx/dy/dz[5]`、`temperature`、
+`dTdx/dy/dz`、两个粘度、几何、面单元——共 **26 个 cell 尺寸的平面**从 host 传到
+device。300k 单元的 flaghship 算例下是 **61.3 MB/次**：
+
+| 带宽 | 上传耗时 |
+|---|---:|
+| 13 GB/s（pinned 实测上界） | 4.7 ms |
+| 10 GB/s | 6.1 ms |
+| 6.5 GB/s | 9.4 ms |
+
+**这比它替代的 host 逐面循环还慢**，所以即使接进去也没有加速。
+
+方案：`HipNs3DDeviceStorage` 里**本来就有** `cellState`、`cellGradient`、
+`temperature`、`temperatureGradient` 和全部几何，布局与 view 完全一致
+（`cellState[eq*totalCells+cell]` = rho,u,v,w,p）。改动是：当
+`view.cacheKey` 能在 `boundStates_` 里查到且各 buffer 尺寸足够时，直接复用设备
+存储，**完全跳过上传**。只有两个粘度平面仍需上传（它们是每次调用的输入，不是
+resident state），26 个平面降到 2 个。
+
+fallback 分支保留：契约测试用手工数组直接驱动 kernel，没有绑定 state。
+
+#### (c) 第三个问题：接进去之后还要能选到设备
+
+在 `UNsVisFlux::CalcFlux` 里加 `CalcVisFluxHip()` 分派，门控
+`ONEFLOW_ENABLE_UNS_HIP_VISFLUX`，失败则回落到未改动的 host 循环：
+
+```
+if ( ! this->CalcVisFluxHip() ) this->CalcVisFlux();
+```
+
+`view.cacheKey = grid`——梯度路径 `UNsGrad::CalcGradHip` 已经用 `grid` 绑定了
+state，所以粘性直接命中同一份 resident 数据。
+
+注意 `MRField = Marray<Real>` 是**两级向量，没有连续 `data()`**，所以结果要经
+一个 `std::vector` 中转再散回 `(*visflux)[eq][fid]`。这是设备路径上唯一的
+host 侧内存走查，不是算术。
+
+#### (d) 第四个问题：契约测试在 CPU 上假通过
+
+`oneflow_device_viscous_flux_contract_test` 缺少温度和 SA 目标都有的
+`ONEFLOW_ENABLE_HIP` 定义，于是 `HipBackend.cpp` 不注册 HIP、`AccelRuntime`
+选中 CPU 后端，测试输出 `OneFLOW compute backend: CPU`，
+device flux 恒为 0 而 host 是 2.28e-12，`rc=134`（SIGABRT）。
+
+**这是"测试跑过了"和"测试真跑了"的区别**：SA 和温度日志里都有
+`compute backend: HIP/DCU` + `gcnArch=gfx906`，粘性那行是 `CPU`。
+已补 `ONEFLOW_ENABLE_HIP` + `ONEFLOW_DEFAULT_ACCEL_BACKEND="HIP"` +
+`HipKernel.hip`（`Initialize()` 需要 `RunHipBackendSelfTest()`）。
+
+#### (e) 顺手修掉的温度下载浪费
+
+`CalcCellTemperature` 原来**无条件**做一次 3×totalCells 的 D2H（约 7 MB），
+与 `owner` 和 `downloadToHost` 都无关。而 `grep owner->temperature` 在仓库里
+**没有任何 host 读者**，所以这次传输是纯浪费。改成 `mirrorWanted =
+(owner != nullptr) || view.downloadToHost` 时才传。
+
+#### (f) 状态与验证边界
+
+- 代码已改：resident 复用、求解器分派、CMake 定义、温度下载条件化。
+- **契约测试覆盖不到求解器接入**：`tests/euler/CMakeLists.txt` 里的
+  `oneflow_device_viscous_flux_contract_test` 只链接 kernel 和 host 参考，
+  不包含 `UNsVisFlux.cpp`。所以 `CalcVisFluxHip` 这条分派**只能靠生产构建 +
+  实跑粘性算例验证**，契约测试绿了不代表它被走到。
+- 正确性判据（下一轮）：跑 `vismodel=3` 的旗舰配置，比对
+  `ONEFLOW_ENABLE_UNS_HIP_VISFLUX=0/1` 两次的残差历史，应在舍入级一致；
+  再加 `v_t_upload`/`v_kernel`/`v_download` 的阶段时间，确认上传确实从 26 个
+  平面降到 2 个。
+- 现在只能标 **Implemented, unverified**。未跑回归、未跑旗舰算例。
+
+---
+
+### 5.41 四目标隔离验证：33/33 全部通过（2026-11-16，已实测）
+
+`evidence/build/128157757-merge`，单节点 1 DCU，私有源码树 + 私有构建目录，
+`gfx906` 实机。
+
+| 目标 | 结果 | 运行设备 |
+|---|---|---|
+| `oneflow_device_temperature_contract_test` | **4/4 通过** | `HIP/DCU` `gfx906` |
+| `oneflow_device_sa_contract_test` | **12/12 通过** | `HIP/DCU` `gfx906` |
+| `oneflow_device_viscous_flux_contract_test` | **6/6 通过** | `HIP/DCU` `gfx906` |
+| `turb_sa_arithmetic_test` | **11/11 通过** | CPU（host parity，设计如此） |
+
+脚本输出 `ALL_TESTS_PASS`。
+
+**粘性那 6 个用例名**（全部 `OK`）：
+`InteriorFaceMatchesHostChain`、`ReversedNormalStillMatchesHost`、
+`LaminarOnlyMatchesHost`、`WallHeatFluxMatchesHost`、
+`SutherlandMatchesHostNondimensionalForm`、`WallHeatFluxWithoutFaceIdsFailsClosed`。
+
+**关键区别：这次是真跑在设备上。** 上一轮同一目标是 `rc=134`、`0 通过`，
+日志第一行是 `OneFLOW compute backend: CPU`。修法是补
+`ONEFLOW_ENABLE_HIP` + `ONEFLOW_DEFAULT_ACCEL_BACKEND="HIP"` + `HipKernel.hip`。
+判别法很简单：**看日志里的 backend 行和设备名**，不看 rc。
+
+#### 判别力验证：**通过**（job 128158376）
+
+按验收标准"测试断言必须能失败"，把
+`ViscousFluxArithmetic.h:123` 的 `2.0/3.0` 改成 `2.5/3.0`（真实但错误的
+可压缩性系数：Stokes 应力里的 `-2/3 div v` 项），重新打包提交。
+
+| 目标 | 正确系数 | 扰动后 | 判定 |
+|---|---|---|---|
+| `oneflow_device_viscous_flux_contract_test` | 6/6 通过 | **2 通过 / 9 失败** | **抓到了** |
+| `oneflow_device_temperature_contract_test` | 4/4 | 4/4 | 不涉及该系数，正确保持绿 |
+| `oneflow_device_sa_contract_test` | 12/12 | 12/12 | 同上 |
+| `turb_sa_arithmetic_test` | 11/11 | 11/11 | 同上 |
+
+**关键点不是"有一个测试红了"，而是失败精确地局限在唯一使用该系数的目标上。**
+如果四个目标都红，说明测试之间耦合；如果一个都不红，说明没有判别力。
+实际是 9 个失败全部落在粘性契约里，其余三个完全不受影响——这正是期望的形状。
+
+（本地源文件已恢复成 `2.0/3.0`。）
+
+---
+
+### 5.42 SA 与粘性：从「kernel 存在」到「求解器会走到」（2026-11-16）
+
+两个移植都出现了同一个缺口：**kernel 实现完整、契约测试全绿，但生产代码里没有
+调用者**。这不是移植完成，只是移植了壳。
+
+#### (a) 粘性：已接
+
+见 §5.40(c)。`UNsVisFlux::CalcFlux` → `CalcVisFluxHip()`，门控
+`ONEFLOW_ENABLE_UNS_HIP_VISFLUX`，返回 false 时走未改动的 host 循环。
+
+#### (b) SA：接了第一个入口
+
+`UTurbSrcFlux::CalcVist1Equ()` 原本是逐单元调 `CalcCellVist1Equ()` 求涡粘度。
+已加设备分支：门控 `ONEFLOW_ENABLE_UTURB_HIP_VIST`，构造
+`TurbSaEddyViscosityView`（3 个输入 + 1 个输出），调
+`HipTurbulenceBackend::Shared().CalcEddyViscosity( view )`。
+
+**只接了这一个。** SA 还有五个同类逐单元/逐面循环没接：
+`CalcSrcSa`（源项）、涡量梯度、标量迎风面通量、标量扩散面通量、标量更新。
+逐个接入需要先确认每个 view 的字段在求解器侧都能凑齐，不能一次全改。
+
+#### (c) 为什么没有一次接完
+
+SA 的接入比粘性复杂，因为它的数据分散在 `uturbf`（湍流场）和 `turbcom`
+（单例状态）两处，而 `turbcom` 是**逐单元被写入又读出**的标量集合
+（`turbcom.rho`、`turbcom.nuet`、`turbcom.xsi`…）。设备路径不能沿用这个模式，
+必须改成 view 传数组。每个接入点都要单独确认字段来源，接错一个就是静默的数值错误。
+
+#### (c2) 实际抓到的三处接入错误
+
+**错误 1（编译期，被生产构建抓到）**：
+`state.constants.fwStar = turbcom.fw_star;` — `TurbCom` 里没有 `fw_star`，
+实际叫 `fwStar`。契约测试抓不到，因为它们直接构造 `SaModelConstants`，从不读
+`turbcom`。**只有编译 `UTurbSrcFlux.cpp` 才能发现。**
+
+**错误 2（静默数值错误，自查抓到，最危险）**：
+`velocityGradient[9]` 的索引顺序。kernel
+（`HipTurbulenceBackend.hip:115-125`）要求 `[0]=dudx, [1]=dudy, [2]=dudz,
+[3]=dvdx...`，即"x 速度的三个导数"连续排列。我最初写成
+`[0*3+component]`，得到 `[0]=dudx, [1]=dvdx, [2]=dwdx`——**转置了**。
+这个错误编译通过、契约测试通过、求解器跑出完全错误的残差且不报警。
+
+**错误 3（越界，自查抓到）**：
+面密度和速度我从 `limiter->GetLeftField()`（湍流限器）取 `IR/IU/IV/IW`。
+但湍流限器的 `nEqu = turbcom.nEqu = 1`，只有 ISA 一个平面——**下标 1/2/3 越界**。
+正确来源是 `nslimiter`（`PrepareFaceValue:224-232`）。
+
+**共同根因**：`view` 的字段装配在求解器循环里内联，契约测试直接手工构造 view，
+所以装配代码**没有任何测试覆盖**。三个错误都发生在这段。
+
+**已做的补救**：
+- 抽 `codes/uturb/include/SaStateAssembly.h`，把 `velocityGradient` 的映射变成
+  可测的纯函数 `FillSaVelocityGradient`。
+- 新增 `tests/solver/sa_state_assembly_test.cpp`，4 个用例，其中一个专门断言
+  **不是转置**（`VelocityGradientIsNotTransposed`），另有一个守卫 fixture 的
+  哨兵值互不相同，否则转置测试本身会失效。
+
+**⚠ 第一次判别力验证是假阴性，值得单独记一笔**（job 128162147）：
+按惯例我做"正确版通过 + 转置版必须失败"的双跑。结果两个都是
+`[ PASSED ] 4 tests`，判 `DISCRIMINATION_BLIND`。
+
+**原因不是测试没判别力，是验证脚手架坏了**：`cmake --build --target` 在头文件被
+原地改写后没有重新编译（`build2.log` 里零条 `Building`），"转置版"实际跑的是
+原始二进制。改成先 `find -delete` 掉 `.o` 和可执行文件、再 build，并加了两个断言：
+① 打补丁后 `grep` 确认头文件真的变成转置形式；② `trap ... EXIT` 保证任何路径都还原。
+
+**教训**：判别力验证自己也需要判别力。如果当初只跑"正确版通过"就收工，
+这个测试会和真实缺陷一样静默失效。**"测试通过"必须伴随"错误输入能让它失败"
+的证据，而后者本身也要确认真的注入进去了。**
+
+#### (d) 验证边界（重要）
+
+- 契约测试**不覆盖求解器接入**。`oneflow_device_sa_contract_test` 直接驱动
+  kernel，不经过 `UTurbSrcFlux`。
+- 所以这两处接入目前都是 **Implemented, unverified**。
+- 验证方法（下一轮）：
+  1. 生产构建（`OneFLOW/fast`）必须链接通过——这一步能抓到接口签名的错。
+  2. 跑 `vismodel=3` 旗舰配置，`ONEFLOW_ENABLE_UDTURB_HIP_VIST=0/1` 两次，
+     残差历史应在舍入级一致。
+  3. 看 `v_*` 阶段时间确认确实走了设备。
+
+#### (e) 下一步（按价值排序）
+
+1. ~~补齐 SA 剩下接入点~~ → 已接到 5 处（见下表），还剩 1 处（标量更新）。
+2. `HipDrain` 的 `sinceDrain` 改 `thread_local`（独立缺陷，改动无风险）。
+3. `interfaceMask`——SA agent 指出多区界面面当前被当成非界面面，这对
+   solid/farfield 正确、对 interface 错误。旗舰是 1 zone，所以现在不触发，
+   但多区会踩。
+
+#### (f) 接入点清单（5/6 已接）
+
+| # | 位置 | 门控 flag | 状态 |
+|---|---|---|---|
+| 1 | `UNsVisFlux::CalcFlux` → 粘性面通量 | `ONEFLOW_ENABLE_UNS_HIP_VISFLUX` | 已接，生产构建通过 |
+| 2 | `UTurbSrcFlux::CalcVist1Equ` → SA 涡粘度 | `ONEFLOW_ENABLE_UTURB_HIP_VIST` | 已接，生产构建通过 |
+| 3 | `UTurbSrcFlux::CalcSrcFlux1Equ` → SA 源项 | `ONEFLOW_ENABLE_UTURB_HIP_SOURCE` | 已接，生产构建通过 |
+| 4 | `UTurbInvFlux::CalcInvFlux` → SA 迎风面通量 | `ONEFLOW_ENABLE_UTURB_HIP_INVFLUX` | 已接，待构建验证 |
+| 5 | `UTurbVisFlux::CalcVisFlux1Equ` → SA 扩散面通量 | `ONEFLOW_ENABLE_UTURB_HIP_VISFLUX` | 已接，待构建验证 |
+| 6 | `UTurbUpdate` → SA 标量更新 | — | **未接** |
+
+**格式门控**：4 和 5 都加了 `turbcom.iturb_visflux == 2` 条件。kernel 只实现
+VIS_TEST 变体（`VIS_TEST = 2`，`VisGrad.h:30`），旗舰 `m6wingroe_sa/script/turb.txt:38`
+正是 `iturb_visflux = 2`。其他格式必须**回落 host**，不能抛异常——
+view 验证器会因 `viscousFluxVariant != 2` 抛错，那会中止一个在 host 上本来能跑的算例。

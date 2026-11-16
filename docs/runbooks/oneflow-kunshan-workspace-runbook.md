@@ -199,6 +199,40 @@ sed -i -E '/^[[:space:]]*TurbSolver[[:space:]]*$/d' <case>/script/solver.txt
 用一两个单词（`scaling`、`startup`、`limiter`），**不要**用 `a17`、`ab2`、`attr`、`bnd`
 这类缩写或序号——那些信息应该由作业名和结论文档承载。
 
+## 1d. 工作区互斥：同一时刻只允许一个作业写 `src/OneFLOW` 与 `build/app`
+
+`src/OneFLOW/` 和 `build/app/` 是**单例**，但至少两种作业脚本会破坏性地重写它们：
+
+- `of-build-sa.sh`：`rm -rf "$ONEFLOW_SRC"; mkdir -p "$ONEFLOW_SRC"; cp -a ...`
+- `of-build-tempfield*.sh` / `of-build-visview.sh`：`rsync -a --delete "$STAGE/OneFLOW/" "$ONEFLOW_SRC/"`
+
+并发投递时，一个作业在 `rm -rf` 之后的窗口里，另一个作业正在读 `codes/`，就会看到
+空目录或半棵树。2026-11-16 08:30–08:53 实测到这一竞态：三个作业（两个 `of-build-sa`
+加一个 `of-temptest2`）同时写同一目录，我随后直接 `ls codes/` 得到空目录、
+`REVISION` 不存在。同一批 `tempfield` 构建三次失败，**每次报错都不同**：
+
+| 作业 | 报错 |
+|---|---|
+| `128155091` | `AccelViews.h:17: TurbSaArithmetic.h: No such file` |
+| `128155288` | `No rule to make target '.../device_temperature_contract_test.cpp'` |
+| `128155531` | `EulerDomainProblem does not name a type`、`Ns3DBackendState ... incomplete type` |
+
+三个报错互不相同，指向的是"源码树内容与预期不符"，**不是**三个独立的代码缺陷。这是
+判别竞态与真实编译错误的要点：真实缺陷会稳定复现同一条错误。
+
+规则：
+
+1. **串行化**。提交任何会写 `src/OneFLOW` 或 `build/app` 的作业前先 `squeue -u luql`
+   确认队列空；有在跑的，等它结束再投。**不要**并发投两个构建作业来"省时间"。
+2. **不要在窗口期查目录**。构建作业运行中 `ls src/OneFLOW/codes` 得到空目录是部署
+   窗口的正常现象，不能作为"源码丢失"的证据；以作业自己 `evidence/build/<jobid>/`
+   下的日志为准。
+3. **快照不要带 macOS AppleDouble 文件**。本地 `tar` 打包带上 `._*` 会让远端 CMake
+   报 `GLOB mismatch!` 并把 `._FluxBackend.h` 当成新增头文件。打包用
+   `COPYFILE_DISABLE=1 tar -czf ...`，或打包后 `tar --delete` 掉 `._*`。
+4. **`job_BASE.slurm` 是共享可变文件**，OpenAPI 提交器每次都会重写它。两个作业同时
+   提交时，后写的会覆盖前者的 `run.slurm` 路径。串行提交同样规避这一点。
+
 ## 2. 作业规范
 
 | 约定 | 值 |
@@ -208,6 +242,7 @@ sed -i -E '/^[[:space:]]*TurbSolver[[:space:]]*$/d' <case>/script/solver.txt
 | 布局 | `--bind-to core --map-by slot`；8 ranks/卡用 `scripts/rank.sh` 映射 `HIP_VISIBLE_DEVICES` |
 | 环境 | 常规作业 source `scripts/env.sh`（MPI 5.0.11 / UCX 1.22.0 / gcc16 / DTK 26.04 / cmake 4.4.3；CMake 必须在 PATH）；rocprof 另需交接坑 31 的 module 初始化 |
 | 网络 | `UCX_NET_DEVICES=mlx5_0:1`、`UCX_IB_DEVICES=mlx5_0`（其他 HCA 会 `ibv_create_ah` EINVAL） |
+| 大数据传输 | **`UCX_RNDV_THRESH=16384`**：40 KB 的设备指针报文从 **4989 µs 降到 26.7 µs**（187×）。不加这条，UCX 在 ~208 KB 以下选 eager，而 eager 从设备内存拷贝时走 PCIe BAR 逐字节路径（8.4 MB/s）。见 §4 故障表 |
 | MPI coll | `OMPI_MCA_coll=^hcoll,han`（非均匀分布会崩在 `coll/han`） |
 | 资源口径 | 1 DCU 槽 = 8 核；CPU 基线跑在 `kshcnormal` |
 | 输出 | 证据目录内 `result.txt` + 日志；文档里只写脱敏后的口径与结论 |
@@ -241,6 +276,9 @@ $WORKSPACE/scripts/cleanup.sh                         # 日志/快照轮转 + �
 
 | 现象 | 原因 | 处理 |
 |---|---|---|
+| 设备指针 `MPI_Sendrecv` 在 40 KB 档要 ~5 ms，而 host 指针只要 ~13 µs | UCX 在 ~208 KB 以下选 **eager**，eager 从 `hipMalloc` 内存拷贝时按 PCIe BAR 逐字节读（实测 8.4 MB/s，与 CPU `memcpy` 同速，比值 1.02） | 设 **`UCX_RNDV_THRESH=16384`**（或 0）强制 rendezvous：40 KB 降到 26.7 µs，已在 3 组节点对上验证。注意这是**协议选择**问题，不是注册问题——`ibv_reg_mr` 只要 21.4 µs，占 4988 µs 的 0.43% |
+| 同一份源码连续多次构建失败，且**每次报错不同**（缺头文件 / 缺测试源 / 类型未声明） | 并发作业竞写 `src/OneFLOW`、`build/app`；`rm -rf` + `rsync --delete` 的窗口被另一个作业读到 | 见 §1d：串行化提交，以 `evidence/build/<jobid>/` 日志为准 |
+| `GLOB mismatch!` 且出现 `._Xxx.h` | 快照里带了 macOS AppleDouble 文件 | 本地打包加 `COPYFILE_DISABLE=1`，或 `tar --delete` 掉 `._*` 后重传 |
 | `no ROCm-capable device is detected` | 节点未分配到 DCU / 卡被占用 | 检查 `--gres=dcu:N` 与节点，重投 |
 | `The imported target "hip::galaxyhip" references "/opt/rocm/hip/lib/libgalaxyhip..." but this file does not exist` | 没设 `ROCM_PATH`，DTK 的 `hip-targets.cmake` 前缀回落 `/opt/rocm` | `export ROCM_PATH=<DTK>` 后重新 configure（见 §1 配方） |
 | `Could not find a package configuration file provided by "amd_comgr"` | `enable_language(HIP)` 的 try_compile 子工程没继承目录 | 传 `-Damd_comgr_DIR/-DAMDDeviceLibs_DIR/-Dhsa-runtime64_DIR` **且** `-DCMAKE_TRY_COMPILE_PLATFORM_VARIABLES="CMAKE_PREFIX_PATH;amd_comgr_DIR;AMDDeviceLibs_DIR"` |

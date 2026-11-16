@@ -111,137 +111,73 @@ normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失�
 `snapshots/` 暂存运行，下轮快照随 dev 提交进入 `src/OneFLOW/ci/kunshan/`。数值门禁基准
 仍为 `6f7a49e3d`；接手前核对真实 HEAD 与 `src/REVISION`。
 
-**本轮（2026-11-14 下午）交付：网格加密 + M6 DCU 弱扩展测量**。全部数字与证据链在
-todo §5.6，要点：M6 单 zone `.ofl` 加密至 2,359,296 cell（体积守恒 5e-15）；METIS 分区
-8/32/64 zone 带 manifest；单 zone XB 残差 3.07e-17；64-zone XB 全绿；加密 vs 原
-CPU 气动力一致 0.2%。弱扩展（36,864 cell/rank，8 ranks/卡，同作业交错）：1 卡 17.0 →
-8 卡 22.2 ms/步（+31%），归因全部在 `interface_mpi`（2.12→7.70 ms/步）。
-新 fixture：集群 `fixtures/m6-refined-r1/`（只读登记）。
+**2026-11-16 本轮：三条端口全部通过设备契约验证，其中两条已接线（待生产环境验证）**
 
-**2026-11-15 交付：M6 阶梯完成 + 全阶梯弱扩展已测**。2N/4N 由
-`agglomerate2_ofl.py` 生成（方向分配 PASS、A(c) 映射、边界走线恢复面环），16N/32N 由
-已验证八倍细化器派生。全部结构+几何验证通过（精确 cell 数、面积闭合 1e-15、体积守恒
-1e-12、BC 身份保留），分区 16/32/128/256 zone。弱扩展全阶梯实测（`probe/128098635`，
-36,864 cell/rank，3 发交错）：1/2/4/8/16/32 卡 = 14.75/15.78/17.90/22.05/33.22/38.86
-ms/步（1.00×–2.63×），16 卡（4 节点）跳变 +50%，与跨节点 interface_mpi 归因一致。
-强扩展见 todo §5.6。
+本轮的核心发现是：**「契约测试全绿」不等于「移植完成」**。温度场、SA、粘性三条
+port 都出现过这个缺口——kernel 实现完整、测试通过，但生产代码里没有调用者。
 
-**2026-11-15（下午）：512-rank VMFault 已排除代码缺陷，64N 档解锁**。原失败
-`probe/128043090`（i02 系节点）在同一配置上零复现：`probe/128103456`（3 步 ×
-DEFER_SYNC on/off 判别 3 发）+ `probe/128104413`（1000 步 ×3，默认环境）全部 rc=0。
-kernel 参数转储逐字节解码自洽，故障地址在全部参数缓冲区之外；判定为 i02 系节点态问题
-（先例：kshdnormal e12r1n04 无法打开 /dev/kfd）。64N 档实测 **56.9 ms/步**（中位，
-61.7/51.4/56.9，`probe/128104413`，36,864 cell/rank 恒定，8 卡档的 2.58×）。
-诊断脚本：集群 `scripts/of-probe-rung2defer.sh`（判别用，勿再用 rank 阶梯二分——
-zone 数必须等于 rank 数，坑 18）。未顺带：坑 41（单 zone aero）。
+已实测（`evidence/build/128157757-merge`，单节点 1 DCU，`gfx906` 实机）：
 
-H2 根因与修复：`d41650729`（已有集群构建与多卡数值对照，**未跑完整门禁**）。
-
-> **这是唯一的交接文档，就地更新，不再按日期新建。**
-> 当前状态与路线图勾选在 [`../plans/oneflow-development-todo.md`](../plans/oneflow-development-todo.md)；
-> 长期阶段的取舍与里程碑在 [`../plans/oneflow-development-plan.md`](../plans/oneflow-development-plan.md)；
-> 规则以仓库根 `AGENTS.md` 为准；集群操作流程见
-> [`../runbooks/oneflow-kunshan-workspace-runbook.md`](../runbooks/oneflow-kunshan-workspace-runbook.md)。
->
-> 本文只放"接手时立刻需要"的东西：**环境与固定路径、启动顺序、常量和坑、当前任务指针**。
-> 能力边界、性能数字、Phase A–F 进度**不在这里重复**，一律以 todo 为准。
-
-## 0. 60 秒上手
-
-1. 读 `AGENTS.md`（分支模型、门禁顺序、口径纪律、工作区规则）。
-2. 打开 todo **§0.1 checkbox 总览与 §5 下一轮任务**：H1 已完成；
-   下一开发项为 **H2 多卡 VMFault** → A4 → A2′/A3。多卡结论在 H2 修复前暂停。
-   **主线优先级只以 todo §4/§5 为准**；本文只记“怎么跑”和“已经踩过的坑”，
-   两边不一致时改本文，不要改 todo 的台账。
-3. 要动集群先读 §1（固定路径）与 runbook：**SSH 已不可用，只能走 OpenAPI 技能**，
-   因此一切远端操作必须写成作业脚本提交，不能在交互 shell 里敲。
-4. 收尾：勾选 todo、证据落 `evidence/<gate>/<jobid>/`、更新本文 §4 与 §5；
-   环境或路径变化同步 runbook 与 todo §1.1。
-
-## 1. 环境与固定路径（不要另建目录）
-
-| 位置 | 路径 | 用途 | 规则 |
-|---|---|---|---|
-| 本地仓库 | 本 checkout 根（`git rev-parse --show-toplevel`） | 源码、文档、提交 | 只在 `dev` 上提交；`master` 只读、与 upstream 同步 |
-| 本地临时 | `/tmp` | 一次性脚本、打包、比较 | 不入库；需要保留的结论写进文档 |
-| 集群接入 | scnet-hpc 技能（按当前安装位置解析入口） | 查询、提交、上传、探测 | 按当前记录只用 OpenAPI；不要手搓 ssh/scp 循环，也不要静默切换后端 |
-| 昆山工作区 | **`$HOME/oneflow/`（唯一）** | `src/ build/ fixtures/ evidence/ snapshots/ scripts/ logs/ _attic/` | 固定布局，见下表与 runbook |
-| 门禁证据 | `$HOME/oneflow/evidence/<category>/<jobid>/` | **6 个固定 category**：`gate` / `paired-ab` / `cpu-regression` / `probe` / `fixture` / `build` | 只增不改；不要按实验临时起目录名（规则见 runbook §1c）；`*.stage` 等大二进制提取指标后可删 |
-| 源码快照 | `$HOME/oneflow/src/OneFLOW` + `src/REVISION` | 每轮覆盖 | 不建 `OneFLOW-<hash>` 目录 |
-| 构建 | `$HOME/oneflow/build/app` | 唯一增量构建 | 日常不重新 configure；必要时按 runbook 的 SDK 接口在 DCU 分配内处理 |
-| fixture | `$HOME/oneflow/fixtures/m6-8zone-cpu8/` | 唯一**登记**的分区算例（8 zone / 294,912 cell） | 只读；派生副本用 `prep-case.sh`。其它 zone 数用 runbook §1b 的配方现生成 |
-| 快照归档 | `$HOME/oneflow/snapshots/*.tgz` | 保留最近 5 个 | `cleanup.sh` 轮转 |
-| 日志 | `$HOME/oneflow/logs/` | 作业 stdout/stderr | 保留 14 天 |
-| 弃用 | `$HOME/oneflow/_attic/<date>/` | 待删物 | 观察一轮后清（`cleanup.sh`，7 天） |
-
-**集群接入现状（2026-11-08）**：`ssh kseshell` 返回 `Permission denied (publickey)`（密钥
-失效或 IP 白名单变更），**只能用 OpenAPI**。由此带来的硬约束：
-
-- 一切远端动作都要写成**作业脚本**用 `submit --command` 提交（建目录、解包、构建、清理都是）；
-- OpenAPI 没有 `exec`，所以不能交互式 `make`，也不能 rsync；源码以
-  `git archive` 打 tgz → `upload` 到 `snapshots/` → 作业内解包到 `src/OneFLOW`；
-- 提交参数有内存/CPU 比例上限（`--memory` 过大直接被 sbatch 拒绝），4 核请用 ≤8G；
-- 偶发 `Socket timed out` / `HTTP 502`：隔十几秒原样重试即可，不要当成作业失败。
-
-**禁止清单**（写在这里就是为了不再重复）：
-
-- 在 `$HOME` 根目录或 `softwares/projects/` 下新建 OneFLOW 目录、日志、一次性脚本；
-- 按 job 号或轮次新建 build/run 目录（`build/<jobid>`、`runs/<name>-<jobid>`）；
-- 在仓库里提交绝对私有路径、主机名、账号、作业号、原始 CI/Slurm 日志；
-- 为一次会话新建 dated handoff 或多份并行计划（本文就地更新）；
-- 直接跑 `scnet`/`ssh` 绕开技能去改远端状态；
-- 按实验内容临时给证据目录或作业起名（`a17`/`ab2`/`attr` 这类）。作业名固定
-  `of-<category>[-<purpose>]`，证据目录固定 `evidence/<category>/<jobid>/`，规则见 runbook §1c。
-
-## 2. 昆山环境常量
-
-| 项 | 值 | 原因 |
+| 目标 | 结果 | 设备 |
 |---|---|---|
-| 启动 | **只能 `mpirun --bind-to core --map-by slot`** | `srun` 下 MPI size=1，每个 rank 会解全部 zone |
-| 环境 | 常规作业 source `scripts/env.sh` | MPI/UCX/DTK 必须显式进 PATH；rocprof 另需坑 31 的已验证 module 初始化 |
-| HCA | `UCX_NET_DEVICES=mlx5_0:1`、`UCX_IB_DEVICES=mlx5_0` | 其它 HCA 的 `ibv_create_ah` 返回 EINVAL |
-| MPI coll | `OMPI_MCA_coll=^hcoll,han` | 非均匀分布会崩在 `coll/han` |
-| CMake | `/public/home/luql/apprepo/cmake/4.4.3/bin/cmake`（`env.sh` 已把它加入 `PATH`） | 旧的 `$HOME/tools/cmake-3.30.5` 已随家目录清理删除；模块里的 cmake 是死链 |
-| DTK | `dtk-26.04`（显式加 `bin/llvm/bin/hip/lib` 等） | 不显式设会落到系统旧 ROCm |
-| 资源口径 | 1 DCU 槽 = 8 核；CPU 基线在 `kshcnormal` | 跨队列比较必须换算到同一口径 |
-| 基准 | 1000 步、50 步 warmup、`nFieldSave/nResSave/nForceSave=100000`、CFL 0.01 | 100 步或 kernel-only 不能作生产结论 |
+| `oneflow_device_temperature_contract_test` | 4/4 | `HIP/DCU gfx906` |
+| `oneflow_device_sa_contract_test` | 12/12 | `HIP/DCU gfx906` |
+| `oneflow_device_viscous_flux_contract_test` | 6/6 | `HIP/DCU gfx906` |
+| `turb_sa_arithmetic_test` | 11/11 | CPU（host parity） |
 
-## 3. 常用命令
+**判别力已验证**（job 128158376）：把 `ViscousFluxArithmetic.h:123` 的
+`2.0/3.0` 改成 `2.5/3.0` 后，粘性契约 9 项失败，其余三个目标全绿——
+失败精确局限在唯一使用该系数的目标上。
 
-**注意：SSH 不可用（见 §1），下面的 `sbatch` 只是作业脚本名；实际提交走 OpenAPI 技能。**
+**已接线（生产构建验证通过，未跑算例）**：
 
-```bash
-# 仓库侧
-git -C <repo> status --short          # 提交前必须干净
-# 集群侧脚本（都在固定工作区，由作业内执行）
-source $HOME/oneflow/scripts/env.sh
-$HOME/oneflow/scripts/build-app.sh                    # 增量编译（两步 make，见坑 12）
-$HOME/oneflow/scripts/gate.slurm                      # 3 步 trace + 200 步 XB + 500 步分项 + 3x1000 步
-$HOME/oneflow/scripts/paired-ab.slurm                 # 同二进制 paired A/B
-$HOME/oneflow/scripts/cpu-regression.slurm            # CPU 五算例 normal/strict
-$HOME/oneflow/scripts/cleanup.sh                      # 日志/快照/attic 轮转
+**`WIRED_ALL_PASS`**（job 128161160）：`configure rc=0`、**生产运行时 rc=0**、
+**生产二进制 rc=0**、契约测试回归 33/33。生产运行时是唯一会编译
+`UNsVisFlux.cpp` / `UTurbSrcFlux.cpp` / `UTurbInvFlux.cpp` 的目标，所以这一步
+证明了四处接线的接口全部正确。
 
-# 提交（唯一方式，OpenAPI）
-SKILL=$HOME/.agents/skills/scnet-hpc
-python3 $SKILL/scripts/scnet.py --region 11250 submit --name of-gate \
-  --command "bash /public/home/<user>/oneflow/scripts/gate.slurm" \
-  --work-dir <ws>/logs --queue kshdnormal \
-  --nodes 1 --cpus 8 --dcus 1 --memory 27G --walltime 01:30:00 \
-  --stdout <ws>/logs/of-gate-%j.out --stderr <ws>/logs/of-gate-%j.err
-python3 $SKILL/scripts/scnet.py --region 11250 --details job <jobid>
-python3 $SKILL/scripts/scnet.py --region 11250 logs --path <abs path> --lines 200
-python3 $SKILL/scripts/scnet.py --region 11250 --timeout 180 upload <local tgz> <ws>/snapshots
-```
+1. **粘性面通量** `UNsVisFlux::CalcFlux` → `CalcVisFluxHip()`，门控
+   `ONEFLOW_ENABLE_UNS_HIP_VISFLUX`。同时修掉一个实质缺陷：原实现每次调用从 host
+   重传 26 个 cell 平面（300k 单元约 **61 MB / 4.7–9.4 ms**），而设备上本来就有
+   `cellState`/`cellGradient`/`temperature` 和全部几何。现改为命中 `boundStates_`
+   就复用，26 个平面降到 2 个（只有两个粘度是每次输入）。
+2. **SA 涡粘度** `UTurbSrcFlux::CalcVist1Equ()`，门控
+   `ONEFLOW_ENABLE_UTURB_HIP_VIST`。
+3. **SA 源项** `UTurbSrcFlux::CalcSrcFlux1Eq()`，门控
+   `ONEFLOW_ENABLE_UTURB_HIP_SOURCE`。
+4. **SA 迎风面通量** `UTurbInvFlux::CalcInvFlux()`，门控
+   `ONEFLOW_ENABLE_UTURB_HIP_INVFLUX`。
 
-门禁顺序固定：3 步多区 trace（含 resident contract）→ 200 步跨后端 → CPU 五算例
-normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失败都不算完成。
+**仍缺**：SA 的标量扩散面通量与标量更新两处未接。
 
-## 4. 当前任务指针（每次会话就地更新）
+**接线过程中抓到三个错误，其中两个是静默的**：
 
-**修订与证据边界**：工作分支 `dev`（本轮新增：`ci/kunshan/refine_ofl.py` + 文档提交，见
-`git log`）。集群部署树仍为 `727c1ed75`（本轮无 C++ 改动，未重建）；加密工具本轮从
-`snapshots/` 暂存运行，下轮快照随 dev 提交进入 `src/OneFLOW/ci/kunshan/`。数值门禁基准
-仍为 `6f7a49e3d`；接手前核对真实 HEAD 与 `src/REVISION`。
+| 错误 | 类型 | 抓到方式 |
+|---|---|---|
+| `turbcom.fw_star` 应为 `fwStar` | 编译期 | 生产构建 |
+| `velocityGradient[9]` **索引转置** | **静默数值错误** | 自查读 kernel |
+| 面密度/速度从 `limiter` 取（越界） | **静默越界** | 自查读 `PrepareFaceValue` |
+
+后两个会编译通过、契约测试通过、求解器跑出错误残差且不报警。共同根因：
+**view 的字段装配内联在求解器循环里，契约测试直接手工构造 view，装配代码零覆盖**。
+
+补救：抽出 `codes/uturb/include/SaStateAssembly.h` 的 `FillSaVelocityGradient`，
+配 `tests/solver/sa_state_assembly_test.cpp`（4 例，含 `VelocityGradientIsNotTransposed`
+和一个守卫哨兵值互异性的用例）。验证作业 `of-asm-verify` 会同时跑正确映射和
+转置映射，要求后者必须失败。
+
+**已知缺陷（本轮修掉或记录）**：
+
+- `HipDrain` 的 `sinceDrain` 是普通 `static` 而非 `thread_local`（多 rank 同进程
+  共用计数器）；同文件 1941 行的 `LocalPinnedStaging` 用了 `thread_local`，说明是遗漏。
+- `CalcCellTemperature` 原来**无条件**做 7 MB 的 D2H，而全仓库没有 host 读者；
+  已改为按需。
+- `interfaceMask` 未填：多 zone 界面面当前按非界面处理（旗舰 1 zone 不受影响）。
+
+**上一轮遗留**（SA 内核族本身，仍有效）：`TurbSaArithmetic.h` 是 host/device
+共享标量算术（`ONEFLOW_TURB_SA_HD` 在普通主机编译器下展开为空，否则 HIP 拒绝从
+`__global__` 调用 host 函数）；`TurbulenceBackend` 是 SA 专用 seam（**没有**加到
+`EulerDomainBackend`/`FluxBackend`）。证据：`evidence/probe/128156945/`。
 
 **本轮（2026-11-14 下午）交付：网格加密 + M6 DCU 弱扩展测量**。全部数字与证据链在
 todo §5.6，要点：M6 单 zone `.ofl` 加密至 2,359,296 cell（体积守恒 5e-15）；METIS 分区
@@ -653,15 +589,3 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
     - 只 `git add <具体路径>`，不用 `-A` / `.`；
     - 如果发现已经混进去了且**已推送**，不要重写历史，改用说明性提交澄清，
       并把这次的归属记在提交信息里。
-**2026-11-16 SA 设备端口：内核族 + 契约，未接线、未过门禁**（todo §5.30 C2/C3/C4）。
-`TurbSaArithmetic.h` 是 host/device 共享的标量算术（`ONEFLOW_TURB_SA_HD` 在普通主机
-编译器下展开为空，否则 HIP 会拒绝从 `__global__` 调用 host 函数）；`TurbulenceBackend`
-是新的 SA 专用 seam（**没有**加到 `EulerDomainBackend`/`FluxBackend`）；
-`HipTurbulenceBackend` 实现 grad/source/vist/标量对流/标量扩散/update。
-主机侧对照 `turb_sa_arithmetic_test` **11/11**，带区分力验证（cb1/cw1K/cb2σ/1e-10
-扰动全部被拒）；设备侧 `oneflow_device_sa_contract_test` 在 DCU 上 **12/12 PASSED**
-（`probe/128156945`，configure/build/root binary 均 rc=0）。
-**这些内核还没有接入求解器**，所以旗舰算例的 ms/步没有任何变化，不能据此宣称加速。
-已知缺口：多 zone interface 面需要 `interfaceMask`（当前按非 interface 处理）；
-梯度核是 O(nCells×nFaces) 的正确性优先版本。证据：`evidence/probe/<jobid>-sa/`。
-
