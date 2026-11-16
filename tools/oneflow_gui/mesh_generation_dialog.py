@@ -336,7 +336,9 @@ class StlGeometryDialog(QDialog):
         self.sphere_group.setVisible(is_sphere)
         self.spheroid_group.setVisible(is_spheroid)
         self.cylinder_group.setVisible(is_cylinder)
-        self.open_gmsh_button.setEnabled(self.generated_stl is not None and self.generated_geometry == geometry and not is_cylinder)
+        self.open_gmsh_button.setEnabled(
+            self.generated_stl is not None and self.generated_geometry == geometry
+        )
         self.patch_note.setText(
             "One closed wall surface; the STL is a piecewise-planar approximation."
             if not is_cylinder else
@@ -390,7 +392,7 @@ class StlGeometryDialog(QDialog):
             return
         self.generated_stl = Path(report["stl"])
         self.generated_geometry = geometry
-        self.open_gmsh_button.setEnabled(geometry != "cylinder_internal_flow")
+        self.open_gmsh_button.setEnabled(True)
         surface = report["surface"]
         patch_counts = {name: len(indices) for name, indices in report["patch_triangle_indices"].items()}
         self.result_view.setPlainText(
@@ -411,12 +413,6 @@ class StlGeometryDialog(QDialog):
     def _open_in_gmsh(self) -> None:
         if self.generated_stl is None or not self.generated_stl.is_file():
             QMessageBox.warning(self, "No generated STL", "Generate an STL before opening it in Gmsh.")
-            return
-        if self.geometry.currentData() == "cylinder_internal_flow":
-            QMessageBox.information(
-                self, "Region-aware import required",
-                "The cylinder manifest preserves wall/inflow/outflow patches, but the current Gmsh adapter cannot yet reconstruct them. The STL is not opened to avoid classifying inlet and outlet as walls.",
-            )
             return
         try:
             project = create_mesh_project_from_stl(self._repository_root, self.generated_stl)
@@ -470,6 +466,7 @@ class StlToGmshDialog(QDialog):
         self.geometry_preset = QComboBox()
         self.geometry_preset.addItem("Unit Sphere STL", "sphere")
         self.geometry_preset.addItem("6:1 Prolate Spheroid STL", "prolate_spheroid")
+        self.geometry_preset.addItem("Internal-flow cylinder STL", "cylinder_internal_flow")
         self.geometry_preset.addItem("Closed STL shell (genus zero)", "closed_shell")
         self.geometry_preset.setToolTip(
             "Selects a bundled geometry, its STL input, validation Case and default output location."
@@ -606,6 +603,12 @@ class StlToGmshDialog(QDialog):
                 self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("prolate_spheroid"))
             elif template_id == "stl_to_gmsh_python_sphere_automatic_tetrahedra":
                 self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("sphere"))
+            elif project.get("geometry") == "cylinder_internal_flow":
+                self.geometry_preset.setCurrentIndex(
+                    self.geometry_preset.findData("cylinder_internal_flow")
+                )
+                self.boundary_name.setEnabled(False)
+                self.volume_name.setEnabled(False)
             self.density.setCurrentIndex(self.density.findData("custom"))
             target = float(project.get("mesh_size", DEFAULT_MESH_SIZE))
             minimum = float(project.get("mesh_size_min", target * 0.5))
