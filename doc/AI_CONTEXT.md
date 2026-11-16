@@ -1,3 +1,31 @@
+## 2026-11-16 continuation: resizable Mesh-to-CFD selection and 3-D cylinder input
+
+Starting `hexin` from `d29a2f5cb95b36b543fa680707335d648def1d95`.
+
+- The Mesh-to-CFD Case tree now gives the `Run` and `Mesh Case` columns
+  interactive resize handles with useful initial widths. The result tree's
+  first two columns are also resizable. The dialog starts wider, and the
+  Select all / Select none buttons use a compact 26 px height.
+- Added the 3-D Cylinder Internal Flow generated MSH as an explicit
+  existing-mesh validation entry. It resolves the generated file below
+  `UserDataPaths.mesh_generation/cylinder_internal_flow/results/`, not in
+  the repository source tree. The file is copied into the project's
+  `validation/` workspace before downstream processing.
+- Cylinder validation is intentionally `mesh_handoff`: MSH4 inspection,
+  Gmsh-to-CGNS conversion and CGNS-to-OneFLOW ingestion. The current
+  flat-plate CFD template is not a physically compatible internal-flow
+  consumer, so this entry does not claim or run a CFD smoke test.
+- The cylinder's prior preset mapping to the prolate-spheroid Python Case was
+  incorrect; it now uses its own catalog ID. Existing-mesh paths are
+  validated as relative paths contained below the user mesh-generation root.
+- Tests cover catalog visibility, 3-D grouping, handoff stage construction,
+  output artifact naming, and user-workspace path containment.
+
+CI and GUI runtime verification are pending for this slice. In particular,
+the Qt column drag handles should be checked interactively after pulling.
+
+---
+
 ## 2026-11-16 continuation: Mesh-to-CFD result panel
 
 Starting hexin HEAD: cbff9c452722e577dde6db05a822b68b1a95f56a.
