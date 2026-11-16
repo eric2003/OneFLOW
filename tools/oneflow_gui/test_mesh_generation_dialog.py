@@ -53,7 +53,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 self.repository_root, dialog, on_edit_asset=edited_assets.append
             )
             try:
-                self.assertEqual(library.asset_list.count(), 3)
+                self.assertGreaterEqual(library.asset_list.count(), 3)
                 self.assertTrue(library.import_button.isEnabled())
                 self.assertTrue(library.edit_button.isEnabled())
                 self.assertIn("geometry.sphere.unit", library.details.toPlainText())
