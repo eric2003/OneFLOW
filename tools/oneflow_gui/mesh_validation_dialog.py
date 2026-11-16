@@ -363,6 +363,7 @@ class MeshValidationDialog(QDialog):
             QMessageBox.warning(self, "OneFLOW executable required", "Select a valid OneFLOW executable.")
             return
         commands = []
+        missing_mesh_inputs: list[str] = []
         for case_id, title in selected:
             arguments = [
                 sys.executable, "-m", "tools.oneflow_gui.mesh_validation",
@@ -397,6 +398,15 @@ class MeshValidationDialog(QDialog):
                     arguments.extend(["--mesh-file", str(existing_mesh)])
                     arguments.extend(["--project-directory", str(project_directory)])
             commands.append((f"Mesh-to-CFD: {title}", tuple(arguments), self._repository_root))
+        if missing_mesh_inputs:
+            QMessageBox.warning(
+                self, "Generated mesh not available",
+                "The following existing-mesh inputs were skipped. Generate them "
+                "in Mesh Generation before selecting them:\\n\\n"
+                + "\\n".join(missing_mesh_inputs),
+            )
+        if not commands:
+            return
         self.log_view.clear()
         self.result_tree.clear()
         self._reported_outcomes.clear()
