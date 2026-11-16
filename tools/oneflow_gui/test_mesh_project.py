@@ -142,11 +142,25 @@ class MeshProjectTest(unittest.TestCase):
         project = create_mesh_project_from_stl(
             self.repository_root, source, "lineage_project"
         )
-        cgns_dir = project["directory"] / "validation/gmsh_to_cgns/results"
+        project["output_path"].write_bytes(b"project-msh")
+        msh_digest = hashlib.sha256(project["output_path"].read_bytes()).hexdigest()
+        validation_root = project["directory"] / "validation"
+        msh_dir = validation_root / "stl_to_gmsh/results"
+        msh_dir.mkdir(parents=True)
+        staged_msh = msh_dir / project["output_path"].name
+        staged_msh.write_bytes(project["output_path"].read_bytes())
+        cgns_dir = validation_root / "gmsh_to_cgns/results"
         cgns_dir.mkdir(parents=True)
         cgns = cgns_dir / "lineage.cgns"
         cgns.write_bytes(b"cgns-artifact")
         cgns_digest = hashlib.sha256(cgns.read_bytes()).hexdigest()
+        geometry_lineage = {
+            **project["geometry_lineage"],
+            "derived_mesh": {
+                "format": "Gmsh MSH", "sha256": msh_digest,
+                "parent": "source_representation",
+            },
+        }
         (cgns_dir / (cgns.name + ".geometry-lineage.json")).write_text(
             json.dumps({
                 "schema": "oneflow.geometry-artifact-lineage",
@@ -155,12 +169,16 @@ class MeshProjectTest(unittest.TestCase):
                     "role": "CGNS volume mesh", "file_name": cgns.name,
                     "format": "CGNS", "sha256": cgns_digest,
                 },
-                "geometry_lineage": project["geometry_lineage"],
-                "parent_artifact": {"role": "Gmsh MSH"},
+                "geometry_lineage": geometry_lineage,
+                "parent_artifact": {
+                    "role": "Gmsh MSH", "file_name": staged_msh.name,
+                    "path": staged_msh.relative_to(validation_root).as_posix(),
+                    "sha256": msh_digest,
+                },
             }),
             encoding="utf-8",
         )
-        native_dir = project["directory"] / "validation/cgns_to_oneflow/results"
+        native_dir = validation_root / "cgns_to_oneflow/results"
         native_dir.mkdir(parents=True)
         native = native_dir / "lineage.oneflow.grid"
         native.write_bytes(b"native-grid")
@@ -173,9 +191,10 @@ class MeshProjectTest(unittest.TestCase):
                     "role": "OneFLOW native grid", "file_name": native.name,
                     "format": "GRID", "sha256": native_digest,
                 },
-                "geometry_lineage": project["geometry_lineage"],
+                "geometry_lineage": geometry_lineage,
                 "parent_artifact": {
                     "role": "CGNS volume mesh", "file_name": cgns.name,
+                    "path": cgns.relative_to(validation_root).as_posix(),
                     "sha256": cgns_digest,
                 },
             }),
@@ -194,6 +213,12 @@ class MeshProjectTest(unittest.TestCase):
             by_role["OneFLOW native grid"]["parent"]["file_name"],
             cgns.name,
         )
+
+        # A replaced CGNS file invalidates both its own lineage and the
+        # native-grid record that points to its old checksum.
+        cgns.write_bytes(b"replaced-cgns")
+        reopened = load_mesh_project(project["directory"])
+        self.assertEqual(reopened["geometry_lineage"].get("downstream_artifacts", []), [])
 
     def test_project_reopen_does_not_trust_mismatched_stl_manifest(self) -> None:
         source = self.home / "untrusted.stl"

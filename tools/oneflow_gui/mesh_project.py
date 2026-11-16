@@ -285,15 +285,35 @@ def _project_geometry_lineage(
             except (OSError, json.JSONDecodeError):
                 continue
             metadata = record.get("artifact") if isinstance(record, dict) else None
+            geometry_lineage = record.get("geometry_lineage") if isinstance(record, dict) else None
             if (
                 not isinstance(record, dict)
                 or record.get("schema") != "oneflow.geometry-artifact-lineage"
                 or not isinstance(metadata, dict)
                 or metadata.get("file_name") != artifact.name
                 or metadata.get("sha256") != hashlib.sha256(artifact.read_bytes()).hexdigest()
-                or not isinstance(record.get("geometry_lineage"), dict)
+                or not isinstance(geometry_lineage, dict)
             ):
                 continue
+            source_record = geometry_lineage.get("source_representation") or {}
+            if source_record and source_record.get("sha256") != source_digest:
+                continue
+            mesh_record = geometry_lineage.get("derived_mesh") or {}
+            if output_path.is_file() and mesh_record:
+                if mesh_record.get("sha256") != hashlib.sha256(output_path.read_bytes()).hexdigest():
+                    continue
+            parent = record.get("parent_artifact")
+            if isinstance(parent, dict) and parent.get("path"):
+                parent_relative = Path(str(parent["path"]))
+                if parent_relative.is_absolute() or ".." in parent_relative.parts:
+                    continue
+                parent_path = normalize_path(validation_root / parent_relative)
+                if (
+                    not is_path_within(parent_path, validation_root)
+                    or not parent_path.is_file()
+                    or parent.get("sha256") != hashlib.sha256(parent_path.read_bytes()).hexdigest()
+                ):
+                    continue
             downstream.append({
                 "role": str(metadata.get("role", "Derived artifact")),
                 "format": str(metadata.get("format", artifact.suffix.lstrip(".").upper())),

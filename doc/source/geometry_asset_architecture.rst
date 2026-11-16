@@ -165,3 +165,8 @@ no longer match their sidecar are omitted from the trusted derived-artifact
 list. This keeps the project view grounded in the files currently present,
 rather than copying stale lineage claims into ``project.json``.
 
+Project lineage verification follows the full artifact chain: each sidecar
+must match its own artifact, its parent artifact path/checksum, the project
+STL checksum, and (when present) the project MSH checksum. Replacing an
+upstream CGNS file therefore invalidates both its record and a native-grid
+record that references the old CGNS checksum.

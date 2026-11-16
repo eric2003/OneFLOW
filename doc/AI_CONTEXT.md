@@ -1,3 +1,26 @@
+## 2026-11-16 continuation: verify parent links when reopening projects
+
+Starting `hexin` HEAD: `918b6ca0a574e4c256af94b4f3f721417bc7baf0`.
+
+- CGNS sidecars now record the staged MSH parent path, filename and checksum;
+  native-grid sidecars record the corresponding CGNS parent reference.
+- Mesh project reopening verifies each downstream artifact against its own
+  checksum, its parent file/checksum, the current project STL checksum and
+  the project MSH checksum when present.
+- Replacing a CGNS file invalidates both its own lineage record and a native
+  grid that refers to the previous CGNS bytes. Broken chains are not displayed
+  as trusted derived artifacts.
+- Expanded project lifecycle tests to cover both downstream artifacts and
+  invalidation after an upstream artifact is replaced.
+
+No local execution or exact-commit CI pass is claimed.
+
+Next: review Python Tooling and Windows/Linux CI evidence for the lineage
+and project reopen slices, then decide whether to implement the first real
+non-STL geometry parser adapter.
+
+---
+
 ## 2026-11-16 continuation: restore lineage when reopening mesh projects
 
 Starting `hexin` HEAD: `7286c7600ffa2c658db639e9e1bc11aa2e1022e4`.

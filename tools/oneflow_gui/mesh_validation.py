@@ -774,9 +774,9 @@ def run_mesh_validation(
                 sidecar = _write_geometry_artifact_lineage(
                     cgns_output, "CGNS volume mesh", geometry_lineage,
                     {
-                        "role": "Gmsh MSH", "sha256": hashlib.sha256(
-                            msh_input.read_bytes()
-                        ).hexdigest(),
+                        "role": "Gmsh MSH", "file_name": msh_input.name,
+                        "path": msh_input.relative_to(run_root).as_posix(),
+                        "sha256": hashlib.sha256(msh_input.read_bytes()).hexdigest(),
                     },
                 )
                 print(
@@ -800,6 +800,7 @@ def run_mesh_validation(
                     {
                         "role": "CGNS volume mesh",
                         "file_name": cgns_input.name,
+                        "path": cgns_input.relative_to(run_root).as_posix(),
                         "sha256": cgns_artifact["sha256"],
                     },
                 )
