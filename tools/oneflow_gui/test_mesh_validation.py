@@ -15,6 +15,7 @@ from tools.oneflow_gui.mesh_validation import (
     reset_mesh_validation_workspace, create_mesh_validation_run_workspace,
     _copy_existing_mesh, _graph_step_records,
     _mesh_case_command, _mesh_validation_stage_results, run_report_stage_rows,
+    existing_mesh_case_paths,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
@@ -35,6 +36,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         (self.root / "grid/stl_to_gmsh/3d/cube/single_hex/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/python").mkdir(parents=True)
         (self.root / "test/cfd/plateuns2dslau2/script").mkdir(parents=True)
         (self.root / "grid/case_catalog.json").write_text(json.dumps({
@@ -104,6 +106,9 @@ class MeshValidationCatalogTest(unittest.TestCase):
         (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "sphere_automatic_tetrahedra.msh"}}),
             encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/expected.json").write_text(
+            json.dumps({"artifact": {"mesh_file": "cylinder_internal_flow.msh"}}),
+            encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/square.msh";\n', encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/two_triangles/cpp/script/grid.txt").write_text(
@@ -155,6 +160,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ("python_cube", "Cube Single Hex (Python Reference)"),
             ("native_sphere", "Unit Sphere Automatic Tetrahedra (Native C++)"),
             ("python_sphere", "Unit Sphere Automatic Tetrahedra (Python Reference)"),
+            ("cylinder_existing_mesh", "3D Cylinder Internal Flow (Generated MSH)"),
             ("python_square", "One Square QUAD_4 Cell (Python Reference)"),
             ("stl_to_gmsh_python_square_two_triangles", "Square with Two TRI_3 Cells (Python Reference)"),
             ("stl_to_gmsh_python_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Python Reference)"),
@@ -553,6 +559,61 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 "results/prolate_spheroid_automatic_tetrahedra.msh",
             )
             self.assertEqual(graph[-1]["id"], "oneflow_cfd_solve")
+
+    def test_existing_cylinder_mesh_is_a_3d_handoff_validation_entry(self):
+        choices = dict(mesh_case_choices(self.root))
+        self.assertIn("cylinder_existing_mesh", choices)
+        groups = dict(mesh_case_groups(self.root))
+        self.assertIn(
+            ("cylinder_existing_mesh", "3D Cylinder Internal Flow (Generated MSH)"),
+            groups["3D"],
+        )
+
+        steps = build_mesh_validation_cases(
+            self.root, "cylinder_existing_mesh", "laminar_flat_plate"
+        )
+        self.assertEqual(
+            [step["id"] for step in steps],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
+        )
+        self.assertEqual(
+            steps[0]["outputs"][0]["path"],
+            "results/cylinder_internal_flow.msh",
+        )
+        self.assertEqual(steps[0]["validation"]["kind"], "gmsh_msh4")
+
+    def test_existing_mesh_case_resolves_only_inside_user_mesh_workspace(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary) / "mesh-generation"
+            paths = type("Paths", (), {"mesh_generation": workspace})()
+            with mock.patch(
+                "tools.oneflow_gui.mesh_validation.UserDataPaths.discover",
+                return_value=paths,
+            ):
+                resolved = existing_mesh_case_paths(self.root, "cylinder_existing_mesh")
+            expected_project = (workspace / "cylinder_internal_flow").resolve()
+            self.assertEqual(
+                resolved,
+                (
+                    expected_project / "results/cylinder_internal_flow.msh",
+                    expected_project,
+                ),
+            )
+
+            catalog = json.loads(
+                (self.root / "grid/case_catalog.json").read_text(encoding="utf-8")
+            )
+            cylinder = next(x for x in catalog["cases"] if x["id"] == "cylinder_existing_mesh")
+            cylinder["execution"]["mesh_file"] = "../../outside.msh"
+            (self.root / "grid/case_catalog.json").write_text(
+                json.dumps(catalog), encoding="utf-8"
+            )
+            with mock.patch(
+                "tools.oneflow_gui.mesh_validation.UserDataPaths.discover",
+                return_value=paths,
+            ):
+                with self.assertRaisesRegex(ValueError, "safe relative"):
+                    existing_mesh_case_paths(self.root, "cylinder_existing_mesh")
 
     def test_unknown_mesh_case_and_template_are_rejected(self):
         with self.assertRaisesRegex(ValueError, "Unknown mesh-generation Case"):
