@@ -173,6 +173,27 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ("stl_to_gmsh_python_square_two_triangles", "Square with Two TRI_3 Cells (Python Reference)"),
             ("stl_to_gmsh_python_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Python Reference)"),
         ))
+    def test_repository_catalog_exposes_3d_cylinder_existing_mesh(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        case_id = "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow"
+        choices = dict(mesh_case_choices(repository_root))
+        self.assertIn(case_id, choices)
+
+        groups = dict(mesh_case_groups(repository_root))
+        self.assertIn(case_id, {item[0] for item in groups["3D"]})
+
+        steps = build_mesh_validation_cases(
+            repository_root, case_id, "laminar_flat_plate"
+        )
+        self.assertEqual(
+            [step["id"] for step in steps],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
+        )
+        self.assertEqual(
+            steps[0]["outputs"][0]["path"],
+            "results/cylinder_internal_flow.msh",
+        )
+
     def test_repository_catalog_exposes_unit_sphere_in_mesh_validation_3d(self):
         repository_root = Path(__file__).resolve().parents[2]
         choices = dict(mesh_case_choices(repository_root))
