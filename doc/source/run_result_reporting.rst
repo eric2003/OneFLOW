@@ -138,3 +138,37 @@ Future Gmsh-to-CGNS, CGNS-to-OneFLOW, and Mesh-to-CFD adapters should preserve
 the envelope, stage vocabulary, exit-code semantics, and distinction between
 execution, structural, quality, and CFD evidence. Add domain-specific stages
 and metrics rather than inventing incompatible status flags.
+
+
+Gmsh-to-CGNS conversion report
+------------------------------
+
+The C++ Gmsh-to-CGNS adapter writes three complementary files in the Case
+results/ directory:
+
+* <stem>.gmsh-read-report.json — detailed reader diagnostics;
+* <stem>.gmsh-report.md — human-readable mesh inspection and boundary mapping,
+  headed by an explicit Gmsh -> CGNS: SUCCESS verdict;
+* <stem>.run-report.json — the shared oneflow.run-report envelope.
+
+The conversion report marks MSH input, Gmsh reading and CGNS writing PASS only
+after the writer has completed and the output file exists. CGNS read-back is
+NOT_CHECKED by the command (the independent C++ conversion tests reopen and
+inspect the file); mesh quality is NOT_CHECKED until numerical acceptance
+criteria are implemented; CFD validation is NOT_RUN until the separate
+Mesh-to-CFD workflow is run. A successful conversion is therefore not a
+claim of solver ingestion or physical accuracy.
+
+Mesh-to-CFD Validation report
+-----------------------------
+
+The workflow report uses the same top-level envelope and stage vocabulary.
+Its stages are mesh_generation, gmsh_to_cgns, cgns_to_oneflow, and cfd_smoke.
+A blocked or unvisited stage is NOT_RUN. Mesh quality and CFD physical
+accuracy remain NOT_CHECKED unless their own acceptance checks are
+implemented and executed. The detailed per-Case messages remain in steps
+and each stage log remains beside its staged Case outputs.
+
+The GUI displays the concise terminal summary, including the process exit
+status and each stage. JSON is the machine interface; the process exit code
+remains authoritative for pass/fail control flow.

@@ -17,6 +17,7 @@ if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
 from grid.stl_to_gmsh.converter import inspect_msh4
+from grid.stl_to_gmsh.run_report import build_run_report, format_run_summary, stage_result, write_run_report
 from tools.oneflow_gui.user_data_paths import UserDataPaths
 from tools.oneflow_gui.workflow_graph_runner import run_case_graph
 from tools.oneflow_gui.workflow_plan import build_case_graph_plan
@@ -271,6 +272,35 @@ def _graph_step_records(result) -> list[dict[str, str]]:
     ]
 
 
+def _mesh_validation_stage_results(result) -> dict[str, dict]:
+    """Map workflow graph outcomes onto shared run-report states."""
+    stage_names = {
+        "stl_to_gmsh": "mesh_generation",
+        "gmsh_to_cgns": "gmsh_to_cgns",
+        "cgns_to_oneflow": "cgns_to_oneflow",
+        "oneflow_cfd_solve": "cfd_smoke",
+    }
+    stages: dict[str, dict] = {}
+    for case in result.cases:
+        name = stage_names.get(case.case_id)
+        if name is None:
+            continue
+        status = {
+            "succeeded": "PASS", "failed": "FAIL",
+            "skipped": "NOT_RUN", "cancelled": "NOT_RUN",
+        }.get(case.status)
+        if status is None:
+            raise ValueError(f"Unsupported workflow result for {case.case_id}: {case.status!r}")
+        stages[name] = stage_result(status, case.message)
+    for name in stage_names.values():
+        stages.setdefault(name, stage_result("NOT_RUN", "Stage was not reached."))
+    stages["mesh_quality"] = stage_result(
+        "NOT_CHECKED", "No mesh-quality acceptance thresholds are applied yet.")
+    stages["cfd_accuracy"] = stage_result(
+        "NOT_CHECKED", "A runtime smoke test does not establish physical accuracy.")
+    return stages
+
+
 def _mesh_case_command(
     repository_root: Path,
     mesh_entry: dict,
@@ -364,6 +394,7 @@ def run_mesh_validation(
     run_root = _external(selected_stage_root)
     run_root = reset_mesh_validation_workspace(run_root)
     run_id = uuid.uuid4().hex
+    mesh_evidence: dict = {}
     if gmsh_path.is_file():
         os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
     def execute(step):
@@ -418,6 +449,7 @@ def run_mesh_validation(
                     "nodes": mesh_info["nodes"], "elements": mesh_info["elements"],
                     "physical_groups": mesh_info["physical_groups"],
                 }
+                mesh_evidence.update(validation)
             except (OSError, ValueError, KeyError, RuntimeError) as error:
                 status, message = "failed", f"Gmsh MSH4 validation failed: {error}"
 
@@ -436,43 +468,39 @@ def run_mesh_validation(
         return status, message
 
     result = run_case_graph(plan, execute, run_root=run_root)
-    report = {
-        "schema": "oneflow.mesh-to-cfd-validation", "schema_version": 1,
-        "run_id": run_id, "status": result.status, "mesh_case_id": mesh_case_id,
+    stages = _mesh_validation_stage_results(result)
+    exit_code = 0 if result.status == "succeeded" else 130 if result.status == "cancelled" else 1
+    failed_step = next((item for item in result.cases if item.status == "failed"), None)
+    error = None
+    if failed_step is not None:
+        error = {"type": "WorkflowStageError",
+                 "message": f"{failed_step.case_id}: {failed_step.message}"}
+    elif result.status == "cancelled":
+        error = {"type": "WorkflowCancelled", "message": "The validation run was cancelled."}
+    metrics = {key: mesh_evidence[key] for key in ("nodes", "elements") if key in mesh_evidence}
+    if "physical_groups" in mesh_evidence:
+        metrics["physical_group_count"] = len(mesh_evidence["physical_groups"])
+
+    report_path = run_root / "mesh-validation-report.json"
+    report = build_run_report(
+        "Mesh-to-CFD Validation", stages, exit_code, metrics=metrics,
+        artifacts={"run_directory": str(run_root), "report": str(report_path),
+                   **({"source_mesh": str(source_mesh)} if source_mesh is not None else {})},
+        error=error,
+    )
+    report.update({
+        "legacy_schema": "oneflow.mesh-to-cfd-validation",
+        "schema_version": 1, "run_id": run_id, "mesh_case_id": mesh_case_id,
         "mesh_implementation": mesh_implementation,
         "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
         "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
-        "note": (
-            "The supplied MSH4 file is validated as an existing 3-D input; the sphere "
-            "catalog entry supplies the current 3-D conversion and consumer profile. "
-            "The run checks the runtime pipeline, not geometry-specific physics or CFD accuracy."
-            if source_mesh is not None
-            else (
-            "The unit-sphere Case ends after OneFLOW grid and boundary-map handoff. "
-            "Its closed fluid volume has only a wall Physical Group, so this validates "
-            "mesh conversion and OneFLOW ingestion, not an external-flow CFD solve."
-            if mesh_entry.get("mesh_validation") == "mesh_handoff"
-            else (
-                "The closed unit-sphere volume runs the 3-D CFD smoke stage with its entire exterior assigned as wall. The flat-plate template supplies common solver parameters only; this checks the runtime pipeline, not external-flow physics or CFD accuracy."
-                if mesh_entry.get("mesh_validation") == "cfd_smoke"
-                else (
-                    "3D single-cell cube validation ends after OneFLOW grid and boundary-map handoff; it is not a CFD accuracy test."
-                    if len(cases) == 3
-                    else "The selected CFD consumer is a runtime smoke test. For a 3-D mesh, the staged CFD template dimension is overridden to 3; the flat-plate template supplies common solver parameters only and does not establish flat-plate physics or numerical accuracy."
-                )
-            )
-            )
-        ),
-        "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-    }
-    report_path = run_root / "mesh-validation-report.json"
-    report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n",
-                           encoding="utf-8", newline="\n")
-    print(f"Mesh-to-CFD report: {report_path}", flush=True)
-    print(f"Mesh-to-CFD status: {result.status}", flush=True)
-    return 0 if result.status == "succeeded" else 1
+        "mesh_summary": mesh_evidence or None,
+    })
+    write_run_report(report_path, report)
+    print(format_run_summary(report), flush=True)
+    return exit_code
 
 
 def main() -> int:

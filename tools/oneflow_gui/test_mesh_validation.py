@@ -14,7 +14,7 @@ from tools.oneflow_gui.mesh_validation import (
     mesh_validation_workspace, project_mesh_validation_workspace,
     reset_mesh_validation_workspace, create_mesh_validation_run_workspace,
     _copy_existing_mesh, _graph_step_records,
-    _mesh_case_command,
+    _mesh_case_command, _mesh_validation_stage_results,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
@@ -468,6 +468,31 @@ class MeshValidationCatalogTest(unittest.TestCase):
             {"artifact": "bc_region_map", "setting": "bcRegionMapFile",
              "parameter_file": "script/cfd.txt"},
         ])
+
+    def test_workflow_graph_maps_to_common_report_states(self):
+        result = WorkflowGraphRunResult("failed", (
+            CaseExecutionResult("stl_to_gmsh", "succeeded", "MSH generated."),
+            CaseExecutionResult("gmsh_to_cgns", "failed", "CGNS writer failed."),
+            CaseExecutionResult("cgns_to_oneflow", "skipped", "Blocked."),
+        ))
+        stages = _mesh_validation_stage_results(result)
+        self.assertEqual(stages["mesh_generation"]["status"], "PASS")
+        self.assertEqual(stages["gmsh_to_cgns"]["status"], "FAIL")
+        self.assertEqual(stages["cgns_to_oneflow"]["status"], "NOT_RUN")
+        self.assertEqual(stages["cfd_smoke"]["status"], "NOT_RUN")
+        self.assertEqual(stages["mesh_quality"]["status"], "NOT_CHECKED")
+        self.assertEqual(stages["cfd_accuracy"]["status"], "NOT_CHECKED")
+
+    def test_successful_handoff_does_not_claim_cfd_or_quality_validation(self):
+        result = WorkflowGraphRunResult("succeeded", (
+            CaseExecutionResult("stl_to_gmsh", "succeeded", "MSH inspected."),
+            CaseExecutionResult("gmsh_to_cgns", "succeeded", "CGNS written."),
+            CaseExecutionResult("cgns_to_oneflow", "succeeded", "Grid loaded."),
+        ))
+        stages = _mesh_validation_stage_results(result)
+        self.assertEqual(stages["cfd_smoke"]["status"], "NOT_RUN")
+        self.assertEqual(stages["mesh_quality"]["status"], "NOT_CHECKED")
+        self.assertEqual(stages["cfd_accuracy"]["status"], "NOT_CHECKED")
 
     def test_report_records_final_graph_status_and_blocked_steps(self):
         result = WorkflowGraphRunResult("failed", (

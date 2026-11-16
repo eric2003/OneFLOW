@@ -94,3 +94,20 @@ numerical treatment are explicitly defined.
 The Mesh-to-CFD dialog displays this common mapping as a quick reference.
 It is not a compatibility approval: physical problem type, required boundary
 state data and solver support must still be checked before a CFD template runs.
+
+
+Run-result reporting
+--------------------
+
+Every Mesh-to-CFD run writes mesh-validation-report.json using the shared
+oneflow.run-report version 1 envelope. The top-level status and exit_code
+give the overall verdict; stages separates mesh generation, Gmsh-to-CGNS
+conversion, CGNS-to-OneFLOW ingestion and the CFD smoke run. Blocked stages
+are NOT_RUN, while mesh quality and physical CFD accuracy are NOT_CHECKED
+until explicit acceptance criteria exist. The report also retains the
+workflow's selected Case, input mode, run directory, per-stage messages
+and compatibility metadata.
+
+The command prints a short SUCCESS/FAILED summary with stage states, mesh
+counts, output locations and the report path. A successful short solver
+smoke run is not a physical-accuracy validation.
