@@ -199,14 +199,14 @@ documentation, and command-line summaries.
 - [ ] Identify the output contract first: plain text, rich text/Markdown, HTML, or
   serialized data. Do not mix the escaping rules of one format with another.
 - [ ] Inspect the final value at the consumer boundary (for example,
-  \`QPlainTextEdit.toPlainText()\`, the exported file contents, or captured terminal
+  `QPlainTextEdit.toPlainText()`, the exported file contents, or captured terminal
   output), not only the source literal or intermediate data structure.
-- [ ] Verify actual line breaks and section boundaries. For Python, \`"\\n"\` is a
-  line-feed delimiter; \`"\\\\n"\` is the visible two-character escape spelling.
+- [ ] Verify actual line breaks and section boundaries. For Python, `"\\n"` is a
+  line-feed delimiter; `"\\\\n"` is the visible two-character escape spelling.
 - [ ] Check blank lines between sections, indentation, heading underlines, list
   markers, and whether long lines remain readable.
 - [ ] Check that no unintended escaped control sequences (such as visible
-  \`\\n\`, \`\\t\`, or \`\\r\`) leak into human-readable output. Escaped spellings
+  `\\n`, `\\t`, or `\\r`) leak into human-readable output. Escaped spellings
   are valid only when the output format explicitly requires them.
 - [ ] For JSON/YAML or other machine-readable output, parse the serialized result
   back and assert the semantic value; do not judge correctness from visual appearance

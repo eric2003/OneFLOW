@@ -1,19 +1,19 @@
 ## 2026-11-16 continuation: enforce consumer-visible text formatting checks
 
-Starting \`hexin\` HEAD: \`386c2adbde0ef883415ff42d65de8a570814d688\`.
+Starting `hexin` HEAD: `386c2adbde0ef883415ff42d65de8a570814d688`.
 
 The Geometry Library newline defect is now treated as a repeatable review gate,
 not just a one-off regression. The durable rules are in
-\`doc/DEVELOPMENT_PRINCIPLES.md\` section 10, with explicit checks for output
+`doc/DEVELOPMENT_PRINCIPLES.md` section 10, with explicit checks for output
 format, consumer-boundary inspection, real versus escaped control characters,
 section spacing, indentation, and serialization round-trips.
 
-Expanded \`tools/oneflow_gui/test_mesh_generation_dialog.py\` to assert the
-actual \`QPlainTextEdit.toPlainText()\` output has real line boundaries for
+Expanded `tools/oneflow_gui/test_mesh_generation_dialog.py` to assert the
+actual `QPlainTextEdit.toPlainText()` output has real line boundaries for
 Definition, Provenance, and Representations, preserves section spacing and
 indentation, and contains no unintended literal backslash escape sequences.
 
-The test remains in the existing Python GUI test area; the C++ \`tests/\`
+The test remains in the existing Python GUI test area; the C++ `tests/`
 tree is unchanged. No local test or CI result is claimed for this new commit
 until the focused test and the exact commit's CI are checked.
 
