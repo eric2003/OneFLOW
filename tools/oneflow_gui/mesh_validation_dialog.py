@@ -138,8 +138,8 @@ class MeshValidationDialog(QDialog):
         )
         self._mesh_case_id = mesh_case_id
         self.setWindowTitle("Mesh-to-CFD Validation")
-        self.resize(860, 680)
-        self.setMinimumSize(720, 560)
+        self.resize(980, 700)
+        self.setMinimumSize(800, 560)
 
         layout = QVBoxLayout(self)
         introduction = QLabel(
@@ -272,9 +272,13 @@ class MeshValidationDialog(QDialog):
         self.result_tree.setHeaderLabels(["Case / stage", "Status", "Details"])
         self.result_tree.setRootIsDecorated(True)
         self.result_tree.setAlternatingRowColors(True)
-        self.result_tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-        self.result_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-        self.result_tree.header().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        result_header = self.result_tree.header()
+        result_header.setSectionResizeMode(0, QHeaderView.ResizeMode.Interactive)
+        result_header.setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
+        result_header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        result_header.setStretchLastSection(False)
+        result_header.resizeSection(0, 190)
+        result_header.resizeSection(1, 100)
         self.result_tree.setMaximumHeight(190)
         layout.addWidget(self.result_tree)
         self._reported_outcomes: list[str] = []
