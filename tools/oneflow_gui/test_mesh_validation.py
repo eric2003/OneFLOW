@@ -15,7 +15,7 @@ from tools.oneflow_gui.mesh_validation import (
     reset_mesh_validation_workspace, create_mesh_validation_run_workspace,
     _copy_existing_mesh, _graph_step_records,
     _mesh_case_command, _mesh_validation_stage_results, run_report_stage_rows,
-    existing_mesh_case_paths,
+    existing_mesh_case_paths, _validate_required_physical_groups,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
@@ -610,6 +610,33 @@ class MeshValidationCatalogTest(unittest.TestCase):
             "results/cylinder_internal_flow.msh",
         )
         self.assertEqual(steps[0]["validation"]["kind"], "gmsh_msh4")
+
+    def test_cylinder_msh_requires_all_three_surface_patches_and_volume(self):
+        entry = {
+            "required_physical_groups": [
+                {"name": "wall", "dimension": 2},
+                {"name": "inflow", "dimension": 2},
+                {"name": "outflow", "dimension": 2},
+                {"name": "fluid_domain", "dimension": 3},
+            ]
+        }
+        mesh_info = {
+            "physical_groups": [
+                {"name": "wall", "dimension": 2},
+                {"name": "inflow", "dimension": 2},
+                {"name": "outflow", "dimension": 2},
+                {"name": "fluid_domain", "dimension": 3},
+            ]
+        }
+        _validate_required_physical_groups(mesh_info, entry)
+
+        mesh_info["physical_groups"].pop(1)
+        with self.assertRaisesRegex(ValueError, "inflow"):
+            _validate_required_physical_groups(mesh_info, entry)
+
+        mesh_info["physical_groups"].append({"name": "inflow", "dimension": 3})
+        with self.assertRaisesRegex(ValueError, "inflow"):
+            _validate_required_physical_groups(mesh_info, entry)
 
     def test_existing_mesh_case_resolves_only_inside_user_mesh_workspace(self):
         with tempfile.TemporaryDirectory() as temporary:
