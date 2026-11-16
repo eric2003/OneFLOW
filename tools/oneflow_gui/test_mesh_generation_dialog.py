@@ -367,29 +367,49 @@ class MeshGenerationDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
-    def test_cylinder_geometry_preset_never_keeps_the_sphere_stl(self) -> None:
-        dialog = StlToGmshDialog(self.repository_root)
-        try:
-            expected_stl = (
-                self.repository_root / "grid" / "stl_to_gmsh" / "3d"
-                / "cylinder_internal_flow" / "python" / "input" / "model.stl"
-            )
-            dialog.geometry_preset.setCurrentIndex(
-                dialog.geometry_preset.findData("cylinder_internal_flow")
-            )
-            self.assertEqual(Path(dialog.stl_path.text()), expected_stl)
-            self.assertNotEqual(Path(dialog.stl_path.text()), DEFAULT_SPHERE_STL)
-            self.assertEqual(
-                dialog._mesh_case_id,
-                "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow",
-            )
-            self.assertEqual(
-                Path(dialog.output_path.text()),
-                UserDataPaths.discover().mesh_generation
-                / "cylinder_internal_flow" / "cylinder_internal_flow.msh",
-            )
-        finally:
-            dialog.close()
+    def test_cylinder_geometry_preset_generates_a_real_stl_in_user_workspace(self) -> None:
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory) / "mesh-generation"
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                dialog = StlToGmshDialog(self.repository_root)
+                try:
+                    expected_stl = (
+                        workspace / "generated_stl" / "cylinder_internal_flow"
+                        / "cylinder_internal_flow.stl"
+                    )
+                    dialog.geometry_preset.setCurrentIndex(
+                        dialog.geometry_preset.findData("cylinder_internal_flow")
+                    )
+                    self.assertEqual(Path(dialog.stl_path.text()), expected_stl)
+                    self.assertNotEqual(Path(dialog.stl_path.text()), DEFAULT_SPHERE_STL)
+                    self.assertTrue(expected_stl.is_file())
+                    manifest_path = expected_stl.with_suffix(".geometry.json")
+                    self.assertTrue(manifest_path.is_file())
+                    import json
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    self.assertEqual(manifest["asset_id"], "geometry.cylinder.internal_flow")
+                    self.assertEqual(manifest["geometry"], "cylinder_internal_flow")
+                    self.assertTrue(manifest["surface"]["watertight"])
+                    self.assertEqual(
+                        set(manifest["patch_triangle_indices"]),
+                        {"wall", "inflow", "outflow"},
+                    )
+                    self.assertEqual(
+                        dialog._mesh_case_id,
+                        "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow",
+                    )
+                    self.assertEqual(
+                        Path(dialog.output_path.text()),
+                        workspace / "cylinder_internal_flow" / "cylinder_internal_flow.msh",
+                    )
+                    self.assertIn(str(expected_stl), dialog._command_text())
+                finally:
+                    dialog.close()
 
     def test_validate_current_mesh_opens_single_mesh_validation_mode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
