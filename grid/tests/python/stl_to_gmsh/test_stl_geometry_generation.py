@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -105,7 +106,7 @@ class StlGeometryGenerationTest(unittest.TestCase):
                 {"wall": 512, "inflow": 32, "outflow": 32},
             )
             self.assertEqual(report["geometry"], "cylinder_internal_flow")
-            self.assertEqual(generated["stl"].resolve(), stl.resolve())
+            self.assertTrue(os.path.samefile(generated["stl"], stl))
 
     def test_cylinder_manifest_checksum_mismatch_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
