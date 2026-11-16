@@ -389,6 +389,33 @@ def _mesh_case_command(
     ]
 
 
+def _validate_required_physical_groups(mesh_info: dict, mesh_entry: dict) -> None:
+    """Reject an MSH that omits declared boundary or volume Physical Groups."""
+    required = mesh_entry.get("required_physical_groups", [])
+    if not required:
+        return
+    available = {
+        (int(group.get("dimension", -1)), str(group.get("name", "")))
+        for group in mesh_info.get("physical_groups", [])
+        if isinstance(group, dict)
+    }
+    missing = []
+    for group in required:
+        if (
+            not isinstance(group, dict)
+            or not isinstance(group.get("name"), str)
+            or group.get("dimension") not in (1, 2, 3)
+        ):
+            raise ValueError("Case required_physical_groups contains an invalid declaration.")
+        key = (int(group["dimension"]), group["name"])
+        if key not in available:
+            missing.append(f"{group['name']} (dimension {group['dimension']})")
+    if missing:
+        raise ValueError(
+            "MSH is missing required Physical Groups: " + ", ".join(missing)
+        )
+
+
 def _copy_existing_mesh(source: Path, destination: Path) -> None:
     """Copy a user-selected MSH file into an isolated workflow stage."""
     source = source.expanduser().resolve()
@@ -510,6 +537,7 @@ def run_mesh_validation(
             try:
                 rel = step.outputs[0].relative_path.as_posix()
                 mesh_info = inspect_msh4(step.directory / rel)
+                _validate_required_physical_groups(mesh_info, mesh_entry)
                 validation = {
                     "kind": "gmsh_msh4", "path": rel,
                     "implementation": mesh_implementation,
