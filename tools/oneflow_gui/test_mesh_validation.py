@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 import tempfile
@@ -17,11 +18,74 @@ from tools.oneflow_gui.mesh_validation import (
     _copy_existing_mesh, _graph_step_records,
     _mesh_case_command, _mesh_validation_stage_results, run_report_stage_rows,
     existing_mesh_case_paths, _validate_required_physical_groups,
+    _geometry_lineage, geometry_lineage_rows,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
     CaseExecutionResult, WorkflowGraphRunResult,
 )
+
+
+class GeometryLineageTest(unittest.TestCase):
+    def test_unknown_historical_source_is_preserved_and_mesh_hash_is_recorded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stl = root / "model.stl"
+            msh = root / "model.msh"
+            stl.write_bytes(b"historical-stl")
+            msh.write_bytes(b"derived-mesh")
+            entry = {
+                "geometry_provenance": {
+                    "kind": "unknown",
+                    "notes": "Original STL source and generator are not documented.",
+                }
+            }
+            lineage = _geometry_lineage(entry, stl, msh, root)
+            self.assertEqual(lineage["provenance"]["kind"], "unknown")
+            self.assertNotIn("asset_id", lineage)
+            self.assertEqual(lineage["source_representation"]["sha256"],
+                             hashlib.sha256(b"historical-stl").hexdigest())
+            self.assertEqual(lineage["derived_mesh"]["sha256"],
+                             hashlib.sha256(b"derived-mesh").hexdigest())
+            rows = geometry_lineage_rows({"geometry_lineage": lineage})
+            self.assertEqual(rows[0][1], "UNKNOWN")
+            self.assertEqual(rows[-1][0], "Derived volume mesh")
+
+    def test_matching_manifest_provides_asset_and_generator_lineage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stl = root / "generated.stl"
+            stl.write_bytes(b"generated-stl")
+            digest = hashlib.sha256(stl.read_bytes()).hexdigest()
+            manifest = {
+                "schema": "oneflow.stl-geometry-manifest",
+                "asset_id": "geometry.sphere.unit",
+                "stl_sha256": digest,
+                "definition_sha256": "a" * 64,
+                "generator": {"name": "oneflow_stl_geometry", "version": "1.0",
+                              "source_sha256": "b" * 64},
+            }
+            stl.with_suffix(".geometry.json").write_text(
+                json.dumps(manifest), encoding="utf-8"
+            )
+            lineage = _geometry_lineage({}, stl, None, root)
+            self.assertEqual(lineage["asset_id"], "geometry.sphere.unit")
+            self.assertEqual(lineage["provenance"]["kind"], "generated")
+            self.assertEqual(lineage["generator"]["source_sha256"], "b" * 64)
+
+    def test_manifest_with_mismatched_stl_checksum_is_not_trusted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stl = root / "tampered.stl"
+            stl.write_bytes(b"changed")
+            stl.with_suffix(".geometry.json").write_text(json.dumps({
+                "schema": "oneflow.stl-geometry-manifest",
+                "asset_id": "geometry.sphere.unit",
+                "stl_sha256": "0" * 64,
+            }), encoding="utf-8")
+            lineage = _geometry_lineage({}, stl, None, root)
+            self.assertNotIn("asset_id", lineage)
+            self.assertEqual(lineage["manifest_status"], "invalid_or_checksum_mismatch")
 
 
 class MeshValidationCatalogTest(unittest.TestCase):

@@ -19,6 +19,7 @@ from .executable_discovery import executable_candidates
 from .mesh_validation import (
     cfd_template_choices, existing_mesh_case_paths, mesh_case_group_categories,
     run_report_stage_rows,
+    geometry_lineage_rows,
 )
 from .process_control import process_group_options, terminate_process_tree
 from .user_data_paths import UserDataPaths
@@ -444,6 +445,10 @@ class MeshValidationDialog(QDialog):
         root = QTreeWidgetItem(self.result_tree, [label, status, f"Exit code: {exit_code}"])
         for stage_name, stage_status, stage_message in run_report_stage_rows(report):
             QTreeWidgetItem(root, [stage_name, stage_status, stage_message])
+        lineage_item = QTreeWidgetItem(root, ["Geometry lineage", "", "Source and derived artifact trace"])
+        for name, lineage_status, details in geometry_lineage_rows(report):
+            QTreeWidgetItem(lineage_item, [name, lineage_status, details])
+        lineage_item.setExpanded(True)
         root.setExpanded(True)
         failed = sum(item == "FAILED" for item in self._reported_outcomes)
         passed = sum(item == "SUCCESS" for item in self._reported_outcomes)

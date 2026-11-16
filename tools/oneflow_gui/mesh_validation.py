@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 from datetime import datetime, timezone
 import json
 import os
@@ -367,6 +368,86 @@ def run_report_stage_rows(report: dict) -> tuple[tuple[str, str, str], ...]:
     )
 
 
+def geometry_lineage_rows(report: dict) -> tuple[tuple[str, str, str], ...]:
+    """Return readable geometry-source and mesh-derivation rows from a run report."""
+    lineage = report.get("geometry_lineage") or {}
+    if not isinstance(lineage, dict):
+        return ()
+    provenance = lineage.get("provenance") or {}
+    kind = str(provenance.get("kind", "unknown")).upper()
+    notes = str(provenance.get("notes", ""))
+    rows = [("Geometry provenance", kind, notes or "No verified source record is available.")]
+    asset_id = lineage.get("asset_id")
+    if asset_id:
+        rows.append(("Geometry asset", "IDENTIFIED", str(asset_id)))
+    source = lineage.get("source_representation") or {}
+    if source:
+        rows.append(("Source surface", "RECORDED",
+                     f"{source.get('format', 'unknown')} | {source.get('path', 'unknown')} | SHA-256: {source.get('sha256', 'unknown')}"))
+    generator = lineage.get("generator") or {}
+    if generator:
+        rows.append(("Geometry generator", "RECORDED",
+                     f"{generator.get('name', 'unknown')} {generator.get('version', '')} | source SHA-256: {generator.get('source_sha256', 'unknown')}"))
+    mesh = lineage.get("derived_mesh") or {}
+    if mesh:
+        rows.append(("Derived volume mesh", "RECORDED",
+                     f"{mesh.get('format', 'unknown')} | {mesh.get('path', 'unknown')} | SHA-256: {mesh.get('sha256', 'unknown')}"))
+    return tuple(rows)
+
+
+def _geometry_lineage(
+    mesh_entry: dict, source_stl: Path | None, mesh_file: Path | None,
+    repository_root: Path,
+) -> dict:
+    """Capture only verifiable source metadata and hashes for this validation run."""
+    provenance = mesh_entry.get("geometry_provenance") or {
+        "kind": "unknown",
+        "notes": "No verified geometry provenance is registered for this source Case.",
+    }
+    lineage = {"provenance": provenance}
+    manifest = None
+    if source_stl is not None and source_stl.is_file():
+        source_stl = source_stl.resolve()
+        digest = hashlib.sha256(source_stl.read_bytes()).hexdigest()
+        try:
+            source_label = source_stl.relative_to(repository_root.resolve()).as_posix()
+        except ValueError:
+            source_label = str(source_stl)
+        lineage["source_representation"] = {
+            "format": "STL", "path": source_label, "sha256": digest,
+        }
+        manifest_path = source_stl.with_suffix(".geometry.json")
+        if manifest_path.is_file():
+            try:
+                candidate = json.loads(manifest_path.read_text(encoding="utf-8"))
+                if (candidate.get("schema") == "oneflow.stl-geometry-manifest"
+                        and candidate.get("stl_sha256") == digest):
+                    manifest = candidate
+                else:
+                    lineage["manifest_status"] = "invalid_or_checksum_mismatch"
+            except (OSError, json.JSONDecodeError):
+                lineage["manifest_status"] = "unreadable"
+    if manifest is not None:
+        lineage["asset_id"] = manifest.get("asset_id")
+        lineage["definition_sha256"] = manifest.get("definition_sha256")
+        lineage["generator"] = manifest.get("generator", {})
+        lineage["provenance"] = {
+            "kind": "generated",
+            "notes": "Verified companion geometry manifest matches the source STL checksum.",
+        }
+    if mesh_file is not None and mesh_file.is_file():
+        mesh_file = mesh_file.resolve()
+        try:
+            mesh_label = mesh_file.relative_to(repository_root.resolve()).as_posix()
+        except ValueError:
+            mesh_label = str(mesh_file)
+        lineage["derived_mesh"] = {
+            "format": "Gmsh MSH", "path": mesh_label,
+            "sha256": hashlib.sha256(mesh_file.read_bytes()).hexdigest(),
+            "parent": "source_representation",
+        }
+    return lineage
+
 def _mesh_validation_stage_results(result, *, existing_mesh: bool = False) -> dict[str, dict]:
     """Map workflow graph outcomes onto shared run-report states."""
     stage_names = {
@@ -495,6 +576,26 @@ def run_mesh_validation(
         if project_directory is None:
             project_directory = default_project_directory
 
+    source_stl = None
+    if project_directory is not None:
+        project_root = Path(project_directory).expanduser().resolve()
+        project_manifest = project_root / "project.json"
+        if project_manifest.is_file():
+            project_data = json.loads(project_manifest.read_text(encoding="utf-8"))
+            relative_stl = Path(str(project_data.get("input_stl", "")))
+            if not relative_stl.is_absolute() and ".." not in relative_stl.parts:
+                candidate = (project_root / relative_stl).resolve()
+                try:
+                    candidate.relative_to(project_root)
+                except ValueError:
+                    candidate = None
+                if candidate is not None and candidate.is_file():
+                    source_stl = candidate
+    if source_stl is None:
+        candidate = REPOSITORY_ROOT / mesh_entry["directory"] / "input" / "model.stl"
+        if candidate.is_file():
+            source_stl = candidate
+
     gmsh_path = Path(gmsh).expanduser()
     if source_mesh is None and not gmsh_path.is_file():
         found = shutil.which(gmsh)
@@ -621,7 +722,14 @@ def run_mesh_validation(
                    **({"source_mesh": str(source_mesh)} if source_mesh is not None else {})},
         error=error,
     )
+    staged_mesh = None
+    if mesh_evidence.get("path"):
+        candidate = run_root / "stl_to_gmsh" / str(mesh_evidence["path"])
+        if candidate.is_file():
+            staged_mesh = candidate
+    lineage = _geometry_lineage(mesh_entry, source_stl, staged_mesh, REPOSITORY_ROOT)
     report.update({
+        "geometry_lineage": lineage,
         "legacy_schema": "oneflow.mesh-to-cfd-validation",
         "schema_version": 1, "run_id": run_id, "mesh_case_id": mesh_case_id,
         "mesh_implementation": mesh_implementation,

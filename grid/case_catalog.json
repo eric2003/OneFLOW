@@ -390,7 +390,11 @@
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh",
-      "dimension": 3
+      "dimension": 3,
+      "geometry_provenance": {
+        "kind": "unknown",
+        "notes": "The checked-in historical cube STL has no companion geometry manifest or independently verified source/generator record. Its original source and generator are unknown."
+      }
     },
     {
       "id": "stl_to_gmsh_python_cube_single_hex",
@@ -401,7 +405,11 @@
         "kind": "python",
         "script": "grid/stl_to_gmsh/run_python_case.py"
       },
-      "dimension": 3
+      "dimension": 3,
+      "geometry_provenance": {
+        "kind": "unknown",
+        "notes": "The checked-in historical cube STL has no companion geometry manifest or independently verified source/generator record. Its original source and generator are unknown."
+      }
     },
     {
       "id": "stl_to_gmsh_cube_six_tetrahedra",
@@ -410,7 +418,11 @@
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh",
-      "dimension": 3
+      "dimension": 3,
+      "geometry_provenance": {
+        "kind": "unknown",
+        "notes": "The checked-in historical cube STL has no companion geometry manifest or independently verified source/generator record. Its original source and generator are unknown."
+      }
     },
     {
       "id": "stl_to_gmsh_python_cube_six_tetrahedra",
@@ -421,7 +433,11 @@
         "kind": "python",
         "script": "grid/stl_to_gmsh/run_python_case.py"
       },
-      "dimension": 3
+      "dimension": 3,
+      "geometry_provenance": {
+        "kind": "unknown",
+        "notes": "The checked-in historical cube STL has no companion geometry manifest or independently verified source/generator record. Its original source and generator are unknown."
+      }
     },
     {
       "id": "stl_to_gmsh_cube_automatic_tetrahedra",
@@ -430,7 +446,11 @@
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh",
-      "dimension": 3
+      "dimension": 3,
+      "geometry_provenance": {
+        "kind": "unknown",
+        "notes": "The checked-in historical cube STL has no companion geometry manifest or independently verified source/generator record. Its original source and generator are unknown."
+      }
     },
     {
       "id": "stl_to_gmsh_python_cube_automatic_tetrahedra",
@@ -441,7 +461,11 @@
         "kind": "python",
         "script": "grid/stl_to_gmsh/run_python_case.py"
       },
-      "dimension": 3
+      "dimension": 3,
+      "geometry_provenance": {
+        "kind": "unknown",
+        "notes": "The checked-in historical cube STL has no companion geometry manifest or independently verified source/generator record. Its original source and generator are unknown."
+      }
     },
     {
       "id": "stl_to_gmsh_sphere_automatic_tetrahedra",
