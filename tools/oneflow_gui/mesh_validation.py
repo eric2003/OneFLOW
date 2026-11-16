@@ -82,7 +82,7 @@ def mesh_case_choices(repository_root: Path) -> tuple[tuple[str, str], ...]:
     return choices
 
 
-def existing_mesh_case_path(repository_root: Path, mesh_case_id: str) -> Path:
+def existing_mesh_case_paths(repository_root: Path, mesh_case_id: str) -> tuple[Path, Path] | None:
     """Resolve a catalog-declared generated mesh below the user's mesh workspace."""
     catalog = _catalog(Path(repository_root).resolve())
     mesh = next((item for item in catalog["cases"] if item.get("id") == mesh_case_id), None)
@@ -90,7 +90,7 @@ def existing_mesh_case_path(repository_root: Path, mesh_case_id: str) -> Path:
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
     execution = mesh.get("execution") or {}
     if execution.get("kind") != "existing_mesh":
-        raise ValueError(f"Case {mesh_case_id!r} does not reference an existing mesh.")
+        return None
 
     project_name = execution.get("project_directory")
     mesh_value = execution.get("mesh_file")
@@ -115,7 +115,7 @@ def existing_mesh_case_path(repository_root: Path, mesh_case_id: str) -> Path:
         mesh_path.relative_to(project_directory)
     except ValueError as error:
         raise ValueError(f"Existing-mesh paths for {mesh_case_id!r} escape the mesh workspace.") from error
-    return mesh_path
+    return mesh_path, project_directory
 
 
 def cfd_template_choices() -> tuple[tuple[str, str], ...]:
@@ -418,9 +418,12 @@ def run_mesh_validation(
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
     mesh_execution = mesh_entry.get("execution") or {}
     if source_mesh is None and mesh_execution.get("kind") == "existing_mesh":
-        source_mesh = existing_mesh_case_path(REPOSITORY_ROOT, mesh_case_id)
+        existing_mesh_paths = existing_mesh_case_paths(REPOSITORY_ROOT, mesh_case_id)
+        if existing_mesh_paths is None:
+            raise ValueError(f"Existing-mesh Case {mesh_case_id!r} has no mesh path.")
+        source_mesh, default_project_directory = existing_mesh_paths
         if project_directory is None:
-            project_directory = source_mesh.parent.parent
+            project_directory = default_project_directory
 
     gmsh_path = Path(gmsh).expanduser()
     if source_mesh is None and not gmsh_path.is_file():
