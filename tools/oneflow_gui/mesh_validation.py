@@ -82,7 +82,9 @@ def mesh_case_choices(repository_root: Path) -> tuple[tuple[str, str], ...]:
     return choices
 
 
-def existing_mesh_case_paths(repository_root: Path, mesh_case_id: str) -> tuple[Path, Path] | None:
+def existing_mesh_case_paths(
+    repository_root: Path, mesh_case_id: str,
+) -> tuple[Path, Path] | None:
     """Resolve a catalog-declared generated mesh below the user's mesh workspace."""
     catalog = _catalog(Path(repository_root).resolve())
     mesh = next((item for item in catalog["cases"] if item.get("id") == mesh_case_id), None)
@@ -148,8 +150,13 @@ def build_mesh_validation_cases(
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
     execution = mesh.get("execution") or {}
     implementation = execution.get("kind", "oneflow")
-    if mesh.get("group") != "STL to Gmsh" or implementation not in {"oneflow", "python", "existing_mesh"}:
-        raise ValueError(f"Case {mesh_case_id!r} is not a supported Mesh-to-CFD validation entry.")
+    if (
+        mesh.get("group") != "STL to Gmsh"
+        or implementation not in {"oneflow", "python", "existing_mesh"}
+    ):
+        raise ValueError(
+            f"Case {mesh_case_id!r} is not a supported Mesh-to-CFD validation entry."
+        )
     validation_scope = mesh.get("mesh_validation", True)
     if validation_scope is False:
         raise ValueError(
