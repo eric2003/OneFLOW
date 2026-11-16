@@ -381,6 +381,30 @@ class TestRunnerCommandTest(unittest.TestCase):
             self.assertEqual(deferred.arguments[1], "test.py")
 
 
+    def test_python_unittest_commands_enable_verbose_skip_reporting(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            commands = build_python_test_commands(Path(directory), python="python-test")
+
+        unittest_commands = [
+            command for command in commands
+            if command.arguments[1:3] == ("-m", "unittest")
+        ]
+        self.assertTrue(unittest_commands)
+        self.assertTrue(all(command.arguments[3] == "-v" for command in unittest_commands))
+
+    def test_unittest_output_lists_skipped_case_names(self) -> None:
+        report = summarize_test_output([
+            "test_requires_gmsh (sample.MeshTests.test_requires_gmsh) ... skipped 'Gmsh is not installed'",
+            "Ran 1 test in 0.01s",
+            "OK (skipped=1)",
+        ])
+        self.assertIn("Python unittest cases: 1 run, 0 passed, 0 failed, 1 skipped.", report)
+        self.assertIn("Skipped unittest cases:", report)
+        self.assertIn(
+            "  - test_requires_gmsh (sample.MeshTests.test_requires_gmsh)",
+            report,
+        )
+
     def test_unittest_output_reports_case_counts_and_failure_traceback(self) -> None:
         report = summarize_test_output([
             "F..",
