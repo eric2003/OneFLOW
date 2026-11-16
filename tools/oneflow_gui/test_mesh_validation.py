@@ -11,6 +11,7 @@ from pathlib import Path
 
 from tools.oneflow_gui.mesh_validation import (
     build_mesh_validation_cases, cfd_template_choices, mesh_case_choices, mesh_case_groups,
+    mesh_case_group_categories,
     mesh_validation_workspace, project_mesh_validation_workspace,
     reset_mesh_validation_workspace, create_mesh_validation_run_workspace,
     _copy_existing_mesh, _graph_step_records,
@@ -187,6 +188,15 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ("stl_to_gmsh_python_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Python Reference)"),
             ("cylinder_existing_mesh", "3D Cylinder Internal Flow (Generated MSH)"),
         ))
+    def test_existing_cylinder_is_grouped_as_existing_gmsh_mesh_not_stl_producer(self):
+        groups = dict(mesh_case_group_categories(self.root))
+        self.assertEqual(
+            groups["3D"],
+            (("Existing Gmsh Mesh", ((
+                "cylinder_existing_mesh", "3D Cylinder Internal Flow (Generated MSH)"
+            ),)),),
+        )
+
     def test_repository_catalog_exposes_3d_cylinder_existing_mesh(self):
         repository_root = Path(__file__).resolve().parents[2]
         case_id = "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow"
