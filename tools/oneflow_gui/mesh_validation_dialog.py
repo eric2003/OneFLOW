@@ -215,7 +215,7 @@ class MeshValidationDialog(QDialog):
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 2)
         splitter.setSizes([330, 370])
-        content_layout.addWidget(splitter, 1)
+        layout.addWidget(splitter, 1)
         self.case_tree.setVisible(self._mesh_file is None)
 
         selection_actions = QHBoxLayout()
