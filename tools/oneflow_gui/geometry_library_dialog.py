@@ -5,6 +5,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from PySide6.QtWidgets import QFileDialog
+
+from .geometry_asset_store import import_geometry_asset, load_user_geometry_assets, supported_geometry_imports
+
 from PySide6.QtWidgets import (
     QDialog, QLabel, QListWidget, QPlainTextEdit,
     QPushButton, QSplitter, QVBoxLayout,
@@ -43,6 +47,9 @@ class GeometryLibraryDialog(QDialog):
         self.status = QLabel()
         root.addWidget(self.status)
         actions = QVBoxLayout()
+        self.import_button = QPushButton("Import CAD / Point Cloud / Implicit...")
+        self.import_button.clicked.connect(self._import_asset)
+        actions.addWidget(self.import_button)
         self.edit_button = QPushButton("Edit Parameters / Generate STL...")
         self.edit_button.setEnabled(False)
         self.edit_button.clicked.connect(self._edit_selected_asset)
@@ -69,7 +76,7 @@ class GeometryLibraryDialog(QDialog):
             assets = catalog.get("assets")
             if not isinstance(assets, list):
                 raise ValueError("Geometry catalog assets must be a list.")
-            return assets
+            return [*assets, *load_user_geometry_assets()]
         except (OSError, ValueError, TypeError) as error:
             self.status.setText(f"Geometry catalog unavailable: {error}")
             return []
@@ -138,6 +145,36 @@ class GeometryLibraryDialog(QDialog):
                 "geometry.spheroid.prolate_6_to_1",
                 "geometry.cylinder.internal_flow",
             }
+        )
+
+    def _import_asset(self) -> None:
+        filters = "Geometry files (" + " ".join(
+            "*" + suffix for suffix in supported_geometry_imports()
+        ) + ");;All files (*)"
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Import Geometry Asset", str(self._repository_root / "grid"), filters
+        )
+        if not path:
+            return
+        try:
+            asset = import_geometry_asset(Path(path))
+        except (OSError, ValueError) as error:
+            self.status.setText(f"Geometry import failed: {error}")
+            return
+        self._assets = self._load_assets()
+        self.asset_list.clear()
+        for item in self._assets:
+            self.asset_list.addItem(f"{item['name']}  [{item['id']}]")
+        row = next(
+            (index for index, item in enumerate(self._assets)
+             if item.get("id") == asset.get("id")),
+            -1,
+        )
+        if row >= 0:
+            self.asset_list.setCurrentRow(row)
+        self.status.setText(
+            f"Registered {asset['name']} by source checksum. This is metadata registration; "
+            "a format adapter is still required to inspect or mesh this representation."
         )
 
     def _edit_selected_asset(self) -> None:

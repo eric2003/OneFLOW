@@ -54,6 +54,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             )
             try:
                 self.assertEqual(library.asset_list.count(), 3)
+                self.assertTrue(library.import_button.isEnabled())
                 self.assertTrue(library.edit_button.isEnabled())
                 self.assertIn("geometry.sphere.unit", library.details.toPlainText())
                 library._edit_selected_asset()
