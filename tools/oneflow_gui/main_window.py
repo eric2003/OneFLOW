@@ -557,7 +557,7 @@ class MainWindow(QMainWindow):
         elif execution_mode == "default_workspace":
             workspace_root = UserDataPaths.discover().executions
         elif execution_mode == "case_database" and self._single_case_mode:
-            workspace_root = UserDataPaths.discover().grid_layout_test
+            workspace_root = UserDataPaths.discover().grid_development_cases
         else:
             QMessageBox.warning(
                 self,
@@ -568,7 +568,7 @@ class MainWindow(QMainWindow):
 
         if self._single_case_mode:
             execution_mode = "case_database"
-            workspace_root = UserDataPaths.discover().grid_layout_test
+            workspace_root = UserDataPaths.discover().grid_development_cases
 
         try:
             workspace_root.relative_to(self._repository_root)
