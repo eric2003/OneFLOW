@@ -105,7 +105,7 @@ class StlGeometryGenerationTest(unittest.TestCase):
                 {"wall": 512, "inflow": 32, "outflow": 32},
             )
             self.assertEqual(report["geometry"], "cylinder_internal_flow")
-            self.assertEqual(generated["stl"], stl)
+            self.assertEqual(generated["stl"].resolve(), stl.resolve())
 
     def test_cylinder_manifest_checksum_mismatch_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
