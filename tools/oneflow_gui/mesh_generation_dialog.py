@@ -73,10 +73,10 @@ class MeshGenerationDialog(QDialog):
         root.addWidget(intro)
 
         geometry_library_button = QPushButton("Geometry Library...")
-        geometry_library_button.setMinimumHeight(54)
+        geometry_library_button.setMinimumHeight(64)
         geometry_library_button.setToolTip(
-            "Browse format-independent geometry assets, mathematical definitions, "
-            "provenance and available representations."
+            "Select a registered geometry asset, inspect its provenance and open "
+            "the matching parameter editor or representation workflow."
         )
         geometry_library_button.clicked.connect(self._open_geometry_library)
         root.addWidget(geometry_library_button)
@@ -112,12 +112,6 @@ class MeshGenerationDialog(QDialog):
         layout_button.clicked.connect(self._open_mesh_layout)
         root.addWidget(layout_button)
 
-        generate_stl_button = QPushButton("Generate STL Geometry")
-        generate_stl_button.setMinimumHeight(64)
-        generate_stl_button.setToolTip("Create parameterized sphere, prolate spheroid or cylinder STL surfaces from the geometry library.")
-        generate_stl_button.clicked.connect(self._open_stl_geometry)
-        root.addWidget(generate_stl_button)
-
         stl_button = QPushButton("STL to Gmsh")
         stl_button.setMinimumHeight(64)
         stl_button.setToolTip("Generate a 3-D tetrahedral volume mesh from a closed STL shell.")
@@ -142,7 +136,14 @@ class MeshGenerationDialog(QDialog):
         root.addStretch(1)
 
     def _open_geometry_library(self) -> None:
-        GeometryLibraryDialog(self._repository_root, self).exec()
+        def edit_asset(asset: dict) -> None:
+            StlGeometryDialog(
+                self._repository_root, self, asset_id=str(asset["id"])
+            ).exec()
+
+        GeometryLibraryDialog(
+            self._repository_root, self, on_edit_asset=edit_asset
+        ).exec()
 
     def _create_mesh_project(self) -> None:
         case_id = self.project_template.currentData()
@@ -219,7 +220,7 @@ class MeshGenerationDialog(QDialog):
 class StlGeometryDialog(QDialog):
     """Generate deterministic STL assets from the built-in geometry library."""
 
-    def __init__(self, repository_root: Path, parent=None) -> None:
+    def __init__(self, repository_root: Path, parent=None, *, asset_id: str | None = None) -> None:
         super().__init__(parent)
         self._repository_root = repository_root.resolve()
         self.generated_stl: Path | None = None
@@ -258,8 +259,18 @@ class StlGeometryDialog(QDialog):
         self.geometry.addItem("Prolate Spheroid", "prolate_spheroid")
         self.geometry.addItem("Cylinder — Internal Flow", "cylinder_internal_flow")
         self.geometry.currentIndexChanged.connect(self._geometry_changed)
-        selector_form.addRow("Geometry library", self.geometry)
+        selector_form.addRow("Geometry asset", self.geometry)
         settings_layout.addLayout(selector_form)
+        asset_to_geometry = {
+            "geometry.sphere.unit": "sphere",
+            "geometry.spheroid.prolate_6_to_1": "prolate_spheroid",
+            "geometry.cylinder.internal_flow": "cylinder_internal_flow",
+        }
+        if asset_id is not None:
+            geometry_id = asset_to_geometry.get(asset_id)
+            if geometry_id is None:
+                raise ValueError(f"No parameter editor is registered for geometry asset {asset_id!r}.")
+            self.geometry.setCurrentIndex(self.geometry.findData(geometry_id))
 
         # Keep one widget set per geometry. Hiding inactive groups preserves
         # their independent values when the user switches between shapes.

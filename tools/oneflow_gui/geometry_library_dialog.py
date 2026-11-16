@@ -14,9 +14,10 @@ from PySide6.QtWidgets import (
 class GeometryLibraryDialog(QDialog):
     """Display registered geometry definitions and their representations."""
 
-    def __init__(self, repository_root: Path, parent=None) -> None:
+    def __init__(self, repository_root: Path, parent=None, *, on_edit_asset=None) -> None:
         super().__init__(parent)
         self._repository_root = Path(repository_root).resolve()
+        self._on_edit_asset = on_edit_asset
         self.setWindowTitle("Geometry Library")
         self.resize(900, 620)
         root = QVBoxLayout(self)
@@ -41,9 +42,15 @@ class GeometryLibraryDialog(QDialog):
         root.addWidget(splitter, 1)
         self.status = QLabel()
         root.addWidget(self.status)
+        actions = QVBoxLayout()
+        self.edit_button = QPushButton("Edit Parameters / Generate STL...")
+        self.edit_button.setEnabled(False)
+        self.edit_button.clicked.connect(self._edit_selected_asset)
+        actions.addWidget(self.edit_button)
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.accept)
-        root.addWidget(close_button)
+        actions.addWidget(close_button)
+        root.addLayout(actions)
         self.asset_list.currentRowChanged.connect(self._show_asset)
         self._assets = self._load_assets()
         for asset in self._assets:
@@ -70,6 +77,7 @@ class GeometryLibraryDialog(QDialog):
     def _show_asset(self, row: int) -> None:
         if row < 0 or row >= len(self._assets):
             self.details.clear()
+            self.edit_button.setEnabled(False)
             return
         asset = self._assets[row]
         definition = asset.get("definition", {})
@@ -122,3 +130,18 @@ class GeometryLibraryDialog(QDialog):
         self.status.setText(
             f"{len(self._assets)} registered assets · metadata only; format support depends on available adapters."
         )
+
+        self.edit_button.setEnabled(
+            callable(self._on_edit_asset)
+            and asset.get("id") in {
+                "geometry.sphere.unit",
+                "geometry.spheroid.prolate_6_to_1",
+                "geometry.cylinder.internal_flow",
+            }
+        )
+
+    def _edit_selected_asset(self) -> None:
+        row = self.asset_list.currentRow()
+        if row < 0 or row >= len(self._assets) or not callable(self._on_edit_asset):
+            return
+        self._on_edit_asset(self._assets[row])

@@ -48,10 +48,16 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 if item.text() == "Geometry Library..."
             )
             self.assertIsNotNone(button)
-            library = GeometryLibraryDialog(self.repository_root, dialog)
+            edited_assets = []
+            library = GeometryLibraryDialog(
+                self.repository_root, dialog, on_edit_asset=edited_assets.append
+            )
             try:
                 self.assertEqual(library.asset_list.count(), 3)
+                self.assertTrue(library.edit_button.isEnabled())
                 self.assertIn("geometry.sphere.unit", library.details.toPlainText())
+                library._edit_selected_asset()
+                self.assertEqual(edited_assets[0]["id"], "geometry.sphere.unit")
                 self.assertIn("\nDefinition\n", library.details.toPlainText())
                 self.assertNotIn("\\nDefinition", library.details.toPlainText())
                 displayed = library.details.toPlainText()
@@ -62,6 +68,9 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 self.assertNotIn("\\n", displayed)
                 self.assertIn("analytic-equation", library.details.toPlainText())
                 library.asset_list.setCurrentRow(1)
+                self.assertEqual(edited_assets[0]["id"], "geometry.sphere.unit")
+                library._edit_selected_asset()
+                self.assertEqual(edited_assets[1]["id"], "geometry.spheroid.prolate_6_to_1")
                 self.assertIn("geometry.spheroid.prolate_6_to_1", library.details.toPlainText())
                 self.assertIn("generate_stl_geometry.py", library.details.toPlainText())
             finally:
@@ -115,7 +124,8 @@ class MeshGenerationDialogTest(unittest.TestCase):
             labels = {button.text() for button in buttons}
             self.assertIn("Mesh Layout Editor", labels)
             self.assertIn("STL to Gmsh", labels)
-            self.assertIn("Generate STL Geometry", labels)
+            self.assertIn("Geometry Library...", labels)
+            self.assertNotIn("Generate STL Geometry", labels)
             self.assertIn("Mesh Knowledge", labels)
             self.assertIn("New from Template", labels)
             self.assertIn("Open Existing Project...", labels)
@@ -147,6 +157,17 @@ class MeshGenerationDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+
+    def test_geometry_library_asset_opens_matching_parameter_editor(self) -> None:
+        dialog = StlGeometryDialog(
+            self.repository_root, asset_id="geometry.cylinder.internal_flow"
+        )
+        try:
+            self.assertEqual(dialog.geometry.currentData(), "cylinder_internal_flow")
+            self.assertFalse(dialog.cylinder_group.isHidden())
+            self.assertTrue(dialog.sphere_group.isHidden())
+        finally:
+            dialog.close()
 
     def test_generate_stl_geometry_dialog_creates_cylinder_and_manifest(self) -> None:
         from types import SimpleNamespace
