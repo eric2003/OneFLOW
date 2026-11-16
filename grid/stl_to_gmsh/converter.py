@@ -536,6 +536,17 @@ def _cylinder_internal_flow_geo(
         assigned.extend(indices)
     if sorted(assigned) != list(range(len(triangles))):
         raise Stl2DError("cylinder patch indices must cover every STL triangle exactly once")
+    expected_patch_counts = {
+        "wall": 2 * circumferential * axial,
+        "inflow": circumferential,
+        "outflow": circumferential,
+    }
+    if {
+        name: len(patches[name]) for name in expected_patch_counts
+    } != expected_patch_counts:
+        raise Stl2DError(
+            "cylinder patch triangle counts do not match the declared divisions"
+        )
 
     # Confirm the labels really describe the two end planes and cylindrical
     # side, rather than blindly trusting a stale or hand-edited manifest.
@@ -549,12 +560,25 @@ def _cylinder_internal_flow_geo(
                     f"cylinder {name} patch contains a triangle outside its end plane"
                 )
     for index in patches["wall"]:
+        triangle = triangles[index]
         if all(
             abs(point[0] - x_min) <= plane_tol
             or abs(point[0] - x_max) <= plane_tol
-            for point in triangles[index]
+            for point in triangle
         ):
             raise Stl2DError("cylinder wall patch contains an end-cap triangle")
+        for point in triangle:
+            radial_distance = math.hypot(point[1], point[2])
+            if abs(radial_distance - radius) > plane_tol:
+                raise Stl2DError(
+                    "cylinder wall STL radius does not match its geometry manifest"
+                )
+    all_points = [point for triangle in triangles for point in triangle]
+    if any(
+        point[0] < x_min - plane_tol or point[0] > x_max + plane_tol
+        for point in all_points
+    ):
+        raise Stl2DError("cylinder STL axial bounds do not match its geometry manifest")
 
     mesh_size_min = float(config.get("mesh_size_min", config.get("mesh_size", 0.2)))
     mesh_size_max = float(config.get("mesh_size_max", config.get("mesh_size", 0.2)))
