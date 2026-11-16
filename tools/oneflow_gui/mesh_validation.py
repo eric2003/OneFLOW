@@ -505,8 +505,8 @@ def _write_geometry_artifact_lineage(
     }
     sidecar = _geometry_artifact_lineage_path(artifact)
     sidecar.write_text(
-        json.dumps(record, indent=2, ensure_ascii=False) + "\\n",
-        encoding="utf-8", newline="\\n",
+        json.dumps(record, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8", newline="\n",
     )
     return sidecar
 
@@ -522,6 +522,8 @@ def _read_geometry_artifact_lineage(artifact_path: Path) -> dict:
     if not isinstance(metadata, dict):
         raise ValueError(f"Geometry lineage sidecar has no artifact record: {sidecar}")
     actual = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    if metadata.get("file_name") != artifact.name:
+        raise ValueError(f"Geometry lineage filename mismatch for artifact: {artifact}")
     if metadata.get("sha256") != actual:
         raise ValueError(f"Geometry lineage checksum mismatch for artifact: {artifact}")
     lineage = record.get("geometry_lineage")
