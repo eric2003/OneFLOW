@@ -11,7 +11,7 @@
     ],
     "parameters": {
       "radius": 1.0,
-      "length": 4
+      "length": 4.0
     },
     "units": "m"
   },
