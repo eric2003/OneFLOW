@@ -357,7 +357,7 @@ class MeshValidationDialog(QDialog):
                 state = Qt.CheckState.Unchecked
             for index in range(item.childCount()):
                 self._set_subtree_state(item.child(index), state)
-            item.setCheckState(0, state)
+            item.setCheckState(1, state)
         self._refresh_ancestor_states(item.parent())
         self.case_tree.blockSignals(False)
 
@@ -369,7 +369,7 @@ class MeshValidationDialog(QDialog):
             if self._mesh_file is not None else [
                 (case_id, item.text(1))
                 for case_id, item in self._case_items.items()
-                if item.checkState(0) == Qt.CheckState.Checked
+                if item.checkState(1) == Qt.CheckState.Checked
             ]
         )
         if not selected:
