@@ -15,7 +15,7 @@
     },
     "units": "m"
   },
-  "definition_sha256": "7f54a23d4a35cd76d7d5dc646af9cd25b7bf81d61b9cf2ab767228a530e37b06",
+  "definition_sha256": "1606b5078cc2c6f520fedadc844d03458735244d506fd6149f281b7d8ec4e203",
   "generator": {
     "name": "oneflow_stl_geometry",
     "version": "1.0",
