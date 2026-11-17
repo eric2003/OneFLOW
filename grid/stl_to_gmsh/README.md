@@ -147,7 +147,7 @@ If the executable is not in the standard build/bin locations:
 
     python grid/stl_to_gmsh/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
 
-The standalone producer-check runner stages the 21 fixed Cases plus six sphere mesh-size variants under
+The standalone producer-check runner stages the 22 fixed Cases plus six sphere mesh-size variants under
 %USERPROFILE%/.oneflow/grid-development/stl-to-gmsh on Windows or
 $HOME/.oneflow/grid-development/stl-to-gmsh on Linux. Staging paths mirror
 the Case layout, for example 2d/square/single_quad/cpp and 2d/square/single_quad/python; each has its own
