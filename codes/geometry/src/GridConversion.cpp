@@ -1489,6 +1489,7 @@ void ConvertStlParametricCylinderToGmsh(
     const StlMesh mesh = StlMeshReader::Read(source.string());
     if (mesh.triangles.empty())
         throw std::invalid_argument("Cylinder STL contains no triangles");
+    ValidateClosedStlSphereSurface(mesh, tolerance);
     const Json& patches = manifest.at("patch_triangle_indices");
     if (!patches.is_object() ||
         patches.size() != 3 ||
@@ -1532,9 +1533,7 @@ void ConvertStlParametricCylinderToGmsh(
                 if (patch == 0)
                 {
                     const double radial = std::hypot(point[1], point[2]);
-                    if (std::abs(radial - radius) > planeTolerance ||
-                        (std::abs(point[0] - xmin) <= planeTolerance &&
-                         std::abs(point[0] - xmax) <= planeTolerance))
+                    if (std::abs(radial - radius) > planeTolerance)
                         throw std::invalid_argument("Cylinder wall patch does not match analytic cylinder radius");
                 }
                 if (point[0] < xmin - planeTolerance || point[0] > xmax + planeTolerance)
