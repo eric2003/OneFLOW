@@ -741,18 +741,6 @@ class StlToGmshDialog(QDialog):
                 )
                 return
 
-        if not stl.is_file():
-            QMessageBox.warning(
-                self, "Geometry preset unavailable",
-                f"The bundled STL for '{preset}' does not exist: {stl}",
-            )
-            self.geometry_preset.blockSignals(True)
-            self.geometry_preset.setCurrentIndex(
-                self.geometry_preset.findData(previous)
-            )
-            self.geometry_preset.blockSignals(False)
-            return
-
         try:
             if self._project is not None:
                 self._project = replace_project_stl(self._project, stl)
