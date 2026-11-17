@@ -655,15 +655,12 @@ class StlToGmshDialog(QDialog):
     def _geometry_preset_paths(self, preset: str) -> tuple[Path, str, str] | None:
         """Return the bundled STL, native validation Case and Python template Case."""
         if preset == "cylinder_internal_flow":
-            # Cylinder geometry is generated from its analytic definition. Keep
-            # generated source assets in the per-user workspace, never in the
-            # read-only repository checkout.
-            stl = (
-                UserDataPaths.discover().mesh_generation / "generated_stl"
-                / "cylinder_internal_flow" / "cylinder_internal_flow.stl"
+            case_directory = (
+                self._repository_root / "grid" / "stl_to_gmsh" / "3d"
+                / "cylinder_internal_flow" / "automatic_tetrahedra"
             )
             return (
-                stl,
+                case_directory / "python" / "input" / "model.stl",
                 "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow",
                 "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow",
             )
@@ -708,58 +705,41 @@ class StlToGmshDialog(QDialog):
             return
 
         stl, native_case_id, project_template_id = definition
+        if not stl.is_file():
+            QMessageBox.warning(
+                self, "Geometry preset unavailable",
+                f"The bundled STL for '{preset}' does not exist: {stl}",
+            )
+            self.geometry_preset.blockSignals(True)
+            self.geometry_preset.setCurrentIndex(
+                self.geometry_preset.findData(previous)
+            )
+            self.geometry_preset.blockSignals(False)
+            return
+
         if preset == "cylinder_internal_flow":
-            # Generate the analytic cylinder shell on demand, matching the
-            # defaults exposed by Generate STL Geometry. The generator writes a
-            # companion checksum/provenance manifest beside the STL.
+            manifest_path = stl.with_suffix(".geometry.json")
             try:
-                manifest = stl.with_suffix(".geometry.json")
-                metadata = None
-                if stl.is_file() and manifest.is_file():
-                    try:
-                        metadata = json.loads(manifest.read_text(encoding="utf-8"))
-                    except (OSError, json.JSONDecodeError):
-                        metadata = None
-                source_is_valid = bool(
-                    metadata
-                    and metadata.get("schema") == "oneflow.stl-geometry-manifest"
+                metadata = json.loads(manifest_path.read_text(encoding="utf-8"))
+                valid_asset = (
+                    metadata.get("schema") == "oneflow.stl-geometry-manifest"
                     and metadata.get("version") == 1
                     and metadata.get("asset_id") == "geometry.cylinder.internal_flow"
                     and metadata.get("geometry") == "cylinder_internal_flow"
                     and metadata.get("stl_sha256")
                     == hashlib.sha256(stl.read_bytes()).hexdigest()
-                ) if stl.is_file() and metadata else False
-                if not source_is_valid:
-                    report = generate_geometry(
-                        "cylinder_internal_flow",
-                        stl,
-                        radius=1.0,
-                        length=4.0,
-                        circumferential_divisions=48,
-                        axial_divisions=16,
-                        units="m",
-                    )
-                    if not report["surface"]["watertight"]:
-                        raise ValueError("Generated cylinder STL is not watertight.")
-            except (OSError, ValueError, KeyError) as error:
-                self.stl_path.clear()
-                self._mesh_case_id = native_case_id
-                self._active_geometry_preset = preset
-                self.status_label.setText(f"Cylinder STL generation failed: {error}")
-                self._refresh_command()
-                self.run_button.setEnabled(False)
+                    and metadata.get("surface", {}).get("watertight") is True
+                    and set(metadata.get("patch_triangle_indices", {}))
+                    == {"wall", "inflow", "outflow"}
+                )
+                if not valid_asset:
+                    raise ValueError("Cylinder STL provenance or patch contract is invalid.")
+            except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as error:
+                QMessageBox.warning(
+                    self, "Invalid cylinder geometry asset",
+                    f"The standard cylinder asset or its manifest is invalid: {error}",
+                )
                 return
-
-            self.stl_path.setText(str(stl))
-            self._mesh_case_id = native_case_id
-            if output_is_default:
-                self.output_path.setText(str(self._geometry_default_output(preset)))
-            self._active_geometry_preset = preset
-            self.status_label.setText(
-                f"Cylinder STL ready: {stl} | Manifest: {stl.with_suffix('.geometry.json')}"
-            )
-            self._refresh_command()
-            return
 
         if not stl.is_file():
             QMessageBox.warning(
