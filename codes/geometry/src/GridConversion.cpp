@@ -1452,6 +1452,198 @@ void ConvertStlSurfaceVolumeToGmsh(
 }
 
 
+void ConvertStlParametricCylinderToGmsh(
+    const GridConfig& config,
+    const std::string& caseDirectory,
+    const nlohmann::json& options,
+    const std::filesystem::path& source,
+    const std::filesystem::path& target)
+{
+    namespace fs = std::filesystem;
+    using Json = nlohmann::json;
+    const double tolerance = config.stlWeldTolerance;
+    if (!std::isfinite(tolerance) || tolerance <= 0.0)
+        throw std::invalid_argument("STL weld tolerance must be positive and finite");
+
+    fs::path manifestPath = source;
+    manifestPath.replace_extension(".geometry.json");
+    std::ifstream manifestInput(manifestPath, std::ios::binary);
+    if (!manifestInput)
+        throw std::runtime_error("Cylinder STL requires companion geometry manifest: " + manifestPath.string());
+    const Json manifest = Json::parse(manifestInput);
+    if (manifest.value("schema", std::string{}) != "oneflow.stl-geometry-manifest" ||
+        manifest.value("version", 0) != 1 ||
+        manifest.value("geometry", std::string{}) != "cylinder_internal_flow")
+        throw std::invalid_argument("Unsupported parametric cylinder geometry manifest");
+
+    const Json& parameters = manifest.at("parameters");
+    const double radius = parameters.at("radius").get<double>();
+    const double length = parameters.at("length").get<double>();
+    const int circumferential = parameters.at("circumferential_divisions").get<int>();
+    const int axial = parameters.at("axial_divisions").get<int>();
+    if (!std::isfinite(radius) || radius <= 0.0 ||
+        !std::isfinite(length) || length <= 0.0 ||
+        circumferential < 8 || axial < 1)
+        throw std::invalid_argument("Cylinder manifest has invalid radius, length or divisions");
+
+    const StlMesh mesh = StlMeshReader::Read(source.string());
+    if (mesh.triangles.empty())
+        throw std::invalid_argument("Cylinder STL contains no triangles");
+    const Json& patches = manifest.at("patch_triangle_indices");
+    if (!patches.is_object() ||
+        patches.size() != 3 ||
+        !patches.contains("wall") ||
+        !patches.contains("inflow") ||
+        !patches.contains("outflow"))
+        throw std::invalid_argument("Cylinder manifest must define wall, inflow and outflow patches");
+
+    std::vector<int> assignment(mesh.triangles.size(), 0);
+    const std::array<std::string, 3> patchNames{{"wall", "inflow", "outflow"}};
+    const std::array<std::size_t, 3> expectedCounts{{
+        static_cast<std::size_t>(2 * circumferential * axial),
+        static_cast<std::size_t>(circumferential),
+        static_cast<std::size_t>(circumferential)}};
+    const double planeTolerance = std::max(tolerance * 100.0, std::max(radius, length) * 1.0e-6);
+    const double xmin = -0.5 * length;
+    const double xmax = 0.5 * length;
+    for (std::size_t patch = 0; patch < patchNames.size(); ++patch)
+    {
+        const Json& indices = patches.at(patchNames[patch]);
+        if (!indices.is_array() || indices.size() != expectedCounts[patch])
+            throw std::invalid_argument("Cylinder patch triangle count does not match manifest divisions: " + patchNames[patch]);
+        for (const Json& indexValue : indices)
+        {
+            if (!indexValue.is_number_unsigned() && !indexValue.is_number_integer())
+                throw std::invalid_argument("Cylinder patch contains a non-integer triangle index");
+            const long long index = indexValue.get<long long>();
+            if (index < 0 || static_cast<std::size_t>(index) >= mesh.triangles.size() ||
+                assignment[static_cast<std::size_t>(index)] != 0)
+                throw std::invalid_argument("Cylinder patch indices are out of range or duplicated");
+            assignment[static_cast<std::size_t>(index)] = static_cast<int>(patch + 1);
+            const auto& triangle = mesh.triangles[static_cast<std::size_t>(index)];
+            for (const auto& point : triangle.vertices)
+            {
+                if (!std::isfinite(point[0]) || !std::isfinite(point[1]) || !std::isfinite(point[2]))
+                    throw std::invalid_argument("Cylinder STL contains non-finite coordinates");
+                if (patch == 1 && std::abs(point[0] - xmin) > planeTolerance)
+                    throw std::invalid_argument("Cylinder inflow patch is not on the inlet plane");
+                if (patch == 2 && std::abs(point[0] - xmax) > planeTolerance)
+                    throw std::invalid_argument("Cylinder outflow patch is not on the outlet plane");
+                if (patch == 0)
+                {
+                    const double radial = std::hypot(point[1], point[2]);
+                    if (std::abs(radial - radius) > planeTolerance ||
+                        (std::abs(point[0] - xmin) <= planeTolerance &&
+                         std::abs(point[0] - xmax) <= planeTolerance))
+                        throw std::invalid_argument("Cylinder wall patch does not match analytic cylinder radius");
+                }
+                if (point[0] < xmin - planeTolerance || point[0] > xmax + planeTolerance)
+                    throw std::invalid_argument("Cylinder STL axial bounds do not match its manifest");
+            }
+        }
+    }
+    if (std::any_of(assignment.begin(), assignment.end(), [](int value) { return value == 0; }))
+        throw std::invalid_argument("Cylinder patches must cover every STL triangle exactly once");
+
+    const double meshSize = options.value("mesh_size", 0.2);
+    const double meshSizeMin = options.value("mesh_size_min", meshSize);
+    const double meshSizeMax = options.value("mesh_size_max", meshSize);
+    if (!std::isfinite(meshSizeMin) || !std::isfinite(meshSizeMax) ||
+        meshSizeMin <= 0.0 || meshSizeMax < meshSizeMin)
+        throw std::invalid_argument("Cylinder mesh size bounds must be positive and ordered");
+    const auto validName = [](const std::string& name)
+    {
+        return !name.empty() && name.size() <= 32 &&
+            std::all_of(name.begin(), name.end(), [](unsigned char ch)
+            {
+                return std::isalnum(ch) || ch == '_' || ch == '.' || ch == '-';
+            });
+    };
+    const Json names = options.value("boundary_names", Json::object());
+    const std::string wallName = names.value("wall", std::string("wall"));
+    const std::string inflowName = names.value("inflow", std::string("inflow"));
+    const std::string outflowName = names.value("outflow", std::string("outflow"));
+    const std::string volumeName = options.value("surface_name", std::string("fluid_domain"));
+    const std::set<std::string> physicalNames{wallName, inflowName, outflowName, volumeName};
+    if (!validName(wallName) || !validName(inflowName) ||
+        !validName(outflowName) || !validName(volumeName) || physicalNames.size() != 4)
+        throw std::invalid_argument("Cylinder Physical Group names must be valid and distinct");
+
+    const fs::path caseRoot(caseDirectory);
+    const fs::path results = caseRoot / "results";
+    fs::create_directories(results);
+    if (!target.parent_path().empty()) fs::create_directories(target.parent_path());
+    const fs::path geoPath = results / (target.stem().string() + ".geo");
+    const fs::path reportPath = results / (target.stem().string() + ".stl-to-gmsh-report.json");
+    const double epsilon = std::max(radius, length) * 1.0e-7;
+    std::ofstream geo(geoPath, std::ios::trunc);
+    if (!geo) throw std::runtime_error("Cannot create Gmsh geometry: " + geoPath.string());
+    geo << std::setprecision(std::numeric_limits<double>::max_digits10)
+        << "SetFactory(\"OpenCASCADE\");\n"
+        << "Mesh.MshFileVersion = 4.1;\nMesh.Binary = 0;\nMesh.ElementOrder = 1;\n"
+        << "xmin = " << xmin << ";\nxmax = " << xmax << ";\n"
+        << "radius = " << radius << ";\nlength = " << length << ";\neps = " << epsilon << ";\n"
+        << "Cylinder(1) = {xmin, 0, 0, length, 0, 0, radius};\n"
+        << "allSurfaces[] = Surface{:};\n"
+        << "inflow[] = Surface In BoundingBox {xmin-eps, -radius-eps, -radius-eps, xmin+eps, radius+eps, radius+eps};\n"
+        << "outflow[] = Surface In BoundingBox {xmax-eps, -radius-eps, -radius-eps, xmax+eps, radius+eps, radius+eps};\n"
+        << "wall[] = allSurfaces[];\nwall[] -= inflow[];\nwall[] -= outflow[];\n"
+        << "Mesh.MeshSizeMin = " << meshSizeMin << ";\n"
+        << "Mesh.MeshSizeMax = " << meshSizeMax << ";\n"
+        << "Mesh.MeshSizeFromPoints = 1;\nMesh.MeshSizeExtendFromBoundary = 1;\n"
+        << "Physical Surface(\"" << wallName << "\") = {wall[]};\n"
+        << "Physical Surface(\"" << inflowName << "\") = {inflow[]};\n"
+        << "Physical Surface(\"" << outflowName << "\") = {outflow[]};\n"
+        << "Physical Volume(\"" << volumeName << "\") = {1};\n";
+    geo.close();
+    if (!geo) throw std::runtime_error("Failed writing Gmsh geometry: " + geoPath.string());
+
+    if (config.gmshExecutable.empty()) throw std::invalid_argument("gmshExecutable must not be empty");
+    const ProcessResult process = RunProcess(
+        config.gmshExecutable,
+        {PathUtf8(fs::absolute(geoPath)), "-3", "-format", "msh4", "-o", PathUtf8(fs::absolute(target))},
+        PathUtf8(fs::absolute(caseRoot)));
+    if (!process.started || process.exitCode != 0)
+        throw std::runtime_error("Gmsh cylinder volume generation failed (exit " +
+            std::to_string(process.exitCode) + "): " + process.output + process.errorMessage);
+
+    std::ifstream input(target, std::ios::binary);
+    if (!input) throw std::runtime_error("Gmsh did not create cylinder mesh: " + target.string());
+    const std::string content{std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
+    const GmshMesh generated = ReadGmsh41AsciiMesh(content);
+    (void)ValidateGmshTetrahedralTopology(generated);
+    std::map<int, std::size_t> counts;
+    for (const auto& element : generated.elements) ++counts[element.type];
+    if (counts[4] == 0 || counts[2] == 0 || counts[3] != 0 || counts[5] != 0)
+        throw std::runtime_error("Cylinder volume mesh must contain TETRA_4 and TRI_3 boundary elements only");
+    std::set<std::pair<int, std::string>> actual;
+    for (const auto& item : generated.physicalNames) actual.emplace(item.first.first, item.second);
+    const std::set<std::pair<int, std::string>> expected{{
+        {2, wallName}, {2, inflowName}, {2, outflowName}, {3, volumeName}}};
+    if (actual != expected)
+        throw std::runtime_error("Cylinder Physical Groups do not match the boundary contract");
+
+    Json report;
+    report["schema"] = "oneflow.stl-to-gmsh-validation-report";
+    report["version"] = 1;
+    report["case"] = options.value("case_name", std::string("cylinder_internal_flow"));
+    report["volume_mesh"] = "cylinder_internal_flow";
+    report["geometry"] = "cylinder_internal_flow";
+    report["radius"] = radius;
+    report["length"] = length;
+    report["input_triangles"] = mesh.triangles.size();
+    report["mesh_nodes"] = generated.nodes.size();
+    report["tetrahedron_elements"] = counts[4];
+    report["triangle_boundary_elements"] = counts[2];
+    report["physical_groups"] = Json::array({wallName, inflowName, outflowName, volumeName});
+    report["validated"] = true;
+    std::ofstream reportOutput(reportPath, std::ios::trunc);
+    if (!reportOutput) throw std::runtime_error("Cannot create STL-to-Gmsh report: " + reportPath.string());
+    reportOutput << report.dump(2) << '\n';
+    if (!reportOutput) throw std::runtime_error("Failed writing STL-to-Gmsh report: " + reportPath.string());
+}
+
+
 void ConvertStlCubeToGmsh(
     const GridConfig& config,
     const std::string& caseDirectory,
@@ -1710,6 +1902,13 @@ void ConvertStlCubeToGmsh(
                 std::cout << "STL to Gmsh: selected closed-surface 3-D volume pipeline."
                           << std::endl;
                 ConvertStlSurfaceVolumeToGmsh(config, caseDir, options, source, target);
+                return;
+            }
+            if (volumeMesh == "cylinder_internal_flow")
+            {
+                std::cout << "STL to Gmsh: selected parametric cylinder volume pipeline."
+                          << std::endl;
+                ConvertStlParametricCylinderToGmsh(config, caseDir, options, source, target);
                 return;
             }
             if (volumeMesh != "axis_aligned_cube_single_hex" &&
