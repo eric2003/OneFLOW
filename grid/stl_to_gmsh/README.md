@@ -60,6 +60,7 @@ cylinder are documented in [STL geometry generation](../../doc/source/stl_geomet
 | Native C++ | 3d/cube/automatic_tetrahedra/cpp | Automatic | Gmsh-generated | TETRA_4 | Triangular boundary |
 | Native C++ | 3d/sphere/automatic_tetrahedra/cpp | Automatic | Gmsh-generated | TETRA_4 | Closed wall surface |
 | Native C++ | 3d/prolate_spheroid/automatic_tetrahedra/cpp | Automatic | Gmsh-generated | TETRA_4 | Closed wall surface |
+| Native C++ | 3d/cylinder_internal_flow/automatic_tetrahedra/cpp | Automatic | Gmsh OCC cylinder | TETRA_4 | Wall, inflow and outflow |
 | Python | 2d/square/single_quad/python | 1 x 1 | 4 | 1 QUAD_4 | 4 |
 | Python | 2d/square/two_triangles/python | 1 x 1 | 4 | 2 TRI_3 | 4 |
 | Python | 2d/square/automatic_triangles/python | Automatic | Gmsh-generated | TRI_3 | Subdivided boundary |
@@ -256,10 +257,11 @@ Group and the interior is `fluid_domain`. See the 3D volume cases in
 
 ## 3D internal-flow cylinder asset
 
-The `3d/cylinder_internal_flow/automatic_tetrahedra/python` Case is the
-canonical internal-flow cylinder entry in the grid database. Unlike a
-generated-only GUI input, its 48 x 16 STL and companion
-`.geometry.json` manifest are version-controlled beside the Case contract.
+The `3d/cylinder_internal_flow/automatic_tetrahedra` Case pair is the
+canonical internal-flow cylinder entry in the grid database. Native C++ and
+Python reference Cases use the same analytic definition, radius/length and
+48 x 16 surface discretization. Each representation carries its own checked-in
+STL serialization and companion `.geometry.json` manifest.
 The analytic definition is radius 1.0 m, length 4.0 m, axis X, centered at the
 origin. Its region-aware Gmsh adapter creates separate `wall`, `inflow` and
 `outflow` Physical Surfaces and the `fluid_domain` Physical Volume. The end
@@ -268,5 +270,7 @@ caps close the geometric shell; they are not wall patches.
 The Mesh Generation preset references this same checked-in STL. The Geometry
 Library may still generate custom cylinder variants into the user's
 `.oneflow` workspace, but the canonical asset is never generated into or
-modified in the source checkout. The Python reference Case is registered in
-the normal Case catalog and staged externally by `run_cases.py`.
+modified in the source checkout. Both implementations are registered in the normal Case catalog and staged
+externally by `run_cases.py`. The C++ implementation validates the closed
+surface topology and manifest patch partition before constructing the OCC
+cylinder; its validation is intentionally independent of the Python adapter.
