@@ -20,10 +20,11 @@ The GUI entry is Mesh Generation -> Generate STL Geometry. User-generated STL
 variants and their companion .geometry.json manifests are written to the user
 workspace, not to the source tree. The canonical internal-flow cylinder is now
 also a version-controlled standard asset under
-grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input,
-following the same Case-database convention as the cube and sphere. The
-Geometry Library and STL-to-Gmsh preset reference this same asset ID and
-analytic definition. Its region-aware Gmsh adapter reconstructs wall, inflow
+grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra, following the
+same Case-database convention as the cube and sphere. Native C++ and Python
+reference Cases share the same analytic asset ID, dimensions and patch-index
+contract. Their STL files use separate ASCII/binary serializations with
+representation-specific checksums. Both Gmsh adapters reconstruct wall, inflow
 and outflow as separate Physical Surfaces.
 
 Geometry library defaults
