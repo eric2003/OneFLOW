@@ -15,12 +15,12 @@
     },
     "units": "m"
   },
-  "definition_sha256": "8958f50af2bb4d951f8bb854931c591a7b6c0abc5d0d76768b34dccc00000000",
+  "definition_sha256": "7f54a23d4a35cd76d7d5dc646af9cd25b7bf81d61b9cf2ab767228a530e37b06",
   "generator": {
     "name": "oneflow_stl_geometry",
     "version": "1.0",
     "source": "grid/stl_to_gmsh/generate_stl_geometry.py",
-    "source_sha256": "63b937641e4dfeec03d067e4499748137811a89080cce05a04592a3700000000"
+    "source_sha256": "b464369ea514fa47bec5e2f29a87db11bc32bf341fde86c58a571d09973d95d9"
   },
   "generator_version": "1.0",
   "geometry": "cylinder_internal_flow",
