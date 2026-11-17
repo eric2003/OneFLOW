@@ -1,0 +1,30 @@
+{
+  "volume_mesh": "cylinder_internal_flow",
+  "case_name": "cylinder_internal_flow_automatic_tetrahedra",
+  "mesh_size": 0.2,
+  "mesh_size_min": 0.1,
+  "mesh_size_max": 0.2,
+  "mesh_dimension": 3,
+  "surface_name": "fluid_domain",
+  "boundary_names": {
+    "wall": "wall",
+    "inflow": "inflow",
+    "outflow": "outflow"
+  },
+  "surface_angle_degrees": 40,
+  "curve_angle_degrees": 180,
+  "reference_geometry": {
+    "type": "cylinder_internal_flow",
+    "axis": "x",
+    "center": [
+      0,
+      0,
+      0
+    ],
+    "radius": 1,
+    "length": 4,
+    "volume": 12.566370614359172,
+    "surface_area": 31.41592653589793,
+    "units": "m"
+  }
+}
