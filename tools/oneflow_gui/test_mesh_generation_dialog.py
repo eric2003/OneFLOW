@@ -376,7 +376,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             expected_stl = (
                 self.repository_root / "grid" / "stl_to_gmsh" / "3d"
                 / "cylinder_internal_flow" / "automatic_tetrahedra"
-                / "python" / "input" / "model.stl"
+                / "cpp" / "input" / "model.stl"
             )
             dialog.geometry_preset.setCurrentIndex(
                 dialog.geometry_preset.findData("cylinder_internal_flow")
@@ -410,7 +410,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             )
             self.assertEqual(
                 dialog._mesh_case_id,
-                "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow",
+                "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
             )
             self.assertEqual(
                 Path(dialog.output_path.text()),
