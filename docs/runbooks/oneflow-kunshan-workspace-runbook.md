@@ -266,6 +266,30 @@ kernel 按 `faceFlux[eq * stride + face]`（stride=5）写，写回按
    和**最终残差不发散发 NaN**。
 3. 看到「偏离 2 倍 / NaN / 静默为零」这类量级异常，先查数据是否真的到达了
    消费端，不要在相对误差上找精度。
+4. **先确认你的指标对目标现象敏感，再拿它下结论。** 2026-11-17 的第二课：
+   全场残差和 CL 都吻合（2.82e-07 vs 2.84e-07、1.4e-04），CD_SF 却差 143%。
+   原因是壁面只占 2.6% 的面（23,040 / 896,256），壁面剪切错 2.8 倍对全场残差
+   的贡献不到 4%，而 CL 由压力积分、与粘性剪切无关。**一个对 97% 的面不敏感的
+   指标，验证不了只影响 3% 的量。**
+5. **查清每个输出量真正的数据来源。** `CD_SF` 并不读粘性面通量：
+   `AeroForceInfo::CalcCoef`（`codes/force/src/Force.cpp:265`）算的是
+   `cd_vis = cd - cd_pres`，输入是 host 的 `q`、`visl`、`dqdx/dqdy/dqdz`
+   （`codes/force/src/AeroForceTask.cpp:373-404`）。所以「粘性 kernel 输出
+   逐位一致」与「CD_SF 差 143%」可以同时成立。下结论前先读消费端。
+
+## 1f. 设备模式下 host ghost 不刷新（已知陷阱，非粘性移植引入）
+
+`NsMirrorHostBoundaryState`（`codes/ns/src/NsRhs.cpp:150-172`）只镜像
+**owner 单元**（`ug.lcf`），而 `MirrorPrimitiveCellsToHost`
+（`codes/accel/src/HipFluxBackend.hip:5223-5228`）明确拒绝 `cell >= contract.Cells()`
+的 ghost 单元。
+
+但 `AeroForceTask.cpp:398-400` 的 `CorrectGrad(q[lc], q[rc], ...)` 需要壁面
+ghost 的 `q[rc]`。**设备模式下这个 ghost 从不被刷新**，`CorrectGrad` 因此
+用的是陈旧值。
+
+这个缺陷对**所有** HIP 运行都成立，与是否开粘性 hook 无关。排查气动力差异时
+先确认这一条，免得把它算到被测 feature 头上。
 
 ## 2. 作业规范
 
