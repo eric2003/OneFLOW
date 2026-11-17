@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import tempfile
 import unittest
@@ -224,6 +225,28 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertTrue((case_dir / "input" / "model.stl").is_file())
         self.assertNotIn("execution", entry)
         self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
+
+    def test_native_cylinder_fixture_checksum_and_patch_partition(self) -> None:
+        case_dir = (
+            REPOSITORY_ROOT / "grid/stl_to_gmsh/3d/cylinder_internal_flow"
+            / "automatic_tetrahedra/cpp"
+        )
+        stl = case_dir / "input/model.stl"
+        manifest = json.loads(
+            stl.with_suffix(".geometry.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            hashlib.sha256(stl.read_bytes()).hexdigest(),
+            manifest["stl_sha256"],
+        )
+        self.assertTrue(stl.read_text(encoding="ascii").startswith("solid "))
+        self.assertEqual(manifest["surface"]["triangle_count"], 1632)
+        patches = manifest["patch_triangle_indices"]
+        self.assertEqual(len(patches["wall"]), 1536)
+        self.assertEqual(len(patches["inflow"]), 48)
+        self.assertEqual(len(patches["outflow"]), 48)
+        indices = patches["wall"] + patches["inflow"] + patches["outflow"]
+        self.assertEqual(sorted(indices), list(range(1632)))
 
     def test_stl_ascii_crlf_is_a_native_oneflow_case_with_crlf_fixture(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
