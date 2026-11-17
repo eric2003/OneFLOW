@@ -86,6 +86,31 @@ class StlGeometryGenerationTest(unittest.TestCase):
             self.assertEqual(manifest["generation_parameters"]["circumferential_divisions"], 32)
 
 
+    def test_canonical_cylinder_fixture_matches_geometry_generator_defaults(self) -> None:
+        repository_root = Path(__file__).resolve().parents[4]
+        fixture = (
+            repository_root / "grid/stl_to_gmsh/3d/cylinder_internal_flow"
+            / "automatic_tetrahedra/python/input/model.stl"
+        )
+        fixture_manifest = fixture.with_suffix(".geometry.json")
+        with tempfile.TemporaryDirectory() as temporary:
+            generated = generate_geometry(
+                "cylinder_internal_flow", Path(temporary) / "model.stl"
+            )
+            self.assertEqual(generated["stl"].read_bytes(), fixture.read_bytes())
+            self.assertEqual(
+                generated["stl_sha256"],
+                hashlib.sha256(fixture.read_bytes()).hexdigest(),
+            )
+            canonical = json.loads(fixture_manifest.read_text(encoding="utf-8"))
+            self.assertEqual(canonical["asset_id"], "geometry.cylinder.internal_flow")
+            self.assertEqual(canonical["parameters"], generated["parameters"])
+            self.assertEqual(
+                canonical["patch_triangle_indices"],
+                generated["patch_triangle_indices"],
+            )
+            self.assertTrue(canonical["surface"]["watertight"])
+
     def test_cylinder_manifest_generates_distinct_gmsh_physical_surfaces(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
