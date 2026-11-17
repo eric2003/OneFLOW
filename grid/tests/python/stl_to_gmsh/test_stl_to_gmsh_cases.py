@@ -72,6 +72,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             "3d/cube/six_tetrahedra/cpp": ("3d/cube/six_tetrahedra/cpp", "cube_six_tetrahedra.msh"),
             "3d/cube/automatic_tetrahedra/cpp": ("3d/cube/automatic_tetrahedra/cpp", "cube_automatic_tetrahedra.msh"),
             "3d/prolate_spheroid/automatic_tetrahedra/cpp": ("3d/prolate_spheroid/automatic_tetrahedra/cpp", "prolate_spheroid_automatic_tetrahedra.msh"),
+    "3d/cylinder_internal_flow/automatic_tetrahedra/cpp": ("3d/cylinder_internal_flow/automatic_tetrahedra/cpp", "cylinder_internal_flow_automatic_tetrahedra.msh"),
             "3d/cylinder_internal_flow/automatic_tetrahedra/cpp": ("3d/cylinder_internal_flow/automatic_tetrahedra/cpp", "cylinder_internal_flow_automatic_tetrahedra.msh"),
         })
         self.assertEqual(PYTHON_CASES, {
