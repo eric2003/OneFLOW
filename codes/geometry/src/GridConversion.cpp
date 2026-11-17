@@ -1219,7 +1219,7 @@ std::string PathUtf8(const std::filesystem::path& path)
 }
 
 
-void ValidateClosedStlSphereSurface(const StlMesh& mesh, double tolerance)
+void ValidateClosedGenusZeroStlSurface(const StlMesh& mesh, double tolerance)
 {
     if (mesh.triangles.size() < 20)
         throw std::invalid_argument("Closed STL volume requires at least 20 triangles");
@@ -1328,7 +1328,7 @@ void ValidateClosedStlSphereSurface(const StlMesh& mesh, double tolerance)
         static_cast<long long>(edges.size()) +
         static_cast<long long>(mesh.triangles.size());
     if (euler != 2)
-        throw std::invalid_argument("The sphere STL must have genus-zero closed-surface topology");
+        throw std::invalid_argument("STL surface must have genus-zero closed-surface topology");
     if (!std::isfinite(signedVolume) || signedVolume <= tolerance*tolerance*tolerance)
         throw std::invalid_argument("STL triangle winding must point outward and enclose positive volume");
 }
@@ -1343,7 +1343,7 @@ void ConvertStlSurfaceVolumeToGmsh(
     namespace fs = std::filesystem;
     const double tolerance = config.stlWeldTolerance;
     const StlMesh mesh = StlMeshReader::Read(source.string());
-    ValidateClosedStlSphereSurface(mesh, tolerance);
+    ValidateClosedGenusZeroStlSurface(mesh, tolerance);
 
     const double meshSize = options.value("mesh_size", 0.25);
     const double surfaceAngle = options.value("surface_angle_degrees", 40.0);
@@ -1489,7 +1489,7 @@ void ConvertStlParametricCylinderToGmsh(
     const StlMesh mesh = StlMeshReader::Read(source.string());
     if (mesh.triangles.empty())
         throw std::invalid_argument("Cylinder STL contains no triangles");
-    ValidateClosedStlSphereSurface(mesh, tolerance);
+    ValidateClosedGenusZeroStlSurface(mesh, tolerance);
     const Json& patches = manifest.at("patch_triangle_indices");
     if (!patches.is_object() ||
         patches.size() != 3 ||
