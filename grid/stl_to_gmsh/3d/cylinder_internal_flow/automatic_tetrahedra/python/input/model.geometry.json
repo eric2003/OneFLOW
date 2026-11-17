@@ -10,7 +10,7 @@
       "y^2 + z^2 = R^2"
     ],
     "parameters": {
-      "radius": 1,
+      "radius": 1.0,
       "length": 4
     },
     "units": "m"
@@ -26,14 +26,14 @@
   "geometry": "cylinder_internal_flow",
   "units": "m",
   "parameters": {
-    "radius": 1,
-    "length": 4,
+    "radius": 1.0,
+    "length": 4.0,
     "circumferential_divisions": 48,
     "axial_divisions": 16
   },
   "generation_parameters": {
-    "radius": 1,
-    "length": 4,
+    "radius": 1.0,
+    "length": 4.0,
     "circumferential_divisions": 48,
     "axial_divisions": 16
   },
