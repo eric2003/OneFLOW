@@ -205,6 +205,15 @@
           "notes": "Canonical, version-controlled 48 x 16 surface fixture. Companion checksum and patch metadata: grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.geometry.json. The Geometry Library can still generate custom parameterized variants into the user workspace."
         },
         {
+          "role": "surface_mesh",
+          "format": "STL (ASCII)",
+          "path": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/cpp/input/model.stl",
+          "status": "source",
+          "generator": "oneflow_stl_geometry",
+          "sha256": "cdfc8fd6f85a3612d6b34479de3216c989e143f4833f09896af9fdfa40a424bc",
+          "notes": "Native C++ Case serialization of the same 48 x 16 analytic cylinder and wall/inflow/outflow patch partition. Its checksum is representation-specific."
+        },
+        {
           "role": "volume_mesh",
           "format": "Gmsh MSH",
           "path": "~/.oneflow/mesh-generation/cylinder_internal_flow/",
