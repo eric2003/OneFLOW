@@ -43,6 +43,29 @@ class MeshProjectTest(unittest.TestCase):
             {case_id for case_id, _title in choices},
         )
 
+    def test_internal_flow_cylinder_is_a_selectable_project_template(self) -> None:
+        template_id = "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra"
+        choices = {case_id for case_id, _title in mesh_project_templates(self.repository_root)}
+        self.assertIn(template_id, choices)
+        project = create_mesh_project_from_template(
+            self.repository_root, template_id, "cylinder_internal_flow"
+        )
+        self.assertTrue(project["stl_path"].is_file())
+        self.assertEqual(project["mesh_case_id"], template_id)
+        copied_manifest = (
+            project["directory"] / "template/input/model.geometry.json"
+        )
+        self.assertTrue(copied_manifest.is_file())
+        metadata = json.loads(copied_manifest.read_text(encoding="utf-8"))
+        self.assertEqual(metadata["asset_id"], "geometry.cylinder.internal_flow")
+        self.assertTrue(metadata["surface"]["watertight"])
+        self.assertTrue(
+            paths_equal(
+                project["directory"].parent,
+                self.home / "mesh-generation",
+            )
+        )
+
     def test_create_and_reopen_project_from_prolate_template(self) -> None:
         project = create_mesh_project_from_template(
             self.repository_root,
