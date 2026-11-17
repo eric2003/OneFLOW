@@ -71,6 +71,7 @@ cylinder are documented in [STL geometry generation](../../doc/source/stl_geomet
 | Python | 3d/cube/automatic_tetrahedra/python | Automatic | Gmsh-generated | TETRA_4 | Triangular boundary |
 | Python | 3d/sphere/automatic_tetrahedra/python | Automatic | Gmsh-generated | TETRA_4 | Closed wall surface |
 | Python | 3d/prolate_spheroid/automatic_tetrahedra/python | Automatic | Gmsh-generated | TETRA_4 | Closed wall surface |
+| Python | 3d/cylinder_internal_flow/automatic_tetrahedra/python | Automatic | Gmsh-generated | TETRA_4 | Wall, inflow and outflow |
 
 For the square Cases, the STL describes the outer domain boundary. The
 single-quad and two-triangle variants use the same STL and 1 x 1 transfinite
@@ -145,11 +146,11 @@ If the executable is not in the standard build/bin locations:
 
     python grid/stl_to_gmsh/run_cases.py --oneflow-executable build/bin/Debug/OneFLOW.exe --gmsh gmsh
 
-The standalone producer-check runner stages the 20 fixed Cases plus six sphere mesh-size variants under
+The standalone producer-check runner stages the 21 fixed Cases plus six sphere mesh-size variants under
 %USERPROFILE%/.oneflow/grid-development/stl-to-gmsh on Windows or
 $HOME/.oneflow/grid-development/stl-to-gmsh on Linux. Staging paths mirror
 the Case layout, for example 2d/square/single_quad/cpp and 2d/square/single_quad/python; each has its own
-results directory. It recreates only the 24 named Case staging directories
+results directory. It recreates only the 27 named Case staging directories
 and leaves generated meshes, reports, and logs outside the repository source tree.
 
 ## Mesh-to-CFD validation
@@ -206,7 +207,8 @@ standalone STL-to-Gmsh producer Cases.
     python tools/mesh_cases.py validate 2d/circle_external_flow/cpp
 
 When Gmsh is available, the Python test suite executes the circle reference
-Case, all three cube reference Cases and the prolate-spheroid reference Case in
+Case, all three cube reference Cases, the prolate-spheroid reference Case and
+the internal-flow cylinder reference Case in
 temporary directories, validating their MSH 4.1 element families, fixed or
 minimum topology contracts, coordinate bounds and Physical Groups. The native C++ integration suite separately exercises the
 single-hex, six-tetrahedron, and automatic-tetrahedron cube strategies. The native C++ circle integration test is enabled
@@ -250,3 +252,21 @@ characteristic lengths for both implementations. These are mesh-size controls,
 not requested element counts. The sphere surface is one `wall` Physical
 Group and the interior is `fluid_domain`. See the 3D volume cases in
 `../../doc/source/stl_to_gmsh_3d.rst` for the geometric contract and validation scope.
+
+
+## 3D internal-flow cylinder asset
+
+The `3d/cylinder_internal_flow/automatic_tetrahedra/python` Case is the
+canonical internal-flow cylinder entry in the grid database. Unlike a
+generated-only GUI input, its 48 x 16 STL and companion
+`.geometry.json` manifest are version-controlled beside the Case contract.
+The analytic definition is radius 1.0 m, length 4.0 m, axis X, centered at the
+origin. Its region-aware Gmsh adapter creates separate `wall`, `inflow` and
+`outflow` Physical Surfaces and the `fluid_domain` Physical Volume. The end
+caps close the geometric shell; they are not wall patches.
+
+The Mesh Generation preset references this same checked-in STL. The Geometry
+Library may still generate custom cylinder variants into the user's
+`.oneflow` workspace, but the canonical asset is never generated into or
+modified in the source checkout. The Python reference Case is registered in
+the normal Case catalog and staged externally by `run_cases.py`.
