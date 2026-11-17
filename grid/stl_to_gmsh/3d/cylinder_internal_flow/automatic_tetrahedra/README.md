@@ -22,15 +22,23 @@ Physical Surfaces and one `fluid_domain` Physical Volume.
 
 ## Inputs and outputs
 
-- `python/input/model.stl`: canonical, version-controlled surface geometry.
-- `python/input/model.geometry.json`: asset identity, analytic parameters,
-  patch triangle indices and SHA-256 binding to the STL.
-- `python/script/layout.json`: mesh-generation strategy and density.
-- `python/expected.json`: topology and Physical Group acceptance contract.
+Both native C++ and Python reference Cases are provided:
 
-Run the Python reference Case through the repository runner. It stages the
-Case under the user's `.oneflow/grid-development/stl-to-gmsh` workspace;
-generated `.geo`, `.msh`, reports and logs never enter the source tree.
+- `cpp/input/model.stl`: ASCII STL representation for the native C++ Case.
+- `cpp/input/model.geometry.json`: analytic parameters, patch indices and
+  SHA-256 binding for the ASCII representation.
+- `cpp/script/layout.json`: native C++ volume-mesh strategy and density.
+- `python/input/model.stl`: binary STL representation for the Python adapter.
+- `python/input/model.geometry.json`: corresponding checksum-bound manifest.
+- `python/script/layout.json` and `python/expected.json`: reference strategy
+  and topology/Physical Group acceptance contract.
+
+The two representations have the same analytic dimensions, triangle ordering
+and patch partition; their byte checksums are representation-specific. Both
+implementations are registered as independent Cases and can be run through
+the repository runner. They stage under the user's
+`.oneflow/grid-development/stl-to-gmsh` workspace; generated `.geo`, `.msh`,
+reports and logs never enter the source tree.
 
 The Geometry Library / Generate STL Geometry editor uses the same analytic
 asset ID and default dimensions. Its user-selected parameterized outputs are
