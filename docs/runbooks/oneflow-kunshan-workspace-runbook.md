@@ -233,6 +233,40 @@ sed -i -E '/^[[:space:]]*TurbSolver[[:space:]]*$/d' <case>/script/solver.txt
 4. **`job_BASE.slurm` 是共享可变文件**，OpenAPI 提交器每次都会重写它。两个作业同时
    提交时，后写的会覆盖前者的 `run.slurm` 路径。串行提交同样规避这一点。
 
+   2026-11-17 实测：用 `scnet.py submit --remote-path <script>` 提交时，SSH 超时返回的
+   job_id 可能对应的仍是**上一次**写在 `job_BASE.slurm` 里的命令。作业会 `COMPLETED`
+   且退出码 0，但**跑的不是你要的脚本**，证据目录也不会出现。判别法：投完立刻
+   `grep -E 'of-<name>|sbatch -J' /public/home/luql/oneflow/logs/job_BASE.slurm`
+   确认脚本名和 `-o` 路径都对。**优先用 OpenAPI `--command 'bash <script>'`**，
+   它会显式写 `-J` 和 `-o`。
+
+5. **投作业前先确认被测对象真的是被测对象**。本轮在这个坑上栽了三次：
+   用共享 `build/app` 的旧二进制（五个 feature flag 一个都没有）、快照早于代码、
+   上面第 4 条的脚本覆盖。每次的表现都是「作业成功、结果看似合理」。
+   固定动作：
+   - `strings $BIN | grep -c <feature-flag>` —— 确认新代码在二进制里；
+   - 快照打包后 `tar -xzOf <snap> <file> | grep -c <new-symbol>` —— 确认改动进了快照；
+   - 投完看 `job_BASE.slurm` 的 `-J` 和命令。
+
+## 1e. 验证链路要查到底，不要只验中间产物
+
+2026-11-17 的粘性 DCU 化在这里浪费了十几轮。**单面通量 dump 与 host 逐位一致
+（896,256 面，max diff 1e-26），但求解器仍然发散到 NaN。**
+
+原因：dump 的是 kernel 内部局部变量，而 bug 在**写回求解器字段**的那一步——
+kernel 按 `faceFlux[eq * stride + face]`（stride=5）写，写回按
+`visBuffer[eq * nFaces + face]` 读，布局完全不同，读到的几乎全是零。
+粘性项被静默清零，残差量级差好几个数量级，而我一直按百分比看，误判成精度问题。
+
+规则：
+1. 验证一个设备算子，要覆盖**从 kernel 输出到求解器字段**的完整链路，
+   不只是 kernel 的返回值。
+2. **残差轨迹不是验收标准**。迭代中间量会被 RK 阶段和限制器非线性放大，
+   十步内 1e-3 的差异什么都不能说明。验收要看**收敛后的气动力**（CL/CD）
+   和**最终残差不发散发 NaN**。
+3. 看到「偏离 2 倍 / NaN / 静默为零」这类量级异常，先查数据是否真的到达了
+   消费端，不要在相对误差上找精度。
+
 ## 2. 作业规范
 
 | 约定 | 值 |

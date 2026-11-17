@@ -2897,3 +2897,91 @@ SA 的接入比粘性复杂，因为它的数据分散在 `uturbf`（湍流场�
 VIS_TEST 变体（`VIS_TEST = 2`，`VisGrad.h:30`），旗舰 `m6wingroe_sa/script/turb.txt:38`
 正是 `iturb_visflux = 2`。其他格式必须**回落 host**，不能抛异常——
 view 验证器会因 `viscousFluxVariant != 2` 抛错，那会中止一个在 host 上本来能跑的算例。
+
+---
+
+### 5.43 粘性设备路径的真根因：写回布局错位（2026-11-17，已修复）
+
+#### (a) 症状与误判
+
+全 hook 开启跑旗舰算例，第 50 步残差与 host 一致，第 100 步偏离 2 倍，
+第 110 步 `Invalid density`（`rho = -nan`）崩溃。
+
+我在这上面追了十几轮，一直以为是「6.7e-3 的相对偏差」——按残差轨迹的百分比看，
+量级像是数值精度问题。**这是错误的诊断方向**：真相是粘性项被完全清零，
+量级差了好几个数量级，而我盯着百分比看。
+
+#### (b) 为什么单面 dump 没抓到
+
+全量 dump 了 896,256 个面的 `flux[5]` 与 host 逐位对比：
+
+```
+eq0: max diff = 0.0
+eq1: max diff = 1.03e-26
+eq2: max diff = 3.98e-28
+eq3: max diff = 1.41e-42
+eq4: max diff = 1.03e-26
+faces > 1e-6 rel: 0
+```
+
+**完全一致。** 因为 dump 的是 kernel 内部的局部变量 `flux[eq]`，
+**不经过写回缓冲区**。kernel 算得对，错在写回。
+
+#### (c) 根因
+
+`codes/uns/src/UNsVisFlux.cpp` 里两处布局不一致：
+
+| 位置 | 索引方式 |
+|---|---|
+| kernel 写（`HipFluxBackend.hip:2945`） | `faceFlux[ eq * faceFluxStride + face ]`，`stride = nEqu = 5` |
+| 写回读（`UNsVisFlux.cpp`） | `visfluxBuffer[ equation * ug.nFaces + face ]` |
+
+`visfluxBuffer` 分配 `5 * nFaces` 个元素，但 stride=5 时 kernel 只写到
+`equation*5 + face` 这些散点位置（最大索引 `4*5 + nFaces - 1`）。
+按 `equation * nFaces` 读，**绝大多数位置是初始化的 0**。
+
+结果：`visflux` 几乎全零 → `AddVisFlux` 加了个零 → **残差里没有粘性项** →
+100 步内发散到 NaN。
+
+#### (d) 修复与验证
+
+写回改用 kernel 的布局（`source[face * nEqu]`）。
+
+粘性 hook 单开、150 步：
+
+| 步 | host | device（修复前） | device（修复后） |
+|---|---|---|---|
+| 10 | 1.84536e-06 | 1.84691e-06 | 1.84698e-06 |
+| 50 | 1.62137e-06 | 1.61789e-06 | 1.61624e-06 |
+| 100 | 1.66684e-06 | **3.31141e-06** | 1.67524e-06 |
+| 150 | 1.00478e-06 | **NaN 崩溃（停在 110）** | **9.96359e-07** |
+
+证据：`evidence/gate/128210347-vistonly`（修复前）、`128216164-vistonly`（修复后）。
+
+#### (e) 这轮暴露的方法论问题
+
+1. **验收指标选错了**：残差轨迹不是正确的验收标准。应该在**收敛后**比气动力
+   （CL/CD），而不是比十步的迭代轨迹——后者会被非线性放大，1e-3 的差异
+   什么都说明不了。
+2. **单点 dump 掩盖了写回路径的错**：验证 kernel 输出 ≠ 验证数据到达消费端。
+   下次这类接线，必须验证**从 kernel 到求解器字段**的完整链路。
+3. **同类错误在本轮反复出现**：用旧二进制、快照早于代码、`--remote-path`
+   覆盖共享 `job_BASE.slurm`。共同点都是**没有确认被测对象真的是被测对象**。
+
+#### (f) 同时修复的四个缺陷（`06a98892b`）
+
+由独立审计发现，契约测试结构上看不到（它们直接构建设备输入，不走求解器 view）：
+
+1. **SA 迎风通量面积乘两次**：`TurbSaArithmetic.h:436` 已含 `faceArea`，
+   调用方又乘一次。
+2. **`=1` 绕过 backend 检查**：CPU 后端下会用 `operator new` 的 host 指针启 HIP kernel。
+3. **源项 hook 无字段检查**：约 20 个裸指针，字段缺失是段错误而非回落。
+4. **resident 几何越界读**：`xNormal/yNormal/zNormal` 是三个独立分配，却按
+   连续缓冲偏移访问。
+
+#### (g) 仍未解决
+
+- `interfaceMask` 未填：旗舰 `nIFaces=0` 不受影响，**分区算例会错**。
+- SA 标量 `Update` 未接：审计结论是**不该接**（host 只有 2 FLOP/单元，
+  设备化是负优化），除非作为完全设备常驻链的尾巴。
+- `Supports*()` 能力检查多数无调用点，是装饰性的。
