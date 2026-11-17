@@ -168,6 +168,10 @@ class MeshValidationDialog(QDialog):
         self.case_tree = QTreeWidget()
         self.case_tree.setColumnCount(2)
         self.case_tree.setHeaderLabels(["Run", "STL / Mesh Case"])
+        # Keep the tree expander, checkbox and case label in the same column.
+        # Putting check indicators in the narrow "Run" column clips/overlaps
+        # them with the adjacent case text on Windows high-DPI displays.
+        self.case_tree.setTreePosition(1)
         self.case_tree.setRootIsDecorated(True)
         self.case_tree.setAlternatingRowColors(True)
         case_header = self.case_tree.header()
@@ -196,10 +200,10 @@ class MeshValidationDialog(QDialog):
                         item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
                         item.setText(1, title)
                         item.setData(0, Qt.ItemDataRole.UserRole, case_id)
-                        item.setCheckState(0, Qt.CheckState.Checked)
+                        item.setCheckState(1, Qt.CheckState.Checked)
                         self._case_items[case_id] = item
-                    category_item.setCheckState(0, Qt.CheckState.Checked)
-                dimension_item.setCheckState(0, Qt.CheckState.Checked)
+                    category_item.setCheckState(1, Qt.CheckState.Checked)
+                dimension_item.setCheckState(1, Qt.CheckState.Checked)
             self.case_tree.itemChanged.connect(self._update_group_state)
             self.case_tree.expandToDepth(1)
         except (OSError, ValueError, KeyError) as error:
@@ -318,22 +322,22 @@ class MeshValidationDialog(QDialog):
         content_layout.addLayout(buttons)
 
     def _set_subtree_state(self, item: QTreeWidgetItem, state: Qt.CheckState) -> None:
-        item.setCheckState(0, state)
+        item.setCheckState(1, state)
         for index in range(item.childCount()):
             self._set_subtree_state(item.child(index), state)
 
     def _refresh_ancestor_states(self, item: QTreeWidgetItem | None) -> None:
         while item is not None:
             states = [
-                item.child(index).checkState(0)
+                item.child(index).checkState(1)
                 for index in range(item.childCount())
             ]
             if states and all(state == Qt.CheckState.Checked for state in states):
-                item.setCheckState(0, Qt.CheckState.Checked)
+                item.setCheckState(1, Qt.CheckState.Checked)
             elif states and all(state == Qt.CheckState.Unchecked for state in states):
-                item.setCheckState(0, Qt.CheckState.Unchecked)
+                item.setCheckState(1, Qt.CheckState.Unchecked)
             else:
-                item.setCheckState(0, Qt.CheckState.PartiallyChecked)
+                item.setCheckState(1, Qt.CheckState.PartiallyChecked)
             item = item.parent()
 
     def _set_all(self, checked: bool) -> None:
@@ -344,11 +348,11 @@ class MeshValidationDialog(QDialog):
         self.case_tree.blockSignals(False)
 
     def _update_group_state(self, item: QTreeWidgetItem, column: int) -> None:
-        if column != 0:
+        if column != 1:
             return
         self.case_tree.blockSignals(True)
         if item.childCount():
-            state = item.checkState(0)
+            state = item.checkState(1)
             if state == Qt.CheckState.PartiallyChecked:
                 state = Qt.CheckState.Unchecked
             for index in range(item.childCount()):
@@ -406,7 +410,7 @@ class MeshValidationDialog(QDialog):
                         missing_mesh_inputs.append(f"{title}: {existing_mesh}")
                         item = self._case_items.get(case_id)
                         if item is not None:
-                            item.setCheckState(0, Qt.CheckState.Unchecked)
+                            item.setCheckState(1, Qt.CheckState.Unchecked)
                         continue
                     arguments.extend(["--mesh-file", str(existing_mesh)])
                     arguments.extend(["--project-directory", str(project_directory)])
