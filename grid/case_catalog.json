@@ -512,6 +512,21 @@
       "dimension": 3,
       "mesh_validation": "cfd_smoke",
       "mesh_project_template": true
+    },
+    {
+      "id": "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
+      "title": "STL to Gmsh: Internal-flow Cylinder with Automatic TETRA_4 Volume Mesh (Python Reference)",
+      "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/run_python_case.py"
+      },
+      "dimension": 3,
+      "geometry_provenance": {
+        "kind": "generated",
+        "manifest": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.geometry.json"
+      }
     }
   ],
   "mesh_validation_inputs": [
