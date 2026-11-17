@@ -1,0 +1,59 @@
+#!/bin/bash
+
+if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    if [ -f "openmpi/bin/mpirun" ] && [ -f "openmpi-2.0.1/config.log" ]; then
+        echo "Using cached OpenMPI"
+        echo "Configuring OpenMPI"
+        cd openmpi-2.0.1
+        ./configure --prefix=$TRAVIS_BUILD_DIR/openmpi CC=$C_COMPILER CXX=$CXX_COMPILER &> openmpi.configure
+        echo "old LIBRARY_PATH is ${LIBRARY_PATH}"
+        echo "old LD_LIBRARY_PATH is ${LD_LIBRARY_PATH}"
+        #export LIBRARY_PATH="$TRAVIS_BUILD_DIR/openmpi/lib/":${LIBRARY_PATH}
+        #export LD_LIBRARY_PATH="$TRAVIS_BUILD_DIR/openmpi/lib/":${LD_LIBRARY_PATH}
+        export LIBRARY_PATH=$TRAVIS_BUILD_DIR/openmpi/lib/
+        export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/openmpi/lib/
+        echo "LIBRARY_PATH is ${LIBRARY_PATH}"
+        echo "LD_LIBRARY_PATH is ${LD_LIBRARY_PATH}"
+        cd ..
+        ls
+        echo "TRAVIS_BUILD_DIR is $TRAVIS_BUILD_DIR"
+        echo "-------show show $TRAVIS_BUILD_DIR/openmpi/include---------"
+        ls $TRAVIS_BUILD_DIR/openmpi/include
+        echo "-------show show $TRAVIS_BUILD_DIR/openmpi/lib---------"
+        ls $TRAVIS_BUILD_DIR/openmpi/lib
+        echo "-------show show $TRAVIS_BUILD_DIR/openmpi/share---------"
+        ls $TRAVIS_BUILD_DIR/openmpi/share
+        #echo "-------show show /usr/local/openmpi/---------"
+        #ls /usr/local/openmpi
+        #echo "----show show /usr/local/openmpi/include--------------"
+        #ls /usr/local/openmpi/include
+        #echo "----show /usr/local/openmpi/lib--------------"
+        #ls /usr/local/openmpi/lib
+    else
+        echo "Downloading OpenMPI Source"
+        wget https://www.open-mpi.org/software/ompi/v2.0/downloads/openmpi-2.0.1.tar.gz
+        tar zxf openmpi-2.0.1.tar.gz
+        echo "Configuring and building OpenMPI"
+        ls
+        echo "cd openmpi-2.0.1"
+        cd openmpi-2.0.1
+        ls
+        echo "$TRAVIS_BUILD_DIR"
+        echo "-------------1------------------"
+        pwd
+        echo "-------------2------------------"
+        echo "$TRAVIS_BUILD_DIR/openmpi"
+        echo "CC=$C_COMPILER"
+        echo "CXX=$CXX_COMPILER"
+        ./configure --prefix=$TRAVIS_BUILD_DIR/openmpi CC=$C_COMPILER CXX=$CXX_COMPILER &> openmpi.configure
+        echo "-------------haha1------------------"
+        make -j4 &> openmpi.make
+        #make
+        echo "-------------haha2------------------"
+        make install &> openmpi.install
+        echo "-------------haha3------------------"
+        cd ..
+    fi
+    test -n $CC && unset CC
+    test -n $CXX && unset CXX
+fi

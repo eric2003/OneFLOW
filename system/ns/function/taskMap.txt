@@ -1,0 +1,13 @@
+DUMP_RESIDUAL                      , CCreateResidualTask, 0
+READ_RESTART                          , CReadBinaryFileTask, 0
+DUMP_RESTART                        , CWriteBinaryFileTask, 0
+UPDATE_INTERFACE_DATA        , CServerUpdateInterfaceTask, 0
+UPDATE_INTERFACE_DQ           , CServerUpdateInterfaceTask, 0
+UPDATE_INTERFACE_GRADIENT, CServerUpdateInterfaceTask, 0
+UPDATE_OVERSET_DATA           , CServerUpdateOversetInterfaceTask, 0
+DUMP_PRESSURE_COEFF          , CWriteAsciiFileTask, 0
+DUMP_HEATFLUX_COEFF          , CCreateHeatFluxTask, 0
+DUMP_AERODYNAMIC             , CDumpAerodynamicForceTask, 0
+VISUALIZATION                        , CWriteAsciiFileTask, 0
+DUMP_LAMINAR_PLATE           , CCreateLaminarPlateTask, 0
+DUMP_TURB_PLATE                  , CCreateTurbPlateTask, 0

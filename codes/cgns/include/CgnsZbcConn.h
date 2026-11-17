@@ -1,0 +1,73 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+
+#pragma once
+#include "HXDefine.h"
+#include "HXCgns.h"
+#include <memory>
+
+BeginNameSpace( ONEFLOW )
+
+#ifdef ENABLE_CGNS
+
+class CgnsZone;
+class CgnsBase;
+class FaceSolver;
+
+class FaceSolver;
+class Grid;
+class BcRegion;
+class TestRegion;
+
+class CgnsBcBoco;
+class CgnsBcConn;
+
+class CgnsZbcConn
+{
+public:
+    explicit CgnsZbcConn( CgnsZone & cgnsZone );
+    ~CgnsZbcConn();
+private:
+    int nConnToCreate;
+    HXVector< std::unique_ptr< CgnsBcConn > > cgnsBcConns;
+
+public:
+    int GetNConn() const;
+    CgnsZone & cgnsZone;
+public:
+    void AddCgnsConnBcRegion( std::unique_ptr< CgnsBcConn > cgnsBcConn );
+    CgnsBcConn & GetCgnsBc( int iConn );
+    const CgnsBcConn & GetCgnsBc( int iConn ) const;
+    void CreateCgnsZbc();
+    void PrintZnconn();
+    void ReadZnconn( int nConn );
+    void ReadZnconn();
+    void ReadCgnsZbcConn();
+    void DumpCgnsZbcConn();
+    void SetPeriodicBc();
+    void ConvertToInnerDataStandard();
+};
+
+#endif
+
+EndNameSpace

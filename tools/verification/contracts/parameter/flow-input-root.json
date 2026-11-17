@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "id": "parameter/flow-input-root",
+  "title": "flowInputRoot",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "proposed",
+  "overview": "flowInputRoot was identified in a representative CFD Case parameter file and is grouped under Input and output files. Its exact runtime consumer and downstream behavior have not yet been audited.",
+  "principle": "This entry preserves the legacy key and its configuration role only. Path resolution semantics, defaults, and applicability require confirmation from production code.",
+  "architecture": "This is a declaration-inventory entry. The exact per-Case declaration location, production read sites, and downstream call chain remain to be audited.",
+  "references": [],
+  "implementation": {
+    "source_paths": []
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The key flowInputRoot was identified during the representative CFD Case parameter inventory."
+    ],
+    "does_not_prove": [
+      "An exact per-Case declaration/source mapping.",
+      "A verified production-code consumer or complete downstream call chain.",
+      "Path resolution rules, default values, or validation behavior."
+    ]
+  },
+  "verification": [],
+  "group": {
+    "id": "input_output_files",
+    "title": "Input and output files",
+    "order": 35
+  },
+  "parameter_key": "flowInputRoot"
+}

@@ -1,0 +1,605 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "CgnsCoor.h"
+#include "CgnsZone.h"
+#include "CgnsBase.h"
+#include "CgnsFile.h"
+#include "NodeMesh.h"
+#include "Dimension.h"
+#include <iostream>
+#include <iomanip>
+#include <limits>
+#include <stdexcept>
+#include <utility>
+
+BeginNameSpace( ONEFLOW )
+#ifdef ENABLE_CGNS
+
+CgnsCoor::CgnsCoor( CgnsZone & cgnsZone )
+    : cgnsZone( cgnsZone )
+{
+    this->ndim = 3;
+    this->typeList.resize( this->ndim );
+    this->coor.resize( this->ndim );
+    this->coordinateBuffers.resize( this->ndim );
+    this->nCoor = this->coor.size();
+    this->nNodeList.resize( this->ndim );
+    this->coorNameList.resize( this->ndim );
+    this->nodeMesh = std::make_unique< NodeMesh >();
+}
+
+CgnsCoor::~CgnsCoor()
+{
+    DeAlloc();
+}
+
+CgInt CgnsCoor::GetNNode()
+{
+    return this->nNodes;
+}
+
+CgInt CgnsCoor::GetNCell()
+{
+    return this->nCells;
+}
+
+void CgnsCoor::SetNNode( CgInt nNodes )
+{
+    this->nNodes = nNodes;
+}
+
+void CgnsCoor::SetNCell( CgInt nCells )
+{
+    this->nCells = nCells;
+}
+
+void CgnsCoor::Alloc( int iCoor, int nNodes, DataType_t data_type )
+{
+    CoordinateBuffer & buffer = this->coordinateBuffers[ iCoor ];
+    if ( data_type == RealSingle )
+    {
+        buffer.doublePrecision.reset();
+        buffer.singlePrecision = std::make_unique< float[] >( nNodes );
+        this->coor[ iCoor ] = buffer.singlePrecision.get();
+    }
+    else
+    {
+        buffer.singlePrecision.reset();
+        buffer.doublePrecision = std::make_unique< double[] >( nNodes );
+        this->coor[ iCoor ] = buffer.doublePrecision.get();
+    }
+}
+
+void CgnsCoor::SetAllData( RealField & x, RealField & y, RealField & z )
+{
+    HXVector< Real * > xyz( this->ndim );
+
+    xyz[ 0 ] = & x[ 0 ];
+    xyz[ 1 ] = & y[ 0 ];
+    xyz[ 2 ] = & z[ 0 ];
+
+    for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
+    {
+        DataType_t data_type = this->typeList[ iCoor ];
+        SetData( iCoor, data_type, xyz[ iCoor ] );
+    }
+}
+
+void CgnsCoor::SetData( int iCoor, DataType_t data_type, Real * var )
+{
+    int nNodes = this->nNodeList[ iCoor ];
+    if ( data_type == RealSingle )
+    {
+        float * data = static_cast< float * >( this->coor[ iCoor ] );
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
+        {
+            var[ iNode ] = data[ iNode ];
+        }
+    }
+    else
+    {
+        double * data = static_cast< double * >( this->coor[ iCoor ] );
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
+        {
+            var[ iNode ] = data[ iNode ];
+        }
+    }
+}
+
+void CgnsCoor::SetCoorData( int iCoor, DataType_t data_type, Real * var )
+{
+    int nNodes = this->nNodeList[ iCoor ];
+    if ( data_type == RealSingle )
+    {
+        float * data = static_cast< float * >( this->coor[ iCoor ] );
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
+        {
+            data[ iNode ] = var[ iNode ];
+        }
+    }
+    else
+    {
+        double * data = static_cast< double * >( this->coor[ iCoor ] );
+        for ( int iNode = 0; iNode < nNodes; ++ iNode )
+        {
+            data[ iNode ] = var[ iNode ];
+            var[ iNode ] = data[ iNode ];
+        }
+    }
+}
+
+void CgnsCoor::SetAllCoorData()
+{
+    HXVector< Real * > xyz( this->ndim );
+
+    xyz[ 0 ] = & nodeMesh->xN[ 0 ];
+    xyz[ 1 ] = & nodeMesh->yN[ 0 ];
+    xyz[ 2 ] = & nodeMesh->zN[ 0 ];
+
+    for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
+    {
+        DataType_t data_type = this->typeList[ iCoor ];
+        this->SetCoorData( iCoor, data_type, xyz[ iCoor ] );
+    }
+}
+
+void CgnsCoor::CopyCoorData( CgnsCoor * cgnsCoorIn )
+{
+    if ( cgnsCoorIn == nullptr )
+    {
+        throw std::invalid_argument( "CgnsCoor::CopyCoorData: source is null" );
+    }
+    if ( cgnsCoorIn == this )
+    {
+        throw std::logic_error( "CgnsCoor::CopyCoorData: self-copy is not supported" );
+    }
+
+    const int coordinateCount = this->nCoor;
+    if ( coordinateCount <= 0 || coordinateCount > this->ndim ||
+         cgnsCoorIn->nCoor != coordinateCount ||
+         this->typeList.size() < coordinateCount ||
+         this->nNodeList.size() < coordinateCount ||
+         this->coor.size() < coordinateCount ||
+         this->coordinateBuffers.size() < static_cast< std::size_t >( coordinateCount ) ||
+         cgnsCoorIn->typeList.size() < coordinateCount ||
+         cgnsCoorIn->nNodeList.size() < coordinateCount ||
+         cgnsCoorIn->coor.size() < coordinateCount )
+    {
+        throw std::runtime_error( "CgnsCoor::CopyCoorData: inconsistent coordinate metadata" );
+    }
+
+    for ( int iCoor = 0; iCoor < coordinateCount; ++ iCoor )
+    {
+        const int nNodes = this->nNodeList[ iCoor ];
+        const DataType_t dataType = this->typeList[ iCoor ];
+        if ( nNodes <= 0 || cgnsCoorIn->nNodeList[ iCoor ] != nNodes ||
+             cgnsCoorIn->typeList[ iCoor ] != dataType ||
+             ( dataType != RealSingle && dataType != RealDouble ) ||
+             cgnsCoorIn->coor[ iCoor ] == nullptr )
+        {
+            throw std::runtime_error( "CgnsCoor::CopyCoorData: incompatible coordinate buffer" );
+        }
+    }
+
+    for ( int iCoor = 0; iCoor < coordinateCount; ++ iCoor )
+    {
+        const int nNodes = this->nNodeList[ iCoor ];
+        const DataType_t dataType = this->typeList[ iCoor ];
+        this->Alloc( iCoor, nNodes, dataType );
+
+        if ( dataType == RealSingle )
+        {
+            float * data = static_cast<float *>( this->coor[ iCoor ] );
+            const float * dataIn = static_cast<const float *>( cgnsCoorIn->coor[ iCoor ] );
+            for ( int iNode = 0; iNode < nNodes; ++ iNode )
+            {
+                data[ iNode ] = dataIn[ iNode ];
+            }
+        }
+        else
+        {
+            double * data = static_cast<double *>( this->coor[ iCoor ] );
+            const double * dataIn = static_cast<const double *>( cgnsCoorIn->coor[ iCoor ] );
+            for ( int iNode = 0; iNode < nNodes; ++ iNode )
+            {
+                data[ iNode ] = dataIn[ iNode ];
+            }
+        }
+    }
+}
+
+void CgnsCoor::DeAlloc()
+{
+    for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
+    {
+        this->coordinateBuffers[ iCoor ].singlePrecision.reset();
+        this->coordinateBuffers[ iCoor ].doublePrecision.reset();
+        this->coor[ iCoor ] = nullptr;
+    }
+}
+
+void CgnsCoor::ReadCgnsGridCoordinates()
+{
+    // Read into a temporary state so a failed CGNS read preserves the current mesh.
+    this->RequireNodeMesh();
+
+    const int fileId = this->cgnsZone.cgnsBase.cgnsFile->fileId;
+    const int baseId = this->cgnsZone.cgnsBase.baseId;
+    const int zoneId = this->cgnsZone.zId;
+
+    int coordinateCount = 0;
+    int result = cg_ncoords( fileId, baseId, zoneId, &coordinateCount );
+    if ( result != CG_OK )
+    {
+        throw std::runtime_error(
+            "CgnsCoor::ReadCgnsGridCoordinates: failed to read coordinate count: " +
+            std::string( cg_get_error() ) );
+    }
+    if ( coordinateCount <= 0 || coordinateCount > this->ndim )
+    {
+        throw std::runtime_error(
+            "CgnsCoor::ReadCgnsGridCoordinates: coordinate count is outside the supported range" );
+    }
+
+    const CgInt nodeCount = this->GetNNode();
+    if ( nodeCount <= 0 || nodeCount > std::numeric_limits< int >::max() )
+    {
+        throw std::runtime_error(
+            "CgnsCoor::ReadCgnsGridCoordinates: node count is outside the supported range" );
+    }
+    const int nNodes = static_cast< int >( nodeCount );
+
+    CgnsCoor staged( this->cgnsZone );
+    for ( int iCoor = 0; iCoor < coordinateCount; ++ iCoor )
+    {
+        DataType_t dataType;
+        CgnsTraits::char33 coorName = {};
+        const int coordId = iCoor + 1;
+        result = cg_coord_info( fileId, baseId, zoneId, coordId, &dataType, coorName );
+        if ( result != CG_OK )
+        {
+            throw std::runtime_error(
+                "CgnsCoor::ReadCgnsGridCoordinates: failed to read coordinate metadata: " +
+                std::string( cg_get_error() ) );
+        }
+
+        if ( dataType != RealSingle && dataType != RealDouble )
+        {
+            throw std::runtime_error(
+                "CgnsCoor::ReadCgnsGridCoordinates: unsupported coordinate data type for '" +
+                std::string( coorName ) + "'" );
+        }
+
+        std::cout << "   coorName = " << coorName << " dataType = " << dataType
+                  << " dataTypeName = " << DataTypeName[ dataType ] << "\n";
+        staged.typeList[ iCoor ] = dataType;
+        staged.nNodeList[ iCoor ] = nNodes;
+        staged.coorNameList[ iCoor ] = coorName;
+        staged.Alloc( iCoor, nNodes, dataType );
+
+        result = cg_coord_read( fileId, baseId, zoneId, coorName, dataType,
+                                this->irmin, this->irmax, staged.GetCoor( iCoor ) );
+        if ( result != CG_OK )
+        {
+            throw std::runtime_error(
+                "CgnsCoor::ReadCgnsGridCoordinates: failed to read coordinate '" +
+                std::string( coorName ) + "': " + cg_get_error() );
+        }
+    }
+
+    staged.nCoor = coordinateCount;
+    NodeMesh & stagedNodeMesh = staged.RequireNodeMesh();
+    RealField xCoordinates( nNodes );
+    RealField yCoordinates( nNodes );
+    RealField zCoordinates( nNodes );
+    staged.SetAllData( xCoordinates, yCoordinates, zCoordinates );
+    stagedNodeMesh.SetCoordinates(
+        std::move( xCoordinates ),
+        std::move( yCoordinates ),
+        std::move( zCoordinates ) );
+
+    using std::swap;
+    swap( this->nCoor, staged.nCoor );
+    swap( this->typeList, staged.typeList );
+    swap( this->nNodeList, staged.nNodeList );
+    swap( this->coorNameList, staged.coorNameList );
+    swap( this->coordinateBuffers, staged.coordinateBuffers );
+    swap( this->nodeMesh, staged.nodeMesh );
+
+    // Rebind raw coordinate views after transferring buffer ownership.
+    for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
+    {
+        if ( iCoor < this->nCoor )
+        {
+            this->coor[ iCoor ] = this->typeList[ iCoor ] == RealSingle
+                ? static_cast< void * >( this->coordinateBuffers[ iCoor ].singlePrecision.get() )
+                : static_cast< void * >( this->coordinateBuffers[ iCoor ].doublePrecision.get() );
+        }
+        else
+        {
+            this->coor[ iCoor ] = nullptr;
+        }
+
+        if ( iCoor < staged.nCoor )
+        {
+            staged.coor[ iCoor ] = staged.typeList[ iCoor ] == RealSingle
+                ? static_cast< void * >( staged.coordinateBuffers[ iCoor ].singlePrecision.get() )
+                : static_cast< void * >( staged.coordinateBuffers[ iCoor ].doublePrecision.get() );
+        }
+        else
+        {
+            staged.coor[ iCoor ] = nullptr;
+        }
+    }
+}
+
+void CgnsCoor::ReadCgnsGridCoordinates( CgnsCoor * cgnsCoorIn )
+{
+    if ( cgnsCoorIn == nullptr )
+    {
+        throw std::invalid_argument( "CgnsCoor::ReadCgnsGridCoordinates: source is null" );
+    }
+    if ( cgnsCoorIn == this )
+    {
+        throw std::logic_error( "CgnsCoor::ReadCgnsGridCoordinates: self-copy is not supported" );
+    }
+
+    this->RequireNodeMesh();
+    NodeMesh & nodeMeshIn = cgnsCoorIn->RequireNodeMesh();
+
+    const int coordinateCount = cgnsCoorIn->nCoor;
+    if ( coordinateCount <= 0 || coordinateCount > this->ndim ||
+         coordinateCount > cgnsCoorIn->ndim ||
+         cgnsCoorIn->typeList.size() < static_cast< std::size_t >( coordinateCount ) ||
+         cgnsCoorIn->nNodeList.size() < static_cast< std::size_t >( coordinateCount ) ||
+         cgnsCoorIn->coorNameList.size() < static_cast< std::size_t >( coordinateCount ) ||
+         cgnsCoorIn->coor.size() < static_cast< std::size_t >( coordinateCount ) )
+    {
+        throw std::runtime_error( "CgnsCoor::ReadCgnsGridCoordinates: inconsistent source coordinate metadata" );
+    }
+
+    const HXSize_t nodeCount = cgnsCoorIn->nNodeList[ 0 ];
+    if ( nodeCount == 0 ||
+         nodeMeshIn.xN.size() != nodeCount ||
+         nodeMeshIn.yN.size() != nodeCount ||
+         nodeMeshIn.zN.size() != nodeCount )
+    {
+        throw std::runtime_error( "CgnsCoor::ReadCgnsGridCoordinates: source NodeMesh size does not match coordinate data" );
+    }
+    for ( int iCoor = 0; iCoor < coordinateCount; ++ iCoor )
+    {
+        if ( cgnsCoorIn->nNodeList[ iCoor ] != nodeCount ||
+             cgnsCoorIn->coor[ iCoor ] == nullptr ||
+             ( cgnsCoorIn->typeList[ iCoor ] != RealSingle &&
+               cgnsCoorIn->typeList[ iCoor ] != RealDouble ) )
+        {
+            throw std::runtime_error( "CgnsCoor::ReadCgnsGridCoordinates: incompatible source coordinate buffer" );
+        }
+    }
+
+    // Build the replacement state before changing this object.
+    CgnsCoor staged( this->cgnsZone );
+    staged.nCoor = coordinateCount;
+    staged.typeList = cgnsCoorIn->typeList;
+    staged.nNodeList = cgnsCoorIn->nNodeList;
+    staged.coorNameList = cgnsCoorIn->coorNameList;
+    staged.CopyCoorData( cgnsCoorIn );
+    staged.nodeMesh = std::make_unique< NodeMesh >( nodeMeshIn );
+
+    using std::swap;
+    swap( this->nCoor, staged.nCoor );
+    swap( this->typeList, staged.typeList );
+    swap( this->nNodeList, staged.nNodeList );
+    swap( this->coorNameList, staged.coorNameList );
+    swap( this->coordinateBuffers, staged.coordinateBuffers );
+    swap( this->nodeMesh, staged.nodeMesh );
+
+    // Rebind raw views to the buffers now owned by each object.
+    for ( int iCoor = 0; iCoor < this->ndim; ++ iCoor )
+    {
+        if ( iCoor < this->nCoor )
+        {
+            this->coor[ iCoor ] = this->typeList[ iCoor ] == RealSingle
+                ? static_cast< void * >( this->coordinateBuffers[ iCoor ].singlePrecision.get() )
+                : static_cast< void * >( this->coordinateBuffers[ iCoor ].doublePrecision.get() );
+        }
+        else
+        {
+            this->coor[ iCoor ] = nullptr;
+        }
+
+        if ( iCoor < staged.nCoor )
+        {
+            staged.coor[ iCoor ] = staged.typeList[ iCoor ] == RealSingle
+                ? static_cast< void * >( staged.coordinateBuffers[ iCoor ].singlePrecision.get() )
+                : static_cast< void * >( staged.coordinateBuffers[ iCoor ].doublePrecision.get() );
+        }
+        else
+        {
+            staged.coor[ iCoor ] = nullptr;
+        }
+    }
+}
+
+void CgnsCoor::DumpCgnsGridCoordinates()
+{
+    //Determine the number and names of the coordinates.
+    int fileId = this->cgnsZone.cgnsBase.cgnsFile->fileId;
+    int baseId = this->cgnsZone.cgnsBase.baseId;
+    int zoneId = this->cgnsZone.zId;
+
+     std::cout << "   this->nCoor = " << this->nCoor << "\n";
+
+     for ( int iCoor = 0; iCoor < this->nCoor; ++ iCoor )
+     {
+         DataType_t dataType = this->typeList[ iCoor ];
+         std::string & coorName = this->coorNameList[ iCoor ];
+          //Write the x-, y-, z-coordinates.
+         int indexCoor = -1;
+         int result = cg_coord_write( fileId, baseId, zoneId, dataType, coorName.c_str(), this->GetCoor( iCoor ), &indexCoor );
+         if ( result != CG_OK )
+         {
+             throw std::runtime_error(
+                 "CgnsCoor::DumpCgnsGridCoordinates: failed to write coordinate '" +
+                 coorName + "': " + cg_get_error() );
+         }
+         std::cout << "   coorName = " << coorName << " dataType = " << dataType << " indexCoor = " << indexCoor << "\n";
+     }
+}
+
+void CgnsCoor::FreeMesh()
+{
+    this->nodeMesh.reset();
+}
+
+NodeMesh * CgnsCoor::GetNodeMesh()
+{
+    return this->nodeMesh.get();
+}
+
+NodeMesh & CgnsCoor::RequireNodeMesh()
+{
+    if ( this->nodeMesh == nullptr )
+    {
+        throw std::logic_error( "CgnsCoor: NodeMesh is not initialized" );
+    }
+    return *this->nodeMesh;
+}
+
+void CgnsCoor::SetDimension()
+{
+    int rind[ 6 ];
+    int result = cg_rind_read( rind );
+    if ( result != CG_OK )
+    {
+        for ( int i = 0; i < 6; ++ i )
+        {
+            rind[i] = 0;
+        }
+    }
+
+    CgInt * isize = this->cgnsZone.isize;
+
+    if ( this->cgnsZone.cgnsZoneType == CGNS_ENUMV( Structured ) )
+    {
+        this->SetDimensionStr();
+    }
+    else
+    {
+        this->SetDimensionUns();
+    }
+
+    std::cout << "   numberOfNodes = " << this->GetNNode() << " numberOfCells = " << this->GetNCell() << "\n";
+}
+
+void CgnsCoor::SetDimensionStr()
+{
+    CgInt * isize = this->cgnsZone.isize;
+
+    // lower range index
+    irmin[ 0 ] = 1;
+    irmin[ 1 ] = 1;
+    irmin[ 2 ] = 1;
+
+    // upper range index of vertices
+    irmax[ 0 ] = 1;
+    irmax[ 1 ] = 1;
+    irmax[ 2 ] = 1;
+
+    cellSize[ 0 ] = 1;
+    cellSize[ 1 ] = 1;
+    cellSize[ 2 ] = 1;
+
+    // upper range index of vertices
+    // vertex size
+    int j = 0;
+    irmax[ 0 ] = isize[ j ++ ];
+    irmax[ 1 ] = isize[ j ++ ];
+    if ( this->cgnsZone.cgnsBase.celldim == THREE_D )
+    {
+        irmax[ 2 ] = isize[ j ++ ];
+    }
+    // cell size
+    this->cellSize[ 0 ] = isize[ j ++ ];
+    this->cellSize[ 1 ] = isize[ j ++ ];
+    if ( this->cgnsZone.cgnsBase.celldim == THREE_D )
+    {
+        cellSize[ 2 ] = isize[ j ++ ];
+    }
+    std::cout << "   The Dimension Of Grid is : \n";
+    std::cout << "   I Direction " << std::setw( 10 ) << irmin[ 0 ] << std::setw( 10 ) << irmax[ 0 ] << "\n";
+    std::cout << "   J Direction " << std::setw( 10 ) << irmin[ 1 ] << std::setw( 10 ) << irmax[ 1 ] << "\n";
+    std::cout << "   K Direction " << std::setw( 10 ) << irmin[ 2 ] << std::setw( 10 ) << irmax[ 2 ] << "\n";
+    int nNodes = irmax[ 0 ] * irmax[ 1 ] * irmax[ 2 ];
+    int nCells = cellSize[ 0 ] * cellSize[ 1 ] * cellSize[ 2 ];
+    this->SetNNode( nNodes );
+    this->SetNCell( nCells );
+}
+
+void CgnsCoor::SetDimensionUns()
+{
+    CgInt * isize = this->cgnsZone.isize;
+    irmin[ 0 ] = 1;
+    irmin[ 1 ] = 0;
+    irmin[ 2 ] = 0;
+
+    irmax[ 0 ] = isize[ 0 ];
+    irmax[ 1 ] = 0;
+    irmax[ 2 ] = 0;
+
+    cellSize[ 0 ] = isize[ 1 ];
+
+    int nNodes = irmax[ 0 ];
+    int nCells = cellSize[ 0 ];
+    this->SetNNode( nNodes );
+    this->SetNCell( nCells );
+}
+
+void CgnsCoor::SetDimension( CgnsCoor * cgnsCoorIn )
+{
+    CgInt * isize = this->cgnsZone.isize;
+
+    isize[ 0 ] = cgnsCoorIn->GetNNode();
+    isize[ 1 ] = cgnsCoorIn->GetNCell();
+
+    irmin[ 0 ] = 1;
+    irmin[ 1 ] = 0;
+    irmin[ 2 ] = 0;
+
+    irmax[ 0 ] = isize[ 0 ];
+    irmax[ 1 ] = 0;
+    irmax[ 2 ] = 0;
+
+    cellSize[ 0 ] = isize[ 1 ];
+
+    this->SetNNode( irmax[ 0 ] );
+    this->SetNCell( cellSize[ 0 ] );
+
+    this->cgnsZone.InitLgMapping();
+
+    std::cout << "   numberOfNodes = " << this->GetNNode() << " numberOfCells = " << this->GetNCell() << "\n";
+}
+
+
+#endif
+EndNameSpace

@@ -1,0 +1,56 @@
+\documentclass{ctexart}
+\usepackage{amsmath}   % 数学公式
+\usepackage{geometry}  % 调整页面布局
+\usepackage{amsfonts}  % 数学字体
+
+% 设置页面边距
+\geometry{a4paper, left=2cm, right=2cm, top=2cm, bottom=2cm}
+
+\title{ENO插值系数 $c_{rj}$ 的推导}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{推导过程}
+
+\subsection{模板选择与多项式构造}
+ENO方法通过自适应选择模板构造插值多项式。对于模板偏移量 $r$，选取节点：
+\[
+\left\{x_{i-r+q-\frac{1}{2}}\right\}_{q=0}^k
+\]
+构造 $k$ 阶多项式 $P_r(x)$，使其满足：
+\begin{equation}
+P_r\left(x_{i-r+m-\frac{1}{2}}\right) = u_{i-r+m}, \quad m = 0,1,\dots,k
+\end{equation}
+
+\subsection{拉格朗日插值基函数}
+基函数 $L_m(x)$ 定义为：
+\begin{equation}
+L_m(x) = \prod_{\substack{l=0 \\ l \neq m}}^{k} \frac{x - x_{i-r+l-\frac{1}{2}}}{x_{i-r+m-\frac{1}{2}} - x_{i-r+l-\frac{1}{2}}}
+\end{equation}
+
+\subsection{界面处插值计算}
+在界面 $x_{i+\frac{1}{2}}$ 处的多项式值为：
+\begin{align}
+P_r\left(x_{i+\frac{1}{2}}\right) &= \sum_{m=0}^{k} u_{i-r+m} L_m\left(x_{i+\frac{1}{2}}\right) \\
+&= \sum_{m=0}^{k} u_{i-r+m} \left[ \sum_{\substack{l=0 \\ l \neq m}}^{k} \frac{\prod_{\substack{q=0 \\ q \neq m,l}}^{k} \left(x_{i+\frac{1}{2}} - x_{i-r+q-\frac{1}{2}}\right)}{\prod_{\substack{l=0 \\ l \neq m}}^{k} \left(x_{i-r+m-\frac{1}{2}} - x_{i-r+l-\frac{1}{2}}\right)} \right]
+\end{align}
+
+\subsection{系数组合与加权}
+通过以下步骤得到最终系数：
+\begin{enumerate}
+  \item 外层求和范围 $m = j+1$ 到 $k$
+  \item 分子排除 $q=m$ 和 $q=l$ 的项
+  \item 分母为基函数的标准分母
+  \item 乘以网格间距 $\Delta x_{i-r+j}$
+\end{enumerate}
+
+\section{最终结果}
+ENO插值系数 $c_{rj}$ 的表达式为：
+\begin{equation}
+c_{rj} = \sum_{m=j+1}^{k} \left( \sum_{\substack{l=0 \\ l \neq m}}^{k} \frac{\prod_{\substack{q=0 \\ q \neq m,l}}^{k} \left( x_{i+\frac{1}{2}} - x_{i - r + q - \frac{1}{2}} \right)}{\prod_{\substack{l=0 \\ l \neq m}}^{k} \left( x_{i - r + m - \frac{1}{2}} - x_{i - r + l - \frac{1}{2}} \right)} \right) \Delta x_{i - r + j}.
+\end{equation}
+
+\end{document}

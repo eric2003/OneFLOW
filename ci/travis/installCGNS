@@ -1,0 +1,41 @@
+#!/bin/bash
+
+if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    ls
+    cd  lib
+    ls
+    echo "Compile CGNS Source"
+    echo "HDF5_DIR is " $HDF5_DIR
+    echo "print env start------------------ "
+    env|sort
+    echo "print env end------------------ "
+    export HDF5_DIR=/usr/local/HDF_Group/HDF5/1.10.5/share/cmake
+    echo "now HDF5_DIR is " $HDF5_DIR
+    tar xzvf CGNS-3.4.0.tar.gz
+    ls
+    cd CGNS-3.4.0
+    ls
+    echo "C_COMPILER is $C_COMPILER"
+    echo "CXX_COMPILER is $CXX_COMPILER"
+    mkdir build
+    cd build
+    export PATH=/usr/bin/:$PATH
+    pwd
+    ls
+    echo "TRAVIS_BUILD_DIR is $TRAVIS_BUILD_DIR"
+    echo "source is $TRAVIS_BUILD_DIR/lib/CGNS-3.4.0"
+    echo "build is $TRAVIS_BUILD_DIR/lib/CGNS-3.4.0/build"
+    cmake --help
+    #cmake -G "Unix Makefiles"  \
+    #      -DCMAKE_C_COMPILER=$C_COMPILER -DCMAKE_CXX_COMPILER=$CXX_COMPILER -DCGNS_ENABLE_64BIT="ON" \
+    #      -DCGNS_BUILD_SHARED="OFF" -DCMAKE_INSTALL_PREFIX=/usr/local/cgns ..
+    echo "HDF5_DIR is " $HDF5_DIR
+    cmake -G "Unix Makefiles"  \
+          -DCMAKE_C_COMPILER=$C_COMPILER -DCMAKE_CXX_COMPILER=$CXX_COMPILER -DCGNS_ENABLE_64BIT="ON" \
+          -DCGNS_ENABLE_HDF5="ON" -DCGNS_BUILD_SHARED="OFF" -DCMAKE_INSTALL_PREFIX=/usr/local/cgns ..
+
+    echo "----------------------------------------"
+    make -j 8
+    sudo make install
+    ls /usr/local
+fi

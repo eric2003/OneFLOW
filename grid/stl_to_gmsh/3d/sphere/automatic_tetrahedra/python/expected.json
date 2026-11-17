@@ -1,0 +1,27 @@
+{
+  "schema": "oneflow.stl-to-gmsh-expected",
+  "version": 1,
+  "mesh": {
+    "line_elements": 0,
+    "quadrilateral_elements": 0,
+    "hexahedron_elements": 0
+  },
+  "physical_groups": [
+    {
+      "dimension": 2,
+      "name": "wall"
+    },
+    {
+      "dimension": 3,
+      "name": "fluid_domain"
+    }
+  ],
+  "artifact": {
+    "mesh_file": "sphere_automatic_tetrahedra.msh"
+  },
+  "mesh_minimum": {
+    "nodes": 5,
+    "triangle_elements": 4,
+    "tetrahedron_elements": 1
+  }
+}

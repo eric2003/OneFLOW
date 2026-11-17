@@ -1,0 +1,42 @@
+{
+  "schema": "oneflow.case",
+  "version": 1,
+  "name": "laminar_flat_plate_mesh",
+  "kind": "structured-mesh-generation-and-inspection",
+  "parameters": {
+    "runtime": {
+      "task": "Grid",
+      "objective": 0,
+      "generationId": 4,
+      "dimension": 2,
+      "layout": "grid/laminarFlatPlateLayout.txt",
+      "parameterFiles": [
+        "script/simu.txt",
+        "script/dimension.txt",
+        "script/tolerence.txt",
+        "script/grid.txt",
+        "script/part.txt"
+      ]
+    },
+    "inspection": {
+      "realBytes": 8,
+      "byteOrder": "little",
+      "sourceGrid": "results/laminarFlatPlate.generated.grd",
+      "oneFlowGrid": "results/laminarFlatPlate.ofl",
+      "gridInfo": "results/laminarFlatPlate.info.json"
+    },
+    "expected": {
+      "zones": 1,
+      "dimension": 2,
+      "nodes": 6205,
+      "cells": 6048,
+      "faces": 12252,
+      "boundaryFaces": 312,
+      "internalFaces": 11940,
+      "boundingBox": {
+        "min": [-2.0, 0.0, 0.0],
+        "max": [2.0, 4.0, 0.0]
+      }
+    }
+  }
+}

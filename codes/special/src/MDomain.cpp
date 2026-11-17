@@ -1,0 +1,240 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "BlockFaceSolver.h"
+#include <memory>
+#include "MLine.h"
+#include "SimpleDomain.h"
+#include "LineMachine.h"
+#include "DomainMachine.h"
+#include "MDomain.h"
+#include "SDomain.h"
+#include "CurveInfo.h"
+#include "SegmentCtrl.h"
+#include "BlockElem.h"
+#include "HXCgns.h"
+#include "Dimension.h"
+#include <algorithm>
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+
+
+BeginNameSpace( ONEFLOW )
+
+// Out-of-line: unique_ptr<SDomain> requires complete SDomain at delete.
+MDomain::~MDomain() = default;
+
+void MDomain::CalcSubDomainCtrlCoor()
+{
+    std::vector< bool > resolvedDomains( sDomainList.size(), false );
+
+    while ( true )
+    {
+        bool allDomainsResolved = true;
+        bool anyDomainAdvanced = false;
+        int nDomain = sDomainList.size();
+        for ( int iDomain = 0; iDomain < nDomain; ++ iDomain )
+        {
+            if ( resolvedDomains[ iDomain ] ) continue;
+
+            SDomain * sDomain = sDomainList[ iDomain ].get();
+            const ControlPointResolution resolution = sDomain->CalcSingleDomainCoor();
+            if ( resolution == ControlPointResolution::Resolved )
+            {
+                resolvedDomains[ iDomain ] = true;
+                anyDomainAdvanced = true;
+            }
+            else
+            {
+                allDomainsResolved = false;
+                if ( resolution == ControlPointResolution::Progress )
+                {
+                    anyDomainAdvanced = true;
+                }
+            }
+        }
+
+        if ( allDomainsResolved ) return;
+
+        if ( ! anyDomainAdvanced )
+        {
+            throw std::runtime_error(
+                "Unable to resolve subdomain control-point coordinates: no progress" );
+        }
+    }
+}
+
+void MDomain::AddSubDomain( int fid, IntField & lineList, IntField & posList )
+{
+    auto sdomain = std::make_unique< SDomain >( this->coorMap );
+    sdomain->SetDomain( fid, lineList, posList );
+    sDomainList.push_back( std::move( sdomain ) );
+}
+
+SDomain * MDomain::FindSDomain( int fid )
+{
+    int nSDomain = sDomainList.size();
+    for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
+    {
+        SDomain * sDomain = sDomainList[ iSDomain ].get();
+        if ( sDomain->domain_id == fid )
+        {
+            return sDomain;
+        }
+    }
+    return 0;
+}
+
+void MDomain::CalcCoor()
+{
+    int closedLine = 1;
+    this->CalcBcCoor( this->coorMap, closedLine );
+    this->CalcSubDomainCtrlCoor();
+}
+
+int MDomain::GetNsubDomain()
+{
+    return this->sDomainList.size();
+}
+
+void MDomain::ConstructCandidateControlPoints()
+{
+    IntSet cornerPoints;
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        const SDomain * sDomain = this->sDomainList[ iDomain ].get();
+        for ( int iPoint = 0; iPoint < sDomain->ctrlpoints.size(); ++ iPoint )
+        {
+            cornerPoints.insert( sDomain->ctrlpoints[ iPoint ] );
+        }
+    }
+
+    this->candidate_ctrlpoints.clear();
+    for ( IntSet::const_iterator iter = cornerPoints.begin();
+          iter != cornerPoints.end(); ++ iter )
+    {
+        this->candidate_ctrlpoints.push_back( *iter );
+    }
+}
+
+void MDomain::ConstructMultiDomainTopo()
+{
+    int nSDomain = sDomainList.size();
+    for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
+    {
+        SDomain * sDomain = sDomainList[ iSDomain ].get();
+        sDomain->ConstructSDomainCtrlPoint();
+        sDomain->ConstructDomainTopo();
+    }
+
+    this->ConstructMultiLineToDomainMap();
+    this->ConstructMultiPointToDomainMap();
+    this->ConstructMultiPointToPointMap();
+    this->ConstructPointToLineMap();
+    this->ConstructBcPoint();
+    this->ConstructCandidateControlPoints();
+}
+
+void MDomain::ConstructMultiLineToDomainMap()
+{
+    this->lineToDomainMap.clear();
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        SDomain * sdomain = this->sDomainList[ iDomain ].get();
+        sdomain->ConstructLineToDomainMap( this->lineToDomainMap );
+    }
+
+
+}
+
+void MDomain::ConstructPointToLineMap()
+{
+    this->pointToLineMap.clear();
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        SDomain * sdomain = this->sDomainList[ iDomain ].get();
+        sdomain->ConstructPointToLineMap( this->pointToLineMap );
+    }
+
+
+}
+
+void MDomain::ConstructMultiPointToDomainMap()
+{
+    this->pointToDomainMap.clear();
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        SDomain * sdomain = this->sDomainList[ iDomain ].get();
+        sdomain->ConstructPointToDomainMap( this->pointToDomainMap );
+    }
+}
+
+void MDomain::ConstructMultiPointToPointMap()
+{
+    this->pointToPointMap.clear();
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        SDomain * sdomain = this->sDomainList[ iDomain ].get();
+        sdomain->ConstructPointToPointMap( this->pointToPointMap );
+    }
+}
+
+void MDomain::CreateInpFaceList( HXVector< std::unique_ptr<Face2D> > &facelist )
+{
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        SDomain * sDomain = this->sDomainList[ iDomain ].get();
+        sDomain->CreateInpFaceList( facelist );
+    }
+}
+
+void MDomain::CreateInpFaceList1D( HXVector< std::unique_ptr<Face2D> > &facelist )
+{
+    for ( int iDomain = 0; iDomain < this->sDomainList.size(); ++ iDomain )
+    {
+        SDomain * sDomain = this->sDomainList[ iDomain ].get();
+        sDomain->CreateInpFaceList1D( facelist );
+    }
+}
+
+void MDomain::SetBlkBcMesh( Block3D * blk3d )
+{
+    int nSDomain = sDomainList.size();
+    for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
+    {
+        SDomain * sDomain = sDomainList[ iSDomain ].get();
+        sDomain->SetBlkBcMesh( blk3d );
+    }
+}
+
+void MDomain::SetBlkBcMesh( Block2D * blk2d )
+{
+    int nSDomain = sDomainList.size();
+    for ( int iSDomain = 0; iSDomain < nSDomain; ++ iSDomain )
+    {
+        SDomain * sDomain = sDomainList[ iSDomain ].get();
+        sDomain->SetBlkBcMesh( blk2d );
+    }
+}
+
+EndNameSpace

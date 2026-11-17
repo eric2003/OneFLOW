@@ -1,0 +1,32 @@
+{
+  "physical_groups": [
+    {
+      "dimension": 1,
+      "name": "wall"
+    },
+    {
+      "dimension": 1,
+      "name": "inflow"
+    },
+    {
+      "dimension": 1,
+      "name": "outflow"
+    },
+    {
+      "dimension": 1,
+      "name": "farfield"
+    },
+    {
+      "dimension": 2,
+      "name": "fluid_domain"
+    }
+  ],
+  "mesh_minimum": {
+    "nodes": 20,
+    "line_elements": 10,
+    "triangle_elements": 1
+  },
+  "artifact": {
+    "mesh_file": "circle_external_flow.msh"
+  }
+}

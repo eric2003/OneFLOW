@@ -1,0 +1,34 @@
+{
+  "id": "parent_local_mapping_required",
+  "title": "Parent-local mapping required",
+  "description": "A split parent without its own mapping must not reuse a shared child's global compatibility row.",
+  "test": {
+    "framework": "GoogleTest",
+    "suite": "CollectBoundaryInterfaceChildNodeMappingsTest",
+    "name": "RejectsMissingParentRowInsteadOfUsingSharedChildGlobalRow",
+    "source": "tests/geometry/CollectBoundaryInterfaceChildCountsTest.cpp"
+  },
+  "input": {
+    "zoneToLocalToGlobal": [[0, 1]],
+    "bcType": ["INTERFACE", "INTERFACE"],
+    "childFaceIdsOfParent": [[2], [2], []],
+    "childFaceNodeIdsByParent": [[[0, 1, 2]], [], []],
+    "childFaceNodeFlagsByParent": [[[1, 1, 1]], [], []],
+    "childFaceNodeIds": [[], [], [0, 1, 2]],
+    "childFaceNodeFlags": [[], [], [1, 1, 1]],
+    "initialOutputNodeIds": [[[90]]],
+    "initialOutputNodeFlags": [[[-90]]]
+  },
+  "expected": {
+    "exception": "std::logic_error",
+    "message": "missing parent-specific mapping for split parent",
+    "outputNodeIdsUnchanged": [[[90]]],
+    "outputNodeFlagsUnchanged": [[[-90]]]
+  },
+  "result": null,
+  "notes": [
+    "The global child row is seeded by parent 0 and cannot supply parent 1's local node numbering.",
+    "The C++ regression checks both rejection and the strong no-partial-output guarantee.",
+    "The geometry fixture backend displays this contract but does not execute the C++ GoogleTest."
+  ]
+}

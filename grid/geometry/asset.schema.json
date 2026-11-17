@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/eric2003/OneFLOW/blob/hexin/grid/geometry/asset.schema.json",
+  "title": "OneFLOW Geometry Asset",
+  "description": "Format-independent geometry asset definition, provenance and representations.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "id",
+    "name",
+    "dimension",
+    "definition",
+    "provenance",
+    "representations"
+  ],
+  "properties": {
+    "schema": {
+      "const": "oneflow.geometry-asset"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "dimension": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "enum": [
+        1,
+        2,
+        3,
+        null
+      ],
+      "description": "Null means dimensionality has not yet been established by a format adapter."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "units": {
+      "type": "object",
+      "properties": {
+        "length": {
+          "type": "string"
+        },
+        "coordinate_system": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "definition": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "analytic",
+            "parametric",
+            "procedural",
+            "constructive",
+            "imported",
+            "measured",
+            "implicit"
+          ]
+        },
+        "equations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "parameter_schema": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "repository_example",
+            "tutorial",
+            "generated",
+            "external",
+            "user_supplied",
+            "measured",
+            "unknown"
+          ]
+        },
+        "source_case": {
+          "type": "string"
+        },
+        "tutorial": {
+          "type": "string"
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "generator": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "source": {
+              "type": "string"
+            },
+            "algorithm": {
+              "type": "string"
+            },
+            "source_sha256": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{64}$"
+            }
+          },
+          "required": [
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        "source_revision": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "source_file_name": {
+          "type": "string"
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "representations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "role",
+          "format"
+        ],
+        "properties": {
+          "role": {
+            "enum": [
+              "native_definition",
+              "cad_brep",
+              "cad_surface",
+              "surface_mesh",
+              "volume_mesh",
+              "point_cloud",
+              "implicit_field",
+              "visualization",
+              "exchange"
+            ]
+          },
+          "format": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "source",
+              "generated_on_demand",
+              "derived",
+              "planned",
+              "external"
+            ]
+          },
+          "generator": {
+            "type": "string"
+          },
+          "parent_representation": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{64}$"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "tutorials": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "related_assets": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "metadata": {
+      "type": "object"
+    }
+  }
+}

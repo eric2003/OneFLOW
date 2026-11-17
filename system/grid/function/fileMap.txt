@@ -1,0 +1,2 @@
+READ_WALL_DIST , CSetFile, 3, walldist_file, ( in , binary )
+WRITE_WALL_DIST, CSetFile, 4, walldist_file, ( out, binary, trunc )

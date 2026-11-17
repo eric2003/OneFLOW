@@ -1,0 +1,3 @@
+true, turbbcdqdx, nTurbEqu , all
+true, turbbcdqdy, nTurbEqu , all
+true, turbbcdqdz, nTurbEqu , all

@@ -1,0 +1,182 @@
+/*---------------------------------------------------------------------------*\\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\\*---------------------------------------------------------------------------*/
+// Production environment bootstrap for SimuContext.
+// Delegates to existing globals (compatibility layer for phase 2).
+
+#include "SimuContext.h"
+#include "SimulationCommandLine.h"
+#include "SimuCaseLifecycle.h"
+#include "SimuContextParameter.h"
+#include "SimuContextCaseState.h"
+#include "SimuTask.h"
+#include "Prj.h"
+#include "ParaFile.h"
+#include "Parallel.h"
+#include "AccelRuntime.h"
+#ifdef ONEFLOW_ENABLE_HIP
+#include "HipFluxBackend.h"
+#endif
+#include "SolverMap.h"
+#include "SolverNameList.h"
+#include "Zone.h"
+#include "FieldManager.h"
+#include "HeatFlux.h"
+#include "NsCom.h"
+#include "NsSolver.h"
+#include "INsSolver.h"
+#include "TurbSolver.h"
+#include "TurbCom.h"
+#include "Tolerance.h"
+#include "ActionState.h"
+#include "Iteration.h"
+#include <iostream>
+#include <filesystem>
+#include <stdexcept>
+
+BeginNameSpace( ONEFLOW )
+
+void SimuContext::ProcessCommandLine()
+{
+    // Keep the selected case directory as explicit case input.
+    const SimulationCommandLineOptions options =
+        ParseSimulationCommandLineOptions( args_ );
+    // Store the resolved path in the case context so it remains valid even
+    // when a later case updates the legacy Prj static state.
+    caseDir_ = Prj::ResolveCaseDir( options.caseDirectories.front() );
+
+    // Command-line mode is process-wide; case directory binding belongs to
+    // SetupCaseEnvironment() so each case owns its legacy IO binding.
+    Prj::hx_debug = options.debug;
+    Prj::run_from_ide = options.debug;
+}
+
+void SimuContext::SetupProcessEnvironment()
+{
+    processLifecycle_.Start();
+    SimuCaseLifecycleDetail::ExecuteWithRollback(
+        [&]()
+        {
+            std::cout << " OneFLOW is running\n";
+            ONEFLOW::SetUpParallelEnvironment();
+
+            rank_ = Parallel::GetPid();
+            size_ = Parallel::GetNProc();
+
+            ONEFLOW::InitializeAccelRuntime( rank_, size_ );
+        },
+        [&]() { FinalizeEnvironment(); } );
+}
+
+void SimuContext::SetupEnvironment()
+{
+    SetupProcessEnvironment();
+    SimuCaseLifecycleDetail::ExecuteWithRollback(
+        [&]() { SetupCaseEnvironment(); },
+        [&]() { TeardownEnvironment(); } );
+}
+
+void SimuContext::TeardownCase()
+{
+    // Attempt every independent release/reset in dependency order. A failure
+    // in one cleanup operation must not skip the remaining case resources.
+    // Device-backed state is released before the process accelerator runtime.
+    SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
+        [&]() { ClearAccelStates(); },
+#ifdef ONEFLOW_ENABLE_HIP
+        [&]() { HipFluxBackend::ReleaseShared(); },
+#endif
+        [&]() { SolverMap::FreeSolverMap(); },
+        [&]() { SolverNameClass::Reset(); },
+        [&]() { heat_flux.DeAllocate(); },
+        [&]() { nscom.Reset(); },
+        [&]() { NsSolver::Reset(); },
+        [&]() { INsSolver::Reset(); },
+        [&]() { TurbSolver::Reset(); },
+        [&]() { turbcom.Reset(); },
+        [&]() { Tolerance::Reset(); },
+        [&]() { Zone::Reset(); },
+        [&]() { ActionState::Reset(); },
+        [&]() { Iteration::Reset(); },
+        [&]() { FieldManagerRegistry::FreeFieldManager(); },
+        [&]() { SimuContextDetail::ClearCaseConfigurationState(); },
+        [&]()
+        {
+            // Reset context-owned state even when an earlier release failed.
+            task_ = TaskEnum::SOLVE_FIELD;
+            taskName_ = "Solve";
+            taskResolved_ = false;
+            expandedSolverNames_.clear();
+            envReady_ = false;
+        } );
+}
+
+void SimuContext::FinalizeEnvironment()
+{
+    if ( ! processLifecycle_.IsActive() )
+    {
+        return;
+    }
+
+    // Commit the lifecycle transition only after every release operation
+    // has completed. If a release fails, the state remains Active so callers
+    // do not observe a false successful-finalization state.
+    // Context-owned backend states may contain device allocations. Release
+    // them while the backend is still initialized, even when callers finalize
+    // the process directly without first running TeardownCase().
+    // These releases are independent, but both depend on the accelerator
+    // runtime remaining alive. Attempt both before crossing the runtime boundary.
+#ifdef ONEFLOW_ENABLE_HIP
+    SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
+        [&]() { ClearAccelStates(); },
+        []() { HipFluxBackend::ReleaseShared(); } );
+#else
+    SimuCaseLifecycleDetail::ExecuteAllCleanupSteps(
+        [&]() { ClearAccelStates(); } );
+#endif
+
+    // Runtime finalization is a dependency boundary, not an independent
+    // cleanup step. If it fails, keep the parallel environment alive so the
+    // caller can diagnose the backend failure and retry finalization.
+    ONEFLOW::FinalizeAccelRuntime();
+
+    // The parallel runtime may be finalized only after accelerator shutdown
+    // has completed successfully.
+    HXFinalize();
+    processLifecycle_.MarkFinalized();
+}
+
+void SimuContext::TeardownEnvironment()
+{
+    SimuCaseLifecycleDetail::ExecuteWithCleanup(
+        [&]() { TeardownCase(); },
+        [&]() { FinalizeEnvironment(); } );
+}
+
+void SimuContext::ResolveTaskFromControl()
+{
+    simu_state.Init();
+    task_ = simu_state.Task();
+    taskName_ = TaskEnumToString( task_ );
+    taskResolved_ = true;
+}
+
+EndNameSpace

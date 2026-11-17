@@ -1,0 +1,16 @@
+{
+	"total_time" : 0.25,
+	"equation" : "burgers",
+	"iconservation" : 1,
+	"ifinite_volume" : 1,
+	"iviscous" : 0,
+	"nsave" : 250,
+	"idump_initial_field" : 1,
+	"scheme" :
+	{
+		"inviscid" : "weno5",
+		"viscous" : "center",
+		"time" : "rk1"
+	},
+    "grid" : "../burgers1d1blocksv1.cgns"
+}

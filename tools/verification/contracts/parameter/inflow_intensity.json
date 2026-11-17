@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "id": "parameter/inflow_intensity",
+  "parameter_key": "inflow_intensity",
+  "title": "Turbulence inflow intensity",
+  "domain": "parameter",
+  "kind": "runtime_parameter",
+  "status": "partially_verified",
+  "overview": "Controls the turbulence intensity used by the transition-model inflow initializer. In the ITReGama branch, positive values set inflow turbulent kinetic energy from the source-scaled intensity; non-positive values use an empirical fallback based on the initial k-omega state.",
+  "principle": "Only when transition_model == ITReGama, positive I selects k_e = 1.5 * (0.01 I)^2. Non-positive I retains the viscosity/Reynolds-based k_e and obtains TUoo from trans.CalcIntensity. This is an inflow initialization branch, not a domain-wide turbulence-intensity field.",
+  "architecture": "TurbCom::Init reads inflow_intensity. TurbCom::InitInflow consumes it only inside the ITReGama branch; positive values also recompute the initialized omega-like variable using inflow_viscosity, cmu, Reynolds number, and reference density.",
+  "references": [],
+  "implementation": {
+    "source_paths": [
+      "codes/turb/src/TurbCom.cpp"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/case_parameter_design.rst"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "TurbCom::Init reads inflow_intensity as Real.",
+      "TurbCom::InitInflow tests inflow_intensity only inside the ITReGama transition-inflow branch.",
+      "For positive intensity in that branch, the source sets k_e = 1.5 * (0.01 * inflow_intensity)^2.",
+      "For non-positive intensity in that branch, the source uses trans.CalcIntensity(1.0, keoo) as the empirical fallback."
+    ],
+    "does_not_prove": [
+      "That this parameter controls inflow for every turbulence model or the non-transition two-equation branch.",
+      "A universal external unit convention, admissible range, or recommended value.",
+      "A measured inflow-boundary accuracy guarantee."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "pure_api",
+      "reference": "TurbCom::InitInflow",
+      "status": "declared_not_executed",
+      "scope": "Declaration linkage is not a record of execution or numerical validation."
+    }
+  ],
+  "examples": [
+    {
+      "title": "Positive transition-inflow intensity to k (worked arithmetic)",
+      "input": "transition_model = ITReGama; inflow_intensity = 0.5.",
+      "calculation": "The positive-intensity branch evaluates k_e = 3/2 * (0.01 * 0.5)^2 = 1.5 * 0.005^2 = 0.0000375.",
+      "result": "The initialized inflow turbulent kinetic energy is k_e = 3.75e-5 in the source's working units. The branch then recomputes the omega-like inflow variable using inflow_viscosity and the reference factors.",
+      "limitations": "This is a hand calculation of the ITReGama source branch, not a solver run. The 0.01 scaling is recorded as implemented; no universal unit convention, valid range, or boundary-condition accuracy is inferred."
+    }
+  ],
+  "group": {
+    "id": "turbulence_inflow",
+    "title": "Turbulence Inflow Conditions",
+    "order": 65
+  },
+  "knowledge": {
+    "formulas": [
+      {
+        "id": "turbulence_inflow_intensity_to_k",
+        "title": "Inflow intensity to turbulent kinetic energy",
+        "role": "OneFLOW source-derived implementation relation",
+        "plain": "k_e = 1.5 (0.01 I)^2",
+        "latex": "k_e = \\frac{3}{2} (0.01 I)^2",
+        "assumptions": "Positive inflow_intensity branch inside transition_model == ITReGama in TurbCom::InitInflow; this is not the general two-equation initialization branch.",
+        "symbols": [
+          {
+            "symbol": "I",
+            "meaning": "Configured turbulence inflow intensity.",
+            "notations": [
+              "inflow_intensity"
+            ],
+            "oneflow_name": "inflow_intensity",
+            "notes": "The source multiplies by 0.01 before squaring."
+          },
+          {
+            "symbol": "k_e",
+            "meaning": "Inflow turbulent kinetic energy assigned by initialization.",
+            "notations": [
+              "k_infinity"
+            ],
+            "oneflow_name": "inflow[ IKE ]",
+            "notes": "Contextual mapping for this code path."
+          }
+        ]
+      }
+    ],
+    "symbols": [],
+    "references": [],
+    "caveats": [
+      "The formula is conditional on the ITReGama inflow branch and positive input.",
+      "The source multiplies the configured value by 0.01; this record does not infer a universal external unit convention or recommended value."
+    ]
+  }
+}

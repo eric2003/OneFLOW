@@ -1,0 +1,102 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#pragma once
+#include "HXDefine.h"
+#include "GridHandles.h"
+#include "ElemFeature.h"
+#include "PointManager.h"
+#include "FaceSolver.h"
+#include <functional>
+#include <memory>
+
+BeginNameSpace( ONEFLOW )
+
+class MeshPointManager;
+class CgnsZone;
+class CgnsZbase;
+class ElemFeature;
+class FaceSolver;
+class Grid;
+class UnsGrid;
+class CgnsSection;
+struct GridConfig;
+enum class GridAssemblyMode;
+
+int OneFlow2CgnsZoneType( int zoneType );
+int Cgns2OneFlowZoneType( int zoneType );
+
+// Face scan/export/reorder contract: doc/source/face_stage_pipeline.rst
+class GridElem
+{
+public:
+    GridElem( HXVector< std::reference_wrapper< CgnsZone > > zoneViews );
+    ~GridElem();
+public:
+    ElemFeature elemFeature;
+    MeshPointManager pointFactory;
+    FaceSolver faceSolver;
+    Real minLen, maxLen;
+public:
+    // Pipeline (normal path): InitCgnsElements -> ScanElements(faceSolver) ->
+    // ScanBcFace -> GenerateCalcElement -> GenerateCalcGrid.
+    void PrepareUnsCalcGrid();
+    void PrepareUnsCalcGridNormal();
+    void InitCgnsElements();
+    void ScanBcFace();
+    void GenerateCalcElement();
+    [[nodiscard]] std::unique_ptr< UnsGrid > GenerateCalcGrid( int gridId );
+    void GenerateCalcGrid( UnsGrid & grid );
+    void CalcBoundaryType( UnsGrid & grid );
+    void ReorderLink( UnsGrid & grid );
+public:
+    void PrepareUnsCalcGridPolyhedron();
+    void ScanPolyhedralFaces();
+    void SetPolyhedronElementType( CgnsSection & cgnsSection );
+private:
+    CgnsZone & GetCgnsZone( int iZone );
+    const CgnsZone & GetCgnsZone( int iZone ) const;
+    int GetNZones() const;
+    bool HasPolygonSection() const;
+    int GetVolBcType() const;
+    HXVector< std::reference_wrapper< CgnsZone > > zoneViews;
+};
+
+// Multi-zone orchestrator: builds UnsGrids from a CgnsZbase via GridElem stages.
+class GridElemGroup
+{
+public:
+    explicit GridElemGroup( CgnsZbase & cgnsZbase );
+    ~GridElemGroup();
+private:
+    CgnsZbase & cgnsZbase;
+public:
+    [[nodiscard]] CgnsZbase & GetCgnsZbase() const;
+
+    [[nodiscard]] Grids GenerateLocalOneFlowGrids();
+    [[nodiscard]] Grids GenerateLocalOneFlowGrids( const GridConfig & config );
+private:
+    [[nodiscard]] HXVector< std::unique_ptr< GridElem > > CreateGridElements( GridAssemblyMode assemblyMode ) const;
+    void PrepareUnsCalcGrid( const HXVector< std::unique_ptr< GridElem > > & data ) const;
+};
+
+EndNameSpace

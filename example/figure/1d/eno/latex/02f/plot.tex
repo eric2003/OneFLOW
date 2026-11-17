@@ -1,0 +1,29 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage[UTF8]{ctex} % For Chinese support
+
+\begin{document}
+
+\section{8.1}
+
+\begin{equation}
+w_t + (f(w))_x = 0, \quad x \in (a, b), \quad t > 0
+\label{eq:8.1}
+\end{equation}
+
+\begin{equation}
+w(x, 0) = w^0(x), \quad x \in [a, b]
+\label{eq:8.2}
+\end{equation}
+
+\begin{equation}
+a = x_{\frac{1}{2}} < x_{\frac{3}{2}} < \cdots < x_{N-\frac{1}{2}} = b
+\label{eq:8.3}
+\end{equation}
+
+其中计算点为 \( x_i = \frac{x_{i-1/2} + x_{i+1/2}}{2} \)，步长为 \( \Delta x_i \)。  
+\( \Delta x = \max \Delta x_i \)，表示最大网格步长。
+
+加权ENO方法是一种高阶、非振荡的数值方法，适用于求解偏微分方程。
+
+\end{document}

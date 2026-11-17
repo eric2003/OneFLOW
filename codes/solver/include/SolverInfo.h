@@ -1,0 +1,82 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+
+#pragma once
+#include "HXDefine.h"
+#include <map>
+#include <memory>
+
+BeginNameSpace( ONEFLOW )
+
+class SolverInfo
+{
+public:
+    SolverInfo() = default;
+    ~SolverInfo() = default;
+public:
+    int nEqu;
+    int nTEqu;
+    int numberOfImplicitSweeps;
+    // [0]=solution, [1..3]=cell-center grad (dx,dy,dz). Prefer FieldHome::GetSolutionName / GetGradName.
+    StringField solutionGradNames;
+    // [0]=solution, [1]=update delta ("dq" / "turbdq"). Prefer FieldHome::GetUpdateDelta*.
+    StringField implicitFieldNames;
+    // BC face gradient: [0]=dx, [1]=dy, [2]=dz (bcdq* / turbbcdq*). Prefer FieldHome::GetBcGrad*.
+    StringField bcGradFieldNames;
+    // Cell limiter: "limiter" (NS/INS) or "turblimiter" (Turb). Bind via literal in *Com / LimField.
+    std::string limiterName;
+    // BC face solution (NS/INS: "bc_q"). Empty if unused. Bind via literal "bc_q".
+    std::string bcSolutionName;
+    // Dual-time / multi-level solution storage: [0]=q1/turbq1, [1]=q2/turbq2.
+    StringField stageSolutionNames;
+    // Dual-time residual storage: [0]=res1, [1]=res2 (NS/INS). May be empty for turb.
+    StringField stageResidualNames;
+    std::string residualName;
+    std::string resFileName;
+    Real residual;
+    Real conver;
+public:
+    Real relaxationFactorOfProlongation;
+    IntField positiveFlag;
+    StringField restrictVariableNames;
+    IntField restrictDimensions;
+};
+
+
+class SolverInfoFactory
+{
+public:
+    SolverInfoFactory() = default;
+    ~SolverInfoFactory() = default;
+public:
+    // Owning storage of SolverInfo instances.
+    static std::unique_ptr< std::map< int, std::unique_ptr< SolverInfo > > > data;
+public:
+    static void Init();
+    static void Free();
+public:
+    static void AddSolverInfo( int solverType );
+    static SolverInfo * GetSolverInfo( int solverType );
+};
+
+EndNameSpace

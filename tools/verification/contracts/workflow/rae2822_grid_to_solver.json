@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "id": "workflow/rae2822-grid-to-solver",
+  "title": "RAE2822 grid-to-solver dependency workflow",
+  "domain": "workflow",
+  "kind": "dependency_workflow",
+  "status": "implemented",
+  "overview": "Generate an RAE2822 mesh artifact first, then bind that exact output into a dependent Roe-SA CFD case. The workflow demonstrates explicit producer-consumer relationships instead of relying on shared working-directory state.",
+  "principle": "A dependency workflow is a directed execution graph. A consumer may run only after its direct producer succeeds and the declared artifact exists. Artifact paths are relative to the producer case, while the consumer receives an explicit source-case root and a case-relative input setting. Independent steps may proceed without being blocked by an unrelated failed branch.",
+  "references": [
+    "tools/oneflow_gui/examples/rae2822_multicase.json",
+    "doc/source/workbench_architecture.rst",
+    "doc/plans/verification-contract-workbench.md"
+  ],
+  "architecture": "The workflow definition is parsed by the Qt-independent workflow plan builder. build_case_graph_plan validates case IDs, dependencies, artifact producers, direct producer-consumer edges, and safe relative paths, then emits dependency-respecting WorkflowPlanStep records. run_case_graph stages each case into an isolated run root by default, rewrites declared consumer parameter settings, verifies producer outputs before launching consumers, blocks unsuccessful dependencies, and checks declared outputs after a successful callback. The Workbench presents the declared graph and links to the existing plan and runner tests; it does not execute CFD during catalog loading.",
+  "implementation": {
+    "source_paths": [
+      "tools/oneflow_gui/workflow_plan.py",
+      "tools/oneflow_gui/workflow_dependencies.py",
+      "tools/oneflow_gui/workflow_graph_runner.py",
+      "tools/oneflow_gui/workflow_case_runtime.py"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/workbench_architecture.rst",
+      "doc/plans/verification-contract-workbench.md"
+    ]
+  },
+  "workflow": {
+    "workflow_id": "rae2822-grid-to-solver",
+    "definition_path": "tools/oneflow_gui/examples/rae2822_multicase.json",
+    "execution_mode": "dependency_graph",
+    "steps": [
+      {
+        "id": "rae2822grid",
+        "directory": "rae2822grid",
+        "depends_on": [],
+        "inputs": [],
+        "outputs": [
+          {
+            "id": "rae2822_grid",
+            "path": "results/rae2822_2d.ofl",
+            "parameter_file": "script/grid.txt",
+            "setting": "targetGridFileName"
+          }
+        ]
+      },
+      {
+        "id": "rae2822_roe_sa",
+        "directory": "rae2822_roe_sa",
+        "depends_on": ["rae2822grid"],
+        "inputs": [
+          {
+            "artifact": "rae2822_grid",
+            "setting": "gridFileName",
+            "parameter_file": "script/cfd.txt"
+          }
+        ],
+        "outputs": []
+      }
+    ]
+  },
+  "verification": [
+    {
+      "kind": "workflow_definition",
+      "reference": "tools/oneflow_gui/examples/rae2822_multicase.json",
+      "status": "declared_not_executed",
+      "scope": "Versioned example definition; catalog validation checks that the typed graph payload matches this file but does not execute it."
+    },
+    {
+      "kind": "python_test",
+      "reference": "WorkflowPlanTest.test_rae2822_multicase_example_declares_matching_producer_and_consumer_paths",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_workflow_plan.py; validates the real example through build_case_graph_plan."
+    },
+    {
+      "kind": "python_test",
+      "reference": "WorkflowGraphRunnerTest.test_solver_runs_after_mesh_with_staged_artifact_binding",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_workflow_graph_runner.py; checks isolated staging, producer artifact binding, consumer parameter rewrite, and source-case preservation."
+    },
+    {
+      "kind": "python_test",
+      "reference": "WorkflowGraphRunnerTest.test_failed_mesh_blocks_solver_but_independent_case_runs",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_workflow_graph_runner.py; checks dependency failure blocking while an independent branch still runs."
+    },
+    {
+      "kind": "python_test",
+      "reference": "WorkflowGraphRunnerTest.test_missing_grid_file_blocks_solver",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_workflow_graph_runner.py; checks missing declared producer output prevents consumer execution."
+    }
+  ],
+  "claims": {
+    "proves": [
+      "The example declares one mesh producer and one Roe-SA consumer with a direct dependency edge.",
+      "The producer and consumer refer to the same stable artifact ID and relative output path.",
+      "The consumer binds the producer artifact through gridFileName in script/cfd.txt.",
+      "Existing plan and runner tests cover dependency ordering, isolated staging, artifact availability, failure blocking, and source-case preservation."
+    ],
+    "does_not_prove": [
+      "The RAE2822 example has been executed as a complete CFD workflow in the current revision.",
+      "The mesh conversion or Roe-SA solver produces scientifically correct results.",
+      "A successful callback alone proves the physical validity of the generated mesh or CFD solution.",
+      "Every possible workflow graph, artifact type, cancellation race, or filesystem failure is covered."
+    ]
+  },
+  "tags": [
+    "workflow",
+    "dependency-graph",
+    "artifact-binding",
+    "case-orchestration",
+    "reproducibility"
+  ]
+}

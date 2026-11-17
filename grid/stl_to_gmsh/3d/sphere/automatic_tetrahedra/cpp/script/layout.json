@@ -1,0 +1,17 @@
+{
+  "volume_mesh": "closed_surface_automatic_tetrahedra",
+  "case_name": "unit_sphere_automatic_tetrahedra",
+  "mesh_size": 0.25,
+  "mesh_dimension": 3,
+  "surface_name": "fluid_domain",
+  "boundary_name": "wall",
+  "surface_angle_degrees": 40.0,
+  "curve_angle_degrees": 180.0,
+  "reference_geometry": {
+    "type": "unit_sphere",
+    "center": [0.0, 0.0, 0.0],
+    "radius": 1.0,
+    "volume": 4.1887902047863905,
+    "surface_area": 12.566370614359172
+  }
+}

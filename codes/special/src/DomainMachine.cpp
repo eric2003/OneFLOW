@@ -1,0 +1,75 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "DomainMachine.h"
+#include "TextFileParser.h"
+#include "HXMath.h"
+#include <iostream>
+#include <stdexcept>
+
+
+BeginNameSpace( ONEFLOW )
+
+DomainMachine::DomainMachine() = default;
+
+DomainMachine::~DomainMachine() = default;
+
+DomainMachine domain_Machine;
+
+void DomainMachine::Reset()
+{
+    bctypeList.clear();
+    bcLineList.clear();
+}
+
+void DomainMachine::AddBcType( TextFileParser & textFileParser )
+{
+    int id = textFileParser.ReadNextDigit< int >();
+    int bctype = textFileParser.ReadNextDigit< int >();
+    this->SetBcType( id, bctype );
+}
+
+void DomainMachine::SetBcType( int id, int bctype )
+{
+    if ( id <= 0 )
+    {
+        throw std::invalid_argument( "Boundary id must be positive" );
+    }
+
+    if ( this->bctypeList.size() < id )
+    {
+        this->bctypeList.resize( id );
+    }
+    this->bctypeList[ id - 1 ] = bctype;
+}
+
+
+int DomainMachine::GetBcType( int id )
+{
+    int ida = ABS( id ) - 1;
+    return this->bctypeList[ ida ];
+}
+
+
+
+
+EndNameSpace

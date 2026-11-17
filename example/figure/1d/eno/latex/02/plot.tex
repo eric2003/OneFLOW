@@ -1,0 +1,78 @@
+\documentclass{ctexart}
+\usepackage{amsmath}
+\begin{document}
+
+\section{三阶精度边界值近似推导}
+
+\subsection{问题描述}
+已知单元格中心为 \(x_{i-1}, x_i, x_{i+1}\)，对应的平均值为 \(\bar{u}_{i-1}, \bar{u}_i, \bar{u}_{i+1}\)。目标是用线性组合：
+\[
+u_{i+1/2} \approx a \bar{u}_{i-1} + b \bar{u}_i + c \bar{u}_{i+1}
+\]
+逼近右边界 \(x_{i+1/2}\) 处的值，并证明此近似具有三阶精度。
+
+\subsection{推导过程}
+
+\subsubsection{泰勒展开单元格平均值}
+假设解 \(u(x)\) 充分光滑，以 \(x_i\) 为中心进行泰勒展开，单元格平均值的定义式为：
+\[
+\bar{u}_j = \frac{1}{\Delta x} \int_{x_j - \Delta x/2}^{x_j + \Delta x/2} u(x) dx
+\]
+对每个单元格进行展开（保留到三次项）：
+
+\begin{align}
+\bar{u}_{i-1} &= \frac{1}{\Delta x} \int_{x_{i-1} - \Delta x/2}^{x_{i-1} + \Delta x/2} \left[ u_i - u'_i \Delta x + \frac{u''_i}{2} (\Delta x)^2 - \frac{u'''_i}{6} (\Delta x)^3 + \dots \right] dx \notag \\
+&= u_i - u'_i \Delta x + \frac{13}{24} u''_i (\Delta x)^2 - \frac{5}{24} u'''_i (\Delta x)^3 + \mathcal{O}(\Delta x^4), \\
+\bar{u}_i &= \frac{1}{\Delta x} \int_{x_i - \Delta x/2}^{x_i + \Delta x/2} \left[ u_i + u'_i (x - x_i) + \frac{u''_i}{2} (x - x_i)^2 + \dots \right] dx \notag \\
+&= u_i + \frac{1}{24} u''_i (\Delta x)^2 + \mathcal{O}(\Delta x^4), \\
+\bar{u}_{i+1} &= \frac{1}{\Delta x} \int_{x_{i+1} - \Delta x/2}^{x_{i+1} + \Delta x/2} \left[ u_i + u'_i \Delta x + \frac{u''_i}{2} (\Delta x)^2 + \frac{u'''_i}{6} (\Delta x)^3 + \dots \right] dx \notag \\
+&= u_i + u'_i \Delta x + \frac{13}{24} u''_i (\Delta x)^2 + \frac{5}{24} u'''_i (\Delta x)^3 + \mathcal{O}(\Delta x^4).
+\end{align}
+
+\subsubsection{边界值的泰勒展开}
+将 \(u_{i+1/2}\) 在 \(x_i\) 处展开：
+\begin{equation}
+u_{i+1/2} = u_i + \frac{1}{2} u'_i \Delta x + \frac{1}{8} u''_i (\Delta x)^2 + \frac{1}{48} u'''_i (\Delta x)^3 + \mathcal{O}(\Delta x^4).
+\end{equation}
+
+\subsubsection{匹配系数}
+将线性组合 \(a \bar{u}_{i-1} + b \bar{u}_i + c \bar{u}_{i+1}\) 代入泰勒展开式，要求其与 \(u_{i+1/2}\) 的展开一致。比较各阶项的系数：
+
+\begin{align}
+\text{常数项:} & \quad a + b + c = 1, \\
+\text{一阶项:} & \quad (-a + c) \Delta x = \frac{1}{2} \Delta x \ \Rightarrow \ -a + c = \frac{1}{2}, \\
+\text{二阶项:} & \quad \frac{13a + b + 13c}{24} (\Delta x)^2 = \frac{1}{8} (\Delta x)^2 \ \Rightarrow \ 13a + b + 13c = 3, \\
+\text{三阶项:} & \quad \frac{-5a + 5c}{24} (\Delta x)^3 = \frac{1}{48} (\Delta x)^3 \ \Rightarrow \ -5a + 5c = \frac{1}{2}.
+\end{align}
+
+联立方程组：
+\[
+\begin{cases}
+a + b + c = 1, \\
+-a + c = \frac{1}{2}, \\
+13a + b + 13c = 3, \\
+-5a + 5c = \frac{1}{2}.
+\end{cases}
+\]
+解得唯一解：
+\[
+a = -\frac{1}{6}, \quad b = \frac{5}{6}, \quad c = \frac{1}{3}.
+\]
+
+\subsubsection{误差分析}
+将系数代入线性组合，计算误差：
+\[
+\text{误差} = \left(-\frac{1}{6} \bar{u}_{i-1} + \frac{5}{6} \bar{u}_i + \frac{1}{3} \bar{u}_{i+1}\right) - u_{i+1/2}.
+\]
+展开后误差项为：
+\[
+\left(\frac{-5a + 5c}{24} - \frac{1}{48}\right) u'''_i (\Delta x)^3 = \left(\frac{5}{36} - \frac{1}{48}\right) u'''_i (\Delta x)^3 = \mathcal{O}(\Delta x^3).
+\]
+因此，近似具有三阶精度。
+
+\subsection{结论}
+最终重构公式为：
+\[
+u_{i+1/2} = -\frac{1}{6} \bar{u}_{i-1} + \frac{5}{6} \bar{u}_i + \frac{1}{3} \bar{u}_{i+1} + \mathcal{O}(\Delta x^3).
+\]
+\end{document}

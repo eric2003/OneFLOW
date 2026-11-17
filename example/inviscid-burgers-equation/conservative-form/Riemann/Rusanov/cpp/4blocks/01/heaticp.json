@@ -1,0 +1,13 @@
+{
+	"total_time" : 1.0,
+	"equation" : "heat",
+	"iconservation" : "0",
+	"iviscous" : 0,
+	"scheme" :
+	{
+		"inviscid" : "weno5",
+		"viscous" : "center",
+		"time" : "icp"
+	},
+    "grid" : "../heat1d1blocks.cgns"
+}

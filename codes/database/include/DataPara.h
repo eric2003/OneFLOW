@@ -1,0 +1,97 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#pragma once
+#include "NamespaceMacros.h"
+#include <memory>
+#include <unordered_map>
+#include <string>
+#include <fstream>
+
+BeginNameSpace( ONEFLOW )
+
+class DataObject;
+
+/**
+ * @brief Owns the metadata and typed value for one named parameter.
+ *
+ * The value is held through unique_ptr<DataObject>; DataEntry is therefore
+ * the lifetime boundary for the type-erased payload. Name, type, and size
+ * describe the entry and remain immutable after construction.
+ */
+class DataEntry
+{
+public:
+    DataEntry( const std::string & name, int type, int size, std::unique_ptr<DataObject> data );
+    ~DataEntry();
+private:
+    const std::string name;
+    const int type;
+    const int size;
+    std::unique_ptr<DataObject> data;
+public:
+    const std::string & GetName() const { return name; }
+    int GetType() const { return type; }
+    int GetSize() const { return size; }
+    DataObject & GetDataObject() { return *data; }
+    const DataObject & GetDataObject() const { return *data; }
+
+    void Copy( const DataEntry & inputData );
+    void Dump( std::fstream & file ) const;
+};
+
+/**
+ * @brief Owns the named parameter entries for a database.
+ *
+ * Entries are uniquely owned by this container and indexed by name.
+ * Replacing an existing name updates its value only when type and size match;
+ * Clear() releases all entries while leaving the DataPara object alive.
+ */
+class DataPara
+{
+public:
+    // Use unordered_map for O(1) average lookup
+    using DataMap = std::unordered_map< std::string, std::unique_ptr<DataEntry> >;
+public:
+    DataPara();
+    ~DataPara();
+protected:
+    DataMap dataMap;
+public:
+    // Takes ownership of data.
+    void SetDataEntry( std::unique_ptr<DataEntry> data );
+    // Returned pointers are borrowed and are invalidated when the entry is
+    // removed, cleared, or replaced by an operation that destroys the entry.
+    DataEntry * FindDataEntry( const std::string & name );
+    // Const lookup preserves read-only access to the entry and its payload.
+    const DataEntry * FindDataEntry( const std::string & name ) const;
+    void RemoveDataEntry( const std::string & name );
+
+    // Release all case-local parameter entries while keeping the database alive.
+    void Clear();
+
+    const DataMap & GetDataMap() const { return dataMap; }
+
+    void DumpData( std::fstream & file ) const;
+};
+
+EndNameSpace

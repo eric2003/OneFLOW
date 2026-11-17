@@ -1,0 +1,5 @@
+true, q;
+true,  tempr;
+true, gama;
+true, visl;
+true, vist;

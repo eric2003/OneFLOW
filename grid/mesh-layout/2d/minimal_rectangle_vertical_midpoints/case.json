@@ -1,0 +1,43 @@
+{
+  "schema": "oneflow.case",
+  "version": 1,
+  "name": "minimal_rectangle_vertical_midpoints",
+  "kind": "structured-mesh-generation-and-inspection",
+  "parameters": {
+    "runtime": {
+      "task": "Grid",
+      "objective": 0,
+      "generationId": 4,
+      "dimension": 2,
+      "layout": "grid/minimalRectangleVerticalMidpointsLayout.txt",
+      "parameterFiles": [
+        "script/simu.txt",
+        "script/dimension.txt",
+        "script/tolerence.txt",
+        "script/grid.txt",
+        "script/part.txt"
+      ]
+    },
+    "inspection": {
+      "realBytes": 8,
+      "byteOrder": "little",
+      "sourceGrid": "results/minimalRectangleVerticalMidpoints.generated.grd",
+      "oneFlowGrid": "results/minimalRectangleVerticalMidpoints.ofl",
+      "gridInfo": "results/minimalRectangleVerticalMidpoints.info.json",
+      "packageDirectory": "results/minimalRectangleVerticalMidpoints.mesh"
+    },
+    "expected": {
+      "zones": 1,
+      "dimension": 2,
+      "nodes": 9,
+      "cells": 4,
+      "faces": 12,
+      "boundaryFaces": 8,
+      "internalFaces": 4,
+      "boundingBox": {
+        "min": [0.0, 0.0, 0.0],
+        "max": [1.0, 1.0, 0.0]
+      }
+    }
+  }
+}

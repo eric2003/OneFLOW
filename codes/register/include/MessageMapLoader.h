@@ -1,0 +1,45 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#pragma once
+#include "NamespaceMacros.h"
+#include "HXDefine.h"
+
+BeginNameSpace( ONEFLOW )
+
+// Bootstraps the global MessageMap singleton by reading the list of
+// message-definition files from disk and loading each of them in turn.
+// This is loading/assembly logic, distinct from MessageMap itself (which
+// is a pure name<->id registry with no knowledge of files or paths).
+void CreateMsgMap();
+
+// Reads the manifest file (actionFileList.txt) and expands each listed
+// Resolve the file name relative to the OneFLOW system directory.
+void GetMsgFileNameList( StringField & fileNameList );
+
+// CmxTaskNames.h constants not present in MessageMap (empty = all ok).
+StringField CollectMissingCmxTaskNames();
+
+// Fatal if any production CmxTaskNames constant is unregistered.
+void RequireCmxTaskNamesRegistered();
+
+EndNameSpace

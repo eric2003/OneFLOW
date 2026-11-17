@@ -1,0 +1,145 @@
+{
+  "id": "two_zone_parent_split",
+  "description": "Two zones, shared parents 0 and 1; parent 0 splits to children 2,3.",
+  "input": {
+    "l2g": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "gI2Zid": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "g2l": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "parents": [
+      0,
+      1
+    ],
+    "children": [
+      [
+        2,
+        3
+      ],
+      []
+    ],
+    "bcType": [
+      "INTERFACE",
+      "INTERFACE"
+    ],
+    "bcNameId": [
+      100,
+      200
+    ],
+    "childCounts": [
+      2,
+      0
+    ]
+  },
+  "expected": {
+    "l2g": [
+      [
+        2,
+        3,
+        1
+      ],
+      [
+        2,
+        3,
+        1
+      ]
+    ],
+    "gI2Zid": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "g2l": [
+      [
+        0,
+        0
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "nChild": [
+      [
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        0,
+        0
+      ]
+    ],
+    "outBcNameId": [
+      100,
+      100,
+      200
+    ],
+    "orphanParentGlobalIds": [
+      0
+    ]
+  },
+  "notes": [
+    "Input and expected tables are aligned with MultiZoneInterfaceSplitE2ETest.SplitOneSharedParentViaTablePipeline.",
+    "Parent global face 0 is replaced in each zone's local-to-global map by child faces 2 and 3; face 1 remains unchanged.",
+    "Global face 0 remains in the inverse map as an orphan row due to legacy InitNew copy behavior.",
+    "The result remains null until a real test runner records execution; the geometry fixture UI is not a C++ execution backend."
+  ],
+  "title": "Two-zone parent split",
+  "test": {
+    "framework": "GoogleTest",
+    "suite": "MultiZoneInterfaceSplitE2ETest",
+    "name": "SplitOneSharedParentViaTablePipeline",
+    "source": "tests/geometry/MultiZoneInterfaceSplitE2ETest.cpp"
+  },
+  "result": null
+}

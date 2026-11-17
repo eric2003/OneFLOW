@@ -1,0 +1,17 @@
+{
+	"total_time" : 1.0,
+	"equation" : "heat",
+	"iconservation" : 0,
+	"ifinite_volume" : 0,
+	"iviscous" : 0,
+	"nsave" : 400,
+	"idump_initial_field" : 1,
+	"scheme" :
+	{
+		"inviscid" : "lax",
+	    "reconstruction" : "weno5",
+		"viscous" : "center",
+		"time" : "rk1"
+	},
+    "grid" : "../heat1d1blocksv1.cgns"
+}

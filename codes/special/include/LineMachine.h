@@ -1,0 +1,51 @@
+#pragma once
+#include "HXDefine.h"
+#include "HXLookup.h"
+#include <memory>
+
+BeginNameSpace( ONEFLOW )
+
+class SegmentCtrl;
+class CurveInfo;
+class CurveMesh;
+class TextFileParser;
+struct GridDistributionDefinition;
+
+class LineMachine
+{
+public:
+    LineMachine() = default;
+    ~LineMachine() = default;
+private:
+    HXVector< std::unique_ptr< SegmentCtrl > > segmentCtrlList;
+    HXVector< std::unique_ptr< CurveInfo > > curveInfoList;
+    HXVector< std::unique_ptr< CurveMesh > > curveMeshList;
+    HXLookup<int> lineLookup;
+    LinkField lineList;
+public:
+    void Reset();
+    int AddLine( int p1, int p2 );
+    void AddLine( int p1, int p2, int id );
+    void AddCircle( int p1, int pc, int p2, int id );
+    void AddDimension( TextFileParser & textFileParser );
+    void AddDs( TextFileParser & textFileParser );
+    void SetDimension( int id, int pointCount );
+    int GetDimension( int id ) const;
+    int GetNLine() const;
+    void SetDistribution( const GridDistributionDefinition & distribution );
+    void GenerateAllLineMesh();
+    void CreateAllLineMesh();
+public:
+    SegmentCtrl * GetSegmentCtrl( int id );
+    const SegmentCtrl * GetSegmentCtrl( int id ) const;
+    CurveMesh * GetCurveMesh( int id );
+    CurveInfo * GetCurveInfo( int id );
+    const CurveInfo * GetCurveInfo( int id ) const;
+public:
+    CurveMesh * GetLineMeshByTwoPoint( const int & p1, const int & p2, int & direction );
+    int GetLineIdByTwoPoint( const int & p1, const int & p2 ) const;
+};
+
+extern LineMachine line_Machine;
+
+EndNameSpace

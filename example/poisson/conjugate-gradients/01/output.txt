@@ -1,0 +1,5 @@
+Residual details: 
+Error details: 
+L-2 Norm = 3.975743221112815e-10
+Maximum Norm = 1.355744502773426e-09
+CPU Time = 1439.0999932289124

@@ -1,0 +1,5 @@
+﻿results/aero.dat
+results/res.dat
+results/flatplate_cf.dat
+results/flatplateflow.dat
+results/wallaero.dat

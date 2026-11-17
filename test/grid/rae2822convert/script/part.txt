@@ -1,0 +1,9 @@
+int npartproc = 4;
+int partition_type = 1;
+int us_type  =  1;  // 0: uns 1: str
+string ori_uns_file     =  "./grid/m6wing.ofl";
+string part_uns_file   =  "./grid/m6wing-4.ofl";
+string ori_layout_file  =  "./grid/m6wing.skl";
+int     partition_c2n      =  0;
+string ori_c2n_file    =  "./grid/ori_c2n_file.dat";
+string part_c2n_file  =  "./grid/part_c2n_file.dat";

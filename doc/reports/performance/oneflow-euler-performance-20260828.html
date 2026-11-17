@@ -1,0 +1,1069 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="OneFLOW 一维 Euler CPU/HIP 性能对比测试报告"><title>OneFLOW 一维 Euler CPU/HIP 性能对比测试报告</title><style>
+:root{color-scheme:light;--ink:#172033;--muted:#667085;--line:#d9e0ea;--soft:#f5f7fa;--accent:#b42318;--accent-soft:#fff1f0;--code:#111827}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:#eef2f6;font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}.layout{display:grid;grid-template-columns:270px minmax(0,1040px);gap:28px;justify-content:center;padding:28px}.toc{position:sticky;top:24px;align-self:start;max-height:calc(100vh - 48px);overflow:auto;padding:18px;background:#fff;border:1px solid var(--line);border-radius:12px}.toc strong{display:block;margin-bottom:9px}.toc a{display:block;color:var(--muted);text-decoration:none;font-size:13px;line-height:1.45}.toc-h2{padding:5px 0}.toc-h3{padding:3px 0 3px 14px}.toc a:hover{color:var(--accent)}article{min-width:0;padding:48px 56px 64px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 32px rgba(16,24,40,.06)}h1{margin:0 0 26px;font-size:34px;line-height:1.3;letter-spacing:-.02em}h2{margin:48px 0 16px;padding-bottom:9px;border-bottom:2px solid var(--accent);font-size:24px;line-height:1.4;scroll-margin-top:18px}h3{margin:30px 0 12px;font-size:19px;scroll-margin-top:18px}p,ul,ol{margin:12px 0}li+li{margin-top:4px}a{color:var(--accent)}.table-wrap{width:100%;margin:18px 0 24px;overflow-x:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;min-width:680px;border-collapse:collapse;overflow-wrap:anywhere;font-size:13px}th,td{padding:9px 11px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th:last-child,td:last-child{border-right:0}tr:last-child td{border-bottom:0}th{background:var(--soft);font-weight:650}tr:nth-child(even) td{background:#fafbfc}code{padding:.15em .35em;color:#9f1239;background:var(--accent-soft);border-radius:4px;font:.9em/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}pre{overflow:auto;margin:18px 0 24px;padding:16px 18px;color:#e5e7eb;background:var(--code);border-radius:8px;line-height:1.55}pre code{padding:0;color:inherit;background:none}blockquote{margin:20px 0 28px;padding:11px 18px;color:var(--muted);background:var(--soft);border-left:4px solid var(--accent)}blockquote p{margin:3px 0}.report-footer{margin-top:54px;padding-top:16px;color:var(--muted);border-top:1px solid var(--line);font-size:13px}@media(max-width:980px){.layout{display:block;padding:12px}.toc{position:static;max-height:none;margin-bottom:12px}article{padding:30px 22px 44px}h1{font-size:28px}}@media print{@page{margin:16mm 13mm}body{background:#fff;font-size:10.5pt}.layout{display:block;padding:0}.toc{display:none}article{padding:0;border:0;box-shadow:none}h1{font-size:24pt}h2{break-after:avoid;margin-top:26px}h3{break-after:avoid}.table-wrap,pre,blockquote{break-inside:avoid}.table-wrap{overflow:visible;border:0}table{min-width:0;font-size:8.5pt}th,td{border:1px solid var(--line)}a{color:inherit;text-decoration:none}}
+</style></head><body><main class="layout"><nav class="toc" aria-label="报告目录"><strong>目录</strong><a class="toc-h2" href="#1">1. 执行摘要</a>
+<a class="toc-h2" href="#2">2. 测试对象</a>
+<a class="toc-h3" href="#21">2.1 数值问题</a>
+<a class="toc-h3" href="#22-hip">2.2 两条 HIP 路径</a>
+<a class="toc-h3" href="#23">2.3 测试迭代参数</a>
+<a class="toc-h2" href="#3">3. 硬件、软件和资源口径</a>
+<a class="toc-h3" href="#31">3.1 计算节点环境</a>
+<a class="toc-h3" href="#32-slurm">3.2 Slurm 资源</a>
+<a class="toc-h2" href="#4">4. 本轮代码改动</a>
+<a class="toc-h3" href="#41">4.1 统一生命周期接口</a>
+<a class="toc-h3" href="#42-notrace-fulltrace">4.2 NoTrace 和 FullTrace 分离</a>
+<a class="toc-h3" href="#43-hip-state">4.3 持久 HIP state</a>
+<a class="toc-h3" href="#44">4.4 新增性能与诊断程序</a>
+<a class="toc-h3" href="#45">4.5 未修改的内容</a>
+<a class="toc-h2" href="#5">5. 正确性结果</a>
+<a class="toc-h3" href="#51-fulltrace-stage">5.1 FullTrace 逐 stage 回归</a>
+<a class="toc-h3" href="#52-notrace">5.2 NoTrace 最终状态</a>
+<a class="toc-h2" href="#6-trace">6. 优化前：旧 trace 路径实测</a>
+<a class="toc-h2" href="#7-stateful-notrace">7. 优化后：stateful NoTrace 实测</a>
+<a class="toc-h3" href="#71">7.1 原始累计结果</a>
+<a class="toc-h3" href="#72">7.2 两种加速比口径</a>
+<a class="toc-h3" href="#73-kernellaunch">7.3 kernel、launch 和同步</a>
+<a class="toc-h2" href="#8">8. 归一化前后对比</a>
+<a class="toc-h2" href="#9-allocation">9. 数据传输与 allocation 分析</a>
+<a class="toc-h2" href="#10-gpu">10. GPU 实际执行证据</a>
+<a class="toc-h2" href="#11">11. 编译步骤</a>
+<a class="toc-h3" href="#111-slurm">11.1 Slurm 脚本资源头</a>
+<a class="toc-h3" href="#112">11.2 环境</a>
+<a class="toc-h3" href="#113-cmake">11.3 CMake 配置</a>
+<a class="toc-h3" href="#114">11.4 编译目标</a>
+<a class="toc-h2" href="#12">12. 运行步骤</a>
+<a class="toc-h3" href="#121-correctness">12.1 先做 correctness</a>
+<a class="toc-h3" href="#122-trace">12.2 旧 trace 基线</a>
+<a class="toc-h3" href="#123-stateful">12.3 新 stateful 基线</a>
+<a class="toc-h3" href="#124-gpu">12.4 GPU 活动采样</a>
+<a class="toc-h2" href="#13">13. 当前结果的限制</a>
+<a class="toc-h3" href="#131-benchmark-cpu">13.1 旧 benchmark 的 CPU 对比不是生产级多核基线</a>
+<a class="toc-h3" href="#132-mpi">13.2 MPI 对比的适用边界</a>
+<a class="toc-h3" href="#133-oneflow">13.3 不是完整 OneFLOW 求解器</a>
+<a class="toc-h3" href="#134-profiling">13.4 profiling 还不完整</a>
+<a class="toc-h3" href="#135-kernel">13.5 当前 kernel 仍有明确结构开销</a>
+<a class="toc-h2" href="#14">14. 阶段性结论</a>
+<a class="toc-h2" href="#15-mpi-32-cpu-vs-8-1">15. 两个独立 MPI 任务：32 核 CPU vs 8 核 + 1 卡</a>
+<a class="toc-h3" href="#151">15.1 任务定义</a>
+<a class="toc-h3" href="#152">15.2 性能结果</a>
+<a class="toc-h3" href="#153">15.3 结果解释</a>
+<a class="toc-h3" href="#154-mpi">15.4 MPI 编译与运行脚本</a></nav><article><h1 id="oneflow-euler-cpuhip">OneFLOW 一维 Euler CPU/HIP 性能对比测试报告</h1>
+<blockquote>
+<p>测试日期：2026-08-28<br/>
+测试平台：昆山 Z100 / native HIP / <code>gfx906</code><br/>
+测试范围：一维 Euler、双精度、单进程、单线程 CPU 对单张 DCU<br/>
+报告性质：当前 backend 架构优化的阶段性实测，不是完整 OneFLOW
+Navier–Stokes 生产性能结论。</p>
+</blockquote>
+<h2 id="1">1. 执行摘要</h2>
+<p>本轮优化没有修改一维 Euler 的数值格式，而是重构 CPU/HIP backend 的状态和执行
+生命周期，把原来每步发生的显存分配、H2D、逐 RK stage 同步和完整 trace D2H，
+改为：</p>
+<pre><code class="language-text">创建持久 state
+    -&gt; 初始状态 H2D 一次
+    -&gt; 多个时间步和全部 RK stage 留在 GPU
+    -&gt; 最终状态 D2H 一次
+</code></pre>
+<p>主要结果如下：</p>
+<ul>
+<li>CPU/HIP 的 smooth-periodic 和 Sod-transmissive 逐 stage <code>FullTrace</code>
+  正确性回归全部通过，测试项误差和 ULP 均为 0；</li>
+<li>四个规模的 <code>NoTrace</code> 最终状态最大绝对误差均为 0，CPU/HIP checksum 一致；</li>
+<li>HIP <code>Advance</code> 相对单线程 CPU <code>Advance</code> 的加速为 <code>102.76--155.22x</code>；</li>
+<li>将 HIP state 创建、H2D、<code>Advance</code> 和最终 D2H 全部计入后，以 CPU
+  <code>Advance</code> 为分母的保守加速为 <code>82.69--144.12x</code>；</li>
+<li>新路径每步归一化的 HIP 完整生命周期耗时，相比旧 trace 路径降低
+  <code>43.17--60.13x</code>；</li>
+<li>新路径 kernel event 时间占 <code>Advance</code> 墙钟时间 <code>99.56--99.99%</code>；</li>
+<li>完整 HIP 生命周期中的最终 D2H 占比为 <code>4.36--6.11%</code>；</li>
+<li>每个时间步仍然执行 9 个 kernel，说明本轮收益主要来自数据生命周期和同步结构，
+  还不是 kernel fusion 或算子级优化。</li>
+</ul>
+<p>本轮结果证明：</p>
+<ol>
+<li>GPU kernel 确实在目标设备上执行；</li>
+<li>旧路径的低加速主要来自 trace 数据回传、反复分配和同步；</li>
+<li>stateful backend 已解决第一层架构瓶颈；</li>
+<li>目前不能把 <code>102--155x</code> 描述为“单卡对四核 CPU”的生产加速，因为 CPU
+   benchmark 是串行代码，Slurm 申请的 4 个 CPU 仅用于作业与编译资源。</li>
+</ol>
+<h2 id="2">2. 测试对象</h2>
+<h3 id="21">2.1 数值问题</h3>
+<p>测试推进三个守恒量：</p>
+<pre><code class="language-text">[rho, rho*u, rho*E]
+</code></pre>
+<p>数值方法：</p>
+<ul>
+<li>空间离散：一阶 Rusanov 数值通量；</li>
+<li>时间推进：SSP-RK3；</li>
+<li>精度：<code>double</code>；</li>
+<li>编译约束：<code>-ffp-contract=off</code>；</li>
+<li>性能案例：smooth-periodic；</li>
+<li><code>gamma = 1.4</code>；</li>
+<li><code>dx = 1 / nx</code>；</li>
+<li><code>dt = 0.05 / nx</code>。</li>
+</ul>
+<p>测试规模：</p>
+<pre><code class="language-text">nx = 65,536
+nx = 262,144
+nx = 1,048,576
+nx = 4,194,304
+</code></pre>
+<h3 id="22-hip">2.2 两条 HIP 路径</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>路径</th>
+<th>用途</th>
+<th>每步资源行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>旧 <code>Step + FullTrace</code></td>
+<td>正确性和优化前性能基线</td>
+<td>每步分配、2 次 H2D、每个 RK stage 完整 trace D2H</td>
+</tr>
+<tr>
+<td>新 stateful <code>NoTrace</code></td>
+<td>性能路径</td>
+<td>state 创建时分配一次，初始 H2D 一次，最终 D2H 一次</td>
+</tr>
+</tbody>
+</table></div>
+<p>旧路径不是错误实现。它保留完整的 face state、flux、residual 和 RK state，
+适合逐 stage 正确性诊断，但不应作为生产性能路径。</p>
+<h3 id="23">2.3 测试迭代参数</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>路径</th>
+<th style="text-align: right;">steps</th>
+<th style="text-align: right;">repeats</th>
+<th style="text-align: right;">warmup</th>
+<th style="text-align: right;">计时步总数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>旧 trace benchmark</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>新 stateful benchmark</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">200</td>
+</tr>
+</tbody>
+</table></div>
+<p>由于两条路径的 <code>steps</code> 不同，跨路径比较统一使用“每时间步耗时”。各路径内部的
+原始累计值仍单独保留。</p>
+<h2 id="3">3. 硬件、软件和资源口径</h2>
+<h3 id="31">3.1 计算节点环境</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>实测配置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>集群</td>
+<td>昆山</td>
+</tr>
+<tr>
+<td>分区</td>
+<td><code>kshdnormal</code></td>
+</tr>
+<tr>
+<td>CPU</td>
+<td>Hygon C86 7185，节点 32 核</td>
+</tr>
+<tr>
+<td>加速器</td>
+<td>1 张 Z100，设备属性 <code>Device 66a1</code></td>
+</tr>
+<tr>
+<td>HIP 架构</td>
+<td><code>gfx906</code></td>
+</tr>
+<tr>
+<td>单卡显存</td>
+<td>约 16 GiB</td>
+</tr>
+<tr>
+<td>DTK</td>
+<td><code>compiler/dtk/26.04</code></td>
+</tr>
+<tr>
+<td>C++/HIP 编译器</td>
+<td>DTK Clang 17.0.0</td>
+</tr>
+<tr>
+<td>CMake</td>
+<td>3.22.0-rc1</td>
+</tr>
+<tr>
+<td>构建类型</td>
+<td>Release</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="32-slurm">3.2 Slurm 资源</h3>
+<p>构建/正确性和性能作业均申请：</p>
+<pre><code class="language-text">nodes=1
+ntasks=1
+cpus-per-task=4
+gres=dcu:1
+mem=13G
+</code></pre>
+<p>必须区分“申请资源”和“程序实际并行度”：</p>
+<ul>
+<li>CPU benchmark 没有 OpenMP、MPI 或线程池，实际为一个串行 CPU 线程；</li>
+<li>HIP benchmark 使用一张可见 DCU；</li>
+<li>其余已申请 CPU 可用于编译、作业控制和 GPU host 侧运行时；</li>
+<li>因此当前对比口径是“单线程 CPU 对单张 DCU”，不是“4 核 CPU 对单卡”。</li>
+</ul>
+<h2 id="4">4. 本轮代码改动</h2>
+<h3 id="41">4.1 统一生命周期接口</h3>
+<p>新增 backend-neutral 接口：</p>
+<pre><code class="language-cpp">CreateState(problem);
+Upload(state, hostState);
+Advance(state, steps, options);
+Download(state, hostState);
+</code></pre>
+<p>CPU 和 HIP 使用相同的调用语义：</p>
+<ul>
+<li>CPU state 持有主存状态；</li>
+<li>HIP state 持有 device buffers、stream 和 profiling event；</li>
+<li>旧 <code>Step(..., EulerTrace&amp;)</code> 保留为 compatibility/correctness wrapper。</li>
+</ul>
+<h3 id="42-notrace-fulltrace">4.2 <code>NoTrace</code> 和 <code>FullTrace</code> 分离</h3>
+<p><code>EulerRunMode::FullTrace</code>：</p>
+<ul>
+<li>只允许一个时间步；</li>
+<li>返回每个 RK stage 的 face state、flux、residual 和 state；</li>
+<li>用于 CPU/HIP 逐项正确性检查；</li>
+<li>允许逐 stage 同步和 D2H。</li>
+</ul>
+<p><code>EulerRunMode::NoTrace</code>：</p>
+<ul>
+<li>支持一次 <code>Advance</code> 多个时间步；</li>
+<li>不返回逐 stage trace；</li>
+<li>中间状态持续保留在 device；</li>
+<li>只在显式 <code>Download</code> 时回传最终状态。</li>
+</ul>
+<h3 id="43-hip-state">4.3 持久 HIP state</h3>
+<p>HIP state 当前持有：</p>
+<pre><code class="language-text">base
+work
+scratch
+left
+right
+flux
+residual
+stream
+kernel timing events
+</code></pre>
+<p>这些资源在 <code>CreateState</code> 中建立，在多个时间步中复用，析构时释放。RK stage
+通过 device pointer 轮换，不再每步重新创建整套 device buffers。</p>
+<h3 id="44">4.4 新增性能与诊断程序</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>目标</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>oneflow_1d_euler_cpu</code></td>
+<td>CPU self-test</td>
+</tr>
+<tr>
+<td><code>oneflow_1d_euler_hip</code></td>
+<td>CPU/HIP <code>FullTrace</code> 正确性回归</td>
+</tr>
+<tr>
+<td><code>oneflow_1d_euler_benchmark</code></td>
+<td>旧 trace 路径的 kernel/H2D/D2H/allocation 基线</td>
+</tr>
+<tr>
+<td><code>oneflow_1d_euler_stateful_benchmark</code></td>
+<td>新生命周期的 CPU/HIP 性能和最终状态检查</td>
+</tr>
+</tbody>
+</table></div>
+<p>主要新增或修改文件：</p>
+<pre><code class="language-text">OneDEulerBackend.h/.cpp
+OneDEulerPersistent.hip
+OneDEulerProfile.h/.hip
+EulerBenchmark.cpp
+EulerStatefulBenchmark.cpp
+EulerMain.cpp
+CMakeLists.txt
+</code></pre>
+<h3 id="45">4.5 未修改的内容</h3>
+<p>本轮没有修改：</p>
+<ul>
+<li>Rusanov 数值通量公式；</li>
+<li>SSP-RK3 系数；</li>
+<li>周期/可传递边界定义；</li>
+<li>正确性 tolerance；</li>
+<li>WENO5；</li>
+<li>二维、三维和完整 NS 主求解链；</li>
+<li>Windows 原始 WENO3 示例。</li>
+</ul>
+<h2 id="5">5. 正确性结果</h2>
+<h3 id="51-fulltrace-stage">5.1 <code>FullTrace</code> 逐 stage 回归</h3>
+<p>两个案例各执行 10 个时间步：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>案例</th>
+<th>边界</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>smooth-periodic</td>
+<td>Periodic</td>
+<td>PASS</td>
+</tr>
+<tr>
+<td>Sod-transmissive</td>
+<td>Transmissive</td>
+<td>PASS</td>
+</tr>
+</tbody>
+</table></div>
+<p>逐 stage 比较内容：</p>
+<ul>
+<li>三个守恒量；</li>
+<li>left/right face state；</li>
+<li>numerical flux；</li>
+<li>smooth-region residual；</li>
+<li>primitive <code>rho/u/p</code>；</li>
+<li>finite、正密度和正压力。</li>
+</ul>
+<p>接受条件：</p>
+<pre><code class="language-text">abs(error) &lt;= 1e-15 + 1e-15 * max(1, abs(reference))
+</code></pre>
+<p>所有纳入比较的 absolute error、scaled-relative error 和 ULP distance 均为 0。
+Sod 激波附近按既有 2% jump mask 排除 202 个逐点 residual 比较；这些位置仍由
+state、flux 和物理状态检查覆盖。</p>
+<h3 id="52-notrace">5.2 <code>NoTrace</code> 最终状态</h3>
+<p>四个性能规模均得到：</p>
+<pre><code class="language-text">final_max_abs_error = 0
+cpu_checksum == hip_checksum
+</code></pre>
+<p>这证明多时间步留在 GPU 后，最终状态与同一 benchmark 中的 CPU reference
+一致。它不能替代 <code>FullTrace</code>，两种验证共同构成当前正确性证据。</p>
+<h2 id="6-trace">6. 优化前：旧 trace 路径实测</h2>
+<p>原始累计结果如下。每个规模包含 2 次、每次 50 steps 的计时结果：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">nx</th>
+<th style="text-align: right;">CPU total (ms)</th>
+<th style="text-align: right;">HIP total (ms)</th>
+<th style="text-align: right;">speedup</th>
+<th style="text-align: right;">kernel (ms / HIP ratio)</th>
+<th style="text-align: right;">H2D (ms)</th>
+<th style="text-align: right;">D2H (ms)</th>
+<th style="text-align: right;">allocation (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">65,536</td>
+<td style="text-align: right;">1,130.592</td>
+<td style="text-align: right;">572.878</td>
+<td style="text-align: right;">1.974x</td>
+<td style="text-align: right;">14.369 / 2.51%</td>
+<td style="text-align: right;">38.063</td>
+<td style="text-align: right;">394.595</td>
+<td style="text-align: right;">72.728</td>
+</tr>
+<tr>
+<td style="text-align: right;">262,144</td>
+<td style="text-align: right;">4,668.764</td>
+<td style="text-align: right;">1,889.750</td>
+<td style="text-align: right;">2.471x</td>
+<td style="text-align: right;">37.438 / 1.98%</td>
+<td style="text-align: right;">134.687</td>
+<td style="text-align: right;">1,489.551</td>
+<td style="text-align: right;">91.599</td>
+</tr>
+<tr>
+<td style="text-align: right;">1,048,576</td>
+<td style="text-align: right;">18,967.298</td>
+<td style="text-align: right;">9,038.656</td>
+<td style="text-align: right;">2.098x</td>
+<td style="text-align: right;">142.828 / 1.58%</td>
+<td style="text-align: right;">611.474</td>
+<td style="text-align: right;">7,671.997</td>
+<td style="text-align: right;">121.409</td>
+</tr>
+<tr>
+<td style="text-align: right;">4,194,304</td>
+<td style="text-align: right;">88,670.222</td>
+<td style="text-align: right;">37,329.346</td>
+<td style="text-align: right;">2.375x</td>
+<td style="text-align: right;">583.860 / 1.56%</td>
+<td style="text-align: right;">2,533.934</td>
+<td style="text-align: right;">32,077.289</td>
+<td style="text-align: right;">237.917</td>
+</tr>
+</tbody>
+</table></div>
+<p>每个规模的计时窗口均包含：</p>
+<ul>
+<li>900 次 kernel launch；</li>
+<li>700 次 device allocation；</li>
+<li>每个时间步 9 次 kernel；</li>
+<li>每个时间步 7 次 allocation。</li>
+</ul>
+<p>旧路径的主要瓶颈不是 kernel：</p>
+<ul>
+<li>4M 规模 D2H 占 HIP 总时间约 85.93%；</li>
+<li>kernel 仅占约 1.56%；</li>
+<li>完整 trace 在每个 RK stage 回传 left/right、flux、residual 和 state；</li>
+<li>因此低平均 HCU 利用率与大量传输/同步相符。</li>
+</ul>
+<h2 id="7-stateful-notrace">7. 优化后：stateful <code>NoTrace</code> 实测</h2>
+<h3 id="71">7.1 原始累计结果</h3>
+<p>每个规模包含 2 次、每次 100 steps 的计时结果：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">nx</th>
+<th style="text-align: right;">CPU Advance (ms)</th>
+<th style="text-align: right;">HIP Create (ms)</th>
+<th style="text-align: right;">H2D (ms)</th>
+<th style="text-align: right;">HIP Advance (ms)</th>
+<th style="text-align: right;">kernel event (ms)</th>
+<th style="text-align: right;">D2H (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">65,536</td>
+<td style="text-align: right;">2,194.558</td>
+<td style="text-align: right;">1.537</td>
+<td style="text-align: right;">2.022</td>
+<td style="text-align: right;">21.357</td>
+<td style="text-align: right;">21.262</td>
+<td style="text-align: right;">1.623</td>
+</tr>
+<tr>
+<td style="text-align: right;">262,144</td>
+<td style="text-align: right;">9,370.527</td>
+<td style="text-align: right;">1.984</td>
+<td style="text-align: right;">3.262</td>
+<td style="text-align: right;">68.325</td>
+<td style="text-align: right;">68.207</td>
+<td style="text-align: right;">3.726</td>
+</tr>
+<tr>
+<td style="text-align: right;">1,048,576</td>
+<td style="text-align: right;">38,820.703</td>
+<td style="text-align: right;">2.710</td>
+<td style="text-align: right;">7.267</td>
+<td style="text-align: right;">279.068</td>
+<td style="text-align: right;">278.916</td>
+<td style="text-align: right;">13.182</td>
+</tr>
+<tr>
+<td style="text-align: right;">4,194,304</td>
+<td style="text-align: right;">178,937.295</td>
+<td style="text-align: right;">4.916</td>
+<td style="text-align: right;">21.784</td>
+<td style="text-align: right;">1,152.799</td>
+<td style="text-align: right;">1,152.721</td>
+<td style="text-align: right;">62.052</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="72">7.2 两种加速比口径</h3>
+<p><code>steady speedup</code>：</p>
+<pre><code class="language-text">CPU Advance / HIP Advance
+</code></pre>
+<p><code>conservative lifecycle speedup</code>：</p>
+<pre><code class="language-text">CPU Advance / (HIP Create + H2D + HIP Advance + D2H)
+</code></pre>
+<p>第二个口径把 HIP state 创建和首尾传输计入，但 CPU 侧仍只有 <code>Advance</code>，因为当前
+benchmark 没有输出 CPU create/upload/download 分项。因此它是比 steady speedup
+更保守的辅助口径，不是严格对称的端到端应用时间。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">nx</th>
+<th style="text-align: right;">HIP lifecycle total (ms)</th>
+<th style="text-align: right;">steady speedup</th>
+<th style="text-align: right;">conservative lifecycle speedup</th>
+<th style="text-align: right;">kernel / Advance</th>
+<th style="text-align: right;">D2H / lifecycle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">65,536</td>
+<td style="text-align: right;">26.539</td>
+<td style="text-align: right;">102.76x</td>
+<td style="text-align: right;">82.69x</td>
+<td style="text-align: right;">99.56%</td>
+<td style="text-align: right;">6.11%</td>
+</tr>
+<tr>
+<td style="text-align: right;">262,144</td>
+<td style="text-align: right;">77.296</td>
+<td style="text-align: right;">137.15x</td>
+<td style="text-align: right;">121.23x</td>
+<td style="text-align: right;">99.83%</td>
+<td style="text-align: right;">4.82%</td>
+</tr>
+<tr>
+<td style="text-align: right;">1,048,576</td>
+<td style="text-align: right;">302.227</td>
+<td style="text-align: right;">139.11x</td>
+<td style="text-align: right;">128.45x</td>
+<td style="text-align: right;">99.95%</td>
+<td style="text-align: right;">4.36%</td>
+</tr>
+<tr>
+<td style="text-align: right;">4,194,304</td>
+<td style="text-align: right;">1,241.552</td>
+<td style="text-align: right;">155.22x</td>
+<td style="text-align: right;">144.12x</td>
+<td style="text-align: right;">99.99%</td>
+<td style="text-align: right;">5.00%</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="73-kernellaunch">7.3 kernel、launch 和同步</h3>
+<p>每个时间步仍然是：</p>
+<pre><code class="language-text">3 RK stages × (Face + Residual + Update) = 9 kernel launches
+</code></pre>
+<p>每个规模在两个计时 repeat 中共执行：</p>
+<pre><code class="language-text">100 steps × 2 repeats × 9 = 1,800 kernel launches
+</code></pre>
+<p><code>EulerRunStats</code> 在 <code>Advance</code> 范围内记录 2 次同步，即每个计时 repeat 的 kernel
+event 最终同步一次。需要注意：</p>
+<ul>
+<li>这个数字只统计 <code>Advance</code> 中由 profiling event 产生的同步；</li>
+<li><code>Upload</code> 为保证初始数据就绪，每个 repeat 还有一次 stream synchronize；</li>
+<li><code>Download</code> 当前使用阻塞 D2H；</li>
+<li>因此不能把 <code>hip_syncs=2</code> 解读为整个程序只有两次所有类型的同步。</li>
+</ul>
+<h2 id="8">8. 归一化前后对比</h2>
+<p>由于旧路径计时 100 个时间步、新路径计时 200 个时间步，本节按每时间步归一化。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">nx</th>
+<th style="text-align: right;">旧 CPU (ms/step)</th>
+<th style="text-align: right;">新 CPU (ms/step)</th>
+<th style="text-align: right;">CPU 波动</th>
+<th style="text-align: right;">旧 HIP total (ms/step)</th>
+<th style="text-align: right;">新 HIP Advance (ms/step)</th>
+<th style="text-align: right;">新 HIP lifecycle (ms/step)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">65,536</td>
+<td style="text-align: right;">11.3059</td>
+<td style="text-align: right;">10.9728</td>
+<td style="text-align: right;">-2.95%</td>
+<td style="text-align: right;">5.7288</td>
+<td style="text-align: right;">0.1068</td>
+<td style="text-align: right;">0.1327</td>
+</tr>
+<tr>
+<td style="text-align: right;">262,144</td>
+<td style="text-align: right;">46.6876</td>
+<td style="text-align: right;">46.8526</td>
+<td style="text-align: right;">+0.35%</td>
+<td style="text-align: right;">18.8975</td>
+<td style="text-align: right;">0.3416</td>
+<td style="text-align: right;">0.3865</td>
+</tr>
+<tr>
+<td style="text-align: right;">1,048,576</td>
+<td style="text-align: right;">189.6730</td>
+<td style="text-align: right;">194.1035</td>
+<td style="text-align: right;">+2.34%</td>
+<td style="text-align: right;">90.3866</td>
+<td style="text-align: right;">1.3953</td>
+<td style="text-align: right;">1.5111</td>
+</tr>
+<tr>
+<td style="text-align: right;">4,194,304</td>
+<td style="text-align: right;">886.7022</td>
+<td style="text-align: right;">894.6865</td>
+<td style="text-align: right;">+0.90%</td>
+<td style="text-align: right;">373.2935</td>
+<td style="text-align: right;">5.7640</td>
+<td style="text-align: right;">6.2078</td>
+</tr>
+</tbody>
+</table></div>
+<p>CPU 两轮每步耗时变化在约 <code>-2.95%--+2.34%</code>，说明两轮 workload 基本一致。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">nx</th>
+<th style="text-align: right;">旧 HIP / 新 HIP Advance</th>
+<th style="text-align: right;">旧 HIP / 新 HIP lifecycle</th>
+<th style="text-align: right;">旧/新 kernel 单步比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">65,536</td>
+<td style="text-align: right;">53.65x</td>
+<td style="text-align: right;">43.17x</td>
+<td style="text-align: right;">1.35x</td>
+</tr>
+<tr>
+<td style="text-align: right;">262,144</td>
+<td style="text-align: right;">55.32x</td>
+<td style="text-align: right;">48.90x</td>
+<td style="text-align: right;">1.10x</td>
+</tr>
+<tr>
+<td style="text-align: right;">1,048,576</td>
+<td style="text-align: right;">64.78x</td>
+<td style="text-align: right;">59.81x</td>
+<td style="text-align: right;">1.02x</td>
+</tr>
+<tr>
+<td style="text-align: right;">4,194,304</td>
+<td style="text-align: right;">64.77x</td>
+<td style="text-align: right;">60.13x</td>
+<td style="text-align: right;">1.01x</td>
+</tr>
+</tbody>
+</table></div>
+<p>大规模下 kernel 本身每步只改善约 1%，而 HIP 完整路径改善约 60 倍。这是判断本轮
+收益来源最重要的数据：优化收益主要来自消除重复分配、逐 stage D2H 和同步，
+不是来自改变数值 kernel。</p>
+<h2 id="9-allocation">9. 数据传输与 allocation 分析</h2>
+<p>以下字节数根据代码中的 buffer 大小和调用次数推导，不是驱动 profiler 直接读取的
+总线计数。状态大小为：</p>
+<pre><code class="language-text">3 × nx × sizeof(double)
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">nx</th>
+<th style="text-align: right;">单份 state</th>
+<th style="text-align: right;">旧 H2D/计时窗口</th>
+<th style="text-align: right;">旧 D2H/计时窗口</th>
+<th style="text-align: right;">新 H2D/计时窗口</th>
+<th style="text-align: right;">新 D2H/计时窗口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">65,536</td>
+<td style="text-align: right;">1.5 MiB</td>
+<td style="text-align: right;">300 MiB</td>
+<td style="text-align: right;">2.197 GiB</td>
+<td style="text-align: right;">3 MiB</td>
+<td style="text-align: right;">3 MiB</td>
+</tr>
+<tr>
+<td style="text-align: right;">262,144</td>
+<td style="text-align: right;">6 MiB</td>
+<td style="text-align: right;">1.172 GiB</td>
+<td style="text-align: right;">8.789 GiB</td>
+<td style="text-align: right;">12 MiB</td>
+<td style="text-align: right;">12 MiB</td>
+</tr>
+<tr>
+<td style="text-align: right;">1,048,576</td>
+<td style="text-align: right;">24 MiB</td>
+<td style="text-align: right;">4.688 GiB</td>
+<td style="text-align: right;">35.156 GiB</td>
+<td style="text-align: right;">48 MiB</td>
+<td style="text-align: right;">48 MiB</td>
+</tr>
+<tr>
+<td style="text-align: right;">4,194,304</td>
+<td style="text-align: right;">96 MiB</td>
+<td style="text-align: right;">18.750 GiB</td>
+<td style="text-align: right;">140.625 GiB</td>
+<td style="text-align: right;">192 MiB</td>
+<td style="text-align: right;">192 MiB</td>
+</tr>
+</tbody>
+</table></div>
+<p>在各自 benchmark 的计时窗口内：</p>
+<ul>
+<li>H2D 理论字节量降低约 100 倍；</li>
+<li>D2H 理论字节量降低约 750 倍；</li>
+<li>旧路径执行 700 次 device allocation；</li>
+<li>新路径两个计时 repeat 各创建一次 state，按当前 7 个 device buffer 推导为
+  14 次 device allocation；</li>
+<li>新路径每个时间步的 allocation 为 0。</li>
+</ul>
+<p>旧/新计时步总数并不相同，因此 <code>100x/750x</code> 描述的是两次实际 benchmark
+计时窗口的总量缩减；若固定相同时间步数，stateful 路径优势还会随一次
+<code>Advance</code> 中的 steps 增长。</p>
+<h2 id="10-gpu">10. GPU 实际执行证据</h2>
+<p>当前结论不是根据“程序链接了 HIP”或“显存有占用”得出，而是由多类证据共同支持：</p>
+<ol>
+<li>CMake 在计算节点配置出 HIP 编译器和 <code>gfx906</code> 目标；</li>
+<li>HIP kernel 由 DTK Clang 编译并成功运行；</li>
+<li>HIP event 记录的 kernel 时间随 <code>nx</code> 近似线性增加；</li>
+<li>每个规模记录到符合代码结构的 kernel launch 数；</li>
+<li><code>rocm-smi</code> 在目标 HCU 上看到 benchmark 进程和随规模增长的显存占用；</li>
+<li>CPU/HIP 最终状态和 checksum 一致；</li>
+<li><code>FullTrace</code> 下 GPU 各 stage 输出与 CPU reference 一致。</li>
+</ol>
+<p><code>rocm-smi</code> 的约 1 秒采样周期长于单批 kernel 时间，因此低平均利用率不能用来判断
+CPU fallback。新 stateful <code>Advance</code> 中，event kernel 时间已经占墙钟时间
+<code>99.56--99.99%</code>，说明该区间的主要工作确实发生在 device kernel。</p>
+<h2 id="11">11. 编译步骤</h2>
+<h3 id="111-slurm">11.1 Slurm 脚本资源头</h3>
+<p>建议在昆山 DCU 分区的计算节点编译和运行：</p>
+<pre><code class="language-bash">#!/bin/bash -l
+#SBATCH --partition=kshdnormal
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=13G
+#SBATCH --gres=dcu:1
+#SBATCH --time=00:15:00
+</code></pre>
+<p><code>kshdnormal</code> 要求至少申请一张 DCU。4 CPU 对应的 13 GiB 内存请求符合当前分区
+每 CPU 内存限制。</p>
+<h3 id="112">11.2 环境</h3>
+<pre><code class="language-bash">module purge
+module load compiler/dtk/26.04
+
+cmake_bin=CLUSTER_SOFTWARE_ROOT/compiler/cmake-3.22.0-rc1/bin/cmake
+dtk_root=CLUSTER_SOFTWARE_ROOT/compiler/rocm/dtk-26.04
+llvm_root="$dtk_root/llvm"
+
+export PATH="$dtk_root/bin:$llvm_root/bin:$PATH"
+export LD_LIBRARY_PATH="$dtk_root/hip/lib:$llvm_root/lib:$dtk_root/lib:$dtk_root/lib64:${LD_LIBRARY_PATH:-}"
+export CC="$llvm_root/bin/clang"
+export CXX="$llvm_root/bin/clang++"
+</code></pre>
+<p>作业脚本使用 login shell，确保 <code>module</code> 可用。不要在登录节点上把 HIP 编译成功
+当成计算节点可运行证据。</p>
+<h3 id="113-cmake">11.3 CMake 配置</h3>
+<p>假设：</p>
+<pre><code class="language-bash">project_root=/path/to/OneFLOW
+source_dir="$project_root/ports/kunshan/oneflow_1d_hip"
+build_dir=/path/to/new-build-directory
+</code></pre>
+<p>自动架构探测配置：</p>
+<pre><code class="language-bash">unset ONEFLOW_HIP_ARCHITECTURES
+
+"$cmake_bin" -S "$source_dir" -B "$build_dir" \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_C_COMPILER="$CC" \
+  -DCMAKE_CXX_COMPILER="$CXX" \
+  -DCMAKE_HIP_COMPILER="$CXX" \
+  -DCMAKE_PREFIX_PATH="$dtk_root" \
+  -DONEFLOW_1D_ENABLE_HIP=ON
+</code></pre>
+<p>核对配置：</p>
+<pre><code class="language-bash">grep -E 'CMAKE_HIP_ARCHITECTURES|CMAKE_(CXX|HIP)_COMPILER|CMAKE_BUILD_TYPE' \
+  "$build_dir/CMakeCache.txt"
+</code></pre>
+<p>本轮实测缓存为：</p>
+<pre><code class="language-text">CMAKE_BUILD_TYPE=Release
+CMAKE_HIP_ARCHITECTURES=gfx906
+CMAKE_CXX_COMPILER=&lt;DTK 26.04&gt;/llvm/bin/clang++
+CMAKE_HIP_COMPILER=&lt;DTK 26.04&gt;/llvm/bin/clang++
+ONEFLOW_1D_ENABLE_HIP=ON
+</code></pre>
+<p>如果目标节点自动探测失败，应先确认设备和模块环境；确需显式配置时使用：</p>
+<pre><code class="language-bash">-DCMAKE_HIP_ARCHITECTURES=gfx906
+</code></pre>
+<p>不要把 <code>gfx906</code> 写成所有集群的全局默认。</p>
+<h3 id="114">11.4 编译目标</h3>
+<pre><code class="language-bash">"$cmake_bin" --build "$build_dir" --parallel 4 --target \
+  oneflow_1d_euler_cpu \
+  oneflow_1d_euler_hip \
+  oneflow_1d_euler_benchmark \
+  oneflow_1d_euler_stateful_benchmark
+</code></pre>
+<p>本轮实测 CPU、HIP 和 stateful benchmark 均编译成功，构建与工作负载退出码为 0。</p>
+<h2 id="12">12. 运行步骤</h2>
+<h3 id="121-correctness">12.1 先做 correctness</h3>
+<pre><code class="language-bash">"$build_dir/oneflow_1d_euler_cpu"
+"$build_dir/oneflow_1d_euler_hip"
+</code></pre>
+<p>验收：</p>
+<pre><code class="language-text">OneFLOW 1D Euler CPU self-test: PASS
+smooth-periodic result: PASS
+sod-transmissive result: PASS
+OneFLOW 1D compressible Euler CPU/HIP validation: PASS
+</code></pre>
+<h3 id="122-trace">12.2 旧 trace 基线</h3>
+<pre><code class="language-bash">for nx in 65536 262144 1048576 4194304; do
+  "$build_dir/oneflow_1d_euler_benchmark" "$nx" 50 2 1
+done
+</code></pre>
+<h3 id="123-stateful">12.3 新 stateful 基线</h3>
+<pre><code class="language-bash">for nx in 65536 262144 1048576 4194304; do
+  "$build_dir/oneflow_1d_euler_stateful_benchmark" "$nx" 100 2 1
+done
+</code></pre>
+<p>输出至少检查：</p>
+<pre><code class="language-text">cpu_advance_ms
+hip_advance_ms
+hip_kernel_ms
+hip_kernel_ratio
+hip_kernel_launches
+hip_syncs
+hip_create_ms
+hip_upload_ms
+hip_download_ms
+hip_steady_speedup
+final_max_abs_error
+cpu_checksum
+hip_checksum
+</code></pre>
+<h3 id="124-gpu">12.4 GPU 活动采样</h3>
+<p><code>rocm-smi</code> 采样应只覆盖 HIP 阶段，避免把前面的长时间 CPU benchmark 混入平均值。
+建议记录：</p>
+<pre><code class="language-bash">rocm-smi --showuse
+rocm-smi --showmemuse
+rocm-smi --showpids
+</code></pre>
+<p>利用率采样用于确认设备活动和进程归属；kernel event 才是短 kernel 时间的主要
+定量依据。</p>
+<h2 id="13">13. 当前结果的限制</h2>
+<h3 id="131-benchmark-cpu">13.1 旧 benchmark 的 CPU 对比不是生产级多核基线</h3>
+<p>第 6--9 节的旧 trace 和 stateful benchmark 使用串行 CPU reference：</p>
+<ul>
+<li>单线程；</li>
+<li>没有 SIMD、OpenMP 或 MPI 性能优化；</li>
+<li><code>NoTrace</code> 内部仍借助 <code>EulerTrace</code> 完成 CPU step。</li>
+</ul>
+<p>因此第 7 节的 <code>102--155x</code> 只说明 GPU stateful 执行结构相对串行 CPU 的收益，
+不适合直接用于硬件采购、生产部署或“单卡等价多少 CPU 核”的结论。第 15 节
+补充了真正的 MPI 32-rank CPU 对 8-rank/1-DCU 共享卡测试。</p>
+<h3 id="132-mpi">13.2 MPI 对比的适用边界</h3>
+<p>第 15 节是独立 MPI benchmark，不是完整 OneFLOW NS 主求解链：</p>
+<ul>
+<li>CPU 任务为 32 MPI ranks × 1 core；</li>
+<li>GPU 任务为 8 MPI ranks × 1 core，共享 1 张 Z100；</li>
+<li>GPU 每个 MPI rank 都建立自己的 HIP state，并将 device 0 设为可见设备；</li>
+<li>这是“8 个 rank 共享单卡”的压力/争用口径，不是“一 rank 一卡”的生产配置；</li>
+<li>每个 RK stage 都通过 host halo buffer 做 MPI 交换，GPU 任务包含额外的
+  D2H/H2D halo 和同步成本。</li>
+</ul>
+<p>因此第 15 节的结果用于回答指定资源口径下的对比，不应外推为多卡线性扩展结论。</p>
+<h3 id="133-oneflow">13.3 不是完整 OneFLOW 求解器</h3>
+<p>当前只覆盖隔离的一维 Euler 验证程序，不包含：</p>
+<ul>
+<li>完整 NS 主循环；</li>
+<li>多 zone；</li>
+<li>网格和边界数据管理；</li>
+<li>MPI 通信；</li>
+<li>IO、checkpoint 和残差归约；</li>
+<li>二维、三维；</li>
+<li>WENO5 当前阶段优化。</li>
+</ul>
+<h3 id="134-profiling">13.4 profiling 还不完整</h3>
+<p>当前已经有总 kernel event 时间，但还缺少：</p>
+<ul>
+<li>Face/Residual/Update 分类时间；</li>
+<li>有效带宽；</li>
+<li>occupancy；</li>
+<li>寄存器使用；</li>
+<li>cache miss；</li>
+<li>H2D/D2H 实际 profiler 字节数；</li>
+<li>完整生命周期的统一同步计数；</li>
+<li>CPU 和 HIP 严格分离的长时间利用率窗口。</li>
+</ul>
+<h3 id="135-kernel">13.5 当前 kernel 仍有明确结构开销</h3>
+<p>代码检查已经确认以下待测项，但本轮没有实施优化：</p>
+<ul>
+<li>每步仍有 9 次 kernel launch；</li>
+<li><code>NoTrace</code> 仍分配并写入 left/right trace buffers；</li>
+<li><code>Face</code> kernel 的 grid 当前按 <code>3 × (nx + 1)</code> 值数量配置，但 kernel 线程按
+  单个 face 工作，超出 <code>nx + 1</code> 的线程立即退出；</li>
+<li>Face、Residual、Update 尚未评估融合；</li>
+<li>访存合并、寄存器压力和 occupancy 尚无 profiler 证据。</li>
+</ul>
+<p>这些是下一阶段候选项，不应在本报告中提前宣称收益。</p>
+<h2 id="14">14. 阶段性结论</h2>
+<p>本轮已经完成的不是最终 kernel 优化，而是高性能 backend 的第一层架构修正：</p>
+<pre><code class="language-text">旧路径：GPU 是逐步调用的 trace 生成器
+新路径：GPU 持有状态并连续推进多个时间步
+</code></pre>
+<p>从数据看：</p>
+<ul>
+<li>正确性门槛保持不变；</li>
+<li>GPU kernel 已真实执行；</li>
+<li>旧路径的主要瓶颈已经被定位并消除；</li>
+<li>大规模 kernel 每步时间基本没有变化，但完整路径提高约 60 倍；</li>
+<li>当前 <code>Advance</code> 已由 kernel 主导，下一步才适合进入 kernel/dataflow 优化。</li>
+</ul>
+<p>在决定下一步之前，建议以本报告作为当前 Euler backend 的冻结基线。下一轮优化
+必须继续按以下顺序验收：</p>
+<pre><code class="language-text">FullTrace correctness
+    -&gt; NoTrace final-state correctness
+    -&gt; 四规模性能
+    -&gt; kernel/传输/同步/利用率证据
+</code></pre>
+<h2 id="15-mpi-32-cpu-vs-8-1">15. 两个独立 MPI 任务：32 核 CPU vs 8 核 + 1 卡</h2>
+<h3 id="151">15.1 任务定义</h3>
+<p>按用户指定的“两个任务提交”口径，在昆山分别提交了两个独立 Slurm 任务，使用
+相同的 MPI Euler benchmark、全局网格、100 steps、2 repeats、1 warmup：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>任务</th>
+<th>MPI 配置</th>
+<th>Slurm 分区</th>
+<th>资源</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU MPI</td>
+<td>32 ranks × 1 core</td>
+<td><code>kshcnormal</code></td>
+<td>1 node, 32 CPU cores, 110G</td>
+<td>纯 CPU MPI，周期 halo 交换</td>
+</tr>
+<tr>
+<td>GPU MPI</td>
+<td>8 ranks × 1 core</td>
+<td><code>kshdnormal</code></td>
+<td>1 node, 8 CPU cores, 1 DCU, 27G</td>
+<td>8 ranks 共享 1 张 Z100，<code>gfx906</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>两项任务均使用 Release 构建。GPU 任务使用 DTK 26.04/Clang 17，并显式编译
+<code>gfx906</code>；MPI 使用昆山可用的 HPC-X 2.4.1 GCC 7.3.1 模块。两个 benchmark
+均按 <code>global_nx / ranks</code> 做一维块划分，每个 RK stage 进行左右 halo 交换。</p>
+<h3 id="152">15.2 性能结果</h3>
+<p>表中 <code>lifecycle</code> 是两个 repeat 的最大 rank wall time 累加；<code>per step</code> 按
+200 个计时步归一化。<code>CPU/GPU</code> 是 32-rank CPU lifecycle 除以 8-rank/1-DCU
+GPU lifecycle。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th style="text-align: right;">global nx</th>
+<th style="text-align: right;">CPU MPI lifecycle (ms)</th>
+<th style="text-align: right;">CPU ms/step</th>
+<th style="text-align: right;">GPU MPI lifecycle (ms)</th>
+<th style="text-align: right;">GPU ms/step</th>
+<th style="text-align: right;">CPU/GPU</th>
+<th style="text-align: right;">GPU kernel (ms)</th>
+<th style="text-align: right;">GPU MPI (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">65,536</td>
+<td style="text-align: right;">71.729</td>
+<td style="text-align: right;">0.358646</td>
+<td style="text-align: right;">451.152</td>
+<td style="text-align: right;">2.255759</td>
+<td style="text-align: right;">0.159x</td>
+<td style="text-align: right;">97.067</td>
+<td style="text-align: right;">170.866</td>
+</tr>
+<tr>
+<td style="text-align: right;">262,144</td>
+<td style="text-align: right;">357.378</td>
+<td style="text-align: right;">1.786888</td>
+<td style="text-align: right;">456.412</td>
+<td style="text-align: right;">2.282060</td>
+<td style="text-align: right;">0.783x</td>
+<td style="text-align: right;">99.054</td>
+<td style="text-align: right;">168.879</td>
+</tr>
+<tr>
+<td style="text-align: right;">1,048,576</td>
+<td style="text-align: right;">1,293.912</td>
+<td style="text-align: right;">6.469560</td>
+<td style="text-align: right;">501.767</td>
+<td style="text-align: right;">2.508834</td>
+<td style="text-align: right;">2.579x</td>
+<td style="text-align: right;">130.438</td>
+<td style="text-align: right;">161.298</td>
+</tr>
+<tr>
+<td style="text-align: right;">4,194,304</td>
+<td style="text-align: right;">7,083.452</td>
+<td style="text-align: right;">35.417262</td>
+<td style="text-align: right;">976.969</td>
+<td style="text-align: right;">4.884843</td>
+<td style="text-align: right;">7.250x</td>
+<td style="text-align: right;">288.790</td>
+<td style="text-align: right;">419.965</td>
+</tr>
+</tbody>
+</table></div>
+<p>MPI 任务的最终状态证据：</p>
+<ul>
+<li>四个规模的 CPU 和 GPU <code>final_hash</code> 完全一致；</li>
+<li><code>min_rho</code> 分别约为 <code>0.899978/0.899995/0.899999/0.900000</code>；</li>
+<li><code>min_pressure</code> 分别约为 <code>0.919978/0.919995/0.919999/0.920000</code>；</li>
+<li>两个作业的构建、运行和退出码均为 0；</li>
+<li>GPU 输出设备为 <code>Device 66a1</code>，架构为 <code>gfx906:sramecc-:xnack-</code>。</li>
+</ul>
+<h3 id="153">15.3 结果解释</h3>
+<ul>
+<li>小规模时，32-rank CPU 更快：<code>nx=65,536</code> 时 GPU/CPU 约为 <code>6.29x</code>，
+  <code>nx=262,144</code> 时约为 <code>1.28x</code>；此时 8 个 rank 共享单卡的 MPI、host-device
+  halo 拷贝和同步成本高于 GPU 计算收益。</li>
+<li><code>nx=1,048,576</code> 后 GPU 开始胜出，达到 <code>2.58x</code>；4M 时达到 <code>7.25x</code>。</li>
+<li>GPU 4M 任务中 kernel event 约 <code>288.8 ms</code>，MPI halo 约 <code>420.0 ms</code>，说明
+  “8 ranks 共享一张卡”的主要瓶颈已从纯 kernel 转为 MPI/host-device halo 路径。</li>
+<li>GPU benchmark 每个 rank 每个 RK stage 执行 <code>PackBoundary + Face + Residual +
+  Update</code>，因此 100 steps、2 repeats、8 ranks 共记录 <code>19,200</code> kernel launches，
+  <code>4,800</code> 次 halo exchange，以及 <code>9,632</code> 次 device synchronization。</li>
+<li>该结果不能和第 7 节的单 rank stateful <code>Advance</code> 速度直接混用：第 7 节不含
+  MPI halo，且是一张卡一个进程；第 15 节专门测量用户指定的共享卡 MPI 配置。</li>
+</ul>
+<h3 id="154-mpi">15.4 MPI 编译与运行脚本</h3>
+<p>仓库新增两个可复现脚本：</p>
+<pre><code class="language-text">ci/kunshan/euler-mpi-cpu-32.slurm
+ci/kunshan/euler-mpi-gpu8-1.slurm
+</code></pre>
+<p>CPU 任务关键配置：</p>
+<pre><code class="language-bash">#SBATCH --partition=kshcnormal
+#SBATCH --ntasks-per-node=32
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=110G
+mpirun -np 32 --bind-to core \
+  oneflow_1d_euler_mpi_cpu_benchmark &lt;nx&gt; 100 2 1
+</code></pre>
+<p>GPU 任务关键配置：</p>
+<pre><code class="language-bash">#SBATCH --partition=kshdnormal
+#SBATCH --ntasks-per-node=8
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=27G
+#SBATCH --gres=dcu:1
+export HIP_VISIBLE_DEVICES=0
+export ROCR_VISIBLE_DEVICES=0
+mpirun -np 8 --bind-to core \
+  oneflow_1d_euler_mpi_hip_benchmark &lt;nx&gt; 100 2 1
+</code></pre>
+<p>GPU 任务需要先加载 <code>compiler/devtoolset/7.3.1</code>，再加载
+<code>compiler/dtk/26.04</code> 和 <code>mpi/hpcx/2.4.1-gcc-7.3.1</code>，因为 HPC-X 模块声明了
+该 compiler module 前置依赖。8 核任务申请 27G 而不是 28G，是因为昆山每核
+内存上限约为 3569 MB。</p><footer class="report-footer">HTML 由同名 Markdown 报告离线生成；数据口径和结论以源 Markdown 为准。</footer></article></main></body></html>

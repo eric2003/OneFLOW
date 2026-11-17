@@ -1,0 +1,14 @@
+{
+  "volume_mesh": "axis_aligned_cube_six_tetrahedra",
+  "case_name": "six_tetrahedra",
+  "mesh_dimension": 3,
+  "surface_name": "fluid_domain",
+  "boundary_groups": {
+    "xmin": "inflow",
+    "xmax": "outflow",
+    "ymin": "wall",
+    "ymax": "farfield",
+    "zmin": "symmetry",
+    "zmax": "symmetry"
+  }
+}

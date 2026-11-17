@@ -1,0 +1,225 @@
+<div id="oneflow-strong-scaling" aria-labelledby="oneflow-strong-scaling-title">
+  <style>
+    #oneflow-strong-scaling {
+      --background: transparent;
+      --foreground: currentColor;
+      --muted-foreground: color-mix(in srgb, currentColor 62%, transparent);
+      --border: color-mix(in srgb, currentColor 22%, transparent);
+      --viz-series-1: #2563eb;
+      --viz-series-2: #d97706;
+      --viz-series-3: #059669;
+      --viz-series-4: #b91c1c;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--foreground);
+      width: 100%;
+    }
+    #oneflow-strong-scaling h1 {
+      font-size: 18px;
+      line-height: 1.3;
+      font-weight: 500;
+      margin: 0 0 4px;
+    }
+    #oneflow-strong-scaling .subtitle {
+      color: var(--muted-foreground);
+      font-size: 12px;
+      margin: 0 0 14px;
+    }
+    #oneflow-strong-scaling .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin: 0 0 10px;
+      color: var(--muted-foreground);
+      font-size: 12px;
+    }
+    #oneflow-strong-scaling .legend span {
+      white-space: nowrap;
+    }
+    #oneflow-strong-scaling .swatch {
+      display: inline-block;
+      width: 10px;
+      height: 3px;
+      margin-right: 5px;
+      vertical-align: middle;
+      background: var(--swatch);
+    }
+    #oneflow-strong-scaling .charts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px 24px;
+    }
+    #oneflow-strong-scaling figure {
+      margin: 0;
+      min-width: 0;
+    }
+    #oneflow-strong-scaling figcaption {
+      font-size: 13px;
+      font-weight: 500;
+      margin: 0 0 4px;
+    }
+    #oneflow-strong-scaling svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+    #oneflow-strong-scaling .grid {
+      stroke: var(--border);
+      stroke-width: 1;
+    }
+    #oneflow-strong-scaling .axis {
+      stroke: var(--muted-foreground);
+      stroke-width: 1;
+    }
+    #oneflow-strong-scaling .tick,
+    #oneflow-strong-scaling .axis-title,
+    #oneflow-strong-scaling .value {
+      fill: var(--foreground);
+      font-size: 11px;
+    }
+    #oneflow-strong-scaling .axis-title {
+      fill: var(--muted-foreground);
+    }
+    #oneflow-strong-scaling .series-line {
+      fill: none;
+      stroke-width: 2;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    #oneflow-strong-scaling .series-dot {
+      stroke: var(--background);
+      stroke-width: 1.5;
+    }
+    #oneflow-strong-scaling .note {
+      color: var(--muted-foreground);
+      font-size: 11px;
+      margin: 12px 0 0;
+    }
+    @media (max-width: 680px) {
+      #oneflow-strong-scaling .charts {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <h1 id="oneflow-strong-scaling-title">OneFLOW 1D Euler strong scaling</h1>
+  <p class="subtitle">昆山独占节点测量；100 steps / 2 repeats / 1 warmup；纵轴均为相对单进程或单卡基线。</p>
+  <div class="legend" aria-label="Global mesh sizes">
+    <span><i class="swatch" style="--swatch:var(--viz-series-1)"></i>65,536</span>
+    <span><i class="swatch" style="--swatch:var(--viz-series-2)"></i>262,144</span>
+    <span><i class="swatch" style="--swatch:var(--viz-series-3)"></i>1,048,576</span>
+    <span><i class="swatch" style="--swatch:var(--viz-series-4)"></i>4,194,304</span>
+  </div>
+  <div class="charts">
+    <figure>
+      <figcaption>CPU speedup vs MPI ranks</figcaption>
+      <svg data-chart="cpu-speedup" role="img" aria-label="CPU speedup versus MPI ranks"></svg>
+    </figure>
+    <figure>
+      <figcaption>CPU parallel efficiency</figcaption>
+      <svg data-chart="cpu-efficiency" role="img" aria-label="CPU parallel efficiency versus MPI ranks"></svg>
+    </figure>
+    <figure>
+      <figcaption>DCU speedup vs DCU ranks</figcaption>
+      <svg data-chart="dcu-speedup" role="img" aria-label="DCU speedup versus DCU ranks"></svg>
+    </figure>
+    <figure>
+      <figcaption>DCU parallel efficiency</figcaption>
+      <svg data-chart="dcu-efficiency" role="img" aria-label="DCU parallel efficiency versus DCU ranks"></svg>
+    </figure>
+    <figure>
+      <figcaption>CPU 32 ranks / DCU end-to-end time ratio</figcaption>
+      <svg data-chart="endpoint-ratio" role="img" aria-label="CPU 32 rank time divided by DCU end-to-end time"></svg>
+    </figure>
+  </div>
+  <p class="note">CPU 与 DCU 曲线分别按各自的 1-rank 或 1-DCU median 归一化；最后一图的数值大于 1 表示 DCU 更快。</p>
+
+  <script>
+    (() => {
+      const root = document.getElementById("oneflow-strong-scaling");
+      const cpu = {
+        "65536": [1953.582682, 985.243050, 514.578635, 254.111742, 126.274151, 64.682460],
+        "262144": [8378.931917, 4617.070385, 2882.450994, 1495.643191, 519.121973, 272.694200],
+        "1048576": [33519.481154, 18207.675122, 11306.517611, 7469.696192, 3575.792816, 1420.943678],
+        "4194304": [138225.248451, 73626.543377, 44980.045240, 29297.822670, 14416.185226, 7062.805988]
+      };
+      const dcu = {
+        "65536": [74.119700, 72.971324, 72.002648],
+        "262144": [113.430956, 92.828009, 81.826672],
+        "1048576": [270.166193, 170.459750, 119.653440],
+        "4194304": [978.026922, 540.024515, 277.058894]
+      };
+      const nx = Object.keys(cpu);
+      const colors = ["var(--viz-series-1)", "var(--viz-series-2)", "var(--viz-series-3)", "var(--viz-series-4)"];
+      const cssColor = (token) => getComputedStyle(root).getPropertyValue(token.slice(4, -1)).trim() || token;
+      const fmt = (value) => value >= 10 ? value.toFixed(1) : value.toFixed(2);
+      const make = (svg, kind) => {
+        const rect = svg.getBoundingClientRect();
+        const width = Math.max(320, rect.width || 640);
+        const height = 238;
+        const margin = {top: 12, right: 16, bottom: 38, left: 48};
+        const innerW = width - margin.left - margin.right;
+        const innerH = height - margin.top - margin.bottom;
+        const xValues = kind.startsWith("cpu") ? [1, 2, 4, 8, 16, 32] : [1, 2, 4];
+        const xMax = Math.max(...xValues);
+        const x = (v) => margin.left + (Math.log2(v) / Math.log2(xMax)) * innerW;
+        let series;
+        let yMax;
+        let yTitle;
+        if (kind === "cpu-speedup") {
+          series = nx.map(k => cpu[k].map(v => cpu[k][0] / v));
+          yMax = 34; yTitle = "speedup (×)";
+        } else if (kind === "cpu-efficiency") {
+          series = nx.map(k => cpu[k].map((v, i) => 100 * cpu[k][0] / v / xValues[i]));
+          yMax = 110; yTitle = "efficiency (%)";
+        } else if (kind === "dcu-speedup") {
+          series = nx.map(k => dcu[k].map(v => dcu[k][0] / v));
+          yMax = 4; yTitle = "speedup (×)";
+        } else if (kind === "dcu-efficiency") {
+          series = nx.map(k => dcu[k].map((v, i) => 100 * dcu[k][0] / v / xValues[i]));
+          yMax = 110; yTitle = "efficiency (%)";
+        } else {
+          series = nx.map(k => dcu[k].map(v => cpu[k][5] / v));
+          yMax = 28; yTitle = "CPU32 / DCU time (×)";
+        }
+        const y = (v) => margin.top + innerH - (v / yMax) * innerH;
+        const ticks = kind.includes("efficiency") ? [0, 25, 50, 75, 100] :
+          (kind === "cpu-speedup" ? [0, 8, 16, 24, 32] :
+          (kind === "dcu-speedup" ? [0, 1, 2, 3, 4] : [0, 7, 14, 21, 28]));
+        const parts = [];
+        parts.push(`<title>${svg.getAttribute("aria-label")}</title>`);
+        parts.push(`<desc>Four global mesh sizes, measured with three samples per point and plotted as medians.</desc>`);
+        ticks.forEach(t => {
+          const yy = y(t);
+          parts.push(`<line class="grid" x1="${margin.left}" x2="${width - margin.right}" y1="${yy}" y2="${yy}"></line>`);
+          parts.push(`<text class="tick" x="${margin.left - 7}" y="${yy + 4}" text-anchor="end">${t}</text>`);
+        });
+        parts.push(`<line class="axis" x1="${margin.left}" x2="${width - margin.right}" y1="${margin.top + innerH}" y2="${margin.top + innerH}"></line>`);
+        parts.push(`<line class="axis" x1="${margin.left}" x2="${margin.left}" y1="${margin.top}" y2="${margin.top + innerH}"></line>`);
+        xValues.forEach(v => {
+          const xx = x(v);
+          parts.push(`<line class="axis" x1="${xx}" x2="${xx}" y1="${margin.top + innerH}" y2="${margin.top + innerH + 4}"></line>`);
+          parts.push(`<text class="tick" x="${xx}" y="${height - 17}" text-anchor="middle">${v}</text>`);
+        });
+        parts.push(`<text class="axis-title" x="${margin.left + innerW / 2}" y="${height - 2}" text-anchor="middle">${kind.startsWith("cpu") ? "MPI ranks" : "DCU ranks"}</text>`);
+        parts.push(`<text class="axis-title" transform="translate(13 ${margin.top + innerH / 2}) rotate(-90)" text-anchor="middle">${yTitle}</text>`);
+        series.forEach((values, si) => {
+          const color = cssColor(colors[si]);
+          const points = values.map((v, i) => `${x(xValues[i])},${y(v)}`).join(" ");
+          parts.push(`<polyline class="series-line" stroke="${color}" points="${points}"></polyline>`);
+          values.forEach((v, i) => {
+            const xx = x(xValues[i]);
+            const yy = y(v);
+            parts.push(`<circle class="series-dot" fill="${color}" cx="${xx}" cy="${yy}" r="3" data-tooltip="${nx[si]} cells, ${xValues[i]} ranks: ${fmt(v)}${kind.includes("efficiency") ? "%" : "×"}"></circle>`);
+          });
+        });
+        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+        svg.innerHTML = parts.join("");
+      };
+      const redraw = () => root.querySelectorAll("svg[data-chart]").forEach(svg => make(svg, svg.dataset.chart));
+      redraw();
+      if ("ResizeObserver" in window) new ResizeObserver(redraw).observe(root);
+      else window.addEventListener("resize", redraw);
+    })();
+  </script>
+</div>

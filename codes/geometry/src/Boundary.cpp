@@ -1,0 +1,436 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#include "Boundary.h"
+#include "HXCgns.h"
+#include "Dimension.h"
+#include "Constant.h"
+
+#include "Prj.h"
+#include "BcRecord.h"
+#include "GridTypes.h"
+
+#include <iostream>
+#include <iomanip>
+#include <utility>
+#include <vector>
+#include <cctype>
+
+
+BeginNameSpace( ONEFLOW )
+
+int BC::PERIODIC         =   99;
+int BC::WAKE             = - 2 ;
+int BC::INTERFACE        = - 1 ;
+int BC::NO_BOUNDARY      =   0 ;
+int BC::EXTRAPOLATION    =   1 ;
+int BC::SOLID_SURFACE    =   2 ;
+int BC::SYMMETRY         =   3 ;
+int BC::FARFIELD         =   4 ;
+int BC::INFLOW           =   5 ;
+int BC::OUTFLOW          =   6 ;
+int BC::OUTFLOW_CONFINED =   61;
+int BC::POLE             =   7 ;
+int BC::POLE1            =   71;
+int BC::POLE2            =   72;
+int BC::POLE3            =   73;
+int BC::GENERIC_1        =   8 ;
+int BC::GENERIC_2        =   9 ;
+int BC::GENERIC_3        =   10;
+int BC::INTERIOR         =   100;
+int BC::OVERSET          =   1000;
+
+bool BC::IsInterfaceBc( int bcType )
+{
+    // Interface faces use BC::INTERFACE (-1). Any other negative code is also
+    // treated as interface (historical convention in this codebase).
+    if ( bcType == BC::INTERFACE || bcType < 0 )
+    {
+        return true;
+    }
+    return false;
+}
+
+bool BC::IsSlipfaceBc( int bcType )
+{
+    if ( bcType == BC::GENERIC_2 )
+    {
+        return true;
+    }
+    return false;
+}
+
+bool BC::IsPoleBc( int bcType )
+{
+    int bc10 = ( bcType / 10 );
+    if ( ( bcType == BC::POLE ) || ( bc10 == BC::POLE ) )
+    {
+        return true;
+    }
+    return false;
+}
+
+bool BC::IsNotNormalBc( int bcType )
+{
+    return BC::IsInterfaceBc( bcType ) || BC::IsPoleBc( bcType );
+}
+
+bool BC::IsWallBc( int bcType )
+{
+    if ( bcType == BC::SOLID_SURFACE )
+    {
+        return true;
+    }
+    return false;
+}
+
+int GmshPhysicalNameToCgnsBcType( const std::string & physicalName )
+{
+    std::string key;
+    for ( unsigned char ch : physicalName )
+    {
+        if ( std::isalnum( ch ) )
+            key.push_back( static_cast< char >( std::tolower( ch ) ) );
+    }
+
+    if ( key == "inlet" || key == "inflow" || key == "velocityinlet" ||
+         key == "massflowinlet" || key == "pressureinlet" ||
+         key == "xmininflow" )
+        return static_cast< int >( CGNS_ENUMV( BCInflow ) );
+    if ( key == "outlet" || key == "outflow" || key == "pressureoutlet" ||
+         key == "xmaxoutflow" )
+        return static_cast< int >( CGNS_ENUMV( BCOutflow ) );
+    if ( key == "symmetry" || key == "symmetryplane" ||
+         key == "zminsymmetry" || key == "zmaxsymmetry" )
+        return static_cast< int >( CGNS_ENUMV( BCSymmetryPlane ) );
+    if ( key == "farfield" || key == "freestream" || key == "ymaxfarfield" )
+        return static_cast< int >( CGNS_ENUMV( BCFarfield ) );
+    if ( key == "noslipwall" || key == "viscouswall" )
+        return static_cast< int >( CGNS_ENUMV( BCWallViscous ) );
+    if ( key == "slipwall" || key == "inviscidwall" )
+        return static_cast< int >( CGNS_ENUMV( BCWallInviscid ) );
+    if ( key == "wall" || key == "lowerwall" || key == "upperwall" ||
+         key == "bodywall" || key == "yminwall" )
+        return static_cast< int >( CGNS_ENUMV( BCWall ) );
+
+    return static_cast< int >( CGNS_ENUMV( BCTypeUserDefined ) );
+}
+
+void BcTypeMap::Init()
+{
+    using IntPair = std::pair< int, int >;
+
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCTypeUserDefined       ), BC::GENERIC_2       ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCSymmetryPlane         ), BC::SYMMETRY        ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCInflow                ), BC::INFLOW          ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCInflowSubsonic        ), BC::INFLOW          ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCInflowSupersonic      ), BC::INFLOW          ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCTunnelInflow          ), BC::INFLOW          ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCOutflow               ), BC::OUTFLOW         ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCOutflowSubsonic       ), BC::OUTFLOW         ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCOutflowSupersonic     ), BC::OUTFLOW         ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCTunnelOutflow         ), BC::OUTFLOW         ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCWall                  ), BC::SOLID_SURFACE   ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCWallInviscid          ), BC::SOLID_SURFACE   ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCWallViscous           ), BC::SOLID_SURFACE   ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCWallViscousHeatFlux   ), BC::SOLID_SURFACE   ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCWallViscousIsothermal ), BC::SOLID_SURFACE   ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCDegenerateLine        ), BC::POLE            ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCTypeNull              ), BC::INTERFACE       ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCFarfield              ), BC::FARFIELD        ) );
+    cgns2OneFlow.insert( IntPair( CGNS_ENUMV( BCGeneral               ), BC::OVERSET         ) );
+
+    oneFlow2Cgns.insert( IntPair( BC::INTERFACE    , CGNS_ENUMV( BCTypeNull        ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::EXTRAPOLATION, CGNS_ENUMV( BCExtrapolate     ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::SYMMETRY     , CGNS_ENUMV( BCSymmetryPlane   ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::INFLOW       , CGNS_ENUMV( BCInflow          ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::OUTFLOW      , CGNS_ENUMV( BCOutflow         ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::SOLID_SURFACE, CGNS_ENUMV( BCWall            ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::POLE         , CGNS_ENUMV( BCDegenerateLine  ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::POLE1        , CGNS_ENUMV( BCDegenerateLine  ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::POLE2        , CGNS_ENUMV( BCDegenerateLine  ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::POLE3        , CGNS_ENUMV( BCDegenerateLine  ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::NO_BOUNDARY  , CGNS_ENUMV( BCTypeNull        ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::FARFIELD     , CGNS_ENUMV( BCFarfield        ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::OVERSET      , CGNS_ENUMV( BCGeneral         ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::GENERIC_1    , CGNS_ENUMV( BCGeneral         ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::GENERIC_2    , CGNS_ENUMV( BCTypeUserDefined ) ) );
+    oneFlow2Cgns.insert( IntPair( BC::GENERIC_3    , CGNS_ENUMV( BCTypeUserDefined ) ) );
+}
+
+int BcTypeMap::OneFlow2Cgns( int oneflow_bctype ) const
+{
+    auto iter = oneFlow2Cgns.find( oneflow_bctype );
+    int cgns_bctype = BCTypeUserDefined;
+    if ( iter != oneFlow2Cgns.end() )
+    {
+        cgns_bctype = iter->second;
+    }
+    return cgns_bctype;
+}
+
+int BcTypeMap::Cgns2OneFlow( int cgns_bctype ) const
+{
+    auto iter = cgns2OneFlow.find( cgns_bctype );
+    int oneflow_bctype = BC::GENERIC_2;
+    if ( iter != cgns2OneFlow.end() )
+    {
+        oneflow_bctype = iter->second;
+    }
+    return oneflow_bctype;
+}
+
+void BcTypeMap::MapFromCgnsInPlace( IntField & bcTypes ) const
+{
+    for ( int & bcType : bcTypes )
+    {
+        bcType = this->Cgns2OneFlow( bcType );
+    }
+}
+
+namespace
+{
+const char * CgnsBcTypeName( int bcType )
+{
+    if ( bcType < 0 || bcType >= NofValidBCTypes )
+    {
+        return "UnknownCGNS";
+    }
+
+    const char * typeName = BCTypeName[ bcType ];
+    return typeName ? typeName : "UnknownCGNS";
+}
+
+const char * OneFlowBcTypeName( int bcType )
+{
+    if ( bcType == BC::PERIODIC ) return "PERIODIC";
+    if ( bcType == BC::WAKE ) return "WAKE";
+    if ( bcType == BC::INTERFACE ) return "INTERFACE";
+    if ( bcType == BC::NO_BOUNDARY ) return "NO_BOUNDARY";
+    if ( bcType == BC::EXTRAPOLATION ) return "EXTRAPOLATION";
+    if ( bcType == BC::SOLID_SURFACE ) return "SOLID_SURFACE";
+    if ( bcType == BC::SYMMETRY ) return "SYMMETRY";
+    if ( bcType == BC::FARFIELD ) return "FARFIELD";
+    if ( bcType == BC::INFLOW ) return "INFLOW";
+    if ( bcType == BC::OUTFLOW ) return "OUTFLOW";
+    if ( bcType == BC::OUTFLOW_CONFINED ) return "OUTFLOW_CONFINED";
+    if ( bcType == BC::POLE ) return "POLE";
+    if ( bcType == BC::POLE1 ) return "POLE1";
+    if ( bcType == BC::POLE2 ) return "POLE2";
+    if ( bcType == BC::POLE3 ) return "POLE3";
+    if ( bcType == BC::GENERIC_1 ) return "GENERIC_1";
+    if ( bcType == BC::GENERIC_2 ) return "GENERIC_2";
+    if ( bcType == BC::GENERIC_3 ) return "GENERIC_3";
+    if ( bcType == BC::INTERIOR ) return "INTERIOR";
+    if ( bcType == BC::OVERSET ) return "OVERSET";
+    return "UNKNOWN";
+}
+}
+
+void BcTypeMap::PrintSummary( const IntField & cgnsBcTypes ) const
+{
+    std::set< int > oneFlowTypes;
+    std::set< std::pair< int, int > > usedMappings;
+
+    for ( int cgnsType : cgnsBcTypes )
+    {
+        const int oneFlowType = this->Cgns2OneFlow( cgnsType );
+        oneFlowTypes.insert( oneFlowType );
+        usedMappings.insert( std::make_pair( cgnsType, oneFlowType ) );
+    }
+
+    std::cout << "\nBoundary Conditions"
+              << "\n-------------------"
+              << "\nOneFLOW types (" << oneFlowTypes.size() << "):\n";
+
+    int column = 0;
+    for ( int bcType : oneFlowTypes )
+    {
+        std::cout << std::setw( 4 ) << bcType;
+        if ( ++column % 10 == 0 || column == static_cast< int >( oneFlowTypes.size() ) )
+        {
+            std::cout << '\n';
+        }
+    }
+
+    if ( usedMappings.empty() )
+    {
+        std::cout << "  (none)\n";
+        return;
+    }
+
+    std::cout << "CGNS -> OneFLOW mapping (used only):\n"
+              << "  " << std::left
+              << std::setw( 8 ) << "CGNS ID"
+              << std::setw( 27 ) << "CGNS type"
+              << std::right << std::setw( 10 ) << "OneFLOW"
+              << "  OneFLOW type\n";
+
+    for ( const auto & mapping : usedMappings )
+    {
+        std::cout << "  " << std::left
+                  << std::setw( 8 ) << mapping.first
+                  << std::setw( 27 ) << CgnsBcTypeName( mapping.first )
+                  << std::right << std::setw( 10 ) << mapping.second
+                  << "  " << OneFlowBcTypeName( mapping.second ) << '\n';
+    }
+}
+
+void CommonNameMap::AddName(const std::string& name)
+{
+    // Check if name already exists
+    auto it = this->stringMap.find(name);
+    if (it == this->stringMap.end())
+    {
+        // New name: assign a new ID
+        int newId = this->stringMap.size();
+        this->stringMap[name] = newId;
+    }
+}
+
+int CommonNameMap::FindNameId(const std::string& name) const
+{
+    auto it = this->stringMap.find(name);
+    if (it == stringMap.end())
+    {
+        return  ONEFLOW::INVALID_INDEX;  // Not found
+    }
+    return it->second;
+}
+
+void DumpRegion( const std::string & fileName, CommonNameMap & nameMap )
+{
+    std::fstream file;
+    Prj::OpenPrjFile( file, fileName, std::ios_base::out );
+
+    const auto& stringMap = nameMap.GetNameMap();
+
+    file << stringMap.size() << std::endl;
+
+    for (const auto& pair : stringMap)
+    {
+        file << pair.second << " " << pair.first << std::endl;
+    }
+
+    Prj::CloseFile(file);
+}
+
+void RegionNameRegistry::Reset()
+{
+    this->nameMap.Clear();
+}
+
+void RegionNameRegistry::AddRegion( const std::string & regionName )
+{
+    this->nameMap.AddName( regionName );
+}
+
+int RegionNameRegistry::FindRegionId( const std::string & regionName ) const
+{
+    return this->nameMap.FindNameId( regionName );
+}
+
+void RegionNameRegistry::DumpRegion( const std::string & fileName )
+{
+    ONEFLOW::DumpRegion( fileName, this->nameMap );
+}
+
+RegionNameRegistry & RegionNameMap::Default()
+{
+    static RegionNameRegistry defaultRegistry;
+    return defaultRegistry;
+}
+
+void RegionNameMap::Reset()
+{
+    RegionNameMap::Default().Reset();
+}
+
+void RegionNameMap::AddRegion( const std::string & regionName )
+{
+    RegionNameMap::Default().AddRegion( regionName );
+}
+
+int RegionNameMap::FindRegionId( const std::string & regionName )
+{
+    return RegionNameMap::Default().FindRegionId( regionName );
+}
+
+void RegionNameMap::DumpRegion()
+{
+    const std::string fileName =
+        Prj::GetMeshOutputFileName( GridConfig::GetBcRegionMapFileName() );
+    Prj::CreateDirIfNeeded( fileName );
+    RegionNameMap::DumpRegion( fileName );
+}
+
+void RegionNameMap::DumpRegion( const std::string & fileName )
+{
+    RegionNameMap::Default().DumpRegion( fileName );
+}
+
+RegionNameRegistry & VolumeNameMap::Default()
+{
+    static RegionNameRegistry defaultRegistry;
+    return defaultRegistry;
+}
+
+void VolumeNameMap::Reset()
+{
+    VolumeNameMap::Default().Reset();
+}
+
+void VolumeNameMap::AddRegion( const std::string & regionName )
+{
+    VolumeNameMap::Default().AddRegion( regionName );
+}
+
+int VolumeNameMap::FindRegionId( const std::string & regionName )
+{
+    return VolumeNameMap::Default().FindRegionId( regionName );
+}
+
+void VolumeNameMap::DumpRegion()
+{
+    VolumeNameMap::DumpRegion( "grid/volumeRegionMap.txt" );
+}
+
+void VolumeNameMap::DumpRegion( const std::string & fileName )
+{
+    VolumeNameMap::Default().DumpRegion( fileName );
+}
+
+
+
+IntField RegisterRegionNames( RegionNameRegistry & registry, const std::vector< std::string > & names )
+{
+    IntField ids;
+    ids.reserve( names.size() );
+    for ( const std::string & name : names )
+    {
+        registry.AddRegion( name );
+        ids.push_back( registry.FindRegionId( name ) );
+    }
+    return ids;
+}
+
+EndNameSpace

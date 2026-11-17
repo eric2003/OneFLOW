@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "profile_id": "laminar-flat-plate-regression-50",
+  "title": "Laminar flat plate — regression (50 steps)",
+  "source_case": "test/cfd/plateuns2dslau2",
+  "run_purpose": "regression",
+  "maturity": "proposed",
+  "description": "A short run profile intended for fast regression checks and per-iteration residual inspection.",
+  "overrides": [
+    {
+      "key": "maxSteps",
+      "value": 50,
+      "source": "regression-50"
+    }
+  ],
+  "limitations": [
+    "This profile describes a short regression run, not a converged physical solution.",
+    "The profile has not yet been validated through production parameter ingestion and initialization."
+  ]
+}

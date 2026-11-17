@@ -1,0 +1,102 @@
+/*---------------------------------------------------------------------------*\
+    OneFLOW - LargeScale Multiphysics Scientific Simulation Environment
+    Copyright (C) 2017-2026 He Xin and the OneFLOW contributors.
+-------------------------------------------------------------------------------
+License
+    This file is part of OneFLOW.
+
+    OneFLOW is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OneFLOW is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OneFLOW.  If not, see <http://www.gnu.org/licenses/>.
+
+\*---------------------------------------------------------------------------*/
+
+#pragma once
+
+#ifdef HX_PARALLEL
+#include "mpi.h"
+#endif
+
+#include "NamespaceMacros.h"
+#include <string>
+#include <vector>
+
+
+BeginNameSpace( ONEFLOW )
+
+#ifdef HX_PARALLEL
+    using PL_HXRequest = MPI_Request;
+    using PL_Op = MPI_Op;
+    using PL_Datatype = MPI_Datatype;
+
+    #define PL_REQUEST_NULL    MPI_REQUEST_NULL
+    #define PL_MAX             MPI_MAX
+    #define PL_MIN             MPI_MIN
+    #define PL_SUM             MPI_SUM
+    #define PL_CHAR            MPI_CHAR
+    #define PL_INT             MPI_INT
+    #define PL_LONG_LONG_INT   MPI_LONG_LONG_INT
+#else
+    using PL_HXRequest = int;
+    using PL_Op = int;
+    using PL_Datatype = int;
+
+    #define PL_REQUEST_NULL    0
+    #define PL_MAX             0
+    #define PL_MIN             0
+    #define PL_SUM             0
+    #define PL_CHAR            0
+    #define PL_INT             0
+    #define PL_LONG_LONG_INT   0
+#endif
+
+int HXInit();
+int HXInit( int & argc, char *** argv );
+void HXFinalize();
+
+int HXRank();
+int HXSize();
+
+std::string HXGetProcessorName();
+
+void HXSend( const void * data, int size, PL_Datatype dataType, int pid, int tag = 0 );
+void HXRecv( void * data, int size, PL_Datatype dataType, int pid, int tag = 0 );
+
+void HXSendChar( const void * data, int size, int pid, int tag = 0 );
+void HXRecvChar( void * data, int size, int pid, int tag = 0 );
+
+int HXWait( PL_HXRequest * request );
+int HXWait( int count, PL_HXRequest * arrayOfRequests );
+
+void HXSendString( std::string & cs, int pid, int tag );
+void HXRecvString( std::string & cs, int pid, int tag );
+
+template< typename T >
+void HXSmartSend( const T * field, int nElement, int pid, int tag )
+{
+    int bufferSize = nElement * sizeof( T );
+    HXSendChar( field, bufferSize, pid, tag );
+}
+
+template< typename T >
+void HXSmartRecv( T * field, int nElement, int pid, int tag )
+{
+    int bufferSize = nElement * sizeof( T );
+    HXRecvChar( field, bufferSize, pid, tag );
+}
+
+
+void HXReduceInt( const void * s, void * t, int nElem, PL_Op op );
+void HXReduceReal( const void * s, void * t, int nElem, PL_Op op );
+
+
+EndNameSpace

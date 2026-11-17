@@ -1,0 +1,8 @@
+true, bc_q, nTEqu, all
+true, bcdqdx, nTEqu , all
+true, bcdqdy, nTEqu , all
+true, bcdqdz, nTEqu , all
+true, bc_t    , nTModel, all
+true, bcdtdx, nTModel, all
+true, bcdtdy, nTModel, all
+true, bcdtdz, nTModel, all
