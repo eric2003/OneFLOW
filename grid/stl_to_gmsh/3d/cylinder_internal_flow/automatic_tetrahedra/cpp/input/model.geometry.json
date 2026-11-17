@@ -1702,7 +1702,7 @@
     ]
   },
   "stl_file": "model.stl",
-  "stl_sha256": "5efac445512c8a572e8e53d4489f7c6822d058f0965243d9f4f4a8e300000000",
+  "stl_sha256": "cdfc8fd6f85a3612d6b34479de3216c989e143f4833f09896af9fdfa40a424bc",
   "intended_gmsh_physical_groups": {
     "surface": [
       "wall",
