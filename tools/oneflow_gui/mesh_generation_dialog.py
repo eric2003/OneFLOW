@@ -660,8 +660,8 @@ class StlToGmshDialog(QDialog):
                 / "cylinder_internal_flow" / "automatic_tetrahedra"
             )
             return (
-                case_directory / "python" / "input" / "model.stl",
-                "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow",
+                case_directory / "cpp" / "input" / "model.stl",
+                "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
                 "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
             )
         if preset not in {"sphere", "prolate_spheroid"}:
