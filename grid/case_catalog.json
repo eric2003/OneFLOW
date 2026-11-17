@@ -520,7 +520,12 @@
       "profile": null,
       "layout": null,
       "group": "STL to Gmsh",
-      "dimension": 3
+      "dimension": 3,
+      "geometry_provenance": {
+        "kind": "generated",
+        "manifest": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/cpp/input/model.geometry.json",
+        "asset_id": "geometry.cylinder.internal_flow"
+      }
     },
     {
       "id": "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
