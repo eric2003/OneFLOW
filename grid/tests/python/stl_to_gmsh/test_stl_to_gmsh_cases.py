@@ -885,7 +885,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             )
             self.assertTrue(report["validated"])
             self.assertEqual(
-                report["geometry_report"]["volume_mesh"],
+                report["geometry_report"]["geometry"],
                 "cylinder_internal_flow",
             )
         self.assertFalse((source / "results").exists())
