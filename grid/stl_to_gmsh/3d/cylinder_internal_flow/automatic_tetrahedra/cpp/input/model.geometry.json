@@ -20,7 +20,8 @@
     "name": "oneflow_stl_geometry",
     "version": "1.0",
     "source": "grid/stl_to_gmsh/generate_stl_geometry.py",
-    "source_sha256": "b464369ea514fa47bec5e2f29a87db11bc32bf341fde86c58a571d09973d95d9"
+    "source_sha256": "b464369ea514fa47bec5e2f29a87db11bc32bf341fde86c58a571d09973d95d9",
+    "serialization": "ASCII STL"
   },
   "generator_version": "1.0",
   "geometry": "cylinder_internal_flow",
@@ -1713,5 +1714,5 @@
       "fluid_domain"
     ]
   },
-  "notes": "STL facets are geometric closure patches. Inflow and outflow are not solid walls."
+  "notes": "ASCII STL representation of the canonical 48 x 16 internal-flow cylinder. It uses the same analytic parameters, triangle ordering and wall/inflow/outflow patch partition as the Python reference representation; its checksum is serialization-specific. End caps close the shell and are not solid wall patches."
 }
