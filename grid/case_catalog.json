@@ -514,6 +514,15 @@
       "mesh_project_template": true
     },
     {
+      "id": "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
+      "title": "STL to Gmsh: Internal-flow Cylinder with Automatic TETRA_4 Volume Mesh (Native C++)",
+      "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/cpp",
+      "profile": null,
+      "layout": null,
+      "group": "STL to Gmsh",
+      "dimension": 3
+    },
+    {
       "id": "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
       "title": "STL to Gmsh: Internal-flow Cylinder with Automatic TETRA_4 Volume Mesh (Python Reference)",
       "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python",
