@@ -194,10 +194,11 @@
         {
           "role": "surface_mesh",
           "format": "STL",
-          "path": "~/.oneflow/mesh-generation/generated_stl/cylinder_internal_flow/cylinder_internal_flow.stl",
-          "status": "generated_on_demand",
+          "path": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.stl",
+          "status": "bundled_standard",
           "generator": "oneflow_stl_geometry",
-          "notes": "Patch-to-facet identity is stored in the companion geometry manifest."
+          "notes": "Canonical, version-controlled 48 x 16 surface fixture. The Geometry Library can still generate custom parameterized variants into the user workspace.",
+          "manifest": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.geometry.json"
         },
         {
           "role": "volume_mesh",
