@@ -689,6 +689,16 @@ class StlToGmshDialog(QDialog):
         previous = self._active_geometry_preset
         previous_output = self._geometry_default_output(previous)
         current_output = Path(self.output_path.text()).expanduser()
+        # The dialog's initial sphere output comes from generate_volume_mesh's
+        # default_output_path(), while subsequent preset defaults are resolved
+        # through UserDataPaths. Treat both as untouched defaults so switching
+        # presets also works when the user-data directory is overridden (e.g.
+        # in tests or by a configured workspace).
+        initial_default_output = Path(default_output_path()).expanduser()
+        output_is_default = (
+            current_output.resolve() == previous_output.resolve()
+            or current_output.resolve() == initial_default_output.resolve()
+        )
         definition = self._geometry_preset_paths(preset)
 
         if definition is None:
@@ -742,7 +752,7 @@ class StlToGmshDialog(QDialog):
 
             self.stl_path.setText(str(stl))
             self._mesh_case_id = native_case_id
-            if current_output.resolve() == previous_output.resolve():
+            if output_is_default:
                 self.output_path.setText(str(self._geometry_default_output(preset)))
             self._active_geometry_preset = preset
             self.status_label.setText(
@@ -783,7 +793,7 @@ class StlToGmshDialog(QDialog):
             else:
                 self.stl_path.setText(str(stl))
                 self._mesh_case_id = native_case_id
-                if current_output.resolve() == previous_output.resolve():
+                if output_is_default:
                     self.output_path.setText(str(self._geometry_default_output(preset)))
         except (OSError, ValueError, KeyError) as error:
             QMessageBox.warning(self, "Cannot switch geometry preset", str(error))
