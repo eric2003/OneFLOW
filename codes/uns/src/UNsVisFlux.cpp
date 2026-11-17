@@ -159,18 +159,28 @@ void UNsVisFlux::CalcVisFlux()
 
         this->CalcFaceVisFlux();
 
-        if ( probing && probeOut )
+        if ( probing && probeOut && fId < ug.nBFaces )
         {
-            // vis.fvis is the unscaled flux; apply the same coefficient the
-            // caller applies below so the two dumps are the same quantity.
+            // Boundary faces only, with the intermediates that build the flux.
+            // CD_SF comes from the wall shear, and the wall is 23040 of 896256
+            // faces - 2.6% of the field, which is why a whole-field residual
+            // comparison could not see a threefold error in it.  Dumping the
+            // stress components alongside the flux says which term diverges
+            // rather than only that the total does.
             const Real coeff = ViscousFaceFluxCoefficient(
                 nscom.oreynolds, gcom.farea );
-            probeOut << fId;
-            probeOut << ' ' << coeff * vis.fvis[ IDX::IR ];
+            probeOut << fId << ' ' << ug.lc << ' ' << ug.rc;
+            probeOut << ' ' << gcom.xfn << ' ' << gcom.yfn << ' ' << gcom.zfn;
+            probeOut << ' ' << gcom.farea;
+            probeOut << ' ' << nscom.visl << ' ' << nscom.vist;
+            probeOut << ' ' << vis.dudx << ' ' << vis.dudy << ' ' << vis.dudz;
+            probeOut << ' ' << vis.dvdx << ' ' << vis.dvdy << ' ' << vis.dvdz;
+            probeOut << ' ' << vis.dwdx << ' ' << vis.dwdy << ' ' << vis.dwdz;
+            probeOut << ' ' << vis.txx << ' ' << vis.tyy << ' ' << vis.tzz;
+            probeOut << ' ' << vis.txy << ' ' << vis.txz << ' ' << vis.tyz;
             probeOut << ' ' << coeff * vis.fvis[ IDX::IRU ];
             probeOut << ' ' << coeff * vis.fvis[ IDX::IRV ];
             probeOut << ' ' << coeff * vis.fvis[ IDX::IRW ];
-            probeOut << ' ' << coeff * vis.fvis[ IDX::IRE ];
             probeOut << '\n';
         }
 
@@ -209,6 +219,30 @@ bool UNsVisFlux::CalcVisFluxHip()
     {
         // The device kernel is the five-equation NS form.  Declining keeps a
         // three-equation case on the host path instead of failing it.
+        ReportHipHookDeclined( "UNS_HIP_VISFLUX",
+                               "the kernel is the five-equation NS form" );
+        return false;
+    }
+    // The kernel implements the VIS_STD face-gradient construction only.  Every
+    // shipped case sets ivischeme = 0, so this is dormant today, but without
+    // this guard a case selecting another scheme would silently get VIS_STD -
+    // a different operator, not a perturbation.  Decline so the host runs the
+    // scheme the case actually asked for.
+    if ( nscom.ivischeme != VIS_STD )
+    {
+        ReportHipHookDeclined( "UNS_HIP_VISFLUX",
+                               "ivischeme selects a face scheme the kernel does "
+                               "not implement (only VIS_STD)" );
+        return false;
+    }
+    // The device path computes the flux but never appends to
+    // heat_flux.heatflux[zid].  An isothermal-wall case would write an empty
+    // heat-flux file while looking like it ran.  Residuals are unaffected, but
+    // the output is not, so keep such cases on the host chain.
+    if ( ns_ctrl.isowallbc != 0 )
+    {
+        ReportHipHookDeclined( "UNS_HIP_VISFLUX",
+                               "isowallbc needs the host heat-flux accumulation" );
         return false;
     }
     UnsGrid * grid = Zone::GetUnsGrid();
