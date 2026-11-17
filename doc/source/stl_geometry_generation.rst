@@ -72,12 +72,16 @@ three rounds of four-way subdivision, with new vertices projected onto the
 unit sphere. The checked-in 6:1 prolate spheroid uses the same surface
 topology transformed by semi-axis scale factors (3, 0.5, 0.5).
 
-The native C++ and Python reference Cases consume byte-identical copies of
-each checked-in STL. The original historical program that emitted these binary
-STL files is not currently checked in as a dedicated canonical generator. The
-new deterministic generator below is a reproducible replacement, not a claim
-about the original fixture bytes. The icosphere construction is consistent
-with the checked-in facet count and defines the new generator algorithm.
+Where both implementations are registered, the native C++ and Python
+reference Cases consume byte-identical copies of the same checked-in STL. The
+cylinder currently has a Python reference Case; its canonical STL and
+checksum-bound manifest are shared with the Geometry Library and GUI preset.
+The original historical program that emitted the sphere and spheroid binary
+STL fixtures is not currently checked in as a dedicated canonical generator.
+The new deterministic generator below is a reproducible replacement, not a
+claim about those original fixture bytes. The icosphere construction is
+consistent with the checked-in facet count and defines the new generator
+algorithm.
 
 The current deterministic generator is
 grid/stl_to_gmsh/generate_stl_geometry.py (version 1.0). It uses only the Python
