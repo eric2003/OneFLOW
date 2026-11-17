@@ -388,6 +388,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
         expected_ids = {
             "stl_to_gmsh_sphere_automatic_tetrahedra",
             "stl_to_gmsh_python_sphere_automatic_tetrahedra",
+            "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
+            "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
         }
         self.assertTrue(expected_ids.issubset(choices))
 
