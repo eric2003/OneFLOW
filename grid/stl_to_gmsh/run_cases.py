@@ -44,6 +44,9 @@ PYTHON_CASES = {
     "3d/prolate_spheroid/automatic_tetrahedra/python": (
         "3d/prolate_spheroid/automatic_tetrahedra/python"
     ),
+    "3d/cylinder_internal_flow/automatic_tetrahedra/python": (
+        "3d/cylinder_internal_flow/automatic_tetrahedra/python"
+    ),
 }
 
 REFINEMENT_LEVELS = {
