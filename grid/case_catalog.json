@@ -526,7 +526,8 @@
       "geometry_provenance": {
         "kind": "generated",
         "manifest": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.geometry.json"
-      }
+      },
+      "mesh_project_template": true
     }
   ],
   "mesh_validation_inputs": [
