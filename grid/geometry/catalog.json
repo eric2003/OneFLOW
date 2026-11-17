@@ -195,7 +195,7 @@
           "role": "surface_mesh",
           "format": "STL",
           "path": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.stl",
-          "status": "bundled_standard",
+          "status": "source",
           "generator": "oneflow_stl_geometry",
           "notes": "Canonical, version-controlled 48 x 16 surface fixture. The Geometry Library can still generate custom parameterized variants into the user workspace.",
           "manifest": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.geometry.json"
