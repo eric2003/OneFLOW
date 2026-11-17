@@ -1,1 +1,0 @@
-cmake ../ -T fortran=ifx

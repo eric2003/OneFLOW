@@ -1,3 +1,0 @@
-# Optional desktop dependency; core OneFLOW and CLI tools remain standard-library based.
-PySide6>=6.7,<7
-matplotlib>=3.8
