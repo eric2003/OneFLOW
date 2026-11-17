@@ -182,8 +182,13 @@
           "name": "oneflow_stl_geometry",
           "version": "1.0",
           "source": "grid/stl_to_gmsh/generate_stl_geometry.py",
-          "algorithm": "Shared axial rings, triangulated lateral wall and separately labeled planar end caps"
-        }
+          "algorithm": "Shared axial rings, triangulated lateral wall and separately labeled planar end caps",
+          "source_sha256": "b464369ea514fa47bec5e2f29a87db11bc32bf341fde86c58a571d09973d95d9"
+        },
+        "source_case": "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
+        "source_file_name": "model.stl",
+        "source_sha256": "93522635111dd092bfe38e206dca7e32940269480913a355490057b332e069a1",
+        "notes": "Canonical cylinder STL and companion patch manifest are checked in as immutable grid-database inputs. The Geometry Library generator can produce custom variants outside the source tree."
       },
       "representations": [
         {
