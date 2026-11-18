@@ -72,13 +72,13 @@
     },
     {
       "kind": "python_test",
-      "reference": "StlGeometryGenerationTest",
+      "reference": "StlGeometryGenerationTest.test_canonical_cylinder_fixture_matches_geometry_generator_defaults",
       "status": "linked_not_executed",
       "scope": "grid/tests/python/stl_to_gmsh/test_stl_geometry_generation.py; generator-level regression coverage for deterministic geometry and manifest output."
     },
     {
       "kind": "python_test",
-      "reference": "MeshGenerationDialogTest",
+      "reference": "MeshGenerationDialogTest.test_cylinder_geometry_preset_uses_bundled_standard_grid_asset",
       "status": "linked_not_executed",
       "scope": "tools/oneflow_gui/test_mesh_generation_dialog.py; GUI geometry preset and asset selection behavior."
     }
