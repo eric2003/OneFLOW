@@ -227,6 +227,8 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
 
     def test_native_cylinder_fixture_checksum_and_patch_partition(self) -> None:
+        attributes = (REPOSITORY_ROOT / ".gitattributes").read_text(encoding="utf-8")
+        self.assertIn("*.stl -text", attributes.splitlines())
         case_dir = (
             REPOSITORY_ROOT / "grid/stl_to_gmsh/3d/cylinder_internal_flow"
             / "automatic_tetrahedra/cpp"
