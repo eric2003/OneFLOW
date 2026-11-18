@@ -89,10 +89,12 @@ grid/stl_to_gmsh/generate_stl_geometry.py (version 1.0). It uses only the Python
 standard library, writes binary STL, and emits a companion manifest containing
 parameters, units, geometric metrics, patch-to-facet indices and the STL
 SHA-256. It writes to the user workspace by default and does not overwrite
-checked-in Case fixtures during normal runs. The canonical cylinder fixture
-uses the same generator defaults (radius 1, length 4, 48 circumferential
-divisions and 16 axial intervals). Regression tests are in
-grid/tests/python/stl_to_gmsh/test_stl_geometry_generation.py.
+checked-in Case fixtures during normal runs. The canonical cylinder asset uses
+radius 1, length 4, 48 circumferential divisions and 16 axial intervals. The
+checked-in C++ and Python cylinder fixtures are separate serializations; their
+checksums are representation-specific. Regression tests are in
+grid/tests/python/stl_to_gmsh/test_stl_geometry_generation.py. See
+:doc:`mesh_stl_geometry_pipeline` for the detailed adapter and Gmsh method flow.
 
 Sphere surface construction
 ---------------------------
