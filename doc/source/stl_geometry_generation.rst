@@ -74,9 +74,11 @@ unit sphere. The checked-in 6:1 prolate spheroid uses the same surface
 topology transformed by semi-axis scale factors (3, 0.5, 0.5).
 
 Where both implementations are registered, the native C++ and Python
-reference Cases consume byte-identical copies of the same checked-in STL. The
-cylinder currently has a Python reference Case; its canonical STL and
-checksum-bound manifest are shared with the Geometry Library and GUI preset.
+reference Cases consume the same analytic geometry and equivalent surface
+contracts. The cylinder has native C++ and Python reference Cases; its
+canonical STL assets and manifests are registered with the Geometry Library
+and GUI preset. The two cylinder fixtures use representation-specific STL
+serializations, so each manifest checksum must match its own file bytes.
 The original historical program that emitted the sphere and spheroid binary
 STL fixtures is not currently checked in as a dedicated canonical generator.
 The new deterministic generator below is a reproducible replacement, not a
