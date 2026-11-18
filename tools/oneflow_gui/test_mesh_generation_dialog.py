@@ -367,6 +367,29 @@ class MeshGenerationDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_invalid_cylinder_asset_rolls_back_preset_and_keeps_input_consistent(self) -> None:
+        dialog = StlToGmshDialog(self.repository_root)
+        try:
+            original_stl = Path(dialog.stl_path.text())
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.hashlib.sha256"
+            ) as sha256:
+                sha256.return_value.hexdigest.return_value = "invalid-checksum"
+                with patch(
+                    "tools.oneflow_gui.mesh_generation_dialog.QMessageBox.warning"
+                ):
+                    dialog.geometry_preset.setCurrentIndex(
+                        dialog.geometry_preset.findData("cylinder_internal_flow")
+                    )
+            self.assertEqual(dialog.geometry_preset.currentData(), "sphere")
+            self.assertEqual(Path(dialog.stl_path.text()), original_stl)
+            self.assertEqual(
+                dialog._mesh_case_id,
+                "stl_to_gmsh_sphere_automatic_tetrahedra",
+            )
+        finally:
+            dialog.close()
+
     def test_cylinder_geometry_preset_uses_bundled_standard_grid_asset(self) -> None:
         import hashlib
         import json
