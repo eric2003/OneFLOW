@@ -739,6 +739,14 @@ class StlToGmshDialog(QDialog):
                     self, "Invalid cylinder geometry asset",
                     f"The standard cylinder asset or its manifest is invalid: {error}",
                 )
+                # Keep the selector and the dependent input path in sync. A
+                # failed validation must not leave the new preset displayed
+                # while the previous geometry remains selected as input.
+                self.geometry_preset.blockSignals(True)
+                self.geometry_preset.setCurrentIndex(
+                    self.geometry_preset.findData(previous)
+                )
+                self.geometry_preset.blockSignals(False)
                 return
 
         try:
