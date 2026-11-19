@@ -108,24 +108,22 @@ normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失�
 `src/REVISION`。三端 master 对齐 `cecd66219`，已合入 dev（`e7efe7d02`）。
 本轮主线是 M6 粘性设备路径正确性，阶段与证据状态见 Living TODO 的 B.3 切片。
 
-1. 用固定 Kunshan 工作区构建此次源码快照，核对实际运行的二进制与 hook 命中，
-   从单 rank、单卡 M6 全关/仅粘性开始，粘性开关为
-   `ONEFLOW_ENABLE_UNS_HIP_VISFLUX`。用 `ONEFLOW_VISCOUS_SELFCHECK` 比较
-   求解器写回后的逐面通量，先确认 CPU 与设备输入的时间层和边界状态一致。
-2. 记录首次分叉的步、面及方程；检查壁面和内部面，并显式检查非有限值。
-   通量对照一致但气动力仍分叉时，对齐同一输出步的壁面 ghost、梯度及剪切。
-   host ghost 陈旧目前只是待验证线索。
-3. 关掉探针，复跑 400 步对照及收敛后气动力验收。旧结果是总阻力偏差
-   22%、摩擦阻力偏差 143%。收齐证据前，粘性设备路径保持未验收状态。
+**昆山复验（`cc1dd4b3a`）**。1 rank / 1 DCU，HIP 粘性契约 6/6。M6 自检第 1 步在面 3356
+报告一处近零的能量通量差异（绝对差 `4.38e-40`，面归一化差 0.125327），第 2、3 步无命中
+阈值的差异。关闭自检后，全关与仅开粘性各 400 步的 `aero.dat` 和 `res.dat` 分别逐字节一致。
+该轮自检尚未统计 NaN/Inf，也未打印绝对差。
 
-**本轮自检切片（`169d59892`，Linux 本机，HIP 关闭）**。该提交已推送 `origin/dev`（备份；
-常规 CI 不监听 dev）。`cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`
-配置通过；`viscous_flux_selfcheck_test` 10/10、`oneflow_euler_domain_contract_test`
-15/15、`vis_flux_policy_test` 24/24 通过；`codes/uns/src/UNsVisFlux.cpp.o`
-单独编译通过。`OneFLOW_RuntimeObjects` 全量目标在本机被 `codes/cgns`
+**自检加固（`169d59892`，本地验证，尚未上集群）**。相对误差判据会让 NaN 静默通过，
+因此比较逻辑抽到 `CompareViscousFaceFlux`（`codes/uns/include/ViscousFluxSelfCheck.h`）：
+非有限值单列计数并直接 FAIL，壁面按 `bcType == SOLID_SURFACE` 标注，逐面输出
+`absdiff`，末行 `SELFCHECK result=PASS|FAIL`。本地 10/10、契约 15/15、粘性策略 24/24；
+`UNsVisFlux.cpp` 单独编译通过。`OneFLOW_RuntimeObjects` 全量目标在本机被 `codes/cgns`
 的既有问题中断（系统头被包含进 `ONEFLOW` 命名空间，`intptr_t` 未声明），
-与本次改动无关，需在集群工具链上复核全量构建。本轮未运行 HIP、集群门禁
-或 M6 算例，不得据此改变 B.3 的验收状态。
+与本次改动无关，需在集群工具链上复核全量构建。本机无 HIP，未跑算例。
+
+**下一步**。用 `169d59892` 的二进制重跑单卡三步自检，核对新增的 `nonfinite_*`、
+`absdiff` 与 `result` 行；再补全开 hook 和收敛后气动力验收，随后覆盖边界回落与多区。
+四百步对照按固定步数停止，长期气动力与联合 hook 仍需独立证据。
 
 **本地验证与待办**。契约目录 54/54，CPU 粘性策略 24/24。
 `python3.12 -m unittest tools.oneflow_gui.test_mesh_project tools.oneflow_gui.test_mesh_validation tools.oneflow_gui.test_path_utils`
@@ -137,7 +135,7 @@ decode，以及一项 Windows 路径在 macOS 上的断言不符。这三类问�
 本地 CPU 构建沿用 Release/MPI，HIP 关闭。启用 METIS 时重新配置需设置
 `METIS_HOME_INC` 与 `METIS_HOME_LIB` 分别指向本机 METIS 头文件目录和动态库，
 否则先遇到缺头文件，或在 GeometryCore 测试链接时遇到 METIS 未定义符号。
-集群门禁仍需按准确源码重跑，不能沿用此前的全开/全关数据判定新版本。
+CPU 五例与全开、收敛、多区门禁仍需按准确源码运行。
 
 **CPU 构建与 CTest 复验**。按上面的 METIS 环境重新运行
 `cmake -S . -B build` 与 `cmake --build build -j 10` 后全量构建通过。
@@ -313,10 +311,11 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
 多 rank 隔离。先在单 rank 使用，按输出步对齐。自检重新执行 CPU 粘性循环，
 需核对共享状态副作用及 NaN/Inf 处理；探针运行不进入性能对照。
 
-自检输出现在是：`SELFCHECK step= zone= faces= equ=`、首差面/最差面（含方程与
-相对误差）、`nonfinite_device/host` 计数，最后一行 `SELFCHECK result=PASS|FAIL`。
-判定逻辑在 `CompareViscousFaceFlux`（`codes/uns/include/ViscousFluxSelfCheck.h`），
-**以 result 行判定，不要再用旧日志里的 `differing_faces=0` 推断通过**。
+自检输出现在是（`169d59892` 及之后）：`SELFCHECK step= zone= faces= equ=`、
+首差面/最差面（含方程、相对误差、`absdiff`）、`nonfinite_device/host` 计数，
+末行 `SELFCHECK result=PASS|FAIL`。判定逻辑在 `CompareViscousFaceFlux`
+（`codes/uns/include/ViscousFluxSelfCheck.h`），**以 result 行判定，不要再用旧日志里的
+`differing_faces=0` 推断通过**。`cc1dd4b3a` 的昆山日志是旧格式，不能据此判定 NaN/Inf。
 
 - 旧的相对误差判据会让 NaN 静默通过：`rel > tolerance` 对 NaN 恒为假。非有限值
   现在单列计数并直接 FAIL，回归测试 `tests/solver/viscous_flux_selfcheck_test.cpp`。

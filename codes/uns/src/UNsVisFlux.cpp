@@ -187,8 +187,18 @@ void UNsVisFlux::CalcFlux()
                           << " eq=" << difference.equation
                           << " rel=" << difference.relative
                           << " nonfinite="
-                          << ( difference.nonFinite ? 1 : 0 )
-                          << " device=[";
+                          << ( difference.nonFinite ? 1 : 0 );
+                // A near-zero face can exceed the relative tolerance while its
+                // absolute difference is negligible; print both so a face is
+                // not chased on the relative number alone.
+                if ( difference.equation >= 0 )
+                {
+                    std::cout << " absdiff="
+                              << std::fabs(
+                                     deviceFlux[ difference.equation ][ fId ]
+                                     - ( * visflux )[ difference.equation ][ fId ] );
+                }
+                std::cout << " device=[";
                 for ( int eq = 0; eq < nEqu; ++ eq )
                     std::cout << deviceFlux[ eq ][ fId ] << ' ';
                 std::cout << "] host=[";

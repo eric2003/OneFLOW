@@ -56,20 +56,19 @@ CGNS lifecycle and structured partition tests pass 21/21, 4/4 and 9/9. Linux Bui
 for `fb246bb3a` (build only); numerical gates/profile data remain tied to `6f7a49e3d`.
 H1 is complete. Old attic cleanup continues in a separate CPU job; current evidence is retained.
 
-Next single accelerator mainline on `dev`: **validate the M6 viscous face-flux
-write-back and aerodynamic acceptance**. The 400-step comparison failed CD/CD_SF
-acceptance. Start with the same-state face-flux check, then rerun the force comparison
-with probes disabled. See Living TODO and handoff §4/§5 for provenance, settings,
-and acceptance. H2 was retested on two nodes and two DCUs (historical TODO §5.2). A4 remains
-open. A.1 and F.1 were closed under the previous tracking scheme.
-
-The same-state check is now trustworthy enough to use as the gate. It previously certified
-NaN as agreement, because a relative-error test is false for NaN. `CompareViscousFaceFlux`
-(`codes/uns/include/ViscousFluxSelfCheck.h`) classifies non-finite values first, labels a
-wall only when `bcType == SOLID_SURFACE`, and reports step/zone/first-differing face and
-equation with a final `SELFCHECK result=PASS|FAIL`. Local GoogleTest 10/10, plus the
-existing Euler-domain 15/15 and viscous-policy 24/24. No HIP run or cluster gate has been
-performed for this change; B.3.1 stays unverified.
+Next accelerator slice on `dev`: **complete M6 aerodynamic acceptance for the
+combined hooks**. On Kunshan, solver revision `cc1dd4b3a` passed the HIP viscous
+contract (6/6). The 400-step single-DCU baseline and viscous-only arms produced
+byte-identical aero and residual files. The three-step face check reported one
+near-zero energy difference on step 1 (absolute `4.38e-40`) but did not count
+NaN/Inf. Commit `169d59892` fixes that check: `CompareViscousFaceFlux`
+(`codes/uns/include/ViscousFluxSelfCheck.h`) classifies non-finite values before the
+relative comparison, labels a wall only for `bcType == SOLID_SURFACE`, prints the
+per-face absolute difference, and ends each report with
+`SELFCHECK result=PASS|FAIL`. Local GoogleTest 10/10, Euler-domain 15/15,
+viscous-policy 24/24; the touched `UNsVisFlux` translation unit compiles.
+The commit has not run on the cluster, so B.3.1 stays Partial; the combined-hook,
+converged-force and multi-zone checks remain open, and so does A.4.
 
 Do not improvise these:
 
