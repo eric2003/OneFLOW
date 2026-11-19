@@ -366,12 +366,8 @@ bool UNsVisFlux::CalcVisFluxHip()
     // conductivity helper, so pass the same value rather than re-deriving it.
     view.specificHeatCp = nscom.const_cp;
     view.faceFlux = visfluxBuffer.data();
-    // The kernel writes faceFlux[ equation * faceFluxStride + face ].  With a
-    // stride of nEqu that packs five values per face, so a whole plane of one
-    // equation is not contiguous and the read-back below cannot recover it.
-    // Sizing the buffer in planes and setting the stride to nFaces makes every
-    // equation a contiguous block, which is both what the read-back expects and
-    // what makes the device buffer comparable with the host MRField.
+    // The kernel writes faceFlux[equation * faceFluxStride + face].
+    // Each equation needs nFaces entries to keep the output planes disjoint.
     view.faceFluxStride = ug.nFaces;
     // grid, not nullptr: the resident gradient state was bound under this key by
     // UNsGrad::CalcGradHip, which is what lets the kernel reuse the device-side
@@ -380,17 +376,8 @@ bool UNsVisFlux::CalcVisFluxHip()
 
     HipFluxBackend::Shared().CalcViscousFaceFlux( view );
 
-    // MRField is Marray<Real>, a two-level vector with no contiguous data(),
-    // so the device result has to be scattered back into the solver's layout.
-    //
-    // The kernel writes equation-major with the view's stride:
-    //   faceFlux[ equation * faceFluxStride + face ]   ( faceFluxStride = nEqu )
-    // This loop used to read visfluxBuffer[ equation * ug.nFaces + face ], a
-    // different layout: with stride 5 the kernel only ever wrote the first
-    // 4*5 + nFaces entries, so every plane read back here was almost entirely
-    // zero and the viscous term silently vanished from the residual.  The
-    // per-face flux itself was correct, which is why a whole-field dump showed
-    // agreement while the run diverged to NaN in a hundred steps.
+    // MRField stores each equation separately. Copy one contiguous plane
+    // from the staging buffer into each solver field.
     for ( int equation = 0; equation < nEqu; ++ equation )
     {
         RealField & plane = ( * visflux )[ equation ];
