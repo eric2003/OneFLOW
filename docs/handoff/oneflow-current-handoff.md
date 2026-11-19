@@ -1,30 +1,28 @@
 # OneFLOW 交接（living）
 
-> 最后核对：2026-11-14；工作分支 `dev`（本轮新增提交见 §4），数值门禁基准仍为 `6f7a49e3d`。
-> 本轮结论：网格加密已交付（2,359,296 cell，XB 全绿）；M6 DCU 弱扩展已测
-> （36,864 cell/rank，1→8 卡 +31%，全部在 interface_mpi）；下一刀见 todo §5.6。
-> H2 根因与修复：`d41650729`（已有集群构建与多卡数值对照，**未跑完整门禁**）。
+> 2026-11-19 核对。工作分支 `dev`，当前接手项为 M6 粘性路径 B.3。
+> 历史测量和旧章节从 Living TODO 的证据索引进入。
 
 > **这是唯一的交接文档，就地更新，不再按日期新建。**
-> 当前状态与路线图勾选在 [`../plans/oneflow-development-todo.md`](../plans/oneflow-development-todo.md)；
+> 当前切片与验收勾选在 [`../plans/oneflow-development-todo.md`](../plans/oneflow-development-todo.md)；
 > 长期阶段的取舍与里程碑在 [`../plans/oneflow-development-plan.md`](../plans/oneflow-development-plan.md)；
 > 规则以仓库根 `AGENTS.md` 为准；集群操作流程见
 > [`../runbooks/oneflow-kunshan-workspace-runbook.md`](../runbooks/oneflow-kunshan-workspace-runbook.md)。
 >
 > 本文只放"接手时立刻需要"的东西：**环境与固定路径、启动顺序、常量和坑、当前任务指针**。
-> 能力边界、性能数字、Phase A–F 进度**不在这里重复**，一律以 todo 为准。
+> 当前验收以 Living TODO 为准，完整路线和任务编号以 Phase Plan 为准。
 
 ## 0. 60 秒上手
 
 1. 读 `AGENTS.md`（分支模型、门禁顺序、口径纪律、工作区规则）。
-2. 打开 todo **§4 状态总表与 §5 接手入口**。先验证 M6 粘性通量写回和气动力；
+2. 打开 **Living TODO 当前切片**。先验证 M6 粘性通量写回和气动力；
    H2 已在两节点两卡配置复验，A4 排在本轮正确性验收之后。
-   **主线优先级只以 todo §4/§5 为准**；本文只记“怎么跑”和“已经踩过的坑”，
+   **主线优先级只以 Living TODO 当前切片 为准**；本文只记“怎么跑”和“已经踩过的坑”，
    两边不一致时改本文，不要改 todo 的台账。
 3. 要动集群先读 §1（固定路径）与 runbook：**SSH 已不可用，只能走 OpenAPI 技能**，
    因此一切远端操作必须写成作业脚本提交，不能在交互 shell 里敲。
 4. 收尾：勾选 todo、证据落 `evidence/<gate>/<jobid>/`、更新本文 §4 与 §5；
-   环境或路径变化同步 runbook 与 todo §1.1。
+   环境或路径变化同步 runbook 与 本文 §1。
 
 ## 1. 环境与固定路径（不要另建目录）
 
@@ -108,7 +106,7 @@ normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失�
 
 **2026-11-19 接手点**。从 `origin/dev` 接续，核对当前 SHA、工作树及集群
 `src/REVISION`。三端 master 对齐 `cecd66219`，已合入 dev（`e7efe7d02`）。
-本轮主线是 M6 粘性设备路径正确性，阶段与证据状态见 Living TODO §5 首段。
+本轮主线是 M6 粘性设备路径正确性，阶段与证据状态见 Living TODO 的 B.3 切片。
 
 1. 用固定 Kunshan 工作区构建此次源码快照，核对实际运行的二进制与 hook 命中，
    从单 rank、单卡 M6 全关/仅粘性开始，粘性开关为
@@ -240,7 +238,7 @@ port 都出现过这个缺口——kernel 实现完整、测试通过，但生�
 `EulerDomainBackend`/`FluxBackend`）。证据：`evidence/probe/128156945/`。
 
 **本轮（2026-11-14 下午）交付：网格加密 + M6 DCU 弱扩展测量**。全部数字与证据链在
-todo §5.6，要点：M6 单 zone `.ofl` 加密至 2,359,296 cell（体积守恒 5e-15）；METIS 分区
+历史 TODO §5.6，要点：M6 单 zone `.ofl` 加密至 2,359,296 cell（体积守恒 5e-15）；METIS 分区
 8/32/64 zone 带 manifest；单 zone XB 残差 3.07e-17；64-zone XB 全绿；加密 vs 原
 CPU 气动力一致 0.2%。弱扩展（36,864 cell/rank，8 ranks/卡，同作业交错）：1 卡 17.0 →
 8 卡 22.2 ms/步（+31%），归因全部在 `interface_mpi`（2.12→7.70 ms/步）。
@@ -253,7 +251,7 @@ CPU 气动力一致 0.2%。弱扩展（36,864 cell/rank，8 ranks/卡，同作�
 PASS**，2N 分配独立复核 0 违反。下一动作：按 PASS 的方向分配实现 2N 生成
 （合并逻辑沿真实 face ID 与 A(c) 映射），随后 4N，再 refine8 派生 16N/32N。
 
-**下一刀（按归因排序，详见 todo §5.6）**：① `partition_type=2` 重切 64 zone 压 halo
+**下一刀（按归因排序，详见 历史 TODO §5.6）**：① `partition_type=2` 重切 64 zone 压 halo
 （64N 档 512 zone 的等块重切待做，若开做需先扩 `StructuredPartition` 支持非立方块排列）；
 ② A4 设备驻留宏步循环；③ 大 per-rank 网格的 rank/卡 packing。另有一个独立小修候选：
 坑 41（单 zone HIP aero）——`UNsInvFlux::CalcInvFace` 的 `mirrorBoundaryGradient`
@@ -263,7 +261,7 @@ PASS**，2N 分配独立复核 0 违反。下一动作：按 PASS 的方向分�
 **H1 当前交付**：新增显式开启的 MG 根域 inclusive/exclusive wall accounting，
 保留原 stage/task TSV，另写 `.host.tsv`；修复两个旧漏登记类别。集群 HIP/计时契约、
 trace、200 步 XB、CPU normal/strict、50 步稳定性和五对 1000 步归账通过；
-验收数字与口径只维护在 todo §5.2。CI 状态与修订分开记录，不把构建当数值验证。
+验收数字与口径只维护在 历史 TODO §5.2。CI 状态与修订分开记录，不把构建当数值验证。
 
 **H2 终结（`d41650729`）**：多卡 VMFault 的根因**不是多卡**。`ONEFLOW_HIP_DEFER_STATUS=1`
 （默认）下 `stateUpdateStatus` 惰性分配，而 deferStatus 分支完全跳过 `CopyFromHost`，
@@ -280,12 +278,12 @@ M6 强扩展 1/2/4/8/16/32 卡 = 11.70/7.60/9.87/18.73/24.08/30.62 ms/步。
 每卡吞吐随卡数保持恒定。立方体 884k 强扩展同形状；立方体弱扩展（110,592 cell/rank）
 2→32 卡迭代 13.78→13.68。求解器核心 1→32 卡可扩（M6 2.5×、立方体 6.0×），
 差额全在接口交换。经验阈值：每 rank ≳5 万 cell 正常，≈1 万开始变差，<5 千明显变差。
-详细数据见 todo §5.5。
+详细数据见 历史 TODO §5.5。
 
-**历史任务：原生六面体加密（后续结果见 todo §5.6、§5.9）**
+**历史任务：原生六面体加密（后续结果见 历史 TODO §5.6、§5.9）**
 
 当时仓库无网格加密/导出能力（`IsSupportedConversion` 里 `OneFLOW` 只作为 target；无细化工具；
-集群无 gmsh），所以 M6 弱扩展和 D1 都卡在这里。`.ofl` 二进制布局已实测确认（todo §5.5 有字段表），
+集群无 gmsh），所以 M6 弱扩展和 D1 都卡在这里。`.ofl` 二进制布局已实测确认（历史 TODO §5.5 有字段表），
 M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 node。
 
 写 `refine_ofl.py`：读 8-zone `.ofl` → 每个 hex 剖 8 个 → 棱/面/体心去重、边界与 interface 保持 → 按同格式写回。
@@ -363,7 +361,7 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
     - **瓶颈已定位（2026-11-09）**：同一套等块分区、整节点 32/64/128 rank，
       `ONEFLOW_DIAG_NO_COMM=1` 后计算段完全持平（139–141，相对量），接口项
       13.5 → 22.9 → 27.9 ms（+106%），而面数只 +27% → 剩下的是跨节点延迟。
-      本轮顺序已由 2026-11-10 的记录修正为 H1 → H2 → A4；A2′ 降权，见 todo §5。
+      本轮顺序已由 2026-11-10 的记录修正为 H1 → H2 → A4；A2′ 降权，见历史 TODO §5。
 
 1. **设备权威不能从初始化就开始**：bound 状态的第一次 `FullField` 上传依赖 host 的
    ghost 区；跳过条件必须是 `HostMirrorStale(grid)`，否则第一步就偏离 CPU oracle。
@@ -432,7 +430,7 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
     保持关闭，理由是"未验证收益"，不是"已验证更慢"。
 16. **固定基数必须先扣启动再归账**：旧通信开关对照约省 2.2 ms；
     `rk_stage=1` 的 8.93 ms 含短基准启动摊销，已由 todo A1.7b 修正，不能继续当稳态基数。
-    单配置通信开关差值不是 A2 收益保证；H1 同配置归账已完成，结果见 todo §5.2。
+    单配置通信开关差值不是 A2 收益保证；H1 同配置归账已完成，结果见 历史 TODO §5.2。
 17. **别用 2 个样本下结论**：8-zone 同配置两次样本 17.59 / 14.28（跨度 23%），
     16-zone 与 32-zone 的 7% 差异完全在噪声内。要比较配置，至少 5 个样本或做配对交替。
 18. **`zones % ranks == 0` 只是配置层放行**：`Zone::CheckZoneRankCount` 只查整除，
@@ -575,7 +573,7 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
     未开 breakdown 时零开销）。排查时先看 `.tasks.tsv` 再看 `.host.tsv`。
 40. **`.ofl` 有两种写法的残留**：单 zone 的 `m6wing.ofl` 是旧格式（zone 头多 2 个 int，
     朴素解析会读出 `nNodes = 文件大小−20` 这种值）；当前 reader/writer 与 `m6wing-8.ofl`
-    用 3-int 布局（`zoneBytes, ?, nNodes, nFaces, nCells`，实测见 todo §5.5）。
+    用 3-int 布局（`zoneBytes, ?, nNodes, nFaces, nCells`，实测见 历史 TODO §5.5）。
     做网格工具以 8-zone 文件为准。
     **修正（2026-11-14）**：仓库当前 `test/cfd/m6wingroe_sa/grid/m6wing.ofl` 逐字节闭合
     解析就是 3-int 布局（nLength 精确、EOF 零剩余、nIFaces=0）；`refine_ofl.py` 直接读它
@@ -613,7 +611,7 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
 ## 6. 本文维护规则
 
 - **不新建 dated handoff**：每次会话结束就地更新 §4（任务指针）和 §5（新坑）。
-- §1/§2 只在环境或固定路径变化时改，并同步 `runbook` 与 todo §1.1。
+- §1/§2 只在环境或固定路径变化时改，并同步 `runbook` 与 本文 §1。
 - 能力边界、性能数字、Phase A–F 进度不写进本文，避免与 todo 双份维护。
 
 45. **bash `local` 同一语句内不能引用刚声明的变量（2026-11-15，一天内踩了四次）**：

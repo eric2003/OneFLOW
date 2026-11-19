@@ -18,7 +18,7 @@ targets are subordinate to this objective; see the development plan §0.
 Reading order for the accelerator mainline:
 
 1. `AGENTS.md` — branch model, gate order, measurement discipline, workspace rules.
-2. `plans/oneflow-development-todo.md` — capability ledger (§4) and the current round (§5).
+2. `plans/oneflow-development-todo.md` — current execution slice using the Phase Plan task IDs.
 3. `handoff/oneflow-current-handoff.md` — fixed paths, environment constants, and **the trap
    list in §5**. Read §5 before touching the cluster: it records each mistake that cost a round.
 4. `runbooks/oneflow-kunshan-workspace-runbook.md` — single workspace layout, build recipe,
@@ -28,10 +28,10 @@ Reading order for the accelerator mainline:
 
 | Question | Read |
 |---|---|
-| What is done, what is next | `plans/oneflow-development-todo.md` §4 (ledger) and §5 (this round) |
+| What is done, what is next | `plans/oneflow-development-todo.md` (current slice) |
 | How to run it, what already burned us | `handoff/oneflow-current-handoff.md` §1–§3 (paths/constants/commands), §4 (task pointer), §5 (traps) |
 
-For routine session closure, update §5 of the todo and §4/§5 of the handoff in place.
+For routine session closure, update the active slice in Living TODO and §4/§5 of the handoff in place.
 If a change also invalidates this entry point or the long-term plan/runbook, update those
 specific statements in the same slice; do not create another handoff.
 
@@ -40,7 +40,7 @@ Accelerator H1 milestone (2026-11-11, starting base `1d283c31a`): solver revisio
 24/0/0), 200-step residual/aero comparison, CPU normal/strict 5/5 each and 50-step
 HIP stability. Five paired 1/1000-step runs close MG accounting to corrected wall
 within 0.34–2.14%; median wall is 11.55 ms/step on that allocation. This is diagnostic
-evidence, not a new speedup claim. Exact basis and scope medians live in todo §5.2.
+evidence, not a new speedup claim. Exact basis and scope medians are in the historical evidence linked from Living TODO.
 
 Opt-in `ScopedHostTimer` adds inclusive/exclusive MG-root accounting without new
 synchronization. Stage/task schemas stay unchanged; `.host.tsv` gets rank/count/closure
@@ -59,9 +59,9 @@ H1 is complete. Old attic cleanup continues in a separate CPU job; current evide
 Next single accelerator mainline on `dev`: **validate the M6 viscous face-flux
 write-back and aerodynamic acceptance**. The 400-step comparison failed CD/CD_SF
 acceptance. Start with the same-state face-flux check, then rerun the force comparison
-with probes disabled. See Living TODO §5 and handoff §4/§5 for provenance, settings,
-and acceptance. H2 was retested on two nodes and two DCUs (TODO §5.2). A4 remains
-open. Phase-parent completion is 2/28 (A1, F1).
+with probes disabled. See Living TODO and handoff §4/§5 for provenance, settings,
+and acceptance. H2 was retested on two nodes and two DCUs (historical TODO §5.2). A4 remains
+open. A.1 and F.1 were closed under the previous tracking scheme.
 
 Do not improvise these:
 

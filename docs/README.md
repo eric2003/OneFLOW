@@ -25,7 +25,8 @@
 
 | 想了解 | 文档 |
 |---|---|
-| 当前状态、Phase A–F 路线图与勾选进度、每轮门禁 | [plans/oneflow-development-todo.md](plans/oneflow-development-todo.md) |
+| Phase A–F 完整路线与稳定编号 | [Phase Plan](plans/oneflow-development-plan.md) |
+| 当前切片、验收步骤和证据 | [Living TODO](plans/oneflow-development-todo.md) |
 | 长期阶段的取舍、里程碑与开放问题 | [plans/oneflow-development-plan.md](plans/oneflow-development-plan.md) |
 | 交接（living：环境、固定路径、启动顺序、坑） | [handoff/oneflow-current-handoff.md](handoff/oneflow-current-handoff.md) |
 | 昆山工作区固定路径、作业规范、清理规则 | [runbooks/oneflow-kunshan-workspace-runbook.md](runbooks/oneflow-kunshan-workspace-runbook.md) |

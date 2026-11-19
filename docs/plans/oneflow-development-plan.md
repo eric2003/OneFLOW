@@ -1,12 +1,8 @@
 # OneFLOW 长期分阶段开发计划（accelerator 主线）
 
-> 最后核对：2026-11-11；本轮起点 `1d283c31a`，求解器证据修订 `6f7a49e3d`。
-> 本文是长期路线图（living），按季度/阶段维护；
-> **执行进度、勾选与证据以
-> [`oneflow-development-todo.md`](oneflow-development-todo.md) 文首
-> §4 的 Phase A–F 勾选树为准**（编号与本文 §2 一致），本文只说明取舍与阶段边界；
-> 证据摘要记在 todo，交接文档只保留任务指针与操作约束，原始数据留在集群证据目录。
-> 规则以根目录 `AGENTS.md` 为准；集群流程见 `ci/kunshan/README.md`。
+> 2026-11-19 核对。本文维护完整路线、稳定编号和阶段退出门。
+> [Living TODO](oneflow-development-todo.md) 维护当前执行切片。
+> 集群流程见 [Kunshan CI](../../ci/kunshan/README.md)。
 
 ## 0. 结论先行
 
@@ -24,11 +20,10 @@ OneFLOW 的加速主线已经证明了两件事，长期计划的形状由它们
    应用级 lifecycle（含网格、初始化、IO、MPI）相对 32 rank CPU 为
    `3.85–9.70x`，4 卡/4M 为 `25.55x`。
    三者差两个数量级，差别全在"谁拥有状态、每步回几次 host"。
-2. **3D 主求解器仍在 Phase A，完整 HIP `Advance` 尚缺。** A1 已收口，
+2. **3D 主求解器的完整 HIP `Advance` 尚缺，Phase B 已开始独立验证。** A.1 已收口，
    历史同节点 paired 为 14.62 ms/step（8 zone / 8 rank / 1 DCU / 1000 步）；
    不能直接与不同节点、步数或启动口径下的较低墙钟比。短程 rocprof 显示 host stage
-   计时不能当 GPU 时间。H1 已完成归账与 CI 收尾；下一开发项为 H2 多卡 VMFault，
-   之后按同步/传输成本评估 A4，不能把 task 派发当作数毫秒瓶颈。
+   计时不能当 GPU 时间。H1 已完成归账；H2 已在两节点两卡复验。A.4 仍需先归因同步和传输成本。
 
 因此长期计划的主轴不是继续抠 kernel，而是：
 
@@ -38,8 +33,7 @@ OneFLOW 的加速主线已经证明了两件事，长期计划的形状由它们
 > Phase E 架构通用化 → Phase F 产品化与发布。**
 
 每个阶段都有"准入门"（oracle/门禁）和"退出门"（可发布证据），见 §3。
-完成/待办 checkbox 统一维护在 [`oneflow-development-todo.md`](oneflow-development-todo.md)
-§0.1；本计划不复制勾选树。当前顺序为 **H2 → A4 → A2′/A3**，具体验收以 todo §5 为准。
+完整任务编号和验收条件以本计划为准。[Living TODO](oneflow-development-todo.md) 只维护当前切片和近期验收。
 
 ## 1. 代码架构现状（长期计划的事实基础）
 
@@ -111,15 +105,15 @@ task 通过全局 `ug / unsf / nscom / ctrl / ZoneState::zid` 隐式定位到"�
    工作反复踩到（初始化上传、`ug.Init()` 重绑定、contract 失效）。
 2. **host 调度 + 逐 stage kernel**：每个 stage 至少一次 kernel fence、一次 task 派发、
    若干次 host 侧整场循环；这正是 3D 固定开销占比高的原因（在 31.6 ms/step 口径下
-   测得 kernel 只占约 1.5 ms；A1 收口后总时间降到 15.6，这个结构性问题仍在）。
+   测得 kernel 只占约 1.5 ms；A.1 收口后总时间降到 15.6，这个结构性问题仍在）。
 3. **capability 判断分散**：`HipProductionPolicy` 的开关 + 各文件里的 `UseHip*`
    守卫 + 两个 capability 枚举；能力扩展时会组合爆炸。
 4. **双实现与证据覆盖不完整**：已有 Roe 与 Barth 单点数值契约，但 Roe 缺多区证据，
    Barth 整链数值未过门禁；host oracle、单点契约与整链 trace 都需保留。
-5. **fixture 与多卡证据缺口**：固定登记的 fixture 是 8 zone m6wing（294,912 cell）；
-   16/32 zone 派生配方与 manifest 校验已跑通，但尚缺 ≥1M 的合法 fixture。
+5. **fixture 与多卡证据缺口**：8 zone M6 基网格为 294,912 cell；原生加密与 METIS 分区已生成 ≥1M 网格。
+   D.1 待固定正式验收用例的版本、读入和接口证据。
    `partition_type=0`(GenerateLink) 仍有缺口，H2 已在两节点两卡配置复验，其他多卡配置按各自门禁验证。
-6. **口径/文档债**：F1 3D 正式报告已于 2026-11-02 发布；新优化不能沿用旧 CPU
+6. **口径/文档债**：F.1 3D 正式报告已于 2026-11-02 发布；新优化不能沿用旧 CPU
    或跨节点数字拼接加速比。当前源码的门禁与性能仍需绑定同一修订的可复验证据。
 
 ## 2. 阶段划分
@@ -134,17 +128,17 @@ Phase A（执行模型）
                         Phase F（产品化/发布），每个阶段末都要做一遍
 ```
 
-### Phase A — 3D 设备驻留执行（下一个迭代，最高优先）
+### Phase A — 3D 设备驻留执行（显式执行模型）
 
 目标：让 3D 显式路径从"host 调度 + 逐 stage kernel"变成"一个宏步一次进入设备"，
 把 host 往返和 fence 从每步几十次降到 ≤2 次。
 
 | 子项 | 内容 | 预期 | 证据/入口 |
 |---|---|---|---|
-| A1 | 固定开销优化已完成：按需镜像、设备残差基底、跳 host 历史层与账本、延迟同步。基准须 warmup | 历史同节点 paired **14.62 ms/step**；本轮归账的新口径见 todo §5.2 | `UNsInvFlux::CalcInvFace`、`FieldTaskReg::LoadQ/LoadResiduals`、`ResidualBasePolicy` |
-| A2 | 原每步一次交换方案暂缓；保留 legacy 滞后，不能直接删 post 轮（200 步 XB `5.54e-7`）。A2′ 聚合/减轮次待 H1/H2/A4 后重估 | 单卡通信开关差值约 2.2 ms，不是可兑现收益保证 | `InterfaceTask`、`UNsGrad::CalcGradHip`、`ExchangeHipInterfaceQ` |
-| A3 | stage kernel 融合：gradient→recon→flux→lhs→update→boundary 在设备内串联，减少 host 同步 | 已降权；旧 −4/−6 ms 估算失效，待配对测量 | `HipFluxBackend` 各 kernel + `TimeIntegral` |
-| A4 | **HIP `EulerDomainBackend::Advance`**：把 RK stage 循环搬进 backend，host 负责 INIT/输出/门控；宏步末按需 Download | H1 已排除 MG/派发大项；先定位同步/传输成本再量化收益，旧 9–10 ms 估算撤回 | `TimeIntegral::RungeKutta(context)`、`EulerDomain.h`、`HipSmoke` 既有 `Advance` 样板 |
+| A.1 | 固定开销优化已完成：按需镜像、设备残差基底、跳 host 历史层与账本、延迟同步。基准须 warmup | 历史同节点 paired **14.62 ms/step**；历史归账见 Living TODO 的证据索引 | `UNsInvFlux::CalcInvFace`、`FieldTaskReg::LoadQ/LoadResiduals`、`ResidualBasePolicy` |
+| A.2 | 原每步一次交换方案暂缓；保留 legacy 滞后，不能直接删 post 轮（200 步 XB `5.54e-7`）。聚合与减轮次待 A.4 后重估 | 单卡通信开关差值约 2.2 ms，不是可兑现收益保证 | `InterfaceTask`、`UNsGrad::CalcGradHip`、`ExchangeHipInterfaceQ` |
+| A.3 | stage kernel 融合：gradient→recon→flux→lhs→update→boundary 在设备内串联，减少 host 同步 | 已降权；旧 −4/−6 ms 估算失效，待配对测量 | `HipFluxBackend` 各 kernel + `TimeIntegral` |
+| A.4 | **HIP `EulerDomainBackend::Advance`**：把 RK stage 循环搬进 backend，host 负责 INIT/输出/门控；宏步末按需 Download | H1 已排除 MG/派发大项；先定位同步/传输成本再量化收益，旧 9–10 ms 估算撤回 | `TimeIntegral::RungeKutta(context)`、`EulerDomain.h`、`HipSmoke` 既有 `Advance` 样板 |
 
 退出门：
 - 8 zone/8 rank/1 DCU 1000 步 paired **≤14 ms/step**（相对 10-25 的 31.6 再快 2.2x，
@@ -158,16 +152,16 @@ Phase A（执行模型）
 现状：设备路径接受 `MULTI_STAGE + (Lax-Friedrichs 或 Roe) + ilim∈{0, Barth} + vismodel=0`。
 Barth 的 φ 已在设备上算，但数值还差 `1.1e-6` 未过 1e-12 门禁，因此默认仍是 `ilim=0`；
 Venkat / HLLC / AUSM 未实现，显式请求直接 fail-fast。
-仓库自带的旗舰算例 `test/cfd/m6wingroe_sa` 是 `LU-SGS + Roe + SA`，**完全在 host**。
+仓库自带的旗舰算例 `test/cfd/m6wingroe_sa` 是 `LU-SGS + Roe + SA`。部分粘性与 SA hook 已接入，整算例设备端到端尚未验收。
 
 | 子项 | 内容 | 依赖 | 关键文件 |
 |---|---|---|---|
-| B1 | 无粘通量 scheme：LF → Roe / HLLC / AUSM 系列（device），LF 保留作 oracle | A | `UNsInvFlux`、`NsInvFlux`、`HipFluxBackend` flux kernel |
-| B2 | limiter：Barth / Venkat（cell 邻域极值），解除 `ilim=0` | B1 | `UNsLimiter`/`NsLimiter`、recon kernel |
-| B3 | 层流粘性：`UNsVisFlux`（面粘性通量、T 梯度、壁面热流） | B1/B2 | `UNsVisFlux`、gradient（多方程）、BC 热流 |
-| B4 | 湍流：SA（1 方程）优先，SST 可选；`turb` solver 与主 solver 的 task 交互 | B3 | `codes/turb`、`codes/uturb`、`system/turb` 字段 |
-| B5 | 隐式：LU-SGS 设备化（下/上扫、`dq` 交换、与 halo 的依赖），再评估双时间 | A4 | `NsLusgs`、`ULhs`、`LhsTaskReg` |
-| B6 | 多重网格：restrict/prolong 的设备化，或显式声明"只加速 finest grid，粗网格留 host" | A4 | `codes/multigrid` |
+| B.1 | 无粘通量 scheme：LF → Roe / HLLC / AUSM 系列（device），LF 保留作 oracle | A | `UNsInvFlux`、`NsInvFlux`、`HipFluxBackend` flux kernel |
+| B.2 | limiter：Barth / Venkat（cell 邻域极值），解除 `ilim=0` | B.1 | `UNsLimiter`/`NsLimiter`、recon kernel |
+| B.3 | 层流粘性：`UNsVisFlux`（面粘性通量、T 梯度、壁面热流） | B.1/B.2 | `UNsVisFlux`、gradient（多方程）、BC 热流 |
+| B.4 | 湍流：SA（1 方程）优先，SST 可选；`turb` solver 与主 solver 的 task 交互 | B.3 | `codes/turb`、`codes/uturb`、`system/turb` 字段 |
+| B.5 | 隐式：LU-SGS 设备化（下/上扫、`dq` 交换、与 halo 的依赖），再评估双时间 | A.4 | `NsLusgs`、`ULhs`、`LhsTaskReg` |
+| B.6 | 多重网格：restrict/prolong 的设备化，或显式声明"只加速 finest grid，粗网格留 host" | A.4 | `codes/multigrid` |
 
 准入门（每个子项都必须先过）：
 1. 单点数值契约（scheme/limiter 的 CPU vs device 单元测试，≤1e-14）；
@@ -176,18 +170,18 @@ Venkat / HLLC / AUSM 未实现，显式请求直接 fail-fast。
 4. 200 步跨后端 + 50 步稳定性。
 
 退出门：`m6wingroe_sa`（Roe+LU-SGS+SA）在设备上跑通并通过同一组门禁。
-这个算例在 todo 里记为 **B-exit**，是 Phase B 的退出条件，做完 B1–B6 不等于 B 结束。
+这个算例在本计划中记为 **B.7**，是 Phase B 的退出条件，做完 B.1–B.6 不等于 B 结束。
 之后才允许把 "HIP 支持的算例范围" 写进正式文档。
 
 ### Phase C — 真实算例与 IO（把加速变成可交付能力）
 
 | 子项 | 内容 | 说明 |
 |---|---|---|
-| C1 | IO/restart：设备输出或"整场一次性 D2H + 异步写盘" | 现在每输出步 `NsRefreshHostStateMirror` 整场回拉，长跑/多输出会吃掉收益 |
-| C2 | 气动力/Cp/热流：设备侧面量归约，或维持边界 cell 级小回拉 | 现在每步一次边界 cell 镜像，可接受但需量化 |
-| C3 | 残差/收敛判据设备归约 | 已在设备侧算 metrics，需扩到多 zone/多 solver 聚合 |
-| C4 | 内存预算与大网格 | 记录每 100 万 cell 的 device 常驻字节数，给出单卡可解规模 |
-| C5 | 定常/非定常的真实工况回归 | 与 `test/suites` 对齐，形成"设备算例集" |
+| C.1 | IO/restart：设备输出或"整场一次性 D2H + 异步写盘" | 现在每输出步 `NsRefreshHostStateMirror` 整场回拉，长跑/多输出会吃掉收益 |
+| C.2 | 气动力/Cp/热流：设备侧面量归约，或维持边界 cell 级小回拉 | 现在每步一次边界 cell 镜像，可接受但需量化 |
+| C.3 | 残差/收敛判据设备归约 | 已在设备侧算 metrics，需扩到多 zone/多 solver 聚合 |
+| C.4 | 内存预算与大网格 | 记录每 100 万 cell 的 device 常驻字节数，给出单卡可解规模 |
+| C.5 | 定常/非定常的真实工况回归 | 与 `test/suites` 对齐，形成"设备算例集" |
 
 退出门：≥1M cell 的单卡算例端到端可跑（含 restart 等价、气动力对比、可视化），
 并有对外可引用的 paired 性能数字。
@@ -196,10 +190,10 @@ Venkat / HLLC / AUSM 未实现，显式请求直接 fail-fast。
 
 | 子项 | 内容 |
 |---|---|
-| D1 | **fixture**：拿到 ≥1M cell 且带 `.skl` 的合法分区网格，或修 `GenerateLink`（`codes/geometry/src/FaceTopo.cpp` 的 `SetNewFace2Node`）建表 |
-| D2 | 设备 halo：GPU-aware MPI（1D 已验证 `1.39/1.31/1.19/1.13x`）在 3D 的复现；DeviceDirect 在 packed layout 上重测 |
-| D3 | 映射与负载：1 rank = 1 zone 的约束是否长期成立；需要 zone 切分/多 zone per rank 时的 state 与 halo 语义 |
-| D4 | 评测口径：固定 per-rank cell 数、同一 repeats、1 DCU 槽 = 8 核；给出 8:1、32:1 的合法性说明 |
+| D.1 | **fixture**：从已有 M6 网格阶梯固定 ≥1M cell 的验收用例，核对读入与接口；另跟踪 `GenerateLink` 路径 |
+| D.2 | 设备 halo：GPU-aware MPI（1D 已验证 `1.39/1.31/1.19/1.13x`）在 3D 的复现；DeviceDirect 在 packed layout 上重测 |
+| D.3 | 映射与负载：1 rank = 1 zone 的约束是否长期成立；需要 zone 切分/多 zone per rank 时的 state 与 halo 语义 |
+| D.4 | 评测口径：固定 per-rank cell 数、同一 repeats、1 DCU 槽 = 8 核；给出 8:1、32:1 的合法性说明 |
 
 退出门：至少 4 卡、per-rank 恒定 cell 数的端到端数字，且与同节点 CPU 同核数配对。
 
@@ -207,11 +201,11 @@ Venkat / HLLC / AUSM 未实现，显式请求直接 fail-fast。
 
 | 子项 | 内容 |
 |---|---|
-| E1 | 热路径去 ambient globals：把 zone/grid/solver 身份显式传进 stage（先 device 路径，再 host） |
-| E2 | capability 表驱动：`solver × scheme × limiter × viscous × time-integral × grid-level × halo` 一张表 + 单测，替换散落守卫 |
-| E3 | `EulerDomain` 泛化到 NS：3/5 方程已支持，补源项/粘性/能量扩展与 view 元数据 |
-| E4 | backend-kind 分派：清掉 `IsAccelerator()` 当 HIP 用的地方，为 CUDA/Kokkos 留真实入口 |
-| E5 | 清理 toy/scalar 路径与失效文档，保持 CPU oracle 单一 |
+| E.1 | 热路径去 ambient globals：把 zone/grid/solver 身份显式传进 stage（先 device 路径，再 host） |
+| E.2 | capability 表驱动：`solver × scheme × limiter × viscous × time-integral × grid-level × halo` 一张表 + 单测，替换散落守卫 |
+| E.3 | `EulerDomain` 泛化到 NS：3/5 方程已支持，补源项/粘性/能量扩展与 view 元数据 |
+| E.4 | backend-kind 分派：清掉 `IsAccelerator()` 当 HIP 用的地方，为 CUDA/Kokkos 留真实入口 |
+| E.5 | 清理 toy/scalar 路径与失效文档，保持 CPU oracle 单一 |
 
 退出门：新增一种 scheme 或一种物理项，只需"新 kernel + 表项 + 单测"，不需要改
 `TimeIntegral`、`UNsInvFlux`、`InterfaceTask` 的骨架。
@@ -220,28 +214,127 @@ Venkat / HLLC / AUSM 未实现，显式请求直接 fail-fast。
 
 | 子项 | 内容 |
 |---|---|
-| F1 | 3D 正式性能报告（Markdown + HTML 同 stem）：paired、同节点、同 repeats、含环境口径 |
-| F2 | CI 矩阵：CPU normal/strict、DCU 单卡、DCU 多卡、nightly 长跑；PR 分支自跑门禁 |
-| F3 | 文档：`docs/plans/oneflow-development-todo.md` 摘要与 §2 现状、`ci/kunshan/README.md`、Sphinx 教程 |
-| F4 | 交付：GUI/示例算例、发行说明、对外能力矩阵（哪些 solver/scheme 在设备上已验证） |
+| F.1 | 3D 正式性能报告（Markdown + HTML 同 stem）：paired、同节点、同 repeats、含环境口径 |
+| F.2 | CI 矩阵：CPU normal/strict、DCU 单卡、DCU 多卡、nightly 长跑；PR 分支自跑门禁 |
+| F.3 | 文档：`docs/plans/oneflow-development-todo.md` 当前切片、`ci/kunshan/README.md`、Sphinx 教程 |
+| F.4 | 交付：GUI/示例算例、发行说明、对外能力矩阵（哪些 solver/scheme 在设备上已验证） |
 
-## 2.1 阶段与 todo 条目 id 的对应
+## 2.1 编号和验收拆分
 
-todo §4 直接使用本节编号，不再有第二套字母表。历史编号的对应只在需要读旧记录时使用：
+父项用 `A.1`，子项用 `A.1.1`。编号在 Living TODO 中原样复用。每个父项的子项和对应阶段退出门均保留独立证据。旧记录的 `B3` 对应 `B.3`，`B-exit` 对应 `B.7`。H1/H2 是历史调查编号。
 
-| 旧编号（历史文档） | 现在 |
-|---|---|
-| `F7.1` | A1.1（梯度镜像只在最后 stage） |
-| `F7.2` | A1.2（设备残差基底归零） |
-| `F7.3` | A2（每步一次界面交换） |
-| `F7.4` | A3（stage kernel 融合） |
-| `F7.5` | A4（HIP `Advance`） |
-| `F8.1`–`F8.6` | B1–B6 |
-| `F9.1` | B-exit（旗舰算例） |
-| `F9.2`–`F9.3` | C1–C5 |
-| `G4`–`G6` | D1–D3 |
-| `H2`–`H6` | E2、E1、E3、E4、E5 |
-| `G7`、`I1`–`I4` | F1–F4 |
+### Phase A
+
+- **A.1 按需镜像、设备残差归零和历史层裁剪**
+  - **A.1.1** 核对末 stage 梯度镜像、设备残差基底和跳过主机历史层的条件。
+  - **A.1.2** 复现同配置 paired 基线，记录逐步字节与同步次数。
+- **A.2 保持 halo 滞后并优化交换**
+  - **A.2.1** 记录各 RK stage 的 halo 交换方向、次数、状态时间层和字节数。
+  - **A.2.2** 先锁定阶段前后交换语义，再测试聚合与轮次削减。
+- **A.3 融合设备 stage**
+  - **A.3.1** 用逐 stage 基线记录 kernel launch、fence 和中间字段读写。
+  - **A.3.2** 从梯度、重构和通量开始，按 trace 和 paired 结果决定是否扩展。
+- **A.4 在后端执行一个完整 RK 宏步**
+  - **A.4.1** 归因宏步尾状态回读、清零与 RHS 队列等待。
+  - **A.4.2** 保留物理状态检查及 halo 滞后，下沉 RK 阶段循环。
+  - **A.4.3** 以 trace、200 步跨后端、CPU 五例和同配置 paired 验收。
+
+### Phase B
+
+- **B.1 无粘通量**
+  - **B.1.1** 对 Roe 复核单面契约、单 zone 证据和多区差异；保留 LF 参考。
+  - **B.1.2** Roe 补多区 trace 和 CPU 五例，再分别评估 HLLC 与 AUSM。
+- **B.2 限制器**
+  - **B.2.1** 定位 Barth 邻域极值与 φ 的首次差异，检查接口和边界 stencil。
+  - **B.2.2** 对齐 Barth stencil、边界和浮点口径，再评估 Venkat。
+- **B.3 层流粘性**
+  - **B.3.1** 验证方程平面 stride 和求解器写回，记录首次差异。
+  - **B.3.2** 复跑 M6 全关/仅粘性 400 步，再验收收敛后的 CL/CD/CD_SF。
+  - **B.3.3** 补壁面热流、非支持选项的回落和多区边界契约。
+- **B.4 SA 湍流**
+  - **B.4.1** 固定涡粘度、源项和迎风通量各自的生产入口及字段快照。
+  - **B.4.2** 分别验收涡粘度、源项和通量，再检查与主求解器的耦合；SST 独立评估。
+- **B.5 隐式 LU-SGS**
+  - **B.5.1** 对照主机下扫、上扫的顺序和依赖，记录 dq 交换点。
+  - **B.5.2** 验证下扫、上扫和 dq halo，再评估双时间；依赖 A.4。
+- **B.6 多重网格**
+  - **B.6.1** 记录细网格与粗网格的字段所有权及 restrict/prolong 路径。
+  - **B.6.2** 验证 restrict/prolong，或确定 finest-only 能力边界。
+- **B.7 旗舰退出门**
+  - **B.7.1** 旗舰 M6 通过 B 类数值门禁。
+  - **B.7.2** 记录设备命中、CPU oracle、适用范围及复现命令。
+
+### Phase C
+
+- **C.1 输出与 restart**
+  - **C.1.1** 记录 q 与 restart 历史层的回拉和落盘边界。
+  - **C.1.2** 验证历史层恢复，量化长跑和高频输出代价。
+- **C.2 气动力与壁面输出**
+  - **C.2.1** 核对壁面 owner/ghost、梯度与热流的消费阶段。
+  - **C.2.2** 以 CL/CD/Cp/热流验证镜像完整性，再对比设备归约成本。
+- **C.3 残差与收敛判据**
+  - **C.3.1** 核对单 zone 设备 metrics 的参考值及数据来源。
+  - **C.3.2** 验证多 zone、多 solver 的归约和停止语义。
+- **C.4 内存预算**
+  - **C.4.1** 按几何、状态、halo 缓冲和临时空间拆分设备内存。
+  - **C.4.2** 统计每百万 cell 常驻字节与峰值，给出可解规模。
+- **C.5 算例集**
+  - **C.5.1** 从既有 CPU 套件选择设备支持的工况及参考输出。
+  - **C.5.2** 覆盖定常与非定常，记录可视化输出和同基准性能。
+
+### Phase D
+
+- **D.1 分区 fixture**
+  - **D.1.1** 选定并固定 ≥1M M6 fixture 的版本与分区路径。
+  - **D.1.2** 验证拓扑、守恒、读入和接口；GenerateLink 缺口单列证据。
+- **D.2 设备 halo**
+  - **D.2.1** 以 host-staged 路径建立接口数值和传输基线。
+  - **D.2.2** 分开核对 host-staged、GPU-aware MPI 和 packed DeviceDirect 的正确性与性能。
+- **D.3 rank/zone 映射**
+  - **D.3.1** 核对每 rank 的 zone、cell、halo 大小和设备绑定。
+  - **D.3.2** 先验收一对一的限制与负载，再决定多 zone 支持。
+- **D.4 扩展性口径**
+  - **D.4.1** 固定同节点对照和启动扣除方法，记录采样次数。
+  - **D.4.2** 固定每 rank cell、节点、repeats 与 CPU 核数，再归档 paired 数据。
+
+### Phase E
+
+- **E.1 显式上下文**
+  - **E.1.1** 列出热路径直接使用的 zone、grid、solver 全局状态。
+  - **E.1.2** 先梳理设备侧的 zone/grid/solver 所有权，再迁移主机热路径。
+- **E.2 能力表**
+  - **E.2.1** 盘点现有 capability 枚举、回落条件和拒绝原因。
+  - **E.2.2** 集中能力组合和稳定拒绝原因，再覆盖允许与拒绝矩阵。
+- **E.3 NS domain**
+  - **E.3.1** 盘点 NS 粘性、源项和能量所需的 view 及所有权。
+  - **E.3.2** 扩展源项、粘性与能量字段及生命周期。
+- **E.4 后端分派**
+  - **E.4.1** 找出把任意加速器视为 HIP 的调用点。
+  - **E.4.2** 用显式 backend-kind 选路径，分别验证 CPU/HIP 与新增后端。
+- **E.5 清理重复路径**
+  - **E.5.1** 查清 toy/scalar 路径的调用者和参考用途。
+  - **E.5.2** 核对调用和行为，再移除闲置路径与失效说明。
+
+### Phase F
+
+- **F.1 正式性能报告**
+  - **F.1.1** 固定报告里的硬件、配置、启动口径和完整原始证据。
+  - **F.1.2** 同节点、同 repeats 的 paired 结果及 Markdown/HTML 报告。
+- **F.2 CI 矩阵**
+  - **F.2.1** 明确分支触发规则及精确 SHA 的证据要求。
+  - **F.2.2** 先落实 CPU normal/strict 和单卡，再加入多卡及 nightly。
+- **F.3 能力文档**
+  - **F.3.1** 核对 capability、README、CI 和教程中的配置入口。
+  - **F.3.2** 同步构建入口、教程和已验证能力范围。
+- **F.4 发布交付**
+  - **F.4.1** 列出可发布的 GUI、示例、输入和验证证据。
+  - **F.4.2** 联跑 GUI、示例和发行清单，注明数据与证据版本。
+
+### 已验收里程碑
+
+- **A.1** 已收口。历史证据为 8 zone / 8 rank / 1 DCU 的 1000 步 paired 14.62 ms/step。
+- **F.1** 3D 正式报告已发布。后续版本按相同口径重新归档。
+- H2 两节点两卡复验属于 D.2 的历史证据，D.2 的其他传输模式和配置仍按各自门禁验证。
 
 ## 3. 里程碑与判定口径
 
@@ -264,10 +357,10 @@ todo §4 直接使用本节编号，不再有第二套字母表。历史编号�
 | 风险 | 影响 | 对策 |
 |---|---|---|
 | 双实现漂移（host oracle 与 device 结果缓慢分叉） | 数值不可信 | 每个能力先做单元级数值契约；trace/XB/五算例是准入门而不是事后验证 |
-| ambient globals 阻碍驻留执行 | Phase A4 无法干净落地 | E1 提前做 device 路径的显式上下文；host 侧渐进 |
-| fixture 缺（≥1M 合法分区） | Phase D 无法收口 | 现在就去谈 owner；同时评估修 `GenerateLink` 的代价 |
+| ambient globals 阻碍驻留执行 | Phase A.4 无法干净落地 | E.1 提前做 device 路径的显式上下文；host 侧渐进 |
+| ≥1M fixture 的验收基线未固定 | Phase D 证据难复跑 | 固定现有网格阶梯的一套 fixture；单独记录 GenerateLink 路径缺口 |
 | 隐式/multigrid 复杂度高 | 工期失控 | 先把显式驻留做到 14 ms；隐式与 multigrid 各自独立立项、独立门禁 |
-| capability 组合爆炸 | 维护成本 | E2 表驱动 + 单测；每个组合要么有门禁要么默认拒绝 |
+| capability 组合爆炸 | 维护成本 | E.2 表驱动 + 单测；每个组合要么有门禁要么默认拒绝 |
 | 性能口径漂移（跨会话跨节点比较） | 结论反复 | 只发 paired；报告里写清节点/会话限制 |
 | 上游同步与 PR 规模 | 评审不可行 | 每轮三端同步 master、按"backend/stage/CI"小切片提 PR（#227 的教训） |
 
@@ -275,33 +368,25 @@ todo §4 直接使用本节编号，不再有第二套字母表。历史编号�
 
 | 文档 | 已有结论 | 本文新增 |
 |---|---|---|
-| `docs/plans/oneflow-development-todo.md` | 前置层 6/6；阶段父项 2/28（A1、F1），Roe 为 Partial | 阶段取舍以本文为准，勾选与证据以 todo 为准，编号与本文一致 |
-| `doc/architecture/oneflow-1d-euler-dcu-architecture-audit-20260904.md` | backend-neutral 接入方案、state key、调用边界 | 把该方案升格为长期阶段主轴（Phase A4） |
-| `doc/plans/oneflow-euler-optimization-plan.md` | "stateful NoTrace 才是性能路径"（trace 2x vs 驻留 100x+） | 在 3D 复现同一结论：执行模型优先于 kernel |
-| `doc/runbooks/oneflow-dcu-porting-playbook-20260903.md` | 移植方法论（契约→或修→门禁→benchmark） | 作为每个 Phase 子项的验收流程模板 |
-| `doc/handoff/oneflow-current-handoff.md` | 环境、固定路径、启动顺序、坑（living，每次会话就地更新） | 其 §4 任务指针与本文 Phase A 对应 |
+| `docs/plans/oneflow-development-todo.md` | 当前进行中的任务与验收证据 | 阶段取舍以本文为准，勾选与证据以 todo 为准，编号与本文一致 |
+| `doc/architecture/oneflow-1d-euler-dcu-architecture-audit-20260904.md` | backend-neutral 接入方案、state key、调用边界 | 把该方案升格为长期阶段主轴（Phase A.4） |
+| `docs/plans/oneflow-euler-optimization-plan.md` | "stateful NoTrace 才是性能路径"（trace 2x vs 驻留 100x+） | 在 3D 复现同一结论：执行模型优先于 kernel |
+| `docs/runbooks/oneflow-dcu-porting-playbook-20260903.md` | 移植方法论（契约→或修→门禁→benchmark） | 作为每个 Phase 子项的验收流程模板 |
+| `docs/handoff/oneflow-current-handoff.md` | 环境、固定路径、启动顺序、坑（living，每次会话就地更新） | 其 §4 任务指针对应 Living TODO 当前切片 |
 
 ## 6. 需要拍板的开放问题
 
 1. **目标规模**：这条后端的"完成"定义是 1M cell 单卡、还是 100M cell 多卡？
    （决定 Phase C/D 的投入比例）
-2. **旗舰算例优先还是性能优先**：2026-11-01 定为先把 Phase A 做到 ≤14 ms/step，
-   再扩 Phase B。B1/B2 可独立评估契约，但不挤占当前 H2 → A4 主线。
-3. **隐式与多重网格是否在设备上做**：若只加速显式 finest grid，可省掉 Phase B5/B6
+2. **旗舰算例优先还是性能优先**：原计划先达到 Phase A 性能目标。当前已记录 M6 气动力偏差，
+   先验收 B.3 的正确性，再按 A.4 的归因结果决定性能工作。
+3. **隐式与多重网格是否在设备上做**：若只加速显式 finest grid，可省掉 Phase B.5/B.6
    的大半工作，但要接受"定常收敛用 LUSGS 就没加速"的现实。
 4. **zone 映射**：长期是否维持 1 rank = 1 zone？若需要 zone 切分，Phase D 的工作量
    翻倍（state、halo、load balance 全变）。
-5. **CUDA/Kokkos 是否真要做**：当前不做。F7 继续走 HIP 生产路径，但不要把 HIP
-   类型写进 `EulerDomain` seam。真的要做 CUDA 时再补 H5，不回头阻塞 F7。
+5. **CUDA/Kokkos 是否真要做**：当前不做。当前继续走 HIP 生产路径。E.4 决定 CUDA/Kokkos 的后端入口，
+   `EulerDomain` 继续保持后端类型独立。
 
-## 7. 下一步顺序（具体 checkbox 与验收见 todo §5）
+## 7. 当前切片入口
 
-1. **H1 已收口**：集群归账、正确性门禁与 CI 测试链接修复的构建验证已过；详见 todo §5.2。
-   MG 控制域与任务规划/派发仅约 0.042 ms/step，不支持靠重写外循环获得数毫秒收益。
-2. **H2 已在两节点两卡复验通过**（todo §5.2）。当前先验证 B3 粘性面通量写回和
-   M6 气动力，见 todo §5 的接手入口。D1–D4 按各自验收条件收口。
-3. **A4 循环下沉**：先量清宏步尾状态读取/清零与 RHS 队列等待，再选择减少同步/传输的
-   最小切片，保持每步物理状态检查与 halo lag；通过 trace、跨后端、CPU normal/strict、
-   稳定性及 paired；之后再评估 A2′/A3。
-
-（F1 3D 正式报告已于 2026-11-02 发布，不再列为待办。）
+当前执行顺序和验收证据见 [Living TODO](oneflow-development-todo.md)。
