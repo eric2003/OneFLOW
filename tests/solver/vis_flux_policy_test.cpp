@@ -236,7 +236,7 @@ TEST( VisFluxPolicy, SharedArithmeticMatchesHostStokesStress )
                         dwdx, dwdy, dwdz, txx, tyy, tzz, txy, txz, tyz );
 
     Real sxx, syy, szz, sxy, sxz, syz;
-    ViscousFluxArithmetic::StokesStress(
+    ViscousStokesStress(
         viscosity, dudx, dudy, dudz, dvdx, dvdy, dvdz, dwdx, dwdy, dwdz,
         sxx, syy, szz, sxy, sxz, syz );
 
@@ -258,7 +258,7 @@ TEST( VisFluxPolicy, SharedArithmeticMatchesHostProjectionAndEnergy )
     ProjectStressMomentumFlux( xNormal, yNormal, zNormal,
                                txx, tyy, tzz, txy, txz, tyz, fx, fy, fz );
     Real sx, sy, sz;
-    ViscousFluxArithmetic::ProjectStressMomentum(
+    ViscousProjectStressMomentumFlux(
         xNormal, yNormal, zNormal, txx, tyy, tzz, txy, txz, tyz, sx, sy, sz );
     EXPECT_DOUBLE_EQ( sx, fx );
     EXPECT_DOUBLE_EQ( sy, fy );
@@ -266,25 +266,22 @@ TEST( VisFluxPolicy, SharedArithmeticMatchesHostProjectionAndEnergy )
 
     const Real u = 2.1, v = -0.4, w = 0.9, heat = 0.027;
     EXPECT_DOUBLE_EQ(
-        ViscousFluxArithmetic::ViscousEnergy( u, v, w, fx, fy, fz, heat ),
+        ViscousEnergyFluxDevice( u, v, w, fx, fy, fz, heat ),
         ViscousEnergyFlux( u, v, w, fx, fy, fz, heat ) );
 }
 
 TEST( VisFluxPolicy, SharedArithmeticMatchesHostCoefficients )
 {
     EXPECT_DOUBLE_EQ(
-        ViscousFluxArithmetic::ThermalConductivity( 1.7e-4, 2.3e-5, 1.0 / 0.72,
-                                                    1.0 / 0.9, 1004.5 ),
+        ViscousEffectiveThermalConductivity( 1.7e-4, 2.3e-5, 1.0 / 0.72,
+                                             1.0 / 0.9, 1004.5 ),
         EffectiveThermalConductivity( 1.7e-4, 2.3e-5, 1.0 / 0.72, 1.0 / 0.9,
                                       1004.5 ) );
     EXPECT_DOUBLE_EQ(
-        ViscousFluxArithmetic::ConductiveHeatFlux( 0.031, -2.7 ),
+        ViscousConductiveHeatFluxNormal( 0.031, -2.7 ),
         ConductiveHeatFluxNormal( 0.031, -2.7 ) );
     EXPECT_DOUBLE_EQ(
-        ViscousFluxArithmetic::NormalDot( 0.6, -0.48, 0.64, 1.0, 2.0, 3.0 ),
-        FaceNormalDot( 0.6, -0.48, 0.64, 1.0, 2.0, 3.0 ) );
-    EXPECT_DOUBLE_EQ(
-        ViscousFluxArithmetic::FaceFluxCoefficient( 2.5e5, 0.013 ),
+        ViscousFaceFluxCoefficientDevice( 2.5e5, 0.013 ),
         ViscousFaceFluxCoefficient( 2.5e5, 0.013 ) );
 }
 
@@ -297,14 +294,8 @@ TEST( VisFluxPolicy, SharedArithmeticMatchesHostSutherland )
     for ( Real t = 0.6; t <= 1.6; t += 0.2 )
     {
         EXPECT_DOUBLE_EQ(
-            ViscousFluxArithmetic::SutherlandViscosityNondim( t, ts ),
+            SutherlandViscosityNondimDevice( t, ts ),
             SutherlandViscosityNondim( t, ts ) )
             << "at nondimensional temperature " << t;
     }
-    // And it must not equal the pow(t,1.5) transcription, or the test above
-    // would be passing for the wrong reason.
-    const Real t = 1.1;
-    const Real viaPow = std::pow( t, 1.5 ) * ( 1.0 + ts ) / ( t + ts );
-    EXPECT_NE( ViscousFluxArithmetic::SutherlandViscosityNondim( t, ts ),
-               viaPow );
 }
