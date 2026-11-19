@@ -118,6 +118,14 @@ normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失�
 3. 关掉探针，复跑 400 步对照及收敛后气动力验收。旧结果是总阻力偏差
    22%、摩擦阻力偏差 143%。收齐证据前，粘性设备路径保持未验收状态。
 
+**本轮自检切片（Linux 本机，HIP 关闭）**。`cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`
+配置通过；`viscous_flux_selfcheck_test` 10/10、`oneflow_euler_domain_contract_test`
+15/15、`vis_flux_policy_test` 24/24 通过；`codes/uns/src/UNsVisFlux.cpp.o`
+单独编译通过。`OneFLOW_RuntimeObjects` 全量目标在本机被 `codes/cgns`
+的既有问题中断（系统头被包含进 `ONEFLOW` 命名空间，`intptr_t` 未声明），
+与本次改动无关，需在集群工具链上复核全量构建。本轮未运行 HIP、集群门禁
+或 M6 算例，不得据此改变 B.3 的验收状态。
+
 **本地验证与待办**。契约目录 54/54，CPU 粘性策略 24/24。
 `python3.12 -m unittest tools.oneflow_gui.test_mesh_project tools.oneflow_gui.test_mesh_validation tools.oneflow_gui.test_path_utils`
 计 50 项（48 通过，2 跳过）。GUI 全套 discovery 有 388 项、1 failure、13 errors、
@@ -298,11 +306,23 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
 
 ## 5. 已知坑与设计约束（只加有长期价值的）
 
-**粘性探针注意事项（2026-11-19）**。通量探针 `ONEFLOW_VISCOUS_PROBE_FILE`
+**粘性探针注意事项（2026-11-19，2026-11-19 更新）**。通量探针 `ONEFLOW_VISCOUS_PROBE_FILE`
 会覆盖输出，CPU 与 DCU 用不同路径，同一进程开启自检时也须避免互相覆盖。
 壁面探针 `ONEFLOW_WALL_FORCE_PROBE` 按气动力调用持续写入，当前没有末步过滤或
 多 rank 隔离。先在单 rank 使用，按输出步对齐。自检重新执行 CPU 粘性循环，
 需核对共享状态副作用及 NaN/Inf 处理；探针运行不进入性能对照。
+
+自检输出现在是：`SELFCHECK step= zone= faces= equ=`、首差面/最差面（含方程与
+相对误差）、`nonfinite_device/host` 计数，最后一行 `SELFCHECK result=PASS|FAIL`。
+判定逻辑在 `CompareViscousFaceFlux`（`codes/uns/include/ViscousFluxSelfCheck.h`），
+**以 result 行判定，不要再用旧日志里的 `differing_faces=0` 推断通过**。
+
+- 旧的相对误差判据会让 NaN 静默通过：`rel > tolerance` 对 NaN 恒为假。非有限值
+  现在单列计数并直接 FAIL，回归测试 `tests/solver/viscous_flux_selfcheck_test.cpp`。
+- 壁面标签只对 `bcType == SOLID_SURFACE` 的面打印；`face < nBFaces` 还包含入口、
+  出口和 interface，不可当成壁面。
+- `nonfinite_*` 为 0 且 `differing_faces` 非 0 时，先看首差面是否落在壁面或
+  interface，再对齐该面的输入时间层。
 
 **测量与工具链（2026-11-08 新增，全部踩过）**
 

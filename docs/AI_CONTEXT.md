@@ -63,6 +63,14 @@ with probes disabled. See Living TODO and handoff §4/§5 for provenance, settin
 and acceptance. H2 was retested on two nodes and two DCUs (historical TODO §5.2). A4 remains
 open. A.1 and F.1 were closed under the previous tracking scheme.
 
+The same-state check is now trustworthy enough to use as the gate. It previously certified
+NaN as agreement, because a relative-error test is false for NaN. `CompareViscousFaceFlux`
+(`codes/uns/include/ViscousFluxSelfCheck.h`) classifies non-finite values first, labels a
+wall only when `bcType == SOLID_SURFACE`, and reports step/zone/first-differing face and
+equation with a final `SELFCHECK result=PASS|FAIL`. Local GoogleTest 10/10, plus the
+existing Euler-domain 15/15 and viscous-policy 24/24. No HIP run or cluster gate has been
+performed for this change; B.3.1 stays unverified.
+
 Do not improvise these:
 
 | Item | Value |

@@ -22,6 +22,7 @@ License
 
 #include "UNsVisFlux.h"
 #include "NsVisFluxPolicy.h"
+#include "ViscousFluxSelfCheck.h"
 #include "Sutherland.h"
 #include "HeatFlux.h"
 #include "Zone.h"
@@ -143,60 +144,74 @@ void UNsVisFlux::CalcFlux()
             MRField deviceFlux = * visflux;
             this->CalcVisFlux();
             const int reportFaces = 4;
-            long differing = 0;
-            Real worstRel = 0.0;
-            int worstFace = -1, worstEq = -1;
-            for ( int fId = 0; fId < ug.nFaces; ++ fId )
+
+            const int nEqu = nscom.nEqu;
+            std::vector< const Real * > devicePlanes( nEqu );
+            std::vector< const Real * > hostPlanes( nEqu );
+            for ( int eq = 0; eq < nEqu; ++ eq )
             {
-                Real scale = 0.0;
-                for ( int eq = 0; eq < nscom.nEqu; ++ eq )
-                {
-                    const Real a = deviceFlux[ eq ][ fId ];
-                    const Real b = ( * visflux )[ eq ][ fId ];
-                    const Real m = std::fabs( a ) > std::fabs( b )
-                        ? std::fabs( a ) : std::fabs( b );
-                    if ( m > scale ) scale = m;
-                }
-                if ( scale == 0.0 ) continue;
-                bool any = false;
-                for ( int eq = 0; eq < nscom.nEqu; ++ eq )
-                {
-                    const Real a = deviceFlux[ eq ][ fId ];
-                    const Real b = ( * visflux )[ eq ][ fId ];
-                    const Real rel = std::fabs( a - b ) / scale;
-                    if ( rel > 1e-10 )
-                    {
-                        any = true;
-                        if ( rel > worstRel )
-                        {
-                            worstRel = rel;
-                            worstFace = fId;
-                            worstEq = eq;
-                        }
-                    }
-                }
-                if ( any )
-                {
-                    ++ differing;
-                    if ( differing <= reportFaces )
-                    {
-                        std::cout << "SELFCHECK face=" << fId
-                                  << ( fId < ug.nBFaces ? " (wall)" : "" )
-                                  << " device=[";
-                        for ( int eq = 0; eq < nscom.nEqu; ++ eq )
-                            std::cout << deviceFlux[ eq ][ fId ] << ' ';
-                        std::cout << "] host=[";
-                        for ( int eq = 0; eq < nscom.nEqu; ++ eq )
-                            std::cout << ( * visflux )[ eq ][ fId ] << ' ';
-                        std::cout << "]" << std::endl;
-                    }
-                }
+                devicePlanes[ eq ] = deviceFlux[ eq ].data();
+                hostPlanes[ eq ] = ( * visflux )[ eq ].data();
             }
-            std::cout << "SELFCHECK differing_faces=" << differing
+
+            // 1e-10 is the tolerance the in-place check has always used.  The
+            // helper additionally reports non-finite values, which a relative
+            // comparison cannot detect: NaN fails every comparison and would
+            // otherwise look like agreement.
+            const ViscousFluxSelfCheckSummary summary =
+                CompareViscousFaceFlux(
+                    devicePlanes.data(), hostPlanes.data(),
+                    nEqu, ug.nFaces, 1e-10, reportFaces );
+
+            std::cout << "SELFCHECK step=" << Iteration::innerSteps
+                      << " zone=" << ZoneState::zid
+                      << " faces=" << ug.nFaces
+                      << " equ=" << nEqu << std::endl;
+
+            // Only faces the comparison actually counted are printed, so the
+            // per-face lines and the summary cannot disagree.
+            for ( const ViscousFluxDifference & difference :
+                  summary.differences )
+            {
+                const int fId = difference.face;
+                // Only a SOLID_SURFACE face is a wall.  A boundary index below
+                // nBFaces also covers inlet, outlet and interface faces, so the
+                // face index alone must not be reported as "wall".
+                const char * kind = " interior";
+                if ( fId < ug.nBFaces && ug.bcRecord != nullptr )
+                {
+                    kind = ug.bcRecord->bcType[ fId ] == BC::SOLID_SURFACE
+                        ? " wall" : " boundary";
+                }
+                std::cout << "SELFCHECK face=" << fId << kind
+                          << " eq=" << difference.equation
+                          << " rel=" << difference.relative
+                          << " nonfinite="
+                          << ( difference.nonFinite ? 1 : 0 )
+                          << " device=[";
+                for ( int eq = 0; eq < nEqu; ++ eq )
+                    std::cout << deviceFlux[ eq ][ fId ] << ' ';
+                std::cout << "] host=[";
+                for ( int eq = 0; eq < nEqu; ++ eq )
+                    std::cout << ( * visflux )[ eq ][ fId ] << ' ';
+                std::cout << "]" << std::endl;
+            }
+
+            std::cout << "SELFCHECK differing_faces=" << summary.differingFaces
+                      << " compared=" << summary.comparedFaces
                       << " of " << ug.nFaces
-                      << " worst_rel=" << worstRel
-                      << " at face=" << worstFace
-                      << " eq=" << worstEq << std::endl;
+                      << " nonfinite_device=" << summary.nonFiniteDeviceFaces
+                      << " nonfinite_host=" << summary.nonFiniteHostFaces
+                      << " worst_rel=" << summary.worstRelative
+                      << " at_face=" << summary.worstFace
+                      << " at_eq=" << summary.worstEquation
+                      << " first_face=" << summary.firstFace
+                      << " first_eq=" << summary.firstEquation
+                      << std::endl;
+            std::cout << "SELFCHECK result="
+                      << ( summary.Passed() ? "PASS" : "FAIL" )
+                      << std::endl;
+
             // Keep the device result for the actual solve; the host run above
             // was only for comparison.
             * visflux = deviceFlux;

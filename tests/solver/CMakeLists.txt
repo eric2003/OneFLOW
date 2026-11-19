@@ -233,6 +233,19 @@ target_link_libraries(vis_flux_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(vis_flux_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(vis_flux_policy_test DISCOVERY_MODE PRE_TEST)
 
+# Device-versus-host viscous write-back comparison.  Header-only policy so the
+# NaN and scale rules are tested without a mesh, a solver, or a device.
+add_executable(viscous_flux_selfcheck_test
+  viscous_flux_selfcheck_test.cpp
+)
+target_include_directories(viscous_flux_selfcheck_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/uns/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(viscous_flux_selfcheck_test PRIVATE GTest::gtest_main)
+target_compile_features(viscous_flux_selfcheck_test PRIVATE cxx_std_17)
+gtest_discover_tests(viscous_flux_selfcheck_test DISCOVERY_MODE PRE_TEST)
+
 # Pure Sutherland viscosity formulas; no mesh bootstrap.
 add_executable(sutherland_policy_test
   sutherland_policy_test.cpp

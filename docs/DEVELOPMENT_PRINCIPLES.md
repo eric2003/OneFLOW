@@ -128,6 +128,27 @@ serialization or UI-rendering boundary.
   Report exactly what was run; do not infer a pass from an unrelated suite or an older CI
   run.
 
+### Self-check regression to remember
+
+A device-versus-host viscous face-flux self-check reported zero differing faces while the
+flow field contained NaN. The check classified a face with
+`relative = |a - b| / scale > tolerance`; every comparison with NaN is false, so
+non-finite values took the "agrees" branch and the diagnostic silently certified the
+broken arm. Non-finite values are now counted separately and always fail the check.
+
+Two durable rules follow from this, and they apply to any comparison that gates a
+numerical claim (device versus host, reference versus candidate, file versus file):
+
+1. A comparison must classify non-finite inputs before doing arithmetic on them. A
+   relative- or absolute-error test alone cannot detect NaN or Inf.
+2. A diagnostic label must come from the predicate the solver itself uses. Marking every
+   face below `nBFaces` as "wall" also labelled inlet, outlet and interface faces;
+   wall means `bcType == SOLID_SURFACE`.
+
+Guard: `CompareViscousFaceFlux` in `codes/uns/include/ViscousFluxSelfCheck.h` with
+`tests/solver/viscous_flux_selfcheck_test.cpp`. Keep the comparison logic out of the
+solver loop so the rules can be tested without a mesh, a solver, or a device.
+
 ## 7. Make each change a complete, reviewable slice
 
 - Prefer a coherent functional slice: implementation, discriminating tests, directly
