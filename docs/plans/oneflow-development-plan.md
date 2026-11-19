@@ -149,10 +149,17 @@ Phase A（执行模型）
 
 ### Phase B — 数值能力（决定这条后端是否有实用价值）
 
-现状：设备路径接受 `MULTI_STAGE + (Lax-Friedrichs 或 Roe) + ilim∈{0, Barth} + vismodel=0`。
-Barth 的 φ 已在设备上算，但数值还差 `1.1e-6` 未过 1e-12 门禁，因此默认仍是 `ilim=0`；
-Venkat / HLLC / AUSM 未实现，显式请求直接 fail-fast。
-仓库自带的旗舰算例 `test/cfd/m6wingroe_sa` 是 `LU-SGS + Roe + SA`。部分粘性与 SA hook 已接入，整算例设备端到端尚未验收。
+当前区分三条路径：
+
+- **无粘 HIP batch**。Lax-Friedrichs 和 Roe 是候选通量，还要满足运行时、网格、
+  方程数和接口交换等能力守卫。组合不受支持时，显式强制 batch 会报错，自动选择时可回落。
+- **设备梯度与显式驻留执行**。设备梯度要求无粘模式、HIP batch，以及关闭限制器或使用
+  Barth；多区还要求设备 interface。历史 Barth 对照差约 `1.1e-6`，超过当时的
+  `1e-12` 门槛。关闭限制器仍是该验收基线的配置。
+- **独立的粘性与 SA hook**。`UNsVisFlux::CalcVisFluxHip` 要求五方程、VIS_STD、
+  非等温壁和必要字段。条件不满足时走主机粘性循环。
+  `test/cfd/m6wingroe_sa` 使用 Roe、LU-SGS 和 SA；部分 hook 可命中，整算例设备
+  端到端尚未验收。最新写回修正与 M6 待验项见 [Living TODO](oneflow-development-todo.md)。
 
 | 子项 | 内容 | 依赖 | 关键文件 |
 |---|---|---|---|
