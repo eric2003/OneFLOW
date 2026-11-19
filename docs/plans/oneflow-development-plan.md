@@ -118,7 +118,7 @@ task 通过全局 `ug / unsf / nscom / ctrl / ZoneState::zid` 隐式定位到"�
    Barth 整链数值未过门禁；host oracle、单点契约与整链 trace 都需保留。
 5. **fixture 与多卡证据缺口**：固定登记的 fixture 是 8 zone m6wing（294,912 cell）；
    16/32 zone 派生配方与 manifest 校验已跑通，但尚缺 ≥1M 的合法 fixture。
-   `partition_type=0`(GenerateLink) 仍有缺口，多卡另受 H2 VMFault 阻塞。
+   `partition_type=0`(GenerateLink) 仍有缺口，H2 已在两节点两卡配置复验，其他多卡配置按各自门禁验证。
 6. **口径/文档债**：F1 3D 正式报告已于 2026-11-02 发布；新优化不能沿用旧 CPU
    或跨节点数字拼接加速比。当前源码的门禁与性能仍需绑定同一修订的可复验证据。
 
@@ -222,7 +222,7 @@ Venkat / HLLC / AUSM 未实现，显式请求直接 fail-fast。
 |---|---|
 | F1 | 3D 正式性能报告（Markdown + HTML 同 stem）：paired、同节点、同 repeats、含环境口径 |
 | F2 | CI 矩阵：CPU normal/strict、DCU 单卡、DCU 多卡、nightly 长跑；PR 分支自跑门禁 |
-| F3 | 文档：`doc/plans/oneflow-development-todo.md` 摘要与 §2 现状、`ci/kunshan/README.md`、Sphinx 教程 |
+| F3 | 文档：`docs/plans/oneflow-development-todo.md` 摘要与 §2 现状、`ci/kunshan/README.md`、Sphinx 教程 |
 | F4 | 交付：GUI/示例算例、发行说明、对外能力矩阵（哪些 solver/scheme 在设备上已验证） |
 
 ## 2.1 阶段与 todo 条目 id 的对应
@@ -275,7 +275,7 @@ todo §4 直接使用本节编号，不再有第二套字母表。历史编号�
 
 | 文档 | 已有结论 | 本文新增 |
 |---|---|---|
-| `doc/plans/oneflow-development-todo.md` | 前置层 6/6；阶段父项 2/28（A1、F1），Roe 为 Partial | 阶段取舍以本文为准，勾选与证据以 todo 为准，编号与本文一致 |
+| `docs/plans/oneflow-development-todo.md` | 前置层 6/6；阶段父项 2/28（A1、F1），Roe 为 Partial | 阶段取舍以本文为准，勾选与证据以 todo 为准，编号与本文一致 |
 | `doc/architecture/oneflow-1d-euler-dcu-architecture-audit-20260904.md` | backend-neutral 接入方案、state key、调用边界 | 把该方案升格为长期阶段主轴（Phase A4） |
 | `doc/plans/oneflow-euler-optimization-plan.md` | "stateful NoTrace 才是性能路径"（trace 2x vs 驻留 100x+） | 在 3D 复现同一结论：执行模型优先于 kernel |
 | `doc/runbooks/oneflow-dcu-porting-playbook-20260903.md` | 移植方法论（契约→或修→门禁→benchmark） | 作为每个 Phase 子项的验收流程模板 |
