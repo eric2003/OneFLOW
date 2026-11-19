@@ -159,7 +159,11 @@ Phase A（执行模型）
 - **独立的粘性与 SA hook**。`UNsVisFlux::CalcVisFluxHip` 要求五方程、VIS_STD、
   非等温壁和必要字段。条件不满足时走主机粘性循环。
   `test/cfd/m6wingroe_sa` 使用 Roe、LU-SGS 和 SA；部分 hook 可命中，整算例设备
-  端到端尚未验收。最新写回修正与 M6 待验项见 [Living TODO](oneflow-development-todo.md)。
+  端到端尚未验收。已核对状态（`cc1dd4b3a`，单 rank/单 DCU）：全关与仅开粘性各
+  400 步的 `aero.dat`、`res.dat` 逐字节一致；全开 hook、收敛后气动力和多区仍未验收。
+  写回门禁以 `SELFCHECK result=PASS|FAIL` 判定：先统计非有限值，再比相对误差，
+  并同时看面归一化差与绝对差；只有相对误差的旧日志不能证明通过。
+  当前切片与证据见 [Living TODO](oneflow-development-todo.md)。
 
 | 子项 | 内容 | 依赖 | 关键文件 |
 |---|---|---|---|
@@ -255,7 +259,9 @@ Phase A（执行模型）
   - **B.2.1** 定位 Barth 邻域极值与 φ 的首次差异，检查接口和边界 stencil。
   - **B.2.2** 对齐 Barth stencil、边界和浮点口径，再评估 Venkat。
 - **B.3 层流粘性**
-  - **B.3.1** 验证方程平面 stride 和求解器写回，记录首次差异。
+  - **B.3.1** 验证方程平面 stride 和求解器写回，记录首次差异。验收以写回字段的
+    逐面自检 `SELFCHECK result=PASS|FAIL` 为准：先判非有限值，再比相对误差，
+    并同时报告绝对差；近零面不能只凭相对数字追查。
   - **B.3.2** 复跑 M6 全关/仅粘性 400 步，再验收收敛后的 CL/CD/CD_SF。
   - **B.3.3** 补壁面热流、非支持选项的回落和多区边界契约。
 - **B.4 SA 湍流**
