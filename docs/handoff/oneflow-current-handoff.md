@@ -118,7 +118,8 @@ normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失�
 3. 关掉探针，复跑 400 步对照及收敛后气动力验收。旧结果是总阻力偏差
    22%、摩擦阻力偏差 143%。收齐证据前，粘性设备路径保持未验收状态。
 
-**本轮自检切片（Linux 本机，HIP 关闭）**。`cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`
+**本轮自检切片（`169d59892`，Linux 本机，HIP 关闭）**。该提交已推送 `origin/dev`（备份；
+常规 CI 不监听 dev）。`cmake -S . -B build -DCMAKE_BUILD_TYPE=Release`
 配置通过；`viscous_flux_selfcheck_test` 10/10、`oneflow_euler_domain_contract_test`
 15/15、`vis_flux_policy_test` 24/24 通过；`codes/uns/src/UNsVisFlux.cpp.o`
 单独编译通过。`OneFLOW_RuntimeObjects` 全量目标在本机被 `codes/cgns`

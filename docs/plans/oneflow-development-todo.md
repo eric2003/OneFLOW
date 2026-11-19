@@ -4,7 +4,7 @@
 
 ## 当前切片
 
-分支 `dev`。最近已核对的求解器变更为 `aada33da2`，CPU 粘性契约测试修复为 `a3d7dd611`。实际投放集群前核对 `git rev-parse HEAD`、`src/REVISION` 和运行二进制。固定路径、探针限制和构建命令见[当前交接](../handoff/oneflow-current-handoff.md)。
+分支 `dev`。最新提交 `169d59892`（粘性写回自检 fail-closed，已推送 `origin/dev`，仅备份；常规 CI 工作流不监听 dev），求解器变更基线 `aada33da2`，CPU 粘性契约测试修复 `a3d7dd611`。实际投放集群前核对 `git rev-parse HEAD`、`src/REVISION` 和运行二进制。固定路径、探针限制和构建命令见[当前交接](../handoff/oneflow-current-handoff.md)。
 
 - [ ] **B.3.1 验证粘性通量布局和写回**（Implemented, unverified）
   - [x] `aada33da2` 将设备输出 stride 改为 `nFaces`，按连续方程平面写回求解器字段。
