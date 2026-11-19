@@ -74,7 +74,7 @@ Do not improvise these:
 
 | Item | Value |
 |---|---|
-| Cluster access | `scnet-hpc` skill at its current installed location, **OpenAPI only** per the 2026-11-08 access record |
+| Cluster access | `scnet-hpc` skill at its current installed location. OpenAPI stays the default submit backend; SSH is available again since 2026-11-19 (`kseshell`/Kunshan, `zzeshell`/Central-China zone 1) after renewed keys, expiring 2027-02-05 and 2027-02-07 |
 | Cluster workspace | `$HOME/oneflow/` with `src/ build/app/ fixtures/ evidence/<category>/<jobid>/ snapshots/ scripts/ logs/` (six fixed categories, runbook §1c) |
 | Source transfer | `git archive` → `upload` to `snapshots/` → job unpacks into `src/OneFLOW` (no rsync: OpenAPI has no `exec`) |
 | Build | `scripts/build-app.sh` — rebuilds `OneFLOW_RuntimeObjects` **then** `OneFLOW/fast` |

@@ -19,8 +19,9 @@
    H2 已在两节点两卡配置复验，A4 排在本轮正确性验收之后。
    **主线优先级只以 Living TODO 当前切片 为准**；本文只记“怎么跑”和“已经踩过的坑”，
    两边不一致时改本文，不要改 todo 的台账。
-3. 要动集群先读 §1（固定路径）与 runbook：**SSH 已不可用，只能走 OpenAPI 技能**，
-   因此一切远端操作必须写成作业脚本提交，不能在交互 shell 里敲。
+3. 要动集群先读 §1（固定路径）与 runbook：**OpenAPI 仍是结构化提交的默认后端**；
+   SSH 已于 2026-11-19 续期恢复，可用于交互诊断、编译和传输。远端改动仍按固定
+   工作区与可复现作业脚本执行，不要手搓 ssh/scp 循环。
 4. 收尾：勾选 todo、证据落 `evidence/<gate>/<jobid>/`、更新本文 §4 与 §5；
    环境或路径变化同步 runbook 与 本文 §1。
 
@@ -30,7 +31,7 @@
 |---|---|---|---|
 | 本地仓库 | 本 checkout 根（`git rev-parse --show-toplevel`） | 源码、文档、提交 | 只在 `dev` 上提交；`master` 只读、与 upstream 同步 |
 | 本地临时 | `/tmp` | 一次性脚本、打包、比较 | 不入库；需要保留的结论写进文档 |
-| 集群接入 | scnet-hpc 技能（按当前安装位置解析入口） | 查询、提交、上传、探测 | 按当前记录只用 OpenAPI；不要手搓 ssh/scp 循环，也不要静默切换后端 |
+| 集群接入 | scnet-hpc 技能（按当前安装位置解析入口） | 查询、提交、上传、探测 | OpenAPI 为默认提交后端；SSH（`kseshell` / `zzeshell`）可用于交互诊断。不要手搓 ssh/scp 循环，也不要静默切换后端 |
 | 昆山工作区 | **`$HOME/oneflow/`（唯一）** | `src/ build/ fixtures/ evidence/ snapshots/ scripts/ logs/ _attic/` | 固定布局，见下表与 runbook |
 | 门禁证据 | `$HOME/oneflow/evidence/<category>/<jobid>/` | **6 个固定 category**：`gate` / `paired-ab` / `cpu-regression` / `probe` / `fixture` / `build` | 只增不改；不要按实验临时起目录名（规则见 runbook §1c）；`*.stage` 等大二进制提取指标后可删 |
 | 源码快照 | `$HOME/oneflow/src/OneFLOW` + `src/REVISION` | 每轮覆盖 | 不建 `OneFLOW-<hash>` 目录 |
@@ -40,12 +41,18 @@
 | 日志 | `$HOME/oneflow/logs/` | 作业 stdout/stderr | 保留 14 天 |
 | 弃用 | `$HOME/oneflow/_attic/<date>/` | 待删物 | 观察一轮后清（`cleanup.sh`，7 天） |
 
-**集群接入现状（2026-11-08）**：`ssh kseshell` 返回 `Permission denied (publickey)`（密钥
-失效或 IP 白名单变更），**只能用 OpenAPI**。由此带来的硬约束：
+**集群接入现状（2026-11-19 更新）**：两个区域的 SSH 密钥已续期并在本机安装，
+`ssh kseshell`（昆山 `login01`）与 `ssh zzeshell`（华中一区 `zz-login02`）均以 `luql`
+登录成功；`scnet.py --backend ssh --cluster <c> doctor` 全项通过。密钥到期：
+昆山 `2027-02-05`，华中一区 `2027-02-07`。旧的 2026-11-08 `Permission denied (publickey)`
+记录已失效。
 
-- 一切远端动作都要写成**作业脚本**用 `submit --command` 提交（建目录、解包、构建、清理都是）；
-- OpenAPI 没有 `exec`，所以不能交互式 `make`，也不能 rsync；源码以
-  `git archive` 打 tgz → `upload` 到 `snapshots/` → 作业内解包到 `src/OneFLOW`；
+当前约束（区分后端）：
+
+- **提交与查询**仍默认 OpenAPI：`submit --command` 的作业脚本路径是已审计的口径；
+- OpenAPI 没有 `exec`，交互式 `make`、rsync 仍不可用；需要时用 SSH 直接做，
+  或用 `git archive` tgz → `upload` → 作业内解包（两种都可，选一种并记录）；
+- SSH 与 OpenAPI 不要混用同一作业状态：提交走哪边，查询/取消就走哪边；
 - 提交参数有内存/CPU 比例上限（`--memory` 过大直接被 sbatch 拒绝），4 核请用 ≤8G；
 - 偶发 `Socket timed out` / `HTTP 502`：隔十几秒原样重试即可，不要当成作业失败。
 
@@ -74,7 +81,7 @@
 
 ## 3. 常用命令
 
-**注意：SSH 不可用（见 §1），下面的 `sbatch` 只是作业脚本名；实际提交走 OpenAPI 技能。**
+**注意：提交默认走 OpenAPI 技能；SSH 已恢复（见 §1），可用于交互诊断和编译。**
 
 ```bash
 # 仓库侧
