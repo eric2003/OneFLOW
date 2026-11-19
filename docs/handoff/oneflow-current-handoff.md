@@ -132,6 +132,14 @@ decode，以及一项 Windows 路径在 macOS 上的断言不符。这三类问�
 否则先遇到缺头文件，或在 GeometryCore 测试链接时遇到 METIS 未定义符号。
 集群门禁仍需按准确源码重跑，不能沿用此前的全开/全关数据判定新版本。
 
+**CPU 构建与 CTest 复验**。按上面的 METIS 环境重新运行
+`cmake -S . -B build` 与 `cmake --build build -j 10` 后全量构建通过。
+`ctest --test-dir build -j 8 --output-on-failure` 为 1367/1374，失败为
+测试 385、386、388–391、394。它们在 macOS 启动时找不到 OneFLOW system 目录。
+`HX_GetExeDirectory()` 的非 Windows 分支读取 Linux 的 `/proc/self/exe`，
+在本机得到空路径。Linux/Kunshan 上重新跑 CPU 五例 normal/strict 和 HIP 门禁。
+GitHub 常规 Linux/Windows push 工作流监听 master/hexin，dev 的推送结果仅代表备份成功。
+
 以下为历史诊断记录。
 
 **2026-11-17 最新：粘性设备路径的真根因已找到并修复**

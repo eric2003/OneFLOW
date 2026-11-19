@@ -502,7 +502,8 @@ H2 在 §5.2 标明的配置已复验，不能把该结果外推到全部多卡�
   `python3 -m unittest tools.verification.test_contract_catalog` 通过 54/54。
   `a3d7dd611` 对齐粘性测试与实际 helper，`build/bin/vis_flux_policy_test` 通过 24/24。
   Python 3.12 的网格/路径三个模块共 50 项，48 通过、2 跳过。GUI 全套见交接 §4。
-  CPU 全套回归、HIP/M6、准确提交 CI 仍是独立验收项。
+  本地 CPU 全量构建通过，CTest 1367/1374，7 项受 macOS 入口路径问题影响。
+  CPU 五例 normal/strict、HIP/M6、准确提交 CI 仍是独立验收项。
 - **下一轮验收**。确认准确源码和二进制身份。先在 M6 单卡验证写回字段，
   用首个差异步定位输入或通量问题，再关闭探针跑同配置的全关/仅粘性
   400 步对照，记录 CL/CD/CD_SF、残差和停止条件。通过后补全开、
