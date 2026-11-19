@@ -837,9 +837,8 @@ struct ViscousFluxView
     const Real * t2y = nullptr;
     const Real * t2z = nullptr;
 
-    // Output: per-face viscous flux in the same equation-major face layout the
-    // inviscid fused-flux path already produces, so the existing add-face-flux
-    // scatter can consume it unchanged.
+    // Output: faceFlux[equation * faceFluxStride + face].
+    // Each equation plane spans nFaces entries.
     Real * faceFlux = nullptr;
     int faceFluxStride = 0;
 
@@ -884,11 +883,10 @@ inline void ValidateViscousFluxView( const ViscousFluxView & view )
         throw std::invalid_argument(
             "viscous flux view requires face geometry and connectivity" );
     }
-    if ( view.faceFlux == nullptr || view.faceFluxStride < view.nEquations )
+    if ( view.faceFlux == nullptr || view.faceFluxStride < view.nFaces )
     {
         throw std::invalid_argument(
-            "viscous flux view requires an output buffer of at least nEquations "
-            "stride" );
+            "viscous flux view requires an output buffer with stride at least nFaces" );
     }
 }
 

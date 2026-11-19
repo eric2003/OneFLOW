@@ -8,6 +8,7 @@
 
 - [ ] **B.3.1 验证粘性通量布局和写回**（Implemented, unverified）
   - [x] `aada33da2` 将设备输出 stride 改为 `nFaces`，按连续方程平面写回求解器字段。
+  - [x] 共享 view 校验要求 stride ≥ nFaces；契约测试覆盖紧凑布局和重叠布局（15/15）。
   - [x] CPU 粘性策略通过 24/24；本地 CPU 全量构建通过，CTest 1,367/1,374，7 项在 macOS 的 system 目录定位处失败。
   - [ ] 构建准确提交的 HIP 二进制，在单 rank、单卡的 M6 开启 `ONEFLOW_ENABLE_UNS_HIP_VISFLUX` 和 `ONEFLOW_VISCOUS_SELFCHECK`，确认 hook 命中及两侧输入时间层相同。对写回字段检查有限值，记录首次差异步、面、方程和对应输入。
 - [ ] **B.3.2 复验 M6 气动力**（Blocked，等 B.3.1）

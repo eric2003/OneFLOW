@@ -231,9 +231,13 @@ TEST( AccelViewsContract, ValidatesViscousFluxViewFieldByField )
             << "expected rejection when " << testCase.what << " is missing";
     }
 
-    // A short output buffer is as dangerous as a missing input.
+    ViscousFluxView compact = CompleteViscousView();
+    compact.faceFluxStride = compact.nFaces;
+    EXPECT_NO_THROW( ValidateViscousFluxView( compact ) );
+
     ViscousFluxView shortStride = CompleteViscousView();
-    shortStride.faceFluxStride = shortStride.nEquations - 1;
+    shortStride.nFaces = shortStride.nEquations + 1;
+    shortStride.faceFluxStride = shortStride.nEquations;
     EXPECT_THROW( ValidateViscousFluxView( shortStride ),
                   std::invalid_argument );
 }

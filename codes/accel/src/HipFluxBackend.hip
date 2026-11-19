@@ -3015,12 +3015,6 @@ void HipFluxBackend::CalcViscousFaceFlux(
         throw std::invalid_argument(
             "HIP viscous flux: wall face count is out of range" );
     }
-    if ( view.faceFluxStride < view.nEquations )
-    {
-        throw std::invalid_argument(
-            "HIP viscous flux: output stride is shorter than the equation "
-            "count" );
-    }
     // ValidateViscousFluxView deliberately stops at the fields every execution
     // space needs; the cell-centre coordinates are only read by the face
     // construction here (corrected gradient direction), and a null one would
@@ -3284,10 +3278,7 @@ void HipFluxBackend::CalcViscousFaceFlux(
             static_cast< std::size_t >( view.nWallFaces ) );
     }
 
-    // The kernel writes equation-major with the caller's stride, i.e. the
-    // highest index is ( nEquations - 1 ) * stride + ( nFaces - 1 ).  Sizing by
-    // stride * nFaces is only correct when stride == nEquations; for a wider
-    // stride it under-allocates and the last planes land outside the buffer.
+    // Allocate through the last face of the last equation plane.
     viscousFaceFlux_.Resize(
         static_cast< std::size_t >( nEq - 1 ) * view.faceFluxStride
         + static_cast< std::size_t >( nFaces ) );
@@ -3359,8 +3350,7 @@ void HipFluxBackend::CalcViscousFaceFlux(
     }
 
     { ScopedStageTimer timer( "v_download" );
-    // Copy only the nFaces columns of each equation plane: the caller's stride
-    // may exceed nEquations, and a whole-plane copy would overrun its buffer.
+    // Copy the nFaces values in each equation plane, leaving padding untouched.
     for ( int eq = 0; eq < nEq; ++ eq )
     {
         AccelRuntime::Instance().Backend().Copy(
