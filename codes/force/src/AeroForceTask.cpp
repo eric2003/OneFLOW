@@ -58,6 +58,8 @@ License
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <fstream>
+#include <cstdlib>
 
 
 BeginNameSpace( ONEFLOW )
@@ -400,6 +402,30 @@ void CalcAeroForce(int idump_pres)
 					CorrectGrad((*q)[IDX::IW][lc], (*q)[IDX::IW][rc], stress.dwdx, stress.dwdy, stress.dwdz, dx, dy, dz, ods);
 
 					stress.viscosity = (*visl)[0][lc];
+
+					{
+						const char * wf =
+							std::getenv( "ONEFLOW_WALL_FORCE_PROBE" );
+						static std::ofstream wout;
+						if ( wf != nullptr && ! wout.is_open() )
+						{
+							wout.open( wf, std::ios::out );
+						}
+						if ( wout.is_open() )
+						{
+							wout << fId << ' ' << lc << ' ' << rc;
+							wout << ' ' << (*q)[IDX::IU][lc] << ' ' << (*q)[IDX::IU][rc];
+							wout << ' ' << (*q)[IDX::IV][lc] << ' ' << (*q)[IDX::IV][rc];
+							wout << ' ' << (*q)[IDX::IW][lc] << ' ' << (*q)[IDX::IW][rc];
+							wout << ' ' << stress.dudx << ' ' << stress.dudy << ' ' << stress.dudz;
+							wout << ' ' << stress.dvdx << ' ' << stress.dvdy << ' ' << stress.dvdz;
+							wout << ' ' << stress.dwdx << ' ' << stress.dwdy << ' ' << stress.dwdz;
+							wout << ' ' << stress.viscosity;
+							wout << ' ' << stress.fanx << ' ' << stress.fany << ' ' << stress.fanz;
+							wout << ' ' << stress.area << ' ' << stress.orey;
+							wout << '\n';
+						}
+					}
 
 					stress.CalcForce(&aeroForce.vis);
 				}

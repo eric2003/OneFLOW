@@ -3343,7 +3343,7 @@ void HipFluxBackend::CalcViscousFaceFlux(
     {
         std::vector< Real > host( static_cast< std::size_t >( 5 ) * nFaces );
         probeBuffer.CopyToHost( host.data(), host.size() );
-        std::ofstream out( probePath, std::ios::app );
+        std::ofstream out( probePath, std::ios::out );
         if ( out )
         {
             for ( int face = 0; face < nFaces; ++ face )

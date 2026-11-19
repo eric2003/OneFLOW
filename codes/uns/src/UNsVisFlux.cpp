@@ -55,6 +55,7 @@ License
 #include <vector>
 #include <cstdlib>
 #include <fstream>
+#include <cmath>
 
 
 
@@ -121,9 +122,85 @@ void UNsVisFlux::CalcFlux()
     // One device face loop when the feature is enabled and the resident state is
     // bound; otherwise the unchanged host per-face loop below.  The choice is
     // made here, before either path produces output.
-    if ( ! this->CalcVisFluxHip() )
+    //
+    // ONEFLOW_VISCOUS_SELFCHECK makes the device arm compute BOTH: the kernel
+    // result is kept, the host loop then runs on the same state, and the two are
+    // diffed in place.  Comparing two separate runs cannot answer this - once
+    // the viscous flux differs the flow fields diverge and by the time you
+    // compare, the inputs differ too.  This compares the two implementations on
+    // identical inputs.
+    const bool deviceRan = this->CalcVisFluxHip();
+    if ( ! deviceRan )
     {
         this->CalcVisFlux();
+    }
+    else
+    {
+        const char * selfCheck =
+            std::getenv( "ONEFLOW_VISCOUS_SELFCHECK" );
+        if ( selfCheck != nullptr && selfCheck[ 0 ] != '0' )
+        {
+            MRField deviceFlux = * visflux;
+            this->CalcVisFlux();
+            const int reportFaces = 4;
+            long differing = 0;
+            Real worstRel = 0.0;
+            int worstFace = -1, worstEq = -1;
+            for ( int fId = 0; fId < ug.nFaces; ++ fId )
+            {
+                Real scale = 0.0;
+                for ( int eq = 0; eq < nscom.nEqu; ++ eq )
+                {
+                    const Real a = deviceFlux[ eq ][ fId ];
+                    const Real b = ( * visflux )[ eq ][ fId ];
+                    const Real m = std::fabs( a ) > std::fabs( b )
+                        ? std::fabs( a ) : std::fabs( b );
+                    if ( m > scale ) scale = m;
+                }
+                if ( scale == 0.0 ) continue;
+                bool any = false;
+                for ( int eq = 0; eq < nscom.nEqu; ++ eq )
+                {
+                    const Real a = deviceFlux[ eq ][ fId ];
+                    const Real b = ( * visflux )[ eq ][ fId ];
+                    const Real rel = std::fabs( a - b ) / scale;
+                    if ( rel > 1e-10 )
+                    {
+                        any = true;
+                        if ( rel > worstRel )
+                        {
+                            worstRel = rel;
+                            worstFace = fId;
+                            worstEq = eq;
+                        }
+                    }
+                }
+                if ( any )
+                {
+                    ++ differing;
+                    if ( differing <= reportFaces )
+                    {
+                        std::cout << "SELFCHECK face=" << fId
+                                  << ( fId < ug.nBFaces ? " (wall)" : "" )
+                                  << " device=[";
+                        for ( int eq = 0; eq < nscom.nEqu; ++ eq )
+                            std::cout << deviceFlux[ eq ][ fId ] << ' ';
+                        std::cout << "] host=[";
+                        for ( int eq = 0; eq < nscom.nEqu; ++ eq )
+                            std::cout << ( * visflux )[ eq ][ fId ] << ' ';
+                        std::cout << "]" << std::endl;
+                    }
+                }
+            }
+            std::cout << "SELFCHECK differing_faces=" << differing
+                      << " of " << ug.nFaces
+                      << " worst_rel=" << worstRel
+                      << " at face=" << worstFace
+                      << " eq=" << worstEq << std::endl;
+            // Keep the device result for the actual solve; the host run above
+            // was only for comparison.
+            * visflux = deviceFlux;
+        }
     }
     this->AddVisFlux();
 
@@ -145,7 +222,7 @@ void UNsVisFlux::CalcVisFlux()
     std::ofstream probeOut;
     if ( probing )
     {
-        probeOut.open( probePath, std::ios::app );
+        probeOut.open( probePath, std::ios::out );
     }
 
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
@@ -159,28 +236,19 @@ void UNsVisFlux::CalcVisFlux()
 
         this->CalcFaceVisFlux();
 
-        if ( probing && probeOut && fId < ug.nBFaces )
+        if ( probing && probeOut )
         {
-            // Boundary faces only, with the intermediates that build the flux.
-            // CD_SF comes from the wall shear, and the wall is 23040 of 896256
-            // faces - 2.6% of the field, which is why a whole-field residual
-            // comparison could not see a threefold error in it.  Dumping the
-            // stress components alongside the flux says which term diverges
-            // rather than only that the total does.
+            // Same five values the device kernel records, so the two dumps can
+            // be diffed directly.  vis.fvis holds the unscaled flux; the device
+            // records its flux after the same coefficient, so apply it here.
             const Real coeff = ViscousFaceFluxCoefficient(
                 nscom.oreynolds, gcom.farea );
-            probeOut << fId << ' ' << ug.lc << ' ' << ug.rc;
-            probeOut << ' ' << gcom.xfn << ' ' << gcom.yfn << ' ' << gcom.zfn;
-            probeOut << ' ' << gcom.farea;
-            probeOut << ' ' << nscom.visl << ' ' << nscom.vist;
-            probeOut << ' ' << vis.dudx << ' ' << vis.dudy << ' ' << vis.dudz;
-            probeOut << ' ' << vis.dvdx << ' ' << vis.dvdy << ' ' << vis.dvdz;
-            probeOut << ' ' << vis.dwdx << ' ' << vis.dwdy << ' ' << vis.dwdz;
-            probeOut << ' ' << vis.txx << ' ' << vis.tyy << ' ' << vis.tzz;
-            probeOut << ' ' << vis.txy << ' ' << vis.txz << ' ' << vis.tyz;
+            probeOut << fId;
+            probeOut << ' ' << coeff * vis.fvis[ IDX::IR ];
             probeOut << ' ' << coeff * vis.fvis[ IDX::IRU ];
             probeOut << ' ' << coeff * vis.fvis[ IDX::IRV ];
             probeOut << ' ' << coeff * vis.fvis[ IDX::IRW ];
+            probeOut << ' ' << coeff * vis.fvis[ IDX::IRE ];
             probeOut << '\n';
         }
 
@@ -298,7 +366,13 @@ bool UNsVisFlux::CalcVisFluxHip()
     // conductivity helper, so pass the same value rather than re-deriving it.
     view.specificHeatCp = nscom.const_cp;
     view.faceFlux = visfluxBuffer.data();
-    view.faceFluxStride = nEqu;
+    // The kernel writes faceFlux[ equation * faceFluxStride + face ].  With a
+    // stride of nEqu that packs five values per face, so a whole plane of one
+    // equation is not contiguous and the read-back below cannot recover it.
+    // Sizing the buffer in planes and setting the stride to nFaces makes every
+    // equation a contiguous block, which is both what the read-back expects and
+    // what makes the device buffer comparable with the host MRField.
+    view.faceFluxStride = ug.nFaces;
     // grid, not nullptr: the resident gradient state was bound under this key by
     // UNsGrad::CalcGradHip, which is what lets the kernel reuse the device-side
     // primitive state and gradient instead of re-uploading them.
@@ -321,11 +395,9 @@ bool UNsVisFlux::CalcVisFluxHip()
     {
         RealField & plane = ( * visflux )[ equation ];
         const Real * source =
-            visfluxBuffer.data() + static_cast< std::size_t >( equation );
-        for ( int face = 0; face < ug.nFaces; ++ face )
-        {
-            plane[ face ] = source[ face * nEqu ];
-        }
+            visfluxBuffer.data()
+            + static_cast< std::size_t >( equation ) * ug.nFaces;
+        std::copy( source, source + ug.nFaces, plane.data() );
     }
     return true;
 #else
