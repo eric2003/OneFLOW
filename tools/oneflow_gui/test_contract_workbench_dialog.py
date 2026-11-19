@@ -137,6 +137,23 @@ class ContractWorkbenchDialogTest(unittest.TestCase):
             ]
             self.assertTrue(any(item.startswith("Mesh Core Concepts") for item in headers))
             self.assertTrue(any(item.startswith("Interchange Formats") for item in headers))
+            self.assertTrue(any(item.startswith("Mesh Generation") for item in headers))
+            self.assertIn("mesh/stl-unit-sphere-to-gmsh", ids)
+            sphere_row = next(
+                i for i in range(dialog.contract_list.count())
+                if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole)
+                == "mesh/stl-unit-sphere-to-gmsh"
+            )
+            dialog.contract_list.setCurrentRow(sphere_row)
+            sphere_overview = dialog.overview_view.toPlainText()
+            self.assertIn("unit-sphere", sphere_overview)
+            self.assertIn("partially_verified", sphere_overview)
+            self.assertIn("generate_volume_mesh.py", sphere_overview)
+            self.assertIn("--mesh-size-min 0.10 --mesh-size-max 0.20", sphere_overview)
+            self.assertIn(
+                "Geometry reconstruction and volume creation",
+                dialog.documentation_view.toPlainText(),
+            )
             gmsh_row = next(i for i in range(dialog.contract_list.count())
                             if dialog.contract_list.item(i).data(Qt.ItemDataRole.UserRole) == "mesh/gmsh")
             dialog.contract_list.setCurrentRow(gmsh_row)

@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+from .path_utils import is_path_within, normalize_path
 from .workflow_dependencies import validate_case_dependencies
 
 
@@ -83,7 +84,7 @@ def build_case_graph_plan(
     are equally valid.
     """
     graph = validate_case_dependencies(cases)
-    base = Path(base_directory).expanduser().resolve()
+    base = normalize_path(base_directory)
     case_by_id = {case["id"]: case for case in graph.cases}
     directories = {
         case_id: _resolve_case_directory(base, case["directory"], case_id)
@@ -188,14 +189,11 @@ def build_case_graph_plan(
 
 def _resolve_case_directory(base: Path, value: str, case_id: str) -> Path:
     path = Path(value).expanduser()
-    resolved = path.resolve() if path.is_absolute() else (base / path).resolve()
-    if not path.is_absolute():
-        try:
-            resolved.relative_to(base)
-        except ValueError as error:
-            raise ValueError(
-                f"Case '{case_id}' directory must stay within the workflow base."
-            ) from error
+    resolved = normalize_path(path if path.is_absolute() else base / path)
+    if not path.is_absolute() and not is_path_within(resolved, base):
+        raise ValueError(
+            f"Case '{case_id}' directory must stay within the workflow base."
+        )
     return resolved
 
 

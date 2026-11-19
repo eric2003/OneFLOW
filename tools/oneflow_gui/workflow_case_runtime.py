@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 from typing import Mapping
 
+from .path_utils import is_path_within, normalize_path, paths_equal
 from .workflow_plan import WorkflowPlanStep
 from .workflow_runtime_overrides import apply_runtime_overrides
 
@@ -15,26 +16,27 @@ def prepare_case_directory(
     runtime_directories: Mapping[str, Path | str],
 ) -> Path:
     """Copy a case and apply artifact bindings to the staged parameter files."""
-    root = Path(run_root).expanduser().resolve()
-    source = step.directory.resolve()
+    root = normalize_path(run_root)
+    source = normalize_path(step.directory)
     runtime_directory = step.runtime_directory or Path("cases") / step.case_id
-    target = (root / runtime_directory).resolve()
-    try:
-        target.relative_to(root)
-    except ValueError as error:
-        raise ValueError("Staged case directory must stay within the run workspace.") from error
-    if source == target or source in target.parents or target in source.parents:
+    target = normalize_path(root / runtime_directory)
+    if not is_path_within(target, root):
+        raise ValueError("Staged case directory must stay within the run workspace.")
+    if (
+        paths_equal(source, target)
+        or is_path_within(source, target)
+        or is_path_within(target, source)
+    ):
         raise ValueError("Run directory must be separate from the source case tree.")
     if not source.is_dir():
         raise FileNotFoundError(f"Case directory not found: {source}")
     if target.exists():
-        # A workflow workspace may pre-create an empty runtime root (for
-        # example, the cpp/python implementation directory). Reuse only an
-        # empty directory; never merge into or overwrite existing user data.
-        if target.is_dir() and not any(target.iterdir()):
-            shutil.copytree(source, target, dirs_exist_ok=True)
-        else:
-            raise FileExistsError(f"Staged case directory already exists: {target}")
+        if not target.is_dir():
+            raise FileExistsError(f"Staged case path is not a directory: {target}")
+        # Reuse the stable validation workspace. Overlay the case template so
+        # existing output directories (which may be open in a Windows viewer)
+        # are not recursively deleted.
+        shutil.copytree(source, target, dirs_exist_ok=True)
     else:
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(source, target)
@@ -44,8 +46,8 @@ def prepare_case_directory(
         output_path = target / output.relative_path
         if output_path.is_file():
             output_path.unlink()
-        elif output_path.exists():
-            raise ValueError(f"Declared output path is not a file: {output_path}")
+        elif output_path.exists() and not output_path.is_dir():
+            raise ValueError(f"Declared output path has an unsupported type: {output_path}")
         output_path.parent.mkdir(parents=True, exist_ok=True)
         if output.parameter_file is not None and output.producer_setting is not None:
             parameter_file = target / output.parameter_file

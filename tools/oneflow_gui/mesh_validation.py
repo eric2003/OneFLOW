@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import json
 import os
 import re
 import shutil
 import sys
-from datetime import datetime, timezone
+import uuid
 from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -16,6 +17,7 @@ if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
 from grid.stl_to_gmsh.converter import inspect_msh4
+from grid.stl_to_gmsh.run_report import build_run_report, format_run_summary, stage_result, write_run_report
 from tools.oneflow_gui.user_data_paths import UserDataPaths
 from tools.oneflow_gui.workflow_graph_runner import run_case_graph
 from tools.oneflow_gui.workflow_plan import build_case_graph_plan
@@ -35,16 +37,27 @@ def _catalog(root: Path) -> dict:
     return value
 
 
+def _mesh_validation_entries(catalog: dict) -> list[dict]:
+    """Return executable mesh Cases plus explicit validation-only mesh inputs."""
+    cases = catalog.get("cases", [])
+    inputs = catalog.get("mesh_validation_inputs", [])
+    if not isinstance(cases, list) or not isinstance(inputs, list):
+        raise ValueError("Case catalog mesh validation entries must be lists.")
+    return [*cases, *inputs]
+
+
 def mesh_case_groups(
     repository_root: Path,
 ) -> tuple[tuple[str, tuple[tuple[str, str], ...]], ...]:
-    """Group supported mesh producers by spatial dimension for GUI navigation."""
-    entries = _catalog(Path(repository_root).resolve()).get("cases", [])
+    """Group mesh producers and existing-mesh profiles by spatial dimension."""
+    entries = _mesh_validation_entries(_catalog(Path(repository_root).resolve()))
     grouped: dict[int | None, list[tuple[str, str]]] = {2: [], 3: [], None: []}
     for item in entries:
         if item.get("group") != "STL to Gmsh":
             continue
-        if (item.get("execution") or {}).get("kind", "oneflow") not in {"oneflow", "python"}:
+        if item.get("mesh_validation", True) is False:
+            continue
+        if (item.get("execution") or {}).get("kind", "oneflow") not in {"oneflow", "python", "existing_mesh"}:
             continue
         dimension = item.get("dimension")
         if dimension not in (2, 3):
@@ -59,22 +72,88 @@ def mesh_case_groups(
         if grouped[dimension]
     )
     if not result:
-        raise ValueError("No supported STL-to-Gmsh Cases are registered.")
+        raise ValueError("No supported STL-to-Gmsh or existing-mesh entries are registered.")
     return result
 
 
+
+def mesh_case_group_categories(
+    repository_root: Path,
+) -> tuple[tuple[str, tuple[tuple[str, tuple[tuple[str, str], ...]], ...]], ...]:
+    """Separate generated STL-to-Gmsh Cases from pre-existing MSH inputs."""
+    catalog = _catalog(Path(repository_root).resolve())
+    entries = {
+        str(item["id"]): item
+        for item in _mesh_validation_entries(catalog)
+        if isinstance(item, dict) and "id" in item
+    }
+    result = []
+    for dimension, choices in mesh_case_groups(repository_root):
+        generated = []
+        existing = []
+        for choice in choices:
+            entry = entries.get(choice[0], {})
+            kind = (entry.get("execution") or {}).get("kind", "oneflow")
+            (existing if kind == "existing_mesh" else generated).append(choice)
+        categories = []
+        if generated:
+            categories.append(("STL to Gmsh", tuple(generated)))
+        if existing:
+            categories.append(("Existing Gmsh Mesh", tuple(existing)))
+        result.append((dimension, tuple(categories)))
+    return tuple(result)
+
 def mesh_case_choices(repository_root: Path) -> tuple[tuple[str, str], ...]:
-    """List native and Python STL-to-Gmsh producers in catalog order."""
-    entries = _catalog(Path(repository_root).resolve()).get("cases", [])
+    """List supported STL-to-Gmsh producers and existing-mesh inputs."""
+    entries = _mesh_validation_entries(_catalog(Path(repository_root).resolve()))
     choices = tuple(
         (str(item["id"]), str(item.get("title", item["id"])))
         for item in entries
         if item.get("group") == "STL to Gmsh"
-        and (item.get("execution") or {}).get("kind", "oneflow") in {"oneflow", "python"}
+        and item.get("mesh_validation", True) is not False
+        and (item.get("execution") or {}).get("kind", "oneflow") in {"oneflow", "python", "existing_mesh"}
     )
     if not choices:
         raise ValueError("No supported STL-to-Gmsh Cases are registered.")
     return choices
+
+
+def existing_mesh_case_paths(
+    repository_root: Path, mesh_case_id: str,
+) -> tuple[Path, Path] | None:
+    """Resolve a catalog-declared generated mesh below the user's mesh workspace."""
+    catalog = _catalog(Path(repository_root).resolve())
+    mesh = next((item for item in _mesh_validation_entries(catalog) if item.get("id") == mesh_case_id), None)
+    if mesh is None:
+        raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
+    execution = mesh.get("execution") or {}
+    if execution.get("kind") != "existing_mesh":
+        return None
+
+    project_name = execution.get("project_directory")
+    mesh_value = execution.get("mesh_file")
+    if not isinstance(project_name, str) or not isinstance(mesh_value, str):
+        raise ValueError(f"Existing-mesh Case {mesh_case_id!r} must declare its project and mesh path.")
+    project_relative = Path(project_name)
+    mesh_relative = Path(mesh_value)
+    if (
+        project_relative.is_absolute() or not project_relative.parts
+        or ".." in project_relative.parts
+        or mesh_relative.is_absolute() or not mesh_relative.parts
+        or ".." in mesh_relative.parts
+        or mesh_relative.suffix.lower() != ".msh"
+    ):
+        raise ValueError(f"Existing-mesh paths for {mesh_case_id!r} must be safe relative .msh paths.")
+
+    workspace = UserDataPaths.discover().mesh_generation.resolve()
+    project_directory = (workspace / project_relative).resolve()
+    mesh_path = (project_directory / mesh_relative).resolve()
+    try:
+        project_directory.relative_to(workspace)
+        mesh_path.relative_to(project_directory)
+    except ValueError as error:
+        raise ValueError(f"Existing-mesh paths for {mesh_case_id!r} escape the mesh workspace.") from error
+    return mesh_path, project_directory
 
 
 def cfd_template_choices() -> tuple[tuple[str, str], ...]:
@@ -102,13 +181,28 @@ def build_mesh_validation_cases(
     """Build the current STL -> Gmsh -> CGNS -> OneFLOW -> CFD route."""
     root = Path(repository_root).resolve()
     catalog = _catalog(root)
-    mesh = next((x for x in catalog["cases"] if x.get("id") == mesh_case_id), None)
+    mesh = next((x for x in _mesh_validation_entries(catalog) if x.get("id") == mesh_case_id), None)
     if mesh is None:
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
     execution = mesh.get("execution") or {}
     implementation = execution.get("kind", "oneflow")
-    if mesh.get("group") != "STL to Gmsh" or implementation not in {"oneflow", "python"}:
-        raise ValueError(f"Case {mesh_case_id!r} is not a supported STL-to-Gmsh Case.")
+    if (
+        mesh.get("group") != "STL to Gmsh"
+        or implementation not in {"oneflow", "python", "existing_mesh"}
+    ):
+        raise ValueError(
+            f"Case {mesh_case_id!r} is not a supported Mesh-to-CFD validation entry."
+        )
+    validation_scope = mesh.get("mesh_validation", True)
+    if validation_scope is False:
+        raise ValueError(
+            f"Case {mesh_case_id!r} is not enabled for Mesh-to-CFD validation."
+        )
+    if validation_scope not in (True, "mesh_handoff", "cfd_smoke"):
+        raise ValueError(
+            f"Unsupported Mesh-to-CFD validation scope for {mesh_case_id!r}: "
+            f"{validation_scope!r}"
+        )
     template = next((x for x in _CFD_TEMPLATES if x["id"] == cfd_template_id), None)
     if template is None:
         raise ValueError(f"Unknown CFD template: {cfd_template_id!r}")
@@ -127,7 +221,7 @@ def build_mesh_validation_cases(
             or "\\" in mesh_name
         ):
             raise ValueError(
-                f"Python Case {mesh_case_id!r} must declare artifact.mesh_file "
+                f"Mesh Case {mesh_case_id!r} must declare artifact.mesh_file "
                 "as a simple .msh filename."
             )
         msh = f"results/{mesh_name}"
@@ -188,6 +282,10 @@ def build_mesh_validation_cases(
              {"id": "visual", "path": _setting(cfd_config, "visualFile")},
          ]},
     ]
+    if validation_scope == "mesh_handoff":
+        # Handoff-only entries do not have a compatible, fully specified CFD
+        # consumer contract. Validate MSH, CGNS conversion and OneFLOW ingestion.
+        return steps[:3]
     return steps
 
 
@@ -204,7 +302,7 @@ def mesh_validation_workspace(repository_root: Path, mesh_case_id: str) -> Path:
     """Return the stable user-data directory for one mesh validation Case."""
     root = Path(repository_root).resolve()
     entry = next(
-        (item for item in _catalog(root)["cases"] if item.get("id") == mesh_case_id),
+        (item for item in _mesh_validation_entries(_catalog(root)) if item.get("id") == mesh_case_id),
         None,
     )
     if entry is None:
@@ -223,8 +321,14 @@ def mesh_validation_workspace(repository_root: Path, mesh_case_id: str) -> Path:
     return UserDataPaths.discover().mesh_validation / relative_case
 
 
+def project_mesh_validation_workspace(project_directory: Path) -> Path:
+    """Return the stable validation directory belonging to one generated mesh project."""
+    project_root = _external(project_directory)
+    return project_root / "validation"
+
+
 def reset_mesh_validation_workspace(path: Path) -> Path:
-    """Clear and recreate one Case workspace without touching sibling Cases."""
+    """Clear and recreate one validation workspace without touching its mesh project."""
     workspace = _external(path)
     if workspace.is_symlink():
         raise ValueError(f"Mesh validation workspace must not be a symbolic link: {workspace}")
@@ -234,12 +338,62 @@ def reset_mesh_validation_workspace(path: Path) -> Path:
     return workspace
 
 
+def create_mesh_validation_run_workspace(path: Path) -> Path:
+    """Clear and recreate the validation directory before each new run."""
+    return reset_mesh_validation_workspace(path)
+
+
 def _graph_step_records(result) -> list[dict[str, str]]:
     """Serialize final graph outcomes, including artifact checks and blocked steps."""
     return [
         {"case_id": item.case_id, "status": item.status, "message": item.message}
         for item in result.cases
     ]
+
+
+def run_report_stage_rows(report: dict) -> tuple[tuple[str, str, str], ...]:
+    """Return display-ready stage rows from a shared run report."""
+    stages = report.get("stages", {})
+    if not isinstance(stages, dict):
+        raise ValueError("Run report stages must be an object.")
+    return tuple(
+        (
+            str(name),
+            str(result.get("status", "UNKNOWN")),
+            str(result.get("message", "")),
+        )
+        for name, result in stages.items()
+        if isinstance(result, dict)
+    )
+
+
+def _mesh_validation_stage_results(result, *, existing_mesh: bool = False) -> dict[str, dict]:
+    """Map workflow graph outcomes onto shared run-report states."""
+    stage_names = {
+        "stl_to_gmsh": "existing_msh_input" if existing_mesh else "mesh_generation",
+        "gmsh_to_cgns": "gmsh_to_cgns",
+        "cgns_to_oneflow": "cgns_to_oneflow",
+        "oneflow_cfd_solve": "cfd_smoke",
+    }
+    stages: dict[str, dict] = {}
+    for case in result.cases:
+        name = stage_names.get(case.case_id)
+        if name is None:
+            continue
+        status = {
+            "succeeded": "PASS", "failed": "FAIL",
+            "skipped": "NOT_RUN", "cancelled": "NOT_RUN",
+        }.get(case.status)
+        if status is None:
+            raise ValueError(f"Unsupported workflow result for {case.case_id}: {case.status!r}")
+        stages[name] = stage_result(status, case.message)
+    for name in stage_names.values():
+        stages.setdefault(name, stage_result("NOT_RUN", "Stage was not reached."))
+    stages["mesh_quality"] = stage_result(
+        "NOT_CHECKED", "No mesh-quality acceptance thresholds are applied yet.")
+    stages["cfd_accuracy"] = stage_result(
+        "NOT_CHECKED", "A runtime smoke test does not establish physical accuracy.")
+    return stages
 
 
 def _mesh_case_command(
@@ -271,42 +425,108 @@ def _mesh_case_command(
     ]
 
 
+def _validate_required_physical_groups(mesh_info: dict, mesh_entry: dict) -> None:
+    """Reject an MSH that omits declared boundary or volume Physical Groups."""
+    required = mesh_entry.get("required_physical_groups", [])
+    if not required:
+        return
+    available = {
+        (int(group.get("dimension", -1)), str(group.get("name", "")))
+        for group in mesh_info.get("physical_groups", [])
+        if isinstance(group, dict)
+    }
+    missing = []
+    for group in required:
+        if (
+            not isinstance(group, dict)
+            or not isinstance(group.get("name"), str)
+            or group.get("dimension") not in (1, 2, 3)
+        ):
+            raise ValueError("Case required_physical_groups contains an invalid declaration.")
+        key = (int(group["dimension"]), group["name"])
+        if key not in available:
+            missing.append(f"{group['name']} (dimension {group['dimension']})")
+    if missing:
+        raise ValueError(
+            "MSH is missing required Physical Groups: " + ", ".join(missing)
+        )
+
+
+def _copy_existing_mesh(source: Path, destination: Path) -> None:
+    """Copy a user-selected MSH file into an isolated workflow stage."""
+    source = source.expanduser().resolve()
+    if not source.is_file():
+        raise FileNotFoundError(f"Existing Gmsh mesh not found: {source}")
+    if source.suffix.lower() != ".msh":
+        raise ValueError(f"Existing mesh must use the .msh extension: {source}")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if source == destination.resolve():
+        raise ValueError("Existing mesh source and staged destination must differ.")
+    shutil.copy2(source, destination)
+
+
 def run_mesh_validation(
     oneflow: Path, gmsh: str, mesh_case_id: str,
     cfd_template_id: str = "laminar_flat_plate", max_steps: int = 2,
-    stage_root: Path | None = None,
+    stage_root: Path | None = None, mesh_file: Path | None = None,
+    project_directory: Path | None = None,
 ) -> int:
-    """Stage and execute the selected mesh producer, converters, and CFD Case."""
+    """Run a mesh producer or validate an existing MSH, then convert and consume it."""
     executable = oneflow.expanduser().resolve()
     if not executable.is_file():
         raise FileNotFoundError(f"OneFLOW executable not found: {executable}")
-    gmsh_path = Path(gmsh).expanduser()
-    if not gmsh_path.is_file():
-        found = shutil.which(gmsh)
-        if not found:
-            raise FileNotFoundError(f"Gmsh executable not found: {gmsh}")
-        gmsh_path = Path(found).resolve()
+    source_mesh = mesh_file.expanduser().resolve() if mesh_file is not None else None
     if max_steps < 1:
         raise ValueError("CFD smoke-test steps must be at least one.")
 
     catalog = _catalog(REPOSITORY_ROOT)
     mesh_entry = next(
-        (item for item in catalog["cases"] if item.get("id") == mesh_case_id),
+        (item for item in _mesh_validation_entries(catalog) if item.get("id") == mesh_case_id),
         None,
     )
     if mesh_entry is None:
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
     mesh_execution = mesh_entry.get("execution") or {}
-    mesh_implementation = mesh_execution.get("kind", "oneflow")
+    if source_mesh is None and mesh_execution.get("kind") == "existing_mesh":
+        existing_mesh_paths = existing_mesh_case_paths(REPOSITORY_ROOT, mesh_case_id)
+        if existing_mesh_paths is None:
+            raise ValueError(f"Existing-mesh Case {mesh_case_id!r} has no mesh path.")
+        source_mesh, default_project_directory = existing_mesh_paths
+        if project_directory is None:
+            project_directory = default_project_directory
+
+    gmsh_path = Path(gmsh).expanduser()
+    if source_mesh is None and not gmsh_path.is_file():
+        found = shutil.which(gmsh)
+        if not found:
+            raise FileNotFoundError(f"Gmsh executable not found: {gmsh}")
+        gmsh_path = Path(found).resolve()
+    mesh_implementation = (
+        "existing_mesh" if source_mesh is not None
+        else mesh_execution.get("kind", "oneflow")
+    )
+    if source_mesh is not None:
+        if not source_mesh.is_file():
+            raise FileNotFoundError(f"Existing Gmsh mesh not found: {source_mesh}")
+        if source_mesh.suffix.lower() != ".msh":
+            raise ValueError(f"Existing mesh must use the .msh extension: {source_mesh}")
+        inspect_msh4(source_mesh)
     cases = build_mesh_validation_cases(REPOSITORY_ROOT, mesh_case_id, cfd_template_id)
     plan = build_case_graph_plan(cases, REPOSITORY_ROOT)
-    run_root = _external(
-        stage_root if stage_root is not None
-        else mesh_validation_workspace(REPOSITORY_ROOT, mesh_case_id)
-    )
+    if stage_root is not None:
+        selected_stage_root = stage_root
+    elif source_mesh is not None:
+        selected_stage_root = project_mesh_validation_workspace(
+            project_directory or source_mesh.parent
+        )
+    else:
+        selected_stage_root = mesh_validation_workspace(REPOSITORY_ROOT, mesh_case_id)
+    run_root = _external(selected_stage_root)
     run_root = reset_mesh_validation_workspace(run_root)
-    run_id = run_root.name
-    os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
+    run_id = uuid.uuid4().hex
+    mesh_evidence: dict = {}
+    if gmsh_path.is_file():
+        os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
     def execute(step):
         if step.case_id == "oneflow_cfd_solve":
             layout_path = REPOSITORY_ROOT / mesh_entry["directory"] / "script/layout.json"
@@ -320,34 +540,47 @@ def run_mesh_validation(
                 "maxSteps": max_steps, "nFieldSave": 1, "nVisualSave": 1,
                 "nResSave": 1, "idump": 0,
             })
-        if step.case_id == "stl_to_gmsh":
+        if step.case_id == "stl_to_gmsh" and source_mesh is not None:
+            command = ["<copy-existing-mesh>", str(source_mesh)]
+            try:
+                relative_mesh = step.outputs[0].relative_path
+                _copy_existing_mesh(source_mesh, step.directory / relative_mesh)
+                status, message = "succeeded", f"Staged existing mesh: {source_mesh}"
+            except (OSError, ValueError) as error:
+                status, message = "failed", str(error)
+        elif step.case_id == "stl_to_gmsh":
             command = _mesh_case_command(
                 REPOSITORY_ROOT, mesh_entry, executable, gmsh_path, step.directory
             )
+            status, message = "", ""
         else:
             command = [str(executable), "r", str(step.directory)]
+            status, message = "", ""
         output: list[str] = []
         def emit(line: str) -> None:
             output.append(line)
             print(f"[{step.case_id}] {line}", flush=True)
-        try:
-            result = run_process(command, cwd=step.directory, on_output=emit,
-                                 is_cancelled=lambda: False)
-            status, message = result.status, result.message
-        except OSError as error:
-            status, message = "failed", str(error)
+        if not status:
+            try:
+                result = run_process(command, cwd=step.directory, on_output=emit,
+                                     is_cancelled=lambda: False)
+                status, message = result.status, result.message
+            except OSError as error:
+                status, message = "failed", str(error)
 
         validation = None
         if status == "succeeded" and step.case_id == "stl_to_gmsh":
             try:
                 rel = step.outputs[0].relative_path.as_posix()
                 mesh_info = inspect_msh4(step.directory / rel)
+                _validate_required_physical_groups(mesh_info, mesh_entry)
                 validation = {
                     "kind": "gmsh_msh4", "path": rel,
                     "implementation": mesh_implementation,
                     "nodes": mesh_info["nodes"], "elements": mesh_info["elements"],
                     "physical_groups": mesh_info["physical_groups"],
                 }
+                mesh_evidence.update(validation)
             except (OSError, ValueError, KeyError, RuntimeError) as error:
                 status, message = "failed", f"Gmsh MSH4 validation failed: {error}"
 
@@ -366,21 +599,43 @@ def run_mesh_validation(
         return status, message
 
     result = run_case_graph(plan, execute, run_root=run_root)
-    report = {
-        "schema": "oneflow.mesh-to-cfd-validation", "schema_version": 1,
-        "run_id": run_id, "status": result.status, "mesh_case_id": mesh_case_id,
+    stages = _mesh_validation_stage_results(
+        result, existing_mesh=mesh_implementation == "existing_mesh"
+    )
+    exit_code = 0 if result.status == "succeeded" else 130 if result.status == "cancelled" else 1
+    failed_step = next((item for item in result.cases if item.status == "failed"), None)
+    error = None
+    if failed_step is not None:
+        error = {"type": "WorkflowStageError",
+                 "message": f"{failed_step.case_id}: {failed_step.message}"}
+    elif result.status == "cancelled":
+        error = {"type": "WorkflowCancelled", "message": "The validation run was cancelled."}
+    metrics = {key: mesh_evidence[key] for key in ("nodes", "elements") if key in mesh_evidence}
+    if "physical_groups" in mesh_evidence:
+        metrics["physical_group_count"] = len(mesh_evidence["physical_groups"])
+
+    report_path = run_root / "mesh-validation-report.json"
+    report = build_run_report(
+        "Mesh-to-CFD Validation", stages, exit_code, metrics=metrics,
+        artifacts={"run_directory": str(run_root), "report": str(report_path),
+                   **({"source_mesh": str(source_mesh)} if source_mesh is not None else {})},
+        error=error,
+    )
+    report.update({
+        "legacy_schema": "oneflow.mesh-to-cfd-validation",
+        "schema_version": 1, "run_id": run_id, "mesh_case_id": mesh_case_id,
         "mesh_implementation": mesh_implementation,
+        "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
+        "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
-        "note": ("3D single-cell cube validation ends after OneFLOW grid and boundary-map handoff; it is not a CFD accuracy test." if len(cases) == 3 else "The selected CFD consumer is a runtime smoke test. For a 3-D mesh, the staged CFD template dimension is overridden to 3; the flat-plate template supplies common solver parameters only and does not establish flat-plate physics or numerical accuracy."),
+        "mesh_summary": mesh_evidence or None,
+        "note": "This report records execution and ingestion smoke checks only; it does not establish mesh-quality acceptance or CFD physical accuracy.",
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-    }
-    report_path = run_root / "mesh-validation-report.json"
-    report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n",
-                           encoding="utf-8", newline="\n")
-    print(f"Mesh-to-CFD report: {report_path}", flush=True)
-    print(f"Mesh-to-CFD status: {result.status}", flush=True)
-    return 0 if result.status == "succeeded" else 1
+    })
+    write_run_report(report_path, report)
+    print(format_run_summary(report), flush=True)
+    return exit_code
 
 
 def main() -> int:
@@ -391,11 +646,16 @@ def main() -> int:
     parser.add_argument("--cfd-template-id", default="laminar_flat_plate")
     parser.add_argument("--max-steps", type=int, default=2)
     parser.add_argument("--stage-root", type=Path)
+    parser.add_argument("--mesh-file", type=Path,
+                        help="Validate an existing MSH4 file without rerunning its producer.")
+    parser.add_argument("--project-directory", type=Path,
+                        help="Mesh project root; validation stages are written directly below its validation/ directory.")
     args = parser.parse_args()
     try:
         return run_mesh_validation(args.oneflow_executable, args.gmsh,
                                    args.mesh_case_id, args.cfd_template_id,
-                                   args.max_steps, args.stage_root)
+                                   args.max_steps, args.stage_root,
+                                   args.mesh_file, args.project_directory)
     except (OSError, ValueError, KeyError, TypeError, RuntimeError, json.JSONDecodeError) as error:
         parser.exit(2, f"Mesh-to-CFD Validation failed: {error}\n")
 

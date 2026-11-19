@@ -99,6 +99,34 @@ class ContractCatalogTest(unittest.TestCase):
             (self.repository_root / "grid" / "conversion" / "cgns_to_oneflow" / "README.md").is_file()
         )
 
+    def test_unit_sphere_to_gmsh_contract_is_grouped_and_source_backed(self) -> None:
+        summaries, issues = load_contract_catalog(self.repository_root)
+        self.assertEqual(issues, (), "\\n".join(issues))
+
+        contract = next(
+            item for item in summaries
+            if item.id == "mesh/stl-unit-sphere-to-gmsh"
+        )
+        self.assertEqual(contract.domain, "mesh")
+        self.assertEqual(contract.kind, "mesh_generation_pipeline")
+        self.assertEqual(contract.group_id, "mesh_generation")
+        self.assertEqual(contract.group_title, "Mesh Generation")
+        self.assertIn("grid/stl_to_gmsh/converter.py",
+                      contract.implementation_paths)
+        self.assertIn("codes/geometry/src/GridConversion.cpp",
+                      contract.implementation_paths)
+        self.assertIn("doc/source/stl_to_gmsh_sphere.rst",
+                      contract.documentation_paths)
+        self.assertEqual(len(contract.evidence), 3)
+        self.assertIn("grid/stl_to_gmsh/generate_volume_mesh.py", contract.implementation_paths)
+        self.assertIn("doc/source/stl_to_gmsh_commands.rst",
+                      contract.documentation_paths)
+        self.assertIn("--mesh-size-min 0.10 --mesh-size-max 0.20",
+                      contract.overview)
+        resolutions = resolve_contract_evidence(self.repository_root, contract)
+        self.assertEqual([item.status for item in resolutions],
+                         ["resolved", "resolved", "resolved"])
+
     def test_stl_native_io_contract_is_available_to_mesh_workbench(self) -> None:
         definitions, issues = load_contract_catalog(self.repository_root)
         self.assertEqual(issues, (), "\\n".join(issues))

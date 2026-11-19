@@ -100,7 +100,9 @@ typed payload and may add focused views:
        boundaries, regions, identity, orientation and quality; plus Gmsh,
        Plot3D, CGNS and future adapter semantics.
      - Grouped Mesh Knowledge catalog, topology inspector, format mapping,
-       boundary map, quality metrics and round-trip comparison.
+       boundary map, quality metrics and round-trip comparison. Mesh Generation
+       contains method-level entries such as planar STL-to-Gmsh and closed
+       unit-sphere STL-to-Gmsh volume meshing.
    * - Geometry
      - Geometric entities, CAD topology, construction history and geometry-to-mesh
        association.
@@ -195,9 +197,12 @@ retain their setup/graph views; Geometry continues to use its fixture-backed
 topology explorer. The common tab layout is a navigation milestone, not a
 claim that every domain's content has been fully populated.
 
-Remaining work is to improve domain payload coverage, especially Mesh and
-Algorithm; connect production-backed mesh evidence; enrich Runtime and
-Workflow execution evidence; and audit each tab for source-backed content.
+Mesh Knowledge now groups interchange formats separately from mesh-generation
+methods. The Mesh Generation group includes planar STL-to-Gmsh and the closed
+unit-sphere 3-D tetrahedral pipeline. Remaining work is to broaden the same
+source-backed entry pattern to the cube progression and further mesh families,
+connect production-backed mesh evidence, enrich Runtime and Workflow execution
+evidence, and audit each tab for source-backed content.
 Each new claim must distinguish implemented, declared, tested and not yet
 verified behavior.
 

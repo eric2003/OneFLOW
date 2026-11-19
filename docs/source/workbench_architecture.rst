@@ -114,7 +114,7 @@ responsibilities, domain matrix, evidence semantics and migration rules. Boundar
 Current implementation and known gaps
 --------------------------------------
 
-The implementation under ``tools/oneflow_gui`` is an optional Python/PySide6 client. ``python -m tools.oneflow_gui`` starts the home window; the C++ solver remains a separate process. The current repository contains project opening and templates, project execution in a selected source or copied location, a test command dialog, a mesh layout editor, run history, background task records, saved workflow definitions, and a separate ``.ofw`` workspace editor.
+The implementation under ``tools/oneflow_gui`` is an optional Python/PySide6 client. ``python -m tools.oneflow_gui`` starts the home window; the C++ solver remains a separate process. The current repository contains project opening and templates, project execution in a selected source or copied location, a test command dialog, a Mesh Generation hub (structured Mesh Layout Editor and direct STL-to-Gmsh volume generation), Mesh Knowledge navigation, run history, background task records, saved workflow definitions, and a separate ``.ofw`` workspace editor.
 
 The Saved Workflows dialog supports multi-directory execution through one OneFLOW process and dependency-graph execution through ``workflow_graph_runner.py``. Project runs with a ``workflow.json`` definition also use the graph runner. The ``.ofw`` editor now offers Save and Run: ``workspace_workflow_adapter.py`` converts single, sequential, and independent modes to the existing multi-directory workflow, and converts dependency cases to the graph runner format. The dependency conversion preserves ordering, failure blocking, and artifact input/output bindings. The version-2 ``.ofw`` schema migrates version-1 definitions that do not contain artifact fields. The editor exposes per-case JSON binding columns and validates artifact IDs, direct dependencies, case-relative paths, and producer parameter settings through the canonical workflow-plan builder. It opens an unsaved Saved Workflows draft; the existing workflow dialog persists its definition and run history when the user starts execution.
 
@@ -301,3 +301,44 @@ not be conflated. A code identifier is an implementation name, not a canonical
 mathematical symbol. The OneFLOW source mapping is therefore explicit and
 scoped. Bibliographic references and URLs are stored with the contract, while
 assumptions and unresolved physical interpretations remain visible caveats.
+
+Mesh Generation & Conversion Workbench
+--------------------------------------
+
+The home window exposes one Mesh Generation entry point. The hub currently
+routes to the existing structured Mesh Layout Editor, the direct STL-to-Gmsh
+volume-mesh page, and the existing Mesh domain in Contract Workbench. The layout editor remains the owner of its current layout
+specification and compiler contract; moving its navigation must not rewrite or
+weaken that behavior.
+
+The STL page is a presentation adapter for
+``grid/stl_to_gmsh/generate_volume_mesh.py``. It collects an explicit input
+STL, output path, density preset or size bounds, optional Gmsh executable and
+Physical Group names. The command preview is built from the same argument
+model used to launch ``QProcess``; process execution passes an argument list
+rather than interpolating a shell command. The displayed command is therefore
+copyable and independently reproducible. Process output and exit status remain
+visible to the user.
+
+The default output root is the user-owned ``mesh-generation`` directory under
+``UserDataPaths``, keeping generated meshes and sidecar reports out of the
+repository source tree. The Unit Sphere preset preselects the checked-in sphere fixture as a starting point; users may browse to another STL. A preset never manufactures or silently substitutes geometry. The current STL volume route
+requires a closed, connected, consistently oriented, genus-zero shell and
+creates the volume enclosed by that shell. It does not create an external-flow
+domain and does not establish mesh-quality or CFD-accuracy claims.
+
+Keep the responsibilities separate as the workbench grows:
+
+* **Presentation** owns forms, previews, command display and user feedback.
+* **Mesh task services** own parameter validation, execution lifecycle, logs,
+  output inspection and durable task records.
+* **Backend adapters** own tool-specific argument construction and result
+  interpretation (Gmsh, existing OneFLOW layout compiler, and future engines).
+* **Mesh Knowledge** links geometry concepts, algorithms, parameters, code,
+  documentation, examples and validation evidence; it is not merely a help page.
+
+The first GUI integration deliberately reuses the existing Python CLI rather
+than embedding Gmsh calls in Qt. A future task-service extraction should preserve
+this command contract and the distinction between declared capability and
+executed evidence. STL repair, mesh conversion, quality visualization and
+additional backends are future work, not implied by the current navigation.

@@ -13,8 +13,8 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tools"))
 
 from mesh_cases import load_catalog, validate_case  # noqa: E402
-from grid.stl_to_gmsh.converter import convert, inspect_msh4  # noqa: E402
-from grid.stl_to_gmsh.run_cases import NATIVE_CASES, PYTHON_CASES  # noqa: E402
+from grid.stl_to_gmsh.converter import convert, inspect_msh4, read_stl  # noqa: E402
+from grid.stl_to_gmsh.run_cases import NATIVE_CASES, PYTHON_CASES, REFINEMENT_LEVELS, SPHERE_REFINEMENT_CASES  # noqa: E402
 
 EXPECTED_IDS = {
     "stl_to_gmsh_square",
@@ -35,6 +35,10 @@ EXPECTED_IDS = {
     "stl_to_gmsh_python_cube_six_tetrahedra",
     "stl_to_gmsh_cube_automatic_tetrahedra",
     "stl_to_gmsh_python_cube_automatic_tetrahedra",
+    "stl_to_gmsh_sphere_automatic_tetrahedra",
+    "stl_to_gmsh_python_sphere_automatic_tetrahedra",
+    "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra",
+    "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
 }
 
 
@@ -65,6 +69,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             "3d/cube/single_hex/cpp": ("3d/cube/single_hex/cpp", "cube_single_hex.msh"),
             "3d/cube/six_tetrahedra/cpp": ("3d/cube/six_tetrahedra/cpp", "cube_six_tetrahedra.msh"),
             "3d/cube/automatic_tetrahedra/cpp": ("3d/cube/automatic_tetrahedra/cpp", "cube_automatic_tetrahedra.msh"),
+            "3d/prolate_spheroid/automatic_tetrahedra/cpp": ("3d/prolate_spheroid/automatic_tetrahedra/cpp", "prolate_spheroid_automatic_tetrahedra.msh"),
         })
         self.assertEqual(PYTHON_CASES, {
             "2d/square/single_quad/python": "2d/square/single_quad/python",
@@ -76,6 +81,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             "3d/cube/single_hex/python": "3d/cube/single_hex/python",
             "3d/cube/six_tetrahedra/python": "3d/cube/six_tetrahedra/python",
             "3d/cube/automatic_tetrahedra/python": "3d/cube/automatic_tetrahedra/python",
+            "3d/prolate_spheroid/automatic_tetrahedra/python": "3d/prolate_spheroid/automatic_tetrahedra/python",
         })
 
     def test_cube_cases_are_registered_and_staged_for_both_implementations(self):
@@ -148,6 +154,90 @@ class StlToGmshCaseTest(unittest.TestCase):
                 self.assertGreater(expected["mesh_minimum"]["tetrahedron_elements"], 0)
             self.assertFalse((native_dir / "results").exists())
             self.assertFalse((python_dir / "results").exists())
+
+    def test_unit_sphere_cases_are_registered_as_a_native_python_pair(self):
+        native = self.entries["stl_to_gmsh_sphere_automatic_tetrahedra"]
+        python = self.entries["stl_to_gmsh_python_sphere_automatic_tetrahedra"]
+        self.assertEqual(
+            native["directory"],
+            "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp",
+        )
+        self.assertEqual(
+            python["directory"],
+            "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python",
+        )
+        self.assertNotIn("execution", native)
+        self.assertEqual(python["execution"]["kind"], "python")
+        self.assertEqual(validate_case(ROOT, native), [])
+        self.assertEqual(validate_case(ROOT, python), [])
+        native_dir, python_dir = ROOT / native["directory"], ROOT / python["directory"]
+        self.assertEqual(
+            (native_dir / "input/model.stl").read_bytes(),
+            (python_dir / "input/model.stl").read_bytes(),
+        )
+        native_layout = json.loads(
+            (native_dir / "script/layout.json").read_text(encoding="utf-8")
+        )
+        python_layout = json.loads(
+            (python_dir / "script/layout.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(native_layout, python_layout)
+        self.assertEqual(native_layout["volume_mesh"], "closed_surface_automatic_tetrahedra")
+        self.assertEqual(native_layout["reference_geometry"]["type"], "unit_sphere")
+        self.assertEqual(native_layout["reference_geometry"]["center"], [0.0, 0.0, 0.0])
+        self.assertEqual(native_layout["reference_geometry"]["radius"], 1.0)
+        self.assertEqual(native_layout["surface_name"], "fluid_domain")
+        self.assertEqual(native_layout["boundary_name"], "wall")
+        self.assertEqual(
+            len(read_stl(native_dir / "input/model.stl")),
+            1280,
+        )
+        self.assertFalse((native_dir / "results").exists())
+        self.assertFalse((python_dir / "results").exists())
+        self.assertEqual(REFINEMENT_LEVELS, {"coarse": 0.40, "medium": 0.20, "fine": 0.10})
+        self.assertEqual(SPHERE_REFINEMENT_CASES, {
+            "cpp": "3d/sphere/automatic_tetrahedra/cpp",
+            "python": "3d/sphere/automatic_tetrahedra/python",
+        })
+
+    def test_prolate_spheroid_native_and_python_cases_share_one_geometry_contract(self):
+        native = self.entries["stl_to_gmsh_prolate_spheroid_automatic_tetrahedra"]
+        python = self.entries["stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra"]
+        self.assertEqual(
+            native["directory"],
+            "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/cpp",
+        )
+        self.assertEqual(
+            python["directory"],
+            "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python",
+        )
+        self.assertNotIn("execution", native)
+        self.assertEqual(python["execution"]["kind"], "python")
+        self.assertEqual(native["mesh_validation"], "cfd_smoke")
+        self.assertEqual(python["mesh_validation"], "cfd_smoke")
+        self.assertEqual(validate_case(ROOT, native), [])
+        self.assertEqual(validate_case(ROOT, python), [])
+        native_dir, python_dir = ROOT / native["directory"], ROOT / python["directory"]
+        self.assertEqual(
+            (native_dir / "input/model.stl").read_bytes(),
+            (python_dir / "input/model.stl").read_bytes(),
+        )
+        self.assertEqual(
+            json.loads((native_dir / "script/layout.json").read_text(encoding="utf-8")),
+            json.loads((python_dir / "script/layout.json").read_text(encoding="utf-8")),
+        )
+        self.assertEqual(len(read_stl(native_dir / "input/model.stl")), 1280)
+        layout = json.loads((native_dir / "script/layout.json").read_text(encoding="utf-8"))
+        self.assertEqual(layout["reference_geometry"]["type"], "prolate_spheroid")
+        self.assertEqual(layout["reference_geometry"]["semi_axes"], [3.0, 0.5, 0.5])
+        self.assertEqual(layout["reference_geometry"]["aspect_ratio"], 6.0)
+        self.assertEqual(layout["reference_geometry"]["volume"], 3.141592653589793)
+        grid = (native_dir / "script/grid.txt").read_text(encoding="utf-8")
+        self.assertIn('string targetGridFileName = "results/prolate_spheroid_automatic_tetrahedra.msh";', grid)
+        self.assertIn("3d/prolate_spheroid/automatic_tetrahedra/cpp", NATIVE_CASES)
+        self.assertIn("3d/prolate_spheroid/automatic_tetrahedra/python", PYTHON_CASES)
+        self.assertFalse((native_dir / "results").exists())
+        self.assertFalse((python_dir / "results").exists())
 
     def test_native_and_python_cases_are_registered_separately(self):
         self.assertEqual(set(self.entries), EXPECTED_IDS)
@@ -629,6 +719,70 @@ class StlToGmshCaseTest(unittest.TestCase):
             self.assertTrue(json.loads(
                 (staged / "results/cube_single_hex.stl-to-gmsh-report.json").read_text()
             )["validated"])
+        self.assertFalse((source / "results").exists())
+
+    def test_python_prolate_spheroid_generates_valid_tetrahedral_volume_mesh(self):
+        gmsh = shutil.which("gmsh")
+        if gmsh is None:
+            self.skipTest("Gmsh executable is not available")
+        source = ROOT / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python"
+        with tempfile.TemporaryDirectory() as temporary:
+            staged = Path(temporary) / "prolate_spheroid"
+            shutil.copytree(source, staged)
+            command = [
+                sys.executable,
+                str(ROOT / "grid/stl_to_gmsh/run_python_case.py"),
+                "--case-directory",
+                str(staged),
+                "--gmsh",
+                gmsh,
+            ]
+            result = subprocess.run(
+                command, cwd=staged, text=True, capture_output=True, check=False
+            )
+            self.assertEqual(
+                result.returncode, 0,
+                msg=result.stdout + "\n" + result.stderr,
+            )
+            mesh = inspect_msh4(
+                staged / "results/prolate_spheroid_automatic_tetrahedra.msh"
+            )
+            self.assertGreater(mesh["nodes"], 0)
+            self.assertGreater(mesh["triangle_elements"], 0)
+            self.assertGreater(mesh["tetrahedron_elements"], 0)
+            self.assertEqual(mesh["hexahedron_elements"], 0)
+            bounds = mesh["coordinate_bounds"]
+            expected_minimum = (-3.0, -0.5, -0.5)
+            expected_maximum = (3.0, 0.5, 0.5)
+            # Gmsh reconstructs parametric patches from STL triangles; the
+            # generated envelope is an approximation of the STL vertex bounds.
+            for actual, expected in zip(bounds["minimum"], expected_minimum):
+                self.assertAlmostEqual(
+                    actual, expected, delta=max(abs(expected) * 0.10, 0.02)
+                )
+            for actual, expected in zip(bounds["maximum"], expected_maximum):
+                self.assertAlmostEqual(
+                    actual, expected, delta=max(abs(expected) * 0.10, 0.02)
+                )
+            extents = [
+                upper - lower
+                for lower, upper in zip(bounds["minimum"], bounds["maximum"])
+            ]
+            aspect_ratio = extents[0] / max(extents[1], extents[2])
+            self.assertGreater(aspect_ratio, 5.0)
+            self.assertLess(aspect_ratio, 7.0)
+            groups = {
+                (item["dimension"], item["name"])
+                for item in mesh["physical_groups"]
+            }
+            self.assertEqual(groups, {(2, "wall"), (3, "fluid_domain")})
+            report = json.loads(
+                (
+                    staged / "results/prolate_spheroid_automatic_tetrahedra"
+                    ".stl-to-gmsh-report.json"
+                ).read_text(encoding="utf-8")
+            )
+            self.assertTrue(report["validated"])
         self.assertFalse((source / "results").exists())
 
 if __name__ == "__main__":

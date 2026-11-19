@@ -146,6 +146,10 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_python_cube_six_tetrahedra",
             "stl_to_gmsh_cube_automatic_tetrahedra",
             "stl_to_gmsh_python_cube_automatic_tetrahedra",
+            "stl_to_gmsh_sphere_automatic_tetrahedra",
+            "stl_to_gmsh_python_sphere_automatic_tetrahedra",
+            "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra",
+            "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
         })
         for case_id in (
             "stl_to_gmsh_square",
@@ -157,6 +161,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_cube_single_hex",
             "stl_to_gmsh_cube_six_tetrahedra",
             "stl_to_gmsh_cube_automatic_tetrahedra",
+            "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra",
         ):
             entry = entries[case_id]
             self.assertNotIn("execution", entry)
@@ -181,6 +186,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_python_cube_single_hex",
             "stl_to_gmsh_python_cube_six_tetrahedra",
             "stl_to_gmsh_python_cube_automatic_tetrahedra",
+            "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
         ):
             entry = entries[case_id]
             self.assertEqual(entry["execution"]["kind"], "python")

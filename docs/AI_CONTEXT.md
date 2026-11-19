@@ -77,6 +77,129 @@ Measurement rules that already invalidated results once: 1000-step minimum, subt
 1.4–1.6 s startup, never compare single samples across nodes, and report weak scaling only with
 a fixed cell count per rank. Details: handoff §5 items 12–22.
 
+## 2026-11-16 continuation: resizable Mesh-to-CFD selection and 3-D cylinder input
+
+Starting `hexin` from `d29a2f5cb95b36b543fa680707335d648def1d95`.
+
+- The Mesh-to-CFD Case tree now gives the `Run` and `Mesh Case` columns
+  interactive resize handles with useful initial widths. The result tree's
+  first two columns are also resizable. The dialog starts wider, and the
+  Select all / Select none buttons use a compact 26 px height.
+- The cylinder is stored under the catalog's top-level `mesh_validation_inputs`
+  collection rather than `cases`. The general Case Catalog validator and
+  Run Development Cases therefore continue to see only executable Cases;
+  Mesh-to-CFD Validation explicitly merges the two collections for its own
+  selector and workflow lookup.
+- Added the 3-D Cylinder Internal Flow generated MSH as an explicit
+  existing-mesh validation entry. It resolves the generated file below
+  `UserDataPaths.mesh_generation/cylinder_internal_flow/results/`, not in
+  the repository source tree. The file is copied into the project's
+  `validation/` workspace before downstream processing.
+- Cylinder validation is intentionally `mesh_handoff`: MSH4 inspection
+  additionally requires `wall`, `inflow`, `outflow` (2-D) and
+  `fluid_domain` (3-D) Physical Groups, followed by Gmsh-to-CGNS conversion
+  and CGNS-to-OneFLOW ingestion. The current
+  flat-plate CFD template is not a physically compatible internal-flow
+  consumer, so this entry does not claim or run a CFD smoke test.
+- The cylinder's prior preset mapping to the prolate-spheroid Python Case was
+  incorrect; it now uses its own catalog ID. Existing-mesh paths are
+  validated as relative paths contained below the user mesh-generation root.
+- Tests cover catalog visibility, 3-D grouping, handoff stage construction,
+  output artifact naming, and user-workspace path containment.
+
+CI and GUI runtime verification are pending for this slice. In particular,
+the Qt column drag handles should be checked interactively after pulling.
+
+---
+
+## 2026-11-16 continuation: Mesh-to-CFD result panel
+
+Starting hexin HEAD: cbff9c452722e577dde6db05a822b68b1a95f56a.
+
+Added a compact result tree to Mesh-to-CFD Validation. The worker reads the
+machine-readable run report after each process exits and emits its stage
+records to the dialog. Each selected Case appears as a parent row with
+PASS/FAIL/NOT_RUN/NOT_CHECKED child rows and the stage message. The live log
+remains available separately.
+
+Added a pure report-row adapter and tests for the GUI data contract. The
+dialog still treats the subprocess exit code as authoritative for the
+overall process result; report data supplies stage-level detail.
+
+No local test or CI result is claimed until the corresponding workflow run
+for the commit is checked.
+
+---
+
+## 2026-11-16 continuation: shared conversion and Mesh-to-CFD run reports
+
+Starting hexin HEAD: f173038a364fa1443c87f52a7431ef32d36c74ad.
+
+Extended the shared oneflow.run-report version 1 envelope beyond STL-to-Gmsh:
+
+- Gmsh-to-CGNS writes a per-mesh run-report JSON, plus an explicit terminal
+  SUCCESS summary and a human Markdown heading. It distinguishes successful
+  MSH reading / CGNS writing from CGNS read-back, mesh quality, and CFD checks
+  that are not performed by this command.
+- Mesh-to-CFD Validation maps workflow graph results into the common
+  PASS/FAIL/NOT_RUN/NOT_CHECKED vocabulary and writes the same report envelope.
+  The report records mesh generation, Gmsh-to-CGNS, CGNS-to-OneFLOW, and CFD
+  smoke stages, with quality and physical accuracy left NOT_CHECKED.
+- The workflow report keeps per-step messages and metadata; the CLI prints
+  the same stage states, which are visible in the GUI's captured output.
+- Added focused Python graph-to-report tests and C++ conversion report
+  assertions. Updated the run-result contract, Mesh-to-CFD documentation,
+  and Gmsh-to-CGNS README.
+
+No claim of local execution or CI success until the new commit's tests and
+workflow results have been checked.
+
+Next action: add a compact structured result panel to Mesh Generation GUI,
+while preserving detailed logs and paths.
+
+---
+
+## 2026-11-16 continuation: human-first mesh run reports
+
+The verified starting hexin HEAD was
+ebdd38891004c29c79180c3502f864213381ef67.
+
+Implemented the first adapter of a versioned run-result contract for
+grid/stl_to_gmsh/generate_volume_mesh.py:
+
+- concise terminal verdict and stage results instead of dumping the full JSON;
+- explicit PASS, FAIL, NOT_RUN, and NOT_CHECKED stage states;
+- process status and exit code in the JSON report;
+- failure reports with the failed stage and actionable error text;
+- stale report invalidation before each run and atomic report replacement;
+- preserve the legacy validated and mesh detail fields for compatibility;
+- explicitly mark tetrahedron mesh-quality acceptance as NOT_CHECKED.
+
+Added the run-result contract document and focused success/failure tests.
+The Python tooling workflow runs the new test on Linux and Windows. This
+record describes implementation scope; test and CI outcomes must be updated
+only after checking the exact resulting commit.
+
+Changed files:
+- grid/stl_to_gmsh/run_report.py (new)
+- grid/stl_to_gmsh/generate_volume_mesh.py
+- grid/tests/python/stl_to_gmsh/test_run_report.py (new)
+- .github/workflows/python-tools.yml
+- grid/stl_to_gmsh/README.md
+- docs/source/run_result_reporting.rst (new)
+- docs/source/index.rst
+- docs/reports/README.md
+- docs/AI_CONTEXT.md
+
+Focused validation:
+python -m unittest grid.tests.python.stl_to_gmsh.test_run_report
+and the existing STL-to-Gmsh Python suites. CI status for the resulting
+commit must be checked before claiming platform validation.
+
+Next action: apply the same envelope to Gmsh-to-CGNS and Mesh-to-CFD
+Validation, keeping mesh-quality and physical-validation claims distinct
+from successful conversion execution.
+
 ---
 
 ## 2026-11-07 continuation: mesh boundary algorithm note and contract references
@@ -99,9 +222,9 @@ Priority-1 follow-through after the conversion-boundary subsection:
 
 Changed files:
 
-- `doc/source/mesh_architecture.rst`
+- `docs/source/mesh_architecture.rst`
 - `tools/verification/contracts/mesh/unstructured-cgns-writer.json`
-- `doc/AI_CONTEXT.md`
+- `docs/AI_CONTEXT.md`
 
 No C++ behavior change. Focused check: confirm JSON still loads in the
 contract catalog if convenient.
@@ -125,7 +248,7 @@ Priority-1 consolidation: document the shared unstructured mesh conversion
 boundary as a stable architectural contract so further Gmsh/SU2/CGNS local
 work does not drift into ad-hoc coupling.
 
-Added a dedicated subsection in `doc/source/mesh_architecture.rst`:
+Added a dedicated subsection in `docs/source/mesh_architecture.rst`:
 
 - boundary statement (format identity ≠ internal mesh model);
 - ownership table (readers / staging / writer / Plot3D / BC map);
@@ -134,16 +257,16 @@ Added a dedicated subsection in `doc/source/mesh_architecture.rst`:
 - pointer to the machine-readable contract and architecture tests;
 - external references (CGNS SIDS, Gmsh MSH, VTK cell types as staging only).
 
-`doc/source/grid_conversion_cases.rst` now points Case authors at that
+`docs/source/grid_conversion_cases.rst` now points Case authors at that
 subsection so runnable Cases exercise the boundary without redefining it.
 
 No C++ or Python executable behavior was changed in this slice.
 
 Changed files:
 
-- `doc/source/mesh_architecture.rst`
-- `doc/source/grid_conversion_cases.rst`
-- `doc/AI_CONTEXT.md`
+- `docs/source/mesh_architecture.rst`
+- `docs/source/grid_conversion_cases.rst`
+- `docs/AI_CONTEXT.md`
 
 Focused validation: Sphinx build of the mesh pages if available; no new
 unittest module is required for pure documentation.
@@ -187,7 +310,7 @@ Changed files:
 - `tools/oneflow_gui/test_case_contract_run.py` (new)
 - `tools/oneflow_gui/test_contract_workbench_dialog.py`
 - `tools/oneflow_gui/test_runner.py`
-- `doc/AI_CONTEXT.md`
+- `docs/AI_CONTEXT.md`
 
 Focused validation required:
 
@@ -245,7 +368,7 @@ Changed files:
 - `tools/oneflow_gui/execution_capture.py`
 - `tools/oneflow_gui/test_case_execution_capture.py` (new)
 - `tools/oneflow_gui/test_runner.py` (register Case execution evidence tests)
-- `doc/AI_CONTEXT.md`
+- `docs/AI_CONTEXT.md`
 
 Focused validation required:
 
@@ -305,8 +428,8 @@ Changed files:
 - `tools/oneflow_gui/test_test_inventory.py`
 - `tools/oneflow_gui/test_runner.py` (explicit Python unittest registry)
 - `.github/workflows/python-tools.yml`
-- `doc/plans/verification-contract-workbench.md`
-- `doc/source/workbench_architecture.rst`
+- `docs/plans/verification-contract-workbench.md`
+- `docs/source/workbench_architecture.rst`
 - `tools/verification/README.md`
 
 Focused validation required:
@@ -358,8 +481,8 @@ Changed files:
 - `tools/oneflow_gui/contract_workbench_dialog.py`
 - `tools/oneflow_gui/test_contract_workbench_dialog.py`
 - `tools/oneflow_gui/test_test_inventory.py`
-- `doc/plans/verification-contract-workbench.md`
-- `doc/source/workbench_architecture.rst`
+- `docs/plans/verification-contract-workbench.md`
+- `docs/source/workbench_architecture.rst`
 
 Focused validation required:
 `python -m unittest tools.verification.test_contract_catalog`
@@ -423,7 +546,7 @@ is implemented and scientifically reviewed.
 Documentation updated:
 - `tools/verification/README.md`
 - `test/README.md`
-- `doc/plans/verification-contract-workbench.md`
+- `docs/plans/verification-contract-workbench.md`
 
 Important commits in this slice:
 - typed payload: `253c51948cf94e88f96ca71deb68795a1574e043`
@@ -468,7 +591,7 @@ Implemented the first declared Runtime contract:
 - `tools/verification/test_contract_catalog.py`: tests the declared runtime
   contract, schema-version rejection, evidence status, and reference validity.
 - `tools/verification/README.md` and
-  `doc/plans/verification-contract-workbench.md` describe the vertical slice.
+  `docs/plans/verification-contract-workbench.md` describe the vertical slice.
 
 The runtime contract links exact production implementation paths and three
 GoogleTest declarations. They remain `linked_not_executed`; catalog loading
@@ -514,7 +637,7 @@ It injects a retryable backend under the HIP backend kind, forces the first
 lifecycle remains Active and the backend remains initialized. A second
 finalization succeeds and commits the lifecycle transition.
 
-Design record: `doc/plans/accelerator-runtime-shutdown-order.md`, section 8.
+Design record: `docs/plans/accelerator-runtime-shutdown-order.md`, section 8.
 Implementation commit: `5e38b60444c6090e372a77326e987bfdad4da99d`.
 Documentation commit: `f111469cac3458701f9a1a2a2e9ef4902db6d75e`.
 
@@ -677,9 +800,9 @@ System-level reason: case configuration now has a strong failure boundary indepe
 
 R1 remains **Partial**. The production integration target exercises the real `SimuImp::RunCase() -> PostProcess() -> TeardownCase()` wiring after a setup failure. A new success-path integration test is now implemented but unverified: it runs two separate `SimuImp` cases through the production `RunCasesWithProcessLifecycle()` orchestration, overrides `ToyModel` with a marker task, and checks case-state cleanup plus process-runtime continuity between cases. Remaining gaps are injected failures at individual solver/device release points, multi-rank MPI behavior, and representative full CFD regressions. The shared `OneFLOW_RuntimeObjects` CMake object collection now lets the executable and integration target consume the same production translation units without creating a static-library boundary. Do not substitute fake teardown and call it end-to-end.
 
-The earlier investigation record remains `doc/plans/setup-case-environment-integration-test.md`. Its original findings are historical; this handoff and `doc/source/runtime_architecture.rst` record the newer rollback behavior.
+The earlier investigation record remains `docs/plans/setup-case-environment-integration-test.md`. Its original findings are historical; this handoff and `docs/source/runtime_architecture.rst` record the newer rollback behavior.
 
-Next single action: build and run the focused production lifecycle integration target on the exact latest commit, then run the full Debug CTest suite and representative grid/CFD regressions. If those pass, update the R1 evidence; keep teardown fault injection and multi-rank MPI as explicit remaining gaps. Detailed findings are in `doc/plans/setup-case-environment-integration-test.md`.
+Next single action: build and run the focused production lifecycle integration target on the exact latest commit, then run the full Debug CTest suite and representative grid/CFD regressions. If those pass, update the R1 evidence; keep teardown fault injection and multi-rank MPI as explicit remaining gaps. Detailed findings are in `docs/plans/setup-case-environment-integration-test.md`.
 ## Previous follow-on: accelerator buffer ownership
 
 The latest branch focus has moved to accelerator resource reliability after the recent
@@ -735,8 +858,8 @@ Source and tests:
 - `tests/io/control_configuration_ingestion_test.cpp`
 - `tests/main/simu_case_lifecycle_test.cpp`
 - `tests/main/simu_imp_case_lifecycle_integration_test.cpp`
-- `doc/source/runtime_architecture.rst`
-- `doc/plans/runtime-refactoring-roadmap.md`
+- `docs/source/runtime_architecture.rst`
+- `docs/plans/runtime-refactoring-roadmap.md`
 
 Verified contracts:
 - Case setup publishes readiness only after the complete production bootstrap succeeds.
@@ -753,7 +876,7 @@ Verified by production-linked integration: a real setup failure through `SimuImp
 4. If successful, update R1 evidence; then investigate teardown fault injection at concrete solver/device release points.
 5. Keep multi-rank MPI validation as a separate acceptance item and reassess R1 status only against the required evidence.
 
-Suggested next mainline: validate production sequential-case isolation, then close the remaining concrete cleanup-failure and MPI gaps—not another generic lifecycle helper or unrelated local refactor. The whole-project investment ranking is documented in `doc/source/architecture_priority_roadmap.rst`.
+Suggested next mainline: validate production sequential-case isolation, then close the remaining concrete cleanup-failure and MPI gaps—not another generic lifecycle helper or unrelated local refactor. The whole-project investment ranking is documented in `docs/source/architecture_priority_roadmap.rst`.
 ## 6. Status vocabulary
 
 Use these labels consistently in this page and related records:
@@ -792,10 +915,10 @@ When starting a new AI session, first compare the current `hexin` HEAD with the 
 
 ## Evolutionary architecture
 
-The new design page `doc/source/evolutionary_computation_architecture.rst` defines the long-term target: small computation units with explicit typed ports, preconditions/postconditions, side effects, lifecycle, failure policy, provenance, and verification evidence. The JSON Schema starter is `doc/specs/computation-unit.schema.json`. Both are proposals; no general plugin ABI or automatic pipeline runtime is claimed. The intended sequence is configuration ingestion first, then mesh/topology/boundary/result intermediate representations, and only later composable solver pipelines if real use cases justify them.
+The new design page `docs/source/evolutionary_computation_architecture.rst` defines the long-term target: small computation units with explicit typed ports, preconditions/postconditions, side effects, lifecycle, failure policy, provenance, and verification evidence. The JSON Schema starter is `docs/specs/computation-unit.schema.json`. Both are proposals; no general plugin ABI or automatic pipeline runtime is claimed. The intended sequence is configuration ingestion first, then mesh/topology/boundary/result intermediate representations, and only later composable solver pipelines if real use cases justify them.
 
 
-Latest source slice (implemented, unverified): `ReadOneFLOWScriptFile` overloads moved from `ParaFile.cpp` to `ControlScriptParser.cpp`; `GetParameterArraySize` moved to `ControlParameterResolver.cpp`. This makes the injected resolver seam in `ConfigLoader` explicit: parser tests can supply deterministic array-size resolution, while production uses the real database-backed resolver. The legacy `ParaFile.cpp` now retains inspection helpers. See `doc/plans/setup-case-environment-integration-test.md` for expected failure modes, partial-commit/transaction design question, and validation boundaries.
+Latest source slice (implemented, unverified): `ReadOneFLOWScriptFile` overloads moved from `ParaFile.cpp` to `ControlScriptParser.cpp`; `GetParameterArraySize` moved to `ControlParameterResolver.cpp`. This makes the injected resolver seam in `ConfigLoader` explicit: parser tests can supply deterministic array-size resolution, while production uses the real database-backed resolver. The legacy `ParaFile.cpp` now retains inspection helpers. See `docs/plans/setup-case-environment-integration-test.md` for expected failure modes, partial-commit/transaction design question, and validation boundaries.
 
 A focused `tests/io/control_parameter_resolver_test.cpp` and CMake target now cover literal array lengths, named lengths through the real DataBase, and missing-name failure. This is component evidence for the resolver only; full `ReadControlInfo(caseDir)` ingestion and parallel/database-dump integration remain open.
 
@@ -803,7 +926,7 @@ A focused `tests/io/control_parameter_resolver_test.cpp` and CMake target now co
 ## Architecture investment and documentation policy
 
 The ranked system-wide investment sequence is recorded in
-`doc/source/architecture_priority_roadmap.rst`: (1) runtime lifecycle and
+`docs/source/architecture_priority_roadmap.rst`: (1) runtime lifecycle and
 case isolation, (2) mesh core/topology/boundary lifecycle, (3) numerical
 algorithm verification, (4) computation-unit contracts and dataflow
 composition, (5) workflow/GUI, and (6) documentation automation. This is a
@@ -814,7 +937,7 @@ from Doxygen-compatible comments where practical. Comments should describe
 intent, units, ownership/lifetime, invariants, preconditions, postconditions,
 side effects, and failure semantics. Keep cross-file architecture, mathematical
 derivations, numerical assumptions, experimental results, diagrams, and
-reference comparisons in curated `doc/source` pages. Generated API docs
+reference comparisons in curated `docs/source` pages. Generated API docs
 complement these guides; they do not replace them.
 
 The architecture priority roadmap uses Sphinx math and text diagrams to make
@@ -826,19 +949,19 @@ planned designs as proposals rather than implemented behavior.
 
 ## Documentation structure and source-comment policy
 
-Keep `doc/plans/` separate from `doc/source/`. Plans record intended changes,
+Keep `docs/plans/` separate from `docs/source/`. Plans record intended changes,
 sequencing, acceptance criteria, risks, hypotheses, and unresolved questions.
 The Sphinx source manual records current architecture, verified contracts,
 algorithm derivations, scientific assumptions, figures, and stable design
 knowledge. Promote completed plan conclusions into the relevant source page;
 retain only useful decision history and remaining work in the plan. The policy
-and directory map are described in `doc/README.md`.
+and directory map are described in `docs/README.md`.
 
 Use Doxygen-compatible source comments for stable API contracts: purpose,
 units, ownership/lifetime, invariants, preconditions, postconditions, side
 effects, and failure semantics. Generate API reference pages from those
 comments where practical. Keep cross-file architecture, derivations, formulas,
-numerical verification, and conceptual diagrams in curated `doc/source`
+numerical verification, and conceptual diagrams in curated `docs/source`
 pages. Source-generated API documentation complements, but does not replace,
 the system and algorithm guides.
 
@@ -906,8 +1029,8 @@ This is component-level coverage for manifest discovery only. It does not
 invoke script parsing/commit, `ReadMultiScriptFiles`, parallel coordination,
 `ReadControlInfo(caseDir)`, or database dumping. R1 remains Partial. The
 architecture rationale and exact boundary are in
-`doc/plans/setup-case-environment-integration-test.md` and
-`doc/source/case_parameter_design.rst`.
+`docs/plans/setup-case-environment-integration-test.md` and
+`docs/source/case_parameter_design.rst`.
 
 Next: inspect exact-HEAD Windows/Linux CI. If the new test target builds, map
 the dependency closure from `ReadMultiScriptFiles` and
@@ -946,7 +1069,7 @@ output, sequential-case isolation, and failure cleanup.
 Documentation direction: keep source comments focused on API contracts,
 units, ownership, preconditions, postconditions, side effects, and stable
 algorithm identifiers. Keep derivations, equations, assumptions, diagrams,
-comparisons, and curated references in `doc/source`. Doxygen API output
+comparisons, and curated references in `docs/source`. Doxygen API output
 should complement Sphinx rather than replace curated theory and architecture
 pages. Prefer a small pilot on one stable module before adding Breathe or a
 larger documentation toolchain.
@@ -959,10 +1082,10 @@ user-reported evidence for the baseline, not a post-change result.
 
 The task-expression requirements have been consolidated into maintained
 specifications:
-- `doc/AI_TASK_TEMPLATE.md`: canonical English engineering task specification.
-- `doc/AI_TASK_TEMPLATE_zh_CN.md`: Chinese version for direct task preparation.
-- `doc/README.md` and `doc/README_zh_CN.md`: documentation entry points.
-- `doc/source/architecture_review.rst`: points to the task specification rather
+- `docs/AI_TASK_TEMPLATE.md`: canonical English engineering task specification.
+- `docs/AI_TASK_TEMPLATE_zh_CN.md`: Chinese version for direct task preparation.
+- `docs/README.md` and `docs/README_zh_CN.md`: documentation entry points.
+- `docs/source/architecture_review.rst`: points to the task specification rather
   than maintaining a second, partially duplicated prompt.
 
 The specification defines project context and exact base revision, observable
@@ -1025,7 +1148,7 @@ Implemented on `hexin`:
 - Changed its input to `const std::vector<std::string>&` and documented ordering plus per-file incremental commit semantics in `ParaFile.h`.
 - Added `tests/io/control_configuration_ingestion_test.cpp`: a unique temporary case with a real manifest and two scripts is read through the production manifest reader and multi-file parser, then typed values and later-file replacement are asserted against the actual global DataBase.
 - Expanded and renamed the combined CMake target to `control_configuration_test`; existing resolver/adapter tests remain included. The target links the production parser, manifest, resolver, adapter, database and low-level support files, but deliberately excludes `ControlFileReader.cpp` and its process/broadcast/dump dependencies.
-- Detailed implementation scope and limitations are recorded in `doc/plans/setup-case-environment-integration-test.md` (commit `8ef8c740fbb27e85d1ea5eb9f83950da8a2097b6`).
+- Detailed implementation scope and limitations are recorded in `docs/plans/setup-case-environment-integration-test.md` (commit `8ef8c740fbb27e85d1ea5eb9f83950da8a2097b6`).
 
 Validation status: **Implemented, unverified**. No local compiler/CTest run was available here. The 977/977 result is the pre-change baseline. This test does not cover `ReadControlInfo(caseDir)`, parallel initialization, broadcast, database diagnostic output, `SetupCaseEnvironment`, sequential-case isolation, or failure cleanup. R1 remains **Partial**. Next: inspect exact-HEAD Windows/Linux CI, resolve any CMake/link errors, request and record the user's post-change local test result, then add a separate faithful orchestration test only after its runtime dependency closure is explicit.
 
@@ -1073,7 +1196,7 @@ Changes made:
 - Documented `DataEntry`/`DataPara` ownership, borrowed lookup lifetimes, and same-key update behavior in `DataPara.h`.
 - Documented `DataBase` ownership of parameter and field registries, and mutable/const named lookup contracts in `DataBase.h`.
 - Extended the real configuration-ingestion test to exercise both mutable and const `DataBase` scalar reads.
-- Added `doc/source/database_architecture.rst` and linked it from the Sphinx index. It explains ownership, type erasure, parameter replacement, constness, field pointer registration, serialization, and the boundary between ingestion integration and full runtime integration.
+- Added `docs/source/database_architecture.rst` and linked it from the Sphinx index. It explains ownership, type erasure, parameter replacement, constness, field pointer registration, serialization, and the boundary between ingestion integration and full runtime integration.
 
 Commits in this documentation/API slice: `e1e3a231226635709156b939f686f47661268ffb`, `8504f6a5c2e85efe146823216f6b19d4ed7fef03`, `afe134cc5a5451a94341fb7b05f458aebbcb3999`, `c4b816cbd865223360f685a23ccd96dd4344d993`, `a6abebde9dc3120240ef2edf713b14a2c8ea8bc5`, `eb8590aef26e2ac0a47c9cb4ed85aa5ef5ca48ed`.
 
@@ -1107,7 +1230,7 @@ current behavior:
 Added tests for the first two failure boundaries in
 `tests/io/control_configuration_ingestion_test.cpp`, committed as
 `7c3d488665a35cd5aa293822c64ce9f8b5b91cd3`. The investigation plan was
-updated in `doc/plans/setup-case-environment-integration-test.md`, committed
+updated in `docs/plans/setup-case-environment-integration-test.md`, committed
 as `df4391a13de37950b24e3889df36eeb7dec5b65b`.
 
 The tests intentionally specify current behavior; they do not introduce
@@ -1184,7 +1307,7 @@ effective path application through that entry point, sequential-case
 isolation, and exception cleanup remain unverified. R1 remains Partial.
 
 The source-backed dependency and ownership analysis is recorded in
-`doc/plans/setup-case-environment-integration-test.md`.
+`docs/plans/setup-case-environment-integration-test.md`.
 
 Validation: no local compiler or CTest run was performed here. The user's
 981/981 result predates this slice. Inspect exact-HEAD Windows/Linux CI and
@@ -1243,7 +1366,7 @@ operation: the real `ReadControlInfo`, IO settings application, and
 production composition inside `SimuContext::SetupCaseEnvironment`, plus
 cleanup after failure at that boundary. The investigation and next extraction
 proposal are recorded in
-`doc/plans/setup-case-environment-integration-test.md`.
+`docs/plans/setup-case-environment-integration-test.md`.
 
 No source code or post-982 test result is claimed in this slice. The latest
 hexin revision for this note is recorded by its commit history; check exact
@@ -1304,8 +1427,8 @@ The current branch already contains two useful foundations:
 - Geometry Contract Workbench: `tools/geometry_workbench` and `tools/oneflow_gui/geometry_contract_dialog.py`, with editable fixture-backed scenarios. Its current stub does not execute the production geometry algorithm; keep that limitation visible.
 
 Added a discussion proposal:
-- `doc/plans/verification-contract-workbench.md`
-- Indexed from `doc/source/index.rst`.
+- `docs/plans/verification-contract-workbench.md`
+- Indexed from `docs/source/index.rst`.
 
 The proposal recommends a shared contract envelope with domain-specific typed payloads and evidence adapters. Candidate domains include numerical formulas/methods, geometry/mesh, runtime lifecycle, workflows, case regressions, I/O/configuration, and performance. Common navigation is Overview, Principle, References, Architecture, Implementation, Code, Documentation, and Verification, with optional type-specific visualizers such as Formula/Curve, Scenario, Case, Workflow Graph, Mesh View, Benchmark, and Run Artifacts.
 
@@ -1366,7 +1489,7 @@ exists on `hexin`:
   - Covers both adapters, evidence-status semantics, invalid/duplicate IDs,
     missing and escaping paths, and repository references.
 - `tools/verification/README.md` and
-  `doc/plans/verification-contract-workbench.md` describe the compatibility
+  `docs/plans/verification-contract-workbench.md` describe the compatibility
   layer and focused validation commands.
 
 Evidence semantics are deliberately conservative:
@@ -1461,7 +1584,7 @@ Changes on `hexin`:
   `tools/oneflow_gui/test_runner.py`.
 - Extended `tools/oneflow_gui/test_test_runner.py` to assert that all three
   module paths remain registered in the GUI unit-test command list.
-- Added `doc/plans/testing-architecture.md` and linked it from the Workbench
+- Added `docs/plans/testing-architecture.md` and linked it from the Workbench
   README. The document describes test-layer ownership, each module's purpose,
   discovery-versus-execution semantics, evidence limitations, and industry
   practices.
@@ -1669,7 +1792,7 @@ Implemented on `hexin`:
   navigation, and registered it as the 42nd Python command in
   `test_runner.py`.
 - Updated `tools/oneflow_gui/README.md` and the Chinese
-  `doc/source/workbench_user_guide_zh.rst`.
+  `docs/source/workbench_user_guide_zh.rst`.
 
 The new UI is a presentation layer only. It does not execute C++ tests, run CFD,
 or upgrade evidence statuses. Existing Formula and Geometry domain tools remain

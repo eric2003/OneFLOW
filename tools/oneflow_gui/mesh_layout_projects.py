@@ -5,6 +5,8 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
+from .path_utils import is_path_within, normalize_path
+
 
 TEMPLATE_PROJECTS = {
     "rectangle": "minimal_rectangle",
@@ -35,13 +37,9 @@ def ensure_template_project(
         raise ValueError(f"Unsupported mesh layout project type: {kind!r}") from error
 
     source_directory = TEMPLATE_SOURCE_DIRECTORIES.get(kind, folder_name)
-    source = (repository_root / "grid" / source_directory).resolve()
-    destination = (projects_root / folder_name).expanduser().resolve()
-    try:
-        destination.relative_to((repository_root).resolve())
-    except ValueError:
-        pass
-    else:
+    source = normalize_path(repository_root / "grid" / source_directory)
+    destination = normalize_path(projects_root / folder_name)
+    if is_path_within(destination, repository_root):
         raise ValueError("Editable mesh layout projects must be outside the OneFLOW source tree.")
 
     if destination.exists():

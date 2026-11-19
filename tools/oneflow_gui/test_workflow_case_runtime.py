@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools.oneflow_gui.path_utils import paths_equal
 from tools.oneflow_gui.workflow_case_runtime import prepare_case_directory
 from tools.oneflow_gui.workflow_plan import build_case_graph_plan
 
@@ -32,6 +33,34 @@ class WorkflowCaseRuntimeTest(unittest.TestCase):
             self.assertIn(f'string sourceGridCaseDir = "{escaped_producer_path}";', config)
             self.assertIn('string gridFileName = "results/grid.ofl";', config)
             self.assertEqual(original.read_text(encoding="utf-8"), 'string gridFileName = "grid/old.ofl";\nint maxSteps = 50;\n')
+
+    def test_reuses_existing_stage_and_preserves_open_output_directory(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "mesh" / "script").mkdir(parents=True)
+            (root / "mesh" / "script" / "grid.txt").write_text(
+                'string targetGridFileName = "results/grid.msh";\n', encoding="utf-8"
+            )
+            (root / "mesh" / "results").mkdir()
+            (root / "mesh" / "results" / "grid.msh").write_text("template", encoding="utf-8")
+            plan = build_case_graph_plan([
+                {"id": "mesh", "directory": "mesh", "outputs": [
+                    {"id": "grid", "path": "results/grid.msh",
+                     "parameter_file": "script/grid.txt", "setting": "targetGridFileName"},
+                    {"id": "visual", "path": "results/visual"},
+                ]},
+            ], root)
+            run_root = root / "validation"
+            staged_case = run_root / "cases" / "mesh"
+            open_visual = staged_case / "results" / "visual"
+            open_visual.mkdir(parents=True)
+            (open_visual / "view.dat").write_text("keep", encoding="utf-8")
+
+            prepared = prepare_case_directory(plan.steps[0], run_root, {})
+
+            self.assertTrue(paths_equal(prepared, staged_case))
+            self.assertTrue((open_visual / "view.dat").is_file())
+            self.assertFalse((staged_case / "results" / "grid.msh").exists())
 
     def test_rejects_parameter_file_traversal(self):
         with tempfile.TemporaryDirectory() as temporary:

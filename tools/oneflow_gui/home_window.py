@@ -22,7 +22,7 @@ from .application_settings import (
     workflow_editor_mode_for_run_mode,
 )
 from .configuration_dialog import ConfigurationDialog
-from .mesh_layout_dialog import MeshLayoutDialog
+from .mesh_generation_dialog import MeshGenerationDialog
 from .contract_workbench_dialog import ContractWorkbenchDialog
 from .boundary_conditions_workbench import BoundaryConditionsWorkbenchDialog
 from .repository_test_inventory_dialog import RepositoryTestInventoryDialog
@@ -92,7 +92,7 @@ class WorkbenchHomeWindow(QMainWindow):
             ("Repository Test Inventory...", self._open_test_inventory),
             ("Contract Workbench...", self._open_contract_workbench),
             ("Boundary Conditions...", self._open_boundary_conditions),
-            ("Mesh Layout Editor...", self._open_mesh_layout),
+            ("Mesh Generation...", self._open_mesh_generation),
             ("Background Tasks...", self._open_background_tasks),
             ("Runtime Environment...", self._open_runtime_environment),
             ("Configuration...", self._open_configuration),
@@ -304,8 +304,8 @@ class WorkbenchHomeWindow(QMainWindow):
         """Open the dedicated Boundary Conditions Workbench."""
         BoundaryConditionsWorkbenchDialog(self._repository_root, self).exec()
 
-    def _open_mesh_layout(self) -> None:
-        MeshLayoutDialog(self._repository_root, self).exec()
+    def _open_mesh_generation(self) -> None:
+        MeshGenerationDialog(self._repository_root, self).exec()
 
     def closeEvent(self, event) -> None:
         registry = BackgroundTaskRegistry(UserDataPaths.discover().root)

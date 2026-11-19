@@ -49,6 +49,11 @@ class UserDataPaths:
         return self.root / "workspaces"
 
     @property
+    def mesh_generation(self) -> Path:
+        """Default output root for generated meshes and their reports."""
+        return self.root / "mesh-generation"
+
+    @property
     def mesh_layout_workspace(self) -> Path:
         """Keep editable mesh specifications and generated layouts outside the repository."""
         return self.root / "mesh-layout-workspace"
@@ -83,14 +88,14 @@ class UserDataPaths:
         return self.workflow_data / "executions"
 
     @property
-    def mesh_layout_test(self) -> Path:
-        """Reusable mesh layout test workspace, refreshed for each test batch."""
-        return self.root / "mesh-layout-test"
+    def grid_development(self) -> Path:
+        """Disposable workspace for staged grid-development Cases."""
+        return self.root / "grid-development"
 
     @property
-    def grid_layout_test(self) -> Path:
-        """Fixed grid-case directory inside the mesh layout test workspace."""
-        return self.mesh_layout_test / "grid"
+    def grid_development_cases(self) -> Path:
+        """Fixed staging root for selected grid-development Cases."""
+        return self.grid_development / "cases"
 
     @property
     def mesh_validation(self) -> Path:
