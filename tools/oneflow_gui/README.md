@@ -60,7 +60,7 @@ metrics, patch facet indices and the STL SHA-256. For the cylinder, inlet and
 outlet caps close the surface geometrically but are not wall boundaries; its
 patch metadata is preserved, while region-aware Gmsh Physical Surface
 reconstruction remains a follow-up integration step. See
-doc/source/stl_geometry_generation.rst.
+docs/source/stl_geometry_generation.rst.
 
 ## Workspace files
 
@@ -477,4 +477,3 @@ Windows 8.3 short-path aliases when the filesystem provides them, symlink
 identity, and symlink-based workspace escape prevention. Platform-specific
 cases are skipped only when the operating system or filesystem does not
 support the feature being tested.
-

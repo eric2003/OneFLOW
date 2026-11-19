@@ -36,7 +36,7 @@
       },
       "provenance": {
         "kind": "generated",
-        "tutorial": "doc/source/stl_geometry_generation.rst",
+        "tutorial": "docs/source/stl_geometry_generation.rst",
         "generator": {
           "name": "oneflow_stl_geometry",
           "version": "1.0",
@@ -67,8 +67,8 @@
         }
       ],
       "tutorials": [
-        "doc/source/stl_geometry_generation.rst",
-        "doc/source/stl_to_gmsh_sphere.rst"
+        "docs/source/stl_geometry_generation.rst",
+        "docs/source/stl_to_gmsh_sphere.rst"
       ],
       "related_assets": [
         "geometry.spheroid.prolate_6_to_1"
@@ -106,7 +106,7 @@
       },
       "provenance": {
         "kind": "generated",
-        "tutorial": "doc/source/stl_geometry_generation.rst",
+        "tutorial": "docs/source/stl_geometry_generation.rst",
         "generator": {
           "name": "oneflow_stl_geometry",
           "version": "1.0",
@@ -137,8 +137,8 @@
         }
       ],
       "tutorials": [
-        "doc/source/stl_geometry_generation.rst",
-        "doc/source/stl_to_gmsh_prolate_spheroid.rst"
+        "docs/source/stl_geometry_generation.rst",
+        "docs/source/stl_to_gmsh_prolate_spheroid.rst"
       ],
       "related_assets": [
         "geometry.sphere.unit"
@@ -177,7 +177,7 @@
       },
       "provenance": {
         "kind": "generated",
-        "tutorial": "doc/source/stl_geometry_generation.rst",
+        "tutorial": "docs/source/stl_geometry_generation.rst",
         "generator": {
           "name": "oneflow_stl_geometry",
           "version": "1.0",
@@ -208,7 +208,7 @@
         }
       ],
       "tutorials": [
-        "doc/source/stl_geometry_generation.rst"
+        "docs/source/stl_geometry_generation.rst"
       ],
       "related_assets": []
     }
