@@ -17,3 +17,9 @@ without an upstream CGNS artifact it has no standalone input.
 
 The conversion preserves physical patch names and emits the boundary-region
 map separately from the native grid. Downstream CFD consumes both artifacts.
+
+When executed as part of Mesh-to-CFD Validation, the CGNS input is accompanied
+by a checksum-verified ``.geometry-lineage.json`` record. After conversion, the
+stage writes the inherited record beside the OneFLOW native grid and links it
+to the exact CGNS input checksum. These sidecars are workflow provenance
+metadata, not part of the native grid binary format.

@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# STL fixtures are byte-addressed geometry assets; never normalize line endings.
+*.stl -text

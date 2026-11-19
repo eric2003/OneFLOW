@@ -31,16 +31,18 @@ Progression
    * - ``3d/sphere/automatic_tetrahedra``
      - Gmsh-generated TETRA_4 count
      - Unit sphere, classify STL facets, reconstruct surface patches and mesh the enclosed volume.
+   * - ``3d/cylinder_internal_flow/automatic_tetrahedra``
+     - Gmsh-generated TETRA_4 count
+     - Parameterized circular cylinder; preserve separate wall, inlet-cap and outlet-cap Physical Surfaces.
 
 The cube family preserves one geometry and six independent boundary patches
 while changing only the volume-mesh strategy. The sphere adds a curved closed
-surface and one physical wall group. It does not add inlet/outlet semantics or
-CFD physics. The planned cylinder internal-flow geometry will add two closure
-caps that remain distinct inlet and outlet patches; it is not yet an
-implemented mesh Case.
+surface and one physical wall group. The cylinder adds a region-aware internal-
+flow contract: its end caps close the STL shell but remain separate inlet and
+outlet patches rather than being classified as solid wall.
 
-Both sphere implementations are selectable in the Mesh-to-CFD Validation
-Workbench. Their route continues through the 3-D OneFLOW CFD smoke stage after
+The native C++ and Python cylinder implementations are both selectable in
+the Mesh-to-CFD Validation Workbench, as are both sphere implementations. Their route continues through the 3-D OneFLOW CFD smoke stage after
 CGNS-to-OneFLOW conversion and boundary-map handoff. The staged CFD consumer
 reuses the laminar-flat-plate template for common solver parameters, while the
 mesh dimension is overridden to 3. The sphere's entire closed exterior is a
@@ -150,17 +152,18 @@ not yet covered. The sphere case validates geometry conversion and volume-mesh
 topology; it is not yet a physical CFD validation case.
 
 
-Planned cylinder internal-flow geometry
-----------------------------------------
+Internal-flow cylinder
+----------------------
 
-A future cylinder case will represent the fluid volume inside a straight
-circular pipe. Its closed STL will contain three separately identified
-patches: lateral wall, inlet cap and outlet cap. The caps close the geometric
-shell but must not be classified as solid wall boundaries. The current
-generic closed-shell import path creates one wall group, so region-aware STL
-import and Gmsh surface reconstruction are prerequisites before registering
-this Case. See :doc:`stl_geometry_generation` for the proposed construction
-and validation contract.
+The native C++ and Python reference Cases represent the fluid volume inside a
+straight circular pipe. Their geometry manifests identify the lateral wall,
+inlet cap and outlet cap by STL triangle indices. Both adapters reconstruct an
+analytic OpenCASCADE cylinder and declare `wall`, `inflow`, `outflow` and
+`fluid_domain` Physical Groups. The caps close the geometric shell; they are
+not solid wall boundaries. The C++ path validates the closed genus-zero shell,
+patch coverage, cap planes, radial wall distance and generated tetrahedral
+topology before accepting the MSH result. See :doc:`stl_geometry_generation`
+for the analytic and surface-discretization contract.
 
 6:1 prolate spheroid
 --------------------

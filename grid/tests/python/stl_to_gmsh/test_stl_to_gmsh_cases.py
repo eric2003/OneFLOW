@@ -39,6 +39,8 @@ EXPECTED_IDS = {
     "stl_to_gmsh_python_sphere_automatic_tetrahedra",
     "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra",
     "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
+    "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
+    "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
 }
 
 
@@ -70,6 +72,8 @@ class StlToGmshCaseTest(unittest.TestCase):
             "3d/cube/six_tetrahedra/cpp": ("3d/cube/six_tetrahedra/cpp", "cube_six_tetrahedra.msh"),
             "3d/cube/automatic_tetrahedra/cpp": ("3d/cube/automatic_tetrahedra/cpp", "cube_automatic_tetrahedra.msh"),
             "3d/prolate_spheroid/automatic_tetrahedra/cpp": ("3d/prolate_spheroid/automatic_tetrahedra/cpp", "prolate_spheroid_automatic_tetrahedra.msh"),
+    "3d/cylinder_internal_flow/automatic_tetrahedra/cpp": ("3d/cylinder_internal_flow/automatic_tetrahedra/cpp", "cylinder_internal_flow_automatic_tetrahedra.msh"),
+            "3d/cylinder_internal_flow/automatic_tetrahedra/cpp": ("3d/cylinder_internal_flow/automatic_tetrahedra/cpp", "cylinder_internal_flow_automatic_tetrahedra.msh"),
         })
         self.assertEqual(PYTHON_CASES, {
             "2d/square/single_quad/python": "2d/square/single_quad/python",
@@ -82,6 +86,7 @@ class StlToGmshCaseTest(unittest.TestCase):
             "3d/cube/six_tetrahedra/python": "3d/cube/six_tetrahedra/python",
             "3d/cube/automatic_tetrahedra/python": "3d/cube/automatic_tetrahedra/python",
             "3d/prolate_spheroid/automatic_tetrahedra/python": "3d/prolate_spheroid/automatic_tetrahedra/python",
+            "3d/cylinder_internal_flow/automatic_tetrahedra/python": "3d/cylinder_internal_flow/automatic_tetrahedra/python",
         })
 
     def test_cube_cases_are_registered_and_staged_for_both_implementations(self):
@@ -238,6 +243,40 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertIn("3d/prolate_spheroid/automatic_tetrahedra/python", PYTHON_CASES)
         self.assertFalse((native_dir / "results").exists())
         self.assertFalse((python_dir / "results").exists())
+
+    def test_internal_flow_cylinder_is_a_bundled_region_aware_reference_case(self):
+        case = self.entries["stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra"]
+        self.assertEqual(
+            case["directory"],
+            "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python",
+        )
+        self.assertEqual(case["execution"]["kind"], "python")
+        self.assertEqual(validate_case(ROOT, case), [])
+        case_dir = ROOT / case["directory"]
+        stl = case_dir / "input/model.stl"
+        manifest = json.loads(
+            (case_dir / "input/model.geometry.json").read_text(encoding="utf-8")
+        )
+        layout = json.loads((case_dir / "script/layout.json").read_text(encoding="utf-8"))
+        expected = json.loads((case_dir / "expected.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["asset_id"], "geometry.cylinder.internal_flow")
+        self.assertEqual(manifest["geometry"], "cylinder_internal_flow")
+        self.assertEqual(manifest["stl_sha256"], __import__("hashlib").sha256(stl.read_bytes()).hexdigest())
+        self.assertTrue(manifest["surface"]["watertight"])
+        self.assertEqual(len(read_stl(stl)), 1632)
+        self.assertEqual(layout["volume_mesh"], "cylinder_internal_flow")
+        self.assertEqual(layout["mesh_dimension"], 3)
+        self.assertEqual(layout["reference_geometry"]["radius"], 1.0)
+        self.assertEqual(layout["reference_geometry"]["length"], 4.0)
+        self.assertEqual(
+            {(item["dimension"], item["name"]) for item in expected["physical_groups"]},
+            {(2, "wall"), (2, "inflow"), (2, "outflow"), (3, "fluid_domain")},
+        )
+        self.assertFalse((case_dir / "results").exists())
+        self.assertIn(
+            "3d/cylinder_internal_flow/automatic_tetrahedra/python",
+            PYTHON_CASES,
+        )
 
     def test_native_and_python_cases_are_registered_separately(self):
         self.assertEqual(set(self.entries), EXPECTED_IDS)
@@ -783,6 +822,75 @@ class StlToGmshCaseTest(unittest.TestCase):
                 ).read_text(encoding="utf-8")
             )
             self.assertTrue(report["validated"])
+        self.assertFalse((source / "results").exists())
+
+    def test_python_internal_flow_cylinder_generates_region_aware_tetrahedral_mesh(self):
+        gmsh = shutil.which("gmsh")
+        if gmsh is None:
+            self.skipTest("Gmsh executable is not available")
+        source = (
+            ROOT / "grid/stl_to_gmsh/3d/cylinder_internal_flow"
+            / "automatic_tetrahedra/python"
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            staged = Path(temporary) / "cylinder_internal_flow"
+            shutil.copytree(source, staged)
+            command = [
+                sys.executable,
+                str(ROOT / "grid/stl_to_gmsh/run_python_case.py"),
+                "--case-directory",
+                str(staged),
+                "--gmsh",
+                gmsh,
+            ]
+            result = subprocess.run(
+                command, cwd=staged, text=True, capture_output=True, check=False
+            )
+            self.assertEqual(
+                result.returncode, 0,
+                msg=result.stdout + "\\n" + result.stderr,
+            )
+            mesh = inspect_msh4(
+                staged / "results/cylinder_internal_flow.msh"
+            )
+            self.assertGreater(mesh["nodes"], 0)
+            self.assertGreater(mesh["triangle_elements"], 0)
+            self.assertGreater(mesh["tetrahedron_elements"], 0)
+            self.assertEqual(mesh["quadrilateral_elements"], 0)
+            self.assertEqual(mesh["hexahedron_elements"], 0)
+            bounds = mesh["coordinate_bounds"]
+            for actual, expected in zip(
+                bounds["minimum"], (-2.0, -1.0, -1.0)
+            ):
+                self.assertAlmostEqual(actual, expected, delta=1.0e-8)
+            for actual, expected in zip(
+                bounds["maximum"], (2.0, 1.0, 1.0)
+            ):
+                self.assertAlmostEqual(actual, expected, delta=1.0e-8)
+            groups = {
+                (item["dimension"], item["name"])
+                for item in mesh["physical_groups"]
+            }
+            self.assertEqual(
+                groups,
+                {
+                    (2, "wall"),
+                    (2, "inflow"),
+                    (2, "outflow"),
+                    (3, "fluid_domain"),
+                },
+            )
+            report = json.loads(
+                (
+                    staged / "results/cylinder_internal_flow"
+                    ".stl-to-gmsh-report.json"
+                ).read_text(encoding="utf-8")
+            )
+            self.assertTrue(report["validated"])
+            self.assertEqual(
+                report["geometry_report"]["geometry"],
+                "cylinder_internal_flow",
+            )
         self.assertFalse((source / "results").exists())
 
 if __name__ == "__main__":

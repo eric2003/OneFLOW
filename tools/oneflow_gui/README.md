@@ -45,22 +45,27 @@ when their typed contracts have concrete repository evidence. The root
 
 ## Mesh Generation geometry library
 
-The Mesh Generation workspace exposes Generate STL Geometry separately from
-STL to Gmsh. The geometry library currently includes a unit sphere, a
-parameterized prolate spheroid, and a capped cylinder for internal-flow domain
-meshing. The GUI switches between separate Sphere, Prolate Spheroid and Cylinder
-parameter panels; each geometry owns its own analytic dimensions and surface
-resolution controls, and values are retained when switching between panels.
-Only coordinate units and output path are shared. Geometry parameters and surface
-discretization are independent of Gmsh volume mesh size. Generated binary STL files and their
-.geometry.json manifests are written under
-~/.oneflow/mesh-generation/generated_stl/<geometry-id>/ (or the equivalent
-ONEFLOW_HOME workspace). The manifest records units, parameters, topology
-metrics, patch facet indices and the STL SHA-256. For the cylinder, inlet and
-outlet caps close the surface geometrically but are not wall boundaries; its
-patch metadata is preserved, while region-aware Gmsh Physical Surface
-reconstruction remains a follow-up integration step. See
-doc/source/stl_geometry_generation.rst.
+Geometry Library is the single entry point for registered geometry assets.
+Selecting the built-in unit sphere, 6:1 prolate spheroid or internal-flow
+cylinder opens its corresponding parameter editor and deterministic STL
+generator. The standalone Generate STL Geometry navigation item has been
+removed. Definition parameters (such as radius and semi-axes) are distinct
+from representation parameters (such as surface subdivisions). Generated
+STL files and `.geometry.json` sidecars are written under
+`~/.oneflow/mesh-generation/generated_stl/<geometry-id>/` (or `ONEFLOW_HOME`).
+The sidecar binds the stable asset ID and definition hash to generator source
+and STL checksums.
+
+Geometry Library can also register non-STL files: STEP/STP, IGES/IGS, BREP,
+OBJ, PLY, XYZ, PTS, PCD and OneFLOW `.implicit.json`. These files are copied
+to `~/.oneflow/geometry-library/assets/` with a content-derived ID and SHA-256.
+This initial path is metadata-only: files are not parsed, previewed or meshed,
+and their dimensionality remains unknown until a format adapter inspects them.
+The selected source filename is retained, but upstream authoring provenance
+is not invented. Mesh-to-CFD Validation displays source STL and derived MSH
+checksums and shows historical cube source provenance as unknown.
+See `doc/source/geometry_asset_architecture.rst` and
+`doc/source/stl_geometry_generation.rst`.
 
 ## Workspace files
 
@@ -403,10 +408,11 @@ The hub routes to:
   including principles, format contracts, implementation links and evidence.
 
 A template is enabled by the `mesh_project_template` flag on a 3-D Python
-STL-to-Gmsh Case Catalog entry. The current templates are Unit Sphere and 6:1
-Prolate Spheroid. Template files are copied into a user-owned project; checked-in
-Cases remain read-only. Imported prepared directories are also copied, with
-their relative structure preserved under `source_project/`.
+STL-to-Gmsh Case Catalog entry. The current templates are Unit Sphere, 6:1
+Prolate Spheroid and Internal-flow Cylinder. Template files are copied into a
+user-owned project; checked-in Cases remain read-only. Imported prepared
+directories are also copied, with their relative structure preserved under
+`source_project/`.
 
 Each project is stored below
 `UserDataPaths.discover().mesh_generation / <project-name>` and has a
@@ -424,12 +430,17 @@ interpolation), displays merged process output, and reports the exit code. The
 command is reproducible outside the GUI. The default standalone output is under
 the user data `mesh-generation` directory, not in the source tree.
 
-The Unit Sphere and 6:1 Prolate Spheroid templates preselect their checked-in
-STL fixtures as starting geometry; the presets do not manufacture or silently
-substitute geometry. Both geometries have Native C++ Development Cases and
-independent Python reference Cases. Both are selectable in the 3-D
-Mesh-to-CFD Validation tree. The prolate spheroid has a wall-only Physical Group,
-so its current downstream run is a mesh-handoff/runtime smoke test, not an
+The Unit Sphere, 6:1 Prolate Spheroid and Internal-flow Cylinder templates
+preselect their checked-in STL fixtures as starting geometry; the presets do
+not manufacture or silently substitute geometry. The sphere and spheroid have
+Native C++ Development Cases and independent Python reference Cases. The
+cylinder currently has a Python reference Case using its region-aware analytic
+OpenCASCADE handoff, plus a dedicated existing-mesh entry in the 3-D
+Mesh-to-CFD Validation tree. Its standard 48 x 16 STL and companion manifest
+are shared with the Geometry Library and are stored under
+`grid/stl_to_gmsh/3d/cylinder_internal_flow/`. Custom cylinder variants can
+still be generated into the user workspace. The spheroid's wall-only Physical
+Group makes its downstream run a mesh-handoff/runtime smoke test, not an
 external-flow accuracy benchmark.
 
 The current volume mesher requires a closed, connected, consistently oriented,

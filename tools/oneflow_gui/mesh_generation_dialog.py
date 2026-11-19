@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import os
@@ -73,10 +74,10 @@ class MeshGenerationDialog(QDialog):
         root.addWidget(intro)
 
         geometry_library_button = QPushButton("Geometry Library...")
-        geometry_library_button.setMinimumHeight(54)
+        geometry_library_button.setMinimumHeight(64)
         geometry_library_button.setToolTip(
-            "Browse format-independent geometry assets, mathematical definitions, "
-            "provenance and available representations."
+            "Select a registered geometry asset, inspect its provenance and open "
+            "the matching parameter editor or representation workflow."
         )
         geometry_library_button.clicked.connect(self._open_geometry_library)
         root.addWidget(geometry_library_button)
@@ -112,12 +113,6 @@ class MeshGenerationDialog(QDialog):
         layout_button.clicked.connect(self._open_mesh_layout)
         root.addWidget(layout_button)
 
-        generate_stl_button = QPushButton("Generate STL Geometry")
-        generate_stl_button.setMinimumHeight(64)
-        generate_stl_button.setToolTip("Create parameterized sphere, prolate spheroid or cylinder STL surfaces from the geometry library.")
-        generate_stl_button.clicked.connect(self._open_stl_geometry)
-        root.addWidget(generate_stl_button)
-
         stl_button = QPushButton("STL to Gmsh")
         stl_button.setMinimumHeight(64)
         stl_button.setToolTip("Generate a 3-D tetrahedral volume mesh from a closed STL shell.")
@@ -142,7 +137,14 @@ class MeshGenerationDialog(QDialog):
         root.addStretch(1)
 
     def _open_geometry_library(self) -> None:
-        GeometryLibraryDialog(self._repository_root, self).exec()
+        def edit_asset(asset: dict) -> None:
+            StlGeometryDialog(
+                self._repository_root, self, asset_id=str(asset["id"])
+            ).exec()
+
+        GeometryLibraryDialog(
+            self._repository_root, self, on_edit_asset=edit_asset
+        ).exec()
 
     def _create_mesh_project(self) -> None:
         case_id = self.project_template.currentData()
@@ -219,7 +221,7 @@ class MeshGenerationDialog(QDialog):
 class StlGeometryDialog(QDialog):
     """Generate deterministic STL assets from the built-in geometry library."""
 
-    def __init__(self, repository_root: Path, parent=None) -> None:
+    def __init__(self, repository_root: Path, parent=None, *, asset_id: str | None = None) -> None:
         super().__init__(parent)
         self._repository_root = repository_root.resolve()
         self.generated_stl: Path | None = None
@@ -257,9 +259,18 @@ class StlGeometryDialog(QDialog):
         self.geometry.addItem("Sphere", "sphere")
         self.geometry.addItem("Prolate Spheroid", "prolate_spheroid")
         self.geometry.addItem("Cylinder — Internal Flow", "cylinder_internal_flow")
-        self.geometry.currentIndexChanged.connect(self._geometry_changed)
-        selector_form.addRow("Geometry library", self.geometry)
+        selector_form.addRow("Geometry asset", self.geometry)
         settings_layout.addLayout(selector_form)
+        asset_to_geometry = {
+            "geometry.sphere.unit": "sphere",
+            "geometry.spheroid.prolate_6_to_1": "prolate_spheroid",
+            "geometry.cylinder.internal_flow": "cylinder_internal_flow",
+        }
+        if asset_id is not None:
+            geometry_id = asset_to_geometry.get(asset_id)
+            if geometry_id is None:
+                raise ValueError(f"No parameter editor is registered for geometry asset {asset_id!r}.")
+            self.geometry.setCurrentIndex(self.geometry.findData(geometry_id))
 
         # Keep one widget set per geometry. Hiding inactive groups preserves
         # their independent values when the user switches between shapes.
@@ -332,6 +343,7 @@ class StlGeometryDialog(QDialog):
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.accept)
         root.addWidget(close_button)
+        self.geometry.currentIndexChanged.connect(self._geometry_changed)
         self._geometry_changed()
 
     def _default_output(self, geometry: str) -> Path:
@@ -474,6 +486,12 @@ class StlToGmshDialog(QDialog):
             project_label.setWordWrap(True)
             project_label.setStyleSheet("color: #475569;")
             root.addWidget(project_label)
+            root.addWidget(QLabel("Geometry provenance and derived artifacts"))
+            self.geometry_lineage_view = QPlainTextEdit()
+            self.geometry_lineage_view.setReadOnly(True)
+            self.geometry_lineage_view.setMaximumHeight(130)
+            root.addWidget(self.geometry_lineage_view)
+            self._refresh_geometry_lineage()
 
         form = QFormLayout()
         self.geometry_preset = QComboBox()
@@ -636,6 +654,16 @@ class StlToGmshDialog(QDialog):
 
     def _geometry_preset_paths(self, preset: str) -> tuple[Path, str, str] | None:
         """Return the bundled STL, native validation Case and Python template Case."""
+        if preset == "cylinder_internal_flow":
+            case_directory = (
+                self._repository_root / "grid" / "stl_to_gmsh" / "3d"
+                / "cylinder_internal_flow" / "automatic_tetrahedra"
+            )
+            return (
+                case_directory / "cpp" / "input" / "model.stl",
+                "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
+                "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
+            )
         if preset not in {"sphere", "prolate_spheroid"}:
             return None
         case_directory = (
@@ -658,14 +686,20 @@ class StlToGmshDialog(QDialog):
         previous = self._active_geometry_preset
         previous_output = self._geometry_default_output(previous)
         current_output = Path(self.output_path.text()).expanduser()
+        # The dialog's initial sphere output comes from generate_volume_mesh's
+        # default_output_path(), while subsequent preset defaults are resolved
+        # through UserDataPaths. Treat both as untouched defaults so switching
+        # presets also works when the user-data directory is overridden (e.g.
+        # in tests or by a configured workspace).
+        initial_default_output = Path(default_output_path()).expanduser()
+        output_is_default = (
+            current_output.resolve() == previous_output.resolve()
+            or current_output.resolve() == initial_default_output.resolve()
+        )
         definition = self._geometry_preset_paths(preset)
 
         if definition is None:
-            self._mesh_case_id = (
-                "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow"
-                if preset == "cylinder_internal_flow"
-                else "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra"
-            )
+            self._mesh_case_id = "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra"
             self._active_geometry_preset = preset
             self._refresh_command()
             return
@@ -682,6 +716,38 @@ class StlToGmshDialog(QDialog):
             )
             self.geometry_preset.blockSignals(False)
             return
+
+        if preset == "cylinder_internal_flow":
+            manifest_path = stl.with_suffix(".geometry.json")
+            try:
+                metadata = json.loads(manifest_path.read_text(encoding="utf-8"))
+                valid_asset = (
+                    metadata.get("schema") == "oneflow.stl-geometry-manifest"
+                    and metadata.get("version") == 1
+                    and metadata.get("asset_id") == "geometry.cylinder.internal_flow"
+                    and metadata.get("geometry") == "cylinder_internal_flow"
+                    and metadata.get("stl_sha256")
+                    == hashlib.sha256(stl.read_bytes()).hexdigest()
+                    and metadata.get("surface", {}).get("watertight") is True
+                    and set(metadata.get("patch_triangle_indices", {}))
+                    == {"wall", "inflow", "outflow"}
+                )
+                if not valid_asset:
+                    raise ValueError("Cylinder STL provenance or patch contract is invalid.")
+            except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as error:
+                QMessageBox.warning(
+                    self, "Invalid cylinder geometry asset",
+                    f"The standard cylinder asset or its manifest is invalid: {error}",
+                )
+                # Keep the selector and the dependent input path in sync. A
+                # failed validation must not leave the new preset displayed
+                # while the previous geometry remains selected as input.
+                self.geometry_preset.blockSignals(True)
+                self.geometry_preset.setCurrentIndex(
+                    self.geometry_preset.findData(previous)
+                )
+                self.geometry_preset.blockSignals(False)
+                return
 
         try:
             if self._project is not None:
@@ -703,7 +769,7 @@ class StlToGmshDialog(QDialog):
             else:
                 self.stl_path.setText(str(stl))
                 self._mesh_case_id = native_case_id
-                if current_output.resolve() == previous_output.resolve():
+                if output_is_default:
                     self.output_path.setText(str(self._geometry_default_output(preset)))
         except (OSError, ValueError, KeyError) as error:
             QMessageBox.warning(self, "Cannot switch geometry preset", str(error))
@@ -906,6 +972,51 @@ class StlToGmshDialog(QDialog):
             self.output_view.setTextCursor(cursor)
             self.output_view.ensureCursorVisible()
 
+    def _refresh_geometry_lineage(self) -> None:
+        if self._project is None:
+            return
+        lineage = self._project.get("geometry_lineage") or {}
+        provenance = lineage.get("provenance") or {}
+        lines = [
+            f"Provenance: {provenance.get('kind', 'unknown').upper()}",
+            str(provenance.get("notes", "No verified source record is available.")),
+        ]
+        asset_id = lineage.get("asset_id")
+        if asset_id:
+            lines.append(f"Geometry asset: {asset_id}")
+        if lineage.get("manifest_status"):
+            lines.append(f"Geometry manifest: UNTRUSTED ({lineage['manifest_status']})")
+        source = lineage.get("source_representation") or {}
+        if source:
+            lines.append(
+                f"Source STL: {source.get('path', 'unknown')} | "
+                f"SHA-256: {source.get('sha256', 'unknown')}"
+            )
+        definition_hash = lineage.get("definition_sha256")
+        if definition_hash:
+            lines.append(f"Geometry definition SHA-256: {definition_hash}")
+        generator = lineage.get("generator") or {}
+        if generator:
+            lines.append(
+                f"Generator: {generator.get('name', 'unknown')} "
+                f"{generator.get('version', '')}"
+            )
+            if generator.get("source_sha256"):
+                lines.append(f"Generator source SHA-256: {generator['source_sha256']}")
+        mesh = lineage.get("derived_mesh") or {}
+        if mesh:
+            lines.append(
+                f"Gmsh MSH: {mesh.get('path', 'unknown')} | "
+                f"SHA-256: {mesh.get('sha256', 'unknown')}"
+            )
+        for artifact in lineage.get("downstream_artifacts", []):
+            lines.append(
+                f"{artifact.get('role', 'Derived artifact')}: "
+                f"{artifact.get('path', 'unknown')} | "
+                f"SHA-256: {artifact.get('sha256', 'unknown')}"
+            )
+        self.geometry_lineage_view.setPlainText("\\n".join(lines))
+
     def _validate_current_mesh(self) -> None:
         mesh_path = Path(self.output_path.text()).expanduser().resolve()
         if not mesh_path.is_file():
@@ -924,6 +1035,12 @@ class StlToGmshDialog(QDialog):
             parent=self,
         )
         dialog.exec()
+        if self._project_directory is not None:
+            try:
+                self._project = load_mesh_project(self._project_directory)
+                self._refresh_geometry_lineage()
+            except (OSError, ValueError, KeyError) as error:
+                self.status_label.setText(f"Cannot refresh project geometry lineage: {error}")
 
     def _process_finished(self, exit_code: int, _exit_status) -> None:
         self._read_output()
@@ -931,11 +1048,21 @@ class StlToGmshDialog(QDialog):
         if exit_code == 0:
             mesh_path = Path(self.output_path.text()).expanduser()
             self.validate_button.setEnabled(mesh_path.is_file())
-            self.status_label.setText(
+            refresh_error = None
+            if self._project_directory is not None:
+                try:
+                    self._project = load_mesh_project(self._project_directory)
+                    self._refresh_geometry_lineage()
+                except (OSError, ValueError, KeyError) as error:
+                    refresh_error = str(error)
+            message = (
                 "Completed and validated. Outputs: "
                 f"{mesh_path}, {mesh_path.with_suffix('.geo')}, "
                 f"{mesh_path.with_suffix('.report.json')}"
             )
+            if refresh_error:
+                message += f" Project lineage refresh failed: {refresh_error}"
+            self.status_label.setText(message)
         else:
             self.status_label.setText(f"Generation failed (exit code {exit_code}). See execution output.")
 

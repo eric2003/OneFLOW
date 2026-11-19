@@ -48,14 +48,30 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 if item.text() == "Geometry Library..."
             )
             self.assertIsNotNone(button)
-            library = GeometryLibraryDialog(self.repository_root, dialog)
+            edited_assets = []
+            library = GeometryLibraryDialog(
+                self.repository_root, dialog, on_edit_asset=edited_assets.append
+            )
             try:
-                self.assertEqual(library.asset_list.count(), 3)
+                self.assertGreaterEqual(library.asset_list.count(), 3)
+                self.assertTrue(library.import_button.isEnabled())
+                self.assertTrue(library.edit_button.isEnabled())
                 self.assertIn("geometry.sphere.unit", library.details.toPlainText())
+                library._edit_selected_asset()
+                self.assertEqual(edited_assets[0]["id"], "geometry.sphere.unit")
                 self.assertIn("\nDefinition\n", library.details.toPlainText())
                 self.assertNotIn("\\nDefinition", library.details.toPlainText())
+                displayed = library.details.toPlainText()
+                self.assertIn("\nProvenance\n", displayed)
+                self.assertIn("\nRepresentations\n", displayed)
+                self.assertIn("\n  Kind: ", displayed)
+                self.assertIn("\n\nDefinition\n", displayed)
+                self.assertNotIn("\\n", displayed)
                 self.assertIn("analytic-equation", library.details.toPlainText())
                 library.asset_list.setCurrentRow(1)
+                self.assertEqual(edited_assets[0]["id"], "geometry.sphere.unit")
+                library._edit_selected_asset()
+                self.assertEqual(edited_assets[1]["id"], "geometry.spheroid.prolate_6_to_1")
                 self.assertIn("geometry.spheroid.prolate_6_to_1", library.details.toPlainText())
                 self.assertIn("generate_stl_geometry.py", library.details.toPlainText())
             finally:
@@ -64,7 +80,12 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 "tools.oneflow_gui.mesh_generation_dialog.GeometryLibraryDialog"
             ) as library_type:
                 dialog._open_geometry_library()
-            library_type.assert_called_once_with(self.repository_root.resolve(), dialog)
+            library_type.assert_called_once()
+            self.assertEqual(
+                library_type.call_args.args,
+                (self.repository_root.resolve(), dialog),
+            )
+            self.assertTrue(callable(library_type.call_args.kwargs["on_edit_asset"]))
             library_type.return_value.exec.assert_called_once()
         finally:
             dialog.close()
@@ -109,7 +130,8 @@ class MeshGenerationDialogTest(unittest.TestCase):
             labels = {button.text() for button in buttons}
             self.assertIn("Mesh Layout Editor", labels)
             self.assertIn("STL to Gmsh", labels)
-            self.assertIn("Generate STL Geometry", labels)
+            self.assertIn("Geometry Library...", labels)
+            self.assertNotIn("Generate STL Geometry", labels)
             self.assertIn("Mesh Knowledge", labels)
             self.assertIn("New from Template", labels)
             self.assertIn("Open Existing Project...", labels)
@@ -141,6 +163,17 @@ class MeshGenerationDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+
+    def test_geometry_library_asset_opens_matching_parameter_editor(self) -> None:
+        dialog = StlGeometryDialog(
+            self.repository_root, asset_id="geometry.cylinder.internal_flow"
+        )
+        try:
+            self.assertEqual(dialog.geometry.currentData(), "cylinder_internal_flow")
+            self.assertFalse(dialog.cylinder_group.isHidden())
+            self.assertTrue(dialog.sphere_group.isHidden())
+        finally:
+            dialog.close()
 
     def test_generate_stl_geometry_dialog_creates_cylinder_and_manifest(self) -> None:
         from types import SimpleNamespace
@@ -334,6 +367,83 @@ class MeshGenerationDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_invalid_cylinder_asset_rolls_back_preset_and_keeps_input_consistent(self) -> None:
+        dialog = StlToGmshDialog(self.repository_root)
+        try:
+            original_stl = Path(dialog.stl_path.text())
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.hashlib.sha256"
+            ) as sha256:
+                sha256.return_value.hexdigest.return_value = "invalid-checksum"
+                with patch(
+                    "tools.oneflow_gui.mesh_generation_dialog.QMessageBox.warning"
+                ):
+                    dialog.geometry_preset.setCurrentIndex(
+                        dialog.geometry_preset.findData("cylinder_internal_flow")
+                    )
+            self.assertEqual(dialog.geometry_preset.currentData(), "sphere")
+            self.assertEqual(Path(dialog.stl_path.text()), original_stl)
+            self.assertEqual(
+                dialog._mesh_case_id,
+                "stl_to_gmsh_sphere_automatic_tetrahedra",
+            )
+        finally:
+            dialog.close()
+
+    def test_cylinder_geometry_preset_uses_bundled_standard_grid_asset(self) -> None:
+        import hashlib
+        import json
+
+        dialog = StlToGmshDialog(self.repository_root)
+        try:
+            expected_stl = (
+                self.repository_root / "grid" / "stl_to_gmsh" / "3d"
+                / "cylinder_internal_flow" / "automatic_tetrahedra"
+                / "cpp" / "input" / "model.stl"
+            )
+            dialog.geometry_preset.setCurrentIndex(
+                dialog.geometry_preset.findData("cylinder_internal_flow")
+            )
+            self.assertEqual(Path(dialog.stl_path.text()), expected_stl)
+            self.assertTrue(expected_stl.is_file())
+            self.assertNotIn(".oneflow", str(expected_stl).lower())
+
+            manifest_path = expected_stl.with_suffix(".geometry.json")
+            self.assertTrue(manifest_path.is_file())
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            self.assertEqual(manifest["asset_id"], "geometry.cylinder.internal_flow")
+            self.assertEqual(manifest["geometry"], "cylinder_internal_flow")
+            self.assertEqual(
+                manifest["stl_sha256"],
+                hashlib.sha256(expected_stl.read_bytes()).hexdigest(),
+            )
+            self.assertTrue(manifest["surface"]["watertight"])
+            self.assertEqual(
+                set(manifest["patch_triangle_indices"]),
+                {"wall", "inflow", "outflow"},
+            )
+            self.assertEqual(
+                manifest["parameters"],
+                {
+                    "radius": 1,
+                    "length": 4,
+                    "circumferential_divisions": 48,
+                    "axial_divisions": 16,
+                },
+            )
+            self.assertEqual(
+                dialog._mesh_case_id,
+                "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
+            )
+            self.assertEqual(
+                Path(dialog.output_path.text()),
+                UserDataPaths.discover().mesh_generation
+                / "cylinder_internal_flow" / "cylinder_internal_flow.msh",
+            )
+            self.assertIn(str(expected_stl), dialog._command_text())
+        finally:
+            dialog.close()
+
     def test_validate_current_mesh_opens_single_mesh_validation_mode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             mesh = Path(directory) / "sphere.msh"
@@ -353,6 +463,28 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     parent=dialog,
                 )
                 dialog_type.return_value.exec.assert_called_once()
+            finally:
+                dialog.close()
+
+    def test_open_mesh_project_displays_geometry_lineage(self) -> None:
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory) / "mesh-generation"
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                project = create_mesh_project_from_template(
+                    self.repository_root,
+                    "stl_to_gmsh_python_sphere_automatic_tetrahedra",
+                    "lineage_display",
+                )
+            dialog = StlToGmshDialog(self.repository_root, project=project)
+            try:
+                displayed = dialog.geometry_lineage_view.toPlainText()
+                self.assertIn("Provenance: UNKNOWN", displayed)
+                self.assertIn("Source STL:", displayed)
             finally:
                 dialog.close()
 

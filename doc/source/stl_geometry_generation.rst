@@ -16,13 +16,16 @@ generators:
 * Cylinder internal flow: a closed cylindrical fluid-domain boundary with
   separately identified inlet, outlet and wall patches.
 
-The GUI entry is Mesh Generation -> Generate STL Geometry. Generated STL files
-and their companion .geometry.json manifests are written to the user workspace,
-not to the source tree. This geometry library is distinct from the checked-in
-STL Case database used by STL to Gmsh; either can supply the input surface for
-a mesh project. The cylinder manifest preserves patch identity, but the generic
-closed-shell Gmsh adapter does not yet reconstruct those patch identities as
-separate Physical Surfaces.
+The GUI entry is Mesh Generation -> Generate STL Geometry. User-generated STL
+variants and their companion .geometry.json manifests are written to the user
+workspace, not to the source tree. The canonical internal-flow cylinder is now
+also a version-controlled standard asset under
+grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra, following the
+same Case-database convention as the cube and sphere. Native C++ and Python
+reference Cases share the same analytic asset ID, dimensions and patch-index
+contract. Their STL files use separate ASCII/binary serializations with
+representation-specific checksums. Both Gmsh adapters reconstruct wall, inflow
+and outflow as separate Physical Surfaces.
 
 Geometry library defaults
 -------------------------
@@ -47,11 +50,13 @@ metadata labels; it does not silently scale coordinates when the unit changes.
 The cylinder axis is the x-axis. Its radius and length are analytic dimensions,
 while N_theta and N_x control only the triangulation of its boundary.
 
-Generated assets are written by default to
+Custom generated assets are written by default to
 ~/.oneflow/mesh-generation/generated_stl/<geometry-id>/<geometry-id>.stl,
 with a sibling .geometry.json manifest. ONEFLOW_HOME relocates the workspace.
-The manifest records the intended Gmsh Physical Group names; it does not mean
-that STL itself contains Gmsh entities or that a Gmsh volume mesh has already
+The canonical cylinder database fixture is the exception: its immutable STL
+and checksum-bound manifest are checked into the source tree as reference
+inputs. The manifest records intended Gmsh Physical Group names; it does not
+mean that STL itself contains Gmsh entities or that a volume mesh has already
 been created.
 
 Geometry parameters define the STL surface. Gmsh mesh-size parameters define
@@ -68,20 +73,30 @@ three rounds of four-way subdivision, with new vertices projected onto the
 unit sphere. The checked-in 6:1 prolate spheroid uses the same surface
 topology transformed by semi-axis scale factors (3, 0.5, 0.5).
 
-The native C++ and Python reference Cases consume byte-identical copies of
-each checked-in STL. The original historical program that emitted these binary
-STL files is not currently checked in as a dedicated canonical generator. The
-new deterministic generator below is a reproducible replacement, not a claim
-about the original fixture bytes. The icosphere construction is consistent
-with the checked-in facet count and defines the new generator algorithm.
+Where both implementations are registered, the native C++ and Python
+reference Cases consume the same analytic geometry and equivalent surface
+contracts. The cylinder has native C++ and Python reference Cases; its
+canonical STL assets and manifests are registered with the Geometry Library
+and GUI preset. The two cylinder fixtures use representation-specific STL
+serializations, so each manifest checksum must match its own file bytes.
+The original historical program that emitted the sphere and spheroid binary
+STL fixtures is not currently checked in as a dedicated canonical generator.
+The new deterministic generator below is a reproducible replacement, not a
+claim about those original fixture bytes. The icosphere construction is
+consistent with the checked-in facet count and defines the new generator
+algorithm.
 
 The current deterministic generator is
 grid/stl_to_gmsh/generate_stl_geometry.py (version 1.0). It uses only the Python
 standard library, writes binary STL, and emits a companion manifest containing
 parameters, units, geometric metrics, patch-to-facet indices and the STL
 SHA-256. It writes to the user workspace by default and does not overwrite
-checked-in Case fixtures during normal runs. Regression tests are in
-grid/tests/python/stl_to_gmsh/test_stl_geometry_generation.py.
+checked-in Case fixtures during normal runs. The canonical cylinder asset uses
+radius 1, length 4, 48 circumferential divisions and 16 axial intervals. The
+checked-in C++ and Python cylinder fixtures are separate serializations; their
+checksums are representation-specific. Regression tests are in
+grid/tests/python/stl_to_gmsh/test_stl_geometry_generation.py. See
+:doc:`mesh_stl_geometry_pipeline` for the detailed adapter and Gmsh method flow.
 
 Sphere surface construction
 ---------------------------
@@ -233,11 +248,12 @@ volume where applicable; connected-component count, edge incidence and
 orientation checks; patch names and per-patch triangle counts; STL checksum
 and output path.
 
-Generated STL, manifests, reports and Gmsh outputs belong in the user's
-OneFLOW workspace under .oneflow/mesh-generation/, not in the source tree.
-The GUI defaults to generated_stl/<geometry-id>/<geometry-id>.stl and keeps
-the matching .geometry.json beside it. Checked-in STL files are immutable Case inputs during normal
-runs. Fixture regeneration must be an explicit, reviewed maintenance action.
+Generated STL variants, reports and Gmsh outputs belong in the user's OneFLOW
+workspace under .oneflow/mesh-generation/, not in the source tree. The GUI
+defaults to generated_stl/<geometry-id>/<geometry-id>.stl for newly generated
+variants and keeps the matching .geometry.json beside them. The standard
+cylinder STL and manifest are immutable Case inputs during normal runs.
+Fixture regeneration must be an explicit, reviewed maintenance action.
 
 Related mesh cases
 ------------------
@@ -245,4 +261,5 @@ Related mesh cases
 * :doc:`stl_to_gmsh_3d` — 3-D closed-shell volume meshing and acceptance limits.
 * :doc:`stl_to_gmsh_sphere` — current unit-sphere Case.
 * :doc:`stl_to_gmsh_prolate_spheroid` — current 6:1 spheroid Case.
+* `grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/README.md` — canonical internal-flow cylinder asset and reference Case.
 * :doc:`stl_to_gmsh_commands` — direct closed-STL-to-volume-mesh command.

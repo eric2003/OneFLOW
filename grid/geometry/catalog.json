@@ -182,8 +182,13 @@
           "name": "oneflow_stl_geometry",
           "version": "1.0",
           "source": "grid/stl_to_gmsh/generate_stl_geometry.py",
-          "algorithm": "Shared axial rings, triangulated lateral wall and separately labeled planar end caps"
-        }
+          "algorithm": "Shared axial rings, triangulated lateral wall and separately labeled planar end caps",
+          "source_sha256": "b464369ea514fa47bec5e2f29a87db11bc32bf341fde86c58a571d09973d95d9"
+        },
+        "source_case": "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
+        "source_file_name": "model.stl",
+        "source_sha256": "93522635111dd092bfe38e206dca7e32940269480913a355490057b332e069a1",
+        "notes": "Canonical cylinder STL and companion patch manifest are checked in as immutable grid-database inputs. The Geometry Library generator can produce custom variants outside the source tree."
       },
       "representations": [
         {
@@ -194,10 +199,19 @@
         {
           "role": "surface_mesh",
           "format": "STL",
-          "path": "~/.oneflow/mesh-generation/generated_stl/cylinder_internal_flow/cylinder_internal_flow.stl",
-          "status": "generated_on_demand",
+          "path": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.stl",
+          "status": "source",
           "generator": "oneflow_stl_geometry",
-          "notes": "Patch-to-facet identity is stored in the companion geometry manifest."
+          "notes": "Canonical, version-controlled 48 x 16 surface fixture. Companion checksum and patch metadata: grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.geometry.json. The Geometry Library can still generate custom parameterized variants into the user workspace."
+        },
+        {
+          "role": "surface_mesh",
+          "format": "STL (ASCII)",
+          "path": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/cpp/input/model.stl",
+          "status": "source",
+          "generator": "oneflow_stl_geometry",
+          "sha256": "23b63318e39db077d1c314c126f7b831435132ec5ef334f34ba137b3f7c7dbee",
+          "notes": "Native C++ Case serialization of the same 48 x 16 analytic cylinder and wall/inflow/outflow patch partition. Its checksum is representation-specific."
         },
         {
           "role": "volume_mesh",

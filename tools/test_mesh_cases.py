@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import tempfile
 import unittest
@@ -150,6 +151,8 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_python_sphere_automatic_tetrahedra",
             "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra",
             "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
+            "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
+            "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
         })
         for case_id in (
             "stl_to_gmsh_square",
@@ -162,6 +165,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_cube_six_tetrahedra",
             "stl_to_gmsh_cube_automatic_tetrahedra",
             "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra",
+            "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
         ):
             entry = entries[case_id]
             self.assertNotIn("execution", entry)
@@ -187,12 +191,64 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_python_cube_six_tetrahedra",
             "stl_to_gmsh_python_cube_automatic_tetrahedra",
             "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
+            "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
         ):
             entry = entries[case_id]
             self.assertEqual(entry["execution"]["kind"], "python")
             self.assertTrue(entry["directory"].endswith("/python"))
             self.assertEqual(entry["execution"]["script"], "grid/stl_to_gmsh/run_python_case.py")
             self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
+
+    def test_native_cylinder_case_uses_shared_parametric_geometry_contract(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        entry = next(
+            case for case in catalog["cases"]
+            if case["id"] == "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra"
+        )
+        case_dir = REPOSITORY_ROOT / entry["directory"]
+        layout = json.loads(
+            (case_dir / "script" / "layout.json").read_text(encoding="utf-8")
+        )
+        manifest = json.loads(
+            (case_dir / "input" / "model.geometry.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(layout["volume_mesh"], "cylinder_internal_flow")
+        self.assertEqual(layout["mesh_dimension"], 3)
+        self.assertEqual(layout["reference_geometry"]["type"], "cylinder_internal_flow")
+        self.assertEqual(manifest["asset_id"], "geometry.cylinder.internal_flow")
+        self.assertEqual(manifest["parameters"]["radius"], 1.0)
+        self.assertEqual(manifest["parameters"]["length"], 4.0)
+        self.assertEqual(
+            set(manifest["patch_triangle_indices"]),
+            {"wall", "inflow", "outflow"},
+        )
+        self.assertTrue((case_dir / "input" / "model.stl").is_file())
+        self.assertNotIn("execution", entry)
+        self.assertEqual(validate_case(REPOSITORY_ROOT, entry), [])
+
+    def test_native_cylinder_fixture_checksum_and_patch_partition(self) -> None:
+        attributes = (REPOSITORY_ROOT / ".gitattributes").read_text(encoding="utf-8")
+        self.assertIn("*.stl -text", attributes.splitlines())
+        case_dir = (
+            REPOSITORY_ROOT / "grid/stl_to_gmsh/3d/cylinder_internal_flow"
+            / "automatic_tetrahedra/cpp"
+        )
+        stl = case_dir / "input/model.stl"
+        manifest = json.loads(
+            stl.with_suffix(".geometry.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            hashlib.sha256(stl.read_bytes()).hexdigest(),
+            manifest["stl_sha256"],
+        )
+        self.assertTrue(stl.read_text(encoding="ascii").startswith("solid "))
+        self.assertEqual(manifest["surface"]["triangle_count"], 1632)
+        patches = manifest["patch_triangle_indices"]
+        self.assertEqual(len(patches["wall"]), 1536)
+        self.assertEqual(len(patches["inflow"]), 48)
+        self.assertEqual(len(patches["outflow"]), 48)
+        indices = patches["wall"] + patches["inflow"] + patches["outflow"]
+        self.assertEqual(sorted(indices), list(range(1632)))
 
     def test_stl_ascii_crlf_is_a_native_oneflow_case_with_crlf_fixture(self) -> None:
         catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")

@@ -230,3 +230,8 @@ writing as PASS. CGNS read-back and mesh-quality acceptance are
 NOT_CHECKED; CFD validation is NOT_RUN. The detailed
 .gmsh-read-report.json and .gmsh-report.md inspection files remain
 available alongside it.
+
+The Mesh-to-CFD Validation consumer writes a checksum-bound
+``<output.cgns>.geometry-lineage.json`` companion after successful conversion.
+It carries the verified source STL and Gmsh MSH lineage without modifying the
+CGNS file format. See ``doc/source/mesh_to_cfd_validation.rst``.

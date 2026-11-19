@@ -15,6 +15,27 @@ GENERATOR_NAME = "oneflow_stl_geometry"
 GENERATOR_VERSION = "1.0"
 SOURCE_ROOT = Path(__file__).resolve().parents[2]
 
+GEOMETRY_ASSETS = {
+    "sphere": {
+        "asset_id": "geometry.sphere.unit",
+        "kind": "analytic",
+        "equations": ["x^2 + y^2 + z^2 = R^2"],
+        "definition_parameters": {"center": [0, 0, 0]},
+    },
+    "prolate_spheroid": {
+        "asset_id": "geometry.spheroid.prolate_6_to_1",
+        "kind": "parametric",
+        "equations": ["x^2/a^2 + y^2/b^2 + z^2/c^2 = 1"],
+        "definition_parameters": {},
+    },
+    "cylinder_internal_flow": {
+        "asset_id": "geometry.cylinder.internal_flow",
+        "kind": "parametric",
+        "equations": ["-L/2 <= x <= L/2", "y^2 + z^2 = R^2"],
+        "definition_parameters": {},
+    },
+}
+
 
 def _orient_outward(vertices: list[tuple[float, float, float]], faces: list[tuple[int, int, int]]) -> list[tuple[int, int, int]]:
     oriented = []
@@ -261,14 +282,42 @@ def generate_geometry(
     patch_ranges: dict[str, list[int]] = {}
     for index, label in enumerate(patch_labels):
         patch_ranges.setdefault(label, []).append(index)
+    asset = GEOMETRY_ASSETS[geometry]
+    definition_parameters = dict(asset["definition_parameters"])
+    if geometry == "sphere":
+        definition_parameters["radius"] = radius
+    elif geometry == "prolate_spheroid":
+        definition_parameters.update({"a": semi_axes[0], "b": semi_axes[1], "c": semi_axes[2]})
+    elif geometry == "cylinder_internal_flow":
+        definition_parameters.update({"radius": radius, "length": length})
+    definition = {
+        "asset_id": asset["asset_id"],
+        "kind": asset["kind"],
+        "equations": asset["equations"],
+        "parameters": definition_parameters,
+        "units": units,
+    }
+    definition_digest = hashlib.sha256(
+        json.dumps(definition, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    generator_source_digest = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     manifest = {
         "schema": "oneflow.stl-geometry-manifest",
         "version": 1,
-        "generator": GENERATOR_NAME,
+        "asset_id": asset["asset_id"],
+        "definition": definition,
+        "definition_sha256": definition_digest,
+        "generator": {
+            "name": GENERATOR_NAME,
+            "version": GENERATOR_VERSION,
+            "source": Path(__file__).resolve().relative_to(SOURCE_ROOT).as_posix(),
+            "source_sha256": generator_source_digest,
+        },
         "generator_version": GENERATOR_VERSION,
         "geometry": geometry,
         "units": units,
         "parameters": parameters,
+        "generation_parameters": parameters,
         "surface": metrics,
         "patch_triangle_indices": patch_ranges,
         "stl_file": output_stl.name,

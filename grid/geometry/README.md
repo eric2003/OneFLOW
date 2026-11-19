@@ -31,4 +31,4 @@ Historical fixtures with unknown original authorship or generator must remain ma
 - `grid/stl_to_gmsh/` remains a mesh-generation workflow and its examples; it is a consumer/producer of representations, not the geometry registry.
 - Runtime artifacts belong in the user's OneFLOW workspace, not in this source-controlled registry.
 
-The registry is deliberately metadata-first. It does not yet promise a generic CAD kernel, universal format conversion, or a stable cross-language geometry API. Those capabilities must be added behind explicit adapters and verified per format.
+The repository catalog is read-only reference metadata. User-imported assets are stored separately under ``~/.oneflow/geometry-library/assets/`` (or ``ONEFLOW_HOME``), with content-derived IDs and SHA-256 checksums. The current non-STL importer registers STEP/STP, IGES/IGS, BREP, OBJ, PLY, XYZ, PTS, PCD and OneFLOW ``.implicit.json`` files without parsing them. A successful registration is not proof of geometric validity, preview support, or meshing support. Those capabilities require explicit format adapters and per-format verification.
