@@ -1,7 +1,7 @@
 <!-- Entry point. Added 2026-11-08 so a fresh session finds the right mainline,
      the fixed cluster paths and the trap list before reading 600 lines of history. -->
 
-## Start here (checked 2026-11-11)
+## Start here (checked 2026-11-19)
 
 This repository carries **two independent mainlines**. Decide which one a request targets first.
 
@@ -56,12 +56,12 @@ CGNS lifecycle and structured partition tests pass 21/21, 4/4 and 9/9. Linux Bui
 for `fb246bb3a` (build only); numerical gates/profile data remain tied to `6f7a49e3d`.
 H1 is complete. Old attic cleanup continues in a separate CPU job; current evidence is retained.
 
-Next single mainline: **H2 multi-card VMFault**; multi-card claims stay suspended.
-After H2, use H1 to investigate status-copy/drain waits at the macro-step tail and RHS
-`swap_download`. MG control plus task planning/dispatch measures only ~0.042 ms/step;
-A4 must justify removing synchronization/transfer costs while preserving physical-state
-checks and halo lag, rather than assuming dispatch removal produces milliseconds.
-Roe remains Partial, and phase-parent completion stays 2/28 (A1, F1); H1 is a round task.
+Next single accelerator mainline on `dev`: **validate the M6 viscous face-flux
+write-back and aerodynamic acceptance**. The 400-step comparison failed CD/CD_SF
+acceptance. Start with the same-state face-flux check, then rerun the force comparison
+with probes disabled. See Living TODO §5 and handoff §4/§5 for provenance, settings,
+and acceptance. H2 was retested on two nodes and two DCUs (TODO §5.2). A4 remains
+open. Phase-parent completion is 2/28 (A1, F1).
 
 Do not improvise these:
 
