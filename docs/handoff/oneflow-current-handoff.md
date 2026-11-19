@@ -108,15 +108,13 @@ normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失�
 `src/REVISION`。三端 master 对齐 `cecd66219`，已合入 dev（`e7efe7d02`）。
 本轮主线是 M6 粘性设备路径正确性，阶段与证据状态见 Living TODO 的 B.3 切片。
 
-1. 用固定 Kunshan 工作区构建此次源码快照，核对实际运行的二进制与 hook 命中，
-   从单 rank、单卡 M6 全关/仅粘性开始，粘性开关为
-   `ONEFLOW_ENABLE_UNS_HIP_VISFLUX`。用 `ONEFLOW_VISCOUS_SELFCHECK` 比较
-   求解器写回后的逐面通量，先确认 CPU 与设备输入的时间层和边界状态一致。
-2. 记录首次分叉的步、面及方程；检查壁面和内部面，并显式检查非有限值。
-   通量对照一致但气动力仍分叉时，对齐同一输出步的壁面 ghost、梯度及剪切。
-   host ghost 陈旧目前只是待验证线索。
-3. 关掉探针，复跑 400 步对照及收敛后气动力验收。旧结果是总阻力偏差
-   22%、摩擦阻力偏差 143%。收齐证据前，粘性设备路径保持未验收状态。
+**昆山复验**。求解器提交 `cc1dd4b3a`，1 rank / 1 DCU。
+HIP 粘性契约 6/6。M6 自检第 1 步在面 3356 报告一处近零的能量通量差异
+（绝对差 `4.38e-40`），第 2、3 步无命中阈值的差异。关闭自检后，全关与仅开
+粘性各 400 步的 `aero.dat` 和 `res.dat` 分别逐字节一致。
+
+**下一步**。在同一配置补全开 hook 对照和收敛后气动力验收，随后覆盖边界回落与多区。
+三步自检暂未计数 NaN/Inf，四百步对照按固定步数停止。长期气动力与联合 hook 仍需独立证据。
 
 **本地验证与待办**。契约目录 54/54，CPU 粘性策略 24/24。
 `python3.12 -m unittest tools.oneflow_gui.test_mesh_project tools.oneflow_gui.test_mesh_validation tools.oneflow_gui.test_path_utils`
@@ -128,7 +126,7 @@ decode，以及一项 Windows 路径在 macOS 上的断言不符。这三类问�
 本地 CPU 构建沿用 Release/MPI，HIP 关闭。启用 METIS 时重新配置需设置
 `METIS_HOME_INC` 与 `METIS_HOME_LIB` 分别指向本机 METIS 头文件目录和动态库，
 否则先遇到缺头文件，或在 GeometryCore 测试链接时遇到 METIS 未定义符号。
-集群门禁仍需按准确源码重跑，不能沿用此前的全开/全关数据判定新版本。
+CPU 五例与全开、收敛、多区门禁仍需按准确源码运行。
 
 **CPU 构建与 CTest 复验**。按上面的 METIS 环境重新运行
 `cmake -S . -B build` 与 `cmake --build build -j 10` 后全量构建通过。

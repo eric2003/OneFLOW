@@ -56,12 +56,12 @@ CGNS lifecycle and structured partition tests pass 21/21, 4/4 and 9/9. Linux Bui
 for `fb246bb3a` (build only); numerical gates/profile data remain tied to `6f7a49e3d`.
 H1 is complete. Old attic cleanup continues in a separate CPU job; current evidence is retained.
 
-Next single accelerator mainline on `dev`: **validate the M6 viscous face-flux
-write-back and aerodynamic acceptance**. The 400-step comparison failed CD/CD_SF
-acceptance. Start with the same-state face-flux check, then rerun the force comparison
-with probes disabled. See Living TODO and handoff §4/§5 for provenance, settings,
-and acceptance. H2 was retested on two nodes and two DCUs (historical TODO §5.2). A4 remains
-open. A.1 and F.1 were closed under the previous tracking scheme.
+Next accelerator slice on `dev`: **complete M6 aerodynamic acceptance for the
+combined hooks**. On Kunshan, solver revision `cc1dd4b3a` passed the HIP viscous
+contract (6/6). The 400-step single-DCU baseline and viscous-only arms produced
+byte-identical aero and residual files. The three-step face check reported one
+near-zero energy difference on step 1. The combined-hook, converged-force and
+multi-zone checks remain open. See Living TODO and handoff §4/§5. A.4 remains open.
 
 Do not improvise these:
 
