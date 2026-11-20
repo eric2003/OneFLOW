@@ -123,13 +123,14 @@ def _expanded_cmake_commands(source: str):
                 for body_command, body_raw in body:
                     substituted = body_raw
                     for parameter, value in bindings.items():
-                        substituted = re.sub(r"\\$\\{" + re.escape(parameter) + r"\\}", lambda _match, replacement=value: replacement, substituted)
+                        substituted = substituted.replace("${" + parameter + "}", value)
                     expanded.append((body_command, substituted))
         index += 1
     return tuple(expanded)
 
 
-def _source_path(token: str, cmake_directory: Path, repository_root: Path) -> Path | None:    normalized = token.replace("\\", "/")
+def _source_path(token: str, cmake_directory: Path, repository_root: Path) -> Path | None:
+    normalized = token.replace("\\", "/")
     for prefix in ("${CMAKE_SOURCE_DIR}/", "${PROJECT_SOURCE_DIR}/"):
         if normalized.startswith(prefix):
             normalized = normalized[len(prefix):]
@@ -150,12 +151,12 @@ def _source_path(token: str, cmake_directory: Path, repository_root: Path) -> Pa
 def discover_cmake_test_targets_by_source(
     repository_root: Path,
 ) -> dict[str, tuple[CMakeTestTarget, ...]]:
-    """Map every directly declared GoogleTest source to its CMake target.
+    """Map GoogleTest sources to direct CMake targets and supported wrappers.
 
     This is a static source mapping. It reports target declarations and
-    gtest_discover_tests declarations; it does not evaluate CMake conditions, configure, or run CTest.
-    Sources supplied through variables, target_sources(), functions, or
-    generated lists are intentionally not guessed by this reader.
+    gtest_discover_tests declarations; it does not evaluate CMake conditions,
+    configure, or run CTest. Arbitrary variable lists and generated sources
+    remain outside the supported subset.
     """
     root = repository_root.resolve()
     targets: dict[str, tuple[Path, set[Path]]] = {}

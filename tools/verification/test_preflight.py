@@ -127,7 +127,8 @@ class ChangePreflightTest(unittest.TestCase):
             )
             self.assertEqual(_cpp_test_target_diagnostic(root, "tests/geometry/StlMeshIOTest.cpp"), "")
 
-    def test_stale_google_test_path_reports_ambiguous_candidates(self):        with tempfile.TemporaryDirectory() as directory:
+    def test_stale_google_test_path_reports_ambiguous_candidates(self):
+        with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             for folder in ("one", "two"):
                 path = root / folder / "test_case.cc"

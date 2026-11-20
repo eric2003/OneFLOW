@@ -92,7 +92,8 @@ class CMakeTestCatalogTest(unittest.TestCase):
             self.assertTrue(records[0].discovery_declared)
             self.assertEqual(records[0].discovery_mode, "PRE_TEST")
 
-    def test_rejects_source_outside_repository(self) -> None:        with tempfile.TemporaryDirectory() as temporary:
+    def test_rejects_source_outside_repository(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             self.assertEqual(
                 discover_cmake_test_targets(root, "../outside.cpp"),

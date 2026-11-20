@@ -154,7 +154,8 @@ def _cpp_test_target_diagnostic(root: Path, source_path: str) -> str:
     return f"CMake test target mapping found without gtest_discover_tests: {details}"
 
 
-def collect_preflight_issues(repository_root: Path) -> tuple[str, ...]:    """Validate repository contracts, evidence declarations, and test coverage."""
+def collect_preflight_issues(repository_root: Path) -> tuple[str, ...]:
+    """Validate repository contracts, evidence declarations, and test coverage."""
     root = Path(repository_root).resolve()
     issues: list[str] = []
     summaries, catalog_issues = load_contract_catalog(root)
