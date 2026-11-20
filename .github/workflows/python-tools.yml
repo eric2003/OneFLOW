@@ -106,6 +106,10 @@ jobs:
         run: python -m unittest tools.verification.test_ctest_discovery
       - name: Test verification contract catalog
         run: python -m unittest tools.verification.test_contract_catalog
+      - name: Test change preflight
+        run: python -m unittest tools.verification.test_preflight
+      - name: Run repository change preflight
+        run: python -m tools.verification.preflight
       - name: Test LaTeX formula preview
         run: python -m unittest tools.verification.test_latex_preview
       - name: Test Formula and Knowledge catalog
