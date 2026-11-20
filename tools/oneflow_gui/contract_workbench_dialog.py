@@ -466,6 +466,47 @@ class ContractDomainDialog(QDialog):
         )
         return lines
 
+    def _contract_verification_lines(self, summary, resolutions) -> list[str]:
+        """Render computed status while preserving the declared Contract status."""
+        from verification.contract_verification import evaluate_contract_verification
+        from verification.execution_records import ExecutionRecordStore
+
+        lines = ["", "Contract Verification Status", "============================="]
+        try:
+            records = ExecutionRecordStore(self._execution_records_path).list_records()
+            result = evaluate_contract_verification(
+                summary, resolutions, records,
+                repository_root=self._repository_root,
+                current_commit=self._current_commit,
+            )
+        except (OSError, ValueError) as exc:
+            lines.append(f"Status unavailable: {exc}")
+            return lines
+        lines.append(f"Declared status: {result.declared_status}")
+        lines.append(f"Execution status: {result.status.upper()}")
+        if result.diagnostic:
+            lines.append(result.diagnostic)
+        if result.evidence:
+            lines.extend(("", "Evidence coverage"))
+            for item in result.evidence:
+                lines.append(f"  [{item.status.upper()}] {item.kind}: {item.reference}")
+                lines.append(
+                    f"    Current executions: {item.current_records}; "
+                    f"stale executions: {item.stale_records}"
+                )
+        if result.contexts:
+            lines.extend(("", "Platform / configuration contexts"))
+            for context in result.contexts:
+                lines.append(
+                    f"  {context.platform} / {context.configuration}: "
+                    f"{context.status.upper()} "
+                    f"({context.passed}/{len(result.evidence)} passed; "
+                    f"{context.failed} failed; {context.blocked} blocked)"
+                )
+                for missing in context.missing:
+                    lines.append(f"    Not fully verified: {missing}")
+        return lines
+
     def _format_execution_records(self, heading: str, records) -> list[str]:
         from verification.execution_records import group_execution_records
 
@@ -956,6 +997,7 @@ class ContractDomainDialog(QDialog):
             evidence_lines.extend(
                 ("", "Catalog diagnostics", "-------------------", *self._diagnostics)
             )
+        evidence_lines.extend(self._contract_verification_lines(summary, resolutions))
         evidence_lines.extend(self._execution_history_lines(summary.id))
         self.evidence_view.setPlainText("\n".join(evidence_lines) or "No evidence declared.")
         self.open_tests_button.setEnabled(

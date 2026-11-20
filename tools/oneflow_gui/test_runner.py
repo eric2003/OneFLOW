@@ -262,6 +262,7 @@ _PYTHON_UNIT_TESTS = (
     ("Combined contract catalog tests", ("-m", "unittest", "tools.verification.test_contract_catalog")),
     ("Change preflight tests", ("-m", "unittest", "tools.verification.test_preflight")),
     ("Verification execution record tests", ("-m", "unittest", "tools.verification.test_execution_records")),
+    ("Contract verification status tests", ("-m", "unittest", "tools.verification.test_contract_verification")),
     ("Python execution capture tests", ("-m", "unittest", "tools.oneflow_gui.test_execution_capture")),
     ("CTest execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_ctest_execution_capture")),
     ("Workflow execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_execution_capture")),

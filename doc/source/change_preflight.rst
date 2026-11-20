@@ -119,3 +119,22 @@ Recommended functional-slice workflow
 The tool intentionally reuses existing catalogs and registries. Do not add a
 second hand-maintained list of contract files, Python test modules, or
 evidence counts here.
+
+
+Contract execution status
+-------------------------
+
+The Contract Workbench computes execution status separately from the declared
+Contract lifecycle status. Only explicit Contract-ID links and exact CTest test
+identities (or exact declared Python test source modules) can contribute.
+Current-commit results are distinguished from stale or unknown revisions.
+Failed and blocked outcomes are not converted into passes, and Debug/Release
+and platform contexts remain separate. A context with incomplete evidence is
+reported as partially verified or not run. The evaluator is read-only and does
+not infer an expected CI matrix or modify Contract declarations.
+
+Validate the status evaluator with:
+
+.. code-block:: console
+
+   python -m unittest tools.verification.test_contract_verification

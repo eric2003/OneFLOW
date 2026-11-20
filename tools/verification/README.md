@@ -633,3 +633,29 @@ tool does not claim that C++ targets build, CTest discovers every GoogleTest,
 Python tests pass, or CFD results are physically validated. See
 `doc/source/change_preflight.rst` for the command contract, boundaries, and
 recommended workflow.
+
+
+## Contract verification status
+
+`contract_verification.py` is a Qt-independent, read-only evaluator for
+execution evidence. It keeps the declared Contract status separate from the
+computed execution status and only considers explicit Contract IDs plus exact
+CTest identities (or the exact declared Python test source module).
+
+Outcomes are `passed`, `failed`, `blocked`, `partially_verified`,
+`stale`, `not_run`, or `unknown`. The evaluator never treats a discovery
+result as an execution, never infers links from matching names alone, and
+never changes Contract declarations. Debug/Release and platform contexts are
+reported independently; no expected CI matrix is invented. A pass means all
+declared executable test evidence was observed passing in each reported
+context, not that every possible platform/configuration has been exercised.
+
+Run:
+
+```powershell
+python -m unittest tools.verification.test_contract_verification
+```
+
+The Contract Workbench Verification / Evidence view displays the computed
+execution status and per-context evidence coverage alongside the unchanged
+declared status and the detailed execution history.
