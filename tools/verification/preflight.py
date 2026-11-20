@@ -14,6 +14,7 @@ from typing import Iterable
 
 from .contract_catalog import (
     _has_python_test_declaration,
+    _mask_cpp_non_code,
     _read_python_source,
     load_contract_catalog,
     resolve_contract_evidence,
@@ -87,6 +88,62 @@ def _stale_python_evidence_diagnostic(
     return original_diagnostic
 
 
+
+def find_cpp_test_candidates(
+    repository_root: Path, reference: str
+) -> tuple[str, ...]:
+    """Find C++ files containing an exact GoogleTest declaration."""
+    import re
+
+    suite, separator, test_name = reference.partition(".")
+    if not separator or not suite or not test_name:
+        return ()
+    declaration = re.compile(
+        rf"\\b(?:TEST(?:_F|_P)?|TYPED_TEST(?:_P)?)\\s*"
+        rf"\\(\\s*{re.escape(suite)}\\s*,\\s*{re.escape(test_name)}\\s*\\)"
+    )
+    root = Path(repository_root).resolve()
+    ignored = {".git", ".venv", "venv", "build", "out", "cmake-build-debug",
+               "cmake-build-release", "__pycache__"}
+    matches: list[str] = []
+    for suffix in ("*.cpp", "*.cc", "*.cxx"):
+        for path in root.rglob(suffix):
+            try:
+                relative = path.relative_to(root)
+                if any(part.lower() in ignored for part in relative.parts):
+                    continue
+                resolved = path.resolve()
+                resolved.relative_to(root)
+                if not resolved.is_file():
+                    continue
+                source = _mask_cpp_non_code(
+                    resolved.read_text(encoding="utf-8")
+                )
+                if declaration.search(source):
+                    matches.append(relative.as_posix())
+            except (OSError, UnicodeDecodeError, ValueError):
+                continue
+    return tuple(sorted(set(matches)))
+
+
+def _stale_cpp_evidence_diagnostic(
+    root: Path, reference: str, original_diagnostic: str
+) -> str:
+    """Add exact GoogleTest declaration migration hints to a stale evidence error."""
+    candidates = find_cpp_test_candidates(root, reference)
+    if len(candidates) == 1:
+        return (
+            f"{original_diagnostic}; matching GoogleTest declaration found at "
+            f"{candidates[0]} (update evidence scope after review)"
+        )
+    if len(candidates) > 1:
+        return (
+            f"{original_diagnostic}; matching GoogleTest declarations found at: "
+            f"{', '.join(candidates)} (disambiguate evidence scope)"
+        )
+    return original_diagnostic
+
+
 def collect_preflight_issues(repository_root: Path) -> tuple[str, ...]:
     """Validate repository contracts, evidence declarations, and test coverage."""
     root = Path(repository_root).resolve()
@@ -118,6 +175,10 @@ def collect_preflight_issues(repository_root: Path) -> tuple[str, ...]:
                 diagnostic = resolution.diagnostic
                 if resolution.evidence.kind == "python_test":
                     diagnostic = _stale_python_evidence_diagnostic(
+                        root, resolution.evidence.reference, diagnostic
+                    )
+                elif resolution.evidence.kind in ("linked_test", "google_test"):
+                    diagnostic = _stale_cpp_evidence_diagnostic(
                         root, resolution.evidence.reference, diagnostic
                     )
                 issues.append(
