@@ -208,7 +208,7 @@ class TestRunnerCommandTest(unittest.TestCase):
 
     def test_ctest_is_included_only_when_build_is_configured(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             build = root / "build"
             build.mkdir()
             self.assertFalse(any(command.label.startswith("C++") for command in build_unit_test_commands(root)))
