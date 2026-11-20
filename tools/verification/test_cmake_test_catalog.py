@@ -71,8 +71,28 @@ class CMakeTestCatalogTest(unittest.TestCase):
                 (),
             )
 
-    def test_rejects_source_outside_repository(self) -> None:
+    def test_expands_local_function_wrapper_for_target_and_discovery(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            tests = root / "tests" / "geometry"
+            tests.mkdir(parents=True)
+            (tests / "StlMeshIOTest.cpp").write_text("TEST(StlMeshIOTest, ReadsSurface) {}\\n", encoding="utf-8")
+            (tests / "CMakeLists.txt").write_text(
+                "function(add_oneflow_gtest TEST_NAME TEST_SRC)\\n"
+                "  add_executable(${TEST_NAME} ${TEST_SRC})\\n"
+                "  target_link_libraries(${TEST_NAME} PRIVATE GTest::gtest_main)\\n"
+                "  gtest_discover_tests(${TEST_NAME} DISCOVERY_MODE PRE_TEST)\\n"
+                "endfunction()\\n"
+                "add_oneflow_gtest(StlMeshIOTest StlMeshIOTest.cpp)\\n",
+                encoding="utf-8",
+            )
+            records = discover_cmake_test_targets(root, "tests/geometry/StlMeshIOTest.cpp")
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0].target, "StlMeshIOTest")
+            self.assertTrue(records[0].discovery_declared)
+            self.assertEqual(records[0].discovery_mode, "PRE_TEST")
+
+    def test_rejects_source_outside_repository(self) -> None:        with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             self.assertEqual(
                 discover_cmake_test_targets(root, "../outside.cpp"),

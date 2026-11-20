@@ -36,7 +36,10 @@ Checks performed
   Comments and string literals are masked before matching; build/cache
   directories are excluded. A unique match is suggested; multiple matches are
   listed for manual disambiguation.
-
+* For a resolved GoogleTest source with a statically recognized CMake target,
+  require a matching ``gtest_discover_tests`` declaration. Simple local
+  CMake function/macro wrappers with literal arguments are expanded, including
+  the repository's ``add_oneflow_gtest`` helper.
 The command exits with status 0 when checks pass, 1 when consistency issues
 are found, and 2 when the check cannot run (for example, Git changed-file
 discovery fails).
@@ -50,11 +53,16 @@ unittest cases execute successfully, CFD results are physically valid, or
 contract evidence has passed. Runtime verification remains the responsibility
 of the existing build and test workflows.
 
-GoogleTest evidence is checked for a source declaration by the Contract
-Catalog. This first preflight does not claim that every GoogleTest is included
-in a CMake target or discovered by CTest. The static CMake test catalog and
-native CMake/CTest jobs remain the authorities for those separate stages.
-
+GoogleTest evidence is checked in distinct stages. The Contract Catalog checks
+the source declaration. The preflight then checks CMake target mapping and
+CTest discovery when the source-to-target relationship is expressible through
+the supported static reader. A mapped target without ``gtest_discover_tests``
+is a consistency failure. An unmapped source remains explicitly unresolved:
+the reader does not evaluate arbitrary CMake variables, conditions, generated
+lists, or general function semantics. This static check does not prove that
+CMake configured, the target compiled, CTest discovered the test in a build
+tree, or the test executed. The native CMake/CTest jobs remain the authorities
+for those runtime stages.
 When a new Python test module is added, either register it in
 tools/oneflow_gui/test_runner.py or add a justified entry to the existing
 _PYTHON_TEST_EXCLUSIONS map. Contract evidence should point to an existing
