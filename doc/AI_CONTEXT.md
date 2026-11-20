@@ -1,3 +1,39 @@
+## 2026-11-20 continuation: resolve mesh GoogleTest evidence declarations
+
+The user reported 1337/1337 tests passing before this slice. That is a
+pre-change baseline only; this slice only corrects contract metadata.
+
+The verified `hexin` HEAD at the start of this slice was
+`ae9802b81466870265bab4b6893c01301d1acd12`.
+
+Priority alignment: recent work hardens GoogleTest ↔ CMake discovery and
+static evidence resolution. The mesh conversion boundary contract still had
+one GoogleTest entry that used a source path as `reference` instead of
+`Suite.Test`, so resolution stopped at `declared` and could not bind CMake
+discovery or Workbench "resolved file" navigation.
+
+Fixed `mesh/unstructured-cgns-writer` verification entry for
+`GmshTwoQuadsOneFlowTest.ConvertsTwoAdjacentQuadsThroughCgnsIntoNativeGrid`
+with scope pointing at `tests/geometry/GmshTwoQuadsOneFlowTest.cpp`.
+
+After the change, all five evidence items on that contract resolve to
+repository files and matching declarations. Catalog tests:
+`tools.verification.test_contract_catalog` (54) pass in this environment.
+
+Still `declared_not_executed` at the claim level: static resolution is not
+execution. Do not treat this as CFD or residual proof.
+
+Changed files:
+
+- `tools/verification/contracts/mesh/unstructured-cgns-writer.json`
+- `doc/AI_CONTEXT.md`
+
+Next action: keep mesh code and new Cases attached to this boundary; prefer
+one more executable evidence binding (runtime/CTest discovery on the same
+targets) over a new input format reader.
+
+---
+
 ## 2026-11-16 continuation: fix post-run geometry lineage reporting
 
 Starting `hexin` HEAD: `5a04bddd842d6b572048ffbc78d5552a1a580151`.

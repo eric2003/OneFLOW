@@ -54,9 +54,9 @@
     },
     {
       "kind": "google_test",
-      "reference": "tests/geometry/GmshTwoQuadsOneFlowTest.cpp",
+      "reference": "GmshTwoQuadsOneFlowTest.ConvertsTwoAdjacentQuadsThroughCgnsIntoNativeGrid",
       "status": "declared_not_executed",
-      "scope": "Uses the route-owned two-quad MSH fixture to exercise Gmsh -> CGNS -> OneFLOW and checks that both interchange and native-grid artifacts are produced in a temporary workspace."
+      "scope": "tests/geometry/GmshTwoQuadsOneFlowTest.cpp; route-owned two-quad MSH fixture exercises Gmsh -> CGNS -> OneFLOW and checks interchange plus native-grid artifacts in a temporary workspace."
     },
     {
       "kind": "python_test",
