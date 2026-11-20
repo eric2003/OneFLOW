@@ -115,10 +115,13 @@ def parse_ctest_discovery_json(source: str) -> CTestDiscoverySnapshot:
     # CTest JSON v1 may omit the patch component in some CMake releases.
     # An omitted patch component is equivalent to zero; malformed explicit
     # values remain schema errors.
+    patch = version_data.get("patch")
+    if patch is None:
+        patch = 0
     version = CTestVersion(
         _integer(version_data.get("major"), "version.major"),
         _integer(version_data.get("minor"), "version.minor"),
-        _integer(version_data.get("patch", 0), "version.patch"),
+        _integer(patch, "version.patch"),
     )
     tests_data = payload.get("tests")
     if not isinstance(tests_data, list):
