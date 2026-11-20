@@ -7,6 +7,7 @@ inventory instead of maintaining a second list of contracts or test modules.
 from __future__ import annotations
 
 import argparse
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -93,8 +94,6 @@ def find_cpp_test_candidates(
     repository_root: Path, reference: str
 ) -> tuple[str, ...]:
     """Find C++ files containing an exact GoogleTest declaration."""
-    import re
-
     suite, separator, test_name = reference.partition(".")
     if not separator or not suite or not test_name:
         return ()
@@ -220,7 +219,7 @@ def format_report(
         lines.append(f"FAIL: {len(issue_list)} issue(s)")
         lines.extend(f"  - {issue}" for issue in issue_list)
     else:
-        lines.append("PASS: contract catalog, evidence references, and Python test registry are consistent.")
+        lines.append("PASS: contract catalog, evidence references, and test registries are consistent.")
     return "\n".join(lines)
 
 
