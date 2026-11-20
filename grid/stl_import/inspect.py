@@ -35,10 +35,10 @@ def main(argv: list[str] | None = None) -> int:
     try:
         report = inspect(args.input, args.weld_tolerance)
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(json.dumps(report, indent=2) + "\\n",
-                               encoding="utf-8", newline="\\n")
+        args.output.write_text(json.dumps(report, indent=2) + "\n",
+                               encoding="utf-8", newline="\n")
     except (OSError, StlReadError, ValueError) as exc:
-        parser.exit(2, f"stl_inspect: {exc}\\n")
+        parser.exit(2, f"stl_inspect: {exc}\n")
     print(json.dumps(report, indent=2))
     return 0 if report["surface_quality"]["status"] != "invalid" else 1
 

@@ -87,16 +87,16 @@ class StlSurfaceValidationTest(unittest.TestCase):
         )
         with tempfile.TemporaryDirectory() as temp:
             source, output = Path(temp) / "open.stl", Path(temp) / "report.json"
-            source.write_text(stl, encoding="ascii", newline="\\n")
+            source.write_text(stl, encoding="ascii", newline="\n")
             result = subprocess.run(
-                [sys.executable, str(Path(__file__).resolve().parents[4] / "stl_import" / "inspect.py"),
+                [sys.executable, str(Path(__file__).resolve().parents[3] / "stl_import" / "inspect.py"),
                  "--input", str(source), "--output", str(output)],
                 capture_output=True, text=True, check=False,
             )
             self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
             payload = output.read_bytes()
-            self.assertTrue(payload.endswith(b"\\n"))
-            self.assertNotIn(b"\\\\n", payload)
+            self.assertTrue(payload.endswith(b"\n"))
+            self.assertNotIn(b"\\n", payload)
             report = json.loads(payload.decode("utf-8"))
             self.assertEqual(report["surface_quality"]["status"], "warning")
 
