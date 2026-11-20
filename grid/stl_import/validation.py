@@ -94,6 +94,7 @@ def analyze_surface(triangles: Iterable[Triangle], weld_tolerance: float | None 
         areas.append(area)
         if not math.isfinite(area) or area <= tolerance*tolerance:
             zero_area.append(fi)
+            degenerate.append(fi)
         key = tuple(sorted(ids))
         duplicate_faces[key] = duplicate_faces.get(key, 0) + 1
         for i in range(3):
