@@ -6,6 +6,7 @@ from pathlib import Path
 
 from tools.verification.preflight import (
     _changed_files,
+    _stale_cpp_evidence_diagnostic,
     find_cpp_test_candidates,
     find_python_test_candidates,
     format_report,
@@ -89,6 +90,16 @@ class ChangePreflightTest(unittest.TestCase):
                     root, "StlMeshIOTest.PreservesBoundaryIdentity"
                 ),
                 ("tests/geometry/StlMeshIOTest.cpp",),
+            )
+            diagnostic = _stale_cpp_evidence_diagnostic(
+                root,
+                "StlMeshIOTest.PreservesBoundaryIdentity",
+                "missing repository file: tests/old/StlMeshIOTest.cpp",
+            )
+            self.assertIn(
+                "matching GoogleTest declaration found at "
+                "tests/geometry/StlMeshIOTest.cpp",
+                diagnostic,
             )
 
     def test_stale_google_test_path_reports_ambiguous_candidates(self):
