@@ -128,10 +128,13 @@ migrate all existing catalogs at once.
 ## Configured CTest evidence
 
 `ctest_evidence.py` joins exact GoogleTest evidence identities to the actual
-test list from a configured build tree. It invokes CTest's list-only JSON mode
+test list from a configured build tree after that build has run CTest at least
+once. It invokes CTest's list-only JSON mode
 (`ctest -N --show-only=json-v1`), then checks the test name together with
-target provenance from the executable path or CMake backtrace. It never runs
-the tests and does not update contract status.
+target provenance from the executable path or CMake backtrace. Since this
+repository uses CMake's PRE_TEST discovery mode, the first CTest run must have
+materialized the individual test list. The query itself never runs tests and
+does not update contract status.
 
 Example:
 
@@ -139,9 +142,8 @@ Example:
 python -m tools.verification.ctest_evidence --build-dir build --configuration Debug
 ```
 
-The native Linux and Windows CI workflows also run this query against their
-configured build trees before invoking CTest, preserving the distinction
-between test registration and test execution.
+The native Linux and Windows CI workflows run this query after CTest, preserving
+the distinction between the discovered test registry and execution outcomes.
 
 Use `--require-all` only for build configurations where every declared test
 is expected to be enabled. Optional external-tool and hardware tests may not

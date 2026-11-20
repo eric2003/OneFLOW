@@ -64,10 +64,16 @@ def match_configured_ctest_evidence(
         )
     exact_named = tuple(item for item in tests if item.name == reference)
     if not exact_named:
+        deferred = any(item.discovery_mode.casefold() == "pre_test" for item in declared)
+        status = "discovery_deferred" if deferred else "not_discovered"
+        diagnostic = (
+            "This target uses PRE_TEST discovery; run CTest once, then query the list again."
+            if deferred else
+            "The exact GoogleTest identity is absent from this configured CTest list."
+        )
         return CTestEvidenceMatch(
-            contract_id, reference, source_path, "not_discovered",
-            tuple(item.target for item in declared),
-            diagnostic="The exact GoogleTest identity is absent from this configured CTest list.",
+            contract_id, reference, source_path, status,
+            tuple(item.target for item in declared), diagnostic=diagnostic,
         )
     matches = []
     for test in exact_named:

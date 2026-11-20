@@ -47,16 +47,18 @@ discovery fails).
 Configured CTest evidence
 -------------------------
 
-After configuring and building a local tree, inspect the actual CTest registry
-without running tests:
+After configuring and building a local tree, run CTest at least once, then
+inspect the populated CTest registry without running tests:
 
 .. code-block:: console
 
    python -m tools.verification.ctest_evidence --build-dir build --configuration Debug
 
-The command uses ``ctest -N --show-only=json-v1``. Both native Linux and Windows
-CI workflows run this report against their configured build tree before CTest
-execution. It compares exact GoogleTest
+The command uses ``ctest -N --show-only=json-v1``. The repository uses
+``gtest_discover_tests(... DISCOVERY_MODE PRE_TEST)`` for its GoogleTest
+executables, so individual cases are materialized when CTest first runs. The
+native Linux and Windows CI workflows run this report after CTest execution.
+It compares exact GoogleTest
 contract identities with configured CTest test names and checks target
 provenance using the discovered executable name or CMake backtrace file. It
 reports ``discovered``, ``not_discovered``, ``target_unmapped``,

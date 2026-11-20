@@ -92,6 +92,13 @@ jobs:
               throw "ctest failed with exit code $LASTEXITCODE."
           }
 
+          cd "${{ github.workspace }}"
+          python -m tools.verification.ctest_evidence --build-dir build --configuration Release
+          if ($LASTEXITCODE -ne 0) {
+              throw "Configured CTest evidence query failed with exit code $LASTEXITCODE."
+          }
+          cd "${{ github.workspace }}/build"
+
           python -m unittest discover -s ../tools -p "test_mesh_workflow.py"
           if ($LASTEXITCODE -ne 0) {
               throw "Mesh workflow tests failed with exit code $LASTEXITCODE."
