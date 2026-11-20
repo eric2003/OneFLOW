@@ -545,9 +545,11 @@ inventory to check contract schema and paths, supported evidence declarations,
 duplicate evidence identities, Python unittest source declarations, and
 coverage by the existing Python execution registry. When a Python evidence
 source is missing, it searches for the exact unittest class/method identity
-and reports matching source-path candidates. Build and cache directories are
-excluded; multiple matches are listed for manual disambiguation. The tool
-never edits Contract evidence automatically.
+and reports matching source-path candidates. It also searches C++ test source
+files for exact GoogleTest macro identities when linked evidence paths are
+stale. C++ comments and string literals are masked before matching. Build and
+cache directories are excluded; multiple matches are listed for manual
+disambiguation. The tool never edits Contract evidence automatically.
 
 Use `python -m tools.verification.preflight --changed` to include a summary of
 staged, unstaged, and untracked paths. The check remains repository-wide so
