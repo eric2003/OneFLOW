@@ -144,10 +144,18 @@ class ContractCatalogTest(unittest.TestCase):
                 "codes/geometry/src/StlMeshIO.cpp",
                 "codes/geometry/src/GridConversion.cpp",
                 "codes/geometry/src/GridTypes.cpp",
+                "grid/stl_import/reader.py",
+                "grid/stl_import/validation.py",
+                "grid/stl_import/inspect.py",
             },
         )
         self.assertIn("doc/source/stl_mesh_io.rst", contract.documentation_paths)
-        self.assertEqual(len(contract.evidence), 12)
+        self.assertEqual(
+            sum(item.kind == "google_test" for item in contract.evidence), 8
+        )
+        self.assertEqual(
+            sum(item.kind == "python_test" for item in contract.evidence), 11
+        )
 
         resolutions = resolve_contract_evidence(self.repository_root, contract)
         self.assertEqual(
