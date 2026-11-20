@@ -5,9 +5,9 @@
   "domain": "mesh",
   "kind": "mesh_format_adapter",
   "status": "partially_verified",
-  "overview": "Native C++ STL surface reader and writer in OneFLOW Geometry. The implementation preserves source facets, binary headers and attributes while keeping parsing separate from topology construction. The Python grid/stl_import package provides STL parsing and triangle-surface utilities; planar boundary conversion to Gmsh is owned by grid/stl_to_gmsh/converter.py. The native grid/stl_import/ascii_basic Case runs through OneFLOW's standard Grid task and converts its ASCII STL fixture to a surface CGNS mesh. Python STL reference cases are retained under each grid/stl_import/<case>/python directory rather than discarded or treated as competing production backends. The native ASCII scientific-notation Case additionally exercises exponent-form finite numeric tokens through the normal OneFLOW Grid task. Native runtime Cases now cover baseline ASCII, CRLF, scientific notation, conventional binary, and binary with a header beginning with `solid`. Two further native runtime Cases cover a folded non-planar surface and repeated shared vertices within the configured weld tolerance.",
-  "principle": "STL stores an ordered sequence of triangle facets, not a shared-vertex mesh or CFD volume mesh. Preserve each facet's stored normal, ordered vertices, binary attribute value and binary header. Do not weld vertices, repair normals, infer units, invent boundary groups or assign solver boundary conditions during parsing. Binary records require explicit little-endian decoding; a header beginning with 'solid' is not proof of ASCII.",
-  "architecture": "ASCII/Binary STL -> C++ StlMeshReader -> value-based StlMesh -> explicit tolerance-based vertex welding -> UnstructuredMeshData triangle surface -> UnstructuredCgnsZoneWriter. The reader/writer remain independent; the Case-level conversion composes them with the existing CGNS writer.",
+  "overview": "Native C++ STL surface reader and writer in OneFLOW Geometry. The implementation preserves source facets, binary headers and attributes while keeping parsing separate from topology construction. The Python grid/stl_import package provides STL parsing and triangle-surface utilities; planar boundary conversion to Gmsh is owned by grid/stl_to_gmsh/converter.py. The native grid/stl_import/ascii_basic Case runs through OneFLOW's standard Grid task and converts its ASCII STL fixture to a surface CGNS mesh. Python STL reference cases are retained under each grid/stl_import/<case>/python directory rather than discarded or treated as competing production backends. The native ASCII scientific-notation Case additionally exercises exponent-form finite numeric tokens through the normal OneFLOW Grid task. Native runtime Cases now cover baseline ASCII, CRLF, scientific notation, conventional binary, and binary with a header beginning with `solid`. Two further native runtime Cases cover a folded non-planar surface and repeated shared vertices within the configured weld tolerance. The Python grid/stl_import/validation.py module now provides scale-aware, non-destructive topology diagnostics for arbitrary surfaces; open and multi-component surfaces are reported instead of being rejected as failed imports.",
+  "principle": "STL stores an ordered sequence of triangle facets, not a shared-vertex mesh or CFD volume mesh. Preserve each facet's stored normal, ordered vertices, binary attribute value and binary header. Do not weld vertices, repair normals, infer units, invent boundary groups or assign solver boundary conditions during parsing. Binary records require explicit little-endian decoding; a header beginning with 'solid' is not proof of ASCII. Topology diagnostics may construct temporary welded vertex identity using a recorded tolerance, but must never modify the source STL. Open boundaries and multiple components are reportable states, not parser failures. STL units remain unknown unless supplied externally.",
+  "architecture": "ASCII/Binary STL -> C++ StlMeshReader -> value-based StlMesh -> explicit tolerance-based vertex welding -> UnstructuredMeshData triangle surface -> UnstructuredCgnsZoneWriter. The reader/writer remain independent; the Case-level conversion composes them with the existing CGNS writer. In parallel, Python inspection follows STL -> grid.stl_import.reader -> grid.stl_import.validation -> JSON surface-quality report; this path is independent of Gmsh and does not infer CFD boundary names.",
   "references": [
     "Library of Congress STL format description: https://www.loc.gov/preservation/digital/formats/fdd/fdd000504.shtml",
     "Gmsh Reference Manual: https://gmsh.info/doc/texinfo/gmsh.html",
@@ -19,7 +19,10 @@
       "codes/geometry/include/StlMeshIO.h",
       "codes/geometry/src/StlMeshIO.cpp",
       "codes/geometry/src/GridConversion.cpp",
-      "codes/geometry/src/GridTypes.cpp"
+      "codes/geometry/src/GridTypes.cpp",
+      "grid/stl_import/reader.py",
+      "grid/stl_import/validation.py",
+      "grid/stl_import/inspect.py"
     ],
     "case_paths": [
       "grid/stl_import/ascii_basic/script/dimension.txt",
@@ -67,7 +70,8 @@
       "doc/source/mesh_architecture.rst",
       "doc/source/contract_workbench_information_architecture.rst",
       "grid/stl_import/ascii_basic/README.md",
-      "grid/stl_import/README.md"
+      "grid/stl_import/README.md",
+      "doc/source/stl_surface_diagnostics.rst"
     ]
   },
   "claims": {
@@ -84,7 +88,11 @@
       "The native stl_binary_basic Case exercises conventional binary STL parsing through the OneFLOW Grid runtime and CGNS surface writer.",
       "The native stl_binary_header_solid Case exercises binary format detection when the opaque header begins with the ASCII word solid.",
       "The native stl_non_planar_surface Case preserves the coordinates of a folded three-dimensional triangle surface through CGNS conversion without imposing a single-plane restriction.",
-      "The native stl_weld_tolerance Case exercises the configured coordinate quantization policy for near-coincident vertices repeated across adjacent STL facets."
+      "The native stl_weld_tolerance Case exercises the configured coordinate quantization policy for near-coincident vertices repeated across adjacent STL facets.",
+      "The Python Stage A inspector reports scale-aware welded vertex and edge counts, surface area, degenerate and duplicate facets, boundary edges, non-manifold edges, orientation conflicts, connected components, closedness, and per-component topology where applicable.",
+      "Open and multi-component surfaces remain inspectable and are reported as warnings rather than being treated as STL parsing failures.",
+      "The report records the effective weld tolerance, unknown STL units, absence of geometry repairs, and the fact that self-intersection testing was not performed.",
+      "The Python STL surface diagnostics are registered as an explicit Windows/Linux Python Tooling CI test."
     ],
     "does_not_prove": [
       "The STL surface has been welded into shared vertex topology or classified as manifold, closed or consistently oriented.",
@@ -94,7 +102,9 @@
       "The native ASCII scientific-notation Case does not establish support for every extreme exponent, locale-specific number format, or poorly conditioned geometric scale.",
       "The two native binary runtime fixtures do not exhaust all malformed binary payloads, vendor extensions, attribute interpretations, or ambiguous format-detection cases.",
       "The non-planar surface Case does not establish surface repair, self-intersection detection, manifoldness, watertightness, or volume meshing.",
-      "The weld-tolerance Case does not establish an optimal tolerance across arbitrary model scales or robust clustering for every spatial point distribution."
+      "The weld-tolerance Case does not establish an optimal tolerance across arbitrary model scales or robust clustering for every spatial point distribution.",
+      "The Stage A Python diagnostics do not test triangle-triangle self-intersections, repair geometry, fill holes, cap open boundaries, or assign inlet/outlet/wall semantics.",
+      "The Python diagnostic implementation does not establish equivalent native C++ topology-validation behavior."
     ]
   },
   "verification": [
@@ -169,6 +179,54 @@
       "reference": "DesktopServiceTest.test_native_stl_cases_are_staged_without_runtime_manifests",
       "status": "linked_not_executed",
       "scope": "tools/oneflow_gui/test_services.py; verifies native STL cases are catalogued, copied to isolated workspaces, and binary fixtures have the declared 80+4+2*50 byte structure. It does not execute the C++ reader."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlSurfaceValidationTest.test_closed_tetrahedron_is_volume_mesh_ready",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_import/test_surface_validation.py; closed outward tetrahedron, component topology and volume-mesh readiness."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlSurfaceValidationTest.test_open_surface_is_warning_not_import_failure",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_import/test_surface_validation.py; open surface boundary edges and non-fatal import status."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlSurfaceValidationTest.test_disconnected_closed_shells_are_reported",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_import/test_surface_validation.py; multiple closed components remain inspectable."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlSurfaceValidationTest.test_duplicate_and_degenerate_facets_are_detected",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_import/test_surface_validation.py; duplicate and degenerate facet detection."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlSurfaceValidationTest.test_non_manifold_edge_is_detected",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_import/test_surface_validation.py; edge incidence above two is reported."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlSurfaceValidationTest.test_inconsistent_winding_is_detected",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_import/test_surface_validation.py; inconsistent directed edge use is reported."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlSurfaceValidationTest.test_default_tolerance_scales_with_model",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_import/test_surface_validation.py; default tolerance scales with bounding-box diagonal."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlSurfaceValidationTest.test_inspect_cli_writes_real_newlines_and_keeps_open_surface_as_warning",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_import/test_surface_validation.py; CLI JSON output uses real line endings and retains open surfaces as warnings."
     }
   ],
   "group": {
