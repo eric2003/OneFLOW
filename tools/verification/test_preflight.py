@@ -6,6 +6,7 @@ from pathlib import Path
 
 from tools.verification.preflight import (
     _changed_files,
+    _cpp_test_target_diagnostic,
     _stale_cpp_evidence_diagnostic,
     find_cpp_test_candidates,
     find_python_test_candidates,
@@ -101,6 +102,30 @@ class ChangePreflightTest(unittest.TestCase):
                 "tests/geometry/StlMeshIOTest.cpp",
                 diagnostic,
             )
+
+    def test_google_test_target_without_ctest_discovery_is_reported(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tests = root / "tests" / "geometry"
+            tests.mkdir(parents=True)
+            (tests / "StlMeshIOTest.cpp").write_text("TEST(StlMeshIOTest, ReadsSurface) {}", encoding="utf-8")
+            (tests / "CMakeLists.txt").write_text("add_executable(StlMeshIOTest StlMeshIOTest.cpp)", encoding="utf-8")
+            diagnostic = _cpp_test_target_diagnostic(root, "tests/geometry/StlMeshIOTest.cpp")
+            self.assertIn("StlMeshIOTest", diagnostic)
+            self.assertIn("gtest_discover_tests", diagnostic)
+
+    def test_google_test_target_with_discovery_is_consistent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            tests = root / "tests" / "geometry"
+            tests.mkdir(parents=True)
+            (tests / "StlMeshIOTest.cpp").write_text("TEST(StlMeshIOTest, ReadsSurface) {}", encoding="utf-8")
+            (tests / "CMakeLists.txt").write_text(
+                "add_executable(StlMeshIOTest StlMeshIOTest.cpp) "
+                "gtest_discover_tests(StlMeshIOTest DISCOVERY_MODE PRE_TEST)",
+                encoding="utf-8",
+            )
+            self.assertEqual(_cpp_test_target_diagnostic(root, "tests/geometry/StlMeshIOTest.cpp"), "")
 
     def test_stale_google_test_path_reports_ambiguous_candidates(self):
         with tempfile.TemporaryDirectory() as directory:

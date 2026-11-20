@@ -125,6 +125,34 @@ python -m unittest tools.verification.test_contract_catalog
 This is an initial runtime example, not a general runner or an invitation to
 migrate all existing catalogs at once.
 
+## Configured CTest evidence
+
+`ctest_evidence.py` joins exact GoogleTest evidence identities to the actual
+test list from a configured build tree after that build has run CTest at least
+once. It invokes CTest's list-only JSON mode
+(`ctest -N --show-only=json-v1`), then checks the test name together with
+target provenance from the executable path or CMake backtrace. Since this
+repository uses CMake's PRE_TEST discovery mode, the first CTest run must have
+materialized the individual test list. The query itself never runs tests and
+does not update contract status.
+
+Example:
+
+```powershell
+python -m tools.verification.ctest_evidence --build-dir build --configuration Debug
+```
+
+The native Linux and Windows CI workflows run this query after CTest, preserving
+the distinction between the discovered test registry and execution outcomes.
+
+An absent test on a `PRE_TEST` target is reported as `discovery_deferred` until
+CTest has materialized its test list; it is not treated as a confirmed missing
+registration. Use `--require-all` only for build configurations where every declared test
+is expected to be enabled. Optional external-tool and hardware tests may not
+be present in every build. A discovered test is registered in that configured
+CTest tree, not yet executed; successful execution remains a separate
+ExecutionRecord/CI fact.
+
 ## First typed CFD case contract
 
 The first Case-domain definition is
@@ -213,16 +241,20 @@ that declaration and its configured discovery mode.
 
 These are static CMake declarations only. They do not prove that CMake was
 configured successfully, the target was built, CTest executed its discovery
-step, or the individual test ran. The current reader intentionally does not
-guess source membership supplied through variables, `target_sources()`,
-functions, or generated lists. Missing mappings therefore remain unresolved
-rather than being inferred from a nearby target name.
+step, or the individual test ran. The reader supports direct source lists and simple local function/macro wrappers
+whose arguments are literal at the call site (including the repository's
+`add_oneflow_gtest` helper). It intentionally does not evaluate arbitrary
+CMake variables, conditions, `target_sources()`, generated lists, or general
+function semantics. Missing mappings therefore remain unresolved rather than
+being inferred from a nearby target name.
+The Change Preflight checks a mapped GoogleTest source for an explicit
+`gtest_discover_tests` declaration. This is a static registration check only;
+it does not replace configured-build CTest discovery or execution evidence.
 
 Focused validation:
 
 ```powershell
-python -m unittest tools.verification.test_cmake_test_catalog
-python -m unittest tools.oneflow_gui.test_contract_workbench_dialog
+python -m unittest tools.verification.test_cmake_test_catalogpython -m unittest tools.oneflow_gui.test_contract_workbench_dialog
 ```
 
 

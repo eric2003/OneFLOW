@@ -21,6 +21,7 @@ from .contract_catalog import (
     resolve_contract_evidence,
 )
 from tools.oneflow_gui.test_inventory import audit_python_test_registry
+from .cmake_test_catalog import discover_cmake_test_targets
 
 
 def _changed_files(root: Path) -> tuple[str, ...]:
@@ -143,6 +144,16 @@ def _stale_cpp_evidence_diagnostic(
     return original_diagnostic
 
 
+def _cpp_test_target_diagnostic(root: Path, source_path: str) -> str:
+    """Check discovery for a statically mapped GoogleTest source."""
+    records = discover_cmake_test_targets(root, source_path)
+    missing = tuple(record for record in records if not record.discovery_declared)
+    if not missing:
+        return ""
+    details = ", ".join(f"{record.target} ({record.cmake_file})" for record in missing)
+    return f"CMake test target mapping found without gtest_discover_tests: {details}"
+
+
 def collect_preflight_issues(repository_root: Path) -> tuple[str, ...]:
     """Validate repository contracts, evidence declarations, and test coverage."""
     root = Path(repository_root).resolve()
@@ -201,6 +212,16 @@ def collect_preflight_issues(repository_root: Path) -> tuple[str, ...]:
                         f"Python execution registry: {relative} "
                         f"({resolution.evidence.reference})"
                     )
+            elif resolution.status == "resolved" and resolution.evidence.kind in ("linked_test", "google_test"):
+                source = Path(resolution.resolved_path).resolve()
+                try:
+                    relative = source.relative_to(root).as_posix()
+                except ValueError:
+                    issues.append(f"{summary.id}: GoogleTest evidence source escapes repository: {resolution.resolved_path}")
+                    continue
+                diagnostic = _cpp_test_target_diagnostic(root, relative)
+                if diagnostic:
+                    issues.append(f"{summary.id}: {resolution.evidence.kind} evidence {resolution.evidence.reference}: {diagnostic}")
 
     return tuple(dict.fromkeys(issues))
 

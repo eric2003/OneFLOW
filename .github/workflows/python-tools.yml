@@ -102,8 +102,12 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_process_control
       - name: Test case runner process lifecycle
         run: python -m unittest tools.oneflow_gui.test_runner_process
+      - name: Test static CMake GoogleTest target catalog
+        run: python -m unittest tools.verification.test_cmake_test_catalog
       - name: Test configured CTest discovery parser
         run: python -m unittest tools.verification.test_ctest_discovery
+      - name: Test Contract to configured CTest evidence matching
+        run: python -m unittest tools.verification.test_ctest_evidence
       - name: Test verification contract catalog
         run: python -m unittest tools.verification.test_contract_catalog
       - name: Test change preflight
