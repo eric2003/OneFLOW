@@ -153,8 +153,27 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(
             sum(item.kind == "google_test" for item in contract.evidence), 8
         )
+        python_evidence = {
+            item.reference
+            for item in contract.evidence
+            if item.kind == "python_test"
+        }
         self.assertEqual(
-            sum(item.kind == "python_test" for item in contract.evidence), 11
+            python_evidence,
+            {
+                "MeshCaseCatalogTest.test_stl_ascii_crlf_is_a_native_oneflow_case_with_crlf_fixture",
+                "DesktopServiceTest.test_python_stl_development_cases_run_from_staged_workspaces",
+                "DesktopServiceTest.test_development_case_execution_mode_separates_native_and_python_cases",
+                "DesktopServiceTest.test_native_stl_cases_are_staged_without_runtime_manifests",
+                "StlSurfaceValidationTest.test_closed_tetrahedron_is_volume_mesh_ready",
+                "StlSurfaceValidationTest.test_open_surface_is_warning_not_import_failure",
+                "StlSurfaceValidationTest.test_disconnected_closed_shells_are_reported",
+                "StlSurfaceValidationTest.test_duplicate_and_degenerate_facets_are_detected",
+                "StlSurfaceValidationTest.test_non_manifold_edge_is_detected",
+                "StlSurfaceValidationTest.test_inconsistent_winding_is_detected",
+                "StlSurfaceValidationTest.test_default_tolerance_scales_with_model",
+                "StlSurfaceValidationTest.test_inspect_cli_writes_real_newlines_and_keeps_open_surface_as_warning",
+            },
         )
 
         resolutions = resolve_contract_evidence(self.repository_root, contract)
