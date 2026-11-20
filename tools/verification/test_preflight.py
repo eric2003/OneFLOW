@@ -4,7 +4,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools.verification.preflight import format_report, _changed_files
+from tools.verification.preflight import (
+    _changed_files,
+    find_python_test_candidates,
+    format_report,
+)
 
 
 class ChangePreflightTest(unittest.TestCase):
@@ -33,6 +37,50 @@ class ChangePreflightTest(unittest.TestCase):
             subprocess.run(("git", "commit", "-qm", "initial"), cwd=root, check=True)
             (root / "new.txt").write_text("new", encoding="utf-8")
             self.assertEqual(_changed_files(root), ("new.txt",))
+
+
+
+    def test_stale_python_test_path_finds_exact_declaration_after_move(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            moved = root / "grid" / "tests" / "python" / "test_moved.py"
+            moved.parent.mkdir(parents=True)
+            moved.write_text(
+                "class Stl2DGmshTest(unittest.TestCase):\\n"
+                "    def test_outer_domain_allows_shared_physical_group_for_multiple_sides(self):\\n"
+                "        pass\\n",
+                encoding="utf-8",
+            )
+            (root / "build").mkdir()
+            (root / "build" / "ignored.py").write_text(
+                "class Stl2DGmshTest:\\n"
+                "    def test_outer_domain_allows_shared_physical_group_for_multiple_sides(self): pass\\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                find_python_test_candidates(
+                    root,
+                    "Stl2DGmshTest.test_outer_domain_allows_shared_physical_group_for_multiple_sides",
+                ),
+                ("grid/tests/python/test_moved.py",),
+            )
+
+    def test_stale_python_test_path_reports_all_ambiguous_candidates(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            identity = "MovedTest.test_identity"
+            for folder in ("one", "two"):
+                path = root / folder / "test_case.py"
+                path.parent.mkdir(parents=True)
+                path.write_text(
+                    "class MovedTest:\\n"
+                    "    def test_identity(self): pass\\n",
+                    encoding="utf-8",
+                )
+            self.assertEqual(
+                find_python_test_candidates(root, identity),
+                ("one/test_case.py", "two/test_case.py"),
+            )
 
 
 if __name__ == "__main__":
