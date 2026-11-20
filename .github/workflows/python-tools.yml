@@ -99,6 +99,7 @@ jobs:
       - name: Test cross-platform executable discovery
         run: python -m unittest tools.oneflow_gui.test_executable_discovery
       - name: Test process tree lifecycle
+        timeout-minutes: 3
         run: python -m unittest tools.oneflow_gui.test_process_control
       - name: Test case runner process lifecycle
         run: python -m unittest tools.oneflow_gui.test_runner_process
