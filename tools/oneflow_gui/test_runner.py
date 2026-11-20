@@ -260,6 +260,7 @@ _PYTHON_UNIT_TESTS = (
     ("Numerical verification catalog tests", ("-m", "unittest", "tools.verification.test_curve_catalog")),
     ("Vencat analytic reference tests", ("-m", "unittest", "tools.verification.test_vencat_reference")),
     ("Combined contract catalog tests", ("-m", "unittest", "tools.verification.test_contract_catalog")),
+    ("Change preflight tests", ("-m", "unittest", "tools.verification.test_preflight")),
     ("Verification execution record tests", ("-m", "unittest", "tools.verification.test_execution_records")),
     ("Python execution capture tests", ("-m", "unittest", "tools.oneflow_gui.test_execution_capture")),
     ("Workflow execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_execution_capture")),
