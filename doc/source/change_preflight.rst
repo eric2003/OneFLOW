@@ -54,16 +54,16 @@ without running tests:
 
    python -m tools.verification.ctest_evidence --build-dir build --configuration Debug
 
-The command uses \`\`ctest -N --show-only=json-v1\`\`. It compares exact GoogleTest
+The command uses ``ctest -N --show-only=json-v1``. It compares exact GoogleTest
 contract identities with configured CTest test names and checks target
 provenance using the discovered executable name or CMake backtrace file. It
-reports \`\`discovered\`\`, \`\`not_discovered\`\`, \`\`target_unmapped\`\`,
-\`\`discovery_not_declared\`\`, and \`\`stale_source\`\` separately. Optional build
+reports ``discovered``, ``not_discovered``, ``target_unmapped``,
+``discovery_not_declared``, and ``stale_source`` separately. Optional build
 features may legitimately be absent from a particular configured tree; use
-\`\`--require-all\`\` only when that build configuration is expected to contain
+``--require-all`` only when that build configuration is expected to contain
 every declared GoogleTest.
 
-A \`\`discovered\`\` result proves only that this configured build tree currently
+A ``discovered`` result proves only that this configured build tree currently
 lists the matching test. It does not prove that the test binary has been run
 or that the test passed. Actual execution outcomes belong in durable
 ExecutionRecords and CI test results.
