@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
-from .contract_catalog import load_contract_catalog, resolve_contract_evidence
+from .contract_catalog import (\n    _has_python_test_declaration,\n    _read_python_source,\n    load_contract_catalog,\n    resolve_contract_evidence,\n)
 from tools.oneflow_gui.test_inventory import audit_python_test_registry
 
 
@@ -34,6 +34,52 @@ def _changed_files(root: Path) -> tuple[str, ...]:
         paths.update(line.strip().replace("\\", "/")
                      for line in result.stdout.splitlines() if line.strip())
     return tuple(sorted(paths))
+
+
+
+def find_python_test_candidates(
+    repository_root: Path, reference: str
+) -> tuple[str, ...]:
+    """Find repository Python files declaring an exact unittest identity.
+
+    This is diagnostic only: candidates are never written back to a Contract.
+    """
+    root = Path(repository_root).resolve()
+    ignored = {".git", ".venv", "venv", "build", "__pycache__", ".pytest_cache"}
+    matches: list[str] = []
+    for path in root.rglob("*.py"):
+        try:
+            relative = path.relative_to(root)
+            if any(part in ignored for part in relative.parts):
+                continue
+            resolved = path.resolve()
+            resolved.relative_to(root)
+            if not resolved.is_file():
+                continue
+            source = _read_python_source(resolved)
+            if _has_python_test_declaration(source, reference):
+                matches.append(relative.as_posix())
+        except (OSError, UnicodeDecodeError, SyntaxError, LookupError, ValueError):
+            continue
+    return tuple(sorted(matches))
+
+
+def _stale_python_evidence_diagnostic(
+    root: Path, reference: str, original_diagnostic: str
+) -> str:
+    """Add exact declaration-based migration hints to a stale evidence error."""
+    candidates = find_python_test_candidates(root, reference)
+    if len(candidates) == 1:
+        return (
+            f"{original_diagnostic}; matching declaration found at "
+            f"{candidates[0]} (update evidence scope after review)"
+        )
+    if len(candidates) > 1:
+        return (
+            f"{original_diagnostic}; matching declarations found at: "
+            f"{', '.join(candidates)} (disambiguate evidence scope)"
+        )
+    return original_diagnostic
 
 
 def collect_preflight_issues(repository_root: Path) -> tuple[str, ...]:
@@ -64,9 +110,14 @@ def collect_preflight_issues(repository_root: Path) -> tuple[str, ...]:
 
         for resolution in resolve_contract_evidence(root, summary):
             if resolution.status == "stale":
+                diagnostic = resolution.diagnostic
+                if resolution.evidence.kind == "python_test":
+                    diagnostic = _stale_python_evidence_diagnostic(
+                        root, resolution.evidence.reference, diagnostic
+                    )
                 issues.append(
                     f"{summary.id}: stale {resolution.evidence.kind} evidence "
-                    f"{resolution.evidence.reference}: {resolution.diagnostic}"
+                    f"{resolution.evidence.reference}: {diagnostic}"
                 )
                 continue
             if resolution.evidence.kind == "python_test" and resolution.status == "resolved":
