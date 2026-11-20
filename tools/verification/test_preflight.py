@@ -26,6 +26,11 @@ class ChangePreflightTest(unittest.TestCase):
             root = Path(directory)
             import subprocess
             subprocess.run(("git", "init", "-q"), cwd=root, check=True)
+            subprocess.run(("git", "config", "user.email", "preflight@example.invalid"), cwd=root, check=True)
+            subprocess.run(("git", "config", "user.name", "Preflight Test"), cwd=root, check=True)
+            (root / "tracked.txt").write_text("base", encoding="utf-8")
+            subprocess.run(("git", "add", "tracked.txt"), cwd=root, check=True)
+            subprocess.run(("git", "commit", "-qm", "initial"), cwd=root, check=True)
             (root / "new.txt").write_text("new", encoding="utf-8")
             self.assertEqual(_changed_files(root), ("new.txt",))
 
