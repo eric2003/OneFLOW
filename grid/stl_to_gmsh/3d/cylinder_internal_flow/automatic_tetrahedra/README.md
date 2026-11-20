@@ -43,3 +43,26 @@ reports and logs never enter the source tree.
 The Geometry Library / Generate STL Geometry editor uses the same analytic
 asset ID and default dimensions. Its user-selected parameterized outputs are
 separate from this immutable standard database fixture.
+
+
+## Stage A: blind STL surface inspection
+
+Before using the analytic manifest or any patch indices, inspect the Python
+Case's `input/model.stl` as an unknown triangle surface:
+
+```powershell
+python grid/stl_import/inspect.py --input grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.stl --output "$env:USERPROFILE/.oneflow/grid-development/stl-inspection/cylinder_internal_flow/stage_a_report.json"
+```
+
+This Stage A command reads only `model.stl`. It must not read
+`model.geometry.json`, use the `wall/inflow/outflow` facet lists, invoke
+Gmsh, or generate a volume mesh. For the current canonical binary STL, the
+expected topology is 1,632 triangles, one closed connected component, zero
+boundary edges, zero non-manifold edges, Euler characteristic 2 and genus 0.
+The report also records the signed surface volume and orientation. The
+regression test enforces this blind inspection contract.
+
+Stage B is intentionally separate: users will specify two cutting planes,
+then the cut surface will be passed through Stage A again. The expected result
+is two simple open boundary loops; their inlet/outlet meanings come from the
+user's plane definitions, not from the original STL.

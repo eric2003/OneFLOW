@@ -41,6 +41,30 @@ edge-manifold, consistently oriented component with positive signed volume.
 Genus is reported, not restricted to zero. Self-intersection testing is not
 performed in this stage. No repair or CFD boundary inference is performed.
 
+## Stage A: inspect the canonical cylinder without patch metadata
+
+The generic inspector is also used as a deliberately blind baseline for the
+internal-flow cylinder. It receives only the checked-in binary STL; it does
+not open the sibling `model.geometry.json`, use patch indices, infer inlet or
+outlet semantics, call Gmsh, or modify the source geometry.
+
+On Windows PowerShell:
+
+```powershell
+python grid/stl_import/inspect.py --input grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.stl --output "$env:USERPROFILE/.oneflow/grid-development/stl-inspection/cylinder_internal_flow/stage_a_report.json"
+```
+
+On Linux:
+
+```sh
+python grid/stl_import/inspect.py --input grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.stl --output "$HOME/.oneflow/grid-development/stl-inspection/cylinder_internal_flow/stage_a_report.json"
+```
+
+The regression test runs this same CLI against the checked-in STL and checks
+that the surface is one closed, consistently oriented, genus-zero component
+with no boundary or non-manifold edges. The report is independent of CFD patch
+classification; Stage B will introduce user-specified cutting planes later.
+
 ## Python reference tests
 
 ```sh

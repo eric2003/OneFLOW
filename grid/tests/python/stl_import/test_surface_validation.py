@@ -101,5 +101,59 @@ class StlSurfaceValidationTest(unittest.TestCase):
             self.assertEqual(report["surface_quality"]["status"], "warning")
 
 
+    def test_cylinder_internal_flow_stl_is_closed_without_patch_manifest(self):
+        """Stage A inspects only model.stl; patch metadata is deliberately unused."""
+        import json
+        import subprocess
+        import sys
+        import tempfile
+        from pathlib import Path
+
+        repository_root = Path(__file__).resolve().parents[4]
+        source = (
+            repository_root
+            / "grid" / "stl_to_gmsh" / "3d" / "cylinder_internal_flow"
+            / "automatic_tetrahedra" / "python" / "input" / "model.stl"
+        )
+        inspector = repository_root / "grid" / "stl_import" / "inspect.py"
+        self.assertTrue(source.is_file(), msg=f"Missing cylinder STL: {source}")
+
+        # Pass exactly one geometry input to Stage A. Do not load model.geometry.json.
+        with tempfile.TemporaryDirectory() as temp:
+            report_path = Path(temp) / "stage_a_report.json"
+            result = subprocess.run(
+                [
+                    sys.executable, str(inspector),
+                    "--input", str(source),
+                    "--output", str(report_path),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+
+        quality = report["surface_quality"]
+        self.assertEqual(report["format"], "binary")
+        self.assertEqual(report["triangle_count"], 1632)
+        self.assertEqual(quality["status"], "valid")
+        self.assertTrue(quality["closed"])
+        self.assertTrue(quality["edge_manifold"])
+        self.assertTrue(quality["consistently_oriented"])
+        self.assertTrue(quality["volume_mesh_ready"])
+        self.assertEqual(quality["boundary_edge_count"], 0)
+        self.assertEqual(quality["non_manifold_edge_count"], 0)
+        self.assertEqual(quality["orientation_conflict_edge_count"], 0)
+        self.assertEqual(quality["connected_component_count"], 1)
+        self.assertEqual(len(quality["components"]), 1)
+        self.assertEqual(quality["components"][0]["euler_characteristic"], 2)
+        self.assertEqual(quality["components"][0]["genus"], 0)
+        self.assertTrue(quality["components"][0]["outward_winding"])
+        self.assertAlmostEqual(
+            quality["components"][0]["signed_volume"], 12.5305, delta=0.002
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
