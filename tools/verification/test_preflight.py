@@ -6,6 +6,7 @@ from pathlib import Path
 
 from tools.verification.preflight import (
     _changed_files,
+    find_cpp_test_candidates,
     find_python_test_candidates,
     format_report,
 )
@@ -63,6 +64,45 @@ class ChangePreflightTest(unittest.TestCase):
                     "Stl2DGmshTest.test_outer_domain_allows_shared_physical_group_for_multiple_sides",
                 ),
                 ("grid/tests/python/test_moved.py",),
+            )
+
+
+    def test_stale_google_test_path_finds_declaration_after_move(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            moved = root / "tests" / "geometry" / "StlMeshIOTest.cpp"
+            moved.parent.mkdir(parents=True)
+            moved.write_text(
+                "// TEST(OldSuite, MovedCase)\\n"
+                "TEST_F(StlMeshIOTest, PreservesBoundaryIdentity) { }\\n"
+                "const char* example = \"TEST(StlMeshIOTest, PreservesBoundaryIdentity)\";\\n",
+                encoding="utf-8",
+            )
+            build = root / "build"
+            build.mkdir()
+            (build / "generated.cpp").write_text(
+                "TEST_F(StlMeshIOTest, PreservesBoundaryIdentity) { }\\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                find_cpp_test_candidates(
+                    root, "StlMeshIOTest.PreservesBoundaryIdentity"
+                ),
+                ("tests/geometry/StlMeshIOTest.cpp",),
+            )
+
+    def test_stale_google_test_path_reports_ambiguous_candidates(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for folder in ("one", "two"):
+                path = root / folder / "test_case.cc"
+                path.parent.mkdir(parents=True)
+                path.write_text(
+                    "TEST(MovedSuite, MovedCase) { }\\n", encoding="utf-8"
+                )
+            self.assertEqual(
+                find_cpp_test_candidates(root, "MovedSuite.MovedCase"),
+                ("one/test_case.cc", "two/test_case.cc"),
             )
 
     def test_stale_python_test_path_reports_all_ambiguous_candidates(self):
