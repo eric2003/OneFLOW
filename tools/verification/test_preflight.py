@@ -108,8 +108,8 @@ class ChangePreflightTest(unittest.TestCase):
             root = Path(directory)
             tests = root / "tests" / "geometry"
             tests.mkdir(parents=True)
-            (tests / "StlMeshIOTest.cpp").write_text("TEST(StlMeshIOTest, ReadsSurface) {}\\n", encoding="utf-8")
-            (tests / "CMakeLists.txt").write_text("add_executable(StlMeshIOTest StlMeshIOTest.cpp)\\n", encoding="utf-8")
+            (tests / "StlMeshIOTest.cpp").write_text("TEST(StlMeshIOTest, ReadsSurface) {}", encoding="utf-8")
+            (tests / "CMakeLists.txt").write_text("add_executable(StlMeshIOTest StlMeshIOTest.cpp)", encoding="utf-8")
             diagnostic = _cpp_test_target_diagnostic(root, "tests/geometry/StlMeshIOTest.cpp")
             self.assertIn("StlMeshIOTest", diagnostic)
             self.assertIn("gtest_discover_tests", diagnostic)
@@ -119,10 +119,10 @@ class ChangePreflightTest(unittest.TestCase):
             root = Path(directory)
             tests = root / "tests" / "geometry"
             tests.mkdir(parents=True)
-            (tests / "StlMeshIOTest.cpp").write_text("TEST(StlMeshIOTest, ReadsSurface) {}\\n", encoding="utf-8")
+            (tests / "StlMeshIOTest.cpp").write_text("TEST(StlMeshIOTest, ReadsSurface) {}", encoding="utf-8")
             (tests / "CMakeLists.txt").write_text(
-                "add_executable(StlMeshIOTest StlMeshIOTest.cpp)\\n"
-                "gtest_discover_tests(StlMeshIOTest DISCOVERY_MODE PRE_TEST)\\n",
+                "add_executable(StlMeshIOTest StlMeshIOTest.cpp) "
+                "gtest_discover_tests(StlMeshIOTest DISCOVERY_MODE PRE_TEST)",
                 encoding="utf-8",
             )
             self.assertEqual(_cpp_test_target_diagnostic(root, "tests/geometry/StlMeshIOTest.cpp"), "")

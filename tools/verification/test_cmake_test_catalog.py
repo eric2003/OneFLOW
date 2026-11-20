@@ -76,14 +76,13 @@ class CMakeTestCatalogTest(unittest.TestCase):
             root = Path(temporary)
             tests = root / "tests" / "geometry"
             tests.mkdir(parents=True)
-            (tests / "StlMeshIOTest.cpp").write_text("TEST(StlMeshIOTest, ReadsSurface) {}\\n", encoding="utf-8")
+            (tests / "StlMeshIOTest.cpp").write_text("TEST(StlMeshIOTest, ReadsSurface) {}", encoding="utf-8")
             (tests / "CMakeLists.txt").write_text(
-                "function(add_oneflow_gtest TEST_NAME TEST_SRC)\\n"
-                "  add_executable(${TEST_NAME} ${TEST_SRC})\\n"
-                "  target_link_libraries(${TEST_NAME} PRIVATE GTest::gtest_main)\\n"
-                "  gtest_discover_tests(${TEST_NAME} DISCOVERY_MODE PRE_TEST)\\n"
-                "endfunction()\\n"
-                "add_oneflow_gtest(StlMeshIOTest StlMeshIOTest.cpp)\\n",
+                "function(add_oneflow_gtest TEST_NAME TEST_SRC) "
+                "add_executable(${TEST_NAME} ${TEST_SRC}) "
+                "target_link_libraries(${TEST_NAME} PRIVATE GTest::gtest_main) "
+                "gtest_discover_tests(${TEST_NAME} DISCOVERY_MODE PRE_TEST) "
+                "endfunction() add_oneflow_gtest(StlMeshIOTest StlMeshIOTest.cpp)",
                 encoding="utf-8",
             )
             records = discover_cmake_test_targets(root, "tests/geometry/StlMeshIOTest.cpp")
