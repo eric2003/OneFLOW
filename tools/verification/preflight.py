@@ -99,8 +99,8 @@ def find_cpp_test_candidates(
     if not separator or not suite or not test_name:
         return ()
     declaration = re.compile(
-        rf"\\b(?:TEST(?:_F|_P)?|TYPED_TEST(?:_P)?)\\s*"
-        rf"\\(\\s*{re.escape(suite)}\\s*,\\s*{re.escape(test_name)}\\s*\\)"
+        rf"\b(?:TEST(?:_F|_P)?|TYPED_TEST(?:_P)?)\s*"
+        rf"\\(\s*{re.escape(suite)}\s*,\s*{re.escape(test_name)}\s*\\)"
     )
     root = Path(repository_root).resolve()
     ignored = {".git", ".venv", "venv", "build", "out", "cmake-build-debug",
