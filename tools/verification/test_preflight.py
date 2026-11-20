@@ -73,15 +73,15 @@ class ChangePreflightTest(unittest.TestCase):
             moved = root / "tests" / "geometry" / "StlMeshIOTest.cpp"
             moved.parent.mkdir(parents=True)
             moved.write_text(
-                "// TEST(OldSuite, MovedCase)\\n"
-                "TEST_F(StlMeshIOTest, PreservesBoundaryIdentity) { }\\n"
-                "const char* example = \"TEST(StlMeshIOTest, PreservesBoundaryIdentity)\";\\n",
+                "// TEST(OldSuite, MovedCase)\n"
+                "TEST_F(StlMeshIOTest, PreservesBoundaryIdentity) { }\n"
+                "const char* example = \"TEST(StlMeshIOTest, PreservesBoundaryIdentity)\";\n",
                 encoding="utf-8",
             )
             build = root / "build"
             build.mkdir()
             (build / "generated.cpp").write_text(
-                "TEST_F(StlMeshIOTest, PreservesBoundaryIdentity) { }\\n",
+                "TEST_F(StlMeshIOTest, PreservesBoundaryIdentity) { }\n",
                 encoding="utf-8",
             )
             self.assertEqual(
@@ -98,7 +98,7 @@ class ChangePreflightTest(unittest.TestCase):
                 path = root / folder / "test_case.cc"
                 path.parent.mkdir(parents=True)
                 path.write_text(
-                    "TEST(MovedSuite, MovedCase) { }\\n", encoding="utf-8"
+                    "TEST(MovedSuite, MovedCase) { }\n", encoding="utf-8"
                 )
             self.assertEqual(
                 find_cpp_test_candidates(root, "MovedSuite.MovedCase"),
