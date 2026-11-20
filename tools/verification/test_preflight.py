@@ -46,15 +46,15 @@ class ChangePreflightTest(unittest.TestCase):
             moved = root / "grid" / "tests" / "python" / "test_moved.py"
             moved.parent.mkdir(parents=True)
             moved.write_text(
-                "class Stl2DGmshTest(unittest.TestCase):\\n"
-                "    def test_outer_domain_allows_shared_physical_group_for_multiple_sides(self):\\n"
-                "        pass\\n",
+                "class Stl2DGmshTest(unittest.TestCase):\n"
+                "    def test_outer_domain_allows_shared_physical_group_for_multiple_sides(self):\n"
+                "        pass\n",
                 encoding="utf-8",
             )
             (root / "build").mkdir()
             (root / "build" / "ignored.py").write_text(
-                "class Stl2DGmshTest:\\n"
-                "    def test_outer_domain_allows_shared_physical_group_for_multiple_sides(self): pass\\n",
+                "class Stl2DGmshTest:\n"
+                "    def test_outer_domain_allows_shared_physical_group_for_multiple_sides(self): pass\n",
                 encoding="utf-8",
             )
             self.assertEqual(
@@ -73,8 +73,8 @@ class ChangePreflightTest(unittest.TestCase):
                 path = root / folder / "test_case.py"
                 path.parent.mkdir(parents=True)
                 path.write_text(
-                    "class MovedTest:\\n"
-                    "    def test_identity(self): pass\\n",
+                    "class MovedTest:\n"
+                    "    def test_identity(self): pass\n",
                     encoding="utf-8",
                 )
             self.assertEqual(
