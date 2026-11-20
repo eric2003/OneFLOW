@@ -12,7 +12,12 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
-from .contract_catalog import (\n    _has_python_test_declaration,\n    _read_python_source,\n    load_contract_catalog,\n    resolve_contract_evidence,\n)
+from .contract_catalog import (
+    _has_python_test_declaration,
+    _read_python_source,
+    load_contract_catalog,
+    resolve_contract_evidence,
+)
 from tools.oneflow_gui.test_inventory import audit_python_test_registry
 
 
