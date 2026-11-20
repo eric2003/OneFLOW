@@ -125,6 +125,26 @@ python -m unittest tools.verification.test_contract_catalog
 This is an initial runtime example, not a general runner or an invitation to
 migrate all existing catalogs at once.
 
+## Configured CTest evidence
+
+\`ctest_evidence.py\` joins exact GoogleTest evidence identities to the actual
+test list from a configured build tree. It invokes CTest's list-only JSON mode
+(\`ctest -N --show-only=json-v1\`), then checks the test name together with
+target provenance from the executable path or CMake backtrace. It never runs
+the tests and does not update contract status.
+
+Example:
+
+\`\`\`powershell
+python -m tools.verification.ctest_evidence --build-dir build --configuration Debug
+\`\`\`
+
+Use \`--require-all\` only for build configurations where every declared test
+is expected to be enabled. Optional external-tool and hardware tests may not
+be present in every build. A discovered test is registered in that configured
+CTest tree, not yet executed; successful execution remains a separate
+ExecutionRecord/CI fact.
+
 ## First typed CFD case contract
 
 The first Case-domain definition is

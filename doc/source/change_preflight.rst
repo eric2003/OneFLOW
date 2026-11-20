@@ -44,6 +44,30 @@ The command exits with status 0 when checks pass, 1 when consistency issues
 are found, and 2 when the check cannot run (for example, Git changed-file
 discovery fails).
 
+Configured CTest evidence
+-------------------------
+
+After configuring and building a local tree, inspect the actual CTest registry
+without running tests:
+
+.. code-block:: console
+
+   python -m tools.verification.ctest_evidence --build-dir build --configuration Debug
+
+The command uses \`\`ctest -N --show-only=json-v1\`\`. It compares exact GoogleTest
+contract identities with configured CTest test names and checks target
+provenance using the discovered executable name or CMake backtrace file. It
+reports \`\`discovered\`\`, \`\`not_discovered\`\`, \`\`target_unmapped\`\`,
+\`\`discovery_not_declared\`\`, and \`\`stale_source\`\` separately. Optional build
+features may legitimately be absent from a particular configured tree; use
+\`\`--require-all\`\` only when that build configuration is expected to contain
+every declared GoogleTest.
+
+A \`\`discovered\`\` result proves only that this configured build tree currently
+lists the matching test. It does not prove that the test binary has been run
+or that the test passed. Actual execution outcomes belong in durable
+ExecutionRecords and CI test results.
+
 Interpretation and boundaries
 -----------------------------
 

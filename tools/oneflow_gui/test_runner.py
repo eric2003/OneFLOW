@@ -269,6 +269,7 @@ _PYTHON_UNIT_TESTS = (
     ("Test worker execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_test_dialog_execution_capture")),
     ("CMake test catalog tests", ("-m", "unittest", "tools.verification.test_cmake_test_catalog")),
     ("Configured CTest discovery tests", ("-m", "unittest", "tools.verification.test_ctest_discovery")),
+    ("Contract to configured CTest evidence tests", ("-m", "unittest", "tools.verification.test_ctest_evidence")),
     ("Contract Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_contract_workbench_dialog")),
     ("Mesh Generation Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_generation_dialog")),
     ("Mesh project lifecycle tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_project")),
