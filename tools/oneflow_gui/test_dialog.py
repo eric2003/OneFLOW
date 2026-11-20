@@ -57,6 +57,7 @@ from .execution_capture import (
     capture_python_unittest_execution,
     is_python_unittest_command,
 )
+from .ctest_execution_capture import capture_ctest_execution, ctest_junit_path, is_ctest_command
 
 
 class TestCommandWorker(QThread):
@@ -174,6 +175,30 @@ class TestCommandWorker(QThread):
                     self.output_line.emit(
                         f"WARNING: unable to persist execution evidence: {error}"
                     )
+            if is_ctest_command(command):
+                try:
+                    user_paths = UserDataPaths.discover()
+                    configuration = self._build_config or ""
+                    for index, argument in enumerate(command.arguments[:-1]):
+                        if argument == "-C":
+                            configuration = command.arguments[index + 1]
+                            break
+                    records = capture_ctest_execution(
+                        command,
+                        repository_root=command.working_directory.parent,
+                        build_directory=command.working_directory,
+                        junit_path=ctest_junit_path(command),
+                        records_path=user_paths.verification_execution_records,
+                        artifact_directory=user_paths.test_run_logs,
+                        started_at=started_at,
+                        finished_at=finished_at,
+                        exit_code=return_code,
+                        output_lines=command_output,
+                        configuration=configuration,
+                    )
+                    self.output_line.emit(f"EXECUTION RECORDS: {len(records)} CTest cases captured")
+                except Exception as error:
+                    self.output_line.emit(f"WARNING: unable to persist CTest execution evidence: {error}")
             run_output.extend(command_output)
             if self._cancel.is_set():
                 self.command_completed.emit(

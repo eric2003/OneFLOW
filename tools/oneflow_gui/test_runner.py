@@ -263,6 +263,7 @@ _PYTHON_UNIT_TESTS = (
     ("Change preflight tests", ("-m", "unittest", "tools.verification.test_preflight")),
     ("Verification execution record tests", ("-m", "unittest", "tools.verification.test_execution_records")),
     ("Python execution capture tests", ("-m", "unittest", "tools.oneflow_gui.test_execution_capture")),
+    ("CTest execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_ctest_execution_capture")),
     ("Workflow execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_execution_capture")),
     ("Case execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_case_execution_capture")),
     ("Case contract residual runner tests", ("-m", "unittest", "tools.oneflow_gui.test_case_contract_run")),
@@ -326,7 +327,7 @@ def build_ctest_test_commands(
     return [
         TestCommand(
             "C++ unit tests (CTest)",
-            ("ctest", "--output-on-failure", "-C", build_config),
+            ("ctest", "--output-on-failure", "--output-junit", str(build_directory / "ctest-results.xml"), "-C", build_config),
             build_directory,
         )
     ]
@@ -373,7 +374,7 @@ def build_unit_test_commands(
         commands = [
             TestCommand(
                 "C++ unit tests (CTest)",
-                ("ctest", "--output-on-failure", "-C", build_config),
+                ("ctest", "--output-on-failure", "--output-junit", str(build_directory / "ctest-results.xml"), "-C", build_config),
                 build_directory,
             )
         ]

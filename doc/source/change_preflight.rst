@@ -69,8 +69,11 @@ every declared GoogleTest.
 
 A ``discovered`` result proves only that this configured build tree currently
 lists the matching test. It does not prove that the test binary has been run
-or that the test passed. Actual execution outcomes belong in durable
-ExecutionRecords and CI test results.
+or that the test passed. The GUI Test Workbench writes CTest JUnit output into
+the build directory and captures one durable ExecutionRecord per reported
+testcase. Contract IDs are attached only after exact test-name and CMake target
+provenance matching; other CTest cases remain unlinked records. Actual
+execution outcomes belong in durable ExecutionRecords and CI test results.
 
 Interpretation and boundaries
 -----------------------------

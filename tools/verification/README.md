@@ -364,12 +364,15 @@ they create a new process group and use `taskkill /PID <pid> /T /F` to stop the
 process tree. The Windows command is invoked with an argument list, never
 through a shell.
 
-The shared `terminate_and_reap` operation also defines the shutdown
-sequence: request process-tree termination, wait for the direct child, retry
-tree termination if the wait times out, and finally kill/reap the direct child
-as a last resort. The GUI test worker, Case Database runner, and workflow
-runner use this same escalation policy. This prevents each caller from
-silently implementing a different timeout or leaving an unreaped direct child.
+On Windows, the `taskkill /T /F` request has a 10-second subprocess timeout.
+If the command is unavailable or exceeds that budget, termination continues
+through the Job Object and direct-parent fallbacks. The shared
+`terminate_and_reap` operation then waits for the direct child, retries
+process-tree termination if the wait times out, and finally kills/reaps the
+direct child as a last resort. The Python Tooling CI process-tree test has a
+3-minute step limit so a regression cannot leave that step waiting indefinitely.
+The GUI test worker, Case Database runner, and workflow runner use this same
+escalation policy.
 The process-tree helper itself remains a platform boundary; callers retain
 ownership of their task-specific result records and output presentation.
 
@@ -428,9 +431,10 @@ IDs remain empty until an explicit test-to-contract mapping is defined; the
 adapter never guesses links from labels or module names.
 
 Persistence errors are reported in the test dialog without replacing the
-actual test process result. CTest/GoogleTest and CFD regression execution are
-not yet captured by this adapter, and the Contract Workbench has not yet
-presented execution history.
+actual test process result. CTest/GoogleTest and CFD regression execution use separate adapters so each
+framework can preserve its own per-test identity and outcome semantics. The
+Contract Workbench reads the shared records without treating unlinked records
+as proof for a selected contract.
 
 Run the focused model and adapter tests:
 
@@ -440,6 +444,41 @@ python -m unittest tools.oneflow_gui.test_execution_capture
 python -m unittest tools.oneflow_gui.test_test_dialog_execution_capture
 ```
 
+
+
+## Per-test CTest execution records
+
+The GUI test command builder invokes CTest with
+`--output-junit build/ctest-results.xml`. The repository requires CMake 3.30,
+and CTest has supported this option since 3.21. The report is written inside
+the existing build directory. After CTest exits, the worker parses each JUnit
+`testcase` and appends one schema-v1 `ExecutionRecord` per case to
+`~/.oneflow/verification/execution-records.jsonl` (or the configured
+`ONEFLOW_HOME`). The JUnit report and captured command output are retained as
+checksummed artifacts under the build tree and user-data test logs.
+
+Completed cases map to `passed` or `failed`; CTest `notrun` and `disabled`
+cases map to `blocked`, preserving the skip reason. Records retain the exact
+CTest name, CMake registration backtrace source/line when available, command,
+configuration, repository revision, platform, and shared invocation ID. The
+JUnit duration is validated, while start/finish timestamps represent the
+enclosing CTest command interval because JUnit does not provide an independent
+timestamp for each testcase.
+
+Contract IDs are attached only when the configured-CTest audit confirms the
+exact JUnit test name and CMake target provenance. Name similarity alone is
+never used. Other tests remain unlinked records; unavailable discovery or an
+evidence-audit error is recorded as a diagnostic. If CTest fails before
+producing a valid JUnit report, the worker warns and does not manufacture
+per-test records from the console summary.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_ctest_execution_capture
+python -m unittest tools.oneflow_gui.test_test_dialog_execution_capture
+python -m unittest tools.oneflow_gui.test_test_runner
+```
 
 ## Recorded execution history in the Workbench
 

@@ -216,7 +216,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             self.assertEqual(ctest.working_directory, build.resolve())
             self.assertEqual(
                 ctest.arguments,
-                ("ctest", "--output-on-failure", "-C", "Debug"),
+                ("ctest", "--output-on-failure", "--output-junit", str(root / "build" / "ctest-results.xml"), "-C", "Debug"),
             )
 
             release_commands = build_unit_test_commands(
@@ -228,7 +228,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             )
             self.assertEqual(
                 release_ctest.arguments,
-                ("ctest", "--output-on-failure", "-C", "Release"),
+                ("ctest", "--output-on-failure", "--output-junit", str(build / "ctest-results.xml"), "-C", "Release"),
             )
             self.assertEqual(release_ctest.working_directory, build.resolve())
 
