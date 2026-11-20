@@ -50,6 +50,52 @@ class ProcessControlTest(unittest.TestCase):
         )
         process.terminate.assert_not_called()
 
+    def test_windows_taskkill_timeout_falls_back_to_parent_process(self) -> None:
+        process = Mock()
+        process.pid = 1234
+        process.poll.return_value = None
+        runner = Mock(
+            side_effect=subprocess.TimeoutExpired(
+                ["taskkill", "/PID", "1234", "/T", "/F"], 10.0
+            )
+        )
+
+        self.assertTrue(
+            terminate_process_tree(
+                process,
+                platform_name="nt",
+                command_runner=runner,
+            )
+        )
+
+        self.assertEqual(runner.call_args.kwargs["timeout"], 10.0)
+        process.terminate.assert_called_once_with()
+
+    def test_windows_taskkill_timeout_uses_job_object_when_available(self) -> None:
+        process = Mock()
+        process.pid = 1234
+        process.poll.return_value = None
+        kernel32 = Mock()
+        kernel32.CloseHandle = Mock()
+        kernel32.TerminateJobObject.return_value = True
+        process._oneflow_job = (kernel32, 42)
+        runner = Mock(
+            side_effect=subprocess.TimeoutExpired(
+                ["taskkill", "/PID", "1234", "/T", "/F"], 10.0
+            )
+        )
+
+        self.assertTrue(
+            terminate_process_tree(
+                process,
+                platform_name="nt",
+                command_runner=runner,
+            )
+        )
+
+        kernel32.TerminateJobObject.assert_called_once_with(42, 1)
+        process.terminate.assert_not_called()
+
     def test_windows_termination_checks_tree_before_job_object(self) -> None:
         process = Mock()
         process.pid = 1234
