@@ -207,12 +207,12 @@ def evaluate_contract_verification(
         overall = "failed"
     elif "blocked" in context_states or any(item.status == "blocked" for item in per_evidence):
         overall = "blocked"
+    elif stale_declarations or any(item.status == "stale" for item in per_evidence):
+        overall = "stale"
     elif contexts and all(item.status == "passed" for item in contexts):
         overall = "passed"
     elif any(item.status in {"passed", "partially_verified"} for item in contexts):
         overall = "partially_verified"
-    elif stale_declarations or any(item.status == "stale" for item in per_evidence):
-        overall = "stale"
     elif any(item.status == "unknown" for item in per_evidence):
         overall = "unknown"
     else:

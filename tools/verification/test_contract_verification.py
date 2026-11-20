@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 from tools.verification.contract_catalog import ContractEvidence, ContractSummary, EvidenceResolution
@@ -12,7 +13,9 @@ from tools.verification.execution_records import ExecutionRecord
 
 class ContractVerificationStatusTest(unittest.TestCase):
     def setUp(self):
-        self.root = Path(tempfile.mkdtemp()).resolve()
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name).resolve()
         (self.root / "tests").mkdir()
         (self.root / "tests" / "sample.cpp").write_text("// source\n", encoding="utf-8")
         self.summary = ContractSummary(
@@ -93,11 +96,9 @@ class ContractVerificationStatusTest(unittest.TestCase):
         self.assertTrue(all(item.status == "stale" for item in result.evidence))
 
     def test_contract_id_and_exact_test_identity_are_required(self):
-        unrelated = self.record("SampleSuite.Works")
-        unrelated = ExecutionRecord(
-            **{**unrelated.__dict__, "contract_ids": ()}
-        ) if hasattr(unrelated, "__dict__") else self.record("SampleSuite.Works")
-        result = self.evaluate((self.record("OtherSuite.Works"),))
+        wrong_identity = self.record("OtherSuite.Works")
+        wrong_contract = replace(self.record("SampleSuite.Works"), contract_ids=())
+        result = self.evaluate((wrong_identity, wrong_contract))
         self.assertEqual(result.status, "not_run")
 
     def test_stale_declaration_is_reported(self):
