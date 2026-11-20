@@ -30,8 +30,12 @@ Checks performed
   that execution registry.
 * When a Python evidence source is missing, search repository Python files for
   the exact declared unittest class/method identity and report matching
-  candidate paths. Build/cache directories are excluded. A unique match is
-  suggested; multiple matches are listed for manual disambiguation.
+  candidate paths.
+* When a linked GoogleTest source is missing, search repository C++ test files
+  for the exact GoogleTest macro identity and report matching candidate paths.
+  Comments and string literals are masked before matching; build/cache
+  directories are excluded. A unique match is suggested; multiple matches are
+  listed for manual disambiguation.
 
 The command exits with status 0 when checks pass, 1 when consistency issues
 are found, and 2 when the check cannot run (for example, Git changed-file
@@ -55,11 +59,12 @@ When a new Python test module is added, either register it in
 tools/oneflow_gui/test_runner.py or add a justified entry to the existing
 _PYTHON_TEST_EXCLUSIONS map. Contract evidence should point to an existing
 test declaration and its source file; the preflight then checks that the
-module is included in the execution registry. If the path is stale but the
-same exact unittest identity exists elsewhere, the report suggests the
-candidate path(s). Review the match and update the Contract explicitly; the
-preflight never rewrites evidence or assumes that a matching identity proves
-the intended test is the same after a refactor.
+module is included in the execution registry. If the path is stale but the same exact unittest or GoogleTest identity exists
+elsewhere, the report suggests the candidate path(s). C++ matching ignores
+comments and string literals to avoid treating examples as declarations.
+Review the match and update the Contract explicitly; the preflight never
+rewrites evidence or assumes that a matching identity proves the intended
+test is the same after a refactor.
 
 Recommended functional-slice workflow
 -------------------------------------
