@@ -62,7 +62,7 @@ It compares exact GoogleTest
 contract identities with configured CTest test names and checks target
 provenance using the discovered executable name or CMake backtrace file. It
 reports ``discovered``, ``not_discovered``, ``target_unmapped``,
-``discovery_not_declared``, and ``stale_source`` separately. Optional build
+``discovery_not_declared``, ``discovery_deferred``, and ``stale_source`` separately. Optional build
 features may legitimately be absent from a particular configured tree; use
 ``--require-all`` only when that build configuration is expected to contain
 every declared GoogleTest.

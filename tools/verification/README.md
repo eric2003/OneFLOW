@@ -145,7 +145,9 @@ python -m tools.verification.ctest_evidence --build-dir build --configuration De
 The native Linux and Windows CI workflows run this query after CTest, preserving
 the distinction between the discovered test registry and execution outcomes.
 
-Use `--require-all` only for build configurations where every declared test
+An absent test on a `PRE_TEST` target is reported as `discovery_deferred` until
+CTest has materialized its test list; it is not treated as a confirmed missing
+registration. Use `--require-all` only for build configurations where every declared test
 is expected to be enabled. Optional external-tool and hardware tests may not
 be present in every build. A discovered test is registered in that configured
 CTest tree, not yet executed; successful execution remains a separate

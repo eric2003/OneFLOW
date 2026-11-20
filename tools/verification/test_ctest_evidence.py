@@ -7,13 +7,13 @@ from .ctest_discovery import CTestTest, CTestDiscoveryResult, CTestDiscoverySnap
 from .ctest_evidence import match_configured_ctest_evidence, format_ctest_evidence_report
 
 
-def target(discovery=True):
+def target(discovery=True, mode="PRE_TEST"):
     return CMakeTestTarget(
         target="StlMeshIOTest",
         cmake_file="tests/geometry/CMakeLists.txt",
         source_file="tests/geometry/StlMeshIOTest.cpp",
         discovery_declared=discovery,
-        discovery_mode="PRE_TEST",
+        discovery_mode=mode,
     )
 
 
@@ -46,7 +46,7 @@ class ConfiguredCTestEvidenceTest(unittest.TestCase):
         test = ctest(name="StlMeshIOTest.NativeStlToGmshGeneratesSingleHexahedron/0")
         result = match_configured_ctest_evidence(
             "mesh/stl", "StlMeshIOTest.NativeStlToGmshGeneratesSingleHexahedron",
-            "tests/geometry/StlMeshIOTest.cpp", (target(),), (test,),
+            "tests/geometry/StlMeshIOTest.cpp", (target(mode="POST_BUILD"),), (test,),
         )
         self.assertEqual(result.status, "not_discovered")
 
@@ -69,7 +69,7 @@ class ConfiguredCTestEvidenceTest(unittest.TestCase):
 
     def test_pre_test_discovery_absence_is_reported_as_deferred(self):
         result = match_configured_ctest_evidence(
-            "c", "Suite.Test", "x.cpp", (target(),), ()
+            "c", "Suite.Test", "x.cpp", (target(mode="POST_BUILD"),), ()
         )
         self.assertEqual(result.status, "discovery_deferred")
         self.assertIn("run CTest once", result.diagnostic)
