@@ -1,0 +1,135 @@
+"""Repository-wide consistency checks to run before committing changes.
+
+The preflight is read-only. It reuses the Contract Catalog and Python test
+inventory instead of maintaining a second list of contracts or test modules.
+"""
+
+from __future__ import annotations
+
+import argparse
+import subprocess
+import sys
+from pathlib import Path
+from typing import Iterable
+
+from .contract_catalog import load_contract_catalog, resolve_contract_evidence
+from tools.oneflow_gui.test_inventory import audit_python_test_registry
+
+
+def _changed_files(root: Path) -> tuple[str, ...]:
+    """Return tracked, staged, and untracked paths relative to the repository."""
+    commands = (
+        ("git", "diff", "--name-only", "HEAD"),
+        ("git", "diff", "--cached", "--name-only"),
+        ("git", "ls-files", "--others", "--exclude-standard"),
+    )
+    paths: set[str] = set()
+    for command in commands:
+        result = subprocess.run(
+            command, cwd=root, text=True, capture_output=True, check=False
+        )
+        if result.returncode != 0:
+            detail = result.stderr.strip() or "git command failed"
+            raise RuntimeError(f"cannot determine changed files: {detail}")
+        paths.update(line.strip().replace("\\", "/")
+                     for line in result.stdout.splitlines() if line.strip())
+    return tuple(sorted(paths))
+
+
+def collect_preflight_issues(repository_root: Path) -> tuple[str, ...]:
+    """Validate repository contracts, evidence declarations, and test coverage."""
+    root = Path(repository_root).resolve()
+    issues: list[str] = []
+    summaries, catalog_issues = load_contract_catalog(root)
+    issues.extend(f"catalog: {item}" for item in catalog_issues)
+
+    registry = audit_python_test_registry(root)
+    for path in registry["unregistered"]:
+        issues.append(
+            f"python test is not covered by the execution registry: {path}"
+        )
+    for path in registry["stale_exclusions"]:
+        issues.append(f"test exclusion no longer matches a discovered test: {path}")
+
+    for summary in summaries:
+        seen: set[tuple[str, str]] = set()
+        for evidence in summary.evidence:
+            identity = (evidence.kind, evidence.reference)
+            if identity in seen:
+                issues.append(
+                    f"{summary.id}: duplicate evidence declaration "
+                    f"{evidence.kind}: {evidence.reference}"
+                )
+            seen.add(identity)
+
+        for resolution in resolve_contract_evidence(root, summary):
+            if resolution.status == "stale":
+                issues.append(
+                    f"{summary.id}: stale {resolution.evidence.kind} evidence "
+                    f"{resolution.evidence.reference}: {resolution.diagnostic}"
+                )
+                continue
+            if resolution.evidence.kind == "python_test" and resolution.status == "resolved":
+                source = Path(resolution.resolved_path).resolve()
+                try:
+                    relative = source.relative_to(root).as_posix()
+                except ValueError:
+                    issues.append(
+                        f"{summary.id}: Python evidence source escapes repository: "
+                        f"{resolution.resolved_path}"
+                    )
+                    continue
+                if relative not in registry["registered"]:
+                    issues.append(
+                        f"{summary.id}: Python evidence is not covered by the "
+                        f"Python execution registry: {relative} "
+                        f"({resolution.evidence.reference})"
+                    )
+
+    return tuple(dict.fromkeys(issues))
+
+
+def format_report(
+    issues: Iterable[str], changed_files: Iterable[str] = ()
+) -> str:
+    """Render a concise report suitable for terminals and CI logs."""
+    issue_list = tuple(issues)
+    changed = tuple(changed_files)
+    lines = ["OneFLOW Change Preflight"]
+    if changed:
+        lines.append(f"Changed files: {len(changed)}")
+        lines.extend(f"  - {path}" for path in changed)
+    if issue_list:
+        lines.append(f"FAIL: {len(issue_list)} issue(s)")
+        lines.extend(f"  - {issue}" for issue in issue_list)
+    else:
+        lines.append("PASS: contract catalog, evidence references, and Python test registry are consistent.")
+    return "\n".join(lines)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Check OneFLOW contract and test-registration consistency."
+    )
+    parser.add_argument(
+        "--root", type=Path, default=Path(__file__).resolve().parents[2],
+        help="repository root (defaults to the current OneFLOW checkout)",
+    )
+    parser.add_argument(
+        "--changed", action="store_true",
+        help="also list changed paths; consistency checks still cover the full catalog",
+    )
+    args = parser.parse_args(argv)
+    root = args.root.resolve()
+    try:
+        changed = _changed_files(root) if args.changed else ()
+        issues = collect_preflight_issues(root)
+    except (OSError, RuntimeError) as exc:
+        print(f"OneFLOW Change Preflight\nFAIL: {exc}")
+        return 2
+    print(format_report(issues, changed))
+    return 1 if issues else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
