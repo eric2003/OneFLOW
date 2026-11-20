@@ -64,6 +64,8 @@ jobs:
         run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout grid/stl_import grid/stl_to_gmsh tools/oneflow_gui tools/verification
       - name: Test case catalog
         run: python tools/test_mesh_cases.py
+      - name: Test generic STL surface diagnostics
+        run: python -m unittest grid.tests.python.stl_import.test_surface_validation
       - name: Test planar STL to Gmsh geometry generation
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_geometry
       - name: Test STL-to-Gmsh run reports

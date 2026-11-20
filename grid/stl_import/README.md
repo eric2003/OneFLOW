@@ -1,58 +1,51 @@
-# STL file I/O and compatibility cases
+# STL import and surface diagnostics
 
-This directory owns STL file-format handling and focused compatibility cases.
-It does not own planar topology reconstruction or STL-to-Gmsh conversion.
+This package owns STL file-format handling and non-destructive surface
+inspection. It does not own CAD reconstruction, clipping, cap generation,
+CFD boundary assignment, or volume meshing.
 
-## Responsibilities
+## Import and inspection layers
 
-- `reader.py`: ASCII and binary STL record parsing. Facet order and
-  coordinates are preserved; parsing does not weld vertices or infer topology.
-- `surface.py`: geometric operations on triangle surfaces, including
-  tolerance-based vertex identity and extraction of a single planar boundary.
-  These operations do not depend on Gmsh.
-- `inspect.py`: standalone file diagnostics (format, facet count, coordinate
-  bounds and XY planarity). It does not generate meshes or write into the
-  source tree unless the caller explicitly chooses that output path.
-- `run_case.py`: Python reference runner for the STL reader compatibility
-  Cases. It writes reports only inside the externally staged Case directory.
-- `ascii_*`, `binary_*`, and other named directories: small, focused input
-  Cases. Native C++ Cases exercise the production OneFLOW path; Python
-  references provide separate parser/geometry evidence where registered.
+- `reader.py`: ASCII and binary STL parsing. Facet coordinates are preserved;
+  parsing does not weld vertices or infer topology.
+- `validation.py`: scale-aware diagnostics after temporary tolerance-based
+  vertex welding. It reports degenerate/duplicate facets, boundary and
+  non-manifold edges, orientation conflicts, connected components, closedness,
+  Euler characteristic/genus where applicable, and signed volume.
+- `surface.py`: topology operations used by planar conversion.
+- `inspect.py`: standalone JSON report command. It never repairs the source,
+  assigns inlet/outlet/wall semantics, or generates a mesh.
+- `run_case.py`: Python reference runner for focused STL reader Cases.
 
-## Inspection
+## Inspect an arbitrary STL
 
 ```sh
-python grid/stl_import/inspect.py --input path/to/model.stl --output path/to/report.json
+python grid/stl_import/inspect.py --input path/to/model.stl --output path/to/stl_report.json
 ```
 
-The JSON report contains the detected representation, triangle count,
-coordinate bounds and whether all vertices lie in a constant-Z XY plane.
-Planar boundary reconstruction and meshing are deliberately outside this
-command's scope.
+The default weld tolerance is 1e-9 times the bounding-box diagonal, with a
+1e-12 numerical floor. Override it with `--weld-tolerance` in model units.
+STL does not encode units; the report marks units as unknown and never silently
+converts coordinates.
 
-## Python reference Cases
+Report status:
+- `valid`: no detected degenerate/duplicate facets, non-manifold edges or
+  orientation conflicts; one connected component.
+- `warning`: readable and inspectable, but open or multi-component. Open
+  surfaces may be intentional and are not import failures.
+- `invalid`: detected degenerate/duplicate facets, non-manifold edges or
+  inconsistent edge orientation need attention.
 
-Run a catalogued Case through the staging-aware runner:
+`volume_mesh_ready` is stricter than readable: it requires one closed,
+edge-manifold, consistently oriented component with positive signed volume.
+Genus is reported, not restricted to zero. Self-intersection testing is not
+performed in this stage. No repair or CFD boundary inference is performed.
+
+## Python reference tests
 
 ```sh
-python grid/stl_import/run_case.py --case-directory <staged-case-directory>
+python -m unittest grid.tests.python.stl_import.test_surface_validation
 ```
 
-Do not pass a checked-in source Case directory directly: generated results
-must remain outside the repository.
-
-## Test data ownership
-
-Runtime and development Cases keep their own `input/model.stl` so each Case
-remains independently runnable and understandable. Test-only compatibility
-data belongs under `grid/tests/fixtures/`, not in this production STL I/O module.
-The legacy square boundary-sidecar fixture used by the STL-to-Gmsh converter
-tests is maintained at
-`grid/tests/fixtures/stl_to_gmsh/legacy_square/`.
-
-## Related conversion workflow
-
-The complete STL-to-Gmsh workflow, including conversion code, sidecar layouts,
-Gmsh execution and MSH validation, lives in `grid/stl_to_gmsh/`. Its Python
-implementation reuses the STL reader and surface operations from this
-package. See that directory's README for the supported Case progression.
+Do not run a checked-in Case in place; generated results must remain outside
+the repository.
