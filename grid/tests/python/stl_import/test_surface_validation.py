@@ -72,6 +72,34 @@ class StlSurfaceValidationTest(unittest.TestCase):
         with self.assertRaisesRegex(StlGeometryError, "no triangles"):
             analyze_surface([])
 
+    def test_inspect_cli_writes_real_newlines_and_keeps_open_surface_as_warning(self):
+        import json
+        import subprocess
+        import sys
+        import tempfile
+        from pathlib import Path
+
+        stl = (
+            "solid open_surface\n"
+            "facet normal 0 0 1\nouter loop\n"
+            "vertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\n"
+            "endloop\nendfacet\nendsolid open_surface\n"
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            source, output = Path(temp) / "open.stl", Path(temp) / "report.json"
+            source.write_text(stl, encoding="ascii", newline="\\n")
+            result = subprocess.run(
+                [sys.executable, str(Path(__file__).resolve().parents[4] / "stl_import" / "inspect.py"),
+                 "--input", str(source), "--output", str(output)],
+                capture_output=True, text=True, check=False,
+            )
+            self.assertEqual(result.returncode, 0, msg=result.stdout + result.stderr)
+            payload = output.read_bytes()
+            self.assertTrue(payload.endswith(b"\\n"))
+            self.assertNotIn(b"\\\\n", payload)
+            report = json.loads(payload.decode("utf-8"))
+            self.assertEqual(report["surface_quality"]["status"], "warning")
+
 
 if __name__ == "__main__":
     unittest.main()
