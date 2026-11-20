@@ -459,7 +459,8 @@ checksummed artifacts under the build tree and user-data test logs.
 
 Completed cases map to `passed` or `failed`; CTest `notrun` and `disabled`
 cases map to `blocked`, preserving the skip reason. Records retain the exact
-CTest name, CMake registration backtrace source/line when available, command,
+CTest name, test source path for explicitly linked Contract evidence, and
+CMake registration backtrace source/line for unlinked cases, command,
 configuration, repository revision, platform, and shared invocation ID. The
 JUnit duration is validated, while start/finish timestamps represent the
 enclosing CTest command interval because JUnit does not provide an independent

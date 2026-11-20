@@ -80,7 +80,7 @@ def capture_ctest_execution(command: TestCommand, *, repository_root: Path, buil
     cases=_parse_cases(report)
     if not cases: return ()
     discovery=discover_configured_ctest(build,configuration or None,ctest_executable=command.arguments[0])
-    discovered=(); links={}; unresolved={}; runtime=""
+    discovered=(); links={}; source_paths={}; unresolved={}; runtime=""
     if discovery.status=="discovered" and discovery.snapshot is not None:
         discovered=discovery.snapshot.tests; runtime="CTest "+discovery.snapshot.version.text
         try: matches=audit_configured_ctest_evidence(root,discovered); audit_error=""
@@ -88,6 +88,8 @@ def capture_ctest_execution(command: TestCommand, *, repository_root: Path, buil
         for item in matches:
             if item.status=="discovered" and item.discovered_name:
                 links.setdefault(item.discovered_name,[]).append(item.contract_id)
+                if item.source_path:
+                    source_paths.setdefault(item.discovered_name,set()).add(item.source_path)
             elif item.reference:
                 unresolved.setdefault(item.reference,[]).append(
                     f"Contract {item.contract_id} not linked ({item.status}): {item.diagnostic}")
@@ -103,8 +105,14 @@ def capture_ctest_execution(command: TestCommand, *, repository_root: Path, buil
     commit=_git_value(root,"rev-parse","HEAD"); branch=_git_value(root,"branch","--show-current")
     records=[]
     for name,outcome,details,_duration in cases:
-        source_path,source_line=_source(test_map.get(name),root,build)
+        candidates=source_paths.get(name,set())
         diagnostics=list(details)+unresolved.get(name,[])+unresolved.get("",[])
+        if len(candidates)==1:
+            source_path=next(iter(candidates)); source_line=None
+        else:
+            source_path,source_line=_source(test_map.get(name),root,build)
+            if len(candidates)>1:
+                diagnostics.append("Multiple Contract evidence source paths match this CTest identity; using CMake registration provenance.")
         records.append(ExecutionRecord(
             test_id="ctest:"+name,framework="CTest",test_name=name,source_path=source_path,
             source_line=source_line,command=tuple(command.arguments),outcome=outcome,
