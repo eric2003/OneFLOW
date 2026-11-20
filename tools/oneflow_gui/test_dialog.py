@@ -108,6 +108,11 @@ class TestCommandWorker(QThread):
             try:
                 if command.label.startswith("CMake configure"):
                     command.working_directory.mkdir(parents=True, exist_ok=True)
+                if is_ctest_command(command):
+                    try:
+                        ctest_junit_path(command).unlink()
+                    except FileNotFoundError:
+                        pass
                 with subprocess.Popen(
                     list(command.arguments),
                     cwd=command.working_directory,

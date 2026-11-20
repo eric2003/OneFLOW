@@ -98,6 +98,7 @@ class TestCommandWorkerEvidenceTest(unittest.TestCase):
             self.assertEqual(arguments["junit_path"], junit)
             self.assertEqual(arguments["configuration"], "Debug")
             self.assertEqual(arguments["artifact_directory"], paths.test_run_logs)
+            self.assertFalse(junit.exists(), "the previous JUnit report must be removed before launch")
 
     def test_process_launch_failure_does_not_create_execution_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
