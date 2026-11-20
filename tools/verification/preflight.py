@@ -100,7 +100,7 @@ def find_cpp_test_candidates(
         return ()
     declaration = re.compile(
         rf"\b(?:TEST(?:_F|_P)?|TYPED_TEST(?:_P)?)\s*"
-        rf"\\(\s*{re.escape(suite)}\s*,\s*{re.escape(test_name)}\s*\\)"
+        rf"\(\s*{re.escape(suite)}\s*,\s*{re.escape(test_name)}\s*\)"
     )
     root = Path(repository_root).resolve()
     ignored = {".git", ".venv", "venv", "build", "out", "cmake-build-debug",
