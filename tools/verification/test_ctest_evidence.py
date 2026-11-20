@@ -69,14 +69,14 @@ class ConfiguredCTestEvidenceTest(unittest.TestCase):
 
     def test_pre_test_discovery_absence_is_reported_as_deferred(self):
         result = match_configured_ctest_evidence(
-            "c", "Suite.Test", "x.cpp", (target(mode="POST_BUILD"),), ()
+            "c", "Suite.Test", "x.cpp", (target(),), ()
         )
         self.assertEqual(result.status, "discovery_deferred")
         self.assertIn("run CTest once", result.diagnostic)
 
     def test_reports_absent_configured_test_without_calling_it_a_failure(self):
         result = match_configured_ctest_evidence(
-            "c", "Suite.Test", "x.cpp", (target(),), ()
+            "c", "Suite.Test", "x.cpp", (target(mode="POST_BUILD"),), ()
         )
         self.assertEqual(result.status, "not_discovered")
         self.assertIn("configured CTest list", result.diagnostic)
