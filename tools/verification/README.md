@@ -535,3 +535,23 @@ Its unit tests use a temporary directory and verify formula values, zone
 structure, point counts, and endpoint values. This is an analytic reference
 profile generator, not evidence that a CFD discretization or solver converges
 to the profile.
+
+
+## Repository change preflight
+
+Run `python -m tools.verification.preflight` before committing a functional
+slice. The read-only command reuses the Contract Catalog and Python test
+inventory to check contract schema and paths, supported evidence declarations,
+duplicate evidence identities, Python unittest source declarations, and
+coverage by the existing Python execution registry.
+
+Use `python -m tools.verification.preflight --changed` to include a summary of
+staged, unstaged, and untracked paths. The check remains repository-wide so
+that changes are not validated in isolation from their contract and test
+relationships. It is also executed by Python Tooling CI.
+
+A PASS is a declaration-consistency result, not a test execution result. The
+tool does not claim that C++ targets build, CTest discovers every GoogleTest,
+Python tests pass, or CFD results are physically validated. See
+`doc/source/change_preflight.rst` for the command contract, boundaries, and
+recommended workflow.
