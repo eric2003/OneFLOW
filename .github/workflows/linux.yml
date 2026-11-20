@@ -125,6 +125,8 @@ jobs:
           MPICH_DEVICE: ch3:sock
           UCX_TLS: tcp,self
         run: |
+          cd ${{ github.workspace }}
+          python -m tools.verification.ctest_evidence --build-dir build
           cd ${{ github.workspace }}/build
           # 如果之前 cmake 没有开启测试，可以在这里重新配置一次（可选）
           # cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/Run -DBUILD_TESTING=ON ../

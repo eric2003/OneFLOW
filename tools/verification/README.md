@@ -139,6 +139,10 @@ Example:
 python -m tools.verification.ctest_evidence --build-dir build --configuration Debug
 ```
 
+The native Linux and Windows CI workflows also run this query against their
+configured build trees before invoking CTest, preserving the distinction
+between test registration and test execution.
+
 Use `--require-all` only for build configurations where every declared test
 is expected to be enabled. Optional external-tool and hardware tests may not
 be present in every build. A discovered test is registered in that configured

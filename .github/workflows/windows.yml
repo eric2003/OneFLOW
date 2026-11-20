@@ -80,6 +80,12 @@ jobs:
               }
           }
 
+          cd "${{ github.workspace }}"
+          python -m tools.verification.ctest_evidence --build-dir build --configuration Release
+          if ($LASTEXITCODE -ne 0) {
+              throw "Configured CTest evidence query failed with exit code $LASTEXITCODE."
+          }
+
           cd "${{ github.workspace }}/build"
           ctest --output-on-failure -C Release
           if ($LASTEXITCODE -ne 0) {

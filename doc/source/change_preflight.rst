@@ -54,7 +54,9 @@ without running tests:
 
    python -m tools.verification.ctest_evidence --build-dir build --configuration Debug
 
-The command uses ``ctest -N --show-only=json-v1``. It compares exact GoogleTest
+The command uses ``ctest -N --show-only=json-v1``. Both native Linux and Windows
+CI workflows run this report against their configured build tree before CTest
+execution. It compares exact GoogleTest
 contract identities with configured CTest test names and checks target
 provenance using the discovered executable name or CMake backtrace file. It
 reports ``discovered``, ``not_discovered``, ``target_unmapped``,
