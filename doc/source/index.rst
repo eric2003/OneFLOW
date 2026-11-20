@@ -59,6 +59,8 @@ Mesh and engineering workflows
 Developer resources
 -------------------
 
+* :doc:`change_preflight` — repository-wide contract, evidence, and Python test-registration checks before committing.
+
 * :doc:`test_inventory` — source-discovered test catalog, separated by framework, with input/expected/result contracts.
 * :doc:`cmake_build_architecture` — module source discovery, compatibility rules, dependency boundaries, and CMake self-tests.
 * :doc:`runtime_architecture` — runtime entry points, configuration boundaries, execution flow, and refactoring rules.
