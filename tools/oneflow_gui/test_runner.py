@@ -220,6 +220,7 @@ _PYTHON_UNIT_TESTS = (
     ("STL-to-Gmsh geometry tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_geometry")),
     ("STL-to-Gmsh run report tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_run_report")),
     ("STL geometry generator tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_stl_geometry_generation")),
+    ("STL surface validation tests", ("-m", "unittest", "grid.tests.python.stl_import.test_surface_validation")),
     ("Native and Python STL-to-Gmsh Case tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases")),
     ("Mesh-to-CFD Validation tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_validation")),
     ("MeshSnapshot contract tests", ("-m", "unittest", "tools.mesh_contracts.test_snapshot")),
