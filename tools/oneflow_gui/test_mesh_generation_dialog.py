@@ -467,6 +467,58 @@ class MeshGenerationDialogTest(unittest.TestCase):
             finally:
                 dialog.close()
 
+    def test_generic_cut_region_artifacts_are_copied_into_mesh_project(self) -> None:
+        import hashlib
+        import json
+        from types import SimpleNamespace
+        from tools.oneflow_gui.mesh_project import create_mesh_project_from_stl
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "cut"
+            source.mkdir()
+            closed = source / "closed_surface.stl"
+            closed.write_text("solid closed\\nendsolid closed\\n", encoding="ascii")
+            regions = {}
+            for key, filename in (
+                ("wall", "wall.stl"),
+                ("inflow", "inlet.stl"),
+                ("outflow", "outlet.stl"),
+            ):
+                path = source / filename
+                path.write_text(f"solid {key}\\nendsolid {key}\\n", encoding="ascii")
+                regions[key] = {
+                    "file": filename,
+                    "triangle_count": 1,
+                    "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                }
+            (source / "region_manifest.json").write_text(
+                json.dumps({
+                    "schema": "oneflow.stl-surface-regions",
+                    "version": 1,
+                    "closed_surface_file": "closed_surface.stl",
+                    "closed_surface_sha256": hashlib.sha256(closed.read_bytes()).hexdigest(),
+                    "regions": regions,
+                }),
+                encoding="utf-8",
+            )
+            workspace = root / "workspace"
+            with patch(
+                "tools.oneflow_gui.mesh_project.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                project = create_mesh_project_from_stl(
+                    self.repository_root, closed, "region_project"
+                )
+            project_input = project["directory"] / "input"
+            self.assertTrue((project_input / "region_manifest.json").is_file())
+            self.assertTrue((project_input / "wall.stl").is_file())
+            self.assertTrue((project_input / "inlet.stl").is_file())
+            self.assertTrue((project_input / "outlet.stl").is_file())
+            self.assertEqual(
+                project["boundary_regions"], ["inflow", "outflow", "wall"]
+            )
+
     def test_open_mesh_project_displays_geometry_lineage(self) -> None:
         from types import SimpleNamespace
 
