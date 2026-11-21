@@ -925,6 +925,36 @@ def inspect_msh4(path: Path) -> dict:
     )
     area_tolerance = 64.0 * math.ulp(1.0) * coordinate_scale * coordinate_scale
 
+    entity_tokens = " ".join(section("Entities")).split()
+    if len(entity_tokens) < 4:
+        raise Stl2DError("MSH Entities section is empty or truncated")
+    entity_counts = list(map(int, entity_tokens[:4]))
+    entity_cursor = 4
+    entity_physical_tags: dict[tuple[int, int], list[int]] = {}
+    for dimension, entity_count in enumerate(entity_counts):
+        for _ in range(entity_count):
+            if entity_cursor >= len(entity_tokens):
+                raise Stl2DError("truncated MSH 4.1 entity record")
+            entity_tag = int(entity_tokens[entity_cursor])
+            entity_cursor += 1
+            entity_cursor += 3 if dimension == 0 else 6
+            if entity_cursor >= len(entity_tokens):
+                raise Stl2DError("truncated MSH 4.1 entity physical-tag count")
+            physical_count = int(entity_tokens[entity_cursor])
+            entity_cursor += 1
+            if entity_cursor + physical_count > len(entity_tokens):
+                raise Stl2DError("truncated MSH 4.1 entity physical tags")
+            physical_tags = list(map(int, entity_tokens[entity_cursor:entity_cursor + physical_count]))
+            entity_cursor += physical_count
+            entity_physical_tags[(dimension, entity_tag)] = physical_tags
+            if dimension > 0:
+                if entity_cursor >= len(entity_tokens):
+                    raise Stl2DError("truncated MSH 4.1 entity boundary count")
+                boundary_count = int(entity_tokens[entity_cursor])
+                entity_cursor += 1 + boundary_count
+    if entity_cursor != len(entity_tokens):
+        raise Stl2DError("MSH 4.1 Entities section has unexpected trailing values")
+
     element_tokens = " ".join(section("Elements")).split()
     if len(element_tokens) < 4:
         raise Stl2DError("MSH Elements section is empty or truncated")
@@ -932,6 +962,7 @@ def inspect_msh4(path: Path) -> dict:
     cursor = 4
     element_types: Counter[int] = Counter()
     element_records: list[tuple[int, int, tuple[int, ...]]] = []
+    physical_group_element_counts: Counter[tuple[int, int]] = Counter()
     triangle_areas: list[float] = []
     triangle_qualities: list[float] = []
     triangle_min_angles: list[float] = []
@@ -939,7 +970,7 @@ def inspect_msh4(path: Path) -> dict:
     for _ in range(element_block_count):
         if cursor + 4 > len(element_tokens):
             raise Stl2DError("truncated MSH 4.1 element block header")
-        entity_dim, _entity_tag, element_type, count = map(
+        entity_dim, entity_tag, element_type, count = map(
             int, element_tokens[cursor:cursor + 4]
         )
         cursor += 4
@@ -947,6 +978,8 @@ def inspect_msh4(path: Path) -> dict:
         if arity is None:
             raise Stl2DError(f"unsupported element type {element_type} in reference mesh")
         element_types[element_type] += count
+        for physical_tag in entity_physical_tags.get((entity_dim, entity_tag), []):
+            physical_group_element_counts[(entity_dim, physical_tag)] += count
         for _element in range(count):
             if cursor + 1 + arity > len(element_tokens):
                 raise Stl2DError("truncated MSH 4.1 element connectivity")
@@ -1020,6 +1053,9 @@ def inspect_msh4(path: Path) -> dict:
                 "dimension": int(values[0]),
                 "tag": int(values[1]),
                 "name": values[2].strip().strip('"'),
+                "element_count": physical_group_element_counts.get(
+                    (int(values[0]), int(values[1])), 0
+                ),
             })
         if len(physical_groups) != expected_groups:
             raise Stl2DError("MSH PhysicalNames count does not match its header")
