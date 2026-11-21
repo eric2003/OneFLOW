@@ -32,34 +32,32 @@ def _boundary_summary(edges):
     for a, b in edges:
         adjacency[a].add(b)
         adjacency[b].add(a)
-    pending, count = set(adjacency), 0
+    pending, component_sizes = set(adjacency), []
     branches = sum(len(neighbors) != 2 for neighbors in adjacency.values())
     while pending:
-        count += 1
         start = min(pending)
         pending.remove(start)
-        stack = [start]
+        stack, vertex_count = [start], 0
         while stack:
             current = stack.pop()
+            vertex_count += 1
             for other in adjacency[current] & pending:
                 pending.remove(other)
                 stack.append(other)
+        component_sizes.append(vertex_count)
     return {
         "boundary_edge_count": len(edges),
         "boundary_vertex_count": len(adjacency),
-        "boundary_component_count": count,
+        "boundary_component_count": len(component_sizes),
         "boundary_branch_vertex_count": branches,
+        "boundary_loop_count": len(component_sizes) if edges and branches == 0 else 0,
+        "boundary_component_vertex_counts": component_sizes,
         "boundary_is_loop_like": bool(edges) and branches == 0,
     }
 
 
 def analyze_surface(triangles: Iterable[Triangle], weld_tolerance: float | None = None) -> dict:
-    """Inspect a triangle surface without repairing or changing its input.
-
-    Default weld tolerance: max(1e-9 * bounding-box diagonal, 1e-12).
-    Explicit tolerance is absolute and expressed in the STL's model units.
-    Open and multi-component surfaces are reported rather than rejected.
-    """
+    """Inspect a triangle surface without repairing or changing its input."""
     faces = list(triangles)
     if not faces:
         raise StlGeometryError("STL contains no triangles")
@@ -133,8 +131,7 @@ def analyze_surface(triangles: Iterable[Triangle], weld_tolerance: float | None 
             "vertex_count": len(vertices), "edge_count": len(edges),
             "closed": is_closed, "consistently_oriented": is_oriented,
             "euler_characteristic": euler if is_closed and is_oriented else None,
-            "genus": genus,
-            "signed_volume": signed_volume if is_closed and is_oriented else None,
+            "genus": genus, "signed_volume": signed_volume if is_closed and is_oriented else None,
             "outward_winding": outward,
         })
 
@@ -150,18 +147,13 @@ def analyze_surface(triangles: Iterable[Triangle], weld_tolerance: float | None 
         "welded_vertex_count": len(points), "unique_edge_count": len(edge_faces),
         "coordinate_bounds": bounds, "bounding_box_diagonal": diagonal,
         "weld_tolerance": tolerance, "surface_area": sum(areas),
-        "degenerate_triangle_count": len(degenerate),
-        "zero_area_triangle_count": len(zero_area),
-        "duplicate_triangle_count": duplicates,
-        "boundary_edge_count": len(boundary_edges),
-        "non_manifold_edge_count": len(non_manifold),
-        "orientation_conflict_edge_count": len(conflicts),
-        "connected_component_count": len(components),
-        "closed": closed, "edge_manifold": edge_manifold,
-        "consistently_oriented": consistently_oriented,
+        "degenerate_triangle_count": len(degenerate), "zero_area_triangle_count": len(zero_area),
+        "duplicate_triangle_count": duplicates, "boundary_edge_count": len(boundary_edges),
+        "non_manifold_edge_count": len(non_manifold), "orientation_conflict_edge_count": len(conflicts),
+        "connected_component_count": len(components), "closed": closed,
+        "edge_manifold": edge_manifold, "consistently_oriented": consistently_oriented,
         "boundary": boundary, "components": component_reports,
-        "self_intersection_check": "not_performed",
-        "units": "unknown", "repairs_performed": False,
+        "self_intersection_check": "not_performed", "units": "unknown", "repairs_performed": False,
         "volume_mesh_ready": bool(status == "valid" and closed and consistently_oriented
                                    and len(components) == 1
                                    and component_reports[0]["outward_winding"] is True),

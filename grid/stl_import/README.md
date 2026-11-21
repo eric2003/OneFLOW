@@ -73,3 +73,41 @@ python -m unittest grid.tests.python.stl_import.test_surface_validation
 
 Do not run a checked-in Case in place; generated results must remain outside
 the repository.
+
+
+## Stage B1-B3: cut the analytic cylinder
+
+The first cutting implementation deliberately starts from an explicit
+analytic definition rather than the STL manifest or patch indices. The axis
+is X, the centerline is y=z=0, and the lateral surface satisfies:
+
+    y^2 + z^2 = R^2
+
+A plane x=c intersects the cylinder in the circle:
+
+    (x,y,z) = (c, R cos(theta), R sin(theta))
+
+For the standard example, choose x=-1.5 and x=+1.5. Retain only the lateral
+surface between those planes. Do not create end caps. This produces one
+connected open surface with exactly two boundary loops.
+
+On Windows PowerShell, run:
+
+    python grid/stl_import/analytic_cylinder.py --cut-start -1.5 --cut-end 1.5 --output-stl "$env:USERPROFILE/.oneflow/grid-development/stl-cutting/cylinder_internal_flow/cylinder_cut.stl" --report "$env:USERPROFILE/.oneflow/grid-development/stl-cutting/cylinder_internal_flow/cut_report.json"
+
+Then run the generic Stage A inspector independently:
+
+    python grid/stl_import/inspect.py --input "$env:USERPROFILE/.oneflow/grid-development/stl-cutting/cylinder_internal_flow/cylinder_cut.stl" --output "$env:USERPROFILE/.oneflow/grid-development/stl-cutting/cylinder_internal_flow/stage_a_report.json"
+
+On Linux, replace the output root with
+$HOME/.oneflow/grid-development/stl-cutting/cylinder_internal_flow/.
+
+The default discretization is 48 circumferential by 12 axial divisions. The
+cut report records the analytic parameters. The separate Stage A report
+re-reads only the generated STL and verifies two boundary loops, 48 edges per
+loop, one connected surface component, and no non-manifold edges. The open
+surface is intentionally not volume-mesh-ready.
+
+This is a bounded analytic reference implementation, not yet a generic STL
+clipper. Generic plane/triangle clipping on an unknown curved pipe is deferred
+until this analytic case is proven.

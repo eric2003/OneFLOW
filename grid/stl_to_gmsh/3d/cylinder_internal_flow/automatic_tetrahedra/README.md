@@ -66,3 +66,25 @@ Stage B is intentionally separate: users will specify two cutting planes,
 then the cut surface will be passed through Stage A again. The expected result
 is two simple open boundary loops; their inlet/outlet meanings come from the
 user's plane definitions, not from the original STL.
+
+
+## Stage B: analytic cutting before generic STL cutting
+
+The first cut is made from an explicit analytic cylinder definition:
+axis X, centerline y=z=0, radius 1, extent -2 to +2. It is not reconstructed
+from model.geometry.json and does not consume facet patch indices.
+
+For planes x=-1.5 and x=+1.5, the equation y^2+z^2=R^2 gives two circular
+intersection curves. Retain the lateral surface parameterized by
+(x, R cos(theta), R sin(theta)) between those planes. Omit the original end
+caps and do not create planar caps. The result is one open surface component
+with exactly two boundary loops.
+
+Run grid/stl_import/analytic_cylinder.py and then re-run the generic
+grid/stl_import/inspect.py against the generated STL. Both outputs must be
+under .oneflow/grid-development/stl-cutting/cylinder_internal_flow. The
+default tessellation is 48 circumferential by 12 axial divisions.
+
+This stage establishes the analytic reference only. It does not yet clip
+arbitrary input STL triangles. Generic plane/triangle clipping on an unknown
+curved pipe is the next stage, after the analytic boundary-loop checks pass.
