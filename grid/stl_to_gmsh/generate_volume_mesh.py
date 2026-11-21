@@ -141,10 +141,14 @@ def generate(
                 geometry_kind = json.loads(manifest_path.read_text(encoding="utf-8")).get("geometry")
             except (OSError, json.JSONDecodeError) as error:
                 raise ValueError(f"Cannot read STL geometry manifest: {manifest_path}: {error}") from error
-        volume_mesh_kind = ("cylinder_internal_flow" if geometry_kind == "cylinder_internal_flow"
-                            else "closed_surface_automatic_tetrahedra")
+        region_manifest = stl.parent / "region_manifest.json"
+        if region_manifest.is_file():
+            volume_mesh_kind = "region_aware_closed_surface_automatic_tetrahedra"
+        else:
+            volume_mesh_kind = ("cylinder_internal_flow" if geometry_kind == "cylinder_internal_flow"
+                                else "closed_surface_automatic_tetrahedra")
         config = {
-            "volume_mesh":volume_mesh_kind, "mesh_dimension":3,
+            "volume_mesh":volume_mesh_kind, "mesh_dimension":3,\n            "region_manifest":str(region_manifest) if region_manifest.is_file() else None,
             "mesh_size_min":mesh_size_min, "mesh_size_max":mesh_size_max,
             "surface_name":volume_name, "boundary_name":boundary_name,
             "surface_angle_degrees":surface_angle_degrees,
