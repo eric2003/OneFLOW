@@ -411,6 +411,92 @@ def validate_closed_genus_zero_surface(
     }
 
 
+def _region_aware_closed_surface_volume_geo(
+    stl: Path, triangles: list[Triangle], config: dict, tolerance: float
+) -> tuple[str, dict]:
+    """Build a volume mesh while preserving the cutter's named STL regions."""
+    topology = validate_closed_genus_zero_surface(triangles, tolerance)
+    manifest_path = Path(str(config.get("region_manifest", ""))).expanduser().resolve()
+    if not manifest_path.is_file():
+        raise Stl2DError(f"region manifest does not exist: {manifest_path}")
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise Stl2DError(f"cannot read region manifest: {exc}") from exc
+    if manifest.get("schema") != "oneflow.stl-surface-regions" or manifest.get("version") != 1:
+        raise Stl2DError("unsupported STL surface-region manifest")
+    regions = manifest.get("regions")
+    if not isinstance(regions, dict) or set(regions) != {"wall", "inflow", "outflow"}:
+        raise Stl2DError("region manifest must define wall, inflow and outflow")
+    import hashlib
+    import shlex
+    region_paths = {}
+    region_counts = {}
+    for name in ("wall", "inflow", "outflow"):
+        record = regions[name]
+        if not isinstance(record, dict):
+            raise Stl2DError(f"invalid {name} region record")
+        relative = Path(str(record.get("file", "")))
+        if relative.is_absolute() or ".." in relative.parts or len(relative.parts) != 1:
+            raise Stl2DError(f"{name} region file must be a manifest-relative filename")
+        path = (manifest_path.parent / relative).resolve()
+        if not path.is_file():
+            raise Stl2DError(f"{name} region STL does not exist: {path}")
+        if hashlib.sha256(path.read_bytes()).hexdigest() != record.get("sha256"):
+            raise Stl2DError(f"{name} region STL checksum does not match its manifest")
+        region_triangles = read_stl(path)
+        if not region_triangles or len(region_triangles) != record.get("triangle_count"):
+            raise Stl2DError(f"{name} region triangle count does not match its manifest")
+        region_paths[name] = path
+        region_counts[name] = len(region_triangles)
+    if sum(region_counts.values()) != len(triangles):
+        raise Stl2DError("wall, inflow and outflow triangle counts do not cover the closed STL")
+    if hashlib.sha256(stl.read_bytes()).hexdigest() != manifest.get("closed_surface_sha256"):
+        raise Stl2DError("closed STL checksum does not match its region manifest")
+
+    mesh_size_min = float(config.get("mesh_size_min", config.get("mesh_size", 0.2)))
+    mesh_size_max = float(config.get("mesh_size_max", config.get("mesh_size", 0.2)))
+    if (not math.isfinite(mesh_size_min) or mesh_size_min <= 0
+            or not math.isfinite(mesh_size_max) or mesh_size_max <= 0
+            or mesh_size_min > mesh_size_max):
+        raise Stl2DError("mesh size bounds must be positive, finite and ordered")
+    lines = [
+        "// Region-preserving generic STL cutting volume mesh.",
+        'SetFactory("Built-in");',
+        "Mesh.MshFileVersion = 4.1;",
+        "Mesh.Binary = 0;",
+        "Mesh.ElementOrder = 1;",
+    ]
+    for name in ("wall", "inflow", "outflow"):
+        path = region_paths[name].as_posix()
+        if '"' in path:
+            raise Stl2DError("region STL path must not contain a quote character")
+        lines.extend((f'Merge "{path}";', f'{name}[] = Surface{{:}};'))
+    lines.extend((
+        "CreateGeometry;",
+        "Surface Loop(1) = {wall[], inflow[], outflow[]};",
+        "Volume(1) = {1};",
+        f"Mesh.MeshSizeMin = {mesh_size_min:.17g};",
+        f"Mesh.MeshSizeMax = {mesh_size_max:.17g};",
+        "Mesh.MeshSizeFromPoints = 1;",
+        "Mesh.MeshSizeExtendFromBoundary = 1;",
+        'Physical Surface("wall") = {wall[]};',
+        'Physical Surface("inflow") = {inflow[]};',
+        'Physical Surface("outflow") = {outflow[]};',
+        'Physical Volume("fluid_domain") = {1};',
+        "",
+    ))
+    return "\\n".join(lines), {
+        **topology,
+        "geometry": "region_aware_generic_stl",
+        "region_triangle_counts": region_counts,
+        "physical_groups": ["wall", "inflow", "outflow", "fluid_domain"],
+        "mesh_size_min": mesh_size_min,
+        "mesh_size_max": mesh_size_max,
+        "region_manifest": str(manifest_path),
+    }
+
+
 def _closed_surface_volume_geo(
     stl: Path, triangles: list[Triangle], config: dict, tolerance: float
 ) -> tuple[str, dict]:
@@ -638,6 +724,14 @@ def _cylinder_internal_flow_geo(
 def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dict:
     sidecar_data = json.loads(sidecar.read_text(encoding="utf-8"))
     volume_mesh = sidecar_data.get("volume_mesh")
+    if sidecar_data.get("mesh_dimension") == 3 and volume_mesh == "region_aware_closed_surface_automatic_tetrahedra":
+        geometry, report = _region_aware_closed_surface_volume_geo(
+            stl, triangles, sidecar_data, tolerance
+        )
+        geo.parent.mkdir(parents=True, exist_ok=True)
+        geo.write_text(geometry, encoding="utf-8", newline="\\n")
+        report["geo"] = str(geo)
+        return report
     if sidecar_data.get("mesh_dimension") == 3 and volume_mesh == "cylinder_internal_flow":
         # Check provenance before parsing the STL. A modified file should
         # report a manifest/checksum error even if the modification also
