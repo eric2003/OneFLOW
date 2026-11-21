@@ -138,6 +138,41 @@ def _validate_region_metadata_compatibility(stl_file: Path) -> dict | None:
     return manifest
 
 
+def _copy_region_manifest(source_stl: Path, destination_stl: Path) -> dict | None:
+    """Copy checksum-verified named boundary STL regions beside a project STL."""
+    manifest_path = source_stl.parent / "region_manifest.json"
+    if not manifest_path.is_file():
+        return None
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(f"Cannot read STL region manifest: {manifest_path}: {error}") from error
+    if (
+        manifest.get("schema") != "oneflow.stl-surface-regions"
+        or manifest.get("version") != 1
+        or not isinstance(manifest.get("regions"), dict)
+        or set(manifest["regions"]) != {"wall", "inflow", "outflow"}
+    ):
+        raise ValueError(f"Unsupported STL region manifest: {manifest_path}")
+    import hashlib
+    if hashlib.sha256(source_stl.read_bytes()).hexdigest() != manifest.get("closed_surface_sha256"):
+        raise ValueError("Closed STL checksum does not match region_manifest.json")
+    for name in ("wall", "inflow", "outflow"):
+        record = manifest["regions"][name]
+        relative = Path(str(record.get("file", "")))
+        if relative.is_absolute() or len(relative.parts) != 1 or ".." in relative.parts:
+            raise ValueError(f"{name} region filename must be a simple relative filename")
+        region_source = source_stl.parent / relative
+        if not region_source.is_file():
+            raise FileNotFoundError(f"Missing {name} region STL: {region_source}")
+        if hashlib.sha256(region_source.read_bytes()).hexdigest() != record.get("sha256"):
+            raise ValueError(f"{name} region STL checksum does not match its manifest")
+        shutil.copy2(region_source, destination_stl.parent / relative.name)
+    destination_manifest = destination_stl.parent / "region_manifest.json"
+    shutil.copy2(manifest_path, destination_manifest)
+    return manifest
+
+
 def create_mesh_project_from_stl(
     repository_root: Path, stl_file: Path, project_name: str | None = None,
 ) -> dict:
@@ -149,12 +184,14 @@ def create_mesh_project_from_stl(
     directory = _new_project_directory(project_name or source.stem)
     input_directory = directory / "input"
     input_directory.mkdir()
-    shutil.copy2(source, input_directory / "model.stl")
+    project_stl = input_directory / "model.stl"
+    shutil.copy2(source, project_stl)
     if geometry_manifest is not None:
         shutil.copy2(
             source.with_suffix(".geometry.json"),
-            (input_directory / "model.stl").with_suffix(".geometry.json"),
+            project_stl.with_suffix(".geometry.json"),
         )
+    region_manifest = _copy_region_manifest(source, project_stl)
     (directory / "results").mkdir()
     manifest = {
         "schema": _PROJECT_SCHEMA,
@@ -168,7 +205,7 @@ def create_mesh_project_from_stl(
         "boundary_name": "wall",
         "volume_name": "fluid_domain",
         "source_stl": str(source),
-        "geometry": geometry_manifest.get("geometry") if geometry_manifest else None,
+        "geometry": geometry_manifest.get("geometry") if geometry_manifest else None,\n        "boundary_regions": sorted(region_manifest["regions"]) if region_manifest else None,
     }
     return _write_manifest(directory, manifest)
 
@@ -389,6 +426,13 @@ def replace_project_stl(project: dict, stl_file: Path) -> dict:
         shutil.copy2(source_sidecar, destination_sidecar)
     else:
         destination_sidecar.unlink(missing_ok=True)
+    region_manifest_path = destination.parent / "region_manifest.json"
+    for region_name in ("wall", "inflow", "outflow"):
+        (destination.parent / f"{region_name}.stl").unlink(missing_ok=True)
+    region_manifest = _copy_region_manifest(source, destination)
+    if region_manifest is None:
+        region_manifest_path.unlink(missing_ok=True)
+    manifest["boundary_regions"] = sorted(region_manifest["regions"]) if region_manifest else None
     manifest["geometry"] = (
         geometry_manifest.get("geometry") if geometry_manifest else None
     )
