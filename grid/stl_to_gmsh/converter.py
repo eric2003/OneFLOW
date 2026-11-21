@@ -734,14 +734,6 @@ def _cylinder_internal_flow_geo(
 def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dict:
     sidecar_data = json.loads(sidecar.read_text(encoding="utf-8"))
     volume_mesh = sidecar_data.get("volume_mesh")
-    if sidecar_data.get("mesh_dimension") == 3 and volume_mesh == "region_aware_closed_surface_automatic_tetrahedra":
-        geometry, report = _region_aware_closed_surface_volume_geo(
-            stl, triangles, sidecar_data, tolerance
-        )
-        geo.parent.mkdir(parents=True, exist_ok=True)
-        geo.write_text(geometry, encoding="utf-8", newline="\\n")
-        report["geo"] = str(geo)
-        return report
     if sidecar_data.get("mesh_dimension") == 3 and volume_mesh == "cylinder_internal_flow":
         # Check provenance before parsing the STL. A modified file should
         # report a manifest/checksum error even if the modification also
@@ -759,6 +751,14 @@ def convert(stl: Path, sidecar: Path, geo: Path, tolerance: float = 1e-9) -> dic
         if hashlib.sha256(stl.read_bytes()).hexdigest() != manifest.get("stl_sha256"):
             raise Stl2DError("cylinder STL checksum does not match its geometry manifest")
     triangles = read_stl(stl)
+    if sidecar_data.get("mesh_dimension") == 3 and volume_mesh == "region_aware_closed_surface_automatic_tetrahedra":
+        geometry, report = _region_aware_closed_surface_volume_geo(
+            stl, triangles, sidecar_data, tolerance
+        )
+        geo.parent.mkdir(parents=True, exist_ok=True)
+        geo.write_text(geometry, encoding="utf-8", newline="\n")
+        report["geo"] = str(geo)
+        return report
     if sidecar_data.get("mesh_dimension") == 3 and volume_mesh == "cylinder_internal_flow":
         geometry, report = _cylinder_internal_flow_geo(
             stl, triangles, sidecar_data, tolerance
