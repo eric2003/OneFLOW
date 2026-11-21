@@ -102,16 +102,27 @@ def _validate_shell(triangles: list[Triangle], tolerance: float) -> None:
     points, triangle_ids = _weld_vertices(raw, tolerance)
     uses = defaultdict(list)
     adjacency = defaultdict(set)
-    for ids in triangle_ids:
+    signed_volume = 0.0
+    for triangle, ids in zip(triangles, triangle_ids):
         if len(set(ids)) != 3:
             raise StlGeometryError("STL contains a degenerate triangle after vertex welding")
+        a, b, c = triangle
+        signed_volume += (
+            a[0] * (b[1]*c[2] - b[2]*c[1])
+            + a[1] * (b[2]*c[0] - b[0]*c[2])
+            + a[2] * (b[0]*c[1] - b[1]*c[0])
+        ) / 6.0
         for index in range(3):
-            a, b = ids[index], ids[(index+1) % 3]
-            uses[tuple(sorted((a, b)))].append(1 if a < b else -1)
-            adjacency[a].add(b)
-            adjacency[b].add(a)
+            first, second = ids[index], ids[(index+1) % 3]
+            uses[tuple(sorted((first, second)))].append(
+                1 if first < second else -1
+            )
+            adjacency[first].add(second)
+            adjacency[second].add(first)
     if any(len(values) != 2 or sum(values) != 0 for values in uses.values()):
         raise StlGeometryError("generic cutting requires one closed, consistently oriented, two-manifold STL shell")
+    if not math.isfinite(signed_volume) or signed_volume <= tolerance**3:
+        raise StlGeometryError("STL triangle winding must point outward and enclose positive volume")
     pending, visited = [0], set()
     while pending:
         current = pending.pop()
