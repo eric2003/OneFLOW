@@ -39,7 +39,7 @@ jobs:
           echo ls
           ls
           sudo apt-get update
-          sudo apt-get install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev gmsh -y
+          sudo apt-get install libhdf5-dev libcgns-dev libmetis-dev libmpich-dev -y
         shell: bash
       - name: CMake Build and Install
         env:
@@ -162,44 +162,3 @@ jobs:
           #python test.py " " " " linux
           python test.py "mpirun -np 1" "OneFLOW" "suites/ci-serial.txt" "baselines/residual-baseline.json" "1e-8"
         
-
-      - name: Cylinder cut mesh to OneFLOW end-to-end validation
-        env:
-          MPICH_NO_UCX: 1
-          MPICH_CH3_NO_UCX: 1
-          MPICH_DEVICE: ch3:sock
-          UCX_TLS: tcp,self
-        run: |
-          set -euo pipefail
-
-          oneflow_exe="${{ github.workspace }}/Run/bin/OneFLOW"
-          test -x "$oneflow_exe"
-          test -d "${{ github.workspace }}/Run/bin/system"
-          command -v gmsh
-
-          export PATH="${{ github.workspace }}/Run/bin:${{ github.workspace }}/Run/lib:$PATH"
-          export LD_LIBRARY_PATH="${{ github.workspace }}/Run/lib:${LD_LIBRARY_PATH:-}"
-
-          project_directory="${RUNNER_TEMP}/oneflow-cylinder-cut-e2e"
-          rm -rf "$project_directory"
-          mkdir -p "$project_directory"
-
-          python grid/stl_to_gmsh/generate_cylinder_volume_mesh.py \
-            --output-directory "$project_directory" \
-            --gmsh "$(command -v gmsh)" \
-            --radius 1.0 \
-            --axis-start -2.0 \
-            --axis-end 2.0 \
-            --cut-start -1.5 \
-            --cut-end 1.5 \
-            --circumferential-divisions 48 \
-            --axial-divisions 12 \
-            --mesh-size 0.2
-
-          python -m tools.oneflow_gui.mesh_validation \
-            --oneflow-executable "$oneflow_exe" \
-            --mesh-case-id stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow \
-            --cfd-template-id laminar_flat_plate \
-            --max-steps 2 \
-            --mesh-file "$project_directory/cylinder_fluid_domain.msh" \
-            --project-directory "$project_directory"

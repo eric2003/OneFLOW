@@ -41,6 +41,7 @@ Mesh and engineering workflows
 * :doc:`stl_to_gmsh_3d` — cube STL volume reconstruction, fixed HEXA_8/TETRA_4 topology, and automatic tetrahedral meshing.
 * :doc:`stl_geometry_generation` — parameterized STL geometry library, GUI workflow, sphere/spheroid/cylinder construction, patch identity, units and artifact policy.
 * :doc:`mesh_stl_geometry_pipeline` — geometry asset preparation, STL validation, C++/Python adapters, Gmsh reconstruction and CFD handoff.
+* :doc:`stl_generic_surface_cutting` — blind-input STL cutting with two arbitrary planar sections and generated end caps.
 * :doc:`stl_to_gmsh_sphere` — unit-sphere STL validation, Gmsh surface reconstruction, tetrahedral volume generation, commands, and evidence.
 * :doc:`stl_to_gmsh_prolate_spheroid` — 6:1 prolate spheroid STL, automatic tetrahedral meshing, and Mesh-to-CFD smoke route.
 * :doc:`stl_to_gmsh_commands` — copy-and-run commands for generating 3-D tetrahedral meshes from closed STL surfaces and controlling mesh size.
