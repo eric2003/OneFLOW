@@ -1,5 +1,5 @@
 {
-  "id": "stl_generic_surface_cutting",
+  "id": "mesh/stl_generic_surface_cutting",
   "title": "Generic STL Surface Cutting",
   "domain": "mesh",
   "kind": "geometry_processing",
