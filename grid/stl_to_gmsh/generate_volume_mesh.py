@@ -182,7 +182,7 @@ def generate(
         active_stage = "physical_groups"
         groups = {(item["dimension"],item["name"]) for item in mesh["physical_groups"]}
         expected = ({(2,"wall"),(2,"inflow"),(2,"outflow"),(3,"fluid_domain")}
-                    if volume_mesh_kind == "cylinder_internal_flow"
+                    if volume_mesh_kind in {"cylinder_internal_flow", "region_aware_closed_surface_automatic_tetrahedra"}
                     else {(2,boundary_name),(3,volume_name)})
         if groups != expected:
             raise RuntimeError(f"Physical Groups {sorted(groups)} do not match {sorted(expected)}")
