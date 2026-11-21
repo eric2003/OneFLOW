@@ -111,3 +111,12 @@ surface is intentionally not volume-mesh-ready.
 This is a bounded analytic reference implementation, not yet a generic STL
 clipper. Generic plane/triangle clipping on an unknown curved pipe is deferred
 until this analytic case is proven.
+
+
+## Analytic cylinder cut-to-CFD workflow
+
+The Mesh Generation Workbench exposes a dedicated **Cylinder Cutting & CFD** entry for the `geometry.cylinder.internal_flow` asset. The user selects two axial planes and the surface discretization. The generated open lateral STL is inspected by the standalone Stage A inspector; it must contain two simple boundary loops and no non-manifold edges.
+
+The volume mesh is not generated from that open STL. Instead, the same explicit analytic cylinder parameters are used to construct the truncated OpenCASCADE cylinder volume in Gmsh. Gmsh assigns `wall`, `inflow`, `outflow` and `fluid_domain` Physical Groups, and the MSH4 output is checked before it can be handed to OneFLOW. This separation is deliberate: an open lateral surface is not itself a closed fluid volume.
+
+All generated artifacts are stored under `.oneflow/mesh-generation/cylinder_internal_flow/cut_workflow` by default. The **Run OneFLOW** action opens the existing Mesh-to-CFD Validation path for the current MSH: MSH staging, CGNS conversion, OneFLOW grid ingestion and a short solver smoke test. The currently registered CFD consumer is a smoke template only; it is not a cylinder-specific physical-accuracy validation.

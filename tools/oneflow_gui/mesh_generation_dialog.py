@@ -51,6 +51,7 @@ from grid.stl_to_gmsh.generate_volume_mesh import (
 )
 from .user_data_paths import UserDataPaths
 from .geometry_library_dialog import GeometryLibraryDialog
+from .cylinder_cut_dialog import CylinderCutWorkbenchDialog
 
 
 class MeshGenerationDialog(QDialog):
@@ -81,6 +82,15 @@ class MeshGenerationDialog(QDialog):
         )
         geometry_library_button.clicked.connect(self._open_geometry_library)
         root.addWidget(geometry_library_button)
+
+        cylinder_cut_button = QPushButton("Cylinder Cutting & CFD...")
+        cylinder_cut_button.setMinimumHeight(64)
+        cylinder_cut_button.setToolTip(
+            "Cut the analytic internal-flow cylinder, validate its open surface, "
+            "generate a Gmsh fluid-volume mesh and run the OneFLOW ingestion smoke test."
+        )
+        cylinder_cut_button.clicked.connect(self._open_cylinder_cut_workbench)
+        root.addWidget(cylinder_cut_button)
 
         project_heading = QLabel("Mesh Projects")
         project_heading.setStyleSheet("font-size: 16px; font-weight: 600;")
@@ -145,6 +155,9 @@ class MeshGenerationDialog(QDialog):
         GeometryLibraryDialog(
             self._repository_root, self, on_edit_asset=edit_asset
         ).exec()
+
+    def _open_cylinder_cut_workbench(self) -> None:
+        CylinderCutWorkbenchDialog(self._repository_root, self).exec()
 
     def _create_mesh_project(self) -> None:
         case_id = self.project_template.currentData()

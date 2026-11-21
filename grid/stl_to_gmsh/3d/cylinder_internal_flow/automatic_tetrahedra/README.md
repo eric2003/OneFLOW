@@ -88,3 +88,12 @@ default tessellation is 48 circumferential by 12 axial divisions.
 This stage establishes the analytic reference only. It does not yet clip
 arbitrary input STL triangles. Generic plane/triangle clipping on an unknown
 curved pipe is the next stage, after the analytic boundary-loop checks pass.
+
+
+## GUI cut-to-CFD workflow
+
+Open **OneFLOW Workbench → Mesh Generation & Conversion → Cylinder Cutting & CFD**. The editor starts from the Geometry Library cylinder asset and exposes radius, axial extent, two cut-plane positions, surface divisions and Gmsh target size. The command preview shows the exact Python/Gmsh invocation.
+
+Generation produces the open cut-surface STL, its Stage A report, the Gmsh geometry script and the MSH4 fluid-volume mesh, plus a combined generation report. Stage A must verify two open loops before Gmsh volume meshing is attempted.
+
+The Gmsh volume is an analytic truncated cylinder, not a volume reconstructed from the open cut STL. It has explicit `wall`, `inflow`, `outflow` and `fluid_domain` Physical Groups. After mesh generation, **Run OneFLOW...** opens Mesh-to-CFD Validation with this MSH selected. That workflow performs MSH staging, CGNS conversion, OneFLOW grid ingestion and the registered short CFD smoke test. The smoke test does not claim cylinder-flow numerical accuracy; a dedicated internal-flow CFD Case remains separate work.
