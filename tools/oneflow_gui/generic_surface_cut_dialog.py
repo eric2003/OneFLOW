@@ -1,6 +1,7 @@
 """Workbench page for cutting arbitrary closed STL shells by two planes."""
 from __future__ import annotations
 
+import os
 import shlex
 import subprocess
 import sys
