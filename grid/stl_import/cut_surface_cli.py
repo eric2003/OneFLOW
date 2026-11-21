@@ -77,6 +77,29 @@ def main(argv: list[str] | None = None) -> int:
         path = output / f"{name}.stl"
         _write_ascii_stl(path, triangles, name)
         paths[name] = str(path)
+    import hashlib
+    region_manifest = {
+        "schema": "oneflow.stl-surface-regions",
+        "version": 1,
+        "closed_surface_file": "closed_surface.stl",
+        "closed_surface_sha256": hashlib.sha256((output / "closed_surface.stl").read_bytes()).hexdigest(),
+        "regions": {
+            name: {
+                "file": f"{name}.stl",
+                "triangle_count": len(artifacts[name]),
+                "sha256": hashlib.sha256((output / f"{name}.stl").read_bytes()).hexdigest(),
+            }
+            for name in ("wall", "inlet", "outlet")
+        },
+    }
+    # The Gmsh/CGNS conversion vocabulary uses inflow/outflow.
+    region_manifest["regions"]["inflow"] = region_manifest["regions"].pop("inlet")
+    region_manifest["regions"]["outflow"] = region_manifest["regions"].pop("outlet")
+    region_manifest_path = output / "region_manifest.json"
+    region_manifest_path.write_text(
+        json.dumps(region_manifest, indent=2, sort_keys=True) + "\\n",
+        encoding="utf-8",
+    )
     report = {
         "operation": "generic_stl_surface_cut",
         "input_stl": str(source_path),
@@ -93,8 +116,8 @@ def main(argv: list[str] | None = None) -> int:
                 "inlet_cap_triangle_count", "outlet_cap_triangle_count",
             )
         },
-        "artifacts": paths,
-        "next_step": "Open closed_surface.stl in STL to Gmsh for manual volume meshing.",
+        "artifacts": {**paths, "region_manifest": str(region_manifest_path)},
+        "next_step": "Open closed_surface.stl in STL to Gmsh; region_manifest.json preserves wall/inflow/outflow Physical Groups.",
     }
     report_path = output / "cut_report.json"
     report_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
