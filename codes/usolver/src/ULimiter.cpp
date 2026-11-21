@@ -313,17 +313,21 @@ void Limiter::CalcLimiter()
         // Fill the field directly instead of allocating and releasing the
         // min/max scratch pair once per equation; the values are identical
         // (exactly one, no arithmetic), so the CPU oracle is unchanged.
-        // Repeating the fill every stage was the only per-step host loop left in
-        // the residual chain, but it also repaired the ghosts that the interface
-        // exchange overwrites.  Skip the repeat only when that exchange no
-        // longer carries the field.
-        if ( noLimiterFieldFilled ) return;
+        //
+        // The fill MUST run every step.  A previous optimization filled once
+        // and skipped later steps when the interface exchange did not carry the
+        // limiter field (noLimiterFieldFilled = HipUnusedInterfaceFieldsSkipped()).
+        // On the device-authoritative path that left the host limiter stale: the
+        // reconstructed face value became non-physical, NsCheckFunction rejected
+        // it, and CalcFaceValue silently kept GetQlQr's face=cell-centre value.
+        // On the M6 flagship (LU-SGS/Roe/SA) this made step2 inviscid flux wrong
+        // and the aero force diverge.  The per-step fill is O(nCells) with no
+        // arithmetic and is correctness-critical, so keep it unconditionally.
         for ( int iEqu = 0; iEqu < limf->nEqu; ++ iEqu )
         {
             RealField & limiterField = ( * limf->limiter )[ iEqu ];
             std::fill( limiterField.begin(), limiterField.end(), one );
         }
-        noLimiterFieldFilled = HipUnusedInterfaceFieldsSkipped();
         return;
     }
 

@@ -231,3 +231,20 @@ A 线（昆山 2026-11-21，作业 `128627452`/`128628784`/`128629176`）已钉�
 - step2 VIS 后在 INV 基础上继续，差值 pattern 相同 → 粘性不引入新差异
 
 **最终收敛**：root cause = **step2 的无粘通量（inviscid flux）计算**。step1 相同、step2 不同，而 step2 进入时 q 和梯度都相同（TRACE_INVF/GRAD 已证）。无粘走 host 逐 face 循环（`hipBatch=0`），Roe scheme（`invFluxPointer`）。下一步定位单个 face 的 Riemann flux 差异：在 `UNsInvFlux::CalcInvFace` 的逐 face 循环里打印问题 face（如 452808）的 qL/qR/法向/通量，对比两臂。重点怀疑 `invflux` 的 host 累加或 Roe 通量的某个输入（尽管 q/梯度在 cell 254656 相同，但 face 两侧 cell 的值可能不同）。
+
+## 根因确定 + 修复验证（昆山 128650947 + 128651348，binary 11a8824）
+
+在 face 452808 打印 qf1/qf2 及其输入（limf->q / dqdx,y,z）后确定：
+
+- **step1**：两臂 qf1_1 都 =4.0045935308630964（重构正常），输入 q/梯度逐位一致
+- **step2**：输入 q/梯度仍逐位一致，但 CPU qf1_1=4.004189（重构生效），HIP qf1_1=0.998389=ql_1（**未重构，面值=格心值**）；qf2_1 CPU=-1.158 vs HIP=0.998=qr_1
+
+机制：`LimField::CalcFaceValue()`（ULimiter.cpp:123-162）只在 `ckfun(qTry)`（`NsCheckFunction`: 密度>0 且压力>0）为真时写回重构值；否则 qf 保持 `GetQlQr()` 设的格心值。HIP 臂 step2 的 qTry 被判非物理 → 重构被拒。phi 异常源于 `noLimiterFieldFilled`：
+
+- `HipUnusedInterfaceFieldsSkipped()` 默认返回 `HipProductionBackendSelected()`=true（HIP 臂）→ `noLimiterFieldFilled=true`（ULimiter.cpp:326）
+- step1 fill limiter=1 后，step2 `if(noLimiterFieldFilled) return`（line 320）**跳过 fill**
+- CPU 臂该值为 false → 每步 fill limiter=1 → 重构正常
+
+**A/B 验证（128651348）**：HIP 臂设 `ONEFLOW_HIP_SKIP_UNUSED_INTERFACE=0`（单 zone 下唯一效果是 `noLimiterFieldFilled=false` → 每步 fill）后，step2 的 qf1/qf2 与 CPU **逐位一致**，residual r0..r4 **逐位一致**（r1=-6.438316441336979e-06）。根因确认，修复方向确定：ilim=0 时必须每步 fill limiter 场（不能依赖"fill 一次"优化）。
+
+**修复**：ULimiter.cpp 的 `noLimiterFieldFilled` 不再跳过 per-step fill（正确性优先；每步 O(nCells) fill 代价比对整体步时间可忽略）。待重编译后跑 400 步气动力 + CPU 五例 + CI 验证。

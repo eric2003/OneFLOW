@@ -569,6 +569,42 @@ void UNsInvFlux::CalcInvFace()
         this->GetQlQrField();
         this->ReconstructFaceValueField();
     }
+    // Optional host face-reconstruction trace at face 452808 (off by default).
+    // Prints qf1/qf2 and the owner/neighbour q + gradients that feed the
+    // reconstruction, to test whether identical inputs still make different qf.
+    if ( std::getenv( "ONEFLOW_TRACE_POINTS" ) != nullptr
+         && Iteration::outerSteps <= 2 && limf != nullptr )
+    {
+        static int faceTraceCount = 0;
+        if ( faceTraceCount < 12 )
+        {
+            ++faceTraceCount;
+            const int face = 452808;
+            const int nFaces = ug.nFaces;
+            if ( face < nFaces && ug.lcf != nullptr && ug.rcf != nullptr )
+            {
+                const int lc = ( *ug.lcf )[ face ];
+                const int rc = ( *ug.rcf )[ face ];
+                std::cout << std::setprecision( 17 );
+                std::cout << "TRACE_FACE step=" << Iteration::outerSteps
+                          << " face=" << face << " lc=" << lc << " rc=" << rc;
+                for ( int eq = 0; eq < 5 && eq < limf->nEqu; ++eq )
+                {
+                    std::cout << " qf1_" << eq << "=" << ( *limf->qf1 )[ eq ][ face ]
+                              << " qf2_" << eq << "=" << ( *limf->qf2 )[ eq ][ face ];
+                    std::cout << " ql_" << eq << "=" << ( *limf->q )[ eq ][ lc ]
+                              << " qr_" << eq << "=" << ( *limf->q )[ eq ][ rc ];
+                    std::cout << " gxl_" << eq << "=" << ( *limf->dqdx )[ eq ][ lc ]
+                              << " gyl_" << eq << "=" << ( *limf->dqdy )[ eq ][ lc ]
+                              << " gzl_" << eq << "=" << ( *limf->dqdz )[ eq ][ lc ];
+                    if ( eq == 0 )
+                        std::cout << " phi_l=" << ( *limf->limiter )[ eq ][ lc ]
+                                  << " phi_r=" << ( *limf->limiter )[ eq ][ rc ];
+                }
+                std::cout << std::endl;
+            }
+        }
+    }
     if ( limf != nullptr )
     {
         DumpLimiterState( "host", limf, Zone::GetUnsGrid(),
