@@ -148,7 +148,8 @@ def generate(
             volume_mesh_kind = ("cylinder_internal_flow" if geometry_kind == "cylinder_internal_flow"
                                 else "closed_surface_automatic_tetrahedra")
         config = {
-            "volume_mesh":volume_mesh_kind, "mesh_dimension":3,\n            "region_manifest":str(region_manifest) if region_manifest.is_file() else None,
+            "volume_mesh":volume_mesh_kind, "mesh_dimension":3,
+            "region_manifest":str(region_manifest) if region_manifest.is_file() else None,
             "mesh_size_min":mesh_size_min, "mesh_size_max":mesh_size_max,
             "surface_name":volume_name, "boundary_name":boundary_name,
             "surface_angle_degrees":surface_angle_degrees,
