@@ -248,3 +248,12 @@ A 线（昆山 2026-11-21，作业 `128627452`/`128628784`/`128629176`）已钉�
 **A/B 验证（128651348）**：HIP 臂设 `ONEFLOW_HIP_SKIP_UNUSED_INTERFACE=0`（单 zone 下唯一效果是 `noLimiterFieldFilled=false` → 每步 fill）后，step2 的 qf1/qf2 与 CPU **逐位一致**，residual r0..r4 **逐位一致**（r1=-6.438316441336979e-06）。根因确认，修复方向确定：ilim=0 时必须每步 fill limiter 场（不能依赖"fill 一次"优化）。
 
 **修复**：ULimiter.cpp 的 `noLimiterFieldFilled` 不再跳过 per-step fill（正确性优先；每步 O(nCells) fill 代价比对整体步时间可忽略）。待重编译后跑 400 步气动力 + CPU 五例 + CI 验证。
+
+## 400 步验收通过（昆山 128651666，修复 binary e032e7f）
+
+复用修复 binary，CPU oracle vs HIP 全开 5 hook 各跑满 400 步，两臂 rc=0、nForceSave=nResSave=20（20 个共同步列）。无诊断 env 的干净运行：
+
+- **aero.dat 逐字节完全一致**（cmp identical），末步 CL=1.3348e-01、CD=1.1677e-01、CD_PR=1.0765e-01、CD_SF=9.1244e-03
+- **res.dat 逐字节完全一致**（cmp identical）
+
+结论：旗舰 M6 算例 CPU 与 DCU 全开 hook 的数值**完全等价**。根因（limiter 每步 fill 被跳过）修复后，之前 25% 气动力偏差、step2 无粘通量 51% 偏差全部消失。**切片 0（准确性地基）完成，标 Verified**。后续可进入切片 1-3 设备驻留架构改动。注意：本算例 cfl=0.01 下 400 步不收敛（CD 仍在变化），但等价性比较与收敛无关；收敛气动力属 B.3.2 遗留项，需单独长期算例。
