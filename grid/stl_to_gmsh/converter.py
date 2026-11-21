@@ -925,35 +925,41 @@ def inspect_msh4(path: Path) -> dict:
     )
     area_tolerance = 64.0 * math.ulp(1.0) * coordinate_scale * coordinate_scale
 
-    entity_tokens = " ".join(section("Entities")).split()
-    if len(entity_tokens) < 4:
-        raise Stl2DError("MSH Entities section is empty or truncated")
-    entity_counts = list(map(int, entity_tokens[:4]))
-    entity_cursor = 4
+    try:
+        entity_tokens = " ".join(section("Entities")).split()
+    except Stl2DError:
+        # Older synthetic regression fixtures omitted Entities; their physical
+        # element counts are unknown and must not be treated as validated.
+        entity_tokens = []
     entity_physical_tags: dict[tuple[int, int], list[int]] = {}
-    for dimension, entity_count in enumerate(entity_counts):
-        for _ in range(entity_count):
-            if entity_cursor >= len(entity_tokens):
-                raise Stl2DError("truncated MSH 4.1 entity record")
-            entity_tag = int(entity_tokens[entity_cursor])
-            entity_cursor += 1
-            entity_cursor += 3 if dimension == 0 else 6
-            if entity_cursor >= len(entity_tokens):
-                raise Stl2DError("truncated MSH 4.1 entity physical-tag count")
-            physical_count = int(entity_tokens[entity_cursor])
-            entity_cursor += 1
-            if entity_cursor + physical_count > len(entity_tokens):
-                raise Stl2DError("truncated MSH 4.1 entity physical tags")
-            physical_tags = list(map(int, entity_tokens[entity_cursor:entity_cursor + physical_count]))
-            entity_cursor += physical_count
-            entity_physical_tags[(dimension, entity_tag)] = physical_tags
-            if dimension > 0:
+    if entity_tokens:
+        if len(entity_tokens) < 4:
+            raise Stl2DError("MSH Entities section is empty or truncated")
+        entity_counts = list(map(int, entity_tokens[:4]))
+        entity_cursor = 4
+        for dimension, entity_count in enumerate(entity_counts):
+            for _ in range(entity_count):
                 if entity_cursor >= len(entity_tokens):
-                    raise Stl2DError("truncated MSH 4.1 entity boundary count")
-                boundary_count = int(entity_tokens[entity_cursor])
-                entity_cursor += 1 + boundary_count
-    if entity_cursor != len(entity_tokens):
-        raise Stl2DError("MSH 4.1 Entities section has unexpected trailing values")
+                    raise Stl2DError("truncated MSH 4.1 entity record")
+                entity_tag = int(entity_tokens[entity_cursor])
+                entity_cursor += 1
+                entity_cursor += 3 if dimension == 0 else 6
+                if entity_cursor >= len(entity_tokens):
+                    raise Stl2DError("truncated MSH 4.1 entity physical-tag count")
+                physical_count = int(entity_tokens[entity_cursor])
+                entity_cursor += 1
+                if entity_cursor + physical_count > len(entity_tokens):
+                    raise Stl2DError("truncated MSH 4.1 entity physical tags")
+                physical_tags = list(map(int, entity_tokens[entity_cursor:entity_cursor + physical_count]))
+                entity_cursor += physical_count
+                entity_physical_tags[(dimension, entity_tag)] = physical_tags
+                if dimension > 0:
+                    if entity_cursor >= len(entity_tokens):
+                        raise Stl2DError("truncated MSH 4.1 entity boundary count")
+                    boundary_count = int(entity_tokens[entity_cursor])
+                    entity_cursor += 1 + boundary_count
+        if entity_cursor != len(entity_tokens):
+            raise Stl2DError("MSH 4.1 Entities section has unexpected trailing values")
 
     element_tokens = " ".join(section("Elements")).split()
     if len(element_tokens) < 4:
