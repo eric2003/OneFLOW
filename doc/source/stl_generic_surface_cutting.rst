@@ -99,3 +99,27 @@ The GUI can open the closed surface in the existing STL-to-Gmsh page. This
 hands off a closed surface for manual volume meshing; preserving inlet, outlet
 and wall as distinct Gmsh Physical Surface groups is a subsequent integration
 step. The current Gmsh volume-mesh check remains manual and is not part of CI.
+
+
+Boundary identity handoff
+-------------------------
+
+The cut CLI writes `region_manifest.json` alongside the four STL artifacts.
+The manifest uses the schema `oneflow.stl-surface-regions` and records the
+wall, inflow and outflow STL file names, triangle counts and SHA-256 hashes,
+together with the closed-shell hash. The analytic geometry manifest is not
+consulted.
+
+When a user opens `closed_surface.stl` in STL to Gmsh, the mesh-project
+importer copies the region manifest and its three patch STL files beside the
+project's `input/model.stl`. The generic region-aware meshing path imports
+the patches separately and assigns the Gmsh Physical Surface names
+`wall`, `inflow` and `outflow`; the volume is `fluid_domain`. The existing
+Gmsh-to-CGNS converter maps those names to `BCWall`, `BCInflow` and
+`BCOutflow`, respectively.
+
+The pure Python regression verifies the manifest and generated Gmsh geometry
+text without invoking Gmsh. Actual Gmsh meshing, CGNS inspection and OneFLOW
+CFD boundary verification are manual steps; they are deliberately excluded
+from CI. A successful solver launch alone is not accepted as evidence that
+the three physical boundary conditions are correct.
