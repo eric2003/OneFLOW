@@ -24,6 +24,7 @@ page, roadmap, tests, and evidence links.
 | GoogleTest contract tests | [`tests/README.md`](tests/README.md) |
 | Current Phase Plan slice, checkboxes, and acceptance evidence | [`docs/plans/oneflow-development-todo.md`](docs/plans/oneflow-development-todo.md) |
 | Long-term phase plan (milestones, gates, open decisions) | [`docs/plans/oneflow-development-plan.md`](docs/plans/oneflow-development-plan.md) |
+| 3D device-residency architecture design (A.4 / LU-SGS residency) | [`docs/architecture/oneflow-3d-device-residency-design.md`](docs/architecture/oneflow-3d-device-residency-design.md) |
 | Session handoff (living: environment, fixed paths, traps) | [`docs/handoff/oneflow-current-handoff.md`](docs/handoff/oneflow-current-handoff.md) |
 | Kunshan workspace layout, job submission and cleanup rules | [`docs/runbooks/oneflow-kunshan-workspace-runbook.md`](docs/runbooks/oneflow-kunshan-workspace-runbook.md) |
 | Document index and retention policy | [`docs/README.md`](docs/README.md) |

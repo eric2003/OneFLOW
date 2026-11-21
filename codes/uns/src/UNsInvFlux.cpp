@@ -304,6 +304,39 @@ void DumpLimiterState( const char * side, LimField * limf, UnsGrid * grid,
 
 void UNsInvFlux::CalcInvFace()
 {
+    // Optional CPU-vs-HIP numerical trace at the RHS entry (off by default).
+    if ( std::getenv( "ONEFLOW_TRACE_POINTS" ) != nullptr
+         && Iteration::outerSteps <= 2 )
+    {
+        static int invPrintCount = 0;
+        if ( invPrintCount < 8 )
+        {
+            ++invPrintCount;
+            const int probeCell = 254656;
+            MRField * qF = GetFieldPointer< MRField >( Zone::GetUnsGrid(), "q" );
+            MRField * dqF = GetFieldPointer< MRField >( Zone::GetUnsGrid(), "dq" );
+            std::cout << std::setprecision( 17 );
+            std::cout << "TRACE_INVF step=" << Iteration::outerSteps
+                      << " inner=" << Iteration::innerSteps
+                      << " cfl=" << Iteration::cfl
+                      << " lhscoef=" << ctrl.lhscoef
+                      << " rkStage=" << ctrl.rkStage
+                      << " hipGrad=" << ( UseHipGradient() ? 1 : 0 )
+                      << " hipRecon=" << ( UseHipDeviceReconstruction() ? 1 : 0 )
+                      << " hipBatch=" << ( UseHipBatchAdapter() ? 1 : 0 );
+            if ( qF != nullptr )
+            {
+                for ( int eq = 0; eq < 5 && eq < qF->GetNEqu(); ++eq )
+                    std::cout << " q" << eq << "=" << (*qF)[eq][probeCell];
+            }
+            if ( dqF != nullptr )
+            {
+                for ( int eq = 0; eq < 5 && eq < dqF->GetNEqu(); ++eq )
+                    std::cout << " dq" << eq << "=" << (*dqF)[eq][probeCell];
+            }
+            std::cout << std::endl;
+        }
+    }
     {
         ScopedStageTimer timer( "gradient" );
         ScopedHostTimer hostGradientTimer( "s_gradient" );
@@ -595,6 +628,27 @@ void UNsInvFlux::CalcFlux()
         this->CalcInvFlux();
         this->DumpInvFluxTrace();
         this->AddInvFlux();
+    }
+    // Optional per-term residual trace after inviscid accumulation (off by default).
+    if ( std::getenv( "ONEFLOW_TRACE_POINTS" ) != nullptr
+         && Iteration::outerSteps <= 2 )
+    {
+        static int invResCount = 0;
+        if ( invResCount < 30 )
+        {
+            ++invResCount;
+            MRField * resF = FieldHome::GetResidualField( Zone::GetUnsGrid(), NS_SOLVER );
+            if ( resF != nullptr )
+            {
+                const int probeCell = 254656;
+                std::cout << std::setprecision( 17 );
+                std::cout << "TRACE_RES_INV step=" << Iteration::outerSteps
+                          << " cId=" << probeCell;
+                for ( int eq = 0; eq < 5 && eq < resF->GetNEqu(); ++eq )
+                    std::cout << " r" << eq << "=" << (*resF)[eq][probeCell];
+                std::cout << std::endl;
+            }
+        }
     }
     this->DumpInvFluxStageTrace();
 

@@ -525,6 +525,23 @@ void UNsVisFlux::AddVisFlux()
     MRField * res = FieldHome::GetResidualField( grid, NS_SOLVER );
 
     ONEFLOW::AddF2CField( res, visflux.get() );
+    // Optional per-term residual trace after viscous accumulation (off by default).
+    if ( std::getenv( "ONEFLOW_TRACE_POINTS" ) != nullptr
+         && Iteration::outerSteps <= 2 )
+    {
+        static int visResCount = 0;
+        if ( visResCount < 30 && res != nullptr )
+        {
+            ++visResCount;
+            const int probeCell = 254656;
+            std::cout << std::setprecision( 17 );
+            std::cout << "TRACE_RES_VIS step=" << Iteration::outerSteps
+                      << " cId=" << probeCell;
+            for ( int eq = 0; eq < 5 && eq < res->GetNEqu(); ++eq )
+                std::cout << " r" << eq << "=" << (*res)[eq][probeCell];
+            std::cout << std::endl;
+        }
+    }
     if ( ctrl.debugFieldDump != 0 )
     {
         Real mindiff = 1.0e-10;

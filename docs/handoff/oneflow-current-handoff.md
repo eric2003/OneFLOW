@@ -111,7 +111,18 @@ normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失�
 
 ## 4. 当前任务指针（每次会话就地更新）
 
-**2026-11-19 接手点**。从 `origin/dev` 接续，核对当前 SHA、工作树及集群
+**2026-11-21 接手点（覆盖下方 11-19 记录的旧结论）**。分支 `dev` HEAD `1395e3056`，工作树干净。SSH 已再次失效（`ssh kseshell` Permission denied；下方 11-19 "已恢复"记录过期），只能用 OpenAPI。
+
+**关键纠正：所有"CD 22%/CD_SF 143%"和 SA hook rc=134 的昆山负结果都是 11-16 修复前旧 binary**（`UTurbSrcFlux.cpp` 报错行 "Compiled on Nov 16"）。当前 HEAD 含 `d41650729`/`aada33da2`/`169d59892`/`c924e84f3`/`82e96ba64`/`06a98892b`，从未用全开 hook 重测过——这是"找不到原因"的元凶：一直在旧证据上推理。
+
+**已执行（2026-11-21）**：
+- 上传 `/tmp/oneflow-1395e3056.tgz` → snapshots；作业内解包独立 build、核验 `REVISION=1395e3056`、binary sha256 `4c32aa78...`、五个 device hook 字符串（含 `06a98892b` 新增的 `ONEFLOW_ENABLE_UTURB_HIP_VISFLUX`）全部编入。
+- `128627452-allhooks`：旗舰 m6wingroe_sa 单卡单 rank，CPU oracle vs DCU 五 hook 全开，两臂均 rc=0 跑满 400 步（有效比较）。结果：`CD_SF` step20 差 5.18e-05（≈0.5%），`CL` step20 差 9.42e-03（≈25%），`res1` step20 差 9.31e-07（≈18%）；残差轨迹形状不同，从首个输出点即偏离。证据 `evidence/gate/128627452-allhooks/`。
+- `128627452-allhooks/probe-S20`：加固 selfcheck 命中，前 2 stage `result=FAIL`（仅近零面 rel 放大，absdiff 1e-41/1e-38，nonfinite=0），后 3 stage `result=PASS` 逐位一致 → **粘性 kernel 整场逐位等价确认**。wall force probe 逐面：壁面 q/梯度差 ≈0.86%、集中在 face 3457/3459/3461，偏差在上游流场/梯度镜像而非粘性 kernel。
+
+**下一步**：用 `nResSave=1` 短跑定位第一个分叉步（现有日志/res.dat 都是每 20 步，看不到 step1），再用 3 步 stage trace（`f2-main-solver-multizone-trace.sh` + `stage-verify.py`，1e-10）点名具体 stage 数组。重点假设：host ghost `q[rc]` 陈旧（§1f，`NsMirrorHostBoundaryState` 只镜像 owner 单元，`AeroForceTask.cpp:398-400` 的 `CorrectGrad` 读不到刷新）、单 zone 梯度不镜像（坑 41）。性能单独 paired 作业、单独口径，不用本次单 rank 数据冒充加速。
+
+**2026-11-19 历史接手点**（下方记录，结论多已被上条纠正）。
 `src/REVISION`。三端 master 对齐 `cecd66219`，已合入 dev（`e7efe7d02`）。
 本轮主线是 M6 粘性设备路径正确性，阶段与证据状态见 Living TODO 的 B.3 切片。
 

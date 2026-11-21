@@ -38,6 +38,8 @@ License
 #include "Parallel.h"
 #include "Iteration.h"
 #include <iostream>
+#include <iomanip>
+#include <cstdlib>
 
 
 BeginNameSpace( ONEFLOW )
@@ -324,6 +326,27 @@ void UNsLusgs::CalcViscousTerm()
 
 void UNsLusgs::PrepareSweep()
 {
+    // Optional CPU-vs-HIP numerical trace: does the RHS (residual) feeding
+    // LU-SGS already differ, or does LU-SGS itself diverge? (off by default)
+    if ( std::getenv( "ONEFLOW_TRACE_POINTS" ) != nullptr
+         && Iteration::outerSteps <= 2 )
+    {
+        static int lusgsPrintCount = 0;
+        if ( lusgsPrintCount < 8 && ug.cId == 254656 )
+        {
+            ++lusgsPrintCount;
+            std::cout << std::setprecision( 17 );
+            std::cout << "TRACE_LUSGS step=" << Iteration::outerSteps
+                      << " cId=" << ug.cId
+                      << " sweeps=" << nslu.numberOfSweeps;
+            for ( int iEqu = 0; iEqu < nslu.nEqu && iEqu < 5; ++iEqu )
+            {
+                std::cout << " rhs" << iEqu << "=" << ( *unsf.rhs )[ iEqu ][ ug.cId ];
+                std::cout << " dq0" << iEqu << "=" << ( *unsf.dq )[ iEqu ][ ug.cId ];
+            }
+            std::cout << std::endl;
+        }
+    }
     for ( int iEqu = 0; iEqu < nslu.nEqu; ++ iEqu )
     {
         gcom.blank = ( * ug.blankf )[ ug.cId ];
