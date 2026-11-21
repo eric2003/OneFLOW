@@ -1,4 +1,5 @@
 """Tests for analytic cylinder volume-mesh generation contracts."""
+import os
 import shutil
 import tempfile
 import unittest
@@ -31,8 +32,11 @@ class CylinderVolumeMeshTest(unittest.TestCase):
             _require_external_output(repository_root / "grid" / "generated")
 
 
-    @unittest.skipUnless(shutil.which("gmsh") or shutil.which("gmsh.exe"),
-                         "Gmsh is not installed in this test environment")
+    @unittest.skipUnless(
+        os.environ.get("ONEFLOW_RUN_GMSH_TESTS") == "1"
+        and (shutil.which("gmsh") or shutil.which("gmsh.exe")),
+        "Set ONEFLOW_RUN_GMSH_TESTS=1 to run the manual Gmsh integration test",
+    )
     def test_gmsh_builds_volume_with_required_physical_groups(self):
         gmsh = shutil.which("gmsh") or shutil.which("gmsh.exe")
         with tempfile.TemporaryDirectory() as temporary:

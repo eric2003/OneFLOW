@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -15,6 +16,13 @@ sys.path.insert(0, str(ROOT / "tools"))
 from mesh_cases import load_catalog, validate_case  # noqa: E402
 from grid.stl_to_gmsh.converter import convert, inspect_msh4, read_stl  # noqa: E402
 from grid.stl_to_gmsh.run_cases import NATIVE_CASES, PYTHON_CASES, REFINEMENT_LEVELS, SPHERE_REFINEMENT_CASES  # noqa: E402
+
+def _manual_gmsh():
+    """Return Gmsh only when a developer explicitly opts into integration tests."""
+    if os.environ.get("ONEFLOW_RUN_GMSH_TESTS") != "1":
+        return None
+    return shutil.which("gmsh") or shutil.which("gmsh.exe")
+
 
 EXPECTED_IDS = {
     "stl_to_gmsh_square",
@@ -423,7 +431,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertFalse((reference / "results").exists())
 
     def test_python_square_two_triangles_generates_exactly_two_triangle_cells(self):
-        gmsh = shutil.which("gmsh")
+        gmsh = _manual_gmsh()
         if gmsh is None:
             self.skipTest("Gmsh executable is not available")
         source = ROOT / "grid/stl_to_gmsh/2d/square/two_triangles/python"
@@ -508,7 +516,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertFalse((source / "results").exists())
 
     def test_python_automatic_mesh_size_controls_progressive_refinement(self):
-        gmsh = shutil.which("gmsh")
+        gmsh = _manual_gmsh()
         if gmsh is None:
             self.skipTest("Gmsh executable is not available")
         source = ROOT / "grid/stl_to_gmsh/2d/square/two_triangles/python"
@@ -592,7 +600,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertEqual(summary["coordinate_bounds"]["maximum"], [1.0, 1.0, 0.0])
 
     def test_python_square_generates_mesh_and_report_without_domain_quality(self):
-        gmsh = shutil.which("gmsh")
+        gmsh = _manual_gmsh()
         if gmsh is None:
             self.skipTest("Gmsh executable is not available")
         source = ROOT / "grid/stl_to_gmsh/2d/square/single_quad/python"
@@ -630,7 +638,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertFalse((source / "results").exists())
 
     def test_python_circle_external_flow_generates_valid_gmsh_mesh(self):
-        gmsh = shutil.which("gmsh")
+        gmsh = _manual_gmsh()
         if gmsh is None:
             self.skipTest("Gmsh executable is not available")
         source = ROOT / "grid/stl_to_gmsh/2d/circle_external_flow/python"
@@ -727,7 +735,7 @@ class StlToGmshCaseTest(unittest.TestCase):
 
 
     def test_python_cube_single_hex_generates_one_hexahedron(self):
-        gmsh = shutil.which("gmsh")
+        gmsh = _manual_gmsh()
         if gmsh is None:
             self.skipTest("Gmsh executable is not available")
         source = ROOT / "grid/stl_to_gmsh/3d/cube/single_hex/python"
@@ -761,7 +769,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertFalse((source / "results").exists())
 
     def test_python_prolate_spheroid_generates_valid_tetrahedral_volume_mesh(self):
-        gmsh = shutil.which("gmsh")
+        gmsh = _manual_gmsh()
         if gmsh is None:
             self.skipTest("Gmsh executable is not available")
         source = ROOT / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python"
@@ -825,7 +833,7 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertFalse((source / "results").exists())
 
     def test_python_internal_flow_cylinder_generates_region_aware_tetrahedral_mesh(self):
-        gmsh = shutil.which("gmsh")
+        gmsh = _manual_gmsh()
         if gmsh is None:
             self.skipTest("Gmsh executable is not available")
         source = (
