@@ -467,11 +467,25 @@ def _region_aware_closed_surface_volume_geo(
         "Mesh.Binary = 0;",
         "Mesh.ElementOrder = 1;",
     ]
-    for name in ("wall", "inflow", "outflow"):
+    for index, name in enumerate(("wall", "inflow", "outflow")):
         path = region_paths[name].as_posix()
         if '"' in path:
             raise Stl2DError("region STL path must not contain a quote character")
-        lines.extend((f'Merge "{path}";', f'{name}[] = Surface{{:}};'))
+        lines.append(f'Merge "{path}";')
+        if index == 0:
+            lines.append("wall[] = Surface{:};")
+        else:
+            lines.extend((
+                "allImportedSurfaces[] = Surface{:};",
+                f"{name}[] = allImportedSurfaces[];",
+                "allImportedSurfaces[] -= wall[];",
+            ))
+            if index == 2:
+                lines.extend((
+                    "outflow[] -= inflow[];",
+                ))
+            else:
+                lines.append("inflow[] -= wall[];")
     lines.extend((
         "CreateGeometry;",
         "Surface Loop(1) = {wall[], inflow[], outflow[]};",
