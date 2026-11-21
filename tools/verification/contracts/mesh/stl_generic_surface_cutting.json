@@ -6,13 +6,16 @@
   "status": "implemented",
   "overview": "Cut a closed STL triangle shell between two user-defined planar sections without using analytic shape definitions. The canonical internal-flow cylinder STL is the first blind-input fixture.",
   "principle": "The STL triangles are the sole geometry source. The cutter must not read analytic geometry manifests, primitive parameters, patch indices or shape equations. Inlet and outlet planes are explicit inputs; their normals orient the retained half-spaces and the generated end caps.",
-  "architecture": "grid/stl_import/reader.py -> grid/stl_import/surface_cut.py -> clipped side triangles + inlet/outlet boundary loops -> planar loop triangulation -> closed STL triangle shell -> existing closed-shell topology validation -> future Gmsh and CGNS integration.",
+  "architecture": "grid/stl_import/reader.py -> grid/stl_import/surface_cut.py -> clipped wall triangles + inlet/outlet caps -> closed STL + checksum-bound region_manifest.json -> mesh-project region artifact copy -> region-aware Gmsh Physical Surfaces (wall/inflow/outflow) -> existing Gmsh-to-CGNS BC mapping.",
   "implementation": {
     "source_paths": [
       "grid/stl_import/surface_cut.py",
       "grid/tests/python/stl_import/test_generic_stl_surface_cut.py",
       "grid/stl_import/cut_surface_cli.py",
-      "tools/oneflow_gui/generic_surface_cut_dialog.py"
+      "tools/oneflow_gui/generic_surface_cut_dialog.py",
+      "grid/stl_to_gmsh/converter.py",
+      "grid/stl_to_gmsh/generate_volume_mesh.py",
+      "tools/oneflow_gui/mesh_project.py"
     ],
     "algorithm": [
       "Validate a connected, closed, consistently oriented two-manifold input shell.",
@@ -20,13 +23,17 @@
       "Weld clipped vertices and extract one-use boundary edges on each cutting plane.",
       "Require one simple closed loop per plane.",
       "Project each loop into a local plane basis and triangulate it using ear clipping.",
-      "Orient inlet and outlet cap triangles outward and combine them with the clipped side surface."
+      "Orient inlet and outlet cap triangles outward and combine them with the clipped side surface.",
+      "Write a checksum-bound region manifest for wall, inflow and outflow STL artifacts; do not infer regions from analytic geometry.",
+      "Copy the manifest and its patch STL files into the writable mesh project when the closed shell is opened in STL to Gmsh.",
+      "Create distinct Gmsh Physical Surface groups named wall, inflow and outflow and a fluid_domain Physical Volume."
     ],
     "limitations": [
       "One boundary loop per cutting plane.",
       "No branched or multi-lumen surfaces.",
       "No holes in a cross-section.",
-      "Plane points and normals are supplied explicitly; automatic endpoint direction estimation is not included."
+      "Plane points and normals are supplied explicitly; automatic endpoint direction estimation is not included.",
+      "Gmsh meshing, CGNS BC_t inspection and OneFLOW CFD boundary verification remain manual; pure Python tests do not claim physical boundary correctness."
     ]
   },
   "verification": [
@@ -47,11 +54,17 @@
       "reference": "GenericStlSurfaceCutTest.test_cli_writes_named_surface_regions_and_report",
       "status": "not_run",
       "scope": "grid/tests/python/stl_import/test_generic_stl_surface_cut.py; Runs the CLI adapter against the blind-input cylinder STL and verifies wall, inlet, outlet, closed-shell STL artifacts and the report."
+    },
+    {
+      "kind": "python_test",
+      "reference": "GenericStlSurfaceCutTest.test_cli_writes_named_surface_regions_and_report",
+      "status": "not_run",
+      "scope": "Also validates region_manifest.json checksums/counts and generated Gmsh Physical Surface declarations without running Gmsh."
     }
   ],
   "execution_boundary": {
     "ci": "Pure geometry unit tests only. Do not install or invoke Gmsh in CI for mesh-generation validation.",
-    "manual": "Gmsh volume meshing, MSH/CGNS handoff and the short OneFLOW CFD smoke test are manually run from Mesh Generation and Mesh-to-CFD Validation."
+    "manual": "Run Gmsh from Mesh Generation, inspect the MSH groups, convert to CGNS and confirm BCInflow, BCOutflow and BCWall region counts before running the short OneFLOW CFD smoke test."
   },
   "references": [
     "doc/source/stl_generic_surface_cutting.rst",
