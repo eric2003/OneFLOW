@@ -8,7 +8,10 @@ from pathlib import Path
 from grid.stl_import.reader import read_stl
 from grid.stl_import.surface_cut import cut_closed_surface_between_planes
 from grid.stl_import.cut_surface_cli import main as cut_surface_main
-from grid.stl_to_gmsh.converter import (\n    _region_aware_closed_surface_volume_geo,\n    validate_closed_genus_zero_surface,\n)
+from grid.stl_to_gmsh.converter import (
+    _region_aware_closed_surface_volume_geo,
+    validate_closed_genus_zero_surface,
+)
 
 
 class GenericStlSurfaceCutTest(unittest.TestCase):
