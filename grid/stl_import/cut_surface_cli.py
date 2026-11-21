@@ -97,7 +97,7 @@ def main(argv: list[str] | None = None) -> int:
     region_manifest["regions"]["outflow"] = region_manifest["regions"].pop("outlet")
     region_manifest_path = output / "region_manifest.json"
     region_manifest_path.write_text(
-        json.dumps(region_manifest, indent=2, sort_keys=True) + "\\n",
+        json.dumps(region_manifest, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     report = {
