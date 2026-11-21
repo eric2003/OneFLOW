@@ -72,3 +72,25 @@ Run the pure geometry regression tests without Gmsh:
 The next integration slice will write the cut-and-capped STL to the user's
 .oneflow workspace, preserve the three boundary identities, and hand the
 closed surface to the existing Gmsh volume-mesh workflow.
+
+
+Workbench operation
+-------------------
+
+The Mesh Generation hub exposes **Generic STL Surface Cutting** separately
+from the analytic-cylinder demonstration. Select any input STL and enter the
+inlet/outlet plane points and normals. The command preview shows the exact
+Python invocation. Generated artifacts are written under the user's
+`.oneflow/mesh-generation/generic_surface_cut` workspace by default:
+
+* `wall.stl`: clipped lateral surface;
+* `inlet.stl` and `outlet.stl`: generated end caps;
+* `closed_surface.stl`: combined closed shell for the existing STL-to-Gmsh
+  workflow;
+* `cut_report.json`: inputs, counts, output paths and explicit confirmation
+  that analytic geometry metadata was not read.
+
+The GUI can open the closed surface in the existing STL-to-Gmsh page. This
+hands off a closed surface for manual volume meshing; preserving inlet, outlet
+and wall as distinct Gmsh Physical Surface groups is a subsequent integration
+step. The current Gmsh volume-mesh check remains manual and is not part of CI.

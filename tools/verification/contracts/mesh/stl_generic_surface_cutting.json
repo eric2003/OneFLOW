@@ -1,18 +1,18 @@
 {
-  "schema": "oneflow.verification-contract",
-  "version": 1,
   "id": "stl_generic_surface_cutting",
   "title": "Generic STL Surface Cutting",
   "domain": "mesh",
   "kind": "geometry_processing",
-  "status": "implemented_pending_execution",
+  "status": "implemented",
   "overview": "Cut a closed STL triangle shell between two user-defined planar sections without using analytic shape definitions. The canonical internal-flow cylinder STL is the first blind-input fixture.",
   "principle": "The STL triangles are the sole geometry source. The cutter must not read analytic geometry manifests, primitive parameters, patch indices or shape equations. Inlet and outlet planes are explicit inputs; their normals orient the retained half-spaces and the generated end caps.",
   "architecture": "grid/stl_import/reader.py -> grid/stl_import/surface_cut.py -> clipped side triangles + inlet/outlet boundary loops -> planar loop triangulation -> closed STL triangle shell -> existing closed-shell topology validation -> future Gmsh and CGNS integration.",
   "implementation": {
     "source_paths": [
       "grid/stl_import/surface_cut.py",
-      "grid/tests/python/stl_import/test_generic_stl_surface_cut.py"
+      "grid/tests/python/stl_import/test_generic_stl_surface_cut.py",
+      "grid/stl_import/cut_surface_cli.py",
+      "tools/oneflow_gui/generic_surface_cut_dialog.py"
     ],
     "algorithm": [
       "Validate a connected, closed, consistently oriented two-manifold input shell.",
@@ -31,13 +31,13 @@
   },
   "verification": [
     {
-      "kind": "python_unittest",
+      "kind": "python_test",
       "reference": "GenericStlSurfaceCutTest.test_cylinder_stl_is_cut_without_reading_analytic_manifest",
       "status": "not_run",
       "scope": "Uses the checked-in cylinder STL as blind triangle input; validates the generated closed shell without consulting its analytic manifest."
     },
     {
-      "kind": "python_unittest",
+      "kind": "python_test",
       "reference": "GenericStlSurfaceCutTest.test_nonparallel_cut_planes_are_supported",
       "status": "not_run",
       "scope": "Exercises two non-parallel planar cuts on the same STL input."
@@ -50,5 +50,11 @@
   "references": [
     "doc/source/stl_generic_surface_cutting.rst",
     "grid/stl_import/surface_cut.py"
-  ]
+  ],
+  "schema_version": 1,
+  "documentation": {
+    "paths": [
+      "doc/source/stl_generic_surface_cutting.rst"
+    ]
+  }
 }

@@ -26,6 +26,7 @@ from tools.oneflow_gui.mesh_generation_dialog import (
     StlGeometryDialog,
     StlToGmshDialog,
 )
+from tools.oneflow_gui.generic_surface_cut_dialog import GenericSurfaceCutDialog
 from tools.oneflow_gui.mesh_project import (
     create_mesh_project_from_template,
     load_mesh_project,
@@ -589,6 +590,23 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 dialog._arguments()
         finally:
             dialog.close()
+
+    def test_generic_surface_cut_dialog_exposes_plane_controls_and_cli(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "generic-cut"
+            dialog = GenericSurfaceCutDialog(self.repository_root)
+            try:
+                dialog.output_directory.setText(str(output))
+                command = dialog._command()
+                self.assertIn("grid.stl_import.cut_surface_cli", command)
+                self.assertIn("--inlet-point", command)
+                self.assertIn("--inlet-normal", command)
+                self.assertIn("--outlet-point", command)
+                self.assertIn("--outlet-normal", command)
+                self.assertIn("--tolerance", command)
+                self.assertNotIn("generate_cylinder_volume_mesh.py", command)
+            finally:
+                dialog.close()
 
     def test_volume_mesh_cli_has_beginner_friendly_defaults(self) -> None:
         self.assertTrue(DEFAULT_SPHERE_STL.is_file())

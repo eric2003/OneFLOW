@@ -52,6 +52,7 @@ from grid.stl_to_gmsh.generate_volume_mesh import (
 from .user_data_paths import UserDataPaths
 from .geometry_library_dialog import GeometryLibraryDialog
 from .cylinder_cut_dialog import CylinderCutWorkbenchDialog
+from .generic_surface_cut_dialog import GenericSurfaceCutDialog
 
 
 class MeshGenerationDialog(QDialog):
@@ -91,6 +92,15 @@ class MeshGenerationDialog(QDialog):
         )
         cylinder_cut_button.clicked.connect(self._open_cylinder_cut_workbench)
         root.addWidget(cylinder_cut_button)
+
+        generic_cut_button = QPushButton("Generic STL Surface Cutting...")
+        generic_cut_button.setMinimumHeight(64)
+        generic_cut_button.setToolTip(
+            "Treat any closed STL shell as an unknown surface and cut it with two "
+            "user-defined planes; no analytic cylinder or pipe model is used."
+        )
+        generic_cut_button.clicked.connect(self._open_generic_surface_cut)
+        root.addWidget(generic_cut_button)
 
         project_heading = QLabel("Mesh Projects")
         project_heading.setStyleSheet("font-size: 16px; font-weight: 600;")
@@ -158,6 +168,9 @@ class MeshGenerationDialog(QDialog):
 
     def _open_cylinder_cut_workbench(self) -> None:
         CylinderCutWorkbenchDialog(self._repository_root, self).exec()
+
+    def _open_generic_surface_cut(self) -> None:
+        GenericSurfaceCutDialog(self._repository_root, self).exec()
 
     def _create_mesh_project(self) -> None:
         case_id = self.project_template.currentData()
