@@ -187,9 +187,22 @@ def generate(
                     else {(2,boundary_name),(3,volume_name)})
         if groups != expected:
             raise RuntimeError(f"Physical Groups {sorted(groups)} do not match {sorted(expected)}")
+        group_counts = {
+            (item["dimension"], item["name"]): item.get("element_count", 0)
+            for item in mesh["physical_groups"]
+        }
+        empty_groups = sorted(
+            f"{dimension}:{name}" for dimension, name in expected
+            if group_counts.get((dimension, name), 0) <= 0
+        )
+        if empty_groups:
+            raise RuntimeError(f"Physical Groups contain no mesh elements: {empty_groups}")
         stages["physical_groups"] = stage_result("PASS",
-            "All expected boundary and volume Physical Groups are present.",
-            {"groups":sorted(f"{dim}:{name}" for dim,name in groups)})
+            "All expected Physical Groups contain mesh elements.",
+            {"groups": {
+                f"{dimension}:{name}": group_counts[(dimension, name)]
+                for dimension, name in sorted(expected)
+            }})
 
         report = make_report(0)
         write_run_report(report_path, report)
