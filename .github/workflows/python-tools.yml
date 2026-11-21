@@ -69,7 +69,7 @@ jobs:
       - name: Test analytic cylinder cutting and Stage A boundary loops
         run: python -m unittest grid.tests.python.stl_import.test_analytic_cylinder_cut
       - name: Test analytic cylinder volume mesh generation
-        run: python -m unittest grid.tests.python.stl_import.test_cylinder_volume_mesh
+        run: python -m unittest grid.tests.python.stl_to_gmsh.test_cylinder_volume_mesh
       - name: Test cylinder cutting Workbench integration
         run: python -m unittest tools.oneflow_gui.test_cylinder_cut_dialog
       - name: Test planar STL to Gmsh geometry generation

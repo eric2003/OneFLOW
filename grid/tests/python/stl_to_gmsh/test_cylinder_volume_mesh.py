@@ -3,7 +3,7 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
-from grid.stl_import.cylinder_volume_mesh import (
+from grid.stl_to_gmsh.generate_cylinder_volume_mesh import (
     build_cylinder_volume_geo, _require_external_output, generate,
 )
 

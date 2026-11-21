@@ -160,7 +160,7 @@ class CylinderCutWorkbenchDialog(QDialog):
         if mesh_size <= 0:
             raise ValueError("Gmsh target mesh size must be positive.")
         args = [
-            str(self._repository_root / "grid" / "stl_import" / "cylinder_volume_mesh.py"),
+            str(self._repository_root / "grid" / "stl_to_gmsh" / "generate_cylinder_volume_mesh.py"),
             "--output-directory", str(output),
             "--radius", self.radius.text().strip(),
             "--axis-start", self.axis_start.text().strip(),
