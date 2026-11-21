@@ -205,7 +205,8 @@ def create_mesh_project_from_stl(
         "boundary_name": "wall",
         "volume_name": "fluid_domain",
         "source_stl": str(source),
-        "geometry": geometry_manifest.get("geometry") if geometry_manifest else None,\n        "boundary_regions": sorted(region_manifest["regions"]) if region_manifest else None,
+        "geometry": geometry_manifest.get("geometry") if geometry_manifest else None,
+        "boundary_regions": sorted(region_manifest["regions"]) if region_manifest else None,
     }
     return _write_manifest(directory, manifest)
 
