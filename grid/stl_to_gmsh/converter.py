@@ -496,7 +496,7 @@ def _region_aware_closed_surface_volume_geo(
         'Physical Volume("fluid_domain") = {1};',
         "",
     ))
-    return "\\n".join(lines), {
+    return "\n".join(lines), {
         **topology,
         "geometry": "region_aware_generic_stl",
         "region_triangle_counts": region_counts,
