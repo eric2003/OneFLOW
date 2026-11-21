@@ -61,13 +61,13 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 library._edit_selected_asset()
                 self.assertEqual(edited_assets[0]["id"], "geometry.sphere.unit")
                 self.assertIn("\nDefinition\n", library.details.toPlainText())
-                self.assertNotIn("\\nDefinition", library.details.toPlainText())
+                self.assertNotIn("\nDefinition", library.details.toPlainText())
                 displayed = library.details.toPlainText()
                 self.assertIn("\nProvenance\n", displayed)
                 self.assertIn("\nRepresentations\n", displayed)
                 self.assertIn("\n  Kind: ", displayed)
                 self.assertIn("\n\nDefinition\n", displayed)
-                self.assertNotIn("\\n", displayed)
+                self.assertNotIn("\n", displayed)
                 self.assertIn("analytic-equation", library.details.toPlainText())
                 library.asset_list.setCurrentRow(1)
                 self.assertEqual(edited_assets[0]["id"], "geometry.sphere.unit")
@@ -478,7 +478,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             source = root / "cut"
             source.mkdir()
             closed = source / "closed_surface.stl"
-            closed.write_text("solid closed\\nendsolid closed\\n", encoding="ascii")
+            closed.write_text("solid closed\nendsolid closed\n", encoding="ascii")
             regions = {}
             for key, filename in (
                 ("wall", "wall.stl"),
@@ -486,7 +486,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 ("outflow", "outlet.stl"),
             ):
                 path = source / filename
-                path.write_text(f"solid {key}\\nendsolid {key}\\n", encoding="ascii")
+                path.write_text(f"solid {key}\nendsolid {key}\n", encoding="ascii")
                 regions[key] = {
                     "file": filename,
                     "triangle_count": 1,
