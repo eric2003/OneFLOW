@@ -8,7 +8,7 @@ from pathlib import Path
 from grid.stl_import.reader import read_stl
 from grid.stl_import.surface_cut import cut_closed_surface_between_planes
 from grid.stl_import.cut_surface_cli import main as cut_surface_main
-from grid.stl_to_gmsh.converter import validate_closed_genus_zero_surface
+from grid.stl_to_gmsh.converter import (\n    _region_aware_closed_surface_volume_geo,\n    validate_closed_genus_zero_surface,\n)
 
 
 class GenericStlSurfaceCutTest(unittest.TestCase):
@@ -58,9 +58,41 @@ class GenericStlSurfaceCutTest(unittest.TestCase):
                 self.assertEqual(cut_surface_main(arguments), 0)
             for name in ("wall.stl", "inlet.stl", "outlet.stl", "closed_surface.stl", "cut_report.json"):
                 self.assertTrue((output / name).is_file(), name)
-            report = __import__("json").loads((output / "cut_report.json").read_text(encoding="utf-8"))
+            json = __import__("json")
+            report = json.loads((output / "cut_report.json").read_text(encoding="utf-8"))
             self.assertFalse(report["analytic_geometry_metadata_read"])
             self.assertEqual(report["operation"], "generic_stl_surface_cut")
+            region_manifest = json.loads(
+                (output / "region_manifest.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                set(region_manifest["regions"]), {"wall", "inflow", "outflow"}
+            )
+            self.assertEqual(
+                sum(item["triangle_count"] for item in region_manifest["regions"].values()),
+                report["counts"]["side_triangle_count"]
+                + report["counts"]["inlet_cap_triangle_count"]
+                + report["counts"]["outlet_cap_triangle_count"],
+            )
+            closed_triangles = read_stl(output / "closed_surface.stl")
+            geo, geometry_report = _region_aware_closed_surface_volume_geo(
+                output / "closed_surface.stl",
+                closed_triangles,
+                {
+                    "region_manifest": str(output / "region_manifest.json"),
+                    "mesh_size_min": 0.1,
+                    "mesh_size_max": 0.2,
+                },
+                1.0e-8,
+            )
+            self.assertIn('Physical Surface("wall")', geo)
+            self.assertIn('Physical Surface("inflow")', geo)
+            self.assertIn('Physical Surface("outflow")', geo)
+            self.assertIn('Physical Volume("fluid_domain")', geo)
+            self.assertEqual(
+                set(geometry_report["region_triangle_counts"]),
+                {"wall", "inflow", "outflow"},
+            )
 
     def test_empty_input_is_rejected(self):
         with self.assertRaises(ValueError):
