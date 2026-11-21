@@ -41,6 +41,12 @@
       "reference": "GenericStlSurfaceCutTest.test_nonparallel_cut_planes_are_supported",
       "status": "not_run",
       "scope": "Exercises two non-parallel planar cuts on the same STL input."
+    },
+    {
+      "kind": "python_test",
+      "reference": "GenericStlSurfaceCutTest.test_cli_writes_named_surface_regions_and_report",
+      "status": "not_run",
+      "scope": "Runs the CLI adapter against the blind-input cylinder STL and verifies wall, inlet, outlet, closed-shell STL artifacts and the report."
     }
   ],
   "execution_boundary": {

@@ -53,12 +53,15 @@ Current scope and limitations
   geometry manifest or patch-triangle indices.
 * One simple loop per cutting plane is supported. Branched pipes, multiple
   loops, holes in a cross-section and self-intersecting cuts are rejected.
-* The plane points and normals are explicit inputs in this slice. Automatic
-  local direction estimation and interactive 3-D endpoint selection are
-  subsequent GUI work.
-* This stage produces geometry only. Gmsh volume meshing and the OneFLOW CFD
-  smoke run remain manual Mesh Generation / Mesh-to-CFD Validation actions;
-  they are not CI jobs.
+* The plane points and normals are explicit GUI inputs. Automatic local
+  direction estimation and picking endpoints directly on a 3-D model are not
+  included.
+* The cutter produces geometry only. Gmsh volume meshing, CGNS conversion and
+  the OneFLOW CFD smoke run remain manual Mesh Generation / Mesh-to-CFD
+  Validation actions; they are not CI jobs.
+* The separate wall/inlet/outlet STL artifacts retain the three surface
+  regions for downstream processing. The current closed-surface STL handoff
+  does not yet map those regions to distinct Gmsh Physical Surface groups.
 
 Verification
 ------------
@@ -69,9 +72,11 @@ Run the pure geometry regression tests without Gmsh:
 
    python -m unittest grid.tests.python.stl_import.test_generic_stl_surface_cut
 
-The next integration slice will write the cut-and-capped STL to the user's
-.oneflow workspace, preserve the three boundary identities, and hand the
-closed surface to the existing Gmsh volume-mesh workflow.
+The current CLI and GUI write the cut-and-capped STL and the three separate
+surface-region files to the user's .oneflow workspace. The closed surface can
+be opened in the existing Gmsh volume-mesh workflow. Distinct Physical Surface
+groups and automatic CGNS boundary-name transfer are the next integration
+steps.
 
 
 Workbench operation
