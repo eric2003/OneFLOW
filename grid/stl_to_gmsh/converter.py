@@ -478,14 +478,10 @@ def _region_aware_closed_surface_volume_geo(
             lines.extend((
                 "allImportedSurfaces[] = Surface{:};",
                 f"{name}[] = allImportedSurfaces[];",
-                "allImportedSurfaces[] -= wall[];",
+                f"{name}[] -= wall[];",
             ))
             if index == 2:
-                lines.extend((
-                    "outflow[] -= inflow[];",
-                ))
-            else:
-                lines.append("inflow[] -= wall[];")
+                lines.append("outflow[] -= inflow[];")
     lines.extend((
         "CreateGeometry;",
         "Surface Loop(1) = {wall[], inflow[], outflow[]};",
