@@ -451,3 +451,17 @@ verifier 增强：ONEFLOW_XB_HIP_EXTRA_ENVS 通用透传（分号分隔 KEY=VALU
 **证据链现状**（device 梯度 qf 差异）：q 相同（contract PASS max_abs_diff=0）、公式相同、ghost 梯度处理改了无效、只开梯度就错。剩余候选：face→cell 邻接数组（cellFaceOffsets/cellFaceIds）与 host 拓扑不一致，或浮点结合顺序（device 按 cell 遍历 face list 累加 vs host 按 face 累加到 lc/rc）。下一步需 dump 整个 dqdx 场逐 cell 比对 device vs host（受 env 控制的新 instrument + 重编译）。
 
 当前唯一准确配置仍为 BASE（无粘 fused + 粘性 device，梯度/重构/LU-SGS host）。
+
+## device 梯度场逐 cell 对比（昆山 128665942）：大梯度完全一致
+
+强制 device 梯度回传（ONEFLOW_GRAD_FORCE_DOWNLOAD=1）+ dump 整个 dqdx/dqdy/dqdz 场（ONEFLOW_GRAD_DUMP_FILE），两臂逐 cell 比对：
+
+- **大梯度分量（物理主导，1e5 量级）两臂逐位一致**：如 cell 174166 eq1d2 CPU=HIP=1.479091e5（rel=0）；cell 137089 eq1d1=-1.479091e5（rel=0）
+- 差异只在近零分量（1e-12~1e-15）：如 eq0d0 CPU=0 vs HIP=1.4e-12，eq1d0 3.9e-14 vs 2.3e-12；这些比物理梯度小 17 个数量级
+- rel=2 的"符号翻转"全部是近零值归一化放大，绝对值 1e-13~1e-15
+
+**结论**：device 梯度 kernel 的大梯度与 host oracle **完全一致**，差异是 near-zero 浮点累加顺序噪声（device 按 cell face-list 顺序 vs host 按 global face 顺序累加，近零相消敏感）。这与 qf trace 中 eq3(w) 88万面"符号翻转"同源——w 在对称面近零。
+
+**矛盾待解**：近零梯度差（~1e-12）不足以解释 qf 主流场差 1e-4（face 782416 eq1 0.184104 vs 0.184084）。可能 (a) qf dump（最后 stage）与 dqdx dump（首次，gradDumped 一次性）时机不同；(b) 重构读 limf->dqdx 与 dump 的 uns_grad.dqdx 非同一场；(c) 分叉在 step1→2 时序中放大。下一步需对齐 dump 时机或查场绑定。
+
+当前唯一准确配置仍为 BASE。一次性 instrument（force download + grad dump）已在工作树（env-gated）。

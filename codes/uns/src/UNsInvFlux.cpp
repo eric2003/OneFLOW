@@ -355,9 +355,12 @@ void UNsInvFlux::CalcInvFace()
         // gradient every stage; mirrorToHost only feeds host readers.
         const bool packedExchange =
             hipGradient && hipReconstruction && crossZoneGhostGradient;
+        const char * forceDownload =
+            std::getenv( "ONEFLOW_GRAD_FORCE_DOWNLOAD" );
         const bool downloadGradient =
-            hipGradient && ( ! hipReconstruction || crossZoneGhostGradient )
-            && ! ( packedExchange && HipPackedGradientExchangeEnabled() );
+            ( forceDownload != nullptr && forceDownload[ 0 ] == '1' )
+            || ( hipGradient && ( ! hipReconstruction || crossZoneGhostGradient )
+            && ! ( packedExchange && HipPackedGradientExchangeEnabled() ) );
         // With a cross-zone device reconstruction the host mirror is only used
         // by the host interface exchange, so mirror just the boundary-adjacent
         // owned gradient instead of downloading the whole field.  On the
@@ -410,6 +413,32 @@ void UNsInvFlux::CalcInvFace()
                 mirrorBoundaryGradient );
         else
             uns_grad.CalcGrad();
+        // Optional full-gradient dump (off by default) to compare the device
+        // Green-Gauss result against the host oracle cell by cell.
+        {
+            const char * gradDump =
+                std::getenv( "ONEFLOW_GRAD_DUMP_FILE" );
+            static bool gradDumped = false;
+            if ( gradDump != nullptr && gradDump[ 0 ] != '\0' && ! gradDumped )
+            {
+                gradDumped = true;
+                std::ofstream gout( gradDump, std::ios::binary );
+                const int nEqu = uns_grad.nEqu;
+                const int nCells = ug.nCells;
+                gout.write( reinterpret_cast< const char * >( &nEqu ), sizeof(int) );
+                gout.write( reinterpret_cast< const char * >( &nCells ), sizeof(int) );
+                for ( int eq = 0; eq < nEqu; ++ eq )
+                {
+                    for ( int c = 0; c < nCells; ++ c )
+                    {
+                        const double v[3] = { (*uns_grad.dqdx)[eq][c],
+                                              (*uns_grad.dqdy)[eq][c],
+                                              (*uns_grad.dqdz)[eq][c] };
+                        gout.write( reinterpret_cast< const char * >( v ), sizeof(v) );
+                    }
+                }
+            }
+        }
     }
     // The device reconstruction computes the Barth factor from the resident
     // gradient. Running the host limiter as well repeated the whole face loop on
