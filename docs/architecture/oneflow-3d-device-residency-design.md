@@ -277,3 +277,15 @@ A 线（昆山 2026-11-21，作业 `128627452`/`128628784`/`128629176`）已钉�
 - 残差在 device 内部算、不走 host 镜像 → 一致；气动力读 host 镜像 → 差
 
 下一步：在 AeroForceTask.cpp:363 加 env-gated instrument 打印壁面 q[IP][lc]/dqdx[IP][lc]/wp，对比两臂。
+
+## 气动力 21% 差异根因确定（昆山 128660722，AERO_INPUT probe）
+
+在 AeroForceTask.cpp:363 加 env-gated AERO_INPUT probe，打印壁面 cell 气动力输入：
+
+- **qip（壁面压力 q[IP][lc]）**：CPU 0.99307596947828625 / HIP 0.99307596947828669 —— 逐位一致
+- **gpx/gpy/gpz（压力梯度 dqdx/y/z[IP][lc]）**：CPU = 25.307/-170.246/-7.081，**HIP = 0/0/0 —— 全零！**
+- wp：CPU 0.98738 / HIP 0.99308（差 0.0057）→ cp 差 → 气动力 21%
+
+**根因 100% 确定**：DCU 真算时 device 梯度 stage 正确算出梯度（流场/残差逐字节一致证明），但气动力读的 host cell 梯度 `dqdx/y/z[IP][lc]` **从未被镜像到 host，保持零**。这正是 runbook §1f / 坑 41 的物理表现。`NsMirrorHostBoundaryState()`（AeroForceTask.cpp:233）只镜像 q，不镜像梯度；梯度靠 `HipGradientHostMirrorOnDemand()` 按需机制，但气动力读取前没有触发该镜像（或触发条件不满足）。
+
+修复方向：气动力读梯度前必须确保 host 梯度镜像是最新的（boundary-adjacent owned cells），即在 `CalcForce()` 里补一次梯度 D2H 镜像（类似 NsMirrorHostBoundaryState 但针对 dqdx/y/z 的壁面邻域 cell），或修正 HipGradientHostMirrorOnDemand 的触发条件覆盖气动力读取点。待定位具体镜像 API 后修复+验证。
