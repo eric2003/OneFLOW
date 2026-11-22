@@ -257,3 +257,23 @@ A 线（昆山 2026-11-21，作业 `128627452`/`128628784`/`128629176`）已钉�
 - **res.dat 逐字节完全一致**（cmp identical）
 
 结论：旗舰 M6 算例 CPU 与 DCU 全开 hook 的数值**完全等价**。根因（limiter 每步 fill 被跳过）修复后，之前 25% 气动力偏差、step2 无粘通量 51% 偏差全部消失。**切片 0（准确性地基）完成，标 Verified**。后续可进入切片 1-3 设备驻留架构改动。注意：本算例 cfl=0.01 下 400 步不收敛（CD 仍在变化），但等价性比较与收敛无关；收敛气动力属 B.3.2 遗留项，需单独长期算例。
+
+## DCU 真算验证（昆山 128660151，vismodel=0 配置，binary e032e7f）
+
+用户质疑旗舰 400 步 DCU 没真算（fact：旗舰 vismodel=3 被 capability 守卫挡住 device stage，TRACE hipGrad=0/0/0）。改用 vismodel=0 + 显式 RK3 + Lax 单zone（device batch 支持配置）验证 DCU 真算：
+
+- **DCU 确实在算**：`HIP device 66a1 gfx906`、backend=HIP/DCU、`HIP_STAGE_DIAGNOSTIC hip_gradient=1 hip_reconstruction=1`、stage breakdown `HIP kernel 4.73726`（非零）
+- **RES IDENTICAL**：res.dat 逐字节一致 → 流场演化完全相同
+- **AERO DIFFER**：step20 CL=6.4428e-02(CPU) vs 5.0928e-02(HIP)，差 21%；CD 同样差 21%
+
+**结论**：device 路径数值（残差/流场）与 CPU 逐字节一致，但气动力后处理差 21%。这是气动力读 host 镜像陈旧的 bug（handoff 坑41 / runbook §1f）：DCU 路径 device 拥有 q/梯度，host 气动力计算读的 dqdx/y/z 或 q[rc] ghost 镜像陈旧；残差不走 host 镜像所以一致。之前旗舰 DCU 没算所以该 bug 未显现，现在 DCU 真算了暴露出来。vismodel=0 无粘，CD_PR=CD、CD_SF=0，符合预期。下一步：用 wall force probe 对比两臂壁面 q/梯度，确认是梯度镜像陈旧还是 q[rc] ghost。
+
+## DCU 真算后气动力 21% 差异 — 定位方向
+
+128660151 确认 vismodel=0 下 DCU 真算、流场(res)逐字节一致，但气动力差 21%。气动力压力项 `wp = q[IP][lc] + dqdx[IP][lc]*dx + ...`（AeroForceTask.cpp:363）读 host 的 q 与 cell 梯度。
+
+- `NsMirrorHostBoundaryState()`（NsRhs.cpp:152-176）在 HIP 下只镜像 **q**（MirrorPrimitiveCellsToHost），**不镜像梯度 dqdx/y/z**
+- 注释（AeroForceTask.cpp:209-210）声称 HIP 路径已镜像 boundary-adjacent cells，但那只覆盖 q；梯度靠 `HipGradientHostMirrorOnDemand()` 另一机制，气动力读到的 dqdx[IP][lc] 可能是陈旧值（某 RK stage 的）
+- 残差在 device 内部算、不走 host 镜像 → 一致；气动力读 host 镜像 → 差
+
+下一步：在 AeroForceTask.cpp:363 加 env-gated instrument 打印壁面 q[IP][lc]/dqdx[IP][lc]/wp，对比两臂。
