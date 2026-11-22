@@ -49,6 +49,13 @@ public:
     void SetMeshGeometry();
     void PrepareData();
     void Init();
+
+    // Device counterpart of LowerSweep/UpperSweep.  The host sweep is a
+    // Gauss-Seidel walk in cell-id order, so the device path must reproduce the
+    // same read-after-write chain: it splits the cells into dependency levels
+    // on the host and launches one kernel per level, in order.  Returns false
+    // when the caller should run the host loop.
+    bool SweepHip( bool lowerSweep );
 };
 
 EndNameSpace

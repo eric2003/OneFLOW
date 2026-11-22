@@ -35,6 +35,8 @@ public:
     void CalcSpectrum();
     void CalcSpectrum1Equ();
     void CalcSpectrum2Equ();
+    // Device counterpart of CalcSpectrum for the one-equation model.
+    bool CalcSpectrum1EquHip();
 public:
     void CalcUnsteadySpectrum();
     void UpdateSpectrumRadius();

@@ -108,7 +108,20 @@ inline bool HipProductionFeatureEnabled( const char * legacyName )
         || std::strcmp( legacyName, "ONEFLOW_ENABLE_UNS_HIP_RECONSTRUCTION" ) == 0
         || std::strcmp( legacyName, "ONEFLOW_ENABLE_UNS_HIP_STATE_UPDATE" ) == 0
         || std::strcmp( legacyName, "ONEFLOW_ENABLE_UNS_HIP_BOUNDARY" ) == 0
-        || std::strcmp( legacyName, "ONEFLOW_ENABLE_UNS_HIP_TIME_STEP" ) == 0;
+        || std::strcmp( legacyName, "ONEFLOW_ENABLE_UNS_HIP_TIME_STEP" ) == 0
+        // Spalart-Allmaras turbulence stages.  They are in this list for the
+        // same reason the mean-flow stages are: the device and host agree to
+        // the bit patterns the gates check, so selecting the HIP backend is
+        // enough.  An explicit =0 still disables an individual stage.
+        || std::strcmp( legacyName, "ONEFLOW_ENABLE_UTURB_HIP_VIST" ) == 0
+        || std::strcmp( legacyName, "ONEFLOW_ENABLE_UTURB_HIP_SOURCE" ) == 0
+        || std::strcmp( legacyName, "ONEFLOW_ENABLE_UTURB_HIP_INVFLUX" ) == 0
+        || std::strcmp( legacyName, "ONEFLOW_ENABLE_UTURB_HIP_VISFLUX" ) == 0
+        || std::strcmp( legacyName, "ONEFLOW_ENABLE_UTURB_HIP_GRADIENT" ) == 0
+        || std::strcmp( legacyName, "ONEFLOW_ENABLE_UTURB_HIP_UPDATE" ) == 0
+        || std::strcmp( legacyName, "ONEFLOW_ENABLE_UTURB_HIP_SPECTRUM" ) == 0
+        || std::strcmp( legacyName, "ONEFLOW_ENABLE_UTURB_HIP_BOUNDARY" ) == 0
+        || std::strcmp( legacyName, "ONEFLOW_ENABLE_UTURB_HIP_LUSGS" ) == 0;
 }
 
 // Device-packed gradient interface exchange.  The send side packs the

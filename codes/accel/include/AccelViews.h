@@ -17,6 +17,7 @@ License
 
 #include <cstdint>
 #include <stdexcept>
+#include <string>
 
 BeginNameSpace( ONEFLOW )
 
@@ -1336,6 +1337,268 @@ inline void ValidateTurbSaFaceView( const TurbSaFaceView & view )
                 "only the VIS_TEST (iturb_visflux = 2) normal-gradient variant "
                 "is implemented; refusing to substitute another one" );
         }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Implicit spectrum: TurbSpectrum::CalcFaceSpectrum1Equ (TurbSpectrum.cpp:77)
+// folded into UTurbSpectrum's per-face loop, plus the unsteady diagonal term
+// from CalcUnsteadySpectrum.
+//
+// This is the operator the LU-SGS sweep inverts, so it is a separate view from
+// the face-flux one: it reads the mean-flow density/velocity at both cells and
+// the turbulence working variable, and writes four per-cell / per-face arrays.
+// ---------------------------------------------------------------------------
+struct TurbSaSpectrumView
+{
+    int nFaces = 0;
+    int nBoundaryFaces = 0;
+    // Cell extent of the per-cell planes below, including ghosts.
+    int nCells = 0;
+    int nGhostCells = 0;
+
+    // Face geometry.
+    const Real * xNormal = nullptr;
+    const Real * yNormal = nullptr;
+    const Real * zNormal = nullptr;
+    const Real * meshVelocityNormal = nullptr;
+    const Real * faceArea = nullptr;
+    const int * leftCell = nullptr;
+    const int * rightCell = nullptr;
+
+    // Mean-flow state at the face's two cells (uturbf.meanFlow.q).
+    const Real * density = nullptr;
+    const Real * velocity[ 3 ] = {};
+
+    // Turbulence working variable and laminar viscosity, per cell.
+    const Real * workingVariable = nullptr;
+    const Real * laminarViscosity = nullptr;
+
+    const Real * cellVolume = nullptr;
+
+    // Unsteady diagonal: calc-diagonal for every owned cell, from
+    // UTurbSpectrum::CalcUnsteadySpectrum (:122).
+    //   idualtime == 0: sp2 / (timestep * turb_cfl_ratio) * volume
+    // and left untouched when unsteadyDiagonal is false.
+    bool unsteadyDiagonal = true;
+    const Real * timestep = nullptr;
+    Real turbCflRatio = 1.0;
+    Real unsteadySp2 = 1.0;
+
+    Real invReynolds = 0.0;
+    Real invSigma = 1.5;
+    SaModelConstants constants;
+
+    // Outputs.
+    Real * implicitSpectrum = nullptr;   // impsr, length nCells
+    Real * matrixLeft = nullptr;         // matrix_l, length nFaces
+    Real * matrixRight = nullptr;        // matrix_r, length nFaces
+
+    const void * cacheKey = nullptr;
+};
+
+inline void ValidateTurbSaSpectrumView( const TurbSaSpectrumView & view )
+{
+    const char * missing = nullptr;
+    if ( view.nFaces <= 0 ) missing = "nFaces";
+    else if ( view.nBoundaryFaces < 0
+              || view.nBoundaryFaces > view.nFaces ) missing = "nBoundaryFaces";
+    else if ( view.nCells <= 0 ) missing = "nCells";
+    else if ( view.nGhostCells < 0 ) missing = "nGhostCells";
+    else if ( view.xNormal == nullptr ) missing = "xNormal";
+    else if ( view.yNormal == nullptr ) missing = "yNormal";
+    else if ( view.zNormal == nullptr ) missing = "zNormal";
+    else if ( view.meshVelocityNormal == nullptr ) missing = "vfn";
+    else if ( view.faceArea == nullptr ) missing = "farea";
+    else if ( view.leftCell == nullptr ) missing = "leftCell";
+    else if ( view.rightCell == nullptr ) missing = "rightCell";
+    else if ( view.density == nullptr ) missing = "meanFlow.q[IR]";
+    else if ( view.workingVariable == nullptr ) missing = "turbq";
+    else if ( view.laminarViscosity == nullptr ) missing = "visl";
+    else if ( view.cellVolume == nullptr ) missing = "cvol";
+    else if ( view.implicitSpectrum == nullptr ) missing = "turbimpsr";
+    else if ( view.matrixLeft == nullptr ) missing = "turb_matrix_l";
+    else if ( view.matrixRight == nullptr ) missing = "turb_matrix_r";
+    else if ( view.velocity[ 0 ] == nullptr ) missing = "meanFlow.q[IU]";
+    else if ( view.velocity[ 1 ] == nullptr ) missing = "meanFlow.q[IV]";
+    else if ( view.velocity[ 2 ] == nullptr ) missing = "meanFlow.q[IW]";
+    else if ( view.unsteadyDiagonal && view.timestep == nullptr )
+        missing = "timestep";
+    else if ( view.invReynolds <= 0.0 ) missing = "invReynolds";
+    else if ( view.invSigma <= 0.0 ) missing = "invSigma";
+    if ( missing != nullptr )
+    {
+        throw std::invalid_argument(
+            std::string( "invalid SA spectrum view: missing " ) + missing );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Turbulence boundary conditions: UTurbBcSolver (TurbBcSolver.cpp).
+//
+// Only the ghost working variable is written, matching UpdateBc's
+// `q[rc] = primt1`.  The one-equation model has a single scalar per cell, so
+// the face-averaged bcQ the turbulence solver never forms is not produced.
+// ---------------------------------------------------------------------------
+struct TurbSaBoundaryView
+{
+    int nBoundaryFaces = 0;
+    int nCells = 0;
+    int nGhostCells = 0;
+
+    const int * leftCell = nullptr;
+    const int * rightCell = nullptr;
+    const int * boundaryType = nullptr;
+
+    // Face geometry, for the farfield normal velocity.
+    const Real * xNormal = nullptr;
+    const Real * yNormal = nullptr;
+    const Real * zNormal = nullptr;
+    const Real * meshVelocityNormal = nullptr;
+    int faceOuterNormal = 1;
+
+    // Turbulence working variable (q) and the mean-flow primitive state at the
+    // owner cell.  The farfield branch needs density/pressure/velocity.
+    Real * workingVariable = nullptr;
+    const Real * density = nullptr;
+    const Real * pressure = nullptr;
+    const Real * velocity[ 3 ] = {};
+
+    // Freestream state.
+    Real inflowWorkingVariable = 0.0;
+    Real inflowDensity = 0.0;
+    Real inflowPressure = 0.0;
+    Real inflowVelocity[ 3 ] = {};
+    Real gammaRef = 0.0;
+    Real gamma = 0.0;
+
+    const void * cacheKey = nullptr;
+};
+
+inline void ValidateTurbSaBoundaryView( const TurbSaBoundaryView & view )
+{
+    // Report which field is missing rather than a bare "invalid": a cluster
+    // round trip is expensive and every one of these has been hit at least
+    // once while the stage was being wired.
+    const char * missing = nullptr;
+    if ( view.nBoundaryFaces <= 0 ) missing = "nBoundaryFaces";
+    else if ( view.nCells <= 0 ) missing = "nCells";
+    else if ( view.nGhostCells < 0 ) missing = "nGhostCells";
+    else if ( view.leftCell == nullptr ) missing = "leftCell";
+    else if ( view.rightCell == nullptr ) missing = "rightCell";
+    else if ( view.boundaryType == nullptr ) missing = "boundaryType";
+    else if ( view.xNormal == nullptr ) missing = "xNormal";
+    else if ( view.yNormal == nullptr ) missing = "yNormal";
+    else if ( view.zNormal == nullptr ) missing = "zNormal";
+    else if ( view.meshVelocityNormal == nullptr ) missing = "vfn";
+    else if ( view.workingVariable == nullptr ) missing = "turbq";
+    else if ( view.density == nullptr ) missing = "meanFlow.q[IR]";
+    else if ( view.pressure == nullptr ) missing = "meanFlow.q[IP]";
+    else if ( view.gammaRef <= 0.0 ) missing = "gammaRef";
+    else if ( view.gamma <= 0.0 ) missing = "gamma";
+    else if ( view.velocity[ 0 ] == nullptr ) missing = "meanFlow.q[IU]";
+    else if ( view.velocity[ 1 ] == nullptr ) missing = "meanFlow.q[IV]";
+    else if ( view.velocity[ 2 ] == nullptr ) missing = "meanFlow.q[IW]";
+    if ( missing != nullptr )
+    {
+        throw std::invalid_argument(
+            std::string( "invalid SA boundary view: missing " ) + missing );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// LU-SGS scalar sweeps: UTurbLusgs::LowerSweep / UpperSweep.
+//
+// The host sweep is a Gauss-Seidel walk over the cells in ascending (lower) or
+// descending (upper) order, so cell `c` reads the *already updated* delta of
+// the neighbour it depends on.  That data dependence is what makes the sweep
+// serial.  The device path preserves it exactly by walking the same order in a
+// single wavefront-free kernel: one thread per cell, launched in id order, with
+// a device-wide handshake per cell would be pointless, so instead the sweep is
+// split into dependency levels computed on the host from the CSR adjacency.
+//
+// `cellLevel` holds, for each owned cell, the distance in the sweep direction;
+// cells on the same level are independent and run in one kernel launch, and the
+// launches are issued in level order.  Reading a neighbour's delta that is on a
+// lower level is therefore guaranteed to see the updated value, and a
+// same-level neighbour is never read, because both sweep orders are
+// topological by construction over the CSR.
+// ---------------------------------------------------------------------------
+struct TurbSaSweepView
+{
+    int nCells = 0;
+    int nFaces = 0;
+    int nLevels = 0;
+    // The delta array reaches into the ghost range.  The host upper sweep does
+    // NOT skip a boundary face (CanNotUpperSolve only rejects lc < cell or
+    // rc < cell, and a boundary face's ghost has the larger id), so it reads
+    // dq[ghost] and multiplies it by matrix_r.  The ghost delta is never swept
+    // and stays constant, but it must be in bounds and carry the same value the
+    // host would read.
+    int nGhostCells = 0;
+
+    // CSR over owned cells, one entry per incident face.
+    const int * cellFaceOffsets = nullptr;
+    const int * cellFaceIds = nullptr;
+
+    const int * leftCell = nullptr;
+    const int * rightCell = nullptr;
+
+    // Per-level cell lists: levelCells[levelOffset[l] .. levelOffset[l+1]).
+    const int * levelOffset = nullptr;
+    const int * levelCells = nullptr;
+
+    // Per-cell and per-face inputs.  The sweep reads nothing else: the matrix
+    // already carries the face area, so no normal, area or mean-flow state is
+    // needed here.
+    const Real * rhs = nullptr;          // uturbf.rhs, accumulated residual
+    const Real * implicitSpectrum = nullptr;  // uturbf.impsr
+    const Real * matrixLeft = nullptr;   // uturbf.matrix_l, per face
+    const Real * matrixRight = nullptr;  // uturbf.matrix_r, per face
+
+    // Working delta: read and written in place, so a later cell sees earlier
+    // updates exactly as the host sweep does.
+    Real * delta = nullptr;
+
+    // Lower sweep reads matrix_l on a face whose right cell is the cell, and
+    // matrix_r when the cell is the right cell; the upper sweep mirrors it.
+    // `lowerSweep` selects the host branch order.
+    bool lowerSweep = true;
+    // Host numberOfSweeps; the multi-sweep branches carry a drhs accumulation
+    // the device view does not reproduce, so entry points must decline when
+    // this is greater than one.
+    int numberOfSweeps = 1;
+
+    const void * cacheKey = nullptr;
+};
+
+inline void ValidateTurbSaSweepView( const TurbSaSweepView & view )
+{
+    const char * missing = nullptr;
+    if ( view.nCells <= 0 ) missing = "nCells";
+    else if ( view.nFaces <= 0 ) missing = "nFaces";
+    else if ( view.nLevels <= 0 ) missing = "nLevels";
+    else if ( view.nGhostCells < 0 ) missing = "nGhostCells";
+    else if ( view.cellFaceOffsets == nullptr ) missing = "cellFaceOffsets";
+    else if ( view.cellFaceIds == nullptr ) missing = "cellFaceIds";
+    else if ( view.leftCell == nullptr ) missing = "leftCell";
+    else if ( view.rightCell == nullptr ) missing = "rightCell";
+    else if ( view.levelOffset == nullptr ) missing = "levelOffset";
+    else if ( view.levelCells == nullptr ) missing = "levelCells";
+    else if ( view.rhs == nullptr ) missing = "turbres";
+    else if ( view.implicitSpectrum == nullptr ) missing = "turbimpsr";
+    else if ( view.matrixLeft == nullptr ) missing = "turb_matrix_l";
+    else if ( view.matrixRight == nullptr ) missing = "turb_matrix_r";
+    else if ( view.delta == nullptr ) missing = "turbdq";
+    if ( missing != nullptr )
+    {
+        throw std::invalid_argument(
+            std::string( "invalid SA LU-SGS sweep view: missing " ) + missing );
+    }
+    if ( view.numberOfSweeps != 1 )
+    {
+        throw std::invalid_argument(
+            "the device SA sweep implements only numberOfSweeps == 1" );
     }
 }
 

@@ -34,6 +34,10 @@ License
 #include "FaceMesh.h"
 #include "CellMesh.h"
 #include "CellTopo.h"
+#include "HipProductionPolicy.h"
+#ifdef ONEFLOW_ENABLE_HIP
+#include "HipTurbulenceBackend.h"
+#endif
 
 
 BeginNameSpace( ONEFLOW )
@@ -73,6 +77,59 @@ void UTurbGrad::Init()
     this->nEqu = turbcom.nEqu;
 
     this->istore = 1;
+}
+
+bool UTurbGrad::CalcGradHip()
+{
+#ifdef ONEFLOW_ENABLE_HIP
+    // One-equation closure only: the backend entry carries a single working
+    // variable plane, while a two-equation model would have to supply k and
+    // omega separately.
+    if ( turbcom.nEqu != 1 ) return false;
+    if ( ! HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UTURB_HIP_GRADIENT" ) )
+    {
+        return false;
+    }
+    if ( q == nullptr || dqdx == nullptr || dqdy == nullptr || dqdz == nullptr )
+    {
+        return false;
+    }
+    UnsGrid * grid = Zone::GetUnsGrid();
+    if ( grid == nullptr ) return false;
+    ug.Init();
+
+    TurbSaGradientView view;
+    view.nCells = ug.nCells;
+    view.nGhostCells = ug.nTCell - ug.nCells;
+    view.nFaces = ug.nFaces;
+    view.nBoundaryFaces = ug.nBFaces;
+    view.workingVariable = ( * q )[ 0 ].data();
+    view.xFace = ug.xfc->data();
+    view.yFace = ug.yfc->data();
+    view.zFace = ug.zfc->data();
+    view.xNormal = ug.xfn->data();
+    view.yNormal = ug.yfn->data();
+    view.zNormal = ug.zfn->data();
+    view.faceArea = ug.farea->data();
+    view.xCell = ug.xcc->data();
+    view.yCell = ug.ycc->data();
+    view.zCell = ug.zcc->data();
+    view.cellVolume = ug.cvol->data();
+    view.leftCell = ug.lcf->data();
+    view.rightCell = ug.rcf->data();
+    view.gradientX = ( * dqdx )[ 0 ].data();
+    view.gradientY = ( * dqdy )[ 0 ].data();
+    view.gradientZ = ( * dqdz )[ 0 ].data();
+    view.cacheKey = grid;
+
+    HipTurbulenceBackend::Shared().CalcGradient( view );
+    // The host source term and the diffusive flux read these planes on the
+    // next call, and CalcGradient already synchronises and copied the device
+    // result into them.
+    return true;
+#else
+    return false;
+#endif
 }
 
 EndNameSpace

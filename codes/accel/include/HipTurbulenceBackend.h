@@ -33,6 +33,11 @@ public:
     static HipTurbulenceBackend & Shared();
     static void ReleaseShared();
 
+    HipTurbulenceBackend();
+    // Defined out of line: the private members below are incomplete types here,
+    // and unique_ptr's deleter is only instantiated where they are complete.
+    ~HipTurbulenceBackend() override;
+
     bool SupportsEddyViscosity() const override;
     void CalcEddyViscosity( const TurbSaEddyViscosityView & view ) override;
 
@@ -47,6 +52,18 @@ public:
 
     bool SupportsUpdate() const override;
     void Update( const TurbSaUpdateView & view ) override;
+
+    // Implicit spectrum (UTurbSpectrum::CalcSpectrum1Equ).
+    bool SupportsSpectrum() const;
+    void CalcSpectrum( const TurbSaSpectrumView & view );
+
+    // Boundary ghosts (UTurbBcSolver::CalcBc).
+    bool SupportsBoundary() const;
+    void CalcBoundary( const TurbSaBoundaryView & view );
+
+    // LU-SGS scalar sweeps (UTurbLusgs::LowerSweep / UpperSweep).
+    bool SupportsSweep() const;
+    void CalcSweep( const TurbSaSweepView & view );
 
     // --- Single-sample entries for the numeric contract test ---------------
     //
@@ -110,6 +127,30 @@ public:
     };
     void EvaluateNormalGradientSample(
         const NormalGradientSample & sample, Real & normalGradient ) const;
+
+private:
+    // Cell-to-face CSR over owned cells, rebuilt only when the partition
+    // changes.  The SA gradient and sweep kernels both walk a cell's incident
+    // faces; without it they would scan the whole face array per cell, which is
+    // O(nCells * nFaces) and unusable at 3D production size.
+    //
+    // Held behind a pointer because the concrete type owns DeviceBuffers and
+    // roster of HIP types this header deliberately does not include: the seam
+    // header stays reachable from every execution space.
+    struct CellFaceAdjacency;
+    std::unique_ptr< CellFaceAdjacency > cellFaceAdjacency_;
+
+    // Resident inputs for the LU-SGS sweep.  The sweep runs once per solver per
+    // step and the geometry, adjacency, level schedule, residual and spectrum
+    // are all unchanged between the lower and upper halves, so re-uploading
+    // ~35 MB per call would cost more than the sweep itself.
+    struct SweepStorage;
+    std::unique_ptr< SweepStorage > sweepStorage_;
+
+    // Returns the device CSR, (re)building it when the partition changed.
+    CellFaceAdjacency & EnsureCellFaceAdjacency(
+        const int * leftCell, const int * rightCell,
+        int nCells, int nFaces, int nBoundaryFaces );
 };
 
 EndNameSpace

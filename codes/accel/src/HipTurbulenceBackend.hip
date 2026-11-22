@@ -178,17 +178,24 @@ __global__ void SaGradientKernel(
     const Real * cellVolume,
     const int * leftCell,
     const int * rightCell,
+    const int * faceOffsets,
+    const int * faceIds,
     int nCells,
     int nBoundaryFaces,
-    int nFaces,
     Real * gradientX,
     Real * gradientY,
     Real * gradientZ )
 {
-    // One thread per (cell, face-pair) is not possible without a CSR list, so
-    // each thread owns one cell and walks the face array.  That is the host
-    // loop's own structure: the host accumulates per face into two cells, and
-    // atomics would change the summation order.
+    // One thread per cell walking that cell's own incident faces.  The earlier
+    // version walked the whole face array from every thread, which is
+    // O(nCells * nFaces) - for the 48x48x128 flagship that is 2.6e11 inner
+    // iterations per stage, so it could never be used.  The cell-to-face CSR is
+    // the same adjacency the mean-flow gradient already builds.
+    //
+    // Summation order is preserved exactly: the CSR lists a cell's faces in
+    // ascending face id (EnsureCellFaceConnectivity fills it in one face-order
+    // pass), which is the order the host accumulates them in UGrad.cpp:88.
+    // That is what keeps this a bit-for-bit port rather than a re-summation.
     const int cell = blockIdx.x * blockDim.x + threadIdx.x;
     if ( cell >= nCells ) return;
 
@@ -196,14 +203,16 @@ __global__ void SaGradientKernel(
     Real accumulatedY = 0.0;
     Real accumulatedZ = 0.0;
 
-    for ( int face = 0; face < nFaces; ++ face )
+    for ( int slot = faceOffsets[ cell ]; slot < faceOffsets[ cell + 1 ]; ++ slot )
     {
+        const int face = faceIds[ slot ];
         const int left = leftCell[ face ];
         const int right = rightCell[ face ];
-        if ( left != cell && ( face < nBoundaryFaces || right != cell ) )
-        {
-            continue;
-        }
+        const bool isLeft = left == cell;
+        // A boundary face contributes to its owner only (UGrad.cpp:121's
+        // `continue` skips the right cell), so a boundary ghost never
+        // accumulates.
+        if ( ! isLeft && face < nBoundaryFaces ) continue;
 
         // InverseDistanceFaceWeights, UGradPolicy.cpp:11.
         const Real dxl = xFace[ face ] - xCell[ left ];
@@ -226,14 +235,16 @@ __global__ void SaGradientKernel(
         const Real sny = yNormal[ face ] * faceArea[ face ];
         const Real snz = zNormal[ face ] * faceArea[ face ];
 
-        if ( left == cell )
+        if ( isLeft )
         {
             TurbSaArithmetic::AccumulateFaceGradient(
                 snx, sny, snz, value, 1.0,
                 accumulatedX, accumulatedY, accumulatedZ );
         }
-        if ( face >= nBoundaryFaces && right == cell )
+        else
         {
+            // Only an interior face reaches here for the right cell, so the
+            // negative contribution is unconditional (UGrad.cpp:122).
             TurbSaArithmetic::AccumulateFaceGradient(
                 snx, sny, snz, value, -1.0,
                 accumulatedX, accumulatedY, accumulatedZ );
@@ -410,6 +421,241 @@ __global__ void SaUpdateKernel(
     if ( cell >= nCells ) return;
     workingVariable[ cell ] = TurbSaArithmetic::UnderRelaxedUpdate(
         oldValue[ cell ], delta[ cell ], relaxationCoefficient );
+}
+
+// ---------------------------------------------------------------------------
+// Implicit spectrum: TurbSpectrum::CalcFaceSpectrum1Equ + the unsteady
+// diagonal of UTurbSpectrum::CalcUnsteadySpectrum.
+//
+// The host walks the face array and accumulates each face's radius into both
+// of its cells and its matrix entries into the face's own slots.  Those are
+// four independent scatter targets per face, so the device uses one atomic add
+// per target per face.  That reorders the summation relative to the host, which
+// is acceptable for these operator coefficients and unacceptable for the
+// residual; the residual path keeps its host order.
+// ---------------------------------------------------------------------------
+__global__ void SaSpectrumDiagonalKernel(
+    const Real * timestep,
+    const Real * cellVolume,
+    Real turbCflRatio,
+    Real unsteadySp2,
+    int nCells,
+    Real * implicitSpectrum )
+{
+    const int cell = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( cell >= nCells ) return;
+    // CalcUnsteadySpectrum, idualtime == 0 branch: sp2 / (dt * ratio) * vol.
+    implicitSpectrum[ cell ] =
+        ( unsteadySp2 / ( timestep[ cell ] * turbCflRatio ) ) * cellVolume[ cell ];
+}
+
+__global__ void SaFaceSpectrumKernel(
+    const Real * xNormal,
+    const Real * yNormal,
+    const Real * zNormal,
+    const Real * meshVelocityNormal,
+    const Real * faceArea,
+    const int * leftCell,
+    const int * rightCell,
+    const Real * density,
+    const Real * velocityU,
+    const Real * velocityV,
+    const Real * velocityW,
+    const Real * workingVariable,
+    const Real * laminarViscosity,
+    const Real * cellVolume,
+    int nFaces,
+    Real invReynolds,
+    Real invSigma,
+    Real * implicitSpectrum,
+    Real * matrixLeft,
+    Real * matrixRight )
+{
+    const int face = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( face >= nFaces ) return;
+
+    const int left = leftCell[ face ];
+    const int right = rightCell[ face ];
+
+    TurbSaArithmetic::SaFaceSpectrumInput in;
+    in.faceArea = faceArea[ face ];
+
+    // RelativeFaceNormalVelocity, NsInvFluxPolicy.cpp, at each side.
+    in.vnLeft = xNormal[ face ] * velocityU[ left ]
+        + yNormal[ face ] * velocityV[ left ]
+        + zNormal[ face ] * velocityW[ left ]
+        - meshVelocityNormal[ face ];
+    in.vnRight = xNormal[ face ] * velocityU[ right ]
+        + yNormal[ face ] * velocityV[ right ]
+        + zNormal[ face ] * velocityW[ right ]
+        - meshVelocityNormal[ face ];
+
+    in.densityLeft = density[ left ];
+    in.densityRight = density[ right ];
+    in.laminarViscosityLeft = laminarViscosity[ left ];
+    in.laminarViscosityRight = laminarViscosity[ right ];
+    in.workingVariableLeft = workingVariable[ left ];
+    in.workingVariableRight = workingVariable[ right ];
+    in.cellVolumeLeft = cellVolume[ left ];
+    in.cellVolumeRight = cellVolume[ right ];
+    in.invReynolds = invReynolds;
+    in.invSigma = invSigma;
+
+    const TurbSaArithmetic::SaFaceSpectrumResult result =
+        TurbSaArithmetic::ComputeFaceSpectrum( in );
+
+    // UpdateSpectrumRadius (UTurbSpectrum.cpp:147).
+    atomicAdd( & implicitSpectrum[ left ], result.radius );
+    atomicAdd( & implicitSpectrum[ right ], result.radius );
+    atomicAdd( & matrixLeft[ face ], result.matrixLeft );
+    atomicAdd( & matrixRight[ face ], result.matrixRight );
+}
+
+// ---------------------------------------------------------------------------
+// Turbulence boundary conditions: UTurbBcSolver::CalcBc.
+//
+// One thread per boundary face.  Faces owned by an external exchange
+// (interface/periodic/overset) are skipped exactly as the host's updateFlag
+// does, and only the ghost working variable is written.
+// ---------------------------------------------------------------------------
+__global__ void SaBoundaryKernel(
+    const int * leftCell,
+    const int * rightCell,
+    const int * boundaryType,
+    const Real * xNormal,
+    const Real * yNormal,
+    const Real * zNormal,
+    const Real * meshVelocityNormal,
+    int faceOuterNormal,
+    Real * workingVariable,
+    const Real * density,
+    const Real * pressure,
+    const Real * velocityU,
+    const Real * velocityV,
+    const Real * velocityW,
+    Real inflowWorkingVariable,
+    Real inflowDensity,
+    Real inflowPressure,
+    Real inflowVelocityU,
+    Real inflowVelocityV,
+    Real inflowVelocityW,
+    Real gammaRef,
+    Real gamma,
+    int nBoundaryFaces )
+{
+    const int face = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( face >= nBoundaryFaces ) return;
+
+    TurbSaArithmetic::SaBoundaryState in;
+    in.boundaryType = boundaryType[ face ];
+    const int left = leftCell[ face ];
+    in.interior = workingVariable[ left ];
+    in.inflow = inflowWorkingVariable;
+
+    in.density = density[ left ];
+    in.pressure = pressure[ left ];
+    in.velocity[ 0 ] = velocityU[ left ];
+    in.velocity[ 1 ] = velocityV[ left ];
+    in.velocity[ 2 ] = velocityW[ left ];
+    in.normal[ 0 ] = xNormal[ face ];
+    in.normal[ 1 ] = yNormal[ face ];
+    in.normal[ 2 ] = zNormal[ face ];
+    in.meshVelocityNormal = meshVelocityNormal[ face ];
+    in.faceOuterNormal = static_cast< Real >( faceOuterNormal );
+
+    in.inflowDensity = inflowDensity;
+    in.inflowPressure = inflowPressure;
+    in.inflowVelocity[ 0 ] = inflowVelocityU;
+    in.inflowVelocity[ 1 ] = inflowVelocityV;
+    in.inflowVelocity[ 2 ] = inflowVelocityW;
+    in.gammaRef = gammaRef;
+    in.gamma = gamma;
+
+    workingVariable[ rightCell[ face ] ] =
+        TurbSaArithmetic::ComputeBoundaryWorkingVariable( in );
+}
+
+// ---------------------------------------------------------------------------
+// LU-SGS scalar sweeps: UTurbLusgs::LowerSweep / UpperSweep.
+//
+// One launch per dependency level.  Every face a level's cells touch points at
+// a neighbour on a strictly lower level (in the sweep direction), so the value
+// read here is the fully updated one the host would have seen - the sequential
+// semantics are preserved, not approximated.  Inside a level the cells are
+// mutually independent, so the level's cells fill the launch.
+// ---------------------------------------------------------------------------
+__global__ void SaSweepLevelKernel(
+    const int * cellFaceOffsets,
+    const int * cellFaceIds,
+    const int * levelOffset,
+    const int * levelCells,
+    int level,
+    const int * leftCell,
+    const int * rightCell,
+    const Real * rhs,
+    const Real * implicitSpectrum,
+    const Real * matrixLeft,
+    const Real * matrixRight,
+    Real * delta,
+    int lowerSweep )
+{
+    const int begin = levelOffset[ level ];
+    const int count = levelOffset[ level + 1 ] - begin;
+    const int slotInLevel = blockIdx.x * blockDim.x + threadIdx.x;
+    if ( slotInLevel >= count ) return;
+
+    const int cell = levelCells[ begin + slotInLevel ];
+
+    // ZeroFluxIncrement + Solve*Cell + AddFluxIncrement: the host accumulates
+    // matrix*dqj over the cell's faces into rhs0 before the change formula.
+    Real rhsIncrement = 0.0;
+
+    for ( int slot = cellFaceOffsets[ cell ];
+          slot < cellFaceOffsets[ cell + 1 ]; ++ slot )
+    {
+        const int face = cellFaceIds[ slot ];
+        const int left = leftCell[ face ];
+        const bool isLeft = left == cell;
+
+        // UTurbLusgs::CanNotLowerSolve / CanNotUpperSolve: a face is part of the
+        // sweep's triangular half only when the cell is on the expected side.
+        //   lower: skip when the *other* cell has the larger id
+        //   upper: skip when the *other* cell has the smaller id
+        const int neighbour = isLeft ? rightCell[ face ] : left;
+        if ( lowerSweep != 0 )
+        {
+            if ( neighbour > cell ) continue;
+        }
+        else
+        {
+            if ( neighbour < cell ) continue;
+        }
+
+        // UTurbLusgs::PrepareData picks the matrix by the face's orientation:
+        // matrix_l when the cell is the face's right cell (the host reverses
+        // lc/rc and sets swapflag), matrix_r when it is the left cell.
+        //
+        // The matrix already carries the face area (TurbSpectrum folds `farea`
+        // into every contribution), so the raw neighbour delta times the matrix
+        // is the whole term - TurbLusgs::GetStandardFluxIncrement:124 does
+        // exactly this.  Face geometry and mean-flow state are therefore not
+        // kernel inputs at all.
+        const Real matrix = isLeft ? matrixRight[ face ] : matrixLeft[ face ];
+        rhsIncrement += TurbSaArithmetic::LusgsMatrixTimesDelta(
+            matrix, delta[ neighbour ] );
+    }
+
+    const Real radius = implicitSpectrum[ cell ];
+    if ( lowerSweep != 0 )
+    {
+        delta[ cell ] = TurbSaArithmetic::LusgsLowerDelta(
+            rhs[ cell ], rhsIncrement, radius );
+    }
+    else
+    {
+        delta[ cell ] = TurbSaArithmetic::LusgsUpperDelta(
+            delta[ cell ], rhsIncrement, radius );
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -596,6 +842,22 @@ PlaneBuffer UploadPlane( const Real * host, int nCells )
     return buffer;
 }
 
+// Integer counterpart, for the connectivity planes (left/right cell, bc type,
+// CSR, level schedule).  PlaneBuffer is Real-typed, so an int array handed to
+// it silently picks the wrong overload.
+using IntPlaneBuffer = std::unique_ptr< DeviceBuffer< int > >;
+
+IntPlaneBuffer UploadIntPlane( const int * host, int count )
+{
+    if ( host == nullptr )
+    {
+        throw std::invalid_argument( "SA integer plane pointer is null" );
+    }
+    IntPlaneBuffer buffer( new DeviceBuffer< int >() );
+    buffer->CopyFromHost( host, static_cast< std::size_t >( count ) );
+    return buffer;
+}
+
 std::unique_ptr< HipTurbulenceBackend > sharedHipTurbulenceBackend;
 
 }
@@ -743,22 +1005,154 @@ bool HipTurbulenceBackend::SupportsGradient() const
     return true;
 }
 
+// Cell-to-face CSR over owned cells.
+//
+// Built once per partition and reused.  The single pass over the face array
+// appends each face to its left cell and, for an interior face, to its right
+// cell, so every cell's list comes out in ascending face id.  That ordering is
+// the whole point: the host gradient accumulates a cell's faces in face-id
+// order (UGrad.cpp:88 walks `fId` ascending), so summing in this order
+// reproduces the host's floating-point result instead of merely a close one.
+struct HipTurbulenceBackend::CellFaceAdjacency
+{
+    DeviceBuffer< int > offsets;
+    DeviceBuffer< int > ids;
+    const int * cachedLeft = nullptr;
+    const int * cachedRight = nullptr;
+    int cachedCells = -1;
+    int cachedFaces = -1;
+    int cachedBoundaryFaces = -1;
+    bool valid = false;
+};
+
+HipTurbulenceBackend::CellFaceAdjacency &
+HipTurbulenceBackend::EnsureCellFaceAdjacency(
+    const int * leftCell, const int * rightCell,
+    int nCells, int nFaces, int nBoundaryFaces )
+{
+    if ( cellFaceAdjacency_ == nullptr )
+    {
+        cellFaceAdjacency_.reset( new CellFaceAdjacency() );
+    }
+    CellFaceAdjacency & adjacency = * cellFaceAdjacency_;
+
+    if ( adjacency.valid
+         && adjacency.cachedLeft == leftCell
+         && adjacency.cachedRight == rightCell
+         && adjacency.cachedCells == nCells
+         && adjacency.cachedFaces == nFaces
+         && adjacency.cachedBoundaryFaces == nBoundaryFaces )
+    {
+        return adjacency;
+    }
+
+    if ( nCells <= 0 || nFaces <= 0 || leftCell == nullptr
+         || rightCell == nullptr )
+    {
+        throw std::invalid_argument(
+            "SA cell-face adjacency requires a non-empty face partition" );
+    }
+
+    std::vector< int > offsets( static_cast< std::size_t >( nCells ) + 1, 0 );
+    for ( int face = 0; face < nFaces; ++ face )
+    {
+        const int left = leftCell[ face ];
+        if ( left >= 0 && left < nCells ) ++ offsets[ left + 1 ];
+        // A boundary face's right cell is a ghost, so it never enters the CSR.
+        if ( face >= nBoundaryFaces )
+        {
+            const int right = rightCell[ face ];
+            if ( right >= 0 && right < nCells ) ++ offsets[ right + 1 ];
+        }
+    }
+    for ( int cell = 0; cell < nCells; ++ cell )
+    {
+        offsets[ cell + 1 ] += offsets[ cell ];
+    }
+
+    std::vector< int > ids( static_cast< std::size_t >( offsets[ nCells ] ) );
+    std::vector< int > cursor( offsets.begin(), offsets.end() - 1 );
+    for ( int face = 0; face < nFaces; ++ face )
+    {
+        const int left = leftCell[ face ];
+        if ( left >= 0 && left < nCells ) ids[ cursor[ left ] ++ ] = face;
+        if ( face >= nBoundaryFaces )
+        {
+            const int right = rightCell[ face ];
+            if ( right >= 0 && right < nCells ) ids[ cursor[ right ] ++ ] = face;
+        }
+    }
+
+    adjacency.offsets.CopyFromHost(
+        offsets.data(), offsets.size() );
+    adjacency.ids.CopyFromHost(
+        ids.data(), ids.size() );
+    adjacency.cachedLeft = leftCell;
+    adjacency.cachedRight = rightCell;
+    adjacency.cachedCells = nCells;
+    adjacency.cachedFaces = nFaces;
+    adjacency.cachedBoundaryFaces = nBoundaryFaces;
+    adjacency.valid = true;
+    return adjacency;
+}
+
 void HipTurbulenceBackend::CalcGradient( const TurbSaGradientView & view )
 {
     ValidateTurbSaGradientView( view );
+
+    CellFaceAdjacency & adjacency = EnsureCellFaceAdjacency(
+        view.leftCell, view.rightCell,
+        view.nCells, view.nFaces, view.nBoundaryFaces );
+
+    const int nCells = view.nCells;
+    const int nFaces = view.nFaces;
+    const int totalCells = nCells + view.nGhostCells;
+
+    // Every view pointer above is a host address from the solver's MRFields.
+    // The kernel can only read device memory, so each plane is copied up and
+    // the three gradient planes are copied back: the source term and the
+    // diffusive flux read them on the host immediately after this call.
+    //
+    // The cell-indexed planes use the total extent because the CSR reaches the
+    // ghost range through rightCell for a boundary face.
+    auto workingVariable = UploadPlane( view.workingVariable, totalCells );
+    auto xFace = UploadPlane( view.xFace, nFaces );
+    auto yFace = UploadPlane( view.yFace, nFaces );
+    auto zFace = UploadPlane( view.zFace, nFaces );
+    auto xNormal = UploadPlane( view.xNormal, nFaces );
+    auto yNormal = UploadPlane( view.yNormal, nFaces );
+    auto zNormal = UploadPlane( view.zNormal, nFaces );
+    auto faceArea = UploadPlane( view.faceArea, nFaces );
+    auto xCell = UploadPlane( view.xCell, totalCells );
+    auto yCell = UploadPlane( view.yCell, totalCells );
+    auto zCell = UploadPlane( view.zCell, totalCells );
+    auto cellVolume = UploadPlane( view.cellVolume, totalCells );
+    auto leftCell = UploadIntPlane( view.leftCell, nFaces );
+    auto rightCell = UploadIntPlane( view.rightCell, nFaces );
+
+    // The ghost planes are written by the boundary inheriting kernel, so the
+    // device output spans the ghosts too and is copied back whole.
+    DeviceBuffer< Real > gradientX(
+        static_cast< std::size_t >( totalCells ) );
+    DeviceBuffer< Real > gradientY(
+        static_cast< std::size_t >( totalCells ) );
+    DeviceBuffer< Real > gradientZ(
+        static_cast< std::size_t >( totalCells ) );
+
     const int blockSize = LaunchBlockSize();
-    // Owner/ghost accumulation and the volume scaling in one pass.
     hipLaunchKernelGGL(
         SaGradientKernel,
-        dim3( ( view.nCells + blockSize - 1 ) / blockSize ),
+        dim3( ( nCells + blockSize - 1 ) / blockSize ),
         dim3( blockSize ), 0, 0,
-        view.workingVariable,
-        view.xFace, view.yFace, view.zFace,
-        view.xNormal, view.yNormal, view.zNormal, view.faceArea,
-        view.xCell, view.yCell, view.zCell, view.cellVolume,
-        view.leftCell, view.rightCell,
-        view.nCells, view.nBoundaryFaces, view.nFaces,
-        view.gradientX, view.gradientY, view.gradientZ );
+        workingVariable->Data(),
+        xFace->Data(), yFace->Data(), zFace->Data(),
+        xNormal->Data(), yNormal->Data(), zNormal->Data(),
+        faceArea->Data(),
+        xCell->Data(), yCell->Data(), zCell->Data(), cellVolume->Data(),
+        leftCell->Data(), rightCell->Data(),
+        adjacency.offsets.Data(), adjacency.ids.Data(),
+        nCells, view.nBoundaryFaces,
+        gradientX.Data(), gradientY.Data(), gradientZ.Data() );
     CheckHip( hipGetLastError(), "SA gradient kernel launch" );
 
     // Boundary ghosts inherit the owner gradient (UGrad.cpp:133).
@@ -768,12 +1162,17 @@ void HipTurbulenceBackend::CalcGradient( const TurbSaGradientView & view )
             SaGradientBoundaryKernel,
             dim3( ( view.nBoundaryFaces + blockSize - 1 ) / blockSize ),
             dim3( blockSize ), 0, 0,
-            view.leftCell, view.rightCell, view.nCells,
-            view.nCells + view.nGhostCells, view.nBoundaryFaces,
-            view.gradientX, view.gradientY, view.gradientZ );
+            leftCell->Data(), rightCell->Data(), nCells,
+            totalCells, view.nBoundaryFaces,
+            gradientX.Data(), gradientY.Data(), gradientZ.Data() );
         CheckHip( hipGetLastError(), "SA gradient boundary kernel launch" );
     }
     CheckHip( hipDeviceSynchronize(), "SA gradient kernel" );
+
+    const std::size_t count = static_cast< std::size_t >( totalCells );
+    gradientX.CopyToHost( view.gradientX, count );
+    gradientY.CopyToHost( view.gradientY, count );
+    gradientZ.CopyToHost( view.gradientZ, count );
 }
 
 bool HipTurbulenceBackend::SupportsFaceFlux() const
@@ -909,15 +1308,290 @@ bool HipTurbulenceBackend::SupportsUpdate() const
 void HipTurbulenceBackend::Update( const TurbSaUpdateView & view )
 {
     ValidateTurbSaUpdateView( view );
+    const std::size_t count = static_cast< std::size_t >( view.nCells );
+
+    // The view hands over host MRField planes.  The kernel can only touch device
+    // memory, so oldValue and delta are copied up and the working variable is
+    // copied back; the host reads it immediately after this call.
+    auto oldValue = UploadPlane( view.oldValue, view.nCells );
+    auto delta = UploadPlane( view.delta, view.nCells );
+
+    DeviceBuffer< Real > workingVariable( count );
+
     const int blockSize = LaunchBlockSize();
     hipLaunchKernelGGL(
         SaUpdateKernel,
         dim3( ( view.nCells + blockSize - 1 ) / blockSize ),
         dim3( blockSize ), 0, 0,
-        view.oldValue, view.delta, view.workingVariable, view.nCells,
+        oldValue->Data(), delta->Data(), workingVariable.Data(), view.nCells,
         view.relaxationCoefficient );
     CheckHip( hipGetLastError(), "SA update kernel launch" );
     CheckHip( hipDeviceSynchronize(), "SA update kernel" );
+
+    workingVariable.CopyToHost( view.workingVariable, count );
+}
+
+bool HipTurbulenceBackend::SupportsSpectrum() const
+{
+    return true;
+}
+
+void HipTurbulenceBackend::CalcSpectrum( const TurbSaSpectrumView & view )
+{
+    ValidateTurbSaSpectrumView( view );
+
+    const int totalCells = view.nCells + view.nGhostCells;
+    const int nFaces = view.nFaces;
+
+    // Per-cell planes are indexed through leftCell/rightCell, which reach into
+    // the ghost range, so the cell extent is the total, not the owned count.
+    auto density = UploadPlane( view.density, totalCells );
+    auto velocityU = UploadPlane( view.velocity[ 0 ], totalCells );
+    auto velocityV = UploadPlane( view.velocity[ 1 ], totalCells );
+    auto velocityW = UploadPlane( view.velocity[ 2 ], totalCells );
+    auto workingVariable = UploadPlane( view.workingVariable, totalCells );
+    auto laminarViscosity = UploadPlane( view.laminarViscosity, totalCells );
+    auto cellVolume = UploadPlane( view.cellVolume, totalCells );
+
+    auto xNormal = UploadPlane( view.xNormal, nFaces );
+    auto yNormal = UploadPlane( view.yNormal, nFaces );
+    auto zNormal = UploadPlane( view.zNormal, nFaces );
+    auto meshVelocityNormal = UploadPlane( view.meshVelocityNormal, nFaces );
+    auto faceArea = UploadPlane( view.faceArea, nFaces );
+    auto leftCell = UploadIntPlane( view.leftCell, nFaces );
+    auto rightCell = UploadIntPlane( view.rightCell, nFaces );
+
+    // ZeroSpectrum (UTurbSpectrum.cpp:79) before accumulating.
+    DeviceBuffer< Real > spectrum( static_cast< std::size_t >( totalCells ) );
+    CheckHip( hipMemset( spectrum.Data(), 0, spectrum.Size() * sizeof( Real ) ),
+              "SA spectrum zero" );
+    DeviceBuffer< Real > matrixLeft( static_cast< std::size_t >( nFaces ) );
+    DeviceBuffer< Real > matrixRight( static_cast< std::size_t >( nFaces ) );
+    CheckHip( hipMemset( matrixLeft.Data(), 0,
+                         matrixLeft.Size() * sizeof( Real ) ),
+              "SA spectrum matrix zero" );
+    CheckHip( hipMemset( matrixRight.Data(), 0,
+                         matrixRight.Size() * sizeof( Real ) ),
+              "SA spectrum matrix zero" );
+
+    const int blockSize = LaunchBlockSize();
+    if ( view.unsteadyDiagonal )
+    {
+        PlaneBuffer timestep( new DeviceBuffer< Real >() );
+        timestep->CopyFromHost( view.timestep,
+                               static_cast< std::size_t >( totalCells ) );
+        hipLaunchKernelGGL(
+            SaSpectrumDiagonalKernel,
+            dim3( ( view.nCells + blockSize - 1 ) / blockSize ),
+            dim3( blockSize ), 0, 0,
+            timestep->Data(), cellVolume->Data(),
+            view.turbCflRatio, view.unsteadySp2, view.nCells,
+            spectrum.Data() );
+        CheckHip( hipGetLastError(), "SA spectrum diagonal kernel launch" );
+    }
+
+    hipLaunchKernelGGL(
+        SaFaceSpectrumKernel,
+        dim3( ( nFaces + blockSize - 1 ) / blockSize ),
+        dim3( blockSize ), 0, 0,
+        xNormal->Data(), yNormal->Data(), zNormal->Data(),
+        meshVelocityNormal->Data(), faceArea->Data(),
+        leftCell->Data(), rightCell->Data(),
+        density->Data(), velocityU->Data(), velocityV->Data(),
+        velocityW->Data(), workingVariable->Data(),
+        laminarViscosity->Data(), cellVolume->Data(),
+        nFaces, view.invReynolds, view.invSigma,
+        spectrum.Data(), matrixLeft.Data(), matrixRight.Data() );
+    CheckHip( hipGetLastError(), "SA face spectrum kernel launch" );
+    CheckHip( hipDeviceSynchronize(), "SA spectrum kernel" );
+
+    spectrum.CopyToHost( view.implicitSpectrum,
+                         static_cast< std::size_t >( totalCells ) );
+    matrixLeft.CopyToHost( view.matrixLeft,
+                           static_cast< std::size_t >( nFaces ) );
+    matrixRight.CopyToHost( view.matrixRight,
+                            static_cast< std::size_t >( nFaces ) );
+}
+
+bool HipTurbulenceBackend::SupportsBoundary() const
+{
+    return true;
+}
+
+void HipTurbulenceBackend::CalcBoundary( const TurbSaBoundaryView & view )
+{
+    ValidateTurbSaBoundaryView( view );
+
+    const int totalCells = view.nCells + view.nGhostCells;
+    const int nFaces = view.nBoundaryFaces;
+
+    // The working variable is read and written in place.
+    DeviceBuffer< Real > workingVariable(
+        static_cast< std::size_t >( totalCells ) );
+    workingVariable.CopyFromHost(
+        view.workingVariable, static_cast< std::size_t >( totalCells ) );
+
+    auto density = UploadPlane( view.density, totalCells );
+    auto pressure = UploadPlane( view.pressure, totalCells );
+    auto velocityU = UploadPlane( view.velocity[ 0 ], totalCells );
+    auto velocityV = UploadPlane( view.velocity[ 1 ], totalCells );
+    auto velocityW = UploadPlane( view.velocity[ 2 ], totalCells );
+
+    auto xNormal = UploadPlane( view.xNormal, nFaces );
+    auto yNormal = UploadPlane( view.yNormal, nFaces );
+    auto zNormal = UploadPlane( view.zNormal, nFaces );
+    auto meshVelocityNormal = UploadPlane( view.meshVelocityNormal, nFaces );
+    auto leftCell = UploadIntPlane( view.leftCell, nFaces );
+    auto rightCell = UploadIntPlane( view.rightCell, nFaces );
+    auto boundaryType = UploadIntPlane( view.boundaryType, nFaces );
+
+    const int blockSize = LaunchBlockSize();
+    hipLaunchKernelGGL(
+        SaBoundaryKernel,
+        dim3( ( nFaces + blockSize - 1 ) / blockSize ),
+        dim3( blockSize ), 0, 0,
+        leftCell->Data(), rightCell->Data(), boundaryType->Data(),
+        xNormal->Data(), yNormal->Data(), zNormal->Data(),
+        meshVelocityNormal->Data(), view.faceOuterNormal,
+        workingVariable.Data(), density->Data(), pressure->Data(),
+        velocityU->Data(), velocityV->Data(), velocityW->Data(),
+        view.inflowWorkingVariable, view.inflowDensity,
+        view.inflowPressure, view.inflowVelocity[ 0 ],
+        view.inflowVelocity[ 1 ], view.inflowVelocity[ 2 ],
+        view.gammaRef, view.gamma, nFaces );
+    CheckHip( hipGetLastError(), "SA boundary kernel launch" );
+    CheckHip( hipDeviceSynchronize(), "SA boundary kernel" );
+
+    workingVariable.CopyToHost(
+        view.workingVariable, static_cast< std::size_t >( totalCells ) );
+}
+
+bool HipTurbulenceBackend::SupportsSweep() const
+{
+    return true;
+}
+
+// Resident sweep inputs.
+//
+// Only what the sweep actually reads is held: the partition (CSR, level
+// schedule, face-cell map) is cached by identity, and the four per-step arrays
+// are uploaded on every call.  Face geometry and mean-flow state are not here
+// at all - the matrix already carries the face area, so the kernel never needs
+// a normal, an area or a velocity.
+struct HipTurbulenceBackend::SweepStorage
+{
+    DeviceBuffer< int > cellFaceOffsets;
+    DeviceBuffer< int > cellFaceIds;
+    DeviceBuffer< int > levelOffset;
+    DeviceBuffer< int > levelCells;
+    DeviceBuffer< int > leftCell;
+    DeviceBuffer< int > rightCell;
+    DeviceBuffer< Real > rhs;
+    DeviceBuffer< Real > spectrum;
+    DeviceBuffer< Real > matrixLeft;
+    DeviceBuffer< Real > matrixRight;
+    DeviceBuffer< Real > delta;
+
+    const int * cachedOffsets = nullptr;
+    const int * cachedIds = nullptr;
+    const int * cachedLevelOffset = nullptr;
+    const int * cachedLevelCells = nullptr;
+    const int * cachedLeftCell = nullptr;
+    const int * cachedRightCell = nullptr;
+    int cachedCells = -1;
+    int cachedFaces = -1;
+    int cachedLevels = -1;
+};
+
+void HipTurbulenceBackend::CalcSweep( const TurbSaSweepView & view )
+{
+    ValidateTurbSaSweepView( view );
+
+    if ( sweepStorage_ == nullptr )
+    {
+        sweepStorage_.reset( new SweepStorage() );
+    }
+    SweepStorage & storage = * sweepStorage_;
+
+    const int nCells = view.nCells;
+    const int nFaces = view.nFaces;
+    const int nLevels = view.nLevels;
+    const std::size_t cellCount = static_cast< std::size_t >( nCells );
+    // delta spans the ghost range: the upper sweep multiplies a boundary
+    // face's ghost delta by matrix_r, exactly as the host does.
+    const std::size_t deltaCount =
+        static_cast< std::size_t >( nCells + view.nGhostCells );
+
+    auto uploadInt = []( DeviceBuffer< int > & buffer, const int * host,
+                         std::size_t count, const int *& key,
+                         const int * hostKey )
+    {
+        if ( key == hostKey && buffer.Size() >= count ) return;
+        buffer.CopyFromHost( host, count );
+        key = hostKey;
+    };
+
+    const bool partitionChanged =
+        storage.cachedCells != nCells || storage.cachedFaces != nFaces
+        || storage.cachedLevels != nLevels;
+
+    if ( partitionChanged )
+    {
+        uploadInt( storage.cellFaceOffsets, view.cellFaceOffsets,
+                   cellCount + 1, storage.cachedOffsets, view.cellFaceOffsets );
+        uploadInt( storage.cellFaceIds, view.cellFaceIds,
+                   static_cast< std::size_t >( view.cellFaceOffsets[ nCells ] ),
+                   storage.cachedIds, view.cellFaceIds );
+        uploadInt( storage.levelOffset, view.levelOffset,
+                   static_cast< std::size_t >( nLevels ) + 1,
+                   storage.cachedLevelOffset, view.levelOffset );
+        uploadInt( storage.levelCells, view.levelCells,
+                   static_cast< std::size_t >( view.levelOffset[ nLevels ] ),
+                   storage.cachedLevelCells, view.levelCells );
+        uploadInt( storage.leftCell, view.leftCell,
+                   static_cast< std::size_t >( nFaces ),
+                   storage.cachedLeftCell, view.leftCell );
+        uploadInt( storage.rightCell, view.rightCell,
+                   static_cast< std::size_t >( nFaces ),
+                   storage.cachedRightCell, view.rightCell );
+        storage.cachedCells = nCells;
+        storage.cachedFaces = nFaces;
+        storage.cachedLevels = nLevels;
+    }
+
+    // Per-call state.  The residual, spectrum and both matrices are rewritten
+    // by the time loop even though their host pointers are stable, and delta is
+    // read-modify-written by the sweep, so all four are uploaded every call.
+    storage.rhs.CopyFromHost( view.rhs, cellCount );
+    storage.spectrum.CopyFromHost( view.implicitSpectrum, cellCount );
+    storage.matrixLeft.CopyFromHost(
+        view.matrixLeft, static_cast< std::size_t >( nFaces ) );
+    storage.matrixRight.CopyFromHost(
+        view.matrixRight, static_cast< std::size_t >( nFaces ) );
+    storage.delta.CopyFromHost( view.delta, deltaCount );
+
+    const int blockSize = LaunchBlockSize();
+    const int lower = view.lowerSweep ? 1 : 0;
+    for ( int level = 0; level < nLevels; ++ level )
+    {
+        const int count = view.levelOffset[ level + 1 ]
+            - view.levelOffset[ level ];
+        if ( count <= 0 ) continue;
+        hipLaunchKernelGGL(
+            SaSweepLevelKernel,
+            dim3( ( count + blockSize - 1 ) / blockSize ),
+            dim3( blockSize ), 0, 0,
+            storage.cellFaceOffsets.Data(), storage.cellFaceIds.Data(),
+            storage.levelOffset.Data(), storage.levelCells.Data(), level,
+            storage.leftCell.Data(), storage.rightCell.Data(),
+            storage.rhs.Data(), storage.spectrum.Data(),
+            storage.matrixLeft.Data(), storage.matrixRight.Data(),
+            storage.delta.Data(), lower );
+        CheckHip( hipGetLastError(), "SA sweep level kernel launch" );
+    }
+    CheckHip( hipDeviceSynchronize(), "SA sweep kernels" );
+
+    storage.delta.CopyToHost( view.delta, deltaCount );
 }
 
 // ---------------------------------------------------------------------------
@@ -1035,6 +1709,12 @@ HipTurbulenceBackend & HipTurbulenceBackend::Shared()
     }
     return * sharedHipTurbulenceBackend;
 }
+
+// Out of line so both PIMPL members are complete at the point unique_ptr
+// instantiates its deleter.
+HipTurbulenceBackend::HipTurbulenceBackend() = default;
+
+HipTurbulenceBackend::~HipTurbulenceBackend() = default;
 
 void HipTurbulenceBackend::ReleaseShared()
 {

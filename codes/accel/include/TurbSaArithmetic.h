@@ -811,6 +811,222 @@ ONEFLOW_TURB_SA_HD inline FaceNormalGradientResult ComputeFaceNormalGradient(
     return result;
 }
 
+// ---------------------------------------------------------------------------
+// Implicit spectral radius and off-diagonal matrices, one face at a time.
+//
+// Mirrors TurbSpectrum::CalcFaceSpectrum1Equ (TurbSpectrum.cpp:77) through the
+// pure helpers in TurbSpectrumPolicy.cpp.  The host accumulates these per-face
+// contributions into impsr/matrix_l/matrix_r; the device kernel does the same
+// with four atomics per face, and the accumulation order is therefore not the
+// host's.  That is acceptable here and only here: these are diagonal/off-
+// diagonal *operator* coefficients, not the residual itself, and the sweep that
+// consumes them is already order-dependent by construction.
+// ---------------------------------------------------------------------------
+struct SaFaceSpectrumInput
+{
+    Real faceArea = 0.0;
+    Real vnLeft = 0.0;
+    Real vnRight = 0.0;
+    Real densityLeft = 0.0;
+    Real densityRight = 0.0;
+    Real laminarViscosityLeft = 0.0;
+    Real laminarViscosityRight = 0.0;
+    Real workingVariableLeft = 0.0;
+    Real workingVariableRight = 0.0;
+    Real cellVolumeLeft = 0.0;
+    Real cellVolumeRight = 0.0;
+    Real invReynolds = 0.0;
+    Real invSigma = 0.0;
+};
+
+struct SaFaceSpectrumResult
+{
+    Real radius = 0.0;
+    Real matrixLeft = 0.0;
+    Real matrixRight = 0.0;
+};
+
+ONEFLOW_TURB_SA_HD inline SaFaceSpectrumResult ComputeFaceSpectrum(
+    const SaFaceSpectrumInput & in )
+{
+    SaFaceSpectrumResult result;
+
+    const Real vnRelative = 0.5 * ( in.vnLeft + in.vnRight );
+    const Real absVn = Absolute( vnRelative );
+
+    // TurbInviscidFaceSpectralRadius (TurbSpectrumPolicy.cpp:7) and
+    // TurbInviscidFaceMatrixContrib (:15).
+    const Real invRadius = in.faceArea * 0.5 * absVn;
+    const Real matL = in.faceArea * 0.5 * ( - in.vnLeft - absVn );
+    const Real matR = in.faceArea * 0.5 * ( in.vnRight - absVn );
+
+    // SaEffectiveKinematicViscosity (TurbSpectrumPolicy.cpp:23) is
+    // visl / (rho + SMALL) + nuTilde.
+    const Real nuet1 = in.laminarViscosityLeft / ( in.densityLeft + kSmall )
+        + in.workingVariableLeft;
+    const Real nuet2 = in.laminarViscosityRight / ( in.densityRight + kSmall )
+        + in.workingVariableRight;
+    const Real nueff = Absolute( 0.5 * ( nuet1 + nuet2 ) );
+
+    const Real meanVolume = 0.5 * ( in.cellVolumeLeft + in.cellVolumeRight );
+    const Real ovol = 1.0 / meanVolume;
+    const Real areaSquared = in.faceArea * in.faceArea;
+
+    // TurbDiffusiveFaceSpectralRadius (TurbSpectrumPolicy.cpp:30):
+    // (1/Re) * (1/V) * (1/sigma * nu_eff * A^2).
+    const Real diffRadius =
+        in.invReynolds * ovol * ( in.invSigma * nueff * areaSquared );
+
+    result.radius = invRadius + diffRadius;
+    result.matrixLeft = matL - diffRadius;
+    result.matrixRight = matR - diffRadius;
+    return result;
+}
+
+// ---------------------------------------------------------------------------
+// Turbulence boundary conditions, TurbBcSolver::CalcFaceBc (TurbBcSolver.cpp).
+//
+// The host dispatches on the region's BC type and writes primt1, which
+// UTurbBcSolver::UpdateBc then stores into q[rc].  For the one-equation model
+// every branch reduces to one of three outcomes, so the device switches on the
+// same BC ids and reproduces them directly.
+//
+// The farfield branch is the only one that reads the mean flow: it decides
+// between interior and freestream with the same subsonic Riemann normal
+// velocity the host builds, which is why the caller passes the interior
+// primitive state and the freestream state.
+// ---------------------------------------------------------------------------
+struct SaBoundaryState
+{
+    // Interior (left) cell working variable.
+    Real interior = 0.0;
+    // Freestream working variable (turbcom.inflow[ISA]).
+    Real inflow = 0.0;
+    // Mean-flow interior primitive state, for the farfield decision only.
+    Real density = 0.0;
+    Real pressure = 0.0;
+    Real velocity[ 3 ] = {};
+    Real normal[ 3 ] = {};
+    Real meshVelocityNormal = 0.0;
+    Real faceOuterNormal = 1.0;
+    Real gammaRef = 0.0;
+    // Freestream primitive state.
+    Real inflowDensity = 0.0;
+    Real inflowPressure = 0.0;
+    Real inflowVelocity[ 3 ] = {};
+    Real gamma = 0.0;
+    // Boundary type, BC:: constants.
+    int boundaryType = 0;
+};
+
+ONEFLOW_TURB_SA_HD inline Real ComputeBoundaryWorkingVariable(
+    const SaBoundaryState & in )
+{
+    const int type = in.boundaryType;
+
+    // Interface (-1), periodic (99), overset (>=1000) ghosts belong to an
+    // external exchange path; UTurbBcSolver::SetBc leaves their updateFlag
+    // false, so nothing is written.  The caller filters them out before this
+    // point; returning the interior value keeps a mis-routed face harmless.
+    if ( type < 0 || type == 99 || type >= 1000 ) return in.interior;
+
+    // EXTRAPOLATION (1), OUTFLOW (6), POLE (7 and its 7x variants): the host
+    // copies the interior state (TurbBcSolver.cpp:124,133).
+    if ( type == 1 || type == 6 || type == 7
+         || type == 71 || type == 72 || type == 73 )
+    {
+        return in.interior;
+    }
+
+    // INFLOW (5): freestream.
+    if ( type == 5 ) return in.inflow;
+
+    // SOLID_SURFACE (2): TurbWallSaImage, i.e. the negative interior value.
+    if ( type == 2 ) return - in.interior;
+
+    // SYMMETRY (3): the host copies the interior state
+    // (TurbBcSolver::SymmetryBc:238).
+    if ( type == 3 ) return in.interior;
+
+    if ( type == 4 )
+    {
+        // FARFIELD: TurbBcSolver::FarFieldBc.  Decide with the subsonic
+        // Riemann normal velocity, then pick interior or freestream.
+        const Real nx = in.normal[ 0 ] * in.faceOuterNormal;
+        const Real ny = in.normal[ 1 ] * in.faceOuterNormal;
+        const Real nz = in.normal[ 2 ] * in.faceOuterNormal;
+
+        const Real uin = in.velocity[ 0 ];
+        const Real vin = in.velocity[ 1 ];
+        const Real win = in.velocity[ 2 ];
+
+        const Real vnin = nx * uin + ny * vin + nz * win
+            - in.meshVelocityNormal;
+        const Real vnref = nx * in.inflowVelocity[ 0 ]
+            + ny * in.inflowVelocity[ 1 ] + nz * in.inflowVelocity[ 2 ]
+            - in.meshVelocityNormal;
+
+        const Real cref = sqrt( Absolute(
+            in.gammaRef * in.inflowPressure / in.inflowDensity ) );
+        const Real cin = sqrt( Absolute(
+            in.gamma * in.pressure / in.density ) );
+
+        const Real velocityMagnitude = sqrt( uin * uin + vin * vin + win * win );
+
+        Real decisionVn = vnin;
+        // Same branch condition as TurbBcSolver::FarFieldBc:174 (`velin > cin`
+        // selects the supersonic path), written as its negation so a NaN
+        // velocity lands on the same side as the host.
+        if ( ! ( velocityMagnitude > cin ) )
+        {
+            const Real gamm1 = in.gamma - 1.0;
+            const Real riemp = vnin + 2.0 * cin / gamm1;
+            const Real riemm = vnref - 2.0 * cref / gamm1;
+            decisionVn = 0.5 * ( riemp + riemm );
+        }
+
+        // TurbFarfieldUsesInterior (TurbBcPolicy.cpp:32): vn >= 0 -> interior.
+        return decisionVn >= 0.0 ? in.interior : in.inflow;
+    }
+
+    // GENERIC_2 (9) is user-defined and PERIODIC (99) already returned; the
+    // host leaves those update flags such that nothing useful is written.
+    return in.interior;
+}
+
+// ---------------------------------------------------------------------------
+// LU-SGS scalar sweeps, TurbLusgs::CalcLowerChange/CalcUpperChange
+// (TurbLusgs.cpp:158,211) and TurbLusgsPolicy.cpp.
+//
+// numberOfSweeps is one for every shipped configuration, so only the single-
+// sweep branches are reproduced here.  If a multi-sweep configuration is ever
+// enabled the device path must decline rather than silently drop the drhs
+// accumulation, which is what the `nSweeps` guard in the wrapper enforces.
+// ---------------------------------------------------------------------------
+ONEFLOW_TURB_SA_HD inline Real LusgsMatrixTimesDelta( Real matrix, Real delta )
+{
+    return matrix * delta;
+}
+
+ONEFLOW_TURB_SA_HD inline Real LusgsSolveByRadius( Real rhs, Real radius )
+{
+    return rhs / radius;
+}
+
+ONEFLOW_TURB_SA_HD inline Real LusgsLowerDelta(
+    Real rhs, Real rhsIncrement, Real radius )
+{
+    // CalcLowerChange, numberOfSweeps == 1 branch: (rhs - rhs0) / radius.
+    return LusgsSolveByRadius( rhs - rhsIncrement, radius );
+}
+
+ONEFLOW_TURB_SA_HD inline Real LusgsUpperDelta(
+    Real dqOld, Real rhsIncrement, Real radius )
+{
+    // CalcUpperChange, numberOfSweeps == 1 branch: dq += -rhs0 / radius.
+    return dqOld + LusgsSolveByRadius( - rhsIncrement, radius );
+}
+
 }
 
 EndNameSpace

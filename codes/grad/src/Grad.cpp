@@ -45,6 +45,14 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+bool Grad::CalcGradHip()
+{
+    // No device counterpart at this level.  The turbulence solver overrides
+    // this in UTurbGrad; the mean-flow gradient keeps its own entry because it
+    // carries residency and exchange contracts this base class does not know.
+    return false;
+}
+
 void Grad::CalcGrad()
 {
     // Optional CPU-vs-HIP numerical trace at the host gradient entry (off by default).
@@ -63,9 +71,13 @@ void Grad::CalcGrad()
             std::cout << " q" << eq << "=" << (*q)[eq][probeCell];
         std::cout << std::endl;
     }
-    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    const bool deviceRan = this->CalcGradHip();
+    if ( ! deviceRan )
     {
-        ONEFLOW::CalcGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
+        for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+        {
+            ONEFLOW::CalcGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
+        }
     }
     if ( traceOn && Iteration::outerSteps <= 2 && gradPrintCount <= 8 )
     {
