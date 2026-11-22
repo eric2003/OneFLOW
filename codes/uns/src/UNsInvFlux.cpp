@@ -984,6 +984,25 @@ void UNsInvFlux::CalcAndAddInvFluxHipBatch()
             || ( Iteration::nVisualSave > 0
                  && Iteration::outerSteps % Iteration::nVisualSave == 0 )
             || Iteration::outerSteps >= Iteration::maxSteps;
+        // Optional host-residual trace around the device flux accumulation:
+        // prints cell 254656's residual before and after so an equation that
+        // becomes exactly zero can be attributed to the base upload vs the
+        // scatter/accumulate kernel (off by default).
+        const bool resTrace = std::getenv( "ONEFLOW_RES_DUMP" ) != nullptr;
+        auto dumpRes = [&]( const char * tag )
+        {
+            if ( ! resTrace ) return;
+            static int resTraceCount = 0;
+            if ( resTraceCount >= 12 ) return;
+            ++resTraceCount;
+            const int probe = 254656;
+            std::cout << std::setprecision( 17 );
+            std::cout << "RES_DUMP " << tag << " step=" << Iteration::outerSteps;
+            for ( int equation = 0; equation < nEquations && equation < 5; ++ equation )
+                std::cout << " r" << equation << "=" << ( *res )[ equation ][ probe ];
+            std::cout << std::endl;
+        };
+        dumpRes( "BEFORE" );
         backend.CalcAndAddReconstructedFaceFlux(
             connectivity, residual, DeviceFluxScheme( nscom.ischeme ),
             nscom.gama_ref,
@@ -993,6 +1012,7 @@ void UNsInvFlux::CalcAndAddInvFluxHipBatch()
                 ? ResidualBase::DeviceZero
                 : ResidualBase::HostUpload,
             ctrl.centropy1, ctrl.centropy2, ctrl.ieigenfix == 1 );
+        dumpRes( "AFTER" );
         if ( needFlux )
         {
             for ( int equation = 0; equation < nEquations; ++ equation )

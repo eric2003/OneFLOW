@@ -475,3 +475,31 @@ verifier 增强：ONEFLOW_XB_HIP_EXTRA_ENVS 通用透传（分号分隔 KEY=VALU
 **根因转移**：梯度正确 → res1=0 不是梯度问题，是**残差累加/写回**问题。开 device 梯度后 HIP 走 device fused flux + 粘性 device 的 residual 组装，rho 方程残差被归零/跳过。候选：`AddInvFlux`/`AddVisFlux` 写回布局、residual view stride、或 device 路径下 eq0 的特判。这是下一步定位方向。
 
 当前唯一准确配置仍为 BASE。一次性 grad dump（force download + 每步覆盖写）已提交 638db7109/本次时机修正。
+
+## 残差累加路径梳理（eq0=0 定位中）
+
+旗舰 full 配置 residual 组装（open device 梯度后）：
+1. UNsInvFlux::CalcFlux → CalcAndAddInvFluxHipBatch → backend.CalcAndAddReconstructedFaceFlux（HipFluxBackend.hip:4048）
+   - ResidualBase = DeviceOwnsExplicitRkBookkeeping()? DeviceZero : HostUpload；旗舰 vismodel=3 → HostUpload
+   - HostUpload: host res 上传 device 作基底（:4124-4138）→ device 算无粘 faceFlux → GatherFaceFluxEulerKernel 累加（:1697，left减/right加，boundary right跳过）→ downloadResidual 回传 host res（:4184-4197，旗舰 UseHipDeviceStateUpdate=false → download=true）
+2. UNsVisFlux::CalcFlux → CalcVisFluxHip → AddVisFlux host 累加粘性到 res
+
+res1(eq0) 恒=0 的候选：HostUpload 基底 host res eq0=0 且无粘 faceFlux eq0 未累加，或 GatherFaceFluxEulerKernel 的 boundaryMask 对 eq0 面处理异常，或 device 回传覆盖了 host 粘性贡献。下一步 dump CalcAndAddReconstructedFaceFlux 前后 host res eq0-4（cell 254656）定位。
+
+## 真正根因：device 残差缺粘性累加（昆山 128670362 RES_DUMP）
+
+RES_DUMP（在 CalcAndAddReconstructedFaceFlux 前后，cell 254656）：
+- BEFORE: res 全 -0（HostUpload 基底）
+- AFTER: res eq0=-4.14e-6/eq1=-6.47e-6...（device 无粘累加正常，非零！）
+
+但 res.dat（ResidualTask，step20）：HIP res1(eq0)=0、其它差1-2数量级。
+
+**根因**：HIP 路径下 ResidualTask（ResidualTask.cpp:164-199）走 `ComputeResidualMetrics`（读 device `storage->residual`），**不走 host res 场循环**（line 204-222）。而残差组装是割裂的：
+- 无粘通量：CalcAndAddReconstructedFaceFlux → device `storage->residual`（RES_DUMP AFTER 证明正确）
+- **粘性通量：AddVisFlux() 只用 host `AddF2CField(res, visflux)` 累加到 HOST res 场，完全没进 device `storage->residual`**
+
+所以 device 残差只有无粘部分，缺粘性贡献 → ComputeResidualMetrics 算的 eq0 范数≈0（连续方程无粘质量通量稳态下小）、气动力错。host res（含粘性）与 device residual（无粘）不一致 = 另一种"双权威"，但这次是 residual 场的双权威。
+
+**修复方向**：粘性 device 路径（CalcVisFluxHip 已算出 device visflux）需要把粘性通量累加进 device `storage->residual`，而不是只在 host AddF2CField。即让 `AddVisFlux` 在 HIP 路径下走 device 累加（类似 GatherFaceFluxEulerKernel 的 scatter），使 device residual = 无粘 + 粘性，与 host oracle 一致。这是缺失的一环。
+
+当前唯一准确配置仍为 BASE（其残差走 host，无粘+粘性都在 host res 累加，一致）。
