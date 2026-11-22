@@ -303,3 +303,20 @@ vismodel=0 显式 RK3 Lax 单zone 20 步验证（DCU 真算：HIP kernel 非零�
 结论：vismodel=0 配置下 DCU 设备路径真正执行且数值与 CPU 逐字节对齐（流场残差 + 气动力）。这回答了用户"DCU 没算没意义"的质疑——现在 DCU 真算了，且证明对齐。气动力差异根因是 host 梯度镜像陈旧/为零，非数值 kernel。
 
 **下一步**：这是 vismodel=0 受限路径。旗舰 vismodel=3 + LU-SGS 才走 device 路径（切片 2），需在 A.4 驻留架构里保证气动力读的 host 梯度镜像到位。
+
+## 气动力通盘审计（4 个并行 Explore agent + 代码核实，2026-11-22）
+
+用户要求不逐个打补丁、通盘排查气动力。4 个 agent 覆盖：host 数据依赖、计算/输出链、镜像时机/代际、旗舰特殊风险。一致结论：
+
+**已修复**：q[lc]（NsMirrorHostBoundaryState）、dq[lc]（8618ecb26 MirrorGradientCellsToHost）——vismodel=0 DCU 真算下 aero.dat 已逐字节一致。
+
+**剩余风险（按证据强度）**：
+1. **q[rc] ghost 无 D2H 镜像**（3/4 agent 确认）：CorrectGrad（VisGrad.cpp:328）读 q[IU/IV/IW][rc]，AeroForceTask.cpp:354-356/458-460；现有镜像只覆盖 leftCells（owner），MirrorPrimitiveCellsToHost 对 ghost cell 抛异常（HipFluxBackend.hip:5215-5219）。旗舰 vismodel=3 的 viscous block 会触发，单 zone 壁面 rc 多为 ghost → 高风险。**修 q[rc] 需新增/扩展 backend API（能按任意 cell id 含 ghost 镜像 q），属架构决策。**
+2. **镜像 gate 不对称**：q 镜像需 `HipDeviceAuthoritativeStateEnabled() && HipBoundaryStateMirrorEnabled()`（NsRhs.cpp:155-156），dq 镜像只需前者（AeroForceTask.cpp:245）。若 `ONEFLOW_HIP_BOUNDARY_STATE_MIRROR=0` → dq fresh 但 q stale → wp 错。统一 gate。
+3. **visl host-written**（UNsVisFlux.cpp:743-759 基于 host tempr）：当前非 device-authoritative 依赖，不需 D2H；但切片1-3 粘性搬 device 后会 stale（agent4 未来风险）。
+4. **wallaero.dat / heatflux 无镜像**（PostProcess.cpp:51、HeatFluxTask.cpp:127-141）：aero.dat 对齐后它们可能仍 stale。
+5. **cross-backend verifier 限 vismodel=0**（f2-main-solver-cross-backend-residual.sh:105-118，容差 aero 1e-10），旗舰需改造配置。
+
+**镜像时机确认**（agent3）：aero 在所有 RK stage 后读（NsSolverImp.cpp:425-428 → ForceOk），梯度是最后 stage 开始时的值（一 stage lag，RK 固有，非 bug）；显式镜像无额外 lag、无缓存滞后（MirrorGradientCellsToHost 每次重打包）。单 zone packedExchange=false，on-demand 梯度镜像从不触发，只有显式镜像工作 → 8618ecb26 的修复必要且正确。
+
+**通盘方案**：把气动力输入镜像收敛为单一 helper `MirrorAeroInputsToHost()`（q owner+rc ghost、dq owner、统一 gate），新增 backend API 支持按任意 cell id（含 ghost）镜像 q。待用户确认架构范围后实施。
