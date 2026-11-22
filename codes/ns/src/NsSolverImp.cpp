@@ -118,7 +118,12 @@ bool HipBoundarySupported()
     if ( SolverState::solverType != NS_SOLVER )
         return reject( "solver" );
     if ( nscom.nEqu != 5 ) return reject( "equations" );
-    if ( vis_model.vismodel != 0 ) return reject( "viscous" );
+    // Viscous/turbulent boundary models are evaluated on the device too: the
+    // ghost primitive and bcQ the viscous flux and reconstruction read are
+    // produced by the boundary kernel, and the host lamina/turbulence
+    // viscosity/temperature fields remain host-derived.  The earlier hard
+    // rejection of vis_model.vismodel != 0 kept the entire ~20 s per-step
+    // boundary face loop on the host for the Roe/SA flagship.
     if ( ctrl.ilim != 0 ) return reject( "limiter" );
     UnsGrid * grid = Zone::GetUnsGrid();
     if ( grid == nullptr ) return reject( "grid" );
@@ -212,6 +217,10 @@ void CalcHipBoundary()
     view.yNormal = ug.yfn->data();
     view.zNormal = ug.zfn->data();
     view.meshVelocityNormal = ug.vfn->data();
+    view.wallVelocityX = ug.vfx != nullptr ? ug.vfx->data() : nullptr;
+    view.wallVelocityY = ug.vfy != nullptr ? ug.vfy->data() : nullptr;
+    view.wallVelocityZ = ug.vfz != nullptr ? ug.vfz->data() : nullptr;
+    view.viscousWall = vis_model.vismodel != 0;
     view.inflow = nscom.inflow.data();
     view.gamma = nscom.gama_ref;
     view.faceOuterNormal = nscom.faceOuterNormal;

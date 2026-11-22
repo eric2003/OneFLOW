@@ -359,9 +359,22 @@ struct BoundaryStateView
     const Real * yNormal = nullptr;
     const Real * zNormal = nullptr;
     const Real * meshVelocityNormal = nullptr;
+    // Per-face wall velocity components.  The viscous wall (SOLID_SURFACE 2)
+    // builds the ghost/interior face state by imaging the velocity about the
+    // moving wall (u_ghost = -u + 2*u_wall), which needs the components, not
+    // just the normal projection.  Null keeps the inviscid reflection that
+    // uses meshVelocityNormal only.
+    const Real * wallVelocityX = nullptr;
+    const Real * wallVelocityY = nullptr;
+    const Real * wallVelocityZ = nullptr;
     const Real * inflow = nullptr;
     Real gamma = 1.4;
     int faceOuterNormal = 1;
+    // When true the SOLID_SURFACE branch uses the viscous wall model: the ghost
+    // velocity is the image about the wall and bcQ is the no-slip face state
+    // (rho, 0, 0, 0, p), matching NsBcSolver's adiabatic/isothermal viscous wall
+    // instead of the inviscid reflection used for inviscid cases.
+    bool viscousWall = false;
     const void * cacheKey = nullptr;
     // Reuse the bound device state when it is current and compatible.  The
     // backend falls back to the host primitive arrays during initialization or

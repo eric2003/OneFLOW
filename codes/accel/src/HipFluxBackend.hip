@@ -1276,12 +1276,16 @@ __global__ void UpdateBoundaryPrimitiveKernel(
     const Real * yNormal,
     const Real * zNormal,
     const Real * meshVelocityNormal,
+    const Real * wallVelocityX,
+    const Real * wallVelocityY,
+    const Real * wallVelocityZ,
     const Real * inflow,
     int faceOuterNormal,
     int nCells,
     int nBoundaryFaces,
     int nEq,
-    Real gamma )
+    Real gamma,
+    int viscousWall )
 {
     const int face = blockIdx.x * blockDim.x + threadIdx.x;
     if ( face >= nBoundaryFaces ) return;
@@ -1312,16 +1316,42 @@ __global__ void UpdateBoundaryPrimitiveKernel(
     {
         // The CPU oracle uses the owner-cell primitive state for these models.
     }
-    else if ( type == 2 || type == 3 ) // inviscid wall/symmetry
+    else if ( type == 2 || type == 3 ) // wall/symmetry
     {
-        const Real nx = xNormal[ face ] * faceOuterNormal;
-        const Real ny = yNormal[ face ] * faceOuterNormal;
-        const Real nz = zNormal[ face ] * faceOuterNormal;
-        const Real vn = nx * u + ny * v + nz * w
-            - meshVelocityNormal[ face ];
-        ghostValues[ 1 ] = u - 2.0 * nx * vn;
-        ghostValues[ 2 ] = v - 2.0 * ny * vn;
-        ghostValues[ 3 ] = w - 2.0 * nz * vn;
+        if ( type == 2 && viscousWall )
+        {
+            // Adiabatic/iso viscous wall (NsBcSolver::AdiabaticVisWallBc /
+            // VelocityBc): the ghost primitive is the velocity imaged about
+            // the (moving) wall, rho and p copied from the owner.  The
+            // no-slip face state bcQ is (rho, 0, 0, 0, p).
+            const Real uw = wallVelocityX != nullptr ? wallVelocityX[ face ] : 0.0;
+            const Real vw = wallVelocityY != nullptr ? wallVelocityY[ face ] : 0.0;
+            const Real ww = wallVelocityZ != nullptr ? wallVelocityZ[ face ] : 0.0;
+            ghostValues[ 1 ] = - u + 2.0 * uw;
+            ghostValues[ 2 ] = - v + 2.0 * vw;
+            ghostValues[ 3 ] = - w + 2.0 * ww;
+        }
+        else if ( type == 2 )
+        {
+            // Inviscid wall: reflect the velocity (relative to a moving face).
+            const Real nx = xNormal[ face ] * faceOuterNormal;
+            const Real ny = yNormal[ face ] * faceOuterNormal;
+            const Real nz = zNormal[ face ] * faceOuterNormal;
+            const Real vn = nx * u + ny * v + nz * w
+                - meshVelocityNormal[ face ];
+            ghostValues[ 1 ] = u - 2.0 * nx * vn;
+            ghostValues[ 2 ] = v - 2.0 * ny * vn;
+            ghostValues[ 3 ] = w - 2.0 * nz * vn;
+        }
+        else
+        {
+            // Symmetry (type 3): the CPU oracle copies the owner primitive into
+            // the ghost (NsBcSolver::SymmetryBc sets primt1 = prims1); the
+            // velocity reflection is only used to build the averaged bcQ face
+            // state below.
+            for ( int eq = 0; eq < nEq; ++ eq )
+                ghostValues[ eq ] = q[ eq * totalCells + left ];
+        }
     }
     else if ( type == 4 ) // FARFIELD
     {
@@ -1394,15 +1424,45 @@ __global__ void UpdateBoundaryPrimitiveKernel(
     for ( int eq = 0; eq < nEq; ++ eq )
         q[ eq * totalCells + ghost ] = ghostValues[ eq ];
 
-    if ( type == 2 && bcQ != nullptr )
+    // bcQ is the no-slip / face-averaged state the reconstruction reads.  The
+    // CPU oracle writes it for every boundary face (UNsBcSolver::UpdateBc):
+    //   solid viscous wall -> (rho, 0, 0, 0, p)
+    //   symmetry           -> 0.5 * (owner + reflected ghost)
+    //   others             -> the owner primitive (prim == prims1)
+    if ( bcQ != nullptr )
     {
-        // NsBcSolver::SymmetryBc writes the face state as the average of the
-        // owner and reflected ghost values; the limiter uses this for both
-        // reconstructed sides on solid surfaces.
-        for ( int eq = 0; eq < nEq; ++ eq )
+        if ( type == 2 && viscousWall )
         {
-            bcQ[ eq * nBoundaryFaces + face ] =
-                0.5 * ( q[ eq * totalCells + left ] + ghostValues[ eq ] );
+            bcQ[ 0 * nBoundaryFaces + face ] = rho;
+            bcQ[ 1 * nBoundaryFaces + face ] = 0.0;
+            bcQ[ 2 * nBoundaryFaces + face ] = 0.0;
+            bcQ[ 3 * nBoundaryFaces + face ] = 0.0;
+            bcQ[ 4 * nBoundaryFaces + face ] = pressure;
+        }
+        else if ( type == 3 || type == 2 )
+        {
+            // Reflection about the moving face averaged with the owner state.
+            const Real nx = xNormal[ face ] * faceOuterNormal;
+            const Real ny = yNormal[ face ] * faceOuterNormal;
+            const Real nz = zNormal[ face ] * faceOuterNormal;
+            const Real vn = nx * u + ny * v + nz * w
+                - meshVelocityNormal[ face ];
+            const Real ru = u - 2.0 * nx * vn;
+            const Real rv = v - 2.0 * ny * vn;
+            const Real rw = w - 2.0 * nz * vn;
+            bcQ[ 0 * nBoundaryFaces + face ] = rho;
+            bcQ[ 1 * nBoundaryFaces + face ] = 0.5 * ( u + ru );
+            bcQ[ 2 * nBoundaryFaces + face ] = 0.5 * ( v + rv );
+            bcQ[ 3 * nBoundaryFaces + face ] = 0.5 * ( w + rw );
+            bcQ[ 4 * nBoundaryFaces + face ] = pressure;
+        }
+        else
+        {
+            bcQ[ 0 * nBoundaryFaces + face ] = rho;
+            bcQ[ 1 * nBoundaryFaces + face ] = u;
+            bcQ[ 2 * nBoundaryFaces + face ] = v;
+            bcQ[ 3 * nBoundaryFaces + face ] = w;
+            bcQ[ 4 * nBoundaryFaces + face ] = pressure;
         }
     }
 }
@@ -3641,6 +3701,24 @@ void HipFluxBackend::UpdateBoundaryState( const BoundaryStateView & view )
             view.zNormal, view.nBoundaryFaces );
         storage->boundaryMeshVelocityNormal.CopyFromHost(
             view.meshVelocityNormal, view.nBoundaryFaces );
+        // Wall velocity components are immutable for a static bound grid, so
+        // they ride the same geometry cache.  Missing pointers upload zeros.
+        {
+            std::vector< Real > zeros;
+            const Real * wvx = view.wallVelocityX;
+            const Real * wvy = view.wallVelocityY;
+            const Real * wvz = view.wallVelocityZ;
+            if ( wvx == nullptr || wvy == nullptr || wvz == nullptr )
+            {
+                zeros.assign( static_cast< std::size_t >( view.nBoundaryFaces ), 0.0 );
+            }
+            storage->boundaryWallVelocityX.CopyFromHost(
+                wvx != nullptr ? wvx : zeros.data(), view.nBoundaryFaces );
+            storage->boundaryWallVelocityY.CopyFromHost(
+                wvy != nullptr ? wvy : zeros.data(), view.nBoundaryFaces );
+            storage->boundaryWallVelocityZ.CopyFromHost(
+                wvz != nullptr ? wvz : zeros.data(), view.nBoundaryFaces );
+        }
         storage->boundaryLeftCell.CopyFromHost(
             view.leftCell, view.nBoundaryFaces );
         storage->boundaryRightCell.CopyFromHost(
@@ -3708,8 +3786,15 @@ void HipFluxBackend::UpdateBoundaryState( const BoundaryStateView & view )
         storage->boundaryYNormal.Data(),
         storage->boundaryZNormal.Data(),
         storage->boundaryMeshVelocityNormal.Data(),
+        view.wallVelocityX != nullptr
+            ? storage->boundaryWallVelocityX.Data() : nullptr,
+        view.wallVelocityY != nullptr
+            ? storage->boundaryWallVelocityY.Data() : nullptr,
+        view.wallVelocityZ != nullptr
+            ? storage->boundaryWallVelocityZ.Data() : nullptr,
         storage->inflow.Data(), view.faceOuterNormal, view.nCells,
-        view.nBoundaryFaces, view.nEquations, view.gamma );
+        view.nBoundaryFaces, view.nEquations, view.gamma,
+        view.viscousWall ? 1 : 0 );
     CheckHip( hipGetLastError(), "boundary kernel launch" );
     // No synchronise here: the packed ghost D2H below is blocking on the same
     // stream, so it already waits for this kernel.

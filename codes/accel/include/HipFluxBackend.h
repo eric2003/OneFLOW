@@ -174,6 +174,11 @@ struct HipGradientStorage
     DeviceBuffer< Real > boundaryYNormal;
     DeviceBuffer< Real > boundaryZNormal;
     DeviceBuffer< Real > boundaryMeshVelocityNormal;
+    // Per-face wall velocity components (viscous wall image velocity).  Uploaded
+    // alongside meshVelocityNormal (dynamic, not part of the geometry cache).
+    DeviceBuffer< Real > boundaryWallVelocityX;
+    DeviceBuffer< Real > boundaryWallVelocityY;
+    DeviceBuffer< Real > boundaryWallVelocityZ;
     DeviceBuffer< int > boundaryLeftCell;
     DeviceBuffer< int > boundaryRightCell;
     // Boundary geometry/topology is immutable for a bound grid across RK
