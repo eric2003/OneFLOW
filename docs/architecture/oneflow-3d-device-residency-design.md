@@ -611,3 +611,18 @@ dump 最终 host res 场（ONEFLOW_RES_FIELD_DUMP）两臂逐 cell 比对：
 **旗舰完整 GPU 路径数值等价达成**：device 梯度 + device 重构 + 无粘 fused flux + 粘性 kernel 全部真正在 DCU 执行（HIP kernel 0.82 + gradient_kernel + v_kernel 非零），CPU/HIP 残差与气动力逐字节一致、门禁 1e-12 通过。这是 A.4 设备驻留的关键里程碑——准确性地基（切片0）在完整 device 通量路径上验证完成。
 
 完整根因链（最终）：旗舰开 device 重构 → downloadGradient=false → device 梯度不回传 host → 粘性读陈旧 host dqdx → 壁面残差差 → 已修。
+
+## 三项重点输出核查（昆山 128676813，2步，建 visual 目录）
+
+修复 runner 不建 visual 目录后，visual.dat 首次真正写出。逐项对比：
+
+**visual.dat（边界/壁面可视化，含 r/u/v/w/p/mach/tempr/visl/vist）**：93975 行，2637 行文本不同，但差异全是**机器零末位**（如 -3.76e-37 vs -7.52e-37，2倍关系），abs~1e-36~1e-39。数值逐 token 比对 worst_rel=0（按精度截断后相同）。大小差 73 字节是末位位数。**物理无意义，对齐。** ✅
+
+**turbflow.dat**：4 层全对齐，level1/2 差 1.4e-17（末位噪声），level3/4 完全相同。**对齐。** ✅
+
+**flow.dat**：
+- level1（当前 q）max_abs=6.66e-16、max_rel=2.2e-10（末位噪声）✅
+- level3/4 完全相同 ✅
+- **level2（历史层）max_abs=7.58e-3、max_rel=115%** ❌ 实质差异
+
+**根因**：`HipSkipHostHistoryShiftRequested()`（HipProductionPolicy.h:297）**默认 true**（env 未设返回 true）→ HIP 在 device authoritative 下跳过 UpdateUnsteadyFlow 的历史层 shift，而 CPU 每步 shift（level2=上一步场）。这是性能优化（历史层仅 restart 读）。验证：设 ONEFLOW_HIP_SKIP_HOST_HISTORY_SHIFT=0 强制 shift。
