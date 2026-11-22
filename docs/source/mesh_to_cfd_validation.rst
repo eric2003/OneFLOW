@@ -141,3 +141,39 @@ smoke run is not a physical-accuracy validation.
 The dialog also presents a compact per-Case result tree: one row for each
 workflow stage, its status, and its short diagnostic message. The full
 terminal log remains available separately from that summary.
+
+Geometry lineage
+----------------
+
+Each run report includes a ``geometry_lineage`` record. When a companion
+``.geometry.json`` is present, its asset ID, definition hash and generator
+metadata are accepted only if the manifest schema is recognized and its STL
+SHA-256 matches the actual source bytes. The report records the source STL
+checksum and the derived MSH checksum, with the MSH linked to the source
+representation. When produced, the CGNS conversion and OneFLOW native-grid
+artifacts are also recorded with their own checksums and parent links. A
+missing or mismatched manifest is not silently trusted.
+
+Historical cube STL Cases currently have no verified original source or
+generator record. Their Case Catalog entries explicitly declare provenance
+``unknown``; the validation result still records the actual checked-in STL
+path and checksum and the produced MSH path and checksum. A checksum proves
+which bytes were used, not who authored the geometry or which tool originally
+created it. The GUI shows these lineage rows alongside the workflow stages.
+
+Persistent geometry lineage sidecars
+-------------------------------------
+
+Each generated CGNS volume mesh is accompanied by\n``<mesh.cgns>.geometry-lineage.json``. It records the geometry provenance,
+verified source STL (when available), derived Gmsh MSH, and a SHA-256 checksum
+of the CGNS file itself. The following CGNS-to-OneFLOW stage verifies that
+checksum before consuming the record and writes the inherited lineage beside
+the native grid as ``<mesh.oneflow.grid>.geometry-lineage.json``. The native
+grid sidecar links back to the CGNS filename and checksum.
+
+These JSON files are companion metadata; they do not modify the CGNS or
+native-grid binary formats. A missing, malformed, or checksum-mismatched
+upstream record causes the lineage handoff stage to fail rather than silently
+claiming an unverified chain. The geometry source may still be explicitly
+``unknown``; persistence does not manufacture historical provenance.
+\n

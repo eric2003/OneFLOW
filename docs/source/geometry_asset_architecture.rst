@@ -109,11 +109,42 @@ OneFLOW. Import, export, validation and conversion support must be reported by
 the corresponding adapter. The registry itself must not load a CAD kernel or
 assume that a file extension guarantees a valid or exact representation.
 
-The first implementation is metadata-first. Future work can add a shared
-geometry service, format adapters, preview/inspection, asset selection in the
-Workbench, and provenance propagation into Mesh Generation and Mesh-to-CFD
-Validation. Those integrations must consume stable asset IDs and preserve the
-exact input representation and checksum used by each run.
+The first implementation is metadata-first. The deterministic STL
+generator writes a companion ``.geometry.json`` manifest containing the stable
+asset ID, a snapshot of the analytic/parametric definition, definition SHA-256,
+generation parameters, generator name/version/source path/source SHA-256, and
+the generated STL SHA-256. Definition parameters are kept separate from
+representation-generation parameters: changing tessellation density creates a
+new surface representation, not a new geometric identity. The legacy
+``parameters`` field remains for compatibility; new consumers should use
+``definition.parameters`` and ``generation_parameters``.
+
+The source checksum identifies the exact generator source bytes used for the
+run; it is not a Git revision. A Git revision is recorded only when the caller
+can supply a verified revision. Historical assets must not inherit this
+manifest retroactively: their original generator and revision remain unknown
+unless independent evidence establishes them.
+
+Geometry Library is the user-facing entry point for registered assets. Its
+asset selection action opens the matching parameter editor when an adapter
+exists. The initial sphere, spheroid and cylinder assets use the STL generator;
+assets without an implemented editor remain browsable but are not presented as
+generatable. The standalone Generate STL Geometry navigation item has been
+removed so that generation starts from an asset selection.
+
+Mesh-to-CFD Validation now displays source STL and derived MSH paths/checksums,
+plus asset and generator metadata when a checksum-matching sidecar is available.
+Historical cube fixtures are explicitly marked as unknown provenance. The
+remaining lineage gap is to carry this identity through the Gmsh-to-CGNS
+conversion artifact and retain it through project save/open.
+
+Geometry Library also accepts metadata-only registration of STEP/STP, IGES/IGS,
+BREP, OBJ, PLY, XYZ, PTS, PCD and OneFLOW ``.implicit.json`` files. Imports are
+copied into ``~/.oneflow/geometry-library/assets/`` (or ``ONEFLOW_HOME``),
+assigned content-derived IDs and checksums, and shown alongside repository
+assets. The importer does not parse or preview these formats and does not claim
+that meshing or conversion adapters exist. Unknown dimensionality remains
+null until a format adapter can inspect the representation.
 
 References
 ----------
@@ -121,3 +152,21 @@ References
 * :doc:`stl_geometry_generation` — current parameterized surface generator,
   mathematical definitions, patch identity and generated-artifact policy.
 * :doc:`mesh_architecture` — mesh representations, snapshots and adapters.
+
+Mesh project reopen and lineage
+--------------------------------
+
+Opening a mesh project recomputes a read-only lineage view from its private
+STL input, a checksum-matching ``.geometry.json`` manifest, the current MSH
+output, and checksum-verified CGNS/native-grid companion sidecars under the
+project validation workspace. A stale or mismatched STL manifest is marked
+untrusted and its asset ID is not exposed. Validation artifacts whose bytes
+no longer match their sidecar are omitted from the trusted derived-artifact
+list. This keeps the project view grounded in the files currently present,
+rather than copying stale lineage claims into ``project.json``.
+
+Project lineage verification follows the full artifact chain: each sidecar
+must match its own artifact, its parent artifact path/checksum, the project
+STL checksum, and (when present) the project MSH checksum. Replacing an
+upstream CGNS file therefore invalidates both its record and a native-grid
+record that references the old CGNS checksum.

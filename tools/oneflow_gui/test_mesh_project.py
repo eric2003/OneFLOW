@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import tempfile
@@ -40,6 +41,29 @@ class MeshProjectTest(unittest.TestCase):
         self.assertIn(
             "stl_to_gmsh_python_sphere_automatic_tetrahedra",
             {case_id for case_id, _title in choices},
+        )
+
+    def test_internal_flow_cylinder_is_a_selectable_project_template(self) -> None:
+        template_id = "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra"
+        choices = {case_id for case_id, _title in mesh_project_templates(self.repository_root)}
+        self.assertIn(template_id, choices)
+        project = create_mesh_project_from_template(
+            self.repository_root, template_id, "cylinder_internal_flow"
+        )
+        self.assertTrue(project["stl_path"].is_file())
+        self.assertEqual(project["mesh_case_id"], template_id)
+        copied_manifest = (
+            project["directory"] / "template/input/model.geometry.json"
+        )
+        self.assertTrue(copied_manifest.is_file())
+        metadata = json.loads(copied_manifest.read_text(encoding="utf-8"))
+        self.assertEqual(metadata["asset_id"], "geometry.cylinder.internal_flow")
+        self.assertTrue(metadata["surface"]["watertight"])
+        self.assertTrue(
+            paths_equal(
+                project["directory"].parent,
+                self.home / "mesh-generation",
+            )
         )
 
     def test_create_and_reopen_project_from_prolate_template(self) -> None:
@@ -123,6 +147,122 @@ class MeshProjectTest(unittest.TestCase):
         self.assertEqual(updated["geometry"], "cylinder_internal_flow")
         self.assertTrue(updated["stl_path"].with_suffix(".geometry.json").is_file())
 
+
+    def test_project_reopen_recovers_verified_geometry_and_validation_lineage(self) -> None:
+        source = self.home / "generated.stl"
+        source.write_bytes(b"project-stl")
+        source_digest = hashlib.sha256(source.read_bytes()).hexdigest()
+        source.with_suffix(".geometry.json").write_text(
+            json.dumps({
+                "schema": "oneflow.stl-geometry-manifest",
+                "asset_id": "geometry.sphere.unit",
+                "stl_sha256": source_digest,
+                "definition_sha256": "a" * 64,
+                "generator": {"name": "oneflow_stl_geometry", "version": "1.0"},
+            }),
+            encoding="utf-8",
+        )
+        project = create_mesh_project_from_stl(
+            self.repository_root, source, "lineage_project"
+        )
+        project["output_path"].write_bytes(b"project-msh")
+        msh_digest = hashlib.sha256(project["output_path"].read_bytes()).hexdigest()
+        validation_root = project["directory"] / "validation"
+        msh_dir = validation_root / "stl_to_gmsh/results"
+        msh_dir.mkdir(parents=True)
+        staged_msh = msh_dir / project["output_path"].name
+        staged_msh.write_bytes(project["output_path"].read_bytes())
+        cgns_dir = validation_root / "gmsh_to_cgns/results"
+        cgns_dir.mkdir(parents=True)
+        cgns = cgns_dir / "lineage.cgns"
+        cgns.write_bytes(b"cgns-artifact")
+        cgns_digest = hashlib.sha256(cgns.read_bytes()).hexdigest()
+        geometry_lineage = {
+            **project["geometry_lineage"],
+            "derived_mesh": {
+                "format": "Gmsh MSH", "sha256": msh_digest,
+                "parent": "source_representation",
+            },
+        }
+        (cgns_dir / (cgns.name + ".geometry-lineage.json")).write_text(
+            json.dumps({
+                "schema": "oneflow.geometry-artifact-lineage",
+                "version": 1,
+                "artifact": {
+                    "role": "CGNS volume mesh", "file_name": cgns.name,
+                    "format": "CGNS", "sha256": cgns_digest,
+                },
+                "geometry_lineage": geometry_lineage,
+                "parent_artifact": {
+                    "role": "Gmsh MSH", "file_name": staged_msh.name,
+                    "path": staged_msh.relative_to(validation_root).as_posix(),
+                    "sha256": msh_digest,
+                },
+            }),
+            encoding="utf-8",
+        )
+        native_dir = validation_root / "cgns_to_oneflow/results"
+        native_dir.mkdir(parents=True)
+        native = native_dir / "lineage.oneflow.grid"
+        native.write_bytes(b"native-grid")
+        native_digest = hashlib.sha256(native.read_bytes()).hexdigest()
+        (native_dir / (native.name + ".geometry-lineage.json")).write_text(
+            json.dumps({
+                "schema": "oneflow.geometry-artifact-lineage",
+                "version": 1,
+                "artifact": {
+                    "role": "OneFLOW native grid", "file_name": native.name,
+                    "format": "GRID", "sha256": native_digest,
+                },
+                "geometry_lineage": geometry_lineage,
+                "parent_artifact": {
+                    "role": "CGNS volume mesh", "file_name": cgns.name,
+                    "path": cgns.relative_to(validation_root).as_posix(),
+                    "sha256": cgns_digest,
+                },
+            }),
+            encoding="utf-8",
+        )
+        reopened = load_mesh_project(project["directory"])
+        self.assertEqual(reopened["geometry_lineage"]["asset_id"], "geometry.sphere.unit")
+        self.assertEqual(reopened["geometry_lineage"]["provenance"]["kind"], "generated")
+        artifacts = reopened["geometry_lineage"]["downstream_artifacts"]
+        by_role = {item["role"]: item for item in artifacts}
+        self.assertEqual(
+            set(by_role),
+            {"CGNS volume mesh", "OneFLOW native grid"},
+        )
+        self.assertEqual(
+            by_role["OneFLOW native grid"]["parent"]["file_name"],
+            cgns.name,
+        )
+
+        # A replaced CGNS file invalidates both its own lineage and the
+        # native-grid record that points to its old checksum.
+        cgns.write_bytes(b"replaced-cgns")
+        reopened = load_mesh_project(project["directory"])
+        self.assertEqual(reopened["geometry_lineage"].get("downstream_artifacts", []), [])
+
+    def test_project_reopen_does_not_trust_mismatched_stl_manifest(self) -> None:
+        source = self.home / "untrusted.stl"
+        source.write_bytes(b"actual-stl")
+        source.with_suffix(".geometry.json").write_text(
+            json.dumps({
+                "schema": "oneflow.stl-geometry-manifest",
+                "asset_id": "geometry.forged",
+                "stl_sha256": "0" * 64,
+            }),
+            encoding="utf-8",
+        )
+        project = create_mesh_project_from_stl(
+            self.repository_root, source, "untrusted_project"
+        )
+        self.assertNotIn("asset_id", project["geometry_lineage"])
+        self.assertEqual(project["geometry_lineage"]["provenance"]["kind"], "unknown")
+        self.assertEqual(
+            project["geometry_lineage"]["manifest_status"],
+            "invalid_or_checksum_mismatch",
+        )
 
     def test_import_stl_copies_database_geometry_into_independent_project(self) -> None:
         source = self.repository_root / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python/input/model.stl"

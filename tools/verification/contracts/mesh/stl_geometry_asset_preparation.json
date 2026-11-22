@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "id": "mesh/stl-geometry-asset-preparation",
+  "title": "Parameterized STL geometry assets and provenance",
+  "domain": "mesh",
+  "kind": "geometry_asset_pipeline",
+  "status": "partially_verified",
+  "overview": "Defines how OneFLOW prepares reproducible STL surface assets for the unit sphere, 6:1 prolate spheroid and internal-flow cylinder. The geometry library records analytic identity, parameters, units, generator provenance, surface metrics and (where applicable) boundary-patch facet indices in a companion .geometry.json manifest. STL assets are surface inputs, not volume meshes or solver boundary-condition definitions.",
+  "principle": "Keep analytic geometry parameters, surface discretization and Gmsh volume-mesh size independent. A generated STL is a piecewise-planar approximation of its analytic definition. Preserve asset identity and provenance with a manifest bound to the exact STL bytes. Preserve patch identity explicitly because STL has no standard Physical Group mechanism. Do not silently scale coordinates when changing unit metadata.",
+  "architecture": "Geometry Library / GUI parameters -> grid/stl_to_gmsh/generate_stl_geometry.py -> STL + .geometry.json -> grid/stl_import/reader.py -> topology validation in grid/stl_import/surface.py and grid/stl_to_gmsh/converter.py -> geometry-specific Gmsh adapter -> MSH 4.1. Native C++ consumes checked-in Case assets through StlMeshReader and GridConversion.cpp. The sphere and spheroid use the generic closed-shell reconstruction path; the internal-flow cylinder uses a manifest-driven analytic OpenCASCADE cylinder path to preserve wall/inflow/outflow identities.",
+  "references": [
+    "Gmsh Reference Manual: https://gmsh.info/doc/texinfo/gmsh.html",
+    "Gmsh MSH file format: https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format",
+    "doc/source/stl_geometry_generation.rst",
+    "doc/source/mesh_stl_geometry_pipeline.rst"
+  ],
+  "implementation": {
+    "source_paths": [
+      "grid/stl_to_gmsh/generate_stl_geometry.py",
+      "grid/stl_import/reader.py",
+      "grid/stl_import/surface.py",
+      "grid/stl_to_gmsh/converter.py",
+      "grid/stl_to_gmsh/generate_volume_mesh.py",
+      "grid/stl_to_gmsh/run_cases.py",
+      "codes/geometry/include/StlMeshIO.h",
+      "codes/geometry/src/StlMeshIO.cpp",
+      "codes/geometry/src/GridConversion.cpp",
+      "tools/oneflow_gui/mesh_generation_dialog.py",
+      "grid/geometry/catalog.json"
+    ],
+    "case_paths": [
+      "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/input/model.stl",
+      "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/cpp/input/model.stl",
+      "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/cpp/input/model.stl",
+      "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/cpp/input/model.geometry.json",
+      "grid/case_catalog.json"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "doc/source/stl_geometry_generation.rst",
+      "doc/source/mesh_stl_geometry_pipeline.rst",
+      "doc/source/stl_to_gmsh_3d.rst",
+      "doc/source/stl_to_gmsh_sphere.rst",
+      "doc/source/stl_to_gmsh_prolate_spheroid.rst",
+      "grid/stl_to_gmsh/README.md"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The deterministic generator provides parameterized sphere, prolate-spheroid and internal-flow-cylinder surface construction and emits a companion provenance manifest.",
+      "The unit sphere uses an icosphere subdivision construction; the prolate spheroid reuses that connectivity and applies semi-axis scaling.",
+      "The cylinder surface is constructed from axial rings and circumferential divisions and labels wall, inflow and outflow facets separately.",
+      "The cylinder C++ and Python Cases are registered as distinct implementations sharing the analytic asset identity and patch contract.",
+      "Generated user variants are written outside the repository source tree under the OneFLOW user workspace.",
+      "Geometry discretization controls and Gmsh volume-mesh characteristic length are separate parameters."
+    ],
+    "does_not_prove": [
+      "Changing the manifest unit label performs coordinate conversion; it does not.",
+      "STL contains portable Gmsh Physical Groups or CFD boundary-state data.",
+      "Every legacy checked-in sphere and spheroid fixture was emitted byte-for-byte by the current deterministic generator.",
+      "The C++ cylinder path performs the same SHA-256 verification as the Python adapter.",
+      "A watertight STL alone guarantees good element quality, physical CFD validity or grid convergence."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "python_test",
+      "reference": "MeshCaseCatalogTest.test_native_cylinder_fixture_checksum_and_patch_partition",
+      "status": "linked_not_executed",
+      "scope": "tools/test_mesh_cases.py; checks the checked-in native cylinder STL against its manifest checksum and verifies exact, non-overlapping wall/inflow/outflow facet coverage."
+    },
+    {
+      "kind": "python_test",
+      "reference": "StlGeometryGenerationTest.test_canonical_cylinder_fixture_matches_geometry_generator_defaults",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_to_gmsh/test_stl_geometry_generation.py; generator-level regression coverage for deterministic geometry and manifest output."
+    },
+    {
+      "kind": "python_test",
+      "reference": "MeshGenerationDialogTest.test_cylinder_geometry_preset_uses_bundled_standard_grid_asset",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_mesh_generation_dialog.py; GUI geometry preset and asset selection behavior."
+    }
+  ],
+  "group": {
+    "id": "mesh_generation",
+    "title": "Mesh Generation",
+    "order": 20
+  }
+}

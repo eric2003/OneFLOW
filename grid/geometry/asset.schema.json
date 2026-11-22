@@ -35,12 +35,17 @@
       "type": "string"
     },
     "dimension": {
-      "type": "integer",
+      "type": [
+        "integer",
+        "null"
+      ],
       "enum": [
         1,
         2,
-        3
-      ]
+        3,
+        null
+      ],
+      "description": "Null means dimensionality has not yet been established by a format adapter."
     },
     "tags": {
       "type": "array",
@@ -139,6 +144,10 @@
             },
             "algorithm": {
               "type": "string"
+            },
+            "source_sha256": {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{64}$"
             }
           },
           "required": [
@@ -151,6 +160,13 @@
         },
         "notes": {
           "type": "string"
+        },
+        "source_file_name": {
+          "type": "string"
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
         }
       },
       "additionalProperties": false

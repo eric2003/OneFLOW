@@ -197,14 +197,18 @@ retain their setup/graph views; Geometry continues to use its fixture-backed
 topology explorer. The common tab layout is a navigation milestone, not a
 claim that every domain's content has been fully populated.
 
-Mesh Knowledge now groups interchange formats separately from mesh-generation
-methods. The Mesh Generation group includes planar STL-to-Gmsh and the closed
-unit-sphere 3-D tetrahedral pipeline. Remaining work is to broaden the same
-source-backed entry pattern to the cube progression and further mesh families,
-connect production-backed mesh evidence, enrich Runtime and Workflow execution
-evidence, and audit each tab for source-backed content.
-Each new claim must distinguish implemented, declared, tested and not yet
-verified behavior.
+Mesh Knowledge groups interchange formats separately from mesh-generation
+methods. The Mesh Generation group includes planar STL-to-Gmsh, the closed
+unit-sphere pipeline, and a geometry-asset preparation contract covering the
+unit sphere, 6:1 prolate spheroid and internal-flow cylinder. The geometry
+preparation entry links the deterministic STL generator, geometry manifests,
+STL readers and topology validators; the pipeline documentation distinguishes
+the generic ClassifySurfaces/CreateGeometry closed-shell route from the
+manifest-driven OpenCASCADE cylinder route. The cylinder native C++ and Python
+reference Cases are registered separately. Remaining work includes broader
+production-backed mesh evidence, cube progression entries, and explicit
+execution records for each adapter and geometry family. A source or test link
+remains a declaration, not a claim that the linked operation ran.
 
 Related documents
 -----------------

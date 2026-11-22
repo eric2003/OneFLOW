@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 import tempfile
@@ -17,6 +18,9 @@ from tools.oneflow_gui.mesh_validation import (
     _copy_existing_mesh, _graph_step_records,
     _mesh_case_command, _mesh_validation_stage_results, run_report_stage_rows,
     existing_mesh_case_paths, _validate_required_physical_groups,
+    _geometry_lineage, geometry_lineage_rows,
+    _geometry_artifact_lineage_path, _write_geometry_artifact_lineage,
+    _read_geometry_artifact_lineage, _downstream_lineage_artifacts,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
@@ -24,7 +28,167 @@ from tools.oneflow_gui.workflow_graph_runner import (
 )
 
 
+class GeometryArtifactLineageTest(unittest.TestCase):
+    def test_lineage_is_persisted_and_verified_for_cgns_and_native_grid(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            cgns = root / "mesh.cgns"
+            cgns.write_bytes(b"cgns-bytes")
+            lineage = {
+                "provenance": {"kind": "unknown", "notes": "Historical source unknown."},
+                "source_representation": {"format": "STL", "sha256": "a" * 64},
+                "derived_mesh": {"format": "Gmsh MSH", "sha256": "b" * 64},
+            }
+            cgns_sidecar = _write_geometry_artifact_lineage(
+                cgns, "CGNS volume mesh", lineage,
+                {"role": "Gmsh MSH", "sha256": "b" * 64},
+            )
+            cgns_record = _read_geometry_artifact_lineage(cgns)
+            self.assertEqual(cgns_record["geometry_lineage"], lineage)
+            self.assertEqual(cgns_record["parent_artifact"]["role"], "Gmsh MSH")
+            self.assertTrue(cgns_sidecar.is_file())
+            self.assertTrue(cgns_sidecar.read_bytes().endswith(b"\n"))
+            self.assertNotIn(b"\\n", cgns_sidecar.read_bytes())
+
+            native = root / "mesh.oneflow.grid"
+            native.write_bytes(b"native-grid")
+            native_sidecar = _write_geometry_artifact_lineage(
+                native, "OneFLOW native grid", cgns_record["geometry_lineage"],
+                {
+                    "role": "CGNS volume mesh",
+                    "file_name": cgns.name,
+                    "sha256": cgns_record["artifact"]["sha256"],
+                },
+            )
+            native_record = _read_geometry_artifact_lineage(native)
+            self.assertEqual(native_record["parent_artifact"]["file_name"], cgns.name)
+            self.assertEqual(native_record["geometry_lineage"], lineage)
+            self.assertTrue(native_sidecar.is_file())
+
+    def test_lineage_sidecar_is_rejected_after_artifact_changes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = Path(directory) / "mesh.cgns"
+            artifact.write_bytes(b"original")
+            _write_geometry_artifact_lineage(artifact, "CGNS volume mesh", {})
+            artifact.write_bytes(b"replaced")
+            with self.assertRaisesRegex(ValueError, "checksum mismatch"):
+                _read_geometry_artifact_lineage(artifact)
+
+
+class GeometryLineageTest(unittest.TestCase):
+    def test_unknown_historical_source_is_preserved_and_mesh_hash_is_recorded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stl = root / "model.stl"
+            msh = root / "model.msh"
+            stl.write_bytes(b"historical-stl")
+            msh.write_bytes(b"derived-mesh")
+            entry = {
+                "geometry_provenance": {
+                    "kind": "unknown",
+                    "notes": "Original STL source and generator are not documented.",
+                }
+            }
+            lineage = _geometry_lineage(entry, stl, msh, root)
+            self.assertEqual(lineage["provenance"]["kind"], "unknown")
+            self.assertNotIn("asset_id", lineage)
+            self.assertEqual(lineage["source_representation"]["sha256"],
+                             hashlib.sha256(b"historical-stl").hexdigest())
+            self.assertEqual(lineage["derived_mesh"]["sha256"],
+                             hashlib.sha256(b"derived-mesh").hexdigest())
+            downstream = root / "model.cgns"
+            downstream.write_bytes(b"cgns")
+            lineage = _geometry_lineage(
+                entry, stl, msh, root,
+                [{"role": "CGNS volume mesh", "format": "CGNS", "path": downstream}],
+            )
+            rows = geometry_lineage_rows({"geometry_lineage": lineage})
+            self.assertEqual(rows[0][1], "UNKNOWN")
+            self.assertEqual(rows[-2][0], "Derived volume mesh")
+            self.assertEqual(rows[-1][0], "CGNS volume mesh")
+
+    def test_matching_manifest_provides_asset_and_generator_lineage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stl = root / "generated.stl"
+            stl.write_bytes(b"generated-stl")
+            digest = hashlib.sha256(stl.read_bytes()).hexdigest()
+            manifest = {
+                "schema": "oneflow.stl-geometry-manifest",
+                "asset_id": "geometry.sphere.unit",
+                "stl_sha256": digest,
+                "definition_sha256": "a" * 64,
+                "generator": {"name": "oneflow_stl_geometry", "version": "1.0",
+                              "source_sha256": "b" * 64},
+            }
+            stl.with_suffix(".geometry.json").write_text(
+                json.dumps(manifest), encoding="utf-8"
+            )
+            lineage = _geometry_lineage({}, stl, None, root)
+            self.assertEqual(lineage["asset_id"], "geometry.sphere.unit")
+            self.assertEqual(lineage["provenance"]["kind"], "generated")
+            self.assertEqual(lineage["generator"]["source_sha256"], "b" * 64)
+
+    def test_geometry_lineage_rows_accepts_string_generator_metadata(self):
+        rows = geometry_lineage_rows({
+            "geometry_lineage": {"generator": "oneflow_stl_geometry"}
+        })
+        self.assertIn(
+            ("Geometry generator", "RECORDED", "oneflow_stl_geometry"),
+            rows,
+        )
+
+    def test_geometry_lineage_rows_formats_structured_generator_metadata(self):
+        rows = geometry_lineage_rows({
+            "geometry_lineage": {
+                "generator": {
+                    "name": "oneflow_stl_geometry",
+                    "version": "1.0",
+                    "source_sha256": "b" * 64,
+                }
+            }
+        })
+        self.assertIn(
+            ("Geometry generator", "RECORDED",
+             f"oneflow_stl_geometry 1.0 | source SHA-256: {'b' * 64}"),
+            rows,
+        )
+
+    def test_manifest_with_mismatched_stl_checksum_is_not_trusted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stl = root / "tampered.stl"
+            stl.write_bytes(b"changed")
+            stl.with_suffix(".geometry.json").write_text(json.dumps({
+                "schema": "oneflow.stl-geometry-manifest",
+                "asset_id": "geometry.sphere.unit",
+                "stl_sha256": "0" * 64,
+            }), encoding="utf-8")
+            lineage = _geometry_lineage({}, stl, None, root)
+            self.assertNotIn("asset_id", lineage)
+            self.assertEqual(lineage["manifest_status"], "invalid_or_checksum_mismatch")
+
+
 class MeshValidationCatalogTest(unittest.TestCase):
+    def test_historical_cube_cases_explicitly_declare_unknown_geometry_origin(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        catalog = json.loads(
+            (repository_root / "grid/case_catalog.json").read_text(encoding="utf-8")
+        )
+        cube_ids = {
+            "stl_to_gmsh_cube_single_hex",
+            "stl_to_gmsh_python_cube_single_hex",
+            "stl_to_gmsh_cube_six_tetrahedra",
+            "stl_to_gmsh_python_cube_six_tetrahedra",
+            "stl_to_gmsh_cube_automatic_tetrahedra",
+            "stl_to_gmsh_python_cube_automatic_tetrahedra",
+        }
+        entries = {item["id"]: item for item in catalog["cases"]}
+        self.assertTrue(cube_ids.issubset(entries))
+        for case_id in cube_ids:
+            provenance = entries[case_id]["geometry_provenance"]
+            self.assertEqual(provenance["kind"], "unknown")
+            self.assertIn("unknown", provenance["notes"].lower())
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
@@ -76,7 +240,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
                  "title": "3D Cylinder Internal Flow (Generated MSH)",
                  "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow",
                  "group": "STL to Gmsh", "dimension": 3,
-                 "mesh_validation": "mesh_handoff",
+                 "mesh_validation": "cfd_smoke",
                  "execution": {"kind": "existing_mesh",
                                "project_directory": "cylinder_internal_flow",
                                "mesh_file": "results/cylinder_internal_flow.msh"},
@@ -211,7 +375,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertEqual(
             [step["id"] for step in steps],
-            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
         )
         self.assertEqual(
             steps[0]["outputs"][0]["path"],
@@ -224,6 +388,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
         expected_ids = {
             "stl_to_gmsh_sphere_automatic_tetrahedra",
             "stl_to_gmsh_python_sphere_automatic_tetrahedra",
+            "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
+            "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
         }
         self.assertTrue(expected_ids.issubset(choices))
 
@@ -419,6 +585,23 @@ class MeshValidationCatalogTest(unittest.TestCase):
             {"id": "grid_info", "path": "results/cube_single_hex.info.json",
              "parameter_file": "script/grid.txt", "setting": "gridInfoFileName"},
         ])
+
+    def test_existing_cylinder_mesh_runs_the_complete_3d_cfd_smoke_chain(self):
+        cases = build_mesh_validation_cases(
+            self.root, "cylinder_existing_mesh", "laminar_flat_plate"
+        )
+        self.assertEqual(
+            [item["id"] for item in cases],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
+        )
+        self.assertEqual(cases[0]["directory"],
+                         "grid/stl_to_gmsh/3d/cylinder_internal_flow")
+        self.assertEqual(cases[0]["outputs"][0]["path"],
+                         "results/cylinder_internal_flow.msh")
+        self.assertEqual(cases[3]["runtime_directory"], "oneflow_cfd_solve")
+        self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
+        self.assertEqual(cases[3]["inputs"][0]["artifact"], "oneflow_grid")
+        self.assertEqual(cases[3]["inputs"][1]["artifact"], "bc_region_map")
 
     def test_unit_sphere_cases_run_the_complete_3d_cfd_smoke_chain(self):
         choices = dict(mesh_case_choices(self.root))
@@ -624,7 +807,33 @@ class MeshValidationCatalogTest(unittest.TestCase):
             )
             self.assertEqual(graph[-1]["id"], "oneflow_cfd_solve")
 
-    def test_existing_cylinder_mesh_is_a_3d_handoff_validation_entry(self):
+    def test_downstream_lineage_artifacts_are_collected_from_validation_cases(self):
+        steps = [
+            {"id": "stl_to_gmsh", "runtime_directory": "stl_to_gmsh",
+             "outputs": [{"id": "gmsh_mesh", "path": "results/mesh.msh"}]},
+            {"id": "gmsh_to_cgns", "runtime_directory": "gmsh_to_cgns",
+             "outputs": [{"id": "cgns_mesh", "path": "results/mesh.cgns"}]},
+            {"id": "cgns_to_oneflow", "runtime_directory": "cgns_to_oneflow",
+             "outputs": [
+                 {"id": "oneflow_grid", "path": "results/mesh.oneflow.grid"},
+                 {"id": "bc_region_map", "path": "results/mesh_bcRegionMap.txt"},
+             ]},
+        ]
+        run_root = Path("validation")
+        artifacts = _downstream_lineage_artifacts(steps, run_root)
+        self.assertEqual(
+            artifacts,
+            [
+                {"role": "CGNS volume mesh", "format": "CGNS",
+                 "path": run_root / "gmsh_to_cgns/results/mesh.cgns",
+                 "parent": "derived_mesh"},
+                {"role": "OneFLOW native grid", "format": "OneFLOW native grid",
+                 "path": run_root / "cgns_to_oneflow/results/mesh.oneflow.grid",
+                 "parent": "cgns_mesh"},
+            ],
+        )
+
+    def test_existing_cylinder_mesh_is_a_3d_cfd_smoke_validation_entry(self):
         choices = dict(mesh_case_choices(self.root))
         self.assertIn("cylinder_existing_mesh", choices)
         groups = dict(mesh_case_groups(self.root))
@@ -638,7 +847,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertEqual(
             [step["id"] for step in steps],
-            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
         )
         self.assertEqual(
             steps[0]["outputs"][0]["path"],
