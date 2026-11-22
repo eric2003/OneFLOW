@@ -1,6 +1,6 @@
 # OneFLOW 交接（living）
 
-> 2026-11-19 核对。工作分支 `dev`，当前接手项为 M6 粘性路径 B.3。
+> 2026-11-22 核对。工作分支 `dev`，当前接手项为 B.4.1 symmetry ghost 反射与 B.4.4 LU-SGS。
 > 历史测量和旧章节从 Living TODO 的证据索引进入。
 
 > **这是唯一的交接文档，就地更新，不再按日期新建。**
@@ -111,23 +111,33 @@ normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失�
 
 ## 4. 当前任务指针（每次会话就地更新）
 
-**2026-11-22 接手点（覆盖下方所有旧记录）**。分支 `dev` HEAD `7063145ee`，工作树干净。SSH 仍失效，只用 OpenAPI 提交作业。
+**2026-11-22 收口点（覆盖下方所有旧记录）**。分支 `dev` HEAD `83309178a`，工作树干净。SSH 仍失效，只用 OpenAPI 提交作业。
 
-**旗舰 m6wingroe_sa 完整 GPU 通量路径已达成机器精度等价**（单 rank，20 步，`evidence/gate/xb-dlfinal/128674985`）：aero.dat 逐字节一致（max_rel=0），res.dat `6.78e-21`（gate 1e-12 pass），turbres 末位 1.8e-16，flow.dat level1 `2.7e-15`，visual.dat 差异全为 1e-37 机器零。HIP 重跑确定性已证（`xb-determinism/128677591`）。flow.dat level2 历史槽差 7.58e-3 = 一步物理变化，reader 用 level1 重建 current，不影响续算。
+**旗舰 m6wingroe_sa 的完整 GPU 通量路径与完整 SA 链路均已设备化并通过集群验证**（单 rank，20 步）。aero.dat 逐字节一致（max_rel=0），flow.dat level1 `2.7e-15`，visual.dat 全 1e-37 机器零，HIP 重跑确定性已证。flow.dat level2 历史槽差 7.58e-3 = 一步物理变化，reader 用 level1 重建，不影响续算。
 
-**性能（20 步单 rank 实测，`xb-dlfinal`）**：端到端 75.16s→61.26s（1.23x），迭代段 1.40x，通量层 7.9x（无粘 23x）。**boundary BC device 化：~20000ms→~90ms（~220x），aero 仍 0**（`xb-boundary/128680850`，提交 `ab7a40fa8`）。
+**SA 全链路移植（提交 `83309178a`，证据 `128693499-saport` / `128694886-saport`）**：梯度、显式更新、隐式谱、边界、LU-SGS 五段全部上设备，9 个 `ONEFLOW_ENABLE_UTURB_HIP_*` 并入自动白名单（backend=HIP 即生效，显式 =0 仍可单关）。**数值与移植前逐位相同**——aero 仍 0，主控残差 `1.808152e-12`、湍流残差 `8.168e-14` 与改动前完全一致，证明移植等价。
 
-**两个待办（详见 Living TODO B.4.x）**：
-1. **B.4.1 boundary residual 1.8e-12**（超门禁 80%，aero 已 0）：非壁面 BC（symmetry/farfield/outflow）ghost/bcQ 末位差异，已排除 gamma/cref/BoundaryPower，需逐 face dump 定位。
-2. **B.4.2 SA 湍流 device 化**：`update_residuals` 32840ms 中 ~14777ms 是 SA 链路（TurbCalcRHS），四个 `ONEFLOW_ENABLE_UTURB_HIP_*` 默认关。先零代码开 env 试，不行再加代码。LU-SGS sweep 仅 ~2s（≤4%），不移植。
+**性能（20 步单 rank，去 2x 重复计数后的真实值）**：`update_residuals` 33.8s → 18.5s，`calc_boundary` 2.1s → 1.1s，端到端 75.16s → **35.19s**。通量层 7.9x，boundary device ~220x。
 
-**HIP 开关语义**（审计结论，见 Living TODO B.4.3）：白名单自动开（UNS_HIP_BATCH/GRADIENT/INTERFACE/RECONSTRUCTION/STATE_UPDATE/BOUNDARY/TIME_STEP，`HipProductionPolicy.h:105-111`）；需显式=1（ALLOW_VISCOUS_HIP_BATCH/GRADIENT、UTURB_HIP_\* 全部）；默认生效=0 关闭（HIP_SKIP_\*）。不一致：UTURB 需手动设（SA 留 host 根因）、UNS/UTURB 语义不统一。
+**三个本轮踩到的坑（都已修，写在这里省下一轮往返）**：
+1. `HipTurbulenceBackend::CalcGradient` / `Update` **把 host 指针直接传给 kernel**——它们从一开始就没被调用过，所以这个缺陷从未暴露。设备入口必须自己上传/回传。
+2. `SaGradientKernel` 原本每个线程遍历整个 face 数组，**O(nCells×nFaces)** = 每步 2.6e11 次迭代。已改为缓存的 cell-to-face CSR，且 CSR 每单元的面按 face id 升序排列——这是保持 host 求和顺序、实现逐位等价的关键。
+3. `PlaneBuffer` 是 `Real` 类型；把 `int*` 交给它会静默选错重载导致编译失败。int 平面用 `UploadIntPlane`。
 
-**关键设计坑（本轮新增，勿重犯）**：
-- 三个 `UseHipDeviceStateUpdate` 谓词必须一致（`UNsInvFlux` 曾缺 vismodel 守卫 → 普通步 host res 收不到无粘 → aero 差 21%，`6fa257002` 修）。
-- 粘性读 host dqdx，device 梯度激活时必须 `downloadGradient=true`（粘性配置强制回传，`7d2637f61` 修，res 从 7.6e-10 到 6.78e-21）。
-- device boundary kernel 必须逐位复现 host：symmetry ghost=owner（非反射）、solid viscous bcQ=(rho,0,0,0,p)、bcQ 覆盖所有 BC 类型。
-- 大段移植逐 producer 核对 host/device 写入一致性，别缺块（用户明确要求）。
+**待办（详见 Living TODO B.4.x）**：
+1. **B.4.1 boundary residual 1.808e-12**：aero 已 0。**已确认与 SA 无关**（SA 移植前后逐位相同）。下一步查 `NsBcSolver::SymmetryBc` 的 ghost 反射语义——host 先 `primt1=prims1` 再把速度覆盖成反射值，device kernel 按 "ghost=owner" 实现，`ab7a40fa8` 的 commit message 误读了 host。
+2. **B.4.4 LU-SGS 实测比 host 慢**：40.1s → 45.9s（首版）→ 44.4s（去掉无用上传后）。48×48×128 有约 221 层依赖、每层约 1300 单元，每步 442 次启动的开销吃掉并行收益。当前按用户决定保留启用，是下一个大项。
+
+**门禁口径陷阱（重要）**：`f2-main-solver-cross-backend-residual.sh:249` 的 rel 是 `|d|/max(1,|a|,|b|)`，残差量级 1e-6，所以 "1e-12 门禁" 实际是 **1e-6 相对**。`residual 1.808e-12 fail` 的真实相对差是 **5.3e-7**，不是"只差末位"。
+
+**HIP 开关语义**（B.4.3 已收口）：白名单自动开含 UNS 七项 + UTURB 九项；显式 =1 可覆盖（ALLOW_VISCOUS_HIP_BATCH/GRADIENT）；`HIP_SKIP_*` 默认 0 关闭。
+
+**关键设计坑（勿重犯）**：
+- 三个 `UseHipDeviceStateUpdate` 谓词必须一致（`UNsInvFlux` 曾缺 vismodel 守卫 → aero 差 21%，`6fa257002` 修）。
+- 粘性读 host dqdx，device 梯度激活时必须 `downloadGradient=true`（`7d2637f61` 修，res 从 7.6e-10 到 6.78e-21）。
+- device boundary kernel 必须逐位复现 host：solid viscous bcQ=(rho,0,0,0,p)、bcQ 覆盖所有 BC 类型。symmetry 的 ghost 反射语义**尚未对齐**，见 B.4.1。
+- 大段移植逐 producer 核对 host/device 写入一致性，别缺块。
+- `tasks.tsv` 的数值是真实值的 **2 倍**（`CmxTask.cpp:483` 与 `Command.cpp:295` 各记一次）；`stage.tsv` 才是单次。对比两组数字前先确认口径。
 
 **2026-11-21 历史接手点（结论已被上条取代）**。分支 `dev` HEAD `1395e3056`，工作树干净。SSH 已再次失效（`ssh kseshell` Permission denied；下方 11-19 "已恢复"记录过期），只能用 OpenAPI。
 
