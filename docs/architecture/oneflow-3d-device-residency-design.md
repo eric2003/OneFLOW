@@ -386,3 +386,21 @@ verifier 增强：ONEFLOW_XB_HIP_EXTRA_ENVS 通用透传（分号分隔 KEY=VALU
 **性能警示**：即便数值修对，当前 device 梯度/重构引入大量同步（gradient_mirror 46ms + g_contract 31ms + v_download 116ms）> host 计算时间，性能未必提升。需 paired 性能作业确认。
 
 下一步：用 ONEFLOW_UNS_TRACE_FILE / ONEFLOW_UNS_LIMITER_DUMP 逐量对比 device vs host 的 dqdx/qf，定位 device 梯度 kernel 的具体差异。
+
+## device 梯度/重构输出逐面对比定位（昆山 128664194 + 本地 trace）
+
+用 ONEFLOW_UNS_TRACE_FILE dump 两臂 qf1/qf2（896256 面×5方程），本地逐 face 比对：
+
+- **BASE（host 梯度/重构）**：CPU vs HIP qf1/qf2 **ndiff=0，逐位一致** —— trace 机制本身可靠，host 路径两臂一致
+- **FULL（device 梯度/重构）**：qf1 1,106,909 面不同、qf2 1,087,238 面不同
+
+按方程分解 qf1：
+- eq0(rho): 56509 面, worst rel=2.45e-07
+- eq1(x动量): 43343 面, **worst rel=1.09e-04**（主流场 0.184）
+- eq2(y动量): 65206 面, **worst rel=3.77e-04**
+- **eq3(w): 883113 面（98%）, worst rel=2.0, cpu=-3.14e-19 vs hip=+3.14e-19（近零符号翻转）**
+- eq4(p): 58738 面, worst rel=3.92e-07
+
+**结论**：device 梯度/重构 kernel 输出确实错，且错误模式与旗舰 host 定位时的 w 分量问题同源——w 梯度在近零面符号翻转、主流场动量差 1e-4~4e-4。GradientCellKernel（HipFluxBackend.hip:930-984）用 `value = cl*q[left]+cr*q[right]`（两侧加权平均），sign=left==cell?1:-1；差异来自 ghost/右胞 q 值在 device 与 host 不一致，或权重 cl/cr 的结合顺序。需再对比 device vs host 的 cellState q（尤其 ghost）与 dqdx 输入。
+
+**准确性状态**：完整 HIP（开 device 梯度/重构）当前**不准确**。BASE（不开梯度/重构，仅无粘 fused + 粘性 device）逐字节对齐。
