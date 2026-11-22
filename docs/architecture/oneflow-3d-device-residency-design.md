@@ -289,3 +289,17 @@ A 线（昆山 2026-11-21，作业 `128627452`/`128628784`/`128629176`）已钉�
 **根因 100% 确定**：DCU 真算时 device 梯度 stage 正确算出梯度（流场/残差逐字节一致证明），但气动力读的 host cell 梯度 `dqdx/y/z[IP][lc]` **从未被镜像到 host，保持零**。这正是 runbook §1f / 坑 41 的物理表现。`NsMirrorHostBoundaryState()`（AeroForceTask.cpp:233）只镜像 q，不镜像梯度；梯度靠 `HipGradientHostMirrorOnDemand()` 按需机制，但气动力读取前没有触发该镜像（或触发条件不满足）。
 
 修复方向：气动力读梯度前必须确保 host 梯度镜像是最新的（boundary-adjacent owned cells），即在 `CalcForce()` 里补一次梯度 D2H 镜像（类似 NsMirrorHostBoundaryState 但针对 dqdx/y/z 的壁面邻域 cell），或修正 HipGradientHostMirrorOnDemand 的触发条件覆盖气动力读取点。待定位具体镜像 API 后修复+验证。
+
+## DCU 真算 + 气动力对齐修复完成（昆山 128660853，binary 147d3f9f）
+
+修复：AeroForceTask::CalcForce() 在 HIP device-authoritative 路径下，读梯度前主动调用 `MirrorGradientCellsToHost` 把所有 boundary face owner cell 的 dqdx/y/z 镜像到 host（对称于已有的 NsMirrorHostBoundaryState 镜像 q）。
+
+vismodel=0 显式 RK3 Lax 单zone 20 步验证（DCU 真算：HIP kernel 非零、hip_gradient/hip_reconstruction=1）：
+
+- **AERO IDENTICAL**（修复前差 21%）
+- **RES IDENTICAL**
+- AERO_INPUT probe：gpx CPU 25.30716503487686 / HIP 25.307165034877251（机器精度末位差），wp 两臂 0.98738090912439525/0.98738090912439547（一致到 16 位）
+
+结论：vismodel=0 配置下 DCU 设备路径真正执行且数值与 CPU 逐字节对齐（流场残差 + 气动力）。这回答了用户"DCU 没算没意义"的质疑——现在 DCU 真算了，且证明对齐。气动力差异根因是 host 梯度镜像陈旧/为零，非数值 kernel。
+
+**下一步**：这是 vismodel=0 受限路径。旗舰 vismodel=3 + LU-SGS 才走 device 路径（切片 2），需在 A.4 驻留架构里保证气动力读的 host 梯度镜像到位。
