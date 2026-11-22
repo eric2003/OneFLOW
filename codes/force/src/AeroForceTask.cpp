@@ -230,28 +230,37 @@ void CalcAeroForce(int idump_pres)
 	if (nSolidCells == 0) return;
 
 #ifdef ONEFLOW_ENABLE_HIP
-	// With a device-authoritative HIP state the host q mirror is stale; pull
-	// back the boundary-adjacent owned cells this loop reads (q at the owner
-	// cell of every boundary face, plus the wall-adjacent gradient mirrored by
-	// the device gradient stage).  No-op on the CPU path.
-	NsMirrorHostBoundaryState();
-	// The wall pressure reconstruction also reads the cell gradients
-	// dqdx/y/z[IP][lc].  On the device-authoritative path those host mirrors
-	// are stale/zero unless the per-stage gradient mirror happened to cover
-	// this reader; the residual is computed on device and never needs them,
-	// so an aero-force-only step can see all zeros.  Mirror the boundary-face
-	// owner cells into the host gradient fields here, symmetrically with the
-	// q mirror above, before the pressure loop reads them.
+	// Holistic aero-input mirror: every host field the force loop reads is
+	// refreshed here, in one place, so q / gradient / right-cell inputs can
+	// never disagree at the read point.  No-op on the CPU path or when the
+	// device does not own the state.
 	if ( HipDeviceAuthoritativeStateEnabled() )
 	{
-		std::vector< int > wallCells;
-		wallCells.reserve( static_cast< std::size_t >( grid->nBFaces ) );
 		const auto & leftCells = grid->GetFaceTopo().GetLeftCells();
+		const auto & rightCells = grid->GetFaceTopo().GetRightCells();
+
+		// The pressure loop reads q[IP][lc]; with vismodel>0 the viscous
+		// CorrectGrad also reads q[IU/IV/IW][rc] on the right cell (a ghost
+		// at solid boundaries).  Mirror one sorted owner+right cell set for
+		// both q and gradients.  includeGhost=true lets the scatter cover rc.
+		std::vector< int > aeroCells;
+		aeroCells.reserve( static_cast< std::size_t >( grid->nBFaces ) * 2 );
 		for ( int face = 0; face < grid->nBFaces; ++ face )
-			wallCells.push_back( leftCells[ face ] );
-		std::sort( wallCells.begin(), wallCells.end() );
-		wallCells.erase( std::unique( wallCells.begin(), wallCells.end() ),
-		                 wallCells.end() );
+		{
+			aeroCells.push_back( leftCells[ face ] );
+			aeroCells.push_back( rightCells[ face ] );
+		}
+		std::sort( aeroCells.begin(), aeroCells.end() );
+		aeroCells.erase( std::unique( aeroCells.begin(), aeroCells.end() ),
+		                 aeroCells.end() );
+
+		Real * qComp[ 5 ] = {};
+		for ( int equation = 0; equation < nscom.nEqu; ++ equation )
+			qComp[ equation ] = ( *q )[ equation ].data();
+		HipFluxBackend::Shared().MirrorPrimitiveCellsToHost(
+			grid, nscom.nEqu, aeroCells.data(),
+			static_cast< int >( aeroCells.size() ), qComp, true );
+
 		Real * gx[ 5 ] = {};
 		Real * gy[ 5 ] = {};
 		Real * gz[ 5 ] = {};
@@ -262,8 +271,11 @@ void CalcAeroForce(int idump_pres)
 			gz[ equation ] = ( *dqdz )[ equation ].data();
 		}
 		HipFluxBackend::Shared().MirrorGradientCellsToHost(
-			grid, nscom.nEqu, wallCells, gx, gy, gz );
+			grid, nscom.nEqu, aeroCells, gx, gy, gz );
 	}
+	// Also refresh the host q mirror + derived gamma/temperature fields for
+	// non-force host readers; kept for parity with the pre-existing path.
+	NsMirrorHostBoundaryState();
 #endif
 
 	if (idump_pres == 1)

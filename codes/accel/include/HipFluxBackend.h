@@ -647,7 +647,8 @@ public:
         int nEquations,
         const int * cellIds,
         int cellCount,
-        Real * const * components );
+        Real * const * components,
+        bool includeGhost = false );
 
     // The device wrote cells the host mirror does not reflect (an interface
     // unpack whose paired host exchange was skipped).

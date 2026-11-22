@@ -5159,7 +5159,8 @@ void HipFluxBackend::MirrorPrimitiveCellsToHost(
     int nEquations,
     const int * cellIds,
     int cellCount,
-    Real * const * components )
+    Real * const * components,
+    bool includeGhost )
 {
     if ( cacheKey == nullptr || nEquations <= 0 || cellIds == nullptr
          || cellCount <= 0 || components == nullptr )
@@ -5212,10 +5213,13 @@ void HipFluxBackend::MirrorPrimitiveCellsToHost(
         for ( int index = 0; index < cellCount; ++ index )
         {
             const int cell = cellIds[ index ];
-            if ( cell < 0 || cell >= contract.Cells() )
+            const int upperBound = includeGhost ? totalCells : contract.Cells();
+            if ( cell < 0 || cell >= upperBound )
             {
                 throw std::logic_error(
-                    "HIP host mirror cell is outside the owned range" );
+                    includeGhost
+                        ? "HIP host mirror cell is outside the resident range"
+                        : "HIP host mirror cell is outside the owned range" );
             }
             target[ cell ] = source[ index ];
         }
