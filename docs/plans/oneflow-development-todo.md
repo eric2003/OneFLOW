@@ -2,30 +2,48 @@
 
 本页跟踪 [Phase Plan](oneflow-development-plan.md) 的当前切片。父项和子项沿用计划编号；更细的执行步骤记在对应子项下。当前验收完成后移出本页，将复验结论和证据索引留在计划或对应报告。
 
-## 当前切片
+## 当前状态（2026-11-22）
 
-分支 `dev` HEAD `1395e3056`（含 `aada33da2`/`169d59892`/`d41650729` 及 SA/viscous hook 接线修复）。**2026-11-21 已在昆山用当前 HEAD 重跑旗舰全开 hook**：`src/REVISION`、binary sha256、五个 device hook 字符串均核验通过。实际投放集群前仍须核对被测对象。固定路径、探针限制和构建命令见[当前交接](../handoff/oneflow-current-handoff.md)。
+分支 `dev`，HEAD `7063145ee`，工作树干净。旗舰算例 `test/cfd/m6wingroe_sa`（vismodel=3 SA / Roe ischeme=1 / LU-SGS time_integral=2 / ilim=0 / 单 zone / ivischeme=0）在昆山单 rank 已跑通**完整 GPU 通量路径**并达到机器精度等价。固定路径、构建命令见[当前交接](../handoff/oneflow-current-handoff.md)，架构细节见[3D device residency 设计](../architecture/oneflow-3d-device-residency-design.md)。
 
-**关键纠正（2026-11-21）**：此前所有"CD 22%/CD_SF 143%"及 SA hook rc=134 崩溃的昆山证据都来自 11-16 修复前的旧 binary（`UTurbSrcFlux.cpp` 报错行标注 "Compiled on Nov 16"），不能作为当前源码结论。证据在 `evidence/gate/128189103-vdump`（粘性 kernel 整场逐位一致）、`128169609-bisect`（旧 SA hook VMFault）、`128191406-conv`（旧对照：device 臂 rc=1 只跑 100 步、host 跑满 400 步，属伪比较）。
+### 已达成（准确性）
 
-- [ ] **B.3.1 验证粘性通量布局和写回**（Partial，单卡写回及自检已运行）
-  - [x] `aada33da2` 将设备输出 stride 改为 `nFaces`，按连续方程平面写回求解器字段。
-  - [x] 共享 view 校验要求 stride ≥ nFaces；契约测试覆盖紧凑布局和重叠布局（15/15）。
-  - [x] CPU 粘性策略通过 24/24；本地 CPU 全量构建通过，CTest 1,367/1,374，7 项在 macOS 的 system 目录定位处失败。
-  - [x] 昆山 1 rank / 1 DCU，`cc1dd4b3a` 构建及 HIP 粘性契约 6/6。M6 自检确认 hook 命中。第 1 步共 896,256 面，仅面 3356 的能量分量被报告，绝对差约 `4.38e-40`，面归一化差 0.125327；第 2、3 步在 `1e-10` 阈值内无报告。相对判据在近零面上会放大差异，需同时看绝对差。
-  - [x] `169d59892` 回应上一条：抽出 `CompareViscousFaceFlux`（`codes/uns/include/ViscousFluxSelfCheck.h`），显式统计非有限值（相对判据会让 NaN 静默通过）、按 `bcType == SOLID_SURFACE` 标注壁面，输出步/区/首差面/首差方程/最差面、`absdiff` 及末行 `SELFCHECK result=PASS|FAIL`。新测试 10/10，既有契约 15/15、粘性策略 24/24。
-  - [x] 2026-11-21 当前 HEAD 在昆山实证：加固 selfcheck 命中并运行（`evidence/gate/128627452-allhooks/probe-S20/hip.log`）。前两个 RK stage 的 `result=FAIL` 仅因近零面相对判据放大（首差面 3356 `absdiff=1.2e-41`、面归一化 rel=0.125），`nonfinite_device/host=0`；后 3 个 stage `result=PASS`、逐位一致。**粘性 device kernel 整场逐位等价已确认**，与整场 dump `128189103-vdump` 一致。
-- [ ] **B.3.2 复验 M6 气动力**（Partial，当前 HEAD 全开 hook 有效对照已跑，根因未收口）
-  - [x] 历史 200 步隔离对照将偏差定位到粘性 hook。旧版本 400 步全开/全关的 `CD` 差 22%，`CD_SF` 差 143%——**已确认是修复前旧 binary 的伪比较**（device 臂 rc=1 仅 100 步 vs host 400 步）。
-  - [x] 同一 HIP 二进制、同一算例、关闭自检与探针，全关和仅开粘性均跑满 400 步。两臂的 `aero.dat`、`res.dat` 分别逐字节一致。末步 CL=`1.4097e-1`、CD=`2.1895e-2`、CD_SF=`3.7910e-3`、res1=`2.81887e-7`。
-  - [x] 2026-11-21 当前 HEAD 全开 hook 对照（`evidence/gate/128627452-allhooks`）：CPU oracle 与 DCU 五 hook 全开**两臂均 rc=0、跑满 400 步、aero 各 37 行**（有效同判据比较，非旧伪比较）。偏差量级较旧证据大幅缩小：`CD_SF` step20 仅差 `5.18e-05`（≈0.5%，stride 修复生效），但 `CL` step20 差 `9.42e-03`（≈25%）、`res1` step20 差 `9.31e-07`（≈18%）。残差轨迹形状不同（CPU 先降后升、DCU 单调降），从首个输出点即系统性偏离。
-  - [x] 逐面 wall force probe（`128627452-allhooks/probe-S20`）：壁面 `u_lc` 差 ≈0.86%、梯度 `dudy` 差 ≈256（0.86%）、`viscosity` 差 0.17%，集中在壁面/对称面（face 3457/3459/3461）；q[rc] 与 q[lc] 反号对称，比较有效 → §1f 的 ghost 陈旧**不是本轮主因**（对称性证明 q[rc] 已刷新）。
-  - [x] 2026-11-21 stage trace（`128629176`，8 步，`nResSave=1`，trace 文件 download 到本地流式比对，集群 verifier 因 1.5GB×2 文件 OOM）：**step1 全部 stage 逐位一致；step2 seq=1 起 `qf1/qf2/invflux/inviscid_residual/state` 同时分叉**；`inviscid_residual` first_idx=22 cpu=1.28e-09 vs dcu=-5.5e-13（符号反、量级差 3 个数量级）；`state` worst_rel 从 step2 的 0.001 累积到 step8 的 0.0074。逐残差 step1 rel=0、step2 突变 9.99e-07 并保持。
-  - [x] 根因定位到**第 1 步末的状态更新/时间层推进**，非 kernel 算术。代码定位：`codes/uns/src/UNsUpdate.cpp:219-262` 的 `UpdateFlowField`——`UseDeviceAuthoritativeHipState()`（`:210-215`，`startStrategy!=2` 时启用）走 `HipFluxBackend::UpdatePrimitiveState` GPU 更新（`:248-249`，primitive q 留设备、host 按需镜像）；host 路径走逐 cell `GetUpdateField+PrepareData+UpdateFlowFieldValue`（`:265+`）。step1 两者一致，step2 读回时 device authoritative 路径产生 1e-8 差异并被 RK/LU-SGS 放大。粘性 kernel（selfcheck/vdump）与 SA hook 均逐位一致，已排除。**文档坑 41/§1f 描述的"单 zone 不镜像/ghost 陈旧"在 startStrategy=0 下被设备权威+按需镜像路径取代，不能照搬**。
-  - [ ] 补 CPU 五例 normal/strict、HIP 契约与准确提交 CI 证据。收敛后气动力（非固定 400 步）单独验收。
-- [ ] **B.3.3 补边界契约**（紧接 B.3.2）
-  - [ ] 验证非五方程、非 VIS_STD 和等温壁按预期回落。记录壁面热流是否仍走主机，并补多区 interface 面覆盖后再评估 B.3 收口。
+- **气动力 aero.dat 逐字节一致**（全部 20 步，max_rel=0）；主控残差 res.dat max_rel `6.78e-21`（gate 1e-12 pass）；湍流残差 turbres 末位 `1.8e-16`；当前流场 flow.dat level1 `2.7e-15` 绝对；湍流场 turbflow 全层 `1.4e-17`；可视化 visual.dat 差异全为机器零（1e-37）。证据：`xb-dlfinal/128674985`、`xb-final-check/128676813`。
+- **HIP 重跑确定性**：同 binary 同配置两次，aero/res/turbres 逐字节相同（`xb-determinism/128677591`）。
+- **flow.dat level2（历史槽）差 7.58e-3**：= 一步物理变化，HIP `InitUnsteady` 重建历史层 vs CPU 保留上一步；restart reader 用 level1 重建 current，**不影响续算**（`xb-history-shift/128676991`）。
+
+### 已达成（性能，20 步单 rank 实测）
+
+- 端到端 wall **75.16s → 61.26s（1.23x）**；迭代段顶层 **1.40x**。
+- 通量层 rhs **7.9x**（无粘 23x、粘性 3.9x）。
+- **boundary BC device 化：~20000ms → ~90ms（~220x）**，aero 仍 0（`xb-boundary/128680850`）。
+
+## 进行中 / 待收口
+
+- [ ] **B.4.1 boundary 残差 1.8e-12**（Partial，device 已跑，aero 已对齐）
+  - [x] 去掉 `HipBoundarySupported` 的 `vismodel!=0` 硬拒绝；kernel 补 viscous 壁面（ghost=`-u+2u_wall`、bcQ=`(rho,0,0,0,p)`）；symmetry ghost=owner（匹配 host `primt1=prims1`）、bcQ=(owner+反射)/2；bcQ 覆盖所有 BC。提交 `ab7a40fa8`。
+  - [x] `bnd_kernel 2.78 / bnd_ghost_copy 10.04 / boundary_device 89.19ms`（20步），`boundary_calc_face_bc` 归零；aero max_rel=0。
+  - [ ] **residual max_rel 1.808e-12（eq6，超 1e-12 门禁 80%）待收**。已排除 gamma（nTModel=1 常 gamma）、cref（两边 `sqrt(gama_ref*pref/rref)`）、BoundaryPower（exponent=1.4 不走 2.5 近似）。下一步：逐 face dump device vs host ghost q/bcQ 定位非壁面 BC（symmetry/farfield/outflow）末位差异。
+- [ ] **B.4.2 SA 湍流 device 化**（Not started，第二大头）
+  - agent 查明：`update_residuals` 32840ms 中 rhs 仅 18063ms，其余 **~14777ms 两臂相同 = SA 链路（TurbCalcRHS）**，四个 `ONEFLOW_ENABLE_UTURB_HIP_{VIST,SOURCE,INVFLUX,VISFLUX}` **默认关闭**（不在自动开启白名单）。
+  - LU-SGS sweep 实测仅 ~2s（≤4%），**不值得移植**；`numberOfSweeps` 依赖零初始化（`NsLusgs.cpp:37-53` 未赋值）。
+  - 待办：先零代码开四个 env 试跑（`SupportsFaceFlux`/`iturb_visflux=2` 条件已满足），不行再加代码接线。预期 `update_residuals` 大幅下降。
+- [ ] **B.4.3 HIP 开关语义统一**（审计完成，待修）
+  - 现状三类：**白名单自动开**（`HipProductionPolicy.h:105-111`：UNS_HIP_BATCH/GRADIENT/INTERFACE/RECONSTRUCTION/STATE_UPDATE/BOUNDARY/TIME_STEP）；**需显式=1**（ALLOW_VISCOUS_HIP_BATCH/GRADIENT、UTURB_HIP_\* 全部 4 个）；**默认生效=0 关闭**（HIP_SKIP_\*）。
+  - 不一致：①boundary 在白名单却曾被 vismodel 守卫拒绝（已修）；②UTURB 四个 hook 不在白名单，必须手动设（SA 链路留 host 的根因）；③UNS 自动开 vs UTURB 手动开语义不统一。待决策：是否把 UTURB 纳入同类策略。
+
+## 后续（性能提升路径）
+
+- [ ] **B.4.4 LU-SGS 宏步**：评估结论=收益 ≤4%，deferred。除非先补 sweep 计时行（`StageProfiler` 无 `LUSGS_*` 映射，成本被误归到 `initialization`）证明确实值得。
+- [ ] **B.4.5 同步开销**：`gradient_download 199ms / v_download 116ms / v_upload 89ms / gradient_mirror 38ms`（20步累计）是为 oracle 对齐付出的回传代价，SA device 化后可减少。
+- [ ] **B.4.6 更长步数/多 rank**：1.23x 是 20 步含固定开销的数字，需 200+ 步、多 rank 复测端到端。
 
 ## 证据索引
 
-[历史 Living TODO 快照](https://github.com/lql341/OneFLOW/blob/1eee55499a69e6b9bc7dadf28188f484af0fc983/docs/plans/oneflow-development-todo.md)保留原章节、测量口径和证据位置。粘性看 §5.40–§5.44，H1/H2 看 §5.2，网格阶梯看 §5.6/§5.9。
+- 准确性 gate：`evidence/gate/xb-dlfinal/128674985`（res 6.78e-21, aero 0）
+- 三项输出：`xb-final-check/128676813`、`xb-history-shift/128676991`
+- 确定性：`xb-determinism/128677591`
+- boundary device：`xb-boundary/128680850`（220x，res 1.8e-12 待收）
+- 早期粘性：§5.40–§5.44；H1/H2：§5.2；网格阶梯：§5.6/§5.9
+
+[历史 Living TODO 快照](https://github.com/lql341/OneFLOW/blob/1eee55499a69e6b9bc7dadf28188f484af0fc983/docs/plans/oneflow-development-todo.md)保留原章节、测量口径和证据位置。

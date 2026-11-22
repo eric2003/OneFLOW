@@ -111,7 +111,25 @@ normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失�
 
 ## 4. 当前任务指针（每次会话就地更新）
 
-**2026-11-21 接手点（覆盖下方 11-19 记录的旧结论）**。分支 `dev` HEAD `1395e3056`，工作树干净。SSH 已再次失效（`ssh kseshell` Permission denied；下方 11-19 "已恢复"记录过期），只能用 OpenAPI。
+**2026-11-22 接手点（覆盖下方所有旧记录）**。分支 `dev` HEAD `7063145ee`，工作树干净。SSH 仍失效，只用 OpenAPI 提交作业。
+
+**旗舰 m6wingroe_sa 完整 GPU 通量路径已达成机器精度等价**（单 rank，20 步，`evidence/gate/xb-dlfinal/128674985`）：aero.dat 逐字节一致（max_rel=0），res.dat `6.78e-21`（gate 1e-12 pass），turbres 末位 1.8e-16，flow.dat level1 `2.7e-15`，visual.dat 差异全为 1e-37 机器零。HIP 重跑确定性已证（`xb-determinism/128677591`）。flow.dat level2 历史槽差 7.58e-3 = 一步物理变化，reader 用 level1 重建 current，不影响续算。
+
+**性能（20 步单 rank 实测，`xb-dlfinal`）**：端到端 75.16s→61.26s（1.23x），迭代段 1.40x，通量层 7.9x（无粘 23x）。**boundary BC device 化：~20000ms→~90ms（~220x），aero 仍 0**（`xb-boundary/128680850`，提交 `ab7a40fa8`）。
+
+**两个待办（详见 Living TODO B.4.x）**：
+1. **B.4.1 boundary residual 1.8e-12**（超门禁 80%，aero 已 0）：非壁面 BC（symmetry/farfield/outflow）ghost/bcQ 末位差异，已排除 gamma/cref/BoundaryPower，需逐 face dump 定位。
+2. **B.4.2 SA 湍流 device 化**：`update_residuals` 32840ms 中 ~14777ms 是 SA 链路（TurbCalcRHS），四个 `ONEFLOW_ENABLE_UTURB_HIP_*` 默认关。先零代码开 env 试，不行再加代码。LU-SGS sweep 仅 ~2s（≤4%），不移植。
+
+**HIP 开关语义**（审计结论，见 Living TODO B.4.3）：白名单自动开（UNS_HIP_BATCH/GRADIENT/INTERFACE/RECONSTRUCTION/STATE_UPDATE/BOUNDARY/TIME_STEP，`HipProductionPolicy.h:105-111`）；需显式=1（ALLOW_VISCOUS_HIP_BATCH/GRADIENT、UTURB_HIP_\* 全部）；默认生效=0 关闭（HIP_SKIP_\*）。不一致：UTURB 需手动设（SA 留 host 根因）、UNS/UTURB 语义不统一。
+
+**关键设计坑（本轮新增，勿重犯）**：
+- 三个 `UseHipDeviceStateUpdate` 谓词必须一致（`UNsInvFlux` 曾缺 vismodel 守卫 → 普通步 host res 收不到无粘 → aero 差 21%，`6fa257002` 修）。
+- 粘性读 host dqdx，device 梯度激活时必须 `downloadGradient=true`（粘性配置强制回传，`7d2637f61` 修，res 从 7.6e-10 到 6.78e-21）。
+- device boundary kernel 必须逐位复现 host：symmetry ghost=owner（非反射）、solid viscous bcQ=(rho,0,0,0,p)、bcQ 覆盖所有 BC 类型。
+- 大段移植逐 producer 核对 host/device 写入一致性，别缺块（用户明确要求）。
+
+**2026-11-21 历史接手点（结论已被上条取代）**。分支 `dev` HEAD `1395e3056`，工作树干净。SSH 已再次失效（`ssh kseshell` Permission denied；下方 11-19 "已恢复"记录过期），只能用 OpenAPI。
 
 **关键纠正：所有"CD 22%/CD_SF 143%"和 SA hook rc=134 的昆山负结果都是 11-16 修复前旧 binary**（`UTurbSrcFlux.cpp` 报错行 "Compiled on Nov 16"）。当前 HEAD 含 `d41650729`/`aada33da2`/`169d59892`/`c924e84f3`/`82e96ba64`/`06a98892b`，从未用全开 hook 重测过——这是"找不到原因"的元凶：一直在旧证据上推理。
 
