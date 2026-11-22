@@ -191,6 +191,17 @@ run_backend() {
             if [ -n "${ONEFLOW_XB_HIP_ALLOW_VISCOUS_BATCH:-}" ]; then
                 export ONEFLOW_ALLOW_VISCOUS_HIP_BATCH="$ONEFLOW_XB_HIP_ALLOW_VISCOUS_BATCH"
             fi
+            # Generic HIP-only env passthrough: semicolon-separated KEY=VALUE,
+            # e.g. "ONEFLOW_ENABLE_UNS_HIP_VISFLUX=1;ONEFLOW_VISCOUS_SELFCHECK=1".
+            # Lets a device-hook experiment be run without editing this script.
+            if [ -n "${ONEFLOW_XB_HIP_EXTRA_ENVS:-}" ]; then
+                local kv
+                IFS=';' read -ra _xb_extra_envs <<< "$ONEFLOW_XB_HIP_EXTRA_ENVS"
+                for kv in "${_xb_extra_envs[@]}"; do
+                    [ -z "$kv" ] && continue
+                    export "$kv"
+                done
+            fi
             export HIP_VISIBLE_DEVICES="${HIP_VISIBLE_DEVICES:-0}"
             export ROCR_VISIBLE_DEVICES="${ROCR_VISIBLE_DEVICES:-0}"
         else

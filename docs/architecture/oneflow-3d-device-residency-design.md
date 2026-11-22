@@ -334,3 +334,30 @@ vismodel=0 显式 RK3 Lax 单zone 20 步验证（DCU 真算：HIP kernel 非零�
 - 配置确认：vismodel=3, Roe(ischeme=1), LU-SGS(time_integral=2), TurbSolver 保留
 
 **里程碑**：旗舰 3D 工作流的无粘通量真正在 DCU 上计算且与 CPU 数值等价。这是 A.4 设备驻留的一个真实切片（无粘 fused flux device 化），比之前 host 路径验证有本质进展。剩余：梯度/重构/LU-SGS 宏步循环仍在 host（UseHipGradient 有独立 vismodel==0 守卫），完整设备驻留是后续切片。verifier 增强：HIP_EXTRA env 透传 + stage breakdown 输出（HIP kernel 非零作为真算证据）。
+
+## 有粘部分 device 化成功（昆山 128663186，复用 binary 6deb5225）
+
+两个并行 agent 分别设计粘性 device 化与 LU-SGS 驻留。粘性线结论：旗舰所有 CalcVisFluxHip 守卫都满足（nEqu=5/ivischeme=0 VIS_STD/isowallbc=0/vismodel 无守卫），唯一缺 `ONEFLOW_ENABLE_UNS_HIP_VISFLUX=1`（HipProductionFeatureEnabled 需显式=1，backend=HIP 不自动开）。SA 的 vist 是 CalcVisFlux 的逐调用输入（uploaded as-is），host 算的 vist 即可，不是 device 粘性前置条件。
+
+实验：旗舰 profile + ONEFLOW_ALLOW_VISCOUS_HIP_BATCH=1 + verifier 通用 HIP env 透传（ONEFLOW_XB_HIP_EXTRA_ENVS="ONEFLOW_ENABLE_UNS_HIP_VISFLUX=1"）。结果：
+
+- **v_kernel 0.751645、v_upload 87.73、v_download 116.6**（之前全 0）→ 粘性 kernel 真正在 DCU 执行
+- **HIP kernel 25.52**（无粘 fused flux 也在算）
+- residual max_rel=6.78e-21、aero max_rel=0 → 数值逐字节等价
+- verifier rc=0, CROSS_BACKEND_RESIDUAL_PASS
+
+**里程碑**：旗舰无粘 + 粘性通量都在 DCU 真算且等价。注意 v_upload 大是每步上传 visl/vist；SA hooks（VIST/SOURCE/INVFLUX/VISFLUX）仍未开——vist 当前 host 算上传，下一步可啃 SA device 化。LU-SGS 宏步、梯度、重构仍在 host（agent2 设计见下条）。
+
+verifier 增强：ONEFLOW_XB_HIP_EXTRA_ENVS 通用透传（分号分隔 KEY=VALUE），支持 device hook 实验不改脚本。
+
+## LU-SGS device 驻留设计（agent2 排查，待实施）
+
+**现状（代码核实）**：无 HipEulerDomainBackend；EulerDomainBackend::Advance 只有 Cpu 实现。TimeIntegral::RungeKutta 硬编码 CPU backend；Lusgs()（TimeIntegral.cpp:397-426）是纯 host task 串：ZERO_DQ→CALC_TIME_STEP→LOAD_RESIDUALS→UPDATE_RESIDUALS→INIT_LUSGS→[LOWER_SWEEP→EXCHANGE_DQ→UPPER_SWEEP]→UPDATE_FLOWFIELD→CALC_BOUNDARY。UNsLusgs Lower/UpperSweep（UNsLusgs.cpp:79-137）是严格逐 cell 顺序循环（lower 0→N、upper N→0），PrepareSweep 读 unsf.rhs/dq/impsr，Solve 读 q/gama/visl/vist、写 dq。ExchangeInterfaceDq 是空 stub（InterfaceTaskReg.cpp:354-357）。
+
+**推荐第一刀**（不做完整宏步 Advance）：只把 lower/upper sweep 核心做成 device kernel + 窄 host 编排；dq 在 sweep 循环内驻留 device，rhs 每宏步上传一次。完整 Advance（RK 式宏步循环进设备）需先把梯度/重构/粘性/SA 都搬到 device（旗舰全被 vismodel 守卫挡住），一次作业太大。
+- 接入点：TimeIntegral.cpp:269-283/397-426（env-gated 路由到新 LusgsAdvance）；新 HipLusgsBackend（EulerDomain.h:146-192）；从 UNsLusgs.cpp:79-137/327-394 抽 kernel，复用 NsLusgsPolicy.h:7-52 纯数学；StageProfiler.cpp:162-170 注册 macro_lusgs_* 行（注意静默丢弃陷阱 :162-164）；ResidentStateContract.h 管代际。
+- 验收：stage breakdown macro_lusgs_* 非零 + HIP kernel 非零 + res/aero 等价（如 128662638 的 6.78e-21/0）。
+- 前置：gate 到 nZones==1（dq halo 是 stub，MPI 延后）；rhs 每宏步 FullField 上传（bump generation）；SA/viscous 累加仍 host 进 rhs。
+- 不在范围：device 梯度/重构/flux/state-update、多 zone dq MPI、device SA 更新、粗网格/MG、device restart/IO。
+
+**可复用脚手架**：NsLusgsPolicy.h（纯 sweep 数学）、StageProfiler macro 行、NsResidentMacroStep.cpp:59-140、ResidentStateContract.h、旗舰 verifier、1D HipEulerBackend::Advance（ports/kunshan/oneflow_1d_hip/OneDEulerPersistent.hip:197-303）作为驻留模板。
