@@ -600,3 +600,14 @@ dump 最终 host res 场（ONEFLOW_RES_FIELD_DUMP）两臂逐 cell 比对：
 **完整根因链**：旗舰开 device 重构 → downloadGradient = hipGradient && (!hipReconstruction || crossZoneGhostGradient) = **false**（单 zone、开重构）→ device 梯度 kernel 算完后**不回传 host dqdx** → 粘性通量（CalcVisFluxHip 的 view.dqdx=unsf.dqdx，及 host CalcVisFlux）读**陈旧 host 梯度** → 壁面边界层 cell 残差差 12% → res 范数差 7.6e-10。而气动力因主动 MirrorGradientCellsToHost 读到新梯度 → aero 对齐（解释了 aero=0 但 res 差）。
 
 **正式修复方向**：当 device 梯度激活且下游粘性/气动力需要 host 梯度时，必须强制 downloadGradient=true。不能靠诊断 env。修改 UNsInvFlux.cpp:358 的 downloadGradient 条件，旗舰粘性配置下回传。
+
+## 正式修复验证通过（昆山 128674985，commit 7d2637f61）
+
+不带任何诊断 env，纯代码修复（downloadGradient 加 `|| (hipGradient && vis_model.vismodel != 0)`）后跑旗舰 verifier：
+- residual max_rel=6.776264e-21（机器精度，pass）
+- aero max_rel=0（逐字节一致）
+- verifier rc=0, CROSS_BACKEND_RESIDUAL_PASS
+
+**旗舰完整 GPU 路径数值等价达成**：device 梯度 + device 重构 + 无粘 fused flux + 粘性 kernel 全部真正在 DCU 执行（HIP kernel 0.82 + gradient_kernel + v_kernel 非零），CPU/HIP 残差与气动力逐字节一致、门禁 1e-12 通过。这是 A.4 设备驻留的关键里程碑——准确性地基（切片0）在完整 device 通量路径上验证完成。
+
+完整根因链（最终）：旗舰开 device 重构 → downloadGradient=false → device 梯度不回传 host → 粘性读陈旧 host dqdx → 壁面残差差 → 已修。
