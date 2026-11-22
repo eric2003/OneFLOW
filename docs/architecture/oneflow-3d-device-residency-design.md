@@ -404,3 +404,15 @@ verifier 增强：ONEFLOW_XB_HIP_EXTRA_ENVS 通用透传（分号分隔 KEY=VALU
 **结论**：device 梯度/重构 kernel 输出确实错，且错误模式与旗舰 host 定位时的 w 分量问题同源——w 梯度在近零面符号翻转、主流场动量差 1e-4~4e-4。GradientCellKernel（HipFluxBackend.hip:930-984）用 `value = cl*q[left]+cr*q[right]`（两侧加权平均），sign=left==cell?1:-1；差异来自 ghost/右胞 q 值在 device 与 host 不一致，或权重 cl/cr 的结合顺序。需再对比 device vs host 的 cellState q（尤其 ghost）与 dqdx 输入。
 
 **准确性状态**：完整 HIP（开 device 梯度/重构）当前**不准确**。BASE（不开梯度/重构，仅无粘 fused + 粘性 device）逐字节对齐。
+
+## device 梯度差异根因锁定（昆山 128664305 + 公式对比）
+
+隔离实验：只开 device 梯度（不开 device 重构），qf 差异与全开**逐位相同**（eq3 883113 面符号翻转、eq1 1.09e-4、eq2 3.77e-4）→ 差异 100% 来自 device 梯度 kernel，与重构无关。
+
+公式对比：host CalcGradGGCellWeight（UGrad.cpp:88）与 device GradientCellKernel（HipFluxBackend.hip:930-984）的 Green-Gauss 公式**完全一致**（cl=delt2*delta、value=cl*qL+cr*qR、delta=1/(d1+d2+SMALL vs 1e-40)）。差异不在公式，在**输入 q**：
+
+- device kernel 读 `q[eq*totalCells+left/right]` = device cellState（含 ghost），是 exchange 后的新值
+- host 梯度读 `q[lc]/q[rc]` = host 场，device authoritative 下 ghost q 的 D2H 是 lazy 的（HipGhostQMirrorForced 默认 false，HipProductionPolicy.h:213-217），host ghost 陈旧
+- w(eq3) 在对称面 ghost 处最敏感 → 88万面符号翻转；动量 eq1/eq2 主流场差 1e-4~4e-4
+
+这与旗舰 host 定位的 w 问题、气动力 q[rc] 镜像问题**同源**：ghost q 的 device/host 不一致。验证假设：设 ONEFLOW_HIP_GHOST_Q_MIRROR=1 强制 host ghost=device ghost，看 qf 是否对齐（待跑）。
