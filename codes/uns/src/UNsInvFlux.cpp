@@ -418,11 +418,12 @@ void UNsInvFlux::CalcInvFace()
         {
             const char * gradDump =
                 std::getenv( "ONEFLOW_GRAD_DUMP_FILE" );
-            static bool gradDumped = false;
-            if ( gradDump != nullptr && gradDump[ 0 ] != '\0' && ! gradDumped )
+            if ( gradDump != nullptr && gradDump[ 0 ] != '\0' )
             {
-                gradDumped = true;
-                std::ofstream gout( gradDump, std::ios::binary );
+                // Overwrite on every gradient pass so the dump reflects the
+                // same last-stage moment as the qf trace (both used to pin
+                // the reconstruction divergence).
+                std::ofstream gout( gradDump, std::ios::binary | std::ios::trunc );
                 const int nEqu = uns_grad.nEqu;
                 const int nCells = ug.nCells;
                 gout.write( reinterpret_cast< const char * >( &nEqu ), sizeof(int) );

@@ -465,3 +465,13 @@ verifier 增强：ONEFLOW_XB_HIP_EXTRA_ENVS 通用透传（分号分隔 KEY=VALU
 **矛盾待解**：近零梯度差（~1e-12）不足以解释 qf 主流场差 1e-4（face 782416 eq1 0.184104 vs 0.184084）。可能 (a) qf dump（最后 stage）与 dqdx dump（首次，gradDumped 一次性）时机不同；(b) 重构读 limf->dqdx 与 dump 的 uns_grad.dqdx 非同一场；(c) 分叉在 step1→2 时序中放大。下一步需对齐 dump 时机或查场绑定。
 
 当前唯一准确配置仍为 BASE。一次性 instrument（force download + grad dump）已在工作树（env-gated）。
+
+## 梯度确认完全正确，问题转移到残差累加（昆山 128666229）
+
+每步覆盖 dump 梯度（与 qf trace 时机一致）后对比：**大梯度（1e5 量级）两臂 rel < 3e-13（机器精度）**，即使最后 stage 也一致。device 梯度 kernel 物理上完全正确。差异只在近零分量（1e-12）。
+
+但 res.dat（128665090 full 配置）：HIP 臂 **res1(rho 连续方程) 恒为 0**（0.0000e+00），CPU=5.08e-6；其它方程残差差 1-2 个数量级。
+
+**根因转移**：梯度正确 → res1=0 不是梯度问题，是**残差累加/写回**问题。开 device 梯度后 HIP 走 device fused flux + 粘性 device 的 residual 组装，rho 方程残差被归零/跳过。候选：`AddInvFlux`/`AddVisFlux` 写回布局、residual view stride、或 device 路径下 eq0 的特判。这是下一步定位方向。
+
+当前唯一准确配置仍为 BASE。一次性 grad dump（force download + 每步覆盖写）已提交 638db7109/本次时机修正。
