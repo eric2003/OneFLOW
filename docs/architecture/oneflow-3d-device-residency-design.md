@@ -369,3 +369,20 @@ verifier 增强：ONEFLOW_XB_HIP_EXTRA_ENVS 通用透传（分号分隔 KEY=VALU
 **但数值 fail**：residual max_rel=2.44e-05（fail）、aero max_rel=3.69e-02（fail）。看 res.dat：HIP 臂 res1(rho) 恒为 0（0.000000e+00），其它残差量级差 1-2 个数量级；aero CL 1.7e-3 vs CPU 3.78e-2。这不是舍入误差，是残差计算本身错。
 
 怀疑：device 梯度/重构与已开的粘性/无粘 device hook 组合冲突（generation/绑定/buffer 覆盖），或 device 梯度结果与下游 kernel 读的 resident state 不一致。下一步 A/B：只开梯度/重构（关 VISFLUX + ALLOW_VISCOUS_BATCH）判断是否本身错还是组合错；本机无 HIP 需集群。
+
+## 梯度/重构 device 化 A/B 归因（昆山 128663742）
+
+4 组配置 × CPU/HIP 20 步，复用 binary 1c0f4fa5：
+
+| 配置 | HIP rc | gradient_kernel | 结果 |
+|---|---|---|---|
+| baseline（全 host） | 0 | 0 | 对齐 ✓ |
+| gradonly（仅梯度/重构+opt-in） | 1 | 0 | 崩溃：`ONEFLOW_ENABLE_UNS_HIP_GRADIENT=1 requires the HIP batch path` |
+| gradvis（+VISFLUX） | 1 | 0 | 同上崩溃 |
+| full（+allow viscous batch） | 0 | 3.03 | 跑起来但**数值错**：res20 5.018e-6→5.39e-6(7%)、CL 3.78e-2→1.7e-3 |
+
+**归因**：device 梯度/重构必须搭配 allow viscous batch（否则 UseHipGradient 抛异常）；但组合后数值分叉。之前"无粘 fused + 粘性 device"（不开梯度/重构）逐字节对齐，一开 device 梯度/重构就错 → **问题在 device 梯度/重构 kernel 输出本身**（dqdx/y/z 或 qf1/qf2 与 host 不一致），或与 fused flux 的 resident state 衔接。stage 显示 gradient_mirror 46ms/g_contract 31ms/recon_kernel 0.6ms。
+
+**性能警示**：即便数值修对，当前 device 梯度/重构引入大量同步（gradient_mirror 46ms + g_contract 31ms + v_download 116ms）> host 计算时间，性能未必提升。需 paired 性能作业确认。
+
+下一步：用 ONEFLOW_UNS_TRACE_FILE / ONEFLOW_UNS_LIMITER_DUMP 逐量对比 device vs host 的 dqdx/qf，定位 device 梯度 kernel 的具体差异。
