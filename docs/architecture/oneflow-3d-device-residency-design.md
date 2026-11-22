@@ -416,3 +416,19 @@ verifier 增强：ONEFLOW_XB_HIP_EXTRA_ENVS 通用透传（分号分隔 KEY=VALU
 - w(eq3) 在对称面 ghost 处最敏感 → 88万面符号翻转；动量 eq1/eq2 主流场差 1e-4~4e-4
 
 这与旗舰 host 定位的 w 问题、气动力 q[rc] 镜像问题**同源**：ghost q 的 device/host 不一致。验证假设：设 ONEFLOW_HIP_GHOST_Q_MIRROR=1 强制 host ghost=device ghost，看 qf 是否对齐（待跑）。
+
+## device 梯度根因（架构级，昆山 128664364 排除 ghost 假设）
+
+设 ONEFLOW_HIP_GHOST_Q_MIRROR=1 强制 host ghost=device ghost 后 qf 差异**逐位不变** → ghost q lazy mirror 假设被证伪。
+
+追查 CalcGradient（HipFluxBackend.hip:2355）：device kernel 的 q 来自 `RefreshResidentPrimitiveState(...view.q...)` 上传到 cellState。view.q = limf->q（UNsInvFlux.cpp:543），host 梯度读 uns_grad.q = GetSolutionField（UNsGrad.cpp:77），旗舰 NS 下同为 "q" 场。公式一致、场名一致，但：
+
+- device authoritative 下，host 的 q 场（limf->q/unsf.q）在 RK 推进后是**陈旧的 host mirror**，而 device cellState 是新 q
+- RefreshResidentPrimitiveState 用 owner->FieldGeneration() 判断 sync：若 sync==None，device 用 resident cellState（新），host 梯度读陈旧 host q
+- baseline（不开 device 梯度）两臂都用 host q → 一致；开 device 梯度后 HIP 用新 q、CPU 用旧 q → 分叉
+
+**这是 device authoritative 架构的固有问题**：要让 device 梯度与 host oracle 对齐，必须让两臂在梯度计算时读同一个 q 状态。vismodel=0 下 device 梯度能对齐，是因为该配置的 q 同步时机不同（显式 RK 每 stage 回传）；旗舰 LU-SGS 下 q 的 device authoritative 同步策略不同。
+
+**影响**：完整 HIP（device 梯度/重构）当前无法与 host oracle 对齐，除非解决 q 状态的双权威问题。这是切片 A.4 完整驻留必须解决的核心——当整个宏步都在 device 时，host oracle 概念本身要重新定义（用 device 结果作 oracle 或每步全字段同步）。
+
+**当前准确性状态**：BASE（无粘 fused + 粘性 device，梯度/重构/LU-SGS 在 host）逐字节对齐 —— 这是当前唯一准确的"部分 HIP"配置。
