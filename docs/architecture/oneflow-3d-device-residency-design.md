@@ -556,3 +556,11 @@ aero.dat 是 5 位有效数字，逐字节一致（物理输出对齐）；res.d
 累加顺序/公式/法向/SMALL/拓扑全部核对一致后，剩余近零差异收敛到编译期浮点语义：1D contract target 用 `-ffp-contract=off`（cmake/OneFLOWEulerContract.cmake:64），但主 `OneFLOW_RuntimeObjects`（含 HipFluxBackend.hip）没有。device clang 与 host gcc 各自 FMA 融合 `a*b+c`，差 ~1ulp，在近零相消处放大成 residual gate 卡在 7.6e-10。
 
 修复：给 OneFLOW_RuntimeObjects 加 `-ffp-contract=off`（host + HIP 都禁用 FMA，语义一致）。待昆山重编译验证 res 是否过 1e-12。若仍不过，则差异源不是 FMA，需回到累加顺序细查。
+
+## 隔离实验：差异在 device 梯度 kernel（昆山 128673423）
+
+用谓词修复 binary，只开 device 梯度 + host 重构（不开 RECONSTRUCTION）：residual 差异**仍是 7.593737e-10，与全开逐位相同**。→ 差异不在 device 重构 kernel，在 device 梯度 kernel。
+
+FMA 修复（2edbbe090，给 OneFLOW_RuntimeObjects 加 -ffp-contract=off）验证昆山 128672893：res 差异逐位不变（7.593737e-10）→ FMA 假设证伪，已回退。
+
+**证据总和**：q 一致（contract max_abs_diff=0）、梯度大分量一致（rel<3e-13）、公式/顺序/法向/SMALL/拓扑一致、FMA 无关、重构无关、粘性 kernel 机器零。但 residual 范数差 7.6e-10、aero 逐字节一致（0）。结论：差异是 device 梯度近零累加顺序（1e-13）经残差范数 sqrt(sum sq) 与 LU-SGS 迭代放大的结果，对气动力（物理输出）无影响。要 residual 严格 1e-12 需 device 梯度复现 host 的逐 face 累加——但顺序已核对一致，剩下是 ~1ulp 乘加差异在近零相消处的放大，需更细的指令级对齐。
