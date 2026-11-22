@@ -361,3 +361,11 @@ verifier 增强：ONEFLOW_XB_HIP_EXTRA_ENVS 通用透传（分号分隔 KEY=VALU
 - 不在范围：device 梯度/重构/flux/state-update、多 zone dq MPI、device SA 更新、粗网格/MG、device restart/IO。
 
 **可复用脚手架**：NsLusgsPolicy.h（纯 sweep 数学）、StageProfiler macro 行、NsResidentMacroStep.cpp:59-140、ResidentStateContract.h、旗舰 verifier、1D HipEulerBackend::Advance（ports/kunshan/oneflow_1d_hip/OneDEulerPersistent.hip:197-303）作为驻留模板。
+
+## 梯度/重构 device 化尝试：device 跑起来但数值错（昆山 128663459）
+
+放宽 vismodel==0 守卫（ONEFLOW_ALLOW_VISCOUS_HIP_GRADIENT opt-in）+ 开 ONEFLOW_ENABLE_UNS_HIP_GRADIENT/RECONSTRUCTION=1，旗舰 device 梯度/重构真跑起来：gradient_kernel 2.94、g_prep 13.36、g_contract 31.65、g_geom 9.38、recon_kernel 0.60、recon_bcq 4.17、gradient_mirror 46.07、v_kernel 1.80、HIP kernel 0.78 全非零。
+
+**但数值 fail**：residual max_rel=2.44e-05（fail）、aero max_rel=3.69e-02（fail）。看 res.dat：HIP 臂 res1(rho) 恒为 0（0.000000e+00），其它残差量级差 1-2 个数量级；aero CL 1.7e-3 vs CPU 3.78e-2。这不是舍入误差，是残差计算本身错。
+
+怀疑：device 梯度/重构与已开的粘性/无粘 device hook 组合冲突（generation/绑定/buffer 覆盖），或 device 梯度结果与下游 kernel 读的 resident state 不一致。下一步 A/B：只开梯度/重构（关 VISFLUX + ALLOW_VISCOUS_BATCH）判断是否本身错还是组合错；本机无 HIP 需集群。

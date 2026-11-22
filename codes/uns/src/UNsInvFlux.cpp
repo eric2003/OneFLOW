@@ -752,10 +752,19 @@ bool UNsInvFlux::UseHipGradient() const
     }
     if ( vis_model.vismodel != 0 )
     {
+        // The NS gradient kernel is the same five-equation Green-Gauss form
+        // for inviscid and viscous cases; SA working-variable gradients are
+        // separate fields and are not consumed here.  Allow viscous configs
+        // (e.g. the Roe/SA flagship) to opt in explicitly.
+        const char * allowViscous =
+            std::getenv( "ONEFLOW_ALLOW_VISCOUS_HIP_GRADIENT" );
+        if ( allowViscous != nullptr && allowViscous[ 0 ] == '1' )
+            return true;
         if ( ! HipProductionFeatureExplicitlyEnabled( feature ) )
             return false;
         throw std::runtime_error(
-            "ONEFLOW_ENABLE_UNS_HIP_GRADIENT=1 requires inviscid mode" );
+            "ONEFLOW_ENABLE_UNS_HIP_GRADIENT=1 requires inviscid mode "
+            "(set ONEFLOW_ALLOW_VISCOUS_HIP_GRADIENT=1 for Roe/SA)" );
     }
     // Cross-zone gradient needs the resident halo contract: the interface
     // exchange must publish neighbor owned-cell values into the state-owned
