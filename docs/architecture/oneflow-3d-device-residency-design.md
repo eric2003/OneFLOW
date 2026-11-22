@@ -652,3 +652,14 @@ HIP 同 binary(45ac0703) 同配置跑两次（5步），aero.dat/res.dat/turbres
 
 - **HIP vs HIP 重跑**：逐字节完全一致（确定性）✅
 - **HIP vs CPU 重跑**：气动力+aero.dat 逐字节一致；res.dat 末位差（max_rel 9.9e-16）；turbres 末位差(1.7e-16)；flow.dat level1(续算起点)机器精度一致；flow.dat level2 历史槽差 7.58e-3（=一步物理变化，不进 current）。**不是逐字节全同**，但所有物理输出在机器精度/容差内一致。
+
+## boundary BC device 化成功，200x 加速（昆山 128680850）
+
+去掉 HipBoundarySupported 的 vismodel 拒绝 + kernel 补 viscous 壁面语义后：
+- **boundary_calc_face_bc: 19876ms → 0**（消失）
+- **bnd_kernel 2.78 / bnd_ghost_copy 10.04 / boundary_device 89.19ms**（20步累计）→ device 真算
+- boundary 总开销 **~20000ms → ~90ms，约 220x**
+- **aero max_rel=0（完全对齐）**
+- residual max_rel=1.808e-12（eq6，超 1e-12 门禁 80%）
+
+**残差 1.8e-12 来源待查**：aero=0 说明壁面(type2)完全对。差异在非壁面 BC（symmetry/farfield/outflow）的 ghost/bcQ 末位。已排除 gamma（nTModel=1 常 gamma）、cref（两边 sqrt(gama_ref*pref/rref)）、BoundaryPower（exponent=1.4 不走 2.5 近似）。下一步逐 face dump device vs host ghost q 定位。
