@@ -589,3 +589,14 @@ dump 最终 host res 场（ONEFLOW_RES_FIELD_DUMP）两臂逐 cell 比对：
 间隔约 110500，规律性强 → 机翼壁面 3 个区域的第一层 cell（边界层邻域）。每条带最差 cell 的 sumabsdiff≈1.9e-7，eq1 cell 144000 相对差 12%。
 
 这与 qf trace（face 452808 lc=144000 等）、wall probe（壁面 u/v 差）完全对应——差异是**壁面边界层 cell 的 residual**，不是全流场。这些 cell 恰是 viscous flux 主导区（壁面剪切）。结合"device 梯度 kernel 是差异源""粘性 kernel 机器零清白"，方向指向：device 梯度在壁面邻域的**边界 ghost 梯度或壁面梯度修正**与 host 有 12% 差异，进而影响粘性通量→residual。之前 ghost 清零实验证伪了简单复制假设，但壁面梯度修正（CorrectGrad 用 q[rc]，或 SymmetryBc 梯度）仍未排除。
+
+## 根因 100% 确认 + 修复验证（昆山 128674614）
+
+假设验证：设 ONEFLOW_GRAD_FORCE_DOWNLOAD=1（强制 device 梯度回传 host）后：
+- **residual max_rel=6.78e-21（机器精度，pass）** —— 从 7.59e-10 到机器零
+- **aero max_rel=0（逐字节一致）**
+- verifier rc=0, CROSS_BACKEND_RESIDUAL_PASS
+
+**完整根因链**：旗舰开 device 重构 → downloadGradient = hipGradient && (!hipReconstruction || crossZoneGhostGradient) = **false**（单 zone、开重构）→ device 梯度 kernel 算完后**不回传 host dqdx** → 粘性通量（CalcVisFluxHip 的 view.dqdx=unsf.dqdx，及 host CalcVisFlux）读**陈旧 host 梯度** → 壁面边界层 cell 残差差 12% → res 范数差 7.6e-10。而气动力因主动 MirrorGradientCellsToHost 读到新梯度 → aero 对齐（解释了 aero=0 但 res 差）。
+
+**正式修复方向**：当 device 梯度激活且下游粘性/气动力需要 host 梯度时，必须强制 downloadGradient=true。不能靠诊断 env。修改 UNsInvFlux.cpp:358 的 downloadGradient 条件，旗舰粘性配置下回传。
