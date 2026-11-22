@@ -5396,6 +5396,22 @@ bool HipFluxBackend::ComputeResidualMetrics(
     return true;
 }
 
+bool HipFluxBackend::HasResidentGradient(
+    const void * cacheKey, int nEquations ) const
+{
+    if ( cacheKey == nullptr || nEquations <= 0 ) return false;
+    const auto binding = boundStates_.find( cacheKey );
+    if ( binding == boundStates_.end() ) return false;
+    auto * hipState = dynamic_cast< HipNs3DBackendState * >(
+        binding->second->BackendState() );
+    if ( hipState == nullptr ) return false;
+    const HipGradientStorage & storage = hipState->Gradient();
+    const int totalCells = storage.residentContract.Cells()
+        + storage.residentContract.GhostCells();
+    return totalCells > 0 && storage.cellGradient.Size()
+        >= static_cast< std::size_t >( totalCells ) * 3 * nEquations;
+}
+
 void HipFluxBackend::MirrorGradientCellsToHost(
     const void * cacheKey,
     int nEquations,

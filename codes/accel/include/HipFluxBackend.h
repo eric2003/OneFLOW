@@ -559,6 +559,13 @@ public:
         Real * const * dqdy,
         Real * const * dqdz );
 
+    // True when a resident device gradient exists for the bound state. Host
+    // readers that may run on configs where the device gradient stage is not
+    // active (e.g. flagship LU-SGS/Roe/SA) must check this before calling
+    // MirrorGradientCellsToHost, which treats a missing resident gradient as a
+    // hard contract violation.
+    bool HasResidentGradient( const void * cacheKey, int nEquations ) const;
+
     // Pack the resident gradient at the interface send cells into a
     // [component][equation][face] host buffer.  The host then copies it into
     // the interface send storage in exchange order, so the endpoint cell

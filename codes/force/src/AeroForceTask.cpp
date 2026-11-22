@@ -261,17 +261,25 @@ void CalcAeroForce(int idump_pres)
 			grid, nscom.nEqu, aeroCells.data(),
 			static_cast< int >( aeroCells.size() ), qComp, true );
 
-		Real * gx[ 5 ] = {};
-		Real * gy[ 5 ] = {};
-		Real * gz[ 5 ] = {};
-		for ( int equation = 0; equation < nscom.nEqu; ++ equation )
+		// The gradient mirror is a hard contract (it throws when no resident
+		// gradient exists). On flagship configs where the device gradient
+		// stage is not active, the host gradients are already authoritative,
+		// so skip the mirror instead of failing.
+		if ( HipFluxBackend::Shared().HasResidentGradient(
+				 grid, nscom.nEqu ) )
 		{
-			gx[ equation ] = ( *dqdx )[ equation ].data();
-			gy[ equation ] = ( *dqdy )[ equation ].data();
-			gz[ equation ] = ( *dqdz )[ equation ].data();
+			Real * gx[ 5 ] = {};
+			Real * gy[ 5 ] = {};
+			Real * gz[ 5 ] = {};
+			for ( int equation = 0; equation < nscom.nEqu; ++ equation )
+			{
+				gx[ equation ] = ( *dqdx )[ equation ].data();
+				gy[ equation ] = ( *dqdy )[ equation ].data();
+				gz[ equation ] = ( *dqdz )[ equation ].data();
+			}
+			HipFluxBackend::Shared().MirrorGradientCellsToHost(
+				grid, nscom.nEqu, aeroCells, gx, gy, gz );
 		}
-		HipFluxBackend::Shared().MirrorGradientCellsToHost(
-			grid, nscom.nEqu, aeroCells, gx, gy, gz );
 	}
 	// Also refresh the host q mirror + derived gamma/temperature fields for
 	// non-force host readers; kept for parity with the pre-existing path.
