@@ -536,3 +536,17 @@ RES_DUMP（在 CalcAndAddReconstructedFaceFlux 前后，cell 254656）：
 - device 真算：HIP kernel 0.99 + gradient_kernel 6.96 + v_kernel 1.86 全非零
 
 **结论**：谓词不一致（host res 普通步收不到无粘）是气动力 21% 偏差的主因，已修复。剩余 7.6e-10 residual 差异（eq5）待查——可能是近零残差归一化放大，或 BUG#1（device residual 缺粘性）对 residual metrics 的残留影响。下一步查 res eq5 差异来源。
+
+## 粘性 selfcheck：机器零差异，kernel 清白（昆山 128672326）
+
+旗舰 full 配置 + ONEFLOW_VISCOUS_SELFCHECK=1（复用谓词修复 binary 05c2467）：
+
+- result=FAIL，但所有差异在 eq=4（能量）的**机器零量级**：boundary face absdiff=7.16e-42、interior absdiff=1.27e-36，`nonfinite_device=0 nonfinite_host=0`
+- rel=0.195/2.0 是近零值除法的假象（169d59892 加固自检正是为区分此情况）
+- 结论：粘性 device kernel 在物理有意义量级上逐位一致，**不是 residual 7.6e-10 差异的来源**
+
+## 剩余 residual 7.6e-10 差异的性质
+
+对比 BASE（不 device 梯度/重构，res max_rel 6.78e-21）与 FULL（开 device 梯度/重构，res 7.6e-10）：差异来自 device 梯度/重构。梯度场 dump 证明大梯度一致（rel<3e-13）、近零差 1e-13；qf trace 显示近零 w 符号翻转。这些近零差异经 LU-SGS 迭代 + SA 耦合放大到残差范数 2.8e-7 相对差。属浮点累加顺序差异（device 按 cell face-list vs host 按 global face 累加），是 GPU port 固有特性，与加速目标冲突（强制逐位复现 host 顺序就没加速了）。
+
+aero.dat 是 5 位有效数字，逐字节一致（物理输出对齐）；res.dat 高精度输出（max_digits10）才看得见 2.8e-7。**准确性验收（气动力）已达成**。
