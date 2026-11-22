@@ -626,3 +626,18 @@ dump 最终 host res 场（ONEFLOW_RES_FIELD_DUMP）两臂逐 cell 比对：
 - **level2（历史层）max_abs=7.58e-3、max_rel=115%** ❌ 实质差异
 
 **根因**：`HipSkipHostHistoryShiftRequested()`（HipProductionPolicy.h:297）**默认 true**（env 未设返回 true）→ HIP 在 device authoritative 下跳过 UpdateUnsteadyFlow 的历史层 shift，而 CPU 每步 shift（level2=上一步场）。这是性能优化（历史层仅 restart 读）。验证：设 ONEFLOW_HIP_SKIP_HOST_HISTORY_SHIFT=0 强制 shift。
+
+## flow.dat level2 差异定论：不影响 restart 续算（昆山 128676991 + reader 分析）
+
+`ONEFLOW_HIP_SKIP_HOST_HISTORY_SHIFT=0` 强制 shift 后 level2 仍 7.579e-3（逐位不变）→ 证伪"skip shift"假设。
+
+真正机制：Restart::Dump（Restart.cpp:204）在 `NsDeviceAuthoritativeFlowEnabled()` 时调 `InitUnsteady`，把所有历史层重建成当前场（level2=level1），覆盖 shift 结果，与 shift env 无关。CPU 保留真实上一步历史。
+
+**关键：对 restart 续算无影响**。reader（ReadUnsteady）用 `GetFlow(1)` 重建 current（`SetField(flow[0], flow[1])`），level2+ 只读入不用于重建 current。flow.dat level1（=续算起点）两臂 max_abs=6.66e-16、max_rel=2.5e-12（机器精度）。level2 的 7.58e-3 只是历史缓冲，不进 current。
+
+**三项最终结论**：
+1. visual.dat：2637 行差异全机器零（1e-37~1e-39 倍数），物理对齐 ✅
+2. turbflow.dat：4 层对齐（末位 1.4e-17）✅
+3. flow.dat：level1（续算起点）机器精度对齐；level2 历史缓冲差异不影响续算 ✅
+
+**这是设计差异不是 bug**：HIP 认为 steady 下历史层是派生状态（仅 restart 读、reader 从 level1 重建 current），重建以保证文件自洽；CPU 保留历史。若要与 CPU 文件逐字节相同，需在 Dump 前不做 InitUnsteady 而保留 shift——但当前 env 无法切换，且无物理必要。
