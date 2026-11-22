@@ -838,14 +838,27 @@ bool UNsInvFlux::UseHipDeviceReconstruction() const
 bool UNsInvFlux::UseHipDeviceStateUpdate() const
 {
     const char * feature = "ONEFLOW_ENABLE_UNS_HIP_STATE_UPDATE";
+    const bool explicitRequest =
+        HipProductionFeatureExplicitlyEnabled( feature );
     if ( ! HipProductionFeatureEnabled( feature ) ) return false;
     if ( ! this->UseHipDeviceReconstruction() )
     {
-        if ( ! HipProductionFeatureExplicitlyEnabled( feature ) )
-            return false;
+        if ( ! explicitRequest ) return false;
         throw std::runtime_error(
             "ONEFLOW_ENABLE_UNS_HIP_STATE_UPDATE=1 requires HIP "
             "device reconstruction" );
+    }
+    // Keep this predicate in sync with UNsUpdate::UseHipDeviceStateUpdate.
+    // The flagship (vismodel!=0) cannot run the device state update, so the
+    // residual must be downloaded to the host every step: otherwise the host
+    // res field never receives the device-computed inviscid flux (only the
+    // viscous AddF2CField lands there), and LU-SGS / residual output / aero
+    // read a partial host residual whose continuity row stays zero.
+    if ( vis_model.vismodel != 0 )
+    {
+        if ( ! explicitRequest ) return false;
+        throw std::runtime_error(
+            "HIP state update does not support a viscous or turbulence model" );
     }
     return true;
 }

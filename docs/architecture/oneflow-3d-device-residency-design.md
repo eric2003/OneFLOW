@@ -503,3 +503,36 @@ RES_DUMP（在 CalcAndAddReconstructedFaceFlux 前后，cell 254656）：
 **修复方向**：粘性 device 路径（CalcVisFluxHip 已算出 device visflux）需要把粘性通量累加进 device `storage->residual`，而不是只在 host AddF2CField。即让 `AddVisFlux` 在 HIP 路径下走 device 累加（类似 GatherFaceFluxEulerKernel 的 scatter），使 device residual = 无粘 + 粘性，与 host oracle 一致。这是缺失的一环。
 
 当前唯一准确配置仍为 BASE（其残差走 host，无粘+粘性都在 host res 累加，一致）。
+
+## 全面排查：不止缺粘性一块（agent 审计 + 三谓词对比）
+
+用户指出"大段移植不该缺一块，要全面排查"。全面审计 residual 生命周期，发现**双向割裂**：
+
+**割裂 A（已确认 BUG#1）**：device residual 缺粘性。AddVisFlux（UNsVisFlux.cpp:527）只 host AddF2CField，device storage->residual 只有无粘。
+
+**割裂 B（新发现，更关键）**：普通步 host res 收不到无粘通量。
+- `downloadResidual = !UseHipDeviceStateUpdate() || needFlux || dumpDue`（UNsInvFlux.cpp:1010）
+- 三个 UseHipDeviceStateUpdate 谓词不一致：
+  - `UNsInvFlux::UseHipDeviceStateUpdate()`（:838）：只查 feature + UseHipDeviceReconstruction，**无 vismodel 守卫** → 旗舰（开了重构）返回 **true**
+  - `UNsUpdate::UseHipDeviceStateUpdate()`（:156-198）：有 `vis_model.vismodel != 0 → false` 守卫 → 旗舰返回 **false**
+  - `ULhs::UseHipDeviceStateUpdate()`（ULhs.cpp:50）：也无 vismodel 检查
+- 旗舰普通步（非 trace、非 dump）：UNsInvFlux 版 true → `downloadResidual=false` → device 无粘通量**不回传 host res**
+- 这解释了 RES_DUMP 作业（设了 ONEFLOW_UNS_TRACE_FILE → needFlux=true → download=true）res 正常，但普通 verifier 作业（无 trace）res eq0=0 的差异
+
+**修复顺序**：
+1. 统一三谓词：`UNsInvFlux::UseHipDeviceStateUpdate()` 加 vismodel 守卫（与 UNsUpdate 一致）→ 旗舰 downloadResidual=true → host res 每步收到无粘
+2. 此时 host res = 无粘(device算回传) + 粘性(host AddF2CField)，与 CPU oracle 一致；LU-SGS/residual输出/气动力都读 host res → 应对齐
+3. device residual 缺粘性（BUG#1）对旗舰是"死代码"——因为 ResidualTask 的 ComputeResidualMetrics 需要 residualMetricsValid（只在 ScaleCurrentResidual 设置，旗舰无 CALC_LHS 不触发），实际走 host loop 读 host res。所以修好#1后 BUG#1 可能不影响旗舰，但为 device 驻留将来仍需补。
+
+先修谓词不一（割裂B），重编译验证。可复用 device 侧向 residual scatter 内核：GatherFaceFluxEulerKernel（HipFluxBackend.hip:1697，AddF2C 语义）。
+
+## 谓词统一修复成功一大步（昆山 128671400）
+
+修复 UNsInvFlux::UseHipDeviceStateUpdate() 加 vismodel 守卫（与 UNsUpdate 一致）：旗舰普通步 downloadResidual=true，host res 每步收到 device 无粘通量，粘性由 host AddF2CField 累加 → host res = 无粘+粘性完整。
+
+结果（旗舰 full 配置，不开 trace，20步）：
+- **aero pass：max_rel=0（逐字节一致）** —— 从 21% 偏差到完全对齐
+- residual max_rel=7.59e-10（fail，容差 1e-12），差在 eq5；从 res1=0 到接近一致
+- device 真算：HIP kernel 0.99 + gradient_kernel 6.96 + v_kernel 1.86 全非零
+
+**结论**：谓词不一致（host res 普通步收不到无粘）是气动力 21% 偏差的主因，已修复。剩余 7.6e-10 residual 差异（eq5）待查——可能是近零残差归一化放大，或 BUG#1（device residual 缺粘性）对 residual metrics 的残留影响。下一步查 res eq5 差异来源。
