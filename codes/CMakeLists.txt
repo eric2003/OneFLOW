@@ -475,6 +475,18 @@ target_compile_features ( OneFLOW_RuntimeObjects
         ${PRJ_COMPILE_FEATURES}
 )
 
+# Disable fused multiply-add in both host and HIP translation units so the
+# device Green-Gauss / flux kernels reproduce the host oracle bit-for-bit on
+# near-zero cancellations.  Host gcc and device clang otherwise fuse
+# `a*b+c` into an FMA, which differs by ~1 ulp; on symmetry-plane w and other
+# near-zero residuals that 1-ulp gap survives the whole solve and keeps the
+# cross-backend residual gate from reaching 1e-12.  The 1D HIP contract target
+# already uses this flag (cmake/OneFLOWEulerContract.cmake:64).
+target_compile_options ( OneFLOW_RuntimeObjects
+    PRIVATE
+        -ffp-contract=off
+)
+
 target_compile_definitions ( OneFLOW_RuntimeObjects
     PUBLIC
         ${PRJ_COMPILE_DEF}

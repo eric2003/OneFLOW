@@ -550,3 +550,9 @@ RES_DUMP（在 CalcAndAddReconstructedFaceFlux 前后，cell 254656）：
 对比 BASE（不 device 梯度/重构，res max_rel 6.78e-21）与 FULL（开 device 梯度/重构，res 7.6e-10）：差异来自 device 梯度/重构。梯度场 dump 证明大梯度一致（rel<3e-13）、近零差 1e-13；qf trace 显示近零 w 符号翻转。这些近零差异经 LU-SGS 迭代 + SA 耦合放大到残差范数 2.8e-7 相对差。属浮点累加顺序差异（device 按 cell face-list vs host 按 global face 累加），是 GPU port 固有特性，与加速目标冲突（强制逐位复现 host 顺序就没加速了）。
 
 aero.dat 是 5 位有效数字，逐字节一致（物理输出对齐）；res.dat 高精度输出（max_digits10）才看得见 2.8e-7。**准确性验收（气动力）已达成**。
+
+## 剩余 1e-12 门禁：FMA 浮点语义修复尝试
+
+累加顺序/公式/法向/SMALL/拓扑全部核对一致后，剩余近零差异收敛到编译期浮点语义：1D contract target 用 `-ffp-contract=off`（cmake/OneFLOWEulerContract.cmake:64），但主 `OneFLOW_RuntimeObjects`（含 HipFluxBackend.hip）没有。device clang 与 host gcc 各自 FMA 融合 `a*b+c`，差 ~1ulp，在近零相消处放大成 residual gate 卡在 7.6e-10。
+
+修复：给 OneFLOW_RuntimeObjects 加 `-ffp-contract=off`（host + HIP 都禁用 FMA，语义一致）。待昆山重编译验证 res 是否过 1e-12。若仍不过，则差异源不是 FMA，需回到累加顺序细查。
