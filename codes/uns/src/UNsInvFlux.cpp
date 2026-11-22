@@ -360,7 +360,14 @@ void UNsInvFlux::CalcInvFace()
         const bool downloadGradient =
             ( forceDownload != nullptr && forceDownload[ 0 ] == '1' )
             || ( hipGradient && ( ! hipReconstruction || crossZoneGhostGradient )
-            && ! ( packedExchange && HipPackedGradientExchangeEnabled() ) );
+            && ! ( packedExchange && HipPackedGradientExchangeEnabled() ) )
+            // A viscous case reads the host cell gradients when assembling the
+            // viscous flux (CalcVisFluxHip view.dqdx = unsf.dqdx, and the host
+            // CalcVisFlux path).  With device reconstruction active on a single
+            // zone the first clause above is false, leaving those host gradients
+            // stale and the wall-layer residual ~12% off.  Download the resident
+            // gradient for viscous configs so the reader sees the current value.
+            || ( hipGradient && vis_model.vismodel != 0 );
         // With a cross-zone device reconstruction the host mirror is only used
         // by the host interface exchange, so mirror just the boundary-adjacent
         // owned gradient instead of downloading the whole field.  On the
