@@ -117,7 +117,12 @@ normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失�
 
 **SA 全链路移植（提交 `83309178a`，证据 `128693499-saport` / `128694886-saport`）**：梯度、显式更新、隐式谱、边界、LU-SGS 五段全部上设备，9 个 `ONEFLOW_ENABLE_UTURB_HIP_*` 并入自动白名单（backend=HIP 即生效，显式 =0 仍可单关）。**数值与移植前逐位相同**——aero 仍 0，主控残差 `1.808152e-12`、湍流残差 `8.168e-14` 与改动前完全一致，证明移植等价。
 
-**性能（20 步单 rank，去 2x 重复计数后的真实值）**：`update_residuals` 33.8s → 18.5s，`calc_boundary` 2.1s → 1.1s，端到端 75.16s → **35.19s**。通量层 7.9x，boundary device ~220x。
+**性能（20 步单 rank）**：`update_residuals` 33.8s → 18.5s，`calc_boundary` 2.1s → 1.1s。端到端**同一次作业两臂对照**为 77.09s → 35.19s（`128693499`，节点 b13r2n04）。通量层 7.9x，boundary device ~220x。
+
+**性能数据的三条纪律（本轮各踩过一次）**：
+1. **加速比只能取自同一次作业的两臂。** 节点间波动可达 8%：同代码同配置 20 步墙钟 b13r2n04 为 35.19s、b13r3n03 为 38.06s，且两臂同步变慢（CPU 77.09→83.42s）。跨节点比值是假的。
+2. **`tasks.tsv` 的时长是真实值的 2 倍**（`CmxTask.cpp:483` 与 `Command.cpp:295` 各记一次）；`stage.tsv` 才是单次。混用会得出错误加速比。
+3. **LU-SGS 用同节点对照仍是慢的**：CPU 臂 43.05s vs HIP 臂 45.91s（`128693499`，b13r2n04）。早先写的 "host 40.1s" 来自另一节点（b13r2n09），不可直接比。
 
 **三个本轮踩到的坑（都已修，写在这里省下一轮往返）**：
 1. `HipTurbulenceBackend::CalcGradient` / `Update` **把 host 指针直接传给 kernel**——它们从一开始就没被调用过，所以这个缺陷从未暴露。设备入口必须自己上传/回传。
@@ -126,9 +131,9 @@ normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失�
 
 **待办（详见 Living TODO B.4.x）**：
 1. **B.4.1 boundary residual 1.808e-12**：aero 已 0。**已确认与 SA 无关**（SA 移植前后逐位相同）。下一步查 `NsBcSolver::SymmetryBc` 的 ghost 反射语义——host 先 `primt1=prims1` 再把速度覆盖成反射值，device kernel 按 "ghost=owner" 实现，`ab7a40fa8` 的 commit message 误读了 host。
-2. **B.4.4 LU-SGS 实测比 host 慢**：40.1s → 45.9s（首版）→ 44.4s（去掉无用上传后）。48×48×128 有约 221 层依赖、每层约 1300 单元，每步 442 次启动的开销吃掉并行收益。当前按用户决定保留启用，是下一个大项。
+2. **B.4.4 LU-SGS 实测比 host 慢**：同节点对照 CPU 43.05s vs HIP 45.91s（首版）；去掉无用上传后 HIP 44.4s，仍慢。48×48×128 有约 221 层依赖、每层约 1300 单元，每步 442 次启动的开销吃掉并行收益。当前按用户决定保留启用，是下一个大项。
 
-**门禁口径陷阱（重要）**：`f2-main-solver-cross-backend-residual.sh:249` 的 rel 是 `|d|/max(1,|a|,|b|)`，残差量级 1e-6，所以 "1e-12 门禁" 实际是 **1e-6 相对**。`residual 1.808e-12 fail` 的真实相对差是 **5.3e-7**，不是"只差末位"。
+**门禁口径陷阱（重要）**：`f2-main-solver-cross-backend-residual.sh:246` 的 rel 是 `|d|/max(1,|a|,|b|)`，残差量级 1e-6，所以 "1e-12 门禁" 实际是 **1e-6 相对**。`residual 1.808e-12 fail` 的真实相对差是 **5.3e-7**，不是"只差末位"。
 
 **HIP 开关语义**（B.4.3 已收口）：白名单自动开含 UNS 七项 + UTURB 九项；显式 =1 可覆盖（ALLOW_VISCOUS_HIP_BATCH/GRADIENT）；`HIP_SKIP_*` 默认 0 关闭。
 
