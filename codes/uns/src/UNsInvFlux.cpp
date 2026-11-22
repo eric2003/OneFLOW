@@ -833,7 +833,16 @@ bool UNsInvFlux::UseHipBatchAdapter() const
     request.laxFriedrichsScheme =
         nscom.ischeme == ISCHEME_LAX_FRIEDRICHS;
     request.roeScheme = nscom.ischeme == ISCHEME_ROE;
-    request.viscousModelActive = vis_model.vismodel != 0;
+    // The fused flux kernel computes only the inviscid Riemann flux; the
+    // viscous flux is assembled separately by UNsVisFlux.  On a viscous case
+    // the no-flux device path is disabled by default.  Explicit opt-in lets
+    // the flagship (Roe/SA) run its inviscid flux on the device while the
+    // viscous term keeps its own (host or HIP-hook) path.
+    const char * allowViscous =
+        std::getenv( "ONEFLOW_ALLOW_VISCOUS_HIP_BATCH" );
+    request.viscousModelActive =
+        vis_model.vismodel != 0
+        && ! ( allowViscous != nullptr && allowViscous[ 0 ] == '1' );
     request.hasInterfaceExchange =
         ZoneState::nZones > 1 || ZoneState::nLocal > 1;
     request.backendSupportsInterfaceExchange =

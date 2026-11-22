@@ -320,3 +320,17 @@ vismodel=0 显式 RK3 Lax 单zone 20 步验证（DCU 真算：HIP kernel 非零�
 **镜像时机确认**（agent3）：aero 在所有 RK stage 后读（NsSolverImp.cpp:425-428 → ForceOk），梯度是最后 stage 开始时的值（一 stage lag，RK 固有，非 bug）；显式镜像无额外 lag、无缓存滞后（MirrorGradientCellsToHost 每次重打包）。单 zone packedExchange=false，on-demand 梯度镜像从不触发，只有显式镜像工作 → 8618ecb26 的修复必要且正确。
 
 **通盘方案**：把气动力输入镜像收敛为单一 helper `MirrorAeroInputsToHost()`（q owner+rc ghost、dq owner、统一 gate），新增 backend API 支持按任意 cell id（含 ghost）镜像 q。待用户确认架构范围后实施。
+
+## 旗舰 DCU 真算成功（昆山 128662638，binary 6deb5225）
+
+用户要求"真刀真枪"：旗舰 vismodel=3 之前被 capability 守卫挡住、DCU 没真算。实施最小 opt-in：`ONEFLOW_ALLOW_VISCOUS_HIP_BATCH=1` 时把 request.viscousModelActive 视为 false，放行无粘 fused flux device 路径（粘性仍走 UNsVisFlux 自己的路径，二者解耦——CalcInvFluxBatch 只算无粘 Riemann flux）。
+
+旗舰 verifier（ONEFLOW_XB_PROFILE=flagship + HIP_ALLOW_VISCOUS_BATCH=1）验证：
+
+- **HIP kernel 25.4773**（stage breakdown，非零）→ 无粘 fused flux 真正在 DCU 执行
+- residual pass：max_rel=6.78e-21（机器精度）
+- aero pass：max_rel=0（逐字节一致）
+- verifier rc=0, CROSS_BACKEND_RESIDUAL_PASS
+- 配置确认：vismodel=3, Roe(ischeme=1), LU-SGS(time_integral=2), TurbSolver 保留
+
+**里程碑**：旗舰 3D 工作流的无粘通量真正在 DCU 上计算且与 CPU 数值等价。这是 A.4 设备驻留的一个真实切片（无粘 fused flux device 化），比之前 host 路径验证有本质进展。剩余：梯度/重构/LU-SGS 宏步循环仍在 host（UseHipGradient 有独立 vismodel==0 守卫），完整设备驻留是后续切片。verifier 增强：HIP_EXTRA env 透传 + stage breakdown 输出（HIP kernel 非零作为真算证据）。

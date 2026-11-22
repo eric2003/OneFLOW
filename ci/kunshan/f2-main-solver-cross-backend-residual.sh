@@ -165,6 +165,10 @@ run_backend() {
         # High-precision residual rows: the normal writer rounds too much for a
         # 1e-12 comparison.
         export ONEFLOW_RESIDUAL_TEST_OUTPUT=1
+        # Per-stage timing breakdown: on the HIP arm a non-zero "HIP kernel"
+        # row is the evidence that the device path actually executed rather
+        # than silently falling back to the host.
+        export ONEFLOW_STAGE_BREAKDOWN_FILE="$ONEFLOW_XB_RUN_ROOT/$tag-stage.tsv"
         if [ "$mode" = HIP ]; then
             export ONEFLOW_ACCEL_BACKEND=HIP
             # The CPU run always keeps the legacy host exchange so the
@@ -183,6 +187,9 @@ run_backend() {
             fi
             if [ -n "${ONEFLOW_XB_HIP_SKIP_UNUSED_INTERFACE:-}" ]; then
                 export ONEFLOW_HIP_SKIP_UNUSED_INTERFACE="$ONEFLOW_XB_HIP_SKIP_UNUSED_INTERFACE"
+            fi
+            if [ -n "${ONEFLOW_XB_HIP_ALLOW_VISCOUS_BATCH:-}" ]; then
+                export ONEFLOW_ALLOW_VISCOUS_HIP_BATCH="$ONEFLOW_XB_HIP_ALLOW_VISCOUS_BATCH"
             fi
             export HIP_VISIBLE_DEVICES="${HIP_VISIBLE_DEVICES:-0}"
             export ROCR_VISIBLE_DEVICES="${ROCR_VISIBLE_DEVICES:-0}"
