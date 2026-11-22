@@ -111,7 +111,7 @@ normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失�
 
 ## 4. 当前任务指针（每次会话就地更新）
 
-**2026-11-22 收口点（覆盖下方所有旧记录）**。分支 `dev` HEAD `83309178a`，工作树干净。SSH 仍失效，只用 OpenAPI 提交作业。
+**2026-11-22 收口点（覆盖下方所有旧记录）**。分支 `dev` HEAD `4dac26c68`，工作树干净，已推送 `origin/dev`。`master` 已三端同步到 upstream `a307becac` 并并入 `dev`；该合并只含 R1 运行时/几何资产内容，未触及 `codes/accel`、`codes/uturb`、`ci/kunshan`，**但合并后尚未重跑构建与 gate**。GitHub 的 SSH 可用（`ssh -T git@github.com` 认证为 `lql341`，用于 push）；昆山集群的 `ssh kseshell` **仍失效**（`Permission denied (publickey)`，2026-11-22 复验），集群侧一律走 OpenAPI。
 
 **旗舰 m6wingroe_sa 的完整 GPU 通量路径与完整 SA 链路均已设备化并通过集群验证**（单 rank，20 步）。aero.dat 逐字节一致（max_rel=0），flow.dat level1 `2.7e-15`，visual.dat 全 1e-37 机器零，HIP 重跑确定性已证。flow.dat level2 历史槽差 7.58e-3 = 一步物理变化，reader 用 level1 重建，不影响续算。
 
