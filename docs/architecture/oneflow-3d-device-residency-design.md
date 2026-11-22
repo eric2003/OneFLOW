@@ -578,3 +578,14 @@ dump 最终 host res 场（ONEFLOW_RES_FIELD_DUMP）两臂逐 cell 比对：
 **为什么 aero=0 而 res 范数有差异**：aero 读 q+梯度（已逐位对齐）；res 范数读 residual 场，而 residual 是 RHS - 更新量的差，收敛后是 ±机器零，其符号抖动影响范数但不影响物理输出。
 
 **更正（重要）**：上面"全机器零、无物理意义"的判断是错的——被近零相对差（rel=2）主导了排序。按**绝对差**重算：约 9270 个 cell 的 |res|>1e-10，max|res| 达 1e-4~6e-4（非机器零）。eq1 cell 144000 CPU=-7.329e-07 vs HIP=-8.200e-07（绝对差 8.7e-8、相对 12%）；eq4 cell 254663 差 8.7e-8。这些是壁面附近 cell（254656/36864 区域），与之前 qf trace 的 eq1/eq2 差 1e-4、wall probe 的 u/v 差同源。**存在真实数值差异，必须继续定位，不是门禁口径问题。**
+
+## 差异 cell 空间分布（昆山 128673810 续）
+
+按绝对差排序，约 3027 个 cell 的跨方程 sumabsdiff>1e-8，集中在**3 个连续条带**：
+- 36932-37006（75 cell）
+- 147457-147530（74 cell）
+- 254663-254735（73 cell）
+
+间隔约 110500，规律性强 → 机翼壁面 3 个区域的第一层 cell（边界层邻域）。每条带最差 cell 的 sumabsdiff≈1.9e-7，eq1 cell 144000 相对差 12%。
+
+这与 qf trace（face 452808 lc=144000 等）、wall probe（壁面 u/v 差）完全对应——差异是**壁面边界层 cell 的 residual**，不是全流场。这些 cell 恰是 viscous flux 主导区（壁面剪切）。结合"device 梯度 kernel 是差异源""粘性 kernel 机器零清白"，方向指向：device 梯度在壁面邻域的**边界 ghost 梯度或壁面梯度修正**与 host 有 12% 差异，进而影响粘性通量→residual。之前 ghost 清零实验证伪了简单复制假设，但壁面梯度修正（CorrectGrad 用 q[rc]，或 SymmetryBc 梯度）仍未排除。
