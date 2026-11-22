@@ -432,3 +432,14 @@ verifier 增强：ONEFLOW_XB_HIP_EXTRA_ENVS 通用透传（分号分隔 KEY=VALU
 **影响**：完整 HIP（device 梯度/重构）当前无法与 host oracle 对齐，除非解决 q 状态的双权威问题。这是切片 A.4 完整驻留必须解决的核心——当整个宏步都在 device 时，host oracle 概念本身要重新定义（用 device 结果作 oracle 或每步全字段同步）。
 
 **当前准确性状态**：BASE（无粘 fused + 粘性 device，梯度/重构/LU-SGS 在 host）逐字节对齐 —— 这是当前唯一准确的"部分 HIP"配置。
+
+## device 梯度差异真正根因：边界 ghost 梯度处理不同（昆山 128664903 + 代码对比）
+
+决定性证据：ONEFLOW_UNS_HIP_RESIDENT_CONTRACT=1 报告 status=PASS、mismatched_values=0、max_abs_diff=0 —— device cellState 与 host q **逐位一致**，排除 q 双权威假设（此前判断修正）。但 qf 差异逐位不变。所以输入 q 相同、公式相同，差异在 kernel 实现对边界 ghost 梯度的处理：
+
+- host CalcGradGGCellWeight（UGrad.cpp:89 dqdx=0；:113 `if (fId<nBFaces) continue`）：边界面不累加 ghost 梯度 → **ghost 梯度保持 0**
+- device GradientCellKernel 对所有 face 累加后，GradientCopyBoundaryKernel（HipFluxBackend.hip:2478）把 ghost 梯度**复制成 left cell 梯度**（非 0）
+
+重构 CalcFaceValue 用 dqdx[rc]（ghost 侧）算 qf2 → host 用 0、device 用 left 值 → 差异；w 在对称面最敏感 → eq3 88万面符号翻转、eq1/eq2 差1e-4~4e-4。
+
+**修复方向**：让 device 边界 ghost 梯度与 host 一致（保持 0，而非复制 left）。这是纯 kernel 实现对齐，不牵涉 q 状态同步。待实施验证。
