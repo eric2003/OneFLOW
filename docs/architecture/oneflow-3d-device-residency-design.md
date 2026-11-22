@@ -443,3 +443,11 @@ verifier 增强：ONEFLOW_XB_HIP_EXTRA_ENVS 通用透传（分号分隔 KEY=VALU
 重构 CalcFaceValue 用 dqdx[rc]（ghost 侧）算 qf2 → host 用 0、device 用 left 值 → 差异；w 在对称面最敏感 → eq3 88万面符号翻转、eq1/eq2 差1e-4~4e-4。
 
 **修复方向**：让 device 边界 ghost 梯度与 host 一致（保持 0，而非复制 left）。这是纯 kernel 实现对齐，不牵涉 q 状态同步。待实施验证。
+
+## ghost 梯度清零修复被证伪（昆山 128665090）
+
+假设 device GradientCopyBoundaryKernel 复制 ghost 梯度（非 0）vs host 保持 0 是差异源 → 改 kernel 让 ghost 梯度清零（带 ONEFLOW_HIP_GRADIENT_GHOST_COPY_LEGACY opt-in）。128665090 验证：res/aero 差异与修复前**逐位相同**（2.438676e-05 / 3.690520e-02）→ 假设证伪，已 git checkout 回退。
+
+**证据链现状**（device 梯度 qf 差异）：q 相同（contract PASS max_abs_diff=0）、公式相同、ghost 梯度处理改了无效、只开梯度就错。剩余候选：face→cell 邻接数组（cellFaceOffsets/cellFaceIds）与 host 拓扑不一致，或浮点结合顺序（device 按 cell 遍历 face list 累加 vs host 按 face 累加到 lc/rc）。下一步需 dump 整个 dqdx 场逐 cell 比对 device vs host（受 env 控制的新 instrument + 重编译）。
+
+当前唯一准确配置仍为 BASE（无粘 fused + 粘性 device，梯度/重构/LU-SGS host）。
