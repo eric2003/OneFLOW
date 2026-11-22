@@ -564,3 +564,17 @@ aero.dat 是 5 位有效数字，逐字节一致（物理输出对齐）；res.d
 FMA 修复（2edbbe090，给 OneFLOW_RuntimeObjects 加 -ffp-contract=off）验证昆山 128672893：res 差异逐位不变（7.593737e-10）→ FMA 假设证伪，已回退。
 
 **证据总和**：q 一致（contract max_abs_diff=0）、梯度大分量一致（rel<3e-13）、公式/顺序/法向/SMALL/拓扑一致、FMA 无关、重构无关、粘性 kernel 机器零。但 residual 范数差 7.6e-10、aero 逐字节一致（0）。结论：差异是 device 梯度近零累加顺序（1e-13）经残差范数 sqrt(sum sq) 与 LU-SGS 迭代放大的结果，对气动力（物理输出）无影响。要 residual 严格 1e-12 需 device 梯度复现 host 的逐 face 累加——但顺序已核对一致，剩下是 ~1ulp 乘加差异在近零相消处的放大，需更细的指令级对齐。
+
+## 最终 res 场逐 cell 对比：根因彻底明确（昆山 128673810）
+
+dump 最终 host res 场（ONEFLOW_RES_FIELD_DUMP）两臂逐 cell 比对：
+
+- **每个 cell 的 residual 都是 ±1e-17~1e-18（机器零）**，且两臂符号相反（cpu=+1.734723e-18 vs hip=-1.734723e-18）
+- worst_rel=2 是近零除法的假象；sumabsdiff 累积 eq1=4.8e-5、eq2=8.1e-5
+- ndiff 几乎全部 cell（因为每个都是 ±0，符号必有一个不同）
+
+**根因**：两臂的残差都收敛到机器零（|res|~1e-17），只是舍入后符号在 ±0 间抖动。res.dat 的 7.6e-10 是 sqrt(sum of squares) 范数对 ±0 的固有敏感——sumabsdiff~1e-4 除以范数量级后的相对表现。这不是数值不等价：流场已完全对齐（aero max_rel=0 逐字节一致）。
+
+**为什么 aero=0 而 res 范数有差异**：aero 读 q+梯度（已逐位对齐）；res 范数读 residual 场，而 residual 是 RHS - 更新量的差，收敛后是 ±机器零，其符号抖动影响范数但不影响物理输出。
+
+**更正（重要）**：上面"全机器零、无物理意义"的判断是错的——被近零相对差（rel=2）主导了排序。按**绝对差**重算：约 9270 个 cell 的 |res|>1e-10，max|res| 达 1e-4~6e-4（非机器零）。eq1 cell 144000 CPU=-7.329e-07 vs HIP=-8.200e-07（绝对差 8.7e-8、相对 12%）；eq4 cell 254663 差 8.7e-8。这些是壁面附近 cell（254656/36864 区域），与之前 qf trace 的 eq1/eq2 差 1e-4、wall probe 的 u/v 差同源。**存在真实数值差异，必须继续定位，不是门禁口径问题。**
