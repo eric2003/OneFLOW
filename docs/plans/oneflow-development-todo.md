@@ -6,7 +6,9 @@
 
 分支 `dev`，HEAD `4dac26c68`（已把 upstream master `a307becac` 并入），工作树干净，已推送 `origin/dev`。旗舰算例 `test/cfd/m6wingroe_sa`（vismodel=3 SA / Roe ischeme=1 / LU-SGS time_integral=2 / ilim=0 / 单 zone / ivischeme=0）在昆山单 rank 已跑通**完整 GPU 通量路径 + 完整 SA 链路**。固定路径、构建命令见[当前交接](../handoff/oneflow-current-handoff.md)，架构细节见[3D device residency 设计](../architecture/oneflow-3d-device-residency-design.md)。
 
-**合并注记（2026-11-22）**：`master` 已三端同步到 upstream `a307becac` 并并入 `dev`（`4dac26c68`）。该合并只带来 R1 运行时与几何资产相关内容，**未触及**本页跟踪的加速路径（`codes/accel`、`codes/uturb`、`ci/kunshan` 均无改动），因此下方结论与证据不受影响。合并后**尚未重跑编译与回归**，在昆山上跑一次 gate 之前，上述性能与数值结论仍指合并前的那棵代码树。
+**合并注记（2026-11-22）**：`master` 已三端同步到 upstream `a307becac` 并并入 `dev`（`4dac26c68`）。该合并只带来 R1 运行时与几何资产相关内容，**未触及**本页跟踪的加速路径（`codes/accel`、`codes/uturb`、`ci/kunshan` 均无改动），因此下方结论与证据不受影响。
+
+**合并后验证已通过**（`evidence/gate/128698741-verify9f9`，HEAD `9f9d67e81`）：configure / runtime objects / link 全部 OK，两臂 rc=0；**aero max_rel=0 逐字节一致**，residual `1.808152e-12` 与合并前完全相同（即合并未引入回归，该值仍是 B.4.1 的既有问题）；同作业两臂 20 步 74.93s → 32.8s（2.28x）。
 
 ### 已达成（准确性）
 
