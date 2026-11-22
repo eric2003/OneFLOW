@@ -641,3 +641,14 @@ dump 最终 host res 场（ONEFLOW_RES_FIELD_DUMP）两臂逐 cell 比对：
 3. flow.dat：level1（续算起点）机器精度对齐；level2 历史缓冲差异不影响续算 ✅
 
 **这是设计差异不是 bug**：HIP 认为 steady 下历史层是派生状态（仅 restart 读、reader 从 level1 重建 current），重建以保证文件自洽；CPU 保留历史。若要与 CPU 文件逐字节相同，需在 Dump 前不做 InitUnsteady 而保留 shift——但当前 env 无法切换，且无物理必要。
+
+## 确定性与可重复性（昆山 128677591）
+
+HIP 同 binary(45ac0703) 同配置跑两次（5步），aero.dat/res.dat/turbres.dat **逐字节完全相同**（cmp 验证，1114/471/163 字节非空）→ 旗舰 HIP 路径**确定性**，无 atomic 乱序。
+代码佐证：旗舰梯度走 GradientCellKernel（per-cell 顺序 +=）、无粘残差走 GatherFaceFluxEulerKernel（per-cell +=）、粘性走 host AddF2CField（串行）——均无 atomicAdd。atomicAdd 版本（ScatterFaceFluxEulerKernel / atomic gradient）不在旗舰路径。
+（5步未触发 nFieldSave=50 的 restart dump，故 flow.dat 未生成；20步作业 128676813 的 flow.dat 已验证 level1 机器精度一致。）
+
+## "重跑是否完全一致"的精确回答
+
+- **HIP vs HIP 重跑**：逐字节完全一致（确定性）✅
+- **HIP vs CPU 重跑**：气动力+aero.dat 逐字节一致；res.dat 末位差（max_rel 9.9e-16）；turbres 末位差(1.7e-16)；flow.dat level1(续算起点)机器精度一致；flow.dat level2 历史槽差 7.58e-3（=一步物理变化，不进 current）。**不是逐字节全同**，但所有物理输出在机器精度/容差内一致。
