@@ -545,6 +545,35 @@ class MeshGenerationDialogTest(unittest.TestCase):
             finally:
                 dialog.close()
 
+    def test_closed_shell_preset_resets_project_validation_to_generic_handoff(self) -> None:
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory) / "mesh-generation"
+            with patch(
+                "tools.oneflow_gui.mesh_project.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                project = create_mesh_project_from_template(
+                    self.repository_root,
+                    "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
+                    "switch_to_closed_shell",
+                )
+            dialog = StlToGmshDialog(self.repository_root, project=project)
+            try:
+                dialog.geometry_preset.setCurrentIndex(
+                    dialog.geometry_preset.findData("closed_shell")
+                )
+                expected = "stl_to_gmsh_generic_3d_mesh_handoff"
+                self.assertEqual(dialog._mesh_case_id, expected)
+                saved = json.loads(
+                    (project["directory"] / "project.json").read_text(encoding="utf-8")
+                )
+                self.assertIsNone(saved["template_case_id"])
+                self.assertEqual(saved["mesh_case_id"], expected)
+            finally:
+                dialog.close()
+
     def test_project_settings_can_be_edited_and_saved_without_running_gmsh(self) -> None:
         from types import SimpleNamespace
 
