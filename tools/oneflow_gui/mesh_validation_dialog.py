@@ -139,8 +139,8 @@ class MeshValidationDialog(QDialog):
         )
         self._mesh_case_id = mesh_case_id
         self.setWindowTitle("Mesh-to-CFD Validation")
-        self.resize(980, 700)
-        self.setMinimumSize(800, 560)
+        self.resize(1180, 760)
+        self.setMinimumSize(900, 620)
 
         layout = QVBoxLayout(self)
         introduction = QLabel(
@@ -175,23 +175,25 @@ class MeshValidationDialog(QDialog):
         self.case_tree.setRootIsDecorated(True)
         self.case_tree.setAlternatingRowColors(True)
         case_header = self.case_tree.header()
-        case_header.setSectionResizeMode(0, QHeaderView.ResizeMode.Interactive)
-        case_header.setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
+        case_header.setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
+        case_header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         case_header.setStretchLastSection(False)
         case_header.resizeSection(0, 92)
-        case_header.resizeSection(1, 430)
+        case_header.setMinimumSectionSize(360)
         self._case_items: dict[str, QTreeWidgetItem] = {}
         try:
             dimension_groups = mesh_case_group_categories(self._repository_root)
             for dimension_label, categories in dimension_groups:
                 dimension_item = QTreeWidgetItem(self.case_tree)
                 dimension_item.setText(1, dimension_label)
+                dimension_item.setToolTip(1, dimension_label)
                 dimension_item.setFlags(
                     dimension_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
                 )
                 for category_label, choices in categories:
                     category_item = QTreeWidgetItem(dimension_item)
                     category_item.setText(1, category_label)
+                    category_item.setToolTip(1, category_label)
                     category_item.setFlags(
                         category_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
                     )
@@ -199,6 +201,7 @@ class MeshValidationDialog(QDialog):
                         item = QTreeWidgetItem(category_item)
                         item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
                         item.setText(1, title)
+                        item.setToolTip(1, title)
                         item.setData(0, Qt.ItemDataRole.UserRole, case_id)
                         item.setCheckState(1, Qt.CheckState.Checked)
                         self._case_items[case_id] = item
