@@ -57,6 +57,7 @@ def is_in_scope(path: Path) -> bool:
         return False
     if relative in (
         "scripts/check-doc-paths.py",
+        "scripts/test_check_doc_paths.py",
         "scripts/doc-path-allowlist.txt",
     ):
         return False
