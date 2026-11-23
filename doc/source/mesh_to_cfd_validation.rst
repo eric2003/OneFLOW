@@ -44,13 +44,16 @@ Generic imported 3-D STL projects
 ---------------------------------
 
 A mesh project imported from an arbitrary STL uses the geometry-neutral
-``stl_to_gmsh_generic_3d_mesh_handoff`` validation entry. It performs MSH4
-inspection, Gmsh-to-CGNS conversion and CGNS-to-OneFLOW native-grid ingestion;
-it does not select a CFD model based on an unrelated geometry template. When
-the project carries a checksum-verified ``region_manifest.json``, its
-``wall``, ``inflow`` and ``outflow`` region names become required MSH Physical
-Groups for that run. Legacy imported projects that previously used the
-prolate-spheroid Case as a generic fallback are migrated when reopened.
+``stl_to_gmsh_generic_3d_mesh_handoff`` validation entry. The entry is a 3-D
+mesh input profile, not a handoff-only route: after MSH4 inspection,
+Gmsh-to-CGNS conversion and CGNS-to-OneFLOW native-grid ingestion, it continues
+into ``oneflow_cfd_solve``. The existing ``laminar_flat_plate`` CFD control
+Case is reused as the generic solver smoke setup, with ``dimension`` overridden
+to ``3`` in the isolated runtime Case. When the project carries a
+checksum-verified ``region_manifest.json``, its ``wall``, ``inflow`` and
+``outflow`` region names become required MSH Physical Groups for that run.
+Legacy imported projects that previously used the prolate-spheroid Case as a
+generic fallback are migrated when reopened.
 
 3-D internal-flow cylinder
 --------------------------
@@ -64,25 +67,20 @@ isolated ``validation/`` workspace, and runs the MSH4 inspection,
 Gmsh-to-CGNS conversion, and CGNS-to-OneFLOW ingestion stages. It does not
 rerun STL/Gmsh generation or modify the source project mesh.
 
-This entry is deliberately ``mesh_handoff``, not a CFD smoke test. Its
-MSH check requires the two-dimensional Physical Surfaces ``wall``,
+Its MSH check requires the two-dimensional Physical Surfaces ``wall``,
 ``inflow`` and ``outflow``, plus the three-dimensional Physical Volume
-``fluid_domain``. Missing groups or groups declared with the wrong
-dimension fail the mesh-generation stage before conversion. The Windows CI
-workflow cuts a non-cylindrical prolate STL at two planes without using its
-analytic geometry manifest, creates a curved two-loop wall and tetrahedral
-MSH, then
-runs the actual OneFLOW executable through Gmsh-to-CGNS and CGNS-to-OneFLOW.
-It checks the CGNS and native-grid artifacts, verifies that the native
-boundary-region map retains `wall`, `inflow` and `outflow`, and keeps all run
-data under the runner temporary directory. The flat-plate CFD template is intentionally not
-run on this internal-flow mesh. The internal-flow
-cylinder has wall, inlet and outlet patch semantics; the
-available laminar flat-plate consumer is not a compatible physical setup.
-A dedicated internal-flow cylinder CFD Case with defined boundary states and
-acceptance criteria is required before a solver run can be reported as a
-meaningful CFD validation. Mesh quality and physical accuracy remain
-``NOT_CHECKED``.
+``fluid_domain``. Missing groups or groups declared with the wrong dimension
+fail the mesh-generation stage before conversion. The validation then runs
+the same four-stage graph used by other 3-D mesh Cases, including
+``oneflow_cfd_solve``. The existing laminar flat-plate solver controls are
+reused, but the runtime ``dimension.txt`` is overridden to ``3``; the native
+grid and boundary-region map are passed into the solver stage in the
+project-local validation workspace. This is deliberately a short solver
+smoke test, not a claim that the flat-plate physical model represents a
+validated internal-flow experiment. Mesh quality and physical accuracy remain
+``NOT_CHECKED``. The Windows CI workflow also exercises the generic curved
+two-loop STL through the same CFD smoke stage and keeps all run data under
+the runner temporary directory.
 
 Boundary type mapping
 ---------------------
