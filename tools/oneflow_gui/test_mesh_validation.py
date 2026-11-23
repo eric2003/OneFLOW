@@ -416,14 +416,16 @@ class MeshValidationCatalogTest(unittest.TestCase):
         entry = next(
             item for item in catalog["mesh_validation_inputs"] if item["id"] == case_id
         )
-        self.assertEqual(entry["mesh_validation"], "mesh_handoff")
+        self.assertEqual(entry["mesh_validation"], "cfd_smoke")
         steps = build_mesh_validation_cases(
             repository_root, case_id, "laminar_flat_plate"
         )
         self.assertEqual(
             [step["id"] for step in steps],
-            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
         )
+        self.assertEqual(steps[3]["runtime_directory"], "oneflow_cfd_solve")
+        self.assertEqual(steps[3]["directory"], "test/cfd/plateuns2dslau2")
         self.assertEqual(
             steps[0]["outputs"][0]["path"],
             "results/cylinder_internal_flow.msh",
@@ -436,11 +438,12 @@ class MeshValidationCatalogTest(unittest.TestCase):
             "stl_to_gmsh_sphere_automatic_tetrahedra",
             "stl_to_gmsh_python_sphere_automatic_tetrahedra",
         }
-        mesh_handoff_ids = {
+        internal_flow_cfd_smoke_ids = {
             "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
             "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
         }
-        expected_ids = cfd_smoke_ids | mesh_handoff_ids
+        cfd_smoke_ids |= internal_flow_cfd_smoke_ids
+        expected_ids = cfd_smoke_ids
         self.assertTrue(expected_ids.issubset(choices))
 
         groups = dict(mesh_case_groups(repository_root))
@@ -457,14 +460,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             )
             self.assertEqual(steps[3]["runtime_directory"], "oneflow_cfd_solve")
             self.assertEqual(steps[3]["directory"], "test/cfd/plateuns2dslau2")
-        for case_id in sorted(mesh_handoff_ids):
-            steps = build_mesh_validation_cases(
-                repository_root, case_id, "laminar_flat_plate"
-            )
-            self.assertEqual(
-                [step["id"] for step in steps],
-                ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
-            )
+
 
     def test_mesh_selector_groups_cases_by_spatial_dimension(self):
         groups = mesh_case_groups(self.root)
