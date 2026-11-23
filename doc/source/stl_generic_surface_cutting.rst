@@ -56,9 +56,10 @@ Current scope and limitations
 * The plane points and normals are explicit GUI inputs. Automatic local
   direction estimation and picking endpoints directly on a 3-D model are not
   included.
-* The cutter produces geometry only. Gmsh volume meshing, CGNS conversion and
-  the OneFLOW CFD smoke run remain manual Mesh Generation / Mesh-to-CFD
-  Validation actions; they are not CI jobs.
+* The cutter produces geometry only. The generic STL-to-Gmsh volume-mesh
+  path is exercised by an opt-in integration test on Linux and Windows using
+  Gmsh 4.15.2. CGNS conversion and the OneFLOW CFD smoke run remain downstream
+  Mesh-to-CFD Validation stages.
 * The separate wall/inlet/outlet STL artifacts retain the three surface
   regions for downstream processing. The current closed-surface STL handoff
   does not yet map those regions to distinct Gmsh Physical Surface groups.
@@ -95,10 +96,12 @@ Python invocation. Generated artifacts are written under the user's
 * `cut_report.json`: inputs, counts, output paths and explicit confirmation
   that analytic geometry metadata was not read.
 
-The GUI can open the closed surface in the existing STL-to-Gmsh page. This
-hands off a closed surface for manual volume meshing; preserving inlet, outlet
-and wall as distinct Gmsh Physical Surface groups is a subsequent integration
-step. The current Gmsh volume-mesh check remains manual and is not part of CI.
+The GUI can open the closed surface in the existing STL-to-Gmsh page. The
+project importer carries the checksum-verified region manifest and patch STL
+files into the mesh project. The region-aware converter then creates a Gmsh
+volume mesh with distinct `wall`, `inflow` and `outflow` Physical Surface
+groups plus the `fluid_domain` Physical Volume. The end-to-end Gmsh path is
+covered by the dedicated Linux and Windows integration job.
 
 
 Boundary identity handoff
@@ -119,7 +122,10 @@ Gmsh-to-CGNS converter maps those names to `BCWall`, `BCInflow` and
 `BCOutflow`, respectively.
 
 The pure Python regression verifies the manifest and generated Gmsh geometry
-text without invoking Gmsh. Actual Gmsh meshing, CGNS inspection and OneFLOW
-CFD boundary verification are manual steps; they are deliberately excluded
-from CI. A successful solver launch alone is not accepted as evidence that
-the three physical boundary conditions are correct.
+text. A separate opt-in integration test invokes Gmsh 4.15.2, checks that
+TETRA_4 volume cells and exterior TRI_3 facets exist, verifies the four
+Physical Groups, and requires every exterior triangle to belong to exactly
+one of `wall`, `inflow` or `outflow`. The test runs on both Linux and Windows
+in GitHub Actions. CGNS inspection and OneFLOW CFD boundary verification
+remain downstream checks; a successful solver launch alone is not accepted
+as evidence that the three physical boundary conditions are correct.

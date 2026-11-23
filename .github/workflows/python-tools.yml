@@ -202,6 +202,45 @@ jobs:
       - name: Test workspace persistence and editor paths
         run: python -m unittest tools.oneflow_gui.test_workspace_repository tools.oneflow_gui.test_workspace_dialog
 
+
+  generic-stl-gmsh-integration:
+    name: Generic STL volume meshing (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      ONEFLOW_RUN_GMSH_TESTS: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install Gmsh (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          curl -fsSL https://gmsh.info/bin/Linux/gmsh-4.15.2-Linux64.tgz -o "$RUNNER_TEMP/gmsh.tgz"
+          mkdir -p "$RUNNER_TEMP/gmsh"
+          tar -xzf "$RUNNER_TEMP/gmsh.tgz" -C "$RUNNER_TEMP/gmsh"
+          gmsh_bin="$(find "$RUNNER_TEMP/gmsh" -type f -name gmsh | head -n 1)"
+          test -n "$gmsh_bin"
+          dirname "$gmsh_bin" >> "$GITHUB_PATH"
+      - name: Install Gmsh (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $archive = Join-Path $env:RUNNER_TEMP "gmsh-windows.zip"
+          $destination = Join-Path $env:RUNNER_TEMP "gmsh-windows"
+          Invoke-WebRequest "https://gmsh.info/bin/Windows/gmsh-4.15.2-Windows64.zip" -OutFile $archive
+          Expand-Archive -Path $archive -DestinationPath $destination -Force
+          $gmsh = Get-ChildItem -Path $destination -Filter gmsh.exe -Recurse | Select-Object -First 1
+          if ($null -eq $gmsh) { throw "Gmsh executable was not found in the downloaded archive." }
+          $gmsh.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Run generic STL cutting and Gmsh volume-mesh integration
+        run: python -m unittest grid.tests.python.stl_import.test_generic_stl_surface_cut
+
   background-task-python-315:
     name: Background task lifecycle (Windows, Python 3.15)
     runs-on: windows-latest

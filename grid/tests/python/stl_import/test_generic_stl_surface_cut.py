@@ -1,5 +1,7 @@
 """Generic plane cutting tests using the canonical cylinder STL as blind input."""
 import contextlib
+import os
+import shutil
 import io
 import tempfile
 import unittest
@@ -95,6 +97,63 @@ class GenericStlSurfaceCutTest(unittest.TestCase):
             self.assertEqual(
                 set(geometry_report["region_triangle_counts"]),
                 {"wall", "inflow", "outflow"},
+            )
+
+
+    @unittest.skipUnless(
+        os.environ.get("ONEFLOW_RUN_GMSH_TESTS") == "1"
+        and (shutil.which("gmsh") or shutil.which("gmsh.exe")),
+        "Set ONEFLOW_RUN_GMSH_TESTS=1 and install Gmsh to run the volume-mesh integration test",
+    )
+    def test_gmsh_generates_volume_mesh_with_disjoint_named_boundaries(self):
+        from grid.stl_to_gmsh.generate_volume_mesh import generate
+
+        gmsh = shutil.which("gmsh") or shutil.which("gmsh.exe")
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "cut"
+            arguments = [
+                "--input", str(self.stl),
+                "--output-directory", str(output),
+                "--inlet-point", "-1.5", "0", "0",
+                "--inlet-normal", "1", "0", "0",
+                "--outlet-point", "1.5", "0", "0",
+                "--outlet-normal", "1", "0", "0",
+            ]
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(cut_surface_main(arguments), 0)
+
+            mesh_path = output / "results" / "pipe.msh"
+            report = generate(
+                output / "closed_surface.stl",
+                mesh_path,
+                gmsh,
+                mesh_size_min=0.20,
+                mesh_size_max=0.30,
+            )
+            self.assertTrue(report["validated"], report)
+            mesh = report["mesh_summary"]
+            self.assertGreater(mesh["tetrahedron_elements"], 0)
+            self.assertGreater(mesh["triangle_elements"], 0)
+            self.assertEqual(
+                mesh["tetrahedral_topology"]["surface_triangles"],
+                mesh["triangle_elements"],
+            )
+
+            groups = {
+                (item["dimension"], item["name"]): item["element_count"]
+                for item in mesh["physical_groups"]
+            }
+            expected = {
+                (2, "wall"), (2, "inflow"), (2, "outflow"),
+                (3, "fluid_domain"),
+            }
+            self.assertEqual(set(groups), expected)
+            for group in expected:
+                self.assertGreater(groups[group], 0, group)
+            self.assertEqual(
+                sum(groups[(2, name)] for name in ("wall", "inflow", "outflow")),
+                mesh["triangle_elements"],
+                "Every exterior triangle must belong to exactly one named boundary group",
             )
 
     def test_empty_input_is_rejected(self):
