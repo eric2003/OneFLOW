@@ -193,7 +193,7 @@ jobs:
           if (-not (Test-Path $regionMap)) { throw "OneFLOW boundary-region map is missing: $regionMap" }
           $regionText = Get-Content -Raw $regionMap
           foreach ($regionName in @("wall", "inflow", "outflow")) {
-              if ($regionText -notmatch "\\b$regionName\\b") {
+              if (-not $regionText.Contains($regionName)) {
                   throw "OneFLOW boundary-region map does not contain '$regionName'."
               }
           }
