@@ -397,8 +397,8 @@ Related engineering records
 
 Detailed design and audit notes remain under the documentation engineering area and should be reviewed alongside code changes:
 
-* `doc/architecture/`: dated architecture audits and stable design notes.
-* `doc/plans/oneflow-documentation-consolidation-plan.md`: consolidation inventory and next steps.
+* `docs/architecture/`: dated architecture audits and stable design notes.
+* `docs/plans/oneflow-documentation-consolidation-plan.md`: consolidation inventory and next steps.
 * Root-level `GRID_TOPOLOGY.md`, `MESH_DATA_AND_VISUALIZATION.md`, and the older top-level `docs/` mesh notes remain source material for the content review; they are not separate destinations for new documentation.
 
 

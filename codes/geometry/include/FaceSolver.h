@@ -39,7 +39,7 @@ class FaceTopo;
 class CgnsSection;
 class BcRecord;
 
-// Staged face write paths: doc/source/face_stage_pipeline.rst
+// Staged face write paths: docs/source/face_stage_pipeline.rst
 class FaceSolver
 {
 public:

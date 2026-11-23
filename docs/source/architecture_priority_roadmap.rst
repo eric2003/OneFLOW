@@ -177,7 +177,7 @@ The next R1 acceptance sequence is:
 A focused parser test, resolver test, or path helper test proves only its
 declared contract. It must not be reported as proof of this whole sequence.
 See :doc:`runtime_architecture` and
-`doc/plans/setup-case-environment-integration-test.md` for source-level
+`docs/plans/setup-case-environment-integration-test.md` for source-level
 details and open questions.
 
 Mesh mainline after R1
@@ -262,7 +262,7 @@ intent, units, ownership/lifetime, preconditions, postconditions, side effects,
 and failure behavior where these are part of the contract. Avoid narrating
 obvious statements or copying entire design documents into headers.
 
-**Curated documentation under `doc/source`** remains necessary for material
+**Curated documentation under `docs/source`** remains necessary for material
 that spans files or requires explanation: architecture decisions, subsystem
 maps, mathematical derivations, discretization choices, algorithm limits,
 workflow diagrams, numerical experiments, reference comparisons, and

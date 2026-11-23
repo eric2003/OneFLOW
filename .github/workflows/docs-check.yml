@@ -1,15 +1,26 @@
 name: documentation check
 
+# `master` uses docs/ as the documentation root; `hexin` still carries the
+# earlier layout where doc/ is the root.  The path checker resolves the root at
+# run time and reports against whichever it finds, but this workflow runs on
+# `master` only: `hexin` has its own stale references that predate this change
+# and would fail for reasons unrelated to it.  After `hexin` merges into
+# `master`, add it here so both keep the same gate.
+
 on:
   push:
-    branches: [hexin]
+    branches: [master]
     paths:
       - "docs/**"
+      - "scripts/check-doc-paths.py"
+      - "scripts/doc-path-allowlist.txt"
       - ".github/workflows/docs-check.yml"
   pull_request:
-    branches: [hexin]
+    branches: [master]
     paths:
       - "docs/**"
+      - "scripts/check-doc-paths.py"
+      - "scripts/doc-path-allowlist.txt"
       - ".github/workflows/docs-check.yml"
   workflow_dispatch:
 
@@ -21,7 +32,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  path-check:
+    name: Documentation path references
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Check documentation path references
+        run: python3 scripts/check-doc-paths.py
+
   sphinx-build:
+    name: Sphinx HTML build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

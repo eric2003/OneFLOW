@@ -70,6 +70,17 @@ file, but direct `Path` equality (and normalization alone) did not express files
 identity. The test now uses `os.path.samefile`. Preserve that distinction: path spelling,
 normalized path policy, containment, and filesystem identity are different questions.
 
+A documentation-root rename (the historical `doc` directory became `docs`) once changed
+the visible file links but left the directory-level path in the site-publish workflow as
+a `cd` into the old name. The deploy job failed before Sphinx ran, and nothing else
+noticed.
+Directory-level paths live in more places than file-level links: CI `cd`/`sphinx-build`
+arguments, Read the Docs configuration, the docs `Makefile`, and contract JSON that
+declares documentation paths. When a directory moves, fix all of them in one change and
+run `scripts/check-doc-paths.py`; it flags both a surviving reference to the old root and
+a reference that does not resolve. A link that only fails at read time is not covered by
+a build-only check.
+
 ## 4. Verify text and serialization boundaries
 
 - Distinguish an actual control character from its escaped textual spelling. For
@@ -168,7 +179,7 @@ Before editing:
 
 1. Confirm the target branch and current HEAD; for ongoing development, use the latest
    `hexin` unless the user explicitly specifies otherwise.
-2. Read this document, `AGENTS.md`, the current `doc/AI_CONTEXT.md` handoff, and the
+2. Read this document, `AGENTS.md`, the current `docs/AI_CONTEXT.md` handoff, and the
    owning architecture/contract page relevant to the change.
 3. Search for existing helpers and regression tests before adding new path, process,
    filesystem, UI, mesh, or workflow logic.

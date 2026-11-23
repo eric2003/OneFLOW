@@ -3,7 +3,7 @@
 This document defines the working standard for continuous engineering evolution and scientific
 verification in OneFLOW. It applies to AI-assisted and human-led work, and makes each development
 slice actionable, reviewable, evidence-based, and reproducible. Use it together with
-`doc/source/architecture_review.rst`, `doc/source/architecture_priority_roadmap.rst`, and the
+`docs/source/architecture_review.rst`, `docs/source/architecture_priority_roadmap.rst`, and the
 maintained subsystem roadmaps. The reusable task request at the end turns this policy into a
 copyable instruction for an individual development iteration.
 
@@ -56,7 +56,7 @@ isolated renames, cosmetic restructuring, and low-impact helper extraction unles
 necessary to complete a higher-value boundary.
 
 The current project-wide priority order is maintained in
-`doc/source/architecture_review.rst` and the relevant subsystem roadmap. Reassess it when
+`docs/source/architecture_review.rst` and the relevant subsystem roadmap. Reassess it when
 new source evidence or test results materially change the risk profile.
 
 ## 4. Required investigation before implementation
@@ -131,7 +131,7 @@ Use stable cross-reference identifiers such as `@doc-algorithm`, `@doc-stage`, o
 
 Evaluate Doxygen as the source for API reference generation. A Doxygen/Sphinx integration
 (such as Breathe) should begin as a small pilot on a stable module. Generated API reference
-must complement, not replace, curated pages in `doc/source/`.
+must complement, not replace, curated pages in `docs/source/`.
 
 ### Curated Sphinx documentation
 
@@ -302,7 +302,7 @@ VERIFICATION:
 <unit/component/integration/regression/numerical/platform evidence>
 
 DOCUMENTATION:
-<doc/source pages, equations, diagrams, references, API comments>
+<docs/source pages, equations, diagrams, references, API comments>
 
 ACCEPTANCE_CRITERIA:
 <objective, testable completion conditions>
@@ -312,5 +312,5 @@ DELIVERY:
 ```
 
 For current project priorities and subsystem status, consult
-`doc/source/architecture_review.rst`, the relevant roadmap, and `doc/AI_CONTEXT.md`.
+`docs/source/architecture_review.rst`, the relevant roadmap, and `docs/AI_CONTEXT.md`.
 This specification defines how to select, express, execute, and verify a development slice; it does not replace source inspection.

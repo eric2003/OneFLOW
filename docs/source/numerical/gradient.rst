@@ -77,6 +77,6 @@ Pure entry points (``UGradPolicy.h``)
 Tags: ``@doc-algorithm green-gauss-gradient`` with ``@doc-stage`` /
 ``@doc-formula`` on each pure API so an extractor can rebuild this page from
 headers without a second algorithm write-up. Narrative, diagrams, and math
-remain in ``doc/source`` (not only in ``//`` comments).
+remain in ``docs/source`` (not only in ``//`` comments).
 
 Tests: ``grad_policy_test``.

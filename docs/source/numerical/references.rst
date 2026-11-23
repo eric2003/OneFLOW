@@ -18,7 +18,7 @@ How to cite
 -----------
 
 * Prefer a short **References** subsection at the end of the relevant
-  ``doc/source/numerical/*.rst`` page (author, title, edition/year).
+  ``docs/source/numerical/*.rst`` page (author, title, edition/year).
 * Public URLs are welcome for open guides; avoid pasting long copyrighted
   excerpts.
 * Closed commercial theory manuals may be named at a high level when the

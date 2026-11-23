@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README_zh_CN.md) | [Project README](../README.md) | [Online documentation](https://oneflow-cfd.readthedocs.io/en/latest/)
 
-`doc/` 是 OneFLOW 的工程文档根目录。页面按**生命周期**分区：长期维护的活文档、
+`docs/` 是 OneFLOW 的工程文档根目录。页面按**生命周期**分区：长期维护的活文档、
 一次性快照、可复核证据、正式报告互不混放。
 
 > 文档命名遵循 [DOCUMENT_NAMING.md](DOCUMENT_NAMING.md)。新增文档先选目录与
@@ -36,14 +36,14 @@
 
 ## 3. 仓库内与上游共有的文件
 
-`doc/` 里既有 fork 维护的文档，也有 upstream 拥有的文档。动手前的判断规则：
+`docs/` 里既有 fork 维护的文档，也有 upstream 拥有的文档。动手前的判断规则：
 
 - **可自由整理（fork 维护）**：`plans/oneflow-development-*.md`、`handoff/`、
   本索引、`DOCUMENT_NAMING.md` 中 fork 新增的章节。
 - **与 upstream 共有**：`architecture/`、`evidence/`、`reports/`、`runbooks/` 下的
   报告与流程、`source/`。可以更新内容，但不要整体移动或重写，否则上游同步时会产生
   结构性冲突；确需移动时单独提交并同步修复 `ports/`、`ci/` 等处的引用。
-- `doc/reports/architecture/` 只存在于 upstream（fork 已按目录规范拆到
+- upstream 的 `doc/reports/architecture/` 不落到本仓库（fork 已按目录规范拆到
   `plans/`、`runbooks/`、`reports/delivery/`）；不要在本仓库重新创建该目录。
 
 合并 upstream 时该目录下新增的文件按下列固定映射落到 fork 目录，并在同一合并提交里
@@ -65,18 +65,13 @@ For a quick continuation of ongoing development, read [AI project context and ha
 
 For the initial inventory and planned consolidation of existing documents, see the [documentation consolidation plan](plans/oneflow-documentation-consolidation-plan.md). The plan records intended ownership and sequencing; it does not imply that every listed migration is complete.
 
-New engineering documents belong under `doc/`; do not grow the top-level `docs/` directory into a second documentation system. Follow the [document naming rules](DOCUMENT_NAMING.md) for new files in `architecture/`, `plans/`, `handoff/`, `runbooks/`, `evidence/`, `reports/`, and `_drafts/`. Existing files should not be renamed in bulk because historical links may depend on their paths.
-
-## Build the HTML documentation
-
-From the repository root:
+New engineering documents belong under `docs/`; follow the [document naming rules](DOCUMENT_NAMING.md) for new files in `architecture/`, `plans/`, `handoff/`, `runbooks/`, `evidence/`, `reports/`, and `_drafts/`. Existing files should not be renamed in bulk because historical links may depend on their paths.
 
 ## 4. 构建 HTML 文档
 
-
 ```bash
-cd doc
-make html     # 输出到 doc/build/html/，CI 与 Read the Docs 使用 doc/source/
+cd docs
+make html     # 输出到 docs/build/html/，CI 与 Read the Docs 使用 docs/source/
 ```
 
 正式报告若同时提交 HTML，必须与 Markdown 使用相同 stem（例如
@@ -87,14 +82,15 @@ make html     # 输出到 doc/build/html/，CI 与 Read the Docs 使用 doc/sour
 1. `plans/oneflow-development-todo.md` 的勾选、状态快照与本轮证据已更新。
 2. `handoff/oneflow-current-handoff.md` 的 §4（任务指针）与 §5（新坑）已就地更新；
    没有新增 dated handoff，一次性 checklist/草稿已删除。
-3. 新增/删除/改名文档后，本索引、`doc/reports/README.md`、`AGENTS.md` 的链接
-   全部有效（`grep` 一遍旧文件名应无残留）。
+3. 新增/删除/改名文档后，本索引、`docs/reports/README.md`、`AGENTS.md` 的链接
+   全部有效；运行 `python3 scripts/check-doc-paths.py` 应为零失败（覆盖
+   `doc/` 残留和 `docs/` 指向不存在文件两类错误）。
 4. `git diff --check` 通过；文档中不含原始 CI/Slurm 日志、主机名、账号、作业号、
    绝对私有路径。
 
 ## 6. 上游文档入口与阅读顺序
 
-`doc/` 同时存放两类内容，用途不同：
+`docs/` 同时存放两类内容，用途不同：
 
 - **工程文档**服务于开发、评审、交接、可复现与验证，即上文 §1 的生命周期分区。
 - **`source/`** 是面向读者的 Sphinx 手册源；并非每条工程记录都应出现在公开文档站点上。
@@ -125,4 +121,4 @@ make html     # 输出到 doc/build/html/，CI 与 Read the Docs 使用 doc/sour
 顶层文档回答系统包含什么、为何这样分层、主要控制流与数据流如何工作、风险在哪里；
 主题文档回答算法如何工作、接口承诺什么、实现在哪里。不要把函数级细节复制到系统总览中。
 
-新的工程文档放在 doc/ 下，不要把顶层 docs/ 扩张成第二个文档系统；已有文件不要批量改名，历史链接可能依赖其路径。
+新的工程文档放在 `docs/` 下；已有文件不要批量改名，历史链接可能依赖其路径。

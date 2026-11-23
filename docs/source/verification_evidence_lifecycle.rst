@@ -220,7 +220,7 @@ A useful long-term pipeline is:
           |
           +------> contract catalog and verification workbench
 
-Sphinx is already used for curated documentation under doc/source. Doxygen
+Sphinx is already used for curated documentation under docs/source. Doxygen
 and Breathe should be introduced incrementally: first document a small,
 stable public API slice, inspect the generated output, then expand. Do not
 enable project-wide extraction until comment quality, exclusions, generated

@@ -114,7 +114,7 @@ units, ownership, valid ranges, side effects, failure behavior, and links to the
 design page. Use Doxygen-compatible comments for stable public interfaces and
 algorithm entry points; avoid duplicating long tutorials in headers.
 
-Keep ``doc/source`` as the canonical home for system architecture, design rationale,
+Keep ``docs/source`` as the canonical home for system architecture, design rationale,
 equations and symbol definitions, assumptions, diagrams, references, and validation
 evidence. Generated API pages complement these pages; they do not replace them.
 
@@ -816,7 +816,7 @@ TeardownCase(). A production-linked test inserts a state whose destructor
 observes the runtime and calls process finalization without prior case teardown;
 it asserts that the state is destroyed while the runtime remains active. The
 HIP shared-instance release branch additionally requires HIP-enabled CI/build
-coverage. See doc/plans/accelerator-runtime-shutdown-order.md for the contract,
+coverage. See docs/plans/accelerator-runtime-shutdown-order.md for the contract,
 ownership rationale, and validation limits.
 
 Production runtime target and lifecycle integration
@@ -1062,7 +1062,7 @@ releases a candidate if allocation/copy does not complete. Byte-count overflow a
 out-of-capacity host copies are rejected before reaching the backend. Destruction and
 ``noexcept`` move assignment perform best-effort non-throwing cleanup; explicit ``Reset()``
 can report a backend release error. Buffers must be destroyed or reset before the accelerator
-runtime is finalized. See ``doc/plans/device-buffer-resource-lifecycle.md`` for the exception
+runtime is finalized. See ``docs/plans/device-buffer-resource-lifecycle.md`` for the exception
 guarantees, focused tests, and remaining validation requirements.
 
 

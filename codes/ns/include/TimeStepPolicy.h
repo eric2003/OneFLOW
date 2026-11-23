@@ -33,7 +33,7 @@ Real InviscidFaceSpectralRadius(
 // @doc-formula lambda_vis = A^2 * 2*max(c1,c2)/(Re*rho)
 // Blazek-style viscous spectral estimate: max of momentum and energy
 // diffusivities, scaled by face area squared (time-step bound, not exact
-// Jacobian eigenvalue). See doc/source/numerical/viscous_spectral_radius_model1.rst.
+// Jacobian eigenvalue). See docs/source/numerical/viscous_spectral_radius_model1.rst.
 Real ViscousFaceSpectralRadiusModel1(
     Real densityMid,
     Real laminarViscosity, Real turbulentViscosity,
@@ -44,7 +44,7 @@ Real ViscousFaceSpectralRadiusModel1(
 // @doc-stage viscous-face-model2
 // @doc-pure
 // @doc-formula c1=2*mu_tot/(rho*d*Re); lambda_vis=0.5*c1*A
-// Length-scale form. See doc/source/numerical/viscous_spectral_radius_model2.rst.
+// Length-scale form. See docs/source/numerical/viscous_spectral_radius_model2.rst.
 Real ViscousFaceSpectralRadiusModel2(
     Real densityMid, Real totalViscosity,
     Real cellDistance, Real reynolds, Real faceArea );
@@ -54,8 +54,8 @@ Real ViscousFaceSpectralRadiusModel2(
 // @doc-pure
 // @doc-formula lambda_vis = A^2 / (Re * rho)
 // Minimal viscous spectral placeholder. See
-// doc/source/numerical/viscous_spectral_radius_model3.rst and
-// doc/source/numerical/viscous_spectral_radius.rst.
+// docs/source/numerical/viscous_spectral_radius_model3.rst and
+// docs/source/numerical/viscous_spectral_radius.rst.
 Real ViscousFaceSpectralRadiusModel3(
     Real densityMid, Real reynolds, Real faceArea );
 
@@ -71,7 +71,7 @@ Real CellTimeStepFromSpectrum(
 // @doc-pure
 // @doc-formula dt = dt_inv * dt_vis / (dt_inv + dt_vis)
 // Harmonic-type combine of inviscid and viscous local time steps.
-// See doc/source/numerical/combine_inv_vis_timestep.rst.
+// See docs/source/numerical/combine_inv_vis_timestep.rst.
 Real CombineInvAndVisTimeStep(
     Real invTimeStep, Real visTimeStep );
 

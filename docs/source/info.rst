@@ -21,4 +21,4 @@ Architecture and design
 * :doc:`grid_topology` — topology semantics, boundary normalization, and derived connectivity.
 * :doc:`workbench_architecture` — project/case concepts, execution modes, persistence, and process lifecycle.
 
-Documentation is organized under the repository's `doc/` directory. The `doc/source/` tree contains the curated Sphinx site; engineering plans, architecture records, runbooks, evidence, and reports remain in their respective directories. See the `documentation consolidation plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ for the inventory and staged cleanup status.
+Documentation is organized under the repository's `docs/` directory. The `docs/source/` tree contains the curated Sphinx site; engineering plans, architecture records, runbooks, evidence, and reports remain in their respective directories. See the `documentation consolidation plan <https://github.com/eric2003/OneFLOW/blob/hexin/doc/plans/oneflow-documentation-consolidation-plan.md>`_ for the inventory and staged cleanup status.
