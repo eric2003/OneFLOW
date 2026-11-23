@@ -69,7 +69,7 @@
     }
   ],
   "execution_boundary": {
-    "ci": "CI runs the generic STL cut and Gmsh 4.15.2 volume-mesh integration on Linux and Windows. The Windows OneFLOW workflow additionally converts the generated MSH through CGNS into a native OneFLOW unstructured grid. Generic 3D closed-surface and internal-flow meshes continue through the existing laminar flat-plate solver setup with the runtime dimension overridden to 3D; this is a solver smoke test, not a physical-accuracy claim.",
+    "ci": "CI runs the generic STL cut and Gmsh 4.15.2 volume-mesh integration on Linux and Windows. The Windows OneFLOW workflow additionally converts the generated MSH through CGNS into a native OneFLOW unstructured grid and requires the subsequent oneflow_cfd_solve smoke stage to pass. The existing laminar flat-plate solver controls are reused with the runtime dimension overridden to 3D; this is a solver smoke test, not a physical-accuracy claim.",
     "manual": "For a user-provided geometry, review the selected cut planes and the generated geometry. Physical CFD validation remains a separate task requiring a compatible internal-flow Case, explicit boundary-state data and physical acceptance criteria."
   },
   "references": [
