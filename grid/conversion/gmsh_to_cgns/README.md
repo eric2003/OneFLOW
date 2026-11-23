@@ -234,4 +234,4 @@ available alongside it.
 The Mesh-to-CFD Validation consumer writes a checksum-bound
 ``<output.cgns>.geometry-lineage.json`` companion after successful conversion.
 It carries the verified source STL and Gmsh MSH lineage without modifying the
-CGNS file format. See ``doc/source/mesh_to_cfd_validation.rst``.
+CGNS file format. See ``docs/source/mesh_to_cfd_validation.rst``.

@@ -29,7 +29,7 @@ BeginNameSpace( ONEFLOW )
 // @doc-pure
 // @doc-formula a_s = 1 / (s + 1),  s = 0, ..., N-1
 // OneFLOW multi-stage coefficient schedule (not a classical Butcher tableau).
-// See doc/source/numerical/time_integral_rk_stage_weight.rst.
+// See docs/source/numerical/time_integral_rk_stage_weight.rst.
 inline Real RungeKuttaStageWeight( int stageIndex )
 {
     return 1.0 / static_cast< Real >( stageIndex + 1 );
