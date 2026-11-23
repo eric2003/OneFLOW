@@ -725,7 +725,30 @@ class StlToGmshDialog(QDialog):
         definition = self._geometry_preset_paths(preset)
 
         if definition is None:
-            self._mesh_case_id = "stl_to_gmsh_generic_3d_mesh_handoff"
+            generic_case_id = "stl_to_gmsh_generic_3d_mesh_handoff"
+            if self._project is not None:
+                try:
+                    manifest_path = Path(self._project["directory"]) / "project.json"
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    manifest["template_case_id"] = None
+                    manifest["mesh_case_id"] = generic_case_id
+                    manifest_path.write_text(
+                        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                        encoding="utf-8",
+                        newline="\n",
+                    )
+                    self._project = load_mesh_project(Path(self._project["directory"]))
+                except (OSError, ValueError, KeyError) as error:
+                    QMessageBox.warning(
+                        self, "Cannot select generic STL geometry", str(error)
+                    )
+                    self.geometry_preset.blockSignals(True)
+                    self.geometry_preset.setCurrentIndex(
+                        self.geometry_preset.findData(previous)
+                    )
+                    self.geometry_preset.blockSignals(False)
+                    return
+            self._mesh_case_id = generic_case_id
             self._active_geometry_preset = preset
             self._refresh_command()
             return
@@ -819,6 +842,7 @@ class StlToGmshDialog(QDialog):
                     QMessageBox.warning(self, "Cannot replace project STL", str(error))
                     return
                 self._project_directory = Path(self._project["directory"])
+                self._mesh_case_id = str(self._project["mesh_case_id"])
             self.stl_path.setText(str(self._project["stl_path"]) if self._project else str(selected))
             template_id = self._project.get("template_case_id") if self._project else None
             if selected == DEFAULT_SPHERE_STL.resolve():

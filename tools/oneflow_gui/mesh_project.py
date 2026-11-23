@@ -452,6 +452,8 @@ def replace_project_stl(project: dict, stl_file: Path) -> dict:
         geometry_manifest.get("geometry") if geometry_manifest else None
     )
     manifest["source_stl"] = str(source)
+    manifest["template_case_id"] = None
+    manifest["mesh_case_id"] = _GENERIC_3D_VALIDATION_CASE
     return _write_manifest(root, manifest)
 
 

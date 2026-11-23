@@ -518,6 +518,10 @@ class MeshGenerationDialogTest(unittest.TestCase):
             self.assertEqual(
                 project["boundary_regions"], ["inflow", "outflow", "wall"]
             )
+            self.assertIsNone(project["template_case_id"])
+            self.assertEqual(
+                project["mesh_case_id"], "stl_to_gmsh_generic_3d_mesh_handoff"
+            )
 
     def test_open_mesh_project_displays_geometry_lineage(self) -> None:
         from types import SimpleNamespace

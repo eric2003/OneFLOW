@@ -96,7 +96,10 @@ class MeshProjectTest(unittest.TestCase):
         updated = replace_project_stl(project, alternate)
         self.assertEqual(updated["stl_path"].read_text(encoding="ascii"), alternate.read_text(encoding="ascii"))
         self.assertNotEqual(updated["stl_path"], alternate)
-        self.assertEqual(updated["mesh_case_id"], project["mesh_case_id"])
+        self.assertIsNone(updated["template_case_id"])
+        self.assertEqual(
+            updated["mesh_case_id"], "stl_to_gmsh_generic_3d_mesh_handoff"
+        )
 
     def test_import_prepared_project_directory_and_reopen_it(self) -> None:
         source = self.home / "prepared_case"
