@@ -53,13 +53,7 @@
       "kind": "python_test",
       "reference": "GenericStlSurfaceCutTest.test_cli_writes_named_surface_regions_and_report",
       "status": "not_run",
-      "scope": "grid/tests/python/stl_import/test_generic_stl_surface_cut.py; Runs the CLI adapter against the blind-input cylinder STL and verifies wall, inlet, outlet, closed-shell STL artifacts and the report."
-    },
-    {
-      "kind": "python_test",
-      "reference": "GenericStlSurfaceCutTest.test_cli_writes_named_surface_regions_and_report",
-      "status": "not_run",
-      "scope": "grid/tests/python/stl_import/test_generic_stl_surface_cut.py; Validates region_manifest.json checksums/counts and generated Gmsh Physical Surface declarations without invoking Gmsh."
+      "scope": "grid/tests/python/stl_import/test_generic_stl_surface_cut.py; Runs the CLI adapter against the blind-input cylinder STL and verifies wall, inlet, outlet and closed-shell artifacts, cut report, region_manifest.json checksums/counts, and generated Gmsh Physical Surface declarations."
     },
     {
       "kind": "python_test",
