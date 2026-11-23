@@ -53,5 +53,28 @@ The generated artifacts include `wall.stl`, `inlet.stl`, `outlet.stl`,
    Physical Groups, and every exterior triangle belongs to exactly one
    boundary group.
 
-This case validates geometry cutting and mesh construction. It is not yet a
-physical-accuracy validation of an oblique-inlet CFD solution.
+## GUI: Mesh to CFD
+
+Open **Mesh Generation... → Oblique-cut Cylinder STL to Gmsh...**. After
+**Run Cutting + Gmsh** completes successfully, choose **Convert + Run
+OneFLOW...**. The GUI passes the generated
+`results/cylinder_oblique_cut.msh` to the shared Mesh-to-CFD Validation
+workflow; it does not regenerate the mesh. The workflow performs:
+
+1. Existing MSH4 inspection and required Physical Group checks.
+2. Gmsh MSH → CGNS conversion.
+3. CGNS → native OneFLOW unstructured-grid conversion, including boundary
+   region map and grid metadata.
+4. A short 3-D OneFLOW solver smoke test using the registered consumer
+   template.
+
+Validation files and the run report are stored under the mesh project's
+`validation/` directory. The default CFD template is a runtime smoke-test
+consumer, not a physically calibrated oblique-cylinder internal-flow model.
+In particular, a successful run does not establish pressure-drop, velocity
+profile, or convergence accuracy for this geometry.
+
+This case validates geometry cutting, mesh construction, format conversion,
+and solver ingestion. Physical-accuracy validation of an oblique-inlet CFD
+solution remains a separate milestone requiring a suitable 3-D internal-flow
+CFD template and explicit inlet/outlet/wall physical data.
