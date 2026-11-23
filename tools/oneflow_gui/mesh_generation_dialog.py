@@ -53,6 +53,7 @@ from .user_data_paths import UserDataPaths
 from .geometry_library_dialog import GeometryLibraryDialog
 from .cylinder_cut_dialog import CylinderCutWorkbenchDialog
 from .generic_surface_cut_dialog import GenericSurfaceCutDialog
+from .oblique_cylinder_cut_dialog import ObliqueCylinderCutDialog
 
 
 class MeshGenerationDialog(QDialog):
@@ -101,6 +102,15 @@ class MeshGenerationDialog(QDialog):
         )
         generic_cut_button.clicked.connect(self._open_generic_surface_cut)
         root.addWidget(generic_cut_button)
+
+        oblique_cut_button = QPushButton("Oblique-cut Cylinder STL to Gmsh...")
+        oblique_cut_button.setMinimumHeight(64)
+        oblique_cut_button.setToolTip(
+            "Run the blind-STL oblique inlet cutting reference case, generate the "
+            "tetrahedral Gmsh volume mesh and verify all Physical Groups."
+        )
+        oblique_cut_button.clicked.connect(self._open_oblique_cylinder_cut)
+        root.addWidget(oblique_cut_button)
 
         project_heading = QLabel("Mesh Projects")
         project_heading.setStyleSheet("font-size: 16px; font-weight: 600;")
@@ -171,6 +181,9 @@ class MeshGenerationDialog(QDialog):
 
     def _open_generic_surface_cut(self) -> None:
         GenericSurfaceCutDialog(self._repository_root, self).exec()
+
+    def _open_oblique_cylinder_cut(self) -> None:
+        ObliqueCylinderCutDialog(self._repository_root, self).exec()
 
     def _create_mesh_project(self) -> None:
         case_id = self.project_template.currentData()
