@@ -225,6 +225,7 @@ _PYTHON_UNIT_TESTS = (
     ("Generic STL surface cutting tests", ("-m", "unittest", "grid.tests.python.stl_import.test_generic_stl_surface_cut")),
     ("Analytic cylinder volume mesh tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_cylinder_volume_mesh")),
     ("Cylinder cutting Workbench tests", ("-m", "unittest", "tools.oneflow_gui.test_cylinder_cut_dialog")),
+    ("Oblique cylinder cutting Workbench tests", ("-m", "unittest", "tools.oneflow_gui.test_oblique_cylinder_cut_dialog")),
     ("Native and Python STL-to-Gmsh Case tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases")),
     ("Mesh-to-CFD Validation tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_validation")),
     ("MeshSnapshot contract tests", ("-m", "unittest", "tools.mesh_contracts.test_snapshot")),
