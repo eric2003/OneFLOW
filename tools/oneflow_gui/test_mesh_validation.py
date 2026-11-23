@@ -188,7 +188,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported"):
             _project_required_physical_groups({"boundary_regions": ["farfield"]})
 
-    def test_repository_catalog_registers_generic_3d_mesh_handoff(self):
+    def test_repository_catalog_routes_generic_3d_mesh_through_cfd_smoke(self):
         repository_root = Path(__file__).resolve().parents[2]
         case_id = "stl_to_gmsh_generic_3d_mesh_handoff"
         catalog = json.loads(
@@ -197,14 +197,17 @@ class MeshValidationCatalogTest(unittest.TestCase):
         entry = next(
             item for item in catalog["mesh_validation_inputs"] if item["id"] == case_id
         )
-        self.assertEqual(entry["mesh_validation"], "mesh_handoff")
+        self.assertEqual(entry["mesh_validation"], "cfd_smoke")
         self.assertEqual(entry["dimension"], 3)
-        self.assertEqual(
-            [step["id"] for step in build_mesh_validation_cases(
-                repository_root, case_id, "laminar_flat_plate"
-            )],
-            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
+        steps = build_mesh_validation_cases(
+            repository_root, case_id, "laminar_flat_plate"
         )
+        self.assertEqual(
+            [step["id"] for step in steps],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
+        )
+        self.assertEqual(steps[-1]["runtime_directory"], "oneflow_cfd_solve")
+        self.assertEqual(steps[-1]["directory"], "test/cfd/plateuns2dslau2")
 
 
     def test_historical_cube_cases_explicitly_declare_unknown_geometry_origin(self):
