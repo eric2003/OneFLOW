@@ -335,16 +335,15 @@ Starting `hexin` from `d29a2f5cb95b36b543fa680707335d648def1d95`.
   `UserDataPaths.mesh_generation/cylinder_internal_flow/results/`, not in
   the repository source tree. The file is copied into the project's
   `validation/` workspace before downstream processing.
-- Cylinder validation is intentionally `mesh_handoff`: MSH4 inspection
-  additionally requires `wall`, `inflow`, `outflow` (2-D) and
-  `fluid_domain` (3-D) Physical Groups, followed by Gmsh-to-CGNS conversion
-  and CGNS-to-OneFLOW ingestion. The current
-  flat-plate CFD template is not a physically compatible internal-flow
-  consumer, so this entry does not claim or run a CFD smoke test.
-- The cylinder's prior preset mapping to the prolate-spheroid Python Case was
-  incorrect; it now uses its own catalog ID. Existing-mesh paths are
-  validated as relative paths contained below the user mesh-generation root.
-- Tests cover catalog visibility, 3-D grouping, handoff stage construction,
+- Generic closed-surface and internal-flow cylinder validation now run the
+  complete four-stage graph through `oneflow_cfd_solve`. The existing
+  laminar flat-plate solver controls are reused as a smoke setup, with the
+  runtime dimension overridden to 3 for 3-D meshes; this does not claim
+  internal-flow physical accuracy.
+- MSH4 inspection additionally requires `wall`, `inflow`, `outflow` (2-D)
+  and `fluid_domain` (3-D) Physical Groups where declared. Existing-mesh
+  paths remain relative paths contained below the user mesh-generation root.
+- Tests cover catalog visibility, 3-D grouping, complete CFD stage construction,
   output artifact naming, and user-workspace path containment.
 
 CI and GUI runtime verification are pending for this slice. In particular,
