@@ -199,7 +199,7 @@ def build_mesh_validation_cases(
         raise ValueError(
             f"Case {mesh_case_id!r} is not enabled for Mesh-to-CFD validation."
         )
-    if validation_scope not in (True, "mesh_handoff", "cfd_smoke"):
+    if validation_scope not in (True, "cfd_smoke"):
         raise ValueError(
             f"Unsupported Mesh-to-CFD validation scope for {mesh_case_id!r}: "
             f"{validation_scope!r}"
@@ -283,10 +283,6 @@ def build_mesh_validation_cases(
              {"id": "visual", "path": _setting(cfd_config, "visualFile")},
          ]},
     ]
-    if validation_scope == "mesh_handoff":
-        # Handoff-only entries do not have a compatible, fully specified CFD
-        # consumer contract. Validate MSH, CGNS conversion and OneFLOW ingestion.
-        return steps[:3]
     return steps
 
 
