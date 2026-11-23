@@ -1,6 +1,7 @@
 name: Python Tooling
 
 on:
+  workflow_dispatch:
   push:
     branches: [hexin]
     paths:

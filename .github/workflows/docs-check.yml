@@ -1,27 +1,10 @@
 name: documentation check
 
-# `master` uses docs/ as the documentation root; `hexin` still carries the
-# earlier layout where doc/ is the root.  The path checker resolves the root at
-# run time and reports against whichever it finds, but this workflow runs on
-# `master` only: `hexin` has its own stale references that predate this change
-# and would fail for reasons unrelated to it.  After `hexin` merges into
-# `master`, add it here so both keep the same gate.
-
 on:
   push:
-    branches: [master]
-    paths:
-      - "docs/**"
-      - "scripts/check-doc-paths.py"
-      - "scripts/doc-path-allowlist.txt"
-      - ".github/workflows/docs-check.yml"
+    branches: [hexin, master]
   pull_request:
-    branches: [master]
-    paths:
-      - "docs/**"
-      - "scripts/check-doc-paths.py"
-      - "scripts/doc-path-allowlist.txt"
-      - ".github/workflows/docs-check.yml"
+    branches: [hexin, master]
   workflow_dispatch:
 
 permissions:
@@ -37,11 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-
+      - name: Test documentation path checker
+        run: python3 -m unittest discover -s scripts -p 'test_check_doc_paths.py'
       - name: Check documentation path references
         run: python3 scripts/check-doc-paths.py
 
@@ -50,16 +33,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
-
       - name: Install documentation dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install sphinx sphinx-rtd-theme
-
       - name: Build Sphinx HTML
         run: sphinx-build --keep-going -b html docs/source docs/build/html
