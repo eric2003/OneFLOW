@@ -78,7 +78,7 @@
       "scope": "Measures the inlet ellipse ratio against 1/cos(30 degrees), checks circular outlet, closed-shell Euler characteristic and positive signed volume."
     },
     {
-      "kind": "gmsh_integration_test",
+      "kind": "python_test",
       "reference": "GenericStlSurfaceCutTest.test_gmsh_meshes_oblique_cylinder_with_elliptical_inlet_group",
       "status": "not_run",
       "scope": "Runs Gmsh 4.15.2 on the blind-input oblique-cut STL and verifies TETRA_4, TRI_3 and non-empty wall/inflow/outflow/fluid_domain Physical Groups."
