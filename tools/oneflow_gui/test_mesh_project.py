@@ -74,7 +74,7 @@ class MeshProjectTest(unittest.TestCase):
         )
         self.assertTrue(project["stl_path"].is_file())
         self.assertTrue(paths_equal(project["directory"].parent, self.home / "mesh-generation"))
-        self.assertEqual(project["mesh_case_id"], "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra")
+        self.assertEqual(project["mesh_case_id"], "stl_to_gmsh_generic_3d_mesh_handoff")
         reopened = load_mesh_project(project["directory"])
         self.assertTrue(paths_equal(reopened["output_path"], project["output_path"]))
         saved = save_mesh_project_settings(
@@ -269,7 +269,7 @@ class MeshProjectTest(unittest.TestCase):
         project = create_mesh_project_from_stl(self.repository_root, source, "imported_spheroid")
         self.assertTrue(project["stl_path"].is_file())
         self.assertNotEqual(project["stl_path"], source)
-        self.assertEqual(project["mesh_case_id"], "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra")
+        self.assertEqual(project["mesh_case_id"], "stl_to_gmsh_generic_3d_mesh_handoff")
 
 
 if __name__ == "__main__":

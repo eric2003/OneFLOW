@@ -159,7 +159,8 @@ jobs:
               version = 1
               name = "generic-pipe-ci"
               input_stl = "input/model.stl"
-              output_mesh = "results/cylinder_internal_flow.msh"
+              output_mesh = "results/generic_surface_mesh.msh"
+              boundary_regions = @("wall", "inflow", "outflow")
           } | ConvertTo-Json -Depth 5
           [System.IO.File]::WriteAllText(
               (Join-Path $projectRoot "project.json"),
@@ -167,7 +168,7 @@ jobs:
               [System.Text.UTF8Encoding]::new($false)
           )
 
-          $meshPath = Join-Path $resultsRoot "cylinder_internal_flow.msh"
+          $meshPath = Join-Path $resultsRoot "generic_surface_mesh.msh"
           python -m grid.stl_to_gmsh.generate_volume_mesh --stl (Join-Path $cutRoot "closed_surface.stl") --output $meshPath --gmsh $gmsh.Source --mesh-size-min 0.20 --mesh-size-max 0.30
           if ($LASTEXITCODE -ne 0) { throw "Gmsh volume mesh generation failed." }
 

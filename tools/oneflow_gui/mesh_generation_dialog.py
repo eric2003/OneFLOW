@@ -725,7 +725,7 @@ class StlToGmshDialog(QDialog):
         definition = self._geometry_preset_paths(preset)
 
         if definition is None:
-            self._mesh_case_id = "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra"
+            self._mesh_case_id = "stl_to_gmsh_generic_3d_mesh_handoff"
             self._active_geometry_preset = preset
             self._refresh_command()
             return
@@ -832,7 +832,7 @@ class StlToGmshDialog(QDialog):
             else:
                 self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("closed_shell"))
                 if self._project is None:
-                    self._mesh_case_id = "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra"
+                    self._mesh_case_id = "stl_to_gmsh_generic_3d_mesh_handoff"
 
     def _browse_output(self) -> None:
         path, _ = QFileDialog.getSaveFileName(

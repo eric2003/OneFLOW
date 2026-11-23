@@ -17,7 +17,7 @@ from .path_utils import (
 from .user_data_paths import UserDataPaths
 
 _PROJECT_SCHEMA = "oneflow.mesh-generation-project"
-_GENERIC_3D_VALIDATION_CASE = "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra"
+_GENERIC_3D_VALIDATION_CASE = "stl_to_gmsh_generic_3d_mesh_handoff"
 
 
 def _catalog(repository_root: Path) -> dict:

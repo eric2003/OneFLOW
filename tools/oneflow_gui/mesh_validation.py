@@ -601,6 +601,26 @@ def _mesh_case_command(
     ]
 
 
+def _project_required_physical_groups(project_data: dict) -> list[dict]:
+    """Translate checksum-verified project boundary-region names into MSH requirements."""
+    regions = project_data.get("boundary_regions")
+    if regions is None:
+        return []
+    if (
+        not isinstance(regions, list)
+        or not regions
+        or any(not isinstance(name, str) or not name.strip() for name in regions)
+        or len(set(regions)) != len(regions)
+    ):
+        raise ValueError("Project boundary_regions must be a non-empty list of unique names.")
+    if any(name not in {"wall", "inflow", "outflow"} for name in regions):
+        raise ValueError("Project boundary_regions contains an unsupported STL region name.")
+    return [
+        *({"name": name, "dimension": 2} for name in regions),
+        {"name": "fluid_domain", "dimension": 3},
+    ]
+
+
 def _validate_required_physical_groups(mesh_info: dict, mesh_entry: dict) -> None:
     """Reject an MSH that omits declared boundary or volume Physical Groups."""
     required = mesh_entry.get("required_physical_groups", [])
@@ -696,6 +716,9 @@ def run_mesh_validation(
         project_manifest = project_root / "project.json"
         if project_manifest.is_file():
             project_data = json.loads(project_manifest.read_text(encoding="utf-8"))
+            project_groups = _project_required_physical_groups(project_data)
+            if project_groups:
+                mesh_entry = {**mesh_entry, "required_physical_groups": project_groups}
             relative_stl = Path(str(project_data.get("input_stl", "")))
             if not relative_stl.is_absolute() and ".." not in relative_stl.parts:
                 candidate = (project_root / relative_stl).resolve()

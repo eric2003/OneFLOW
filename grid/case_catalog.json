@@ -575,6 +575,19 @@
           "dimension": 3
         }
       ]
+    },
+    {
+      "id": "stl_to_gmsh_generic_3d_mesh_handoff",
+      "title": "Generic 3D STL Mesh Project (MSH to CGNS to OneFLOW)",
+      "directory": "grid/stl_to_gmsh/3d/generic_surface_mesh",
+      "group": "STL to Gmsh",
+      "dimension": 3,
+      "mesh_validation": "mesh_handoff",
+      "execution": {
+        "kind": "existing_mesh",
+        "project_directory": "generic_surface_mesh",
+        "mesh_file": "results/generic_surface_mesh.msh"
+      }
     }
   ]
 }
