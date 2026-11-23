@@ -172,7 +172,7 @@ jobs:
           python -m grid.stl_to_gmsh.generate_volume_mesh --stl (Join-Path $cutRoot "closed_surface.stl") --output $meshPath --gmsh $gmsh.Source --mesh-size-min 0.20 --mesh-size-max 0.30
           if ($LASTEXITCODE -ne 0) { throw "Gmsh volume mesh generation failed." }
 
-          python -m tools.oneflow_gui.mesh_validation --oneflow-executable (Join-Path $env:ONEFLOW_ROOT "bin/OneFLOW.exe") --gmsh $gmsh.Source --mesh-case-id stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow --mesh-file $meshPath --project-directory $projectRoot --stage-root $stageRoot --max-steps 2
+          python -m tools.oneflow_gui.mesh_validation --oneflow-executable (Join-Path $env:ONEFLOW_ROOT "bin/OneFLOW.exe") --gmsh $gmsh.Source --mesh-case-id stl_to_gmsh_generic_3d_mesh_handoff --mesh-file $meshPath --project-directory $projectRoot --stage-root $stageRoot --max-steps 2
           if ($LASTEXITCODE -ne 0) { throw "Gmsh-to-CGNS-to-OneFLOW handoff failed." }
 
           $reportPath = Join-Path $stageRoot "mesh-validation-report.json"
@@ -185,8 +185,8 @@ jobs:
                   throw "Mesh handoff stage '$stageName' did not pass."
               }
           }
-          $cgns = Join-Path $stageRoot "gmsh_to_cgns/results/cylinder_internal_flow.cgns"
-          $native = Join-Path $stageRoot "cgns_to_oneflow/results/cylinder_internal_flow.oneflow.grid"
+          $cgns = Join-Path $stageRoot "gmsh_to_cgns/results/generic_surface_mesh.cgns"
+          $native = Join-Path $stageRoot "cgns_to_oneflow/results/generic_surface_mesh.oneflow.grid"
           if (-not (Test-Path $cgns)) { throw "CGNS interchange artifact is missing: $cgns" }
           if (-not (Test-Path $native)) { throw "OneFLOW native grid is missing: $native" }
 

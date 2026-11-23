@@ -74,7 +74,7 @@ class MeshProjectTest(unittest.TestCase):
         )
         self.assertTrue(project["stl_path"].is_file())
         self.assertTrue(paths_equal(project["directory"].parent, self.home / "mesh-generation"))
-        self.assertEqual(project["mesh_case_id"], "stl_to_gmsh_generic_3d_mesh_handoff")
+        self.assertEqual(project["mesh_case_id"], "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra")
         reopened = load_mesh_project(project["directory"])
         self.assertTrue(paths_equal(reopened["output_path"], project["output_path"]))
         saved = save_mesh_project_settings(
@@ -263,6 +263,30 @@ class MeshProjectTest(unittest.TestCase):
             project["geometry_lineage"]["manifest_status"],
             "invalid_or_checksum_mismatch",
         )
+
+    def test_legacy_imported_project_uses_geometry_neutral_mesh_handoff(self) -> None:
+        project_root = self.home / "legacy_project"
+        input_directory = project_root / "input"
+        input_directory.mkdir(parents=True)
+        source = self.repository_root / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python/input/model.stl"
+        (input_directory / "model.stl").write_bytes(source.read_bytes())
+        manifest = {
+            "schema": "oneflow.mesh-generation-project",
+            "version": 1,
+            "name": "legacy_project",
+            "template_case_id": None,
+            "mesh_case_id": "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
+            "input_stl": "input/model.stl",
+            "output_mesh": "results/legacy_project.msh",
+        }
+        (project_root / "project.json").write_text(
+            json.dumps(manifest), encoding="utf-8"
+        )
+        loaded = load_mesh_project(project_root)
+        expected = "stl_to_gmsh_generic_3d_mesh_handoff"
+        self.assertEqual(loaded["mesh_case_id"], expected)
+        saved = json.loads((project_root / "project.json").read_text(encoding="utf-8"))
+        self.assertEqual(saved["mesh_case_id"], expected)
 
     def test_import_stl_copies_database_geometry_into_independent_project(self) -> None:
         source = self.repository_root / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python/input/model.stl"

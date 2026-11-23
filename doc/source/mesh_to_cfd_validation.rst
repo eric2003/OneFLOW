@@ -40,6 +40,18 @@ selection tree. Its wall-only Physical Group makes this a conversion and
 runtime smoke test, not an external-flow accuracy benchmark.
 
 
+Generic imported 3-D STL projects
+---------------------------------
+
+A mesh project imported from an arbitrary STL uses the geometry-neutral
+``stl_to_gmsh_generic_3d_mesh_handoff`` validation entry. It performs MSH4
+inspection, Gmsh-to-CGNS conversion and CGNS-to-OneFLOW native-grid ingestion;
+it does not select a CFD model based on an unrelated geometry template. When
+the project carries a checksum-verified ``region_manifest.json``, its
+``wall``, ``inflow`` and ``outflow`` region names become required MSH Physical
+Groups for that run. Legacy imported projects that previously used the
+prolate-spheroid Case as a generic fallback are migrated when reopened.
+
 3-D internal-flow cylinder
 --------------------------
 

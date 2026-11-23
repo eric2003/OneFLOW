@@ -18,6 +18,7 @@ from .user_data_paths import UserDataPaths
 
 _PROJECT_SCHEMA = "oneflow.mesh-generation-project"
 _GENERIC_3D_VALIDATION_CASE = "stl_to_gmsh_generic_3d_mesh_handoff"
+_LEGACY_GENERIC_3D_VALIDATION_CASE = "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra"
 
 
 def _catalog(repository_root: Path) -> dict:
@@ -375,6 +376,19 @@ def load_mesh_project(directory: Path) -> dict:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("schema") != _PROJECT_SCHEMA or manifest.get("version") != 1:
         raise ValueError(f"Unsupported mesh project manifest: {manifest_path}")
+    if (
+        manifest.get("template_case_id") is None
+        and manifest.get("mesh_case_id") == _LEGACY_GENERIC_3D_VALIDATION_CASE
+    ):
+        # Earlier imported-STL projects borrowed the prolate-spheroid CFD Case
+        # as a generic fallback. Migrate them to the geometry-neutral handoff
+        # route so arbitrary meshes are not sent to an incompatible CFD model.
+        manifest["mesh_case_id"] = _GENERIC_3D_VALIDATION_CASE
+        manifest_path.write_text(
+            json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
     stl_relative = Path(str(manifest.get("input_stl", "")))
     if stl_relative.is_absolute() or ".." in stl_relative.parts:
         raise ValueError("Project input_stl must be a project-relative path.")
