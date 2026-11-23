@@ -56,7 +56,12 @@ This entry is deliberately ``mesh_handoff``, not a CFD smoke test. Its
 MSH check requires the two-dimensional Physical Surfaces ``wall``,
 ``inflow`` and ``outflow``, plus the three-dimensional Physical Volume
 ``fluid_domain``. Missing groups or groups declared with the wrong
-dimension fail the mesh-generation stage before conversion. The internal-flow
+dimension fail the mesh-generation stage before conversion. The Windows CI
+workflow now regenerates a blind STL cut, creates its tetrahedral MSH, then
+runs the actual OneFLOW executable through Gmsh-to-CGNS and CGNS-to-OneFLOW.
+It checks the CGNS and native-grid artifacts and keeps all run data under the
+runner temporary directory. The flat-plate CFD template is intentionally not
+run on this internal-flow mesh. The internal-flow
 cylinder has wall, inlet and outlet patch semantics; the
 available laminar flat-plate consumer is not a compatible physical setup.
 A dedicated internal-flow cylinder CFD Case with defined boundary states and

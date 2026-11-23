@@ -551,7 +551,7 @@
       "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow",
       "group": "STL to Gmsh",
       "dimension": 3,
-      "mesh_validation": "cfd_smoke",
+      "mesh_validation": "mesh_handoff",
       "execution": {
         "kind": "existing_mesh",
         "project_directory": "cylinder_internal_flow",

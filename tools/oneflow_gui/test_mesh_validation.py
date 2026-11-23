@@ -370,12 +370,19 @@ class MeshValidationCatalogTest(unittest.TestCase):
         groups = dict(mesh_case_groups(repository_root))
         self.assertIn(case_id, {item[0] for item in groups["3D"]})
 
+        catalog = json.loads(
+            (repository_root / "grid/case_catalog.json").read_text(encoding="utf-8")
+        )
+        entry = next(
+            item for item in catalog["mesh_validation_inputs"] if item["id"] == case_id
+        )
+        self.assertEqual(entry["mesh_validation"], "mesh_handoff")
         steps = build_mesh_validation_cases(
             repository_root, case_id, "laminar_flat_plate"
         )
         self.assertEqual(
             [step["id"] for step in steps],
-            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
         )
         self.assertEqual(
             steps[0]["outputs"][0]["path"],
