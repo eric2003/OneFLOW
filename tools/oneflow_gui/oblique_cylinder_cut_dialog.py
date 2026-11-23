@@ -187,6 +187,7 @@ class ObliqueCylinderCutDialog(QDialog):
             return
         self.output_view.clear()
         self.open_output_button.setEnabled(False)
+        self.run_cfd_button.setEnabled(False)
         self.run_button.setEnabled(False)
         self.status.setText("Running STL cutting, Gmsh volume meshing and Physical Group checks...")
         self._process.start(sys.executable, args)

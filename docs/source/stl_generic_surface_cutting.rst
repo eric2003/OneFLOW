@@ -179,5 +179,10 @@ and requires the ``fluid_domain`` volume group. The pure geometry test checks
 the measured inlet ellipse and circular outlet; the opt-in Gmsh integration
 checks non-empty Physical Groups and complete exterior-facet assignment.
 
-This is a mesh-generation acceptance case, not yet a claim of physically
-validated oblique-inlet CFD accuracy.
+The Mesh Generation GUI now offers **Convert + Run OneFLOW** after this MSH is
+generated. It hands the existing mesh to the shared Mesh-to-CFD Validation
+pipeline, which stages the mesh, converts Gmsh MSH to CGNS, converts CGNS to
+the native OneFLOW grid, and runs a short 3-D solver smoke test. Validation
+artifacts and the run report are written below the mesh project's ``validation``
+directory. The smoke test confirms workflow execution and mesh ingestion only;
+it is not a claim of physically validated oblique-inlet CFD accuracy.

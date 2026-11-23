@@ -17,7 +17,11 @@
       "grid/stl_to_gmsh/generate_volume_mesh.py",
       "tools/oneflow_gui/mesh_project.py",
       "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/script/cutting.json",
-      "grid/stl_to_gmsh/run_cylinder_oblique_cut.py"
+      "grid/stl_to_gmsh/run_cylinder_oblique_cut.py",
+      "tools/oneflow_gui/oblique_cylinder_cut_dialog.py",
+      "tools/oneflow_gui/mesh_validation.py",
+      "grid/case_catalog.json",
+      "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/expected.json"
     ],
     "algorithm": [
       "Validate a connected, closed, consistently oriented two-manifold input shell.",
@@ -30,7 +34,8 @@
       "Copy the manifest and its patch STL files into the writable mesh project when the closed shell is opened in STL to Gmsh.",
       "Create distinct Gmsh Physical Surface groups named wall, inflow and outflow and a fluid_domain Physical Volume.",
       "Use the 30-degree inlet-plane cylinder fixture to verify that an oblique plane/cylinder intersection produces an elliptical inlet loop (major/minor ratio approximately 1.1547) while the perpendicular outlet remains circular.",
-      "Pass the clipped and capped STL plus checksum-bound region manifest through the region-aware Gmsh converter and verify non-empty wall/inflow/outflow/fluid_domain Physical Groups."
+      "Pass the clipped and capped STL plus checksum-bound region manifest through the region-aware Gmsh converter and verify non-empty wall/inflow/outflow/fluid_domain Physical Groups.",
+      "Register the generated oblique-cut MSH as an existing-mesh validation input; hand it to the shared Gmsh-to-CGNS-to-OneFLOW-to-CFD workflow without rerunning the mesh producer."
     ],
     "limitations": [
       "One boundary loop per cutting plane.",
@@ -82,6 +87,18 @@
       "reference": "GenericStlSurfaceCutTest.test_gmsh_meshes_oblique_cylinder_with_elliptical_inlet_group",
       "status": "not_run",
       "scope": "Runs Gmsh 4.15.2 on the blind-input oblique-cut STL and verifies TETRA_4, TRI_3 and non-empty wall/inflow/outflow/fluid_domain Physical Groups."
+    },
+    {
+      "kind": "python_test",
+      "reference": "ObliqueCylinderCutDialogTest.test_oblique_mesh_is_registered_for_existing_mesh_validation",
+      "status": "not_run",
+      "scope": "Confirms the oblique-cut reference mesh is catalogued and resolves to the shared four-stage MSH-to-CGNS-to-OneFLOW-to-CFD workflow."
+    },
+    {
+      "kind": "python_test",
+      "reference": "ObliqueCylinderCutDialogTest.test_existing_mesh_is_handed_to_mesh_to_cfd_validation",
+      "status": "not_run",
+      "scope": "Confirms the GUI passes the generated MSH, project root and oblique mesh validation Case ID to MeshValidationDialog."
     }
   ],
   "execution_boundary": {
@@ -96,7 +113,10 @@
   "documentation": {
     "paths": [
       "docs/source/stl_generic_surface_cutting.rst",
-      "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/README.md"
+      "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/README.md",
+      "tools/oneflow_gui/oblique_cylinder_cut_dialog.py",
+      "tools/oneflow_gui/mesh_validation.py",
+      "grid/case_catalog.json"
     ]
   }
 }
