@@ -33,7 +33,7 @@ jobs:
 
       - name: Build docs
         run: |
-          cd doc
+          cd docs
           sphinx-build -b html source/ build/html
 
       - name: Deploy to GitHub Pages
@@ -42,5 +42,5 @@ jobs:
         with:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: doc/build/html
+          publish_dir: docs/build/html
           force_orphan: true

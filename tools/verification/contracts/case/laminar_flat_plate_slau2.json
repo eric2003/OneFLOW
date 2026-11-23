@@ -10,7 +10,7 @@
   "references": [
     "test/README.md",
     "test/baselines/README.md",
-    "doc/plans/verification-contract-workbench.md"
+    "docs/plans/verification-contract-workbench.md"
   ],
   "architecture": "The suite manifest selects the case. test/test.py loads the case control scripts, launches the OneFLOW executable, checks solver exit status, compares files listed in autotest/compare.txt against autotest references, and compares res.dat against test/baselines/residual-baseline.json when that baseline is supplied. The case owns its grid, script inputs, output manifests, accepted reference files, and analytical comparison data. The shared Contract Catalog reads this metadata but does not execute the solver.",
   "implementation": {
@@ -23,7 +23,7 @@
     "paths": [
       "test/README.md",
       "test/baselines/README.md",
-      "doc/plans/verification-contract-workbench.md"
+      "docs/plans/verification-contract-workbench.md"
     ]
   },
   "case": {

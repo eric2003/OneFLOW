@@ -37,6 +37,11 @@ License
 #include "Ctrl.h"
 #include "VisGrad.h"
 #include "HXMath.h"
+#include "HipProductionPolicy.h"
+#ifdef ONEFLOW_ENABLE_HIP
+#include "HipTurbulenceBackend.h"
+#include <vector>
+#endif
 #include <iostream>
 
 
@@ -239,6 +244,70 @@ void UTurbVisFlux::PrepareCellGeom()
 
 void UTurbVisFlux::CalcVisFlux1Equ()
 {
+    // Device counterpart of PrepareFaceValue -> CalcFaceVisFlux1Equ ->
+    // UpdateFaceVisFlux.  Only the diffusive side is requested here; the
+    // inviscid face flux is UTurbInvFlux's.  visflux is left untouched when the
+    // path declines, so the host loop below still owns it.
+#ifdef ONEFLOW_ENABLE_HIP
+    if ( HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UTURB_HIP_VISFLUX" )
+         && turbcom.nEqu == 1 && visflux != nullptr
+         && HipTurbulenceBackend::Shared().SupportsFaceFlux()
+         // The kernel implements only the VIS_TEST normal-gradient variant,
+         // which is what the shipped cases set (iturb_visflux = 2).  Any other
+         // scheme must run on the host rather than be silently substituted, so
+         // decline here instead of letting the view validator throw: a throw
+         // would abort a case that works fine on the host path.
+         && turbcom.iturb_visflux == 2 )
+    {
+        UnsGrid * grid = Zone::GetUnsGrid();
+        {
+            TurbSaFaceView view;
+            view.nFaces = ug.nFaces;
+            view.nBoundaryFaces = ug.nBFaces;
+            view.nCells = ug.nCells;
+            view.nGhostCells = ug.nTCell - ug.nCells;
+            view.xNormal = ug.xfn->data();
+            view.yNormal = ug.yfn->data();
+            view.zNormal = ug.zfn->data();
+            view.meshVelocityNormal = ug.vfn->data();
+            view.faceArea = ug.farea->data();
+            view.leftCell = ug.lcf->data();
+            view.rightCell = ug.rcf->data();
+            view.xFace = ug.xfc->data();
+            view.yFace = ug.yfc->data();
+            view.zFace = ug.zfc->data();
+            view.xCell = ug.xcc->data();
+            view.yCell = ug.ycc->data();
+            view.zCell = ug.zcc->data();
+            // The diffusive flux reads the cell-centred working variable at each
+            // face's left/right cell (PrepareFaceValue:303-311 puts
+            // (*uturbf.q)[IKE][lc] into visTurb.q1), not the reconstructed face
+            // value.  For the one-equation model IKE == ISA.
+            view.cellWorkingVariable = ( * uturbf.q )[ ISA ].data();
+            view.cellLaminarViscosity = ( * uturbf.visl )[ 0 ].data();
+            view.cellDensity = ( * uturbf.meanFlow.q )[ IDX::IR ].data();
+            view.workingVariableGradientX = ( * uturbf.dqdx )[ ISA ].data();
+            view.workingVariableGradientY = ( * uturbf.dqdy )[ ISA ].data();
+            view.workingVariableGradientZ = ( * uturbf.dqdz )[ ISA ].data();
+            view.densityWeight = 1.0;
+            view.invSigma = turbcom.osigma;
+            view.invReynolds = turbcom.oreynolds;
+            view.viscousFluxVariant = turbcom.iturb_visflux;
+            view.inviscidFlux = nullptr;
+            view.cacheKey = grid;
+
+            visfluxScratch_.assign( static_cast< std::size_t >( ug.nFaces ), 0.0 );
+            view.diffusiveFlux = visfluxScratch_.data();
+            HipTurbulenceBackend::Shared().CalcFaceFlux( view );
+            for ( int face = 0; face < ug.nFaces; ++ face )
+            {
+                ( * visflux )[ ISA ][ face ] = visfluxScratch_[ face ];
+            }
+            this->AddVisFlux();
+            return;
+        }
+    }
+#endif
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;

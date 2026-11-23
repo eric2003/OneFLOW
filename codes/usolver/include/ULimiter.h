@@ -112,6 +112,10 @@ public:
 public:
     void SetInitValue();
     void CalcLimiter();
+    // Fill the limiter field with the neutral factor without walking faces.
+    // Used when the backend computes the factor itself but host readers (dumps,
+    // interface storage) still expect an initialised field.
+    void FillNeutralLimiterField();
     // No-limiter mode fills the limiter field with one.  That fill is only
     // skippable when the field is no longer carried by the interface exchange;
     // otherwise the exchanged neighbours overwrite the ghosts every step.

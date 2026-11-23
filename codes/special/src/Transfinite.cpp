@@ -160,10 +160,10 @@ void TransfiniteInterpolation( RealField3D & coor, int ni, int nj, int nk )
 
                 u[ i ][ j ][ k ] = di * u0 + ci * u1;
                 v[ i ][ j ][ k ] = dj * v0 + cj * v1;
-                w[ i ][ j ][ k ] = dk * v0 + ck * w1;
+                w[ i ][ j ][ k ] = dk * w0 + ck * w1;
 
                 uw[ i ][ j ][ k ] = di * dk * x0j0 + di * ck * x0j1 + ci * dk * x1j0 + ci * ck * x1j1;
-                uv[ i ][ j ][ k ] = di * dj * x00k + di * cj * x01k + ci * dj * x10k + ci * ck * x11k;
+                uv[ i ][ j ][ k ] = di * dj * x00k + di * cj * x01k + ci * dj * x10k + ci * cj * x11k;
                 vw[ i ][ j ][ k ] = dj * dk * xi00 + dj * ck * xi01 + cj * dk * xi10 + cj * ck * xi11;
                 uvw[ i ][ j ][ k ] = di * dj * dk * x000 + ci * dj * dk * x100 + ci * cj * dk * x110 + di * cj * dk * x010
                                    + di * dj * ck * x001 + ci * dj * ck * x101 + ci * cj * ck * x111 + di * cj * ck * x011;

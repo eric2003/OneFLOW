@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "NsInvFlux.h"
+#include <stdexcept>
+#include <string>
 #include "NsInvFluxPolicy.h"
 #include "Zone.h"
 #include "DataBase.h"
@@ -32,6 +34,23 @@ License
 #include "Ctrl.h"
 
 BeginNameSpace( ONEFLOW )
+
+int DeviceFluxScheme( int solverScheme )
+{
+    switch ( solverScheme )
+    {
+    case ISCHEME_LAX_FRIEDRICHS:
+        // Rusanov/Lax-Friedrichs.
+        return 1;
+    case ISCHEME_ROE:
+        // Roe with the host's Roe averages and Harten entropy fix.
+        return 2;
+    default:
+        throw std::invalid_argument(
+            "device flux kernel has no implementation for ISCHEME_"
+            + std::to_string( solverScheme ) );
+    }
+}
 
 NsInv inv;
 

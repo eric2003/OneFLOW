@@ -222,7 +222,14 @@ ProcessResult RunProcess(
         spawnError = posix_spawn_file_actions_addclose( &actions, outputPipe[ 0 ] );
     if ( spawnError == 0 )
         spawnError = posix_spawn_file_actions_addclose( &actions, outputPipe[ 1 ] );
-#if defined(__GLIBC__) || defined(__APPLE__)
+    // posix_spawn_file_actions_addchdir_np is a glibc >= 2.29 extension.  Gate
+    // on the version, not on __GLIBC__ alone: CentOS 7.6 (glibc 2.17) defines
+    // __GLIBC__ but has no declaration, so the old guard broke the build.
+    // Without a chdir action the caller gets ENOTSUP instead of a silent spawn
+    // in the wrong directory.
+#if defined(__APPLE__) || \
+    ( defined(__GLIBC__) && \
+      ( __GLIBC__ > 2 || ( __GLIBC__ == 2 && __GLIBC_MINOR__ >= 29 ) ) )
     if ( spawnError == 0 && ! workingDirectory.empty() )
         spawnError = posix_spawn_file_actions_addchdir_np(
             &actions, workingDirectory.c_str() );

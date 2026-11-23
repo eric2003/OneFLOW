@@ -1,0 +1,31 @@
+{
+  "label": "numerics",
+  "gate_mode": "audit",
+  "gate_status": "pass",
+  "gate_exit_code": "0",
+  "time_utc": "2026-11-01T11:13:10.798122+00:00",
+  "git_commit": "01fac38c7768f9f2a6abe756a8edc5fe646d644a",
+  "git_branch": "agent/numerics",
+  "git_dirty": false,
+  "host": "(redacted: repository publication boundary forbids hostnames in committed artifacts)",
+  "kernel": "27.0.0",
+  "cpu": "",
+  "cpu_threads": 6,
+  "gpu": "",
+  "toolchain": {
+    "cxx": "Apple clang version 21.0.0 (clang-2100.4.1.1)",
+    "cmake": "cmake version 4.4.5",
+    "mpi": "HYDRA build details:",
+    "pi": "1.4.0"
+  },
+  "model": "deepseek-v4.1-flash-261017",
+  "commands": [],
+  "case": "",
+  "env": {
+    "OMP_NUM_THREADS": "",
+    "CXXFLAGS": "",
+    "PI_ARGS": "",
+    "GATE_MODE": "audit"
+  },
+  "note": "Domain-specific fields (mesh, CFL, iterations, residual history, timing) are written by verification cases to *.case.json; see .agentlab/repro_fields.yaml"
+}

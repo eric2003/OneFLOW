@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <cmath>
+#include <cstring>
 #include <stdexcept>
 
 #include "NsInvFluxPolicy.h"
@@ -213,6 +214,75 @@ TEST( InvFluxPolicy, IdealGasSoundSpeedFromPressure )
         1.0e-12 );
 }
 
+// A zero-density state must stay finite (the + SMALL guard) instead of returning inf.
+TEST( InvFluxPolicy, IdealGasSoundSpeedKeepsZeroDensityFinite )
+{
+    const Real speed = IdealGasSoundSpeedFromPressure( 0.0, 1.0, 1.4 );
+    EXPECT_TRUE( std::isfinite( speed ) );
+    EXPECT_GT( speed, 0.0 );
+}
+
+// The guard must not perturb a normal state: it is far below double precision.
+TEST( InvFluxPolicy, IdealGasSoundSpeedGuardDoesNotChangeNormalState )
+{
+    EXPECT_DOUBLE_EQ(
+        IdealGasSoundSpeedFromPressure( 1.25, 101325.0, 1.4 ),
+        std::sqrt( 1.4 * 101325.0 / 1.25 ) );
+}
+
+// A single division is correctly rounded, while scaling by a reciprocal rounds
+// twice. Pin both the absolute quality (within 1 ulp of a higher-precision
+// reference where the platform has one) and the relative claim (the division
+// form is no worse than the reciprocal form over the physical range).
+namespace
+{
+long SoundSpeedUlpDistance( Real actual, long double reference )
+{
+    const Real rounded = static_cast< Real >( reference );
+    long long a = 0;
+    long long b = 0;
+    static_assert( sizeof( Real ) == sizeof( a ), "ulp distance assumes a 64-bit Real" );
+    std::memcpy( &a, &actual, sizeof a );
+    std::memcpy( &b, &rounded, sizeof b );
+    if ( a < 0 ) { a = 0x8000000000000000LL - a; }
+    if ( b < 0 ) { b = 0x8000000000000000LL - b; }
+    return static_cast< long >( a > b ? a - b : b - a );
+}
+}
+
+TEST( InvFluxPolicy, IdealGasSoundSpeedIsWithinOneUlpOfReference )
+{
+    long maxUlpDivided = 0;
+    long maxUlpReciprocal = 0;
+    long sumUlpDivided = 0;
+    long sumUlpReciprocal = 0;
+
+    for ( int i = 0; i < 2000; ++i )
+    {
+        const Real density  = 1.0e-3 + 0.9997 * static_cast< Real >( i );
+        const Real pressure = 1.0e-3 + 13.7 * static_cast< Real >( i );
+        const Real gama     = 1.4;
+
+        const long double reference =
+            sqrtl( fabsl( (long double)gama * pressure / (long double)density ) );
+
+        const Real divided = IdealGasSoundSpeedFromPressure( density, pressure, gama );
+        const Real reciprocal = sqrt( ABS( gama * pressure * ( one / density ) ) );
+
+        const long ulpDivided = SoundSpeedUlpDistance( divided, reference );
+        const long ulpReciprocal = SoundSpeedUlpDistance( reciprocal, reference );
+
+        sumUlpDivided += ulpDivided;
+        sumUlpReciprocal += ulpReciprocal;
+        maxUlpDivided = ulpDivided > maxUlpDivided ? ulpDivided : maxUlpDivided;
+        maxUlpReciprocal = ulpReciprocal > maxUlpReciprocal ? ulpReciprocal : maxUlpReciprocal;
+    }
+
+    EXPECT_LE( maxUlpDivided, 1 );
+    EXPECT_LE( sumUlpDivided, sumUlpReciprocal );
+    EXPECT_LT( sumUlpDivided, sumUlpReciprocal );
+}
+
 TEST( InvFluxPolicy, IdealGasPrimToConservativeMatchesManual )
 {
     Real qr, qu, qv, qw, qe;
@@ -294,6 +364,30 @@ TEST( InvFluxPolicy, IdealGasBilateralSoundSpeedsAveragesSides )
     EXPECT_NEAR( cl, std::sqrt( 1.4 ), 1.0e-12 );
     EXPECT_NEAR( cr, std::sqrt( 1.4 ), 1.0e-12 );
     EXPECT_NEAR( cm, std::sqrt( 1.4 ), 1.0e-12 );
+}
+
+// Each side keeps its own density/pressure/gama pair, and the average is theirs.
+TEST( InvFluxPolicy, IdealGasBilateralSoundSpeedsKeepsSidesIndependent )
+{
+    Real cl, cr, cm;
+    IdealGasBilateralSoundSpeeds(
+        1.0, 2.0, 1.4, 4.0, 3.0, 1.3, cl, cr, cm );
+    EXPECT_NEAR( cl, std::sqrt( 1.4 * 2.0 / 1.0 ), 1.0e-12 );
+    EXPECT_NEAR( cr, std::sqrt( 1.3 * 3.0 / 4.0 ), 1.0e-12 );
+    EXPECT_DOUBLE_EQ( cm, 0.5 * ( cl + cr ) );
+}
+
+// The bilateral helper keeps the zero-density guard on both sides.
+TEST( InvFluxPolicy, IdealGasBilateralSoundSpeedsKeepsZeroDensityFinite )
+{
+    Real cl, cr, cm;
+    IdealGasBilateralSoundSpeeds( 0.0, 1.0, 1.4, 0.0, 1.0, 1.4, cl, cr, cm );
+    EXPECT_TRUE( std::isfinite( cl ) );
+    EXPECT_TRUE( std::isfinite( cr ) );
+    EXPECT_TRUE( std::isfinite( cm ) );
+    EXPECT_GT( cl, 0.0 );
+    EXPECT_GT( cr, 0.0 );
+    EXPECT_GT( cm, 0.0 );
 }
 
 
@@ -565,6 +659,7 @@ TEST( InvFluxPolicy, RoePressureFromTotalEnthalpyRemovesKinetic )
         RoePressureFromTotalEnthalpy( 2.0, 6.5, 4.0, 1.4 ),
         2.0 * 4.5 * ( 0.4 / 1.4 ),
         1.0e-12 );
+
 }
 
 // Intermediate: IdealGasSpecificInternalEnergy on a kinetic grid.

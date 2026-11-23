@@ -20,8 +20,8 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/numerical/cfl_ramp.rst",
-      "doc/source/case_parameter_design.rst"
+      "docs/source/numerical/cfl_ramp.rst",
+      "docs/source/case_parameter_design.rst"
     ]
   },
   "claims": {

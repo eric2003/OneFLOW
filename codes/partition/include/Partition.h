@@ -61,15 +61,18 @@ public:
 class G2LMapping
 {
 public:
-    G2LMapping( UnsGrid & ggrid, int npartproc );
+    G2LMapping( UnsGrid & ggrid, int npartproc, int partitionType );
 public:
     IntField g2l_node;
     IntField g2l_face;
     IntField g2l_cell;
     std::vector<idx_t> gc2lzone;
     const int npartproc;
+    const int partitionType;
 public:
+    // 1 = METIS graph partition, 2 = structured cell-count-balanced blocks.
     void GenerateGC2Z( UnsGrid & ggrid );
+    void PartByStructured( UnsGrid & ggrid );
 #ifdef ENABLE_METIS
     void GetXadjAdjncy( UnsGrid & ggrid, std::vector<idx_t>& xadj, std::vector<idx_t>& adjncy );
     void PartByMetis( idx_t nCells, std::vector<idx_t>& xadj, std::vector<idx_t>& adjncy );

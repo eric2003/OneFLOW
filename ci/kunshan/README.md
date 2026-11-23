@@ -1,5 +1,11 @@
 # Kunshan regression workflow
 
+> Current accelerator sessions use the fixed workspace and OpenAPI submission in
+> [`docs/runbooks/oneflow-kunshan-workspace-runbook.md`](../../docs/runbooks/oneflow-kunshan-workspace-runbook.md).
+> The SSH-based Actions workflow below is a separate automation path; the recorded SSH
+> failure means its per-run layout is not the procedure for current manual sessions.
+> This documentation review (2026-11-11) did not retest either access path.
+
 The workflow in `.github/workflows/kunshan-regression.yml` is independent of
 the existing Linux, Windows, and documentation workflows. It is intentionally
 manual-only because it consumes Slurm resources and repository secrets are not
@@ -85,6 +91,38 @@ By default the stability runner pins both `cflst` and `cfled` to `ONEFLOW_F2_STA
 For an already partitioned multi-zone fixture, set `ONEFLOW_F2_STABILITY_PARTITIONED_CASE=1` and use the same rank count for `ONEFLOW_F2_STABILITY_CPU_RANKS` and `ONEFLOW_F2_STABILITY_HIP_RANKS`. The runner then forces `simutask=Solve`, selects `ONEFLOW_F2_STABILITY_GRID_FILE` (default `grid/m6wing-8.ofl`), and does not re-enter the partition workflow. An optional `ONEFLOW_F2_STABILITY_FIXTURE_METADATA` (or `ONEFLOW_MZ_FIXTURE_METADATA`) is validated before MPI starts and is recorded in `fixture-validation.txt`; leaving it unset records `MULTIZONE_FIXTURE_UNCHECKED`.
 
 ## Execution
+
+### Opt-in MG host wall accounting (H1)
+
+Set `ONEFLOW_HOST_ACCOUNTING=1` together with
+`ONEFLOW_STAGE_BREAKDOWN_FILE=<evidence>/breakdown-%r.tsv`. Each rank writes an
+additional `.host.tsv` with `scope`, `count`, `inclusive_ms`, `exclusive_ms`.
+Accounting is limited to `MG::Run`; initialization and final pipeline output are
+outside that root. Existing stage/task TSV schemas remain unchanged.
+
+Exclusive times subtract instrumented child scopes, including nested task
+dispatch, so their sum closes to `mg_run`. They include HIP/MPI waits and are
+not CPU execution time or GPU occupancy. `task_execute` is task payload, not
+dispatch overhead. No additional synchronization is introduced. Timers are
+inactive unless both environment switches are set; the choice is cached per
+process. This path assumes the current serial solver dispatch thread.
+
+Compare identical 1-step and 1000-step cases after warmup, on the same allocation:
+
+```bash
+python3 ci/kunshan/summarize-host-accounting.py \
+  --pattern '<evidence>/long-*.tsv.host.tsv' \
+  --short-pattern '<evidence>/short-*.tsv.host.tsv' \
+  --ranks 8 --steps 1000 --short-steps 1 \
+  --wall-ms <long-wall-ms> --short-wall-ms <short-wall-ms> \
+  --output <evidence>/host-summary.json
+```
+
+The verifier checks rank completeness, actual iteration counts, finite durations,
+exclusive-time closure, and a <10% gap between startup-corrected wall time and
+the slowest rank's MG time. Preserve individual ranks; do not add their times.
+Interleave accounting on/off runs to measure instrumentation overhead. Validate
+the numerical gates with accounting enabled before interpreting this diagnostic.
 
 Run **OneFLOW Kunshan Regression** from the Actions page and select:
 
@@ -230,7 +268,8 @@ the cluster-side `README.md`; the structure is:
 
 ```text
 <workspace root>/                 fixed, canonical; never create a second one
-├── src/OneFLOW/                  current source snapshot (overwritten each round)
+├── src/                         current source and revision marker
+│   ├── OneFLOW/                  overwritten each round
 │   └── REVISION                  repository/commit marker for the snapshot
 ├── deps/metis-install/           self-built METIS 5.0.1
 ├── build/app/                    production root build (HIP+MPI+METIS), incremental
@@ -245,10 +284,11 @@ the cluster-side `README.md`; the structure is:
 ```
 
 The layout and the submission rules are documented in
-[`doc/runbooks/oneflow-kunshan-workspace-runbook.md`](../../doc/runbooks/oneflow-kunshan-workspace-runbook.md).
+[`docs/runbooks/oneflow-kunshan-workspace-runbook.md`](../../docs/runbooks/oneflow-kunshan-workspace-runbook.md).
 Builds are incremental and fixed per target: do not create `build/<jobid>`,
-and do not re-run CMake configure on a compute node (the DTK HIP package check
-fails there); use `scripts/build-app.sh` (`make ... OneFLOW/fast`).
+and do not routinely re-run CMake configure; use `scripts/build-app.sh`
+(`make ... OneFLOW_RuntimeObjects`, then `make ... OneFLOW/fast`). If configuration
+must change, use the SDK interface in the runbook within a DCU allocation.
 
 ### Standard suites
 
@@ -260,6 +300,8 @@ fails there); use `scripts/build-app.sh` (`make ... OneFLOW/fast`).
 | `dcu-mpi` | `kshdnormal` | 4 ranks × 8 CPU, `dcu:4` | 1-rank and 4-rank DCU MPI benchmark, four sizes | exit 0, hashes match `cpu-mpi`, `visible_devices=4` |
 
 Common scale: `nx = 65536 / 262144 / 1048576 / 4194304`, `steps=100 repeats=2 warmup=1`.
+This scale describes the standalone 1D port suites. Root 3D production performance
+uses the living handoff's 1000-step, warmup, startup-corrected and paired basis.
 
 The standalone 1D Euler MPI port is not a zone-based 3D solver. Its
 `Partition(globalNx, rank, ranks, ...)` path repartitions the same global cell
@@ -317,11 +359,12 @@ endpoints, role/count mismatches, and any topology that would require
 guessing from aggregate face counts. Set
 `ONEFLOW_MZ_FIXTURE_EQUATIONS` when the solver is not five-equation Euler;
 `ONEFLOW_MZ_FIXTURE_MEMORY_SPACE` defaults to `HostStaged` and must only be
-set to `DeviceDirect` after a GPU-aware MPI probe has passed.
+set to `DeviceDirect` only when both the probe and the actual solver path have passed
+their gates. A passing pointer probe alone does not validate the solver.
 
 `lifecycle_*_ms` sums over `repeats`; only datasets recorded with the same
 `repeats` value are comparable (see the erratum in
-`doc/reports/performance/oneflow-euler-performance-20260913.md`).
+`docs/reports/performance/oneflow-euler-performance-20260913.md`).
 
 ### Run artifacts
 

@@ -11,7 +11,6 @@ License
 #include "FluxBackend.h"
 #include "BoundaryExchangeContract.h"
 #include "DeviceBuffer.h"
-#include "EulerDomain.h"
 #include "ResidentStateContract.h"
 
 #include <cstddef>
@@ -25,6 +24,12 @@ namespace ONEFLOW
 {
 
 struct PrimitiveFaceStateView;
+
+// The NS 3D state is only named here through a reference, an owning factory
+// return type and a pointer map, so no domain header is needed. Callers that
+// construct or dereference these types include Ns3DDomain.h themselves.
+class Ns3DBackendState;
+class Ns3DDeviceState;
 
 // Per-zone residual diagnostics computed from the state-owned device residual.
 // The solver consumes the same quantities the host residual task used to
@@ -81,6 +86,13 @@ struct HipGradientStorage
 {
     DeviceBuffer< Real > cellState;
     DeviceBuffer< Real > cellGradient;
+    // Derived temperature field and its cell gradient.  Temperature is not one
+    // of the five conserved variables, so it has its own device storage next to
+    // the mean-flow state instead of a sixth plane in cellState/cellGradient.
+    // The viscous and heat-conduction kernels read these; nothing allocates
+    // them until a viscous configuration is active.
+    DeviceBuffer< Real > temperature;
+    DeviceBuffer< Real > temperatureGradient;
     DeviceBuffer< Real > xFaceCenter;
     DeviceBuffer< Real > yFaceCenter;
     DeviceBuffer< Real > zFaceCenter;
@@ -142,6 +154,14 @@ struct HipGradientStorage
     DeviceBuffer< unsigned char > boundaryMask;
     DeviceBuffer< ReconstructionBoundaryOperation > boundaryOperation;
     DeviceBuffer< Real > bcQ;
+    // Per-cell/per-equation reconstruction limiter factor (host-computed).
+    DeviceBuffer< Real > limiter;
+    // True while boundaryFaceState holds the newest wall state produced by the
+    // device boundary stage, so reconstruction can read it directly instead of
+    // mirroring it to the host and uploading it back every stage.
+    bool wallStateValid = false;
+    int wallStateFaces = 0;
+    int wallStateEquations = 0;
     DeviceBuffer< Real > boundaryFaceState;
     // Packed [equation][ghost cell] slice used for a single D2H per stage.
     DeviceBuffer< Real > boundaryGhostPack;
@@ -154,6 +174,11 @@ struct HipGradientStorage
     DeviceBuffer< Real > boundaryYNormal;
     DeviceBuffer< Real > boundaryZNormal;
     DeviceBuffer< Real > boundaryMeshVelocityNormal;
+    // Per-face wall velocity components (viscous wall image velocity).  Uploaded
+    // alongside meshVelocityNormal (dynamic, not part of the geometry cache).
+    DeviceBuffer< Real > boundaryWallVelocityX;
+    DeviceBuffer< Real > boundaryWallVelocityY;
+    DeviceBuffer< Real > boundaryWallVelocityZ;
     DeviceBuffer< int > boundaryLeftCell;
     DeviceBuffer< int > boundaryRightCell;
     // Boundary geometry/topology is immutable for a bound grid across RK
@@ -170,6 +195,11 @@ struct HipGradientStorage
     const int * cachedBoundaryRightCell = nullptr;
     const int * cachedBoundaryType = nullptr;
     bool boundaryGeometryCacheValid = false;
+    // Inflow values are tiny but the upload is a blocking H2D, so it became the
+    // drain point for every deferred kernel in the stage. Compare the values
+    // (not just the pointer) and upload only when they actually change.
+    Real cachedInflowValues[ 8 ] = {};
+    int cachedInflowCount = 0;
     std::unordered_map<
         HipBoundaryEndpointKey,
         HipBoundaryEndpointStorage,
@@ -212,11 +242,22 @@ struct HipGradientStorage
     // The state update consumes residualValid, but the diagnostics still need
     // the scaled residual, so the two flags are tracked separately.
     bool residualMetricsValid = false;
+    // CALC_LHS and UPDATE_FLOWFIELD are two element-wise passes over the same
+    // resident arrays with nothing host-visible in between.  With
+    // ONEFLOW_HIP_FUSE_SCALE_UPDATE=1 the scale kernel is deferred and issued
+    // from the update entry, so a stage pays one host entry and one drain
+    // instead of two.
+    bool residualScalePending = false;
+    Real residualScaleCoefficient = 1.0;
     const Real * cachedStateQ[ 5 ] = {};
     // Cells whose gradient is mirrored to the host for the host-side interface
     // exchange.  Kept resident so the mirror does not re-upload ids per stage.
     DeviceBuffer< int > gradientMirrorCellIds;
     DeviceBuffer< int > gradientPackIds;
+    // The unpack caller now passes a cached, stable id list for the partition;
+    // re-uploading it was a blocking H2D per ghost level per stage.
+    const int * cachedGradientPackIdsHost = nullptr;
+    int cachedGradientPackIdCount = -1;
     DeviceBuffer< Real > gradientPackValues;
     std::vector< int > cachedGradientMirrorCellIds;
     DeviceBuffer< Real > gradientMirrorValues;
@@ -279,14 +320,113 @@ public:
         ResidualView & residual,
         int scheme,
         FaceFluxView * hostFlux = nullptr,
-        const void * cacheKey = nullptr );
+        const void * cacheKey = nullptr,
+        Real entropy1 = 0.0,
+        Real entropy2 = 0.0,
+        bool entropyFix = false );
+
+    // Single-face evaluation of the device Roe flux, for the numeric contract
+    // test that pins host and device to the same formula.  Not used by the
+    // solver: the production path runs the whole face array.
+    struct DeviceRoeSample
+    {
+        Real left[ 5 ] = {};      // rho, u, v, w, p
+        Real right[ 5 ] = {};     // rho, u, v, w, p
+        Real normal[ 3 ] = {};
+        Real meshVelocityNormal = 0.0;
+        Real gamma = 1.4;
+        Real entropy1 = 0.0;
+        Real entropy2 = 0.0;
+        bool entropyFix = false;
+    };
+    void EvaluateDeviceRoe(
+        const DeviceRoeSample & sample, Real flux[ 5 ] ) const;
+
+    // Diagnostic only: copy the resident per-cell limiter factor and the
+    // reconstructed face values back to the host so a CPU run and a HIP run can
+    // be compared point by point.  Enabled by ONEFLOW_UNS_LIMITER_DUMP.
+    void CopyLimiterStateToHost(
+        const void * cacheKey, int nCells, int nFaces, int nEquations,
+        Real * phi, Real * faceLeft, Real * faceRight );
+
+    // Single-cell-side Barth limiter factor, for the limiter contract test.
+    // One face side: linear increment dq = grad . (xFace - xCell), face normal,
+    // and the cell-local min/max range of the limited variable.
+    Real EvaluateDeviceBarth(
+        Real dqdx, Real dqdy, Real dqdz,
+        Real dx, Real dy, Real dz,
+        Real nx, Real ny, Real nz,
+        Real minv, Real maxv,
+        Real orientationSign ) const;
 
     void CalcGradient( const CellGradientView & view );
+
+    // Derived temperature field and its cell gradient for the viscous and
+    // heat-conduction slice.  Overrides the fail-closed FluxBackend defaults.
+    bool SupportsCellTemperature() const override { return true; }
+    void CalcCellTemperature( const CellTemperatureView & view ) override;
+
+    // Viscous stress, energy and conduction flux for one stage.
+    //
+    // Mirrors the production host chain term for term:
+    //   UNsVisFlux::CalcFaceVisFlux (CalcHeatFlux -> CalcStress ->
+    //   CalcNsVisFlux), the VIS_STD face preparation in PrepareFaceValue
+    //   (average gradient, CalcGradCoef, AverFaceValue, CorrectFaceGrad,
+    //   CalcNormalGrad), NsVisFluxPolicy's stress/projection/energy/conductivity
+    //   helpers, and UpdateFaceVisFlux's -A/Re scaling.
+    //
+    // VIS_STD (ivischeme == 0) is the only face scheme implemented: it is the
+    // one every production case sets, and the other four differ only in how the
+    // face normal gradient is built.  A caller cannot select another scheme
+    // through ViscousFluxView, so the kernel cannot silently substitute one.
+    //
+    // The face tangents in the view are not consumed: GCom::CalcTangent computes
+    // them for every face, but their only readers are VisGrad::ModifyFaceGrad
+    // and the VIS_TEST/NEW1/NEW2 paths, which VIS_STD never enters.
+    bool SupportsViscousFlux() const override { return true; }
+    void CalcViscousFaceFlux( const ViscousFluxView & view ) override;
+
+    // Wall heat flux needs the solid faces themselves.  ViscousFluxView carries
+    // the output buffer and the count but deliberately no boundary
+    // classification, because the accel layer does not know the solver's BC
+    // ids.  The caller passes the face ids in the same order it would push the
+    // host heat-flux vector, which is exactly the order
+    // UNsVisFlux::SaveHeatFlux writes (increasing face id), so the result can be
+    // compared element by element with the host field.
+    //
+    // The override above passes no ids, so it produces no wall heat flux; a view
+    // that asks for one through that entry fails closed instead of writing
+    // values for faces nobody classified.
+    void CalcViscousFaceFlux(
+        const ViscousFluxView & view, const int * wallFaceIds );
+
+    // Single-value device mirror of SutherlandViscosityNondim
+    // (codes/model/src/Sutherland.cpp), for the numeric contract test that
+    // pins it to the host expression.  The nondimensional form is
+    // sqrt( t * t * t ) * ( 1 + ts ) / ( t + ts ), not pow( t, 1.5 ).
+    Real EvaluateDeviceSutherland(
+        Real temperatureNondim, Real sutherlandTsNondim ) const;
 
     // Compute the local inviscid spectral radius and timestep from resident
     // primitive state. The resulting timestep can remain device-resident for
     // ScaleCurrentResidual.
     void CalcLocalInviscidTimeStep( const CellTimeStepView & view );
+
+    // The time-step and state-update kernels report a non-physical or
+    // non-finite result through a device flag that used to be copied back to
+    // the host after every call, i.e. three blocking 4-byte round trips per
+    // macro step on top of the launches. The default keeps the flag on the
+    // device and checks once per macro step through CheckResidentStatus(); set
+    // ONEFLOW_HIP_DEFER_STATUS=0 to check per call.
+    void CheckResidentStatus();
+
+    // Deferred variant: the macro step only *requests* the check.  The read is
+    // performed at the next point that already drains the queue (the
+    // host-staged interface pack), so a four-byte status read no longer costs
+    // an extra full device drain per step.  Callers outside the interface path
+    // fall back to CheckResidentStatus() through FlushRequestedResidentStatus().
+    void RequestResidentStatusCheck();
+    void FlushRequestedResidentStatus();
 
     // Update supported local inviscid boundary models on the resident state.
     void UpdateBoundaryState( const BoundaryStateView & view );
@@ -294,13 +434,18 @@ public:
     // Reconstruct face primitive values into state-owned device buffers. The
     // host view supplies metadata and optional diagnostic destinations; the
     // numerical path consumes q/gradient/geometry already resident on device.
+    // When hasSolidBoundary is set, bcQ must be one contiguous equation-major
+    // buffer with stride nBoundaryFaces. Solid-override faces are a prefix,
+    // so the kernel indexes that buffer by face.
     void ReconstructFaceValues(
         const CellFaceReconstructionView & view,
         bool downloadToHost = false );
 
     // Consume the device qf1/qf2 produced by ReconstructFaceValues and scatter
     // the resulting flux directly into the device residual. hostFlux is only
-    // populated for explicit trace/diagnostic requests.
+    // populated for explicit trace/diagnostic requests.  residualBase selects
+    // whether the host residual field is uploaded as the accumulation base or
+    // the device residual is zeroed instead.
     void CalcAndAddReconstructedFaceFlux(
         const FaceConnectivityView & connectivity,
         ResidualView & residual,
@@ -308,13 +453,26 @@ public:
         Real gamma,
         FaceFluxView * hostFlux = nullptr,
         const void * cacheKey = nullptr,
-        bool downloadResidual = true );
+        bool downloadResidual = true,
+        ResidualBase residualBase = ResidualBase::HostUpload,
+        Real entropy1 = 0.0,
+        Real entropy2 = 0.0,
+        bool entropyFix = false );
 
     // Continue the reconstructed-flux path without a residual round trip.
     // ScaleCurrentResidual implements CALC_LHS. UpdatePrimitiveState implements
     // the five-equation primitive -> conserved -> primitive flow update and
     // mirrors the internal-cell primitive state to host when requested.
     void ScaleCurrentResidual( const CellStateUpdateView & view );
+    // One entry for the two element-wise per-cell stages of the explicit
+    // chain.  ScaleCurrentResidual and UpdatePrimitiveState each launched a
+    // kernel, drained, and repeated the same binding/extent checks; the two
+    // kernels have no host-visible state between them, so they can be issued
+    // back to back from a single entry with a single check at the end.
+    void ScaleAndUpdatePrimitiveState(
+        const CellStateUpdateView & view,
+        bool downloadToHost );
+
     void UpdatePrimitiveState(
         const CellStateUpdateView & view,
         bool downloadToHost = true );
@@ -406,11 +564,21 @@ public:
         Real * const * dqdy,
         Real * const * dqdz );
 
+    // True when a resident device gradient exists for the bound state. Host
+    // readers that may run on configs where the device gradient stage is not
+    // active (e.g. flagship LU-SGS/Roe/SA) must check this before calling
+    // MirrorGradientCellsToHost, which treats a missing resident gradient as a
+    // hard contract violation.
+    bool HasResidentGradient( const void * cacheKey, int nEquations ) const;
+
     // Pack the resident gradient at the interface send cells into a
     // [component][equation][face] host buffer.  The host then copies it into
     // the interface send storage in exchange order, so the endpoint cell
-    // gather runs on the device instead of the host.
-    void PackGradientFacesToHost(
+    // gather runs on the device instead of the host.  Returns false when this
+    // zone has no resident gradient yet (first step, or a zone this rank has
+    // not advanced); the caller then packs the host mirror, which is the
+    // authoritative state at that point.
+    bool PackGradientFacesToHost(
         const void * cacheKey,
         const int * cellIds,
         int nFaces,
@@ -491,13 +659,17 @@ public:
         int nEquations,
         const int * cellIds,
         int cellCount,
-        Real * const * components );
+        Real * const * components,
+        bool includeGhost = false );
 
     // The device wrote cells the host mirror does not reflect (an interface
     // unpack whose paired host exchange was skipped).
     void MarkResidentHostMirrorStale( const void * cacheKey );
 
 private:
+    // Set by RequestResidentStatusCheck(); consumed by
+    // FlushRequestedResidentStatus() at the next point that already drains.
+    bool statusCheckPending_ = false;
     DeviceBuffer< Real > qLeft_;
     DeviceBuffer< Real > qRight_;
     DeviceBuffer< Real > xNormal_;
@@ -510,6 +682,29 @@ private:
     DeviceBuffer< int > rightCell_;
     DeviceBuffer< unsigned char > boundaryMask_;
     DeviceBuffer< Real > deviceResidual_;
+    // Viscous-flux staging.  ViscousFluxView hands over host pointers (that is
+    // the shape the backend-neutral contract defines, and the shape a CPU
+    // implementation needs), so the HIP implementation uploads one stage's
+    // inputs, runs one kernel and copies the face flux back.  These buffers are
+    // grown and reused across stages; they are not resident solver state.
+    DeviceBuffer< Real > viscousCellState_;    // nEquations * totalCells
+    DeviceBuffer< Real > viscousCellGradient_; // nEquations*3 * totalCells
+    DeviceBuffer< Real > viscousTemperature_;  // totalCells
+    DeviceBuffer< Real > viscousTemperatureGradient_; // 3 * totalCells
+    DeviceBuffer< Real > viscousLaminar_;      // totalCells
+    DeviceBuffer< Real > viscousTurbulent_;    // totalCells
+    DeviceBuffer< Real > viscousCellCenter_;   // 3 * totalCells
+    DeviceBuffer< Real > viscousFaceNormals_;  // 3 * nFaces
+    DeviceBuffer< Real > viscousFaceArea_;     // nFaces
+    DeviceBuffer< int > viscousFaceCells_;     // 2 * nFaces
+    // Equation-major face output with the caller's stride.  The highest index
+    // written is ( nEquations - 1 ) * stride + ( nFaces - 1 ), so the buffer is
+    // not stride * nFaces; see the allocation comment in the implementation.
+    DeviceBuffer< Real > viscousFaceFlux_;
+    // Wall heat flux, one value per classified solid face.  The view's buffer
+    // is a host pointer, so the kernel writes this device buffer and the entry
+    // copies it back; handing the host pointer to the kernel is a VMFault.
+    DeviceBuffer< Real > viscousWallHeatFlux_; // nWallFaces
     HipGradientStorage fallbackGradientStorage_;
     std::unordered_map< const void *, Ns3DDeviceState * > boundStates_;
     int deviceFluxFaces_ = 0;

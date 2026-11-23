@@ -115,11 +115,11 @@ class ContractCatalogTest(unittest.TestCase):
                       contract.implementation_paths)
         self.assertIn("codes/geometry/src/GridConversion.cpp",
                       contract.implementation_paths)
-        self.assertIn("doc/source/stl_to_gmsh_sphere.rst",
+        self.assertIn("docs/source/stl_to_gmsh_sphere.rst",
                       contract.documentation_paths)
         self.assertEqual(len(contract.evidence), 3)
         self.assertIn("grid/stl_to_gmsh/generate_volume_mesh.py", contract.implementation_paths)
-        self.assertIn("doc/source/stl_to_gmsh_commands.rst",
+        self.assertIn("docs/source/stl_to_gmsh_commands.rst",
                       contract.documentation_paths)
         self.assertIn("--mesh-size-min 0.10 --mesh-size-max 0.20",
                       contract.overview)
@@ -149,7 +149,7 @@ class ContractCatalogTest(unittest.TestCase):
                 "grid/stl_import/inspect.py",
             },
         )
-        self.assertIn("doc/source/stl_mesh_io.rst", contract.documentation_paths)
+        self.assertIn("docs/source/stl_mesh_io.rst", contract.documentation_paths)
         self.assertEqual(
             sum(item.kind == "google_test" for item in contract.evidence), 8
         )

@@ -45,6 +45,12 @@ public:
     void CalcGradDebug();
     void SwapBcGrad();
     void StoreBcGrad();
+
+    // Runs this gradient on the device when the owning solver has a backend
+    // entry for it.  Returns false when the base-class host loop should run;
+    // a subclass that has a device counterpart overrides this instead of
+    // guessing from the field name.
+    virtual bool CalcGradHip();
 };
 
 EndNameSpace

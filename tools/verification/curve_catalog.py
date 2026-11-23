@@ -60,7 +60,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Spalart-Allmaras model; NASA TMR SA",
-                "doc/source/numerical/sa_ft2.rst",
+                "docs/source/numerical/sa_ft2.rst",
             ),
             csv_relpath="tools/verification/data/sa_ft2_theory.csv",
             plot_module="plot_sa_ft2",
@@ -69,7 +69,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_ft2.rst",
+            doc_relpath="docs/source/numerical/sa_ft2.rst",
             code_sketch=(
                 "// GATED SKETCH enabled\n"
                 "ft2 = ct3 * exp(-ct4 * chi * chi);\n"
@@ -104,7 +104,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "SA solver robustness practice; NASA TMR SA",
-                "doc/source/numerical/sa_working_variable_upper_bound.rst",
+                "docs/source/numerical/sa_working_variable_upper_bound.rst",
             ),
             csv_relpath="tools/verification/data/sa_working_variable_upper_bound_theory.csv",
             plot_module="plot_sa_working_variable_upper_bound",
@@ -113,7 +113,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_working_variable_upper_bound.rst",
+            doc_relpath="docs/source/numerical/sa_working_variable_upper_bound.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "nu_max = rmax * mu / (rho * fv1);\n"
@@ -144,7 +144,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Common CFD under-relaxation practice; SA solver update path",
-                "doc/source/numerical/sa_under_relaxed_update.rst",
+                "docs/source/numerical/sa_under_relaxed_update.rst",
             ),
             csv_relpath="tools/verification/data/sa_under_relaxed_update_theory.csv",
             plot_module="plot_sa_under_relaxed_update",
@@ -153,7 +153,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_under_relaxed_update.rst",
+            doc_relpath="docs/source/numerical/sa_under_relaxed_update.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "q = qOld + alpha * deltaQ;\n"
@@ -185,7 +185,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Spalart-Allmaras model; NASA TMR SA",
-                "doc/source/numerical/sa_eddy_viscosity.rst",
+                "docs/source/numerical/sa_eddy_viscosity.rst",
             ),
             csv_relpath="tools/verification/data/sa_eddy_viscosity_theory.csv",
             plot_module="plot_sa_eddy_viscosity",
@@ -194,7 +194,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_eddy_viscosity.rst",
+            doc_relpath="docs/source/numerical/sa_eddy_viscosity.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "mut = density * nu_tilde * fv1;\n"
@@ -233,7 +233,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             references=(
                 "Spalart and Allmaras (1992/1994).",
                 "NASA TMR SA: https://turbmodels.larc.nasa.gov/spalart.html",
-                "OneFLOW: doc/source/numerical/sa_eddy_viscosity.rst",
+                "OneFLOW: docs/source/numerical/sa_eddy_viscosity.rst",
             ),
             csv_relpath="tools/verification/data/sa_fv1_chi_theory.csv",
             plot_module="plot_sa_fv1",
@@ -242,7 +242,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_eddy_viscosity.rst",
+            doc_relpath="docs/source/numerical/sa_eddy_viscosity.rst",
             code_sketch=(
                 "// GATED SKETCH - review before use.\n"
                 "Real SaFv1(Real chi, Real cv1Cubed) {\n"
@@ -293,7 +293,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_closure.rst",
+            doc_relpath="docs/source/numerical/sa_closure.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real SaFv2(Real chi, Real fv1) {\n"
@@ -329,7 +329,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Spalart-Allmaras model; NASA TMR SA",
-                "doc/source/numerical/sa_s_bar.rst",
+                "docs/source/numerical/sa_s_bar.rst",
             ),
             csv_relpath="tools/verification/data/sa_s_bar_theory.csv",
             plot_module="plot_sa_s_bar",
@@ -338,7 +338,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_s_bar.rst",
+            doc_relpath="docs/source/numerical/sa_s_bar.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "sBar = rs * fv2;\n"
@@ -369,7 +369,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Spalart-Allmaras model; NASA TMR SA",
-                "doc/source/numerical/sa_r_ratio.rst",
+                "docs/source/numerical/sa_r_ratio.rst",
             ),
             csv_relpath="tools/verification/data/sa_r_ratio_theory.csv",
             plot_module="plot_sa_r_ratio",
@@ -378,7 +378,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_r_ratio.rst",
+            doc_relpath="docs/source/numerical/sa_r_ratio.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "r = min(rs / S, 10);\n"
@@ -422,7 +422,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_closure.rst",
+            doc_relpath="docs/source/numerical/sa_closure.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real SaG(Real r, Real cw2) {\n"
@@ -459,7 +459,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Spalart-Allmaras implementation practice; NASA TMR SA",
-                "doc/source/numerical/sa_limited_diffusion.rst",
+                "docs/source/numerical/sa_limited_diffusion.rst",
             ),
             csv_relpath="tools/verification/data/sa_limited_diffusion_theory.csv",
             plot_module="plot_sa_limited_diffusion",
@@ -468,7 +468,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_limited_diffusion.rst",
+            doc_relpath="docs/source/numerical/sa_limited_diffusion.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "D_lim = min(rprod * P, Diff);\n"
@@ -501,7 +501,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Spalart-Allmaras model; NASA TMR SA",
-                "doc/source/numerical/sa_diffusion.rst",
+                "docs/source/numerical/sa_diffusion.rst",
             ),
             csv_relpath="tools/verification/data/sa_diffusion_theory.csv",
             plot_module="plot_sa_diffusion",
@@ -510,7 +510,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_diffusion.rst",
+            doc_relpath="docs/source/numerical/sa_diffusion.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Diff = cb2OverSigma * gradNuSquared * invRe;\n"
@@ -541,7 +541,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Spalart-Allmaras model; NASA TMR SA",
-                "doc/source/numerical/sa_destruction.rst",
+                "docs/source/numerical/sa_destruction.rst",
             ),
             csv_relpath="tools/verification/data/sa_destruction_theory.csv",
             plot_module="plot_sa_destruction",
@@ -550,7 +550,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_destruction.rst",
+            doc_relpath="docs/source/numerical/sa_destruction.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "D = (cw1k * fw - cb1 * ft2) * nu_tilde_rs;\n"
@@ -583,7 +583,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Spalart-Allmaras model; NASA TMR SA",
-                "doc/source/numerical/sa_production.rst",
+                "docs/source/numerical/sa_production.rst",
             ),
             csv_relpath="tools/verification/data/sa_production_theory.csv",
             plot_module="plot_sa_production",
@@ -592,7 +592,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_production.rst",
+            doc_relpath="docs/source/numerical/sa_production.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "P = cb1 * (1 - ft2) * S_tilde * nu_tilde;\n"
@@ -626,7 +626,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "SA residual linearization practice",
-                "doc/source/numerical/sa_negative_part.rst",
+                "docs/source/numerical/sa_negative_part.rst",
             ),
             csv_relpath="tools/verification/data/sa_negative_part_theory.csv",
             plot_module="plot_sa_negative_part",
@@ -635,7 +635,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSaPolicy.h",
                 "codes/turb/src/TurbSaPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_negative_part.rst",
+            doc_relpath="docs/source/numerical/sa_negative_part.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "n = (x < 0) ? -x : 0;\n"
@@ -683,7 +683,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/src/TurbSaPolicy.cpp",
                 "codes/turb/src/TurbCom.cpp",
             ),
-            doc_relpath="doc/source/numerical/sa_source.rst",
+            doc_relpath="docs/source/numerical/sa_source.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real SaSourceResidual(Real P, Real D, Real Ddiff) {\n"
@@ -720,7 +720,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "SST solver update practice",
-                "doc/source/numerical/sst_density_scaled_update.rst",
+                "docs/source/numerical/sst_density_scaled_update.rst",
             ),
             csv_relpath="tools/verification/data/sst_density_scaled_update_theory.csv",
             plot_module="plot_sst_density_scaled_update",
@@ -729,7 +729,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_density_scaled_update.rst",
+            doc_relpath="docs/source/numerical/sst_density_scaled_update.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "q = q0 + deltaQ / density;\n"
@@ -762,7 +762,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "SST solver robustness practice; NASA TMR SST",
-                "doc/source/numerical/sst_floor_kinetic_energy.rst",
+                "docs/source/numerical/sst_floor_kinetic_energy.rst",
             ),
             csv_relpath="tools/verification/data/sst_floor_kinetic_energy_theory.csv",
             plot_module="plot_sst_floor_kinetic_energy",
@@ -771,7 +771,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_floor_kinetic_energy.rst",
+            doc_relpath="docs/source/numerical/sst_floor_kinetic_energy.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "k = max(k, kMin);\n"
@@ -803,7 +803,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "SST solver robustness practice; NASA TMR SST",
-                "doc/source/numerical/sst_floor_omega.rst",
+                "docs/source/numerical/sst_floor_omega.rst",
             ),
             csv_relpath="tools/verification/data/sst_floor_omega_theory.csv",
             plot_module="plot_sst_floor_omega",
@@ -812,7 +812,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_floor_omega.rst",
+            doc_relpath="docs/source/numerical/sst_floor_omega.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "omega = max(omega, omegaMin);\n"
@@ -845,7 +845,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Menter SST (1994); NASA TMR SST",
-                "doc/source/numerical/sst_blend.rst",
+                "docs/source/numerical/sst_blend.rst",
             ),
             csv_relpath="tools/verification/data/sst_blend_theory.csv",
             plot_module="plot_sst_blend",
@@ -854,7 +854,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_blend.rst",
+            doc_relpath="docs/source/numerical/sst_blend.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "phi = F1 * phi1 + (1 - F1) * phi2;\n"
@@ -891,7 +891,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Menter SST cross-diffusion; NASA TMR SST",
-                "doc/source/numerical/sst_gradient_dot_product.rst",
+                "docs/source/numerical/sst_gradient_dot_product.rst",
             ),
             csv_relpath="tools/verification/data/sst_gradient_dot_product_theory.csv",
             plot_module="plot_sst_gradient_dot_product",
@@ -900,7 +900,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_gradient_dot_product.rst",
+            doc_relpath="docs/source/numerical/sst_gradient_dot_product.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "dot = dkx*dwx + dky*dwy + dkz*dwz;\n"
@@ -934,7 +934,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Menter SST F1 construction; NASA TMR SST",
-                "doc/source/numerical/sst_cross_diff_scalar.rst",
+                "docs/source/numerical/sst_cross_diff_scalar.rst",
             ),
             csv_relpath="tools/verification/data/sst_cross_diff_scalar_theory.csv",
             plot_module="plot_sst_cross_diff_scalar",
@@ -943,7 +943,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_cross_diff_scalar.rst",
+            doc_relpath="docs/source/numerical/sst_cross_diff_scalar.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "CD = 2 * density * sigw2 * cross / omega;\n"
@@ -975,7 +975,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Menter SST (1994); NASA TMR SST",
-                "doc/source/numerical/sst_blending_arg1.rst",
+                "docs/source/numerical/sst_blending_arg1.rst",
             ),
             csv_relpath="tools/verification/data/sst_blending_arg1_theory.csv",
             plot_module="plot_sst_blending_arg1",
@@ -984,7 +984,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_blending_arg1.rst",
+            doc_relpath="docs/source/numerical/sst_blending_arg1.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "arg1 = min(max(tKe, tVis), tCD);\n"
@@ -1016,7 +1016,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Menter SST F1 construction; NASA TMR SST",
-                "doc/source/numerical/sst_cdkw_with_floor.rst",
+                "docs/source/numerical/sst_cdkw_with_floor.rst",
             ),
             csv_relpath="tools/verification/data/sst_cdkw_with_floor_theory.csv",
             plot_module="plot_sst_cdkw_with_floor",
@@ -1025,7 +1025,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_cdkw_with_floor.rst",
+            doc_relpath="docs/source/numerical/sst_cdkw_with_floor.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "CD = max(crossDiff, floorValue);\n"
@@ -1059,7 +1059,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             background=("Continuous switch; pure APIs isolate arg1, F1, Blend."),
             references=(
                 "Menter SST; NASA TMR SST: https://turbmodels.larc.nasa.gov/sst.html",
-                "OneFLOW: doc/source/numerical/sst_f1_blending.rst",
+                "OneFLOW: docs/source/numerical/sst_f1_blending.rst",
             ),
             csv_relpath="tools/verification/data/sst_f1_arg1_theory.csv",
             plot_module="plot_sst_f1",
@@ -1073,7 +1073,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_f1_blending.rst",
+            doc_relpath="docs/source/numerical/sst_f1_blending.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real SstF1FromArg1(Real arg1) {\n"
@@ -1128,7 +1128,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSrcFlux.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_eddy_viscosity.rst",
+            doc_relpath="docs/source/numerical/sst_eddy_viscosity.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real SstF2FromArg(Real arg2) {\n"
@@ -1179,7 +1179,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "SST production-option variants; NASA TMR SST",
-                "doc/source/numerical/sst_prodk_vorticity.rst",
+                "docs/source/numerical/sst_prodk_vorticity.rst",
             ),
             csv_relpath="tools/verification/data/sst_prodk_vorticity_theory.csv",
             plot_module="plot_sst_prodk_vorticity",
@@ -1188,7 +1188,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_prodk_vorticity.rst",
+            doc_relpath="docs/source/numerical/sst_prodk_vorticity.rst",
             code_sketch=(
                 "// GATED SKETCH div=0\n"
                 "Pk = mut * Omega2 * invRe;\n"
@@ -1220,7 +1220,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "SST production-option variants; NASA TMR SST",
-                "doc/source/numerical/sst_prodk_strain_only.rst",
+                "docs/source/numerical/sst_prodk_strain_only.rst",
             ),
             csv_relpath="tools/verification/data/sst_prodk_strain_only_theory.csv",
             plot_module="plot_sst_prodk_strain_only",
@@ -1229,7 +1229,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_prodk_strain_only.rst",
+            doc_relpath="docs/source/numerical/sst_prodk_strain_only.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Pk = mut * S2 * invRe;\n"
@@ -1262,7 +1262,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Menter SST; standard Boussinesq production forms",
-                "doc/source/numerical/sst_prodk_boussinesq.rst",
+                "docs/source/numerical/sst_prodk_boussinesq.rst",
             ),
             csv_relpath="tools/verification/data/sst_prodk_boussinesq_theory.csv",
             plot_module="plot_sst_prodk_boussinesq",
@@ -1271,7 +1271,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_prodk_boussinesq.rst",
+            doc_relpath="docs/source/numerical/sst_prodk_boussinesq.rst",
             code_sketch=(
                 "// GATED SKETCH div=0\n"
                 "Pk = mut * S2 * invRe;\n"
@@ -1303,7 +1303,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Menter SST production limiter; NASA TMR SST",
-                "doc/source/numerical/sst_limit_prodk.rst",
+                "docs/source/numerical/sst_limit_prodk.rst",
             ),
             csv_relpath="tools/verification/data/sst_limit_prodk_theory.csv",
             plot_module="plot_sst_limit_prodk",
@@ -1312,7 +1312,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_limit_prodk.rst",
+            doc_relpath="docs/source/numerical/sst_limit_prodk.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "P = min(P, pklim * eps);\n"
@@ -1346,7 +1346,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Spalart DES; Menter SST-DES variants; NASA TMR",
-                "doc/source/numerical/sst_dissk_des.rst",
+                "docs/source/numerical/sst_dissk_des.rst",
             ),
             csv_relpath="tools/verification/data/sst_dissk_des_theory.csv",
             plot_module="plot_sst_dissk_des",
@@ -1355,7 +1355,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_dissk_des.rst",
+            doc_relpath="docs/source/numerical/sst_dissk_des.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "eps = fBetas * density * k * sqrt(k) / L;\n"
@@ -1388,7 +1388,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Menter SST; Wilcox k-omega; NASA TMR SST",
-                "doc/source/numerical/sst_dissk_standard.rst",
+                "docs/source/numerical/sst_dissk_standard.rst",
             ),
             csv_relpath="tools/verification/data/sst_dissk_standard_theory.csv",
             plot_module="plot_sst_dissk_standard",
@@ -1397,7 +1397,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_dissk_standard.rst",
+            doc_relpath="docs/source/numerical/sst_dissk_standard.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "eps = fBetas * betas * density * k * omega;\n"
@@ -1433,7 +1433,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_k_source.rst",
+            doc_relpath="docs/source/numerical/sst_k_source.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real SstLimitProdk(Real P, Real pklim, Real eps) {\n"
@@ -1467,7 +1467,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Menter SST; Wilcox k-omega; NASA TMR SST",
-                "doc/source/numerical/sst_dissw.rst",
+                "docs/source/numerical/sst_dissw.rst",
             ),
             csv_relpath="tools/verification/data/sst_dissw_theory.csv",
             plot_module="plot_sst_dissw",
@@ -1476,7 +1476,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_dissw.rst",
+            doc_relpath="docs/source/numerical/sst_dissw.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Dw = fBeta * beta * density * omega * omega;\n"
@@ -1520,7 +1520,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_omega_source.rst",
+            doc_relpath="docs/source/numerical/sst_omega_source.rst",
             code_sketch=(
                 "// GATED SKETCH - see TurbSstPolicy for exact signatures.\n"
             ),
@@ -1556,7 +1556,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Wilcox k-omega; Menter SST production options; NASA TMR",
-                "doc/source/numerical/sst_prodw_wilcox.rst",
+                "docs/source/numerical/sst_prodw_wilcox.rst",
             ),
             csv_relpath="tools/verification/data/sst_prodw_wilcox_theory.csv",
             plot_module="plot_sst_prodw_wilcox",
@@ -1565,7 +1565,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_prodw_wilcox.rst",
+            doc_relpath="docs/source/numerical/sst_prodw_wilcox.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Pw = alphaw * omega / k * Pk;\n"
@@ -1597,7 +1597,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Menter SST (1994); NASA TMR SST",
-                "doc/source/numerical/sst_prodw_menter.rst",
+                "docs/source/numerical/sst_prodw_menter.rst",
             ),
             csv_relpath="tools/verification/data/sst_prodw_menter_theory.csv",
             plot_module="plot_sst_prodw_menter",
@@ -1606,7 +1606,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_prodw_menter.rst",
+            doc_relpath="docs/source/numerical/sst_prodw_menter.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Pw = alphaw * density / mut * Pk * reynolds;\n"
@@ -1640,7 +1640,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Wilcox k-omega model variants; NASA TMR",
-                "doc/source/numerical/wilcox_xk_from_cross_term.rst",
+                "docs/source/numerical/wilcox_xk_from_cross_term.rst",
             ),
             csv_relpath="tools/verification/data/wilcox_xk_from_cross_term_theory.csv",
             plot_module="plot_wilcox_xk_from_cross_term",
@@ -1649,7 +1649,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/wilcox_xk_from_cross_term.rst",
+            doc_relpath="docs/source/numerical/wilcox_xk_from_cross_term.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "xk = crossTerm / (omega * omega * omega);\n"
@@ -1681,7 +1681,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Wilcox k-omega cross-diffusion; NASA TMR",
-                "doc/source/numerical/sst_cross_diff_wilcox.rst",
+                "docs/source/numerical/sst_cross_diff_wilcox.rst",
             ),
             csv_relpath="tools/verification/data/sst_cross_diff_wilcox_theory.csv",
             plot_module="plot_sst_cross_diff_wilcox",
@@ -1690,7 +1690,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_cross_diff_wilcox.rst",
+            doc_relpath="docs/source/numerical/sst_cross_diff_wilcox.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "CD = sigd * density * max(cross, 0) / omega;\n"
@@ -1724,7 +1724,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Menter SST (1994); NASA TMR SST",
-                "doc/source/numerical/sst_cross_diff_menter.rst",
+                "docs/source/numerical/sst_cross_diff_menter.rst",
             ),
             csv_relpath="tools/verification/data/sst_cross_diff_menter_theory.csv",
             plot_module="plot_sst_cross_diff_menter",
@@ -1733,7 +1733,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_cross_diff_menter.rst",
+            doc_relpath="docs/source/numerical/sst_cross_diff_menter.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "CD = 2*(1-F1)*rho*sigw2*cross/omega;\n"
@@ -1766,7 +1766,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Menter SST linearization practice",
-                "doc/source/numerical/sst_negative_source_part.rst",
+                "docs/source/numerical/sst_negative_source_part.rst",
             ),
             csv_relpath="tools/verification/data/sst_negative_source_part_theory.csv",
             plot_module="plot_sst_negative_source_part",
@@ -1775,7 +1775,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_negative_source_part.rst",
+            doc_relpath="docs/source/numerical/sst_negative_source_part.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "n = (S < 0) ? S : 0;\n"
@@ -1807,7 +1807,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Menter SST linearization; NASA TMR SST",
-                "doc/source/numerical/sst_diagonal_w.rst",
+                "docs/source/numerical/sst_diagonal_w.rst",
             ),
             csv_relpath="tools/verification/data/sst_diagonal_w_theory.csv",
             plot_module="plot_sst_diagonal_w",
@@ -1816,7 +1816,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_diagonal_w.rst",
+            doc_relpath="docs/source/numerical/sst_diagonal_w.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "dw = -2*fBeta*beta*omega - absCD/(rho*omega);\n"
@@ -1873,7 +1873,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/sst_k_source.rst",
+            doc_relpath="docs/source/numerical/sst_k_source.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real SstDiagonalW(Real fBeta, Real beta, Real omega,\n"
@@ -1921,7 +1921,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbBcPolicy.h",
                 "codes/turb/src/TurbBcPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/index.rst",
+            doc_relpath="docs/source/numerical/index.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real TurbWallOmegaMenter(Real mu, Real rho, Real beta1,\n"
@@ -1961,7 +1961,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Wilcox turbulence modeling notes.",
-                "OneFLOW: doc/source/numerical/wilcox_fbeta.rst",
+                "OneFLOW: docs/source/numerical/wilcox_fbeta.rst",
             ),
             csv_relpath="tools/verification/data/wilcox_fk_xk_theory.csv",
             plot_module="plot_wilcox_fk",
@@ -1970,7 +1970,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/wilcox_fbeta.rst",
+            doc_relpath="docs/source/numerical/wilcox_fbeta.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real WilcoxFkFromXk(Real xk) {\n"
@@ -2000,7 +2000,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Wilcox (1998) turbulence model notes.",
-                "OneFLOW: doc/source/numerical/wilcox_fbeta.rst",
+                "OneFLOW: docs/source/numerical/wilcox_fbeta.rst",
             ),
             csv_relpath="tools/verification/data/wilcox_fw1998_theory.csv",
             plot_module="plot_wilcox_fw",
@@ -2009,7 +2009,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/wilcox_fbeta.rst",
+            doc_relpath="docs/source/numerical/wilcox_fbeta.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real WilcoxFw1998(Real xw) {\n"
@@ -2044,7 +2044,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSstPolicy.h",
                 "codes/turb/src/TurbSstPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/wilcox_fbeta.rst",
+            doc_relpath="docs/source/numerical/wilcox_fbeta.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real WilcoxFw2006(Real xw) {\n"
@@ -2095,7 +2095,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSpectrumPolicy.h",
                 "codes/turb/src/TurbSpectrumPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/turb_spectrum.rst",
+            doc_relpath="docs/source/numerical/turb_spectrum.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real TurbInviscidFaceSpectralRadius(Real A, Real absVn) {\n"
@@ -2144,7 +2144,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/turb/include/TurbSpectrumPolicy.h",
                 "codes/turb/src/TurbSpectrumPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/turb_spectrum.rst",
+            doc_relpath="docs/source/numerical/turb_spectrum.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real TurbDiffusiveFaceSpectralRadius(\n"
@@ -2196,7 +2196,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/ns/include/NsLusgsPolicy.h",
                 "codes/uns/src/UNsLusgs.cpp",
             ),
-            doc_relpath="doc/source/numerical/lusgs_viscous_spectrum.rst",
+            doc_relpath="docs/source/numerical/lusgs_viscous_spectrum.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real LusgsViscousSpectrumContribution(Real visrad, Real dq) {\n"
@@ -2244,7 +2244,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/ns/include/NsLusgsPolicy.h",
                 "codes/ns/src/NsLusgsPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/lusgs_split_eigenvalues.rst",
+            doc_relpath="docs/source/numerical/lusgs_split_eigenvalues.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "lmd1 = 0.5 * (vn + s * faceAbs1);\n"
@@ -2290,7 +2290,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/ns/src/NsLusgsPolicy.cpp",
                 "codes/ns/src/NsLusgs.cpp",
             ),
-            doc_relpath="doc/source/numerical/index.rst",
+            doc_relpath="docs/source/numerical/index.rst",
             code_sketch=(
                 "// GATED SKETCH - see NsLusgsPolicy.h signatures.\n"
             ),
@@ -2330,7 +2330,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Compressible NS energy equation viscous terms",
-                "doc/source/numerical/viscous_energy_flux.rst",
+                "docs/source/numerical/viscous_energy_flux.rst",
             ),
             csv_relpath="tools/verification/data/viscous_energy_flux_theory.csv",
             plot_module="plot_viscous_energy_flux",
@@ -2339,7 +2339,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/ns/include/NsVisFluxPolicy.h",
                 "codes/ns/src/NsVisFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/viscous_energy_flux.rst",
+            doc_relpath="docs/source/numerical/viscous_energy_flux.rst",
             code_sketch="// GATED SKETCH\nE = u*fmx + v*fmy + w*fmz + qn;\n",
             proves="Energy-flux algebra vs pure API.",
             does_not_prove="Full viscous residual on a case mesh.",
@@ -2370,7 +2370,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Non-dimensional compressible NS; OneFLOW NsVisFluxPolicy",
-                "doc/source/numerical/viscous_face_flux_coefficient.rst",
+                "docs/source/numerical/viscous_face_flux_coefficient.rst",
             ),
             csv_relpath="tools/verification/data/viscous_face_flux_coefficient_theory.csv",
             plot_module="plot_viscous_face_flux_coefficient",
@@ -2379,7 +2379,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/ns/include/NsVisFluxPolicy.h",
                 "codes/ns/src/NsVisFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/viscous_face_flux_coefficient.rst",
+            doc_relpath="docs/source/numerical/viscous_face_flux_coefficient.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "coef = - invReynolds * faceArea;\n"
@@ -2413,7 +2413,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Fourier heat conduction; compressible NS energy equation",
-                "doc/source/numerical/conductive_heat_flux_normal.rst",
+                "docs/source/numerical/conductive_heat_flux_normal.rst",
             ),
             csv_relpath="tools/verification/data/conductive_heat_flux_normal_theory.csv",
             plot_module="plot_conductive_heat_flux_normal",
@@ -2422,7 +2422,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/ns/include/NsVisFluxPolicy.h",
                 "codes/ns/src/NsVisFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/conductive_heat_flux_normal.rst",
+            doc_relpath="docs/source/numerical/conductive_heat_flux_normal.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "qn = k * dTdn;\n"
@@ -2456,7 +2456,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Standard FV viscous flux assembly; OneFLOW NsVisFluxPolicy",
-                "doc/source/numerical/project_stress_momentum_flux.rst",
+                "docs/source/numerical/project_stress_momentum_flux.rst",
             ),
             csv_relpath="tools/verification/data/project_stress_momentum_flux_theory.csv",
             plot_module="plot_project_stress_momentum_flux",
@@ -2465,7 +2465,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/ns/include/NsVisFluxPolicy.h",
                 "codes/ns/src/NsVisFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/project_stress_momentum_flux.rst",
+            doc_relpath="docs/source/numerical/project_stress_momentum_flux.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "fmx = nx*txx + ny*txy + nz*txz;\n"
@@ -2502,7 +2502,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Standard Newtonian fluid constitutive law; OneFLOW NsVisFluxPolicy",
-                "doc/source/numerical/stokes_stress_pure_shear.rst",
+                "docs/source/numerical/stokes_stress_pure_shear.rst",
             ),
             csv_relpath="tools/verification/data/stokes_stress_pure_shear_theory.csv",
             plot_module="plot_stokes_stress_pure_shear",
@@ -2511,7 +2511,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/ns/include/NsVisFluxPolicy.h",
                 "codes/ns/src/NsVisFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/stokes_stress_pure_shear.rst",
+            doc_relpath="docs/source/numerical/stokes_stress_pure_shear.rst",
             code_sketch=(
                 "// GATED SKETCH pure shear\n"
                 "txy = mu * (dudy + dvdx);\n"
@@ -2545,7 +2545,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Standard RANS heat-flux closure; OneFLOW NsVisFluxPolicy",
-                "doc/source/numerical/effective_thermal_conductivity.rst",
+                "docs/source/numerical/effective_thermal_conductivity.rst",
             ),
             csv_relpath="tools/verification/data/effective_thermal_conductivity_theory.csv",
             plot_module="plot_effective_thermal_conductivity",
@@ -2554,7 +2554,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/ns/include/NsVisFluxPolicy.h",
                 "codes/ns/src/NsVisFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/effective_thermal_conductivity.rst",
+            doc_relpath="docs/source/numerical/effective_thermal_conductivity.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "k = (mu*invPrL + mut*invPrT) * cp;\n"
@@ -2589,7 +2589,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Standard CFD local time-step practice; OneFLOW TimeStepPolicy",
-                "doc/source/numerical/combine_inv_vis_timestep.rst",
+                "docs/source/numerical/combine_inv_vis_timestep.rst",
             ),
             csv_relpath="tools/verification/data/combine_inv_vis_timestep_theory.csv",
             plot_module="plot_combine_inv_vis_timestep",
@@ -2598,7 +2598,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/ns/include/TimeStepPolicy.h",
                 "codes/ns/src/TimeStepPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/combine_inv_vis_timestep.rst",
+            doc_relpath="docs/source/numerical/combine_inv_vis_timestep.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "dt = dtInv * dtVis / (dtInv + dtVis);\n"
@@ -2627,11 +2627,11 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             background=(
                 "Pure API ViscousFaceSpectralRadiusModel3. Family overview: "
-                "doc/source/numerical/viscous_spectral_radius.rst"
+                "docs/source/numerical/viscous_spectral_radius.rst"
             ),
             references=(
                 "Blazek time-step chapters (motivation); OneFLOW TimeStepPolicy",
-                "doc/source/numerical/viscous_spectral_radius_model3.rst",
+                "docs/source/numerical/viscous_spectral_radius_model3.rst",
             ),
             csv_relpath="tools/verification/data/viscous_spectral_radius_model3_theory.csv",
             plot_module="plot_viscous_spectral_radius_model3",
@@ -2640,7 +2640,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/ns/include/TimeStepPolicy.h",
                 "codes/ns/src/TimeStepPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/viscous_spectral_radius_model3.rst",
+            doc_relpath="docs/source/numerical/viscous_spectral_radius_model3.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "lambda = A*A / (Re * rho + SMALL);\n"
@@ -2677,7 +2677,7 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             references=(
                 "Blazek CFD; OneFLOW TimeStepPolicy",
-                "doc/source/numerical/viscous_spectral_radius_model2.rst",
+                "docs/source/numerical/viscous_spectral_radius_model2.rst",
             ),
             csv_relpath="tools/verification/data/viscous_spectral_radius_model2_theory.csv",
             plot_module="plot_viscous_spectral_radius_model2",
@@ -2686,7 +2686,7 @@ def list_theory_entries() -> list[TheoryEntry]:
                 "codes/ns/include/TimeStepPolicy.h",
                 "codes/ns/src/TimeStepPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/viscous_spectral_radius_model2.rst",
+            doc_relpath="docs/source/numerical/viscous_spectral_radius_model2.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "c1 = 2*mu / (rho*d*Re + SMALL);\n"
@@ -2722,12 +2722,12 @@ def list_theory_entries() -> list[TheoryEntry]:
             ),
             background=(
                 "Pure API ViscousFaceSpectralRadiusModel1 in TimeStepPolicy. "
-                "Derivation: doc/source/numerical/viscous_spectral_radius_model1.rst "
+                "Derivation: docs/source/numerical/viscous_spectral_radius_model1.rst "
                 "(Derivation section). Feeds viscous dt and related spectra."
             ),
 references=(
                 "Blazek, Computational Fluid Dynamics; OneFLOW TimeStepPolicy",
-                "doc/source/numerical/viscous_spectral_radius_model1.rst",
+                "docs/source/numerical/viscous_spectral_radius_model1.rst",
             ),
             csv_relpath="tools/verification/data/viscous_spectral_radius_model1_theory.csv",
             plot_module="plot_viscous_spectral_radius_model1",
@@ -2736,7 +2736,7 @@ references=(
                 "codes/ns/include/TimeStepPolicy.h",
                 "codes/ns/src/TimeStepPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/viscous_spectral_radius_model1.rst",
+            doc_relpath="docs/source/numerical/viscous_spectral_radius_model1.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "c1 = (4.0/3.0)*(mu+mut);\n"
@@ -2786,7 +2786,7 @@ references=(
                 "codes/ns/include/TimeStepPolicy.h",
                 "codes/ns/src/TimeStepPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/ns_timestep_spectrum.rst",
+            doc_relpath="docs/source/numerical/ns_timestep_spectrum.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "Real InviscidFaceSpectralRadius(Real vn, Real c, Real A) {\n"
@@ -2828,7 +2828,7 @@ references=(
             ),
             references=(
                 "Blazek CFD; standard FV Euler flux",
-                "doc/source/numerical/euler_convective_flux.rst",
+                "docs/source/numerical/euler_convective_flux.rst",
             ),
             csv_relpath="tools/verification/data/euler_convective_flux_theory.csv",
             plot_module="plot_euler_convective_flux",
@@ -2837,7 +2837,7 @@ references=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/euler_convective_flux.rst",
+            doc_relpath="docs/source/numerical/euler_convective_flux.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "mass = rho * vn;\n"
@@ -2872,7 +2872,7 @@ references=(
             ),
             references=(
                 "Standard finite-volume face kinematics; ALE relative velocity",
-                "doc/source/numerical/relative_face_normal_velocity.rst",
+                "docs/source/numerical/relative_face_normal_velocity.rst",
             ),
             csv_relpath="tools/verification/data/relative_face_normal_velocity_theory.csv",
             plot_module="plot_relative_face_normal_velocity",
@@ -2881,7 +2881,7 @@ references=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/relative_face_normal_velocity.rst",
+            doc_relpath="docs/source/numerical/relative_face_normal_velocity.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "vn = n·u - v_grid;\n"
@@ -2914,7 +2914,7 @@ references=(
             ),
             references=(
                 "AUSM family (Liou); OneFLOW NsInvFluxPolicy",
-                "doc/source/numerical/face_mach_number.rst",
+                "docs/source/numerical/face_mach_number.rst",
             ),
             csv_relpath="tools/verification/data/face_mach_number_theory.csv",
             plot_module="plot_face_mach_number",
@@ -2923,7 +2923,7 @@ references=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/face_mach_number.rst",
+            doc_relpath="docs/source/numerical/face_mach_number.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "M = vnRel / soundSpeed;\n"
@@ -2972,7 +2972,7 @@ principle=(
             ),
             references=(
                 "Liou AUSM family; OneFLOW NsInvFluxPolicy",
-                "doc/source/numerical/ausm_mach_split.rst",
+                "docs/source/numerical/ausm_mach_split.rst",
             ),
             csv_relpath="tools/verification/data/ausm_mach_split_theory.csv",
             plot_module="plot_ausm_mach_split",
@@ -2980,7 +2980,7 @@ principle=(
             source_relpaths=(
                 "codes/ns/include/NsInvFluxPolicy.h",
             ),
-            doc_relpath="doc/source/numerical/ausm_mach_split.rst",
+            doc_relpath="docs/source/numerical/ausm_mach_split.rst",
             code_sketch=(
                 "// GATED SKETCH - production is inline in NsInvFluxPolicy.h\n"
                 "Real FMSplit1(M,s){ return 0.5*(M + s*fabs(M)); }\n"
@@ -3028,7 +3028,7 @@ principle=(
             ),
             references=(
                 "Roe average state; OneFLOW NsInvFluxPolicy",
-                "doc/source/numerical/roe_pressure_from_enthalpy.rst",
+                "docs/source/numerical/roe_pressure_from_enthalpy.rst",
             ),
             csv_relpath="tools/verification/data/roe_pressure_from_enthalpy_theory.csv",
             plot_module="plot_roe_pressure_from_enthalpy",
@@ -3037,7 +3037,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/roe_pressure_from_enthalpy.rst",
+            doc_relpath="docs/source/numerical/roe_pressure_from_enthalpy.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "p = rho * (H - 0.5 * speedSquared) * (gama - 1) / gama;\n"
@@ -3071,7 +3071,7 @@ principle=(
             ),
             references=(
                 "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
-                "doc/source/numerical/ideal_gas_sound_speed_from_pressure.rst",
+                "docs/source/numerical/ideal_gas_sound_speed_from_pressure.rst",
             ),
             csv_relpath="tools/verification/data/ideal_gas_sound_speed_from_pressure_theory.csv",
             plot_module="plot_ideal_gas_sound_speed_from_pressure",
@@ -3080,7 +3080,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/ideal_gas_sound_speed_from_pressure.rst",
+            doc_relpath="docs/source/numerical/ideal_gas_sound_speed_from_pressure.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "c = sqrt(fabs(gama * pressure / density));\n"
@@ -3113,7 +3113,7 @@ principle=(
             ),
             references=(
                 "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
-                "doc/source/numerical/ideal_gas_sound_speed.rst",
+                "docs/source/numerical/ideal_gas_sound_speed.rst",
             ),
             csv_relpath="tools/verification/data/ideal_gas_sound_speed_theory.csv",
             plot_module="plot_ideal_gas_sound_speed",
@@ -3122,7 +3122,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/ideal_gas_sound_speed.rst",
+            doc_relpath="docs/source/numerical/ideal_gas_sound_speed.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "c2 = (gama - 1) * (H - 0.5 * speedSquared);\n"
@@ -3161,7 +3161,7 @@ principle=(
             ),
             references=(
                 "Standard ideal-gas FV variable conversion",
-                "doc/source/numerical/ideal_gas_conservative_to_prim.rst",
+                "docs/source/numerical/ideal_gas_conservative_to_prim.rst",
             ),
             csv_relpath="tools/verification/data/ideal_gas_conservative_to_prim_theory.csv",
             plot_module="plot_ideal_gas_conservative_to_prim",
@@ -3170,7 +3170,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/ideal_gas_conservative_to_prim.rst",
+            doc_relpath="docs/source/numerical/ideal_gas_conservative_to_prim.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "p = (gama-1)*(qRhoE - 0.5*rho*|u|^2);\n"
@@ -3207,7 +3207,7 @@ principle=(
             ),
             references=(
                 "Standard ideal-gas FV variable conversion",
-                "doc/source/numerical/ideal_gas_prim_to_conservative.rst",
+                "docs/source/numerical/ideal_gas_prim_to_conservative.rst",
             ),
             csv_relpath="tools/verification/data/ideal_gas_prim_to_conservative_theory.csv",
             plot_module="plot_ideal_gas_prim_to_conservative",
@@ -3216,7 +3216,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/ideal_gas_prim_to_conservative.rst",
+            doc_relpath="docs/source/numerical/ideal_gas_prim_to_conservative.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "em = p/(rho*(g-1)) + 0.5*|u|^2;\n"
@@ -3251,7 +3251,7 @@ principle=(
             ),
             references=(
                 "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
-                "doc/source/numerical/ideal_gas_specific_internal_energy.rst",
+                "docs/source/numerical/ideal_gas_specific_internal_energy.rst",
             ),
             csv_relpath="tools/verification/data/ideal_gas_specific_internal_energy_theory.csv",
             plot_module="plot_ideal_gas_specific_internal_energy",
@@ -3260,7 +3260,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/ideal_gas_specific_internal_energy.rst",
+            doc_relpath="docs/source/numerical/ideal_gas_specific_internal_energy.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "e = (p/rho)/(gama-1) + 0.5*speedSquared;\n"
@@ -3295,7 +3295,7 @@ principle=(
             ),
             references=(
                 "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
-                "doc/source/numerical/total_enthalpy.rst",
+                "docs/source/numerical/total_enthalpy.rst",
             ),
             csv_relpath="tools/verification/data/total_enthalpy_theory.csv",
             plot_module="plot_total_enthalpy",
@@ -3304,7 +3304,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/total_enthalpy.rst",
+            doc_relpath="docs/source/numerical/total_enthalpy.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "H = h + 0.5 * speedSquared;\n"
@@ -3337,7 +3337,7 @@ principle=(
             ),
             references=(
                 "Anderson, Modern Compressible Flow; OneFLOW NsInvFluxPolicy",
-                "doc/source/numerical/ideal_gas_static_enthalpy.rst",
+                "docs/source/numerical/ideal_gas_static_enthalpy.rst",
             ),
             csv_relpath="tools/verification/data/ideal_gas_static_enthalpy_theory.csv",
             plot_module="plot_ideal_gas_static_enthalpy",
@@ -3346,7 +3346,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/ideal_gas_static_enthalpy.rst",
+            doc_relpath="docs/source/numerical/ideal_gas_static_enthalpy.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "h = (gama / (gama - 1.0)) * (pressure / density);\n"
@@ -3385,7 +3385,7 @@ principle=(
             ),
             references=(
                 "Roe approximate Riemann solver; Toro Riemann solvers",
-                "doc/source/numerical/roe_total_enthalpy_jump.rst",
+                "docs/source/numerical/roe_total_enthalpy_jump.rst",
             ),
             csv_relpath="tools/verification/data/roe_total_enthalpy_jump_theory.csv",
             plot_module="plot_roe_total_enthalpy_jump",
@@ -3394,7 +3394,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/roe_total_enthalpy_jump.rst",
+            doc_relpath="docs/source/numerical/roe_total_enthalpy_jump.rst",
             code_sketch=(
                 "// GATED SKETCH rest mid-state\n"
                 "dh = (gama-1)*dqE;\n"
@@ -3428,7 +3428,7 @@ principle=(
             ),
             references=(
                 "Roe approximate Riemann solver; Toro Riemann solvers",
-                "doc/source/numerical/roe_continuity_normal_jump.rst",
+                "docs/source/numerical/roe_continuity_normal_jump.rst",
             ),
             csv_relpath="tools/verification/data/roe_continuity_normal_jump_theory.csv",
             plot_module="plot_roe_continuity_normal_jump",
@@ -3437,7 +3437,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/roe_continuity_normal_jump.rst",
+            doc_relpath="docs/source/numerical/roe_continuity_normal_jump.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "J = vn*dqRho - nx*dqU - ny*dqV - nz*dqW;\n"
@@ -3475,7 +3475,7 @@ principle=(
             ),
             references=(
                 "Roe (1981); standard CFD Roe average",
-                "doc/source/numerical/roe_average_state.rst",
+                "docs/source/numerical/roe_average_state.rst",
             ),
             csv_relpath="tools/verification/data/roe_average_state_theory.csv",
             plot_module="plot_roe_average_state",
@@ -3484,7 +3484,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/roe_average_state.rst",
+            doc_relpath="docs/source/numerical/roe_average_state.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "ratio = sqrt(rhoR/rhoL); coef = 1/(1+ratio);\n"
@@ -3520,7 +3520,7 @@ principle=(
             ),
             references=(
                 "P. L. Roe, approximate Riemann solvers; Toro Riemann solvers",
-                "doc/source/numerical/roe_average_component.rst",
+                "docs/source/numerical/roe_average_component.rst",
             ),
             csv_relpath="tools/verification/data/roe_average_component_theory.csv",
             plot_module="plot_roe_average_component",
@@ -3529,7 +3529,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/roe_average_component.rst",
+            doc_relpath="docs/source/numerical/roe_average_component.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "avg = (left + right * ratio) * coef;\n"
@@ -3565,7 +3565,7 @@ principle=(
             ),
             references=(
                 "Roe (1981); OneFLOW NsInvFluxPolicy",
-                "doc/source/numerical/roe_average_weights.rst",
+                "docs/source/numerical/roe_average_weights.rst",
             ),
             csv_relpath="tools/verification/data/roe_average_weights_theory.csv",
             plot_module="plot_roe_average_weights",
@@ -3574,7 +3574,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/roe_average_weights.rst",
+            doc_relpath="docs/source/numerical/roe_average_weights.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "ratio = sqrt(rhoR / rhoL);\n"
@@ -3611,7 +3611,7 @@ principle=(
             ),
             references=(
                 "Roe (1981); OneFLOW NsInvFluxPolicy",
-                "doc/source/numerical/roe_dissipation_coupling.rst",
+                "docs/source/numerical/roe_dissipation_coupling.rst",
             ),
             csv_relpath="tools/verification/data/roe_dissipation_coupling_theory.csv",
             plot_module="plot_roe_dissipation_coupling",
@@ -3620,7 +3620,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/roe_dissipation_coupling.rst",
+            doc_relpath="docs/source/numerical/roe_dissipation_coupling.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "term1 = dh * xi1 + dc * xi2;\n"
@@ -3659,7 +3659,7 @@ principle=(
             ),
             references=(
                 "Roe (1981); OneFLOW NsInvFluxPolicy",
-                "doc/source/numerical/roe_dissipation_wave_coeff.rst",
+                "docs/source/numerical/roe_dissipation_wave_coeff.rst",
             ),
             csv_relpath="tools/verification/data/roe_dissipation_wave_coeff_theory.csv",
             plot_module="plot_roe_dissipation_wave_coeff",
@@ -3668,7 +3668,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/roe_dissipation_wave_coeff.rst",
+            doc_relpath="docs/source/numerical/roe_dissipation_wave_coeff.rst",
             code_sketch=(
                 "// GATED SKETCH\n"
                 "xi1 = (2*a1 - a2 - a3) / (2*c*c);\n"
@@ -3712,7 +3712,7 @@ principle=(
             ),
             references=(
                 "Harten entropy fix; OneFLOW NsInvFluxPolicy",
-                "doc/source/numerical/harten_entropy_fix.rst",
+                "docs/source/numerical/harten_entropy_fix.rst",
             ),
                         csv_relpath="tools/verification/data/harten_entropy_fix_theory.csv",
             plot_module="plot_harten_entropy_fix",
@@ -3721,7 +3721,7 @@ principle=(
                 "codes/ns/include/NsInvFluxPolicy.h",
                 "codes/ns/src/NsInvFluxPolicy.cpp",
             ),
-            doc_relpath="doc/source/numerical/harten_entropy_fix.rst",
+            doc_relpath="docs/source/numerical/harten_entropy_fix.rst",
             code_sketch=(
                 "// GATED SKETCH - mirror production MAX in tests.\n"
                 "lambda_max = max(|vn+c|, |vn-c|);\n"
@@ -3764,7 +3764,7 @@ proves="Entropy-fix pure policy tests.",
                 "OneFLOW: codes/global/src/Ctrl.cpp and solver control Init implementations.",
                 "OneFLOW: codes/solver/src/TimeIntegral.cpp.",
                 "OneFLOW: codes/solver/src/EulerRungeKuttaCapability.cpp.",
-                "doc/source/numerical/time_integral_rk_stage_weight.rst",
+                "docs/source/numerical/time_integral_rk_stage_weight.rst",
             ),
             csv_relpath="tools/verification/data/time_integral_rk_stage_weight_theory.csv",
             plot_module="plot_time_integral_rk_stage_weight",
@@ -3779,7 +3779,7 @@ proves="Entropy-fix pure policy tests.",
                 "codes/solver/src/EulerRungeKuttaCapability.cpp",
                 "codes/solver/include/EulerRungeKuttaCapability.h",
             ),
-            doc_relpath="doc/source/numerical/time_integral_rk_stage_weight.rst",
+            doc_relpath="docs/source/numerical/time_integral_rk_stage_weight.rst",
             code_sketch=(
                 "// GATED SKETCH - mirrors the current source, not a general RK tableau.\n"
                 "for (int stage = 0; stage < rk_stage; ++stage) {\n"

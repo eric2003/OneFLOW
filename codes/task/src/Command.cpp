@@ -22,10 +22,12 @@ License
 #include "Command.h"
 #include "Task.h"
 #include "TaskState.h"
+#include "StageProfiler.h"
 
 #include "DataBook.h"
 #include "FileInfo.h"
 
+#include <chrono>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -238,6 +240,7 @@ void CMD::Clear()
 
 void CMD::ExecuteCmd( SimuContext * context )
 {
+    ScopedHostTimer timer( "task_execute" );
     if ( CMD::commandOwners == nullptr )
     {
         return;
@@ -256,7 +259,41 @@ void CMD::ExecuteCmd( SimuContext * context )
             continue;
         }
 
+        // The dispatch timer records one row per queued operation, so a parent
+        // such as POST_PROCESS hides every command it enqueued.  Record each
+        // command here as well; the children then have to add up to the parent
+        // or the parent's inclusive span is being misattributed.
+        const bool timed = StageProfiler::Enabled();
+        const Task * named =
+            cmd->GetTaskCount() > 0 ? cmd->GetTask( 0 ) : nullptr;
+        const std::chrono::steady_clock::time_point start =
+            timed ? std::chrono::steady_clock::now()
+                  : std::chrono::steady_clock::time_point();
+
         cmd->ExecuteWithContext( context );
+
+        if ( timed )
+        {
+            const std::chrono::duration< double, std::milli > elapsed =
+                std::chrono::steady_clock::now() - start;
+            // Enqueued tasks may not carry a message id, in which case a shared
+            // -1 key would merge unrelated rows.  Fall back to a stable
+            // name-derived key so the breakdown still identifies each one.
+            int key = named == nullptr ? -1 : named->taskId;
+            const char * name = named == nullptr
+                ? "<unnamed>" : named->taskName.c_str();
+            if ( key < 0 && named != nullptr && ! named->taskName.empty() )
+            {
+                unsigned long long hash = 1469598103934665603ull;
+                for ( const char c : named->taskName )
+                {
+                    hash ^= static_cast< unsigned char >( c );
+                    hash *= 1099511628211ull;
+                }
+                key = -2 - static_cast< int >( hash % 1000000ull );
+            }
+            StageProfiler::RecordTask( key, name, elapsed.count() );
+        }
     }
 
     CMD::Clear();

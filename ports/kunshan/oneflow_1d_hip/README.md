@@ -60,7 +60,7 @@ HIP architecture selection is intentionally not hard-coded:
 
 This leaves room for multiple targets such as `gfx906;gfx936` without assuming
 that Kunshan Z100 and Zhengzhou BW1000 are interchangeable. The current evidence
-is recorded in `doc/reports/regression/oneflow-euler-validation.md`: Zhengzhou
+is recorded in `docs/reports/regression/oneflow-euler-validation.md`: Zhengzhou
 `gfx936` is an archived reference only; the Kunshan Z100 `gfx906` automatic-detection
 Euler closure passed on August 26, 2026. This remains an isolated one-dimensional
 validation path, not a complete production Navier–Stokes backend.
@@ -86,7 +86,7 @@ state and fewer validation/trace copies, with correctness rechecked after each c
 
 The current implementation priority is the Euler stateful backend and persistent
 device execution described in
-`doc/plans/oneflow-euler-optimization-plan.md`. WENO5 and
+`docs/plans/oneflow-euler-optimization-plan.md`. WENO5 and
 dimensional expansion remain deferred until the Euler correctness and performance
 acceptance gates pass.
 

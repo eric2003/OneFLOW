@@ -10,6 +10,7 @@ License
 // ownership rules shared by the HIP production path.  It runs without a DCU:
 // the generation bookkeeping, not the kernel numerics, is under test.
 
+#include "HipProductionPolicy.h"
 #include "ResidentStateContract.h"
 
 #include <gtest/gtest.h>
@@ -241,4 +242,42 @@ TEST( ResidentStateContract, DeviceFieldUpdateKeepsMirrorCurrent )
     contract.NoteDeviceFieldUpdate( 2 );
     EXPECT_TRUE( contract.HostMirrorCurrent() );
     EXPECT_EQ( contract.RequiredSync( 2 ), ResidentStateSync::None );
+}
+
+TEST( HipGradientMirror, PostStepReaderUsesOnlyTheLastStage )
+{
+    EXPECT_FALSE( HipGradientMirrorOnThisStage( true, false, true, 0, 3 ) );
+    EXPECT_FALSE( HipGradientMirrorOnThisStage( true, false, true, 1, 3 ) );
+    EXPECT_TRUE( HipGradientMirrorOnThisStage( true, false, true, 2, 3 ) );
+}
+
+TEST( HipGradientMirror, UnstagedAndForcedReadersKeepTheMirror )
+{
+    EXPECT_TRUE( HipGradientMirrorOnThisStage( true, false, true, -1, 3 ) );
+    EXPECT_TRUE( HipGradientMirrorOnThisStage( true, false, true, 0, 1 ) );
+    EXPECT_TRUE( HipGradientMirrorOnThisStage( false, false, true, 0, 3 ) );
+    EXPECT_TRUE( HipGradientMirrorOnThisStage( true, true, true, 0, 3 ) );
+    EXPECT_FALSE( HipGradientMirrorOnThisStage( true, false, false, 2, 3 ) );
+}
+
+TEST( HipRkSlotCopy, DeviceSteadyFinestGridSkipsHostSlots )
+{
+    EXPECT_TRUE( HipSkipHostRkSlotCopy(
+        true, true, true, true, true, true, true ) );
+}
+
+TEST( HipRkSlotCopy, HostMultigridAndDualTimeKeepTheSlots )
+{
+    EXPECT_FALSE( HipSkipHostRkSlotCopy(
+        false, true, true, true, true, true, true ) );
+    EXPECT_FALSE( HipSkipHostRkSlotCopy(
+        true, true, true, true, false, true, true ) );
+    EXPECT_FALSE( HipSkipHostRkSlotCopy(
+        true, true, true, false, true, true, true ) );
+    EXPECT_FALSE( HipSkipHostRkSlotCopy(
+        true, true, false, true, true, true, true ) );
+    EXPECT_FALSE( HipSkipHostRkSlotCopy(
+        true, true, true, true, true, false, true ) );
+    EXPECT_FALSE( HipSkipHostRkSlotCopy(
+        true, true, true, true, true, true, false ) );
 }

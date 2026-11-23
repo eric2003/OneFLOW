@@ -1,0 +1,4 @@
+# Read-only audit scope: the worker may only write its report, RFCs, and repro records.
+.agentlab/reports/numerics.md
+.agentlab/RFC/numerics-*
+.agentlab/repro/numerics-*

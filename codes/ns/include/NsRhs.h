@@ -46,6 +46,11 @@ void NsCalcGamaT(int flag);
 // pulls only the boundary-adjacent owned cells, which is all the per-step
 // aerodynamic-force and pressure-coefficient readers touch.
 void NsRefreshHostStateMirror();
+// True when the HIP resident state owns the newest flow field.  Host-derived
+// bookkeeping (restart history levels, visualization staging) must be rebuilt
+// from the pulled-back field in that case, because the device chain never
+// updates those host copies.
+bool NsDeviceAuthoritativeFlowEnabled();
 void NsMirrorHostBoundaryState();
 void NsCalcRHS();
 void NsCalcInvFlux();

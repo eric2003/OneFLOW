@@ -42,6 +42,32 @@ public:
     // name.  Flush() writes these totals to "<breakdown>.tasks.tsv".
     static void RecordTask( int taskId, const char * taskName,
                             double elapsedMs ) noexcept;
+
+private:
+    friend class ScopedHostTimer;
+    static void RecordHost( const char * scope, double inclusiveMs,
+                            double exclusiveMs ) noexcept;
+};
+
+// Optional wall-time accounting within MG::Run. Child durations are subtracted
+// from their parent, so exclusive_ms can be summed without double counting.
+// Includes device/MPI waits; this does not measure CPU or GPU execution time.
+// Enabled only with ONEFLOW_HOST_ACCOUNTING=1 and a stage breakdown path.
+class ScopedHostTimer
+{
+public:
+    explicit ScopedHostTimer( const char * scope, bool root = false );
+    ~ScopedHostTimer() noexcept;
+    ScopedHostTimer( const ScopedHostTimer & ) = delete;
+    ScopedHostTimer & operator=( const ScopedHostTimer & ) = delete;
+
+private:
+    static thread_local ScopedHostTimer * current_;
+    const char * scope_;
+    ScopedHostTimer * parent_ = nullptr;
+    bool active_ = false;
+    double childrenMs_ = 0.0;
+    std::chrono::steady_clock::time_point start_;
 };
 
 class ScopedStageTimer

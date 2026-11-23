@@ -18,9 +18,9 @@ Use the same STL and vary `--mesh-size` (for example 0.40, 0.20, 0.10)
 to compare coarse, medium and fine meshes. The command writes MSH, GEO and
 JSON validation-report files. The terminal ends with a concise SUCCESS/FAILED
 summary; the JSON report records stage-level PASS/FAIL/NOT_RUN/NOT_CHECKED
-states and the process exit code. See [the run-result contract](../../doc/source/run_result_reporting.rst)
+states and the process exit code. See [the run-result contract](../../docs/source/run_result_reporting.rst)
 and
-[`stl_to_gmsh_commands`](../../doc/source/stl_to_gmsh_commands.rst).
+[`stl_to_gmsh_commands`](../../docs/source/stl_to_gmsh_commands.rst).
 
 
 Generate parameterized geometry from the Mesh Generation GUI or CLI before
@@ -39,13 +39,13 @@ indices, then creates an analytic OpenCASCADE cylinder with separate
 `wall`, `inflow`, and `outflow` Physical Surfaces plus the
 `fluid_domain` Physical Volume. This preserves the intended CFD boundary
 semantics instead of treating the end caps as solid walls. See
-doc/source/stl_geometry_generation.rst.
+docs/source/stl_geometry_generation.rst.
 
 This directory contains native C++ STL-to-Gmsh Cases and independent Python
 reference Cases. The native Cases run through the standard OneFLOW Grid task
 and the C++ Geometry conversion pipeline. The geometric definitions and STL
 construction rules for the sphere, prolate spheroid and internal-flow
-cylinder are documented in [STL geometry generation](../../doc/source/stl_geometry_generation.rst).
+cylinder are documented in [STL geometry generation](../../docs/source/stl_geometry_generation.rst).
 
 | Implementation | Case | Layout | Nodes | Cells | Boundary elements |
 |---|---|---:|---:|---:|---:|
@@ -252,7 +252,7 @@ reuses this exact STL at coarse (0.40), medium (0.20) and fine (0.10) target
 characteristic lengths for both implementations. These are mesh-size controls,
 not requested element counts. The sphere surface is one `wall` Physical
 Group and the interior is `fluid_domain`. See the 3D volume cases in
-`../../doc/source/stl_to_gmsh_3d.rst` for the geometric contract and validation scope.
+`../../docs/source/stl_to_gmsh_3d.rst` for the geometric contract and validation scope.
 
 
 ## 3D internal-flow cylinder asset

@@ -42,16 +42,27 @@ Real SaRRatio( Real rs, Real modifiedStrain )
     return MIN( rs / ( modifiedStrain + SMALL ), ten );
 }
 
+// Integer powers are written as multiplication on purpose.  std::pow is
+// generic over a runtime double exponent, so pow(r,5) costs the same as a
+// fractional power: measured at 0.071-0.075 us per call regardless of the
+// exponent.  The SA closure calls pow seven times per cell per step, which
+// made libm latency 13% of the SA block on its own (probe/128151076).
+// Multiplication is exact for these small integer exponents, so the result is
+// unchanged: the measured rewrite differs by 5.49e-16 relative with no cell
+// above 1e-14.
 Real SaG( Real r, Real cw2 )
 {
-    const Real r5 = std::pow( r, 5 );
-    return r + cw2 * ( r5 * r - r );
+    const Real r2 = r * r;
+    const Real r6 = r2 * r2 * r2;
+    return r + cw2 * ( r6 - r );
 }
 
 Real SaFw( Real g, Real cw3ToSix )
 {
-    const Real g6 = std::pow( g, 6 );
+    const Real g2 = g * g;
+    const Real g6 = g2 * g2 * g2;
     const Real or6 = one / six;
+    // The sixth root has no multiplicative form; it is the only pow left.
     return g * std::pow( ( one + cw3ToSix ) / ( g6 + cw3ToSix ), or6 );
 }
 

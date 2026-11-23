@@ -41,6 +41,10 @@ License
 #include "TimeIntegration.h"
 #include "Ctrl.h"
 #include "NsIdx.h"
+#include "HipProductionPolicy.h"
+#ifdef ONEFLOW_ENABLE_HIP
+#include "HipTurbulenceBackend.h"
+#endif
 #include <iostream>
 
 
@@ -81,6 +85,8 @@ void UTurbSpectrum::ZeroSpectrum()
 
 void UTurbSpectrum::CalcSpectrum1Equ()
 {
+    if ( this->CalcSpectrum1EquHip() ) return;
+
     this->CalcUnsteadySpectrum();
 
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
@@ -95,6 +101,70 @@ void UTurbSpectrum::CalcSpectrum1Equ()
 
         this->UpdateSpectrumRadius();
     }
+}
+
+bool UTurbSpectrum::CalcSpectrum1EquHip()
+{
+#ifdef ONEFLOW_ENABLE_HIP
+    if ( turbcom.nEqu != 1 ) return false;
+    if ( ! HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UTURB_HIP_SPECTRUM" ) )
+    {
+        return false;
+    }
+    if ( ctrl.idualtime != 0 )
+    {
+        // The device diagonal reproduces the idualtime == 0 branch only; the
+        // dual-time variant adds a sp2/pdt1 term the view does not carry.
+        return false;
+    }
+    UnsGrid * grid = Zone::GetUnsGrid();
+    if ( grid == nullptr ) return false;
+    if ( uturbf.impsr == nullptr || uturbf.matrix_l == nullptr
+         || uturbf.matrix_r == nullptr || uturbf.q == nullptr
+         || uturbf.visl == nullptr || uturbf.timestep == nullptr
+         || uturbf.meanFlow.q == nullptr )
+    {
+        return false;
+    }
+
+    TurbSaSpectrumView view;
+    view.nFaces = ug.nFaces;
+    view.nBoundaryFaces = ug.nBFaces;
+    view.nCells = ug.nCells;
+    view.nGhostCells = ug.nTCell - ug.nCells;
+    view.xNormal = ug.xfn->data();
+    view.yNormal = ug.yfn->data();
+    view.zNormal = ug.zfn->data();
+    view.meshVelocityNormal = ug.vfn->data();
+    view.faceArea = ug.farea->data();
+    view.leftCell = ug.lcf->data();
+    view.rightCell = ug.rcf->data();
+    view.density = ( * uturbf.meanFlow.q )[ IDX::IR ].data();
+    view.velocity[ 0 ] = ( * uturbf.meanFlow.q )[ IDX::IU ].data();
+    view.velocity[ 1 ] = ( * uturbf.meanFlow.q )[ IDX::IV ].data();
+    view.velocity[ 2 ] = ( * uturbf.meanFlow.q )[ IDX::IW ].data();
+    view.workingVariable = ( * uturbf.q )[ ISA ].data();
+    view.laminarViscosity = ( * uturbf.visl )[ 0 ].data();
+    view.cellVolume = ug.cvol->data();
+    view.unsteadyDiagonal = true;
+    view.timestep = ( * uturbf.timestep )[ 0 ].data();
+    view.turbCflRatio = turbcom.turb_cfl_ratio;
+    view.unsteadySp2 = timeIntegration.sp2;
+    view.invReynolds = turbcom.oreynolds;
+    view.invSigma = turbcom.osigma;
+    view.implicitSpectrum = ( * uturbf.impsr )[ 0 ].data();
+    view.matrixLeft = ( * uturbf.matrix_l )[ 0 ].data();
+    view.matrixRight = ( * uturbf.matrix_r )[ 0 ].data();
+    view.cacheKey = grid;
+
+    // The host path starts from a zeroed spectrum; the backend does the same
+    // internally before accumulating.
+    this->ZeroSpectrum();
+    HipTurbulenceBackend::Shared().CalcSpectrum( view );
+    return true;
+#else
+    return false;
+#endif
 }
 
 void UTurbSpectrum::CalcSpectrum2Equ()

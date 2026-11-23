@@ -46,6 +46,8 @@ License
 #include <stdexcept>
 #include <algorithm>
 #include <vector>
+#include <map>
+#include <utility>
 
 BeginNameSpace( ONEFLOW )
 
@@ -84,6 +86,46 @@ void UNsGrad::Init()
     this->nEqu = nscom.nTEqu;
 
     this->istore = 1;
+}
+
+namespace {
+
+struct GradientEndpointCacheEntry
+{
+    int nInterfaceFaces = -1;
+    int totalCells = -1;
+    std::vector< int > cells;
+};
+
+// The ghost-face -> endpoint-cell mapping depends only on the partition, but the
+// packed gradient unpack rebuilt it on every stage and every ghost level (one
+// GetTId lookup per interface face), inside the `swap_download` timer.  Cache it
+// per grid and ghost level; the face count and cell extent catch a re-partition
+// that reuses the same grid address.
+GradientEndpointCacheEntry & CachedGradientEndpoints(
+    UnsGrid * grid, int ghostId, int nIFaces, int totalCells )
+{
+    static std::map< std::pair< UnsGrid *, int >,
+                     GradientEndpointCacheEntry > cache;
+    GradientEndpointCacheEntry & entry =
+        cache[ std::make_pair( grid, ghostId ) ];
+    if ( entry.nInterfaceFaces != nIFaces
+         || entry.totalCells != totalCells
+         || static_cast< int >( entry.cells.size() ) != nIFaces )
+    {
+        entry.nInterfaceFaces = nIFaces;
+        entry.totalCells = totalCells;
+        entry.cells.resize( static_cast< std::size_t >( nIFaces ) );
+        for ( int iFace = 0; iFace < nIFaces; ++ iFace )
+        {
+            int iCell = -1;
+            grid->GetFaceTopo().GetTId( iFace, ghostId + 1, iCell );
+            entry.cells[ iFace ] = iCell;
+        }
+    }
+    return entry;
+}
+
 }
 
 void UNsGrad::CalcGradHip( bool downloadToHost, bool packedExchange,
@@ -168,16 +210,18 @@ void UNsGrad::CalcGradHip( bool downloadToHost, bool packedExchange,
             InterFace * interFace = grid->interFace.get();
             MRField * fields[ 3 ] = { dqdx, dqdy, dqdz };
             const std::string names[ 3 ] = { namex, namey, namez };
-            std::vector< int > endpointCells;
             std::vector< Real > packed;
             for ( int ghostId = MAX_GHOST_LEVELS - 1;
                   ghostId >= 0; -- ghostId )
             {
                 const int nIFaces = interFace->nIFaces;
                 if ( nIFaces <= 0 ) continue;
-                endpointCells.resize( static_cast< std::size_t >( nIFaces ) );
                 packed.resize(
                     static_cast< std::size_t >( 3 ) * nEqu * nIFaces );
+                const int totalCells = ug.nTCell;
+                const std::vector< int > & cachedCells =
+                    CachedGradientEndpoints(
+                        grid, ghostId, nIFaces, totalCells ).cells;
                 {
                     ScopedStageTimer timer( "swap_download" );
                     if ( ! deviceUnpack )
@@ -186,22 +230,15 @@ void UNsGrad::CalcGradHip( bool downloadToHost, bool packedExchange,
                             grid, fields, names, 3, nEqu, ghostId,
                             packed.data() );
                     }
-                    for ( int iFace = 0; iFace < nIFaces; ++ iFace )
-                    {
-                        int iCell = -1;
-                        grid->GetFaceTopo().GetTId(
-                            iFace, ghostId + 1, iCell );
-                        endpointCells[ iFace ] = iCell;
-                    }
                     if ( deviceUnpack )
                     {
                         HipFluxBackend::Shared().UnpackGradientFacesFromDevice(
-                            grid, endpointCells.data(), nIFaces, nEqu );
+                            grid, cachedCells.data(), nIFaces, nEqu );
                     }
                     else
                     {
                         HipFluxBackend::Shared().UnpackGradientFacesFromHost(
-                            grid, endpointCells.data(), nIFaces, nEqu,
+                            grid, cachedCells.data(), nIFaces, nEqu,
                             packed.data() );
                     }
                 }

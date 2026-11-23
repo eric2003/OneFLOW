@@ -9,8 +9,8 @@
   "principle": "A dependency workflow is a directed execution graph. A consumer may run only after its direct producer succeeds and the declared artifact exists. Artifact paths are relative to the producer case, while the consumer receives an explicit source-case root and a case-relative input setting. Independent steps may proceed without being blocked by an unrelated failed branch.",
   "references": [
     "tools/oneflow_gui/examples/rae2822_multicase.json",
-    "doc/source/workbench_architecture.rst",
-    "doc/plans/verification-contract-workbench.md"
+    "docs/source/workbench_architecture.rst",
+    "docs/plans/verification-contract-workbench.md"
   ],
   "architecture": "The workflow definition is parsed by the Qt-independent workflow plan builder. build_case_graph_plan validates case IDs, dependencies, artifact producers, direct producer-consumer edges, and safe relative paths, then emits dependency-respecting WorkflowPlanStep records. run_case_graph stages each case into an isolated run root by default, rewrites declared consumer parameter settings, verifies producer outputs before launching consumers, blocks unsuccessful dependencies, and checks declared outputs after a successful callback. The Workbench presents the declared graph and links to the existing plan and runner tests; it does not execute CFD during catalog loading.",
   "implementation": {
@@ -23,8 +23,8 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/workbench_architecture.rst",
-      "doc/plans/verification-contract-workbench.md"
+      "docs/source/workbench_architecture.rst",
+      "docs/plans/verification-contract-workbench.md"
     ]
   },
   "workflow": {

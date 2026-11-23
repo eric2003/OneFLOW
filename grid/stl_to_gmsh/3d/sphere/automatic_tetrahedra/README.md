@@ -21,7 +21,7 @@ python grid/stl_to_gmsh/generate_volume_mesh.py --stl path/to/sphere.stl --outpu
 For coarse / medium / fine meshes, reuse the same STL and change only
 `--mesh-size` to `0.40`, `0.20`, and `0.10`. Each run writes the
 `.msh` mesh, a matching `.geo` file, and a `.report.json` validation
-report. See [the concise command reference](../../../../../doc/source/stl_to_gmsh_commands.rst).
+report. See [the concise command reference](../../../../../docs/source/stl_to_gmsh_commands.rst).
 
 The sphere is centered at the origin with radius 1. Its input geometry is
 fixed across all mesh-density variants. Only `mesh_size` changes:
@@ -38,4 +38,4 @@ TRI_3 exterior facets, no QUAD_4/HEXA_8 cells, and the `wall` and
 `fluid_domain` Physical Groups. Exact node and element counts are deliberately
 not fixed because they depend on Gmsh version and meshing algorithm.
 
-For the complete generation method, commands, STL input contract and validation limits, see [`stl_to_gmsh_sphere`](../../../../../doc/source/stl_to_gmsh_sphere.rst) and the Mesh Knowledge entry `mesh/stl-unit-sphere-to-gmsh`.
+For the complete generation method, commands, STL input contract and validation limits, see [`stl_to_gmsh_sphere`](../../../../../docs/source/stl_to_gmsh_sphere.rst) and the Mesh Knowledge entry `mesh/stl-unit-sphere-to-gmsh`.

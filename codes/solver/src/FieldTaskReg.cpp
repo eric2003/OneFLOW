@@ -42,6 +42,12 @@ License
 #include "Lhs.h"
 #include "FieldManager.h"
 #include "SolverState.h"
+#include "GridState.h"
+#include "Ctrl.h"
+#include "Multigrid.h"
+#include "TimeIntegral.h"
+#include "HipProductionPolicy.h"
+#include "ResidualBasePolicy.h"
 #include "Zone.h"
 #include "Grid.h"
 #include "UnsGrid.h"
@@ -69,8 +75,19 @@ void RegisterFieldTask()
     REGISTER_DATA_CLASS( ConvertNodeFieldToCell );
 }
 
+bool SkipHostRkSlotCopy()
+{
+    // Keep this aligned with the device residual base in UNsInvFlux: both read
+    // DeviceOwnsExplicitRkBookkeeping().
+    return DeviceOwnsExplicitRkBookkeeping();
+}
+
 void LoadResiduals( StringField & data )
 {
+    // The device chain scales its own residual. FIELD_RHS remains the
+    // multigrid defect slot and is still filled on that path.
+    if ( SkipHostRkSlotCopy() ) return;
+
     int fieldId = ( * fieldIdMap )[ data[ 0 ] ];
 
     UnsGrid * grid = Zone::GetUnsGrid();
@@ -84,11 +101,20 @@ void LoadResiduals( StringField & data )
 
 void ZeroResiduals( StringField & data )
 {
+    // Device path: the resident residual is zeroed on the device and the host
+    // copy is only written by the output download, so zeroing it here is a
+    // full-field host write nobody reads.
+    if ( ! HostResidualBookkeepingNeeded() ) return;
+
     FieldHome::SetField( FieldHome::GetResidualName(), zero );
 }
 
 void LoadQ( StringField & data )
 {
+    // FIELD_FLOW is the host RK base state. The device update does not read
+    // it. Host fallback, coarse-grid restriction, and dual-time still do.
+    if ( SkipHostRkSlotCopy() ) return;
+
     std::string & fName = data[ 0 ];
 
     int solverType = SolverState::solverType;
@@ -114,6 +140,10 @@ void SetField( StringField & data )
 
 void StoreRHS( StringField & data )
 {
+    // FIELD_RHS feeds the multigrid defect; the single-grid device path never
+    // reads it, and the copy is a full-field host pass per step.
+    if ( ! HostResidualBookkeepingNeeded() ) return;
+
     int fieldId = ( * fieldIdMap )[ data[ 0 ] ];
     FieldHome::SetField( fieldId, FieldHome::GetResidualName(), FLOW_RHS_ORDER );
 }

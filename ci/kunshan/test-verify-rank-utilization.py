@@ -20,6 +20,9 @@ class RankUtilizationVerifierTest(unittest.TestCase):
                 lines = ["category\telapsed_ms"]
                 lines.extend(f"{category}\t{elapsed}" for category, elapsed in rows)
                 path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+                # Sidecars share the glob prefix but carry different schemas.
+                for suffix in (".tasks.tsv", ".host.tsv"):
+                    pathlib.Path(str(path) + suffix).write_text("sidecar\n")
 
             ranks = expected_ranks
             if ranks is None:

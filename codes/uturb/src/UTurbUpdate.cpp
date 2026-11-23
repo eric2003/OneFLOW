@@ -32,6 +32,10 @@ License
 #include "ZoneState.h"
 #include "HXMath.h"
 #include "Iteration.h"
+#include "HipProductionPolicy.h"
+#ifdef ONEFLOW_ENABLE_HIP
+#include "HipTurbulenceBackend.h"
+#endif
 #include <iostream>
 #include <iomanip>
 
@@ -84,6 +88,8 @@ void UTurbUpdate::UpdateFlowField2Equ()
 
 void UTurbUpdate::UpdateFlowField1EquStd()
 {
+    if ( this->UpdateFlowField1EquHip() ) return;
+
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {
         ug.cId = cId;
@@ -95,6 +101,38 @@ void UTurbUpdate::UpdateFlowField1EquStd()
         this->UpdateValue();
     }
 
+}
+
+bool UTurbUpdate::UpdateFlowField1EquHip()
+{
+#ifdef ONEFLOW_ENABLE_HIP
+    if ( turbcom.nEqu != 1 ) return false;
+    if ( ! HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UTURB_HIP_UPDATE" ) )
+    {
+        return false;
+    }
+    if ( uturbf.q == nullptr || uturbf.q->GetNEqu() < 1
+         || uturbf.dq == nullptr || uturbf.dq->GetNEqu() < 1 )
+    {
+        return false;
+    }
+
+    // Host: q = SaUnderRelaxedUpdate(q0, dq, crelax) with q0 == q (PrepareData1Equ
+    // reads the same plane twice), so the device reads the working variable as
+    // both the old value and the output.
+    TurbSaUpdateView view;
+    view.nCells = ug.nCells;
+    view.oldValue = ( * uturbf.q )[ ISA ].data();
+    view.delta = ( * uturbf.dq )[ ISA ].data();
+    view.workingVariable = ( * uturbf.q )[ ISA ].data();
+    view.relaxationCoefficient = turbcom.crelax;
+    view.cacheKey = Zone::GetUnsGrid();
+
+    HipTurbulenceBackend::Shared().Update( view );
+    return true;
+#else
+    return false;
+#endif
 }
 
 void UTurbUpdate::UpdateFlowField2EquStd()

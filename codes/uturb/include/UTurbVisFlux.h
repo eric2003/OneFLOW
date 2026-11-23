@@ -25,6 +25,7 @@ License
 #include "TurbVisFlux.h"
 #include "VisGrad.h"
 #include <memory>
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
@@ -37,6 +38,10 @@ public:
     using VisPointer = void ( UTurbVisFlux:: * )();
     VisPointer visPointer;
     std::unique_ptr<MRField> visflux; // owned temporary face flux
+    // Contiguous per-face staging for the device diffusive flux: the kernel
+    // writes a flat nFaces buffer, and visflux is an MRField with one plane per
+    // equation and no single data() spanning them.
+    std::vector< Real > visfluxScratch_;
 public:
     void AddVisFlux();
     void SetVisPointer();

@@ -10,9 +10,9 @@
   "architecture": "ASCII/Binary STL -> C++ StlMeshReader -> value-based StlMesh -> explicit tolerance-based vertex welding -> UnstructuredMeshData triangle surface -> UnstructuredCgnsZoneWriter. The reader/writer remain independent; the Case-level conversion composes them with the existing CGNS writer. In parallel, Python inspection follows STL -> grid.stl_import.reader -> grid.stl_import.validation -> JSON surface-quality report; this path is independent of Gmsh and does not infer CFD boundary names.",
   "references": [
     "Library of Congress STL format description: https://www.loc.gov/preservation/digital/formats/fdd/fdd000504.shtml",
-    "Gmsh Reference Manual: https://gmsh.info/doc/texinfo/gmsh.html",
-    "doc/source/stl_mesh_io.rst",
-    "doc/source/mesh_architecture.rst"
+    "Gmsh Reference Manual: https://gmsh.info/docs/texinfo/gmsh.html",
+    "docs/source/stl_mesh_io.rst",
+    "docs/source/mesh_architecture.rst"
   ],
   "implementation": {
     "source_paths": [
@@ -66,12 +66,12 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/stl_mesh_io.rst",
-      "doc/source/mesh_architecture.rst",
-      "doc/source/contract_workbench_information_architecture.rst",
+      "docs/source/stl_mesh_io.rst",
+      "docs/source/mesh_architecture.rst",
+      "docs/source/contract_workbench_information_architecture.rst",
       "grid/stl_import/ascii_basic/README.md",
       "grid/stl_import/README.md",
-      "doc/source/stl_surface_diagnostics.rst"
+      "docs/source/stl_surface_diagnostics.rst"
     ]
   },
   "claims": {

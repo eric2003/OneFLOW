@@ -7,13 +7,15 @@
 #include "StageProfiler.h"
 
 #include <algorithm>
-#include <array>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <iomanip>
+#include <map>
 #include <mutex>
 #include <stdexcept>
 #include <string>
+#include <iostream>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -48,9 +50,39 @@ std::unordered_map< int, TaskTotal > & TaskTotals()
     return totals;
 }
 
-std::array< CategoryTotal, 64 > & Totals()
+struct HostTotal
 {
-    static std::array< CategoryTotal, 64 > totals = {{
+    unsigned long long count = 0;
+    double inclusiveMs = 0.0;
+    double exclusiveMs = 0.0;
+};
+
+std::map< std::string, HostTotal > & HostTotals()
+{
+    static std::map< std::string, HostTotal > totals;
+    return totals;
+}
+
+unsigned long long & DroppedHostRecords()
+{
+    static unsigned long long count = 0;
+    return count;
+}
+
+bool HostAccountingEnabled()
+{
+    static const bool requested = []()
+    {
+        const char * value = std::getenv( "ONEFLOW_HOST_ACCOUNTING" );
+        return value != nullptr && std::strcmp( value, "1" ) == 0;
+    }();
+    return requested && StageProfiler::Enabled();
+}
+
+auto & Totals()
+{
+    // Infer the size so adding a category cannot leave null trailing slots.
+    static CategoryTotal totals[] = {
         { "initialization", 0.0 },
         { "gradient", 0.0 },
         { "limiter", 0.0 },
@@ -88,7 +120,17 @@ std::array< CategoryTotal, 64 > & Totals()
         { "halo_ghost_sync", 0.0 },
         { "state_update", 0.0 },
         { "gradient_mirror", 0.0 },
+        { "post_interface", 0.0 },
+        { "post_residual_gate", 0.0 },
+        { "post_force_gate", 0.0 },
+        { "post_unsteady_dispatch", 0.0 },
+        { "rhs_inviscid", 0.0 },
+        { "rhs_viscous", 0.0 },
+        { "rhs_source", 0.0 },
+        { "flux_assembly", 0.0 },
         { "residual_metrics", 0.0 },
+        { "residual_zero", 0.0 },
+        { "host_mirror_refresh", 0.0 },
         { "boundary_device", 0.0 },
         { "swap_upload", 0.0 },
         { "swap_download", 0.0 },
@@ -107,6 +149,8 @@ std::array< CategoryTotal, 64 > & Totals()
         { "post_download", 0.0 },
         { "recon_bcq", 0.0 },
         { "recon_kernel", 0.0 },
+        { "recon_limiter_upload", 0.0 },
+        { "recon_limiter_kernel", 0.0 },
         { "bnd_refresh", 0.0 },
         { "bnd_static_upload", 0.0 },
         { "bnd_kernel", 0.0 },
@@ -115,8 +159,41 @@ std::array< CategoryTotal, 64 > & Totals()
         { "bnd_prep", 0.0 },
         { "bnd_backend", 0.0 },
         { "bnd_resize", 0.0 },
-    }};
+        // Macro-step segments. Record() matches by name against this table and
+        // silently drops anything that is not listed here, so a new timer has
+        // to be registered in both places or it never shows up in the TSV.
+        { "macro_time_step", 0.0 },
+        { "macro_update_residuals", 0.0 },
+        { "macro_calc_lhs", 0.0 },
+        { "macro_update_flowfield", 0.0 },
+        { "macro_calc_boundary", 0.0 },
+        { "macro_interface", 0.0 },
+        { "g_prep", 0.0 },
+        { "g_contract", 0.0 },
+        { "g_geom", 0.0 },
+        { "v_upload", 0.0 },
+        { "v_kernel", 0.0 },
+        { "v_download", 0.0 },
+        { "r_prep", 0.0 },
+        { "fused_scale", 0.0 },
+    };
     return totals;
+}
+
+// Record() only accumulates into the fixed table above.  A timer whose name is
+// missing from that table used to disappear without a trace, which made a whole
+// instrumentation round look like "that segment costs nothing".  Count the
+// misses and report them on Flush so the mistake is visible next time.
+struct DroppedCategory
+{
+    unsigned long long count = 0;
+    std::string first;
+};
+
+DroppedCategory & DroppedCategories()
+{
+    static DroppedCategory dropped;
+    return dropped;
 }
 
 std::string RankAwarePath( const char * configured )
@@ -146,8 +223,15 @@ std::string RankAwarePath( const char * configured )
 
 bool StageProfiler::Enabled()
 {
-    const char * path = std::getenv( "ONEFLOW_STAGE_BREAKDOWN_FILE" );
-    return path != nullptr && path[ 0 ] != '\0';
+    // Called from every ScopedStageTimer construction, i.e. hundreds of times
+    // per RK step.  The switch is a process-lifetime decision, so resolve it
+    // once instead of scanning the environment each time.
+    static const bool enabled = []()
+    {
+        const char * path = std::getenv( "ONEFLOW_STAGE_BREAKDOWN_FILE" );
+        return path != nullptr && path[ 0 ] != '\0';
+    }();
+    return enabled;
 }
 
 void StageProfiler::Record( const char * category, double elapsedMs ) noexcept
@@ -158,11 +242,23 @@ void StageProfiler::Record( const char * category, double elapsedMs ) noexcept
     std::lock_guard< std::mutex > lock( OutputMutex() );
     for ( CategoryTotal & total : Totals() )
     {
+        // Unused trailing slots keep a null name; never compare against them.
+        if ( total.name == nullptr ) continue;
         if ( std::strcmp( total.name, category ) == 0 )
         {
             total.elapsedMs += elapsedMs;
             return;
         }
+    }
+    DroppedCategory & dropped = DroppedCategories();
+    ++dropped.count;
+    try
+    {
+        if ( dropped.first.empty() ) dropped.first = category;
+    }
+    catch ( ... )
+    {
+        // Profiling must never change solver behaviour.
     }
 }
 
@@ -209,7 +305,15 @@ void StageProfiler::Flush()
     output << "category\telapsed_ms\n";
     for ( const CategoryTotal & total : Totals() )
     {
+        if ( total.name == nullptr ) continue;
         output << total.name << "\t" << total.elapsedMs << "\n";
+    }
+    if ( DroppedCategories().count != 0 )
+    {
+        std::cerr << "StageProfiler: dropped " << DroppedCategories().count
+                  << " timer records for unregistered category \""
+                  << DroppedCategories().first
+                  << "\"; register it in Totals()" << std::endl;
     }
     if ( ! output )
     {
@@ -252,6 +356,69 @@ void StageProfiler::Flush()
         throw std::runtime_error(
             "failed while writing task breakdown file: " + taskPath );
     }
+
+    if ( HostAccountingEnabled() )
+    {
+        if ( DroppedHostRecords() != 0 )
+        {
+            throw std::runtime_error( "host accounting lost timer records" );
+        }
+        std::ofstream hostOutput( path + ".host.tsv" );
+        hostOutput << std::setprecision( 17 );
+        hostOutput << "scope\tcount\tinclusive_ms\texclusive_ms\n";
+        for ( const auto & entry : HostTotals() )
+        {
+            const HostTotal & total = entry.second;
+            hostOutput << entry.first << '\t' << total.count << '\t'
+                       << total.inclusiveMs << '\t' << total.exclusiveMs << '\n';
+        }
+        if ( ! hostOutput )
+        {
+            throw std::runtime_error( "cannot write host accounting file: " + path );
+        }
+    }
+}
+
+void StageProfiler::RecordHost( const char * scope, double inclusiveMs,
+                                double exclusiveMs ) noexcept
+{
+    std::lock_guard< std::mutex > lock( OutputMutex() );
+    try
+    {
+        HostTotal & total = HostTotals()[ scope ];
+        ++total.count;
+        total.inclusiveMs += inclusiveMs;
+        total.exclusiveMs += exclusiveMs;
+    }
+    catch ( ... )
+    {
+        ++DroppedHostRecords();
+    }
+}
+
+thread_local ScopedHostTimer * ScopedHostTimer::current_ = nullptr;
+
+ScopedHostTimer::ScopedHostTimer( const char * scope, bool root )
+    : scope_( scope )
+{
+    if ( ! HostAccountingEnabled() || scope == nullptr ) return;
+    // Initialization and final output are outside the steady solver root.
+    if ( current_ == nullptr && ! root ) return;
+    parent_ = current_;
+    active_ = true;
+    start_ = std::chrono::steady_clock::now();
+    current_ = this;
+}
+
+ScopedHostTimer::~ScopedHostTimer() noexcept
+{
+    if ( ! active_ ) return;
+    const auto end = std::chrono::steady_clock::now();
+    const std::chrono::duration< double, std::milli > elapsed = end - start_;
+    current_ = parent_;
+    if ( parent_ != nullptr ) parent_->childrenMs_ += elapsed.count();
+    StageProfiler::RecordHost( scope_, elapsed.count(),
+                              std::max( 0.0, elapsed.count() - childrenMs_ ) );
 }
 
 const char * StageProfiler::CategoryForTask( const std::string & taskName )

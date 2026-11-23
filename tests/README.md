@@ -8,6 +8,13 @@
 
 默认行为是 CPU-only：根目录 CMake/CTest 不会申请或调用海光 DCU。Kunshan port 的 `ONEFLOW_1D_ENABLE_HIP` 和 `ONEFLOW_1D_ENABLE_GTEST` 默认均为 `OFF`，只有专用计算节点作业显式设置为 `ON` 时才构建并运行 HIP/DCU contract test。
 
+H1 的 `stage_profiler_test` 独立链接计时器，检查嵌套耗时不重复计数、异常退出后恢复父域、
+根域外事件排除、重复调用累加及显式关闭开关：
+`ctest --test-dir build -R '^StageProfiler\.' --output-on-failure`。
+对应集群归账工具检查 rank、迭代次数、耗时闭合和启动扣除：
+`python3 ci/kunshan/test-summarize-host-accounting.py` 与
+`python3 ci/kunshan/test-verify-rank-utilization.py`。这些测试不替代数值门禁。
+
 mkdir build && cd build
 cmake ..
 cmake --build .

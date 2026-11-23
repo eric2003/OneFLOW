@@ -1,9 +1,9 @@
 # AGENTS.md — guide for AI coding agents
 
 This file is the entry point for AI coding agents working in this repository.
-Before changing code, read [`doc/DEVELOPMENT_PRINCIPLES.md`](doc/DEVELOPMENT_PRINCIPLES.md)
+Before changing code, read [`docs/DEVELOPMENT_PRINCIPLES.md`](docs/DEVELOPMENT_PRINCIPLES.md)
 for durable engineering rules and regression lessons, then read
-[`doc/AI_CONTEXT.md`](doc/AI_CONTEXT.md) for the current refactoring focus,
+[`docs/AI_CONTEXT.md`](docs/AI_CONTEXT.md) for the current refactoring focus,
 verified findings, open gaps, and next actions. Follow the relevant architecture
 page, roadmap, tests, and evidence links.
 
@@ -11,17 +11,23 @@ page, roadmap, tests, and evidence links.
 
 | Topic | Start here |
 |---|---|
-| Durable engineering principles and regression-prevention rules | [`doc/DEVELOPMENT_PRINCIPLES.md`](doc/DEVELOPMENT_PRINCIPLES.md) |
-| Current AI handoff and ongoing refactoring state | [`doc/AI_CONTEXT.md`](doc/AI_CONTEXT.md) |
-| Runtime entry points, lifecycle, configuration, and task dispatch | [`doc/source/runtime_architecture.rst`](doc/source/runtime_architecture.rst) |
-| Runtime refactoring stages and acceptance criteria | [`doc/plans/runtime-refactoring-roadmap.md`](doc/plans/runtime-refactoring-roadmap.md) |
-| Documentation ownership and consolidation | [`doc/plans/oneflow-documentation-consolidation-plan.md`](doc/plans/oneflow-documentation-consolidation-plan.md) |
+| Durable engineering principles and regression-prevention rules | [`docs/DEVELOPMENT_PRINCIPLES.md`](docs/DEVELOPMENT_PRINCIPLES.md) |
+| Current AI handoff and ongoing refactoring state | [`docs/AI_CONTEXT.md`](docs/AI_CONTEXT.md) |
+| Runtime entry points, lifecycle, configuration, and task dispatch | [`docs/source/runtime_architecture.rst`](docs/source/runtime_architecture.rst) |
+| Runtime refactoring stages and acceptance criteria | [`docs/plans/runtime-refactoring-roadmap.md`](docs/plans/runtime-refactoring-roadmap.md) |
+| Documentation ownership and consolidation | [`docs/plans/oneflow-documentation-consolidation-plan.md`](docs/plans/oneflow-documentation-consolidation-plan.md) |
 | Kunshan/DCU cluster workflow and verified environments | [`ci/kunshan/README.md`](ci/kunshan/README.md) |
-| Report conventions, naming, publication boundary | [`doc/reports/README.md`](doc/reports/README.md) |
-| Current 1D Euler CPU/DCU performance data | [`doc/reports/performance/oneflow-euler-performance-current.md`](doc/reports/performance/oneflow-euler-performance-current.md) |
-| 2026-09-13 measurement method and baseline audit | [`doc/reports/performance/oneflow-euler-performance-20260913.md`](doc/reports/performance/oneflow-euler-performance-20260913.md) |
+| Report conventions, naming, publication boundary | [`docs/reports/README.md`](docs/reports/README.md) |
+| Current 1D Euler CPU/DCU performance data | [`docs/reports/performance/oneflow-euler-performance-current.md`](docs/reports/performance/oneflow-euler-performance-current.md) |
+| 2026-09-13 measurement method and baseline audit | [`docs/reports/performance/oneflow-euler-performance-20260913.md`](docs/reports/performance/oneflow-euler-performance-20260913.md) |
 | CPU regression suite and residual baselines | [`test/README.md`](test/README.md), [`test/baselines/README.md`](test/baselines/README.md) |
 | GoogleTest contract tests | [`tests/README.md`](tests/README.md) |
+| Current Phase Plan slice, checkboxes, and acceptance evidence | [`docs/plans/oneflow-development-todo.md`](docs/plans/oneflow-development-todo.md) |
+| Long-term phase plan (milestones, gates, open decisions) | [`docs/plans/oneflow-development-plan.md`](docs/plans/oneflow-development-plan.md) |
+| 3D device-residency architecture design (A.4 / LU-SGS residency) | [`docs/architecture/oneflow-3d-device-residency-design.md`](docs/architecture/oneflow-3d-device-residency-design.md) |
+| Session handoff (living: environment, fixed paths, traps) | [`docs/handoff/oneflow-current-handoff.md`](docs/handoff/oneflow-current-handoff.md) |
+| Kunshan workspace layout, job submission and cleanup rules | [`docs/runbooks/oneflow-kunshan-workspace-runbook.md`](docs/runbooks/oneflow-kunshan-workspace-runbook.md) |
+| Document index and retention policy | [`docs/README.md`](docs/README.md) |
 
 ## Branch and source-of-truth rules
 
@@ -36,6 +42,28 @@ page, roadmap, tests, and evidence links.
   or test exists.
 - Keep changes compatible with `hexin` and avoid rewriting published history.
 
+Contributions normally arrive from a fork, so a checkout can have two remotes:
+`origin` (the fork) and `upstream` (this repository). Keep three kinds of
+branches separate:
+
+- **Baseline branch** (`master` in the usual layout) — kept identical to the
+  upstream default branch and treated as a read-only PR baseline. Do not
+  develop on it. Run `scripts/sync-master.sh` manually to fast-forward
+  `origin/master` to `upstream/master`. The script never changes local `master`
+  or `dev`; if `origin/master` has diverged, it stops for manual review.
+- **Working branch** (`dev`, when the checkout has one) — the long-lived branch
+  for daily work, in-progress features and notes. Pushing it to the fork is the
+  backup step. Keep it current by **merging** the upstream default branch into
+  it (`git merge upstream/master`); do not rebase it once it has been pushed,
+  since that rewrites public history.
+- **Topic branches** — short-lived, created from the upstream default branch
+  only when a PR is explicitly authorized, by cherry-picking the function
+  commits and excluding notes and unpublished docs. Delete them once the PR is
+  done.
+
+When working on a `dev` branch, read `docs/plans/oneflow-development-todo.md`
+on that branch for the current working state — it lives on `dev` only.
+
 ## Required working method
 
 1. Trace the concrete entry point, direct callers, state/resource ownership,
@@ -44,7 +72,7 @@ page, roadmap, tests, and evidence links.
    Do not refactor solely to introduce a pattern or a new abstraction.
 3. Search for existing helpers, contracts, and regression tests before
    implementing path, process, filesystem, UI, mesh, or workflow behavior.
-   Follow [`doc/DEVELOPMENT_PRINCIPLES.md`](doc/DEVELOPMENT_PRINCIPLES.md);
+   Follow [`docs/DEVELOPMENT_PRINCIPLES.md`](docs/DEVELOPMENT_PRINCIPLES.md);
    do not reintroduce a solved local workaround or duplicate an existing policy.
 4. Add or update tests for the changed contract at the narrowest meaningful
    boundary, followed by relevant integration or regression checks.
@@ -53,7 +81,7 @@ page, roadmap, tests, and evidence links.
    the exact commit's workflow results.
 6. Keep C++ source files ASCII-only. Preserve existing behavior unless an
    intentional behavior change is documented and tested.
-7. At a meaningful milestone, update `doc/AI_CONTEXT.md` and the relevant
+7. At a meaningful milestone, update `docs/AI_CONTEXT.md` and the relevant
    architecture/roadmap entry with the verified base commit, change summary,
    evidence, remaining gaps, and next action. If a fix reveals a reusable
    lesson, update the owning durable principle or architecture page in the
@@ -72,7 +100,7 @@ this assistant or another coding agent without relying on conversational memory.
 1. Inspect the current `hexin` HEAD, recent commits, working-tree/source state where
    available, and relevant CI results. Never assume that a handoff note or an old commit
    is still current.
-2. Read `doc/DEVELOPMENT_PRINCIPLES.md`, `doc/AI_CONTEXT.md`, the relevant
+2. Read `docs/DEVELOPMENT_PRINCIPLES.md`, `docs/AI_CONTEXT.md`, the relevant
    architecture/design page, the roadmap or stage record, and the directly related
    tests. Follow the real entry point and callers; do not scan or rewrite the whole
    repository without a reason.
@@ -139,7 +167,7 @@ evidence.
   locally, CI results for the exact commit, and checks that were not run or are blocked.
 - Never infer a pass from compilation alone, an unrelated green suite, a queued workflow,
   or an old CI run.
-- Use the status labels in `doc/AI_CONTEXT.md`: Verified, Implemented, unverified, Partial,
+- Use the status labels in `docs/AI_CONTEXT.md`: Verified, Implemented, unverified, Partial,
   Planned, Blocked, or Deferred, with evidence and remaining gaps.
 
 ### F. Keep commit history coherent
@@ -157,7 +185,7 @@ evidence.
 
 ### G. Leave a useful handoff
 
-At a meaningful milestone, update `doc/AI_CONTEXT.md` and the relevant architecture/roadmap
+At a meaningful milestone, update `docs/AI_CONTEXT.md` and the relevant architecture/roadmap
 record in the same logical change where practical. Record the inspected base/commit, chosen
 mainline and rationale, files/contracts changed, evidence, remaining gaps, and the next
 single recommended action. Keep the handoff concise; do not duplicate the full design guide
@@ -180,7 +208,7 @@ iteration to the next.
    update both in the same change.
 4. **Publication boundary.** Committed reports must not contain raw CI/Slurm
    logs, credentials, unredacted absolute paths, hostnames, account or job
-   metadata. See `doc/reports/README.md`.
+   metadata. See `docs/reports/README.md`.
 5. **Cluster work follows the standard suites.** Use the four suites defined in
    `ci/kunshan/README.md` (`cpu-regression`, `dcu-single`, `cpu-mpi`,
    `dcu-mpi`) with the documented workspace layout and resource tuples.
@@ -193,4 +221,11 @@ iteration to the next.
    the only incremental build, gate evidence goes to `evidence/<gate>/<jobid>/`,
    job logs go to `logs/`, and deprecated material goes to `_attic/<date>/`. Do
    not create per-job build/run directories or write logs to `$HOME`; see
-   [`doc/runbooks/oneflow-kunshan-workspace-runbook.md`](doc/runbooks/oneflow-kunshan-workspace-runbook.md).
+   [`docs/runbooks/oneflow-kunshan-workspace-runbook.md`](docs/runbooks/oneflow-kunshan-workspace-runbook.md).
+8. **Documents describe the current state only.** Living documents are edited
+   in place: the handoff is a single `docs/handoff/oneflow-current-handoff.md`
+   (update its §4/§5 each session, never add a dated one), one-off plans and
+   checklists are deleted when done, and published reports are kept but marked
+   historical. Rules and the per-round checklist live in
+   [`docs/README.md`](docs/README.md) and
+   [`docs/DOCUMENT_NAMING.md`](docs/DOCUMENT_NAMING.md) §4.5.

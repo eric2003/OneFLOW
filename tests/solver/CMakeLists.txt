@@ -214,17 +214,37 @@ target_link_libraries(inv_flux_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(inv_flux_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(inv_flux_policy_test DISCOVERY_MODE PRE_TEST)
 
+# Compiles the host policy and the shared viscous arithmetic together so the
+# contract test can compare them term for term. Sutherland.cpp is included
+# because the shared nondimensional form must match its host counterpart
+# exactly, and that comparison is useless if the two are not in one binary.
 add_executable(vis_flux_policy_test
   vis_flux_policy_test.cpp
   ${CMAKE_SOURCE_DIR}/codes/ns/src/NsVisFluxPolicy.cpp
+  ${CMAKE_SOURCE_DIR}/codes/model/src/Sutherland.cpp
 )
 target_include_directories(vis_flux_policy_test PRIVATE
   ${CMAKE_SOURCE_DIR}/codes/ns/include
+  ${CMAKE_SOURCE_DIR}/codes/model/include
+  ${CMAKE_SOURCE_DIR}/codes/accel/include
   ${CMAKE_SOURCE_DIR}/codes/basic/include
 )
 target_link_libraries(vis_flux_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(vis_flux_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(vis_flux_policy_test DISCOVERY_MODE PRE_TEST)
+
+# Device-versus-host viscous write-back comparison.  Header-only policy so the
+# NaN and scale rules are tested without a mesh, a solver, or a device.
+add_executable(viscous_flux_selfcheck_test
+  viscous_flux_selfcheck_test.cpp
+)
+target_include_directories(viscous_flux_selfcheck_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/uns/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(viscous_flux_selfcheck_test PRIVATE GTest::gtest_main)
+target_compile_features(viscous_flux_selfcheck_test PRIVATE cxx_std_17)
+gtest_discover_tests(viscous_flux_selfcheck_test DISCOVERY_MODE PRE_TEST)
 
 # Pure Sutherland viscosity formulas; no mesh bootstrap.
 add_executable(sutherland_policy_test
@@ -291,6 +311,30 @@ target_include_directories(turb_sa_policy_test PRIVATE
 target_link_libraries(turb_sa_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(turb_sa_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(turb_sa_policy_test DISCOVERY_MODE PRE_TEST)
+
+# Parity between the shared Spalart-Allmaras arithmetic (the header the HIP
+# kernels compile) and the production host chain.  This one links the runtime
+# objects because the reference for the source term is the real
+# TurbCom::CalcSrcSa driven through `turbcom`, not a re-derivation; a
+# hand-written reference would only prove the test agrees with itself.
+add_executable(turb_sa_arithmetic_test
+  turb_sa_arithmetic_test.cpp
+)
+target_include_directories(turb_sa_arithmetic_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/accel/include
+  ${CMAKE_SOURCE_DIR}/codes/turb/include
+  ${CMAKE_SOURCE_DIR}/codes/ns/include
+  ${CMAKE_SOURCE_DIR}/codes/array/include
+  ${CMAKE_SOURCE_DIR}/codes/usolver/include
+  ${CMAKE_SOURCE_DIR}/codes/global/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(turb_sa_arithmetic_test PRIVATE
+  OneFLOW_RuntimeObjects
+  GTest::gtest_main
+)
+target_compile_features(turb_sa_arithmetic_test PRIVATE cxx_std_20)
+gtest_discover_tests(turb_sa_arithmetic_test DISCOVERY_MODE PRE_TEST)
 
 # Shared eddy-viscosity cap used by multiple turbulence closures.
 add_executable(turb_viscosity_policy_test
@@ -451,4 +495,19 @@ target_include_directories(time_integral_policy_test
 target_link_libraries(time_integral_policy_test PRIVATE GTest::gtest_main)
 target_compile_features(time_integral_policy_test PRIVATE cxx_std_20)
 gtest_discover_tests(time_integral_policy_test DISCOVERY_MODE PRE_TEST)
+
+# The solver-side view assembly, which the device contract tests do not cover:
+# they construct TurbSaStateView by hand, so a wrong field-to-slot mapping in
+# UTurbSrcFlux compiles and passes while producing wrong residuals.
+add_executable(sa_state_assembly_test
+  sa_state_assembly_test.cpp
+)
+target_include_directories(sa_state_assembly_test PRIVATE
+  ${CMAKE_SOURCE_DIR}/codes/accel/include
+  ${CMAKE_SOURCE_DIR}/codes/uturb/include
+  ${CMAKE_SOURCE_DIR}/codes/basic/include
+)
+target_link_libraries(sa_state_assembly_test PRIVATE GTest::gtest_main)
+target_compile_features(sa_state_assembly_test PRIVATE cxx_std_20)
+gtest_discover_tests(sa_state_assembly_test DISCOVERY_MODE PRE_TEST)
 

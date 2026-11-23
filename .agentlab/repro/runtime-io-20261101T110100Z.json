@@ -1,0 +1,31 @@
+{
+  "label": "runtime-io",
+  "gate_mode": "audit",
+  "gate_status": "pass",
+  "gate_exit_code": "0",
+  "time_utc": "2026-11-01T11:01:00.740952+00:00",
+  "git_commit": "ff5a34c6e766c62c369e2d3342e4d152bdd6e4f0",
+  "git_branch": "agent/runtime-io",
+  "git_dirty": true,
+  "host": "Qilins-MacBook-Neo.local",
+  "kernel": "27.0.0",
+  "cpu": "",
+  "cpu_threads": 6,
+  "gpu": "",
+  "toolchain": {
+    "cxx": "Apple clang version 21.0.0 (clang-2100.4.1.1)",
+    "cmake": "cmake version 4.4.5",
+    "mpi": "HYDRA build details:",
+    "pi": "1.4.0"
+  },
+  "model": "deepseek-v4.1-flash-261017",
+  "commands": [],
+  "case": "",
+  "env": {
+    "OMP_NUM_THREADS": "",
+    "CXXFLAGS": "",
+    "PI_ARGS": "",
+    "GATE_MODE": "audit"
+  },
+  "note": "Domain-specific fields (mesh, CFL, iterations, residual history, timing) are written by verification cases to *.case.json; see .agentlab/repro_fields.yaml"
+}

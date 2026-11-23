@@ -78,7 +78,7 @@ class MeshContractDialog(QDialog):
             "placeholder output as a production CGNS writer."
         ),
         "Documentation": (
-            "doc/source/mesh_architecture.rst\n"
+            "docs/source/mesh_architecture.rst\n"
             "tools/mesh_contracts/README.md\n"
             "Gmsh format/interface notes are maintained with the geometry "
             "conversion documentation."
@@ -123,7 +123,7 @@ class MeshContractDialog(QDialog):
                 )
             elif name == "Documentation":
                 description = self._read_repository_files(
-                    ("doc/source/mesh_architecture.rst", "doc/source/gmsh_interface.rst")
+                    ("docs/source/mesh_architecture.rst", "docs/source/gmsh_interface.rst")
                 )
             view = QPlainTextEdit(description)
             view.setReadOnly(True)
