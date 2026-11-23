@@ -99,9 +99,11 @@ Python invocation. Generated artifacts are written under the user's
 
 The GUI can open the closed surface in the existing STL-to-Gmsh page. The
 project importer carries the checksum-verified region manifest and patch STL
-files into the mesh project. The region-aware converter then creates a Gmsh
-volume mesh with distinct `wall`, `inflow` and `outflow` Physical Surface
-groups plus the `fluid_domain` Physical Volume. The end-to-end Gmsh path is
+files into the mesh project. The region-aware converter first merges coincident patch nodes, reconstructs
+shared discrete topology with `CreateTopology`, and creates the geometric
+surfaces with `CreateGeometry`. It then creates a closed surface loop and
+volume with distinct `wall`, `inflow` and `outflow` Physical Surface groups
+plus the `fluid_domain` Physical Volume. The end-to-end Gmsh path is
 covered by the dedicated Linux and Windows integration job.
 
 

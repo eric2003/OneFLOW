@@ -90,6 +90,9 @@ class GenericStlSurfaceCutTest(unittest.TestCase):
                 },
                 1.0e-8,
             )
+            self.assertIn("Coherence Mesh;", geo)
+            self.assertIn("CreateTopology;", geo)
+            self.assertLess(geo.index("CreateTopology;"), geo.index("CreateGeometry;"))
             self.assertIn('Physical Surface("wall")', geo)
             self.assertIn('Physical Surface("inflow")', geo)
             self.assertIn('Physical Surface("outflow")', geo)

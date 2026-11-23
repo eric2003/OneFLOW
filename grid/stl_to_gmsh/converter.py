@@ -484,8 +484,9 @@ def _region_aware_closed_surface_volume_geo(
                 lines.append("outflow[] -= inflow[];")
     lines.extend((
         "Coherence Mesh;",
+        "CreateTopology;",
         "CreateGeometry;",
-        "Surface Loop(1) = {wall[], inflow[], outflow[]};"
+        "Surface Loop(1) = {wall[], inflow[], outflow[]};",
         "Volume(1) = {1};",
         f"Mesh.MeshSizeMin = {mesh_size_min:.17g};",
         f"Mesh.MeshSizeMax = {mesh_size_max:.17g};",
