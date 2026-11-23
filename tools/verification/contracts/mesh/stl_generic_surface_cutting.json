@@ -73,13 +73,13 @@
     "manual": "For a user-provided geometry, review the selected cut planes and the generated geometry. Physical CFD validation remains a separate task requiring a compatible internal-flow Case, explicit boundary-state data and physical acceptance criteria."
   },
   "references": [
-    "doc/source/stl_generic_surface_cutting.rst",
+    "docs/source/stl_generic_surface_cutting.rst",
     "grid/stl_import/surface_cut.py"
   ],
   "schema_version": 1,
   "documentation": {
     "paths": [
-      "doc/source/stl_generic_surface_cutting.rst"
+      "docs/source/stl_generic_surface_cutting.rst"
     ]
   }
 }
