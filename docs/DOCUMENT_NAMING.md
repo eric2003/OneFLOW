@@ -1,16 +1,16 @@
 # OneFLOW 文档命名规范
 
-本文是 `doc/` 下工程文档的唯一命名规则。它以
-[`doc/reports/README.md`](reports/README.md) 的既有 reports 约定为基础，扩展到
+本文是 `docs/` 下工程文档的唯一命名规则。它以
+[`docs/reports/README.md`](reports/README.md) 的既有 reports 约定为基础，扩展到
 architecture、plans、handoff、runbooks、evidence 和 drafts。
 
 ## 1. 目标与适用范围
 
 命名应让读者不打开文件就能判断三件事：主题、文档用途、时间属性。规则适用于
-`doc/` 下新建或新命名的工程文档；不要求批量重命名已有文件，以免破坏历史链接、
+`docs/` 下新建或新命名的工程文档；不要求批量重命名已有文件，以免破坏历史链接、
 外部引用和 Sphinx 索引。
 
-Sphinx 教程源文件 `doc/source/` 按内容层级组织，不受本规范的文件名语法约束。
+Sphinx 教程源文件 `docs/source/` 按内容层级组织，不受本规范的文件名语法约束。
 根目录的 `README.md`、`DOCUMENT_NAMING.md`、Makefile、构建脚本和历史
 Word/WPS 手册也属于保留文件名。
 
@@ -98,10 +98,16 @@ oneflow-euler-performance-current.html
 操作要求：
 
 1. 删除或改名必须用 `git rm` / `git mv`，并在同一提交内修复所有引用
-   （`doc/README.md`、`doc/reports/README.md`、`AGENTS.md`、`ports/`、`ci/`、代码注释）。
+   （`docs/README.md`、`docs/reports/README.md`、`AGENTS.md`、`ports/`、`ci/`、代码注释）。
 2. 提交前用 `grep -rIn --exclude-dir=.git <旧文件名>` 确认零残留。
-3. Git 历史就是档案；不需要用 `_archive/` 目录堆积副本。
-4. 每轮收尾按 `doc/README.md` §5 的检查表执行。
+3. 移动目录（例如文档根改名）必须同时改掉所有**目录级**路径：CI 工作流的
+   `cd` / `sphinx-build` 参数、`.readthedocs.yaml`、`docs/Makefile`、契约 JSON 的
+   `references` 与 `documentation.paths`、代码注释里的出处指引。只改文件级链接
+   会漏掉这些，`aca126d53` 就是这么漏了 `.github/workflows/PublishMySite.yml`
+   的 `cd doc`。改完运行 `python3 scripts/check-doc-paths.py`，它专门检查
+   `doc/` 残留和 `docs/` 指向不存在文件两类错误，CI 两个分支都会跑。
+4. Git 历史就是档案；不需要用 `_archive/` 目录堆积副本。
+5. 每轮收尾按 `docs/README.md` §5 的检查表执行。
 
 ## 5. 内容边界与禁止项
 
@@ -117,7 +123,7 @@ token 或凭据。原始 CI/Slurm 日志、环境 dump、临时运行目录留�
 1. 先选择目录，再选择 `scope` 和 `artifact`。
 2. 判断是活文档还是快照：前者无日期，后者带 `YYYYMMDD`。
 3. 新增或修改正式报告时，检查是否存在同 stem 的 HTML，并按需要同步更新。
-4. 在目录 README 或 `doc/README.md` 中补入口；不要靠文件系统遍历作为导航。
+4. 在目录 README 或 `docs/README.md` 中补入口；不要靠文件系统遍历作为导航。
 5. 提交前运行 `git diff --check`；确认未提交 raw log、私有元数据或无意义的重名快照。
 
 ## 7. 迁移策略

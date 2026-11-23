@@ -111,7 +111,10 @@ normal/strict → 50 步稳定性；性能改动再加 paired。任何一步失�
 
 ## 4. 当前任务指针（每次会话就地更新）
 
-**2026-11-22 收口点（覆盖下方所有旧记录）**。分支 `dev` HEAD `4dac26c68`，工作树干净，已推送 `origin/dev`。`master` 已三端同步到 upstream `a307becac` 并并入 `dev`；该合并只含 R1 运行时/几何资产内容，未触及 `codes/accel`、`codes/uturb`、`ci/kunshan`。**合并后验证已通过**（`evidence/gate/128698741-verify9f9`）：构建/链接 OK，两臂 rc=0，aero max_rel=0，residual `1.808152e-12` 与合并前一致，20 步 74.93s → 32.8s。GitHub 的 SSH 可用（`ssh -T git@github.com` 认证为 `lql341`，用于 push）；昆山集群的 `ssh kseshell` **仍失效**（`Permission denied (publickey)`，2026-11-22 复验），集群侧一律走 OpenAPI。
+**2026-11-23 收口点（覆盖下方所有旧记录）**。`dev` HEAD `813d364ed`，即 upstream master 合并 PR #267 后的提交；`dev`、`origin/dev`、`origin/master` 三者与 upstream master 完全一致，工作树干净。PR #267 三项检查全绿（publish site / Linux / Windows），上游 master 推送后同样全绿。
+**文档根改名的遗留问题已收口**：`aca126d53` 把 `doc/` 并入 `docs/` 时只改了文件级链接，漏了 `.github/workflows/PublishMySite.yml` 的 `cd doc`，deploy 在 Sphinx 之前就 `No such file or directory` 退出。修复提交（本收口点）同时做了三件事：修掉构建路径；清掉 53 处 `doc/` 残留（含 `stl_geometry_asset_preparation.json` 的 7 处，这 7 处让 `test_contract_catalog` 在 master 上静默红了 8 个用例）；新增 `scripts/check-doc-paths.py` 并接入 `docs-check.yml`（分支扩到 master）与 Linux CI 的契约测试步骤。**根因**：文档根路径分散在 PublishMySite / docs-check / .readthedocs.yaml / Makefile 四处，且契约测试只在 hexin 上跑，master 没有门禁。
+
+**2026-11-22 收口点**。分支 `dev` HEAD `4dac26c68`，工作树干净，已推送 `origin/dev`。`master` 已三端同步到 upstream `a307becac` 并并入 `dev`；该合并只含 R1 运行时/几何资产内容，未触及 `codes/accel`、`codes/uturb`、`ci/kunshan`。**合并后验证已通过**（`evidence/gate/128698741-verify9f9`）：构建/链接 OK，两臂 rc=0，aero max_rel=0，residual `1.808152e-12` 与合并前一致，20 步 74.93s → 32.8s。GitHub 的 SSH 可用（`ssh -T git@github.com` 认证为 `lql341`，用于 push）；昆山集群的 `ssh kseshell` **仍失效**（`Permission denied (publickey)`，2026-11-22 复验），集群侧一律走 OpenAPI。
 **旗舰 m6wingroe_sa 的完整 GPU 通量路径与完整 SA 链路均已设备化并通过集群验证**（单 rank，20 步）。aero.dat 逐字节一致（max_rel=0），flow.dat level1 `2.7e-15`，visual.dat 全 1e-37 机器零，HIP 重跑确定性已证。flow.dat level2 历史槽差 7.58e-3 = 一步物理变化，reader 用 level1 重建，不影响续算。
 
 **SA 全链路移植（提交 `83309178a`，证据 `128693499-saport` / `128694886-saport`）**：梯度、显式更新、隐式谱、边界、LU-SGS 五段全部上设备，9 个 `ONEFLOW_ENABLE_UTURB_HIP_*` 并入自动白名单（backend=HIP 即生效，显式 =0 仍可单关）。**数值与移植前逐位相同**——aero 仍 0，主控残差 `1.808152e-12`、湍流残差 `8.168e-14` 与改动前完全一致，证明移植等价。
@@ -354,6 +357,15 @@ M6 为**六面体**（面全为四边形），8 zone / 294,912 cell / 306,577 no
 `of-probe-cleanup` CPU 作业中，接手先查该作业与 evidence/probe 下的结果。
 
 ## 5. 已知坑与设计约束（只加有长期价值的）
+
+**文档根改名会连带多处目录级路径（2026-11-23）**。文档树从 `doc/` 改名为 `docs/` 时，只改
+markdown 里的文件级链接是不够的：CI 的 `cd` 与 `sphinx-build` 参数、`.readthedocs.yaml`、
+`docs/Makefile`、以及 `tools/verification/contracts/**` 里声明的 `references` /
+`documentation.paths` 都各自硬编码了目录路径。漏掉工作流那一处会让 deploy 在 Sphinx
+之前失败；漏掉契约 JSON 会让 `test_contract_catalog` 变红，而这个套件只在 `hexin` 上跑
+（`python-tools.yml`），master 上看不到。现在 `scripts/check-doc-paths.py` 覆盖两类错误
+（旧根残留、指向不存在的 `docs/` 目标），`docs-check.yml` 覆盖 master 与 hexin，Linux CI
+额外跑一次契约测试。
 
 **粘性探针注意事项（2026-11-19，2026-11-19 更新）**。通量探针 `ONEFLOW_VISCOUS_PROBE_FILE`
 会覆盖输出，CPU 与 DCU 用不同路径，同一进程开启自检时也须避免互相覆盖。

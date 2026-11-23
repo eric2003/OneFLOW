@@ -32,9 +32,9 @@ jobs:
           pip install sphinx sphinx-rtd-theme
 
       - name: Build docs
-        run: |
-          cd docs
-          sphinx-build -b html source/ build/html
+        # Keep this equal to docs-check.yml and .readthedocs.yaml. A mismatch
+        # fails here as `cd: No such file or directory` before Sphinx runs.
+        run: sphinx-build -b html docs/source docs/build/html
 
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'

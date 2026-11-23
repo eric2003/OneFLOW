@@ -257,7 +257,7 @@ Representative audited examples cover maxSteps and maxTime (outer-loop terminati
 This is intentionally not presented as whole-repository usage analysis. Absence from the catalog means not yet audited, not unused. A source-level read proves a consumer exists; it does not prove the parameter is active for every task, controls a particular numerical outcome in every configuration, or has a validated physical range. Those claims require applicability tracing and separate numerical verification. The catalog is tested independently of Qt so the evidence model can later feed the Project Window and Contract Workbench.
 
 
-The time-integration parameter trace is also exposed in Formula & Knowledge as `time_integral_rk_stage_weight`. Its source-backed description deliberately separates the legacy stage coefficient schedule from the narrower resident Euler backend capability gate; it does not claim a complete Runge-Kutta tableau or temporal-order verification. See `doc/source/numerical/time_integral_control.rst`.
+The time-integration parameter trace is also exposed in Formula & Knowledge as `time_integral_rk_stage_weight`. Its source-backed description deliberately separates the legacy stage coefficient schedule from the narrower resident Euler backend capability gate; it does not claim a complete Runge-Kutta tableau or temporal-order verification. See `docs/source/numerical/time_integral_control.rst`.
 
 The Project Window also displays declared Formula & Knowledge IDs for parameters that have an explicit catalog cross-reference. The first mapping connects `time_integral` and `rk_stage` to `time_integral_rk_stage_weight`; this is a navigational reference, not evidence that the temporal method has a verified order or stability region.
 

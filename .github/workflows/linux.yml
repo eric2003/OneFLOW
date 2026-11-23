@@ -134,6 +134,14 @@ jobs:
           python -m unittest discover -s ../tools/mesh_export -p 'test_*.py'
           python -m unittest discover -s ../tools/mesh_contracts -p 'test_*.py'
         shell: bash        
+      - name: Documentation contract tests
+        # tools/verification resolves declared documentation paths as real
+        # repository files, so it catches a stale path left by a directory move
+        # (the docs root was renamed once and this suite went red unnoticed).
+        # It previously ran only on `hexin` via python-tools.yml, which left
+        # `master` free to break silently.
+        run: python3 -m unittest tools.verification.test_contract_catalog
+        shell: bash
       - name: Run OneFLOW Regression Tests
         env:
           prefix: ${{ github.workspace }}/Run

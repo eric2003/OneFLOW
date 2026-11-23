@@ -50,7 +50,7 @@ representative runs provide stronger evidence.
    count has value only when assertions cover the intended contracts.
 6. **Documentation generation and interface drift.** Generate mechanical API details
    from structured source comments where stable, but keep architecture, rationale,
-   equations, assumptions, diagrams, and evidence curated in ``doc/source``. Start
+   equations, assumptions, diagrams, and evidence curated in ``docs/source``. Start
    with one documented module and measure generated-output stability before expanding.
 
 This sequence prioritizes state validity and numerical trust over cosmetic renaming
@@ -133,7 +133,7 @@ scope control, acceptance criteria, and delivery evidence.
 
 This architecture review remains the system-level decision framework. The task
 specification defines how an individual work item is expressed and executed.
-Before implementation, read `AGENTS.md`, `doc/AI_CONTEXT.md`, this review,
+Before implementation, read `AGENTS.md`, `docs/AI_CONTEXT.md`, this review,
 and the relevant subsystem guide; verify the current `hexin` HEAD. Before
 completion, report exact-revision evidence and reassess whether the work changes
 the system-wide priority order.

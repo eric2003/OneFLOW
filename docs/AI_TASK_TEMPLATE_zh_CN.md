@@ -1,6 +1,6 @@
 # OneFLOW 持续演化与科学验证开发规范
 
-本文规定 OneFLOW 持续工程演化与科学验证的工作规范，适用于 AI 辅助开发和人工工程任务。目标是使每轮开发具备明确的系统收益、可审查的实施范围、可信的验证证据和可复现的交付结果。本文应与 `doc/source/architecture_review.rst`、`doc/source/architecture_priority_roadmap.rst` 及相关子系统路线图配合使用。文末的标准任务模板可直接复制，用于描述单轮开发任务。
+本文规定 OneFLOW 持续工程演化与科学验证的工作规范，适用于 AI 辅助开发和人工工程任务。目标是使每轮开发具备明确的系统收益、可审查的实施范围、可信的验证证据和可复现的交付结果。本文应与 `docs/source/architecture_review.rst`、`docs/source/architecture_priority_roadmap.rst` 及相关子系统路线图配合使用。文末的标准任务模板可直接复制，用于描述单轮开发任务。
 
 ## 1. 项目上下文与基准版本
 
@@ -36,7 +36,7 @@
 
 优先处理能够消除跨模块风险、建立可复用契约或显著改善核心工作流的任务。孤立的命名调整、纯格式整理和低收益辅助函数拆分，不应挤占高收益架构工作的资源。
 
-整体优先级以 `doc/source/architecture_review.rst` 和对应子系统路线图为准。源码证据或测试结果发生实质变化时，应重新评估优先级。
+整体优先级以 `docs/source/architecture_review.rst` 和对应子系统路线图为准。源码证据或测试结果发生实质变化时，应重新评估优先级。
 
 ## 4. 实施前调查
 
@@ -92,7 +92,7 @@
 
 仅在存在对应维护文档时使用 `@doc-algorithm`、`@doc-stage`、`@doc-theory` 等交叉引用标识。
 
-评估使用 Doxygen 生成 API Reference 的可行性。Doxygen 与 Sphinx 的集成（例如 Breathe）应先在一个职责稳定的模块上进行试点。自动生成的 API 文档应补充 `doc/source/` 中经过编辑的正式文档，而不能取代后者。
+评估使用 Doxygen 生成 API Reference 的可行性。Doxygen 与 Sphinx 的集成（例如 Breathe）应先在一个职责稳定的模块上进行试点。自动生成的 API 文档应补充 `docs/source/` 中经过编辑的正式文档，而不能取代后者。
 
 ### Sphinx 专题文档
 
@@ -203,7 +203,7 @@ VERIFICATION:
 <unit/component/integration/regression/numerical/platform evidence>
 
 DOCUMENTATION:
-<doc/source pages, equations, diagrams, references, API comments>
+<docs/source pages, equations, diagrams, references, API comments>
 
 ACCEPTANCE_CRITERIA:
 <objective, testable completion conditions>
@@ -212,4 +212,4 @@ DELIVERY:
 <commit SHAs, changed files, test evidence, CI links, limitations, next priority>
 ```
 
-当前项目优先级及子系统状态以 `doc/source/architecture_review.rst`、对应路线图和 `doc/AI_CONTEXT.md` 为准。本文规范开发主线的选择、任务表达、实施和验证方式，不替代对目标版本源码的检查。
+当前项目优先级及子系统状态以 `docs/source/architecture_review.rst`、对应路线图和 `docs/AI_CONTEXT.md` 为准。本文规范开发主线的选择、任务表达、实施和验证方式，不替代对目标版本源码的检查。

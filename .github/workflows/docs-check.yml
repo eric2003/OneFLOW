@@ -1,15 +1,24 @@
 name: documentation check
 
+# Validates the documentation tree on every branch that owns part of it.
+# `master` and `hexin` both publish docs, and a wrong Sphinx source path or a
+# stale `doc/` reference fails silently at read time rather than at build time,
+# so the path check runs on both.
+
 on:
   push:
-    branches: [hexin]
+    branches: [master, hexin]
     paths:
       - "docs/**"
+      - "scripts/check-doc-paths.py"
+      - "scripts/doc-path-allowlist.txt"
       - ".github/workflows/docs-check.yml"
   pull_request:
-    branches: [hexin]
+    branches: [master, hexin]
     paths:
       - "docs/**"
+      - "scripts/check-doc-paths.py"
+      - "scripts/doc-path-allowlist.txt"
       - ".github/workflows/docs-check.yml"
   workflow_dispatch:
 
@@ -21,7 +30,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  path-check:
+    name: Documentation path references
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Check documentation path references
+        run: python3 scripts/check-doc-paths.py
+
   sphinx-build:
+    name: Sphinx HTML build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

@@ -191,7 +191,7 @@ mutable and const scalar lookup. It does not prove the broader
 `ReadControlInfo(caseDir)` orchestration, parallel broadcast, diagnostic
 database dump, case setup/teardown, or sequential-case isolation. Those remain
 separate runtime integration obligations tracked in
-`doc/plans/setup-case-environment-integration-test.md`.
+`docs/plans/setup-case-environment-integration-test.md`.
 
 Maintenance rules
 -----------------

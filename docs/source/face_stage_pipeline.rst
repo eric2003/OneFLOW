@@ -1140,7 +1140,7 @@ Prefer **one source of truth** for algorithm stages:
     // @doc-pure
     // @doc-formula m = (1/2) * (a + b) component-wise in R^3
 
-* ``doc/source/*.rst`` holds the narrative: motivation, flow diagrams, math,
+* ``docs/source/*.rst`` holds the narrative: motivation, flow diagrams, math,
   open pressures, and ROI priority. Diagrams and equations belong here (or in
   generated pages), not in long ``//`` essays inside ``.cpp`` files.
 
@@ -1434,7 +1434,7 @@ Copy and tick what applies::
     [ ] Staged-face or BC write path covered by FaceSolver* tests
     [ ] Reorder / boundary layout covered by FaceTopoReorderLinkTest
     [ ] Identity/orientation or interface helpers covered by named tests
-    [ ] doc/source/face_stage_pipeline.rst updated (or explicitly N/A)
+    [ ] docs/source/face_stage_pipeline.rst updated (or explicitly N/A)
     [ ] Open design pressures updated if testability did not improve
 
 Related pages

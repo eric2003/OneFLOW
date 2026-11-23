@@ -65,7 +65,7 @@ Machine-readable computation-unit contract
 -------------------------------------------
 
 The proposed descriptor is defined in
-``doc/specs/computation-unit.schema.json``. It records identity/version, role,
+``docs/specs/computation-unit.schema.json``. It records identity/version, role,
 typed input and output ports, units, ownership, preconditions, postconditions,
 side effects, failure policy, determinism, lifecycle, compatibility adapters,
 verification evidence, known limits, and scientific provenance.

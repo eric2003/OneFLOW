@@ -1,0 +1,8 @@
+# Exemptions for scripts/check-doc-paths.py
+#
+# One entry per line:  <reference> <single-line reason>
+#
+# An entry means the reference is deliberately not a path into this checkout;
+# anything else must be fixed in the document itself. Keep this list short.
+
+doc/reports/architecture upstream-only tree; docs/README.md §3 names the upstream path to document the fork mapping that keeps it out of this checkout.

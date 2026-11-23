@@ -14,7 +14,7 @@ OpenAPI 是结构化提交的默认后端；SSH 已于 2026-11-19 续期恢复�
 别处新建 OneFLOW 工作区：
 
 - 旧的按日期命名的实验目录（`softwares/projects/OneFLOW_*`，2026-08/09）已在
-  2026-10-25 删除——源码在 Git 历史，证据在 `doc/`，不要再按那种方式建目录。
+  2026-10-25 删除——源码在 Git 历史，证据在 `docs/`，不要再按那种方式建目录。
 - 家目录根下不要留 OneFLOW 日志或一次性脚本：日志进 `logs/`，一次性脚本进
   `_attic/<date>/`，可复用的提升为 `scripts/` 里的标准脚本。
 
@@ -186,7 +186,7 @@ sed -i -E '/^[[:space:]]*TurbSolver[[:space:]]*$/d' <case>/script/solver.txt
 
 ## 1c. 命名规范（作业名、证据目录、脚本）
 
-沿用 `doc/DOCUMENT_NAMING.md` 的 kebab-case 原则，只是把范围延伸到集群侧：
+沿用 `docs/DOCUMENT_NAMING.md` 的 kebab-case 原则，只是把范围延伸到集群侧：
 
 | 对象 | 语法 | 例 |
 |---|---|---|
@@ -327,7 +327,7 @@ $WORKSPACE/scripts/cleanup.sh                         # 日志/快照轮转 + �
 3. 跑门禁（顺序固定）：3 步多区 trace + resident contract → 200 步跨后端 →
    CPU 五算例 normal/strict → 50 步稳定性；性能改动再加 paired。
 4. 证据落到 `evidence/<gate>/<jobid>/`，数字写回
-   `doc/plans/oneflow-development-todo.md` 的对应勾选项。
+   `docs/plans/oneflow-development-todo.md` 的对应勾选项。
 5. `scripts/cleanup.sh` 收尾；`_attic` 满一轮后清空。
 
 ## 4. 常见故障对照

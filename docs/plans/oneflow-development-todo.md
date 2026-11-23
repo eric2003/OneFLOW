@@ -2,9 +2,15 @@
 
 本页跟踪 [Phase Plan](oneflow-development-plan.md) 的当前切片。父项和子项沿用计划编号；更细的执行步骤记在对应子项下。当前验收完成后移出本页，将复验结论和证据索引留在计划或对应报告。
 
-## 当前状态（2026-11-22 收口）
+## 当前状态（2026-11-23 收口）
 
-分支 `dev`，HEAD `4dac26c68`（已把 upstream master `a307becac` 并入），工作树干净，已推送 `origin/dev`。旗舰算例 `test/cfd/m6wingroe_sa`（vismodel=3 SA / Roe ischeme=1 / LU-SGS time_integral=2 / ilim=0 / 单 zone / ivischeme=0）在昆山单 rank 已跑通**完整 GPU 通量路径 + 完整 SA 链路**。固定路径、构建命令见[当前交接](../handoff/oneflow-current-handoff.md)，架构细节见[3D device residency 设计](../architecture/oneflow-3d-device-residency-design.md)。
+分支 `dev`，HEAD `813d364ed`，即 upstream master 合并 PR #267 后的提交；`dev`、`origin/dev`、`origin/master` 与 upstream master 完全一致，工作树干净。PR #267 与上游 master 推送的 CI 均全绿。
+
+**文档根改名遗留已收口（2026-11-23）**：修掉 `PublishMySite.yml` 的构建路径（原 `cd doc`），清掉 53 处 `doc/` 残留，其中 `stl_geometry_asset_preparation.json` 的 7 处曾让 `test_contract_catalog` 在 master 上静默红 8 个用例。新增 `scripts/check-doc-paths.py`，接入 `docs-check.yml`（分支扩到 master+hexin）与 Linux CI 的契约测试步骤。根因与坑记录见[当前交接](../handoff/oneflow-current-handoff.md) §5。
+
+## 上一个收口点（2026-11-22）
+
+分支 `dev`，HEAD `4dac26c68`（已把 upstream master `a307becac` 并入）。旗舰算例 `test/cfd/m6wingroe_sa`（vismodel=3 SA / Roe ischeme=1 / LU-SGS time_integral=2 / ilim=0 / 单 zone / ivischeme=0）在昆山单 rank 已跑通**完整 GPU 通量路径 + 完整 SA 链路**。固定路径、构建命令见[当前交接](../handoff/oneflow-current-handoff.md)，架构细节见[3D device residency 设计](../architecture/oneflow-3d-device-residency-design.md)。
 
 **合并注记（2026-11-22）**：`master` 已三端同步到 upstream `a307becac` 并并入 `dev`（`4dac26c68`）。该合并只带来 R1 运行时与几何资产相关内容，**未触及**本页跟踪的加速路径（`codes/accel`、`codes/uturb`、`ci/kunshan` 均无改动），因此下方结论与证据不受影响。
 

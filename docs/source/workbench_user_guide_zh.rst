@@ -5,7 +5,7 @@ OneFLOW Workbench 用户手册
 
 本页按 hexin 当前实现编写。按钮细节、模板列表和完整服务测试命令见模块 README：
 https://github.com/eric2003/OneFLOW/blob/hexin/tools/oneflow_gui/README.md
-设计边界见 doc/source/workbench_architecture.rst。工作台能力随代码演进，未实现的集成点会在本页明确标出。
+设计边界见 docs/source/workbench_architecture.rst。工作台能力随代码演进，未实现的集成点会在本页明确标出。
 
 启动
 ----
@@ -140,7 +140,7 @@ Contract Workbench 展示证据声明和验证范围，不负责执行求解器�
 
 Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动求解器进程。case、工作流、运行记录和任务结果等服务尽量保持 Qt 无关并有独立测试。项目发现、case catalog、工作流定义、运行副本和运行历史各自有不同职责。
 
-后续可完善项是：让工作流定义与 .ofw 定义共享一个持久化模型，减少两种格式之间的重复。详细架构约束见 doc/source/workbench_architecture.rst；GUI 模块、服务和测试索引见 tools/oneflow_gui/README.md。
+后续可完善项是：让工作流定义与 .ofw 定义共享一个持久化模型，减少两种格式之间的重复。详细架构约束见 docs/source/workbench_architecture.rst；GUI 模块、服务和测试索引见 tools/oneflow_gui/README.md。
 
 参数运行时消费者追踪：第一批证据
 --------------------------------
@@ -176,7 +176,7 @@ Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动�
 
 **Mesh-to-CFD Validation** 使用相同的维度分组，但只显示具备完整产物绑定和转换图的网格生产算例。CFD consumer 和 smoke-test 参数仍在选择树之外，避免把网格维度、实现语言和求解器配置混在一个列表里。
 
-新增算例时，除了代码和测试，还应说明几何/数据如何构造、配置如何驱动生成、预期产物及其拓扑/边界约束、下游转换如何消费产物，以及测试究竟证明了什么。完整的算例设计与实施规范见 ``doc/source/development_case_methodology.rst``；STL-to-Gmsh 的具体构造步骤见各算例目录中的 README。
+新增算例时，除了代码和测试，还应说明几何/数据如何构造、配置如何驱动生成、预期产物及其拓扑/边界约束、下游转换如何消费产物，以及测试究竟证明了什么。完整的算例设计与实施规范见 ``docs/source/development_case_methodology.rst``；STL-to-Gmsh 的具体构造步骤见各算例目录中的 README。
 
 网格生成与转换
 --------------

@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README_zh_CN.md) | [项目主页](../README.md) | [在线文档](https://oneflow-cfd.readthedocs.io/en/latest/)
 
-`doc/` 是 OneFLOW 仓库的统一文档根目录，包含工程文档和正式 Sphinx 手册的源文件。两者用途不同：
+`docs/` 是 OneFLOW 仓库的统一文档根目录，包含工程文档和正式 Sphinx 手册的源文件。两者用途不同：
 
 - **工程文档**服务于开发、审查、项目交接、可复现操作和验证。
 - **`source/`** 是经过整理、面向读者导航的 Sphinx 文档站点源目录。
@@ -47,15 +47,15 @@ OneFLOW 持续演化与科学验证开发规范以[中文版本](AI_TASK_TEMPLAT
 
 关于现有文档的初步盘点和整合顺序，请阅读[文档整合计划](plans/oneflow-documentation-consolidation-plan.md)。该计划记录文档归属和预期步骤，不代表其中列出的迁移都已完成。
 
-新增工程文档统一放在 `doc/` 下，不再扩展顶层 `docs/` 作为第二套文档体系。新增文件应遵循[文档命名规范](DOCUMENT_NAMING.md)，适用于 `architecture/`、`plans/`、`handoff/`、`runbooks/`、`evidence/`、`reports/` 和 `_drafts/`。现有文件不批量改名，以免破坏历史链接。
+新增工程文档统一放在 `docs/` 下。新增文件应遵循[文档命名规范](DOCUMENT_NAMING.md)，适用于 `architecture/`、`plans/`、`handoff/`、`runbooks/`、`evidence/`、`reports/` 和 `_drafts/`。现有文件不批量改名，以免破坏历史链接。
 
 ## 构建 HTML 文档
 
 在仓库根目录执行：
 
 ```bash
-cd doc
+cd docs
 make html
 ```
 
-生成结果位于 `doc/build/html/`。CI 和 Read the Docs 使用 `doc/source/` 作为 Sphinx 源目录。修改正式发布的手册时，应检查相关 `toctree`、交叉引用和构建结果。只有计划向网站发布的工程记录才需要加入网站导航。
+生成结果位于 `docs/build/html/`。CI 和 Read the Docs 使用 `docs/source/` 作为 Sphinx 源目录。修改正式发布的手册时，应检查相关 `toctree`、交叉引用和构建结果。只有计划向网站发布的工程记录才需要加入网站导航。
