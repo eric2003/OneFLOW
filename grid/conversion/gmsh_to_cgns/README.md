@@ -217,7 +217,7 @@ multiple geometric curve entities.
 The fixture is consumed by the automated
 `GmshTwoQuadsOneFlowTest`, which writes its CGNS interchange file and native
 OneFLOW grid into a temporary directory. It is not exposed as a separate GUI
-Case. See `doc/source/grid_conversion_cases.rst` for its topology and
+Case. See `docs/source/grid_conversion_cases.rst` for its topology and
 acceptance criteria.
 
 

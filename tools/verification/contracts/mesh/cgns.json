@@ -20,8 +20,8 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/cgns.rst",
-      "doc/source/mesh_architecture.rst"
+      "docs/source/cgns.rst",
+      "docs/source/mesh_architecture.rst"
     ]
   },
   "claims": {

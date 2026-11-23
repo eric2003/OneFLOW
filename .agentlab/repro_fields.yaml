@@ -1,0 +1,16 @@
+# CFD-specific fields that every result must record.
+# Verification cases write them to .agentlab/repro/*.case.json.
+case: {name: "", purpose: ""}
+mesh: {file_or_generator: "", hash: "", type: "", cells: 0, partitions: 0}
+flow: {mach: null, reynolds: null, aoa_deg: null, gas_model: "", turbulence_model: ""}
+numerics:
+  spatial_scheme: ""
+  reconstruction_limiter: ""
+  time_scheme: ""
+  cfl: null
+  dt: null
+  convergence_criterion: ""
+solver: {linear_solver: "", preconditioner: "", tolerances: ""}
+run: {ranks: 0, threads: 0, iterations: 0, residual_history_file: ""}
+result: {metrics: {}, reference: "", error_norms: {}, observed_order: null}
+timing: {method: "", includes: "", excludes: "", warmup: 0, repetitions: 0}

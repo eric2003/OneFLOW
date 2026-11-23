@@ -36,6 +36,9 @@ public:
     void Init();
     void CalcBcRegion();
     void CalcBc();
+    // Device counterpart of CalcBc for the one-equation model: one kernel over
+    // the boundary faces instead of a region-by-region host walk.
+    bool CalcBcHip();
     void SetId( int bcfId );
     void PrepareData();
     void UpdateBc();

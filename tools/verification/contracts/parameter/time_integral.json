@@ -10,7 +10,7 @@
   "architecture": "The value is read by Ctrl::Init, NsCtrl::Init, INsCtrl::Init, and TurbCtrl::Init. The shared TimeIntegral implementation owns the method dispatch. Euler resident-backend eligibility is a separate capability decision and must not be conflated with selecting the RungeKutta method.",
   "references": [
     "time_integral_rk_stage_weight",
-    "doc/source/numerical/time_integral_control.rst"
+    "docs/source/numerical/time_integral_control.rst"
   ],
   "implementation": {
     "source_paths": [
@@ -24,7 +24,7 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/numerical/time_integral_control.rst"
+      "docs/source/numerical/time_integral_control.rst"
     ]
   },
   "claims": {
@@ -163,7 +163,7 @@
     "references": [
       "codes/solver/include/TimeIntegral.h",
       "codes/solver/src/TimeIntegral.cpp",
-      "doc/source/numerical/time_integral_control.rst",
+      "docs/source/numerical/time_integral_control.rst",
       "time_integral_rk_stage_weight"
     ],
     "caveats": [

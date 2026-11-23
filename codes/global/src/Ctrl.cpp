@@ -83,6 +83,7 @@ void Ctrl::Init()
     }
 
     rk_stage = GetDataValue< int >( "rk_stage" );
+    rkStage = -1;
     for ( int i = 0; i < rk_stage; ++ i )
     {
         rk_coef.push_back( RungeKuttaStageWeight( i ) );

@@ -36,6 +36,11 @@ License
 #include "UCom.h"
 #include "UTurbCom.h"
 #include "UNsCom.h"
+#include "HipProductionPolicy.h"
+#ifdef ONEFLOW_ENABLE_HIP
+#include "HipTurbulenceBackend.h"
+#include <vector>
+#endif
 
 BeginNameSpace( ONEFLOW )
 
@@ -113,6 +118,95 @@ void UTurbInvFlux::CalcFlux()
 
 void UTurbInvFlux::CalcInvFlux()
 {
+    // Device counterpart of PrepareFaceValue -> RoeFlux -> UpdateFaceInvFlux,
+    // one thread per face.  invflux is written only if the whole view resolves,
+    // so a declining device path leaves it for the host loop below.
+#ifdef ONEFLOW_ENABLE_HIP
+    if ( HipProductionFeatureEnabled( "ONEFLOW_ENABLE_UTURB_HIP_INVFLUX" )
+         && turbcom.nEqu == 1 && invflux != nullptr
+         // The backend reports whether it can take these views at all; the face
+         // entries currently cannot, because their pointers are host addresses
+         // and there is no upload path yet.  Ask rather than assume.
+         && HipTurbulenceBackend::Shared().SupportsFaceFlux()
+         // The kernel implements only the VIS_TEST normal-gradient variant,
+         // which the shipped cases set (iturb_visflux = 2).  Declining keeps any
+         // other scheme on the working host path instead of letting the view
+         // validator throw.
+         && turbcom.iturb_visflux == 2 )
+    {
+        UnsGrid * grid = Zone::GetUnsGrid();
+        MRField * qf1 = limiter->GetLeftField();
+        MRField * qf2 = limiter->GetRightField();
+        MRField * ns_qf1 = nslimiter->GetLeftField();
+        MRField * ns_qf2 = nslimiter->GetRightField();
+        if ( qf1 != nullptr && qf2 != nullptr
+             && ns_qf1 != nullptr && ns_qf2 != nullptr )
+        {
+            TurbSaFaceView view;
+            view.nFaces = ug.nFaces;
+            view.nBoundaryFaces = ug.nBFaces;
+            // The per-cell planes below are indexed through leftCell/rightCell,
+            // which reach into the ghost range, so the backend needs the full
+            // extent to copy them.
+            view.nCells = ug.nCells;
+            view.nGhostCells = ug.nTCell - ug.nCells;
+            view.xNormal = ug.xfn->data();
+            view.yNormal = ug.yfn->data();
+            view.zNormal = ug.zfn->data();
+            view.meshVelocityNormal = ug.vfn->data();
+            view.faceArea = ug.farea->data();
+            view.leftCell = ug.lcf->data();
+            view.rightCell = ug.rcf->data();
+            view.xFace = ug.xfc->data();
+            view.yFace = ug.yfc->data();
+            view.zFace = ug.zfc->data();
+            view.xCell = ug.xcc->data();
+            view.yCell = ug.ycc->data();
+            view.zCell = ug.zcc->data();
+            // The turbulence limiter carries exactly one plane (its nEqu is
+            // turbcom.nEqu == 1), so ISA is the only index that is in range.
+            view.faceWorkingVariableLeft = ( * qf1 )[ ISA ].data();
+            view.faceWorkingVariableRight = ( * qf2 )[ ISA ].data();
+            // Density and velocity come from the NS limiter, matching
+            // PrepareFaceValue:224-232.  Reading IR/IU/IV/IW out of qf1 would
+            // run four planes past the end of a one-equation field.
+            view.faceDensityLeft = ( * ns_qf1 )[ IDX::IR ].data();
+            view.faceDensityRight = ( * ns_qf2 )[ IDX::IR ].data();
+            view.faceVelocityLeft[ 0 ] = ( * ns_qf1 )[ IDX::IU ].data();
+            view.faceVelocityLeft[ 1 ] = ( * ns_qf1 )[ IDX::IV ].data();
+            view.faceVelocityLeft[ 2 ] = ( * ns_qf1 )[ IDX::IW ].data();
+            view.faceVelocityRight[ 0 ] = ( * ns_qf2 )[ IDX::IU ].data();
+            view.faceVelocityRight[ 1 ] = ( * ns_qf2 )[ IDX::IV ].data();
+            view.faceVelocityRight[ 2 ] = ( * ns_qf2 )[ IDX::IW ].data();
+            view.cellWorkingVariable = ( * uturbf.q )[ ISA ].data();
+            view.cellLaminarViscosity = ( * uturbf.visl )[ 0 ].data();
+            view.cellDensity = ( * uturbf.meanFlow.q )[ IDX::IR ].data();
+            view.workingVariableGradientX = ( * uturbf.dqdx )[ ISA ].data();
+            view.workingVariableGradientY = ( * uturbf.dqdy )[ ISA ].data();
+            view.workingVariableGradientZ = ( * uturbf.dqdz )[ ISA ].data();
+            view.densityWeight = 1.0;
+            view.invSigma = turbcom.osigma;
+            view.invReynolds = turbcom.oreynolds;
+            view.viscousFluxVariant = turbcom.iturb_visflux;
+            view.diffusiveFlux = nullptr;
+            view.cacheKey = grid;
+
+            invfluxScratch_.assign( static_cast< std::size_t >( ug.nFaces ), 0.0 );
+            view.inviscidFlux = invfluxScratch_.data();
+            HipTurbulenceBackend::Shared().CalcFaceFlux( view );
+            // No scaling here: TurbSaArithmetic's inviscid flux already returns
+            // faceArea * flux (TurbSaArithmetic.h:436), matching TurbInvFlux's
+            // own factoring.  The earlier version multiplied by ug.farea again,
+            // which made the device inviscid SA flux too large by the face area
+            // on every face, silently.
+            for ( int face = 0; face < ug.nFaces; ++ face )
+            {
+                ( * invflux )[ ISA ][ face ] = invfluxScratch_[ face ];
+            }
+            return;
+        }
+    }
+#endif
     for ( int fId = 0; fId < ug.nFaces; ++ fId )
     {
         ug.fId = fId;

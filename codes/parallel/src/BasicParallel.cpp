@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "BasicParallel.h"
+#include "MpiTrace.h"
 #include <vector>
 #include <iostream>
 #include <stdexcept>
@@ -39,6 +40,9 @@ void HXFinalize()
 {
 #ifdef HX_PARALLEL
     if ( !ownsMpiRuntime ) return;
+
+    // Per-rank MPI accounting must be written before MPI_Finalize.
+    ONEFLOW::MpiTrace::Flush();
 
     int finalized = 0;
     const int queryError = MPI_Finalized( &finalized );
@@ -125,6 +129,7 @@ void HXSend( const void * data, int size, PL_Datatype dataType, int pid, int tag
 {
 #ifdef HX_PARALLEL
     if ( size <= 0 ) return;
+    MpiTrace::Scope trace( "send", static_cast< std::size_t >( size ) );
     MPI_Send( data, size, dataType, pid, tag, MPI_COMM_WORLD );
 #endif
 }
@@ -134,6 +139,7 @@ void HXRecv( void * data, int size, PL_Datatype dataType, int pid, int tag )
 #ifdef HX_PARALLEL
     if ( size <= 0 ) return;
 
+    MpiTrace::Scope trace( "recv", static_cast< std::size_t >( size ) );
     MPI_Status status;
     MPI_Recv( data, size, dataType, pid, tag, MPI_COMM_WORLD, & status );
 #endif
@@ -144,6 +150,7 @@ void HXSendChar( const void * data, int size, int pid, int tag )
 #ifdef HX_PARALLEL
     //Prevent special circumstances
     if ( size <= 0 ) return;
+    MpiTrace::Scope trace( "send_char", static_cast< std::size_t >( size ) );
     MPI_Send( data, size, MPI_CHAR, pid, tag, MPI_COMM_WORLD );
 #endif
 }
@@ -154,6 +161,7 @@ void HXRecvChar( void * data, int size, int pid, int tag )
     //Prevent special circumstances
     if ( size <= 0 ) return;
 
+    MpiTrace::Scope trace( "recv_char", static_cast< std::size_t >( size ) );
     MPI_Status status;
     MPI_Recv( data, size, MPI_CHAR, pid, tag, MPI_COMM_WORLD, & status );
 #endif
@@ -164,6 +172,7 @@ int HXWait( PL_HXRequest * request )
     int errorCode = 0;
 
 #ifdef HX_PARALLEL
+    MpiTrace::Scope trace( "wait", 0 );
     errorCode = MPI_Wait( request, MPI_STATUS_IGNORE );
 #endif
 
@@ -177,6 +186,7 @@ int HXWait( int count, PL_HXRequest * arrayOfRequests )
     if ( count <= 0 ) return - 1;
 
 #ifdef HX_PARALLEL
+    MpiTrace::Scope trace( "waitall", 0 );
     errorCode = MPI_Waitall( count, arrayOfRequests, MPI_STATUSES_IGNORE );
 #endif
 
@@ -214,6 +224,7 @@ void HXReduceInt( const void * s, void * t, int nElem, PL_Op op )
 #ifdef HX_PARALLEL
     //MPI_INTEGER error !!!!!!!!!!!!!!!!!!!!!
     //MPI_Allreduce( s, t, nElem, MPI_INTEGER, op, MPI_COMM_WORLD );
+    MpiTrace::Scope trace( "allreduce_int", 0 );
     MPI_Allreduce( s, t, nElem, MPI_INT, op, MPI_COMM_WORLD );
 #endif
 
@@ -222,6 +233,7 @@ void HXReduceInt( const void * s, void * t, int nElem, PL_Op op )
 void HXReduceReal( const void * s, void * t, int nElem, PL_Op op )
 {
 #ifdef HX_PARALLEL
+    MpiTrace::Scope trace( "allreduce_real", 0 );
     MPI_Allreduce( s, t, nElem, MPI_DOUBLE, op, MPI_COMM_WORLD );
 #endif
 

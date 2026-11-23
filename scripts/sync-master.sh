@@ -6,15 +6,44 @@ repo_root="$(git -C "$(dirname "${BASH_SOURCE[0]}")/.." rev-parse --show-topleve
 state_root="${XDG_STATE_HOME:-${HOME:?HOME is not set}/.local/state}/oneflow"
 mkdir -p "$state_root"
 
-exec 9>"$state_root/master-sync.lock"
-if ! flock -n 9; then
-    printf '[%s] another master sync is running; skip\n' "$(date -Is)"
-    exit 0
-fi
+# Portable timestamp: BSD date (macOS) does not support GNU's `-Is`.
+timestamp() {
+    date -u +%Y-%m-%dT%H:%M:%SZ
+}
 
 log() {
-    printf '[%s] %s\n' "$(date -Is)" "$*"
+    printf '[%s] %s\n' "$(timestamp)" "$*"
 }
+
+# Portable single-instance guard: use flock where it exists (Linux, or util-linux
+# on macOS) and fall back to an atomic mkdir lock plus a PID check elsewhere.
+lock_file="$state_root/master-sync.lock"
+lock_dir="$state_root/master-sync.lock.d"
+if command -v flock >/dev/null 2>&1; then
+    exec 9>"$lock_file"
+    if ! flock -n 9; then
+        log "another master sync is running; skip"
+        exit 0
+    fi
+else
+    acquire_mkdir_lock() {
+        mkdir "$lock_dir" 2>/dev/null && return 0
+        local pid
+        pid="$(cat "$lock_dir/pid" 2>/dev/null || true)"
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+            return 1
+        fi
+        log "removing stale lock left by pid ${pid:-unknown}"
+        rm -rf "$lock_dir"
+        mkdir "$lock_dir" 2>/dev/null
+    }
+    if ! acquire_mkdir_lock; then
+        log "another master sync is running; skip"
+        exit 0
+    fi
+    printf '%s\n' "$$" >"$lock_dir/pid"
+    trap 'rm -rf "$lock_dir"' EXIT
+fi
 
 die() {
     log "ERROR: $*"

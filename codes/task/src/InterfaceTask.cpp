@@ -312,6 +312,16 @@ void ExchangeHipInterfaceQ(
         && GpuAwareMpiRequested()
         && GpuAwareMpiConfirmed();
 
+    // Both sides of a same-rank exchange live in this process and share one
+    // device context, so the halo can travel device-to-device.  Routing it
+    // through host staging cost a synchronous D2H, a std::copy and a H2D per
+    // endpoint, plus an MPI self-send for the length exchange; none of that
+    // moves data that leaves the process.
+    const bool localSameRank = isSource && isTarget && sourceRank == targetRank;
+    const bool localDevice =
+        localSameRank && HipLocalDeviceExchangeEnabled();
+    const bool useDeviceStaged = useDeviceDirect || localDevice;
+
     if ( sourceRank != targetRank
          && GpuAwareMpiRequested()
          && ! GpuAwareMpiConfirmed() )
@@ -384,6 +394,7 @@ void ExchangeHipInterfaceQ(
         if ( ! ( isSource && isTarget ) )
         {
             ScopedStageTimer readyTimer( "interface_ready" );
+            ScopedHostTimer host_readyTimer( "interface_ready" );
             HXSwapData(
                 & sourceReady, 1, sourceRank, targetRank, tagBase );
             HXSwapData(
@@ -432,14 +443,16 @@ void ExchangeHipInterfaceQ(
         ZoneState::zid = sourceZone;
         {
             ScopedStageTimer uploadTimer( "interface_upload" );
+            ScopedHostTimer host_uploadTimer( "interface_upload" );
             backend.UploadBoundaryState(
                 sourceKey, sourceGrid->nCells, sourceGrid->nBFaces,
                 nEquations, sourceComponents );
         }
         ScopedStageTimer packTimer( "interface_pack" );
+        ScopedHostTimer host_packTimer( "interface_pack" );
         send = backend.PackBoundary(
             sourceKey, sourceEndpoint, nEquations,
-            useDeviceDirect
+            useDeviceStaged
                 ? BoundaryTransferMode::DeviceDirect
                 : BoundaryTransferMode::HostStaged,
             sourceEndpointKey );
@@ -449,20 +462,22 @@ void ExchangeHipInterfaceQ(
         ZoneState::zid = targetZone;
         {
             ScopedStageTimer uploadTimer( "interface_upload" );
+            ScopedHostTimer host_uploadTimer( "interface_upload" );
             backend.UploadBoundaryState(
                 targetKey, targetGrid->nCells, targetGrid->nBFaces,
                 nEquations, targetComponents );
         }
         ScopedStageTimer packTimer( "interface_pack" );
+        ScopedHostTimer host_packTimer( "interface_pack" );
         receive = backend.PrepareBoundaryReceive(
             targetKey, targetEndpoint, nEquations,
-            useDeviceDirect
+            useDeviceStaged
                 ? BoundaryTransferMode::DeviceDirect
                 : BoundaryTransferMode::HostStaged,
             targetEndpointKey );
     }
 
-    const BoundaryTransferMode transferMode = useDeviceDirect
+    const BoundaryTransferMode transferMode = useDeviceStaged
         ? BoundaryTransferMode::DeviceDirect
         : BoundaryTransferMode::HostStaged;
     if ( isSource )
@@ -491,10 +506,22 @@ void ExchangeHipInterfaceQ(
 
     {
         ScopedStageTimer mpiTimer( "interface_mpi" );
+        ScopedHostTimer host_mpiTimer( "interface_mpi" );
         int sendCount = isSource
             ? static_cast< int >( send.valueCount ) : 0;
         int payloadCount = 0;
-        if ( ! validated )
+        if ( localDevice )
+        {
+            // Both endpoints are in this process: the length check is a plain
+            // comparison, so skip the MPI self-send that only re-derived it.
+            if ( sendCount != static_cast< int >( receive.valueCount ) )
+            {
+                throw std::runtime_error(
+                    "local HIP interface exchange value count mismatch" );
+            }
+            payloadCount = sendCount;
+        }
+        else if ( ! validated )
         {
             HXSwapData( &sendCount, 1, sourceRank, targetRank, tagBase );
             if ( isTarget )
@@ -532,18 +559,34 @@ void ExchangeHipInterfaceQ(
 
         if ( isSource && isTarget )
         {
-            // Same-rank exchanges remain host-staged.  Device pointers are not
-            // valid inputs to std::copy, and the host path is deterministic for
-            // the local multi-zone case.
             if ( send.valueCount != receive.valueCount )
             {
                 throw std::runtime_error(
                     "local HIP interface exchange value count mismatch" );
             }
-            std::copy(
-                send.values,
-                send.values + send.valueCount,
-                receive.values );
+            if ( useDeviceStaged )
+            {
+                // Same context, same layout: one device-to-device copy.
+                if ( payloadCount > 0 )
+                {
+                    AccelRuntime::Instance().Backend().Copy(
+                        receive.values,
+                        send.values,
+                        static_cast< std::size_t >( payloadCount )
+                            * sizeof( Real ),
+                        AccelCopyKind::DeviceToDevice );
+                }
+            }
+            else
+            {
+                // Same-rank exchanges remain host-staged.  Device pointers are
+                // not valid inputs to std::copy, and the host path is
+                // deterministic for the local multi-zone case.
+                std::copy(
+                    send.values,
+                    send.values + send.valueCount,
+                    receive.values );
+            }
         }
         else
         {
@@ -571,9 +614,10 @@ void ExchangeHipInterfaceQ(
     if ( isTarget )
     {
         ScopedStageTimer unpackTimer( "interface_unpack" );
+        ScopedHostTimer host_unpackTimer( "interface_unpack" );
         backend.UnpackBoundary(
             targetKey, targetEndpoint, nEquations,
-            useDeviceDirect
+            useDeviceStaged
                 ? BoundaryTransferMode::DeviceDirect
                 : BoundaryTransferMode::HostStaged,
             targetEndpointKey );
@@ -630,20 +674,53 @@ void SyncLocalResidentGhostStates()
 }
 
 
-CUpdateInterface::CUpdateInterface()
+namespace
 {
-    ;
+
+// The zone graph and the zone-to-rank assignment are fixed inputs of one domain
+// build: they change only when the domain is rebuilt.  The interface task used
+// to rebuild the plan and then walk every exchange in it on every rank every
+// round, so a rank that takes part in a handful of interfaces still paid for
+// the whole table.  At 256 zones that scan dominated the step (measured 7.0 ms
+// per dispatch, 7 dispatches per step, against 1.2 ms at 8 zones).  Cache the
+// plan and this rank's share of it, and keep the original relative order so the
+// per-rank sequence of exchanges is unchanged.
+struct LocalInterfacePlan
+{
+    bool valid = false;
+    std::size_t signature = 0;
+    DistributedDomainPlan plan;
+    std::vector< BoundaryExchange > mine;
+};
+
+// Cheap O(nZones) fingerprint of exactly the inputs DistributedDomainPlan::Build
+// consumes.  Reading the contents (not just the address) keeps the cache honest
+// when a process runs grid, then partition, then solve on the same zone count.
+std::size_t InterfaceTopologySignature()
+{
+    std::size_t signature = 1469598103934665603ull;
+    auto mix = [ & signature ]( long long value )
+    {
+        signature ^= static_cast< unsigned long long >( value );
+        signature *= 1099511628211ull;
+    };
+    mix( ZoneState::nZones );
+    mix( GridState::gridLevel );
+    mix( Parallel::GetNProc() );
+    mix( static_cast< long long >( ZoneState::pid.size() ) );
+    for ( int zone = 0; zone < ZoneState::nZones; ++ zone )
+    {
+        mix( ZoneState::pid[ zone ] );
+        mix( Zone::GetNumberOfZoneNeighbors( zone ) );
+    }
+    return signature;
 }
 
-CUpdateInterface::~CUpdateInterface()
+const LocalInterfacePlan & LocalPlanForThisRank()
 {
-    ;
-}
-
-void CUpdateInterface::Run()
-{
-    ActionState::dataBook = this->dataBook.get();
-    ExportFixtureMetadataShard();
+    static LocalInterfacePlan cache;
+    const std::size_t signature = InterfaceTopologySignature();
+    if ( cache.valid && cache.signature == signature ) return cache;
 
     std::vector< int > ownerRanks(
         ZoneState::pid.begin(),
@@ -660,17 +737,53 @@ void CUpdateInterface::Run()
         }
     }
 
-    const DistributedDomainPlan plan = DistributedDomainPlan::Build(
-        ownerRanks,
-        zoneNeighbors,
-        Parallel::GetNProc() );
+    cache.plan = DistributedDomainPlan::Build(
+        ownerRanks, zoneNeighbors, Parallel::GetNProc() );
+    cache.mine.clear();
+    cache.mine.reserve( cache.plan.BoundaryExchanges().size() );
+    for ( const BoundaryExchange & exchange : cache.plan.BoundaryExchanges() )
+    {
+        // Mirror the predicate SwapInterfaceData uses, so the filtered list
+        // contains exactly the exchanges this rank would have acted on.
+        if ( Parallel::pid == cache.plan.OwnerRank( exchange.sourceZone )
+             || Parallel::pid == cache.plan.OwnerRank( exchange.targetZone ) )
+        {
+            cache.mine.push_back( exchange );
+        }
+    }
+    cache.signature = signature;
+    cache.valid = true;
+    return cache;
+}
+
+}
+
+CUpdateInterface::CUpdateInterface()
+{
+    ;
+}
+
+CUpdateInterface::~CUpdateInterface()
+{
+    ;
+}
+
+void CUpdateInterface::Run()
+{
+    ActionState::dataBook = this->dataBook.get();
+    ExportFixtureMetadataShard();
+
+    // The plan and this rank's exchanges are topology-derived; build them once
+    // per domain instead of once per round (see LocalInterfacePlan above).
+    const LocalInterfacePlan & localPlan = LocalPlanForThisRank();
+    const DistributedDomainPlan & plan = localPlan.plan;
 #ifdef ONEFLOW_ENABLE_HIP
     // When the legacy host exchange is skipped the host ghost cells are stale,
     // so the resident repair pass must not upload them over the device ghosts.
     const bool trackResidentHalo =
         HipProductionBackendSelected() && ! HostInterfaceSkipped();
 #endif
-    for ( const BoundaryExchange & exchange : plan.BoundaryExchanges() )
+    for ( const BoundaryExchange & exchange : localPlan.mine )
     {
 #ifdef ONEFLOW_ENABLE_HIP
         if ( trackResidentHalo
@@ -689,6 +802,7 @@ void CUpdateInterface::Run()
     if ( trackResidentHalo )
     {
         ScopedStageTimer ghostTimer( "interface_ghost_sync" );
+        ScopedHostTimer host_ghostTimer( "interface_ghost_sync" );
         SyncLocalResidentGhostStates();
     }
 #endif
@@ -716,11 +830,13 @@ void CUpdateInterface::SwapInterfaceData(
             ZoneState::rzid = jZone;
 
             ScopedStageTimer sendTimer( "interface_host_send" );
+            ScopedHostTimer host_sendTimer( "interface_host_send" );
             this->sendAction();
         }
 
         {
             ScopedStageTimer hostMpiTimer( "interface_host_mpi" );
+            ScopedHostTimer host_hostMpiTimer( "interface_host_mpi" );
             HXSwapData( ActionState::dataBook, sPid, rPid );
         }
 
@@ -730,6 +846,7 @@ void CUpdateInterface::SwapInterfaceData(
             ZoneState::szid = iZone;
 
             ScopedStageTimer recvTimer( "interface_host_recv" );
+            ScopedHostTimer host_recvTimer( "interface_host_recv" );
             this->recvAction();
         }
     }

@@ -24,6 +24,7 @@ License
 #pragma once
 #include "TurbInvFlux.h"
 #include <memory>
+#include <vector>
 
 BeginNameSpace( ONEFLOW )
 
@@ -38,6 +39,11 @@ public:
     std::unique_ptr<Limiter> limiter;    // owns turb face limiter
     std::unique_ptr<Limiter> nslimiter;  // owns NS mean-flow limiter (cross-solver)
     std::unique_ptr<MRField> invflux;    // owns temporary face flux
+    // Contiguous per-face staging for the device inviscid flux.  invflux is an
+    // MRField, i.e. one plane per equation with no single data() spanning them,
+    // and the kernel writes a flat nFaces buffer, so the result is scaled and
+    // scattered back from here.
+    std::vector< Real > invfluxScratch_;
 public:
     void CalcFlux();
     void CalcInvFlux();

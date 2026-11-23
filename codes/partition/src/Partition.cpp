@@ -21,6 +21,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "Partition.h"
+#include "StructuredPartition.h"
+
 #include <memory>
 #include "metis.h"
 #include "Zone.h"
@@ -103,7 +105,8 @@ void L2GMapping::CalcL2GCell( UnsGrid & ggrid, int zid, G2LMapping & g2l )
     }
 }
 
-G2LMapping::G2LMapping( UnsGrid & ggrid, int npartprocIn ) : npartproc( npartprocIn )
+G2LMapping::G2LMapping( UnsGrid & ggrid, int npartprocIn, int partitionTypeIn )
+    : npartproc( npartprocIn ), partitionType( partitionTypeIn )
 {
     this->g2l_cell.resize( ggrid.nCells );
     this->g2l_face.resize( ggrid.nFaces );
@@ -119,6 +122,13 @@ void G2LMapping::GenerateGC2Z( UnsGrid & ggrid )
         Fatal( "The number of partitions should be greater than 1!\n" );
     }
 
+    if ( partitionType
+         == static_cast< int >( GridConfig::PartitionKind::Structured ) )
+    {
+        this->PartByStructured( ggrid );
+        return;
+    }
+
     int nCells  = ggrid.nCells;
     int nFaces  = ggrid.nFaces;
     int nBFaces = ggrid.nBFaces;
@@ -128,6 +138,53 @@ void G2LMapping::GenerateGC2Z( UnsGrid & ggrid )
 
     this->GetXadjAdjncy( ggrid, xadj, adjncy );
     this->PartByMetis( nCells, xadj, adjncy );
+}
+
+void G2LMapping::PartByStructured( UnsGrid & ggrid )
+{
+    CellMesh & cellMesh = ggrid.GetCellMesh();
+    if ( static_cast< int >( cellMesh.xcc.size() ) != ggrid.nCells
+         || static_cast< int >( cellMesh.ycc.size() ) != ggrid.nCells
+         || static_cast< int >( cellMesh.zcc.size() ) != ggrid.nCells )
+    {
+        // The partition workflow may run before the metric task.  The cell
+        // centers are the only geometry this partitioner needs.
+        ggrid.CalcMetrics();
+    }
+
+    const int nCells = ggrid.nCells;
+    const Real * x = cellMesh.xcc.data();
+    const Real * y = cellMesh.ycc.data();
+    const Real * z = cellMesh.zcc.data();
+
+    // Use the effective cell counts, not the physical box size: a unit cube
+    // refined 4x more along z has to be split 4x more often along z, or the
+    // blocks come out physically cubic while carrying very different face
+    // counts.
+    const Real lengthX = EffectiveAxisLength( x, nCells );
+    const Real lengthY = EffectiveAxisLength( y, nCells );
+    const Real lengthZ = EffectiveAxisLength( z, nCells );
+
+    const StructuredSplit split =
+        ChooseStructuredSplit( npartproc, lengthX, lengthY, lengthZ );
+
+    IntField zoneOfCell;
+    if ( ! AssignStructuredZones( nCells, x, y, z, split, zoneOfCell ) )
+    {
+        Fatal( "Structured partition failed to assign the cells.\n" );
+    }
+
+    gc2lzone.resize( static_cast< std::size_t >( nCells ) );
+    for ( int cell = 0; cell < nCells; ++ cell )
+    {
+        gc2lzone[ cell ] = static_cast< idx_t >( zoneOfCell[ cell ] );
+    }
+
+    std::cout << "Structured partition: " << split.nx << " x " << split.ny
+              << " x " << split.nz << " blocks for " << npartproc
+              << " parts, " << nCells << " cells (effective lengths "
+              << lengthX << " " << lengthY << " " << lengthZ << ")"
+              << std::endl;
 }
 #ifdef ENABLE_METIS
 void G2LMapping::GetXadjAdjncy( UnsGrid & ggrid, std::vector<idx_t> & xadj, std::vector<idx_t>& adjncy )
@@ -248,7 +305,7 @@ void Partition::GenerateMultiZoneGrid( UnsGrid & ggrid )
 
 void Partition::CreatePart( UnsGrid & ggrid )
 {
-    g2l.emplace( ggrid, this->npartproc );
+    g2l.emplace( ggrid, this->npartproc, this->partitionType );
     g2l->GenerateGC2Z( ggrid );
     this->CalcG2lCell( ggrid );
 
@@ -594,7 +651,10 @@ void Partition::SetF2CAndBC( UnsGrid & ggrid, int zid, UnsGrid & grid )
 
 void Partition::SetInterface( UnsGrid & ggrid, int zid, UnsGrid & grid, int partitionType )
 {
-    if ( partitionType != 1 ) return;
+    // Both supported partitioners fill gc2lzone; the interface construction is
+    // partitioner-agnostic.  Keep the "which kinds produce a link" decision in
+    // GridTypes so it cannot drift from CalcGrid::BuildInterfaceLink.
+    if ( ! PartitionProducesInterfaceLink( partitionType ) ) return;
 
     G2LMapping & mapping = this->GetG2LMapping();
 

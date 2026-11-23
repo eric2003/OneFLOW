@@ -45,11 +45,51 @@ License
 
 BeginNameSpace( ONEFLOW )
 
+bool Grad::CalcGradHip()
+{
+    // No device counterpart at this level.  The turbulence solver overrides
+    // this in UTurbGrad; the mean-flow gradient keeps its own entry because it
+    // carries residency and exchange contracts this base class does not know.
+    return false;
+}
+
 void Grad::CalcGrad()
 {
-    for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+    // Optional CPU-vs-HIP numerical trace at the host gradient entry (off by default).
+    const bool traceOn = std::getenv( "ONEFLOW_TRACE_POINTS" ) != nullptr;
+    static int gradPrintCount = 0;
+    if ( traceOn && Iteration::outerSteps <= 2 && gradPrintCount < 8 )
     {
-        ONEFLOW::CalcGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
+        ++gradPrintCount;
+        const int probeCell = 254656;
+        std::cout << std::setprecision( 17 );
+        std::cout << "TRACE_GRAD step=" << Iteration::outerSteps
+                  << " inner=" << Iteration::innerSteps
+                  << " name=" << name
+                  << " nEqu=" << nEqu;
+        for ( int eq = 0; eq < 5 && eq < nEqu; ++eq )
+            std::cout << " q" << eq << "=" << (*q)[eq][probeCell];
+        std::cout << std::endl;
+    }
+    const bool deviceRan = this->CalcGradHip();
+    if ( ! deviceRan )
+    {
+        for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
+        {
+            ONEFLOW::CalcGradGGCellWeight( ( * q )[ iEqu ], ( * dqdx )[ iEqu ], ( * dqdy )[ iEqu ], ( * dqdz )[ iEqu ] );
+        }
+    }
+    if ( traceOn && Iteration::outerSteps <= 2 && gradPrintCount <= 8 )
+    {
+        const int probeCell = 254656;
+        std::cout << std::setprecision( 17 );
+        std::cout << "TRACE_GRAD_OUT step=" << Iteration::outerSteps
+                  << " name=" << name;
+        for ( int eq = 0; eq < 5 && eq < nEqu; ++eq )
+            std::cout << " g" << eq << "=(" << (*dqdx)[eq][probeCell]
+                      << "," << (*dqdy)[eq][probeCell]
+                      << "," << (*dqdz)[eq][probeCell] << ")";
+        std::cout << std::endl;
     }
 
     if ( ctrl.debugFieldDump != 0 )

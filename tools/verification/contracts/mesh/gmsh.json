@@ -11,7 +11,7 @@
   "references": [
     "Gmsh MSH file format: https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format",
     "Gmsh API: https://gmsh.info/doc/texinfo/gmsh.html#Gmsh-API",
-    "doc/source/gmsh_interface.rst"
+    "docs/source/gmsh_interface.rst"
   ],
   "implementation": {
     "source_paths": [
@@ -24,8 +24,8 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/gmsh_interface.rst",
-      "doc/source/mesh_architecture.rst"
+      "docs/source/gmsh_interface.rst",
+      "docs/source/mesh_architecture.rst"
     ]
   },
   "claims": {

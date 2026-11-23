@@ -53,6 +53,10 @@ public:
     RealField initflow1;
     RealField initflow2;
     int rk_stage;
+    // Index of the Runge-Kutta stage currently executing, or -1 outside the
+    // stage loop.  The time integrator owns this; host mirrors that are only
+    // consumed after the step must not treat an earlier stage as final.
+    int rkStage = -1;
     RealField rk_coef;
     Real maxTime;
     Real currTime;

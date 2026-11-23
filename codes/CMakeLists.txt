@@ -71,6 +71,12 @@ if ( ONEFLOW_ENABLE_HIP OR ONEFLOW_ACCEL_BACKEND_UPPER STREQUAL "HIP" )
     set ( ONEFLOW_HIP_EXPLICIT ON )
 endif()
 
+# Optional: resolve the build-time accelerator SDK (hip/DCU, cuda) from a single
+# prefix before any backend probing. No-op when no SDK is requested, so CPU and
+# CI configurations are unaffected.
+include ( OneFLOWAccelSDK )
+OneFLOW_ConfigureAccelSDK ()
+
 if ( ONEFLOW_HIP_EXPLICIT
      OR ( ONEFLOW_AUTO_ENABLE_HIP
           AND ONEFLOW_ACCEL_BACKEND_UPPER STREQUAL "AUTO" ) )
@@ -469,6 +475,18 @@ target_compile_features ( OneFLOW_RuntimeObjects
         ${PRJ_COMPILE_FEATURES}
 )
 
+# Disable fused multiply-add in both host and HIP translation units so the
+# device Green-Gauss / flux kernels reproduce the host oracle bit-for-bit on
+# near-zero cancellations.  Host gcc and device clang otherwise fuse
+# `a*b+c` into an FMA, which differs by ~1 ulp; on symmetry-plane w and other
+# near-zero residuals that 1-ulp gap survives the whole solve and keeps the
+# cross-backend residual gate from reaching 1e-12.  The 1D HIP contract target
+# already uses this flag (cmake/OneFLOWEulerContract.cmake:64).
+target_compile_options ( OneFLOW_RuntimeObjects
+    PRIVATE
+        -ffp-contract=off
+)
+
 target_compile_definitions ( OneFLOW_RuntimeObjects
     PUBLIC
         ${PRJ_COMPILE_DEF}
@@ -491,8 +509,18 @@ target_link_libraries ( ${PROJECT_NAME}
         OneFLOW_RuntimeObjects
 )
 
+# The runtime objects include HIP translation units when the backend is enabled.
+# The consuming executable then needs the HIP link rule in its own scope, which
+# enable_language() provides; without it CMake fails at generate time with
+# "CMAKE_HIP_LINK_EXECUTABLE not set" after the sources moved into an object
+# collection.
+if ( ONEFLOW_BUILD_HIP )
+    enable_language ( HIP )
+    target_link_libraries ( ${PROJECT_NAME} PRIVATE hip::host )
+endif()
+
 set ( PRJ_SYSTEM_DIR ${PRJ_ROOT_DIR}/system/ )
-set ( PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/doc/ )
+set ( PRJ_DOCUMENT_DIR ${PRJ_ROOT_DIR}/docs/ )
 
 install ( TARGETS ${PROJECT_NAME} ${USER_LIBS} ${THIRD_LIBRARIES}
     RUNTIME DESTINATION bin 

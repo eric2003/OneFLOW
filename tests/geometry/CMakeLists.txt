@@ -83,6 +83,7 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/UnstructuredCgnsZoneWriter.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/Plot3D.cpp
     ${CMAKE_SOURCE_DIR}/codes/partition/src/Partition.cpp
+    ${CMAKE_SOURCE_DIR}/codes/partition/src/StructuredPartition.cpp
     ${CMAKE_SOURCE_DIR}/codes/basic/src/Word.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/Prj.cpp
     ${CMAKE_SOURCE_DIR}/codes/io/src/PrjCmdLineArgs.cpp

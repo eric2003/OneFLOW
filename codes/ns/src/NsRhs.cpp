@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "NsRhs.h"
+#include "StageProfiler.h"
 #include "UNsBcSolver.h"
 #include "Zone.h"
 #include "DataBase.h"
@@ -41,6 +42,8 @@ License
 #endif
 
 #include <iostream>
+#include <iomanip>
+#include <cstdlib>
 #include <memory>
 
 
@@ -136,6 +139,16 @@ void NsRefreshHostStateMirror()
 #endif
 }
 
+bool NsDeviceAuthoritativeFlowEnabled()
+{
+#ifdef ONEFLOW_ENABLE_HIP
+    return HipProductionBackendSelected()
+        && HipDeviceAuthoritativeStateEnabled();
+#else
+    return false;
+#endif
+}
+
 void NsMirrorHostBoundaryState()
 {
 #ifdef ONEFLOW_ENABLE_HIP
@@ -164,11 +177,41 @@ void NsMirrorHostBoundaryState()
 
 void NsCalcRHS()
 {
-	NsCalcInvFlux();
-
-	NsCalcVisFlux();
-
-	NsCalcSrcFlux();
+    // Optional per-term residual trace (off by default): pinpoints which
+    // physics term (inviscid/viscous/source) makes step2 residual differ.
+    const bool rhsTrace = std::getenv( "ONEFLOW_TRACE_POINTS" ) != nullptr
+        && Iteration::outerSteps <= 2;
+    auto dumpRhs = [&]( const char * tag )
+    {
+        if ( ! rhsTrace ) return;
+        static int rhsPrintCount = 0;
+        if ( rhsPrintCount >= 30 ) return;
+        ++rhsPrintCount;
+        MRField * rhsF = GetFieldPointer< MRField >( Zone::GetUnsGrid(), "rhs" );
+        if ( rhsF == nullptr ) return;
+        std::cout << std::setprecision( 17 );
+        const int probeCell = 254656;
+        std::cout << "TRACE_RHS " << tag << " step=" << Iteration::outerSteps
+                  << " cId=" << probeCell;
+        for ( int eq = 0; eq < 5 && eq < rhsF->GetNEqu(); ++eq )
+            std::cout << " r" << eq << "=" << (*rhsF)[eq][probeCell];
+        std::cout << std::endl;
+    };
+    {
+        ScopedStageTimer timer( "rhs_inviscid" );
+        NsCalcInvFlux();
+    }
+    dumpRhs( "AFTER_INV" );
+    {
+        ScopedStageTimer timer( "rhs_viscous" );
+        NsCalcVisFlux();
+    }
+    dumpRhs( "AFTER_VIS" );
+    {
+        ScopedStageTimer timer( "rhs_source" );
+        NsCalcSrcFlux();
+    }
+    dumpRhs( "AFTER_SRC" );
 }
 
 

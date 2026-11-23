@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "SolverImp.h"
+#include "HipProductionPolicy.h"
 #include "CmxTask.h"
 #include "CmxTaskNames.h"
 
@@ -28,6 +29,7 @@ BeginNameSpace( ONEFLOW )
 
 void CommInterfaceData()
 {
+    if ( DiagNoCommunication() ) return;
     ONEFLOW::AddCmdToList( kUploadInterfaceDataTaskName   );
     ONEFLOW::AddCmdToList( kUpdateInterfaceDataTaskName   );
     ONEFLOW::AddCmdToList( kDownloadInterfaceDataTaskName );

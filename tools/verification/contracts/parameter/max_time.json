@@ -20,8 +20,8 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/case_parameter_design.rst",
-      "doc/source/numerical/time_integral_control.rst"
+      "docs/source/case_parameter_design.rst",
+      "docs/source/numerical/time_integral_control.rst"
     ]
   },
   "claims": {

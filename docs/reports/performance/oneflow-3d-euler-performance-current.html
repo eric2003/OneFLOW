@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="OneFLOW 3D Euler 主求解器 DCU 性能报告（受限无粘显式路径）">
+<title>OneFLOW 3D Euler 主求解器 DCU 性能报告</title>
+<style>
+:root{--ink:#172033;--muted:#667085;--line:#d9e0ea;--soft:#f5f7fa;--accent:#b42318;--accent-soft:#fff1f0;--code:#111827}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:#eef2f6;font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}.layout{display:grid;grid-template-columns:250px minmax(0,1040px);gap:24px;justify-content:center;padding:24px}.toc{position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;padding:16px;background:#fff;border:1px solid var(--line);border-radius:12px}.toc strong{display:block;margin-bottom:8px}.toc a{display:block;color:var(--muted);text-decoration:none;font-size:13px;line-height:1.5;padding:3px 0}.toc a:hover{color:var(--accent)}article{min-width:0;padding:44px 52px 60px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 28px #10182812}h1{margin:0 0 24px;font-size:34px;line-height:1.3}h2{margin:44px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--accent);font-size:24px;scroll-margin-top:16px}h3{margin:28px 0 10px;font-size:19px;scroll-margin-top:16px}p,ul,ol{margin:10px 0}li+li{margin-top:4px}.table-wrap{width:100%;margin:16px 0 22px;overflow-x:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;min-width:650px;border-collapse:collapse;font-size:13px}th,td{padding:8px 10px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th:last-child,td:last-child{border-right:0}tr:last-child td{border-bottom:0}th{background:var(--soft)}tr:nth-child(even) td{background:#fafbfc}code{padding:.12em .32em;color:#9f1239;background:var(--accent-soft);border-radius:4px;font:.9em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}pre{overflow:auto;margin:16px 0 22px;padding:14px 16px;color:#e5e7eb;background:var(--code);border-radius:8px;line-height:1.55}pre code{padding:0;color:inherit;background:none}blockquote{margin:18px 0 26px;padding:10px 16px;color:var(--muted);background:var(--soft);border-left:4px solid var(--accent)}.ok{color:#087443;font-weight:650}.warn{color:#9a3412;font-weight:650}.report-footer{margin-top:46px;padding-top:14px;color:var(--muted);border-top:1px solid var(--line);font-size:13px}@media(max-width:900px){.layout{display:block;padding:10px}.toc{position:static;max-height:none;margin-bottom:10px}article{padding:28px 20px 42px}h1{font-size:28px}}@media print{@page{margin:15mm 12mm}body{background:#fff;font-size:10.5pt}.layout{display:block;padding:0}.toc{display:none}article{padding:0;border:0;box-shadow:none}h1{font-size:23pt}h2{break-after:avoid}.table-wrap,pre,blockquote{break-inside:avoid}.table-wrap{overflow:visible;border:0}table{min-width:0;font-size:8.5pt}}
+</style>
+</head>
+<body>
+<main class="layout">
+<nav class="toc" aria-label="报告目录">
+<strong>目录</strong>
+<a href="#s1">1. 结论摘要</a>
+<a href="#s2">2. 测试对象与口径</a>
+<a href="#s3">3. 结果</a>
+<a href="#s4">4. 这个数字是怎么得来的</a>
+<a href="#s5">5. 数值验证（与本报告同一天、同一 FE 提交）</a>
+<a href="#s6">6. 覆盖范围与未覆盖项</a>
+<a href="#s7">7. 复现</a>
+<a href="#s8">8. 口径纪律</a>
+</nav>
+<article>
+<h1>OneFLOW 3D Euler 主求解器 DCU 性能报告（当前）</h1>
+<blockquote>状态：首份 3D 主求解器性能报告，替换 <code>doc/plans/oneflow-development-todo.md</code> 中的 临时数字。测量日期 2026-11-02。 范围：受限无粘 3D 路径（五方程 / Lax–Friedrichs / <code>ilim=0</code> / <code>vismodel=0</code> / 稳态显式三阶段 RK / 1 rank 1 zone）。本报告不代表粘性、湍流、Roe、LU-SGS、 多重网格、双时间或多卡路径已完成 DCU 验证。</blockquote>
+<h2 id="s1">1. 结论摘要</h2>
+<p>同一节点、同一算例、交替执行的配对测量（8 zone / 8 rank）：</p>
+<div class="table-wrap"><table><thead><tr><th>后端</th><th>资源</th><th>中位数 ms/step</th><th>3 次样本</th></tr></thead><tbody><tr><td>CPU</td><td>8 ranks × 1 core</td><td>**288.20**</td><td>285.03 / 288.78 / 288.20</td></tr><tr><td>HIP</td><td>1 DCU（8 ranks 共享）</td><td>**15.59**</td><td>15.59 / 16.49 / 14.83</td></tr></tbody></table></div>
+<p>**加速比 18.5×（中位数口径），18.4×（均值口径）。**</p>
+<p>该比值是 8:1 槽口径：1 DCU 槽按 8 核计，两侧使用同一张 8 zone 分区网格、</p>
+<p>同样的 1000 步和相同的内迭代设置。</p>
+<h2 id="s2">2. 测试对象与口径</h2>
+<h3>2.1 算例</h3>
+<ul><li>网格：m6wing，294,912 cells，METIS 切成 8 个 zone，每个 zone 36,864 cells；</li><li>每个 rank 恰好负责一个 zone（求解器强制 <code>zone 数 = rank 数</code>）；</li><li>设置：<code>ischeme=5</code>（Lax–Friedrichs）、<code>ilim=0</code>、<code>vismodel=0</code>、<code>time_integral=1</code> （多阶段显式）、<code>rk_stage=3</code>、固定 CFL <code>0.01</code>、<code>startStrategy=0</code>；</li><li>步数：1000，warmup 50（warmup 不计入），每个配置交替取样 3 次。</li></ul>
+<h3>2.2 为什么关闭中间输出</h3>
+<p>基准把 <code>nFieldSave</code>/<code>nResSave</code>/<code>nForceSave</code> 都设为 100000，并把 <code>nVisualSave</code></p>
+<p>也设为 100000。实测可视化输出在默认 <code>nVisualSave=50</code> 下摊薄约</p>
+<p>**0.8 ms/step（约 5%）**，属于周期性写盘而不是推进成本，因此从推进口径中剔除。</p>
+<p>含输出的数字：CPU 口径不变，HIP 约 16.8–17.0 ms/step。</p>
+<h3>2.3 环境</h3>
+<div class="table-wrap"><table><thead><tr><th>项目</th><th>值</th></tr></thead><tbody><tr><td>平台</td><td>昆山 DCU 队列，单节点</td></tr><tr><td>加速器</td><td>Hygon DCU，<code>gfx906</code>，1 张</td></tr><tr><td>DTK</td><td>26.04</td></tr><tr><td>编译器</td><td>GCC 16.2.0</td></tr><tr><td>MPI</td><td>OpenMPI 5.0.11，<code>mpirun --bind-to core --map-by slot</code></td></tr><tr><td>加速器后端</td><td><code>ONEFLOW_ACCEL_BACKEND=HIP</code></td></tr><tr><td>相对上次基线的开关</td><td><code>ONEFLOW_HIP_SKIP_UNUSED_INTERFACE=1</code>（接口未用字段不打包）</td></tr></tbody></table></div>
+<p>两侧在同一作业内交替执行，使用同一份二进制与同一份算例派生副本。</p>
+<h2 id="s3">3. 结果</h2>
+<h3>3.1 8:1 槽配对</h3>
+<div class="table-wrap"><table><thead><tr><th>样本</th><th>CPU 8 ranks</th><th>HIP 8 ranks / 1 DCU</th><th>比值</th></tr></thead><tbody><tr><td>1</td><td>285.03</td><td>15.589</td><td>18.28×</td></tr><tr><td>2</td><td>288.78</td><td>16.494</td><td>17.51×</td></tr><tr><td>3</td><td>288.20</td><td>14.826</td><td>19.44×</td></tr><tr><td>**中位数**</td><td>**288.20**</td><td>**15.59**</td><td>**18.49×**</td></tr><tr><td>均值</td><td>287.34</td><td>15.64</td><td>18.38×</td></tr></tbody></table></div>
+<h3>3.2 并行粒度（同一张网格切分，另一会话，非同一节点）</h3>
+<div class="table-wrap"><table><thead><tr><th>并行粒度</th><th>cell/rank</th><th>HIP ms/step</th><th>CPU ms/step</th><th>比值</th><th>HIP 资源</th></tr></thead><tbody><tr><td>1 zone / 1 rank</td><td>294,912</td><td>58.58</td><td>1646.49</td><td>28.1×</td><td>1 DCU</td></tr><tr><td>8 zone / 8 rank</td><td>36,864</td><td>20.07</td><td>284.27</td><td>14.2×</td><td>1 DCU</td></tr><tr><td>32 zone / 32 rank</td><td>9,216</td><td>17.80</td><td>83.88</td><td>4.7×</td><td>4 DCU</td></tr></tbody></table></div>
+<p>这张表用于说明扩展行为，不与 §3.1 混用：它采集于更早的会话和节点，且当时的</p>
+<p>HIP 侧尚未包含本报告的优化。</p>
+<p>读法：</p>
+<ul><li>单卡上把 1 个 rank 提高到 8 个 rank（同一张卡）带来 **2.9×**，说明单 rank 喂不满一张 DCU；</li><li>继续切到 32 zone 只再快 11%，却需要 4 张卡，属于过度切分；</li><li>比值随粒度下降是分母（CPU 扩展更好）造成的，device 侧绝对时间是下降的。</li></ul>
+<h3>3.3 与一维端口的对照（同一节点，同一会话）</h3>
+<div class="table-wrap"><table><thead><tr><th>口径</th><th>比值</th></tr></thead><tbody><tr><td>1D，单线程 CPU vs 1 DCU（advance）</td><td>282× / 299×（262k / 1M cells）</td></tr><tr><td>3D，8 核 vs 1 DCU（本报告）</td><td>**18.5×**</td></tr><tr><td>3D，32 核 vs 1 DCU（§3.2）</td><td>4.7×</td></tr><tr><td>1D，应用级 lifecycle vs 32 rank CPU（历史）</td><td>3.85–9.70×</td></tr></tbody></table></div>
+<p>一维的高比值来自两点：算例本身只有通量计算（无梯度、无重构、无界面交换、</p>
+<p>无边界模型），以及整个宏步常驻设备。三维每 cell 的算法量高一到两个数量级，</p>
+<p>所以上限本来就低。在应用级、32 核分母这两个条件下，3D 的 4.7× 与一维的</p>
+<p>3.85–9.70× 处于同一档。</p>
+<h2 id="s4">4. 这个数字是怎么得来的</h2>
+<p>从首份 3D 基线（2026-10-25，<code>31.6 ms/step</code>，同配置 paired）到本报告，共四项</p>
+<p>改动，全部经同一组数值门禁验证：</p>
+<div class="table-wrap"><table><thead><tr><th>项</th><th>内容</th><th>同节点 paired 收益</th></tr></thead><tbody><tr><td>1</td><td>梯度主机镜像只在最后一个 RK 阶段做</td><td>−10.5%</td></tr><tr><td>2</td><td>RK 基线与残差基底不再从主机搬，残差在设备侧归零</td><td>−22.1%</td></tr><tr><td>3</td><td>不再搬 host 历史层（<code>q2←q1←q</code> 每步全场拷贝）</td><td>−14%</td></tr><tr><td>4</td><td>设备单网格路径不再写 host 残差账本（<code>ZERO_RESIDUALS</code>/<code>STORE_RHS</code>）</td><td>约 −0.4 ms</td></tr><tr><td>5</td><td>RK 循环进求解器驱动（驻留宏步），策略环境变量与就绪查询缓存</td><td>约 −3.5 ms</td></tr><tr><td>6</td><td>重构直接读取边界阶段留在设备上的壁面状态</td><td>约 −0.85 ms</td></tr></tbody></table></div>
+<p>合计 <code>31.6 → 15.6 ms/step</code>（1.99×）。</p>
+<p>同轮完成、但有明确负面结论的三项（已写入交接，避免重复尝试）：</p>
+<div class="table-wrap"><table><thead><tr><th>尝试</th><th>结果</th></tr></thead><tbody><tr><td>删除每步第 4 轮界面交换</td><td>200 步跨后端残差由 <code>2.33e-18</code> 拓到 <code>5.54e-7</code>，属算法变更，已撤回</td></tr><tr><td>删除 stage 之间的全卡同步</td><td>无收益（22.2 vs 22.6 ms/step），已撤回</td></tr><tr><td>GPU-aware MPI 设备直发</td><td>探针通过，但真实界面交换慢 3×（48–50 vs 15.7 ms/step），不可用</td></tr></tbody></table></div>
+<h2 id="s5">5. 数值验证（与本报告同一天、同一 FE 提交）</h2>
+<div class="table-wrap"><table><thead><tr><th>门禁</th><th>结果</th></tr></thead><tbody><tr><td>3 步多区 trace + resident contract</td><td><code>MULTIZONE_TRACE_PASS</code>，<code>records=24 failures=0 max_abs_diff=0</code></td></tr><tr><td>200 步跨后端残差</td><td><code>2.331035e-18</code></td></tr><tr><td>200 步跨后端气动力</td><td><code>0.0</code></td></tr><tr><td>CPU 五算例 normal (1e-8)</td><td>5/5</td></tr><tr><td>CPU 五算例 strict (1e-15)</td><td>5/5</td></tr><tr><td>restart 等价（设备权威 q 开/关）</td><td><code>4.16e-15</code> / <code>5.28e-15</code></td></tr></tbody></table></div>
+<h2 id="s6">6. 覆盖范围与未覆盖项</h2>
+<p>已验证：五方程、无粘、Lax–Friedrichs、<code>ilim=0</code>、单网格层、稳态显式三阶段 RK、</p>
+<p>1 rank 1 zone、8 zone 同节点、1 DCU。</p>
+<p>未覆盖（不得从本报告外推）：</p>
+<ul><li>Roe / HLLC / AUSM；limiter（<code>ilim≠0</code>）；层流粘性与 SA 湍流；</li><li>LU-SGS 与双时间；多重网格；</li><li>跨节点多卡、GPU-aware 设备直发（实测更慢）；</li><li>≥1M cell 的合法分区网格（仓库目前只有 294,912 cells 一套，且缺 <code>.skl</code> 大网格）；</li><li>旗舰算例 <code>test/cfd/m6wingroe_sa</code>（Roe + LU-SGS + SA），它仍完全在 CPU 上运行。</li></ul>
+<h2 id="s7">7. 复现</h2>
+<pre><code># 同一二进制、同一节点，交替采集 CPU / HIP
+bash scripts/paired-ab.slurm        # 需要设定 ONEFLOW_ACCEL_BACKEND
+bash scripts/gate.slurm             # trace + 200 步跨后端 + 稳定性
+bash scripts/cpu-regression.slurm   # CPU 五算例 normal/strict</code></pre>
+<p>关键开关与含义见 <code>doc/plans/oneflow-development-todo.md</code> §6 与</p>
+<p><code>doc/handoff/oneflow-current-handoff.md</code> §5。</p>
+<h2 id="s8">8. 口径纪律</h2>
+<ul><li>只比同节点、同算例、同 <code>steps/warmup/repeats</code>、同 rank/资源；</li><li>不以 100 步或 kernel-only 作生产结论；</li><li>1 DCU 槽按 8 核计；</li><li>探索性单作业数据只进待办文档，不进本报告；</li><li>本报告为 Markdown 源；如需 HTML 版本，按 <code>doc/reports/README.md</code> 的命名规则同 stem 生成。</li></ul>
+<div class="report-footer">
+Markdown 源：doc/reports/performance/oneflow-3d-euler-performance-current.md（本 HTML 与之同 stem 同步）。
+</div>
+</article>
+</main>
+</body>
+</html>

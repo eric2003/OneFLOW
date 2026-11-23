@@ -37,6 +37,10 @@ public:
     void UpdateFlowField1EquStd();
     void UpdateFlowField2EquStd();
 
+    // Device counterpart of UpdateFlowField1EquStd.  Returns false when the
+    // caller should run the host loop.
+    bool UpdateFlowField1EquHip();
+
     void PrepareData1Equ();
     void PrepareData2Equ();
     void UpdateValue();

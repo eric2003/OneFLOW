@@ -33,6 +33,7 @@ public:
     ~UTurbGrad();
 public:
     void Init() override;
+    bool CalcGradHip() override;
 };
 
 extern UTurbGrad uturb_grad;

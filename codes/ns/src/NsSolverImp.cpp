@@ -118,7 +118,12 @@ bool HipBoundarySupported()
     if ( SolverState::solverType != NS_SOLVER )
         return reject( "solver" );
     if ( nscom.nEqu != 5 ) return reject( "equations" );
-    if ( vis_model.vismodel != 0 ) return reject( "viscous" );
+    // Viscous/turbulent boundary models are evaluated on the device too: the
+    // ghost primitive and bcQ the viscous flux and reconstruction read are
+    // produced by the boundary kernel, and the host lamina/turbulence
+    // viscosity/temperature fields remain host-derived.  The earlier hard
+    // rejection of vis_model.vismodel != 0 kept the entire ~20 s per-step
+    // boundary face loop on the host for the Roe/SA flagship.
     if ( ctrl.ilim != 0 ) return reject( "limiter" );
     UnsGrid * grid = Zone::GetUnsGrid();
     if ( grid == nullptr ) return reject( "grid" );
@@ -212,6 +217,10 @@ void CalcHipBoundary()
     view.yNormal = ug.yfn->data();
     view.zNormal = ug.zfn->data();
     view.meshVelocityNormal = ug.vfn->data();
+    view.wallVelocityX = ug.vfx != nullptr ? ug.vfx->data() : nullptr;
+    view.wallVelocityY = ug.vfy != nullptr ? ug.vfy->data() : nullptr;
+    view.wallVelocityZ = ug.vfz != nullptr ? ug.vfz->data() : nullptr;
+    view.viscousWall = vis_model.vismodel != 0;
     view.inflow = nscom.inflow.data();
     view.gamma = nscom.gama_ref;
     view.faceOuterNormal = nscom.faceOuterNormal;
@@ -378,11 +387,17 @@ void NsImplicitMethod( StringField & data )
 
 namespace {
 
-// The explicit RK path exchanges the interface at the end of every stage, so
-// q and its resident device ghosts are already current when the outer
-// iteration reaches the post-process hook.  Repeating the upload/exchange/
-// download round trip here costs a full interface pass per step.  Opt in with
-// ONEFLOW_SKIP_POST_INTERFACE=1 until the trace and residual gates have run.
+// The explicit RK path exchanges the interface at the end of every stage, but
+// only the MPI move: NsResidentMacroStep dispatches kUpdateInterfaceDataTaskName
+// alone, while the q pack (kUploadInterfaceDataTaskName) and the ghost unpack
+// (kDownloadInterfaceDataTaskName) run once per step from here.  Reusing the
+// pack buffer across the stages is what produces the documented one-step halo
+// lag, and the CPU oracle has the same order.  Skipping this round therefore
+// does not "remove one redundant exchange": it stops refreshing the interface
+// buffer entirely, the ghosts freeze, and the interface contribution becomes a
+// function of how the mesh was partitioned.  Measured: 200-step cross-backend
+// residual drifts to 5.54e-07 (aero 4.0e-05).  Keep it as an A/B probe for
+// timing only, never as a production setting.
 bool SkipRedundantPostInterface()
 {
     const char * value = std::getenv( "ONEFLOW_SKIP_POST_INTERFACE" );
@@ -396,26 +411,38 @@ bool SkipRedundantPostInterface()
 void NsPostprocess( StringField & data )
 {
     //After every Iter, the first thing to consider is communication.
-    if ( ! SkipRedundantPostInterface() )
     {
-        CommInterfaceData();
+        ScopedStageTimer timer( "post_interface" );
+        if ( ! SkipRedundantPostInterface() )
+        {
+            CommInterfaceData();
+        }
     }
 
     //The solution and output of residuals need to be judged logically.
-    if ( Iteration::ResOk() )
     {
-        ONEFLOW::AddCmdToList( kDumpResidualTaskName );
+        ScopedStageTimer timer( "post_residual_gate" );
+        if ( Iteration::ResOk() )
+        {
+            ONEFLOW::AddCmdToList( kDumpResidualTaskName );
+        }
     }
 
     //The solution and output of aerodynamic force need to be judged logically.
-    if ( Iteration::ForceOk() )
     {
-        ONEFLOW::AddCmdToList( kDumpAerodynamicTaskName );
+        ScopedStageTimer timer( "post_force_gate" );
+        if ( Iteration::ForceOk() )
+        {
+            ONEFLOW::AddCmdToList( kDumpAerodynamicTaskName );
+        }
     }
 
     if ( ! Iteration::InnerOk() ) return;
 
-    ONEFLOW::AddCmdToList( kUpdateUnsteadyFlowTaskName );
+    {
+        ScopedStageTimer timer( "post_unsteady_dispatch" );
+        ONEFLOW::AddCmdToList( kUpdateUnsteadyFlowTaskName );
+    }
 
     if ( Iteration::outerSteps % Iteration::nVisualSave == 0 )
     {

@@ -33,6 +33,8 @@ License
 #include "CmxTask.h"
 #include "DataBase.h"
 #include "DataBook.h"
+#include "NsRhs.h"
+#include "HipProductionPolicy.h"
 #include "Lusgs.h"
 #include "Lhs.h"
 #include "FieldManager.h"
@@ -64,6 +66,17 @@ void RegisterUnsteadyTask()
 void UpdateUnsteadyFlow( StringField & data )
 {
     int solverType = SolverState::solverType;
+
+    // The host history levels are derived data. When the device owns the
+    // resident field they are only read when a restart dump rebuilds them, so
+    // the per-step full-field shift is dead work. Applies to the validated
+    // steady explicit chain only; the host path and dual time keep shifting.
+    if ( solverType == NS_SOLVER
+         && NsDeviceAuthoritativeFlowEnabled()
+         && HipSkipHostHistoryShiftRequested() )
+    {
+        return;
+    }
 
     auto unsteady = CreateUnsteady( solverType );
     unsteady->UpdateUnsteady();

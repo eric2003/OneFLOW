@@ -39,6 +39,12 @@ const int ISCHEME_AUSMPW         = 10;
 const int ISCHEME_HYBRIDROE      = 11;
 const int ISCHEME_SLAU2          = 12;
 
+// The device flux kernels use their own small numbering, which does not match
+// ISCHEME_* above (kernel 1 is a Rusanov/Lax-Friedrichs flux, while
+// ISCHEME_ROE is also 1).  Map explicitly here so no call site carries a bare
+// literal that can be mistaken for the solver's scheme id.
+int DeviceFluxScheme( int solverScheme );
+
 
 Real FMSplit1( const Real & mach, const Real & ipn );
 Real FMSplit2( const Real & mach, const Real & ipn );

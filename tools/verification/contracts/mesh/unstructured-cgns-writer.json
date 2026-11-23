@@ -10,9 +10,9 @@
   "architecture": "SU2 reader -> shared UnstructuredMeshData -> UnstructuredCgnsZoneWriter -> CGNS Unstructured Zone; Gmsh MSH reader -> GmshMesh -> shared UnstructuredMeshData -> UnstructuredCgnsZoneWriter -> CGNS Unstructured Zone. Standard Plot3D follows a native structured GridMediator -> CGNS Structured Zone path. An optional structured-to-unstructured adapter may expand QUAD_4 / HEXA_8 connectivity into this shared writer after IBLANK, interfaces and boundary semantics are specified.",
   "references": [
     "CGNS SIDS (Zone_t, Element_t, BC_t): https://cgns.github.io/CGNS_docs_current/sids/",
-    "doc/source/mesh_architecture.rst (Shared unstructured mesh conversion boundary)",
-    "doc/source/grid_conversion_cases.rst",
-    "doc/source/gmsh_interface.rst",
+    "docs/source/mesh_architecture.rst (Shared unstructured mesh conversion boundary)",
+    "docs/source/grid_conversion_cases.rst",
+    "docs/source/gmsh_interface.rst",
     "Gmsh MSH file formats: https://gmsh.info/doc/texinfo/gmsh.html#File-formats"
   ],
   "implementation": {
@@ -27,9 +27,9 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/mesh_architecture.rst",
-      "doc/source/grid_conversion_cases.rst",
-      "doc/source/gmsh_interface.rst"
+      "docs/source/mesh_architecture.rst",
+      "docs/source/grid_conversion_cases.rst",
+      "docs/source/gmsh_interface.rst"
     ]
   },
   "claims": {

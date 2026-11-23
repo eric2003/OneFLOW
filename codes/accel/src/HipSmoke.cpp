@@ -11,12 +11,14 @@ License
 #include "EulerCpuAdapter.h"
 #include "HipFluxBackend.h"
 #include "HipKernel.h"
+#include "Ns3DDomain.h"
 
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <exception>
 #include <limits>
+#include <string>
 #include <vector>
 
 namespace
@@ -833,11 +835,14 @@ bool TestMainSolverBoundarySemantics()
 
     std::vector< ONEFLOW::Real > qLeft( nEq * nFaces, 0.0 );
     std::vector< ONEFLOW::Real > qRight( nEq * nFaces, 0.0 );
+    // Production packs solid bcQ as one contiguous equation-major buffer
+    // with stride nBoundaryFaces (solid faces are a prefix). A full-face
+    // stride makes the single HIP upload mis-index later equations.
     std::vector< ONEFLOW::Real > reconstructionBcQ(
-        nEq * nFaces, 0.0 );
+        nEq * nBoundaryFaces, 0.0 );
     for ( int equation = 0; equation < nEq; ++ equation )
     {
-        reconstructionBcQ[ equation * nFaces + 3 ] =
+        reconstructionBcQ[ equation * nBoundaryFaces + 3 ] =
             boundaryBcQ[ equation ] + 3.0 + equation;
     }
     ONEFLOW::ReconstructionBoundaryOperation operations[ nFaces ] = {
@@ -886,7 +891,7 @@ bool TestMainSolverBoundarySemantics()
         reconstructionView.dqdz[ equation ] =
             gradient.data() + base + 2 * nTotalCells;
         reconstructionView.bcQ[ equation ] =
-            reconstructionBcQ.data() + equation * nFaces;
+            reconstructionBcQ.data() + equation * nBoundaryFaces;
         reconstructionView.qLeft[ equation ] =
             qLeft.data() + equation * nFaces;
         reconstructionView.qRight[ equation ] =
@@ -912,12 +917,12 @@ bool TestMainSolverBoundarySemantics()
             reconstructionError,
             static_cast< double >( std::abs(
                 qLeft[ equation * nFaces + 3 ]
-                - reconstructionBcQ[ equation * nFaces + 3 ] ) ) );
+                - reconstructionBcQ[ equation * nBoundaryFaces + 3 ] ) ) );
         reconstructionError = std::max(
             reconstructionError,
             static_cast< double >( std::abs(
                 qRight[ equation * nFaces + 3 ]
-                - reconstructionBcQ[ equation * nFaces + 3 ] ) ) );
+                - reconstructionBcQ[ equation * nBoundaryFaces + 3 ] ) ) );
     }
     const double preservedGhostError = std::max(
         static_cast< double >( std::abs(
@@ -938,7 +943,8 @@ bool TestMainSolverBoundarySemantics()
         static_cast< double >( std::abs(
             qRight[ 0 * nFaces + 3 ] - expectedAverage ) ) );
     const double staleOperationError = std::abs(
-        qLeft[ 0 * nFaces + 3 ] - reconstructionBcQ[ 0 * nFaces + 3 ] );
+        qLeft[ 0 * nFaces + 3 ]
+        - reconstructionBcQ[ 0 * nBoundaryFaces + 3 ] );
 
     backend.UnbindState( cacheKey );
     if ( ghostError > 2.0e-12
@@ -1337,7 +1343,6 @@ bool TestMainSolverStateUpdate()
             primitive.data() + equation * nTotalCells;
     }
     backend.CalcLocalInviscidTimeStep( timeStepView );
-    backend.UnbindState( cacheKey );
 
     double residentTimeStepError = 0.0;
     for ( int cell = 0; cell < nCells; ++ cell )
@@ -1359,6 +1364,37 @@ bool TestMainSolverStateUpdate()
             residentTimeStepError );
         return false;
     }
+
+    // The deferred status buffer is allocated lazily. Force a bad update on
+    // its first-use path and require a solver error instead of a device fault
+    // from atomicExch through a null status pointer.
+    std::fill( residual.begin(), residual.end(), 0.0 );
+    residual[ 0 ] = -std::numeric_limits< ONEFLOW::Real >::max();
+    backend.CalcAndAddReconstructedFaceFlux(
+        connectivity, residualView, 1, gamma, nullptr, cacheKey, false,
+        ONEFLOW::ResidualBase::HostUpload );
+    backend.ScaleCurrentResidual( updateView );
+    backend.UpdatePrimitiveState( updateView, true );
+    bool nonPhysicalStateReported = false;
+    try
+    {
+        backend.CheckResidentStatus();
+    }
+    catch ( const std::runtime_error & error )
+    {
+        nonPhysicalStateReported =
+            std::string( error.what() ).find( "non-physical state" )
+            != std::string::npos;
+    }
+    if ( ! nonPhysicalStateReported )
+    {
+        std::fprintf(
+            stderr,
+            "Main solver HIP deferred status contract FAIL: "
+            "non-physical state was not reported\n" );
+        return false;
+    }
+    backend.UnbindState( cacheKey );
     std::printf(
         "OneFLOW HIP main solver state update: PASS "
         "(max error %.3e, %d cells, %d equations)\n",

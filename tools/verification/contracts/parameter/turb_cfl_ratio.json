@@ -18,7 +18,7 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/case_parameter_design.rst"
+      "docs/source/case_parameter_design.rst"
     ]
   },
   "claims": {

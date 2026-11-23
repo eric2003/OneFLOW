@@ -460,12 +460,14 @@ void DumpTaskDispatch(
 
 void SingleSolverSingleGridTask( int operationId )
 {
+    ScopedHostTimer hostTimer( "task_dispatch" );
     TaskDispatchTimer dispatchTimer;
     const std::string & taskName = MessageMap::GetMsgName( operationId );
 
     // Runtime form: plan + execute by id (no string lookup here).
     {
         ScopedStageTimer planTimer( "task_plan" );
+        ScopedHostTimer hostPlanTimer( "task_plan" );
         GenerateCmdList( operationId );
     }
     const char * category = StageProfiler::CategoryForTask( taskName );
@@ -485,11 +487,13 @@ void SingleSolverSingleGridTask(
     int operationId,
     SimuContext & context )
 {
+    ScopedHostTimer hostTimer( "task_dispatch" );
     TaskDispatchTimer dispatchTimer;
     const std::string & taskName = MessageMap::GetMsgName( operationId );
 
     {
         ScopedStageTimer planTimer( "task_plan" );
+        ScopedHostTimer hostPlanTimer( "task_plan" );
         GenerateCmdList( operationId );
     }
     const char * category =

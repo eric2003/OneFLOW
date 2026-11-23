@@ -11,7 +11,7 @@
   "references": [
     "Gmsh transfinite meshes: https://gmsh.info/doc/texinfo/gmsh.html#t6",
     "Gmsh MSH physical groups: https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format",
-    "doc/source/stl_to_gmsh_2d.rst"
+    "docs/source/stl_to_gmsh_2d.rst"
   ],
   "implementation": {
     "source_paths": [
@@ -109,16 +109,16 @@
     "paths": [
       "grid/stl_import/README.md",
       "grid/stl_to_gmsh/README.md",
-      "doc/source/stl_to_gmsh_2d.rst",
-      "doc/source/gmsh_interface.rst",
-      "doc/source/grid_conversion_cases.rst",
+      "docs/source/stl_to_gmsh_2d.rst",
+      "docs/source/gmsh_interface.rst",
+      "docs/source/grid_conversion_cases.rst",
       "grid/stl_to_gmsh/3d/cube/README.md",
       "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py",
       "grid/conversion/cgns_to_oneflow/README.md",
       "grid/stl_to_gmsh/2d/square/README.md",
       "tools/oneflow_gui/test_mesh_validation.py",
-      "doc/source/development_case_methodology.rst",
-      "doc/source/workbench_user_guide_zh.rst",
+      "docs/source/development_case_methodology.rst",
+      "docs/source/workbench_user_guide_zh.rst",
       "grid/stl_to_gmsh/2d/square/automatic_triangles/README.md"
     ]
   },

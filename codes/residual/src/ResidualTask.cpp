@@ -46,6 +46,7 @@ License
 #include "HipFluxBackend.h"
 #endif
 #include <cstdlib>
+#include <fstream>
 #include <stdexcept>
 #include <limits>
 #include <sstream>
@@ -201,6 +202,27 @@ void ResidualTask::CalcRes( int solverType, ResData & data )
     }
 #endif
 
+    // Optional full residual-field dump (off by default): dump the exact host
+    // res field the convergence norm reads, to localize cell-level CPU/HIP
+    // differences that the norm's sqrt(sum-of-squares) can hide.
+    {
+        const char * resDump = std::getenv( "ONEFLOW_RES_FIELD_DUMP" );
+        static bool resFieldDumped = false;
+        if ( resDump != nullptr && resDump[ 0 ] != '\0' && ! resFieldDumped )
+        {
+            resFieldDumped = true;
+            std::ofstream rout( resDump, std::ios::binary | std::ios::trunc );
+            const int cells = grid->nCells;
+            rout.write( reinterpret_cast< const char * >( &nEqu ), sizeof(int) );
+            rout.write( reinterpret_cast< const char * >( &cells ), sizeof(int) );
+            for ( int eq = 0; eq < nEqu; ++ eq )
+                for ( int c = 0; c < cells; ++ c )
+                {
+                    const double v = ( * res )[ eq ][ c ];
+                    rout.write( reinterpret_cast< const char * >( &v ), sizeof(v) );
+                }
+        }
+    }
     for ( int iEqu = 0; iEqu < nEqu; ++ iEqu )
     {
         for ( int cId = 0; cId < grid->nCells; ++ cId )

@@ -135,8 +135,10 @@ void CalcGrid::BuildInterfaceLink()
 
     if ( this->config.objective == GridObjective::Partition )
     {
-        const int partitionType = this->config.partitionType;
-        if ( partitionType == 1 )
+        // Both METIS and the structured block partitioner assign the zones
+        // themselves, so the link is reconstructed from their mapping.
+        // GenerateLink stays the fallback for a pre-split input.
+        if ( PartitionProducesInterfaceLink( this->config.partitionType ) )
         {
             this->ReconstructLink();
         }

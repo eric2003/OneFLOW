@@ -21,6 +21,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "InterfaceTaskReg.h"
+#include <map>
 #include <memory>
 #include "InterField.h"
 #include "Fatal.h"
@@ -103,7 +104,7 @@ namespace {
 // overwrite the device payload, which is exactly what made the host mirror
 // mandatory on every step.  The other interface fields, dataBook layout and
 // message sizes stay untouched, so peers remain in step.
-bool SkipHostFieldPackFor( const std::string & fieldName )
+bool ComputeSkipHostFieldPack( const std::string & fieldName )
 {
 #ifdef ONEFLOW_ENABLE_HIP
     if ( vis_model.vismodel != 0 ) return false;
@@ -131,6 +132,19 @@ bool SkipHostFieldPackFor( const std::string & fieldName )
     (void) fieldName;
     return false;
 #endif
+}
+
+// The interface field list is fixed for a solver, and the answer only depends
+// on process-lifetime switches plus the viscous model.  Cache it per field name
+// so the per-step interface loop does not re-run the comparison chain.
+bool SkipHostFieldPackFor( const std::string & fieldName )
+{
+    static std::map< std::string, bool > cache;
+    const auto found = cache.find( fieldName );
+    if ( found != cache.end() ) return found->second;
+    const bool skip = ComputeSkipHostFieldPack( fieldName );
+    cache.emplace( fieldName, skip );
+    return skip;
 }
 
 // Fill the interface send storage for the device-owned gradient.  This runs
@@ -167,9 +181,23 @@ void PackResidentGradientToInterface( UnsGrid * grid )
             grid->GetFaceTopo().GetSId( iFace, ghostId + 1, iCell );
             endpointCells[ iFace ] = iCell;
         }
-        HipFluxBackend::Shared().PackGradientFacesToHost(
-            grid, endpointCells.data(), nIFaces, nEqu,
-            packed.data() );
+        const bool packedOnDevice =
+            HipFluxBackend::Shared().PackGradientFacesToHost(
+                grid, endpointCells.data(), nIFaces, nEqu,
+                packed.data() );
+        if ( ! packedOnDevice )
+        {
+            // No resident gradient for this zone yet (first step, or a zone this
+            // rank has not advanced). The host mirror is then the authoritative
+            // state, so pack all ghost levels from it, exactly like the host
+            // path, and stop walking the device rounds.
+            for ( int component = 0; component < 3; ++ component )
+            {
+                ONEFLOW::UploadInterfaceValue(
+                    grid, fields[ component ], names[ component ], nEqu );
+            }
+            return;
+        }
         UploadInterfaceValuePacked(
             grid, fields, names, 3, nEqu, ghostId,
             packed.data() );
@@ -199,6 +227,7 @@ void UploadInterfaceData( StringField & data )
         fieldManager->GetInterfaceFieldProperty().GetData();
 
     ScopedStageTimer uploadTimer( "post_upload" );
+    ScopedHostTimer hostUploadTimer( "post_upload_host" );
 #ifdef ONEFLOW_ENABLE_HIP
     if ( SkipHostFieldPackFor( "dqdx" ) )
     {
@@ -247,6 +276,7 @@ void DownloadInterfaceData( StringField & data )
         fieldManager->GetInterfaceFieldProperty().GetData();
 
     ScopedStageTimer downloadTimer( "post_download" );
+    ScopedHostTimer hostDownloadTimer( "post_download_host" );
 #ifdef ONEFLOW_ENABLE_HIP
     if ( SkipHostFieldPackFor( "dqdx" ) )
     {

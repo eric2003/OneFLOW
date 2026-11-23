@@ -190,9 +190,20 @@ void Restart::Dump( int solverType )
     // The restart stream reads the host flow fields.  When the HIP resident
     // state owns the newest q, pull the complete field back (owned + ghost)
     // and rebuild the host-only derived fields before writing.
+    bool deviceOwnedField = false;
     if ( solverType == NS_SOLVER )
     {
         NsRefreshHostStateMirror();
+        deviceOwnedField = NsDeviceAuthoritativeFlowEnabled();
+    }
+    // The stream stores history levels 1..N and the reader rebuilds the
+    // current level from level 1.  Those host levels are derived state: the
+    // device chain advances q without touching them, so a device-owned step
+    // leaves them holding the pre-solve field.  Rebuild them from the field
+    // just pulled back, exactly like the steady initialization does.
+    if ( deviceOwnedField )
+    {
+        this->InitUnsteady( solverType );
     }
     ActionState::dataBook->MoveToBegin();
 

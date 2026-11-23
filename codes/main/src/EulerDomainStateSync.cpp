@@ -4,6 +4,9 @@
 #include "CpuEulerDomainBackend.h"
 #include "EulerDomainMrFieldAdapter.h"
 #include "EulerDomainStateLifecycle.h"
+// Unconditional on purpose: Ns3DDeviceState is used below outside any
+// ONEFLOW_ENABLE_HIP guard, so a CPU-only build must see it too.
+#include "Ns3DDomain.h"
 #ifdef ONEFLOW_ENABLE_HIP
 #include "HipFluxBackend.h"
 #endif

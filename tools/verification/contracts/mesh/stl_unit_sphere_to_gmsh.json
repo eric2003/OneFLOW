@@ -12,7 +12,7 @@
     "Gmsh Reference Manual: https://gmsh.info/doc/texinfo/gmsh.html",
     "Gmsh API - ClassifySurfaces and CreateGeometry: https://gmsh.info/doc/texinfo/gmsh.html#Gmsh-API",
     "Gmsh MSH file format: https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format",
-    "doc/source/stl_to_gmsh_sphere.rst"
+    "docs/source/stl_to_gmsh_sphere.rst"
   ],
   "implementation": {
     "source_paths": [
@@ -37,12 +37,12 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/stl_to_gmsh_commands.rst",
-      "doc/source/stl_to_gmsh_sphere.rst",
-      "doc/source/stl_to_gmsh_3d.rst",
+      "docs/source/stl_to_gmsh_commands.rst",
+      "docs/source/stl_to_gmsh_sphere.rst",
+      "docs/source/stl_to_gmsh_3d.rst",
       "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/README.md",
       "grid/stl_to_gmsh/README.md",
-      "doc/source/contract_workbench_information_architecture.rst"
+      "docs/source/contract_workbench_information_architecture.rst"
     ]
   },
   "claims": {

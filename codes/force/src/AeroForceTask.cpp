@@ -42,8 +42,12 @@ License
 #include "FieldWrap.h"
 #include "NsCom.h"
 #include "NsRhs.h"
+#include "HipFluxBackend.h"
+#include "HipProductionPolicy.h"
 #include "Parallel.h"
 #include "Iteration.h"
+#include <algorithm>
+#include <vector>
 #include "TextFileParser.h"
 #include "UNsCom.h"
 
@@ -58,6 +62,8 @@ License
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <fstream>
+#include <cstdlib>
 
 
 BeginNameSpace( ONEFLOW )
@@ -224,10 +230,59 @@ void CalcAeroForce(int idump_pres)
 	if (nSolidCells == 0) return;
 
 #ifdef ONEFLOW_ENABLE_HIP
-	// With a device-authoritative HIP state the host q mirror is stale; pull
-	// back the boundary-adjacent owned cells this loop reads (q at the owner
-	// cell of every boundary face, plus the wall-adjacent gradient mirrored by
-	// the device gradient stage).  No-op on the CPU path.
+	// Holistic aero-input mirror: every host field the force loop reads is
+	// refreshed here, in one place, so q / gradient / right-cell inputs can
+	// never disagree at the read point.  No-op on the CPU path or when the
+	// device does not own the state.
+	if ( HipDeviceAuthoritativeStateEnabled() )
+	{
+		const auto & leftCells = grid->GetFaceTopo().GetLeftCells();
+		const auto & rightCells = grid->GetFaceTopo().GetRightCells();
+
+		// The pressure loop reads q[IP][lc]; with vismodel>0 the viscous
+		// CorrectGrad also reads q[IU/IV/IW][rc] on the right cell (a ghost
+		// at solid boundaries).  Mirror one sorted owner+right cell set for
+		// both q and gradients.  includeGhost=true lets the scatter cover rc.
+		std::vector< int > aeroCells;
+		aeroCells.reserve( static_cast< std::size_t >( grid->nBFaces ) * 2 );
+		for ( int face = 0; face < grid->nBFaces; ++ face )
+		{
+			aeroCells.push_back( leftCells[ face ] );
+			aeroCells.push_back( rightCells[ face ] );
+		}
+		std::sort( aeroCells.begin(), aeroCells.end() );
+		aeroCells.erase( std::unique( aeroCells.begin(), aeroCells.end() ),
+		                 aeroCells.end() );
+
+		Real * qComp[ 5 ] = {};
+		for ( int equation = 0; equation < nscom.nEqu; ++ equation )
+			qComp[ equation ] = ( *q )[ equation ].data();
+		HipFluxBackend::Shared().MirrorPrimitiveCellsToHost(
+			grid, nscom.nEqu, aeroCells.data(),
+			static_cast< int >( aeroCells.size() ), qComp, true );
+
+		// The gradient mirror is a hard contract (it throws when no resident
+		// gradient exists). On flagship configs where the device gradient
+		// stage is not active, the host gradients are already authoritative,
+		// so skip the mirror instead of failing.
+		if ( HipFluxBackend::Shared().HasResidentGradient(
+				 grid, nscom.nEqu ) )
+		{
+			Real * gx[ 5 ] = {};
+			Real * gy[ 5 ] = {};
+			Real * gz[ 5 ] = {};
+			for ( int equation = 0; equation < nscom.nEqu; ++ equation )
+			{
+				gx[ equation ] = ( *dqdx )[ equation ].data();
+				gy[ equation ] = ( *dqdy )[ equation ].data();
+				gz[ equation ] = ( *dqdz )[ equation ].data();
+			}
+			HipFluxBackend::Shared().MirrorGradientCellsToHost(
+				grid, nscom.nEqu, aeroCells, gx, gy, gz );
+		}
+	}
+	// Also refresh the host q mirror + derived gamma/temperature fields for
+	// non-force host readers; kept for parity with the pre-existing path.
 	NsMirrorHostBoundaryState();
 #endif
 
@@ -358,6 +413,31 @@ void CalcAeroForce(int idump_pres)
 			}
 			else
 			{
+				// Optional host aero-input trace (off by default): pins down whether
+				// the 21% DCU-vs-CPU aero gap comes from stale host q/gradient mirror.
+				if ( std::getenv( "ONEFLOW_AERO_INPUT_PROBE" ) != nullptr )
+				{
+					static int aeroProbeCount = 0;
+					if ( aeroProbeCount < 8 )
+					{
+						++aeroProbeCount;
+						const Real qip = (*q)[IDX::IP][lc];
+						const Real gpx = (*dqdx)[IDX::IP][lc];
+						const Real gpy = (*dqdy)[IDX::IP][lc];
+						const Real gpz = (*dqdz)[IDX::IP][lc];
+						const Real wpTrace = qip + gpx * dx + gpy * dy + gpz * dz;
+						std::cout << std::setprecision( 17 );
+						std::cout << "AERO_INPUT step=" << Iteration::outerSteps
+						          << " fId=" << fId << " lc=" << lc
+						          << " qip=" << qip
+						          << " gpx=" << gpx << " gpy=" << gpy << " gpz=" << gpz
+						          << " dx=" << dx << " dy=" << dy << " dz=" << dz
+						          << " wp=" << wpTrace
+						          << " fanx=" << stress.fanx << " fany=" << stress.fany
+						          << " fanz=" << stress.fanz
+						          << std::endl;
+					}
+				}
 				Real wp = (*q)[IDX::IP][lc] + (*dqdx)[IDX::IP][lc] * dx + (*dqdy)[IDX::IP][lc] * dy + (*dqdz)[IDX::IP][lc] * dz;
 				if (wp < 0.0) wp = (*q)[IDX::IP][lc];
 				Real pref = nscom.inflow[IDX::IP];
@@ -400,6 +480,30 @@ void CalcAeroForce(int idump_pres)
 					CorrectGrad((*q)[IDX::IW][lc], (*q)[IDX::IW][rc], stress.dwdx, stress.dwdy, stress.dwdz, dx, dy, dz, ods);
 
 					stress.viscosity = (*visl)[0][lc];
+
+					{
+						const char * wf =
+							std::getenv( "ONEFLOW_WALL_FORCE_PROBE" );
+						static std::ofstream wout;
+						if ( wf != nullptr && ! wout.is_open() )
+						{
+							wout.open( wf, std::ios::out );
+						}
+						if ( wout.is_open() )
+						{
+							wout << fId << ' ' << lc << ' ' << rc;
+							wout << ' ' << (*q)[IDX::IU][lc] << ' ' << (*q)[IDX::IU][rc];
+							wout << ' ' << (*q)[IDX::IV][lc] << ' ' << (*q)[IDX::IV][rc];
+							wout << ' ' << (*q)[IDX::IW][lc] << ' ' << (*q)[IDX::IW][rc];
+							wout << ' ' << stress.dudx << ' ' << stress.dudy << ' ' << stress.dudz;
+							wout << ' ' << stress.dvdx << ' ' << stress.dvdy << ' ' << stress.dvdz;
+							wout << ' ' << stress.dwdx << ' ' << stress.dwdy << ' ' << stress.dwdz;
+							wout << ' ' << stress.viscosity;
+							wout << ' ' << stress.fanx << ' ' << stress.fany << ' ' << stress.fanz;
+							wout << ' ' << stress.area << ' ' << stress.orey;
+							wout << '\n';
+						}
+					}
 
 					stress.CalcForce(&aeroForce.vis);
 				}

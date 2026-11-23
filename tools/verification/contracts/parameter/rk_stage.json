@@ -10,7 +10,7 @@
   "architecture": "The parameter is read in the global, compressible Navier-Stokes, incompressible Navier-Stokes, and turbulence control initializers. The shared time-integration implementation consumes the resulting coefficient vector. The selected time_integral method and the resident Euler backend capability gate remain separate decisions.",
   "references": [
     "time_integral_rk_stage_weight",
-    "doc/source/numerical/time_integral_control.rst"
+    "docs/source/numerical/time_integral_control.rst"
   ],
   "implementation": {
     "source_paths": [
@@ -25,7 +25,7 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/numerical/time_integral_control.rst"
+      "docs/source/numerical/time_integral_control.rst"
     ]
   },
   "claims": {
@@ -157,7 +157,7 @@
       "codes/global/include/TimeIntegralPolicy.h",
       "tests/solver/time_integral_policy_test.cpp",
       "codes/solver/src/TimeIntegral.cpp",
-      "doc/source/numerical/time_integral_control.rst",
+      "docs/source/numerical/time_integral_control.rst",
       "time_integral_rk_stage_weight"
     ],
     "caveats": [

@@ -150,6 +150,15 @@ struct GridConfig
     GridTopology  topology{ GridTopology::Unknown };
     GridAssemblyMode assemblyMode{ GridAssemblyMode::AggregateZones };
     GridAxisDirection axisDirection{ GridAxisDirection::Y };
+    // partition_type values.  Keep the "does this partitioner produce the
+    // zone link?" question in one place: every caller used to test `== 1`,
+    // so adding a kind silently skipped interface construction in some paths.
+    enum class PartitionKind : int
+    {
+        ConvertOnly = 0,
+        Metis = 1,
+        Structured = 2
+    };
     int           partitionType{ 0 };
     int           partitionCount{ 1 };
     bool          ignoreNoBoundary{ false };
@@ -165,6 +174,19 @@ struct GridConfig
     static std::string GetSourceCaseDir();
     std::string ResolveSourceCaseDir( const std::string & currentCaseDir ) const;
 };
+
+// True when the partitioner itself assigns the zones, so the interface link is
+// reconstructed from the global-to-local mapping instead of being generated
+// from an already-split input.  Both callers (Partition and CalcGrid) must use
+// this predicate; testing `partitionType == 1` in each of them is how a new
+// partition kind silently loses its interfaces.
+inline bool PartitionProducesInterfaceLink( int partitionType )
+{
+    return partitionType
+            == static_cast< int >( GridConfig::PartitionKind::Metis )
+        || partitionType
+            == static_cast< int >( GridConfig::PartitionKind::Structured );
+}
 
 // ---------------------------------------------------------------------------
 // Parsing / formatting helpers - header-only to avoid extra link deps.

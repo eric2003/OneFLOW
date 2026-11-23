@@ -1,3 +1,5 @@
+enable_language ( HIP )
+
 if ( NOT ONEFLOW_BUILD_HIP )
     return()
 endif()

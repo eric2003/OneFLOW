@@ -28,8 +28,12 @@
 #                            the HIP run only (default unset: legacy behaviour)
 #
 # The runner intentionally contains no cluster paths, hostnames or job
-# metadata. Scope: one local zone per rank, MULTI_STAGE + ilim=0 + vismodel=0,
-# which is the validated inviscid device path.
+# metadata. Two profiles:
+#   inviscid (default): MULTI_STAGE + ilim=0 + vismodel=0 (validated device path)
+#   flagship:           LU-SGS + Roe + vismodel=3 + SA (m6wingroe_sa), single
+#                       zone, used once the flagship device-residency path is
+#                       active. Config is parameterized via ONEFLOW_XB_PROFILE
+#                       and the per-knob overrides below.
 set -euo pipefail
 
 : "${ONEFLOW_XB_SOURCE_CASE:?Set ONEFLOW_XB_SOURCE_CASE}"
@@ -47,6 +51,26 @@ aero_tolerance="${ONEFLOW_XB_AERO_REL_TOL:-1e-10}"
 flow_tolerance="${ONEFLOW_XB_FLOW_REL_TOL:-1e-12}"
 map_by="${ONEFLOW_XB_MAP_BY:-slot}"
 rank_verifier="${ONEFLOW_XB_RANK_VERIFIER:-$(dirname "$0")/verify-rank-utilization.py}"
+
+# Configuration profile.  "inviscid" keeps the historical vismodel=0/RK/Lax
+# setup; "flagship" selects LU-SGS/Roe/SA for m6wingroe_sa.  Individual knobs
+# can still be overridden for either profile.
+profile="${ONEFLOW_XB_PROFILE:-inviscid}"
+case "$profile" in
+    inviscid)
+        cfg_vismodel=0; cfg_ischeme=5; cfg_time_integral=1; cfg_rk_stage=3
+        cfg_keep_turb=0; cfg_grid_obj=3 ;;
+    flagship)
+        cfg_vismodel=3; cfg_ischeme=1; cfg_time_integral=2; cfg_rk_stage=1
+        cfg_keep_turb=1; cfg_grid_obj=0 ;;
+    *) echo "invalid ONEFLOW_XB_PROFILE=$profile (inviscid|flagship)" >&2; exit 2 ;;
+esac
+cfg_vismodel="${ONEFLOW_XB_VISMODEL:-$cfg_vismodel}"
+cfg_ischeme="${ONEFLOW_XB_ISCHEME:-$cfg_ischeme}"
+cfg_time_integral="${ONEFLOW_XB_TIME_INTEGRAL:-$cfg_time_integral}"
+cfg_rk_stage="${ONEFLOW_XB_RK_STAGE:-$cfg_rk_stage}"
+cfg_keep_turb="${ONEFLOW_XB_KEEP_TURB:-$cfg_keep_turb}"
+cfg_grid_obj="${ONEFLOW_XB_GRID_OBJ:-$cfg_grid_obj}"
 
 for name in steps cpu_ranks hip_ranks timeout_seconds; do
     value="${!name}"
@@ -73,6 +97,10 @@ mkdir -p "$ONEFLOW_XB_RUN_ROOT"
 
 {
     echo "steps=$steps"
+    echo "profile=$profile"
+    echo "vismodel=$cfg_vismodel ischeme=$cfg_ischeme"
+    echo "time_integral=$cfg_time_integral rk_stage=$cfg_rk_stage"
+    echo "keep_turb=$cfg_keep_turb grid_obj=$cfg_grid_obj"
     echo "cpu_ranks=$cpu_ranks"
     echo "hip_ranks=$hip_ranks"
     echo "cfl=$cfl"
@@ -94,7 +122,7 @@ prepare_case() {
     mkdir -p "$case_dir/results" "$case_dir/restart" "$case_dir/log"
     if [ -e "$case_dir/script/grid.txt" ]; then
         sed -i -E \
-            "s/^int[[:space:]]+gridObj[[:space:]]*=.*/int gridObj = 3;/" \
+            "s/^int[[:space:]]+gridObj[[:space:]]*=.*/int gridObj = ${cfg_grid_obj};/" \
             "$case_dir/script/grid.txt"
     fi
     sed -i -E \
@@ -102,9 +130,9 @@ prepare_case() {
         "$case_dir/script/cfd.txt"
     sed -i -E \
         "s/^int[[:space:]]+maxSteps[[:space:]]*=.*/int maxSteps = ${steps};/; \
-         s/^int[[:space:]]+ischeme[[:space:]]*=.*/int ischeme = 5;/; \
-         s/^int[[:space:]]+time_integral[[:space:]]*=.*/int time_integral = 1;/; \
-         s/^int[[:space:]]+rk_stage[[:space:]]*=.*/int rk_stage = 3;/; \
+         s/^int[[:space:]]+ischeme[[:space:]]*=.*/int ischeme = ${cfg_ischeme};/; \
+         s/^int[[:space:]]+time_integral[[:space:]]*=.*/int time_integral = ${cfg_time_integral};/; \
+         s/^int[[:space:]]+rk_stage[[:space:]]*=.*/int rk_stage = ${cfg_rk_stage};/; \
          s/^Real[[:space:]]+cflst[[:space:]]*=.*/Real cflst = ${cfl};/; \
          s/^Real[[:space:]]+cfled[[:space:]]*=.*/Real cfled = ${cfl};/; \
          s/^int[[:space:]]+ilim[[:space:]]*=.*/int ilim = 0;/; \
@@ -112,12 +140,12 @@ prepare_case() {
          s/^int[[:space:]]+nResSave[[:space:]]*=.*/int nResSave = 1;/; \
          s/^int[[:space:]]+nForceSave[[:space:]]*=.*/int nForceSave = 1;/" \
         "$case_dir/script/cfd.txt"
-    sed -i -E \
-        "s/^int[[:space:]]+vismodel[[:space:]]*=.*/int vismodel = 0;/; \
-         /^[[:space:]]*TurbSolver[[:space:]]*$/d" \
+    sed -i -E "s/^int[[:space:]]+vismodel[[:space:]]*=.*/int vismodel = ${cfg_vismodel};/" \
         "$case_dir/script/vismodel.txt"
-    sed -i -E '/^[[:space:]]*TurbSolver[[:space:]]*$/d' \
-        "$case_dir/script/solver.txt"
+    if [ "$cfg_keep_turb" = "0" ]; then
+        sed -i -E '/^[[:space:]]*TurbSolver[[:space:]]*$/d' \
+            "$case_dir/script/vismodel.txt" "$case_dir/script/solver.txt"
+    fi
 }
 
 run_backend() {
@@ -137,6 +165,10 @@ run_backend() {
         # High-precision residual rows: the normal writer rounds too much for a
         # 1e-12 comparison.
         export ONEFLOW_RESIDUAL_TEST_OUTPUT=1
+        # Per-stage timing breakdown: on the HIP arm a non-zero "HIP kernel"
+        # row is the evidence that the device path actually executed rather
+        # than silently falling back to the host.
+        export ONEFLOW_STAGE_BREAKDOWN_FILE="$ONEFLOW_XB_RUN_ROOT/$tag-stage.tsv"
         if [ "$mode" = HIP ]; then
             export ONEFLOW_ACCEL_BACKEND=HIP
             # The CPU run always keeps the legacy host exchange so the
@@ -155,6 +187,20 @@ run_backend() {
             fi
             if [ -n "${ONEFLOW_XB_HIP_SKIP_UNUSED_INTERFACE:-}" ]; then
                 export ONEFLOW_HIP_SKIP_UNUSED_INTERFACE="$ONEFLOW_XB_HIP_SKIP_UNUSED_INTERFACE"
+            fi
+            if [ -n "${ONEFLOW_XB_HIP_ALLOW_VISCOUS_BATCH:-}" ]; then
+                export ONEFLOW_ALLOW_VISCOUS_HIP_BATCH="$ONEFLOW_XB_HIP_ALLOW_VISCOUS_BATCH"
+            fi
+            # Generic HIP-only env passthrough: semicolon-separated KEY=VALUE,
+            # e.g. "ONEFLOW_ENABLE_UNS_HIP_VISFLUX=1;ONEFLOW_VISCOUS_SELFCHECK=1".
+            # Lets a device-hook experiment be run without editing this script.
+            if [ -n "${ONEFLOW_XB_HIP_EXTRA_ENVS:-}" ]; then
+                local kv
+                IFS=';' read -ra _xb_extra_envs <<< "$ONEFLOW_XB_HIP_EXTRA_ENVS"
+                for kv in "${_xb_extra_envs[@]}"; do
+                    [ -z "$kv" ] && continue
+                    export "$kv"
+                done
             fi
             export HIP_VISIBLE_DEVICES="${HIP_VISIBLE_DEVICES:-0}"
             export ROCR_VISIBLE_DEVICES="${ROCR_VISIBLE_DEVICES:-0}"

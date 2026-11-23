@@ -178,6 +178,17 @@ bool UseHipDeviceStateUpdate( int solverType )
         throw std::runtime_error(
             "HIP state update requires a single ideal-gas temperature field" );
     }
+    // No device implementation exists for the viscous/turbulence source or the
+    // viscous flux, so a viscous case never produces the resident residual this
+    // update consumes. Without this guard the LU-SGS + SA flagship reached the
+    // update and aborted with "requires resident state and residual"; falling
+    // back keeps it on the host path it already used.
+    if ( vis_model.vismodel != 0 )
+    {
+        if ( ! explicitRequest ) return false;
+        throw std::runtime_error(
+            "HIP state update does not support a viscous or turbulence model" );
+    }
 #ifndef ONEFLOW_ENABLE_HIP
     throw std::runtime_error(
         "HIP state update was requested without HIP support" );
@@ -255,6 +266,30 @@ void UNsUpdate::UpdateFlowField( int solverType )
 
     ug.Init();
     unsf.Init();
+
+    // Optional CPU-vs-HIP numerical trace at the host state-update entry (off by default).
+    if ( std::getenv( "ONEFLOW_TRACE_POINTS" ) != nullptr
+         && Iteration::outerSteps <= 2 )
+    {
+        static int updPrintCount = 0;
+        if ( updPrintCount < 8 )
+        {
+            ++updPrintCount;
+            const int probeCell = 254656;
+            std::cout << std::setprecision( 17 );
+            std::cout << "TRACE_UPD step=" << Iteration::outerSteps
+                      << " inner=" << Iteration::innerSteps
+                      << " solverType=" << solverType
+                      << " lhscoef=" << ctrl.lhscoef;
+            if ( unsf.q != nullptr )
+                for ( int eq = 0; eq < 5 && eq < unsf.q->GetNEqu(); ++eq )
+                    std::cout << " q" << eq << "=" << (*unsf.q)[eq][probeCell];
+            if ( unsf.dq != nullptr )
+                for ( int eq = 0; eq < 5 && eq < unsf.dq->GetNEqu(); ++eq )
+                    std::cout << " dq" << eq << "=" << (*unsf.dq)[eq][probeCell];
+            std::cout << std::endl;
+        }
+    }
 
     for ( int cId = 0; cId < ug.nCells; ++ cId )
     {

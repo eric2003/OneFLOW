@@ -38,6 +38,8 @@ License
 #include "ZoneState.h"
 #include "NsCom.h"
 #include "FieldWrap.h"
+#include "HipProductionPolicy.h"
+#include "NsResidentMacroStep.h"
 #include "DataBase.h"
 #include "Grid.h"
 #include "Zone.h"
@@ -122,6 +124,12 @@ void EmitEulerStageDiagnostic( int stage, const char * taskName )
               << std::endl;
 }
 
+struct RkStageScope
+{
+    explicit RkStageScope( int stage ) { ctrl.rkStage = stage; }
+    ~RkStageScope() { ctrl.rkStage = -1; }
+};
+
 void RunEulerRungeKuttaStage( int, int stage, void * userData )
 {
     ScopedStageTimer timer( "rk_update" );
@@ -132,6 +140,7 @@ void RunEulerRungeKuttaStage( int, int stage, void * userData )
         throw std::invalid_argument( "invalid Euler RungeKutta stage callback" );
     }
 
+    RkStageScope stageScope( stage );
     ctrl.lhscoef = ctrl.rk_coef[ stage ];
     EmitEulerStageDiagnostic( stage, "BEGIN" );
     if ( context->context != nullptr )
@@ -244,6 +253,19 @@ void TimeIntegral::Relaxation( int nCycles )
 
 void TimeIntegral::Relaxation( int nCycles, SimuContext & context )
 {
+    // Optional 1D-style driver: one call per macro-step instead of one task
+    // dispatch per stage phase.  Same entry points, same numerics; only the
+    // command-list expansion in between disappears.
+    if ( ctrl.time_integral == MULTI_STAGE
+         && NsResidentMacroStepSupported() )
+    {
+        for ( int iCycle = 0; iCycle < nCycles; ++ iCycle )
+        {
+            NsResidentMacroStep();
+        }
+        return;
+    }
+
     for ( int iCycle = 0; iCycle < nCycles; ++ iCycle )
     {
         if ( ctrl.time_integral == MULTI_STAGE )
@@ -281,6 +303,7 @@ void TimeIntegral::RungeKutta()
         int nStages = ctrl.rk_coef.size();
         for ( int iStage = 0; iStage < nStages; ++ iStage )
         {
+            RkStageScope stageScope( iStage );
             ctrl.lhscoef = ctrl.rk_coef[ iStage ];
 
             ONEFLOW::SingleSolverSingleGridTask( idLoadResiduals );
@@ -293,7 +316,7 @@ void TimeIntegral::RungeKutta()
             EmitEulerStageDiagnostic( iStage, "UPDATE_FLOWFIELD" );
             ONEFLOW::SingleSolverSingleGridTask( idCalcBoundary );
             EmitEulerStageDiagnostic( iStage, "CALC_BOUNDARY" );
-            if ( ZoneState::nZones > 1 )
+            if ( ZoneState::nZones > 1 && ! DiagNoCommunication() )
             {
                 ONEFLOW::SingleSolverSingleGridTask(
                     kUpdateInterfaceDataTaskName );

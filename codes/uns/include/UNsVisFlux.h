@@ -42,6 +42,11 @@ public:
     void CalcFlux();
     void PrepareField();
     void CalcVisFlux();
+    // Device counterpart of CalcVisFlux.  Returns false when the device path is
+    // not selected, so the caller falls through to the host per-face loop
+    // unchanged; it never partially writes visflux and then declines.
+    bool CalcVisFluxHip();
+    bool UseHipVisFlux() const;
     void AddVisFlux();
     void CalcFaceVisFlux();
     void UpdateFaceVisFlux();

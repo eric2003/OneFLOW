@@ -39,6 +39,7 @@ License
 #include "BgField.h"
 #include "TimeSpan.h"
 #include "SimuContext.h"
+#include "StageProfiler.h"
 #include <iostream>
 
 
@@ -112,6 +113,7 @@ void MG::MultigridSolve( SimuContext & context )
 
 void MG::Run()
 {
+    ScopedHostTimer timer( "mg_run", true );
     int startStrategy = ctrl.startStrategy;
 	if (startStrategy == 2|| startStrategy == 3)
 	{
@@ -168,6 +170,7 @@ void MG::Run()
 
 void MG::InnerProcess()
 {
+    ScopedHostTimer timer( "mg_post_process" );
     if ( this->context_ != nullptr )
     {
         ONEFLOW::MultiSolverMultiGridTask(
@@ -181,6 +184,7 @@ void MG::InnerProcess()
 
 void MG::OuterProcess( TimeSpan * timeSpan )
 {
+    ScopedHostTimer timer( "mg_outer_process" );
     if ( Iteration::outerSteps % Iteration::nFieldSave == 0 )
     {
         if ( Parallel::IsServer() )
@@ -287,6 +291,7 @@ void MG::CorrectFineGridFlowFieldByInterplateCoarseGridFlowField( int fgl )
 
 void MG::PreRelaxationCycle( int gl )
 {
+    ScopedHostTimer timer( "mg_pre_relaxation" );
     GridState::SetGridLevel( gl );
 
     if ( this->context_ != nullptr )
@@ -301,6 +306,7 @@ void MG::PreRelaxationCycle( int gl )
 
 void MG::PostRelaxationCycle( int gl )
 {
+    ScopedHostTimer timer( "mg_post_relaxation" );
     GridState::SetGridLevel( gl );
 
     if ( this->context_ != nullptr )
@@ -358,6 +364,7 @@ void MG::SolveMultigridFlowField( int gl )
 
 void MG::SolveInnerIter()
 {
+    ScopedHostTimer timer( "mg_inner_iteration" );
     if ( MG::iterMode == 0 )
     {
         this->WeakIter();
@@ -381,6 +388,7 @@ void MG::ZeroResidualsForAllSolvers()
 
 void MG::WeakIter()
 {
+    ScopedHostTimer timer( "mg_weak_iteration" );
     this->ZeroResidualsForAllSolvers();
 
     for ( int solverIndex = 0; solverIndex < SolverState::nSolver; ++ solverIndex )
@@ -392,6 +400,7 @@ void MG::WeakIter()
 
 void MG::StrongIter()
 {
+    ScopedHostTimer timer( "mg_strong_iteration" );
     int startStrategy = ctrl.startStrategy;
     if (startStrategy == 2|| startStrategy == 3)
 	{

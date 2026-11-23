@@ -38,7 +38,7 @@ user data paths (``~/.oneflow/contract-workbench/preview``), not the source tree
 
 This directory currently implements the numerical/formula specialization of the
 Contract Workbench. A broader cross-domain model is under discussion in
-[Verification Contract Workbench proposal](../../doc/plans/verification-contract-workbench.md).
+[Verification Contract Workbench proposal](../../docs/plans/verification-contract-workbench.md).
 Do not migrate the numerical catalog or add a generic runner until the shared
 contract envelope, evidence semantics, and migration path have been reviewed.
 
@@ -65,7 +65,7 @@ Run the headless compatibility tests from the repository root:
 python -m unittest tools.verification.test_contract_catalog
 ```
 
-See [the staged architecture proposal](../../doc/plans/verification-contract-workbench.md).
+See [the staged architecture proposal](../../docs/plans/verification-contract-workbench.md).
 
 ## Combined read-only catalog
 
@@ -500,7 +500,7 @@ estimates of discretization error or independent physical validation.
 
 ## Time-integration knowledge entry
 
-Formula & Knowledge includes `time_integral_rk_stage_weight`, linking `time_integral` and `rk_stage` declarations to the four solver-control initializers, `TimeIntegral::Init`, the finest-grid stage loop, and the resident Euler backend eligibility checks. The entry has no theory curve because the current source establishes a coefficient schedule, not a complete Butcher tableau or a verified temporal order. See `doc/source/numerical/time_integral_control.rst`.
+Formula & Knowledge includes `time_integral_rk_stage_weight`, linking `time_integral` and `rk_stage` declarations to the four solver-control initializers, `TimeIntegral::Init`, the finest-grid stage loop, and the resident Euler backend eligibility checks. The entry has no theory curve because the current source establishes a coefficient schedule, not a complete Butcher tableau or a verified temporal order. See `docs/source/numerical/time_integral_control.rst`.
 
 Validate the source links with:
 
