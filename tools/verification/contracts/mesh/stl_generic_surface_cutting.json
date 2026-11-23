@@ -33,7 +33,7 @@
       "No branched or multi-lumen surfaces.",
       "No holes in a cross-section.",
       "Plane points and normals are supplied explicitly; automatic endpoint direction estimation is not included.",
-      "A dedicated internal-flow CFD Case with defined boundary states and physical acceptance criteria is not yet available; this mesh is validated through the CGNS and native OneFLOW grid handoff, not a physical CFD accuracy claim."
+      "The automated curved-surface integration fixture is a cut prolate shell; it validates the two-loop wall topology but is not a replacement for the user's exact pipe geometry."
     ]
   },
   "verification": [
@@ -60,6 +60,12 @@
       "reference": "GenericStlSurfaceCutTest.test_gmsh_generates_volume_mesh_with_disjoint_named_boundaries",
       "status": "not_run",
       "scope": "grid/tests/python/stl_import/test_generic_stl_surface_cut.py; Runs Gmsh 4.15.2 on the blind-input cut shell, verifies TETRA_4 volume cells, exterior TRI_3 facets and the four non-empty Physical Groups, and checks that every exterior triangle belongs to exactly one named boundary."
+    },
+    {
+      "kind": "python_test",
+      "reference": "GenericStlSurfaceCutTest.test_gmsh_meshes_blind_non_cylindrical_surface_with_two_cut_loops",
+      "status": "not_run",
+      "scope": "grid/tests/python/stl_import/test_generic_stl_surface_cut.py; Cuts a non-cylindrical closed prolate STL without consulting its geometry manifest, then runs Gmsh to create a TETRA_4 volume with distinct wall, inflow, outflow and fluid_domain Physical Groups."
     }
   ],
   "execution_boundary": {

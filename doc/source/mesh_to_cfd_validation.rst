@@ -69,7 +69,9 @@ MSH check requires the two-dimensional Physical Surfaces ``wall``,
 ``inflow`` and ``outflow``, plus the three-dimensional Physical Volume
 ``fluid_domain``. Missing groups or groups declared with the wrong
 dimension fail the mesh-generation stage before conversion. The Windows CI
-workflow now regenerates a blind STL cut, creates its tetrahedral MSH, then
+workflow cuts a non-cylindrical prolate STL at two planes without using its
+analytic geometry manifest, creates a curved two-loop wall and tetrahedral
+MSH, then
 runs the actual OneFLOW executable through Gmsh-to-CGNS and CGNS-to-OneFLOW.
 It checks the CGNS and native-grid artifacts, verifies that the native
 boundary-region map retains `wall`, `inflow` and `outflow`, and keeps all run

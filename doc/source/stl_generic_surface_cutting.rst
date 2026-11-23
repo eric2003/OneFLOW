@@ -132,10 +132,12 @@ Gmsh-to-CGNS converter maps those names to `BCWall`, `BCInflow` and
 `BCOutflow`, respectively.
 
 The pure Python regression verifies the manifest and generated Gmsh geometry
-text. A separate opt-in integration test invokes Gmsh 4.15.2, checks that
-TETRA_4 volume cells and exterior TRI_3 facets exist, verifies the four
-Physical Groups, and requires every exterior triangle to belong to exactly
-one of `wall`, `inflow` or `outflow`. The test runs on both Linux and Windows
+text. A separate opt-in integration test invokes Gmsh 4.15.2 on both the blind
+cylinder cut and a non-cylindrical prolate shell cut at two planes. The latter
+has a curved wall with two boundary loops. Both tests check TETRA_4 volume
+cells and exterior TRI_3 facets, verify the four Physical Groups, and require
+every exterior triangle to belong to exactly one of `wall`, `inflow` or
+`outflow`. The test runs on both Linux and Windows
 in GitHub Actions. CGNS inspection and OneFLOW CFD boundary verification
 remain downstream checks; a successful solver launch alone is not accepted
 as evidence that the three physical boundary conditions are correct.
