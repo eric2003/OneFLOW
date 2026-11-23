@@ -1,8 +1,8 @@
 """Generic plane cutting tests using the canonical cylinder STL as blind input."""
 import contextlib
+import io
 import os
 import shutil
-import io
 import tempfile
 import unittest
 from pathlib import Path

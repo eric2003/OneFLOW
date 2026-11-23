@@ -61,8 +61,9 @@ Current scope and limitations
   Gmsh 4.15.2. CGNS conversion and the OneFLOW CFD smoke run remain downstream
   Mesh-to-CFD Validation stages.
 * The separate wall/inlet/outlet STL artifacts retain the three surface
-  regions for downstream processing. The current closed-surface STL handoff
-  does not yet map those regions to distinct Gmsh Physical Surface groups.
+  regions. The project importer carries their checksummed manifest and patch
+  files into the mesh project, where the region-aware converter assigns
+  distinct Gmsh Physical Surface groups.
 
 Verification
 ------------
