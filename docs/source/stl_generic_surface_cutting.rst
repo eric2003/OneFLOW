@@ -141,3 +141,43 @@ every exterior triangle to belong to exactly one of `wall`, `inflow` or
 in GitHub Actions. CGNS inspection and OneFLOW CFD boundary verification
 remain downstream checks; a successful solver launch alone is not accepted
 as evidence that the three physical boundary conditions are correct.
+
+
+Oblique cylinder inlet reference case
+-------------------------------------
+
+The standard reference case is stored under
+``grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python``.
+It reuses the canonical closed cylinder STL as a blind triangle-shell input;
+there is deliberately no geometry sidecar for the cutting operation.
+
+The cylinder axis is X and its reference radius is ``R = 1``. The inlet
+plane passes through ``(-1.2, 0, 0)`` with unit normal
+``(cos(30 deg), sin(30 deg), 0)``. The outlet remains at ``x = 1.5``
+with normal ``(1, 0, 0)``.
+
+For the inlet plane,
+
+``cos(theta) (x - x0) + sin(theta) y = 0``
+
+and the cylinder satisfies ``y^2 + z^2 = R^2``. In plane-local
+coordinates, the ellipse semi-axes are ``R / cos(theta)`` and ``R``.
+At 30 degrees the expected major/minor ratio is approximately 1.1547. The
+outlet remains circular. These analytic values are used only by verification;
+the cutter receives only STL triangles and plane points/normals.
+
+Run the complete cut and Gmsh volume-mesh example from the repository root:
+
+.. code-block:: console
+
+   python grid/stl_to_gmsh/run_cylinder_oblique_cut.py --gmsh gmsh
+
+The runner writes generated geometry and mesh artifacts below the user's
+``.oneflow/mesh-generation/cylinder_oblique_cut`` directory. It retains
+``wall``, ``inflow`` and ``outflow`` as separate named surface regions
+and requires the ``fluid_domain`` volume group. The pure geometry test checks
+the measured inlet ellipse and circular outlet; the opt-in Gmsh integration
+checks non-empty Physical Groups and complete exterior-facet assignment.
+
+This is a mesh-generation acceptance case, not yet a claim of physically
+validated oblique-inlet CFD accuracy.

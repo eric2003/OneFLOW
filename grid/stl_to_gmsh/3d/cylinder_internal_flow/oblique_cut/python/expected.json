@@ -1,0 +1,33 @@
+{
+  "schema": "oneflow.stl-oblique-cut-expected",
+  "version": 1,
+  "geometry": {
+    "inlet_section": "ellipse",
+    "inlet_major_to_minor_ratio": 1.1547005383792517,
+    "outlet_section": "circle",
+    "closed_shell_euler_characteristic": 2,
+    "positive_signed_volume": true
+  },
+  "mesh": {
+    "required_volume_element": "TETRA_4",
+    "required_boundary_element": "TRI_3",
+    "required_physical_groups": [
+      {
+        "dimension": 2,
+        "name": "wall"
+      },
+      {
+        "dimension": 2,
+        "name": "inflow"
+      },
+      {
+        "dimension": 2,
+        "name": "outflow"
+      },
+      {
+        "dimension": 3,
+        "name": "fluid_domain"
+      }
+    ]
+  }
+}
