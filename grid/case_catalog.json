@@ -590,6 +590,37 @@
         "project_directory": "generic_surface_mesh",
         "mesh_file": "results/generic_surface_mesh.msh"
       }
+    },
+    {
+      "id": "stl_to_gmsh_oblique_cylinder_cut",
+      "title": "Oblique-cut Cylinder (Elliptical Inlet, Existing MSH)",
+      "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python",
+      "group": "STL to Gmsh",
+      "dimension": 3,
+      "mesh_validation": "cfd_smoke",
+      "execution": {
+        "kind": "existing_mesh",
+        "project_directory": "cylinder_oblique_cut",
+        "mesh_file": "results/cylinder_oblique_cut.msh"
+      },
+      "required_physical_groups": [
+        {
+          "name": "wall",
+          "dimension": 2
+        },
+        {
+          "name": "inflow",
+          "dimension": 2
+        },
+        {
+          "name": "outflow",
+          "dimension": 2
+        },
+        {
+          "name": "fluid_domain",
+          "dimension": 3
+        }
+      ]
     }
   ]
 }

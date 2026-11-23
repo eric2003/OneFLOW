@@ -94,6 +94,13 @@ class ObliqueCylinderCutDialog(QDialog):
         self.open_output_button.setEnabled(False)
         self.open_output_button.clicked.connect(self._open_output)
         actions.addWidget(self.open_output_button)
+        self.run_cfd_button = QPushButton("Convert + Run OneFLOW...")
+        self.run_cfd_button.setEnabled(False)
+        self.run_cfd_button.setToolTip(
+            "Reuse the generated MSH and run Gmsh → CGNS → native OneFLOW grid → CFD smoke validation."
+        )
+        self.run_cfd_button.clicked.connect(self._run_mesh_to_cfd)
+        actions.addWidget(self.run_cfd_button)
         root.addLayout(actions)
 
         self.status = QLabel("Ready. All generated files stay outside the source tree.")
@@ -194,17 +201,37 @@ class ObliqueCylinderCutDialog(QDialog):
     def _finished(self, exit_code: int, _exit_status) -> None:
         self._read_output()
         self.run_button.setEnabled(True)
-        if exit_code == 0:
-            self.open_output_button.setEnabled(True)
-            self.status.setText("PASS: oblique STL cutting, Gmsh volume mesh and Physical Group verification completed.")
+        mesh_ready = exit_code == 0 and self._mesh_path().is_file()
+        self.open_output_button.setEnabled(mesh_ready)
+        self.run_cfd_button.setEnabled(mesh_ready)
+        if mesh_ready:
+            self.status.setText("PASS: oblique STL cutting and Gmsh mesh complete. You can now convert and run OneFLOW.")
         else:
-            self.open_output_button.setEnabled(False)
-            self.status.setText(f"FAIL: workflow exited with code {exit_code}. See execution output.")
+            self.status.setText(f"FAIL: workflow exited with code {exit_code} or the expected MSH is missing. See execution output.")
 
     def _process_error(self, _error) -> None:
         self._read_output()
         self.run_button.setEnabled(True)
+        self.run_cfd_button.setEnabled(False)
         self.status.setText("Could not start Python. Check the active Python environment.")
+
+    def _mesh_path(self) -> Path:
+        return Path(self.output_directory.text()).expanduser() / "results" / "cylinder_oblique_cut.msh"
+
+    def _run_mesh_to_cfd(self) -> None:
+        mesh_path = self._mesh_path().expanduser().resolve()
+        if not mesh_path.is_file():
+            QMessageBox.warning(self, "Volume mesh required", "Generate the oblique-cut Gmsh volume mesh first.")
+            return
+        from .mesh_validation_dialog import MeshValidationDialog
+        dialog = MeshValidationDialog(
+            self._repository_root,
+            mesh_file=mesh_path,
+            project_directory=mesh_path.parent.parent,
+            mesh_case_id="stl_to_gmsh_oblique_cylinder_cut",
+            parent=self,
+        )
+        dialog.exec()
 
     def _open_output(self) -> None:
         output = Path(self.output_directory.text()).expanduser().resolve()

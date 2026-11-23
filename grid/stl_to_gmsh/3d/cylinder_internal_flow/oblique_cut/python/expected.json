@@ -1,33 +1,31 @@
 {
-  "schema": "oneflow.stl-oblique-cut-expected",
+  "schema": "oneflow.mesh-case-expectation",
   "version": 1,
-  "geometry": {
-    "inlet_section": "ellipse",
-    "inlet_major_to_minor_ratio": 1.1547005383792517,
-    "outlet_section": "circle",
-    "closed_shell_euler_characteristic": 2,
-    "positive_signed_volume": true
+  "case_id": "stl_to_gmsh_oblique_cylinder_cut",
+  "artifact": {
+    "mesh_file": "cylinder_oblique_cut.msh"
   },
   "mesh": {
-    "required_volume_element": "TETRA_4",
-    "required_boundary_element": "TRI_3",
-    "required_physical_groups": [
-      {
-        "dimension": 2,
-        "name": "wall"
-      },
-      {
-        "dimension": 2,
-        "name": "inflow"
-      },
-      {
-        "dimension": 2,
-        "name": "outflow"
-      },
-      {
-        "dimension": 3,
-        "name": "fluid_domain"
-      }
-    ]
-  }
+    "dimension": 3,
+    "cell_type": "TETRA_4"
+  },
+  "physical_groups": [
+    {
+      "name": "wall",
+      "dimension": 2
+    },
+    {
+      "name": "inflow",
+      "dimension": 2
+    },
+    {
+      "name": "outflow",
+      "dimension": 2
+    },
+    {
+      "name": "fluid_domain",
+      "dimension": 3
+    }
+  ],
+  "notes": "Blind-STL oblique inlet reference mesh. The inlet section is elliptical; this expectation records boundary identity, not analytic geometry used by the cutter."
 }
