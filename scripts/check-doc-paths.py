@@ -102,6 +102,14 @@ def is_in_scope(path: Path) -> bool:
         return False
     if relative.startswith("docs/plans/"):
         return False
+    # This file quotes the old form in its comments and pattern definitions;
+    # checking it would report itself.  The allowlist names exempt references
+    # by definition, so it is not a document either.
+    if relative in (
+        "scripts/check-doc-paths.py",
+        "scripts/doc-path-allowlist.txt",
+    ):
+        return False
     return path.suffix in TEXT_SUFFIXES or path.name in EXTRA_NAMES
 
 
