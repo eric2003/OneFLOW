@@ -31,6 +31,13 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 ALLOWLIST_PATH = REPO_ROOT / "scripts" / "doc-path-allowlist.txt"
 
+# `hexin` still carries the pre-merge layout: `doc/` is the documentation root
+# and `docs/` holds four legacy notes.  Resolving the root instead of hard-coding
+# `docs` keeps this check usable on both layouts, so the same script can gate
+# `master` today and `hexin` after it merges.
+CANONICAL_ROOT = "docs" if (REPO_ROOT / "docs" / "source").is_dir() else "doc"
+LEGACY_ROOT = "doc" if CANONICAL_ROOT == "docs" else "docs"
+
 TEXT_SUFFIXES = {
     ".md",
     ".rst",
@@ -67,7 +74,9 @@ CD_PATTERN = re.compile(r"\bcd\s+(?P<dir>[^\s;&|()<>]+)")
 # statement from a deliberate historical mention.  Only the trailing-slash form
 # is matched, because the bare word `doc` appears inside unrelated words and
 # identifiers.
-BARE_ROOT_PATTERN = re.compile(r"(?<![\w./:-])doc/(?![A-Za-z0-9_])")
+BARE_ROOT_PATTERN = re.compile(
+    rf"(?<![\w./:-]){LEGACY_ROOT}/(?![A-Za-z0-9_])"
+)
 
 TRAILING_PUNCTUATION = ".,;:)]}`'\"*"
 
@@ -98,10 +107,9 @@ def is_in_scope(path: Path) -> bool:
         return False
     if "/build/" in relative or relative.startswith("build/"):
         return False
-    if relative.startswith("docs/reports/"):
-        return False
-    if relative.startswith("docs/plans/"):
-        return False
+    for published in ("reports", "plans"):
+        if relative.startswith(f"{CANONICAL_ROOT}/{published}/"):
+            return False
     # This file quotes the old form in its comments and pattern definitions;
     # checking it would report itself.  The allowlist names exempt references
     # by definition, so it is not a document either.
@@ -147,10 +155,15 @@ def iter_references(text: str):
             yield number, reference, False
         for match in CD_PATTERN.finditer(line):
             directory = match.group("dir").strip(TRAILING_PUNCTUATION)
-            if directory in ("doc", "./doc") and "doc/" not in seen:
-                yield number, "doc/", False
-        if BARE_ROOT_PATTERN.search(line) and "doc/" not in seen:
-            yield number, "doc/", True
+            if directory in (LEGACY_ROOT, f"./{LEGACY_ROOT}") and (
+                f"{LEGACY_ROOT}/" not in seen
+            ):
+                yield number, f"{LEGACY_ROOT}/", False
+        if (
+            BARE_ROOT_PATTERN.search(line)
+            and f"{LEGACY_ROOT}/" not in seen
+        ):
+            yield number, f"{LEGACY_ROOT}/", True
 
 
 def main() -> int:
@@ -173,14 +186,18 @@ def main() -> int:
             if reference in allowlist:
                 exempt.append(entry)
                 continue
-            if reference == "docs/build" or reference.startswith("docs/build/"):
+            build_output = f"{CANONICAL_ROOT}/build"
+            if reference == build_output or reference.startswith(build_output + "/"):
                 continue
-            if reference.startswith("doc/"):
+            if reference.startswith(f"{LEGACY_ROOT}/"):
                 (prose if prose_only else legacy).append(entry)
             elif not (REPO_ROOT / reference).exists():
                 broken.append(entry)
 
-    for label, items in (("legacy doc/", legacy), ("missing docs/", broken)):
+    for label, items in (
+        (f"legacy {LEGACY_ROOT}/", legacy),
+        (f"missing {CANONICAL_ROOT}/", broken),
+    ):
         if items:
             print(f"{label} references ({len(items)}):")
             for item in items:
@@ -189,9 +206,9 @@ def main() -> int:
 
     if prose:
         print(
-            f"bare doc/ mentions ({len(prose)}) - review, not a failure. "
-            "A historical mention is fine; a policy statement describing the "
-            "current root must say docs/:"
+            f"bare {LEGACY_ROOT}/ mentions ({len(prose)}) - review, not a "
+            "failure. A historical mention is fine; a policy statement "
+            f"describing the current root must say {CANONICAL_ROOT}/:"
         )
         for item in prose:
             print(f"  {item}")
@@ -207,7 +224,10 @@ def main() -> int:
     if total:
         print(f"FAIL: {total} documentation path reference(s) must be fixed.")
         return 1
-    print("OK: documentation path references are consistent with docs/.")
+    print(
+        f"OK: documentation path references are consistent with "
+        f"{CANONICAL_ROOT}/."
+    )
     return 0
 
 

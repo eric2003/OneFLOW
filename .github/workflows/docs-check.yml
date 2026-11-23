@@ -1,20 +1,22 @@
 name: documentation check
 
-# Validates the documentation tree on every branch that owns part of it.
-# `master` and `hexin` both publish docs, and a wrong Sphinx source path or a
-# stale `doc/` reference fails silently at read time rather than at build time,
-# so the path check runs on both.
+# `master` uses docs/ as the documentation root; `hexin` still carries the
+# earlier layout where doc/ is the root.  The path checker resolves the root at
+# run time and reports against whichever it finds, but this workflow runs on
+# `master` only: `hexin` has its own stale references that predate this change
+# and would fail for reasons unrelated to it.  After `hexin` merges into
+# `master`, add it here so both keep the same gate.
 
 on:
   push:
-    branches: [master, hexin]
+    branches: [master]
     paths:
       - "docs/**"
       - "scripts/check-doc-paths.py"
       - "scripts/doc-path-allowlist.txt"
       - ".github/workflows/docs-check.yml"
   pull_request:
-    branches: [master, hexin]
+    branches: [master]
     paths:
       - "docs/**"
       - "scripts/check-doc-paths.py"
