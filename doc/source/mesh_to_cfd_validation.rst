@@ -71,8 +71,9 @@ MSH check requires the two-dimensional Physical Surfaces ``wall``,
 dimension fail the mesh-generation stage before conversion. The Windows CI
 workflow now regenerates a blind STL cut, creates its tetrahedral MSH, then
 runs the actual OneFLOW executable through Gmsh-to-CGNS and CGNS-to-OneFLOW.
-It checks the CGNS and native-grid artifacts and keeps all run data under the
-runner temporary directory. The flat-plate CFD template is intentionally not
+It checks the CGNS and native-grid artifacts, verifies that the native
+boundary-region map retains `wall`, `inflow` and `outflow`, and keeps all run
+data under the runner temporary directory. The flat-plate CFD template is intentionally not
 run on this internal-flow mesh. The internal-flow
 cylinder has wall, inlet and outlet patch semantics; the
 available laminar flat-plate consumer is not a compatible physical setup.

@@ -189,6 +189,17 @@ jobs:
           $native = Join-Path $stageRoot "cgns_to_oneflow/results/generic_surface_mesh.oneflow.grid"
           if (-not (Test-Path $cgns)) { throw "CGNS interchange artifact is missing: $cgns" }
           if (-not (Test-Path $native)) { throw "OneFLOW native grid is missing: $native" }
+          $regionMap = Join-Path $stageRoot "cgns_to_oneflow/results/generic_surface_mesh_bcRegionMap.txt"
+          if (-not (Test-Path $regionMap)) { throw "OneFLOW boundary-region map is missing: $regionMap" }
+          $regionText = Get-Content -Raw $regionMap
+          foreach ($regionName in @("wall", "inflow", "outflow")) {
+              if ($regionText -notmatch "\\b$regionName\\b") {
+                  throw "OneFLOW boundary-region map does not contain '$regionName'."
+              }
+          }
+          if ($report.metrics.physical_group_count -lt 4) {
+              throw "MSH report did not retain all four physical groups."
+          }
 
       - name: Upload generic STL mesh handoff evidence
         if: always()
