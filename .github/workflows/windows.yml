@@ -139,37 +139,23 @@ jobs:
           }
 
           $gmsh = Get-Command gmsh.exe -ErrorAction Stop
-          $projectRoot = Join-Path $env:RUNNER_TEMP "oneflow-generic-pipe-project"
-          $cutRoot = Join-Path $projectRoot "cut"
-          $inputRoot = Join-Path $projectRoot "input"
-          $resultsRoot = Join-Path $projectRoot "results"
+          $env:ONEFLOW_HOME = Join-Path $env:RUNNER_TEMP "oneflow-generic-pipe-home"
+          $cutRoot = Join-Path $env:RUNNER_TEMP "oneflow-generic-pipe-cut"
           $stageRoot = Join-Path $env:RUNNER_TEMP "oneflow-generic-pipe-validation"
-          New-Item -ItemType Directory -Force -Path $inputRoot, $resultsRoot | Out-Null
 
           $sourceStl = Join-Path $env:GITHUB_WORKSPACE "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.stl"
           python -m grid.stl_import.cut_surface_cli --input $sourceStl --output-directory $cutRoot --inlet-point -1.5 0 0 --inlet-normal 1 0 0 --outlet-point 1.5 0 0 --outlet-normal 1 0 0
           if ($LASTEXITCODE -ne 0) { throw "Generic STL cutting failed." }
 
-          Copy-Item (Join-Path $cutRoot "closed_surface.stl") (Join-Path $inputRoot "model.stl")
-          foreach ($name in @("wall.stl", "inlet.stl", "outlet.stl", "region_manifest.json")) {
-              Copy-Item (Join-Path $cutRoot $name) (Join-Path $inputRoot $name)
+          $closedStl = Join-Path $cutRoot "closed_surface.stl"
+          $projectRoot = (python -c "import sys; from pathlib import Path; from tools.oneflow_gui.mesh_project import create_mesh_project_from_stl; project = create_mesh_project_from_stl(Path.cwd(), Path(sys.argv[1]), 'generic-pipe-ci'); print(project['directory'])" $closedStl | Out-String).Trim()
+          if ($LASTEXITCODE -ne 0) { throw "GUI mesh-project creation failed." }
+          if (-not (Test-Path (Join-Path $projectRoot "project.json"))) {
+              throw "GUI mesh-project creation did not produce project.json: $projectRoot"
           }
-          $project = @{
-              schema = "oneflow.mesh-generation-project"
-              version = 1
-              name = "generic-pipe-ci"
-              input_stl = "input/model.stl"
-              output_mesh = "results/generic_surface_mesh.msh"
-              boundary_regions = @("wall", "inflow", "outflow")
-          } | ConvertTo-Json -Depth 5
-          [System.IO.File]::WriteAllText(
-              (Join-Path $projectRoot "project.json"),
-              $project,
-              [System.Text.UTF8Encoding]::new($false)
-          )
 
-          $meshPath = Join-Path $resultsRoot "generic_surface_mesh.msh"
-          python -m grid.stl_to_gmsh.generate_volume_mesh --stl (Join-Path $cutRoot "closed_surface.stl") --output $meshPath --gmsh $gmsh.Source --mesh-size-min 0.20 --mesh-size-max 0.30
+          $meshPath = Join-Path $projectRoot "results/generic-pipe-ci.msh"
+          python -m grid.stl_to_gmsh.generate_volume_mesh --stl (Join-Path $projectRoot "input/model.stl") --output $meshPath --gmsh $gmsh.Source --mesh-size-min 0.20 --mesh-size-max 0.30
           if ($LASTEXITCODE -ne 0) { throw "Gmsh volume mesh generation failed." }
 
           python -m tools.oneflow_gui.mesh_validation --oneflow-executable (Join-Path $env:ONEFLOW_ROOT "bin/OneFLOW.exe") --gmsh $gmsh.Source --mesh-case-id stl_to_gmsh_generic_3d_mesh_handoff --mesh-file $meshPath --project-directory $projectRoot --stage-root $stageRoot --max-steps 2
@@ -207,7 +193,7 @@ jobs:
         with:
           name: generic-stl-mesh-handoff-windows
           path: |
-            ${{ runner.temp }}/oneflow-generic-pipe-project
+            ${{ runner.temp }}/oneflow-generic-pipe-home
             ${{ runner.temp }}/oneflow-generic-pipe-validation
           if-no-files-found: ignore
 
