@@ -74,6 +74,13 @@ Run the pure geometry regression tests without Gmsh:
 
    python -m unittest grid.tests.python.stl_import.test_generic_stl_surface_cut
 
+Run the same suite with the Gmsh integration test enabled (Gmsh 4.15.2 must
+be available on ``PATH``):
+
+.. code-block:: console
+
+   ONEFLOW_RUN_GMSH_TESTS=1 python -m unittest grid.tests.python.stl_import.test_generic_stl_surface_cut
+
 The current CLI and GUI write the cut-and-capped STL and the three separate
 surface-region files to the user's .oneflow workspace. The closed surface can
 be opened in the existing Gmsh volume-mesh workflow. Distinct Physical Surface

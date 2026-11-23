@@ -209,6 +209,12 @@ central inventory of supported routes.
 
 ## Two-cell topology fixture
 
+The generic STL pipeline additionally runs Gmsh 4.15.2 on both Linux and
+Windows. The Windows OneFLOW workflow consumes its generated MSH through the
+CGNS and native-grid stages. It deliberately stops at mesh handoff: the
+available laminar flat-plate CFD template is not a compatible physical model
+for this internal-flow geometry.
+
 The `grid/two_quads.msh` fixture contains two adjacent QUAD_4 cells and
 verifies that the shared internal interface is not exported as an external
 boundary condition. It also checks that named Physical Groups may span

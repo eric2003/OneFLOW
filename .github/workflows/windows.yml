@@ -155,7 +155,7 @@ jobs:
               Copy-Item (Join-Path $cutRoot $name) (Join-Path $inputRoot $name)
           }
           $project = @{
-              schema = "oneflow.mesh-project"
+              schema = "oneflow.mesh-generation-project"
               version = 1
               name = "generic-pipe-ci"
               input_stl = "input/model.stl"

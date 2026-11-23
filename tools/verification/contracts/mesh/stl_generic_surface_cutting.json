@@ -6,7 +6,7 @@
   "status": "implemented",
   "overview": "Cut a closed STL triangle shell between two user-defined planar sections without using analytic shape definitions. The canonical internal-flow cylinder STL is the first blind-input fixture.",
   "principle": "The STL triangles are the sole geometry source. The cutter must not read analytic geometry manifests, primitive parameters, patch indices or shape equations. Inlet and outlet planes are explicit inputs; their normals orient the retained half-spaces and the generated end caps.",
-  "architecture": "grid/stl_import/reader.py -> grid/stl_import/surface_cut.py -> clipped wall triangles + inlet/outlet caps -> closed STL + checksum-bound region_manifest.json -> mesh-project region artifact copy -> region-aware Gmsh Physical Surfaces (wall/inflow/outflow) -> existing Gmsh-to-CGNS BC mapping.",
+  "architecture": "grid/stl_import/reader.py -> grid/stl_import/surface_cut.py -> clipped wall triangles + inlet/outlet caps -> closed STL + checksum-bound region_manifest.json -> mesh-project region artifact copy -> Gmsh CreateTopology/CreateGeometry -> Physical Surfaces (wall/inflow/outflow) + fluid_domain -> MSH 4.1 -> CGNS -> OneFLOW native unstructured grid.",
   "implementation": {
     "source_paths": [
       "grid/stl_import/surface_cut.py",
@@ -33,7 +33,7 @@
       "No branched or multi-lumen surfaces.",
       "No holes in a cross-section.",
       "Plane points and normals are supplied explicitly; automatic endpoint direction estimation is not included.",
-      "Gmsh meshing, CGNS BC_t inspection and OneFLOW CFD boundary verification remain manual; pure Python tests do not claim physical boundary correctness."
+      "A dedicated internal-flow CFD Case with defined boundary states and physical acceptance criteria is not yet available; this mesh is validated through the CGNS and native OneFLOW grid handoff, not a physical CFD accuracy claim."
     ]
   },
   "verification": [
@@ -59,12 +59,18 @@
       "kind": "python_test",
       "reference": "GenericStlSurfaceCutTest.test_cli_writes_named_surface_regions_and_report",
       "status": "not_run",
-      "scope": "Also validates region_manifest.json checksums/counts and generated Gmsh Physical Surface declarations without running Gmsh."
+      "scope": "grid/tests/python/stl_import/test_generic_stl_surface_cut.py; Validates region_manifest.json checksums/counts and generated Gmsh Physical Surface declarations without invoking Gmsh."
+    },
+    {
+      "kind": "python_test",
+      "reference": "GenericStlSurfaceCutTest.test_gmsh_generates_volume_mesh_with_disjoint_named_boundaries",
+      "status": "not_run",
+      "scope": "grid/tests/python/stl_import/test_generic_stl_surface_cut.py; Runs Gmsh 4.15.2 on the blind-input cut shell, verifies TETRA_4 volume cells, exterior TRI_3 facets and the four non-empty Physical Groups, and checks that every exterior triangle belongs to exactly one named boundary."
     }
   ],
   "execution_boundary": {
-    "ci": "Pure geometry unit tests only. Do not install or invoke Gmsh in CI for mesh-generation validation.",
-    "manual": "Run Gmsh from Mesh Generation, inspect the MSH groups, convert to CGNS and confirm BCInflow, BCOutflow and BCWall region counts before running the short OneFLOW CFD smoke test."
+    "ci": "CI runs the generic STL cut and Gmsh 4.15.2 volume-mesh integration on Linux and Windows. The Windows OneFLOW workflow additionally converts the generated MSH through CGNS into a native OneFLOW unstructured grid. The internal-flow case stops at mesh_handoff; no incompatible flat-plate CFD solve is claimed.",
+    "manual": "For a user-provided geometry, review the selected cut planes and the generated geometry. Physical CFD validation remains a separate task requiring a compatible internal-flow Case, explicit boundary-state data and physical acceptance criteria."
   },
   "references": [
     "doc/source/stl_generic_surface_cutting.rst",
