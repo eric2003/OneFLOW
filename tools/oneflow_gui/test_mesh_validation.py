@@ -429,19 +429,22 @@ class MeshValidationCatalogTest(unittest.TestCase):
     def test_repository_catalog_exposes_unit_sphere_in_mesh_validation_3d(self):
         repository_root = Path(__file__).resolve().parents[2]
         choices = dict(mesh_case_choices(repository_root))
-        expected_ids = {
+        cfd_smoke_ids = {
             "stl_to_gmsh_sphere_automatic_tetrahedra",
             "stl_to_gmsh_python_sphere_automatic_tetrahedra",
+        }
+        mesh_handoff_ids = {
             "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
             "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
         }
+        expected_ids = cfd_smoke_ids | mesh_handoff_ids
         self.assertTrue(expected_ids.issubset(choices))
 
         groups = dict(mesh_case_groups(repository_root))
         sphere_ids = {case_id for case_id, _title in groups["3D"]}
         self.assertTrue(expected_ids.issubset(sphere_ids))
 
-        for case_id in sorted(expected_ids):
+        for case_id in sorted(cfd_smoke_ids):
             steps = build_mesh_validation_cases(
                 repository_root, case_id, "laminar_flat_plate"
             )
@@ -451,6 +454,14 @@ class MeshValidationCatalogTest(unittest.TestCase):
             )
             self.assertEqual(steps[3]["runtime_directory"], "oneflow_cfd_solve")
             self.assertEqual(steps[3]["directory"], "test/cfd/plateuns2dslau2")
+        for case_id in sorted(mesh_handoff_ids):
+            steps = build_mesh_validation_cases(
+                repository_root, case_id, "laminar_flat_plate"
+            )
+            self.assertEqual(
+                [step["id"] for step in steps],
+                ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow"],
+            )
 
     def test_mesh_selector_groups_cases_by_spatial_dimension(self):
         groups = mesh_case_groups(self.root)

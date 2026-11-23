@@ -525,7 +525,8 @@
         "kind": "generated",
         "manifest": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/cpp/input/model.geometry.json",
         "asset_id": "geometry.cylinder.internal_flow"
-      }
+      },
+      "mesh_validation": "mesh_handoff"
     },
     {
       "id": "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
@@ -541,7 +542,8 @@
         "kind": "generated",
         "manifest": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.geometry.json"
       },
-      "mesh_project_template": true
+      "mesh_project_template": true,
+      "mesh_validation": "mesh_handoff"
     }
   ],
   "mesh_validation_inputs": [
