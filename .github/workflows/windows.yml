@@ -159,16 +159,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Gmsh volume mesh generation failed." }
 
           python -m tools.oneflow_gui.mesh_validation --oneflow-executable (Join-Path $env:ONEFLOW_ROOT "bin/OneFLOW.exe") --gmsh $gmsh.Source --mesh-case-id stl_to_gmsh_generic_3d_mesh_handoff --mesh-file $meshPath --project-directory $projectRoot --stage-root $stageRoot --max-steps 2
-          if ($LASTEXITCODE -ne 0) { throw "Gmsh-to-CGNS-to-OneFLOW handoff failed." }
+          if ($LASTEXITCODE -ne 0) { throw "Mesh-to-CFD validation, including oneflow_cfd_solve, failed." }
 
           $reportPath = Join-Path $stageRoot "mesh-validation-report.json"
           if (-not (Test-Path $reportPath)) { throw "Mesh validation report was not created." }
           $report = Get-Content -Raw $reportPath | ConvertFrom-Json
-          if ($report.exit_code -ne 0) { throw "Mesh handoff report has non-zero exit code." }
-          foreach ($stageName in @("existing_msh_input", "gmsh_to_cgns", "cgns_to_oneflow")) {
+          if ($report.exit_code -ne 0) { throw "Mesh-to-CFD report has non-zero exit code." }
+          foreach ($stageName in @("existing_msh_input", "gmsh_to_cgns", "cgns_to_oneflow", "cfd_smoke")) {
               $stage = $report.stages.PSObject.Properties[$stageName].Value
               if ($null -eq $stage -or $stage.status -ne "PASS") {
-                  throw "Mesh handoff stage '$stageName' did not pass."
+                  throw "Mesh-to-CFD stage '$stageName' did not pass."
               }
           }
           $cgns = Join-Path $stageRoot "gmsh_to_cgns/results/generic_surface_mesh.cgns"
@@ -187,11 +187,11 @@ jobs:
               throw "MSH report did not retain all four physical groups."
           }
 
-      - name: Upload generic STL mesh handoff evidence
+      - name: Upload generic STL mesh-to-CFD smoke evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: generic-stl-mesh-handoff-windows
+          name: generic-stl-mesh-cfd-smoke-windows
           path: |
             ${{ runner.temp }}/oneflow-generic-curved-shell-home
             ${{ runner.temp }}/oneflow-generic-curved-shell-validation
