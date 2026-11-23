@@ -228,3 +228,25 @@ Related references
 * :doc:`stl_to_gmsh_sphere` — sphere-specific acceptance contract.
 * :doc:`stl_to_gmsh_prolate_spheroid` — 6:1 spheroid Case.
 * :doc:`stl_to_gmsh_commands` — direct volume-mesh command.
+
+
+Generic STL surface cutting
+---------------------------
+
+The canonical internal-flow cylinder is also used as the first blind-input
+fixture for generic surface cutting. This route intentionally does not read
+its geometry manifest or use the cylinder equation. The cutter accepts only
+STL triangles, two plane points, two plane normals and a geometric tolerance.
+
+The implementation in grid/stl_import/surface_cut.py clips each triangle
+against the inlet and outlet half-spaces, extracts one boundary loop on each
+plane, triangulates both loops and returns a closed triangle shell. The inlet
+normal points into the retained domain; the outlet normal points toward the
+outlet. The generated caps are oriented outward.
+
+The first implementation supports one simple loop per cut plane. Automatic
+endpoint direction estimation, branching, multiple cross-section loops and
+holes are later stages. The geometry-only regression test reads the cylinder
+STL without opening its analytic manifest. Actual Gmsh volume generation,
+CGNS handoff and the short OneFLOW CFD smoke run are performed manually from
+the Workbench, not in CI.

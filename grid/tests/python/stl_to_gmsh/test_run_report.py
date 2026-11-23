@@ -43,7 +43,7 @@ class GenerateVolumeMeshReportTest(unittest.TestCase):
     def _mesh_summary(self):
         return {"format":"4.1","nodes":10,"elements":20,"triangle_elements":8,
                 "tetrahedron_elements":12,
-                "physical_groups":[{"dimension":2,"name":"wall"},{"dimension":3,"name":"fluid_domain"}],
+                "physical_groups":[{"dimension":2,"name":"wall","element_count":8},{"dimension":3,"name":"fluid_domain","element_count":12}],
                 "triangle_quality":{"minimum_quality":0.8}}
 
     def test_success_prints_short_summary_and_writes_stage_report(self):

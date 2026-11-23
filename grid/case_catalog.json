@@ -525,7 +525,8 @@
         "kind": "generated",
         "manifest": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/cpp/input/model.geometry.json",
         "asset_id": "geometry.cylinder.internal_flow"
-      }
+      },
+      "mesh_validation": "cfd_smoke"
     },
     {
       "id": "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
@@ -541,7 +542,8 @@
         "kind": "generated",
         "manifest": "grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/python/input/model.geometry.json"
       },
-      "mesh_project_template": true
+      "mesh_project_template": true,
+      "mesh_validation": "cfd_smoke"
     }
   ],
   "mesh_validation_inputs": [
@@ -575,6 +577,19 @@
           "dimension": 3
         }
       ]
+    },
+    {
+      "id": "stl_to_gmsh_generic_3d_mesh_handoff",
+      "title": "Generic 3D STL Mesh Project (MSH to CGNS to OneFLOW)",
+      "directory": "grid/stl_to_gmsh/3d/generic_surface_mesh",
+      "group": "STL to Gmsh",
+      "dimension": 3,
+      "mesh_validation": "cfd_smoke",
+      "execution": {
+        "kind": "existing_mesh",
+        "project_directory": "generic_surface_mesh",
+        "mesh_file": "results/generic_surface_mesh.msh"
+      }
     }
   ]
 }

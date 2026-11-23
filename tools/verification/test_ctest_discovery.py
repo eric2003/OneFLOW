@@ -65,12 +65,26 @@ class CTestDiscoveryTest(unittest.TestCase):
         data["tests"] = []
         self.assertEqual(parse_ctest_discovery_json(json.dumps(data)).tests, ())
 
+    def test_defaults_missing_or_null_ctest_patch_version_to_zero(self):
+        for patch_value in ("missing", None):
+            data = payload()
+            if patch_value == "missing":
+                data["version"].pop("patch")
+            else:
+                data["version"]["patch"] = patch_value
+            with self.subTest(patch=patch_value):
+                self.assertEqual(
+                    parse_ctest_discovery_json(json.dumps(data)).version.text,
+                    "3.29.0",
+                )
+
     def test_rejects_invalid_json_kind_version_and_test_shapes(self):
         with self.assertRaises(CTestDiscoveryError):
             parse_ctest_discovery_json("{")
         cases = []
         data = payload(); data["kind"] = "other"; cases.append(data)
         data = payload(); data["version"]["major"] = -1; cases.append(data)
+        data = payload(); data["version"]["patch"] = -1; cases.append(data)
         data = payload(); data["tests"] = None; cases.append(data)
         data = payload(); data["tests"][0]["name"] = ""; cases.append(data)
         data = payload(); data["tests"][0]["command"] = "invalid"; cases.append(data)

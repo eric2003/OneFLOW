@@ -2,26 +2,19 @@ name: OneFLOW External Tool Integration
 
 on:
   workflow_dispatch:
-    inputs:
-      gmsh_version:
-        description: Gmsh release version to validate
-        required: true
-        default: "4.15.2"
-        type: string
 
 permissions:
   contents: read
 
 jobs:
-  windows-gmsh:
-    name: Windows Gmsh integration
+  windows-process:
+    name: Windows process integration
     runs-on: windows-latest
     env:
       CMAKE_GENERATOR: "Ninja"
       CMAKE_COMPILER: "MSVC"
       CMAKE_BUILD_PARALLEL_LEVEL: "8"
-      ONEFLOW_EXTERNAL_TOOL_TESTS: "ON"
-      GMSH_VERSION: ${{ inputs.gmsh_version }}
+      ONEFLOW_EXTERNAL_TOOL_TESTS: "OFF"
       HDF5_VERSION: "1.14.3"
       CGNS_VERSION: "4.5.2"
       METIS_VERSION: "5.1.0"
@@ -29,37 +22,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-
-      - name: Install pinned Gmsh executable
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = "Stop"
-
-          if ($env:GMSH_VERSION -notmatch '^\d+\.\d+\.\d+$') {
-              throw "Invalid Gmsh version: $env:GMSH_VERSION"
-          }
-
-          $archive = Join-Path $env:RUNNER_TEMP "gmsh-$env:GMSH_VERSION-Windows64.zip"
-          $installDirectory = Join-Path $env:RUNNER_TEMP "gmsh-$env:GMSH_VERSION"
-          $downloadUrl = "https://gmsh.info/bin/Windows/gmsh-$env:GMSH_VERSION-Windows64.zip"
-
-          Invoke-WebRequest -Uri $downloadUrl -OutFile $archive
-          Expand-Archive -Path $archive -DestinationPath $installDirectory -Force
-
-          $gmsh = Get-ChildItem -Path $installDirectory -Filter "gmsh.exe" -Recurse |
-              Select-Object -First 1
-          if ($null -eq $gmsh) {
-              throw "gmsh.exe was not found in the downloaded archive."
-          }
-
-          & $gmsh.FullName -version
-          if ($LASTEXITCODE -ne 0) {
-              throw "Gmsh failed its version check."
-          }
-
-          $gmsh.DirectoryName |
-              Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          Write-Host "Gmsh executable: $($gmsh.FullName)"
 
       - name: Build OneFLOW with required external-tool tests
         shell: pwsh
@@ -71,7 +33,7 @@ jobs:
               throw "OneFLOW build script failed with exit code $LASTEXITCODE."
           }
 
-      - name: Run Windows process and Gmsh integration tests
+      - name: Run Windows process integration tests
         env:
           HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/1.14.3
           CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/4.5.2
@@ -93,63 +55,8 @@ jobs:
           }
 
           Set-Location "${{ github.workspace }}/build"
-          ctest --output-on-failure -C Release -R "ProcessRunnerTest|StlMeshIOTest.NativeStlToGmsh"
+          ctest --output-on-failure -C Release -R "ProcessRunnerTest"
           if ($LASTEXITCODE -ne 0) {
               throw "External-tool integration tests failed with exit code $LASTEXITCODE."
           }
 
-      - name: Set up Python for the development pipeline
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.13"
-
-      - name: Run STL-to-Gmsh development Cases and Mesh-to-CFD Validation
-        env:
-          HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/1.14.3
-          CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/4.5.2
-          MSMPI_ROOT: "C:/Program Files/Microsoft MPI"
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = "Stop"
-
-          $runtimePaths = @(
-              "${{ github.workspace }}/build/bin",
-              "$env:HDF5_ROOT/bin",
-              "$env:CGNS_ROOT/bin",
-              "$env:MSMPI_ROOT/Bin"
-          )
-          foreach ($path in $runtimePaths) {
-              if (Test-Path $path) {
-                  $env:Path = "$path;$env:Path"
-              }
-          }
-
-          python -m unittest grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases
-          if ($LASTEXITCODE -ne 0) { throw "STL-to-Gmsh Python tests failed with exit code $LASTEXITCODE." }
-
-          python -m unittest tools.oneflow_gui.test_mesh_validation
-          if ($LASTEXITCODE -ne 0) { throw "Mesh-to-CFD Validation unit tests failed with exit code $LASTEXITCODE." }
-
-          python grid/stl_to_gmsh/run_cases.py --gmsh gmsh --stage-root "${{ runner.temp }}/stl-to-cfd/development-cases"
-          if ($LASTEXITCODE -ne 0) {
-              throw "The STL-to-Gmsh development Cases failed with exit code $LASTEXITCODE."
-          }
-
-          $oneflow = @(
-              "${{ github.workspace }}/build/bin/Release/OneFLOW.exe",
-              "${{ github.workspace }}/build/bin/OneFLOW.exe"
-          ) | Where-Object { Test-Path $_ } | Select-Object -First 1
-          if (-not $oneflow) { throw "The built OneFLOW executable was not found." }
-
-          python -m tools.oneflow_gui.mesh_validation --oneflow-executable $oneflow --gmsh gmsh --mesh-case-id stl_to_gmsh_square_2x2 --max-steps 50 --stage-root "${{ runner.temp }}/stl-to-cfd/mesh-validation"
-          if ($LASTEXITCODE -ne 0) {
-              throw "Mesh-to-CFD Validation failed with exit code $LASTEXITCODE."
-          }
-
-      - name: Upload Mesh-to-CFD validation evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: stl-to-gmsh-and-mesh-validation-evidence
-          path: ${{ runner.temp }}/stl-to-cfd/
-          if-no-files-found: warn

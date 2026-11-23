@@ -141,10 +141,15 @@ def generate(
                 geometry_kind = json.loads(manifest_path.read_text(encoding="utf-8")).get("geometry")
             except (OSError, json.JSONDecodeError) as error:
                 raise ValueError(f"Cannot read STL geometry manifest: {manifest_path}: {error}") from error
-        volume_mesh_kind = ("cylinder_internal_flow" if geometry_kind == "cylinder_internal_flow"
-                            else "closed_surface_automatic_tetrahedra")
+        region_manifest = stl.parent / "region_manifest.json"
+        if region_manifest.is_file():
+            volume_mesh_kind = "region_aware_closed_surface_automatic_tetrahedra"
+        else:
+            volume_mesh_kind = ("cylinder_internal_flow" if geometry_kind == "cylinder_internal_flow"
+                                else "closed_surface_automatic_tetrahedra")
         config = {
             "volume_mesh":volume_mesh_kind, "mesh_dimension":3,
+            "region_manifest":str(region_manifest) if region_manifest.is_file() else None,
             "mesh_size_min":mesh_size_min, "mesh_size_max":mesh_size_max,
             "surface_name":volume_name, "boundary_name":boundary_name,
             "surface_angle_degrees":surface_angle_degrees,
@@ -178,13 +183,26 @@ def generate(
         active_stage = "physical_groups"
         groups = {(item["dimension"],item["name"]) for item in mesh["physical_groups"]}
         expected = ({(2,"wall"),(2,"inflow"),(2,"outflow"),(3,"fluid_domain")}
-                    if volume_mesh_kind == "cylinder_internal_flow"
+                    if volume_mesh_kind in {"cylinder_internal_flow", "region_aware_closed_surface_automatic_tetrahedra"}
                     else {(2,boundary_name),(3,volume_name)})
         if groups != expected:
             raise RuntimeError(f"Physical Groups {sorted(groups)} do not match {sorted(expected)}")
+        group_counts = {
+            (item["dimension"], item["name"]): item.get("element_count", 0)
+            for item in mesh["physical_groups"]
+        }
+        empty_groups = sorted(
+            f"{dimension}:{name}" for dimension, name in expected
+            if group_counts.get((dimension, name), 0) <= 0
+        )
+        if empty_groups:
+            raise RuntimeError(f"Physical Groups contain no mesh elements: {empty_groups}")
         stages["physical_groups"] = stage_result("PASS",
-            "All expected boundary and volume Physical Groups are present.",
-            {"groups":sorted(f"{dim}:{name}" for dim,name in groups)})
+            "All expected Physical Groups contain mesh elements.",
+            {"groups": {
+                f"{dimension}:{name}": group_counts[(dimension, name)]
+                for dimension, name in sorted(expected)
+            }})
 
         report = make_report(0)
         write_run_report(report_path, report)

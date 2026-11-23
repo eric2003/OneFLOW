@@ -130,6 +130,9 @@ jobs:
           # cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/Run -DBUILD_TESTING=ON ../
           # make -j 4
           ctest --output-on-failure
+          cd ${{ github.workspace }}
+          python -m tools.verification.ctest_evidence --build-dir build
+          cd ${{ github.workspace }}/build
           python -m unittest discover -s ../tools -p 'test_mesh_workflow.py'
           python -m unittest discover -s ../tools/mesh_export -p 'test_*.py'
           python -m unittest discover -s ../tools/mesh_contracts -p 'test_*.py'

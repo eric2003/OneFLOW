@@ -66,6 +66,40 @@ class TestCommandWorkerEvidenceTest(unittest.TestCase):
             self.assertEqual(arguments["artifact_directory"], paths.test_run_logs)
             self.assertFalse(arguments["cancelled"])
 
+    def test_worker_persists_per_test_ctest_execution_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            build = root / "build"
+            build.mkdir()
+            junit = build / "ctest-results.xml"
+            junit.write_text("<testsuite><testcase name='Sample.Test'/></testsuite>", encoding="utf-8")
+            command = TestCommand(
+                "C++ unit tests (CTest)",
+                ("ctest", "--output-on-failure", "--output-junit", str(junit), "-C", "Debug"),
+                build,
+            )
+            process = self._process()
+            paths = SimpleNamespace(
+                verification_execution_records=root / ".oneflow" / "verification" / "execution-records.jsonl",
+                test_run_logs=root / ".oneflow" / "test-runs" / "logs",
+            )
+            with (
+                patch("tools.oneflow_gui.test_dialog.subprocess.Popen", return_value=process),
+                patch("tools.oneflow_gui.test_dialog.UserDataPaths.discover", return_value=paths),
+                patch("tools.oneflow_gui.test_dialog.capture_ctest_execution",
+                      return_value=(SimpleNamespace(record_id="record-ctest", outcome="passed"),)) as capture,
+            ):
+                worker = TestCommandWorker([command], build_config="Debug")
+                worker.run()
+            capture.assert_called_once()
+            arguments = capture.call_args.kwargs
+            self.assertEqual(arguments["repository_root"], root)
+            self.assertEqual(arguments["build_directory"], build)
+            self.assertEqual(arguments["junit_path"], junit)
+            self.assertEqual(arguments["configuration"], "Debug")
+            self.assertEqual(arguments["artifact_directory"], paths.test_run_logs)
+            self.assertFalse(junit.exists(), "the previous JUnit report must be removed before launch")
+
     def test_process_launch_failure_does_not_create_execution_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

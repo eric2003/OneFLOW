@@ -11,8 +11,8 @@
   "references": [
     "Gmsh Reference Manual: https://gmsh.info/doc/texinfo/gmsh.html",
     "Gmsh MSH file format: https://gmsh.info/doc/texinfo/gmsh.html#MSH-file-format",
-    "doc/source/stl_geometry_generation.rst",
-    "doc/source/mesh_stl_geometry_pipeline.rst"
+    "docs/source/stl_geometry_generation.rst",
+    "docs/source/mesh_stl_geometry_pipeline.rst"
   ],
   "implementation": {
     "source_paths": [
@@ -38,11 +38,11 @@
   },
   "documentation": {
     "paths": [
-      "doc/source/stl_geometry_generation.rst",
-      "doc/source/mesh_stl_geometry_pipeline.rst",
-      "doc/source/stl_to_gmsh_3d.rst",
-      "doc/source/stl_to_gmsh_sphere.rst",
-      "doc/source/stl_to_gmsh_prolate_spheroid.rst",
+      "docs/source/stl_geometry_generation.rst",
+      "docs/source/mesh_stl_geometry_pipeline.rst",
+      "docs/source/stl_to_gmsh_3d.rst",
+      "docs/source/stl_to_gmsh_sphere.rst",
+      "docs/source/stl_to_gmsh_prolate_spheroid.rst",
       "grid/stl_to_gmsh/README.md"
     ]
   },

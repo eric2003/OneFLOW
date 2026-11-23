@@ -72,7 +72,8 @@ class TestRunnerCommandTest(unittest.TestCase):
 
             self.assertEqual(len(ctest_commands), 1)
             self.assertEqual(ctest_commands[0].arguments, (
-                "ctest", "--output-on-failure", "-C", "Release"
+                "ctest", "--output-on-failure", "--output-junit",
+                str(build / "ctest-results.xml"), "-C", "Release"
             ))
             self.assertEqual(ctest_commands[0].working_directory, build)
             self.assertTrue(python_commands)
@@ -172,7 +173,8 @@ class TestRunnerCommandTest(unittest.TestCase):
             self.assertEqual(commands[1].working_directory, root)
             self.assertEqual(commands[2].working_directory, root / "build")
             self.assertEqual(commands[2].arguments, (
-                "ctest", "--output-on-failure", "-C", "Debug"
+                "ctest", "--output-on-failure", "--output-junit",
+                str(root / "build" / "ctest-results.xml"), "-C", "Debug"
             ))
 
     def test_default_tests_skip_configure_but_build_when_build_tree_exists(self) -> None:
@@ -206,7 +208,7 @@ class TestRunnerCommandTest(unittest.TestCase):
 
     def test_ctest_is_included_only_when_build_is_configured(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             build = root / "build"
             build.mkdir()
             self.assertFalse(any(command.label.startswith("C++") for command in build_unit_test_commands(root)))
@@ -216,7 +218,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             self.assertEqual(ctest.working_directory, build.resolve())
             self.assertEqual(
                 ctest.arguments,
-                ("ctest", "--output-on-failure", "-C", "Debug"),
+                ("ctest", "--output-on-failure", "--output-junit", str(root / "build" / "ctest-results.xml"), "-C", "Debug"),
             )
 
             release_commands = build_unit_test_commands(
@@ -228,7 +230,7 @@ class TestRunnerCommandTest(unittest.TestCase):
             )
             self.assertEqual(
                 release_ctest.arguments,
-                ("ctest", "--output-on-failure", "-C", "Release"),
+                ("ctest", "--output-on-failure", "--output-junit", str(build / "ctest-results.xml"), "-C", "Release"),
             )
             self.assertEqual(release_ctest.working_directory, build.resolve())
 

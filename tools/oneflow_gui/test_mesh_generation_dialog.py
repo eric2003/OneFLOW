@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 import tempfile
 import unittest
@@ -26,6 +27,7 @@ from tools.oneflow_gui.mesh_generation_dialog import (
     StlGeometryDialog,
     StlToGmshDialog,
 )
+from tools.oneflow_gui.generic_surface_cut_dialog import GenericSurfaceCutDialog
 from tools.oneflow_gui.mesh_project import (
     create_mesh_project_from_template,
     load_mesh_project,
@@ -466,6 +468,62 @@ class MeshGenerationDialogTest(unittest.TestCase):
             finally:
                 dialog.close()
 
+    def test_generic_cut_region_artifacts_are_copied_into_mesh_project(self) -> None:
+        import hashlib
+        import json
+        from types import SimpleNamespace
+        from tools.oneflow_gui.mesh_project import create_mesh_project_from_stl
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "cut"
+            source.mkdir()
+            closed = source / "closed_surface.stl"
+            closed.write_text("solid closed\nendsolid closed\n", encoding="ascii")
+            regions = {}
+            for key, filename in (
+                ("wall", "wall.stl"),
+                ("inflow", "inlet.stl"),
+                ("outflow", "outlet.stl"),
+            ):
+                path = source / filename
+                path.write_text(f"solid {key}\nendsolid {key}\n", encoding="ascii")
+                regions[key] = {
+                    "file": filename,
+                    "triangle_count": 1,
+                    "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                }
+            (source / "region_manifest.json").write_text(
+                json.dumps({
+                    "schema": "oneflow.stl-surface-regions",
+                    "version": 1,
+                    "closed_surface_file": "closed_surface.stl",
+                    "closed_surface_sha256": hashlib.sha256(closed.read_bytes()).hexdigest(),
+                    "regions": regions,
+                }),
+                encoding="utf-8",
+            )
+            workspace = root / "workspace"
+            with patch(
+                "tools.oneflow_gui.mesh_project.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                project = create_mesh_project_from_stl(
+                    self.repository_root, closed, "region_project"
+                )
+            project_input = project["directory"] / "input"
+            self.assertTrue((project_input / "region_manifest.json").is_file())
+            self.assertTrue((project_input / "wall.stl").is_file())
+            self.assertTrue((project_input / "inlet.stl").is_file())
+            self.assertTrue((project_input / "outlet.stl").is_file())
+            self.assertEqual(
+                project["boundary_regions"], ["inflow", "outflow", "wall"]
+            )
+            self.assertIsNone(project["template_case_id"])
+            self.assertEqual(
+                project["mesh_case_id"], "stl_to_gmsh_generic_3d_mesh_handoff"
+            )
+
     def test_open_mesh_project_displays_geometry_lineage(self) -> None:
         from types import SimpleNamespace
 
@@ -485,6 +543,35 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 displayed = dialog.geometry_lineage_view.toPlainText()
                 self.assertIn("Provenance: UNKNOWN", displayed)
                 self.assertIn("Source STL:", displayed)
+            finally:
+                dialog.close()
+
+    def test_closed_shell_preset_resets_project_validation_to_generic_handoff(self) -> None:
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory) / "mesh-generation"
+            with patch(
+                "tools.oneflow_gui.mesh_project.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                project = create_mesh_project_from_template(
+                    self.repository_root,
+                    "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
+                    "switch_to_closed_shell",
+                )
+            dialog = StlToGmshDialog(self.repository_root, project=project)
+            try:
+                dialog.geometry_preset.setCurrentIndex(
+                    dialog.geometry_preset.findData("closed_shell")
+                )
+                expected = "stl_to_gmsh_generic_3d_mesh_handoff"
+                self.assertEqual(dialog._mesh_case_id, expected)
+                saved = json.loads(
+                    (project["directory"] / "project.json").read_text(encoding="utf-8")
+                )
+                self.assertIsNone(saved["template_case_id"])
+                self.assertEqual(saved["mesh_case_id"], expected)
             finally:
                 dialog.close()
 
@@ -589,6 +676,23 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 dialog._arguments()
         finally:
             dialog.close()
+
+    def test_generic_surface_cut_dialog_exposes_plane_controls_and_cli(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "generic-cut"
+            dialog = GenericSurfaceCutDialog(self.repository_root)
+            try:
+                dialog.output_directory.setText(str(output))
+                command = dialog._command()
+                self.assertIn("grid.stl_import.cut_surface_cli", command)
+                self.assertIn("--inlet-point", command)
+                self.assertIn("--inlet-normal", command)
+                self.assertIn("--outlet-point", command)
+                self.assertIn("--outlet-normal", command)
+                self.assertIn("--tolerance", command)
+                self.assertNotIn("generate_cylinder_volume_mesh.py", command)
+            finally:
+                dialog.close()
 
     def test_volume_mesh_cli_has_beginner_friendly_defaults(self) -> None:
         self.assertTrue(DEFAULT_SPHERE_STL.is_file())

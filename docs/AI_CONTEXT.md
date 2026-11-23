@@ -84,6 +84,325 @@ Measurement rules that already invalidated results once: 1000-step minimum, subt
 1.4–1.6 s startup, never compare single samples across nodes, and report weak scaling only with
 a fixed cell count per rank. Details: handoff §5 items 12–22.
 
+## 2026-11-20 continuation: resolve mesh GoogleTest evidence declarations
+
+The user reported 1337/1337 tests passing before this slice. That is a
+pre-change baseline only; this slice only corrects contract metadata.
+
+The verified `hexin` HEAD at the start of this slice was
+`ae9802b81466870265bab4b6893c01301d1acd12`.
+
+Priority alignment: recent work hardens GoogleTest ↔ CMake discovery and
+static evidence resolution. The mesh conversion boundary contract still had
+one GoogleTest entry that used a source path as `reference` instead of
+`Suite.Test`, so resolution stopped at `declared` and could not bind CMake
+discovery or Workbench "resolved file" navigation.
+
+Fixed `mesh/unstructured-cgns-writer` verification entry for
+`GmshTwoQuadsOneFlowTest.ConvertsTwoAdjacentQuadsThroughCgnsIntoNativeGrid`
+with scope pointing at `tests/geometry/GmshTwoQuadsOneFlowTest.cpp`.
+
+After the change, all five evidence items on that contract resolve to
+repository files and matching declarations. Catalog tests:
+`tools.verification.test_contract_catalog` (54) pass in this environment.
+
+Still `declared_not_executed` at the claim level: static resolution is not
+execution. Do not treat this as CFD or residual proof.
+
+Changed files:
+
+- `tools/verification/contracts/mesh/unstructured-cgns-writer.json`
+- `docs/AI_CONTEXT.md`
+
+Next action: keep mesh code and new Cases attached to this boundary; prefer
+one more executable evidence binding (runtime/CTest discovery on the same
+targets) over a new input format reader.
+
+---
+
+## 2026-11-16 continuation: fix post-run geometry lineage reporting
+
+Starting `hexin` HEAD: `5a04bddd842d6b572048ffbc78d5552a1a580151`.
+
+- A user-run 3D cylinder existing-MSH validation completed MSH staging,
+  Gmsh-to-CGNS conversion, and CGNS-to-OneFLOW ingestion, but then raised
+  `NameError: name 'steps' is not defined` while collecting downstream
+  artifacts for the final geometry-lineage report.
+- The graph declarations are held in `cases`; the final reporting block
+  incorrectly referenced a stale local name `steps` after the workflow
+  graph refactor.
+- Added `_downstream_lineage_artifacts()` and now build the report from the
+  same `cases` declarations used to create the graph. Added a focused
+  regression test for CGNS and native-grid paths and their parent links.
+- The reported run reached successful grid ingestion, but did not enter CFD
+  solve. This fix only removes the post-run reporting exception; it does not
+  claim that the CFD smoke stage ran or that physical accuracy was validated.
+- Commits: `103025185e5f3d4bb6bfa26978b594695f8b7cd1` (implementation),
+  `479e36c736b62e60a6c468357f8a59665edf586d` (regression test).
+  Added a durable development principle requiring post-run reporting to consume
+  the canonical workflow declarations (or typed plan), with report aggregation
+  kept independently testable. The principle update is commit
+  `a18bd60657495b1765beb303419b4cb25343455b`.
+  Exact-commit CI and local Windows execution have not yet been verified.
+
+Next: run the focused Mesh-to-CFD validation tests and inspect CI for the exact
+`hexin` HEAD before treating this workflow path as verified.
+
+---
+
+## 2026-11-16 continuation: final geometry lineage handoff and GUI initialization fix
+
+Starting `hexin` HEAD: `b7051a2fa23dd24b09092a483785ae58c59f6add`.
+
+- CGNS companion lineage records now identify the exact staged MSH parent path,
+  filename and checksum. Native-grid records identify the CGNS parent path,
+  filename and checksum.
+- Project reopen validates each sidecar against its artifact, parent artifact,
+  project STL and (when present) project MSH. Replacing a CGNS artifact also
+  invalidates a native-grid record linked to the previous CGNS checksum.
+- The STL geometry selector now connects its change signal only after all
+  dependent controls have been constructed. CI logs had exposed an early Qt
+  callback during combo-box population, before the output widget existed.
+- The Python Tooling workflow passed on intermediate commit
+  `8572bc06a320fb79f9bb998aba48819930e70ccf` after the new project tests and
+  their registry/CI entries were added. A prior run on `bb5cbca` failed because
+  the GUI test lacked a local `SimpleNamespace` import; that was fixed and the
+  later Python Tooling run passed.
+- Exact-commit Python Tooling, Windows and Linux workflows for
+  `f5421335c60c6152622e2b8b51f340b51b766646` are queued; no exact-commit pass
+  or local execution is claimed.
+
+Next: inspect exact-commit CI results and continue from the verified project
+lineage lifecycle. Do not treat metadata-only non-STL registration as a
+working parser, previewer or meshing adapter.
+
+---
+
+## 2026-11-16 continuation: verify parent links when reopening projects
+
+Starting `hexin` HEAD: `918b6ca0a574e4c256af94b4f3f721417bc7baf0`.
+
+- CGNS sidecars now record the staged MSH parent path, filename and checksum;
+  native-grid sidecars record the corresponding CGNS parent reference.
+- Mesh project reopening verifies each downstream artifact against its own
+  checksum, its parent file/checksum, the current project STL checksum and
+  the project MSH checksum when present.
+- Replacing a CGNS file invalidates both its own lineage record and a native
+  grid that refers to the previous CGNS bytes. Broken chains are not displayed
+  as trusted derived artifacts.
+- Expanded project lifecycle tests to cover both downstream artifacts and
+  invalidation after an upstream artifact is replaced.
+
+No local execution or exact-commit CI pass is claimed.
+
+Next: review Python Tooling and Windows/Linux CI evidence for the lineage
+and project reopen slices, then decide whether to implement the first real
+non-STL geometry parser adapter.
+
+---
+
+## 2026-11-16 continuation: restore lineage when reopening mesh projects
+
+Starting `hexin` HEAD: `7286c7600ffa2c658db639e9e1bc11aa2e1022e4`.
+
+- `load_mesh_project()` now reconstructs a read-only geometry lineage from
+  the project STL, its checksum-matching `.geometry.json`, the current MSH,
+  and verified CGNS/native-grid sidecars under `validation/`.
+- `StlToGmshDialog` displays provenance, source STL checksum, asset/generator
+  identity, MSH checksum and downstream conversion artifacts for opened projects.
+- Reopening a project does not trust a sidecar whose STL or derived artifact
+  checksum no longer matches. Unknown history remains unknown.
+- Added project reopen tests for valid lineage and tampered source manifests,
+  plus a GUI test for the project lineage panel.
+
+No local execution or exact-commit CI pass is claimed.
+
+Next: make the Geometry Library and mesh project share an explicit project
+asset reference for non-STL sources, then implement a first real non-STL
+format adapter rather than broadening metadata-only claims.
+
+---
+
+## 2026-11-16 continuation: persist lineage beside conversion artifacts
+
+Starting `hexin` HEAD: `8e56d3b23e592d5af9a342a73afd7d8076d62a18`.
+
+- Successful Gmsh-to-CGNS conversion writes
+  `<output.cgns>.geometry-lineage.json` with source geometry, MSH and CGNS hashes.
+- CGNS-to-OneFLOW verifies the CGNS sidecar against the CGNS bytes, then
+  writes the inherited lineage beside the native grid with a parent checksum.
+- Sidecars do not modify binary formats. Unknown historical provenance stays
+  unknown; missing or mismatched sidecars fail the handoff.
+- Tests cover both artifact formats and rejection after artifact replacement.
+
+No local execution or exact-commit CI pass is claimed.
+
+Next: expose persisted lineage in generated mesh project open/review flows.
+
+---
+
+## 2026-11-16 continuation: persist lineage beside conversion artifacts
+
+Starting `hexin` HEAD: `8e56d3b23e592d5af9a342a73afd7d8076d62a18`.
+
+- Successful Gmsh-to-CGNS conversion now writes
+  `<output.cgns>.geometry-lineage.json`, containing the verified geometry
+  provenance, source STL (when available), Gmsh MSH checksum and CGNS checksum.
+- CGNS-to-OneFLOW verifies the CGNS artifact checksum against its sidecar
+  before accepting the lineage, then writes the inherited record beside the
+  native grid and links it to the exact CGNS input checksum.
+- Sidecars do not alter CGNS/native-grid binary formats. Unknown historical
+  provenance remains unknown. Missing, malformed or mismatched sidecars fail
+  the lineage handoff stage rather than silently claiming continuity.
+- Added unit coverage for CGNS/native-grid persistence and artifact tampering.
+
+No local execution or exact-commit CI pass is claimed yet.
+
+Next action: add project save/open discovery of these sidecars and expose
+lineage details from the generated mesh project itself, not only the validation
+run. Then consider a real non-STL geometry adapter with format-specific tests.
+
+---
+
+## 2026-11-16 continuation: carry lineage through conversion artifacts
+
+Starting `hexin` HEAD: `67d7083d09ecc6f93942692ea644811c5c65230a`.
+
+- Mesh-to-CFD lineage now extends beyond the source STL and MSH: successful
+  CGNS and OneFLOW native-grid outputs are included when present, each with
+  its format, path, SHA-256 and parent artifact.
+- The result tree renders these downstream artifacts beside the geometry
+  source and mesh producer information.
+- Missing downstream files are omitted rather than represented as successful
+  outputs; stage status remains governed by the workflow report.
+
+Exact-commit CI is pending. No local execution is claimed.
+
+Next action: persist lineage on the CGNS artifact itself so it remains
+available outside Mesh-to-CFD Validation, and verify the geometry import
+catalog lifecycle on a clean and existing user workspace.
+
+---
+
+## 2026-11-16 continuation: non-STL Geometry Library import entry
+
+Starting `hexin` HEAD: `f87c23b13b47397c6dd0a77fbe42d8ccf586de7c`.
+
+- Added user-owned metadata registration for STEP/STP, IGES/IGS, BREP, OBJ,
+  PLY, XYZ, PTS, PCD and OneFLOW `.implicit.json` files.
+- Imports are content-addressed and copied below `.oneflow/geometry-library`;
+  original filename and source SHA-256 are retained. Unknown dimensionality
+  is null, not guessed. This does not claim parsers, preview, meshing or CAD
+  reconstruction support.
+- Added the explicit Python Tooling workflow step for the new asset-store tests.
+- Updated the asset schema, GUI module documentation and Geometry Library details.
+
+Exact-commit Windows, Linux, Python Tooling and documentation workflows are
+pending. No local test execution is claimed.
+
+Next action: preserve asset lineage through Gmsh-to-CGNS and project lifecycle,
+then implement one actual non-STL parser/preview adapter with tests.
+
+---
+
+## 2026-11-16 continuation: metadata-only non-STL asset registration
+
+Starting `hexin` HEAD: `edc101a526fda6af1e7e2a1b594e37c04017c00b`.
+
+- Geometry Library now exposes a non-STL import action for STEP/STP, IGES/IGS,
+  BREP, OBJ, PLY, XYZ, PTS, PCD and OneFLOW `.implicit.json` representations.
+- Imported files are copied to the user-owned `.oneflow/geometry-library`
+  store, assigned content-derived IDs and SHA-256 checksums, and shown beside
+  repository assets. The source filename is recorded; unknown upstream
+  authorship is not inferred.
+- This is deliberately metadata-only registration. No CAD/point-cloud parser,
+  preview, mesher or implicit-field evaluator is claimed. Imported dimensionality
+  remains null until an adapter can establish it.
+- Updated the asset schema, Geometry Library display, module README and tests.
+
+No local test execution or exact-commit CI pass is claimed yet.
+
+Next action: connect the geometry lineage into the Gmsh-to-CGNS artifact and
+project save/open contract, then implement one real non-STL adapter (CAD or
+point-cloud) with explicit capability and validation tests.
+
+---
+
+## 2026-11-16 continuation: Geometry lineage in Mesh-to-CFD Validation
+
+Starting `hexin` HEAD: `356acdf416a31391821d7a0fa1ed99e36758484f`.
+
+- The six historical 3-D cube STL Cases explicitly declare geometry
+  provenance `unknown`; no generator or author has been inferred.
+- Mesh-to-CFD reports now capture the source STL path and SHA-256, any
+  checksum-verified `.geometry.json` asset/definition/generator metadata,
+  and the derived MSH path and SHA-256.
+- A malformed, missing or checksum-mismatched sidecar is not treated as
+  trusted asset provenance. User-selected MSH files without a project
+  source record are not incorrectly attributed to the default sphere.
+- The result tree renders provenance, source surface, generator and derived
+  mesh rows next to the existing stage outcomes. Focused tests cover unknown
+  historical origin, valid sidecars and tampered sidecar rejection.
+
+No local execution or exact-commit CI pass is claimed yet.
+
+Next action: extend the same lineage envelope across Gmsh-to-CGNS and the
+mesh project save/open lifecycle, then add non-STL import adapters through
+the Geometry Library without advertising unsupported format operations.
+
+---
+
+## 2026-11-16 continuation: Geometry Library as the STL generation entry point
+
+Starting `hexin` HEAD: `a0e860de08fcd1f7d8ddc3b2c2caa4f9e6b19780`.
+
+- Generated STL sidecars now bind stable asset IDs to a canonical geometry
+  definition snapshot and SHA-256, separate definition parameters from
+  tessellation parameters, and record generator version/source path/source
+  checksum plus STL checksum. The legacy `parameters` field is retained.
+- The Mesh Generation hub now has one Geometry Library entry. Selecting a
+  supported asset opens its matching parameter editor; assets without an
+  implemented editor remain browse-only. The duplicate standalone
+  Generate STL Geometry entry was removed.
+- Historical STL fixtures are not retroactively attributed to the current
+  generator. Source SHA-256 identifies source bytes, not a Git revision.
+- Added focused generator-manifest and GUI asset-selection assertions.
+
+The exact-commit Python Tooling, Windows and Linux workflows are pending;
+no local GUI test execution is claimed.
+
+Next action: propagate geometry provenance and representation hashes through
+mesh projects and Mesh-to-CFD run reports, explicitly marking historical cube
+fixture origins unknown where no source evidence exists. Then render that
+lineage in the Mesh-to-CFD result panel.
+
+---
+
+## 2026-11-16 continuation: enforce consumer-visible text formatting checks
+
+Starting `hexin` HEAD: `386c2adbde0ef883415ff42d65de8a570814d688`.
+
+The Geometry Library newline defect is now treated as a repeatable review gate,
+not just a one-off regression. The durable rules are in
+`docs/DEVELOPMENT_PRINCIPLES.md` section 10, with explicit checks for output
+format, consumer-boundary inspection, real versus escaped control characters,
+section spacing, indentation, and serialization round-trips.
+
+Expanded `tools/oneflow_gui/test_mesh_generation_dialog.py` to assert the
+actual `QPlainTextEdit.toPlainText()` output has real line boundaries for
+Definition, Provenance, and Representations, preserves section spacing and
+indentation, and contains no unintended literal backslash escape sequences.
+
+The test remains in the existing Python GUI test area; the C++ `tests/`
+tree is unchanged. No local test or CI result is claimed for this new commit
+until the focused test and the exact commit's CI are checked.
+
+Next action: run the focused Geometry Library GUI test, then the registered
+Python GUI suite and Windows/Linux CI. Apply the same consumer-boundary review
+to future human-readable reports and serialization changes.
+
+---
+
 ## 2026-11-16 continuation: resizable Mesh-to-CFD selection and 3-D cylinder input
 
 Starting `hexin` from `d29a2f5cb95b36b543fa680707335d648def1d95`.
@@ -102,16 +421,15 @@ Starting `hexin` from `d29a2f5cb95b36b543fa680707335d648def1d95`.
   `UserDataPaths.mesh_generation/cylinder_internal_flow/results/`, not in
   the repository source tree. The file is copied into the project's
   `validation/` workspace before downstream processing.
-- Cylinder validation is intentionally `mesh_handoff`: MSH4 inspection
-  additionally requires `wall`, `inflow`, `outflow` (2-D) and
-  `fluid_domain` (3-D) Physical Groups, followed by Gmsh-to-CGNS conversion
-  and CGNS-to-OneFLOW ingestion. The current
-  flat-plate CFD template is not a physically compatible internal-flow
-  consumer, so this entry does not claim or run a CFD smoke test.
-- The cylinder's prior preset mapping to the prolate-spheroid Python Case was
-  incorrect; it now uses its own catalog ID. Existing-mesh paths are
-  validated as relative paths contained below the user mesh-generation root.
-- Tests cover catalog visibility, 3-D grouping, handoff stage construction,
+- Generic closed-surface and internal-flow cylinder validation now run the
+  complete four-stage graph through `oneflow_cfd_solve`. The existing
+  laminar flat-plate solver controls are reused as a smoke setup, with the
+  runtime dimension overridden to 3 for 3-D meshes; this does not claim
+  internal-flow physical accuracy.
+- MSH4 inspection additionally requires `wall`, `inflow`, `outflow` (2-D)
+  and `fluid_domain` (3-D) Physical Groups where declared. Existing-mesh
+  paths remain relative paths contained below the user mesh-generation root.
+- Tests cover catalog visibility, 3-D grouping, complete CFD stage construction,
   output artifact naming, and user-workspace path containment.
 
 CI and GUI runtime verification are pending for this slice. In particular,

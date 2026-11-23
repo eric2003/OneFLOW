@@ -51,6 +51,8 @@ from grid.stl_to_gmsh.generate_volume_mesh import (
 )
 from .user_data_paths import UserDataPaths
 from .geometry_library_dialog import GeometryLibraryDialog
+from .cylinder_cut_dialog import CylinderCutWorkbenchDialog
+from .generic_surface_cut_dialog import GenericSurfaceCutDialog
 
 
 class MeshGenerationDialog(QDialog):
@@ -81,6 +83,24 @@ class MeshGenerationDialog(QDialog):
         )
         geometry_library_button.clicked.connect(self._open_geometry_library)
         root.addWidget(geometry_library_button)
+
+        cylinder_cut_button = QPushButton("Cylinder Cutting & CFD...")
+        cylinder_cut_button.setMinimumHeight(64)
+        cylinder_cut_button.setToolTip(
+            "Cut the analytic internal-flow cylinder, validate its open surface, "
+            "generate a Gmsh fluid-volume mesh and run the OneFLOW ingestion smoke test."
+        )
+        cylinder_cut_button.clicked.connect(self._open_cylinder_cut_workbench)
+        root.addWidget(cylinder_cut_button)
+
+        generic_cut_button = QPushButton("Generic STL Surface Cutting...")
+        generic_cut_button.setMinimumHeight(64)
+        generic_cut_button.setToolTip(
+            "Treat any closed STL shell as an unknown surface and cut it with two "
+            "user-defined planes; no analytic cylinder or pipe model is used."
+        )
+        generic_cut_button.clicked.connect(self._open_generic_surface_cut)
+        root.addWidget(generic_cut_button)
 
         project_heading = QLabel("Mesh Projects")
         project_heading.setStyleSheet("font-size: 16px; font-weight: 600;")
@@ -145,6 +165,12 @@ class MeshGenerationDialog(QDialog):
         GeometryLibraryDialog(
             self._repository_root, self, on_edit_asset=edit_asset
         ).exec()
+
+    def _open_cylinder_cut_workbench(self) -> None:
+        CylinderCutWorkbenchDialog(self._repository_root, self).exec()
+
+    def _open_generic_surface_cut(self) -> None:
+        GenericSurfaceCutDialog(self._repository_root, self).exec()
 
     def _create_mesh_project(self) -> None:
         case_id = self.project_template.currentData()
@@ -699,7 +725,30 @@ class StlToGmshDialog(QDialog):
         definition = self._geometry_preset_paths(preset)
 
         if definition is None:
-            self._mesh_case_id = "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra"
+            generic_case_id = "stl_to_gmsh_generic_3d_mesh_handoff"
+            if self._project is not None:
+                try:
+                    manifest_path = Path(self._project["directory"]) / "project.json"
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    manifest["template_case_id"] = None
+                    manifest["mesh_case_id"] = generic_case_id
+                    manifest_path.write_text(
+                        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                        encoding="utf-8",
+                        newline="\n",
+                    )
+                    self._project = load_mesh_project(Path(self._project["directory"]))
+                except (OSError, ValueError, KeyError) as error:
+                    QMessageBox.warning(
+                        self, "Cannot select generic STL geometry", str(error)
+                    )
+                    self.geometry_preset.blockSignals(True)
+                    self.geometry_preset.setCurrentIndex(
+                        self.geometry_preset.findData(previous)
+                    )
+                    self.geometry_preset.blockSignals(False)
+                    return
+            self._mesh_case_id = generic_case_id
             self._active_geometry_preset = preset
             self._refresh_command()
             return
@@ -793,6 +842,7 @@ class StlToGmshDialog(QDialog):
                     QMessageBox.warning(self, "Cannot replace project STL", str(error))
                     return
                 self._project_directory = Path(self._project["directory"])
+                self._mesh_case_id = str(self._project["mesh_case_id"])
             self.stl_path.setText(str(self._project["stl_path"]) if self._project else str(selected))
             template_id = self._project.get("template_case_id") if self._project else None
             if selected == DEFAULT_SPHERE_STL.resolve():
@@ -806,7 +856,7 @@ class StlToGmshDialog(QDialog):
             else:
                 self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("closed_shell"))
                 if self._project is None:
-                    self._mesh_case_id = "stl_to_gmsh_prolate_spheroid_automatic_tetrahedra"
+                    self._mesh_case_id = "stl_to_gmsh_generic_3d_mesh_handoff"
 
     def _browse_output(self) -> None:
         path, _ = QFileDialog.getSaveFileName(

@@ -13,7 +13,7 @@
     "docs/source/mesh_architecture.rst (Shared unstructured mesh conversion boundary)",
     "docs/source/grid_conversion_cases.rst",
     "docs/source/gmsh_interface.rst",
-    "Gmsh MSH file formats: https://gmsh.info/doc/texinfo/gmsh.html#File-formats"
+    "Gmsh MSH file formats: https://gmsh.info/docs/texinfo/gmsh.html#File-formats"
   ],
   "implementation": {
     "source_paths": [
@@ -54,9 +54,9 @@
     },
     {
       "kind": "google_test",
-      "reference": "tests/geometry/GmshTwoQuadsOneFlowTest.cpp",
+      "reference": "GmshTwoQuadsOneFlowTest.ConvertsTwoAdjacentQuadsThroughCgnsIntoNativeGrid",
       "status": "declared_not_executed",
-      "scope": "Uses the route-owned two-quad MSH fixture to exercise Gmsh -> CGNS -> OneFLOW and checks that both interchange and native-grid artifacts are produced in a temporary workspace."
+      "scope": "tests/geometry/GmshTwoQuadsOneFlowTest.cpp; route-owned two-quad MSH fixture exercises Gmsh -> CGNS -> OneFLOW and checks interchange plus native-grid artifacts in a temporary workspace."
     },
     {
       "kind": "python_test",

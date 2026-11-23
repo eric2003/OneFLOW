@@ -251,8 +251,12 @@ def terminate_process_tree(
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 check=False,
+                timeout=10.0,
             )
-        except OSError:
+        except (OSError, subprocess.TimeoutExpired):
+            # taskkill is an external process and must never hold the caller
+            # indefinitely. Continue through Job Object / parent-process
+            # fallbacks when it is unavailable or exceeds its time budget.
             result = None
         if result is not None and result.returncode == 0:
             # taskkill may report success while a child created during startup

@@ -209,6 +209,14 @@ central inventory of supported routes.
 
 ## Two-cell topology fixture
 
+The generic STL pipeline runs Gmsh 4.15.2 on both Linux and Windows. The
+Windows Mesh-to-CFD validation workflow consumes its generated MSH through
+Gmsh-to-CGNS conversion, CGNS-to-OneFLOW ingestion and the configured
+`oneflow_cfd_solve` smoke stage. The solver stage reuses the existing laminar
+flat-plate controls with a 3-D runtime dimension override; it verifies pipeline
+execution only, not internal-flow physical accuracy, convergence or grid
+independence.
+
 The `grid/two_quads.msh` fixture contains two adjacent QUAD_4 cells and
 verifies that the shared internal interface is not exported as an external
 boundary condition. It also checks that named Physical Groups may span
@@ -234,4 +242,4 @@ available alongside it.
 The Mesh-to-CFD Validation consumer writes a checksum-bound
 ``<output.cgns>.geometry-lineage.json`` companion after successful conversion.
 It carries the verified source STL and Gmsh MSH lineage without modifying the
-CGNS file format. See ``doc/source/mesh_to_cfd_validation.rst``.
+CGNS file format. See ``docs/source/mesh_to_cfd_validation.rst``.

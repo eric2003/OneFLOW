@@ -57,13 +57,23 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libegl1 libgl1 libxkbcommon0 libdbus-1-3 libxcb-cursor0 gmsh
+          sudo apt-get install -y libegl1 libgl1 libxkbcommon0 libdbus-1-3 libxcb-cursor0
       - name: Install GUI test dependency
         run: python -m pip install -r tools/requirements-gui.txt
       - name: Compile Python tooling
         run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout grid/stl_import grid/stl_to_gmsh tools/oneflow_gui tools/verification
       - name: Test case catalog
         run: python tools/test_mesh_cases.py
+      - name: Test generic STL surface diagnostics
+        run: python -m unittest grid.tests.python.stl_import.test_surface_validation
+      - name: Test analytic cylinder cutting and Stage A boundary loops
+        run: python -m unittest grid.tests.python.stl_import.test_analytic_cylinder_cut
+      - name: Test generic STL surface cutting
+        run: python -m unittest grid.tests.python.stl_import.test_generic_stl_surface_cut
+      - name: Test analytic cylinder volume mesh generation
+        run: python -m unittest grid.tests.python.stl_to_gmsh.test_cylinder_volume_mesh
+      - name: Test cylinder cutting Workbench integration
+        run: python -m unittest tools.oneflow_gui.test_cylinder_cut_dialog
       - name: Test planar STL to Gmsh geometry generation
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_geometry
       - name: Test STL-to-Gmsh run reports
@@ -97,13 +107,22 @@ jobs:
       - name: Test cross-platform executable discovery
         run: python -m unittest tools.oneflow_gui.test_executable_discovery
       - name: Test process tree lifecycle
+        timeout-minutes: 3
         run: python -m unittest tools.oneflow_gui.test_process_control
       - name: Test case runner process lifecycle
         run: python -m unittest tools.oneflow_gui.test_runner_process
+      - name: Test static CMake GoogleTest target catalog
+        run: python -m unittest tools.verification.test_cmake_test_catalog
       - name: Test configured CTest discovery parser
         run: python -m unittest tools.verification.test_ctest_discovery
+      - name: Test Contract to configured CTest evidence matching
+        run: python -m unittest tools.verification.test_ctest_evidence
       - name: Test verification contract catalog
         run: python -m unittest tools.verification.test_contract_catalog
+      - name: Test change preflight
+        run: python -m unittest tools.verification.test_preflight
+      - name: Run repository change preflight
+        run: python -m tools.verification.preflight
       - name: Test LaTeX formula preview
         run: python -m unittest tools.verification.test_latex_preview
       - name: Test Formula and Knowledge catalog
@@ -122,8 +141,12 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_source_editor
       - name: Test verification execution records
         run: python -m unittest tools.verification.test_execution_records
+      - name: Test Contract verification status
+        run: python -m unittest tools.verification.test_contract_verification
       - name: Test Python execution evidence capture
         run: python -m unittest tools.oneflow_gui.test_execution_capture
+      - name: Test per-test CTest execution evidence capture
+        run: python -m unittest tools.oneflow_gui.test_ctest_execution_capture
       - name: Test workflow execution evidence capture
         run: python -m unittest tools.oneflow_gui.test_workflow_execution_capture
       - name: Test worker execution evidence integration
@@ -178,6 +201,50 @@ jobs:
         run: python -m unittest tools.oneflow_gui.test_workflow_case_runtime
       - name: Test workspace persistence and editor paths
         run: python -m unittest tools.oneflow_gui.test_workspace_repository tools.oneflow_gui.test_workspace_dialog
+
+
+  generic-stl-gmsh-integration:
+    name: Generic STL volume meshing (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      ONEFLOW_RUN_GMSH_TESTS: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install Gmsh runtime dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libglu1-mesa
+      - name: Install Gmsh (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          curl -fsSL https://gmsh.info/bin/Linux/gmsh-4.15.2-Linux64.tgz -o "$RUNNER_TEMP/gmsh.tgz"
+          mkdir -p "$RUNNER_TEMP/gmsh"
+          tar -xzf "$RUNNER_TEMP/gmsh.tgz" -C "$RUNNER_TEMP/gmsh"
+          gmsh_bin="$(find "$RUNNER_TEMP/gmsh" -type f -name gmsh | head -n 1)"
+          test -n "$gmsh_bin"
+          dirname "$gmsh_bin" >> "$GITHUB_PATH"
+      - name: Install Gmsh (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $archive = Join-Path $env:RUNNER_TEMP "gmsh-windows.zip"
+          $destination = Join-Path $env:RUNNER_TEMP "gmsh-windows"
+          Invoke-WebRequest "https://gmsh.info/bin/Windows/gmsh-4.15.2-Windows64.zip" -OutFile $archive
+          Expand-Archive -Path $archive -DestinationPath $destination -Force
+          $gmsh = Get-ChildItem -Path $destination -Filter gmsh.exe -Recurse | Select-Object -First 1
+          if ($null -eq $gmsh) { throw "Gmsh executable was not found in the downloaded archive." }
+          $gmsh.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Run generic STL cutting and Gmsh volume-mesh integration
+        run: python -m unittest grid.tests.python.stl_import.test_generic_stl_surface_cut
 
   background-task-python-315:
     name: Background task lifecycle (Windows, Python 3.15)

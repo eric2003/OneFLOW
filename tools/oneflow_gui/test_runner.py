@@ -220,6 +220,11 @@ _PYTHON_UNIT_TESTS = (
     ("STL-to-Gmsh geometry tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_geometry")),
     ("STL-to-Gmsh run report tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_run_report")),
     ("STL geometry generator tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_stl_geometry_generation")),
+    ("STL surface validation tests", ("-m", "unittest", "grid.tests.python.stl_import.test_surface_validation")),
+    ("Analytic cylinder cutting tests", ("-m", "unittest", "grid.tests.python.stl_import.test_analytic_cylinder_cut")),
+    ("Generic STL surface cutting tests", ("-m", "unittest", "grid.tests.python.stl_import.test_generic_stl_surface_cut")),
+    ("Analytic cylinder volume mesh tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_cylinder_volume_mesh")),
+    ("Cylinder cutting Workbench tests", ("-m", "unittest", "tools.oneflow_gui.test_cylinder_cut_dialog")),
     ("Native and Python STL-to-Gmsh Case tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases")),
     ("Mesh-to-CFD Validation tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_validation")),
     ("MeshSnapshot contract tests", ("-m", "unittest", "tools.mesh_contracts.test_snapshot")),
@@ -259,14 +264,18 @@ _PYTHON_UNIT_TESTS = (
     ("Numerical verification catalog tests", ("-m", "unittest", "tools.verification.test_curve_catalog")),
     ("Vencat analytic reference tests", ("-m", "unittest", "tools.verification.test_vencat_reference")),
     ("Combined contract catalog tests", ("-m", "unittest", "tools.verification.test_contract_catalog")),
+    ("Change preflight tests", ("-m", "unittest", "tools.verification.test_preflight")),
     ("Verification execution record tests", ("-m", "unittest", "tools.verification.test_execution_records")),
+    ("Contract verification status tests", ("-m", "unittest", "tools.verification.test_contract_verification")),
     ("Python execution capture tests", ("-m", "unittest", "tools.oneflow_gui.test_execution_capture")),
+    ("CTest execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_ctest_execution_capture")),
     ("Workflow execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_workflow_execution_capture")),
     ("Case execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_case_execution_capture")),
     ("Case contract residual runner tests", ("-m", "unittest", "tools.oneflow_gui.test_case_contract_run")),
     ("Test worker execution evidence tests", ("-m", "unittest", "tools.oneflow_gui.test_test_dialog_execution_capture")),
     ("CMake test catalog tests", ("-m", "unittest", "tools.verification.test_cmake_test_catalog")),
     ("Configured CTest discovery tests", ("-m", "unittest", "tools.verification.test_ctest_discovery")),
+    ("Contract to configured CTest evidence tests", ("-m", "unittest", "tools.verification.test_ctest_evidence")),
     ("Contract Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_contract_workbench_dialog")),
     ("Mesh Generation Workbench dialog tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_generation_dialog")),
     ("Mesh project lifecycle tests", ("-m", "unittest", "tools.oneflow_gui.test_mesh_project")),
@@ -323,7 +332,7 @@ def build_ctest_test_commands(
     return [
         TestCommand(
             "C++ unit tests (CTest)",
-            ("ctest", "--output-on-failure", "-C", build_config),
+            ("ctest", "--output-on-failure", "--output-junit", str(build_directory / "ctest-results.xml"), "-C", build_config),
             build_directory,
         )
     ]
@@ -370,7 +379,7 @@ def build_unit_test_commands(
         commands = [
             TestCommand(
                 "C++ unit tests (CTest)",
-                ("ctest", "--output-on-failure", "-C", build_config),
+                ("ctest", "--output-on-failure", "--output-junit", str(build_directory / "ctest-results.xml"), "-C", build_config),
                 build_directory,
             )
         ]

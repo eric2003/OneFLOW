@@ -82,6 +82,53 @@ def _arguments(raw: str) -> list[str]:
         return []
 
 
+def _expanded_cmake_commands(source: str):
+    """Expand simple local CMake function/macro wrappers with literal arguments."""
+    commands = list(_cmake_commands(source))
+    definitions, expanded = {}, []
+    index = 0
+    while index < len(commands):
+        command, raw = commands[index]
+        if command in {"function", "macro"}:
+            declaration = _arguments(raw)
+            if not declaration:
+                index += 1
+                continue
+            name, parameters = declaration[0].lower(), tuple(declaration[1:])
+            body, depth = [], 1
+            index += 1
+            while index < len(commands) and depth:
+                nested_command, nested_raw = commands[index]
+                if nested_command in {"function", "macro"}:
+                    depth += 1
+                elif nested_command in {"endfunction", "endmacro"}:
+                    depth -= 1
+                    if depth == 0:
+                        break
+                if depth:
+                    body.append((nested_command, nested_raw))
+                index += 1
+            definitions[name] = (parameters, tuple(body))
+            index += 1
+            continue
+        definition = definitions.get(command)
+        if definition is None:
+            if command not in {"endfunction", "endmacro"}:
+                expanded.append((command, raw))
+        else:
+            parameters, body = definition
+            values = _arguments(raw)
+            if len(values) >= len(parameters):
+                bindings = dict(zip(parameters, values))
+                for body_command, body_raw in body:
+                    substituted = body_raw
+                    for parameter, value in bindings.items():
+                        substituted = substituted.replace("${" + parameter + "}", value)
+                    expanded.append((body_command, substituted))
+        index += 1
+    return tuple(expanded)
+
+
 def _source_path(token: str, cmake_directory: Path, repository_root: Path) -> Path | None:
     normalized = token.replace("\\", "/")
     for prefix in ("${CMAKE_SOURCE_DIR}/", "${PROJECT_SOURCE_DIR}/"):
@@ -104,12 +151,12 @@ def _source_path(token: str, cmake_directory: Path, repository_root: Path) -> Pa
 def discover_cmake_test_targets_by_source(
     repository_root: Path,
 ) -> dict[str, tuple[CMakeTestTarget, ...]]:
-    """Map every directly declared GoogleTest source to its CMake target.
+    """Map GoogleTest sources to direct CMake targets and supported wrappers.
 
     This is a static source mapping. It reports target declarations and
-    gtest_discover_tests declarations; it does not evaluate CMake conditions, configure, or run CTest.
-    Sources supplied through variables, target_sources(), functions, or
-    generated lists are intentionally not guessed by this reader.
+    gtest_discover_tests declarations; it does not evaluate CMake conditions,
+    configure, or run CTest. Arbitrary variable lists and generated sources
+    remain outside the supported subset.
     """
     root = repository_root.resolve()
     targets: dict[str, tuple[Path, set[Path]]] = {}
@@ -123,7 +170,7 @@ def discover_cmake_test_targets_by_source(
             content = cmake_path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
-        for command, raw in _cmake_commands(content):
+        for command, raw in _expanded_cmake_commands(content):
             arguments = _arguments(raw)
             if command == "add_executable" and len(arguments) >= 2:
                 target = arguments[0]

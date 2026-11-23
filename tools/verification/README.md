@@ -125,6 +125,34 @@ python -m unittest tools.verification.test_contract_catalog
 This is an initial runtime example, not a general runner or an invitation to
 migrate all existing catalogs at once.
 
+## Configured CTest evidence
+
+`ctest_evidence.py` joins exact GoogleTest evidence identities to the actual
+test list from a configured build tree after that build has run CTest at least
+once. It invokes CTest's list-only JSON mode
+(`ctest -N --show-only=json-v1`), then checks the test name together with
+target provenance from the executable path or CMake backtrace. Since this
+repository uses CMake's PRE_TEST discovery mode, the first CTest run must have
+materialized the individual test list. The query itself never runs tests and
+does not update contract status.
+
+Example:
+
+```powershell
+python -m tools.verification.ctest_evidence --build-dir build --configuration Debug
+```
+
+The native Linux and Windows CI workflows run this query after CTest, preserving
+the distinction between the discovered test registry and execution outcomes.
+
+An absent test on a `PRE_TEST` target is reported as `discovery_deferred` until
+CTest has materialized its test list; it is not treated as a confirmed missing
+registration. Use `--require-all` only for build configurations where every declared test
+is expected to be enabled. Optional external-tool and hardware tests may not
+be present in every build. A discovered test is registered in that configured
+CTest tree, not yet executed; successful execution remains a separate
+ExecutionRecord/CI fact.
+
 ## First typed CFD case contract
 
 The first Case-domain definition is
@@ -213,10 +241,15 @@ that declaration and its configured discovery mode.
 
 These are static CMake declarations only. They do not prove that CMake was
 configured successfully, the target was built, CTest executed its discovery
-step, or the individual test ran. The current reader intentionally does not
-guess source membership supplied through variables, `target_sources()`,
-functions, or generated lists. Missing mappings therefore remain unresolved
-rather than being inferred from a nearby target name.
+step, or the individual test ran. The reader supports direct source lists and simple local function/macro wrappers
+whose arguments are literal at the call site (including the repository's
+`add_oneflow_gtest` helper). It intentionally does not evaluate arbitrary
+CMake variables, conditions, `target_sources()`, generated lists, or general
+function semantics. Missing mappings therefore remain unresolved rather than
+being inferred from a nearby target name.
+The Change Preflight checks a mapped GoogleTest source for an explicit
+`gtest_discover_tests` declaration. This is a static registration check only;
+it does not replace configured-build CTest discovery or execution evidence.
 
 Focused validation:
 
@@ -332,12 +365,15 @@ they create a new process group and use `taskkill /PID <pid> /T /F` to stop the
 process tree. The Windows command is invoked with an argument list, never
 through a shell.
 
-The shared `terminate_and_reap` operation also defines the shutdown
-sequence: request process-tree termination, wait for the direct child, retry
-tree termination if the wait times out, and finally kill/reap the direct child
-as a last resort. The GUI test worker, Case Database runner, and workflow
-runner use this same escalation policy. This prevents each caller from
-silently implementing a different timeout or leaving an unreaped direct child.
+On Windows, the `taskkill /T /F` request has a 10-second subprocess timeout.
+If the command is unavailable or exceeds that budget, termination continues
+through the Job Object and direct-parent fallbacks. The shared
+`terminate_and_reap` operation then waits for the direct child, retries
+process-tree termination if the wait times out, and finally kills/reaps the
+direct child as a last resort. The Python Tooling CI process-tree test has a
+3-minute step limit so a regression cannot leave that step waiting indefinitely.
+The GUI test worker, Case Database runner, and workflow runner use this same
+escalation policy.
 The process-tree helper itself remains a platform boundary; callers retain
 ownership of their task-specific result records and output presentation.
 
@@ -396,9 +432,10 @@ IDs remain empty until an explicit test-to-contract mapping is defined; the
 adapter never guesses links from labels or module names.
 
 Persistence errors are reported in the test dialog without replacing the
-actual test process result. CTest/GoogleTest and CFD regression execution are
-not yet captured by this adapter, and the Contract Workbench has not yet
-presented execution history.
+actual test process result. CTest/GoogleTest and CFD regression execution use separate adapters so each
+framework can preserve its own per-test identity and outcome semantics. The
+Contract Workbench reads the shared records without treating unlinked records
+as proof for a selected contract.
 
 Run the focused model and adapter tests:
 
@@ -408,6 +445,42 @@ python -m unittest tools.oneflow_gui.test_execution_capture
 python -m unittest tools.oneflow_gui.test_test_dialog_execution_capture
 ```
 
+
+
+## Per-test CTest execution records
+
+The GUI test command builder invokes CTest with
+`--output-junit build/ctest-results.xml`. The repository requires CMake 3.30,
+and CTest has supported this option since 3.21. The report is written inside
+the existing build directory. After CTest exits, the worker parses each JUnit
+`testcase` and appends one schema-v1 `ExecutionRecord` per case to
+`~/.oneflow/verification/execution-records.jsonl` (or the configured
+`ONEFLOW_HOME`). The JUnit report and captured command output are retained as
+checksummed artifacts under the build tree and user-data test logs.
+
+Completed cases map to `passed` or `failed`; CTest `notrun` and `disabled`
+cases map to `blocked`, preserving the skip reason. Records retain the exact
+CTest name, test source path for explicitly linked Contract evidence, and
+CMake registration backtrace source/line for unlinked cases, command,
+configuration, repository revision, platform, and shared invocation ID. The
+JUnit duration is validated, while start/finish timestamps represent the
+enclosing CTest command interval because JUnit does not provide an independent
+timestamp for each testcase.
+
+Contract IDs are attached only when the configured-CTest audit confirms the
+exact JUnit test name and CMake target provenance. Name similarity alone is
+never used. Other tests remain unlinked records; unavailable discovery or an
+evidence-audit error is recorded as a diagnostic. If CTest fails before
+producing a valid JUnit report, the worker warns and does not manufacture
+per-test records from the console summary.
+
+Focused validation:
+
+```powershell
+python -m unittest tools.oneflow_gui.test_ctest_execution_capture
+python -m unittest tools.oneflow_gui.test_test_dialog_execution_capture
+python -m unittest tools.oneflow_gui.test_test_runner
+```
 
 ## Recorded execution history in the Workbench
 
@@ -535,3 +608,55 @@ Its unit tests use a temporary directory and verify formula values, zone
 structure, point counts, and endpoint values. This is an analytic reference
 profile generator, not evidence that a CFD discretization or solver converges
 to the profile.
+
+
+## Repository change preflight
+
+Run `python -m tools.verification.preflight` before committing a functional
+slice. The read-only command reuses the Contract Catalog and Python test
+inventory to check contract schema and paths, supported evidence declarations,
+duplicate evidence identities, Python unittest source declarations, and
+coverage by the existing Python execution registry. When a Python evidence
+source is missing, it searches for the exact unittest class/method identity
+and reports matching source-path candidates. It also searches C++ test source
+files for exact GoogleTest macro identities when linked evidence paths are
+stale. C++ comments and string literals are masked before matching. Build and
+cache directories are excluded; multiple matches are listed for manual
+disambiguation. The tool never edits Contract evidence automatically.
+
+Use `python -m tools.verification.preflight --changed` to include a summary of
+staged, unstaged, and untracked paths. The check remains repository-wide so
+that changes are not validated in isolation from their contract and test
+relationships. It is also executed by Python Tooling CI.
+
+A PASS is a declaration-consistency result, not a test execution result. The
+tool does not claim that C++ targets build, CTest discovers every GoogleTest,
+Python tests pass, or CFD results are physically validated. See
+`docs/source/change_preflight.rst` for the command contract, boundaries, and
+recommended workflow.
+
+
+## Contract verification status
+
+`contract_verification.py` is a Qt-independent, read-only evaluator for
+execution evidence. It keeps the declared Contract status separate from the
+computed execution status and only considers explicit Contract IDs plus exact
+CTest identities (or the exact declared Python test source module).
+
+Outcomes are `passed`, `failed`, `blocked`, `partially_verified`,
+`stale`, `not_run`, or `unknown`. The evaluator never treats a discovery
+result as an execution, never infers links from matching names alone, and
+never changes Contract declarations. Debug/Release and platform contexts are
+reported independently; no expected CI matrix is invented. A pass means all
+declared executable test evidence was observed passing in each reported
+context, not that every possible platform/configuration has been exercised.
+
+Run:
+
+```powershell
+python -m unittest tools.verification.test_contract_verification
+```
+
+The Contract Workbench Verification / Evidence view displays the computed
+execution status and per-context evidence coverage alongside the unchanged
+declared status and the detailed execution history.

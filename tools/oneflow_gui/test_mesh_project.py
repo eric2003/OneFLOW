@@ -96,7 +96,10 @@ class MeshProjectTest(unittest.TestCase):
         updated = replace_project_stl(project, alternate)
         self.assertEqual(updated["stl_path"].read_text(encoding="ascii"), alternate.read_text(encoding="ascii"))
         self.assertNotEqual(updated["stl_path"], alternate)
-        self.assertEqual(updated["mesh_case_id"], project["mesh_case_id"])
+        self.assertIsNone(updated["template_case_id"])
+        self.assertEqual(
+            updated["mesh_case_id"], "stl_to_gmsh_generic_3d_mesh_handoff"
+        )
 
     def test_import_prepared_project_directory_and_reopen_it(self) -> None:
         source = self.home / "prepared_case"
@@ -264,12 +267,36 @@ class MeshProjectTest(unittest.TestCase):
             "invalid_or_checksum_mismatch",
         )
 
+    def test_legacy_imported_project_uses_geometry_neutral_mesh_handoff(self) -> None:
+        project_root = self.home / "legacy_project"
+        input_directory = project_root / "input"
+        input_directory.mkdir(parents=True)
+        source = self.repository_root / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python/input/model.stl"
+        (input_directory / "model.stl").write_bytes(source.read_bytes())
+        manifest = {
+            "schema": "oneflow.mesh-generation-project",
+            "version": 1,
+            "name": "legacy_project",
+            "template_case_id": None,
+            "mesh_case_id": "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
+            "input_stl": "input/model.stl",
+            "output_mesh": "results/legacy_project.msh",
+        }
+        (project_root / "project.json").write_text(
+            json.dumps(manifest), encoding="utf-8"
+        )
+        loaded = load_mesh_project(project_root)
+        expected = "stl_to_gmsh_generic_3d_mesh_handoff"
+        self.assertEqual(loaded["mesh_case_id"], expected)
+        saved = json.loads((project_root / "project.json").read_text(encoding="utf-8"))
+        self.assertEqual(saved["mesh_case_id"], expected)
+
     def test_import_stl_copies_database_geometry_into_independent_project(self) -> None:
         source = self.repository_root / "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python/input/model.stl"
         project = create_mesh_project_from_stl(self.repository_root, source, "imported_spheroid")
         self.assertTrue(project["stl_path"].is_file())
         self.assertNotEqual(project["stl_path"], source)
-        self.assertEqual(project["mesh_case_id"], "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra")
+        self.assertEqual(project["mesh_case_id"], "stl_to_gmsh_generic_3d_mesh_handoff")
 
 
 if __name__ == "__main__":

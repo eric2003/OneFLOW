@@ -56,6 +56,19 @@ jobs:
           & $psfile
         shell: pwsh
 
+
+      - name: Install Gmsh 4.15.2 for mesh handoff integration
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $archive = Join-Path $env:RUNNER_TEMP "gmsh-windows.zip"
+          $destination = Join-Path $env:RUNNER_TEMP "gmsh-windows"
+          Invoke-WebRequest "https://gmsh.info/bin/Windows/gmsh-4.15.2-Windows64.zip" -OutFile $archive
+          Expand-Archive -Path $archive -DestinationPath $destination -Force
+          $gmsh = Get-ChildItem -Path $destination -Filter gmsh.exe -Recurse | Select-Object -First 1
+          if ($null -eq $gmsh) { throw "Gmsh executable was not found in the downloaded archive." }
+          $gmsh.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
       - name: Unit Test
         env:
           HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
@@ -86,6 +99,13 @@ jobs:
               throw "ctest failed with exit code $LASTEXITCODE."
           }
 
+          cd "${{ github.workspace }}"
+          python -m tools.verification.ctest_evidence --build-dir build --configuration Release
+          if ($LASTEXITCODE -ne 0) {
+              throw "Configured CTest evidence query failed with exit code $LASTEXITCODE."
+          }
+          cd "${{ github.workspace }}/build"
+
           python -m unittest discover -s ../tools -p "test_mesh_workflow.py"
           if ($LASTEXITCODE -ne 0) {
               throw "Mesh workflow tests failed with exit code $LASTEXITCODE."
@@ -97,6 +117,85 @@ jobs:
               throw "Mesh export tests failed with exit code $LASTEXITCODE."
           }
         shell: pwsh 
+
+
+      - name: Run generic STL to Gmsh to CGNS to OneFLOW handoff
+        env:
+          ONEFLOW_ROOT: ${{ github.workspace }}/install
+          HDF5_ROOT: ${{ github.workspace }}/_deps/hdf5/${{ env.HDF5_VERSION }}
+          CGNS_ROOT: ${{ github.workspace }}/_deps/cgns/${{ env.CGNS_VERSION }}
+          MSMPI_ROOT: C:/Program Files/Microsoft MPI
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $runtimePaths = @(
+              "$env:ONEFLOW_ROOT/bin",
+              "$env:HDF5_ROOT/bin",
+              "$env:CGNS_ROOT/bin",
+              "$env:MSMPI_ROOT/Bin"
+          )
+          foreach ($path in $runtimePaths) {
+              if (Test-Path $path) { $env:Path = "$path;$env:Path" }
+          }
+
+          $gmsh = Get-Command gmsh.exe -ErrorAction Stop
+          $env:ONEFLOW_HOME = Join-Path $env:RUNNER_TEMP "oneflow-generic-curved-shell-home"
+          $cutRoot = Join-Path $env:RUNNER_TEMP "oneflow-generic-curved-shell-cut"
+          $stageRoot = Join-Path $env:RUNNER_TEMP "oneflow-generic-curved-shell-validation"
+
+          $sourceStl = Join-Path $env:GITHUB_WORKSPACE "grid/stl_to_gmsh/3d/prolate_spheroid/automatic_tetrahedra/python/input/model.stl"
+          python -m grid.stl_import.cut_surface_cli --input $sourceStl --output-directory $cutRoot --inlet-point -2.5 0 0 --inlet-normal 1 0 0 --outlet-point 2.5 0 0 --outlet-normal 1 0 0
+          if ($LASTEXITCODE -ne 0) { throw "Generic STL cutting failed." }
+
+          $closedStl = Join-Path $cutRoot "closed_surface.stl"
+          $projectRoot = (python -c "import sys; from pathlib import Path; from tools.oneflow_gui.mesh_project import create_mesh_project_from_stl; project = create_mesh_project_from_stl(Path.cwd(), Path(sys.argv[1]), 'generic-curved-shell-ci'); print(project['directory'])" $closedStl | Out-String).Trim()
+          if ($LASTEXITCODE -ne 0) { throw "GUI mesh-project creation failed." }
+          if (-not (Test-Path (Join-Path $projectRoot "project.json"))) {
+              throw "GUI mesh-project creation did not produce project.json: $projectRoot"
+          }
+
+          $meshPath = Join-Path $projectRoot "results/generic-curved-shell-ci.msh"
+          python -m grid.stl_to_gmsh.generate_volume_mesh --stl (Join-Path $projectRoot "input/model.stl") --output $meshPath --gmsh $gmsh.Source --mesh-size-min 0.10 --mesh-size-max 0.15
+          if ($LASTEXITCODE -ne 0) { throw "Gmsh volume mesh generation failed." }
+
+          python -m tools.oneflow_gui.mesh_validation --oneflow-executable (Join-Path $env:ONEFLOW_ROOT "bin/OneFLOW.exe") --gmsh $gmsh.Source --mesh-case-id stl_to_gmsh_generic_3d_mesh_handoff --mesh-file $meshPath --project-directory $projectRoot --stage-root $stageRoot --max-steps 2
+          if ($LASTEXITCODE -ne 0) { throw "Mesh-to-CFD validation, including oneflow_cfd_solve, failed." }
+
+          $reportPath = Join-Path $stageRoot "mesh-validation-report.json"
+          if (-not (Test-Path $reportPath)) { throw "Mesh validation report was not created." }
+          $report = Get-Content -Raw $reportPath | ConvertFrom-Json
+          if ($report.exit_code -ne 0) { throw "Mesh-to-CFD report has non-zero exit code." }
+          foreach ($stageName in @("existing_msh_input", "gmsh_to_cgns", "cgns_to_oneflow", "cfd_smoke")) {
+              $stage = $report.stages.PSObject.Properties[$stageName].Value
+              if ($null -eq $stage -or $stage.status -ne "PASS") {
+                  throw "Mesh-to-CFD stage '$stageName' did not pass."
+              }
+          }
+          $cgns = Join-Path $stageRoot "gmsh_to_cgns/results/generic_surface_mesh.cgns"
+          $native = Join-Path $stageRoot "cgns_to_oneflow/results/generic_surface_mesh.oneflow.grid"
+          if (-not (Test-Path $cgns)) { throw "CGNS interchange artifact is missing: $cgns" }
+          if (-not (Test-Path $native)) { throw "OneFLOW native grid is missing: $native" }
+          $regionMap = Join-Path $stageRoot "cgns_to_oneflow/results/generic_surface_mesh_bcRegionMap.txt"
+          if (-not (Test-Path $regionMap)) { throw "OneFLOW boundary-region map is missing: $regionMap" }
+          $regionText = Get-Content -Raw $regionMap
+          foreach ($regionName in @("wall", "inflow", "outflow")) {
+              if (-not $regionText.Contains($regionName)) {
+                  throw "OneFLOW boundary-region map does not contain '$regionName'."
+              }
+          }
+          if ($report.metrics.physical_group_count -lt 4) {
+              throw "MSH report did not retain all four physical groups."
+          }
+
+      - name: Upload generic STL mesh-to-CFD smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generic-stl-mesh-cfd-smoke-windows
+          path: |
+            ${{ runner.temp }}/oneflow-generic-curved-shell-home
+            ${{ runner.temp }}/oneflow-generic-curved-shell-validation
+          if-no-files-found: ignore
 
       - name: Run OneFLOW Regression Tests
         env:
