@@ -58,7 +58,9 @@
       "Plane points and normals are supplied explicitly; automatic endpoint direction estimation is not included.",
       "The automated curved-surface integration fixture is a cut prolate shell; it validates the two-loop wall topology but is not a replacement for the user's exact pipe geometry.",
       "The native C++ cutter currently requires one connected, closed, outward-oriented input shell and one simple loop at each cutting plane.",
-      "Native C++ cut-region Physical Group preservation is available only through the region-aware closed-surface Gmsh pipeline; CGNS-only surface conversion does not preserve the three named cut patches."
+      "Native C++ cut-region Physical Group preservation is available only through the region-aware closed-surface Gmsh pipeline; CGNS-only surface conversion does not preserve the three named cut patches.",
+      "The current closed-surface Gmsh volume path requires genus-zero topology; handles or multiple boundary loops are rejected.",
+      "Zero-area and near-degenerate input triangles are rejected during topology analysis."
     ]
   },
   "verification": [

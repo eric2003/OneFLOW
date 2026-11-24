@@ -225,3 +225,5 @@ The native OneFLOW parameters are:
 When disabled, the existing STL conversion behavior is unchanged. When
 enabled, the current native cutter requires a single connected, closed,
 outward-oriented shell and one simple boundary loop at each cutting plane.
+The current Gmsh volume converter additionally requires genus-zero input and
+rejects zero-area or near-degenerate triangles.
