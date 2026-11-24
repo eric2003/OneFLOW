@@ -479,7 +479,12 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertEqual(
             [case_id for case_id, _title in groups[1][1]],
-            ["native_cube", "python_cube", "native_sphere", "python_sphere", "cylinder_existing_mesh"],
+            [
+                "native_cube", "python_cube", "native_sphere", "python_sphere",
+                "cylinder_existing_mesh",
+                "stl_to_gmsh_cylinder_internal_flow_oblique_cut",
+                "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut",
+            ],
         )
 
     def test_mesh_producer_command_dispatches_by_implementation(self):
