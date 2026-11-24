@@ -446,6 +446,38 @@ class MeshGenerationDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_mesh_validation_case_tree_uses_single_selection_column(self) -> None:
+        from PySide6.QtCore import Qt
+        from tools.oneflow_gui.mesh_validation_dialog import MeshValidationDialog
+
+        dialog = MeshValidationDialog(self.repository_root)
+        try:
+            self.assertEqual(dialog.case_tree.columnCount(), 1)
+            self.assertEqual(
+                dialog.case_tree.headerItem().text(0), "STL / Mesh Case"
+            )
+            self.assertTrue(dialog.case_tree.isColumnHidden(0) is False)
+            self.assertTrue(dialog._case_items)
+
+            case_item = next(iter(dialog._case_items.values()))
+            category_item = case_item.parent()
+            dimension_item = category_item.parent()
+            case_item.setCheckState(0, Qt.CheckState.Unchecked)
+            self.assertEqual(
+                category_item.checkState(0), Qt.CheckState.PartiallyChecked
+            )
+            self.assertEqual(
+                dimension_item.checkState(0), Qt.CheckState.PartiallyChecked
+            )
+
+            category_item.setCheckState(0, Qt.CheckState.Checked)
+            for index in range(category_item.childCount()):
+                self.assertEqual(
+                    category_item.child(index).checkState(0), Qt.CheckState.Checked
+                )
+        finally:
+            dialog.close()
+
     def test_validate_current_mesh_opens_single_mesh_validation_mode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             mesh = Path(directory) / "sphere.msh"
