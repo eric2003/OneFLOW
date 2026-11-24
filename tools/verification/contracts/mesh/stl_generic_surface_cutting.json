@@ -70,7 +70,7 @@
   },
   "verification": [
     {
-      "kind": "cpp_gtest",
+      "kind": "google_test",
       "reference": "StlSurfaceCutTest.ClipsAndCapsBetweenTwoPlanes",
       "status": "not_run",
       "scope": "tests/geometry/StlSurfaceCutTest.cpp; Uses a synthetic outward tetrahedron to verify topology reporting, two-plane clipping, cap triangulation, closed-manifold validation and positive signed volume."
