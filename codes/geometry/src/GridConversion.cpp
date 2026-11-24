@@ -1484,7 +1484,22 @@ void ConvertStlSurfaceVolumeToGmsh(
     report["triangle_boundary_elements"] = counts[2];
     report["hexahedron_elements"] = counts[5];
     report["quadrilateral_boundary_elements"] = counts[3];
-    report["physical_groups"] = {boundaryName, volumeName};
+    if (config.stlSurfaceCutEnabled)
+    {
+        report["physical_groups"] = {"wall", "inflow", "outflow", "fluid_domain"};
+        report["cut_regions"] = {
+            {"wall_triangles", StlMeshReader::Read(
+                (source.parent_path() / "wall.stl").string()).triangles.size()},
+            {"inlet_triangles", StlMeshReader::Read(
+                (source.parent_path() / "inlet.stl").string()).triangles.size()},
+            {"outlet_triangles", StlMeshReader::Read(
+                (source.parent_path() / "outlet.stl").string()).triangles.size()}
+        };
+    }
+    else
+    {
+        report["physical_groups"] = {boundaryName, volumeName};
+    }
     report["validated"] = true;
     std::ofstream reportOutput(reportPath, std::ios::trunc);
     if (!reportOutput) throw std::runtime_error("Cannot create STL-to-Gmsh report: " + reportPath.string());
