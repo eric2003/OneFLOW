@@ -27,6 +27,7 @@ License
 #include <cmath>
 #include <cstdint>
 #include <map>
+#include <limits>
 #include <stdexcept>
 #include <tuple>
 #include <vector>

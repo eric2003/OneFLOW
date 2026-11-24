@@ -28,6 +28,9 @@ License
 #include <limits>
 #include <map>
 #include <set>
+#include <string>
+#include <tuple>
+#include <iterator>
 #include <stdexcept>
 #include <utility>
 #include <vector>
