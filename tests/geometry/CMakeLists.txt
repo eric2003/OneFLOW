@@ -48,6 +48,7 @@ endif()
 # ==============================================================================
 set ( INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/include
+    ${CMAKE_SOURCE_DIR}/codes/geometry/stl/include
     ${CMAKE_SOURCE_DIR}/codes/global/include
     ${CMAKE_SOURCE_DIR}/codes/basic/include
     ${CMAKE_SOURCE_DIR}/codes/io/include
@@ -72,7 +73,7 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridWorkflow.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridConversion.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GmshMeshReader.cpp
-    ${CMAKE_SOURCE_DIR}/codes/geometry/src/StlMeshIO.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/stl/src/StlMeshIO.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridTypes.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridLayout.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridMediator.cpp
