@@ -66,6 +66,8 @@ class GenericStlSurfaceCutTest(unittest.TestCase):
             self.source, tuple(inlet["point"]), tuple(inlet["normal"]),
             tuple(outlet["point"]), tuple(outlet["normal"]),
             tolerance=config["tolerance"],
+            inlet_keep_positive=inlet.get("keep_positive", True),
+            outlet_keep_positive=outlet.get("keep_positive", False),
         )
         angle = math.radians(inlet["inclination_degrees"])
         major_axis = (-math.sin(angle), math.cos(angle), 0.0)
