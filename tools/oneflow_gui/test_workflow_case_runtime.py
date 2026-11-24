@@ -90,6 +90,9 @@ class WorkflowCaseRuntimeTest(unittest.TestCase):
                 },
             ], root)
             run_root = root / "validation"
+            stale_config = run_root / "cases" / "script" / "cutting.json"
+            stale_config.parent.mkdir(parents=True)
+            stale_config.write_text('{"stale": true}\\n', encoding="utf-8")
             staged = prepare_case_directory(plan.steps[0], run_root, {})
             staged_shared = run_root / "cases" / "script" / "cutting.json"
             self.assertEqual(staged_shared.read_text(encoding="utf-8"), '{"cutting_planes": {}}\n')

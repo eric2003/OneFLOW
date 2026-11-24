@@ -37,10 +37,6 @@ def _stage_shared_grid_configuration(source: Path, target: Path) -> None:
     if not source_config.is_file():
         raise FileNotFoundError(f"Shared STL surface-cut config not found: {source_config}")
     target_config.parent.mkdir(parents=True, exist_ok=True)
-    if target_config.exists():
-        if target_config.read_bytes() != source_config.read_bytes():
-            raise ValueError(f"Conflicting shared grid configuration: {target_config}")
-        return
     shutil.copy2(source_config, target_config)
 
 
