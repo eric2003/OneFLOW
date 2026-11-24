@@ -489,6 +489,13 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 "script": "grid/stl_to_gmsh/run_python_case.py",
             }
         }
+        python_output_entry = {
+            "execution": {
+                "kind": "python",
+                "script": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py",
+                "output_directory_argument": "--output-directory",
+            }
+        }
         command = _mesh_case_command(
             self.root, python_entry, Path("OneFLOW"), Path("gmsh"),
             self.root / ".oneflow/staged/python_case",
@@ -499,6 +506,15 @@ class MeshValidationCatalogTest(unittest.TestCase):
             "--case-directory", str(self.root / ".oneflow/staged/python_case"),
             "--gmsh", "gmsh",
         ])
+        staged_output = self.root / ".oneflow/staged/oblique_case"
+        oblique_command = _mesh_case_command(
+            self.root, python_output_entry, Path("OneFLOW"), Path("gmsh"),
+            staged_output,
+        )
+        self.assertEqual(
+            oblique_command[-2:],
+            ["--output-directory", str(staged_output)],
+        )
         native = _mesh_case_command(
             self.root, {}, Path("OneFLOW"), Path("gmsh"),
             self.root / ".oneflow/staged/native_case",

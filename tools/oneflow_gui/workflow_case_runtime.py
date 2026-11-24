@@ -15,17 +15,21 @@ from .workflow_runtime_overrides import apply_runtime_overrides
 def _stage_shared_grid_configuration(source: Path, target: Path) -> None:
     """Stage one parent-level STL cut config referenced by a native grid case."""
     grid_file = source / "script" / "grid.txt"
-    if not grid_file.is_file():
-        return
-    text = grid_file.read_text(encoding="utf-8")
-    match = re.search(
-        r'^\s*string\s+stlSurfaceCutConfigFile\s*=\s*"([^"]+)"\s*;',
-        text,
-        re.MULTILINE,
-    )
+    match = None
+    if grid_file.is_file():
+        text = grid_file.read_text(encoding="utf-8")
+        match = re.search(
+            r'^\s*string\s+stlSurfaceCutConfigFile\s*=\s*"([^"]+)"\s*;',
+            text,
+            re.MULTILINE,
+        )
     if match is None:
-        return
-    relative = Path(match.group(1))
+        shared_config = source.parent / "script" / "cutting.json"
+        if not shared_config.is_file():
+            return
+        relative = Path("../script/cutting.json")
+    else:
+        relative = Path(match.group(1))
     if relative.is_absolute():
         raise ValueError("STL surface-cut config must be a relative Case path.")
     source_config = (source / relative).resolve()

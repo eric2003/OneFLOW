@@ -578,7 +578,8 @@
       "group": "STL to Gmsh",
       "execution": {
         "kind": "python",
-        "script": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py"
+        "script": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py",
+        "output_directory_argument": "--output-directory"
       },
       "dimension": 3,
       "mesh_validation": "cfd_smoke",

@@ -591,10 +591,16 @@ def _mesh_case_command(
         script_path.relative_to(root)
     except ValueError as error:
         raise ValueError("Python mesh producer script must stay inside the repository.") from error
-    return [
+    command = [
         sys.executable, str(script_path), "--case-directory",
         str(case_directory), "--gmsh", str(gmsh_executable),
     ]
+    output_argument = execution.get("output_directory_argument")
+    if output_argument:
+        if not isinstance(output_argument, str) or not output_argument.startswith("--"):
+            raise ValueError("Python mesh producer output_directory_argument must be a CLI option.")
+        command.extend([output_argument, str(case_directory)])
+    return command
 
 
 def _project_required_physical_groups(project_data: dict) -> list[dict]:
