@@ -23,6 +23,7 @@ License
 #include "GridConversion.h"
 #include "GmshMeshReader.h"
 #include "StlMeshIO.h"
+#include "StlSurfaceCut.h"
 #include "ProcessRunner.h"
 #include "PointLocator.h"
 #include "CgnsFactory.h"
@@ -2355,20 +2356,95 @@ void ConvertStlCubeToGmsh(
                   << " welded nodes, " << grid.nElem << " triangles." << std::endl;
     }
 
+    std::filesystem::path PrepareStlSurfaceCut(
+        const GridConfig& config, const std::string& caseDir)
+    {
+        namespace fs = std::filesystem;
+        using Json = nlohmann::json;
+        if (!config.stlSurfaceCutEnabled) return {};
+        if (config.stlSurfaceCutConfigFile.empty())
+            throw std::invalid_argument("stlSurfaceCutEnabled requires stlSurfaceCutConfigFile");
+        const fs::path caseRoot(caseDir);
+        const fs::path configName(config.stlSurfaceCutConfigFile);
+        const fs::path configPath = configName.is_absolute() ? configName : caseRoot / configName;
+        std::ifstream configInput(configPath, std::ios::binary);
+        if (!configInput) throw std::runtime_error("Cannot open STL surface-cut configuration: " + configPath.string());
+        const Json cutConfig = Json::parse(configInput);
+        const Json& planes = cutConfig.at("cutting_planes");
+        const auto readPlane = [](const Json& value)
+        {
+            StlCutPlane plane;
+            plane.point = value.at("point").get<std::array<double, 3>>();
+            plane.normal = value.at("normal").get<std::array<double, 3>>();
+            plane.keepPositive = value.value("keep_positive", true);
+            return plane;
+        };
+        StlSurfaceCutOptions options;
+        options.inlet = readPlane(planes.at("inlet"));
+        options.outlet = readPlane(planes.at("outlet"));
+        options.tolerance = cutConfig.value("tolerance", static_cast<double>(config.stlSurfaceCutTolerance));
+        options.capBoundaries = cutConfig.value("cap_boundaries", true);
+        if (!options.capBoundaries) throw std::invalid_argument("STL-to-volume-mesh cutting requires cap_boundaries=true");
+        const fs::path sourceName(config.sourceFile);
+        const fs::path sourceRoot = config.ResolveSourceCaseDir(caseDir);
+        const fs::path source = sourceName.is_absolute() ? sourceName : sourceRoot / sourceName;
+        const StlMesh input = StlMeshReader::Read(source.string());
+        const StlSurfaceCutResult result = CutStlSurfaceBetweenPlanes(input, options);
+        const fs::path output = caseRoot / "results" / "stl_surface_cut";
+        fs::create_directories(output);
+        StlMeshWriter::WriteASCII((output / "wall.stl").string(), result.wall);
+        StlMeshWriter::WriteASCII((output / "inlet.stl").string(), result.inletCap);
+        StlMeshWriter::WriteASCII((output / "outlet.stl").string(), result.outletCap);
+        StlMeshWriter::WriteASCII((output / "closed_surface.stl").string(), result.closedSurface);
+        Json report;
+        report["schema"] = "oneflow.stl-surface-cut-report";
+        report["version"] = 1;
+        report["input_stl"] = fs::absolute(source).string();
+        report["analytic_geometry_metadata_read"] = false;
+        report["source_triangle_count"] = input.triangles.size();
+        report["wall_triangle_count"] = result.wall.triangles.size();
+        report["inlet_cap_triangle_count"] = result.inletCap.triangles.size();
+        report["outlet_cap_triangle_count"] = result.outletCap.triangles.size();
+        report["inlet_loop_vertex_count"] = result.inletLoop.size();
+        report["outlet_loop_vertex_count"] = result.outletLoop.size();
+        report["closed_surface"] = "closed_surface.stl";
+        report["topology"]["welded_vertex_count"] = result.topology.weldedVertexCount;
+        report["topology"]["edge_count"] = result.topology.edgeCount;
+        report["topology"]["boundary_edge_count"] = result.topology.boundaryEdgeCount;
+        report["topology"]["non_manifold_edge_count"] = result.topology.nonManifoldEdgeCount;
+        report["topology"]["connected_component_count"] = result.topology.connectedComponentCount;
+        report["topology"]["signed_volume"] = result.topology.signedVolume;
+        std::ofstream reportOutput(output / "cut_report.json", std::ios::trunc);
+        if (!reportOutput) throw std::runtime_error("Cannot create STL surface-cut report");
+        reportOutput << report.dump(2) << '\n';
+        if (!reportOutput) throw std::runtime_error("Failed writing STL surface-cut report");
+        std::cout << "STL surface cutting completed: " << result.wall.triangles.size()
+                  << " wall triangles, " << result.inletCap.triangles.size()
+                  << " inlet-cap triangles, " << result.outletCap.triangles.size()
+                  << " outlet-cap triangles." << std::endl;
+        return fs::absolute(output / "closed_surface.stl");
+    }
+
     void ConvertStl( const GridConfig & config, const std::string & caseDir )
     {
-        switch ( config.targetType )
+        GridConfig effectiveConfig = config;
+        if ( config.stlSurfaceCutEnabled )
+        {
+            effectiveConfig.sourceFile = PrepareStlSurfaceCut(config, caseDir).string();
+            effectiveConfig.sourceCaseDir.clear();
+        }
+        switch ( effectiveConfig.targetType )
         {
             case GridFileType::CGNS:
-                ConvertStlToCgns( config, caseDir );
+                ConvertStlToCgns( effectiveConfig, caseDir );
                 return;
             case GridFileType::Gmsh:
-                ConvertStlToGmsh( config, caseDir );
+                ConvertStlToGmsh( effectiveConfig, caseDir );
                 return;
             default:
                 throw std::invalid_argument(
                     std::string( "Unsupported STL target type: " ) +
-                    std::string( ToString( config.targetType ) ) );
+                    std::string( ToString( effectiveConfig.targetType ) ) );
         }
     }
 
