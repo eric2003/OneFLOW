@@ -1342,7 +1342,16 @@ void ConvertStlSurfaceVolumeToGmsh(
     const std::filesystem::path& target)
 {
     namespace fs = std::filesystem;
-    const double tolerance = config.stlWeldTolerance;
+    double tolerance = config.stlWeldTolerance;
+    if (config.stlSurfaceCutEnabled)
+    {
+        std::ifstream cutReportInput(source.parent_path() / "cut_report.json", std::ios::binary);
+        if (!cutReportInput)
+            throw std::runtime_error("Native STL cut report is missing beside the closed surface");
+        const nlohmann::json cutReport = nlohmann::json::parse(cutReportInput);
+        tolerance = std::max(tolerance, cutReport.value(
+            "tolerance", static_cast<double>(config.stlSurfaceCutTolerance)));
+    }
     const StlMesh mesh = StlMeshReader::Read(source.string());
     ValidateClosedGenusZeroStlSurface(mesh, tolerance);
 
@@ -2461,6 +2470,7 @@ void ConvertStlCubeToGmsh(
         report["schema"] = "oneflow.stl-surface-cut-report";
         report["version"] = 1;
         report["input_stl"] = fs::absolute(source).string();
+        report["tolerance"] = options.tolerance;
         report["analytic_geometry_metadata_read"] = false;
         report["source_triangle_count"] = input.triangles.size();
         report["wall_triangle_count"] = result.wall.triangles.size();
