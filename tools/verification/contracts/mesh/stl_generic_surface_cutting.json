@@ -64,7 +64,8 @@
       "The native C++ cutter currently requires one connected, closed, outward-oriented input shell and one simple loop at each cutting plane.",
       "Native C++ cut-region Physical Group preservation is available only through the region-aware closed-surface Gmsh pipeline; CGNS-only surface conversion does not preserve the three named cut patches.",
       "The current closed-surface Gmsh volume path requires genus-zero topology; handles or multiple boundary loops are rejected.",
-      "Zero-area and near-degenerate input triangles are rejected during topology analysis."
+      "Zero-area and near-degenerate input triangles are rejected during topology analysis.",
+      "The native parameter path rejects non-3-D layouts and volume pipelines other than closed_surface_automatic_tetrahedra."
     ]
   },
   "verification": [
