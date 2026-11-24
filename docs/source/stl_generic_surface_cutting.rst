@@ -192,3 +192,39 @@ Native C++ surface-cut entry
 ----------------------------
 
 The native geometry operation is implemented under ``codes/geometry/stl``. STL cutting is opt-in through the grid control parameters: ``stlSurfaceCutEnabled = 1`` enables the operation, ``stlSurfaceCutConfigFile`` identifies a JSON file relative to the case, and ``stlSurfaceCutTolerance`` supplies the fallback geometric tolerance. The JSON uses ``cutting_planes.inlet/outlet.point`` and ``normal``, with ``keep_positive`` selecting the retained half-space. The default is disabled, so existing STL workflows are unchanged. The current native implementation requires one connected, closed, outward-oriented input shell and one simple loop at each cut plane.
+
+
+Native Case Execution
+---------------------
+
+The native case is registered as
+``stl_to_gmsh_cylinder_internal_flow_oblique_cut`` in
+``grid/case_catalog.json``. It is a normal OneFLOW C++ Case under
+``grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp``, not a
+standalone utility. It can be selected in Run Development Cases or directly
+in Mesh-to-CFD Validation. The validation workflow stages the Case in the
+user's OneFLOW workspace, stages the shared parent-level cut configuration,
+runs the native mesh producer, checks the four Physical Groups, then continues
+through MSH → CGNS → OneFLOW grid → CFD smoke test.
+
+The Python reference entry is separately registered as
+``stl_to_gmsh_python_cylinder_internal_flow_oblique_cut``. Its runner is
+``grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py``.
+Both implementations read the common
+``grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/script/cutting.json``.
+
+The native OneFLOW parameters are:
+
++---------------------------+---------+------------------------------------------------------+
+| Parameter                 | Default | Meaning                                              |
++===========================+=========+======================================================+
+| ``stlSurfaceCutEnabled``     | ``0``     | Set to 1 to enable native plane cutting.             |
++---------------------------+---------+------------------------------------------------------+
+| ``stlSurfaceCutConfigFile`` | empty   | Case-relative path to the shared cutting JSON.      |
++---------------------------+---------+------------------------------------------------------+
+| ``stlSurfaceCutTolerance``  | 1e-8    | Fallback tolerance; JSON tolerance takes precedence.|
++---------------------------+---------+------------------------------------------------------+
+
+When disabled, the existing STL conversion behavior is unchanged. When
+enabled, the current native cutter requires a single connected, closed,
+outward-oriented shell and one simple boundary loop at each cutting plane.
