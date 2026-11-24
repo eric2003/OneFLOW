@@ -242,6 +242,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
         (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/python").mkdir(parents=True)
         (self.root / "test/cfd/plateuns2dslau2/script").mkdir(parents=True)
         (self.root / "grid/case_catalog.json").write_text(json.dumps({
@@ -312,7 +314,20 @@ class MeshValidationCatalogTest(unittest.TestCase):
             item for item in catalog["cases"] if item["id"] == "cylinder_existing_mesh"
         )
         catalog["cases"].remove(cylinder_input)
-        catalog["mesh_validation_inputs"] = [cylinder_input]
+        catalog["mesh_validation_inputs"] = [
+            cylinder_input,
+            {"id": "stl_to_gmsh_cylinder_internal_flow_oblique_cut",
+             "title": "Internal-flow Cylinder with Generic Oblique Cut (Native C++)",
+             "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp",
+             "group": "STL to Gmsh", "dimension": 3, "mesh_validation": "cfd_smoke"},
+            {"id": "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut",
+             "title": "Internal-flow Cylinder with Generic Oblique Cut (Python Reference)",
+             "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python",
+             "group": "STL to Gmsh", "dimension": 3, "mesh_validation": "cfd_smoke",
+             "execution": {"kind": "python",
+                           "script": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py",
+                           "output_directory_argument": "--output-directory"}},
+        ]
         catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/python/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "square.msh"}}), encoding="utf-8"
@@ -336,6 +351,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
         (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "cylinder_internal_flow.msh"}}),
             encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp/script/grid.txt").write_text(
+            'string targetGridFileName = "results/cylinder_oblique_cut.msh";\\n', encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/expected.json").write_text(
+            json.dumps({"artifact": {"mesh_file": "cylinder_oblique_cut.msh"}}), encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/square.msh";\n', encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/two_triangles/cpp/script/grid.txt").write_text(
@@ -391,6 +410,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ("stl_to_gmsh_python_square_two_triangles", "Square with Two TRI_3 Cells (Python Reference)"),
             ("stl_to_gmsh_python_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Python Reference)"),
             ("cylinder_existing_mesh", "3D Cylinder Internal Flow (Generated MSH)"),
+            ("stl_to_gmsh_cylinder_internal_flow_oblique_cut", "Internal-flow Cylinder with Generic Oblique Cut (Native C++)"),
+            ("stl_to_gmsh_python_cylinder_internal_flow_oblique_cut", "Internal-flow Cylinder with Generic Oblique Cut (Python Reference)"),
         ))
     def test_existing_cylinder_is_grouped_as_existing_gmsh_mesh_not_stl_producer(self):
         groups = dict(mesh_case_group_categories(self.root))
