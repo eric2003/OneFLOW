@@ -544,6 +544,26 @@
       },
       "mesh_project_template": true,
       "mesh_validation": "cfd_smoke"
+    },
+    {
+      "id": "stl_to_gmsh_cylinder_internal_flow_oblique_cut",
+      "title": "STL to Gmsh: Internal-flow Cylinder with Generic Oblique Cut (Native C++)",
+      "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp",
+      "group": "STL to Gmsh",
+      "dimension": 3,
+      "mesh_validation": "cfd_smoke"
+    },
+    {
+      "id": "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut",
+      "title": "STL to Gmsh: Internal-flow Cylinder with Generic Oblique Cut (Python Reference)",
+      "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py"
+      },
+      "dimension": 3,
+      "mesh_validation": "cfd_smoke"
     }
   ],
   "mesh_validation_inputs": [
@@ -601,6 +621,37 @@
       "execution": {
         "kind": "existing_mesh",
         "project_directory": "cylinder_oblique_cut",
+        "mesh_file": "results/cylinder_oblique_cut.msh"
+      },
+      "required_physical_groups": [
+        {
+          "name": "wall",
+          "dimension": 2
+        },
+        {
+          "name": "inflow",
+          "dimension": 2
+        },
+        {
+          "name": "outflow",
+          "dimension": 2
+        },
+        {
+          "name": "fluid_domain",
+          "dimension": 3
+        }
+      ]
+    },
+    {
+      "id": "stl_to_gmsh_oblique_cylinder_cut_native",
+      "title": "Oblique-cut Cylinder (Native C++ MSH)",
+      "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp",
+      "group": "STL to Gmsh",
+      "dimension": 3,
+      "mesh_validation": "cfd_smoke",
+      "execution": {
+        "kind": "existing_mesh",
+        "project_directory": "cylinder_oblique_cut_native/cpp",
         "mesh_file": "results/cylinder_oblique_cut.msh"
       },
       "required_physical_groups": [
