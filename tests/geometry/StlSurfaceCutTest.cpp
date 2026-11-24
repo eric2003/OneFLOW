@@ -1,6 +1,9 @@
 #include "StlSurfaceCut.h"
 
 #include <gtest/gtest.h>
+#include <algorithm>
+#include <cmath>
+#include <filesystem>
 #include <stdexcept>
 
 namespace {
@@ -69,4 +72,54 @@ TEST(StlSurfaceCutTest, RejectsOpenInputShell)
     options.inlet.point = {0.2, 0.0, 0.0};
     options.outlet.point = {0.6, 0.0, 0.0};
     EXPECT_THROW(ONEFLOW::CutStlSurfaceBetweenPlanes(source, options), std::invalid_argument);
+}
+
+TEST(StlSurfaceCutTest, CutsBlindCylinderFixtureAndMeasuresObliqueEllipse)
+{
+#ifdef ONEFLOW_SOURCE_DIR
+    const std::filesystem::path sourcePath =
+        std::filesystem::path(ONEFLOW_SOURCE_DIR) /
+        "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/input/model.stl";
+    const auto source = ONEFLOW::StlMeshReader::Read(sourcePath.string());
+    ONEFLOW::StlSurfaceCutOptions options;
+    options.inlet.point = {-1.2, 0.0, 0.0};
+    options.inlet.normal = {0.8660254037844386, 0.5, 0.0};
+    options.inlet.keepPositive = true;
+    options.outlet.point = {1.5, 0.0, 0.0};
+    options.outlet.normal = {1.0, 0.0, 0.0};
+    options.outlet.keepPositive = false;
+    options.tolerance = 1.0e-8;
+
+    const auto result = ONEFLOW::CutStlSurfaceBetweenPlanes(source, options);
+    EXPECT_GT(result.inletLoop.size(), 8u);
+    EXPECT_GT(result.outletLoop.size(), 8u);
+    EXPECT_TRUE(result.topology.IsClosedTwoManifold());
+    EXPECT_EQ(result.topology.connectedComponentCount, 1u);
+    EXPECT_GT(result.topology.signedVolume, 0.0);
+
+    const auto extent = [](const auto& loop, const std::array<double, 3>& axis)
+    {
+        double minimum = std::numeric_limits<double>::max();
+        double maximum = std::numeric_limits<double>::lowest();
+        for (const auto& point : loop)
+        {
+            const double projection =
+                point[0] * axis[0] + point[1] * axis[1] + point[2] * axis[2];
+            minimum = std::min(minimum, projection);
+            maximum = std::max(maximum, projection);
+        }
+        return 0.5 * (maximum - minimum);
+    };
+    const std::array<double, 3> inletMajor{-0.5, 0.8660254037844386, 0.0};
+    const std::array<double, 3> inletMinor{0.0, 0.0, 1.0};
+    const double ellipseRatio =
+        extent(result.inletLoop, inletMajor) / extent(result.inletLoop, inletMinor);
+    EXPECT_NEAR(ellipseRatio, 1.1547005383792517, 0.05);
+
+    const std::array<double, 3> outletY{0.0, 1.0, 0.0};
+    const std::array<double, 3> outletZ{0.0, 0.0, 1.0};
+    const double circleRatio =
+        extent(result.outletLoop, outletY) / extent(result.outletLoop, outletZ);
+    EXPECT_NEAR(circleRatio, 1.0, 0.05);
+#endif
 }

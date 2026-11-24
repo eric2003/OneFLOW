@@ -255,6 +255,7 @@ add_oneflow_gtest(GridSummaryAdapterTest GridSummaryAdapterTest.cpp)
 add_oneflow_gtest(GmshMeshReaderTest GmshMeshReaderTest.cpp)
 add_oneflow_gtest(StlMeshIOTest StlMeshIOTest.cpp)
 add_oneflow_gtest(StlSurfaceCutTest StlSurfaceCutTest.cpp)
+target_compile_definitions(StlSurfaceCutTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
 if (ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS)
     target_compile_definitions(StlMeshIOTest PRIVATE
