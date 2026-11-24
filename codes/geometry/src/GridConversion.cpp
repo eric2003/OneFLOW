@@ -2491,6 +2491,10 @@ void ConvertStlCubeToGmsh(
         GridConfig effectiveConfig = config;
         if ( config.stlSurfaceCutEnabled )
         {
+            if (config.targetType != GridFileType::Gmsh)
+                throw std::invalid_argument(
+                    "Native STL surface cutting currently requires targetGridType = gmsh; "
+                    "direct CGNS conversion does not preserve the three cut-region groups.");
             effectiveConfig.sourceFile = PrepareStlSurfaceCut(config, caseDir).string();
             effectiveConfig.sourceCaseDir.clear();
         }
