@@ -24,7 +24,7 @@ def run_case(case_directory: Path, output_directory: Path, gmsh: str) -> dict:
         pass
     else:
         raise ValueError(f"Generated files must stay outside the source repository: {output}")
-    config_path, source = case.parent.parent / "script/cutting.json", case / "input/model.stl"
+    config_path, source = case.parent / "script/cutting.json", case / "input/model.stl"
     if not config_path.is_file() or not source.is_file():
         raise FileNotFoundError(f"Incomplete oblique-cut case: {case}")
     config = json.loads(config_path.read_text(encoding="utf-8"))

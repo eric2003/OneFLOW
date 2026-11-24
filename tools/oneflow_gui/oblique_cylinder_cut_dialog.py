@@ -127,7 +127,7 @@ class ObliqueCylinderCutDialog(QDialog):
             raise ValueError(f"Runner script was not found: {runner}")
         if not case.is_dir():
             raise ValueError("Select an existing oblique-cut reference case directory.")
-        if not (case / "script" / "cutting.json").is_file() or not (case / "input" / "model.stl").is_file():
+        if not (case.parent / "script" / "cutting.json").is_file() or not (case / "input" / "model.stl").is_file():
             raise ValueError("The selected case must contain script/cutting.json and input/model.stl.")
         if not output_text:
             raise ValueError("Choose an output directory.")
