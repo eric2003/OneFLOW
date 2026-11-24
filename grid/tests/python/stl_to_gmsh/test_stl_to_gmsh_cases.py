@@ -312,8 +312,8 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertEqual(validate_case(ROOT, python), [])
         native_dir = ROOT / native["directory"]
         self.assertEqual(
-            (native_dir / "script/simu.txt").read_text(encoding="utf-8"),
-            'string simutask = "Grid";\\n',
+            (native_dir / "script/simu.txt").read_text(encoding="utf-8").splitlines(),
+            ['string simutask = "Grid";'],
         )
         self.assertTrue((native_dir / "script/grid.txt").is_file())
         for entry in (native, python):
