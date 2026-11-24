@@ -99,8 +99,8 @@ non-degenerate and non-duplicate triangles, edge incidence and orientation,
 one connected component, genus-zero topology and positive signed volume.
 
 The native C++ reader is ``StlMeshReader`` in
-``codes/geometry/src/StlMeshIO.cpp``, declared in
-``codes/geometry/include/StlMeshIO.h``. The STL-to-Gmsh dispatch and
+``codes/geometry/stl/src/StlMeshIO.cpp``, declared in
+``codes/geometry/stl/include/StlMeshIO.h``. The STL-to-Gmsh dispatch and
 geometry generation are in ``codes/geometry/src/GridConversion.cpp``.
 The native closed-shell route validates the surface before Gmsh generation;
 the cylinder route additionally checks the manifest patch partition and

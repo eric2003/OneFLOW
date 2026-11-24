@@ -17,8 +17,8 @@
     "source_paths": [
       "grid/stl_to_gmsh/converter.py",
       "grid/stl_to_gmsh/2d/square/single_quad/cpp/input/model.stl",
-      "codes/geometry/include/StlMeshIO.h",
-      "codes/geometry/src/StlMeshIO.cpp",
+      "codes/geometry/stl/include/StlMeshIO.h",
+      "codes/geometry/stl/src/StlMeshIO.cpp",
       "codes/geometry/include/GridTypes.h",
       "codes/geometry/src/GridTypes.cpp",
       "codes/geometry/src/GridConversion.cpp",
@@ -338,5 +338,26 @@
     "id": "mesh_generation",
     "title": "Mesh Generation",
     "order": 30
-  }
+  },
+  "implementation_paths": [
+    "grid/stl_to_gmsh/converter.py",
+    "grid/stl_to_gmsh/2d/square/single_quad/cpp/input/model.stl",
+    "codes/geometry/stl/include/StlMeshIO.h",
+    "codes/geometry/stl/src/StlMeshIO.cpp",
+    "codes/geometry/include/GridTypes.h",
+    "codes/geometry/src/GridTypes.cpp",
+    "codes/geometry/src/GridConversion.cpp",
+    "grid/stl_to_gmsh/run_cases.py",
+    "grid/stl_to_gmsh/run_python_case.py",
+    "grid/stl_to_gmsh/3d/cube/README.md",
+    "grid/stl_to_gmsh/3d/cube/single_hex/README.md",
+    "grid/stl_to_gmsh/3d/cube/six_tetrahedra/README.md",
+    "grid/stl_to_gmsh/3d/cube/automatic_tetrahedra/README.md",
+    "codes/geometry/src/GridConversion.cpp",
+    "tests/geometry/StlMeshIOTest.cpp",
+    "grid/tests/python/stl_to_gmsh/test_stl_to_gmsh_cases.py",
+    "tools/oneflow_gui/mesh_validation.py",
+    "tools/oneflow_gui/workflow_plan.py",
+    "tools/oneflow_gui/workflow_graph_runner.py"
+  ]
 }

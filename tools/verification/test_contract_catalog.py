@@ -140,8 +140,8 @@ class ContractCatalogTest(unittest.TestCase):
         self.assertEqual(
             set(contract.implementation_paths),
             {
-                "codes/geometry/include/StlMeshIO.h",
-                "codes/geometry/src/StlMeshIO.cpp",
+                "codes/geometry/stl/include/StlMeshIO.h",
+                "codes/geometry/stl/src/StlMeshIO.cpp",
                 "codes/geometry/src/GridConversion.cpp",
                 "codes/geometry/src/GridTypes.cpp",
                 "grid/stl_import/reader.py",
