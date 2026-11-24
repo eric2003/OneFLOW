@@ -1386,20 +1386,57 @@ void ConvertStlSurfaceVolumeToGmsh(
         << "SetFactory(\"Built-in\");\n"
         << "Mesh.MshFileVersion = 4.1;\n"
         << "Mesh.Binary = 0;\n"
-        << "Mesh.ElementOrder = 1;\n"
-        << "Merge \"" << sourcePath << "\";\n"
-        << "ClassifySurfaces{" << surfaceAngle << " * Pi / 180, 1, 1, "
-        << curveAngle << " * Pi / 180};\n"
-        << "CreateGeometry;\n"
-        << "surfaceEntities[] = Surface{:};\n"
-        << "Surface Loop(1) = {surfaceEntities[]};\n"
-        << "Volume(1) = {1};\n"
-        << "Mesh.MeshSizeMin = " << meshSize << ";\n"
+        << "Mesh.ElementOrder = 1;\n";
+    if (config.stlSurfaceCutEnabled)
+    {
+        const std::array<std::string, 3> regionFiles{"wall.stl", "inlet.stl", "outlet.stl"};
+        const std::array<std::string, 3> regionNames{"wall", "inflow", "outflow"};
+        for (std::size_t index = 0; index < regionFiles.size(); ++index)
+        {
+            const fs::path regionPath = source.parent_path() / regionFiles[index];
+            if (!fs::is_regular_file(regionPath))
+                throw std::runtime_error("Missing STL cut region file: " + regionPath.string());
+            std::string regionUtf8(PathUtf8(fs::absolute(regionPath)));
+            std::replace(regionUtf8.begin(), regionUtf8.end(), '\\', '/');
+            if (regionUtf8.find('"') != std::string::npos)
+                throw std::invalid_argument("STL region path must not contain a quote character");
+            geo << "Merge \"" << regionUtf8 << "\";\n";
+            if (index == 0)
+                geo << "wall[] = Surface{:};\n";
+            else
+            {
+                geo << "allImportedSurfaces[] = Surface{:};\n"
+                    << regionNames[index] << "[] = allImportedSurfaces[];\n"
+                    << regionNames[index] << "[] -= wall[];\n";
+                if (index == 2) geo << "outflow[] -= inflow[];\n";
+            }
+        }
+        geo << "Coherence Mesh;\n"
+            << "CreateTopology;\n"
+            << "CreateGeometry;\n"
+            << "Surface Loop(1) = {wall[], inflow[], outflow[]};\n"
+            << "Volume(1) = {1};\n"
+            << "Physical Surface(\"wall\") = {wall[]};\n"
+            << "Physical Surface(\"inflow\") = {inflow[]};\n"
+            << "Physical Surface(\"outflow\") = {outflow[]};\n"
+            << "Physical Volume(\"fluid_domain\") = {1};\n";
+    }
+    else
+    {
+        geo << "Merge \"" << sourcePath << "\";\n"
+            << "ClassifySurfaces{" << surfaceAngle << " * Pi / 180, 1, 1, "
+            << curveAngle << " * Pi / 180};\n"
+            << "CreateGeometry;\n"
+            << "surfaceEntities[] = Surface{:};\n"
+            << "Surface Loop(1) = {surfaceEntities[]};\n"
+            << "Volume(1) = {1};\n"
+            << "Physical Surface(\"" << boundaryName << "\") = {surfaceEntities[]};\n"
+            << "Physical Volume(\"" << volumeName << "\") = {1};\n";
+    }
+    geo << "Mesh.MeshSizeMin = " << meshSize << ";\n"
         << "Mesh.MeshSizeMax = " << meshSize << ";\n"
         << "Mesh.MeshSizeFromPoints = 1;\n"
-        << "Mesh.MeshSizeExtendFromBoundary = 1;\n"
-        << "Physical Surface(\"" << boundaryName << "\") = {surfaceEntities[]};\n"
-        << "Physical Volume(\"" << volumeName << "\") = {1};\n";
+        << "Mesh.MeshSizeExtendFromBoundary = 1;\n";
     geo.close();
     if (!geo) throw std::runtime_error("Failed writing Gmsh geometry: " + geoPath.string());
 
@@ -1410,7 +1447,7 @@ void ConvertStlSurfaceVolumeToGmsh(
         {PathUtf8(fs::absolute(geoPath)), "-3", "-format", "msh4",
          "-o", PathUtf8(fs::absolute(target))},
         PathUtf8(fs::absolute(caseRoot)));
-    if (!process.started || process.exitCode != 0)
+        if (!process.started || process.exitCode != 0)
         throw std::runtime_error("Gmsh closed-surface volume generation failed (exit " +
             std::to_string(process.exitCode) + "): " + process.output + process.errorMessage);
 
@@ -1425,8 +1462,11 @@ void ConvertStlSurfaceVolumeToGmsh(
     if (counts[4] == 0 || counts[2] == 0 || counts[3] != 0 || counts[5] != 0)
         throw std::runtime_error("Closed STL volume must generate TETRA_4 cells and TRI_3 boundary facets only");
 
-    std::set<std::pair<int, std::string>> expected{
-        {2, boundaryName}, {3, volumeName}};
+    std::set<std::pair<int, std::string>> expected;
+    if (config.stlSurfaceCutEnabled)
+        expected = {{2, "wall"}, {2, "inflow"}, {2, "outflow"}, {3, "fluid_domain"}};
+    else
+        expected = {{2, boundaryName}, {3, volumeName}};
     std::set<std::pair<int, std::string>> actual;
     for (const auto& item : generated.physicalNames)
         actual.emplace(item.first.first, item.second);
