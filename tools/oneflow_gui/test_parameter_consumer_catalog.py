@@ -240,6 +240,22 @@ class ParameterConsumerCatalogTest(unittest.TestCase):
         self.assertIn("1.0e-10", consumer.behavior)
         self.assertEqual(consumer.behavior_symbols, ("ExtractStlPlanarBoundary", "ConvertStlToGmsh"))
 
+    def test_native_stl_surface_cut_parameters_are_optional_and_source_backed(self):
+        expected = {
+            "stlSurfaceCutEnabled": "legacy STL conversion path",
+            "stlSurfaceCutConfigFile": "inlet/outlet plane points",
+            "stlSurfaceCutTolerance": "1.0e-8",
+        }
+        for key, phrase in expected.items():
+            with self.subTest(parameter=key):
+                consumers = self.catalog.find(key)
+                self.assertEqual(len(consumers), 1)
+                consumer = consumers[0]
+                self.assertEqual(consumer.read_kind, ConsumerReadKind.OPTIONAL)
+                self.assertEqual(consumer.source_path, "codes/geometry/src/GridTypes.cpp")
+                self.assertIn(phrase, consumer.behavior)
+                self.assertIn("PrepareStlSurfaceCut", consumer.behavior_symbols)
+
     def test_unknown_parameter_has_no_invented_consumer(self):
         self.assertEqual(self.catalog.find("vendorPrivateParameter"), ())
         self.assertFalse(self.catalog.has_verified_consumer("vendorPrivateParameter"))
