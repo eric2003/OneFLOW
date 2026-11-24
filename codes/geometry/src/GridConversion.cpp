@@ -1346,11 +1346,15 @@ void ConvertStlSurfaceVolumeToGmsh(
     const StlMesh mesh = StlMeshReader::Read(source.string());
     ValidateClosedGenusZeroStlSurface(mesh, tolerance);
 
-    const double meshSize = options.value("mesh_size", 0.25);
+    const double legacyMeshSize = options.value("mesh_size", 0.25);
+    const double meshSizeMin = options.value("mesh_size_min", legacyMeshSize);
+    const double meshSizeMax = options.value("mesh_size_max", legacyMeshSize);
     const double surfaceAngle = options.value("surface_angle_degrees", 40.0);
     const double curveAngle = options.value("curve_angle_degrees", 180.0);
-    if (!std::isfinite(meshSize) || meshSize <= 0.0)
-        throw std::invalid_argument("3D STL automatic tetrahedra mesh_size must be positive and finite");
+    if (!std::isfinite(meshSizeMin) || meshSizeMin <= 0.0 ||
+        !std::isfinite(meshSizeMax) || meshSizeMax <= 0.0 ||
+        meshSizeMin > meshSizeMax)
+        throw std::invalid_argument("3D STL automatic tetrahedra mesh size bounds must be positive, finite and ordered");
     if (!std::isfinite(surfaceAngle) || surfaceAngle <= 0.0 || surfaceAngle >= 180.0)
         throw std::invalid_argument("surface_angle_degrees must be between 0 and 180");
     if (!std::isfinite(curveAngle) || curveAngle <= 0.0 || curveAngle > 180.0)
@@ -1433,8 +1437,8 @@ void ConvertStlSurfaceVolumeToGmsh(
             << "Physical Surface(\"" << boundaryName << "\") = {surfaceEntities[]};\n"
             << "Physical Volume(\"" << volumeName << "\") = {1};\n";
     }
-    geo << "Mesh.MeshSizeMin = " << meshSize << ";\n"
-        << "Mesh.MeshSizeMax = " << meshSize << ";\n"
+    geo << "Mesh.MeshSizeMin = " << meshSizeMin << ";\n"
+        << "Mesh.MeshSizeMax = " << meshSizeMax << ";\n"
         << "Mesh.MeshSizeFromPoints = 1;\n"
         << "Mesh.MeshSizeExtendFromBoundary = 1;\n";
     geo.close();
@@ -1500,6 +1504,8 @@ void ConvertStlSurfaceVolumeToGmsh(
     {
         report["physical_groups"] = {boundaryName, volumeName};
     }
+    report["mesh_size_min"] = meshSizeMin;
+    report["mesh_size_max"] = meshSizeMax;
     report["validated"] = true;
     std::ofstream reportOutput(reportPath, std::ios::trunc);
     if (!reportOutput) throw std::runtime_error("Cannot create STL-to-Gmsh report: " + reportPath.string());
