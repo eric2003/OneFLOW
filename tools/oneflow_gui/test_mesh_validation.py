@@ -352,7 +352,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             json.dumps({"artifact": {"mesh_file": "cylinder_internal_flow.msh"}}),
             encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp/script/grid.txt").write_text(
-            'string targetGridFileName = "results/cylinder_oblique_cut.msh";\\n', encoding="utf-8")
+            'string targetGridFileName = "results/cylinder_oblique_cut.msh";\n', encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "cylinder_oblique_cut.msh"}}), encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/cpp/script/grid.txt").write_text(
