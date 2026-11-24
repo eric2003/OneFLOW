@@ -310,6 +310,12 @@ class StlToGmshCaseTest(unittest.TestCase):
         self.assertEqual(python["execution"]["kind"], "python")
         self.assertEqual(validate_case(ROOT, native), [])
         self.assertEqual(validate_case(ROOT, python), [])
+        native_dir = ROOT / native["directory"]
+        self.assertEqual(
+            (native_dir / "script/simu.txt").read_text(encoding="utf-8"),
+            'string simutask = "Grid";\\n',
+        )
+        self.assertTrue((native_dir / "script/grid.txt").is_file())
         for entry in (native, python):
             self.assertTrue((ROOT / entry["directory"]).is_dir())
             self.assertFalse((ROOT / entry["directory"] / "results").exists())
