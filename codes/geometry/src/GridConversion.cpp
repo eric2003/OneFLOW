@@ -1963,10 +1963,16 @@ void ConvertStlCubeToGmsh(
         // A 3-D volume layout must never fall through to the 2-D transfinite
         // surface path, where transfinite_cells is intentionally absent.
         const int meshDimension = options.value("mesh_dimension", 2);
+        if (config.stlSurfaceCutEnabled && meshDimension != 3)
+            throw std::invalid_argument("Native STL surface cutting requires a 3-D volume-mesh layout");
         if (meshDimension == 3)
         {
             const std::string volumeMesh =
                 options.value("volume_mesh", std::string{});
+            if (config.stlSurfaceCutEnabled &&
+                volumeMesh != "closed_surface_automatic_tetrahedra")
+                throw std::invalid_argument(
+                    "Native STL surface cutting requires volume_mesh = closed_surface_automatic_tetrahedra");
             if (volumeMesh == "closed_surface_automatic_tetrahedra")
             {
                 std::cout << "STL to Gmsh: selected closed-surface 3-D volume pipeline."
