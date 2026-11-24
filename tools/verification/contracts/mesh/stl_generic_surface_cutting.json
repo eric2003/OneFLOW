@@ -32,7 +32,11 @@
       "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py",
       "tools/oneflow_gui/oblique_cylinder_cut_dialog.py",
       "tools/oneflow_gui/mesh_validation.py",
-      "grid/case_catalog.json"
+      "grid/case_catalog.json",
+      "tools/oneflow_gui/workflow_case_runtime.py",
+      "tools/oneflow_gui/test_workflow_case_runtime.py",
+      "tools/oneflow_gui/test_mesh_validation.py",
+      "tools/oneflow_gui/test_parameter_consumer_catalog.py"
     ],
     "algorithm": [
       "Provide STL mesh IO, topology analysis and plane cutting as a reusable native Geometry submodule under codes/geometry/stl.",
