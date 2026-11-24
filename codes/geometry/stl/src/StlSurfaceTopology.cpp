@@ -129,6 +129,16 @@ StlSurfaceTopologyReport AnalyzeStlSurface(
         const Point& a = triangle.vertices[0];
         const Point& b = triangle.vertices[1];
         const Point& c = triangle.vertices[2];
+        const Point ab{b[0]-a[0], b[1]-a[1], b[2]-a[2]};
+        const Point ac{c[0]-a[0], c[1]-a[1], c[2]-a[2]};
+        const Point cross{
+            ab[1]*ac[2]-ab[2]*ac[1],
+            ab[2]*ac[0]-ab[0]*ac[2],
+            ab[0]*ac[1]-ab[1]*ac[0]};
+        const double twiceArea = std::sqrt(
+            cross[0]*cross[0] + cross[1]*cross[1] + cross[2]*cross[2]);
+        if (!std::isfinite(twiceArea) || twiceArea <= weldTolerance*weldTolerance)
+            throw std::invalid_argument("STL contains a zero-area or near-degenerate triangle");
         signedVolume += (
             a[0] * (b[1]*c[2] - b[2]*c[1]) +
             a[1] * (b[2]*c[0] - b[0]*c[2]) +

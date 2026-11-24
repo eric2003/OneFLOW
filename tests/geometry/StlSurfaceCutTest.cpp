@@ -65,6 +65,19 @@ TEST(StlSurfaceCutTest, ClipsAndCapsBetweenTwoPlanes)
     EXPECT_GT(result.topology.signedVolume, 0.0);
 }
 
+TEST(StlSurfaceCutTest, RejectsZeroAreaTriangles)
+{
+    auto source = MakeOutwardTetrahedron();
+    source.triangles.front().vertices[2] = {
+        0.5 * (source.triangles.front().vertices[0][0] +
+               source.triangles.front().vertices[1][0]),
+        0.5 * (source.triangles.front().vertices[0][1] +
+               source.triangles.front().vertices[1][1]),
+        0.5 * (source.triangles.front().vertices[0][2] +
+               source.triangles.front().vertices[1][2])};
+    EXPECT_THROW(ONEFLOW::AnalyzeStlSurface(source), std::invalid_argument);
+}
+
 TEST(StlSurfaceCutTest, RejectsOpenInputShell)
 {
     auto source = MakeOutwardTetrahedron();
