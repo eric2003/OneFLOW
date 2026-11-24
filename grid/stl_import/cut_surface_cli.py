@@ -46,6 +46,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--inlet-normal", nargs=3, required=True, type=float)
     parser.add_argument("--outlet-point", nargs=3, required=True, type=float)
     parser.add_argument("--outlet-normal", nargs=3, required=True, type=float)
+    parser.add_argument("--inlet-keep", choices=("positive", "negative"), default="positive")
+    parser.add_argument("--outlet-keep", choices=("positive", "negative"), default="negative")
     parser.add_argument("--tolerance", type=float, default=1.0e-8)
     return parser
 
@@ -65,6 +67,8 @@ def main(argv: list[str] | None = None) -> int:
         _vector(args.outlet_point, "outlet point"),
         _vector(args.outlet_normal, "outlet normal"),
         tolerance=args.tolerance,
+        inlet_keep_positive=args.inlet_keep == "positive",
+        outlet_keep_positive=args.outlet_keep == "positive",
     )
     artifacts = {
         "wall": result["side_triangles"],
@@ -105,8 +109,14 @@ def main(argv: list[str] | None = None) -> int:
         "input_stl": str(source_path),
         "analytic_geometry_metadata_read": False,
         "cutting_planes": {
-            "inlet": {"point": args.inlet_point, "normal": args.inlet_normal},
-            "outlet": {"point": args.outlet_point, "normal": args.outlet_normal},
+            "inlet": {
+                "point": args.inlet_point, "normal": args.inlet_normal,
+                "keep": args.inlet_keep,
+            },
+            "outlet": {
+                "point": args.outlet_point, "normal": args.outlet_normal,
+                "keep": args.outlet_keep,
+            },
         },
         "tolerance": args.tolerance,
         "counts": {

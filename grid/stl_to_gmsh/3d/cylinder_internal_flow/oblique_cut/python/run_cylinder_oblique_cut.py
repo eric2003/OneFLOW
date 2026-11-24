@@ -36,6 +36,8 @@ def run_case(case_directory: Path, output_directory: Path, gmsh: str) -> dict:
         "--inlet-normal", *(str(v) for v in inlet["normal"]),
         "--outlet-point", *(str(v) for v in outlet["point"]),
         "--outlet-normal", *(str(v) for v in outlet["normal"]),
+        "--inlet-keep", "positive" if inlet.get("keep_positive", True) else "negative",
+        "--outlet-keep", "positive" if outlet.get("keep_positive", False) else "negative",
         "--tolerance", str(config.get("tolerance", 1.0e-8)),
     ])
     mesh_config = config["volume_mesh"]
