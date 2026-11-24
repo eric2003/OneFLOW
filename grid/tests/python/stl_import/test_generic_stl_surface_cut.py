@@ -31,7 +31,7 @@ class GenericStlSurfaceCutTest(unittest.TestCase):
             / "oblique_cut" / "python"
         )
         self.case_config = json.loads(
-            (self.case_directory / "script" / "cutting.json").read_text(encoding="utf-8")
+            (self.case_directory.parent / "script" / "cutting.json").read_text(encoding="utf-8")
         )
 
     def test_cylinder_stl_is_cut_without_reading_analytic_manifest(self):
