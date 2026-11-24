@@ -316,6 +316,10 @@ class StlToGmshCaseTest(unittest.TestCase):
             ['string simutask = "Grid";'],
         )
         self.assertTrue((native_dir / "script/grid.txt").is_file())
+        self.assertEqual(
+            (native_dir / "script/dimension.txt").read_text(encoding="utf-8").splitlines(),
+            ["int dimension = 3;"],
+        )
         for entry in (native, python):
             self.assertTrue((ROOT / entry["directory"]).is_dir())
             self.assertFalse((ROOT / entry["directory"] / "results").exists())
