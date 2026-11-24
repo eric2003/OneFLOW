@@ -49,6 +49,8 @@ EXPECTED_IDS = {
     "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
     "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
     "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
+    "stl_to_gmsh_cylinder_internal_flow_oblique_cut",
+    "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut",
 }
 
 
@@ -285,6 +287,32 @@ class StlToGmshCaseTest(unittest.TestCase):
             "3d/cylinder_internal_flow/automatic_tetrahedra/python",
             PYTHON_CASES,
         )
+
+    def test_oblique_cut_cylinder_cases_are_registered_for_both_implementations(self):
+        native_id = "stl_to_gmsh_cylinder_internal_flow_oblique_cut"
+        python_id = "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut"
+        native = self.entries[native_id]
+        python = self.entries[python_id]
+
+        self.assertEqual(
+            native["directory"],
+            "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp",
+        )
+        self.assertNotIn("execution", native)
+        self.assertEqual(
+            python["directory"],
+            "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python",
+        )
+        self.assertEqual(
+            python["execution"]["script"],
+            "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py",
+        )
+        self.assertEqual(python["execution"]["kind"], "python")
+        self.assertEqual(validate_case(ROOT, native), [])
+        self.assertEqual(validate_case(ROOT, python), [])
+        for entry in (native, python):
+            self.assertTrue((ROOT / entry["directory"]).is_dir())
+            self.assertFalse((ROOT / entry["directory"] / "results").exists())
 
     def test_native_and_python_cases_are_registered_separately(self):
         self.assertEqual(set(self.entries), EXPECTED_IDS)
