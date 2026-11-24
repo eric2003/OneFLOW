@@ -91,7 +91,7 @@ class WorkflowCaseRuntimeTest(unittest.TestCase):
             ], root)
             run_root = root / "validation"
             staged = prepare_case_directory(plan.steps[0], run_root, {})
-            staged_shared = run_root / "script" / "cutting.json"
+            staged_shared = run_root / "cases" / "script" / "cutting.json"
             self.assertEqual(staged_shared.read_text(encoding="utf-8"), '{"cutting_planes": {}}\n')
             self.assertEqual(
                 (staged / "script" / "grid.txt").read_text(encoding="utf-8").splitlines()[0],
