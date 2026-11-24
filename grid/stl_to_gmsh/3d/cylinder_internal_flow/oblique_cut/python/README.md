@@ -27,10 +27,10 @@ the generic cutter must not read or use them.
 From the repository root:
 
 ```console
-python grid/stl_to_gmsh/run_cylinder_oblique_cut.py --gmsh gmsh
+python grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py --gmsh gmsh
 ```
 
-The runner reads `script/cutting.json`, calls the generic STL plane cutter,
+The runner reads the shared `../script/cutting.json`, calls the generic STL plane cutter,
 then sends the resulting closed shell and checksum-bound region manifest to
 the existing Gmsh volume-mesh generator. Outputs are written outside the
 source tree by default:

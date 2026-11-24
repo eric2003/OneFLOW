@@ -24,7 +24,7 @@ class ObliqueCylinderCutDialog(QDialog):
     def __init__(self, repository_root: Path, parent=None) -> None:
         super().__init__(parent)
         self._repository_root = Path(repository_root).resolve()
-        self._runner = self._repository_root / "grid" / "stl_to_gmsh" / "run_cylinder_oblique_cut.py"
+        self._runner = (self._repository_root / "grid" / "stl_to_gmsh" / "3d" / "cylinder_internal_flow" / "oblique_cut" / "python" / "run_cylinder_oblique_cut.py")
         self._case = (
             self._repository_root / "grid" / "stl_to_gmsh" / "3d"
             / "cylinder_internal_flow" / "oblique_cut" / "python"

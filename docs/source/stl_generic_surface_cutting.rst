@@ -170,7 +170,7 @@ Run the complete cut and Gmsh volume-mesh example from the repository root:
 
 .. code-block:: console
 
-   python grid/stl_to_gmsh/run_cylinder_oblique_cut.py --gmsh gmsh
+   python grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py --gmsh gmsh
 
 The runner writes generated geometry and mesh artifacts below the user's
 ``.oneflow/mesh-generation/cylinder_oblique_cut`` directory. It retains
