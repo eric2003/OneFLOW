@@ -186,3 +186,9 @@ the native OneFLOW grid, and runs a short 3-D solver smoke test. Validation
 artifacts and the run report are written below the mesh project's ``validation``
 directory. The smoke test confirms workflow execution and mesh ingestion only;
 it is not a claim of physically validated oblique-inlet CFD accuracy.
+
+
+Native C++ surface-cut entry
+----------------------------
+
+The native geometry operation is implemented under ``codes/geometry/stl``. STL cutting is opt-in through the grid control parameters: ``stlSurfaceCutEnabled = 1`` enables the operation, ``stlSurfaceCutConfigFile`` identifies a JSON file relative to the case, and ``stlSurfaceCutTolerance`` supplies the fallback geometric tolerance. The JSON uses ``cutting_planes.inlet/outlet.point`` and ``normal``, with ``keep_positive`` selecting the retained half-space. The default is disabled, so existing STL workflows are unchanged. The current native implementation requires one connected, closed, outward-oriented input shell and one simple loop at each cut plane.

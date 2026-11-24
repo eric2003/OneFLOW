@@ -252,6 +252,33 @@ GridConfig GridConfig::FromDataBase()
 
     try
     {
+        cfg.stlSurfaceCutEnabled = GetDataValue< int >( "stlSurfaceCutEnabled" ) != 0;
+    }
+    catch ( const std::exception & )
+    {
+        // STL surface cutting is opt-in; legacy cases remain unchanged.
+    }
+
+    try
+    {
+        cfg.stlSurfaceCutConfigFile = GetDataValue< std::string >( "stlSurfaceCutConfigFile" );
+    }
+    catch ( const std::exception & )
+    {
+        // The config file is required only when surface cutting is enabled.
+    }
+
+    try
+    {
+        cfg.stlSurfaceCutTolerance = GetDataValue< Real >( "stlSurfaceCutTolerance" );
+    }
+    catch ( const std::exception & )
+    {
+        // Keep the default surface-cut tolerance.
+    }
+
+    try
+    {
         cfg.scale = GetDataValue< Real >( "gridScale" );
     }
     catch ( const std::exception & )

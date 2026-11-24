@@ -17,7 +17,8 @@
         0
       ],
       "inclination_degrees": 30,
-      "expected_section": "ellipse"
+      "expected_section": "ellipse",
+      "keep_positive": true
     },
     "outlet": {
       "point": [
@@ -31,7 +32,8 @@
         0
       ],
       "inclination_degrees": 0,
-      "expected_section": "circle"
+      "expected_section": "circle",
+      "keep_positive": false
     }
   },
   "tolerance": 1e-8,
@@ -67,5 +69,6 @@
     "inlet_major_to_minor_ratio": 1.1547005383792517,
     "outlet_circle_radius": 1,
     "note": "Reference values are for test assertions and explanation only; the cutter must not consume them."
-  }
+  },
+  "cap_boundaries": true
 }

@@ -1,6 +1,7 @@
 #include "StlSurfaceCut.h"
 
 #include <gtest/gtest.h>
+#include <stdexcept>
 
 namespace {
 
