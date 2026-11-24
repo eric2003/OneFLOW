@@ -215,15 +215,12 @@ Both implementations read the common
 
 The native OneFLOW parameters are:
 
-+---------------------------+---------+------------------------------------------------------+
-| Parameter                 | Default | Meaning                                              |
-+===========================+=========+======================================================+
-| ``stlSurfaceCutEnabled``     | ``0``     | Set to 1 to enable native plane cutting.             |
-+---------------------------+---------+------------------------------------------------------+
-| ``stlSurfaceCutConfigFile`` | empty   | Case-relative path to the shared cutting JSON.      |
-+---------------------------+---------+------------------------------------------------------+
-| ``stlSurfaceCutTolerance``  | 1e-8    | Fallback tolerance; JSON tolerance takes precedence.|
-+---------------------------+---------+------------------------------------------------------+
+* ``stlSurfaceCutEnabled`` (default ``0``): set to 1 to enable native
+  plane cutting.
+* ``stlSurfaceCutConfigFile`` (default empty): Case-relative path to the
+  shared cutting JSON.
+* ``stlSurfaceCutTolerance`` (default ``1e-8``): fallback tolerance;
+  an explicit JSON tolerance takes precedence.
 
 When disabled, the existing STL conversion behavior is unchanged. When
 enabled, the current native cutter requires a single connected, closed,
