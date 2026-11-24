@@ -699,6 +699,44 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(native[3]["directory"], "test/cfd/plateuns2dslau2")
         self.assertEqual(python[3]["directory"], "test/cfd/plateuns2dslau2")
 
+    def test_oblique_cut_native_and_python_cases_are_registered_for_validation(self):
+        native_id = "stl_to_gmsh_cylinder_internal_flow_oblique_cut"
+        python_id = "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut"
+        choices = dict(mesh_case_choices(self.root))
+        self.assertIn(native_id, choices)
+        self.assertIn(python_id, choices)
+
+        native = build_mesh_validation_cases(
+            self.root, native_id, "laminar_flat_plate"
+        )
+        python = build_mesh_validation_cases(
+            self.root, python_id, "laminar_flat_plate"
+        )
+        expected_steps = [
+            "stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow",
+            "oneflow_cfd_solve",
+        ]
+        self.assertEqual([item["id"] for item in native], expected_steps)
+        self.assertEqual([item["id"] for item in python], expected_steps)
+        self.assertEqual(
+            native[0]["directory"],
+            "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp",
+        )
+        self.assertEqual(
+            native[0]["outputs"][0]["path"],
+            "results/cylinder_oblique_cut.msh",
+        )
+        self.assertEqual(
+            python[0]["directory"],
+            "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python",
+        )
+        self.assertEqual(
+            python[0]["outputs"][0]["path"],
+            "results/cylinder_oblique_cut.msh",
+        )
+        self.assertEqual(native[0]["runtime_directory"], "stl_to_gmsh")
+        self.assertEqual(native[3]["directory"], "test/cfd/plateuns2dslau2")
+
     def test_python_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
         cube_dir = self.root / "grid/stl_to_gmsh/3d/cube/single_hex/python"
         (cube_dir / "script").mkdir(parents=True, exist_ok=True)
