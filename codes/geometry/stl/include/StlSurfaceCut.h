@@ -41,7 +41,7 @@ struct StlCutPlane
 struct StlSurfaceCutOptions
 {
     StlCutPlane inlet;
-    StlCutPlane outlet;
+    StlCutPlane outlet{ {}, {1.0, 0.0, 0.0}, false };
     double tolerance{1.0e-8};
     bool capBoundaries{true};
 };

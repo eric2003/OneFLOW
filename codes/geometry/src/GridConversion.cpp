@@ -2447,17 +2447,17 @@ void ConvertStlCubeToGmsh(
         if (!configInput) throw std::runtime_error("Cannot open STL surface-cut configuration: " + configPath.string());
         const Json cutConfig = Json::parse(configInput);
         const Json& planes = cutConfig.at("cutting_planes");
-        const auto readPlane = [](const Json& value)
+        const auto readPlane = [](const Json& value, bool defaultKeepPositive)
         {
             StlCutPlane plane;
             plane.point = value.at("point").get<std::array<double, 3>>();
             plane.normal = value.at("normal").get<std::array<double, 3>>();
-            plane.keepPositive = value.value("keep_positive", true);
+            plane.keepPositive = value.value("keep_positive", defaultKeepPositive);
             return plane;
         };
         StlSurfaceCutOptions options;
-        options.inlet = readPlane(planes.at("inlet"));
-        options.outlet = readPlane(planes.at("outlet"));
+        options.inlet = readPlane(planes.at("inlet"), true);
+        options.outlet = readPlane(planes.at("outlet"), false);
         options.tolerance = cutConfig.value("tolerance", static_cast<double>(config.stlSurfaceCutTolerance));
         options.capBoundaries = cutConfig.value("cap_boundaries", true);
         if (!options.capBoundaries) throw std::invalid_argument("STL-to-volume-mesh cutting requires cap_boundaries=true");
