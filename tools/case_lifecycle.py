@@ -113,6 +113,11 @@ def validate_lifecycle_contract(
                     errors.append(f"{stage_id}: invalid acceptance kind {check.get('kind')!r}")
                 if not isinstance(check.get("description"), str) or not check.get("description"):
                     errors.append(f"{stage_id}: acceptance check {check_id!r} needs a description")
+                reference = check.get("reference")
+                if reference is not None and (
+                    not isinstance(reference, str) or not reference
+                ):
+                    errors.append(f"{stage_id}: acceptance check {check_id!r} has an invalid reference")
 
         for field in ("inputs", "outputs"):
             artifacts = stage.get(field, [])
