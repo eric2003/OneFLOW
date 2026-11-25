@@ -8,6 +8,7 @@ import sys
 import tempfile
 import unittest
 from unittest import mock
+from types import SimpleNamespace
 from pathlib import Path
 
 from tools.oneflow_gui.mesh_validation import (
@@ -22,6 +23,7 @@ from tools.oneflow_gui.mesh_validation import (
     _geometry_artifact_lineage_path, _write_geometry_artifact_lineage,
     _read_geometry_artifact_lineage, _downstream_lineage_artifacts,
     _collect_run_artifacts, _artifact_file_state, _sha256_file,
+    _persist_graph_stage_outcomes,
     recover_mesh_validation_run,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
@@ -118,6 +120,44 @@ class RunArtifactInventoryTest(unittest.TestCase):
 
 
 class RecoverMeshValidationRunTest(unittest.TestCase):
+    def test_graph_final_outcomes_override_preliminary_stage_log_status(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            log = root / "stl_to_gmsh/results/mesh-validation.log"
+            log.parent.mkdir(parents=True)
+            log.write_text(
+                '$ ["gmsh", "model.geo"]\n'
+                "[stl_to_gmsh] succeeded: Process returned zero.\n",
+                encoding="utf-8",
+            )
+            plan = SimpleNamespace(steps=[
+                SimpleNamespace(
+                    case_id="stl_to_gmsh",
+                    runtime_directory=Path("stl_to_gmsh"),
+                ),
+                SimpleNamespace(
+                    case_id="gmsh_to_cgns",
+                    runtime_directory=Path("gmsh_to_cgns"),
+                ),
+            ])
+            result = SimpleNamespace(cases=[
+                CaseExecutionResult(
+                    "stl_to_gmsh", "failed",
+                    "Declared output artifacts were not produced: mesh.cgns",
+                ),
+                CaseExecutionResult(
+                    "gmsh_to_cgns", "skipped", "Blocked by unsuccessful dependencies.",
+                ),
+            ])
+
+            _persist_graph_stage_outcomes(result, plan, root)
+            report = recover_mesh_validation_run(root)
+
+            self.assertEqual(report["stages"]["mesh_generation"]["status"], "FAIL")
+            self.assertIn("Declared output artifacts", report["stages"]["mesh_generation"]["message"])
+            self.assertEqual(report["stages"]["gmsh_to_cgns"]["status"], "NOT_RUN")
+            self.assertEqual(report["steps"][1]["status"], "skipped")
+
     def test_stage_log_serialization_persists_terminal_outcome(self):
         from tools.oneflow_gui.mesh_validation import _format_mesh_validation_stage_log
 

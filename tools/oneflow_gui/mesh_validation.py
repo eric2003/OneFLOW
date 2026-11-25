@@ -460,7 +460,7 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
                 stage_logs.append((case_id, log_path, log_text))
             except OSError:
                 pass
-        status_pattern = rf"^\[{re.escape(case_id)}\] (succeeded|failed|cancelled):\s*(.*)$"
+        status_pattern = rf"^\[{re.escape(case_id)}\] (succeeded|failed|cancelled|skipped):\s*(.*)$"
         matches = list(re.finditer(status_pattern, log_text, re.MULTILINE))
         if not matches:
             # Older runs persisted the wrapper outcome only in the durable
@@ -480,7 +480,8 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
             match = matches[-1]
             outcome, message = match.group(1), match.group(2).strip()
             status = {
-                "succeeded": "PASS", "failed": "FAIL", "cancelled": "NOT_RUN",
+                "succeeded": "PASS", "failed": "FAIL",
+                "cancelled": "NOT_RUN", "skipped": "NOT_RUN",
             }[outcome]
             recovered_steps.append({
                 "case_id": case_id, "status": outcome, "message": message,
@@ -624,6 +625,48 @@ def _format_mesh_validation_stage_log(
     lines = ["$ " + json.dumps(command, ensure_ascii=True), *output,
              f"[{case_id}] {status}: {message}"]
     return "\n".join(lines) + "\n"
+
+
+def _persist_graph_stage_outcomes(result, plan, run_root: Path) -> None:
+    """Persist final graph outcomes after dependency and output checks finish."""
+    steps_by_id = {step.case_id: step for step in plan.steps}
+    for outcome in result.cases:
+        step = steps_by_id.get(outcome.case_id)
+        if step is None:
+            continue
+        runtime_directory = step.runtime_directory or Path("cases") / step.case_id
+        log_path = Path(run_root) / runtime_directory / "results" / "mesh-validation.log"
+        command: list[str] = []
+        output: list[str] = []
+        if log_path.is_file():
+            try:
+                lines = log_path.read_text(encoding="utf-8", errors="replace").splitlines()
+            except OSError:
+                lines = []
+            if lines and lines[0].startswith("$ "):
+                try:
+                    parsed_command = json.loads(lines[0][2:])
+                    if isinstance(parsed_command, list) and all(
+                        isinstance(value, str) for value in parsed_command
+                    ):
+                        command = parsed_command
+                except json.JSONDecodeError:
+                    pass
+                output = lines[1:]
+            else:
+                output = lines
+            if output and re.match(
+                rf"^\[{re.escape(outcome.case_id)}\] (succeeded|failed|cancelled|skipped):",
+                output[-1],
+            ):
+                output.pop()
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        log_path.write_text(
+            _format_mesh_validation_stage_log(
+                outcome.case_id, command, output, outcome.status, outcome.message
+            ),
+            encoding="utf-8", newline="\n",
+        )
 
 
 def _graph_step_records(result) -> list[dict[str, str]]:
@@ -1208,6 +1251,7 @@ def run_mesh_validation(
         return status, message
 
     result = run_case_graph(plan, execute, run_root=run_root)
+    _persist_graph_stage_outcomes(result, plan, run_root)
     stages = _mesh_validation_stage_results(
         result, existing_mesh=mesh_implementation == "existing_mesh"
     )
