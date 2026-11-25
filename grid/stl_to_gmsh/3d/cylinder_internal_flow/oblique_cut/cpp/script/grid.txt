@@ -10,6 +10,6 @@ string targetGridFileName = "results/cylinder_oblique_cut.msh";
 string gridLayoutFileName = "script/layout.json";
 Real stlWeldTolerance = 1.0e-10;
 int stlSurfaceCutEnabled = 1;
-string stlSurfaceCutConfigFile = "../script/cutting.json";
+string stlSurfaceCutConfigFile = "script/cutting.json";
 Real stlSurfaceCutTolerance = 1.0e-8;
 string gmshExecutable = "gmsh";
