@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import gc
+import hashlib
 import json
 import os
 import tempfile
@@ -599,6 +600,15 @@ class MeshGenerationDialogTest(unittest.TestCase):
             self.assertIn("Command:", log_text)
             self.assertIn("conversion complete", log_text)
             self.assertIn("PASSED: Test Case", log_text)
+            console_record = next(
+                item for item in report["artifacts"]["files"]
+                if item["path"] == "mesh-validation-console.log"
+            )
+            self.assertEqual(console_record["size_bytes"], console_log.stat().st_size)
+            self.assertEqual(
+                console_record["sha256"],
+                hashlib.sha256(console_log.read_bytes()).hexdigest(),
+            )
 
     def test_validate_current_mesh_opens_single_mesh_validation_mode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
