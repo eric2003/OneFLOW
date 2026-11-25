@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import json
+import re
+import shutil
 import subprocess
 import sys
 import threading
+import uuid
 from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal, Qt
@@ -14,6 +17,8 @@ from PySide6.QtWidgets import (
     QMessageBox, QPlainTextEdit, QPushButton, QSpinBox, QSplitter, QTreeWidget,
     QTreeWidgetItem, QVBoxLayout, QWidget,
 )
+
+from grid.stl_to_gmsh.run_report import write_run_report
 
 from .executable_discovery import executable_candidates
 from .mesh_validation import (
@@ -32,9 +37,13 @@ class MeshValidationWorker(QThread):
     completed = Signal(bool, str)
     report_ready = Signal(str, object)
 
-    def __init__(self, commands: list[tuple[str, tuple[str, ...], Path]]) -> None:
+    def __init__(
+        self, commands: list[tuple[str, tuple[str, ...], Path]],
+        log_directory: Path,
+    ) -> None:
         super().__init__()
         self._commands = commands
+        self._log_directory = Path(log_directory)
         self._cancel = threading.Event()
         self._process: subprocess.Popen[str] | None = None
         self._lock = threading.Lock()
@@ -49,62 +58,101 @@ class MeshValidationWorker(QThread):
     def run(self) -> None:
         passed: list[str] = []
         failed: list[str] = []
+        self._log_directory.mkdir(parents=True, exist_ok=True)
         for label, arguments, working_directory in self._commands:
             if self._cancel.is_set():
                 break
-            self.output_line.emit(f"\n=== {label} ===")
-            self.output_line.emit("$ " + subprocess.list2cmdline(list(arguments)))
+            safe_label = re.sub(r"[^A-Za-z0-9_.-]+", "_", label).strip("._") or "case"
+            log_path = self._log_directory / f"{safe_label}-{uuid.uuid4().hex[:12]}.log"
             case_output: list[str] = []
-            try:
-                with subprocess.Popen(
-                    list(arguments), cwd=working_directory,
-                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                    text=True, encoding="utf-8", errors="replace", bufsize=1,
-                    **process_group_options(),
-                ) as process:
-                    with self._lock:
-                        self._process = process
-                    try:
-                        if process.stdout is not None:
-                            for line in process.stdout:
-                                rendered_line = line.rstrip("\r\n")
-                                case_output.append(rendered_line)
-                                self.output_line.emit(rendered_line)
-                                if self._cancel.is_set():
-                                    terminate_process_tree(process)
-                                    break
-                        return_code = process.wait()
-                    finally:
-                        with self._lock:
-                            if self._process is process:
-                                self._process = None
-            except OSError as error:
-                self.output_line.emit(f"ERROR: {error}")
-                failed.append(label)
-                continue
-            if self._cancel.is_set():
-                break
-            report_path = next(
-                (
-                    Path(line.strip().split(": ", 1)[1]).expanduser()
-                    for line in reversed(case_output)
-                    if line.strip().startswith("report: ")
-                ),
-                None,
-            )
-            if report_path is not None and report_path.is_file():
+            with log_path.open("w", encoding="utf-8", newline="\n") as log_stream:
+                def record(line: str) -> None:
+                    log_stream.write(line + "\n")
+                    log_stream.flush()
+                    self.output_line.emit(line)
+
+                record(f"=== {label} ===")
+                record("Started (UTC): " + __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat())
+                record("Working directory: " + str(working_directory))
+                command_text = subprocess.list2cmdline(list(arguments))
+                record("Command: " + command_text)
                 try:
-                    report = json.loads(report_path.read_text(encoding="utf-8"))
-                    if report.get("schema") == "oneflow.run-report":
-                        self.report_ready.emit(label, report)
-                except (OSError, json.JSONDecodeError) as error:
-                    self.output_line.emit(f"WARNING: cannot read run report: {error}")
+                    with subprocess.Popen(
+                        list(arguments), cwd=working_directory,
+                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                        text=True, encoding="utf-8", errors="replace", bufsize=1,
+                        **process_group_options(),
+                    ) as process:
+                        with self._lock:
+                            self._process = process
+                        try:
+                            if process.stdout is not None:
+                                for line in process.stdout:
+                                    rendered_line = line.rstrip("\r\n")
+                                    case_output.append(rendered_line)
+                                    record(rendered_line)
+                                    if self._cancel.is_set():
+                                        terminate_process_tree(process)
+                                        break
+                            return_code = process.wait()
+                        finally:
+                            with self._lock:
+                                if self._process is process:
+                                    self._process = None
+                except OSError as error:
+                    record(f"ERROR: {error}")
+                    failed.append(label)
+                    continue
+                if self._cancel.is_set():
+                    record("Run cancelled before report finalization.")
+                    break
+                report_path = next(
+                    (
+                        Path(line.strip().split(": ", 1)[1]).expanduser()
+                        for line in reversed(case_output)
+                        if line.strip().startswith("report: ")
+                    ),
+                    None,
+                )
+                report = None
+                if report_path is not None and report_path.is_file():
+                    try:
+                        report = json.loads(report_path.read_text(encoding="utf-8"))
+                    except (OSError, json.JSONDecodeError) as error:
+                        record(f"WARNING: cannot read run report: {error}")
+                outcome = "PASSED" if return_code == 0 else f"FAILED (exit {return_code})"
+                record(f"{outcome}: {label}")
+                record("Finished (UTC): " + __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat())
+            if isinstance(report, dict) and report.get("schema") == "oneflow.run-report":
+                durable_log = log_path
+                if report_path is not None:
+                    durable_log = report_path.parent / "mesh-validation-console.log"
+                    try:
+                        durable_log.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copy2(log_path, durable_log)
+                        log_path.unlink(missing_ok=True)
+                    except OSError:
+                        durable_log = log_path
+                execution = report.setdefault("execution", {})
+                execution.update({
+                    "command": list(arguments),
+                    "working_directory": str(working_directory),
+                    "console_log": str(durable_log),
+                    "return_code": return_code,
+                })
+                report.setdefault("artifacts", {})["console_log"] = str(durable_log)
+                if report_path is not None:
+                    try:
+                        write_run_report(report_path, report)
+                    except OSError as error:
+                        self.output_line.emit(f"WARNING: cannot update report with console log: {error}")
+                self.report_ready.emit(label, report)
+            elif return_code != 0:
+                self.output_line.emit(f"WARNING: no structured run report was found; full log: {log_path}")
             if return_code == 0:
                 passed.append(label)
-                self.output_line.emit(f"PASSED: {label}")
             else:
                 failed.append(label)
-                self.output_line.emit(f"FAILED: {label} (exit {return_code})")
         cancelled = self._cancel.is_set()
         summary = [
             "Mesh-to-CFD Validation summary:",
@@ -118,7 +166,6 @@ class MeshValidationWorker(QThread):
         if cancelled:
             summary.append("  Run cancelled.")
         self.completed.emit(not failed and not cancelled, "\n".join(summary))
-
 
 class MeshValidationDialog(QDialog):
     """Select multiple mesh producer Cases and run each complete validation chain."""
@@ -431,7 +478,8 @@ class MeshValidationDialog(QDialog):
         self.result_summary.setText("Validation is running…")
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
-        self._worker = MeshValidationWorker(commands)
+        log_directory = UserDataPaths.discover().mesh_validation / "_execution-logs"
+        self._worker = MeshValidationWorker(commands, log_directory)
         self._worker.output_line.connect(self.log_view.appendPlainText)
         self._worker.report_ready.connect(self._report_ready)
         self._worker.completed.connect(self._completed)
