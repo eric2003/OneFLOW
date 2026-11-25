@@ -27,6 +27,25 @@ class RunReportTest(unittest.TestCase):
         self.assertIn("[NOT RUN] mesh_structure", summary)
         self.assertIn("[NOT CHECKED] mesh_quality", summary)
 
+    def test_summary_keeps_file_inventory_in_json_not_console_output(self):
+        report = build_run_report(
+            "Mesh-to-CFD Validation",
+            {"mesh_generation": stage_result("PASS")},
+            0,
+            artifacts={
+                "run_directory": "run",
+                "files": [{
+                    "path": "stl_to_gmsh/results/mesh.msh",
+                    "sha256": "a" * 64,
+                    "size_bytes": 1024,
+                }],
+            },
+        )
+        summary = format_run_summary(report)
+        self.assertIn("run_directory: run", summary)
+        self.assertNotIn("files:", summary)
+        self.assertNotIn("sha256", summary)
+
     def test_success_report_cannot_contain_a_failed_stage(self):
         with self.assertRaisesRegex(ValueError, "cannot contain a failed stage"):
             build_run_report("STL -> Gmsh", {"gmsh": stage_result("FAIL")}, 0)

@@ -80,6 +80,8 @@ def format_run_summary(report: dict[str, Any]) -> str:
     if artifacts:
         lines.append("Output files:")
         for name, value in artifacts.items():
+            if name == "files":
+                continue
             lines.append(f"  {name}: {value}")
     error = report.get("error")
     if error:
