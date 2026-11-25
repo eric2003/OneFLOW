@@ -26,22 +26,35 @@
         }
       ],
       "inputs": [
-        { "id": "pipe_bend_parameters", "format": "json" }
+        {
+          "id": "pipe_bend_parameters",
+          "format": "json"
+        }
       ],
       "outputs": [
-        { "id": "closed_surface", "format": "stl", "dimension": 3, "topology": "surface" },
-        { "id": "geometry_provenance", "format": "oneflow.stl-geometry-manifest" }
+        {
+          "id": "closed_surface",
+          "format": "stl",
+          "dimension": 3,
+          "topology": "surface"
+        },
+        {
+          "id": "geometry_provenance",
+          "format": "oneflow.stl-geometry-manifest"
+        }
       ],
       "acceptance": [
         {
           "id": "pipe_bend.geometry.topology",
           "kind": "contract",
-          "description": "Generated surface is connected, watertight, consistently oriented, and has positive volume."
+          "description": "Generated surface is connected, watertight, consistently oriented, and has positive volume.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets"
         },
         {
           "id": "pipe_bend.geometry.provenance",
           "kind": "contract",
-          "description": "Geometry parameters, units, generator identity, and content hashes are recorded."
+          "description": "Geometry parameters, units, generator identity, and content hashes are recorded.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets"
         }
       ]
     },
@@ -50,7 +63,9 @@
       "type": "surface_discretization",
       "implementation_status": "implemented",
       "verification_status": "not_run",
-      "depends_on": ["geometry"],
+      "depends_on": [
+        "geometry"
+      ],
       "implementations": [
         {
           "id": "python_region_export",
@@ -65,24 +80,49 @@
         }
       ],
       "inputs": [
-        { "id": "closed_surface", "format": "stl", "dimension": 3, "topology": "surface" }
+        {
+          "id": "closed_surface",
+          "format": "stl",
+          "dimension": 3,
+          "topology": "surface"
+        }
       ],
       "outputs": [
-        { "id": "region_manifest", "format": "oneflow.stl-surface-regions" },
-        { "id": "wall_region", "format": "stl", "dimension": 2, "topology": "surface" },
-        { "id": "inflow_region", "format": "stl", "dimension": 2, "topology": "surface" },
-        { "id": "outflow_region", "format": "stl", "dimension": 2, "topology": "surface" }
+        {
+          "id": "region_manifest",
+          "format": "oneflow.stl-surface-regions"
+        },
+        {
+          "id": "wall_region",
+          "format": "stl",
+          "dimension": 2,
+          "topology": "surface"
+        },
+        {
+          "id": "inflow_region",
+          "format": "stl",
+          "dimension": 2,
+          "topology": "surface"
+        },
+        {
+          "id": "outflow_region",
+          "format": "stl",
+          "dimension": 2,
+          "topology": "surface"
+        }
       ],
       "acceptance": [
         {
           "id": "pipe_bend.regions.coverage",
           "kind": "contract",
-          "description": "Region manifest resolves each named region to a checksum-bound STL patch."
+          "description": "Region manifest resolves each named region to a checksum-bound STL patch.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets"
         },
         {
           "id": "pipe_bend.regions.partition",
           "kind": "contract",
-          "description": "Wall, inflow, and outflow patches partition the closed surface without missing or duplicated triangles."
+          "description": "Wall, inflow, and outflow patches partition the closed surface without missing or duplicated triangles.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets"
         }
       ]
     },
@@ -91,7 +131,9 @@
       "type": "volume_discretization",
       "implementation_status": "implemented",
       "verification_status": "not_run",
-      "depends_on": ["surface_regions"],
+      "depends_on": [
+        "surface_regions"
+      ],
       "implementations": [
         {
           "id": "python_gmsh_runner",
@@ -112,11 +154,24 @@
         }
       ],
       "inputs": [
-        { "id": "closed_surface", "format": "stl", "dimension": 3, "topology": "surface" },
-        { "id": "region_manifest", "format": "oneflow.stl-surface-regions" }
+        {
+          "id": "closed_surface",
+          "format": "stl",
+          "dimension": 3,
+          "topology": "surface"
+        },
+        {
+          "id": "region_manifest",
+          "format": "oneflow.stl-surface-regions"
+        }
       ],
       "outputs": [
-        { "id": "volume_mesh", "format": "gmsh-msh4", "dimension": 3, "topology": "unstructured" }
+        {
+          "id": "volume_mesh",
+          "format": "gmsh-msh4",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
       ],
       "acceptance": [
         {
@@ -136,13 +191,23 @@
       "type": "mesh_quality",
       "implementation_status": "planned",
       "verification_status": "not_run",
-      "depends_on": ["volume_mesh"],
+      "depends_on": [
+        "volume_mesh"
+      ],
       "implementations": [],
       "inputs": [
-        { "id": "volume_mesh", "format": "gmsh-msh4", "dimension": 3, "topology": "unstructured" }
+        {
+          "id": "volume_mesh",
+          "format": "gmsh-msh4",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
       ],
       "outputs": [
-        { "id": "mesh_quality_report", "format": "oneflow.mesh-quality-report" }
+        {
+          "id": "mesh_quality_report",
+          "format": "oneflow.mesh-quality-report"
+        }
       ],
       "acceptance": [
         {
@@ -157,15 +222,31 @@
       "type": "format_conversion",
       "implementation_status": "planned",
       "verification_status": "not_run",
-      "depends_on": ["mesh_quality"],
+      "depends_on": [
+        "mesh_quality"
+      ],
       "implementations": [
-        { "id": "shared_gmsh_to_cgns", "kind": "oneflow", "status": "planned" }
+        {
+          "id": "shared_gmsh_to_cgns",
+          "kind": "oneflow",
+          "status": "planned"
+        }
       ],
       "inputs": [
-        { "id": "volume_mesh", "format": "gmsh-msh4", "dimension": 3, "topology": "unstructured" }
+        {
+          "id": "volume_mesh",
+          "format": "gmsh-msh4",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
       ],
       "outputs": [
-        { "id": "cgns_mesh", "format": "cgns", "dimension": 3, "topology": "unstructured" }
+        {
+          "id": "cgns_mesh",
+          "format": "cgns",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
       ],
       "acceptance": [
         {
@@ -180,15 +261,31 @@
       "type": "oneflow_ingestion",
       "implementation_status": "planned",
       "verification_status": "not_run",
-      "depends_on": ["msh_to_cgns"],
+      "depends_on": [
+        "msh_to_cgns"
+      ],
       "implementations": [
-        { "id": "native_grid_reader", "kind": "oneflow", "status": "planned" }
+        {
+          "id": "native_grid_reader",
+          "kind": "oneflow",
+          "status": "planned"
+        }
       ],
       "inputs": [
-        { "id": "cgns_mesh", "format": "cgns", "dimension": 3, "topology": "unstructured" }
+        {
+          "id": "cgns_mesh",
+          "format": "cgns",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
       ],
       "outputs": [
-        { "id": "oneflow_native_grid", "format": "oneflow-native-grid", "dimension": 3, "topology": "unstructured" }
+        {
+          "id": "oneflow_native_grid",
+          "format": "oneflow-native-grid",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
       ],
       "acceptance": [
         {
@@ -203,16 +300,33 @@
       "type": "cfd_smoke",
       "implementation_status": "planned",
       "verification_status": "not_run",
-      "depends_on": ["oneflow_ingestion"],
+      "depends_on": [
+        "oneflow_ingestion"
+      ],
       "implementations": [
-        { "id": "oneflow_cfd_runner", "kind": "oneflow", "status": "planned" }
+        {
+          "id": "oneflow_cfd_runner",
+          "kind": "oneflow",
+          "status": "planned"
+        }
       ],
       "inputs": [
-        { "id": "oneflow_native_grid", "format": "oneflow-native-grid", "dimension": 3, "topology": "unstructured" }
+        {
+          "id": "oneflow_native_grid",
+          "format": "oneflow-native-grid",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
       ],
       "outputs": [
-        { "id": "cfd_smoke_report", "format": "oneflow.cfd-smoke-report" },
-        { "id": "cfd_residuals", "format": "oneflow-residual-data" }
+        {
+          "id": "cfd_smoke_report",
+          "format": "oneflow.cfd-smoke-report"
+        },
+        {
+          "id": "cfd_residuals",
+          "format": "oneflow-residual-data"
+        }
       ],
       "acceptance": [
         {
@@ -227,13 +341,21 @@
       "type": "cfd_validation",
       "implementation_status": "planned",
       "verification_status": "not_run",
-      "depends_on": ["cfd_smoke"],
+      "depends_on": [
+        "cfd_smoke"
+      ],
       "implementations": [],
       "inputs": [
-        { "id": "cfd_residuals", "format": "oneflow-residual-data" }
+        {
+          "id": "cfd_residuals",
+          "format": "oneflow-residual-data"
+        }
       ],
       "outputs": [
-        { "id": "cfd_validation_report", "format": "oneflow.cfd-validation-report" }
+        {
+          "id": "cfd_validation_report",
+          "format": "oneflow.cfd-validation-report"
+        }
       ],
       "acceptance": [
         {
