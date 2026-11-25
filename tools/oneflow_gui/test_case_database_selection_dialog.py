@@ -19,7 +19,7 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls._application = QApplication.instance() or QApplication([])
 
-    def test_tree_column_is_separate_from_run_checkbox_column(self) -> None:
+    def test_checkbox_is_in_case_column_and_columns_are_resizable(self) -> None:
         case = CaseDefinition(
             case_id="sample",
             title="Sample development case",
@@ -34,20 +34,22 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
         try:
             tree = dialog.case_tree
             header = tree.header()
-            self.assertEqual(tree.treePosition(), 1)
-            self.assertEqual(tree.columnWidth(0), 64)
-            self.assertEqual(tree.columnWidth(1), 690)
-            self.assertEqual(tree.columnWidth(2), 330)
-            for column in range(3):
+            self.assertEqual(tree.columnCount(), 2)
+            self.assertEqual(tree.treePosition(), 0)
+            self.assertEqual(tree.headerItem().text(0), "Case / Group")
+            self.assertEqual(tree.headerItem().text(1), "Configuration")
+            self.assertEqual(tree.columnWidth(0), 760)
+            self.assertEqual(tree.columnWidth(1), 330)
+            for column in range(2):
                 self.assertEqual(
                     header.sectionResizeMode(column),
                     QHeaderView.ResizeMode.Interactive,
                 )
             dimension = tree.topLevelItem(0)
-            self.assertEqual(dimension.text(1), "3D")
+            self.assertEqual(dimension.text(0), "3D")
             category = dimension.child(0)
             item = category.child(0)
-            self.assertEqual(item.text(1), "Sample development case")
+            self.assertEqual(item.text(0), "Sample development case")
             self.assertEqual(item.checkState(0).value, 2)
         finally:
             dialog.close()
