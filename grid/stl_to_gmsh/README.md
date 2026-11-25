@@ -41,6 +41,27 @@ indices, then creates an analytic OpenCASCADE cylinder with separate
 semantics instead of treating the end caps as solid walls. See
 docs/source/stl_geometry_generation.rst.
 
+## Incremental Case lifecycle contracts
+
+New geometry and mesh Cases are delivered through explicit lifecycle contracts,
+not an assumed all-at-once pipeline. The contract records which geometry,
+surface-region, volume-mesh, conversion, OneFLOW-ingestion, CFD-smoke, and
+physical-validation stages are planned, implemented, and actually verified.
+A future stage being planned does not fail the acceptance checks for the
+current delivery scope.
+
+The common contract and stage-state rules are documented in
+[OneFLOW Case Lifecycle and Incremental Verification](../../docs/architecture/oneflow-case-lifecycle-contract.md);
+the machine-readable schema is
+[case-lifecycle-v1.schema.json](../../tools/schemas/case-lifecycle-v1.schema.json).
+
+The 90-degree pipe bend is the first staged example:
+`3d/pipe_bend/90_degree/automatic_tetrahedra/case-lifecycle.json`.
+Its current contract declares the Python geometry / region / Gmsh volume-mesh
+implementation separately from the planned native C++ implementation and
+downstream conversion / CFD stages. It is not marked as an end-to-end CFD
+validated Case merely because the mesh-generation code exists.
+
 This directory contains native C++ STL-to-Gmsh Cases and independent Python
 reference Cases. The native Cases run through the standard OneFLOW Grid task
 and the C++ Geometry conversion pipeline. The geometric definitions and STL
