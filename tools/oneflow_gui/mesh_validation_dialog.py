@@ -570,40 +570,51 @@ class MeshValidationDialog(QDialog):
         if not isinstance(artifacts, dict):
             artifacts = {}
         run_directory = report.get("run_directory") or artifacts.get("run_directory")
-        report_directory = Path(run_directory).expanduser() if isinstance(run_directory, str) else None
-        if report_directory is None:
+        base_directory = Path(run_directory).expanduser() if isinstance(run_directory, str) else None
+        if base_directory is None:
             report_value = artifacts.get("report")
             if isinstance(report_value, str):
-                report_directory = Path(report_value).expanduser().parent
-        for name, value in artifacts.items():
-            if isinstance(value, str):
-                path = Path(value).expanduser()
-                if not path.is_absolute() and report_directory is not None:
-                    path = report_directory / path
-                exists = path.exists()
-                status = "Available" if exists else "Missing / external"
-                details = value
-            else:
-                status = "Recorded"
-                details = json.dumps(value, ensure_ascii=False, sort_keys=True)
-            item = QTreeWidgetItem(self.artifact_tree, [str(name), status, details])
+                base_directory = Path(report_value).expanduser().parent
+
+        def add_entry(parent, name: str, value) -> None:
+            if isinstance(value, dict):
+                item = QTreeWidgetItem(parent, [name, "Recorded", ""])
+                for child_name, child_value in value.items():
+                    add_entry(item, str(child_name), child_value)
+                item.setExpanded(True)
+                return
+            if isinstance(value, list):
+                item = QTreeWidgetItem(parent, [name, "Recorded", f"{len(value)} entries"])
+                for index, child_value in enumerate(value):
+                    add_entry(item, f"[{index}]", child_value)
+                item.setExpanded(True)
+                return
+            details = str(value)
+            status = "Recorded"
+            if isinstance(value, str) and (
+                name.lower().endswith(("path", "file", "directory"))
+                or Path(value).exists()
+            ):
+                candidate = Path(value).expanduser()
+                if not candidate.is_absolute() and base_directory is not None:
+                    candidate = base_directory / candidate
+                try:
+                    status = "Available" if candidate.exists() else "Missing / external"
+                except OSError:
+                    status = "Unresolved"
+            item = QTreeWidgetItem(parent, [name, status, details])
             item.setToolTip(2, details)
-        lineage = report.get("geometry_lineage") or {}
-        if isinstance(lineage, dict):
-            lineage_item = QTreeWidgetItem(self.artifact_tree, ["Geometry lineage", "Recorded", "Source and derived geometry records"])
-            for key, value in lineage.items():
-                if isinstance(value, dict):
-                    path_value = value.get("path")
-                    status = "Available" if isinstance(path_value, str) and Path(path_value).exists() else "Recorded"
-                    details = str(path_value) if path_value else json.dumps(value, ensure_ascii=False, sort_keys=True)
-                else:
-                    status = "Recorded"
-                    details = str(value)
-                child = QTreeWidgetItem(lineage_item, [str(key), status, details])
-                child.setToolTip(2, details)
-            lineage_item.setExpanded(True)
+
+        for name, value in artifacts.items():
+            add_entry(self.artifact_tree, str(name), value)
+        lineage = report.get("geometry_lineage")
+        if lineage:
+            add_entry(self.artifact_tree, "Geometry lineage", lineage)
         if self.artifact_tree.topLevelItemCount() == 0:
-            QTreeWidgetItem(self.artifact_tree, ["Artifacts", "Not recorded", "This report contains no artifact manifest."])
+            QTreeWidgetItem(
+                self.artifact_tree,
+                ["Artifacts", "Not recorded", "This report contains no artifact manifest."],
+            )
 
     def _report_ready(self, label: str, report: dict) -> None:
         status = str(report.get("status", "unknown")).upper()
