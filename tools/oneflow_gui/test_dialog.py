@@ -773,12 +773,16 @@ class CaseDatabaseSelectionDialog(QDialog):
         self.case_tree.setWordWrap(False)
         self.case_tree.setTextElideMode(Qt.TextElideMode.ElideNone)
         self.case_tree.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        # Keep the hierarchy/expand controls in the Case column. The default
+        # tree column is column 0, which otherwise pushes nested checkboxes
+        # outside the narrow Run column and over the case titles.
+        self.case_tree.setTreePosition(1)
         header = self.case_tree.header()
         header.setStretchLastSection(False)
-        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Interactive)
-        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Interactive)
-        self.case_tree.setColumnWidth(0, 58)
+        header.setMinimumSectionSize(56)
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
+        header.setSectionsMovable(False)
+        self.case_tree.setColumnWidth(0, 64)
         self.case_tree.setColumnWidth(1, 690)
         self.case_tree.setColumnWidth(2, 330)
         dimension_items: dict[str, QTreeWidgetItem] = {}
