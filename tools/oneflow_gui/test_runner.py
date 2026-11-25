@@ -237,6 +237,7 @@ _PYTHON_UNIT_TESTS = (
     ("Project repository tests", ("-m", "unittest", "tools.oneflow_gui.test_project_repository")),
     ("Case script discovery tests", ("-m", "unittest", "tools.oneflow_gui.test_script_file_discovery")),
     ("Case repository command tests", ("-m", "unittest", "tools.oneflow_gui.test_case_repository")),
+    ("Development case selector layout tests", ("-m", "unittest", "tools.oneflow_gui.test_case_database_selection_dialog")),
     ("Project window tests", ("-m", "unittest", "tools.oneflow_gui.test_project_window")),
     ("Parameter document tests", ("-m", "unittest", "tools.oneflow_gui.test_parameter_document")),
     ("Logical parameter model tests", ("-m", "unittest", "tools.oneflow_gui.test_parameter_model")),
