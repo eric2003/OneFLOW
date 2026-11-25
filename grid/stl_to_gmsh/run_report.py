@@ -23,7 +23,7 @@ def stage_result(status: str, message: str | None = None, metrics: dict[str, Any
 
 def build_run_report(workflow: str, stages: dict[str, dict[str, Any]], exit_code: int, *,
                      metrics: dict[str, Any] | None = None,
-                     artifacts: dict[str, str] | None = None,
+                     artifacts: dict[str, Any] | None = None,
                      error: dict[str, str] | None = None) -> dict[str, Any]:
     """Build the stable, versioned report envelope."""
     for name, result in stages.items():
