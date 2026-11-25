@@ -6,7 +6,7 @@ configuration; the STL cutting algorithm is implemented in
 
 The case enables the generic cutter through `stlSurfaceCutEnabled = 1` in
 `script/grid.txt`. Its shared cutting-plane configuration is
-`../script/cutting.json`. The source STL is a blind triangulated shell; the
+`script/cutting.json` (included in this self-contained native case workspace). The source STL is a blind triangulated shell; the
 cutter does not read analytic cylinder metadata.
 
 Run this case with the normal OneFLOW executable and case runner. The grid
