@@ -1395,16 +1395,9 @@ def run_mesh_validation(
         inspect_msh4(source_mesh)
     cases = build_mesh_validation_cases(REPOSITORY_ROOT, mesh_case_id, cfd_template_id)
     plan = build_case_graph_plan(cases, REPOSITORY_ROOT)
-    lifecycle_metadata = None
-    lifecycle_relative = mesh_entry.get("lifecycle_contract")
-    if isinstance(lifecycle_relative, str) and lifecycle_relative:
-        lifecycle_path = (REPOSITORY_ROOT / "grid" / lifecycle_relative).resolve()
-        lifecycle_contract = json.loads(lifecycle_path.read_text(encoding="utf-8"))
-        lifecycle_metadata = {
-            "contract_version": lifecycle_contract["contract_version"],
-            "verification_scope": lifecycle_contract["verification_scope"],
-            "verification_stages": lifecycle_contract["verification_stages"],
-        }
+    lifecycle_metadata = mesh_case_lifecycle_summary(
+        REPOSITORY_ROOT, mesh_case_id
+    )
     producer_only_python = (
         mesh_implementation == "python"
         and [step["id"] for step in cases] == ["stl_to_gmsh"]
