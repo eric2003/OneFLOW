@@ -10,6 +10,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from tools.case_lifecycle import validate_lifecycle_contract
+
 
 INCLUDE_PATTERN = re.compile(r'"([^"]+)"\s*;')
 CATALOG_SCHEMA = "oneflow.case-catalog"
@@ -60,6 +62,26 @@ def load_catalog(catalog_path: Path) -> dict[str, Any]:
             raise ValueError(
                 f"Case {case_id} runtimeConfig must be a non-empty path when provided"
             )
+        lifecycle_path_value = entry.get("lifecycle_contract")
+        if lifecycle_path_value is not None:
+            if not isinstance(lifecycle_path_value, str) or not lifecycle_path_value:
+                raise ValueError(f"Case {case_id} lifecycle_contract must be a non-empty relative path")
+            lifecycle_path = Path(lifecycle_path_value)
+            if lifecycle_path.is_absolute() or ".." in lifecycle_path.parts:
+                raise ValueError(f"Case {case_id} lifecycle_contract must stay within the grid directory")
+            lifecycle_file = (catalog_path.parent / lifecycle_path).resolve()
+            try:
+                lifecycle_file.relative_to(catalog_path.parent.resolve())
+            except ValueError as error:
+                raise ValueError(f"Case {case_id} lifecycle_contract escapes the grid directory") from error
+            if not lifecycle_file.is_file():
+                raise ValueError(f"Case {case_id} lifecycle contract not found: {lifecycle_path_value}")
+            with lifecycle_file.open("r", encoding="utf-8-sig") as stream:
+                lifecycle = json.load(stream)
+            lifecycle_errors = validate_lifecycle_contract(lifecycle, expected_case_id=case_id)
+            if lifecycle_errors:
+                details = "; ".join(lifecycle_errors)
+                raise ValueError(f"Case {case_id} lifecycle contract is invalid: {details}")
     return catalog
 
 
