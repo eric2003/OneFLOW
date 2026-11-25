@@ -187,11 +187,11 @@ class RecoverMeshValidationRunTest(unittest.TestCase):
             stage_log = root / "stl_to_gmsh/results/mesh-validation.log"
             stage_log.parent.mkdir(parents=True)
             stage_log.write_text(
-                '$ ["gmsh", "model.geo"]\\nRaw Gmsh output only.\\n',
+                '$ ["gmsh", "model.geo"]\nRaw Gmsh output only.\n',
                 encoding="utf-8",
             )
             (root / "mesh-validation-console.log").write_text(
-                "[stl_to_gmsh] succeeded: Legacy run completed.\\n",
+                "[stl_to_gmsh] succeeded: Legacy run completed.\n",
                 encoding="utf-8",
             )
 
