@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
+from PySide6.QtCore import QEvent
 from PySide6.QtWidgets import QApplication, QPushButton, QScrollArea
 from tools.oneflow_gui.application_settings import ApplicationSettings
 from tools.oneflow_gui.user_data_paths import UserDataPaths
@@ -522,7 +523,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             finally:
                 dialog.close()
                 dialog.deleteLater()
-                self.application.sendPostedEvents(None)
+                self.application.sendPostedEvents(None, QEvent.Type.DeferredDelete)
                 self.application.processEvents()
 
     def test_mesh_validation_worker_persists_console_log_and_links_report(self) -> None:
