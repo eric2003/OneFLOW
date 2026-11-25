@@ -617,6 +617,7 @@ class StlToGmshDialog(QDialog):
         self.geometry_preset.addItem("Unit Sphere STL", "sphere")
         self.geometry_preset.addItem("6:1 Prolate Spheroid STL", "prolate_spheroid")
         self.geometry_preset.addItem("Internal-flow cylinder STL", "cylinder_internal_flow")
+        self.geometry_preset.addItem("90-Degree Pipe Bend STL", "pipe_bend_90_degree")
         self.geometry_preset.addItem("Closed STL shell (genus zero)", "closed_shell")
         self.geometry_preset.setToolTip(
             "Selects a bundled or generated geometry, its STL input, validation Case and default output location."
@@ -757,9 +758,7 @@ class StlToGmshDialog(QDialog):
                 self.boundary_name.setEnabled(False)
                 self.volume_name.setEnabled(False)
             elif project.get("geometry") == "pipe_bend_90_degree":
-                self.geometry_preset.addItem(
-                    "90-degree pipe bend STL (imported project)", "pipe_bend_90_degree"
-                )
+                self._mesh_case_id = "stl_to_gmsh_pipe_bend_90_degree"
                 self.geometry_preset.setCurrentIndex(
                     self.geometry_preset.findData("pipe_bend_90_degree")
                 )
@@ -825,7 +824,50 @@ class StlToGmshDialog(QDialog):
             current_output.resolve() == previous_output.resolve()
             or current_output.resolve() == initial_default_output.resolve()
         )
+        self.boundary_name.setEnabled(True)
+        self.volume_name.setEnabled(True)
         definition = self._geometry_preset_paths(preset)
+
+        if preset == "pipe_bend_90_degree":
+            stl = (
+                UserDataPaths.discover().mesh_generation
+                / "generated_stl" / preset / f"{preset}.stl"
+            )
+            try:
+                stl.parent.mkdir(parents=True, exist_ok=True)
+                generate_pipe_bend(stl, units="m")
+                if self._project is not None:
+                    self._project = replace_project_stl(self._project, stl)
+                    manifest_path = Path(self._project["directory"]) / "project.json"
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    manifest["template_case_id"] = None
+                    manifest["mesh_case_id"] = "stl_to_gmsh_pipe_bend_90_degree"
+                    manifest_path.write_text(
+                        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                        encoding="utf-8",
+                        newline="\n",
+                    )
+                    self._project = load_mesh_project(Path(self._project["directory"]))
+                    self._project_directory = Path(self._project["directory"])
+                    self.stl_path.setText(str(self._project["stl_path"]))
+                else:
+                    self.stl_path.setText(str(stl))
+                self._mesh_case_id = "stl_to_gmsh_pipe_bend_90_degree"
+                self.boundary_name.setEnabled(False)
+                self.volume_name.setEnabled(False)
+                if output_is_default:
+                    self.output_path.setText(str(self._geometry_default_output(preset)))
+            except (OSError, ValueError, KeyError) as error:
+                QMessageBox.warning(self, "Cannot prepare pipe-bend STL", str(error))
+                self.geometry_preset.blockSignals(True)
+                self.geometry_preset.setCurrentIndex(
+                    self.geometry_preset.findData(previous)
+                )
+                self.geometry_preset.blockSignals(False)
+                return
+            self._active_geometry_preset = preset
+            self._refresh_command()
+            return
 
         if definition is None:
             generic_case_id = "stl_to_gmsh_generic_3d_mesh_handoff"
