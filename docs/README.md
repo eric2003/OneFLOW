@@ -111,6 +111,7 @@ make html     # 输出到 docs/build/html/，CI 与 Read the Docs 使用 docs/so
 
 | 想了解 | 文档 |
 |---|---|
+| Case 生命周期与增量验证契约 | [oneflow-case-lifecycle-contract.md](architecture/oneflow-case-lifecycle-contract.md) |
 | 系统架构评审清单 | [source/architecture_review.rst](source/architecture_review.rst) |
 | 运行时架构 | [source/runtime_architecture.rst](source/runtime_architecture.rst) |
 | 网格架构 / 网格拓扑 / Workbench | [source/mesh_architecture.rst](source/mesh_architecture.rst)、[source/grid_topology.rst](source/grid_topology.rst)、[source/workbench_architecture.rst](source/workbench_architecture.rst) |
