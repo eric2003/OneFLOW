@@ -212,9 +212,11 @@ class MeshValidationDialog(QDialog):
             "conversion and OneFLOW ingestion. The CFD stage is a short runtime "
             "smoke test, not a numerical-accuracy claim."
             if self._mesh_file is not None else
-            "Select native C++ or Python STL-to-Gmsh Cases. Each Case runs the "
-            "STL → Gmsh → CGNS → OneFLOW chain and a short solver smoke test. "
-            "For 3D meshes, the consumer dimension is adjusted; this is not a "
+            "Select a native C++ or Python STL-to-Gmsh Case, or an existing "
+            "Gmsh mesh produced in the Mesh Generation workbench. Each selection "
+            "runs the STL/MSH → CGNS → OneFLOW chain and a short solver smoke test. "
+            "Existing meshes are listed separately under Existing Gmsh Mesh; "
+            "for 3D meshes, the consumer dimension is adjusted. This is not a "
             "numerical-accuracy claim. Re-running a Case clears only its previous "
             "validation directory."
         )
