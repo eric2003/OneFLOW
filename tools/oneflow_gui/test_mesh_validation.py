@@ -1349,7 +1349,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             )
 
             invalid_workspace = Path(temporary) / "invalid-mesh-generation"
-            invalid_project = invalid_workspace / "invalid_pipe_bend"
+            invalid_project = invalid_workspace / "invalid_cylinder"
             (invalid_project / "results").mkdir(parents=True)
             (invalid_project / "results/escaped.msh").write_text(
                 "mesh", encoding="ascii"
@@ -1357,7 +1357,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             (invalid_project / "project.json").write_text(
                 json.dumps({
                     "schema": "oneflow.mesh-project", "version": 1,
-                    "geometry": "pipe_bend_90_degree",
+                    "geometry": "cylinder_internal_flow",
                     "output_mesh": "../../outside.msh",
                 }), encoding="utf-8"
             )
@@ -1375,9 +1375,9 @@ class MeshValidationCatalogTest(unittest.TestCase):
             self.assertEqual(
                 ignored_invalid_project,
                 (
-                    (invalid_workspace / "pipe_bend_90_degree"
-                     / "results/pipe_bend_90_degree.msh").resolve(),
-                    (invalid_workspace / "pipe_bend_90_degree").resolve(),
+                    (invalid_workspace / "cylinder_internal_flow"
+                     / "results/cylinder_internal_flow.msh").resolve(),
+                    (invalid_workspace / "cylinder_internal_flow").resolve(),
                 ),
             )
 
