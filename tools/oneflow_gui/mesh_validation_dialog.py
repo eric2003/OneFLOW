@@ -123,7 +123,7 @@ class MeshValidationWorker(QThread):
                         record(f"WARNING: cannot read run report: {error}")
                 outcome = "PASSED" if return_code == 0 else f"FAILED (exit {return_code})"
                 record(f"{outcome}: {label}")
-                record("Finished (UTC): " + __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat())
+                record("Finished (UTC): " + datetime.now(timezone.utc).isoformat())
             if isinstance(report, dict) and report.get("schema") == "oneflow.run-report":
                 durable_log = log_path
                 if report_path is not None:
