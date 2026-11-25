@@ -436,6 +436,24 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
     if not root.is_dir():
         raise NotADirectoryError(f"Mesh validation run directory not found: {root}")
 
+    metadata_path = root / "mesh-validation-run.json"
+    run_metadata = {}
+    metadata_status = "missing"
+    if metadata_path.is_file():
+        try:
+            candidate_metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+            if (
+                isinstance(candidate_metadata, dict)
+                and candidate_metadata.get("schema") == "oneflow.mesh-validation-run"
+                and candidate_metadata.get("version") == 1
+            ):
+                run_metadata = candidate_metadata
+                metadata_status = "readable"
+            else:
+                metadata_status = "unsupported"
+        except (OSError, json.JSONDecodeError):
+            metadata_status = "unreadable"
+
     stage_names = {
         "stl_to_gmsh": "mesh_generation",
         "gmsh_to_cgns": "gmsh_to_cgns",
@@ -492,13 +510,18 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
     # that distinction when its stage log is available.
     producer_log = next((entry[2] for entry in stage_logs if entry[0] == "stl_to_gmsh"), "")
     first_line = producer_log.splitlines()[0] if producer_log.splitlines() else ""
+    is_existing_mesh = run_metadata.get("mesh_input_mode") == "existing_mesh"
     if first_line.startswith("$ "):
         try:
             command = json.loads(first_line[2:])
         except (TypeError, json.JSONDecodeError):
             command = None
-        if isinstance(command, list) and command and command[0] == "<copy-existing-mesh>":
-            stages["existing_msh_input"] = stages.pop("mesh_generation")
+        is_existing_mesh = is_existing_mesh or (
+            isinstance(command, list) and bool(command)
+            and command[0] == "<copy-existing-mesh>"
+        )
+    if is_existing_mesh:
+        stages["existing_msh_input"] = stages.pop("mesh_generation")
 
     stages["mesh_quality"] = stage_result(
         "NOT_CHECKED", "Recovery does not rerun mesh-quality acceptance checks."
@@ -506,24 +529,6 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
     stages["cfd_accuracy"] = stage_result(
         "NOT_CHECKED", "A recovered run cannot establish CFD physical accuracy."
     )
-
-    metadata_path = root / "mesh-validation-run.json"
-    run_metadata = {}
-    metadata_status = "missing"
-    if metadata_path.is_file():
-        try:
-            candidate_metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
-            if (
-                isinstance(candidate_metadata, dict)
-                and candidate_metadata.get("schema") == "oneflow.mesh-validation-run"
-                and candidate_metadata.get("version") == 1
-            ):
-                run_metadata = candidate_metadata
-                metadata_status = "readable"
-            else:
-                metadata_status = "unsupported"
-        except (OSError, json.JSONDecodeError):
-            metadata_status = "unreadable"
 
     metrics: dict = {}
     mesh_summary = None
