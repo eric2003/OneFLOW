@@ -166,36 +166,7 @@ class PipeBendGeometryTest(unittest.TestCase):
             })
             self.assertGreater(report["mesh_summary"]["tetrahedron_elements"], 0)
 
-    def test_cpp_generator_matches_python_geometry(self):
-        source = (
-            ROOT / "grid/stl_to_gmsh/3d/pipe_bend/90_degree"
-            / "geometry/cpp/generate_pipe_bend.cpp"
-        )
-        compiler = next(
-            (shutil.which(name) for name in ("c++", "g++", "clang++") if shutil.which(name)),
-            None,
-        )
-        configured_stl = os.environ.get("ONEFLOW_PIPE_BEND_CPP_STL")
-        if configured_stl:
-            cpp_stl = Path(configured_stl)
-        elif compiler:
-            with tempfile.TemporaryDirectory() as build_directory:
-                executable = Path(build_directory) / (
-                    "pipe_bend_generator.exe" if os.name == "nt"
-                    else "pipe_bend_generator"
-                )
-                subprocess.run(
-                    [compiler, "-std=c++17", str(source), "-o", str(executable)],
-                    check=True, capture_output=True, text=True,
-                )
-                cpp_stl = Path(build_directory) / "cpp" / "pipe_bend_90_degree.stl"
-                cpp_stl.parent.mkdir(parents=True)
-                subprocess.run(
-                    [str(executable), "--output", str(cpp_stl)],
-                    check=True, capture_output=True, text=True,
-                )
-        else:
-            self.skipTest("A C++17 compiler or ONEFLOW_PIPE_BEND_CPP_STL is required")
+    def _assert_cpp_generator_matches_python_geometry(self, cpp_stl):
         self.assertTrue(cpp_stl.is_file())
         cpp_region_manifest_path = cpp_stl.parent / "region_manifest.json"
         cpp_geometry_manifest_path = cpp_stl.with_suffix(".geometry.json")
@@ -279,6 +250,35 @@ class PipeBendGeometryTest(unittest.TestCase):
                         python_metrics["coordinate_bounds"][axis][index],
                         delta=1.0e-6,
                     )
+
+    def test_cpp_generator_matches_python_geometry(self):
+        configured_stl = os.environ.get("ONEFLOW_PIPE_BEND_CPP_STL")
+        if configured_stl:
+            self._assert_cpp_generator_matches_python_geometry(Path(configured_stl))
+            return
+        source = (
+            ROOT / "grid/stl_to_gmsh/3d/pipe_bend/90_degree"
+            / "geometry/cpp/generate_pipe_bend.cpp"
+        )
+        compiler = next(
+            (shutil.which(name) for name in ("c++", "g++", "clang++") if shutil.which(name)),
+            None,
+        )
+        if not compiler:
+            self.skipTest("A C++17 compiler or ONEFLOW_PIPE_BEND_CPP_STL is required")
+        with tempfile.TemporaryDirectory() as build_directory:
+            executable = Path(build_directory) / "pipe_bend_generator"
+            subprocess.run(
+                [compiler, "-std=c++17", str(source), "-o", str(executable)],
+                check=True, capture_output=True, text=True,
+            )
+            cpp_stl = Path(build_directory) / "cpp" / "pipe_bend_90_degree.stl"
+            cpp_stl.parent.mkdir(parents=True)
+            subprocess.run(
+                [str(executable), "--output", str(cpp_stl)],
+                check=True, capture_output=True, text=True,
+            )
+            self._assert_cpp_generator_matches_python_geometry(cpp_stl)
 
     def test_invalid_geometry_and_source_tree_output_are_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
