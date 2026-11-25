@@ -366,5 +366,10 @@
       ],
       "notes": "A CFD smoke test is not physical validation."
     }
+  ],
+  "verification_stages": [
+    "geometry",
+    "surface_regions",
+    "volume_mesh"
   ]
 }
