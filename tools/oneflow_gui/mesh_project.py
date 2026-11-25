@@ -199,7 +199,12 @@ def create_mesh_project_from_stl(
         "version": 1,
         "name": directory.name,
         "template_case_id": None,
-        "mesh_case_id": _GENERIC_3D_VALIDATION_CASE,
+        "mesh_case_id": (
+            "stl_to_gmsh_pipe_bend_90_degree"
+            if geometry_manifest
+            and geometry_manifest.get("geometry") == "pipe_bend_90_degree"
+            else _GENERIC_3D_VALIDATION_CASE
+        ),
         "input_stl": "input/model.stl",
         "output_mesh": f"results/{directory.name}.msh",
         "mesh_size": 0.20,
