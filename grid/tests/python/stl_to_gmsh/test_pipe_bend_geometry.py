@@ -189,6 +189,17 @@ class PipeBendGeometryTest(unittest.TestCase):
             cpp_geometry_manifest["schema"], "oneflow.stl-geometry-manifest"
         )
         self.assertEqual(
+            cpp_geometry_manifest["generator"]["name"],
+            "oneflow_pipe_bend_geometry",
+        )
+        self.assertEqual(
+            cpp_geometry_manifest["generator"]["source"],
+            "generate_pipe_bend.cpp",
+        )
+        self.assertEqual(
+            len(cpp_geometry_manifest["generator"]["source_sha256"]), 64
+        )
+        self.assertEqual(
             cpp_geometry_manifest["stl_sha256"],
             hashlib.sha256(cpp_stl.read_bytes()).hexdigest(),
         )
