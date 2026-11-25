@@ -10,7 +10,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from tools.case_lifecycle import validate_lifecycle_contract
+try:
+    from .case_lifecycle import validate_lifecycle_contract
+except ImportError:  # Direct script execution from the repository root.
+    from case_lifecycle import validate_lifecycle_contract
 
 
 INCLUDE_PATTERN = re.compile(r'"([^"]+)"\s*;')
