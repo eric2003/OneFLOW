@@ -119,6 +119,17 @@ def validate_lifecycle_contract(
                 ):
                     errors.append(f"{stage_id}: acceptance check {check_id!r} has an invalid reference")
 
+        if implementation_status == "implemented":
+            if not isinstance(implementations, list) or not any(
+                isinstance(item, dict) and item.get("status") == "implemented"
+                for item in implementations
+            ):
+                errors.append(f"{stage_id}: implemented stage needs an implemented variant")
+            if not isinstance(acceptance, list) or not acceptance:
+                errors.append(f"{stage_id}: implemented stage needs acceptance checks")
+        if implementation_status == "not_applicable" and verification_status != "not_applicable":
+            errors.append(f"{stage_id}: not_applicable implementation needs not_applicable verification")
+
         for field in ("inputs", "outputs"):
             artifacts = stage.get(field, [])
             if isinstance(artifacts, list):
