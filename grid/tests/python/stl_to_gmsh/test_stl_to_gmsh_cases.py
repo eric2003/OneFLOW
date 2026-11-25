@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import shutil
 import subprocess
@@ -16,6 +17,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 from mesh_cases import load_catalog, validate_case  # noqa: E402
 from grid.stl_to_gmsh.converter import convert, inspect_msh4, read_stl  # noqa: E402
 from grid.stl_to_gmsh.run_cases import NATIVE_CASES, PYTHON_CASES, REFINEMENT_LEVELS, SPHERE_REFINEMENT_CASES  # noqa: E402
+from generate_pipe_bend import generate as generate_pipe_bend  # noqa: E402
 
 def _manual_gmsh():
     """Return Gmsh only when a developer explicitly opts into integration tests."""
@@ -939,6 +941,38 @@ class StlToGmshCaseTest(unittest.TestCase):
                 "cylinder_internal_flow",
             )
         self.assertFalse((source / "results").exists())
+
+    def test_pipe_bend_geometry_contract_emits_verified_region_assets(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "pipe_bend_90_degree.stl"
+            generated = generate_pipe_bend(output)
+            self.assertTrue(generated["surface"]["watertight"])
+            self.assertGreater(generated["surface"]["signed_volume"], 0.0)
+            self.assertLess(generated["surface"]["relative_volume_error"], 0.03)
+
+            region_manifest = json.loads(
+                generated["region_manifest_path"].read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                region_manifest["schema"], "oneflow.stl-surface-regions"
+            )
+            self.assertEqual(
+                set(region_manifest["regions"]), {"wall", "inflow", "outflow"}
+            )
+            total_region_triangles = 0
+            for name, record in region_manifest["regions"].items():
+                region_file = output.parent / record["file"]
+                self.assertTrue(region_file.is_file(), name)
+                self.assertEqual(
+                    hashlib.sha256(region_file.read_bytes()).hexdigest(),
+                    record["sha256"],
+                )
+                self.assertGreater(record["triangle_count"], 0)
+                total_region_triangles += record["triangle_count"]
+            self.assertEqual(
+                total_region_triangles, generated["surface"]["triangle_count"]
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
