@@ -225,6 +225,12 @@ The raw JSON report remains available for complete machine-readable evidence.
 Recovering a run when its JSON report is missing
 -------------------------------------------------
 
+Each run now writes a small ``mesh-validation-run.json`` metadata record
+before executing its stages. It preserves the Case ID, implementation, input
+mode, CFD template, step limit, source paths, run ID, start time and planned
+stage directories. This makes interrupted runs identifiable even when no
+final report was written.
+
 Use **Recover Folder...** and select the run directory when
 ``mesh-validation-report.json`` is missing or unreadable. Recovery reads
 the per-stage ``results/mesh-validation.log`` records, the optional

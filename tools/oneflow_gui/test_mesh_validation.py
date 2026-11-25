@@ -200,6 +200,34 @@ class RecoverMeshValidationRunTest(unittest.TestCase):
             self.assertEqual(report["stages"]["mesh_generation"]["status"], "PASS")
             self.assertEqual(report["steps"][0]["message"], "Legacy run completed.")
 
+    def test_run_metadata_restores_case_parameters_without_inventing_outcomes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            metadata = {
+                "schema": "oneflow.mesh-validation-run",
+                "version": 1,
+                "run_id": "run-123",
+                "mesh_case_id": "stl_to_gmsh_sphere",
+                "mesh_implementation": "python",
+                "mesh_input_mode": "generated_mesh",
+                "cfd_template_id": "laminar_flat_plate",
+                "max_steps": 2,
+                "started_at_utc": "2026-11-25T08:00:00+00:00",
+            }
+            (root / "mesh-validation-run.json").write_text(
+                json.dumps(metadata), encoding="utf-8"
+            )
+
+            report = recover_mesh_validation_run(root)
+
+            self.assertEqual(report["run_id"], "run-123")
+            self.assertEqual(report["mesh_case_id"], "stl_to_gmsh_sphere")
+            self.assertEqual(report["mesh_implementation"], "python")
+            self.assertEqual(report["cfd_template_id"], "laminar_flat_plate")
+            self.assertEqual(report["max_steps"], 2)
+            self.assertEqual(report["recovery"]["run_metadata_status"], "readable")
+            self.assertEqual(report["stages"]["mesh_generation"]["status"], "NOT_CHECKED")
+
     def test_artifact_presence_alone_never_claims_a_stage_pass(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

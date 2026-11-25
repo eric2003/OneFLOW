@@ -506,6 +506,24 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
         "NOT_CHECKED", "A recovered run cannot establish CFD physical accuracy."
     )
 
+    metadata_path = root / "mesh-validation-run.json"
+    run_metadata = {}
+    metadata_status = "missing"
+    if metadata_path.is_file():
+        try:
+            candidate_metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+            if (
+                isinstance(candidate_metadata, dict)
+                and candidate_metadata.get("schema") == "oneflow.mesh-validation-run"
+                and candidate_metadata.get("version") == 1
+            ):
+                run_metadata = candidate_metadata
+                metadata_status = "readable"
+            else:
+                metadata_status = "unsupported"
+        except (OSError, json.JSONDecodeError):
+            metadata_status = "unreadable"
+
     metrics: dict = {}
     mesh_summary = None
     validation_path = root / "stl_to_gmsh" / "results" / "mesh-validation.json"
@@ -565,6 +583,8 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
         "Only terminal stage records in durable stage or console logs are treated as PASS, FAIL, or NOT_RUN.",
     ]
     warnings.extend(lineage_warnings)
+    if metadata_status in {"unsupported", "unreadable"}:
+        warnings.append("The run metadata file exists but could not be read as a supported record.")
     return {
         "schema": "oneflow.run-report",
         "version": 1,
@@ -575,6 +595,15 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
         "metrics": metrics,
         "artifacts": artifacts,
         "run_directory": str(root),
+        "run_id": run_metadata.get("run_id"),
+        "mesh_case_id": run_metadata.get("mesh_case_id"),
+        "mesh_implementation": run_metadata.get("mesh_implementation"),
+        "mesh_input_mode": run_metadata.get("mesh_input_mode"),
+        "source_mesh_file": run_metadata.get("source_mesh_file"),
+        "source_stl_file": run_metadata.get("source_stl_file"),
+        "cfd_template_id": run_metadata.get("cfd_template_id"),
+        "max_steps": run_metadata.get("max_steps"),
+        "started_at_utc": run_metadata.get("started_at_utc"),
         "steps": recovered_steps,
         "mesh_summary": mesh_summary,
         "geometry_lineage": geometry_lineage,
@@ -583,6 +612,7 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
             "recovered_at_utc": datetime.now(timezone.utc).isoformat(),
             "warnings": warnings,
             "verified_geometry_sidecars": len(verified_lineage),
+            "run_metadata_status": metadata_status,
         },
     }
 
@@ -1020,6 +1050,29 @@ def run_mesh_validation(
     run_root = _external(selected_stage_root)
     run_root = reset_mesh_validation_workspace(run_root)
     run_id = uuid.uuid4().hex
+    metadata_path = run_root / "mesh-validation-run.json"
+    write_run_report(metadata_path, {
+        "schema": "oneflow.mesh-validation-run",
+        "version": 1,
+        "run_id": run_id,
+        "mesh_case_id": mesh_case_id,
+        "mesh_implementation": mesh_implementation,
+        "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
+        "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
+        "source_stl_file": str(source_stl) if source_stl is not None else None,
+        "cfd_template_id": cfd_template_id,
+        "max_steps": max_steps,
+        "started_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "stages": [
+            {
+                "case_id": step.case_id,
+                "runtime_directory": (
+                    step.runtime_directory or Path("cases") / step.case_id
+                ).as_posix(),
+            }
+            for step in plan.steps
+        ],
+    })
     mesh_evidence: dict = {}
     if gmsh_path.is_file():
         os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
