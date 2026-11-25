@@ -1252,8 +1252,6 @@ def run_mesh_validation(
 ) -> int:
     """Run a mesh producer or validate an existing MSH, then convert and consume it."""
     executable = oneflow.expanduser().resolve()
-    if not executable.is_file():
-        raise FileNotFoundError(f"OneFLOW executable not found: {executable}")
     source_mesh = mesh_file.expanduser().resolve() if mesh_file is not None else None
     if max_steps < 1:
         raise ValueError("CFD smoke-test steps must be at least one.")
@@ -1315,6 +1313,12 @@ def run_mesh_validation(
         inspect_msh4(source_mesh)
     cases = build_mesh_validation_cases(REPOSITORY_ROOT, mesh_case_id, cfd_template_id)
     plan = build_case_graph_plan(cases, REPOSITORY_ROOT)
+    producer_only_python = (
+        mesh_implementation == "python"
+        and [step["id"] for step in cases] == ["stl_to_gmsh"]
+    )
+    if not executable.is_file() and not producer_only_python:
+        raise FileNotFoundError(f"OneFLOW executable not found: {executable}")
     if stage_root is not None:
         selected_stage_root = stage_root
     elif source_mesh is not None:
