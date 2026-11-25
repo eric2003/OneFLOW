@@ -593,7 +593,7 @@ class MeshValidationDialog(QDialog):
             status = "Recorded"
             if isinstance(value, str) and (
                 name.lower().endswith(("path", "file", "directory"))
-                or Path(value).exists()
+                or "/" in value or "\\" in value
             ):
                 candidate = Path(value).expanduser()
                 if not candidate.is_absolute() and base_directory is not None:
