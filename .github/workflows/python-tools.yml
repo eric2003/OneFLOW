@@ -89,15 +89,22 @@ jobs:
           c++ -std=c++17 -O2 -Wall -Wextra -pedantic grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/cpp/generate_pipe_bend.cpp -o "$RUNNER_TEMP/pipe_bend_generator"
           "$RUNNER_TEMP/pipe_bend_generator" --output "$RUNNER_TEMP/pipe_bend_90_degree.stl"
           test -s "$RUNNER_TEMP/pipe_bend_90_degree.stl"
-          test -s "$RUNNER_TEMP/pipe_bend_90_degree.geometry-report.json"
+          test -s "$RUNNER_TEMP/pipe_bend_90_degree.geometry.json"
+          test -s "$RUNNER_TEMP/region_manifest.json"
+          test -s "$RUNNER_TEMP/pipe_bend_90_degree.wall.stl"
+          test -s "$RUNNER_TEMP/pipe_bend_90_degree.inflow.stl"
+          test -s "$RUNNER_TEMP/pipe_bend_90_degree.outflow.stl"
           python - <<'PY'
           import json
           import os
           from pathlib import Path
-          report = Path(os.environ["RUNNER_TEMP"]) / "pipe_bend_90_degree.geometry-report.json"
-          data = json.loads(report.read_text(encoding="utf-8"))
-          assert data["schema"] == "oneflow.pipe-bend-geometry-report"
-          assert data["patch_triangle_counts"] == {"wall": 4608, "inflow": 48, "outflow": 48}
+          root = Path(os.environ["RUNNER_TEMP"])
+          data = json.loads((root / "pipe_bend_90_degree.geometry.json").read_text(encoding="utf-8"))
+          regions = json.loads((root / "region_manifest.json").read_text(encoding="utf-8"))
+          assert data["schema"] == "oneflow.stl-geometry-manifest"
+          assert data["region_triangle_counts"] == {"wall": 4608, "inflow": 48, "outflow": 48}
+          assert regions["schema"] == "oneflow.stl-surface-regions"
+          assert set(regions["regions"]) == {"wall", "inflow", "outflow"}
           PY
           ONEFLOW_PIPE_BEND_CPP_STL="$RUNNER_TEMP/pipe_bend_90_degree.stl" python -m unittest grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_cpp_generator_matches_python_geometry
       - name: Configure MSVC developer environment
@@ -115,16 +122,20 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & "$outDir\pipe_bend_generator.exe" --output "$outDir\pipe_bend_90_degree.stl"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (!(Test-Path "$outDir\pipe_bend_90_degree.stl")) { throw "C++ pipe-bend STL was not generated" }
-          if (!(Test-Path "$outDir\pipe_bend_90_degree.geometry-report.json")) { throw "C++ pipe-bend report was not generated" }
+          foreach ($asset in @("pipe_bend_90_degree.stl", "pipe_bend_90_degree.geometry.json", "region_manifest.json", "pipe_bend_90_degree.wall.stl", "pipe_bend_90_degree.inflow.stl", "pipe_bend_90_degree.outflow.stl")) {
+              if (!(Test-Path (Join-Path $outDir $asset))) { throw "C++ pipe-bend asset was not generated: $asset" }
+          }
           @'
           import json
           import os
           from pathlib import Path
-          report = Path(os.environ["RUNNER_TEMP"]) / "pipe_bend" / "pipe_bend_90_degree.geometry-report.json"
-          data = json.loads(report.read_text(encoding="utf-8"))
-          assert data["schema"] == "oneflow.pipe-bend-geometry-report"
-          assert data["patch_triangle_counts"] == {"wall": 4608, "inflow": 48, "outflow": 48}
+          root = Path(os.environ["RUNNER_TEMP"]) / "pipe_bend"
+          data = json.loads((root / "pipe_bend_90_degree.geometry.json").read_text(encoding="utf-8"))
+          regions = json.loads((root / "region_manifest.json").read_text(encoding="utf-8"))
+          assert data["schema"] == "oneflow.stl-geometry-manifest"
+          assert data["region_triangle_counts"] == {"wall": 4608, "inflow": 48, "outflow": 48}
+          assert regions["schema"] == "oneflow.stl-surface-regions"
+          assert set(regions["regions"]) == {"wall", "inflow", "outflow"}
           '@ | python -
           $env:ONEFLOW_PIPE_BEND_CPP_STL = "$outDir\pipe_bend_90_degree.stl"
           python -m unittest grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_cpp_generator_matches_python_geometry
