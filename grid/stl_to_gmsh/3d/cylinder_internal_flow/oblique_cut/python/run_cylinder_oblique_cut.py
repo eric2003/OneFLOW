@@ -24,7 +24,14 @@ def run_case(case_directory: Path, output_directory: Path, gmsh: str) -> dict:
         pass
     else:
         raise ValueError(f"Generated files must stay outside the source repository: {output}")
-    config_path = case.parent / "script/cutting.json"
+    # Prefer assets staged inside the selected implementation workspace.
+    # The parent-level location remains a source-tree compatibility fallback.
+    config_candidates = (
+        case / "script/cutting.json",
+        case.parent / "script/cutting.json",
+        DEFAULT_CASE.parent / "script/cutting.json",
+    )
+    config_path = next((path for path in config_candidates if path.is_file()), config_candidates[0])
     source = case / "input/model.stl"
     # The native and Python implementations share one blind STL fixture at
     # the workflow level. A GUI workspace may stage only the selected
