@@ -766,25 +766,24 @@ class CaseDatabaseSelectionDialog(QDialog):
             "This dialog only saves the selection; it does not start calculations."
         ))
         self.case_tree = QTreeWidget()
-        self.case_tree.setColumnCount(3)
-        self.case_tree.setHeaderLabels(["Run", "Case / Group", "Configuration"])
+        self.case_tree.setColumnCount(2)
+        self.case_tree.setHeaderLabels(["Case / Group", "Configuration"])
         self.case_tree.setRootIsDecorated(True)
         self.case_tree.setAlternatingRowColors(True)
         self.case_tree.setWordWrap(False)
         self.case_tree.setTextElideMode(Qt.TextElideMode.ElideNone)
         self.case_tree.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
-        # Keep the hierarchy/expand controls in the Case column. The default
-        # tree column is column 0, which otherwise pushes nested checkboxes
-        # outside the narrow Run column and over the case titles.
-        self.case_tree.setTreePosition(1)
+        # Keep each checkbox immediately beside its tree-item label. The tree
+        # and selection therefore share one compact column; configuration
+        # details remain in a separate, resizable column.
+        self.case_tree.setTreePosition(0)
         header = self.case_tree.header()
         header.setStretchLastSection(False)
-        header.setMinimumSectionSize(56)
+        header.setMinimumSectionSize(120)
         header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         header.setSectionsMovable(False)
-        self.case_tree.setColumnWidth(0, 64)
-        self.case_tree.setColumnWidth(1, 690)
-        self.case_tree.setColumnWidth(2, 330)
+        self.case_tree.setColumnWidth(0, 760)
+        self.case_tree.setColumnWidth(1, 330)
         dimension_items: dict[str, QTreeWidgetItem] = {}
         category_items: dict[tuple[str, str], QTreeWidgetItem] = {}
         for case in self._cases:
@@ -792,7 +791,7 @@ class CaseDatabaseSelectionDialog(QDialog):
             dimension_item = dimension_items.get(dimension)
             if dimension_item is None:
                 dimension_item = QTreeWidgetItem(self.case_tree)
-                dimension_item.setText(1, dimension)
+                dimension_item.setText(0, dimension)
                 dimension_item.setFlags(
                     dimension_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
                 )
@@ -802,7 +801,7 @@ class CaseDatabaseSelectionDialog(QDialog):
             category_item = category_items.get(category_key)
             if category_item is None:
                 category_item = QTreeWidgetItem(dimension_item)
-                category_item.setText(1, category_key[1])
+                category_item.setText(0, category_key[1])
                 category_item.setFlags(
                     category_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
                 )
@@ -811,14 +810,14 @@ class CaseDatabaseSelectionDialog(QDialog):
             case_item = QTreeWidgetItem(category_item)
             case_item.setFlags(case_item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             case_item.setData(0, Qt.ItemDataRole.UserRole, case.case_id)
-            case_item.setText(1, case.title)
-            case_item.setToolTip(1, case.title)
+            case_item.setText(0, case.title)
+            case_item.setToolTip(0, case.title)
             configuration = (
                 f"Python: {case.execution_script.name}"
                 if case.execution_kind == "python" and case.execution_script is not None
                 else ("Typed profile" if case.profile else "Legacy config")
             )
-            case_item.setText(2, configuration)
+            case_item.setText(1, configuration)
             case_item.setCheckState(
                 0,
                 Qt.CheckState.Checked
