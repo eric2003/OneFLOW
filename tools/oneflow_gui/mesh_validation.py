@@ -1313,6 +1313,16 @@ def run_mesh_validation(
         inspect_msh4(source_mesh)
     cases = build_mesh_validation_cases(REPOSITORY_ROOT, mesh_case_id, cfd_template_id)
     plan = build_case_graph_plan(cases, REPOSITORY_ROOT)
+    lifecycle_metadata = None
+    lifecycle_relative = mesh_entry.get("lifecycle_contract")
+    if isinstance(lifecycle_relative, str) and lifecycle_relative:
+        lifecycle_path = (REPOSITORY_ROOT / "grid" / lifecycle_relative).resolve()
+        lifecycle_contract = json.loads(lifecycle_path.read_text(encoding="utf-8"))
+        lifecycle_metadata = {
+            "contract_version": lifecycle_contract["contract_version"],
+            "verification_scope": lifecycle_contract["verification_scope"],
+            "verification_stages": lifecycle_contract["verification_stages"],
+        }
     producer_only_python = (
         mesh_implementation == "python"
         and [step["id"] for step in cases] == ["stl_to_gmsh"]
@@ -1343,6 +1353,7 @@ def run_mesh_validation(
         "source_stl_file": str(source_stl) if source_stl is not None else None,
         "cfd_template_id": cfd_template_id,
         "max_steps": max_steps,
+        "lifecycle": lifecycle_metadata,
         "started_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "stages": [
             {
@@ -1506,8 +1517,15 @@ def run_mesh_validation(
         metrics["physical_group_count"] = len(mesh_evidence["physical_groups"])
 
     report_path = run_root / "mesh-validation-report.json"
+    milestone_only = cases[-1]["id"] != "oneflow_cfd_solve"
+    report_title = (
+        f"Mesh Workflow Milestone: {lifecycle_metadata['verification_scope']}"
+        if milestone_only and lifecycle_metadata
+        else "Mesh Workflow Validation" if milestone_only
+        else "Mesh-to-CFD Validation"
+    )
     report = build_run_report(
-        "Mesh-to-CFD Validation", stages, exit_code, metrics=metrics,
+        report_title, stages, exit_code, metrics=metrics,
         artifacts={"run_directory": str(run_root), "report": str(report_path),
                    **({"source_mesh": str(source_mesh)} if source_mesh is not None else {})},
         error=error,
@@ -1530,9 +1548,16 @@ def run_mesh_validation(
         "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
         "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
         "cfd_template_id": cfd_template_id, "max_steps": max_steps,
+        "lifecycle": lifecycle_metadata,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
         "mesh_summary": mesh_evidence or None,
-        "note": "This report records execution and ingestion smoke checks only; it does not establish mesh-quality acceptance or CFD physical accuracy.",
+        "note": (
+            "This report covers only the declared lifecycle milestone; downstream "
+            "conversion and CFD stages are not claimed as complete."
+            if milestone_only else
+            "This report records execution and ingestion smoke checks only; it does not "
+            "establish mesh-quality acceptance or CFD physical accuracy."
+        ),
         "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     })
     write_run_report(report_path, report)
