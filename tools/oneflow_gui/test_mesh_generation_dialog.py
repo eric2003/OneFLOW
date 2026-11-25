@@ -552,12 +552,12 @@ class MeshGenerationDialogTest(unittest.TestCase):
             stage_log = root / "stl_to_gmsh/results/mesh-validation.log"
             stage_log.parent.mkdir(parents=True)
             stage_log.write_text(
-                '$ ["gmsh", "model.geo"]\\n'
-                "[stl_to_gmsh] succeeded: Recovered from stage log.\\n",
+                '$ ["gmsh", "model.geo"]\n'
+                "[stl_to_gmsh] succeeded: Recovered from stage log.\n",
                 encoding="utf-8",
             )
             (root / "mesh-validation-console.log").write_text(
-                "recovered console text\\n", encoding="utf-8"
+                "recovered console text\n", encoding="utf-8"
             )
             (root / "mesh-validation-run.json").write_text(
                 json.dumps({
