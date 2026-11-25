@@ -457,7 +457,7 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
             continue
         stage_logs.append((case_id, log_path, log_text))
         matches = list(re.finditer(
-            rf"^\\[{re.escape(case_id)}\\] (succeeded|failed|cancelled):\\s*(.*)$",
+            rf"^\[{re.escape(case_id)}\] (succeeded|failed|cancelled):\s*(.*)$",
             log_text, re.MULTILINE,
         ))
         if not matches:

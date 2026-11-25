@@ -117,15 +117,15 @@ class RecoverMeshValidationRunTest(unittest.TestCase):
             producer_log = root / "stl_to_gmsh/results/mesh-validation.log"
             producer_log.parent.mkdir(parents=True)
             producer_log.write_text(
-                '$ ["gmsh", "model.geo"]\\n'
-                "[stl_to_gmsh] succeeded: Mesh generated and validated.\\n",
+                '$ ["gmsh", "model.geo"]\n'
+                "[stl_to_gmsh] succeeded: Mesh generated and validated.\n",
                 encoding="utf-8",
             )
             cgns_log = root / "gmsh_to_cgns/results/mesh-validation.log"
             cgns_log.parent.mkdir(parents=True)
             cgns_log.write_text(
-                '$ ["OneFLOW.exe", "r", "gmsh_to_cgns"]\\n'
-                "[gmsh_to_cgns] failed: Conversion rejected an invalid element.\\n",
+                '$ ["OneFLOW.exe", "r", "gmsh_to_cgns"]\n'
+                "[gmsh_to_cgns] failed: Conversion rejected an invalid element.\n",
                 encoding="utf-8",
             )
             mesh_report = root / "stl_to_gmsh/results/mesh-validation.json"
@@ -141,7 +141,7 @@ class RecoverMeshValidationRunTest(unittest.TestCase):
             }
             _write_geometry_artifact_lineage(cgns, "CGNS volume mesh", lineage)
             (root / "mesh-validation-console.log").write_text(
-                "durable console output\\n", encoding="utf-8"
+                "durable console output\n", encoding="utf-8"
             )
 
             report = recover_mesh_validation_run(root)
@@ -156,8 +156,10 @@ class RecoverMeshValidationRunTest(unittest.TestCase):
             })
             self.assertEqual(report["geometry_lineage"]["provenance"]["kind"], "generated")
             self.assertEqual(report["recovery"]["verified_geometry_sidecars"], 1)
-            self.assertIn("mesh-validation-console.log", report["artifacts"]["files"][0]["path"]
-                          if report["artifacts"]["files"] else "")
+            self.assertTrue(any(
+                item["path"] == "mesh-validation-console.log"
+                for item in report["artifacts"]["files"]
+            ))
 
     def test_artifact_presence_alone_never_claims_a_stage_pass(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -179,8 +181,8 @@ class RecoverMeshValidationRunTest(unittest.TestCase):
             log = root / "stl_to_gmsh/results/mesh-validation.log"
             log.parent.mkdir(parents=True)
             log.write_text(
-                '$ ["<copy-existing-mesh>", "source.msh"]\\n'
-                "[stl_to_gmsh] succeeded: Existing mesh staged.\\n",
+                '$ ["<copy-existing-mesh>", "source.msh"]\n'
+                "[stl_to_gmsh] succeeded: Existing mesh staged.\n",
                 encoding="utf-8",
             )
 
@@ -210,7 +212,7 @@ class GeometryArtifactLineageTest(unittest.TestCase):
             self.assertEqual(cgns_record["parent_artifact"]["role"], "Gmsh MSH")
             self.assertTrue(cgns_sidecar.is_file())
             self.assertTrue(cgns_sidecar.read_bytes().endswith(b"\n"))
-            self.assertNotIn(b"\\n", cgns_sidecar.read_bytes())
+            self.assertNotIn(b"\n", cgns_sidecar.read_bytes())
 
             native = root / "mesh.oneflow.grid"
             native.write_bytes(b"native-grid")
@@ -1227,7 +1229,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             root = Path(temporary)
             source = root / "project" / "mesh.msh"
             source.parent.mkdir()
-            source.write_text("$MeshFormat\\n4.1 0 8\\n$EndMeshFormat\\n", encoding="ascii")
+            source.write_text("$MeshFormat\n4.1 0 8\n$EndMeshFormat\n", encoding="ascii")
             destination = root / "validation" / "run-1" / "producer" / "results" / "mesh.msh"
             _copy_existing_mesh(source, destination)
             self.assertEqual(destination.read_bytes(), source.read_bytes())
@@ -1240,7 +1242,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             with self.assertRaisesRegex(FileNotFoundError, "not found"):
                 _copy_existing_mesh(root / "missing.msh", root / "stage" / "mesh.msh")
             invalid = root / "mesh.stl"
-            invalid.write_text("solid mesh\\nendsolid mesh\\n", encoding="ascii")
+            invalid.write_text("solid mesh\nendsolid mesh\n", encoding="ascii")
             with self.assertRaisesRegex(ValueError, "extension"):
                 _copy_existing_mesh(invalid, root / "stage" / "mesh.msh")
 
