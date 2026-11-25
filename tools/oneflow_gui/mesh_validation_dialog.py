@@ -637,10 +637,20 @@ class MeshValidationDialog(QDialog):
             self._show_run_directory(Path(directory))
 
     def _show_run_directory(self, run_directory: Path) -> None:
+        report_path = run_directory / "mesh-validation-report.json"
         try:
-            report = recover_mesh_validation_run(run_directory)
-        except (OSError, ValueError, TypeError) as error:
-            QMessageBox.warning(self, "Cannot recover validation run", str(error))
+            if report_path.is_file():
+                report = json.loads(report_path.read_text(encoding="utf-8"))
+                if not isinstance(report, dict) or report.get("schema") != "oneflow.run-report":
+                    raise ValueError("The run report has an unsupported schema.")
+                artifacts = report.setdefault("artifacts", {})
+                artifacts["report"] = str(report_path)
+                artifacts["run_directory"] = str(run_directory)
+                report["run_directory"] = str(run_directory)
+            else:
+                report = recover_mesh_validation_run(run_directory)
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as error:
+            QMessageBox.warning(self, "Cannot open validation run", str(error))
             return
 
         self.result_tree.clear()

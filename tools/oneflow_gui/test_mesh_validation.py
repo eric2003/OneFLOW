@@ -1442,9 +1442,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
             )
             records = list_mesh_validation_runs(base)
             self.assertEqual([item["mesh_case_id"] for item in records],
-                             ["cylinder_case", "sphere_case"])
+                             ["nested_sphere", "cylinder_case", "sphere_case"])
             self.assertEqual(records[0]["status"], "RECOVERABLE")
-            self.assertEqual(records[1]["status"], "SUCCESS")
+            self.assertEqual(records[1]["status"], "RECOVERABLE")
+            self.assertEqual(records[2]["status"], "SUCCESS")
 
 
 if __name__ == "__main__":
