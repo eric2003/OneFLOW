@@ -240,7 +240,8 @@ class RecoverMeshValidationRunTest(unittest.TestCase):
             self.assertEqual(report["status"], "recovered")
             self.assertEqual(report["stages"]["mesh_generation"]["status"], "NOT_CHECKED")
             self.assertEqual(report["stages"]["gmsh_to_cgns"]["status"], "NOT_CHECKED")
-            self.assertEqual(report["steps"], [])
+            self.assertEqual(len(report["steps"]), 4)
+            self.assertTrue(all(item["status"] == "unknown" for item in report["steps"]))
 
     def test_recovers_existing_mesh_input_stage_name(self):
         with tempfile.TemporaryDirectory() as directory:
