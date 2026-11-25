@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import gc
-import gc
 import json
 import os
 import tempfile
@@ -45,16 +44,6 @@ class MeshGenerationDialogTest(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.application = _QT_APPLICATION
         cls.repository_root = Path(__file__).resolve().parents[2]
-
-    def tearDown(self) -> None:
-        # Qt widgets may outlive their Python test locals until deferred-delete
-        # events are processed. Drain them between tests, not only at module exit.
-        for widget in self.application.topLevelWidgets():
-            widget.close()
-            widget.deleteLater()
-        self.application.sendPostedEvents(None, QEvent.Type.DeferredDelete)
-        self.application.processEvents()
-        gc.collect()
 
     def tearDown(self) -> None:
         # Close and destroy every top-level widget created by this test before
