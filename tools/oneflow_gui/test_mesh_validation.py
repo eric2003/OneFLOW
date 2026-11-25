@@ -1345,14 +1345,14 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertTrue(stages["geometry"]["in_current_scope"])
         self.assertTrue(stages["surface_regions"]["in_current_scope"])
         self.assertTrue(stages["volume_mesh"]["in_current_scope"])
-        self.assertFalse(stages["cgns_conversion"]["in_current_scope"])
+        self.assertFalse(stages["msh_to_cgns"]["in_current_scope"])
         self.assertFalse(stages["oneflow_ingestion"]["in_current_scope"])
         self.assertFalse(stages["cfd_smoke"]["in_current_scope"])
         self.assertFalse(stages["cfd_validation"]["in_current_scope"])
         self.assertEqual(stages["geometry"]["implementation_status"], "implemented")
         self.assertEqual(stages["geometry"]["verification_status"], "not_run")
         self.assertIn(
-            {"id": "cpp", "kind": "cpp", "status": "planned"},
+            {"id": "native_cpp_geometry", "kind": "cpp", "status": "planned"},
             stages["geometry"]["implementations"],
         )
         self.assertEqual(stages["cfd_validation"]["implementation_status"], "planned")
