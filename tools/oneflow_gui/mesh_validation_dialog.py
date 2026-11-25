@@ -9,6 +9,7 @@ import subprocess
 import sys
 import threading
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal, Qt
@@ -72,7 +73,7 @@ class MeshValidationWorker(QThread):
                     self.output_line.emit(line)
 
                 record(f"=== {label} ===")
-                record("Started (UTC): " + __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat())
+                record("Started (UTC): " + datetime.now(timezone.utc).isoformat())
                 record("Working directory: " + str(working_directory))
                 command_text = subprocess.list2cmdline(list(arguments))
                 record("Command: " + command_text)
