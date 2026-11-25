@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
     QFormLayout,
+    QHeaderView,
     QHBoxLayout,
     QLabel,
     QMessageBox,
