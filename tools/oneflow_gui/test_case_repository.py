@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import unittest
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from tools.oneflow_gui.case_repository import build_python_case_command, load_cases
 from tools.oneflow_gui.models import CaseDefinition
@@ -14,12 +14,12 @@ class PythonCaseCommandTest(unittest.TestCase):
         return CaseDefinition(
             case_id="pipe-bend" if requires_gmsh else "sample-python",
             title="Sample Python Case",
-            case_directory=Path("/repository/case"),
+            case_directory=PurePosixPath("/repository/case"),
             runtime_config=None,
             profile=None,
             layout=None,
             execution_kind="python",
-            execution_script=Path("/repository/run_case.py"),
+            execution_script=PurePosixPath("/repository/run_case.py"),
             requires_gmsh=requires_gmsh,
         )
 
@@ -27,7 +27,7 @@ class PythonCaseCommandTest(unittest.TestCase):
         case = self._case(requires_gmsh=True)
         command = build_python_case_command(
             case,
-            Path("/workspace/pipe-bend"),
+            PurePosixPath("/workspace/pipe-bend"),
             python_executable="python",
             gmsh_executable="/opt/gmsh/bin/gmsh",
         )
@@ -54,7 +54,7 @@ class PythonCaseCommandTest(unittest.TestCase):
     def test_gmsh_is_not_added_to_python_cases_that_do_not_require_it(self) -> None:
         command = build_python_case_command(
             self._case(requires_gmsh=False),
-            Path("/workspace/sample"),
+            PurePosixPath("/workspace/sample"),
             python_executable="python",
         )
         self.assertNotIn("--gmsh", command)
