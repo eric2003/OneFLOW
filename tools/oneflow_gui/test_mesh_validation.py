@@ -181,6 +181,25 @@ class RecoverMeshValidationRunTest(unittest.TestCase):
                 for item in report["artifacts"]["files"]
             ))
 
+    def test_older_stage_logs_recover_terminal_status_from_console_log(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stage_log = root / "stl_to_gmsh/results/mesh-validation.log"
+            stage_log.parent.mkdir(parents=True)
+            stage_log.write_text(
+                '$ ["gmsh", "model.geo"]\\nRaw Gmsh output only.\\n',
+                encoding="utf-8",
+            )
+            (root / "mesh-validation-console.log").write_text(
+                "[stl_to_gmsh] succeeded: Legacy run completed.\\n",
+                encoding="utf-8",
+            )
+
+            report = recover_mesh_validation_run(root)
+
+            self.assertEqual(report["stages"]["mesh_generation"]["status"], "PASS")
+            self.assertEqual(report["steps"][0]["message"], "Legacy run completed.")
+
     def test_artifact_presence_alone_never_claims_a_stage_pass(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

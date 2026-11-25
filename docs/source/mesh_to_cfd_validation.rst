@@ -230,7 +230,9 @@ Use **Recover Folder...** and select the run directory when
 the per-stage ``results/mesh-validation.log`` records, the optional
 ``stl_to_gmsh/results/mesh-validation.json`` evidence, the durable
 ``mesh-validation-console.log``, and checksum-bound geometry lineage
-sidecars.
+sidecars. For older runs whose stage logs predate terminal-status recording,
+the durable console log is used as a fallback source for the exact
+``[stage] succeeded/failed/cancelled`` records.
 
 A stage is marked PASS, FAIL or NOT RUN only when its own log contains the
 terminal status line written by the stage runner. A mesh file, CGNS file, CFD

@@ -445,27 +445,27 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
     stages: dict[str, dict] = {}
     recovered_steps = []
     stage_logs: list[tuple[str, Path, str]] = []
+    console_path = root / "mesh-validation-console.log"
+    try:
+        console_text = console_path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        console_text = ""
     for case_id in _RECOVERABLE_STAGE_IDS:
         log_path = root / case_id / "results" / "mesh-validation.log"
         stage_name = stage_names[case_id]
-        if not log_path.is_file():
-            stages[stage_name] = stage_result(
-                "NOT_CHECKED",
-                "No durable stage log was found; execution outcome is unknown.",
-            )
-            continue
-        try:
-            log_text = log_path.read_text(encoding="utf-8", errors="replace")
-        except OSError as error:
-            stages[stage_name] = stage_result(
-                "NOT_CHECKED", f"Stage log could not be read: {error}"
-            )
-            continue
-        stage_logs.append((case_id, log_path, log_text))
-        matches = list(re.finditer(
-            rf"^\[{re.escape(case_id)}\] (succeeded|failed|cancelled):\s*(.*)$",
-            log_text, re.MULTILINE,
-        ))
+        log_text = ""
+        if log_path.is_file():
+            try:
+                log_text = log_path.read_text(encoding="utf-8", errors="replace")
+                stage_logs.append((case_id, log_path, log_text))
+            except OSError:
+                pass
+        status_pattern = rf"^\[{re.escape(case_id)}\] (succeeded|failed|cancelled):\s*(.*)$"
+        matches = list(re.finditer(status_pattern, log_text, re.MULTILINE))
+        if not matches:
+            # Older runs persisted the wrapper outcome only in the durable
+            # worker console log, not in each stage's own log.
+            matches = list(re.finditer(status_pattern, console_text, re.MULTILINE))
         if not matches:
             status = "NOT_CHECKED"
             message = "Stage log exists, but has no terminal status record."
@@ -549,7 +549,6 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
     if verified_lineage:
         geometry_lineage["recovered_artifacts"] = verified_lineage
 
-    console_path = root / "mesh-validation-console.log"
     artifacts = {
         "run_directory": str(root),
         "files": _collect_run_artifacts(root, root / "mesh-validation-report.json"),
@@ -559,7 +558,7 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
 
     warnings = [
         "The original run report was not available; the original overall exit code and completion time cannot be reconstructed.",
-        "Only terminal stage records in durable stage logs are treated as PASS, FAIL, or NOT_RUN.",
+        "Only terminal stage records in durable stage or console logs are treated as PASS, FAIL, or NOT_RUN.",
     ]
     warnings.extend(lineage_warnings)
     return {
