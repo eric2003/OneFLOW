@@ -1,0 +1,74 @@
+{
+  "schema": "oneflow.stl-oblique-cut-case",
+  "version": 1,
+  "case_id": "cylinder_internal_flow_oblique_inlet",
+  "input_stl": "input/model.stl",
+  "input_policy": "Blind STL input only. Do not read a geometry manifest or analytic cylinder parameters during cutting.",
+  "cutting_planes": {
+    "inlet": {
+      "point": [
+        -1.2,
+        0,
+        0
+      ],
+      "normal": [
+        0.8660254037844386,
+        0.5,
+        0
+      ],
+      "inclination_degrees": 30,
+      "expected_section": "ellipse",
+      "keep_positive": true
+    },
+    "outlet": {
+      "point": [
+        1.5,
+        0,
+        0
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "inclination_degrees": 0,
+      "expected_section": "circle",
+      "keep_positive": false
+    }
+  },
+  "tolerance": 1e-8,
+  "volume_mesh": {
+    "mesh_size_min": 0.15,
+    "mesh_size_max": 0.25,
+    "gmsh_version": "4.15.2",
+    "expected_physical_groups": [
+      {
+        "dimension": 2,
+        "name": "wall"
+      },
+      {
+        "dimension": 2,
+        "name": "inflow"
+      },
+      {
+        "dimension": 2,
+        "name": "outflow"
+      },
+      {
+        "dimension": 3,
+        "name": "fluid_domain"
+      }
+    ]
+  },
+  "analytic_expectation_for_verification_only": {
+    "cylinder_radius": 1,
+    "inlet_ellipse_semi_axes": [
+      1.1547005383792517,
+      1
+    ],
+    "inlet_major_to_minor_ratio": 1.1547005383792517,
+    "outlet_circle_radius": 1,
+    "note": "Reference values are for test assertions and explanation only; the cutter must not consume them."
+  },
+  "cap_boundaries": true
+}
