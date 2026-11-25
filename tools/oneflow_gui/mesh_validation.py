@@ -1457,7 +1457,11 @@ def main() -> int:
     parser.add_argument("--mesh-case-id", required=True)
     parser.add_argument("--cfd-template-id", default="laminar_flat_plate")
     parser.add_argument("--max-steps", type=int, default=2)
-    parser.add_argument("--stage-root", type=Path)
+    parser.add_argument(
+        "--stage-root", type=Path,
+        help="Dedicated output directory; cleared before this validation run. "
+             "Without it, GUI-managed workspaces retain timestamped run history.",
+    )
     parser.add_argument("--mesh-file", type=Path,
                         help="Validate an existing MSH4 file without rerunning its producer.")
     parser.add_argument("--project-directory", type=Path,
