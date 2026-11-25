@@ -241,6 +241,64 @@ _LIFECYCLE_WORKFLOW_STAGES = {
 }
 
 
+
+def mesh_case_lifecycle_summary(
+    repository_root: Path, mesh_case_id: str,
+) -> dict | None:
+    """Return validated lifecycle milestones for GUI discovery and status display."""
+    root = Path(repository_root).resolve()
+    catalog = _catalog(root)
+    entry = next(
+        (item for item in _mesh_validation_entries(catalog) if item.get("id") == mesh_case_id),
+        None,
+    )
+    if entry is None:
+        raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
+    relative = entry.get("lifecycle_contract")
+    if relative is None:
+        return None
+    if not isinstance(relative, str) or not relative:
+        raise ValueError("Case lifecycle_contract must be a non-empty relative path.")
+    contract_path = Path(relative)
+    if contract_path.is_absolute() or ".." in contract_path.parts:
+        raise ValueError("Case lifecycle contract path must stay within grid/.")
+    contract_file = (root / "grid" / contract_path).resolve()
+    try:
+        contract_file.relative_to((root / "grid").resolve())
+    except ValueError as error:
+        raise ValueError("Case lifecycle contract escapes grid/.") from error
+    contract = json.loads(contract_file.read_text(encoding="utf-8"))
+    errors = validate_lifecycle_contract(
+        contract, expected_case_id=mesh_case_id
+    )
+    if errors:
+        raise ValueError(
+            f"Invalid lifecycle contract for {mesh_case_id}: " + "; ".join(errors)
+        )
+    selected = set(contract["verification_stages"])
+    stages = []
+    for stage in contract["stages"]:
+        implementations = stage.get("implementations", [])
+        variants = [
+            {"id": item["id"], "kind": item["kind"], "status": item["status"]}
+            for item in implementations if isinstance(item, dict)
+        ]
+        stages.append({
+            "id": stage["id"],
+            "type": stage["type"],
+            "implementation_status": stage["implementation_status"],
+            "verification_status": stage["verification_status"],
+            "in_current_scope": stage["id"] in selected,
+            "implementations": variants,
+        })
+    return {
+        "contract_version": contract["contract_version"],
+        "verification_scope": contract["verification_scope"],
+        "verification_stages": list(contract["verification_stages"]),
+        "stages": stages,
+    }
+
+
 def _lifecycle_workflow_limit(
     repository_root: Path, mesh_entry: dict,
 ) -> int | None:
