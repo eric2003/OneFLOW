@@ -1309,7 +1309,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         categories = dict(mesh_case_group_categories(repository_root))
         self.assertTrue(any(
-            item[0] == "STL to Gmsh" and case_id in dict(item[1])
+            item[0] == "Existing Gmsh Mesh" and case_id in dict(item[1])
             for item in categories["3D"]
         ))
         steps = build_mesh_validation_cases(
