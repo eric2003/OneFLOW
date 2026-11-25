@@ -544,6 +544,52 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 self.application.sendPostedEvents(None, QEvent.Type.DeferredDelete)
                 self.application.processEvents()
 
+    def test_mesh_validation_dialog_recovers_run_directory_without_report(self) -> None:
+        from tools.oneflow_gui.mesh_validation_dialog import MeshValidationDialog
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stage_log = root / "stl_to_gmsh/results/mesh-validation.log"
+            stage_log.parent.mkdir(parents=True)
+            stage_log.write_text(
+                '$ ["gmsh", "model.geo"]\\n'
+                "[stl_to_gmsh] succeeded: Recovered from stage log.\\n",
+                encoding="utf-8",
+            )
+            (root / "mesh-validation-console.log").write_text(
+                "recovered console text\\n", encoding="utf-8"
+            )
+            (root / "mesh-validation-run.json").write_text(
+                json.dumps({
+                    "schema": "oneflow.mesh-validation-run",
+                    "version": 1,
+                    "mesh_case_id": "stl_to_gmsh_test_case",
+                    "mesh_implementation": "python",
+                    "mesh_input_mode": "generated_mesh",
+                }),
+                encoding="utf-8",
+            )
+            dialog = MeshValidationDialog(self.repository_root)
+            try:
+                self.assertTrue(dialog.recover_run_button.isEnabled())
+                with patch(
+                    "tools.oneflow_gui.mesh_validation_dialog.QFileDialog.getExistingDirectory",
+                    return_value=str(root),
+                ):
+                    dialog._open_run_directory()
+
+                self.assertEqual(
+                    dialog.result_tree.topLevelItem(0).text(1), "RECOVERED"
+                )
+                self.assertIn("stl_to_gmsh_test_case", dialog.raw_report_view.toPlainText())
+                self.assertIn("recovered console text", dialog.log_view.toPlainText())
+                self.assertGreaterEqual(dialog.artifact_tree.topLevelItemCount(), 1)
+            finally:
+                dialog.close()
+                dialog.deleteLater()
+                self.application.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+                self.application.processEvents()
+
     def test_mesh_validation_worker_persists_console_log_and_links_report(self) -> None:
         from tools.oneflow_gui.mesh_validation_dialog import MeshValidationWorker
 
