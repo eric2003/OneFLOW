@@ -578,6 +578,15 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
     }
 
 
+def _format_mesh_validation_stage_log(
+    case_id: str, command: list[str], output: list[str], status: str, message: str,
+) -> str:
+    """Serialize command output and the authoritative terminal stage outcome."""
+    lines = ["$ " + json.dumps(command, ensure_ascii=True), *output,
+             f"[{case_id}] {status}: {message}"]
+    return "\n".join(lines) + "\n"
+
+
 def _graph_step_records(result) -> list[dict[str, str]]:
     """Serialize final graph outcomes, including artifact checks and blocked steps."""
     return [
@@ -1123,7 +1132,9 @@ def run_mesh_validation(
         results = step.directory / "results"
         results.mkdir(parents=True, exist_ok=True)
         (results / "mesh-validation.log").write_text(
-            "$ " + json.dumps(command, ensure_ascii=True) + "\n" + "\n".join(output) + "\n",
+            _format_mesh_validation_stage_log(
+                step.case_id, command, output, status, message
+            ),
             encoding="utf-8", newline="\n",
         )
         if validation is not None:

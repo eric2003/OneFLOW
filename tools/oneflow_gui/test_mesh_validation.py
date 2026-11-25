@@ -111,6 +111,19 @@ class RunArtifactInventoryTest(unittest.TestCase):
 
 
 class RecoverMeshValidationRunTest(unittest.TestCase):
+    def test_stage_log_serialization_persists_terminal_outcome(self):
+        from tools.oneflow_gui.mesh_validation import _format_mesh_validation_stage_log
+
+        rendered = _format_mesh_validation_stage_log(
+            "gmsh_to_cgns", ["OneFLOW.exe", "r", "case"],
+            ["Converting mesh...", "Conversion complete."],
+            "succeeded", "CGNS file created.",
+        )
+        self.assertIn('$ ["OneFLOW.exe", "r", "case"]\n', rendered)
+        self.assertTrue(rendered.endswith(
+            "[gmsh_to_cgns] succeeded: CGNS file created.\n"
+        ))
+
     def test_recovers_terminal_stage_states_metrics_and_verified_lineage(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -212,7 +225,7 @@ class GeometryArtifactLineageTest(unittest.TestCase):
             self.assertEqual(cgns_record["parent_artifact"]["role"], "Gmsh MSH")
             self.assertTrue(cgns_sidecar.is_file())
             self.assertTrue(cgns_sidecar.read_bytes().endswith(b"\n"))
-            self.assertNotIn(b"\n", cgns_sidecar.read_bytes())
+            self.assertNotIn(b"\\n", cgns_sidecar.read_bytes())
 
             native = root / "mesh.oneflow.grid"
             native.write_bytes(b"native-grid")

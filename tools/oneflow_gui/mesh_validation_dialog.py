@@ -625,7 +625,7 @@ class MeshValidationDialog(QDialog):
                             + stage_log.read_text(encoding="utf-8", errors="replace")
                         )
                     except OSError as error:
-                        sections.append(f"===== {case_id} =====\\nUnable to read log: {error}")
+                        sections.append(f"===== {case_id} =====\nUnable to read log: {error}")
             log_text = (
                 "\n\n".join(sections)
                 if sections else "No durable console or stage logs were found."
