@@ -406,13 +406,41 @@ def create_mesh_validation_run_workspace(path: Path, run_id: str | None = None) 
     run_directory.mkdir(parents=False, exist_ok=False)
     return run_directory
 
+def _promote_latest_mesh_validation_run(path: Path) -> Path:
+    """Flatten the latest legacy run folder into the project validation root."""
+    requested = Path(path).expanduser()
+    if requested.is_symlink():
+        raise ValueError(f"Mesh validation workspace must not be a symbolic link: {requested}")
+    workspace = _external(requested)
+    if not workspace.is_dir():
+        return reset_mesh_validation_workspace(workspace)
+    run_directories = [
+        child for child in workspace.iterdir()
+        if child.is_dir() and not child.is_symlink() and child.name.startswith("run-")
+    ]
+    other_entries = [child for child in workspace.iterdir() if child not in run_directories]
+    if not run_directories or other_entries:
+        return reset_mesh_validation_workspace(workspace)
+    latest = max(run_directories, key=lambda child: child.stat().st_mtime)
+    for artifact in latest.iterdir():
+        destination = workspace / artifact.name
+        if destination.exists() or destination.is_symlink():
+            raise ValueError(
+                f"Cannot flatten legacy validation run; destination already exists: {destination}"
+            )
+        shutil.move(str(artifact), str(destination))
+    for old_run in run_directories:
+        shutil.rmtree(old_run)
+    return workspace
+
+
 def prepare_mesh_validation_run_workspace(
     path: Path, *, preserve_history: bool, run_id: str | None = None,
 ) -> Path:
     """Prepare direct stage output or an isolated run folder when history is needed."""
     if preserve_history:
         return create_mesh_validation_run_workspace(path, run_id)
-    return reset_mesh_validation_workspace(path)
+    return _promote_latest_mesh_validation_run(path)
 
 
 def list_mesh_validation_runs(workspace: Path) -> list[dict]:

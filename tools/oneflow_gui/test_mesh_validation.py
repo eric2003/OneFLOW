@@ -1429,6 +1429,31 @@ class MeshValidationCatalogTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "extension"):
                 _copy_existing_mesh(invalid, root / "stage" / "mesh.msh")
 
+    def test_project_validation_workspace_flattens_legacy_run_directory(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary) / "pipe_bend_90_degree" / "validation"
+            legacy = workspace / "run-20261125T153212Z-a3ce16f7"
+            (legacy / "gmsh_to_cgns" / "results").mkdir(parents=True)
+            (legacy / "mesh-validation-report.json").write_text(
+                '{"status":"SUCCEEDED"}', encoding="utf-8"
+            )
+            (legacy / "gmsh_to_cgns" / "results" / "mesh.cgns").write_text(
+                "cgns", encoding="ascii"
+            )
+            prepared = prepare_mesh_validation_run_workspace(
+                workspace, preserve_history=False, run_id="next-run"
+            )
+            self.assertEqual(prepared, workspace)
+            self.assertTrue((workspace / "mesh-validation-report.json").is_file())
+            self.assertTrue(
+                (workspace / "gmsh_to_cgns" / "results" / "mesh.cgns").is_file()
+            )
+            self.assertFalse(legacy.exists())
+            self.assertFalse(any(
+                child.is_dir() and child.name.startswith("run-")
+                for child in workspace.iterdir()
+            ))
+
     def test_workspace_uses_mesh_case_relative_directory(self):
         paths = type(
             "Paths", (),
