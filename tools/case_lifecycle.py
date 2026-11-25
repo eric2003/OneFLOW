@@ -148,6 +148,45 @@ def validate_lifecycle_contract(
                     if not isinstance(artifact.get("format"), str) or not artifact.get("format"):
                         errors.append(f"{stage_id}: artifact {artifact_id!r} needs a format")
 
+    verification_stages = contract.get("verification_stages")
+    if not isinstance(verification_stages, list) or not verification_stages:
+        errors.append("Lifecycle verification_stages must be a non-empty list")
+        verification_stages = []
+    elif len(set(item for item in verification_stages if isinstance(item, str))) != len(verification_stages):
+        errors.append("Lifecycle verification_stages must contain unique stage IDs")
+
+    verification_set = {
+        item for item in verification_stages if isinstance(item, str)
+    }
+    for stage_id in verification_stages:
+        if not isinstance(stage_id, str) or stage_id not in stage_by_id:
+            errors.append(f"Lifecycle verification scope references unknown stage {stage_id!r}")
+
+    def check_verification_dependencies(stage_id: str, seen: set[str]) -> None:
+        if stage_id in seen or stage_id not in stage_by_id:
+            return
+        seen.add(stage_id)
+        stage = stage_by_id[stage_id]
+        if stage.get("implementation_status") != "implemented":
+            errors.append(
+                f"Lifecycle verification scope includes {stage_id!r} which is "
+                f"{stage.get('implementation_status')!r}"
+            )
+        dependencies = stage.get("depends_on", [])
+        if isinstance(dependencies, list):
+            for dependency in dependencies:
+                if isinstance(dependency, str) and dependency in stage_by_id:
+                    if dependency not in verification_set:
+                        errors.append(
+                            f"Lifecycle verification scope omits prerequisite "
+                            f"{dependency!r} for {stage_id!r}"
+                        )
+                    check_verification_dependencies(dependency, seen)
+
+    checked_scope: set[str] = set()
+    for stage_id in verification_set:
+        check_verification_dependencies(stage_id, checked_scope)
+
     for stage_id, stage in stage_by_id.items():
         dependencies = stage.get("depends_on", [])
         if not isinstance(dependencies, list):
