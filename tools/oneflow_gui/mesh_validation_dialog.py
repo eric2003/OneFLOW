@@ -24,7 +24,7 @@ from grid.stl_to_gmsh.run_report import write_run_report
 from .executable_discovery import executable_candidates
 from .mesh_validation import (
     cfd_template_choices, existing_mesh_case_paths, mesh_case_group_categories,
-    mesh_case_lifecycle_summary,
+    mesh_case_lifecycle_summary, mesh_case_requires_oneflow_executable,
     run_report_stage_rows,
     geometry_lineage_rows,
     _collect_run_artifacts, _artifact_file_state,
@@ -363,7 +363,15 @@ class MeshValidationDialog(QDialog):
         self.steps_spin.setRange(1, 100000)
         self.steps_spin.setValue(2)
         self.steps_spin.setToolTip("Short CFD solver smoke-test iteration count.")
-        form.addRow("OneFLOW executable", self.executable_combo)
+        self.executable_combo.setPlaceholderText(
+            "Required only when selected milestones include OneFLOW stages"
+        )
+        self.executable_combo.setToolTip(
+            "A Python geometry/Gmsh-only milestone does not need OneFLOW. "
+            "Select an executable when a selected Case includes conversion, "
+            "ingestion, or CFD execution."
+        )
+        form.addRow("OneFLOW executable (if needed)", self.executable_combo)
         template_label = QLabel("CFD consumer template")
         template_label.setToolTip(
             "For 3D meshes, the runtime dimension is overridden from mesh metadata."
@@ -529,19 +537,29 @@ class MeshValidationDialog(QDialog):
             return
         executable_text = self.executable_combo.currentText().strip()
         executable = Path(executable_text).expanduser().resolve() if executable_text else None
-        if executable is None or not executable.is_file():
-            QMessageBox.warning(self, "OneFLOW executable required", "Select a valid OneFLOW executable.")
+        requires_oneflow = any(
+            mesh_case_requires_oneflow_executable(self._repository_root, case_id)
+            for case_id, _ in selected
+        )
+        if requires_oneflow and (executable is None or not executable.is_file()):
+            QMessageBox.warning(
+                self, "OneFLOW executable required",
+                "At least one selected Case includes OneFLOW stages. Select a valid executable.",
+            )
             return
+        if executable is not None and not executable.is_file():
+            executable = None
         commands = []
         missing_mesh_inputs: list[str] = []
         for case_id, title in selected:
             arguments = [
                 sys.executable, "-m", "tools.oneflow_gui.mesh_validation",
-                "--oneflow-executable", str(executable),
                 "--mesh-case-id", case_id,
                 "--cfd-template-id", str(self.template_combo.currentData()),
                 "--max-steps", str(self.steps_spin.value()),
             ]
+            if executable is not None:
+                arguments.extend(["--oneflow-executable", str(executable)])
             if self._mesh_file is not None:
                 if not self._mesh_file.is_file():
                     QMessageBox.warning(
