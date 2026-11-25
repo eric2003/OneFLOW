@@ -951,11 +951,25 @@ class StlToGmshCaseTest(unittest.TestCase):
             self.assertGreater(generated["surface"]["signed_volume"], 0.0)
             self.assertLess(generated["surface"]["relative_volume_error"], 0.03)
 
+            geometry_manifest = json.loads(
+                generated["manifest"].read_text(encoding="utf-8")
+            )
+            surface_sha256 = hashlib.sha256(output.read_bytes()).hexdigest()
+            self.assertEqual(
+                geometry_manifest["schema"], "oneflow.stl-geometry-manifest"
+            )
+            self.assertEqual(geometry_manifest["stl_sha256"], surface_sha256)
+            self.assertEqual(geometry_manifest["units"], "m")
+            self.assertIn("parameters", geometry_manifest)
+
             region_manifest = json.loads(
                 generated["region_manifest_path"].read_text(encoding="utf-8")
             )
             self.assertEqual(
                 region_manifest["schema"], "oneflow.stl-surface-regions"
+            )
+            self.assertEqual(
+                region_manifest["closed_surface_sha256"], surface_sha256
             )
             self.assertEqual(
                 set(region_manifest["regions"]), {"wall", "inflow", "outflow"}
