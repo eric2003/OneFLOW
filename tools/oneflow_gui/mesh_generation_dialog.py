@@ -1134,7 +1134,11 @@ class StlToGmshDialog(QDialog):
             f"Provenance: {provenance.get('kind', 'unknown').upper()}",
             str(provenance.get("notes", "No verified source record is available.")),
         ]
-        boundary_regions = self._project.get("boundary_regions") or []
+        boundary_regions = (
+            self._project.get("boundary_regions")
+            or lineage.get("boundary_patches")
+            or []
+        )
         if boundary_regions:
             lines.append(f"Boundary patches: {', '.join(boundary_regions)}")
         asset_id = lineage.get("asset_id")
@@ -1171,7 +1175,7 @@ class StlToGmshDialog(QDialog):
                 f"{artifact.get('path', 'unknown')} | "
                 f"SHA-256: {artifact.get('sha256', 'unknown')}"
             )
-        self.geometry_lineage_view.setPlainText("\\n".join(lines))
+        self.geometry_lineage_view.setPlainText("\n".join(lines))
 
     def _validate_current_mesh(self) -> None:
         mesh_path = Path(self.output_path.text()).expanduser().resolve()
