@@ -1460,7 +1460,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             prepared = prepare_mesh_validation_run_workspace(
                 workspace, preserve_history=True, run_id="20261125T191006Z-ac08120a"
             )
-            self.assertEqual(prepared, workspace)
+            self.assertTrue(prepared.samefile(workspace))
             self.assertTrue(workspace.is_dir())
             self.assertFalse(any(
                 child.is_dir() and child.name.startswith("run-")
@@ -1472,7 +1472,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             prepared_again = prepare_mesh_validation_run_workspace(
                 workspace, preserve_history=True, run_id="next-run"
             )
-            self.assertEqual(prepared_again, workspace)
+            self.assertTrue(prepared_again.samefile(workspace))
             self.assertFalse((workspace / "mesh-validation-report.json").exists())
 
     def test_workspace_uses_mesh_case_relative_directory(self):
