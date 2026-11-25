@@ -24,6 +24,7 @@ from grid.stl_to_gmsh.run_report import write_run_report
 from .executable_discovery import executable_candidates
 from .mesh_validation import (
     cfd_template_choices, existing_mesh_case_paths, mesh_case_group_categories,
+    mesh_case_lifecycle_summary,
     run_report_stage_rows,
     geometry_lineage_rows,
     _collect_run_artifacts, _artifact_file_state,
@@ -213,11 +214,14 @@ class MeshValidationDialog(QDialog):
             "smoke test, not a numerical-accuracy claim."
             if self._mesh_file is not None else
             "Select a native C++ or Python STL-to-Gmsh Case, or an existing "
-            "Gmsh mesh produced in the Mesh Generation workbench. Each selection "
-            "runs the STL/MSH → CGNS → OneFLOW chain and a short solver smoke test. "
-            "Existing meshes are listed separately under Existing Gmsh Mesh; "
-            "for 3D meshes, the consumer dimension is adjusted. This is not a "
-            "numerical-accuracy claim. Re-running a Case clears only its previous "
+            "Gmsh mesh produced in the Mesh Generation workbench. Cases with an "
+            "incremental lifecycle contract show their current verification "
+            "milestone beside the name; hover for implemented and planned stages. "
+            "Only stages in the declared milestone are executed. Cases without a "
+            "lifecycle contract retain the complete legacy workflow. Existing "
+            "meshes are listed separately under Existing Gmsh Mesh; for 3D meshes, "
+            "the consumer dimension is adjusted. A CFD smoke test is not a claim "
+            "of numerical accuracy. Re-running a Case clears only its previous "
             "validation directory."
         )
         introduction.setWordWrap(True)
@@ -263,8 +267,37 @@ class MeshValidationDialog(QDialog):
                     for case_id, title in choices:
                         item = QTreeWidgetItem(category_item)
                         item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-                        item.setText(0, title)
-                        item.setToolTip(0, title)
+                        lifecycle = mesh_case_lifecycle_summary(
+                            self._repository_root, case_id
+                        )
+                        if lifecycle is None:
+                            item.setText(0, title)
+                            item.setToolTip(0, title)
+                        else:
+                            scope = lifecycle["verification_scope"]
+                            item.setText(0, f"{title}  [Milestone: {scope}]")
+                            stage_lines = []
+                            for stage in lifecycle["stages"]:
+                                scope_label = (
+                                    "in current scope"
+                                    if stage["in_current_scope"] else "future stage"
+                                )
+                                variants = ", ".join(
+                                    f'{variant["id"]}={variant["status"]}'
+                                    for variant in stage["implementations"]
+                                ) or "no implementation variant"
+                                stage_lines.append(
+                                    f'{stage["id"]} ({stage["type"]}): '
+                                    f'{stage["implementation_status"]} / '
+                                    f'{stage["verification_status"]}; '
+                                    f'{scope_label}; {variants}'
+                                )
+                            item.setToolTip(
+                                0,
+                                title + "\\nCurrent verification milestone: " + scope
+                                + "\\n\\nLifecycle stages:\\n"
+                                + "\\n".join(stage_lines),
+                            )
                         item.setData(0, Qt.ItemDataRole.UserRole, case_id)
                         item.setCheckState(0, Qt.CheckState.Checked)
                         self._case_items[case_id] = item
