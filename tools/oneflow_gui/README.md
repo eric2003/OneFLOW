@@ -448,6 +448,13 @@ the project page runs the existing-MSH route and enforces the project-derived
 conversion. The resulting validation report and stage artifacts remain under
 the project's `validation/` directory.
 
+The 90-degree Pipe Bend is also registered as an existing-MSH validation input.
+After a Gmsh project has generated its mesh, it appears in the standalone 3-D
+validation tree. The resolver discovers completed projects by the
+`pipe_bend_90_degree` geometry identifier and never scans outside the
+user-owned mesh-generation workspace. Its project-scoped validation action
+remains available for selecting a specific project.
+
 The STL page shows the complete platform-specific command before execution and
 supports copying it. Execution uses `QProcess` with an argument list (not shell
 interpolation), displays merged process output, and reports the exit code. The

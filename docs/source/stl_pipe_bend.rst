@@ -12,8 +12,10 @@ existing sphere, spheroid and straight-cylinder geometry library.
 The Python geometry generator now exports a closed STL plus three separate
 boundary-patch STL files and a region manifest. These feed the existing
 generic region-aware STL-to-Gmsh route; the converter does not know that the
-input is a pipe bend. A registered production mesh Case, CGNS handoff,
-OneFLOW CFD run and physical-accuracy evidence are still outstanding.
+input is a pipe bend. The generated-MSH profile is now registered in the
+3-D Mesh-to-CFD Validation tree and resolves completed user projects. A
+reproducible mesh-producer Case, executed CGNS/OneFLOW evidence and
+physical-accuracy evidence are still outstanding.
 
 Canonical parameter set
 -----------------------
@@ -181,8 +183,8 @@ facets and 48 outlet facets.
 A real Gmsh volume-mesh integration test is now registered in the existing
 Linux/Windows Gmsh 4.15.2 CI matrix; its result is still pending. After that
 test passes, retain MSH 4.1 element/quality evidence, register the pipe bend as
-a normal ``automatic_tetrahedra`` mesh Case, and then connect CGNS and OneFLOW
-CFD validation. The geometry generator and the generic adapter remain
+a reproducible ``automatic_tetrahedra`` mesh-producer Case, and then retain
+executed CGNS and OneFLOW CFD validation evidence. The geometry generator and the generic adapter remain
 independent: changes to bend angle or centreline radius must not require any
 change to the converter. A short solver smoke test must remain distinct from
 physical validation of secondary flow in a curved pipe.

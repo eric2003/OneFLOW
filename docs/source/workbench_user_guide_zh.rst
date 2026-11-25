@@ -186,7 +186,7 @@ Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动�
 * **Mesh Layout Editor**：编辑结构化网格布局，保留现有模板、边界设置、预览和布局编译能力。
 * **Generate STL Geometry**：从内置几何库选择 Sphere、Prolate Spheroid、Cylinder Internal Flow 或 90° Pipe Bend。弯管可设置管道半径、中心线弯曲半径、弯曲角度、入口/出口直管长度及各方向表面离散参数，生成 STL 和伴随的几何元数据。
 * **STL to Gmsh**：从几何库、仓库网格数据库或用户工程读取 STL，独立设置体积网格密度并生成三维四面体体网格。
-* **Mesh-to-CFD Validation...**：选择已登记的 2D/3D 网格生产算例，运行 MSH 检查、Gmsh-to-CGNS、CGNS-to-OneFLOW 和短步数 CFD smoke test。
+* **Mesh-to-CFD Validation...**：选择已登记的 2D/3D 网格生产算例，运行 MSH 检查、Gmsh-to-CGNS、CGNS-to-OneFLOW 和短步数 CFD smoke test。90° 弯管在完成 Gmsh 体网格后也会出现在 3D Existing Gmsh Mesh 分类中；独立入口自动定位最近完成的弯管工程，项目页面入口则始终验证当前工程。
 * **Mesh Knowledge**：进入现有 Contract Workbench 的 Mesh 知识域，浏览网格原理、格式、实现代码和验证证据。
 
 Mesh Generation & Conversion 首先按“网格工程”组织工作，而不再只有一个临时 STL 输入框：
@@ -200,7 +200,7 @@ Mesh Generation & Conversion 首先按“网格工程”组织工作，而不再
 
 进入 STL to Gmsh 后，可以修改 STL 路径、Coarse/Medium/Fine 或自定义尺寸、Physical Group 名称、输出 MSH 路径和 Gmsh 可执行文件。界面显示完整命令并支持复制；工程模式提供 **Save Project Settings**，无需启动 Gmsh 即可保存修改，运行时也会自动保存。重新打开工程后可继续编辑和生成。项目生成的当前 MSH 可直接通过 STL to Gmsh 页面的 **Mesh-to-CFD Validation...** 进入验证，不会重新生成网格，验证结果写入该项目自己的 ``validation/``。对于弯管，项目中的 checksum-verified 区域清单会把 wall、inflow、outflow 和 fluid_domain 声明为必需 Physical Groups；缺少任一组或维度错误都会在 CGNS 转换前失败。也可以从 Workbench 首页或 Mesh Generation hub 打开独立的 Mesh-to-CFD Validation，运行 Catalog 中登记的标准网格算例。
 
-在 Case Catalog 中，6:1 Prolate Spheroid 同时登记 Native C++ 和 Python Reference 两个实现：前者出现在 **Run Development Cases**，后者出现在 **Python reference cases**，两个实现也都出现在 3D **Mesh-to-CFD Validation** 选择树中。两者使用相同 STL 和布局契约，但仍按真实实现类型分别显示。
+在 Case Catalog 中，90° Pipe Bend 另有一个 Existing MSH 验证配置：它不把用户生成的 STL/MSH 当作仓库 fixture，而是根据 geometry 标识从用户 mesh-generation 工作区定位已完成工程；缺少 MSH 时会提示先生成网格。6:1 Prolate Spheroid 同时登记 Native C++ 和 Python Reference 两个实现：前者出现在 **Run Development Cases**，后者出现在 **Python reference cases**，两个实现也都出现在 3D **Mesh-to-CFD Validation** 选择树中。两者使用相同 STL 和布局契约，但仍按真实实现类型分别显示。
 
 默认输出位置为用户数据目录下的 `mesh-generation`，不会写入仓库源代码目录。
 默认的 Unit Sphere 预设会预选仓库中的单位球 STL 示例，用户也可以通过 Browse... 换成自己的 STL 文件；预设不会生成或替换几何内容。

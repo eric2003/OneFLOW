@@ -63,6 +63,31 @@ starting CGNS conversion. This makes the bend available through the normal
 Mesh Generation -> STL to Gmsh -> Mesh-to-CFD Validation sequence without a
 pipe-bend-specific validation runner.
 
+90-degree pipe bend
+-------------------
+
+The parameterized 90-degree pipe bend is registered as an existing-MSH
+profile in the 3-D **Mesh-to-CFD Validation** tree. Generate it through
+**Mesh Generation -> Geometry Library**, open the generated STL in **STL to
+Gmsh**, and create its volume mesh. The standalone validation tree then
+resolves the most recently modified completed project whose project manifest
+identifies ``pipe_bend_90_degree``. The resolver accepts only project-relative
+MSH paths contained within the user's mesh-generation workspace. If the MSH
+has not yet been generated, the Case is shown but skipped with a clear
+missing-input message.
+
+Selecting the pipe-bend profile copies the existing MSH into an isolated
+validation run; Gmsh is not rerun. The project region manifest makes
+``wall``, ``inflow`` and ``outflow`` dimension-2 Physical Surfaces and
+``fluid_domain`` dimension-3 Physical Volume mandatory before CGNS conversion.
+The workflow then continues through CGNS-to-OneFLOW ingestion and the short
+CFD consumer smoke test. This verifies the complete software handoff, not
+pressure loss, secondary-flow accuracy or mesh independence.
+
+The same workflow is available directly from the pipe-bend STL-to-Gmsh
+project page through **Mesh-to-CFD Validation...**, which always validates
+that specific project rather than selecting the newest pipe-bend project.
+
 3-D internal-flow cylinder
 --------------------------
 

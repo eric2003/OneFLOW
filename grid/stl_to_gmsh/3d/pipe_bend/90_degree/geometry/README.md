@@ -96,6 +96,15 @@ Both generators accept the same parameter names: `--radius`,
 triangle counts, boundary-patch counts and analytic dimensions are the
 comparison contract.
 
+## Mesh-to-CFD Validation registration
+
+The generated-MSH profile is registered separately at
+`../automatic_tetrahedra/`. It appears in the standalone 3-D Mesh-to-CFD
+Validation tree after a project has produced its MSH. The profile discovers
+completed projects by the `pipe_bend_90_degree` geometry identifier and
+requires all four Physical Groups before conversion. This is an existing-mesh
+consumer profile, not yet a reproducible checked-in STL-to-Gmsh producer Case.
+
 ## Verification
 
 ```powershell

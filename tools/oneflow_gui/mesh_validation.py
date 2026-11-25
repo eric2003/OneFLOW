@@ -122,7 +122,7 @@ def mesh_case_choices(repository_root: Path) -> tuple[tuple[str, str], ...]:
 def existing_mesh_case_paths(
     repository_root: Path, mesh_case_id: str,
 ) -> tuple[Path, Path] | None:
-    """Resolve a catalog-declared generated mesh below the user's mesh workspace."""
+    """Resolve a catalogued MSH from a fixed or geometry-matched user project."""
     catalog = _catalog(Path(repository_root).resolve())
     mesh = next((item for item in _mesh_validation_entries(catalog) if item.get("id") == mesh_case_id), None)
     if mesh is None:
@@ -147,6 +147,60 @@ def existing_mesh_case_paths(
         raise ValueError(f"Existing-mesh paths for {mesh_case_id!r} must be safe relative .msh paths.")
 
     workspace = UserDataPaths.discover().mesh_generation.resolve()
+
+    # Geometry Library projects may receive a numeric suffix when a project
+    # with the default name already exists. Resolve the newest completed
+    # project for the declared geometry rather than assuming the first folder
+    # name forever. Only project manifests and mesh paths contained in the
+    # user-owned mesh workspace are considered.
+    geometry = execution.get("geometry")
+    if isinstance(geometry, str) and geometry:
+        candidates = []
+        if workspace.is_dir():
+            for candidate in workspace.iterdir():
+                if not candidate.is_dir():
+                    continue
+                manifest_path = candidate / "project.json"
+                if not manifest_path.is_file():
+                    continue
+                try:
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    if (
+                        not isinstance(manifest, dict)
+                        or manifest.get("schema") != "oneflow.mesh-project"
+                        or manifest.get("version") != 1
+                    ):
+                        continue
+                    relative_mesh = Path(str(manifest.get("output_mesh", "")))
+                    if (
+                        manifest.get("geometry") != geometry
+                        or relative_mesh.is_absolute()
+                        or not relative_mesh.parts
+                        or ".." in relative_mesh.parts
+                        or relative_mesh.suffix.lower() != ".msh"
+                    ):
+                        continue
+                    candidate_root = candidate.resolve()
+                    candidate_mesh = (candidate_root / relative_mesh).resolve()
+                    candidate_root.relative_to(workspace)
+                    candidate_mesh.relative_to(candidate_root)
+                    if candidate_mesh.is_file():
+                        candidates.append((
+                            max(
+                                manifest_path.stat().st_mtime,
+                                candidate_mesh.stat().st_mtime,
+                            ),
+                            candidate_mesh,
+                            candidate_root,
+                        ))
+                except (OSError, ValueError, TypeError, json.JSONDecodeError):
+                    continue
+        if candidates:
+            _, selected_mesh, selected_project = max(
+                candidates, key=lambda item: (item[0], str(item[2]))
+            )
+            return selected_mesh, selected_project
+
     project_directory = (workspace / project_relative).resolve()
     mesh_path = (project_directory / mesh_relative).resolve()
     try:

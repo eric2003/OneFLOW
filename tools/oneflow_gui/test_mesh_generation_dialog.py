@@ -532,6 +532,10 @@ class MeshGenerationDialogTest(unittest.TestCase):
             )
             self.assertTrue(dialog.case_tree.isColumnHidden(0) is False)
             self.assertTrue(dialog._case_items)
+            self.assertIn(
+                "stl_to_gmsh_existing_mesh_3d_pipe_bend_90_degree",
+                dialog._case_items,
+            )
 
             case_item = next(iter(dialog._case_items.values()))
             category_item = case_item.parent()
