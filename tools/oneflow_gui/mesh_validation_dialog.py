@@ -27,7 +27,7 @@ from .mesh_validation import (
     run_report_stage_rows,
     geometry_lineage_rows,
     _collect_run_artifacts, _artifact_file_state,
-    recover_mesh_validation_run,
+    recover_mesh_validation_run, list_mesh_validation_runs,
 )
 from .process_control import process_group_options, terminate_process_tree
 from .user_data_paths import UserDataPaths
@@ -388,7 +388,31 @@ class MeshValidationDialog(QDialog):
         self.raw_report_view.setReadOnly(True)
         self.raw_report_view.setPlaceholderText("Open a validation report to inspect all recorded fields.")
         self.result_tabs.addTab(self.raw_report_view, "Raw Report")
+
+        history_page = QWidget(self)
+        history_layout = QVBoxLayout(history_page)
+        history_actions = QHBoxLayout()
+        history_actions.addWidget(QLabel("Previous validation runs"))
+        history_actions.addStretch(1)
+        self.refresh_history_button = QPushButton("Refresh")
+        self.refresh_history_button.clicked.connect(self._refresh_run_history)
+        history_actions.addWidget(self.refresh_history_button)
+        history_layout.addLayout(history_actions)
+        self.history_tree = QTreeWidget()
+        self.history_tree.setColumnCount(4)
+        self.history_tree.setHeaderLabels(["Mesh Case", "Status", "Started (UTC)", "Run directory"])
+        self.history_tree.setAlternatingRowColors(True)
+        self.history_tree.setRootIsDecorated(False)
+        self.history_tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Interactive)
+        self.history_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        self.history_tree.header().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        self.history_tree.header().setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
+        self.history_tree.itemDoubleClicked.connect(self._open_selected_history_run)
+        history_layout.addWidget(self.history_tree, 1)
+        self.result_tabs.addTab(history_page, "Run History")
         content_layout.addWidget(self.result_tabs, 1)
+        self._history_workspace = workspace
+        self._refresh_run_history()
 
         buttons = QHBoxLayout()
         self.open_run_button = QPushButton("Open Run...")
@@ -587,12 +611,32 @@ class MeshValidationDialog(QDialog):
         self.result_tabs.setCurrentIndex(0)
 
     def _open_run_directory(self) -> None:
-        directory = QFileDialog.getExistingDirectory(
-            self, "Recover Mesh Validation Run", ""
-        )
-        if not directory:
+        directory = QFileDialog.getExistingDirectory(self, "Recover Mesh Validation Run", "")
+        if directory:
+            self._show_run_directory(Path(directory).expanduser().resolve())
+
+    def _refresh_run_history(self) -> None:
+        self.history_tree.clear()
+        try:
+            records = list_mesh_validation_runs(self._history_workspace)
+        except (OSError, ValueError) as error:
+            self.result_summary.setText(f"Unable to read run history: {error}")
             return
-        run_directory = Path(directory).expanduser().resolve()
+        for record in records:
+            item = QTreeWidgetItem(self.history_tree, [
+                record["mesh_case_id"], record["status"], record["started_at"], record["directory"],
+            ])
+            item.setData(0, Qt.ItemDataRole.UserRole, record["directory"])
+            item.setToolTip(3, record["directory"])
+        if not records:
+            QTreeWidgetItem(self.history_tree, ["No validation runs", "", "", str(self._history_workspace)])
+
+    def _open_selected_history_run(self, item: QTreeWidgetItem, column: int) -> None:
+        directory = item.data(0, Qt.ItemDataRole.UserRole)
+        if directory:
+            self._show_run_directory(Path(directory))
+
+    def _show_run_directory(self, run_directory: Path) -> None:
         try:
             report = recover_mesh_validation_run(run_directory)
         except (OSError, ValueError, TypeError) as error:
@@ -632,6 +676,7 @@ class MeshValidationDialog(QDialog):
             )
         self.log_view.setPlainText(log_text)
         self.result_tabs.setCurrentIndex(0)
+        self._refresh_run_history()
 
     def _populate_artifacts(self, report: dict) -> None:
         artifacts = report.get("artifacts") or {}
@@ -749,6 +794,7 @@ class MeshValidationDialog(QDialog):
         verdict = "SUCCESS" if passed else "FAILED / CANCELLED"
         self.log_view.appendPlainText("OVERALL: " + verdict)
         self.result_summary.setText("OVERALL: " + verdict)
+        self._refresh_run_history()
 
     def _worker_finished(self) -> None:
         self._worker = None

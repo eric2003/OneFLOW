@@ -250,3 +250,11 @@ The recovered view is explicitly labelled RECOVERED. It does not invent the
 original overall exit code, run completion time, missing stage outcomes, or
 physical-accuracy verdict. The reconstructed report is an in-memory evidence
 view; recovery does not overwrite or recreate the missing original report.
+
+
+Run history and retention
+-------------------------
+
+Each new validation execution is stored in its own timestamped run directory below the Case validation workspace. Starting a new run no longer deletes previous reports, logs, meshes or solver outputs. The **Run History** tab lists completed reports and interrupted runs with readable run metadata; double-clicking an entry opens the recorded report or reconstructs an evidence-only view from its durable stage logs.
+
+The history list is a filesystem view, not a second source of truth. It is rebuilt by scanning run directories, so deleting or corrupting an optional index cannot orphan a run. A completed report determines its recorded status; a directory with metadata or stage logs but no readable report is labelled ``RECOVERABLE`` until opened and reconstructed. Older runs stored directly in the validation workspace remain discoverable. Run directories are retained until the user explicitly removes them outside the application; automatic cleanup is intentionally not performed.

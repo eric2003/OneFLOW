@@ -24,7 +24,7 @@ from tools.oneflow_gui.mesh_validation import (
     _read_geometry_artifact_lineage, _downstream_lineage_artifacts,
     _collect_run_artifacts, _artifact_file_state, _sha256_file,
     _persist_graph_stage_outcomes,
-    recover_mesh_validation_run,
+    recover_mesh_validation_run, list_mesh_validation_runs,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
@@ -1404,30 +1404,40 @@ class MeshValidationCatalogTest(unittest.TestCase):
             self.assertTrue((sibling / "keep.txt").is_file())
 
 
-    def test_each_run_clears_and_recreates_the_stable_validation_directory(self):
+    def test_each_run_gets_an_isolated_directory_and_preserves_history(self):
         with tempfile.TemporaryDirectory() as temporary:
             base = Path(temporary) / "project" / "validation"
             old_run = base / "run-20261115T173711-ae8d11f2"
             old_run.mkdir(parents=True)
-            (old_run / "stale-report.json").write_text("old", encoding="utf-8")
+            (old_run / "mesh-validation-report.json").write_text(
+                json.dumps({"status": "success", "mesh_case_id": "old_case"}), encoding="utf-8"
+            )
+            first = create_mesh_validation_run_workspace(base, "first123")
+            second = create_mesh_validation_run_workspace(base, "second123")
+            self.assertNotEqual(first, second)
+            self.assertEqual(first.parent, base.resolve())
+            self.assertTrue((old_run / "mesh-validation-report.json").is_file())
 
-            first = create_mesh_validation_run_workspace(base)
-
-            self.assertEqual(first, base.resolve())
-            self.assertTrue(base.is_dir())
-            self.assertFalse(old_run.exists())
-            self.assertEqual(list(base.iterdir()), [])
-
-            stale_output = base / "oneflow_cfd_solve" / "visual" / "visual.dat"
-            stale_output.parent.mkdir(parents=True)
-            stale_output.write_text("old run", encoding="utf-8")
-
-            second = create_mesh_validation_run_workspace(base)
-
-            self.assertEqual(second, first)
-            self.assertTrue(base.is_dir())
-            self.assertFalse(stale_output.exists())
-            self.assertEqual(list(base.iterdir()), [])
+    def test_run_history_lists_reports_and_interrupted_runs(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary) / "validation"
+            complete, interrupted = base / "run-complete", base / "run-interrupted"
+            complete.mkdir(parents=True)
+            interrupted.mkdir()
+            (complete / "mesh-validation-report.json").write_text(
+                json.dumps({"status": "success", "mesh_case_id": "sphere_case",
+                            "started_at": "2026-11-24T10:00:00Z"}), encoding="utf-8"
+            )
+            (interrupted / "mesh-validation-run.json").write_text(
+                json.dumps({"schema": "oneflow.mesh-validation-run", "version": 1,
+                            "mesh_case_id": "cylinder_case",
+                            "started_at_utc": "2026-11-24T11:00:00Z"}), encoding="utf-8"
+            )
+            records = list_mesh_validation_runs(base)
+            self.assertEqual([item["mesh_case_id"] for item in records],
+                             ["cylinder_case", "sphere_case"])
+            self.assertEqual(records[0]["status"], "RECOVERABLE")
+            self.assertEqual(records[1]["status"], "SUCCESS")
 
 
 if __name__ == "__main__":

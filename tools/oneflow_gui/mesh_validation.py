@@ -335,9 +335,70 @@ def reset_mesh_validation_workspace(path: Path) -> Path:
     return workspace
 
 
-def create_mesh_validation_run_workspace(path: Path) -> Path:
-    """Clear and recreate the validation directory before each new run."""
-    return reset_mesh_validation_workspace(path)
+def create_mesh_validation_run_workspace(path: Path, run_id: str | None = None) -> Path:
+    """Create an isolated, timestamped run directory without deleting history."""
+    workspace = _external(path)
+    if workspace.is_symlink():
+        raise ValueError(f"Mesh validation workspace must not be a symbolic link: {workspace}")
+    workspace.mkdir(parents=True, exist_ok=True)
+    identifier = (run_id or uuid.uuid4().hex).replace("-", "")
+    if not identifier or not re.fullmatch(r"[A-Za-z0-9]+", identifier):
+        raise ValueError("Mesh validation run ID must contain only letters and digits.")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    run_directory = workspace / f"run-{timestamp}-{identifier[:8]}"
+    run_directory.mkdir(parents=False, exist_ok=False)
+    return run_directory
+
+
+def list_mesh_validation_runs(workspace: Path) -> list[dict]:
+    """List durable run folders; reports and metadata remain the source of truth."""
+    root = Path(workspace).expanduser().resolve()
+    if not root.is_dir():
+        return []
+    candidates = []
+    if (root / "mesh-validation-report.json").is_file() or (root / "mesh-validation-run.json").is_file():
+        candidates.append(root)
+    candidates.extend(
+        child for child in root.iterdir()
+        if child.is_dir() and not child.is_symlink()
+        and (
+            (child / "mesh-validation-report.json").is_file()
+            or (child / "mesh-validation-run.json").is_file()
+            or any((child / stage / "results" / "mesh-validation.log").is_file()
+                   for stage in _RECOVERABLE_STAGE_IDS)
+        )
+    )
+    records = []
+    for directory in candidates:
+        report, metadata = {}, {}
+        report_path = directory / "mesh-validation-report.json"
+        metadata_path = directory / "mesh-validation-run.json"
+        for path, target in ((report_path, report), (metadata_path, metadata)):
+            try:
+                value = json.loads(path.read_text(encoding="utf-8"))
+                if isinstance(value, dict):
+                    target.update(value)
+            except (OSError, json.JSONDecodeError):
+                pass
+        started = report.get("started_at") or report.get("started_at_utc") or metadata.get("started_at_utc")
+        if not started:
+            try:
+                started = datetime.fromtimestamp(directory.stat().st_mtime, timezone.utc).isoformat(timespec="seconds")
+            except OSError:
+                started = "unknown"
+        recoverable = bool(metadata) or any(
+            (directory / stage / "results" / "mesh-validation.log").is_file()
+            for stage in _RECOVERABLE_STAGE_IDS
+        )
+        status = str(report.get("status") or ("RECOVERABLE" if recoverable else "UNKNOWN")).upper()
+        records.append({
+            "directory": str(directory),
+            "mesh_case_id": str(report.get("mesh_case_id") or metadata.get("mesh_case_id") or "unknown"),
+            "started_at": str(started),
+            "status": status,
+            "report_available": report_path.is_file(),
+        })
+    return sorted(records, key=lambda item: item["started_at"], reverse=True)
 
 
 def _sha256_file(path: Path) -> str:
@@ -1104,9 +1165,8 @@ def run_mesh_validation(
         )
     else:
         selected_stage_root = mesh_validation_workspace(REPOSITORY_ROOT, mesh_case_id)
-    run_root = _external(selected_stage_root)
-    run_root = reset_mesh_validation_workspace(run_root)
     run_id = uuid.uuid4().hex
+    run_root = create_mesh_validation_run_workspace(selected_stage_root, run_id)
     metadata_path = run_root / "mesh-validation-run.json"
     write_run_report(metadata_path, {
         "schema": "oneflow.mesh-validation-run",
