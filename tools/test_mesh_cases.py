@@ -543,6 +543,18 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertEqual(stages["geometry"]["implementations"][1]["status"], "planned")
         self.assertEqual(stages["cfd_smoke"]["implementation_status"], "planned")
         self.assertEqual(stages["cfd_validation"]["implementation_status"], "planned")
+        acceptance_references = {
+            check.get("reference")
+            for stage_id in ("geometry", "surface_regions")
+            for check in stages[stage_id]["acceptance"]
+        }
+        self.assertEqual(
+            acceptance_references,
+            {
+                "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases."
+                "StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets"
+            },
+        )
 
     def test_lifecycle_contract_allows_incremental_stages_but_rejects_cycles(self) -> None:
         contract = {
