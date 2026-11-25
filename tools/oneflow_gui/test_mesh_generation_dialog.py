@@ -521,6 +521,9 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 self.assertIn("test_mesh_case", dialog.raw_report_view.toPlainText())
             finally:
                 dialog.close()
+                dialog.deleteLater()
+                self.application.sendPostedEvents(None)
+                self.application.processEvents()
 
     def test_mesh_validation_worker_persists_console_log_and_links_report(self) -> None:
         from tools.oneflow_gui.mesh_validation_dialog import MeshValidationWorker
