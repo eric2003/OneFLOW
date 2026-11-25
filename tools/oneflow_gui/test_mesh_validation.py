@@ -21,11 +21,70 @@ from tools.oneflow_gui.mesh_validation import (
     _geometry_lineage, geometry_lineage_rows, _project_required_physical_groups,
     _geometry_artifact_lineage_path, _write_geometry_artifact_lineage,
     _read_geometry_artifact_lineage, _downstream_lineage_artifacts,
+    _collect_run_artifacts,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
     CaseExecutionResult, WorkflowGraphRunResult,
 )
+
+
+class RunArtifactInventoryTest(unittest.TestCase):
+    def test_inventory_records_relative_paths_sizes_hashes_and_categories(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            files = {
+                "stl_to_gmsh/input/model.stl": b"geometry",
+                "stl_to_gmsh/results/model.msh": b"mesh",
+                "gmsh_to_cgns/results/model.cgns": b"cgns",
+                "oneflow_cfd_solve/results/residual.dat": b"residual",
+                "oneflow_cfd_solve/results/solver.log": b"log",
+                "gmsh_to_cgns/results/mesh-validation.json": b"{}",
+                "misc/custom.bin": b"other",
+            }
+            for relative, payload in files.items():
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(payload)
+            report_path = root / "mesh-validation-report.json"
+            report_path.write_text("{}", encoding="utf-8")
+            (root / ".temporary.tmp").write_text("temporary", encoding="utf-8")
+
+            records = _collect_run_artifacts(root, report_path)
+            by_path = {item["path"]: item for item in records}
+
+            self.assertEqual(set(by_path), set(files))
+            self.assertEqual(by_path["stl_to_gmsh/input/model.stl"]["category"], "Geometry")
+            self.assertEqual(by_path["stl_to_gmsh/results/model.msh"]["category"], "Volume Mesh")
+            self.assertEqual(by_path["gmsh_to_cgns/results/model.cgns"]["category"], "Volume Mesh")
+            self.assertEqual(by_path["oneflow_cfd_solve/results/residual.dat"]["category"], "CFD Results")
+            self.assertEqual(by_path["oneflow_cfd_solve/results/solver.log"]["category"], "Logs")
+            self.assertEqual(by_path["gmsh_to_cgns/results/mesh-validation.json"]["category"], "Reports")
+            self.assertEqual(by_path["misc/custom.bin"]["category"], "Other")
+            self.assertEqual(by_path["stl_to_gmsh/input/model.stl"]["size_bytes"], len(b"geometry"))
+            self.assertEqual(
+                by_path["stl_to_gmsh/input/model.stl"]["sha256"],
+                hashlib.sha256(b"geometry").hexdigest(),
+            )
+            self.assertNotIn(str(root), by_path["stl_to_gmsh/input/model.stl"]["path"])
+            self.assertNotIn("mesh-validation-report.json", by_path)
+
+    def test_inventory_skips_symlinks_and_missing_run_directories(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "run"
+            self.assertEqual(_collect_run_artifacts(root), [])
+            root.mkdir()
+            target = root / "target.dat"
+            target.write_text("data", encoding="utf-8")
+            link = root / "link.dat"
+            try:
+                link.symlink_to(target)
+            except (OSError, NotImplementedError):
+                self.skipTest("Symlinks are unavailable in this environment.")
+            self.assertEqual(
+                [item["path"] for item in _collect_run_artifacts(root)],
+                ["target.dat"],
+            )
 
 
 class GeometryArtifactLineageTest(unittest.TestCase):

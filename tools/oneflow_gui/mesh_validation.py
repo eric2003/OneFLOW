@@ -340,6 +340,60 @@ def create_mesh_validation_run_workspace(path: Path) -> Path:
     return reset_mesh_validation_workspace(path)
 
 
+def _artifact_category(relative_path: Path) -> str:
+    """Classify a persisted run file for the result browser."""
+    path = Path(relative_path)
+    name = path.name.lower()
+    suffix = path.suffix.lower()
+    parts = {part.lower() for part in path.parts}
+    if suffix in {".log", ".out", ".err"} or "logs" in parts:
+        return "Logs"
+    if "oneflow_cfd_solve" in parts or suffix in {".dat", ".plt", ".res", ".restart", ".flow"}:
+        return "CFD Results"
+    if suffix in {".stl", ".step", ".stp", ".iges", ".igs", ".brep", ".geo"}:
+        return "Geometry"
+    if suffix in {".msh", ".cgns"} or name.endswith(".oneflow.grid"):
+        return "Volume Mesh"
+    if suffix in {".json", ".txt", ".csv", ".yaml", ".yml"}:
+        return "Reports"
+    return "Other"
+
+
+def _collect_run_artifacts(run_root: Path, report_path: Path | None = None) -> list[dict]:
+    """Inventory real run files using portable paths and content checksums.
+
+    The report is deliberately excluded because it contains this inventory.
+    Symlinks and transient atomic-write files are not followed or recorded.
+    """
+    root = Path(run_root).expanduser().resolve()
+    excluded_report = Path(report_path).expanduser().resolve() if report_path is not None else None
+    records = []
+    if not root.is_dir():
+        return records
+    for candidate in sorted(root.rglob("*"), key=lambda item: item.as_posix().casefold()):
+        try:
+            if candidate.is_symlink() or not candidate.is_file():
+                continue
+            resolved = candidate.resolve()
+            if excluded_report is not None and resolved == excluded_report:
+                continue
+            relative = candidate.relative_to(root)
+            if candidate.name.startswith(".") and candidate.name.endswith(".tmp"):
+                continue
+            payload = candidate.read_bytes()
+            records.append({
+                "path": relative.as_posix(),
+                "name": candidate.name,
+                "category": _artifact_category(relative),
+                "size_bytes": len(payload),
+                "sha256": hashlib.sha256(payload).hexdigest(),
+            })
+        except (OSError, ValueError):
+            # A file disappearing during inventory is not a recorded artifact.
+            continue
+    return records
+
+
 def _graph_step_records(result) -> list[dict[str, str]]:
     """Serialize final graph outcomes, including artifact checks and blocked steps."""
     return [
@@ -928,6 +982,7 @@ def run_mesh_validation(
     lineage = _geometry_lineage(
         mesh_entry, source_stl, staged_mesh, REPOSITORY_ROOT, downstream_artifacts
     )
+    report["artifacts"]["files"] = _collect_run_artifacts(run_root, report_path)
     report.update({
         "geometry_lineage": lineage,
         "legacy_schema": "oneflow.mesh-to-cfd-validation",

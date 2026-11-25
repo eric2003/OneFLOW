@@ -26,6 +26,7 @@ from .mesh_validation import (
     cfd_template_choices, existing_mesh_case_paths, mesh_case_group_categories,
     run_report_stage_rows,
     geometry_lineage_rows,
+    _collect_run_artifacts,
 )
 from .process_control import process_group_options, terminate_process_tree
 from .user_data_paths import UserDataPaths
@@ -143,6 +144,10 @@ class MeshValidationWorker(QThread):
                     "return_code": return_code,
                 })
                 report.setdefault("artifacts", {})["console_log"] = str(durable_log)
+                if report_path is not None:
+                    report["artifacts"]["files"] = _collect_run_artifacts(
+                        report_path.parent, report_path
+                    )
                 if report_path is not None:
                     try:
                         write_run_report(report_path, report)
@@ -540,7 +545,7 @@ class MeshValidationDialog(QDialog):
                 "The selected file is not a supported oneflow.run-report JSON document.",
             )
             return
-        report.setdefault("artifacts", {}).setdefault("report", str(report_path))
+        report.setdefault("artifacts", {})["report"] = str(report_path)
         label = str(report.get("mesh_case_id") or report.get("workflow") or report_path.parent.name)
         self.result_tree.clear()
         self.artifact_tree.clear()
@@ -569,12 +574,14 @@ class MeshValidationDialog(QDialog):
         artifacts = report.get("artifacts") or {}
         if not isinstance(artifacts, dict):
             artifacts = {}
+        report_value = artifacts.get("report")
         run_directory = report.get("run_directory") or artifacts.get("run_directory")
-        base_directory = Path(run_directory).expanduser() if isinstance(run_directory, str) else None
-        if base_directory is None:
-            report_value = artifacts.get("report")
-            if isinstance(report_value, str):
-                base_directory = Path(report_value).expanduser().parent
+        if isinstance(report_value, str):
+            base_directory = Path(report_value).expanduser().parent
+        elif isinstance(run_directory, str):
+            base_directory = Path(run_directory).expanduser()
+        else:
+            base_directory = None
 
         def add_entry(parent, name: str, value) -> None:
             if isinstance(value, dict):
@@ -584,9 +591,9 @@ class MeshValidationDialog(QDialog):
                 item.setExpanded(True)
                 return
             if isinstance(value, list):
-                item = QTreeWidgetItem(parent, [name, "Recorded", f"{len(value)} entries"])
+                item = QTreeWidgetItem(parent, [name, "Recorded", str(len(value)) + " entries"])
                 for index, child_value in enumerate(value):
-                    add_entry(item, f"[{index}]", child_value)
+                    add_entry(item, "[" + str(index) + "]", child_value)
                 item.setExpanded(True)
                 return
             details = str(value)
@@ -599,14 +606,54 @@ class MeshValidationDialog(QDialog):
                 if not candidate.is_absolute() and base_directory is not None:
                     candidate = base_directory / candidate
                 try:
-                    status = "Available" if candidate.exists() else "Missing / external"
+                    status = "Available" if candidate.exists() else "Missing"
                 except OSError:
                     status = "Unresolved"
             item = QTreeWidgetItem(parent, [name, status, details])
             item.setToolTip(2, details)
 
+        # Keep scalar run metadata visible, but render the file manifest as a
+        # categorized inventory rather than a generic nested JSON list.
         for name, value in artifacts.items():
-            add_entry(self.artifact_tree, str(name), value)
+            if name != "files":
+                add_entry(self.artifact_tree, str(name), value)
+
+        manifest = artifacts.get("files")
+        if isinstance(manifest, list):
+            groups = {}
+            for record in manifest:
+                if not isinstance(record, dict) or not isinstance(record.get("path"), str):
+                    continue
+                category = str(record.get("category") or "Other")
+                group = groups.get(category)
+                if group is None:
+                    group = QTreeWidgetItem(self.artifact_tree, [category, "", ""])
+                    group.setExpanded(True)
+                    groups[category] = group
+                relative = Path(record["path"])
+                candidate = (base_directory / relative) if base_directory is not None else relative
+                try:
+                    status = "Available" if candidate.is_file() else "Missing"
+                except OSError:
+                    status = "Unresolved"
+                size = record.get("size_bytes")
+                digest = record.get("sha256")
+                details = record["path"]
+                if isinstance(size, int):
+                    details += " | " + format(size, ",") + " bytes"
+                if isinstance(digest, str):
+                    details += " | SHA-256: " + digest
+                item = QTreeWidgetItem(
+                    group, [str(record.get("name") or relative.name), status, details]
+                )
+                item.setToolTip(2, details)
+                item.setToolTip(0, str(candidate))
+        elif manifest is None:
+            # Backward compatibility: pre-inventory reports use legacy fields.
+            pass
+        elif manifest:
+            add_entry(self.artifact_tree, "Unrecognized file manifest", manifest)
+
         lineage = report.get("geometry_lineage")
         if lineage:
             add_entry(self.artifact_tree, "Geometry lineage", lineage)
