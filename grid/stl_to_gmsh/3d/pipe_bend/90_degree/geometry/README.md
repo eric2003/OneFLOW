@@ -1,8 +1,9 @@
 # 90-degree circular pipe bend — geometry asset
 
 This is the first curved-pipe geometry asset in the 3-D STL database. It is
-a controlled analytic reference for the next STL-to-Gmsh stages; it is not
-yet a registered volume-mesh or CFD Case.
+a controlled analytic reference for the generic region-aware STL-to-Gmsh
+volume-mesh route. Its generated MSH is registered as an existing-mesh input
+for the Mesh-to-CFD Validation workflow.
 
 ## Canonical geometry
 
@@ -102,8 +103,10 @@ The generated-MSH profile is registered separately at
 `../automatic_tetrahedra/`. It appears in the standalone 3-D Mesh-to-CFD
 Validation tree after a project has produced its MSH. The profile discovers
 completed projects by the `pipe_bend_90_degree` geometry identifier and
-requires all four Physical Groups before conversion. This is an existing-mesh
-consumer profile, not yet a reproducible checked-in STL-to-Gmsh producer Case.
+requires all four Physical Groups before conversion. This is intentionally an
+existing-mesh consumer profile: geometry generation and volume meshing are
+performed through the Geometry Library and STL-to-Gmsh workbench, while the
+validation graph owns the MSH-to-CGNS-to-OneFLOW-to-CFD handoff.
 
 ## Verification
 
@@ -131,9 +134,14 @@ The adapter does not read the bend equations, angle or radius. Mesh-project
 import copies the region manifest and all three patch files into the user's
 project.
 
-This is a generic STL-to-Gmsh route, not a pipe-bend-specific mesher. A real Gmsh volume-mesh integration test is now part of the existing
-Linux/Windows Gmsh 4.15.2 CI matrix; its result is pending. After it passes,
-retain MSH 4.1 element/quality evidence, register `automatic_tetrahedra` as a
-normal mesh Case, and then add CGNS and OneFLOW CFD handoff. The C++17 geometry generator currently writes an ASCII STL and a
-parameter/patch-count report; the region-manifest handoff is currently emitted
-by the Python generator.
+This is a generic STL-to-Gmsh route, not a pipe-bend-specific mesher. A real
+Gmsh volume-mesh integration test is part of the existing Linux/Windows Gmsh
+4.15.2 CI matrix. The generated-MSH profile is registered in Mesh-to-CFD
+Validation and exercises CGNS and OneFLOW CFD smoke handoff after the user
+creates the mesh in the GUI. Keep MSH 4.1 element/quality evidence with the
+project; future work should promote the generation steps into a reproducible
+mesh-producer Case only if the Case model can express the geometry parameters
+and region-manifest handoff without duplicating the generic mesher. The C++17
+geometry generator currently writes an ASCII STL and a parameter/patch-count
+report; the region-manifest handoff is currently emitted by the Python
+generator.
