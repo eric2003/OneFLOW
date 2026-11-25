@@ -131,6 +131,12 @@ and manifest/report to the user's mesh-generation workspace. The **Open
 Generated STL in STL to Gmsh** action is available: mesh-project import copies
 the geometry manifest, region manifest and three patch files, so the existing
 generic region-aware converter retains the inlet/outlet/wall Physical Groups.
+After generating the MSH, the project's **Mesh-to-CFD Validation...** action
+runs the existing-mesh validation route without rerunning Gmsh. The project
+manifest supplies the required Physical Groups, so validation checks
+``wall``, ``inflow``, ``outflow`` and ``fluid_domain`` before conversion. The
+same validation workbench is also available from the Workbench home screen and
+the Mesh Generation hub.
 
 Both generators use the same default dimensions, discretization and declared
 unit metadata. Outputs

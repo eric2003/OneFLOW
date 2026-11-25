@@ -1,9 +1,11 @@
 Mesh-to-CFD Validation
 ======================
 
-Mesh-to-CFD Validation is a dedicated mode in the OneFLOW Tests dialog. It is
-separate from **Run Development Cases**, which continues to execute individual
-preconfigured Cases.
+Mesh-to-CFD Validation is available from the Workbench home screen, the Mesh
+Generation hub, and the OneFLOW Tests dialog. It is separate from **Run
+Development Cases**, which continues to execute individual preconfigured
+Cases. The STL-to-Gmsh project page also opens this workbench for its current
+MSH file; this project-scoped route does not regenerate the mesh.
 
 The initial conversion route is:
 
@@ -53,7 +55,13 @@ to ``3`` in the isolated runtime Case. When the project carries a
 checksum-verified ``region_manifest.json``, its ``wall``, ``inflow`` and
 ``outflow`` region names become required MSH Physical Groups for that run.
 Legacy imported projects that previously used the prolate-spheroid Case as a
-generic fallback are migrated when reopened.
+generic fallback are migrated when reopened. The 90-degree pipe-bend geometry
+uses this same geometry-neutral handoff: its checksum-verified region manifest
+is copied into the project, and the validation run requires dimension-2
+``wall``, ``inflow`` and ``outflow`` plus dimension-3 ``fluid_domain`` before
+starting CGNS conversion. This makes the bend available through the normal
+Mesh Generation -> STL to Gmsh -> Mesh-to-CFD Validation sequence without a
+pipe-bend-specific validation runner.
 
 3-D internal-flow cylinder
 --------------------------

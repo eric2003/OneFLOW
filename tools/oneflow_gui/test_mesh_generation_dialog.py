@@ -133,6 +133,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 if "Mesh" in button.text()
             ]
             self.assertIn("Mesh Generation...", mesh_buttons)
+            self.assertIn("Mesh-to-CFD Validation...", mesh_buttons)
             self.assertNotIn("Mesh Layout Editor...", mesh_buttons)
             with patch(
                 "tools.oneflow_gui.home_window.MeshGenerationDialog"
@@ -142,6 +143,14 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 self.repository_root.resolve(), window
             )
             dialog_type.return_value.exec.assert_called_once()
+            with patch(
+                "tools.oneflow_gui.home_window.MeshValidationDialog"
+            ) as validation_type:
+                window._open_mesh_validation()
+            validation_type.assert_called_once_with(
+                self.repository_root.resolve(), parent=window
+            )
+            validation_type.return_value.exec.assert_called_once()
         finally:
             window.close()
 
@@ -152,6 +161,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             labels = {button.text() for button in buttons}
             self.assertIn("Mesh Layout Editor", labels)
             self.assertIn("STL to Gmsh", labels)
+            self.assertIn("Mesh-to-CFD Validation...", labels)
             self.assertIn("Geometry Library...", labels)
             self.assertNotIn("Generate STL Geometry", labels)
             self.assertIn("Mesh Knowledge", labels)
@@ -182,6 +192,14 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 self.repository_root.resolve(), "mesh", dialog
             )
             knowledge_type.return_value.exec.assert_called_once()
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.MeshValidationDialog"
+            ) as validation_type:
+                dialog._open_mesh_validation()
+            validation_type.assert_called_once_with(
+                self.repository_root.resolve(), parent=dialog
+            )
+            validation_type.return_value.exec.assert_called_once()
         finally:
             dialog.close()
 
@@ -248,6 +266,14 @@ class MeshGenerationDialogTest(unittest.TestCase):
                         self.assertFalse(gmsh_dialog.boundary_name.isEnabled())
                         self.assertFalse(gmsh_dialog.volume_name.isEnabled())
                         self.assertEqual(gmsh_dialog.stl_path.text(), str(project["stl_path"]))
+                        self.assertEqual(
+                            gmsh_dialog._mesh_case_id,
+                            "stl_to_gmsh_generic_3d_mesh_handoff",
+                        )
+                        self.assertEqual(
+                            gmsh_dialog.validate_button.text(),
+                            "Mesh-to-CFD Validation...",
+                        )
                         self.assertIn(
                             "Boundary patches: inflow, outflow, wall",
                             gmsh_dialog.geometry_lineage_view.toPlainText(),

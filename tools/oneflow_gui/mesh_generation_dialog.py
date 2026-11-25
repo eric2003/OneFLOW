@@ -54,6 +54,7 @@ from .user_data_paths import UserDataPaths
 from .geometry_library_dialog import GeometryLibraryDialog
 from .cylinder_cut_dialog import CylinderCutWorkbenchDialog
 from .generic_surface_cut_dialog import GenericSurfaceCutDialog
+from .mesh_validation_dialog import MeshValidationDialog
 from .oblique_cylinder_cut_dialog import ObliqueCylinderCutDialog
 
 
@@ -64,9 +65,18 @@ class MeshGenerationDialog(QDialog):
         super().__init__(parent)
         self._repository_root = repository_root.resolve()
         self.setWindowTitle("Mesh Generation & Conversion")
-        self.resize(760, 560)
+        self.resize(900, 760)
+        self.setMinimumSize(760, 620)
 
-        root = QVBoxLayout(self)
+        outer = QVBoxLayout(self)
+        scroll = QScrollArea(self)
+        scroll.setObjectName("meshGenerationHubScrollArea")
+        scroll.setWidgetResizable(True)
+        content = QWidget()
+        root = QVBoxLayout(content)
+        root.setContentsMargins(8, 8, 8, 8)
+        scroll.setWidget(content)
+        outer.addWidget(scroll)
         title = QLabel("Mesh Generation & Conversion")
         title.setStyleSheet("font-size: 22px; font-weight: 650;")
         root.addWidget(title)
@@ -149,6 +159,16 @@ class MeshGenerationDialog(QDialog):
         stl_button.setToolTip("Generate a 3-D tetrahedral volume mesh from a closed STL shell.")
         stl_button.clicked.connect(self._open_stl_to_gmsh)
         root.addWidget(stl_button)
+
+        validation_button = QPushButton("Mesh-to-CFD Validation...")
+        validation_button.setMinimumHeight(54)
+        validation_button.setToolTip(
+            "Run registered mesh Cases through Gmsh, CGNS conversion, OneFLOW "
+            "ingestion and a short CFD smoke test. A generated project can also "
+            "validate its current MSH directly from the STL-to-Gmsh page."
+        )
+        validation_button.clicked.connect(self._open_mesh_validation)
+        root.addWidget(validation_button)
 
         knowledge_button = QPushButton("Mesh Knowledge")
         knowledge_button.setMinimumHeight(54)
@@ -253,6 +273,9 @@ class MeshGenerationDialog(QDialog):
 
     def _open_stl_to_gmsh(self) -> None:
         StlToGmshDialog(self._repository_root, self).exec()
+
+    def _open_mesh_validation(self) -> None:
+        MeshValidationDialog(self._repository_root, parent=self).exec()
 
     def _open_mesh_knowledge(self) -> None:
         ContractDomainDialog(self._repository_root, "mesh", self).exec()
@@ -696,7 +719,7 @@ class StlToGmshDialog(QDialog):
         self.run_button.setMinimumWidth(150)
         self.run_button.clicked.connect(self._run)
         actions.addWidget(self.run_button)
-        self.validate_button = QPushButton("Validate with OneFLOW")
+        self.validate_button = QPushButton("Mesh-to-CFD Validation...")
         self.validate_button.setEnabled(Path(self.output_path.text()).is_file())
         self.validate_button.setToolTip(
             "Validate the current MSH file without rerunning Gmsh."

@@ -362,10 +362,15 @@ existing Formula & Knowledge renderer.
 
 ## Mesh-to-CFD Validation Workbench
 
-The Tests page opens Mesh-to-CFD Validation as a separate workbench. Select
-multiple STL-to-Gmsh Cases, choose a CFD consumer template, and set the short
-solver smoke-test iteration count. Each selected mesh Case is validated
-independently through its conversion chain and CFD consumer.
+The Workbench home screen and the Mesh Generation hub both expose
+**Mesh-to-CFD Validation...** as a dedicated entry. The Tests page retains the
+same mode. Select multiple STL-to-Gmsh Cases, choose a CFD consumer template,
+and set the short solver smoke-test iteration count. Each selected mesh Case
+is validated independently through its conversion chain and CFD consumer.
+The STL-to-Gmsh project page also exposes **Mesh-to-CFD Validation...** for
+its current MSH; this path skips mesh generation, stages the existing MSH in
+the project `validation/` workspace, and validates project-declared boundary
+Physical Groups before downstream conversion.
 
 Validation workspaces are stable and Case-scoped below
 `$ONEFLOW_HOME/mesh-validation/` (or `~/.oneflow/mesh-validation/` when
@@ -399,8 +404,9 @@ duplicate controls or an overly wide list. 3D topology Cases retain the conversi
 
 ## Mesh Generation & Conversion Workbench
 
-The home screen exposes **Mesh Generation...** as the single entry to mesh activities.
-The hub routes to:
+The home screen exposes **Mesh Generation...** as the entry to mesh activities;
+the Mesh Generation hub also links directly to **Mesh-to-CFD Validation...**.
+The home screen separately exposes the same validation workbench. The hub routes to:
 
 - **Mesh Projects**: choose a catalog-declared template, import an STL from the
   repository Grid database or disk, open a OneFLOW project, or import a prepared
@@ -411,6 +417,8 @@ The hub routes to:
   `grid/stl_to_gmsh/generate_volume_mesh.py`. Select the STL and output path,
   choose Coarse / Medium / Fine or custom minimum and maximum sizes, optionally
   select a Gmsh executable, and set the surface/volume Physical Group names.
+- **Mesh-to-CFD Validation...**: opens the multi-Case end-to-end validation
+  workbench without requiring a prior project page.
 - **Mesh Knowledge**: opens the existing Mesh domain in Contract Workbench,
   including principles, format contracts, implementation links and evidence.
 
@@ -430,6 +438,15 @@ edited and saved with **Save Project Settings** without launching Gmsh; running
 the mesher also saves the settings. Generated MSH files can be passed directly
 to Mesh-to-CFD Validation without regenerating the mesh, and validation outputs
 stay inside that project's `validation/` directory.
+
+For a generated 90-degree pipe bend, the Geometry Library writes the closed
+STL, checksum-bound geometry manifest, three boundary patch STLs and region
+manifest. **Open Generated STL in STL to Gmsh** imports all of these into a
+private mesh project. After Gmsh finishes, **Mesh-to-CFD Validation...** on
+the project page runs the existing-MSH route and enforces the project-derived
+`wall`, `inflow`, `outflow` and `fluid_domain` Physical Groups before CGNS
+conversion. The resulting validation report and stage artifacts remain under
+the project's `validation/` directory.
 
 The STL page shows the complete platform-specific command before execution and
 supports copying it. Execution uses `QProcess` with an argument list (not shell
