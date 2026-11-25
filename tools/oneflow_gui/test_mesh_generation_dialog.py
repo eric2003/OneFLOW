@@ -1165,7 +1165,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                         self.assertEqual(gmsh_dialog.stl_path.text(), str(project["stl_path"]))
                         self.assertEqual(
                             gmsh_dialog._mesh_case_id,
-                            "stl_to_gmsh_generic_3d_mesh_handoff",
+                            "stl_to_gmsh_pipe_bend_90_degree",
                         )
                         self.assertEqual(
                             gmsh_dialog.validate_button.text(),
