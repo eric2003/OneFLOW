@@ -176,8 +176,10 @@ class PipeBendGeometryTest(unittest.TestCase):
             None,
         )
         configured_stl = os.environ.get("ONEFLOW_PIPE_BEND_CPP_STL")
-        with tempfile.TemporaryDirectory() as build_directory:
-            if compiler:
+        if configured_stl:
+            cpp_stl = Path(configured_stl)
+        elif compiler:
+            with tempfile.TemporaryDirectory() as build_directory:
                 executable = Path(build_directory) / (
                     "pipe_bend_generator.exe" if os.name == "nt"
                     else "pipe_bend_generator"
@@ -192,10 +194,8 @@ class PipeBendGeometryTest(unittest.TestCase):
                     [str(executable), "--output", str(cpp_stl)],
                     check=True, capture_output=True, text=True,
                 )
-            elif configured_stl:
-                cpp_stl = Path(configured_stl)
-            else:
-                self.skipTest("A C++17 compiler or ONEFLOW_PIPE_BEND_CPP_STL is required")
+        else:
+            self.skipTest("A C++17 compiler or ONEFLOW_PIPE_BEND_CPP_STL is required")
         self.assertTrue(cpp_stl.is_file())
         cpp_region_manifest_path = cpp_stl.parent / "region_manifest.json"
         cpp_geometry_manifest_path = cpp_stl.with_suffix(".geometry.json")
