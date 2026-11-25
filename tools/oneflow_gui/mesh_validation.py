@@ -380,18 +380,37 @@ def _collect_run_artifacts(run_root: Path, report_path: Path | None = None) -> l
             relative = candidate.relative_to(root)
             if candidate.name.startswith(".") and candidate.name.endswith(".tmp"):
                 continue
-            payload = candidate.read_bytes()
+            digest = hashlib.sha256()
+            with candidate.open("rb") as stream:
+                for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                    digest.update(chunk)
             records.append({
                 "path": relative.as_posix(),
                 "name": candidate.name,
                 "category": _artifact_category(relative),
-                "size_bytes": len(payload),
-                "sha256": hashlib.sha256(payload).hexdigest(),
+                "size_bytes": candidate.stat().st_size,
+                "sha256": digest.hexdigest(),
             })
         except (OSError, ValueError):
             # A file disappearing during inventory is not a recorded artifact.
             continue
     return records
+
+
+def _artifact_file_state(relative_path: str, base_directory: Path | None) -> tuple[str, Path | None]:
+    """Resolve a manifest path safely and report its current availability."""
+    if base_directory is None:
+        return "Unresolved", None
+    relative = Path(relative_path)
+    if relative.is_absolute() or ".." in relative.parts:
+        return "Unsafe path", None
+    try:
+        root = Path(base_directory).expanduser().resolve()
+        candidate = (root / relative).resolve()
+        candidate.relative_to(root)
+        return ("Available" if candidate.is_file() else "Missing", candidate)
+    except (OSError, ValueError):
+        return "Unsafe path", None
 
 
 def _graph_step_records(result) -> list[dict[str, str]]:

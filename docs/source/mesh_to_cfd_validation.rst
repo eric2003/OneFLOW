@@ -182,7 +182,8 @@ created it. The GUI shows these lineage rows alongside the workflow stages.
 Persistent geometry lineage sidecars
 -------------------------------------
 
-Each generated CGNS volume mesh is accompanied by\n``<mesh.cgns>.geometry-lineage.json``. It records the geometry provenance,
+Each generated CGNS volume mesh is accompanied by
+``<mesh.cgns>.geometry-lineage.json``. It records the geometry provenance,
 verified source STL (when available), derived Gmsh MSH, and a SHA-256 checksum
 of the CGNS file itself. The following CGNS-to-OneFLOW stage verifies that
 checksum before consuming the record and writes the inherited lineage beside
@@ -194,7 +195,6 @@ native-grid binary formats. A missing, malformed, or checksum-mismatched
 upstream record causes the lineage handoff stage to fail rather than silently
 claiming an unverified chain. The geometry source may still be explicitly
 ``unknown``; persistence does not manufacture historical provenance.
-\n
 
 Artifact inventory and report recovery
 ---------------------------------------

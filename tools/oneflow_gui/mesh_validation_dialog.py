@@ -26,7 +26,7 @@ from .mesh_validation import (
     cfd_template_choices, existing_mesh_case_paths, mesh_case_group_categories,
     run_report_stage_rows,
     geometry_lineage_rows,
-    _collect_run_artifacts,
+    _collect_run_artifacts, _artifact_file_state,
 )
 from .process_control import process_group_options, terminate_process_tree
 from .user_data_paths import UserDataPaths
@@ -631,11 +631,7 @@ class MeshValidationDialog(QDialog):
                     group.setExpanded(True)
                     groups[category] = group
                 relative = Path(record["path"])
-                candidate = (base_directory / relative) if base_directory is not None else relative
-                try:
-                    status = "Available" if candidate.is_file() else "Missing"
-                except OSError:
-                    status = "Unresolved"
+                status, candidate = _artifact_file_state(record["path"], base_directory)
                 size = record.get("size_bytes")
                 digest = record.get("sha256")
                 details = record["path"]
@@ -647,7 +643,8 @@ class MeshValidationDialog(QDialog):
                     group, [str(record.get("name") or relative.name), status, details]
                 )
                 item.setToolTip(2, details)
-                item.setToolTip(0, str(candidate))
+                if candidate is not None:
+                    item.setToolTip(0, str(candidate))
         elif manifest is None:
             # Backward compatibility: pre-inventory reports use legacy fields.
             pass

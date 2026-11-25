@@ -21,7 +21,7 @@ from tools.oneflow_gui.mesh_validation import (
     _geometry_lineage, geometry_lineage_rows, _project_required_physical_groups,
     _geometry_artifact_lineage_path, _write_geometry_artifact_lineage,
     _read_geometry_artifact_lineage, _downstream_lineage_artifacts,
-    _collect_run_artifacts,
+    _collect_run_artifacts, _artifact_file_state,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
@@ -68,6 +68,27 @@ class RunArtifactInventoryTest(unittest.TestCase):
             )
             self.assertNotIn(str(root), by_path["stl_to_gmsh/input/model.stl"]["path"])
             self.assertNotIn("mesh-validation-report.json", by_path)
+
+    def test_artifact_paths_report_available_missing_and_reject_escape_paths(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            present = root / "results/mesh.msh"
+            present.parent.mkdir()
+            present.write_bytes(b"mesh")
+            self.assertEqual(
+                _artifact_file_state("results/mesh.msh", root)[0], "Available"
+            )
+            self.assertEqual(
+                _artifact_file_state("results/missing.cgns", root)[0], "Missing"
+            )
+            self.assertEqual(
+                _artifact_file_state("../../outside.txt", root),
+                ("Unsafe path", None),
+            )
+            self.assertEqual(
+                _artifact_file_state("results/mesh.msh", None),
+                ("Unresolved", None),
+            )
 
     def test_inventory_skips_symlinks_and_missing_run_directories(self):
         with tempfile.TemporaryDirectory() as directory:
