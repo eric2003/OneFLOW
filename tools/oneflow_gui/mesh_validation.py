@@ -337,9 +337,12 @@ def reset_mesh_validation_workspace(path: Path) -> Path:
 
 def create_mesh_validation_run_workspace(path: Path, run_id: str | None = None) -> Path:
     """Create an isolated, timestamped run directory without deleting history."""
-    workspace = _external(path)
-    if workspace.is_symlink():
-        raise ValueError(f"Mesh validation workspace must not be a symbolic link: {workspace}")
+    requested_workspace = Path(path).expanduser()
+    if requested_workspace.is_symlink():
+        raise ValueError(
+            f"Mesh validation workspace must not be a symbolic link: {requested_workspace}"
+        )
+    workspace = _external(requested_workspace)
     workspace.mkdir(parents=True, exist_ok=True)
     identifier = (run_id or uuid.uuid4().hex).replace("-", "")
     if not identifier or not re.fullmatch(r"[A-Za-z0-9]+", identifier):
@@ -351,23 +354,25 @@ def create_mesh_validation_run_workspace(path: Path, run_id: str | None = None) 
 
 
 def list_mesh_validation_runs(workspace: Path) -> list[dict]:
-    """List durable run folders; reports and metadata remain the source of truth."""
+    """List durable run folders recursively; reports and metadata are authoritative."""
     root = Path(workspace).expanduser().resolve()
     if not root.is_dir():
         return []
-    candidates = []
+    candidates: set[Path] = set()
     if (root / "mesh-validation-report.json").is_file() or (root / "mesh-validation-run.json").is_file():
-        candidates.append(root)
-    candidates.extend(
-        child for child in root.iterdir()
-        if child.is_dir() and not child.is_symlink()
-        and (
-            (child / "mesh-validation-report.json").is_file()
-            or (child / "mesh-validation-run.json").is_file()
-            or any((child / stage / "results" / "mesh-validation.log").is_file()
-                   for stage in _RECOVERABLE_STAGE_IDS)
-        )
-    )
+        candidates.add(root)
+    for filename in ("mesh-validation-report.json", "mesh-validation-run.json"):
+        for marker in root.rglob(filename):
+            if marker.is_file() and not marker.is_symlink():
+                candidates.add(marker.parent)
+    for stage_log in root.rglob("mesh-validation.log"):
+        if stage_log.is_file() and not stage_log.is_symlink():
+            run_directory = stage_log.parent.parent.parent
+            try:
+                run_directory.relative_to(root)
+            except ValueError:
+                continue
+            candidates.add(run_directory)
     records = []
     for directory in candidates:
         report, metadata = {}, {}
@@ -383,7 +388,9 @@ def list_mesh_validation_runs(workspace: Path) -> list[dict]:
         started = report.get("started_at") or report.get("started_at_utc") or metadata.get("started_at_utc")
         if not started:
             try:
-                started = datetime.fromtimestamp(directory.stat().st_mtime, timezone.utc).isoformat(timespec="seconds")
+                started = datetime.fromtimestamp(
+                    directory.stat().st_mtime, timezone.utc
+                ).isoformat(timespec="seconds")
             except OSError:
                 started = "unknown"
         recoverable = bool(metadata) or any(

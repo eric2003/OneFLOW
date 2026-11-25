@@ -1433,6 +1433,13 @@ class MeshValidationCatalogTest(unittest.TestCase):
                             "mesh_case_id": "cylinder_case",
                             "started_at_utc": "2026-11-24T11:00:00Z"}), encoding="utf-8"
             )
+            nested = base / "stl_to_gmsh" / "3d" / "sphere" / "run-nested"
+            nested.mkdir(parents=True)
+            (nested / "mesh-validation-run.json").write_text(
+                json.dumps({"schema": "oneflow.mesh-validation-run", "version": 1,
+                            "mesh_case_id": "nested_sphere",
+                            "started_at_utc": "2026-11-24T12:00:00Z"}), encoding="utf-8"
+            )
             records = list_mesh_validation_runs(base)
             self.assertEqual([item["mesh_case_id"] for item in records],
                              ["cylinder_case", "sphere_case"])
