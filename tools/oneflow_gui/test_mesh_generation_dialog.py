@@ -478,6 +478,60 @@ class MeshGenerationDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_mesh_validation_worker_persists_console_log_and_links_report(self) -> None:
+        from tools.oneflow_gui.mesh_validation_dialog import MeshValidationWorker
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            report_path = root / "run" / "mesh-validation-report.json"
+            report_path.parent.mkdir(parents=True)
+            report_path.write_text(
+                json.dumps({
+                    "schema": "oneflow.run-report",
+                    "version": 1,
+                    "workflow": "Mesh-to-CFD Validation",
+                    "status": "success",
+                    "exit_code": 0,
+                    "stages": {"gmsh_to_cgns": {"status": "PASS"}},
+                    "metrics": {},
+                    "artifacts": {"report": str(report_path)},
+                    "error": None,
+                }),
+                encoding="utf-8",
+            )
+
+            class FakeProcess:
+                stdout = iter([f"report: {report_path}\n", "conversion complete\n"])
+
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *_args):
+                    return False
+
+                def wait(self):
+                    return 0
+
+            worker = MeshValidationWorker(
+                [("Test Case", ("python", "-m", "fake_case"), root)],
+                root / "session-logs",
+            )
+            with patch(
+                "tools.oneflow_gui.mesh_validation_dialog.subprocess.Popen",
+                return_value=FakeProcess(),
+            ):
+                worker.run()
+
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            console_log = Path(report["execution"]["console_log"])
+            self.assertTrue(console_log.is_file())
+            self.assertEqual(report["artifacts"]["console_log"], str(console_log))
+            log_text = console_log.read_text(encoding="utf-8")
+            self.assertIn("Working directory:", log_text)
+            self.assertIn("Command:", log_text)
+            self.assertIn("conversion complete", log_text)
+            self.assertIn("PASSED: Test Case", log_text)
+
     def test_validate_current_mesh_opens_single_mesh_validation_mode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             mesh = Path(directory) / "sphere.msh"
