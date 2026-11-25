@@ -252,7 +252,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                         {"wall", "inflow", "outflow"},
                     )
                     project = create_mesh_project_from_stl(
-                        self.repository_root, output, "pipe-bend-ui"
+                        self.repository_root, output, "cylinder-ui"
                     )
                     project_geometry_manifest = (
                         project["stl_path"].with_suffix(".geometry.json")
@@ -274,15 +274,15 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     try:
                         self.assertEqual(
                             gmsh_dialog.geometry_preset.currentData(),
-                            "pipe_bend_90_degree",
+                            "cylinder_internal_flow",
                         )
-                        self.assertFalse(gmsh_dialog.geometry_preset.isEnabled())
+                        self.assertTrue(gmsh_dialog.geometry_preset.isEnabled())
                         self.assertFalse(gmsh_dialog.boundary_name.isEnabled())
                         self.assertFalse(gmsh_dialog.volume_name.isEnabled())
                         self.assertEqual(gmsh_dialog.stl_path.text(), str(project["stl_path"]))
                         self.assertEqual(
                             gmsh_dialog._mesh_case_id,
-                            "stl_to_gmsh_generic_3d_mesh_handoff",
+                            "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow",
                         )
                         self.assertEqual(
                             gmsh_dialog.validate_button.text(),
