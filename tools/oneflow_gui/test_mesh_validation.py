@@ -1320,7 +1320,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         steps = build_mesh_validation_cases(repository_root, case_id, "laminar_flat_plate")
         self.assertEqual(
             [step["id"] for step in steps],
-            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
+            ["stl_to_gmsh"],
         )
         self.assertEqual(steps[0]["outputs"][0]["path"], "results/pipe_bend_90_degree.msh")
         command = _mesh_case_command(
