@@ -155,6 +155,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
             "stl_to_gmsh_cylinder_internal_flow_oblique_cut",
             "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut",
+            "stl_to_gmsh_pipe_bend_90_degree",
         })
         for case_id in (
             "stl_to_gmsh_square",

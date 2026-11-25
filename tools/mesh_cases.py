@@ -195,7 +195,10 @@ def validate_case(repository_root: Path, entry: dict[str, Any]) -> list[str]:
                     )
                     if not script_path.is_file():
                         errors.append(f"{case_id}: Python execution script not found: {script_path}")
-                for relative in ("expected.json", "input/model.stl"):
+                required_files = ["expected.json"]
+                if not execution.get("generates_input", False):
+                    required_files.append("input/model.stl")
+                for relative in required_files:
                     path = resolve_case_path(case_dir, relative, f"{relative} for {case_id}")
                     if not path.is_file():
                         errors.append(f"{case_id}: {relative} not found")
