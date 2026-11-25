@@ -184,7 +184,7 @@ Workbench 是 OneFLOW 的可选 Python/Qt 客户端，通过参数数组启动�
 主界面的 **Mesh Generation...** 是网格功能的统一入口，目前包含：
 
 * **Mesh Layout Editor**：编辑结构化网格布局，保留现有模板、边界设置、预览和布局编译能力。
-* **Generate STL Geometry**：从内置几何库选择 Sphere、Prolate Spheroid 或 Cylinder Internal Flow，设置半径、椭球半轴、圆柱长度以及表面离散参数，生成 STL 和伴随的几何元数据。
+* **Generate STL Geometry**：从内置几何库选择 Sphere、Prolate Spheroid、Cylinder Internal Flow 或 90° Pipe Bend。弯管可设置管道半径、中心线弯曲半径、弯曲角度、入口/出口直管长度及各方向表面离散参数，生成 STL 和伴随的几何元数据。
 * **STL to Gmsh**：从几何库、仓库网格数据库或用户工程读取 STL，独立设置体积网格密度并生成三维四面体体网格。
 * **Mesh Knowledge**：进入现有 Contract Workbench 的 Mesh 知识域，浏览网格原理、格式、实现代码和验证证据。
 
@@ -195,7 +195,7 @@ Mesh Generation & Conversion 首先按“网格工程”组织工作，而不再
 * **Open Existing Project**：打开已有 OneFLOW 工程（``project.json``），或导入包含 ``input/model.stl`` 的准备好工程目录；若目录只有一个 STL，也可自动识别并复制为独立工程。
 * 每个工程保存在用户数据目录 ``mesh-generation/<project>/``，包括输入几何、项目清单、生成结果和独立的 ``validation/``。模板只读保留在仓库，工程副本可独立修改。
 
-进入 Generate STL Geometry 后，选择几何类型会切换到该几何独立的参数面板：Sphere 只显示半径和 Icosphere 细分级别；Prolate Spheroid 只显示三个半轴和自己的表面细分级别；Cylinder 只显示圆柱半径、长度、周向和轴向划分。切换几何类型不会清空其它面板已经设置的值，各类参数彼此独立。单位和输出 STL 路径属于公共设置。生成的 STL 与 .geometry.json 元数据默认保存在用户数据目录的 ``mesh-generation/generated_stl/<geometry>/``。Sphere 使用 Icosphere 细分，Prolate Spheroid 使用三个半轴对球面拓扑进行缩放，Cylinder 使用周向和轴向划分生成侧壁及两个端盖。
+进入 Generate STL Geometry 后，选择几何类型会切换到该几何独立的参数面板：Sphere 只显示半径和 Icosphere 细分级别；Prolate Spheroid 只显示三个半轴和自己的表面细分级别；Cylinder 只显示圆柱半径、长度、周向和轴向划分；90° Pipe Bend 显示管道半径、中心线弯曲半径、弯曲角度、入口/出口长度和截面/弯曲/直管离散参数。切换几何类型不会清空其它面板已经设置的值，各类参数彼此独立。单位和输出 STL 路径属于公共设置。生成的 STL 与 .geometry.json 元数据默认保存在用户数据目录的 ``mesh-generation/generated_stl/<geometry>/``。Sphere 使用 Icosphere 细分，Prolate Spheroid 使用三个半轴对球面拓扑进行缩放，Cylinder 使用周向和轴向划分生成侧壁及两个端盖；Pipe Bend 使用扫掠圆截面生成弯曲侧壁和入口/出口封口面。弯管 Python 生成器同时输出 wall/inflow/outflow 三个边界 STL 和 region_manifest.json，导入网格工程时会一起复制，并由现有通用 region-aware STL-to-Gmsh 路径生成体网格；该转换不依赖弯管解析方程。
 
 进入 STL to Gmsh 后，可以修改 STL 路径、Coarse/Medium/Fine 或自定义尺寸、Physical Group 名称、输出 MSH 路径和 Gmsh 可执行文件。界面显示完整命令并支持复制；工程模式提供 **Save Project Settings**，无需启动 Gmsh 即可保存修改，运行时也会自动保存。重新打开工程后可继续编辑和生成。项目生成的当前 MSH 可直接进入 Mesh-to-CFD Validation，不会重新生成网格，验证结果写入该项目自己的 ``validation/``。
 

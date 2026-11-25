@@ -35,6 +35,7 @@ from tools.oneflow_gui.mesh_generation_dialog import (
 )
 from tools.oneflow_gui.generic_surface_cut_dialog import GenericSurfaceCutDialog
 from tools.oneflow_gui.mesh_project import (
+    create_mesh_project_from_stl,
     create_mesh_project_from_template,
     load_mesh_project,
 )
@@ -225,6 +226,34 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     self.assertEqual(dialog.generated_stl, output.resolve())
                     self.assertIn("inflow", dialog.result_view.toPlainText())
                     self.assertIn("outflow", dialog.result_view.toPlainText())
+                    self.assertIn("Region manifest:", dialog.result_view.toPlainText())
+                    self.assertIn("wall:", dialog.result_view.toPlainText())
+                    self.assertIn("inflow:", dialog.result_view.toPlainText())
+                    self.assertIn("outflow:", dialog.result_view.toPlainText())
+                    project = create_mesh_project_from_stl(
+                        self.repository_root, output, "pipe-bend-ui"
+                    )
+                    self.assertTrue(
+                        (project["stl_path"].parent / "region_manifest.json").is_file()
+                    )
+                    gmsh_dialog = StlToGmshDialog(
+                        self.repository_root, project=project
+                    )
+                    try:
+                        self.assertEqual(
+                            gmsh_dialog.geometry_preset.currentData(),
+                            "pipe_bend_90_degree",
+                        )
+                        self.assertFalse(gmsh_dialog.geometry_preset.isEnabled())
+                        self.assertFalse(gmsh_dialog.boundary_name.isEnabled())
+                        self.assertFalse(gmsh_dialog.volume_name.isEnabled())
+                        self.assertEqual(gmsh_dialog.stl_path.text(), str(project["stl_path"]))
+                        self.assertIn(
+                            "Boundary patches: inflow, outflow, wall",
+                            gmsh_dialog.geometry_lineage_view.toPlainText(),
+                        )
+                    finally:
+                        gmsh_dialog.close()
                 finally:
                     dialog.close()
 
@@ -920,6 +949,110 @@ class MeshGenerationDialogTest(unittest.TestCase):
             with patch.dict(os.environ, {"GMSH_EXECUTABLE": str(executable)}):
                 self.assertEqual(discover_gmsh(), str(executable.resolve()))
 
+
+    def test_geometry_library_exposes_pipe_bend_parameter_editor(self) -> None:
+        from tools.oneflow_gui.geometry_library_dialog import GeometryLibraryDialog
+
+        dialog = MeshGenerationDialog(self.repository_root)
+        edited_assets = []
+        library = GeometryLibraryDialog(
+            self.repository_root, dialog, on_edit_asset=edited_assets.append
+        )
+        try:
+            row = next(
+                index for index, asset in enumerate(library._assets)
+                if asset["id"] == "geometry.pipe_bend.90_degree"
+            )
+            library.asset_list.setCurrentRow(row)
+            self.assertTrue(library.edit_button.isEnabled())
+            self.assertIn("90-Degree Circular Pipe Bend", library.details.toPlainText())
+            library._edit_selected_asset()
+            self.assertEqual(edited_assets[0]["id"], "geometry.pipe_bend.90_degree")
+        finally:
+            library.close()
+            dialog.close()
+
+    def test_pipe_bend_asset_opens_matching_parameter_editor(self) -> None:
+        dialog = StlGeometryDialog(
+            self.repository_root, asset_id="geometry.pipe_bend.90_degree"
+        )
+        try:
+            self.assertEqual(dialog.geometry.currentData(), "pipe_bend_90_degree")
+            self.assertFalse(dialog.pipe_bend_group.isHidden())
+            self.assertTrue(dialog.cylinder_group.isHidden())
+            self.assertEqual(dialog.pipe_bend_radius.text(), "0.5")
+            self.assertEqual(dialog.pipe_bend_bend_radius.text(), "1.0")
+            self.assertEqual(dialog.pipe_bend_angle.text(), "90")
+        finally:
+            dialog.close()
+
+    def test_generate_pipe_bend_stl_and_manifest_from_geometry_workbench(self) -> None:
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory) / "mesh-generation"
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                dialog = StlGeometryDialog(self.repository_root)
+                try:
+                    dialog.geometry.setCurrentIndex(
+                        dialog.geometry.findData("pipe_bend_90_degree")
+                    )
+                    self.assertFalse(dialog.pipe_bend_group.isHidden())
+                    self.assertIn("not solid walls", dialog.patch_note.text())
+                    output = Path(directory) / "pipe_bend_90_degree.stl"
+                    dialog.output.setText(str(output))
+                    dialog._generate()
+                    self.assertTrue(output.is_file())
+                    manifest_path = output.with_suffix(".geometry.json")
+                    self.assertTrue(manifest_path.is_file())
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    self.assertEqual(manifest["asset_id"], "geometry.pipe_bend.90_degree")
+                    self.assertTrue(manifest["surface"]["watertight"])
+                    self.assertLess(manifest["surface"]["relative_volume_error"], 0.01)
+                    region_manifest = json.loads(
+                        (output.parent / "region_manifest.json").read_text(encoding="utf-8")
+                    )
+                    self.assertEqual(
+                        set(region_manifest["regions"]), {"wall", "inflow", "outflow"}
+                    )
+                    self.assertEqual(
+                        region_manifest["closed_surface_sha256"],
+                        manifest["stl_sha256"],
+                    )
+                    self.assertEqual(len(manifest["patch_triangle_indices"]["inflow"]), 48)
+                    self.assertEqual(len(manifest["patch_triangle_indices"]["outflow"]), 48)
+                    self.assertEqual(dialog.generated_geometry, "pipe_bend_90_degree")
+                    self.assertEqual(dialog.generated_stl, output.resolve())
+                    self.assertTrue(dialog.open_gmsh_button.isEnabled())
+                    self.assertIn("inflow", dialog.result_view.toPlainText())
+                    self.assertIn("outflow", dialog.result_view.toPlainText())
+                    self.assertIn("Region manifest:", dialog.result_view.toPlainText())
+                    self.assertIn("wall:", dialog.result_view.toPlainText())
+                    project = create_mesh_project_from_stl(
+                        self.repository_root, output, "pipe-bend-ui"
+                    )
+                    self.assertTrue(
+                        (project["stl_path"].parent / "region_manifest.json").is_file()
+                    )
+                    gmsh_dialog = StlToGmshDialog(
+                        self.repository_root, project=project
+                    )
+                    try:
+                        self.assertEqual(
+                            gmsh_dialog.geometry_preset.currentData(),
+                            "pipe_bend_90_degree",
+                        )
+                        self.assertFalse(gmsh_dialog.geometry_preset.isEnabled())
+                        self.assertFalse(gmsh_dialog.boundary_name.isEnabled())
+                        self.assertFalse(gmsh_dialog.volume_name.isEnabled())
+                        self.assertEqual(gmsh_dialog.stl_path.text(), str(project["stl_path"]))
+                    finally:
+                        gmsh_dialog.close()
+                finally:
+                    dialog.close()
 
 if __name__ == "__main__":
     unittest.main()

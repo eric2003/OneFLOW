@@ -46,12 +46,19 @@ when their typed contracts have concrete repository evidence. The root
 ## Mesh Generation geometry library
 
 Geometry Library is the single entry point for registered geometry assets.
-Selecting the built-in unit sphere, 6:1 prolate spheroid or internal-flow
-cylinder opens its corresponding parameter editor and deterministic STL
-generator. The standalone Generate STL Geometry navigation item has been
-removed. Definition parameters (such as radius and semi-axes) are distinct
-from representation parameters (such as surface subdivisions). Generated
-STL files and `.geometry.json` sidecars are written under
+Selecting the built-in unit sphere, 6:1 prolate spheroid, internal-flow
+cylinder or 90-degree pipe bend opens its corresponding parameter editor and
+deterministic STL generator. The pipe-bend editor controls pipe radius,
+centreline bend radius, turn angle, inlet/outlet straight lengths and
+circumferential/bend/straight-section divisions. The pipe-bend asset is
+registered in the Geometry Asset catalog and is available from the Geometry
+Library. The Python generator exports a checksum-bound region manifest and
+separate wall/inflow/outflow STL patches; mesh-project import preserves them
+for the existing generic region-aware Gmsh volume-meshing route. A registered
+pipe-bend mesh Case, CGNS handoff and CFD validation are still outstanding. The standalone Generate STL Geometry navigation item
+has been removed. Definition parameters (such as radius and semi-axes) are
+distinct from representation parameters (such as surface subdivisions).
+Generated STL files and `.geometry.json` sidecars are written under
 `~/.oneflow/mesh-generation/generated_stl/<geometry-id>/` (or `ONEFLOW_HOME`).
 The sidecar binds the stable asset ID and definition hash to generator source
 and STL checksums.

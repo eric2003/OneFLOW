@@ -205,9 +205,12 @@ preparation entry links the deterministic STL generator, geometry manifests,
 STL readers and topology validators; the pipeline documentation distinguishes
 the generic ClassifySurfaces/CreateGeometry closed-shell route from the
 manifest-driven OpenCASCADE cylinder route. The cylinder native C++ and Python
-reference Cases are registered separately. Remaining work includes broader
-production-backed mesh evidence, cube progression entries, and explicit
-execution records for each adapter and geometry family. A source or test link
+reference Cases are registered separately. The geometry-asset preparation group now also includes the 90-degree pipe-bend
+asset contract, with analytic swept-surface equations, separate Python/C++17
+generators and geometry-only verification limits. It is not yet a registered
+volume-mesh Case. Remaining work includes broader production-backed mesh
+evidence, cube progression entries, curved-shell Gmsh reconstruction and
+explicit execution records for each adapter and geometry family. A source or test link
 remains a declaration, not a claim that the linked operation ran.
 
 Related documents

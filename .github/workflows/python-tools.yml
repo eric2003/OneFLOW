@@ -81,6 +81,54 @@ jobs:
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_run_report
       - name: Test parameterized 3-D STL geometry generation
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_geometry_generation
+      - name: Test 90-degree pipe-bend STL geometry
+        run: python -m unittest grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry
+      - name: Compile and smoke-test C++ pipe-bend geometry generator
+        if: runner.os == 'Linux'
+        run: |
+          c++ -std=c++17 -O2 -Wall -Wextra -pedantic grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/cpp/generate_pipe_bend.cpp -o "$RUNNER_TEMP/pipe_bend_generator"
+          "$RUNNER_TEMP/pipe_bend_generator" --output "$RUNNER_TEMP/pipe_bend_90_degree.stl"
+          test -s "$RUNNER_TEMP/pipe_bend_90_degree.stl"
+          test -s "$RUNNER_TEMP/pipe_bend_90_degree.geometry-report.json"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          report = Path(os.environ["RUNNER_TEMP"]) / "pipe_bend_90_degree.geometry-report.json"
+          data = json.loads(report.read_text(encoding="utf-8"))
+          assert data["schema"] == "oneflow.pipe-bend-geometry-report"
+          assert data["patch_triangle_counts"] == {"wall": 4608, "inflow": 48, "outflow": 48}
+          PY
+          ONEFLOW_PIPE_BEND_CPP_STL="$RUNNER_TEMP/pipe_bend_90_degree.stl" python -m unittest grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_cpp_generator_matches_python_geometry
+      - name: Configure MSVC developer environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Compile and smoke-test C++ pipe-bend geometry generator
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $outDir = Join-Path $env:RUNNER_TEMP "pipe_bend"
+          New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+          cl /nologo /std:c++17 /EHsc /O2 /Z7 "/Fo$outDir\pipe_bend_generator.obj" "/Fe$outDir\pipe_bend_generator.exe" grid\stl_to_gmsh\3d\pipe_bend\90_degree\geometry\cpp\generate_pipe_bend.cpp
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & "$outDir\pipe_bend_generator.exe" --output "$outDir\pipe_bend_90_degree.stl"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (!(Test-Path "$outDir\pipe_bend_90_degree.stl")) { throw "C++ pipe-bend STL was not generated" }
+          if (!(Test-Path "$outDir\pipe_bend_90_degree.geometry-report.json")) { throw "C++ pipe-bend report was not generated" }
+          @'
+          import json
+          import os
+          from pathlib import Path
+          report = Path(os.environ["RUNNER_TEMP"]) / "pipe_bend" / "pipe_bend_90_degree.geometry-report.json"
+          data = json.loads(report.read_text(encoding="utf-8"))
+          assert data["schema"] == "oneflow.pipe-bend-geometry-report"
+          assert data["patch_triangle_counts"] == {"wall": 4608, "inflow": 48, "outflow": 48}
+          '@ | python -
+          $env:ONEFLOW_PIPE_BEND_CPP_STL = "$outDir\pipe_bend_90_degree.stl"
+          python -m unittest grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_cpp_generator_matches_python_geometry
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Test native and Python STL-to-Gmsh Cases
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases
       - name: Test Mesh-to-CFD Validation graph
@@ -244,8 +292,8 @@ jobs:
           $gmsh = Get-ChildItem -Path $destination -Filter gmsh.exe -Recurse | Select-Object -First 1
           if ($null -eq $gmsh) { throw "Gmsh executable was not found in the downloaded archive." }
           $gmsh.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      - name: Run generic STL cutting and Gmsh volume-mesh integration
-        run: python -m unittest grid.tests.python.stl_import.test_generic_stl_surface_cut
+      - name: Run generic STL cutting and pipe-bend Gmsh volume-mesh integration
+        run: python -m unittest grid.tests.python.stl_import.test_generic_stl_surface_cut grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_gmsh_generates_pipe_bend_volume_with_named_physical_groups
 
   background-task-python-315:
     name: Background task lifecycle (Windows, Python 3.15)

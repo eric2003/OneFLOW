@@ -1,0 +1,214 @@
+"""Regression tests for the 90-degree pipe-bend STL geometry asset."""
+from __future__ import annotations
+
+import importlib.util
+import hashlib
+import json
+import os
+import shutil
+import math
+import tempfile
+import unittest
+from pathlib import Path
+
+from grid.stl_import.reader import read_stl
+from grid.stl_import.validation import analyze_surface
+from grid.stl_to_gmsh.converter import convert
+
+ROOT = Path(__file__).resolve().parents[4]
+GENERATOR = (
+    ROOT / "grid/stl_to_gmsh/3d/pipe_bend/90_degree"
+    / "geometry/python/generate_pipe_bend.py"
+)
+SPEC = importlib.util.spec_from_file_location("oneflow_pipe_bend_generator", GENERATOR)
+assert SPEC and SPEC.loader
+MODULE = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(MODULE)
+
+
+class PipeBendGeometryTest(unittest.TestCase):
+    def test_default_bend_is_watertight_and_has_three_semantic_patches(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            result = MODULE.generate(Path(temporary) / "pipe_bend_90_degree.stl")
+            surface = result["surface"]
+            self.assertTrue(surface["watertight"])
+            self.assertEqual(surface["connected_component_count"], 1)
+            self.assertEqual(surface["boundary_or_nonmanifold_edge_count"], 0)
+            self.assertEqual(surface["inconsistently_oriented_edge_count"], 0)
+            self.assertGreater(surface["signed_volume"], 0.0)
+            self.assertLess(surface["relative_volume_error"], 0.01)
+            patches = result["patch_triangle_indices"]
+            self.assertEqual(len(patches["inflow"]), 48)
+            self.assertEqual(len(patches["outflow"]), 48)
+            self.assertEqual(len(patches["wall"]), 2 * 48 * (12 + 24 + 12))
+            self.assertEqual(sum(map(len, patches.values())), surface["triangle_count"])
+            manifest = json.loads(result["manifest"].read_text(encoding="utf-8"))
+            self.assertEqual(manifest["asset_id"], "geometry.pipe_bend.90_degree")
+            self.assertEqual(manifest["definition"]["parameters"]["radius"], 0.5)
+            self.assertEqual(len(manifest["definition_sha256"]), 64)
+            self.assertEqual(len(manifest["generator"]["source_sha256"]), 64)
+            self.assertEqual(
+                manifest["intended_gmsh_physical_groups"]["surface"],
+                ["wall", "inflow", "outflow"],
+            )
+            self.assertEqual(
+                manifest["intended_gmsh_physical_groups"]["volume"],
+                ["fluid_domain"],
+            )
+            region_manifest_path = Path(temporary) / "region_manifest.json"
+            region_manifest = json.loads(region_manifest_path.read_text(encoding="utf-8"))
+            self.assertEqual(region_manifest["schema"], "oneflow.stl-surface-regions")
+            self.assertEqual(
+                region_manifest["closed_surface_sha256"],
+                hashlib.sha256(result["stl"].read_bytes()).hexdigest(),
+            )
+            for name in ("wall", "inflow", "outflow"):
+                record = region_manifest["regions"][name]
+                region_file = Path(temporary) / record["file"]
+                self.assertTrue(region_file.is_file())
+                self.assertEqual(len(read_stl(region_file)), record["triangle_count"])
+                self.assertEqual(
+                    hashlib.sha256(region_file.read_bytes()).hexdigest(), record["sha256"]
+                )
+
+            layout = Path(temporary) / "layout.json"
+            layout.write_text(json.dumps({
+                "mesh_dimension": 3,
+                "volume_mesh": "region_aware_closed_surface_automatic_tetrahedra",
+                "region_manifest": str(region_manifest_path),
+                "mesh_size_min": 0.2,
+                "mesh_size_max": 0.2,
+            }), encoding="utf-8")
+            geo = Path(temporary) / "pipe_bend.geo"
+            conversion = convert(result["stl"], layout, geo)
+            self.assertEqual(conversion["geometry"], "region_aware_generic_stl")
+            self.assertEqual(
+                conversion["region_triangle_counts"],
+                {"wall": 4608, "inflow": 48, "outflow": 48},
+            )
+            geometry_text = geo.read_text(encoding="utf-8")
+            self.assertIn("Coherence Mesh;", geometry_text)
+            self.assertIn("Surface Loop(1) = {wall[], inflow[], outflow[]};", geometry_text)
+            self.assertIn('Physical Surface("inflow")', geometry_text)
+            self.assertIn('Physical Surface("outflow")', geometry_text)
+
+    def test_analytic_volume_and_turn_angle_are_parameterized(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            params = {
+                "radius": 0.25, "bend_radius": 0.8,
+                "inlet_length": 1.0, "outlet_length": 2.0,
+                "angle_degrees": 45.0, "circumferential_divisions": 24,
+                "bend_divisions": 16, "inlet_divisions": 8, "outlet_divisions": 8,
+            }
+            result = MODULE.generate(Path(temporary) / "bend45.stl", **params)
+            expected = math.pi * params["radius"]**2 * (
+                params["inlet_length"] + params["outlet_length"]
+                + params["bend_radius"] * math.radians(params["angle_degrees"])
+            )
+            self.assertAlmostEqual(result["surface"]["analytic_volume"], expected)
+            self.assertLess(result["surface"]["relative_volume_error"], 0.02)
+
+    def test_region_manifest_rejects_wrong_patch_geometry_even_when_counts_match(self):
+        from grid.stl_to_gmsh.converter import Stl2DError
+
+        with tempfile.TemporaryDirectory() as temporary:
+            stl = Path(temporary) / "pipe_bend_90_degree.stl"
+            MODULE.generate(stl)
+            region_manifest_path = stl.parent / "region_manifest.json"
+            manifest = json.loads(region_manifest_path.read_text(encoding="utf-8"))
+            inflow = stl.parent / manifest["regions"]["inflow"]["file"]
+            outflow = stl.parent / manifest["regions"]["outflow"]["file"]
+            shutil.copyfile(outflow, inflow)
+            manifest["regions"]["inflow"]["sha256"] = hashlib.sha256(
+                inflow.read_bytes()
+            ).hexdigest()
+            region_manifest_path.write_text(
+                json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            layout = stl.parent / "layout.json"
+            layout.write_text(json.dumps({
+                "mesh_dimension": 3,
+                "volume_mesh": "region_aware_closed_surface_automatic_tetrahedra",
+                "region_manifest": str(region_manifest_path),
+                "mesh_size_min": 0.2,
+                "mesh_size_max": 0.2,
+            }), encoding="utf-8")
+            with self.assertRaisesRegex(Stl2DError, "exact triangle partition"):
+                convert(stl, layout, stl.parent / "invalid.geo")
+
+    @unittest.skipUnless(
+        os.environ.get("ONEFLOW_RUN_GMSH_TESTS") == "1"
+        and (shutil.which("gmsh") or shutil.which("gmsh.exe")),
+        "Set ONEFLOW_RUN_GMSH_TESTS=1 and install Gmsh for this integration test",
+    )
+    def test_gmsh_generates_pipe_bend_volume_with_named_physical_groups(self):
+        from grid.stl_to_gmsh.generate_volume_mesh import generate
+
+        gmsh = shutil.which("gmsh") or shutil.which("gmsh.exe")
+        with tempfile.TemporaryDirectory() as temporary:
+            stl = Path(temporary) / "pipe_bend_90_degree.stl"
+            MODULE.generate(stl)
+            report = generate(
+                stl, Path(temporary) / "pipe_bend_90_degree.msh",
+                gmsh, 0.25, 0.25,
+            )
+            self.assertEqual(report["stages"]["geometry"]["status"], "PASS")
+            self.assertEqual(report["stages"]["gmsh"]["status"], "PASS")
+            self.assertEqual(report["stages"]["physical_groups"]["status"], "PASS")
+            groups = {
+                (item["dimension"], item["name"])
+                for item in report["mesh_summary"]["physical_groups"]
+            }
+            self.assertEqual(groups, {
+                (2, "wall"), (2, "inflow"), (2, "outflow"), (3, "fluid_domain")
+            })
+            self.assertGreater(report["mesh_summary"]["tetrahedron_elements"], 0)
+
+    @unittest.skipUnless(
+        os.environ.get("ONEFLOW_PIPE_BEND_CPP_STL"),
+        "Set ONEFLOW_PIPE_BEND_CPP_STL after compiling the C++ generator",
+    )
+    def test_cpp_generator_matches_python_geometry(self):
+        cpp_stl = Path(os.environ["ONEFLOW_PIPE_BEND_CPP_STL"])
+        self.assertTrue(cpp_stl.is_file())
+        with tempfile.TemporaryDirectory() as temporary:
+            python_stl = MODULE.generate(
+                Path(temporary) / "pipe_bend_python.stl"
+            )["stl"]
+            cpp_metrics = analyze_surface(read_stl(cpp_stl))
+            python_metrics = analyze_surface(read_stl(python_stl))
+            for metrics in (cpp_metrics, python_metrics):
+                self.assertEqual(metrics["status"], "valid")
+                self.assertTrue(metrics["closed"])
+                self.assertTrue(metrics["edge_manifold"])
+                self.assertTrue(metrics["consistently_oriented"])
+                self.assertEqual(metrics["connected_component_count"], 1)
+            self.assertEqual(cpp_metrics["triangle_count"], python_metrics["triangle_count"])
+            self.assertEqual(
+                cpp_metrics["welded_vertex_count"], python_metrics["welded_vertex_count"]
+            )
+            self.assertAlmostEqual(
+                cpp_metrics["surface_area"], python_metrics["surface_area"], delta=1.0e-4
+            )
+            cpp_volume = cpp_metrics["components"][0]["signed_volume"]
+            python_volume = python_metrics["components"][0]["signed_volume"]
+            self.assertAlmostEqual(cpp_volume, python_volume, delta=1.0e-5)
+            for axis in ("x", "y", "z"):
+                for index in (0, 1):
+                    self.assertAlmostEqual(
+                        cpp_metrics["coordinate_bounds"][axis][index],
+                        python_metrics["coordinate_bounds"][axis][index],
+                        delta=1.0e-6,
+                    )
+
+    def test_invalid_geometry_and_source_tree_output_are_rejected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            with self.assertRaisesRegex(ValueError, "bend_radius"):
+                MODULE.build_surface(radius=0.5, bend_radius=0.5)
+            with self.assertRaisesRegex(ValueError, "outside the OneFLOW source tree"):
+                MODULE.generate(ROOT / "build" / "forbidden_pipe_bend.stl")
+
+
+if __name__ == "__main__":
+    unittest.main()

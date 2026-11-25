@@ -411,6 +411,15 @@ def validate_closed_genus_zero_surface(
     }
 
 
+def _triangle_geometry_key(triangle: Triangle, tolerance: float) -> tuple:
+    """Return an orientation-independent, tolerance-quantized triangle key."""
+    quantum = max(tolerance, 1.0e-12)
+    return tuple(sorted(
+        tuple(int(round(float(value) / quantum)) for value in point)
+        for point in triangle
+    ))
+
+
 def _region_aware_closed_surface_volume_geo(
     stl: Path, triangles: list[Triangle], config: dict, tolerance: float
 ) -> tuple[str, dict]:
@@ -432,6 +441,7 @@ def _region_aware_closed_surface_volume_geo(
     import shlex
     region_paths = {}
     region_counts = {}
+    region_triangle_keys: Counter[tuple] = Counter()
     for name in ("wall", "inflow", "outflow"):
         record = regions[name]
         if not isinstance(record, dict):
@@ -449,8 +459,17 @@ def _region_aware_closed_surface_volume_geo(
             raise Stl2DError(f"{name} region triangle count does not match its manifest")
         region_paths[name] = path
         region_counts[name] = len(region_triangles)
-    if sum(region_counts.values()) != len(triangles):
-        raise Stl2DError("wall, inflow and outflow triangle counts do not cover the closed STL")
+        region_triangle_keys.update(
+            _triangle_geometry_key(triangle, tolerance)
+            for triangle in region_triangles
+        )
+    closed_triangle_keys = Counter(
+        _triangle_geometry_key(triangle, tolerance) for triangle in triangles
+    )
+    if region_triangle_keys != closed_triangle_keys:
+        raise Stl2DError(
+            "wall, inflow and outflow patch STLs must form an exact triangle partition of the closed STL"
+        )
     if hashlib.sha256(stl.read_bytes()).hexdigest() != manifest.get("closed_surface_sha256"):
         raise Stl2DError("closed STL checksum does not match its region manifest")
 

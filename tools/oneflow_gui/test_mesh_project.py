@@ -11,6 +11,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from tools.oneflow_gui.path_utils import paths_equal
+from grid.stl_to_gmsh.pipe_bend_geometry import generate as generate_pipe_bend
 from tools.oneflow_gui.mesh_project import (
     create_mesh_project_from_stl,
     create_mesh_project_from_template,
@@ -150,6 +151,39 @@ class MeshProjectTest(unittest.TestCase):
         self.assertEqual(updated["geometry"], "cylinder_internal_flow")
         self.assertTrue(updated["stl_path"].with_suffix(".geometry.json").is_file())
 
+
+    def test_pipe_bend_region_manifest_and_patch_files_are_preserved(self) -> None:
+        source_directory = self.home / "generated_pipe_bend"
+        source_directory.mkdir()
+        source_stl = source_directory / "pipe_bend_90_degree.stl"
+        generated = generate_pipe_bend(source_stl)
+        project = create_mesh_project_from_stl(
+            self.repository_root, source_stl, "pipe_bend_90_degree"
+        )
+        self.assertEqual(project["geometry"], "pipe_bend_90_degree")
+        self.assertEqual(project["boundary_regions"], ["inflow", "outflow", "wall"])
+        copied_stl = project["stl_path"]
+        copied_manifest = copied_stl.parent / "region_manifest.json"
+        self.assertTrue(copied_manifest.is_file())
+        region_manifest = json.loads(copied_manifest.read_text(encoding="utf-8"))
+        self.assertEqual(
+            region_manifest["closed_surface_sha256"],
+            hashlib.sha256(copied_stl.read_bytes()).hexdigest(),
+        )
+        for name, record in region_manifest["regions"].items():
+            region_file = copied_stl.parent / record["file"]
+            self.assertTrue(region_file.is_file(), name)
+            self.assertEqual(
+                hashlib.sha256(region_file.read_bytes()).hexdigest(),
+                record["sha256"],
+            )
+        copied_geometry_manifest = json.loads(
+            copied_stl.with_suffix(".geometry.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            copied_geometry_manifest["region_manifest"], "region_manifest.json"
+        )
+        self.assertTrue(generated["region_manifest_path"].is_file())
 
     def test_project_reopen_recovers_verified_geometry_and_validation_lineage(self) -> None:
         source = self.home / "generated.stl"

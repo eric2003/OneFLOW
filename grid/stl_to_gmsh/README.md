@@ -274,3 +274,18 @@ modified in the source checkout. Both implementations are registered in the norm
 externally by `run_cases.py`. The C++ implementation validates the closed
 surface topology and manifest patch partition before constructing the OCC
 cylinder; its validation is intentionally independent of the Python adapter.
+
+
+## 3D curved pipe-bend geometry
+
+The first curved-pipe asset is registered as `geometry.pipe_bend.90_degree`
+in `grid/geometry/catalog.json`. Its independent Python and C++17 geometry
+generators live under `3d/pipe_bend/90_degree/geometry/`. The Python generator
+writes a checksum-bound closed STL, wall/inflow/outflow patch STL files and a
+`region_manifest.json`; the existing generic region-aware volume-mesh route
+consumes those files without pipe-bend-specific geometry logic. The GUI can
+import the generated STL into a user mesh project and open the Gmsh workflow.
+The C++17 generator currently provides the parallel analytic STL generator
+and geometry report; its region-manifest handoff is not yet implemented. See
+`../../docs/source/stl_pipe_bend.rst` and the geometry README for equations,
+defaults, commands and verification scope.

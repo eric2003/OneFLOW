@@ -220,6 +220,7 @@ _PYTHON_UNIT_TESTS = (
     ("STL-to-Gmsh geometry tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_geometry")),
     ("STL-to-Gmsh run report tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_run_report")),
     ("STL geometry generator tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_stl_geometry_generation")),
+    ("Pipe-bend STL geometry tests", ("-m", "unittest", "grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry")),
     ("STL surface validation tests", ("-m", "unittest", "grid.tests.python.stl_import.test_surface_validation")),
     ("Analytic cylinder cutting tests", ("-m", "unittest", "grid.tests.python.stl_import.test_analytic_cylinder_cut")),
     ("Generic STL surface cutting tests", ("-m", "unittest", "grid.tests.python.stl_import.test_generic_stl_surface_cut")),

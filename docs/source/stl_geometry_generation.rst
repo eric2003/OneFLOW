@@ -8,13 +8,24 @@ This document records the geometric definitions and surface-construction
 rules for the built-in curved 3-D STL geometries. It is separate from the
 Gmsh volume-meshing contract.
 
-The built-in geometry library currently provides three parameterized surface
+The built-in geometry library currently provides four parameterized surface
 generators:
 
 * Sphere: a closed spherical surface.
 * Prolate spheroid: a closed elongated ellipsoidal surface.
 * Cylinder internal flow: a closed cylindrical fluid-domain boundary with
   separately identified inlet, outlet and wall patches.
+* 90-degree pipe bend: a swept circular-section fluid-domain boundary with
+  straight inlet/outlet extensions and distinct wall, inflow and outflow patches.
+
+The 90-degree curved-pipe geometry asset is registered at
+``grid/stl_to_gmsh/3d/pipe_bend/90_degree``. Its first slice contains
+independent Python and C++17 swept-surface generators and geometry-level
+topology tests. It is documented in :doc:`stl_pipe_bend` and available from the
+Generate STL Geometry dialog and Geometry Library. The Python generator emits
+three patch STL files and a region manifest consumed by the existing generic
+region-aware Gmsh volume route; a registered mesh Case and CFD handoff remain
+separate next-stage work.
 
 The GUI entry is Mesh Generation -> Generate STL Geometry. User-generated STL
 variants and their companion .geometry.json manifests are written to the user
@@ -43,6 +54,9 @@ resolutions.
 +----------------------+--------------------------+------------------------------+
 | Cylinder internal    | radius = 1, length = 4   | N_theta = 48, N_x = 16       |
 | flow                 |                          |                              |
++----------------------+--------------------------+------------------------------+
+| 90-degree pipe bend  | r = 0.5, Rc = 1, theta=90 | N_theta=48, N_bend=24,       |
+|                      | Lin=Lout=1.5             | N_in=N_out=12                |
 +----------------------+--------------------------+------------------------------+
 
 The default coordinate unit is metres. The GUI allows m, mm, cm and in as
@@ -262,4 +276,5 @@ Related mesh cases
 * :doc:`stl_to_gmsh_sphere` — current unit-sphere Case.
 * :doc:`stl_to_gmsh_prolate_spheroid` — current 6:1 spheroid Case.
 * `grid/stl_to_gmsh/3d/cylinder_internal_flow/automatic_tetrahedra/README.md` — canonical internal-flow cylinder asset and reference Case.
+* :doc:`stl_pipe_bend` — first curved-pipe geometry asset and its current verification boundary.
 * :doc:`stl_to_gmsh_commands` — direct closed-STL-to-volume-mesh command.

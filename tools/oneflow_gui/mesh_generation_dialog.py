@@ -43,6 +43,7 @@ from .mesh_project import (
     save_mesh_project_settings,
 )
 from grid.stl_to_gmsh.generate_stl_geometry import generate_geometry
+from grid.stl_to_gmsh.pipe_bend_geometry import generate as generate_pipe_bend
 from grid.stl_to_gmsh.generate_volume_mesh import (
     DEFAULT_MESH_SIZE,
     DEFAULT_SPHERE_STL,
@@ -298,12 +299,14 @@ class StlGeometryDialog(QDialog):
         self.geometry.addItem("Sphere", "sphere")
         self.geometry.addItem("Prolate Spheroid", "prolate_spheroid")
         self.geometry.addItem("Cylinder — Internal Flow", "cylinder_internal_flow")
+        self.geometry.addItem("90° Pipe Bend — Internal Flow", "pipe_bend_90_degree")
         selector_form.addRow("Geometry asset", self.geometry)
         settings_layout.addLayout(selector_form)
         asset_to_geometry = {
             "geometry.sphere.unit": "sphere",
             "geometry.spheroid.prolate_6_to_1": "prolate_spheroid",
             "geometry.cylinder.internal_flow": "cylinder_internal_flow",
+            "geometry.pipe_bend.90_degree": "pipe_bend_90_degree",
         }
         if asset_id is not None:
             geometry_id = asset_to_geometry.get(asset_id)
@@ -346,6 +349,28 @@ class StlGeometryDialog(QDialog):
         self.axial = QLineEdit("16")
         cylinder_form.addRow("Axial divisions", self.axial)
         settings_layout.addWidget(self.cylinder_group)
+
+        self.pipe_bend_group = QGroupBox("90-Degree Pipe-Bend Parameters")
+        pipe_bend_form = QFormLayout(self.pipe_bend_group)
+        self.pipe_bend_radius = QLineEdit("0.5")
+        self.pipe_bend_bend_radius = QLineEdit("1.0")
+        self.pipe_bend_angle = QLineEdit("90")
+        self.pipe_bend_inlet_length = QLineEdit("1.5")
+        self.pipe_bend_outlet_length = QLineEdit("1.5")
+        self.pipe_bend_circumferential = QLineEdit("48")
+        self.pipe_bend_bend_divisions = QLineEdit("24")
+        self.pipe_bend_inlet_divisions = QLineEdit("12")
+        self.pipe_bend_outlet_divisions = QLineEdit("12")
+        pipe_bend_form.addRow("Pipe radius", self.pipe_bend_radius)
+        pipe_bend_form.addRow("Centreline bend radius", self.pipe_bend_bend_radius)
+        pipe_bend_form.addRow("Bend angle (degrees)", self.pipe_bend_angle)
+        pipe_bend_form.addRow("Inlet straight length", self.pipe_bend_inlet_length)
+        pipe_bend_form.addRow("Outlet straight length", self.pipe_bend_outlet_length)
+        pipe_bend_form.addRow("Circumferential divisions", self.pipe_bend_circumferential)
+        pipe_bend_form.addRow("Bend divisions", self.pipe_bend_bend_divisions)
+        pipe_bend_form.addRow("Inlet / outlet divisions", self.pipe_bend_inlet_divisions)
+        pipe_bend_form.addRow("Outlet divisions", self.pipe_bend_outlet_divisions)
+        settings_layout.addWidget(self.pipe_bend_group)
 
         common_group = QGroupBox("Common Output Settings")
         common_form = QFormLayout(common_group)
@@ -397,20 +422,31 @@ class StlGeometryDialog(QDialog):
         is_sphere = geometry == "sphere"
         is_spheroid = geometry == "prolate_spheroid"
         is_cylinder = geometry == "cylinder_internal_flow"
+        is_pipe_bend = geometry == "pipe_bend_90_degree"
         self.sphere_group.setVisible(is_sphere)
         self.spheroid_group.setVisible(is_spheroid)
         self.cylinder_group.setVisible(is_cylinder)
+        self.pipe_bend_group.setVisible(is_pipe_bend)
         self.open_gmsh_button.setEnabled(
             self.generated_stl is not None and self.generated_geometry == geometry
         )
-        self.patch_note.setText(
-            "One closed wall surface; the STL is a piecewise-planar approximation."
-            if not is_cylinder else
-            "The closed STL contains wall, inflow and outflow patches. End caps close "
-            "the shell geometrically but are not solid walls. Patch identities are "
-            "stored in the companion .geometry.json manifest. The generic STL-to-Gmsh "
-            "path does not yet reconstruct these separate Physical Surfaces."
-        )
+        if is_pipe_bend:
+            self.patch_note.setText(
+                "The closed swept shell contains separate wall, inflow and outflow STL "
+                "patches plus a checksum-bound region manifest. The generic region-aware "
+                "STL-to-Gmsh route preserves these Physical Surfaces without using "
+                "pipe-bend equations. Inlet/outlet disks close the fluid volume; they "
+                "are not solid walls."
+            )
+        elif is_cylinder:
+            self.patch_note.setText(
+                "The closed STL contains wall, inflow and outflow patches. End caps close "
+                "the shell geometrically but are not solid walls. Patch identities are "
+                "stored in the companion .geometry.json manifest. The generic STL-to-Gmsh "
+                "path does not yet reconstruct these separate Physical Surfaces."
+            )
+        else:
+            self.patch_note.setText("One closed wall surface; the STL is a piecewise-planar approximation.")
         self._active_geometry = geometry
 
     def _browse_output(self) -> None:
@@ -439,6 +475,18 @@ class StlGeometryDialog(QDialog):
                     ),
                     "subdivisions": int(self.spheroid_subdivisions.text()),
                 }
+            elif geometry == "pipe_bend_90_degree":
+                kwargs = {
+                    "radius": float(self.pipe_bend_radius.text()),
+                    "bend_radius": float(self.pipe_bend_bend_radius.text()),
+                    "angle_degrees": float(self.pipe_bend_angle.text()),
+                    "inlet_length": float(self.pipe_bend_inlet_length.text()),
+                    "outlet_length": float(self.pipe_bend_outlet_length.text()),
+                    "circumferential_divisions": int(self.pipe_bend_circumferential.text()),
+                    "bend_divisions": int(self.pipe_bend_bend_divisions.text()),
+                    "inlet_divisions": int(self.pipe_bend_inlet_divisions.text()),
+                    "outlet_divisions": int(self.pipe_bend_outlet_divisions.text()),
+                }
             else:
                 kwargs = {
                     "radius": float(self.cylinder_radius.text()),
@@ -450,7 +498,11 @@ class StlGeometryDialog(QDialog):
             output = Path(self.output.text()).expanduser()
             if not self.output.text().strip():
                 raise ValueError("Choose an output STL path.")
-            report = generate_geometry(geometry, output, **kwargs)
+            report = (
+                generate_pipe_bend(output, **kwargs)
+                if geometry == "pipe_bend_90_degree"
+                else generate_geometry(geometry, output, **kwargs)
+            )
         except (OSError, ValueError) as error:
             QMessageBox.warning(self, "STL generation failed", str(error))
             return
@@ -459,20 +511,25 @@ class StlGeometryDialog(QDialog):
         self.open_gmsh_button.setEnabled(True)
         surface = report["surface"]
         patch_counts = {name: len(indices) for name, indices in report["patch_triangle_indices"].items()}
-        self.result_view.setPlainText(
-            "STL generated successfully.\n"
-            f"Geometry: {geometry}\n"
-            f"STL: {report['stl']}\n"
-            f"Manifest: {report['manifest']}\n"
-            f"Units: {report['units']}\n"
-            f"Vertices: {surface['vertex_count']}\n"
-            f"Triangles: {surface['triangle_count']}\n"
-            f"Surface area: {surface['surface_area']:.9g}\n"
-            f"Signed volume: {surface['signed_volume']:.9g}\n"
-            f"Watertight: {surface['watertight']}\n"
-            f"Patch triangles: {patch_counts}\n"
-            f"SHA-256: {report['stl_sha256']}"
-        )
+        result_lines = [
+            "STL generated successfully.",
+            f"Geometry: {geometry}",
+            f"STL: {report['stl']}",
+            f"Manifest: {report['manifest']}",
+            f"Units: {report['units']}",
+            f"Vertices: {surface['vertex_count']}",
+            f"Triangles: {surface['triangle_count']}",
+            f"Surface area: {surface['surface_area']:.9g}",
+            f"Signed volume: {surface['signed_volume']:.9g}",
+            f"Watertight: {surface['watertight']}",
+            f"Patch triangles: {patch_counts}",
+            f"SHA-256: {report['stl_sha256']}",
+        ]
+        if report.get("region_manifest_path"):
+            result_lines.append(f"Region manifest: {report['region_manifest_path']}")
+            for name, region_path in report.get("region_files", {}).items():
+                result_lines.append(f"  {name}: {region_path}")
+        self.result_view.setPlainText("\n".join(result_lines))
 
     def _open_in_gmsh(self) -> None:
         if self.generated_stl is None or not self.generated_stl.is_file():
@@ -674,6 +731,16 @@ class StlToGmshDialog(QDialog):
                 self.geometry_preset.setCurrentIndex(
                     self.geometry_preset.findData("cylinder_internal_flow")
                 )
+                self.boundary_name.setEnabled(False)
+                self.volume_name.setEnabled(False)
+            elif project.get("geometry") == "pipe_bend_90_degree":
+                self.geometry_preset.addItem(
+                    "90-degree pipe bend STL (imported project)", "pipe_bend_90_degree"
+                )
+                self.geometry_preset.setCurrentIndex(
+                    self.geometry_preset.findData("pipe_bend_90_degree")
+                )
+                self.geometry_preset.setEnabled(False)
                 self.boundary_name.setEnabled(False)
                 self.volume_name.setEnabled(False)
             elif template_id == "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra":
@@ -1044,6 +1111,9 @@ class StlToGmshDialog(QDialog):
             f"Provenance: {provenance.get('kind', 'unknown').upper()}",
             str(provenance.get("notes", "No verified source record is available.")),
         ]
+        boundary_regions = self._project.get("boundary_regions") or []
+        if boundary_regions:
+            lines.append(f"Boundary patches: {', '.join(boundary_regions)}")
         asset_id = lineage.get("asset_id")
         if asset_id:
             lines.append(f"Geometry asset: {asset_id}")

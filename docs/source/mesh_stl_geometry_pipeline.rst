@@ -15,6 +15,9 @@ The current reference families are:
 * 6:1 prolate spheroid: a stretched unit-sphere surface, also wall-only.
 * Internal-flow cylinder: a closed shell whose lateral wall, inlet cap and
   outlet cap have distinct identities.
+* 90-degree pipe bend: a swept circular section with straight inlet/outlet
+  extensions; the Python generator exports a closed STL and three named patch
+  STLs for the generic region-aware volume route.
 
 An STL is a triangulated boundary representation. It is not a volume mesh,
 does not contain a standard Gmsh Physical Group table, and does not encode
@@ -164,6 +167,35 @@ classification. It creates separate Physical Surfaces ``wall``,
 ``fluid_domain``. Gmsh then generates the tetrahedral volume mesh. This
 method preserves the CFD patch intent while using the STL and manifest as
 the checked-in geometry asset contract.
+
+Curved pipe-bend route
+~~~~~~~~~~~~~~~~~~~~~~
+
+The 90-degree pipe bend does not use an analytic OCC torus or cylinder.
+Its Python geometry generator writes the closed STL, separate wall/inflow/
+outflow patch STLs, a checksum-bound geometry manifest and the
+``region_manifest.json`` file using the existing
+``oneflow.stl-surface-regions`` schema. The generic
+``generate_volume_mesh.py`` entry point detects this region manifest and
+selects ``region_aware_closed_surface_automatic_tetrahedra``.
+
+The converter verifies the closed-shell topology, the closed STL checksum,
+each patch STL checksum and triangle count, and compares the orientation-
+independent triangle geometry across all patch STLs against the closed STL.
+This proves an exact, non-overlapping patch partition rather than relying on
+matching counts alone. It then merges the three patch STLs, runs ``Coherence Mesh``,
+``CreateTopology`` and ``CreateGeometry``, forms one surface loop and
+one volume, and assigns Physical Surfaces ``wall``, ``inflow`` and
+``outflow`` plus Physical Volume ``fluid_domain``. This is the same
+geometry-independent region-aware adapter used for generic cut surfaces;
+the converter does not read the pipe-bend centreline equation, bend radius or
+angle.
+
+The mesh-project importer copies the geometry manifest, region manifest and
+three patch files together, preserving this contract when the generated STL
+is opened from the Geometry Library. The C++17 geometry generator currently
+writes an equivalent analytic STL and a parameter/patch-count report; the
+region-manifest export is presently provided by the Python implementation.
 
 2-D planar route
 ~~~~~~~~~~~~~~~~

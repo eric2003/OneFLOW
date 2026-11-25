@@ -225,6 +225,75 @@
         "docs/source/stl_geometry_generation.rst"
       ],
       "related_assets": []
+    },
+    {
+      "schema": "oneflow.geometry-asset",
+      "version": 1,
+      "id": "geometry.pipe_bend.90_degree",
+      "name": "90-Degree Circular Pipe Bend",
+      "description": "Parametric circular pipe with straight inlet/outlet extensions and a quarter-circle centreline bend; the enclosed region is a fluid domain.",
+      "dimension": 3,
+      "tags": [
+        "pipe-bend",
+        "elbow",
+        "internal-flow",
+        "fluid-domain",
+        "closed-surface",
+        "curved-pipe"
+      ],
+      "units": {
+        "length": "m",
+        "coordinate_system": "Cartesian, right-handed; inlet tangent +X, bend in X-Y plane"
+      },
+      "definition": {
+        "kind": "parametric",
+        "equations": [
+          "C(phi) = (Rc sin(phi), Rc (1-cos(phi)), 0), 0 <= phi <= theta",
+          "P(phi,alpha) = C(phi) + r cos(alpha) N(phi) + r sin(alpha) B",
+          "V = pi r^2 (Lin + Lout + Rc theta)"
+        ],
+        "parameters": {
+          "radius": 0.5,
+          "bend_radius": 1,
+          "angle_degrees": 90,
+          "inlet_length": 1.5,
+          "outlet_length": 1.5
+        },
+        "notes": "The cross-section is swept along a continuous tangent frame. The default ratios are Rc/D=2 and Lin/D=Lout/D=3. Surface divisions are representation-generation parameters, not analytic geometry."
+      },
+      "provenance": {
+        "kind": "generated",
+        "tutorial": "docs/source/stl_pipe_bend.rst",
+        "generator": {
+          "name": "oneflow_pipe_bend_geometry",
+          "version": "1.0",
+          "source": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/python/generate_pipe_bend.py",
+          "algorithm": "Circular section swept along inlet straight, circular centreline arc and tangent outlet straight; triangulated with explicit inlet/outlet caps"
+        },
+        "notes": "Python and C++17 implementations share the same analytic swept-surface definition and default parameters. Python additionally exports checksum-bound region patch files for the generic Gmsh route; C++ currently emits the ASCII STL and a parameter/patch-count report."
+      },
+      "representations": [
+        {
+          "role": "native_definition",
+          "format": "analytic-equation",
+          "status": "source"
+        },
+        {
+          "role": "surface_mesh",
+          "format": "STL",
+          "path": "~/.oneflow/mesh-generation/generated_stl/pipe_bend_90_degree/pipe_bend_90_degree.stl",
+          "status": "generated_on_demand",
+          "generator": "oneflow_pipe_bend_geometry",
+          "notes": "Python generator emits the closed STL, checksum-bound .geometry.json, region_manifest.json and sibling <stem>.wall.stl, <stem>.inflow.stl and <stem>.outflow.stl files. The region manifest is consumed by the existing geometry-independent region-aware Gmsh adapter."
+        }
+      ],
+      "tutorials": [
+        "docs/source/stl_pipe_bend.rst",
+        "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/README.md"
+      ],
+      "related_assets": [
+        "geometry.cylinder.internal_flow"
+      ]
     }
   ]
 }
