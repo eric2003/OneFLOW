@@ -30,7 +30,7 @@ def validate_lifecycle_contract(
     errors: list[str] = []
     if contract.get("schema") != SCHEMA:
         errors.append(f"Unsupported lifecycle schema: {contract.get('schema')!r}")
-    if contract.get("version") != 1:
+    if isinstance(contract.get("version"), bool) or contract.get("version") != 1:
         errors.append(f"Unsupported lifecycle contract version: {contract.get('version')!r}")
 
     case_id = contract.get("case_id")
@@ -40,7 +40,7 @@ def validate_lifecycle_contract(
         errors.append(
             f"Lifecycle case_id {case_id!r} does not match catalog Case {expected_case_id!r}"
         )
-    if not isinstance(contract.get("contract_version"), int) or contract.get("contract_version", 0) < 1:
+    if (not isinstance(contract.get("contract_version"), int) or isinstance(contract.get("contract_version"), bool) or contract.get("contract_version", 0) < 1):
         errors.append("Lifecycle contract_version must be a positive integer")
     if not isinstance(contract.get("verification_scope"), str) or not contract.get("verification_scope"):
         errors.append("Lifecycle verification_scope must be a non-empty string")
@@ -66,10 +66,10 @@ def validate_lifecycle_contract(
         if not isinstance(stage.get("type"), str) or not stage.get("type"):
             errors.append(f"{stage_id}: type must be a non-empty string")
         implementation_status = stage.get("implementation_status")
-        if implementation_status not in IMPLEMENTATION_STATUSES:
+        if not isinstance(implementation_status, str) or implementation_status not in IMPLEMENTATION_STATUSES:
             errors.append(f"{stage_id}: invalid implementation_status {implementation_status!r}")
         verification_status = stage.get("verification_status")
-        if verification_status not in VERIFICATION_STATUSES:
+        if not isinstance(verification_status, str) or verification_status not in VERIFICATION_STATUSES:
             errors.append(f"{stage_id}: invalid verification_status {verification_status!r}")
 
         for field in ("depends_on", "implementations", "inputs", "outputs", "acceptance"):
@@ -90,9 +90,9 @@ def validate_lifecycle_contract(
                     errors.append(f"{stage_id}: duplicate implementation id {implementation_id!r}")
                 else:
                     implementation_ids.add(implementation_id)
-                if implementation.get("kind") not in IMPLEMENTATION_KINDS:
+                if not isinstance(implementation.get("kind"), str) or implementation.get("kind") not in IMPLEMENTATION_KINDS:
                     errors.append(f"{stage_id}: invalid implementation kind {implementation.get('kind')!r}")
-                if implementation.get("status") not in IMPLEMENTATION_STATUSES:
+                if not isinstance(implementation.get("status"), str) or implementation.get("status") not in IMPLEMENTATION_STATUSES:
                     errors.append(f"{stage_id}: invalid implementation status {implementation.get('status')!r}")
 
         acceptance = stage.get("acceptance", [])
@@ -109,7 +109,7 @@ def validate_lifecycle_contract(
                     errors.append(f"{stage_id}: duplicate acceptance id {check_id!r}")
                 else:
                     acceptance_ids.add(check_id)
-                if check.get("kind") not in ACCEPTANCE_KINDS:
+                if not isinstance(check.get("kind"), str) or check.get("kind") not in ACCEPTANCE_KINDS:
                     errors.append(f"{stage_id}: invalid acceptance kind {check.get('kind')!r}")
                 if not isinstance(check.get("description"), str) or not check.get("description"):
                     errors.append(f"{stage_id}: acceptance check {check_id!r} needs a description")
