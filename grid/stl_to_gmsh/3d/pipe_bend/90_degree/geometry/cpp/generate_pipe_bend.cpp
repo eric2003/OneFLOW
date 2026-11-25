@@ -85,13 +85,13 @@ void write_patch(const std::filesystem::path& path,const std::vector<V>& p,
                  const std::vector<Face>& f,const std::string& patch) {
   std::vector<Face> selected;for(const auto& face:f)if(face.patch==patch)selected.push_back(face);
   std::ofstream out(path);if(!out)throw std::runtime_error("cannot open region STL");
-  out<<"solid oneflow_pipe_bend_"<<patch<<"\\n"<<std::setprecision(9);
+  out<<"solid oneflow_pipe_bend_"<<patch<<"\n"<<std::setprecision(9);
   for(const auto& face:selected){V a=p[face.v[0]],b=p[face.v[1]],d=p[face.v[2]],n=cross(sub(b,a),sub(d,a));double m=norm(n);if(m)n=mul(n,1/m);
-    out<<" facet normal "<<n[0]<<' '<<n[1]<<' '<<n[2]<<"\\n  outer loop\\n";
-    for(V x:{a,b,d})out<<"   vertex "<<x[0]<<' '<<x[1]<<' '<<x[2]<<"\\n";
-    out<<"  endloop\\n endfacet\\n";
+    out<<" facet normal "<<n[0]<<' '<<n[1]<<' '<<n[2]<<"\n  outer loop\n";
+    for(V x:{a,b,d})out<<"   vertex "<<x[0]<<' '<<x[1]<<' '<<x[2]<<"\n";
+    out<<"  endloop\n endfacet\n";
   }
-  out<<"endsolid oneflow_pipe_bend_"<<patch<<"\\n";
+  out<<"endsolid oneflow_pipe_bend_"<<patch<<"\n";
 }
 
 void write(const std::filesystem::path& path,const Config& c,const std::vector<V>& p,const std::vector<Face>& f){
@@ -108,30 +108,30 @@ void write(const std::filesystem::path& path,const Config& c,const std::vector<V
   }
   auto region_manifest=path.parent_path()/"region_manifest.json";
   std::ofstream regions(region_manifest);if(!regions)throw std::runtime_error("cannot open region manifest");
-  regions<<"{\\n  \\"schema\\": \\"oneflow.stl-surface-regions\\",\\n  \\"version\\": 1,\\n  \\"closed_surface_sha256\\": \\""<<sha256(read_bytes(path))<<"\\",\\n  \\"regions\\": {\\n";
+  regions<<"{\n  \"schema\": \"oneflow.stl-surface-regions\",\n  \"version\": 1,\n  \"closed_surface_sha256\": \""<<sha256(read_bytes(path))<<"\",\n  \"regions\": {\n";
   int index=0;for(const std::string name:{"wall","inflow","outflow"}){
-    if(index++)regions<<",\\n";
-    regions<<"    \\""<<name<<"\\": { \\"file\\": \\""<<region_files[name].filename().string()
-      <<"\\", \\"sha256\\": \\""<<sha256(read_bytes(region_files[name]))
-      <<"\\", \\"triangle_count\\": "<<region_counts[name]<<" }";
+    if(index++)regions<<",\n";
+    regions<<"    \""<<name<<"\": { \"file\": \""<<region_files[name].filename().string()
+      <<"\", \"sha256\": \""<<sha256(read_bytes(region_files[name]))
+      <<"\", \"triangle_count\": "<<region_counts[name]<<" }";
   }
-  regions<<"\\n  }\\n}\\n";regions.close();
+  regions<<"\n  }\n}\n";regions.close();
   auto sidecar=path;sidecar.replace_extension(".geometry.json");std::ofstream meta(sidecar);
   if(!meta)throw std::runtime_error("cannot open geometry manifest");
-  meta<<std::setprecision(17)<<"{\\n  \\"schema\\": \\"oneflow.stl-geometry-manifest\\",\\n  \\"version\\": 1,\\n"
-      <<"  \\"asset_id\\": \\"geometry.pipe_bend.90_degree\\",\\n  \\"geometry\\": \\"pipe_bend_90_degree\\",\\n"
-      <<"  \\"units\\": \\""<<c.units<<"\\",\\n  \\"parameters\\": {"
-      <<"\\"radius\\": "<<c.radius<<", \\"bend_radius\\": "<<c.bend_radius
-      <<", \\"inlet_length\\": "<<c.inlet<<", \\"outlet_length\\": "<<c.outlet
-      <<", \\"angle_degrees\\": "<<c.angle<<", \\"circumferential_divisions\\": "<<c.circum
-      <<", \\"bend_divisions\\": "<<c.bend<<", \\"inlet_divisions\\": "<<c.inlet_div
-      <<", \\"outlet_divisions\\": "<<c.outlet_div<<"},\\n"
-      <<"  \\"surface\\": { \\"vertex_count\\": "<<p.size()<<", \\"triangle_count\\": "<<f.size()<<" },\\n"
-      <<"  \\"region_manifest\\": \\""<<region_manifest.filename().string()<<"\\",\\n"
-      <<"  \\"region_triangle_counts\\": { \\"wall\\": "<<wall<<", \\"inflow\\": "<<inflow<<", \\"outflow\\": "<<outflow<<" },\\n"
-      <<"  \\"stl_file\\": \\""<<path.filename().string()<<"\\", \\"stl_sha256\\": \\""<<sha256(read_bytes(path))<<"\\",\\n"
-      <<"  \\"intended_gmsh_physical_groups\\": { \\"surface\\": [\\"wall\\",\\"inflow\\",\\"outflow\\"], \\"volume\\": [\\"fluid_domain\\"] },\\n"
-      <<"  \\"notes\\": \\"Inlet/outlet caps close the fluid-domain shell; they are boundary patches, not solid walls.\\"\\n}\\n";
+  meta<<std::setprecision(17)<<"{\n  \"schema\": \"oneflow.stl-geometry-manifest\",\n  \"version\": 1,\n"
+      <<"  \"asset_id\": \"geometry.pipe_bend.90_degree\",\n  \"geometry\": \"pipe_bend_90_degree\",\n"
+      <<"  \"units\": \""<<c.units<<"\",\n  \"parameters\": {"
+      <<"\"radius\": "<<c.radius<<", \"bend_radius\": "<<c.bend_radius
+      <<", \"inlet_length\": "<<c.inlet<<", \"outlet_length\": "<<c.outlet
+      <<", \"angle_degrees\": "<<c.angle<<", \"circumferential_divisions\": "<<c.circum
+      <<", \"bend_divisions\": "<<c.bend<<", \"inlet_divisions\": "<<c.inlet_div
+      <<", \"outlet_divisions\": "<<c.outlet_div<<"},\n"
+      <<"  \"surface\": { \"vertex_count\": "<<p.size()<<", \"triangle_count\": "<<f.size()<<" },\n"
+      <<"  \"region_manifest\": \""<<region_manifest.filename().string()<<"\",\n"
+      <<"  \"region_triangle_counts\": { \"wall\": "<<wall<<", \"inflow\": "<<inflow<<", \"outflow\": "<<outflow<<" },\n"
+      <<"  \"stl_file\": \""<<path.filename().string()<<"\", \"stl_sha256\": \""<<sha256(read_bytes(path))<<"\",\n"
+      <<"  \"intended_gmsh_physical_groups\": { \"surface\": [\"wall\",\"inflow\",\"outflow\"], \"volume\": [\"fluid_domain\"] },\n"
+      <<"  \"notes\": \"Inlet/outlet caps close the fluid-domain shell; they are boundary patches, not solid walls.\"\n}\n";
 
 }
 }
