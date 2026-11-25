@@ -102,6 +102,7 @@ class MeshValidationWorker(QThread):
                                     self._process = None
                 except OSError as error:
                     record(f"ERROR: {error}")
+                    self.output_line.emit(f"Full execution log: {log_path}")
                     failed.append(label)
                     continue
                 if self._cancel.is_set():
@@ -148,8 +149,10 @@ class MeshValidationWorker(QThread):
                     except OSError as error:
                         self.output_line.emit(f"WARNING: cannot update report with console log: {error}")
                 self.report_ready.emit(label, report)
-            elif return_code != 0:
-                self.output_line.emit(f"WARNING: no structured run report was found; full log: {log_path}")
+            else:
+                self.output_line.emit(
+                    f"WARNING: no structured run report was found; full log: {log_path}"
+                )
             if return_code == 0:
                 passed.append(label)
             else:
@@ -549,6 +552,8 @@ class MeshValidationDialog(QDialog):
         console_value = execution.get("console_log") or (report.get("artifacts") or {}).get("console_log")
         if isinstance(console_value, str):
             console_path = Path(console_value).expanduser()
+            if not console_path.is_absolute():
+                console_path = report_path.parent / console_path
             if console_path.is_file():
                 try:
                     self.log_view.setPlainText(console_path.read_text(encoding="utf-8", errors="replace"))
@@ -564,9 +569,17 @@ class MeshValidationDialog(QDialog):
         artifacts = report.get("artifacts") or {}
         if not isinstance(artifacts, dict):
             artifacts = {}
+        run_directory = report.get("run_directory") or artifacts.get("run_directory")
+        report_directory = Path(run_directory).expanduser() if isinstance(run_directory, str) else None
+        if report_directory is None:
+            report_value = artifacts.get("report")
+            if isinstance(report_value, str):
+                report_directory = Path(report_value).expanduser().parent
         for name, value in artifacts.items():
             if isinstance(value, str):
                 path = Path(value).expanduser()
+                if not path.is_absolute() and report_directory is not None:
+                    path = report_directory / path
                 exists = path.exists()
                 status = "Available" if exists else "Missing / external"
                 details = value
