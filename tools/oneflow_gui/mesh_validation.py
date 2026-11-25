@@ -414,6 +414,170 @@ def _artifact_file_state(relative_path: str, base_directory: Path | None) -> tup
         return "Unsafe path", None
 
 
+_RECOVERABLE_STAGE_IDS = (
+    "stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve",
+)
+
+
+def recover_mesh_validation_run(run_directory: Path) -> dict:
+    """Rebuild a cautious result view from durable stage logs and run artifacts.
+
+    This is evidence recovery, not a replay of the original workflow. A stage
+    is marked PASS/FAIL only when its own durable log contains the terminal
+    status line emitted by the stage runner.
+    """
+    root = Path(run_directory).expanduser().resolve()
+    if not root.is_dir():
+        raise NotADirectoryError(f"Mesh validation run directory not found: {root}")
+
+    stage_names = {
+        "stl_to_gmsh": "mesh_generation",
+        "gmsh_to_cgns": "gmsh_to_cgns",
+        "cgns_to_oneflow": "cgns_to_oneflow",
+        "oneflow_cfd_solve": "cfd_smoke",
+    }
+    stages: dict[str, dict] = {}
+    recovered_steps = []
+    stage_logs: list[tuple[str, Path, str]] = []
+    for case_id in _RECOVERABLE_STAGE_IDS:
+        log_path = root / case_id / "results" / "mesh-validation.log"
+        stage_name = stage_names[case_id]
+        if not log_path.is_file():
+            stages[stage_name] = stage_result(
+                "NOT_CHECKED",
+                "No durable stage log was found; execution outcome is unknown.",
+            )
+            continue
+        try:
+            log_text = log_path.read_text(encoding="utf-8", errors="replace")
+        except OSError as error:
+            stages[stage_name] = stage_result(
+                "NOT_CHECKED", f"Stage log could not be read: {error}"
+            )
+            continue
+        stage_logs.append((case_id, log_path, log_text))
+        matches = list(re.finditer(
+            rf"^\\[{re.escape(case_id)}\\] (succeeded|failed|cancelled):\\s*(.*)$",
+            log_text, re.MULTILINE,
+        ))
+        if not matches:
+            status = "NOT_CHECKED"
+            message = "Stage log exists, but has no terminal status record."
+            recovered_steps.append({
+                "case_id": case_id, "status": "unknown", "message": message,
+            })
+        else:
+            match = matches[-1]
+            outcome, message = match.group(1), match.group(2).strip()
+            status = {
+                "succeeded": "PASS", "failed": "FAIL", "cancelled": "NOT_RUN",
+            }[outcome]
+            recovered_steps.append({
+                "case_id": case_id, "status": outcome, "message": message,
+            })
+        stages[stage_name] = stage_result(status, message)
+
+    # The existing-MSH input path uses a synthetic command marker. Preserve
+    # that distinction when its stage log is available.
+    producer_log = next((entry[2] for entry in stage_logs if entry[0] == "stl_to_gmsh"), "")
+    first_line = producer_log.splitlines()[0] if producer_log.splitlines() else ""
+    if first_line.startswith("$ "):
+        try:
+            command = json.loads(first_line[2:])
+        except (TypeError, json.JSONDecodeError):
+            command = None
+        if isinstance(command, list) and command and command[0] == "<copy-existing-mesh>":
+            stages["existing_msh_input"] = stages.pop("mesh_generation")
+
+    stages["mesh_quality"] = stage_result(
+        "NOT_CHECKED", "Recovery does not rerun mesh-quality acceptance checks."
+    )
+    stages["cfd_accuracy"] = stage_result(
+        "NOT_CHECKED", "A recovered run cannot establish CFD physical accuracy."
+    )
+
+    metrics: dict = {}
+    mesh_summary = None
+    validation_path = root / "stl_to_gmsh" / "results" / "mesh-validation.json"
+    if validation_path.is_file():
+        try:
+            candidate = json.loads(validation_path.read_text(encoding="utf-8"))
+            if isinstance(candidate, dict):
+                mesh_summary = candidate
+                metrics = {
+                    key: candidate[key] for key in ("nodes", "elements")
+                    if isinstance(candidate.get(key), (int, float))
+                }
+                groups = candidate.get("physical_groups")
+                if isinstance(groups, list):
+                    metrics["physical_group_count"] = len(groups)
+        except (OSError, json.JSONDecodeError):
+            mesh_summary = {"recovery_warning": "Mesh validation evidence is unreadable."}
+
+    verified_lineage = []
+    lineage_warnings = []
+    suffix = ".geometry-lineage.json"
+    for sidecar in sorted(root.rglob("*" + suffix)):
+        artifact = sidecar.with_name(sidecar.name[:-len(suffix)])
+        try:
+            record = _read_geometry_artifact_lineage(artifact)
+            verified_lineage.append({
+                "artifact": artifact.relative_to(root).as_posix(),
+                "role": record["artifact"].get("role", "unknown"),
+                "parent_artifact": record.get("parent_artifact"),
+                "geometry_lineage": record["geometry_lineage"],
+            })
+        except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as error:
+            lineage_warnings.append(
+                f"{sidecar.relative_to(root).as_posix()}: {error}"
+            )
+
+    geometry_lineage = (
+        dict(verified_lineage[0]["geometry_lineage"]) if verified_lineage else {
+            "provenance": {
+                "kind": "unknown",
+                "notes": "No checksum-verified geometry lineage sidecar was recovered.",
+            }
+        }
+    )
+    if verified_lineage:
+        geometry_lineage["recovered_artifacts"] = verified_lineage
+
+    console_path = root / "mesh-validation-console.log"
+    artifacts = {
+        "run_directory": str(root),
+        "files": _collect_run_artifacts(root, root / "mesh-validation-report.json"),
+    }
+    if console_path.is_file():
+        artifacts["console_log"] = console_path.name
+
+    warnings = [
+        "The original run report was not available; the original overall exit code and completion time cannot be reconstructed.",
+        "Only terminal stage records in durable stage logs are treated as PASS, FAIL, or NOT_RUN.",
+    ]
+    warnings.extend(lineage_warnings)
+    return {
+        "schema": "oneflow.run-report",
+        "version": 1,
+        "workflow": "Mesh-to-CFD Validation (recovered evidence)",
+        "status": "recovered",
+        "exit_code": None,
+        "stages": stages,
+        "metrics": metrics,
+        "artifacts": artifacts,
+        "run_directory": str(root),
+        "steps": recovered_steps,
+        "mesh_summary": mesh_summary,
+        "geometry_lineage": geometry_lineage,
+        "recovery": {
+            "mode": "evidence_reconstruction",
+            "recovered_at_utc": datetime.now(timezone.utc).isoformat(),
+            "warnings": warnings,
+            "verified_geometry_sidecars": len(verified_lineage),
+        },
+    }
+
+
 def _graph_step_records(result) -> list[dict[str, str]]:
     """Serialize final graph outcomes, including artifact checks and blocked steps."""
     return [

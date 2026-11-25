@@ -27,6 +27,7 @@ from .mesh_validation import (
     run_report_stage_rows,
     geometry_lineage_rows,
     _collect_run_artifacts, _artifact_file_state,
+    recover_mesh_validation_run,
 )
 from .process_control import process_group_options, terminate_process_tree
 from .user_data_paths import UserDataPaths
@@ -394,6 +395,12 @@ class MeshValidationDialog(QDialog):
         self.open_run_button.setToolTip("Reconstruct the result views from an existing mesh-validation-report.json.")
         self.open_run_button.clicked.connect(self._open_run_report)
         buttons.addWidget(self.open_run_button)
+        self.recover_run_button = QPushButton("Recover Folder...")
+        self.recover_run_button.setToolTip(
+            "Rebuild a cautious result view from stage logs and artifacts when the JSON report is missing."
+        )
+        self.recover_run_button.clicked.connect(self._open_run_directory)
+        buttons.addWidget(self.recover_run_button)
         buttons.addStretch(1)
         self.run_button = QPushButton("Run")
         self.run_button.clicked.connect(self._start)
@@ -577,6 +584,53 @@ class MeshValidationDialog(QDialog):
                 self.log_view.setPlainText(f"Console log is missing: {console_path}")
         else:
             self.log_view.setPlainText("Console log: Not recorded in this report.")
+        self.result_tabs.setCurrentIndex(0)
+
+    def _open_run_directory(self) -> None:
+        directory = QFileDialog.getExistingDirectory(
+            self, "Recover Mesh Validation Run", ""
+        )
+        if not directory:
+            return
+        run_directory = Path(directory).expanduser().resolve()
+        try:
+            report = recover_mesh_validation_run(run_directory)
+        except (OSError, ValueError, TypeError) as error:
+            QMessageBox.warning(self, "Cannot recover validation run", str(error))
+            return
+
+        self.result_tree.clear()
+        self.artifact_tree.clear()
+        self.log_view.clear()
+        self._reported_outcomes.clear()
+        self._report_ready(run_directory.name, report)
+
+        console_path = run_directory / "mesh-validation-console.log"
+        if console_path.is_file():
+            try:
+                log_text = console_path.read_text(encoding="utf-8", errors="replace")
+            except OSError as error:
+                log_text = f"Unable to read recovered console log: {error}"
+        else:
+            sections = []
+            for case_id in (
+                "stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow",
+                "oneflow_cfd_solve",
+            ):
+                stage_log = run_directory / case_id / "results" / "mesh-validation.log"
+                if stage_log.is_file():
+                    try:
+                        sections.append(
+                            f"===== {case_id} =====\\n"
+                            + stage_log.read_text(encoding="utf-8", errors="replace")
+                        )
+                    except OSError as error:
+                        sections.append(f"===== {case_id} =====\\nUnable to read log: {error}")
+            log_text = (
+                "\\n\\n".join(sections)
+                if sections else "No durable console or stage logs were found."
+            )
+        self.log_view.setPlainText(log_text)
         self.result_tabs.setCurrentIndex(0)
 
     def _populate_artifacts(self, report: dict) -> None:

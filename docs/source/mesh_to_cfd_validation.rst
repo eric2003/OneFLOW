@@ -220,3 +220,25 @@ ensuring that the final report includes that log as well.
 Reports created before ``artifacts.files`` was introduced remain readable:
 their existing artifact fields and geometry lineage continue to be displayed.
 The raw JSON report remains available for complete machine-readable evidence.
+
+
+Recovering a run when its JSON report is missing
+-------------------------------------------------
+
+Use **Recover Folder...** and select the run directory when
+``mesh-validation-report.json`` is missing or unreadable. Recovery reads
+the per-stage ``results/mesh-validation.log`` records, the optional
+``stl_to_gmsh/results/mesh-validation.json`` evidence, the durable
+``mesh-validation-console.log``, and checksum-bound geometry lineage
+sidecars.
+
+A stage is marked PASS, FAIL or NOT RUN only when its own log contains the
+terminal status line written by the stage runner. A mesh file, CGNS file, CFD
+result or partial log alone never proves that its producing stage completed
+successfully; such stages remain NOT CHECKED. Verified geometry sidecars are
+accepted only when their artifact checksum still matches.
+
+The recovered view is explicitly labelled RECOVERED. It does not invent the
+original overall exit code, run completion time, missing stage outcomes, or
+physical-accuracy verdict. The reconstructed report is an in-memory evidence
+view; recovery does not overwrite or recreate the missing original report.

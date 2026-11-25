@@ -22,6 +22,7 @@ from tools.oneflow_gui.mesh_validation import (
     _geometry_artifact_lineage_path, _write_geometry_artifact_lineage,
     _read_geometry_artifact_lineage, _downstream_lineage_artifacts,
     _collect_run_artifacts, _artifact_file_state,
+    recover_mesh_validation_run,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
@@ -107,6 +108,86 @@ class RunArtifactInventoryTest(unittest.TestCase):
                 [item["path"] for item in _collect_run_artifacts(root)],
                 ["target.dat"],
             )
+
+
+class RecoverMeshValidationRunTest(unittest.TestCase):
+    def test_recovers_terminal_stage_states_metrics_and_verified_lineage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            producer_log = root / "stl_to_gmsh/results/mesh-validation.log"
+            producer_log.parent.mkdir(parents=True)
+            producer_log.write_text(
+                '$ ["gmsh", "model.geo"]\\n'
+                "[stl_to_gmsh] succeeded: Mesh generated and validated.\\n",
+                encoding="utf-8",
+            )
+            cgns_log = root / "gmsh_to_cgns/results/mesh-validation.log"
+            cgns_log.parent.mkdir(parents=True)
+            cgns_log.write_text(
+                '$ ["OneFLOW.exe", "r", "gmsh_to_cgns"]\\n'
+                "[gmsh_to_cgns] failed: Conversion rejected an invalid element.\\n",
+                encoding="utf-8",
+            )
+            mesh_report = root / "stl_to_gmsh/results/mesh-validation.json"
+            mesh_report.write_text(
+                json.dumps({"nodes": 120, "elements": 240, "physical_groups": [{"name": "fluid"}]}),
+                encoding="utf-8",
+            )
+            cgns = root / "gmsh_to_cgns/results/mesh.cgns"
+            cgns.write_bytes(b"cgns")
+            lineage = {
+                "provenance": {"kind": "generated", "notes": "Verified source."},
+                "source_representation": {"format": "STL", "sha256": "a" * 64},
+            }
+            _write_geometry_artifact_lineage(cgns, "CGNS volume mesh", lineage)
+            (root / "mesh-validation-console.log").write_text(
+                "durable console output\\n", encoding="utf-8"
+            )
+
+            report = recover_mesh_validation_run(root)
+
+            self.assertEqual(report["status"], "recovered")
+            self.assertIsNone(report["exit_code"])
+            self.assertEqual(report["stages"]["mesh_generation"]["status"], "PASS")
+            self.assertEqual(report["stages"]["gmsh_to_cgns"]["status"], "FAIL")
+            self.assertEqual(report["stages"]["cgns_to_oneflow"]["status"], "NOT_CHECKED")
+            self.assertEqual(report["metrics"], {
+                "nodes": 120, "elements": 240, "physical_group_count": 1,
+            })
+            self.assertEqual(report["geometry_lineage"]["provenance"]["kind"], "generated")
+            self.assertEqual(report["recovery"]["verified_geometry_sidecars"], 1)
+            self.assertIn("mesh-validation-console.log", report["artifacts"]["files"][0]["path"]
+                          if report["artifacts"]["files"] else "")
+
+    def test_artifact_presence_alone_never_claims_a_stage_pass(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            mesh = root / "stl_to_gmsh/results/model.msh"
+            mesh.parent.mkdir(parents=True)
+            mesh.write_bytes(b"mesh")
+
+            report = recover_mesh_validation_run(root)
+
+            self.assertEqual(report["status"], "recovered")
+            self.assertEqual(report["stages"]["mesh_generation"]["status"], "NOT_CHECKED")
+            self.assertEqual(report["stages"]["gmsh_to_cgns"]["status"], "NOT_CHECKED")
+            self.assertEqual(report["steps"], [])
+
+    def test_recovers_existing_mesh_input_stage_name(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            log = root / "stl_to_gmsh/results/mesh-validation.log"
+            log.parent.mkdir(parents=True)
+            log.write_text(
+                '$ ["<copy-existing-mesh>", "source.msh"]\\n'
+                "[stl_to_gmsh] succeeded: Existing mesh staged.\\n",
+                encoding="utf-8",
+            )
+
+            report = recover_mesh_validation_run(root)
+
+            self.assertNotIn("mesh_generation", report["stages"])
+            self.assertEqual(report["stages"]["existing_msh_input"]["status"], "PASS")
 
 
 class GeometryArtifactLineageTest(unittest.TestCase):
