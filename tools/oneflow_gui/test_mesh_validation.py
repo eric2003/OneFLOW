@@ -16,6 +16,7 @@ from tools.oneflow_gui.mesh_validation import (
     mesh_case_group_categories,
     mesh_validation_workspace, project_mesh_validation_workspace,
     reset_mesh_validation_workspace, create_mesh_validation_run_workspace,
+    prepare_mesh_validation_run_workspace,
     _copy_existing_mesh, _graph_step_records,
     _mesh_case_command, _mesh_validation_stage_results, run_report_stage_rows,
     existing_mesh_case_paths, _validate_required_physical_groups,
@@ -1498,6 +1499,27 @@ class MeshValidationCatalogTest(unittest.TestCase):
             self.assertFalse((selected / "stale.txt").exists())
             self.assertTrue((sibling / "keep.txt").is_file())
 
+
+    def test_explicit_stage_root_uses_direct_output_and_resets_stale_artifacts(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            stage_root = Path(temporary) / "oneflow-generic-curved-shell-validation"
+            stage_root.mkdir()
+            (stage_root / "stale-report.json").write_text("stale", encoding="utf-8")
+            (stage_root / "old-stage").mkdir()
+            run_root = prepare_mesh_validation_run_workspace(
+                stage_root, preserve_history=False, run_id="ci-run"
+            )
+            self.assertEqual(run_root, stage_root.resolve())
+            self.assertFalse((run_root / "stale-report.json").exists())
+            self.assertFalse((run_root / "old-stage").exists())
+            (run_root / "mesh-validation-report.json").write_text(
+                "{}", encoding="utf-8"
+            )
+            (run_root / "gmsh_to_cgns").mkdir()
+            (run_root / "cgns_to_oneflow").mkdir()
+            self.assertTrue((stage_root / "mesh-validation-report.json").is_file())
+            self.assertTrue((stage_root / "gmsh_to_cgns").is_dir())
+            self.assertTrue((stage_root / "cgns_to_oneflow").is_dir())
 
     def test_each_run_gets_an_isolated_directory_and_preserves_history(self):
         with tempfile.TemporaryDirectory() as temporary:
