@@ -116,9 +116,13 @@ void write(const std::filesystem::path& path,const Config& c,const std::vector<V
       <<"\", \"triangle_count\": "<<region_counts[name]<<" }";
   }
   regions<<"\n  }\n}\n";regions.close();
+  std::filesystem::path source_path(__FILE__);
+  std::string source_hash;
+  if(std::filesystem::is_regular_file(source_path))source_hash=sha256(read_bytes(source_path));
   auto sidecar=path;sidecar.replace_extension(".geometry.json");std::ofstream meta(sidecar);
   if(!meta)throw std::runtime_error("cannot open geometry manifest");
   meta<<std::setprecision(17)<<"{\n  \"schema\": \"oneflow.stl-geometry-manifest\",\n  \"version\": 1,\n"
+      <<"  \"generator\": { \"name\": \"oneflow_pipe_bend_geometry\", \"version\": \"1.0\", \"source\": \"generate_pipe_bend.cpp\", \"source_sha256\": \""<<source_hash<<"\" },\n"
       <<"  \"asset_id\": \"geometry.pipe_bend.90_degree\",\n  \"geometry\": \"pipe_bend_90_degree\",\n"
       <<"  \"units\": \""<<c.units<<"\",\n  \"parameters\": {"
       <<"\"radius\": "<<c.radius<<", \"bend_radius\": "<<c.bend_radius
