@@ -13,7 +13,7 @@ from pathlib import Path
 
 from tools.oneflow_gui.mesh_validation import (
     build_mesh_validation_cases, cfd_template_choices, mesh_case_choices, mesh_case_groups,
-    mesh_case_lifecycle_summary,
+    mesh_case_lifecycle_summary, mesh_case_requires_oneflow_executable,
     mesh_case_group_categories,
     mesh_validation_workspace, project_mesh_validation_workspace,
     reset_mesh_validation_workspace, create_mesh_validation_run_workspace,
@@ -1368,6 +1368,16 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(
             [step["id"] for step in legacy_steps],
             ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
+        )
+        self.assertTrue(
+            mesh_case_requires_oneflow_executable(
+                repository_root, "stl_to_gmsh_square"
+            )
+        )
+        self.assertFalse(
+            mesh_case_requires_oneflow_executable(
+                repository_root, "stl_to_gmsh_pipe_bend_90_degree"
+            )
         )
 
     def test_existing_mesh_case_resolves_only_inside_user_mesh_workspace(self):
