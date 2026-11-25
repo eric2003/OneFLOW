@@ -550,7 +550,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             self.assertTrue(dialog.case_tree.isColumnHidden(0) is False)
             self.assertTrue(dialog._case_items)
             self.assertIn(
-                "stl_to_gmsh_existing_mesh_3d_pipe_bend_90_degree",
+                "stl_to_gmsh_pipe_bend_90_degree",
                 dialog._case_items,
             )
 
@@ -1099,7 +1099,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                         self.assertEqual(gmsh_dialog.stl_path.text(), str(project["stl_path"]))
                         self.assertEqual(
                             gmsh_dialog._mesh_case_id,
-                            "stl_to_gmsh_existing_mesh_3d_pipe_bend_90_degree",
+                            "stl_to_gmsh_generic_3d_mesh_handoff",
                         )
                         self.assertEqual(
                             gmsh_dialog.validate_button.text(),

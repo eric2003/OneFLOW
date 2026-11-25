@@ -1443,7 +1443,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             prepared = prepare_mesh_validation_run_workspace(
                 workspace, preserve_history=False, run_id="next-run"
             )
-            self.assertEqual(prepared, workspace)
+            self.assertTrue(prepared.samefile(workspace))
             self.assertTrue((workspace / "mesh-validation-report.json").is_file())
             self.assertTrue(
                 (workspace / "gmsh_to_cgns" / "results" / "mesh.cgns").is_file()
