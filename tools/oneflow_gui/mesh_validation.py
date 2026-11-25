@@ -468,7 +468,11 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
             matches = list(re.finditer(status_pattern, console_text, re.MULTILINE))
         if not matches:
             status = "NOT_CHECKED"
-            message = "Stage log exists, but has no terminal status record."
+            message = (
+                "Stage log exists, but has no terminal status record."
+                if log_text else
+                "No durable stage or console status record was found."
+            )
             recovered_steps.append({
                 "case_id": case_id, "status": "unknown", "message": message,
             })
