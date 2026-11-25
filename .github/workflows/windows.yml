@@ -161,15 +161,13 @@ jobs:
           python -m tools.oneflow_gui.mesh_validation --oneflow-executable (Join-Path $env:ONEFLOW_ROOT "bin/OneFLOW.exe") --gmsh $gmsh.Source --mesh-case-id stl_to_gmsh_generic_3d_mesh_handoff --mesh-file $meshPath --project-directory $projectRoot --stage-root $stageRoot --max-steps 2
           if ($LASTEXITCODE -ne 0) { throw "Mesh-to-CFD validation, including oneflow_cfd_solve, failed." }
 
-          # Each validation invocation writes into a unique run-<timestamp>-<id>
-          # directory beneath StageRoot. Resolve that run directory from its report
-          # instead of assuming artifacts are written directly into StageRoot.
-          $reports = @(Get-ChildItem -Path $stageRoot -Filter "mesh-validation-report.json" -File -Recurse)
-          if ($reports.Count -ne 1) {
-              throw "Expected exactly one mesh-validation-report.json under '$stageRoot'; found $($reports.Count)."
+          # An explicit StageRoot is the run directory. Keep the validation
+          # report and conversion stages directly beneath this directory.
+          $runRoot = $stageRoot
+          $reportPath = Join-Path $runRoot "mesh-validation-report.json"
+          if (-not (Test-Path $reportPath)) {
+              throw "Mesh-to-CFD report is missing: $reportPath"
           }
-          $reportPath = $reports[0].FullName
-          $runRoot = Split-Path -Parent $reportPath
           $report = Get-Content -Raw $reportPath | ConvertFrom-Json
           if ($report.exit_code -ne 0) { throw "Mesh-to-CFD report has non-zero exit code." }
           foreach ($stageName in @("existing_msh_input", "gmsh_to_cgns", "cgns_to_oneflow", "cfd_smoke")) {
