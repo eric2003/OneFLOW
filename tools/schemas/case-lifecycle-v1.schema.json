@@ -10,7 +10,8 @@
     "case_id",
     "contract_version",
     "verification_scope",
-    "stages"
+    "stages",
+    "verification_stages"
   ],
   "properties": {
     "schema": {
@@ -37,6 +38,15 @@
       "minItems": 1,
       "items": {
         "$ref": "#/$defs/stage"
+      }
+    },
+    "verification_stages": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
       }
     }
   },
