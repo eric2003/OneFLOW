@@ -23,7 +23,6 @@ from PySide6.QtWidgets import (
     QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
-    QHeaderView,
     QVBoxLayout,
 )
 
