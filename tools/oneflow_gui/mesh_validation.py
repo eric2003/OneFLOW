@@ -242,6 +242,30 @@ _LIFECYCLE_WORKFLOW_STAGES = {
 
 
 
+
+def mesh_case_requires_oneflow_executable(
+    repository_root: Path, mesh_case_id: str,
+) -> bool:
+    """Whether the Case's currently declared workflow invokes OneFLOW."""
+    root = Path(repository_root).resolve()
+    catalog = _catalog(root)
+    entry = next(
+        (item for item in _mesh_validation_entries(catalog) if item.get("id") == mesh_case_id),
+        None,
+    )
+    if entry is None:
+        raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
+    steps = build_mesh_validation_cases(
+        root, mesh_case_id, "laminar_flat_plate"
+    )
+    execution = entry.get("execution") or {}
+    return not (
+        execution.get("kind") == "python"
+        and len(steps) == 1
+        and steps[0]["id"] == "stl_to_gmsh"
+    )
+
+
 def mesh_case_lifecycle_summary(
     repository_root: Path, mesh_case_id: str,
 ) -> dict | None:
