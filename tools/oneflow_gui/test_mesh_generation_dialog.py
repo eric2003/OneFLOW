@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import gc
 import json
 import os
 import tempfile
@@ -13,6 +14,9 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import QEvent
 from PySide6.QtWidgets import QApplication, QPushButton, QScrollArea
+
+
+_QT_APPLICATION = QApplication.instance() or QApplication([])
 from tools.oneflow_gui.application_settings import ApplicationSettings
 from tools.oneflow_gui.user_data_paths import UserDataPaths
 from grid.stl_to_gmsh.generate_volume_mesh import (
@@ -38,8 +42,18 @@ from tools.oneflow_gui.mesh_project import (
 class MeshGenerationDialogTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.application = QApplication.instance() or QApplication([])
+        cls.application = _QT_APPLICATION
         cls.repository_root = Path(__file__).resolve().parents[2]
+
+    def tearDown(self) -> None:
+        # Qt widgets may outlive their Python test locals until deferred-delete
+        # events are processed. Drain them between tests, not only at module exit.
+        for widget in self.application.topLevelWidgets():
+            widget.close()
+            widget.deleteLater()
+        self.application.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        self.application.processEvents()
+        gc.collect()
 
     def test_geometry_library_is_available_from_mesh_generation(self) -> None:
         from tools.oneflow_gui.geometry_library_dialog import GeometryLibraryDialog
