@@ -123,8 +123,13 @@ A Case's GUI entries are projections of this contract:
   separately.
 - Mesh-to-CFD Validation offers only the workflow stages currently executable
   for that Case and clearly indicates unavailable downstream stages.
-- Reports preserve stage outcomes as PASS, FAIL, NOT_RUN, or NOT_CHECKED and
-  retain artifact hashes / lineage where available.
+- Reports preserve the full lifecycle snapshot, including every stage's
+  implementation and verification status, implementation variants, current
+  verification scope, and artifact hashes / lineage where available. A
+  milestone report must not omit planned downstream stages.
+- A OneFLOW executable is required only when the selected workflow includes
+  OneFLOW conversion, ingestion, or solver stages; producer-only Python/Gmsh
+  milestones remain independently runnable.
 - The GUI must not infer completion from a catalog label such as
   `mesh_validation: cfd_smoke`; the lifecycle contract and actual run evidence
   are authoritative.
