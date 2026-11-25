@@ -185,7 +185,7 @@ class MeshValidationWorker(QThread):
         self.completed.emit(not failed and not cancelled, "\n".join(summary))
 
 class MeshValidationDialog(QDialog):
-    """Select multiple mesh producer Cases and run each complete validation chain."""
+    """Select mesh Cases and run their declared validation milestone."""
 
     def __init__(
         self, repository_root: Path, *, executable: str = "",
@@ -294,9 +294,9 @@ class MeshValidationDialog(QDialog):
                                 )
                             item.setToolTip(
                                 0,
-                                title + "\\nCurrent verification milestone: " + scope
-                                + "\\n\\nLifecycle stages:\\n"
-                                + "\\n".join(stage_lines),
+                                title + "\nCurrent verification milestone: " + scope
+                                + "\n\nLifecycle stages:\n"
+                                + "\n".join(stage_lines),
                             )
                         item.setData(0, Qt.ItemDataRole.UserRole, case_id)
                         item.setCheckState(0, Qt.CheckState.Checked)
