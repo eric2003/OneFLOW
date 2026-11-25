@@ -13,6 +13,7 @@ from pathlib import Path
 
 from tools.oneflow_gui.mesh_validation import (
     build_mesh_validation_cases, cfd_template_choices, mesh_case_choices, mesh_case_groups,
+    mesh_case_lifecycle_summary,
     mesh_case_group_categories,
     mesh_validation_workspace, project_mesh_validation_workspace,
     reset_mesh_validation_workspace, create_mesh_validation_run_workspace,
@@ -1329,6 +1330,45 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertIn("run_pipe_bend_case.py", command[1])
         self.assertEqual(command[2:4], ["--case-directory", "case-directory"])
+
+    def test_pipe_bend_lifecycle_summary_distinguishes_current_and_future_stages(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        summary = mesh_case_lifecycle_summary(
+            repository_root, "stl_to_gmsh_pipe_bend_90_degree"
+        )
+        self.assertIsNotNone(summary)
+        self.assertEqual(
+            summary["verification_scope"],
+            "python_geometry_and_gmsh_volume_mesh",
+        )
+        stages = {stage["id"]: stage for stage in summary["stages"]}
+        self.assertTrue(stages["geometry"]["in_current_scope"])
+        self.assertTrue(stages["surface_regions"]["in_current_scope"])
+        self.assertTrue(stages["volume_mesh"]["in_current_scope"])
+        self.assertFalse(stages["cgns_conversion"]["in_current_scope"])
+        self.assertFalse(stages["oneflow_ingestion"]["in_current_scope"])
+        self.assertFalse(stages["cfd_smoke"]["in_current_scope"])
+        self.assertFalse(stages["cfd_validation"]["in_current_scope"])
+        self.assertEqual(stages["geometry"]["implementation_status"], "implemented")
+        self.assertEqual(stages["geometry"]["verification_status"], "not_run")
+        self.assertIn(
+            {"id": "cpp", "kind": "cpp", "status": "planned"},
+            stages["geometry"]["implementations"],
+        )
+        self.assertEqual(stages["cfd_validation"]["implementation_status"], "planned")
+
+    def test_cases_without_lifecycle_contract_have_no_milestone_summary(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        self.assertIsNone(
+            mesh_case_lifecycle_summary(repository_root, "stl_to_gmsh_square")
+        )
+        legacy_steps = build_mesh_validation_cases(
+            repository_root, "stl_to_gmsh_square", "laminar_flat_plate"
+        )
+        self.assertEqual(
+            [step["id"] for step in legacy_steps],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
+        )
 
     def test_existing_mesh_case_resolves_only_inside_user_mesh_workspace(self):
         with tempfile.TemporaryDirectory() as temporary:
