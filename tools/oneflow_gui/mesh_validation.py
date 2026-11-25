@@ -435,11 +435,13 @@ def _promote_latest_mesh_validation_run(path: Path) -> Path:
 
 
 def prepare_mesh_validation_run_workspace(
-    path: Path, *, preserve_history: bool, run_id: str | None = None,
+    path: Path, *, preserve_history: bool = False, run_id: str | None = None,
 ) -> Path:
-    """Prepare direct stage output or an isolated run folder when history is needed."""
-    if preserve_history:
-        return create_mesh_validation_run_workspace(path, run_id)
+    """Prepare the stable case workspace; keep the latest run directly at its root."""
+    # Validation outputs are already isolated by mesh-case directory. A second
+    # timestamped directory adds no useful separation and complicates artifact
+    # discovery, so GUI runs and explicit stage roots share the same layout.
+    del preserve_history, run_id
     return _promote_latest_mesh_validation_run(path)
 
 
@@ -1263,14 +1265,9 @@ def run_mesh_validation(
     else:
         selected_stage_root = mesh_validation_workspace(REPOSITORY_ROOT, mesh_case_id)
     run_id = uuid.uuid4().hex
-    # Explicit stage roots are dedicated output directories (e.g. CI stages):
-    # keep artifacts directly beneath them. GUI-managed default workspaces keep
-    # isolated run folders so Run History can retain previous evidence.
-    run_root = prepare_mesh_validation_run_workspace(
-        selected_stage_root,
-        preserve_history=(stage_root is None and project_directory is None),
-        run_id=run_id,
-    )
+    # The mesh-case directory is the run directory. Keep all stage outputs
+    # directly beneath it instead of creating another timestamped subdirectory.
+    run_root = prepare_mesh_validation_run_workspace(selected_stage_root)
     metadata_path = run_root / "mesh-validation-run.json"
     write_run_report(metadata_path, {
         "schema": "oneflow.mesh-validation-run",

@@ -1454,6 +1454,27 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 for child in workspace.iterdir()
             ))
 
+    def test_gui_validation_run_uses_stable_case_directory_without_run_subfolder(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary) / "stl_to_gmsh" / "3d" / "pipe_bend" / "90_degree" / "automatic_tetrahedra"
+            prepared = prepare_mesh_validation_run_workspace(
+                workspace, preserve_history=True, run_id="20261125T191006Z-ac08120a"
+            )
+            self.assertEqual(prepared, workspace)
+            self.assertTrue(workspace.is_dir())
+            self.assertFalse(any(
+                child.is_dir() and child.name.startswith("run-")
+                for child in workspace.iterdir()
+            ))
+            (workspace / "mesh-validation-report.json").write_text(
+                '{"status":"SUCCEEDED"}', encoding="utf-8"
+            )
+            prepared_again = prepare_mesh_validation_run_workspace(
+                workspace, preserve_history=True, run_id="next-run"
+            )
+            self.assertEqual(prepared_again, workspace)
+            self.assertFalse((workspace / "mesh-validation-report.json").exists())
+
     def test_workspace_uses_mesh_case_relative_directory(self):
         paths = type(
             "Paths", (),
