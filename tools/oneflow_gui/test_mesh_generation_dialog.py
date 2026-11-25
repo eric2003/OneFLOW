@@ -588,9 +588,12 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 worker.run()
 
             report = json.loads(report_path.read_text(encoding="utf-8"))
-            console_log = Path(report["execution"]["console_log"])
+            console_reference = report["execution"]["console_log"]
+            self.assertEqual(report["artifacts"]["console_log"], console_reference)
+            console_log = Path(console_reference)
+            self.assertFalse(console_log.is_absolute())
+            console_log = report_path.parent / console_log
             self.assertTrue(console_log.is_file())
-            self.assertEqual(report["artifacts"]["console_log"], str(console_log))
             log_text = console_log.read_text(encoding="utf-8")
             self.assertIn("Working directory:", log_text)
             self.assertIn("Command:", log_text)
