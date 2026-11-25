@@ -1239,7 +1239,9 @@ def run_mesh_validation(
     # keep artifacts directly beneath them. GUI-managed default workspaces keep
     # isolated run folders so Run History can retain previous evidence.
     run_root = prepare_mesh_validation_run_workspace(
-        selected_stage_root, preserve_history=stage_root is None, run_id=run_id
+        selected_stage_root,
+        preserve_history=(stage_root is None and project_directory is None),
+        run_id=run_id,
     )
     metadata_path = run_root / "mesh-validation-run.json"
     write_run_report(metadata_path, {

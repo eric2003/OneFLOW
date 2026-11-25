@@ -601,6 +601,41 @@
           "dimension": 3
         }
       ]
+    },
+    {
+      "id": "stl_to_gmsh_pipe_bend_90_degree",
+      "title": "STL to Gmsh: 90-Degree Pipe Bend with Automatic TETRA_4 Volume Mesh (Python Reference)",
+      "directory": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/run_pipe_bend_case.py"
+      },
+      "dimension": 3,
+      "mesh_validation": "cfd_smoke",
+      "required_physical_groups": [
+        {
+          "name": "wall",
+          "dimension": 2
+        },
+        {
+          "name": "inflow",
+          "dimension": 2
+        },
+        {
+          "name": "outflow",
+          "dimension": 2
+        },
+        {
+          "name": "fluid_domain",
+          "dimension": 3
+        }
+      ],
+      "geometry_provenance": {
+        "kind": "generated",
+        "generator": "oneflow_pipe_bend_geometry",
+        "notes": "Parametric 90-degree pipe-bend STL and region manifest are generated at run time; the generic region-aware Gmsh volume mesher produces the MSH4 volume mesh."
+      }
     }
   ],
   "mesh_validation_inputs": [
@@ -659,38 +694,6 @@
         "kind": "existing_mesh",
         "project_directory": "cylinder_oblique_cut",
         "mesh_file": "results/cylinder_oblique_cut.msh"
-      },
-      "required_physical_groups": [
-        {
-          "name": "wall",
-          "dimension": 2
-        },
-        {
-          "name": "inflow",
-          "dimension": 2
-        },
-        {
-          "name": "outflow",
-          "dimension": 2
-        },
-        {
-          "name": "fluid_domain",
-          "dimension": 3
-        }
-      ]
-    },
-    {
-      "id": "stl_to_gmsh_existing_mesh_3d_pipe_bend_90_degree",
-      "title": "3D 90-Degree Pipe Bend (Generated MSH)",
-      "directory": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra",
-      "group": "STL to Gmsh",
-      "dimension": 3,
-      "mesh_validation": "cfd_smoke",
-      "execution": {
-        "kind": "existing_mesh",
-        "project_directory": "pipe_bend_90_degree",
-        "mesh_file": "results/pipe_bend_90_degree.msh",
-        "geometry": "pipe_bend_90_degree"
       },
       "required_physical_groups": [
         {

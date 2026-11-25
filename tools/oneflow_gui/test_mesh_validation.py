@@ -1289,20 +1289,20 @@ class MeshValidationCatalogTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "inflow"):
             _validate_required_physical_groups(mesh_info, entry)
 
-    def test_pipe_bend_is_registered_as_a_mesh_to_cfd_validation_case(self):
+    def test_pipe_bend_is_registered_as_a_generated_mesh_case(self):
         repository_root = Path(__file__).resolve().parents[2]
-        case_id = "stl_to_gmsh_existing_mesh_3d_pipe_bend_90_degree"
+        case_id = "stl_to_gmsh_pipe_bend_90_degree"
         choices = dict(mesh_case_choices(repository_root))
         self.assertIn(case_id, choices)
-        self.assertEqual(
-            choices[case_id], "3D 90-Degree Pipe Bend (Generated MSH)"
-        )
+        self.assertIn("90-Degree Pipe Bend", choices[case_id])
         catalog = json.loads(
             (repository_root / "grid/case_catalog.json").read_text(encoding="utf-8")
         )
-        entry = next(
-            item for item in catalog["mesh_validation_inputs"]
-            if item["id"] == case_id
+        entry = next(item for item in catalog["cases"] if item["id"] == case_id)
+        self.assertEqual(entry["execution"]["kind"], "python")
+        self.assertEqual(
+            entry["execution"]["script"],
+            "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/run_pipe_bend_case.py",
         )
         self.assertEqual(
             {(item["dimension"], item["name"]) for item in entry["required_physical_groups"]},
@@ -1310,20 +1310,25 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         categories = dict(mesh_case_group_categories(repository_root))
         self.assertTrue(any(
+            item[0] == "STL to Gmsh" and case_id in dict(item[1])
+            for item in categories["3D"]
+        ))
+        self.assertFalse(any(
             item[0] == "Existing Gmsh Mesh" and case_id in dict(item[1])
             for item in categories["3D"]
         ))
-        steps = build_mesh_validation_cases(
-            repository_root, case_id, "laminar_flat_plate"
-        )
+        steps = build_mesh_validation_cases(repository_root, case_id, "laminar_flat_plate")
         self.assertEqual(
             [step["id"] for step in steps],
             ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
         )
-        self.assertEqual(
-            steps[0]["outputs"][0]["path"],
-            "results/pipe_bend_90_degree.msh",
+        self.assertEqual(steps[0]["outputs"][0]["path"], "results/pipe_bend_90_degree.msh")
+        command = _mesh_case_command(
+            repository_root, entry, Path("OneFLOW.exe"), Path("gmsh.exe"),
+            Path("case-directory"),
         )
+        self.assertIn("run_pipe_bend_case.py", command[1])
+        self.assertEqual(command[2:4], ["--case-directory", "case-directory"])
 
     def test_existing_mesh_case_resolves_only_inside_user_mesh_workspace(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -1341,32 +1346,6 @@ class MeshValidationCatalogTest(unittest.TestCase):
                     expected_project / "results/cylinder_internal_flow.msh",
                     expected_project,
                 ),
-            )
-
-            pipe_bend_workspace = workspace / "pipe_bend_90_degree_2"
-            (pipe_bend_workspace / "results").mkdir(parents=True)
-            (pipe_bend_workspace / "results/pipe_bend_custom.msh").write_text(
-                "mesh", encoding="ascii"
-            )
-            (pipe_bend_workspace / "project.json").write_text(
-                json.dumps({
-                    "schema": "oneflow.mesh-project", "version": 1,
-                    "geometry": "pipe_bend_90_degree",
-                    "output_mesh": "results/pipe_bend_custom.msh",
-                }), encoding="utf-8"
-            )
-            with mock.patch(
-                "tools.oneflow_gui.mesh_validation.UserDataPaths.discover",
-                return_value=paths,
-            ):
-                pipe_bend_paths = existing_mesh_case_paths(
-                    Path(__file__).resolve().parents[2],
-                    "stl_to_gmsh_existing_mesh_3d_pipe_bend_90_degree",
-                )
-            self.assertEqual(
-                pipe_bend_paths,
-                ((pipe_bend_workspace / "results/pipe_bend_custom.msh").resolve(),
-                 pipe_bend_workspace.resolve()),
             )
 
             invalid_workspace = Path(temporary) / "invalid-mesh-generation"
@@ -1391,7 +1370,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ):
                 ignored_invalid_project = existing_mesh_case_paths(
                     Path(__file__).resolve().parents[2],
-                    "stl_to_gmsh_existing_mesh_3d_pipe_bend_90_degree",
+                    "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow",
                 )
             self.assertEqual(
                 ignored_invalid_project,

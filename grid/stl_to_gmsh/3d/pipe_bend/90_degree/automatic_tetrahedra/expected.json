@@ -1,23 +1,15 @@
 {
-  "schema": "oneflow.stl-to-gmsh-expected",
+  "schema": "oneflow.mesh-case-expected",
   "version": 1,
-  "mesh": {
-    "line_elements": 0,
-    "quadrilateral_elements": 0,
-    "hexahedron_elements": 0
-  },
-  "physical_groups": [
-    {"dimension": 2, "name": "wall"},
-    {"dimension": 2, "name": "inflow"},
-    {"dimension": 2, "name": "outflow"},
-    {"dimension": 3, "name": "fluid_domain"}
-  ],
   "artifact": {
-    "mesh_file": "pipe_bend_90_degree.msh"
+    "mesh_file": "pipe_bend_90_degree.msh",
+    "format": "gmsh_msh4",
+    "dimension": 3
   },
-  "mesh_minimum": {
-    "nodes": 5,
-    "triangle_elements": 4,
-    "tetrahedron_elements": 1
-  }
+  "required_physical_groups": [
+    {"name": "wall", "dimension": 2},
+    {"name": "inflow", "dimension": 2},
+    {"name": "outflow", "dimension": 2},
+    {"name": "fluid_domain", "dimension": 3}
+  ]
 }
