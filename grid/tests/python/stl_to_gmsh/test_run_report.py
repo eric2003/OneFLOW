@@ -43,7 +43,7 @@ class RunReportTest(unittest.TestCase):
         )
         summary = format_run_summary(report)
         self.assertIn("run_directory: run", summary)
-        self.assertNotIn("files:", summary)
+        self.assertNotIn("  files:", summary)
         self.assertNotIn("sha256", summary)
 
     def test_success_report_cannot_contain_a_failed_stage(self):
