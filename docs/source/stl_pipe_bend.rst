@@ -12,10 +12,10 @@ existing sphere, spheroid and straight-cylinder geometry library.
 The Python geometry generator now exports a closed STL plus three separate
 boundary-patch STL files and a region manifest. These feed the existing
 generic region-aware STL-to-Gmsh route; the converter does not know that the
-input is a pipe bend. The generated-MSH profile is now registered in the
-3-D Mesh-to-CFD Validation tree and resolves completed user projects. A
-reproducible mesh-producer Case, executed CGNS/OneFLOW evidence and
-physical-accuracy evidence are still outstanding.
+input is a pipe bend. The automatic-tetrahedra producer is registered as a runnable Case in the
+3-D Mesh-to-CFD Validation tree under **STL to Gmsh**. It generates the STL,
+region manifest and Gmsh MSH4 before continuing through CGNS, OneFLOW and the
+configured CFD smoke test. Physical-accuracy evidence remains outstanding.
 
 Canonical parameter set
 -----------------------
@@ -133,10 +133,11 @@ and manifest/report to the user's mesh-generation workspace. The **Open
 Generated STL in STL to Gmsh** action is available: mesh-project import copies
 the geometry manifest, region manifest and three patch files, so the existing
 generic region-aware converter retains the inlet/outlet/wall Physical Groups.
-After generating the MSH, the project's **Mesh-to-CFD Validation...** action
-runs the existing-mesh validation route without rerunning Gmsh. The project
-manifest supplies the required Physical Groups, so validation checks
-``wall``, ``inflow``, ``outflow`` and ``fluid_domain`` before conversion. The
+The standalone **Mesh-to-CFD Validation** tree lists the pipe bend under
+**3D → STL to Gmsh** as a generated Python-reference Case. Selecting it runs
+the parameterized STL generator, region-aware Gmsh volume mesher, MSH4 group
+checks, CGNS conversion, OneFLOW ingestion and CFD smoke test. The project
+button remains available for validation from a generated mesh project. The
 same validation workbench is also available from the Workbench home screen and
 the Mesh Generation hub.
 
@@ -180,11 +181,11 @@ analytic volume, and complete patch coverage. The default Python surface
 contains 2,354 vertices and 4,704 triangles: 2,304 wall facets, 48 inlet
 facets and 48 outlet facets.
 
-A real Gmsh volume-mesh integration test is now registered in the existing
-Linux/Windows Gmsh 4.15.2 CI matrix; its result is still pending. After that
-test passes, retain MSH 4.1 element/quality evidence, register the pipe bend as
-a reproducible ``automatic_tetrahedra`` mesh-producer Case, and then retain
-executed CGNS and OneFLOW CFD validation evidence. The geometry generator and the generic adapter remain
+A real Gmsh volume-mesh integration test is registered in the existing
+Linux/Windows Gmsh 4.15.2 CI matrix. The ``automatic_tetrahedra`` mesh-producer
+Case is registered in the 3-D **STL to Gmsh** list. The next verification step
+is to execute the full producer-to-CFD graph and retain MSH 4.1 quality,
+CGNS, native OneFLOW grid and solver smoke-test evidence. The geometry generator and the generic adapter remain
 independent: changes to bend angle or centreline radius must not require any
 change to the converter. A short solver smoke test must remain distinct from
 physical validation of secondary flow in a curved pipe.
