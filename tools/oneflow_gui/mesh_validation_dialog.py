@@ -15,8 +15,8 @@ from pathlib import Path
 from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QFormLayout, QHBoxLayout, QHeaderView, QLabel,
-    QMessageBox, QPlainTextEdit, QPushButton, QSpinBox, QSplitter, QTreeWidget,
-    QTreeWidgetItem, QVBoxLayout, QWidget,
+    QFileDialog, QMessageBox, QPlainTextEdit, QPushButton, QSpinBox, QSplitter,
+    QTabWidget, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
 )
 
 from grid.stl_to_gmsh.run_report import write_run_report
@@ -331,9 +331,13 @@ class MeshValidationDialog(QDialog):
         self.workspace_label.setWordWrap(True)
         content_layout.addWidget(self.workspace_label)
 
+        self.result_tabs = QTabWidget()
+        summary_page = QWidget(self)
+        summary_layout = QVBoxLayout(summary_page)
+        summary_layout.setContentsMargins(4, 4, 4, 4)
         self.result_summary = QLabel("No validation results yet.")
         self.result_summary.setWordWrap(True)
-        content_layout.addWidget(self.result_summary)
+        summary_layout.addWidget(self.result_summary)
         self.result_tree = QTreeWidget()
         self.result_tree.setColumnCount(3)
         self.result_tree.setHeaderLabels(["Case / stage", "Status", "Details"])
@@ -344,19 +348,38 @@ class MeshValidationDialog(QDialog):
         result_header.setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
         result_header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
         result_header.setStretchLastSection(False)
-        result_header.resizeSection(0, 190)
+        result_header.resizeSection(0, 220)
         result_header.resizeSection(1, 100)
-        self.result_tree.setMaximumHeight(190)
-        content_layout.addWidget(self.result_tree)
+        summary_layout.addWidget(self.result_tree, 1)
+        self.result_tabs.addTab(summary_page, "Results")
+
+        self.artifact_tree = QTreeWidget()
+        self.artifact_tree.setColumnCount(3)
+        self.artifact_tree.setHeaderLabels(["Artifact", "Availability", "Path / Details"])
+        self.artifact_tree.setAlternatingRowColors(True)
+        self.artifact_tree.header().setSectionResizeMode(0, QHeaderView.ResizeMode.Interactive)
+        self.artifact_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        self.artifact_tree.header().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        self.result_tabs.addTab(self.artifact_tree, "Artifacts")
         self._reported_outcomes: list[str] = []
 
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
         self.log_view.setMaximumBlockCount(20000)
         self.log_view.setPlaceholderText("Validation output will appear here.")
-        content_layout.addWidget(self.log_view, 1)
+        self.result_tabs.addTab(self.log_view, "Console")
+
+        self.raw_report_view = QPlainTextEdit()
+        self.raw_report_view.setReadOnly(True)
+        self.raw_report_view.setPlaceholderText("Open a validation report to inspect all recorded fields.")
+        self.result_tabs.addTab(self.raw_report_view, "Raw Report")
+        content_layout.addWidget(self.result_tabs, 1)
 
         buttons = QHBoxLayout()
+        self.open_run_button = QPushButton("Open Run...")
+        self.open_run_button.setToolTip("Reconstruct the result views from an existing mesh-validation-report.json.")
+        self.open_run_button.clicked.connect(self._open_run_report)
+        buttons.addWidget(self.open_run_button)
         buttons.addStretch(1)
         self.run_button = QPushButton("Run")
         self.run_button.clicked.connect(self._start)
@@ -475,7 +498,10 @@ class MeshValidationDialog(QDialog):
             return
         self.log_view.clear()
         self.result_tree.clear()
+        self.artifact_tree.clear()
+        self.raw_report_view.clear()
         self._reported_outcomes.clear()
+        self.result_tabs.setCurrentIndex(0)
         self.result_summary.setText("Validation is running…")
         self.run_button.setEnabled(False)
         self.stop_button.setEnabled(True)
@@ -492,9 +518,85 @@ class MeshValidationDialog(QDialog):
             self._worker.request_stop()
             self.stop_button.setEnabled(False)
 
+    def _open_run_report(self) -> None:
+        filename, _ = QFileDialog.getOpenFileName(
+            self, "Open Mesh Validation Report", "",
+            "Mesh Validation Report (mesh-validation-report.json);;JSON files (*.json)",
+        )
+        if not filename:
+            return
+        report_path = Path(filename).expanduser().resolve()
+        try:
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            QMessageBox.warning(self, "Cannot open validation report", str(error))
+            return
+        if not isinstance(report, dict) or report.get("schema") != "oneflow.run-report":
+            QMessageBox.warning(
+                self, "Unsupported validation report",
+                "The selected file is not a supported oneflow.run-report JSON document.",
+            )
+            return
+        report.setdefault("artifacts", {}).setdefault("report", str(report_path))
+        label = str(report.get("mesh_case_id") or report.get("workflow") or report_path.parent.name)
+        self.result_tree.clear()
+        self.artifact_tree.clear()
+        self.log_view.clear()
+        self._reported_outcomes.clear()
+        self._report_ready(label, report)
+        self.raw_report_view.setPlainText(json.dumps(report, indent=2, ensure_ascii=False))
+        execution = report.get("execution") or {}
+        console_value = execution.get("console_log") or (report.get("artifacts") or {}).get("console_log")
+        if isinstance(console_value, str):
+            console_path = Path(console_value).expanduser()
+            if console_path.is_file():
+                try:
+                    self.log_view.setPlainText(console_path.read_text(encoding="utf-8", errors="replace"))
+                except OSError as error:
+                    self.log_view.setPlainText(f"Unable to read console log: {error}")
+            else:
+                self.log_view.setPlainText(f"Console log is missing: {console_path}")
+        else:
+            self.log_view.setPlainText("Console log: Not recorded in this report.")
+        self.result_tabs.setCurrentIndex(0)
+
+    def _populate_artifacts(self, report: dict) -> None:
+        artifacts = report.get("artifacts") or {}
+        if not isinstance(artifacts, dict):
+            artifacts = {}
+        for name, value in artifacts.items():
+            if isinstance(value, str):
+                path = Path(value).expanduser()
+                exists = path.exists()
+                status = "Available" if exists else "Missing / external"
+                details = value
+            else:
+                status = "Recorded"
+                details = json.dumps(value, ensure_ascii=False, sort_keys=True)
+            item = QTreeWidgetItem(self.artifact_tree, [str(name), status, details])
+            item.setToolTip(2, details)
+        lineage = report.get("geometry_lineage") or {}
+        if isinstance(lineage, dict):
+            lineage_item = QTreeWidgetItem(self.artifact_tree, ["Geometry lineage", "Recorded", "Source and derived geometry records"])
+            for key, value in lineage.items():
+                if isinstance(value, dict):
+                    path_value = value.get("path")
+                    status = "Available" if isinstance(path_value, str) and Path(path_value).exists() else "Recorded"
+                    details = str(path_value) if path_value else json.dumps(value, ensure_ascii=False, sort_keys=True)
+                else:
+                    status = "Recorded"
+                    details = str(value)
+                child = QTreeWidgetItem(lineage_item, [str(key), status, details])
+                child.setToolTip(2, details)
+            lineage_item.setExpanded(True)
+        if self.artifact_tree.topLevelItemCount() == 0:
+            QTreeWidgetItem(self.artifact_tree, ["Artifacts", "Not recorded", "This report contains no artifact manifest."])
+
     def _report_ready(self, label: str, report: dict) -> None:
         status = str(report.get("status", "unknown")).upper()
         exit_code = report.get("exit_code", "unknown")
+        self.raw_report_view.setPlainText(json.dumps(report, indent=2, ensure_ascii=False))
+        self._populate_artifacts(report)
         self._reported_outcomes.append(status)
         root = QTreeWidgetItem(self.result_tree, [label, status, f"Exit code: {exit_code}"])
         for stage_name, stage_status, stage_message in run_report_stage_rows(report):
