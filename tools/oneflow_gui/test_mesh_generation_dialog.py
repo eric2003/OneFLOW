@@ -244,10 +244,13 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     self.assertEqual(dialog.generated_stl, output.resolve())
                     self.assertIn("inflow", dialog.result_view.toPlainText())
                     self.assertIn("outflow", dialog.result_view.toPlainText())
-                    self.assertIn("Region manifest:", dialog.result_view.toPlainText())
-                    self.assertIn("wall:", dialog.result_view.toPlainText())
-                    self.assertIn("inflow:", dialog.result_view.toPlainText())
-                    self.assertIn("outflow:", dialog.result_view.toPlainText())
+                    self.assertIn("Manifest:", dialog.result_view.toPlainText())
+                    self.assertIn("Patch triangles:", dialog.result_view.toPlainText())
+                    geometry_manifest = json.loads(manifest.read_text(encoding="utf-8"))
+                    self.assertEqual(
+                        set(geometry_manifest["patch_triangle_indices"]),
+                        {"wall", "inflow", "outflow"},
+                    )
                     project = create_mesh_project_from_stl(
                         self.repository_root, output, "pipe-bend-ui"
                     )
@@ -590,9 +593,10 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     return_value=(str(report_path), "JSON files (*.json)"),
                 ):
                     dialog._open_run_report()
-                self.assertEqual(dialog.result_tabs.count(), 4)
+                self.assertEqual(dialog.result_tabs.count(), 5)
                 self.assertEqual(dialog.result_tabs.tabText(0), "Results")
                 self.assertEqual(dialog.result_tabs.tabText(1), "Artifacts")
+                self.assertEqual(dialog.result_tabs.tabText(4), "Run History")
                 self.assertGreaterEqual(dialog.result_tree.topLevelItemCount(), 1)
                 self.assertGreaterEqual(dialog.artifact_tree.topLevelItemCount(), 1)
                 self.assertIn("restored console output", dialog.log_view.toPlainText())
