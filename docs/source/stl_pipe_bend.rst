@@ -127,14 +127,21 @@ pipe-bend-specific project handoff.
 
 The geometry is available in **Mesh Generation -> Generate STL Geometry**
 and in the **Geometry Library** parameter editor as ``90° Pipe Bend — Internal
-Flow``. The editor exposes pipe radius, centreline bend radius, bend angle,
+Flow``. It is also a first-class **STL to Gmsh** Geometry preset: selecting
+``90-Degree Pipe Bend STL`` generates the default checksum-bound STL and
+region manifest in the user mesh-generation workspace, then assigns the
+registered generated Case to the validation handoff. The volume-mesh density
+remains an independent control from the surface discretization parameters. The editor exposes pipe radius, centreline bend radius, bend angle,
 inlet/outlet lengths and each surface discretization control. It writes the STL
 and manifest/report to the user's mesh-generation workspace. The **Open
 Generated STL in STL to Gmsh** action is available: mesh-project import copies
 the geometry manifest, region manifest and three patch files, so the existing
 generic region-aware converter retains the inlet/outlet/wall Physical Groups.
-The standalone **Mesh-to-CFD Validation** tree lists the pipe bend under
-**3D → STL to Gmsh** as a generated Python-reference Case. Selecting it runs
+The **Tests -> Run Development Cases** selector also offers the pipe bend as
+a Python reference Case when **Python reference cases** is enabled (it remains
+separate from the default native C++ selection). The standalone
+**Mesh-to-CFD Validation** tree lists the pipe bend under **3D → STL to Gmsh**
+as a generated Python-reference Case. Selecting it runs
 the parameterized STL generator, region-aware Gmsh volume mesher, MSH4 group
 checks, CGNS conversion, OneFLOW ingestion and CFD smoke test. The project
 button remains available for validation from a generated mesh project. The

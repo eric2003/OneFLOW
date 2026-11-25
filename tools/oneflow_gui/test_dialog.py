@@ -394,8 +394,9 @@ class TestRunnerDialog(QDialog):
         self.python_development_check = QCheckBox("Python reference cases")
         self.python_development_check.setChecked(False)
         self.python_development_check.setToolTip(
-            "Runs Python reference cases. Together with Run Development Cases, "
-            "you can run Python only, native C++ only, or both. Selections are retained by type."
+            "Runs Python reference cases, including the 3-D 90-degree pipe-bend STL-to-Gmsh producer. "
+            "Together with Run Development Cases, you can run Python only, native C++ only, or both. "
+            "Selections are retained by type."
         )
         self.python_development_check.toggled.connect(
             self._update_case_database_button_text

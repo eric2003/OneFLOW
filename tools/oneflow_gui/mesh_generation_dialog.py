@@ -619,7 +619,7 @@ class StlToGmshDialog(QDialog):
         self.geometry_preset.addItem("Internal-flow cylinder STL", "cylinder_internal_flow")
         self.geometry_preset.addItem("Closed STL shell (genus zero)", "closed_shell")
         self.geometry_preset.setToolTip(
-            "Selects a bundled geometry, its STL input, validation Case and default output location."
+            "Selects a bundled or generated geometry, its STL input, validation Case and default output location."
         )
         form.addRow("Geometry preset", self.geometry_preset)
 

@@ -34,6 +34,7 @@ from tools.oneflow_gui.mesh_generation_dialog import (
     StlToGmshDialog,
 )
 from tools.oneflow_gui.generic_surface_cut_dialog import GenericSurfaceCutDialog
+from tools.oneflow_gui.case_repository import select_cases_for_selection_dialog
 from tools.oneflow_gui.mesh_project import (
     create_mesh_project_from_stl,
     create_mesh_project_from_template,
@@ -1018,6 +1019,71 @@ class MeshGenerationDialogTest(unittest.TestCase):
             self.assertEqual(edited_assets[0]["id"], "geometry.pipe_bend.90_degree")
         finally:
             library.close()
+            dialog.close()
+
+    def test_stl_to_gmsh_geometry_presets_include_generated_pipe_bend(self) -> None:
+        dialog = StlToGmshDialog(self.repository_root)
+        try:
+            index = dialog.geometry_preset.findData("pipe_bend_90_degree")
+            self.assertGreaterEqual(index, 0)
+            self.assertEqual(dialog.geometry_preset.itemText(index), "90-Degree Pipe Bend STL")
+        finally:
+            dialog.close()
+
+    def test_stl_to_gmsh_pipe_bend_preset_generates_user_workspace_input(self) -> None:
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory) / "mesh-generation"
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                dialog = StlToGmshDialog(self.repository_root)
+                try:
+                    index = dialog.geometry_preset.findData("pipe_bend_90_degree")
+                    self.assertGreaterEqual(index, 0)
+                    dialog.geometry_preset.setCurrentIndex(index)
+                    stl = Path(dialog.stl_path.text())
+                    self.assertTrue(stl.is_file())
+                    self.assertTrue(stl.with_suffix(".geometry.json").is_file())
+                    self.assertTrue((stl.parent / "region_manifest.json").is_file())
+                    self.assertEqual(
+                        dialog._mesh_case_id, "stl_to_gmsh_pipe_bend_90_degree"
+                    )
+                    self.assertEqual(
+                        dialog.output_path.text(),
+                        str(workspace / "pipe_bend_90_degree" / "pipe_bend_90_degree.msh"),
+                    )
+                    self.assertFalse(dialog.boundary_name.isEnabled())
+                    self.assertFalse(dialog.volume_name.isEnabled())
+                    self.assertIn(str(stl), dialog.command_view.toPlainText())
+                    self.assertNotIn(str(self.repository_root), str(stl))
+                finally:
+                    dialog.close()
+
+    def test_development_case_selector_offers_pipe_bend_python_reference(self) -> None:
+        from tools.oneflow_gui.test_dialog import TestRunnerDialog
+
+        dialog = TestRunnerDialog(self.repository_root)
+        try:
+            self.assertFalse(dialog.python_development_check.isChecked())
+            dialog.python_development_check.setChecked(True)
+            self.assertIn("Python (", dialog.case_database_button.text())
+            self.assertIn(
+                "stl_to_gmsh_pipe_bend_90_degree",
+                {case.case_id for case in dialog._available_database_cases_by_kind["python"]},
+            )
+            available = select_cases_for_selection_dialog(
+                dialog._all_database_cases,
+                run_native=False,
+                run_python=True,
+            )
+            self.assertIn(
+                "stl_to_gmsh_pipe_bend_90_degree",
+                {case.case_id for case in available},
+            )
+        finally:
             dialog.close()
 
     def test_pipe_bend_asset_opens_matching_parameter_editor(self) -> None:

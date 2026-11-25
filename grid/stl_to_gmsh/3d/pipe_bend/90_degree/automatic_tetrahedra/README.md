@@ -3,7 +3,9 @@
 This is a runnable 3-D STL-to-Gmsh producer Case, registered in
 `grid/case_catalog.json` as `stl_to_gmsh_pipe_bend_90_degree`. In the
 Mesh-to-CFD Validation dialog it appears under **3D → STL to Gmsh**, not under
-Existing Gmsh Mesh.
+Existing Gmsh Mesh. The same producer is also available from the main **STL to Gmsh**
+Geometry preset and from **Tests → Run Development Cases** when **Python
+reference cases** is enabled.
 
 The Case runner performs the complete mesh-production stage:
 
