@@ -583,6 +583,13 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
     }
     if console_path.is_file():
         artifacts["console_log"] = console_path.name
+    for metadata_key, artifact_key in (
+        ("source_mesh_file", "source_mesh"),
+        ("source_stl_file", "source_stl"),
+    ):
+        source_value = run_metadata.get(metadata_key)
+        if isinstance(source_value, str) and source_value:
+            artifacts[artifact_key] = source_value
 
     warnings = [
         "The original run report was not available; the original overall exit code and completion time cannot be reconstructed.",
@@ -591,6 +598,8 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
     warnings.extend(lineage_warnings)
     if metadata_status in {"unsupported", "unreadable"}:
         warnings.append("The run metadata file exists but could not be read as a supported record.")
+    elif metadata_status == "missing":
+        warnings.append("No run metadata was available; the original Case ID and launch settings cannot be reconstructed.")
     return {
         "schema": "oneflow.run-report",
         "version": 1,
