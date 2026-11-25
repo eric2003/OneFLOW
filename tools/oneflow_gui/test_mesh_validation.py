@@ -21,7 +21,7 @@ from tools.oneflow_gui.mesh_validation import (
     _geometry_lineage, geometry_lineage_rows, _project_required_physical_groups,
     _geometry_artifact_lineage_path, _write_geometry_artifact_lineage,
     _read_geometry_artifact_lineage, _downstream_lineage_artifacts,
-    _collect_run_artifacts, _artifact_file_state,
+    _collect_run_artifacts, _artifact_file_state, _sha256_file,
     recover_mesh_validation_run,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
@@ -91,6 +91,13 @@ class RunArtifactInventoryTest(unittest.TestCase):
                 _artifact_file_state("results/mesh.msh", None),
                 ("Unresolved", None),
             )
+
+    def test_sha256_streaming_matches_standard_digest_for_large_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "large.mesh"
+            payload = b"OneFLOW mesh evidence" * 100_000
+            path.write_bytes(payload)
+            self.assertEqual(_sha256_file(path), hashlib.sha256(payload).hexdigest())
 
     def test_inventory_skips_symlinks_and_missing_run_directories(self):
         with tempfile.TemporaryDirectory() as directory:

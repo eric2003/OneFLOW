@@ -340,6 +340,15 @@ def create_mesh_validation_run_workspace(path: Path) -> Path:
     return reset_mesh_validation_workspace(path)
 
 
+def _sha256_file(path: Path) -> str:
+    """Hash a file incrementally so large CFD artifacts do not exhaust memory."""
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def _artifact_category(relative_path: Path) -> str:
     """Classify a persisted run file for the result browser."""
     path = Path(relative_path)
@@ -380,17 +389,14 @@ def _collect_run_artifacts(run_root: Path, report_path: Path | None = None) -> l
             relative = candidate.relative_to(root)
             if candidate.name.startswith(".") and candidate.name.endswith(".tmp"):
                 continue
-            digest = hashlib.sha256()
-            with candidate.open("rb") as stream:
-                for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-                    digest.update(chunk)
+            digest = _sha256_file(candidate)
             records.append({
                 "path": relative.as_posix(),
                 "name": candidate.name,
                 "stage": relative.parts[0] if len(relative.parts) > 1 else "run",
                 "category": _artifact_category(relative),
                 "size_bytes": candidate.stat().st_size,
-                "sha256": digest.hexdigest(),
+                "sha256": digest,
             })
         except (OSError, ValueError):
             # A file disappearing during inventory is not a recorded artifact.
@@ -670,7 +676,7 @@ def _geometry_lineage(
     manifest = None
     if source_stl is not None and source_stl.is_file():
         source_stl = source_stl.resolve()
-        digest = hashlib.sha256(source_stl.read_bytes()).hexdigest()
+        digest = _sha256_file(source_stl)
         try:
             source_label = source_stl.relative_to(repository_root.resolve()).as_posix()
         except ValueError:
@@ -706,7 +712,7 @@ def _geometry_lineage(
             mesh_label = str(mesh_file)
         lineage["derived_mesh"] = {
             "format": "Gmsh MSH", "path": mesh_label,
-            "sha256": hashlib.sha256(mesh_file.read_bytes()).hexdigest(),
+            "sha256": _sha256_file(mesh_file),
             "parent": "source_representation",
         }
     downstream = []
@@ -722,7 +728,7 @@ def _geometry_lineage(
             "role": str(item.get("role", "derived artifact")),
             "format": str(item.get("format", "unknown")),
             "path": label,
-            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "sha256": _sha256_file(path),
             "parent": item.get("parent", "derived_mesh"),
         })
     if downstream:
@@ -752,7 +758,7 @@ def _write_geometry_artifact_lineage(
             "role": str(role),
             "file_name": artifact.name,
             "format": artifact.suffix.lstrip(".").upper() or "unknown",
-            "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
+            "sha256": _sha256_file(artifact),
         },
         "geometry_lineage": geometry_lineage,
         "parent_artifact": parent_artifact,
@@ -775,7 +781,7 @@ def _read_geometry_artifact_lineage(artifact_path: Path) -> dict:
     metadata = record.get("artifact")
     if not isinstance(metadata, dict):
         raise ValueError(f"Geometry lineage sidecar has no artifact record: {sidecar}")
-    actual = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    actual = _sha256_file(artifact)
     if metadata.get("file_name") != artifact.name:
         raise ValueError(f"Geometry lineage filename mismatch for artifact: {artifact}")
     if metadata.get("sha256") != actual:
@@ -1078,7 +1084,7 @@ def run_mesh_validation(
                     {
                         "role": "Gmsh MSH", "file_name": msh_input.name,
                         "path": msh_input.relative_to(run_root).as_posix(),
-                        "sha256": hashlib.sha256(msh_input.read_bytes()).hexdigest(),
+                        "sha256": _sha256_file(msh_input),
                     },
                 )
                 print(
