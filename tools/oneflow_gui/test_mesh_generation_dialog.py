@@ -288,10 +288,13 @@ class MeshGenerationDialogTest(unittest.TestCase):
                             gmsh_dialog.validate_button.text(),
                             "Mesh-to-CFD Validation...",
                         )
+                        lineage_text = gmsh_dialog.geometry_lineage_view.toPlainText()
                         self.assertIn(
                             "Boundary patches: inflow, outflow, wall",
-                            gmsh_dialog.geometry_lineage_view.toPlainText(),
+                            lineage_text.splitlines(),
                         )
+                        self.assertIn("\nGeometry asset:", lineage_text)
+                        self.assertNotIn("\\n", lineage_text)
                     finally:
                         gmsh_dialog.close()
                 finally:
