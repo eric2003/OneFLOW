@@ -1567,7 +1567,7 @@ def run_mesh_validation(
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--oneflow-executable", required=True, type=Path)
+    parser.add_argument("--oneflow-executable", default=Path("OneFLOW.exe"), type=Path)
     parser.add_argument("--gmsh", default="gmsh")
     parser.add_argument("--mesh-case-id", required=True)
     parser.add_argument("--cfd-template-id", default="laminar_flat_plate")
