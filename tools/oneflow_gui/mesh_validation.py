@@ -24,6 +24,7 @@ from tools.oneflow_gui.workflow_graph_runner import run_case_graph
 from tools.oneflow_gui.workflow_plan import build_case_graph_plan
 from tools.oneflow_gui.workflow_process import run_process
 from tools.oneflow_gui.workflow_runtime_overrides import apply_runtime_overrides
+from tools.case_lifecycle import validate_lifecycle_contract
 
 _CFD_TEMPLATES = (
     {"id": "laminar_flat_plate", "title": "Laminar Flat Plate",
@@ -230,6 +231,61 @@ def _setting(path: Path, name: str) -> str:
     return value.as_posix()
 
 
+_LIFECYCLE_WORKFLOW_STAGES = {
+    "geometry": "stl_to_gmsh",
+    "surface_discretization": "stl_to_gmsh",
+    "volume_discretization": "stl_to_gmsh",
+    "format_conversion": "gmsh_to_cgns",
+    "oneflow_ingestion": "cgns_to_oneflow",
+    "cfd_smoke": "oneflow_cfd_solve",
+}
+
+
+def _lifecycle_workflow_limit(
+    repository_root: Path, mesh_entry: dict,
+) -> int | None:
+    """Return the final executable workflow step for the declared milestone."""
+    relative = mesh_entry.get("lifecycle_contract")
+    if relative is None:
+        return None
+    if not isinstance(relative, str) or not relative:
+        raise ValueError("Case lifecycle_contract must be a non-empty relative path.")
+    contract_path = Path(relative)
+    if contract_path.is_absolute() or ".." in contract_path.parts:
+        raise ValueError("Case lifecycle contract path must stay within grid/.")
+    contract_file = (repository_root / "grid" / contract_path).resolve()
+    try:
+        contract_file.relative_to((repository_root / "grid").resolve())
+    except ValueError as error:
+        raise ValueError("Case lifecycle contract escapes grid/.") from error
+    contract = json.loads(contract_file.read_text(encoding="utf-8"))
+    errors = validate_lifecycle_contract(
+        contract, expected_case_id=str(mesh_entry.get("id", ""))
+    )
+    if errors:
+        raise ValueError(
+            f"Invalid lifecycle contract for {mesh_entry.get('id')}: "
+            + "; ".join(errors)
+        )
+    stages = {stage["id"]: stage for stage in contract["stages"]}
+    selected = contract["verification_stages"]
+    workflow_order = (
+        "stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow",
+        "oneflow_cfd_solve",
+    )
+    required_step = 0
+    for stage_id in selected:
+        stage_type = stages[stage_id]["type"]
+        workflow_stage = _LIFECYCLE_WORKFLOW_STAGES.get(stage_type)
+        if workflow_stage is None:
+            raise ValueError(
+                f"Lifecycle stage {stage_id!r} ({stage_type}) has no executable "
+                "Mesh-to-CFD workflow adapter yet."
+            )
+        required_step = max(required_step, workflow_order.index(workflow_stage))
+    return required_step
+
+
 def build_mesh_validation_cases(
     repository_root: Path, mesh_case_id: str, cfd_template_id: str,
 ) -> list[dict]:
@@ -337,6 +393,9 @@ def build_mesh_validation_cases(
              {"id": "visual", "path": _setting(cfd_config, "visualFile")},
          ]},
     ]
+    workflow_limit = _lifecycle_workflow_limit(root, mesh)
+    if workflow_limit is not None:
+        steps = steps[:workflow_limit + 1]
     return steps
 
 
