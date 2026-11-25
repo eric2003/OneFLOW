@@ -478,6 +478,50 @@ class MeshGenerationDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_mesh_validation_dialog_reconstructs_report_views(self) -> None:
+        from tools.oneflow_gui.mesh_validation_dialog import MeshValidationDialog
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            console_path = root / "mesh-validation-console.log"
+            console_path.write_text("restored console output\n", encoding="utf-8")
+            report_path = root / "mesh-validation-report.json"
+            report = {
+                "schema": "oneflow.run-report",
+                "version": 1,
+                "workflow": "Mesh-to-CFD Validation",
+                "status": "success",
+                "exit_code": 0,
+                "mesh_case_id": "test_mesh_case",
+                "stages": {"gmsh_to_cgns": {"status": "PASS", "message": "Converted"}},
+                "metrics": {"nodes": 12},
+                "artifacts": {
+                    "report": str(report_path),
+                    "console_log": str(console_path),
+                    "mesh": str(root / "mesh.msh"),
+                },
+                "execution": {"console_log": str(console_path)},
+                "geometry_lineage": {},
+                "error": None,
+            }
+            report_path.write_text(json.dumps(report), encoding="utf-8")
+            dialog = MeshValidationDialog(self.repository_root)
+            try:
+                with patch(
+                    "tools.oneflow_gui.mesh_validation_dialog.QFileDialog.getOpenFileName",
+                    return_value=(str(report_path), "JSON files (*.json)"),
+                ):
+                    dialog._open_run_report()
+                self.assertEqual(dialog.result_tabs.count(), 4)
+                self.assertEqual(dialog.result_tabs.tabText(0), "Results")
+                self.assertEqual(dialog.result_tabs.tabText(1), "Artifacts")
+                self.assertGreaterEqual(dialog.result_tree.topLevelItemCount(), 1)
+                self.assertGreaterEqual(dialog.artifact_tree.topLevelItemCount(), 1)
+                self.assertIn("restored console output", dialog.log_view.toPlainText())
+                self.assertIn("test_mesh_case", dialog.raw_report_view.toPlainText())
+            finally:
+                dialog.close()
+
     def test_mesh_validation_worker_persists_console_log_and_links_report(self) -> None:
         from tools.oneflow_gui.mesh_validation_dialog import MeshValidationWorker
 
