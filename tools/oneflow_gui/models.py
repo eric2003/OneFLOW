@@ -32,6 +32,7 @@ class CaseDefinition:
     execution_script: Path | None = None
     workspace_relative_directory: Path | None = None
     dimension: int | None = None
+    requires_gmsh: bool = False
 
 
 @dataclass(frozen=True, slots=True)

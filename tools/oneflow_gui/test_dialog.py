@@ -33,6 +33,7 @@ from .case_repository import (
     select_cases_by_execution_kind,
     select_cases_for_execution,
     select_cases_for_selection_dialog,
+    build_python_case_command,
 )
 from .models import CaseDefinition
 from .process_control import process_group_options, terminate_and_reap, terminate_process_tree
@@ -609,7 +610,18 @@ class TestRunnerDialog(QDialog):
                 if case.execution_kind == "python":
                     if case.execution_script is None:
                         raise ValueError(f"{case.case_id}: Python execution script is missing.")
-                    arguments = (sys.executable, str(case.execution_script), "--case-directory", str(case_directory))
+                    if case.requires_gmsh:
+                        from grid.stl_to_gmsh.generate_volume_mesh import discover_gmsh
+
+                        gmsh_executable = discover_gmsh()
+                    else:
+                        gmsh_executable = None
+                    arguments = build_python_case_command(
+                        case,
+                        case_directory,
+                        python_executable=sys.executable,
+                        gmsh_executable=gmsh_executable,
+                    )
                     working_directory = self._repository_root
                 else:
                     assert executable is not None
@@ -745,7 +757,9 @@ class CaseDatabaseSelectionDialog(QDialog):
         self._cases = list(available_cases)
         selected_ids = {case.case_id for case in selected_cases}
         self.setWindowTitle("Select Development Test Cases")
-        self.resize(760, 560)
+        self.resize(1120, 760)
+        self.setMinimumSize(820, 520)
+        self.setSizeGripEnabled(True)
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel(
             "Select development cases to include when you press Run. "
@@ -756,7 +770,17 @@ class CaseDatabaseSelectionDialog(QDialog):
         self.case_tree.setHeaderLabels(["Run", "Case / Group", "Configuration"])
         self.case_tree.setRootIsDecorated(True)
         self.case_tree.setAlternatingRowColors(True)
-        self.case_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.case_tree.setWordWrap(False)
+        self.case_tree.setTextElideMode(Qt.TextElideMode.ElideNone)
+        self.case_tree.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        header = self.case_tree.header()
+        header.setStretchLastSection(False)
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Interactive)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Interactive)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Interactive)
+        self.case_tree.setColumnWidth(0, 58)
+        self.case_tree.setColumnWidth(1, 690)
+        self.case_tree.setColumnWidth(2, 330)
         dimension_items: dict[str, QTreeWidgetItem] = {}
         category_items: dict[tuple[str, str], QTreeWidgetItem] = {}
         for case in self._cases:
@@ -784,6 +808,7 @@ class CaseDatabaseSelectionDialog(QDialog):
             case_item.setFlags(case_item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             case_item.setData(0, Qt.ItemDataRole.UserRole, case.case_id)
             case_item.setText(1, case.title)
+            case_item.setToolTip(1, case.title)
             configuration = (
                 f"Python: {case.execution_script.name}"
                 if case.execution_kind == "python" and case.execution_script is not None

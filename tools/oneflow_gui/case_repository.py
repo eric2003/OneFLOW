@@ -83,6 +83,7 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
                 execution_script=execution_script,
                 workspace_relative_directory=workspace_relative_directory,
                 dimension=_case_dimension(entry, case_directory),
+                requires_gmsh=bool(execution.get("requires_gmsh", False)),
             )
         )
 
@@ -91,6 +92,30 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
         raise ValueError(f"Case catalog validation failed:\n{details}")
     return cases
 
+
+
+def build_python_case_command(
+    case: CaseDefinition,
+    case_directory: Path,
+    *,
+    python_executable: str,
+    gmsh_executable: str | None = None,
+) -> tuple[str, ...]:
+    """Build a catalog-driven Python Case command and its declared tool inputs."""
+    if case.execution_kind != "python" or case.execution_script is None:
+        raise ValueError(f"{case.case_id}: Python execution script is missing.")
+    arguments = [
+        python_executable, str(case.execution_script),
+        "--case-directory", str(case_directory),
+    ]
+    if case.requires_gmsh:
+        if not gmsh_executable:
+            raise ValueError(
+                f"{case.case_id}: Gmsh is required. Install Gmsh, add it to PATH, "
+                "or set GMSH_EXECUTABLE."
+            )
+        arguments.extend(("--gmsh", gmsh_executable))
+    return tuple(arguments)
 
 def select_cases_by_execution_kind(
     cases: list[CaseDefinition], execution_kind: str,

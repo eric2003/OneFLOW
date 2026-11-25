@@ -610,7 +610,8 @@
       "execution": {
         "kind": "python",
         "script": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/run_pipe_bend_case.py",
-        "generates_input": true
+        "generates_input": true,
+        "requires_gmsh": true
       },
       "dimension": 3,
       "mesh_validation": "cfd_smoke",
