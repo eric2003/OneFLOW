@@ -254,9 +254,20 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     project = create_mesh_project_from_stl(
                         self.repository_root, output, "pipe-bend-ui"
                     )
-                    self.assertTrue(
-                        (project["stl_path"].parent / "region_manifest.json").is_file()
+                    project_geometry_manifest = (
+                        project["stl_path"].with_suffix(".geometry.json")
                     )
+                    self.assertTrue(project_geometry_manifest.is_file())
+                    project_geometry = json.loads(
+                        project_geometry_manifest.read_text(encoding="utf-8")
+                    )
+                    self.assertEqual(
+                        project_geometry["asset_id"], "geometry.cylinder.internal_flow"
+                    )
+                    self.assertEqual(
+                        project["geometry_lineage"]["provenance"]["kind"], "generated"
+                    )
+                    self.assertIsNone(project["boundary_regions"])
                     gmsh_dialog = StlToGmshDialog(
                         self.repository_root, project=project
                     )
