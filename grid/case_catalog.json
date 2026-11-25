@@ -614,6 +614,7 @@
         "requires_gmsh": true
       },
       "dimension": 3,
+      "lifecycle_contract": "stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/case-lifecycle.json",
       "mesh_validation": "cfd_smoke",
       "required_physical_groups": [
         {
