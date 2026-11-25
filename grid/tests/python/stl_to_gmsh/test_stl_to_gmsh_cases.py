@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tools"))
+sys.path.insert(0, str(ROOT / "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/python"))
 
 from mesh_cases import load_catalog, validate_case  # noqa: E402
 from grid.stl_to_gmsh.converter import convert, inspect_msh4, read_stl  # noqa: E402
