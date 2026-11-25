@@ -387,6 +387,7 @@ def _collect_run_artifacts(run_root: Path, report_path: Path | None = None) -> l
             records.append({
                 "path": relative.as_posix(),
                 "name": candidate.name,
+                "stage": relative.parts[0] if len(relative.parts) > 1 else "run",
                 "category": _artifact_category(relative),
                 "size_bytes": candidate.stat().st_size,
                 "sha256": digest.hexdigest(),

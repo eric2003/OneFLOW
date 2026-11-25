@@ -61,6 +61,7 @@ class RunArtifactInventoryTest(unittest.TestCase):
             self.assertEqual(by_path["oneflow_cfd_solve/results/solver.log"]["category"], "Logs")
             self.assertEqual(by_path["gmsh_to_cgns/results/mesh-validation.json"]["category"], "Reports")
             self.assertEqual(by_path["misc/custom.bin"]["category"], "Other")
+            self.assertEqual(by_path["stl_to_gmsh/input/model.stl"]["stage"], "stl_to_gmsh")
             self.assertEqual(by_path["stl_to_gmsh/input/model.stl"]["size_bytes"], len(b"geometry"))
             self.assertEqual(
                 by_path["stl_to_gmsh/input/model.stl"]["sha256"],

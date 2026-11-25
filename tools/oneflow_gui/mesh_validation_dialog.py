@@ -136,14 +136,20 @@ class MeshValidationWorker(QThread):
                         log_path.unlink(missing_ok=True)
                     except OSError:
                         durable_log = log_path
+                console_reference = str(durable_log)
+                if report_path is not None:
+                    try:
+                        console_reference = durable_log.relative_to(report_path.parent).as_posix()
+                    except ValueError:
+                        pass
                 execution = report.setdefault("execution", {})
                 execution.update({
                     "command": list(arguments),
                     "working_directory": str(working_directory),
-                    "console_log": str(durable_log),
+                    "console_log": console_reference,
                     "return_code": return_code,
                 })
-                report.setdefault("artifacts", {})["console_log"] = str(durable_log)
+                report.setdefault("artifacts", {})["console_log"] = console_reference
                 if report_path is not None:
                     report["artifacts"]["files"] = _collect_run_artifacts(
                         report_path.parent, report_path
@@ -545,7 +551,10 @@ class MeshValidationDialog(QDialog):
                 "The selected file is not a supported oneflow.run-report JSON document.",
             )
             return
-        report.setdefault("artifacts", {})["report"] = str(report_path)
+        artifacts = report.setdefault("artifacts", {})
+        artifacts["report"] = str(report_path)
+        artifacts["run_directory"] = str(report_path.parent)
+        report["run_directory"] = str(report_path.parent)
         label = str(report.get("mesh_case_id") or report.get("workflow") or report_path.parent.name)
         self.result_tree.clear()
         self.artifact_tree.clear()

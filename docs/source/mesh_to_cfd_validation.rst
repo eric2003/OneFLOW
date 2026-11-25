@@ -201,7 +201,7 @@ Artifact inventory and report recovery
 
 The run report also contains ``artifacts.files``, a deterministic inventory of
 files that actually existed when the report was finalized. Each entry stores a
-run-relative POSIX path, display name, category, byte size and SHA-256 digest.
+run-relative POSIX path, stage, display name, category, byte size and SHA-256 digest.
 The report itself is excluded from this list to avoid a self-referential
 checksum. Temporary atomic-write files and symlinks are not followed.
 
@@ -210,8 +210,12 @@ Logs and Other. The GUI groups the entries by category and checks whether each
 recorded file is present when the report is opened. A missing file remains
 visible as Missing; the UI does not silently discard it. Paths are relative to
 the report directory, so moving the complete run directory preserves the
-artifact links. The worker refreshes the inventory after writing the durable
-console log, ensuring that the final report includes that log as well.
+artifact links. The console-log reference is also run-relative when the log
+is stored inside the run directory. When a report is reopened, the GUI
+re-bases its run directory on the report's current location, so moving the
+complete run directory does not leave stale absolute paths in the result view.
+The worker refreshes the inventory after writing the durable console log,
+ensuring that the final report includes that log as well.
 
 Reports created before ``artifacts.files`` was introduced remain readable:
 their existing artifact fields and geometry lineage continue to be displayed.
