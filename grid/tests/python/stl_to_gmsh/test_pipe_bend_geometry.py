@@ -172,10 +172,63 @@ class PipeBendGeometryTest(unittest.TestCase):
     def test_cpp_generator_matches_python_geometry(self):
         cpp_stl = Path(os.environ["ONEFLOW_PIPE_BEND_CPP_STL"])
         self.assertTrue(cpp_stl.is_file())
+        cpp_region_manifest_path = cpp_stl.parent / "region_manifest.json"
+        cpp_geometry_manifest_path = cpp_stl.with_suffix(".geometry.json")
+        self.assertTrue(cpp_region_manifest_path.is_file())
+        self.assertTrue(cpp_geometry_manifest_path.is_file())
+        cpp_region_manifest = json.loads(
+            cpp_region_manifest_path.read_text(encoding="utf-8")
+        )
+        cpp_geometry_manifest = json.loads(
+            cpp_geometry_manifest_path.read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            cpp_region_manifest["schema"], "oneflow.stl-surface-regions"
+        )
+        self.assertEqual(
+            cpp_region_manifest["closed_surface_sha256"],
+            hashlib.sha256(cpp_stl.read_bytes()).hexdigest(),
+        )
+        self.assertEqual(
+            cpp_geometry_manifest["schema"], "oneflow.stl-geometry-manifest"
+        )
+        self.assertEqual(
+            cpp_geometry_manifest["stl_sha256"],
+            hashlib.sha256(cpp_stl.read_bytes()).hexdigest(),
+        )
+        for name in ("wall", "inflow", "outflow"):
+            record = cpp_region_manifest["regions"][name]
+            region_file = cpp_stl.parent / record["file"]
+            self.assertTrue(region_file.is_file())
+            self.assertEqual(
+                hashlib.sha256(region_file.read_bytes()).hexdigest(),
+                record["sha256"],
+            )
+            self.assertEqual(
+                len(read_stl(region_file)), record["triangle_count"]
+            )
         with tempfile.TemporaryDirectory() as temporary:
             python_stl = MODULE.generate(
                 Path(temporary) / "pipe_bend_python.stl"
             )["stl"]
+            layout = Path(temporary) / "cpp-layout.json"
+            layout.write_text(json.dumps({
+                "mesh_dimension": 3,
+                "volume_mesh": "region_aware_closed_surface_automatic_tetrahedra",
+                "region_manifest": str(cpp_region_manifest_path),
+                "mesh_size_min": 0.2,
+                "mesh_size_max": 0.2,
+            }), encoding="utf-8")
+            conversion = convert(
+                cpp_stl, layout, Path(temporary) / "cpp-pipe-bend.geo"
+            )
+            self.assertEqual(
+                conversion["geometry"], "region_aware_generic_stl"
+            )
+            self.assertEqual(
+                set(conversion["region_triangle_counts"]),
+                {"wall", "inflow", "outflow"},
+            )
             cpp_metrics = analyze_surface(read_stl(cpp_stl))
             python_metrics = analyze_surface(read_stl(python_stl))
             for metrics in (cpp_metrics, python_metrics):
