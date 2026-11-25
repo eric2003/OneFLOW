@@ -24,9 +24,26 @@ def run_case(case_directory: Path, output_directory: Path, gmsh: str) -> dict:
         pass
     else:
         raise ValueError(f"Generated files must stay outside the source repository: {output}")
-    config_path, source = case.parent / "script/cutting.json", case / "input/model.stl"
-    if not config_path.is_file() or not source.is_file():
-        raise FileNotFoundError(f"Incomplete oblique-cut case: {case}")
+    config_path = case.parent / "script/cutting.json"
+    source = case / "input/model.stl"
+    # The native and Python implementations share one blind STL fixture at
+    # the workflow level. A GUI workspace may stage only the selected
+    # implementation directory, so resolve the shared source from the
+    # repository case when it is not present in the staged Python workspace.
+    if not source.is_file():
+        repository_source = (
+            DEFAULT_CASE.parent / "cpp" / "input" / "model.stl"
+        ).resolve()
+        if repository_source.is_file():
+            source = repository_source
+    missing = [
+        str(path) for path in (config_path, source) if not path.is_file()
+    ]
+    if missing:
+        raise FileNotFoundError(
+            "Incomplete oblique-cut case; missing required assets: "
+            + ", ".join(missing)
+        )
     config = json.loads(config_path.read_text(encoding="utf-8"))
     planes = config["cutting_planes"]
     inlet, outlet = planes["inlet"], planes["outlet"]
