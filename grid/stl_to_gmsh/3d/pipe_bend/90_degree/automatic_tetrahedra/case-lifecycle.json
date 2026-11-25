@@ -21,8 +21,9 @@
         {
           "id": "native_cpp_geometry",
           "kind": "cpp",
-          "status": "planned",
-          "notes": "Implement against the same geometry parameters and semantic output contract; do not duplicate downstream workflow code."
+          "status": "implemented",
+          "notes": "Implement against the same geometry parameters and semantic output contract; do not duplicate downstream workflow code.",
+          "entrypoint": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/cpp/generate_pipe_bend.cpp"
         }
       ],
       "inputs": [
@@ -55,6 +56,12 @@
           "kind": "contract",
           "description": "Geometry parameters, units, generator identity, and content hashes are recorded.",
           "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets"
+        },
+        {
+          "id": "pipe_bend.geometry.cpp_parity",
+          "kind": "contract",
+          "description": "Native C++ generator produces a watertight STL and matching geometry metrics under the shared geometry contract.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_cpp_generator_matches_python_geometry"
         }
       ]
     },
@@ -76,7 +83,8 @@
         {
           "id": "native_cpp_region_export",
           "kind": "cpp",
-          "status": "planned"
+          "status": "implemented",
+          "entrypoint": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/cpp/generate_pipe_bend.cpp"
         }
       ],
       "inputs": [
@@ -123,6 +131,12 @@
           "kind": "contract",
           "description": "Wall, inflow, and outflow patches partition the closed surface without missing or duplicated triangles.",
           "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets"
+        },
+        {
+          "id": "pipe_bend.regions.cpp_contract",
+          "kind": "contract",
+          "description": "Native C++ generator writes checksum-bound wall, inflow and outflow STL patches accepted by the shared generic STL-to-Gmsh converter.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_cpp_generator_matches_python_geometry"
         }
       ]
     },
