@@ -137,7 +137,9 @@ def validate_lifecycle_contract(
         if not isinstance(dependencies, list):
             continue
         for dependency in dependencies:
-            if dependency not in stage_by_id:
+            if not isinstance(dependency, str) or not dependency:
+                errors.append(f"{stage_id}: dependencies must be non-empty stage IDs")
+            elif dependency not in stage_by_id:
                 errors.append(f"{stage_id}: unknown dependency {dependency!r}")
         if stage.get("verification_status") == "passed":
             if stage.get("implementation_status") != "implemented":
@@ -160,12 +162,12 @@ def validate_lifecycle_contract(
         dependencies = stage.get("depends_on", [])
         if isinstance(dependencies, list):
             for dependency in dependencies:
-                if dependency not in stage_by_id:
+                if not isinstance(dependency, str) or dependency not in stage_by_id:
                     continue
                 visit(dependency)
                 if stage.get("verification_status") == "passed":
                     dependency_status = stage_by_id[dependency].get("verification_status")
-                    if dependency_status not in {"passed", "not_applicable"}:
+                    if not isinstance(dependency_status, str) or dependency_status not in {"passed", "not_applicable"}:
                         errors.append(
                             f"{stage_id}: cannot be passed while dependency {dependency!r} "
                             f"is {dependency_status!r}"
