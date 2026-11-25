@@ -406,6 +406,14 @@ def create_mesh_validation_run_workspace(path: Path, run_id: str | None = None) 
     run_directory.mkdir(parents=False, exist_ok=False)
     return run_directory
 
+def prepare_mesh_validation_run_workspace(
+    path: Path, *, preserve_history: bool, run_id: str | None = None,
+) -> Path:
+    """Prepare direct stage output or an isolated run folder when history is needed."""
+    if preserve_history:
+        return create_mesh_validation_run_workspace(path, run_id)
+    return reset_mesh_validation_workspace(path)
+
 
 def list_mesh_validation_runs(workspace: Path) -> list[dict]:
     """List durable run folders recursively; reports and metadata are authoritative."""
@@ -1227,7 +1235,12 @@ def run_mesh_validation(
     else:
         selected_stage_root = mesh_validation_workspace(REPOSITORY_ROOT, mesh_case_id)
     run_id = uuid.uuid4().hex
-    run_root = create_mesh_validation_run_workspace(selected_stage_root, run_id)
+    # Explicit stage roots are dedicated output directories (e.g. CI stages):
+    # keep artifacts directly beneath them. GUI-managed default workspaces keep
+    # isolated run folders so Run History can retain previous evidence.
+    run_root = prepare_mesh_validation_run_workspace(
+        selected_stage_root, preserve_history=stage_root is None, run_id=run_id
+    )
     metadata_path = run_root / "mesh-validation-run.json"
     write_run_report(metadata_path, {
         "schema": "oneflow.mesh-validation-run",
