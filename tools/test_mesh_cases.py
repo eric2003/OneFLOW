@@ -563,6 +563,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "case_id": "sample",
             "contract_version": 1,
             "verification_scope": "geometry_only",
+            "verification_stages": ["geometry"],
             "stages": [
                 {
                     "id": "geometry",
@@ -605,6 +606,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "case_id": "sample",
             "contract_version": 1,
             "verification_scope": "mesh",
+            "verification_stages": ["geometry", "mesh"],
             "stages": [
                 {
                     "id": "geometry",
