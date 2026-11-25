@@ -161,6 +161,7 @@ class MeshProjectTest(unittest.TestCase):
             self.repository_root, source_stl, "pipe_bend_90_degree"
         )
         self.assertEqual(project["geometry"], "pipe_bend_90_degree")
+        self.assertEqual(project["mesh_case_id"], "stl_to_gmsh_pipe_bend_90_degree")
         self.assertEqual(project["boundary_regions"], ["inflow", "outflow", "wall"])
         copied_stl = project["stl_path"]
         copied_manifest = copied_stl.parent / "region_manifest.json"
