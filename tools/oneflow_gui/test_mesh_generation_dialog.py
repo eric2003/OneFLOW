@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import gc
+import gc
 import json
 import os
 import tempfile
@@ -54,6 +55,19 @@ class MeshGenerationDialogTest(unittest.TestCase):
         self.application.sendPostedEvents(None, QEvent.Type.DeferredDelete)
         self.application.processEvents()
         gc.collect()
+
+    def tearDown(self) -> None:
+        # Close and destroy every top-level widget created by this test before
+        # the next test starts. Closing alone leaves Qt-owned child objects and
+        # deferred-delete events queued until interpreter shutdown on Linux.
+        for widget in QApplication.topLevelWidgets():
+            widget.close()
+            widget.deleteLater()
+        self.application.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        self.application.processEvents()
+        gc.collect()
+        self.application.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        self.application.processEvents()
 
     def test_geometry_library_is_available_from_mesh_generation(self) -> None:
         from tools.oneflow_gui.geometry_library_dialog import GeometryLibraryDialog
