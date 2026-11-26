@@ -38,13 +38,25 @@ Preview the commands without running them:
 
    python -m tools.verification.change_gate --changed --dry-run
 
+For CI, compare the checked-out commit with the event base revision:
+
+.. code-block:: console
+
+   python -m tools.verification.change_gate --base <base-commit-sha>
+
+The Python Tooling workflow fetches the required Git history and invokes this
+mode on pushes and pull requests. Manual workflow dispatch runs `--all`.
+
 Run the complete registered Python suite:
 
 .. code-block:: console
 
    python -m tools.verification.change_gate --all
 
-The gate always runs the repository-wide Change Preflight first. If that fails,
+The gate always runs the repository-wide Change Preflight first. The Python
+Tooling CI invokes the gate after Python compilation and before the detailed
+service test steps; push and pull-request runs use the event base revision so
+the clean CI checkout still has a meaningful changed-file set. If that fails,
 test execution is stopped. It then selects commands from the existing
 `_PYTHON_UNIT_TESTS` registry in `tools/oneflow_gui/test_runner.py`; it does
 not maintain a second list of Python test modules.

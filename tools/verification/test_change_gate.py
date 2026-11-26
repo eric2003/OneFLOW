@@ -31,6 +31,13 @@ class ChangeGateSelectionTest(unittest.TestCase):
         selected = select_test_commands(("tools/verification/preflight.py",), self.registry)
         self.assertEqual(tuple(label for label, _ in selected), ("verification", "verification discovery"))
 
+    def test_test_runner_registry_change_selects_registry_contract_tests(self):
+        selected = select_test_commands(("tools/oneflow_gui/test_runner.py",), self.registry)
+        self.assertEqual(
+            tuple(label for label, _ in selected),
+            ("verification",),
+        )
+
     def test_gui_changes_select_gui_modules(self):
         selected = select_test_commands(("tools/oneflow_gui/home_window.py",), self.registry)
         self.assertEqual(tuple(label for label, _ in selected), ("GUI mesh", "GUI unrelated"))

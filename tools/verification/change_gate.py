@@ -53,6 +53,18 @@ def select_test_commands(
             scopes.update(("grid.tests.python.stl_import.", "grid.tests.python.stl_to_gmsh."))
             scopes.update(("tools.oneflow_gui.test_cylinder_cut_dialog",
                            "tools.oneflow_gui.test_oblique_cylinder_cut_dialog"))
+        elif path == "tools/oneflow_gui/test_runner.py":
+            scopes.update((
+                "tools.oneflow_gui.test_test_runner",
+                "tools.oneflow_gui.test_test_inventory",
+                "tools.verification.test_preflight",
+                "tools.verification.test_change_gate",
+            ))
+        elif path == "tools/oneflow_gui/test_inventory.py":
+            scopes.update((
+                "tools.oneflow_gui.test_test_inventory",
+                "tools.verification.test_preflight",
+            ))
         elif path.startswith("tools/verification/"):
             scopes.add("tools.verification.")
         elif path.startswith("tools/oneflow_gui/"):
@@ -141,16 +153,30 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument("--changed", action="store_true",
                         help="detect staged, unstaged, and untracked Git paths")
+    parser.add_argument("--base", type=str,
+                        help="select paths changed between this Git base revision and HEAD")
     parser.add_argument("--all", action="store_true",
                         help="run the complete registered Python test suite")
     parser.add_argument("--dry-run", action="store_true",
                         help="print selected commands without executing them")
     args = parser.parse_args(argv)
-    if args.changed == args.all:
-        parser.error("choose exactly one of --changed or --all")
+    if args.all and (args.changed or args.base):
+        parser.error("--all cannot be combined with --changed or --base")
+    if not args.all and not (args.changed or args.base):
+        parser.error("choose --changed, --base REVISION, or --all")
     root = args.root.resolve()
     try:
-        changed = _changed_files(root) if args.changed else ("tools/change_gate_full_suite",)
+        changed = set(_changed_files(root)) if args.changed or args.base else {"tools/change_gate_full_suite"}
+        if args.base:
+            result = subprocess.run(
+                ("git", "diff", "--name-only", f"{args.base}...HEAD"),
+                cwd=root, text=True, capture_output=True, check=False,
+            )
+            if result.returncode:
+                detail = result.stderr.strip() or "git diff failed"
+                raise RuntimeError(f"cannot compare changes with base {args.base!r}: {detail}")
+            changed.update(line.strip().replace("\\\\", "/")
+                           for line in result.stdout.splitlines() if line.strip())
         return run_change_gate(root, changed, dry_run=args.dry_run)
     except (OSError, RuntimeError) as exc:
         print(f"Change Gate: FAIL: {exc}")
