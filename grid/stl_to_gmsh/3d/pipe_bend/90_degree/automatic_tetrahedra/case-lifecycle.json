@@ -3,7 +3,7 @@
   "version": 1,
   "case_id": "stl_to_gmsh_pipe_bend_90_degree",
   "contract_version": 1,
-  "verification_scope": "python_geometry_and_gmsh_volume_mesh",
+  "verification_scope": "geometry_regions_and_gmsh_volume_mesh",
   "stages": [
     {
       "id": "geometry",
