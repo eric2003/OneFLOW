@@ -813,6 +813,10 @@ class CaseDatabaseSelectionDialog(QDialog):
         self.case_tree.setColumnWidth(1, 260)
         self.case_tree.setColumnWidth(2, 250)
         self._implementation_values: dict[str, str] = {}
+        # Keep the Python wrappers alive for the lifetime of the dialog. The
+        # QTreeWidget owns the C++ item widgets, but retaining their PySide
+        # wrappers avoids premature wrapper finalization during Qt teardown.
+        self._implementation_combos: dict[str, QComboBox] = {}
         selected_implementations = selected_implementations or {}
         dimension_items: dict[str, QTreeWidgetItem] = {}
         category_items: dict[tuple[str, str], QTreeWidgetItem] = {}
@@ -872,6 +876,7 @@ class CaseDatabaseSelectionDialog(QDialog):
                     ids=implementation_ids: values.__setitem__(case_id, ids[index])
                 )
                 self.case_tree.setItemWidget(case_item, 2, combo)
+                self._implementation_combos[case.case_id] = combo
             else:
                 implementation_label = case.default_implementation or (
                     "Python" if case.execution_kind == "python" else "Native OneFLOW"
