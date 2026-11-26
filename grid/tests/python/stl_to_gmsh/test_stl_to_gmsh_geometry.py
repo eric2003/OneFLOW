@@ -201,6 +201,90 @@ $EndElements
             {"inflow", "outflow", "symmetry", "farfield", "fluid_domain"},
         )
 
+    def test_inspect_msh4_reports_tetrahedron_mean_ratio_and_volume(self):
+        content = """$MeshFormat
+4.1 0 8
+$EndMeshFormat
+$Nodes
+4 4 1 4
+0 1 0 1
+1
+0 0 0
+0 2 0 1
+2
+1 0 0
+0 3 0 1
+3
+0 1 0
+0 4 0 1
+4
+0 0 1
+$EndNodes
+$Elements
+5 5 1 5
+2 1 2 1
+1 1 2 3
+2 2 2 1
+2 1 2 4
+2 3 2 1
+3 2 3 4
+2 4 2 1
+4 1 3 4
+3 5 4 1
+5 1 2 3 4
+$EndElements
+"""
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "tetrahedron.msh"
+            path.write_text(content, encoding="utf-8")
+            summary = inspect_msh4(path)
+        quality = summary["tetrahedron_quality"]
+        self.assertEqual(quality["metric"], "mean_ratio")
+        self.assertEqual(quality["degenerate_count"], 0)
+        self.assertGreater(quality["minimum_quality"], 0.8)
+        self.assertLess(quality["minimum_quality"], 0.9)
+        self.assertAlmostEqual(quality["minimum_volume"], 1.0 / 6.0)
+        self.assertAlmostEqual(quality["total_volume"], 1.0 / 6.0)
+
+    def test_inspect_msh4_rejects_degenerate_tetrahedron(self):
+        content = """$MeshFormat
+4.1 0 8
+$EndMeshFormat
+$Nodes
+4 4 1 4
+0 1 0 1
+1
+0 0 0
+0 2 0 1
+2
+1 0 0
+0 3 0 1
+3
+0 1 0
+0 4 0 1
+4
+1 1 0
+$EndNodes
+$Elements
+5 5 1 5
+2 1 2 1
+1 1 2 3
+2 2 2 1
+2 1 2 4
+2 3 2 1
+3 2 3 4
+2 4 2 1
+4 1 3 4
+3 5 4 1
+5 1 2 3 4
+$EndElements
+"""
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "degenerate.msh"
+            path.write_text(content, encoding="utf-8")
+            with self.assertRaisesRegex(Stl2DError, "degenerate TETRA_4"):
+                inspect_msh4(path)
+
     def test_unit_sphere_stl_is_closed_outward_and_genus_zero(self):
         case = ROOT / "grid" / "stl_to_gmsh" / "3d" / "sphere" / "automatic_tetrahedra" / "python"
         triangles = read_stl(case / "input" / "model.stl")
