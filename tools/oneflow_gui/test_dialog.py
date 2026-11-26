@@ -833,6 +833,36 @@ class CaseDatabaseSelectionDialog(QDialog):
                 else ("Typed profile" if case.profile else "Legacy config")
             )
             case_item.setText(1, configuration)
+            if case.implementations:
+                combo = QComboBox()
+                for implementation in case.implementations:
+                    label = (
+                        "Native C++ geometry"
+                        if implementation.kind == "cpp"
+                        else "Python reference"
+                    )
+                    combo.addItem(label, implementation.implementation_id)
+                requested = selected_implementations.get(
+                    case.case_id, case.default_implementation
+                )
+                index = combo.findData(requested)
+                if index >= 0:
+                    combo.setCurrentIndex(index)
+                self._implementation_combos[case.case_id] = combo
+                self._implementation_values[case.case_id] = str(combo.currentData())
+                combo.currentIndexChanged.connect(
+                    lambda _index, case_id=case.case_id, widget=combo:
+                    self._implementation_values.__setitem__(
+                        case_id, str(widget.currentData())
+                    )
+                )
+                self.case_tree.setItemWidget(case_item, 2, combo)
+            else:
+                implementation_label = case.default_implementation or (
+                    "Python" if case.execution_kind == "python" else "Native OneFLOW"
+                )
+                self._implementation_values[case.case_id] = implementation_label
+                case_item.setText(2, implementation_label)
             case_item.setCheckState(
                 0,
                 Qt.CheckState.Checked
