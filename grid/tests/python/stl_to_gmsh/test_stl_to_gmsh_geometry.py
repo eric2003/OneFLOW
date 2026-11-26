@@ -248,6 +248,22 @@ $EndElements
         self.assertLess(quality["minimum_quality"], 0.9)
         self.assertAlmostEqual(quality["minimum_volume"], 1.0 / 6.0)
         self.assertAlmostEqual(quality["total_volume"], 1.0 / 6.0)
+        self.assertEqual(
+            quality["quality_percentiles"],
+            {
+                "p05": quality["minimum_quality"],
+                "p50": quality["minimum_quality"],
+                "p95": quality["minimum_quality"],
+            },
+        )
+        self.assertEqual(
+            quality["quality_below_threshold_counts"],
+            {"0.1": 0, "0.2": 0, "0.3": 0},
+        )
+        self.assertEqual(len(quality["worst_elements"]), 1)
+        self.assertEqual(quality["worst_elements"][0]["element_tag"], 5)
+        self.assertEqual(quality["worst_elements"][0]["node_tags"], [1, 2, 3, 4])
+        self.assertEqual(quality["worst_elements"][0]["centroid"], [0.25, 0.25, 0.25])
 
     def test_inspect_msh4_rejects_degenerate_tetrahedron(self):
         content = """$MeshFormat
