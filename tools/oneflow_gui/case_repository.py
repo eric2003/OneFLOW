@@ -64,6 +64,9 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
             if execution_kind == "oneflow" and entry.get("runtimeConfig") else None
         )
         execution_script = (root / execution["script"]).resolve() if execution_kind == "python" else None
+        raw_implementations = execution.get("implementations", [])
+        if not isinstance(raw_implementations, list):
+            raw_implementations = []
         implementations = tuple(
             CaseImplementation(
                 implementation_id=str(item["id"]),
@@ -71,12 +74,20 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
                 runner_script=(root / item["script"]).resolve(),
                 compiler_standard=item.get("compiler_standard"),
             )
-            for item in execution.get("implementations", [])
+            for item in raw_implementations
+            if isinstance(item, dict)
+            and isinstance(item.get("id"), str)
+            and isinstance(item.get("kind"), str)
+            and isinstance(item.get("script"), str)
         )
         default_implementation = execution.get("default_implementation")
         if implementations and default_implementation is None:
             default_implementation = next(
-                (item["id"] for item in execution["implementations"] if item.get("default")),
+                (
+                    item["id"] for item in raw_implementations
+                    if isinstance(item, dict) and item.get("default")
+                    and isinstance(item.get("id"), str)
+                ),
                 implementations[0].implementation_id,
             )
         directory_parts = Path(entry["directory"]).parts
