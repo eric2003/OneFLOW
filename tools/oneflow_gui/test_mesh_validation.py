@@ -1384,6 +1384,22 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(stages["geometry"]["verification_status"], "not_run")
         self.assertEqual(stages["msh_to_cgns"]["implementation_status"], "implemented")
         self.assertEqual(stages["msh_to_cgns"]["verification_status"], "not_run")
+        contract_path = (
+            repository_root / "grid" / "stl_to_gmsh" / "3d" / "pipe_bend"
+            / "90_degree" / "automatic_tetrahedra" / "case-lifecycle.json"
+        )
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        contract_stages = {stage["id"]: stage for stage in contract["stages"]}
+        self.assertEqual(
+            contract_stages["oneflow_ingestion"]["depends_on"],
+            ["msh_to_cgns"],
+        )
+        self.assertEqual(
+            contract["quality_policy"]["role"], "diagnostic"
+        )
+        self.assertFalse(contract["quality_policy"]["blocking"])
+        self.assertFalse(contract["quality_policy"]["affects_oneflow_ingestion"])
+        self.assertFalse(contract["quality_policy"]["affects_cfd_smoke"])
         self.assertIn(
             {"id": "native_cpp_geometry", "kind": "cpp", "status": "implemented"},
             stages["geometry"]["implementations"],
