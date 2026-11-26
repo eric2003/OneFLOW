@@ -259,13 +259,15 @@ def mesh_case_requires_oneflow_executable(
         root, mesh_case_id, "laminar_flat_plate"
     )
     execution = entry.get("execution") or {}
-    # A native OneFLOW mesh producer needs the executable even when the
-    # downstream graph stops before ingestion. Python/existing-MSH producers
-    # need it only when a selected downstream stage actually invokes OneFLOW.
+    # Native OneFLOW producers need the executable themselves. Python and
+    # existing-MSH producers still need it for the shared Gmsh -> CGNS Grid
+    # conversion, even when the lifecycle stops before native-grid ingestion.
     if execution.get("kind") == "oneflow":
         return True
     return any(
-        step["id"] in {"cgns_to_oneflow", "oneflow_cfd_solve"}
+        step["id"] in {
+            "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"
+        }
         for step in steps
     )
 
