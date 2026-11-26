@@ -13,7 +13,7 @@ if os.name == "nt":
     # PySide6 wheels no longer bundle Qt fonts. Point Qt at the fonts already
     # installed by Windows so the expected font-directory warning does not
     # become a process-aborting error under QT_FATAL_WARNINGS=1.
-    windows_fonts = Path(os.environ.get("WINDIR", r"C:\\Windows")) / "Fonts"
+    windows_fonts = Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts"
     if windows_fonts.is_dir():
         os.environ.setdefault("QT_QPA_FONTDIR", str(windows_fonts))
 # Turn Qt ownership/lifetime warnings into immediate test failures on both OSes.
