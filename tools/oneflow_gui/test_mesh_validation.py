@@ -1382,6 +1382,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertFalse(stages["cfd_validation"]["in_current_scope"])
         self.assertEqual(stages["geometry"]["implementation_status"], "implemented")
         self.assertEqual(stages["geometry"]["verification_status"], "not_run")
+        self.assertEqual(stages["msh_to_cgns"]["implementation_status"], "implemented")
+        self.assertEqual(stages["msh_to_cgns"]["verification_status"], "not_run")
         self.assertIn(
             {"id": "native_cpp_geometry", "kind": "cpp", "status": "implemented"},
             stages["geometry"]["implementations"],
