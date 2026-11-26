@@ -265,7 +265,7 @@ $EndElements
         self.assertEqual(quality["worst_elements"][0]["node_tags"], [1, 2, 3, 4])
         self.assertEqual(quality["worst_elements"][0]["centroid"], [0.25, 0.25, 0.25])
 
-    def test_inspect_msh4_rejects_degenerate_tetrahedron(self):
+    def test_inspect_msh4_reports_degenerate_tetrahedron_without_blocking(self):
         content = """$MeshFormat
 4.1 0 8
 $EndMeshFormat
@@ -301,8 +301,15 @@ $EndElements
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "degenerate.msh"
             path.write_text(content, encoding="utf-8")
-            with self.assertRaisesRegex(Stl2DError, "degenerate TETRA_4"):
-                inspect_msh4(path)
+            summary = inspect_msh4(path)
+        quality = summary["tetrahedron_quality"]
+        self.assertEqual(summary["tetrahedron_elements"], 1)
+        self.assertEqual(quality["degenerate_count"], 1)
+        self.assertEqual(quality["minimum_quality"], 0.0)
+        self.assertEqual(quality["minimum_volume"], 0.0)
+        self.assertEqual(quality["quality_below_threshold_counts"]["0.3"], 1)
+        self.assertEqual(len(quality["worst_elements"]), 1)
+        self.assertEqual(quality["worst_elements"][0]["element_tag"], 5)
 
     def test_unit_sphere_stl_is_closed_outward_and_genus_zero(self):
         case = ROOT / "grid" / "stl_to_gmsh" / "3d" / "sphere" / "automatic_tetrahedra" / "python"
