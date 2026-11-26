@@ -285,8 +285,7 @@
       "implementation_status": "planned",
       "verification_status": "not_run",
       "depends_on": [
-        "msh_to_cgns",
-        "mesh_quality"
+        "msh_to_cgns"
       ],
       "implementations": [
         {
@@ -396,5 +395,13 @@
     "surface_regions",
     "volume_mesh",
     "msh_to_cgns"
-  ]
+  ],
+  "quality_policy": {
+    "role": "diagnostic",
+    "blocking": false,
+    "affects_mesh_conversion": false,
+    "affects_oneflow_ingestion": false,
+    "affects_cfd_smoke": false,
+    "note": "Mesh quality metrics and degenerate-cell counts are advisory diagnostics for workflow smoke testing. Physical accuracy and production suitability require separate validation."
+  }
 }
