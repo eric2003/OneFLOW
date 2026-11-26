@@ -1,0 +1,15 @@
+{
+  "schema": "oneflow.mesh-case-expected",
+  "version": 1,
+  "artifact": {
+    "mesh_file": "pipe_bend_90_degree.msh",
+    "format": "gmsh_msh4",
+    "dimension": 3
+  },
+  "required_physical_groups": [
+    {"name": "wall", "dimension": 2},
+    {"name": "inflow", "dimension": 2},
+    {"name": "outflow", "dimension": 2},
+    {"name": "fluid_domain", "dimension": 3}
+  ]
+}

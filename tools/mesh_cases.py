@@ -10,6 +10,11 @@ import sys
 from pathlib import Path
 from typing import Any
 
+try:
+    from .case_lifecycle import validate_lifecycle_contract
+except ImportError:  # Direct script execution from the repository root.
+    from case_lifecycle import validate_lifecycle_contract
+
 
 INCLUDE_PATTERN = re.compile(r'"([^"]+)"\s*;')
 CATALOG_SCHEMA = "oneflow.case-catalog"
@@ -60,6 +65,26 @@ def load_catalog(catalog_path: Path) -> dict[str, Any]:
             raise ValueError(
                 f"Case {case_id} runtimeConfig must be a non-empty path when provided"
             )
+        lifecycle_path_value = entry.get("lifecycle_contract")
+        if lifecycle_path_value is not None:
+            if not isinstance(lifecycle_path_value, str) or not lifecycle_path_value:
+                raise ValueError(f"Case {case_id} lifecycle_contract must be a non-empty relative path")
+            lifecycle_path = Path(lifecycle_path_value)
+            if lifecycle_path.is_absolute() or ".." in lifecycle_path.parts:
+                raise ValueError(f"Case {case_id} lifecycle_contract must stay within the grid directory")
+            lifecycle_file = (catalog_path.parent / lifecycle_path).resolve()
+            try:
+                lifecycle_file.relative_to(catalog_path.parent.resolve())
+            except ValueError as error:
+                raise ValueError(f"Case {case_id} lifecycle_contract escapes the grid directory") from error
+            if not lifecycle_file.is_file():
+                raise ValueError(f"Case {case_id} lifecycle contract not found: {lifecycle_path_value}")
+            with lifecycle_file.open("r", encoding="utf-8-sig") as stream:
+                lifecycle = json.load(stream)
+            lifecycle_errors = validate_lifecycle_contract(lifecycle, expected_case_id=case_id)
+            if lifecycle_errors:
+                details = "; ".join(lifecycle_errors)
+                raise ValueError(f"Case {case_id} lifecycle contract is invalid: {details}")
     return catalog
 
 
@@ -195,7 +220,47 @@ def validate_case(repository_root: Path, entry: dict[str, Any]) -> list[str]:
                     )
                     if not script_path.is_file():
                         errors.append(f"{case_id}: Python execution script not found: {script_path}")
-                for relative in ("expected.json", "input/model.stl"):
+                variants = execution.get("implementations", [])
+                if not isinstance(variants, list):
+                    errors.append(f"{case_id}: execution implementations must be an array")
+                    variants = []
+                variant_ids = []
+                for variant in variants:
+                    if not isinstance(variant, dict):
+                        errors.append(f"{case_id}: execution implementation must be an object")
+                        continue
+                    variant_id = variant.get("id")
+                    variant_kind = variant.get("kind")
+                    variant_script = variant.get("script")
+                    if not isinstance(variant_id, str) or not variant_id:
+                        errors.append(f"{case_id}: execution implementation requires an id")
+                    elif variant_id in variant_ids:
+                        errors.append(f"{case_id}: duplicate implementation id {variant_id}")
+                    else:
+                        variant_ids.append(variant_id)
+                    if variant_kind not in {"python", "cpp"}:
+                        errors.append(f"{case_id}: unsupported implementation kind {variant_kind!r}")
+                    if not isinstance(variant_script, str) or not variant_script:
+                        errors.append(f"{case_id}: implementation {variant_id!r} requires a runner script")
+                    else:
+                        variant_path = resolve_case_path(
+                            repository_root, variant_script,
+                            f"runner script for {case_id}/{variant_id}",
+                        )
+                        if not variant_path.is_file():
+                            errors.append(f"{case_id}: implementation runner not found: {variant_path}")
+                default_implementation = execution.get("default_implementation")
+                defaults = [item.get("id") for item in variants if isinstance(item, dict) and item.get("default")]
+                if default_implementation is not None and default_implementation not in variant_ids:
+                    errors.append(f"{case_id}: default implementation is not registered")
+                if len(defaults) > 1:
+                    errors.append(f"{case_id}: only one implementation may be marked default")
+                if defaults and default_implementation and defaults[0] != default_implementation:
+                    errors.append(f"{case_id}: conflicting default implementation declarations")
+                required_files = ["expected.json"]
+                if not execution.get("generates_input", False):
+                    required_files.append("input/model.stl")
+                for relative in required_files:
                     path = resolve_case_path(case_dir, relative, f"{relative} for {case_id}")
                     if not path.is_file():
                         errors.append(f"{case_id}: {relative} not found")

@@ -51,6 +51,8 @@ jobs:
         python-version: ["3.11"]
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
@@ -63,6 +65,12 @@ jobs:
         run: python -m pip install -r tools/requirements-gui.txt
       - name: Compile Python tooling
         run: python -m compileall -q tools/mesh_cases.py tools/mesh_layout grid/stl_import grid/stl_to_gmsh tools/oneflow_gui tools/verification
+      - name: Run change-aware verification gate
+        if: github.event_name != 'workflow_dispatch'
+        run: python -m tools.verification.change_gate --base "${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}"
+      - name: Run complete Change Gate (manual dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: python -m tools.verification.change_gate --all
       - name: Test case catalog
         run: python tools/test_mesh_cases.py
       - name: Test generic STL surface diagnostics
@@ -81,6 +89,65 @@ jobs:
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_run_report
       - name: Test parameterized 3-D STL geometry generation
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_geometry_generation
+      - name: Test 90-degree pipe-bend STL geometry
+        run: python -m unittest grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry
+      - name: Compile and smoke-test C++ pipe-bend geometry generator
+        if: runner.os == 'Linux'
+        run: |
+          c++ -std=c++17 -O2 -Wall -Wextra -pedantic grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/cpp/generate_pipe_bend.cpp -o "$RUNNER_TEMP/pipe_bend_generator"
+          "$RUNNER_TEMP/pipe_bend_generator" --output "$RUNNER_TEMP/pipe_bend_90_degree.stl"
+          test -s "$RUNNER_TEMP/pipe_bend_90_degree.stl"
+          test -s "$RUNNER_TEMP/pipe_bend_90_degree.geometry.json"
+          test -s "$RUNNER_TEMP/region_manifest.json"
+          test -s "$RUNNER_TEMP/pipe_bend_90_degree.wall.stl"
+          test -s "$RUNNER_TEMP/pipe_bend_90_degree.inflow.stl"
+          test -s "$RUNNER_TEMP/pipe_bend_90_degree.outflow.stl"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          root = Path(os.environ["RUNNER_TEMP"])
+          data = json.loads((root / "pipe_bend_90_degree.geometry.json").read_text(encoding="utf-8"))
+          regions = json.loads((root / "region_manifest.json").read_text(encoding="utf-8"))
+          assert data["schema"] == "oneflow.stl-geometry-manifest"
+          assert data["region_triangle_counts"] == {"wall": 4608, "inflow": 48, "outflow": 48}
+          assert regions["schema"] == "oneflow.stl-surface-regions"
+          assert set(regions["regions"]) == {"wall", "inflow", "outflow"}
+          PY
+          ONEFLOW_PIPE_BEND_CPP_STL="$RUNNER_TEMP/pipe_bend_90_degree.stl" python -m unittest grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_cpp_generator_matches_python_geometry
+      - name: Configure MSVC developer environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Compile and smoke-test C++ pipe-bend geometry generator
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $outDir = Join-Path $env:RUNNER_TEMP "pipe_bend"
+          New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+          cl /nologo /std:c++17 /EHsc /O2 /Z7 "/Fo$outDir\pipe_bend_generator.obj" "/Fe$outDir\pipe_bend_generator.exe" grid\stl_to_gmsh\3d\pipe_bend\90_degree\geometry\cpp\generate_pipe_bend.cpp
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & "$outDir\pipe_bend_generator.exe" --output "$outDir\pipe_bend_90_degree.stl"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach ($asset in @("pipe_bend_90_degree.stl", "pipe_bend_90_degree.geometry.json", "region_manifest.json", "pipe_bend_90_degree.wall.stl", "pipe_bend_90_degree.inflow.stl", "pipe_bend_90_degree.outflow.stl")) {
+              if (!(Test-Path (Join-Path $outDir $asset))) { throw "C++ pipe-bend asset was not generated: $asset" }
+          }
+          @'
+          import json
+          import os
+          from pathlib import Path
+          root = Path(os.environ["RUNNER_TEMP"]) / "pipe_bend"
+          data = json.loads((root / "pipe_bend_90_degree.geometry.json").read_text(encoding="utf-8"))
+          regions = json.loads((root / "region_manifest.json").read_text(encoding="utf-8"))
+          assert data["schema"] == "oneflow.stl-geometry-manifest"
+          assert data["region_triangle_counts"] == {"wall": 4608, "inflow": 48, "outflow": 48}
+          assert regions["schema"] == "oneflow.stl-surface-regions"
+          assert set(regions["regions"]) == {"wall", "inflow", "outflow"}
+          '@ | python -
+          $env:ONEFLOW_PIPE_BEND_CPP_STL = "$outDir\pipe_bend_90_degree.stl"
+          python -m unittest grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_cpp_generator_matches_python_geometry
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Test native and Python STL-to-Gmsh Cases
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases
       - name: Test Mesh-to-CFD Validation graph
@@ -120,8 +187,8 @@ jobs:
         run: python -m unittest tools.verification.test_ctest_evidence
       - name: Test verification contract catalog
         run: python -m unittest tools.verification.test_contract_catalog
-      - name: Test change preflight
-        run: python -m unittest tools.verification.test_preflight
+      - name: Test change preflight and Change Gate selection
+        run: python -m unittest tools.verification.test_preflight tools.verification.test_change_gate
       - name: Run repository change preflight
         run: python -m tools.verification.preflight
       - name: Test LaTeX formula preview
@@ -244,8 +311,8 @@ jobs:
           $gmsh = Get-ChildItem -Path $destination -Filter gmsh.exe -Recurse | Select-Object -First 1
           if ($null -eq $gmsh) { throw "Gmsh executable was not found in the downloaded archive." }
           $gmsh.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-      - name: Run generic STL cutting and Gmsh volume-mesh integration
-        run: python -m unittest grid.tests.python.stl_import.test_generic_stl_surface_cut
+      - name: Run generic STL cutting and pipe-bend Gmsh volume-mesh integration
+        run: python -m unittest grid.tests.python.stl_import.test_generic_stl_surface_cut grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_gmsh_generates_pipe_bend_volume_with_named_physical_groups
 
   background-task-python-315:
     name: Background task lifecycle (Windows, Python 3.15)

@@ -23,6 +23,7 @@ License
 #include "GridConversion.h"
 #include "GmshMeshReader.h"
 #include "StlMeshIO.h"
+#include "StlSurfaceCut.h"
 #include "ProcessRunner.h"
 #include "PointLocator.h"
 #include "CgnsFactory.h"
@@ -1341,15 +1342,28 @@ void ConvertStlSurfaceVolumeToGmsh(
     const std::filesystem::path& target)
 {
     namespace fs = std::filesystem;
-    const double tolerance = config.stlWeldTolerance;
+    double tolerance = config.stlWeldTolerance;
+    if (config.stlSurfaceCutEnabled)
+    {
+        std::ifstream cutReportInput(source.parent_path() / "cut_report.json", std::ios::binary);
+        if (!cutReportInput)
+            throw std::runtime_error("Native STL cut report is missing beside the closed surface");
+        const nlohmann::json cutReport = nlohmann::json::parse(cutReportInput);
+        tolerance = std::max(tolerance, cutReport.value(
+            "tolerance", static_cast<double>(config.stlSurfaceCutTolerance)));
+    }
     const StlMesh mesh = StlMeshReader::Read(source.string());
     ValidateClosedGenusZeroStlSurface(mesh, tolerance);
 
-    const double meshSize = options.value("mesh_size", 0.25);
+    const double legacyMeshSize = options.value("mesh_size", 0.25);
+    const double meshSizeMin = options.value("mesh_size_min", legacyMeshSize);
+    const double meshSizeMax = options.value("mesh_size_max", legacyMeshSize);
     const double surfaceAngle = options.value("surface_angle_degrees", 40.0);
     const double curveAngle = options.value("curve_angle_degrees", 180.0);
-    if (!std::isfinite(meshSize) || meshSize <= 0.0)
-        throw std::invalid_argument("3D STL automatic tetrahedra mesh_size must be positive and finite");
+    if (!std::isfinite(meshSizeMin) || meshSizeMin <= 0.0 ||
+        !std::isfinite(meshSizeMax) || meshSizeMax <= 0.0 ||
+        meshSizeMin > meshSizeMax)
+        throw std::invalid_argument("3D STL automatic tetrahedra mesh size bounds must be positive, finite and ordered");
     if (!std::isfinite(surfaceAngle) || surfaceAngle <= 0.0 || surfaceAngle >= 180.0)
         throw std::invalid_argument("surface_angle_degrees must be between 0 and 180");
     if (!std::isfinite(curveAngle) || curveAngle <= 0.0 || curveAngle > 180.0)
@@ -1385,20 +1399,57 @@ void ConvertStlSurfaceVolumeToGmsh(
         << "SetFactory(\"Built-in\");\n"
         << "Mesh.MshFileVersion = 4.1;\n"
         << "Mesh.Binary = 0;\n"
-        << "Mesh.ElementOrder = 1;\n"
-        << "Merge \"" << sourcePath << "\";\n"
-        << "ClassifySurfaces{" << surfaceAngle << " * Pi / 180, 1, 1, "
-        << curveAngle << " * Pi / 180};\n"
-        << "CreateGeometry;\n"
-        << "surfaceEntities[] = Surface{:};\n"
-        << "Surface Loop(1) = {surfaceEntities[]};\n"
-        << "Volume(1) = {1};\n"
-        << "Mesh.MeshSizeMin = " << meshSize << ";\n"
-        << "Mesh.MeshSizeMax = " << meshSize << ";\n"
+        << "Mesh.ElementOrder = 1;\n";
+    if (config.stlSurfaceCutEnabled)
+    {
+        const std::array<std::string, 3> regionFiles{"wall.stl", "inlet.stl", "outlet.stl"};
+        const std::array<std::string, 3> regionNames{"wall", "inflow", "outflow"};
+        for (std::size_t index = 0; index < regionFiles.size(); ++index)
+        {
+            const fs::path regionPath = source.parent_path() / regionFiles[index];
+            if (!fs::is_regular_file(regionPath))
+                throw std::runtime_error("Missing STL cut region file: " + regionPath.string());
+            std::string regionUtf8(PathUtf8(fs::absolute(regionPath)));
+            std::replace(regionUtf8.begin(), regionUtf8.end(), '\\', '/');
+            if (regionUtf8.find('"') != std::string::npos)
+                throw std::invalid_argument("STL region path must not contain a quote character");
+            geo << "Merge \"" << regionUtf8 << "\";\n";
+            if (index == 0)
+                geo << "wall[] = Surface{:};\n";
+            else
+            {
+                geo << "allImportedSurfaces[] = Surface{:};\n"
+                    << regionNames[index] << "[] = allImportedSurfaces[];\n"
+                    << regionNames[index] << "[] -= wall[];\n";
+                if (index == 2) geo << "outflow[] -= inflow[];\n";
+            }
+        }
+        geo << "Coherence Mesh;\n"
+            << "CreateTopology;\n"
+            << "CreateGeometry;\n"
+            << "Surface Loop(1) = {wall[], inflow[], outflow[]};\n"
+            << "Volume(1) = {1};\n"
+            << "Physical Surface(\"wall\") = {wall[]};\n"
+            << "Physical Surface(\"inflow\") = {inflow[]};\n"
+            << "Physical Surface(\"outflow\") = {outflow[]};\n"
+            << "Physical Volume(\"fluid_domain\") = {1};\n";
+    }
+    else
+    {
+        geo << "Merge \"" << sourcePath << "\";\n"
+            << "ClassifySurfaces{" << surfaceAngle << " * Pi / 180, 1, 1, "
+            << curveAngle << " * Pi / 180};\n"
+            << "CreateGeometry;\n"
+            << "surfaceEntities[] = Surface{:};\n"
+            << "Surface Loop(1) = {surfaceEntities[]};\n"
+            << "Volume(1) = {1};\n"
+            << "Physical Surface(\"" << boundaryName << "\") = {surfaceEntities[]};\n"
+            << "Physical Volume(\"" << volumeName << "\") = {1};\n";
+    }
+    geo << "Mesh.MeshSizeMin = " << meshSizeMin << ";\n"
+        << "Mesh.MeshSizeMax = " << meshSizeMax << ";\n"
         << "Mesh.MeshSizeFromPoints = 1;\n"
-        << "Mesh.MeshSizeExtendFromBoundary = 1;\n"
-        << "Physical Surface(\"" << boundaryName << "\") = {surfaceEntities[]};\n"
-        << "Physical Volume(\"" << volumeName << "\") = {1};\n";
+        << "Mesh.MeshSizeExtendFromBoundary = 1;\n";
     geo.close();
     if (!geo) throw std::runtime_error("Failed writing Gmsh geometry: " + geoPath.string());
 
@@ -1409,7 +1460,7 @@ void ConvertStlSurfaceVolumeToGmsh(
         {PathUtf8(fs::absolute(geoPath)), "-3", "-format", "msh4",
          "-o", PathUtf8(fs::absolute(target))},
         PathUtf8(fs::absolute(caseRoot)));
-    if (!process.started || process.exitCode != 0)
+        if (!process.started || process.exitCode != 0)
         throw std::runtime_error("Gmsh closed-surface volume generation failed (exit " +
             std::to_string(process.exitCode) + "): " + process.output + process.errorMessage);
 
@@ -1424,8 +1475,11 @@ void ConvertStlSurfaceVolumeToGmsh(
     if (counts[4] == 0 || counts[2] == 0 || counts[3] != 0 || counts[5] != 0)
         throw std::runtime_error("Closed STL volume must generate TETRA_4 cells and TRI_3 boundary facets only");
 
-    std::set<std::pair<int, std::string>> expected{
-        {2, boundaryName}, {3, volumeName}};
+    std::set<std::pair<int, std::string>> expected;
+    if (config.stlSurfaceCutEnabled)
+        expected = {{2, "wall"}, {2, "inflow"}, {2, "outflow"}, {3, "fluid_domain"}};
+    else
+        expected = {{2, boundaryName}, {3, volumeName}};
     std::set<std::pair<int, std::string>> actual;
     for (const auto& item : generated.physicalNames)
         actual.emplace(item.first.first, item.second);
@@ -1443,7 +1497,24 @@ void ConvertStlSurfaceVolumeToGmsh(
     report["triangle_boundary_elements"] = counts[2];
     report["hexahedron_elements"] = counts[5];
     report["quadrilateral_boundary_elements"] = counts[3];
-    report["physical_groups"] = {boundaryName, volumeName};
+    if (config.stlSurfaceCutEnabled)
+    {
+        report["physical_groups"] = {"wall", "inflow", "outflow", "fluid_domain"};
+        report["cut_regions"] = {
+            {"wall_triangles", StlMeshReader::Read(
+                (source.parent_path() / "wall.stl").string()).triangles.size()},
+            {"inlet_triangles", StlMeshReader::Read(
+                (source.parent_path() / "inlet.stl").string()).triangles.size()},
+            {"outlet_triangles", StlMeshReader::Read(
+                (source.parent_path() / "outlet.stl").string()).triangles.size()}
+        };
+    }
+    else
+    {
+        report["physical_groups"] = {boundaryName, volumeName};
+    }
+    report["mesh_size_min"] = meshSizeMin;
+    report["mesh_size_max"] = meshSizeMax;
     report["validated"] = true;
     std::ofstream reportOutput(reportPath, std::ios::trunc);
     if (!reportOutput) throw std::runtime_error("Cannot create STL-to-Gmsh report: " + reportPath.string());
@@ -1892,10 +1963,16 @@ void ConvertStlCubeToGmsh(
         // A 3-D volume layout must never fall through to the 2-D transfinite
         // surface path, where transfinite_cells is intentionally absent.
         const int meshDimension = options.value("mesh_dimension", 2);
+        if (config.stlSurfaceCutEnabled && meshDimension != 3)
+            throw std::invalid_argument("Native STL surface cutting requires a 3-D volume-mesh layout");
         if (meshDimension == 3)
         {
             const std::string volumeMesh =
                 options.value("volume_mesh", std::string{});
+            if (config.stlSurfaceCutEnabled &&
+                volumeMesh != "closed_surface_automatic_tetrahedra")
+                throw std::invalid_argument(
+                    "Native STL surface cutting requires volume_mesh = closed_surface_automatic_tetrahedra");
             if (volumeMesh == "closed_surface_automatic_tetrahedra")
             {
                 std::cout << "STL to Gmsh: selected closed-surface 3-D volume pipeline."
@@ -2355,20 +2432,100 @@ void ConvertStlCubeToGmsh(
                   << " welded nodes, " << grid.nElem << " triangles." << std::endl;
     }
 
+    std::filesystem::path PrepareStlSurfaceCut(
+        const GridConfig& config, const std::string& caseDir)
+    {
+        namespace fs = std::filesystem;
+        using Json = nlohmann::json;
+        if (!config.stlSurfaceCutEnabled) return {};
+        if (config.stlSurfaceCutConfigFile.empty())
+            throw std::invalid_argument("stlSurfaceCutEnabled requires stlSurfaceCutConfigFile");
+        const fs::path caseRoot(caseDir);
+        const fs::path configName(config.stlSurfaceCutConfigFile);
+        const fs::path configPath = configName.is_absolute() ? configName : caseRoot / configName;
+        std::ifstream configInput(configPath, std::ios::binary);
+        if (!configInput) throw std::runtime_error("Cannot open STL surface-cut configuration: " + configPath.string());
+        const Json cutConfig = Json::parse(configInput);
+        const Json& planes = cutConfig.at("cutting_planes");
+        const auto readPlane = [](const Json& value, bool defaultKeepPositive)
+        {
+            StlCutPlane plane;
+            plane.point = value.at("point").get<std::array<double, 3>>();
+            plane.normal = value.at("normal").get<std::array<double, 3>>();
+            plane.keepPositive = value.value("keep_positive", defaultKeepPositive);
+            return plane;
+        };
+        StlSurfaceCutOptions options;
+        options.inlet = readPlane(planes.at("inlet"), true);
+        options.outlet = readPlane(planes.at("outlet"), false);
+        options.tolerance = cutConfig.value("tolerance", static_cast<double>(config.stlSurfaceCutTolerance));
+        options.capBoundaries = cutConfig.value("cap_boundaries", true);
+        if (!options.capBoundaries) throw std::invalid_argument("STL-to-volume-mesh cutting requires cap_boundaries=true");
+        const fs::path sourceName(config.sourceFile);
+        const fs::path sourceRoot = config.ResolveSourceCaseDir(caseDir);
+        const fs::path source = sourceName.is_absolute() ? sourceName : sourceRoot / sourceName;
+        const StlMesh input = StlMeshReader::Read(source.string());
+        const StlSurfaceCutResult result = CutStlSurfaceBetweenPlanes(input, options);
+        const fs::path output = caseRoot / "results" / "stl_surface_cut";
+        fs::create_directories(output);
+        StlMeshWriter::WriteASCII((output / "wall.stl").string(), result.wall);
+        StlMeshWriter::WriteASCII((output / "inlet.stl").string(), result.inletCap);
+        StlMeshWriter::WriteASCII((output / "outlet.stl").string(), result.outletCap);
+        StlMeshWriter::WriteASCII((output / "closed_surface.stl").string(), result.closedSurface);
+        Json report;
+        report["schema"] = "oneflow.stl-surface-cut-report";
+        report["version"] = 1;
+        report["input_stl"] = fs::absolute(source).string();
+        report["tolerance"] = options.tolerance;
+        report["analytic_geometry_metadata_read"] = false;
+        report["source_triangle_count"] = input.triangles.size();
+        report["wall_triangle_count"] = result.wall.triangles.size();
+        report["inlet_cap_triangle_count"] = result.inletCap.triangles.size();
+        report["outlet_cap_triangle_count"] = result.outletCap.triangles.size();
+        report["inlet_loop_vertex_count"] = result.inletLoop.size();
+        report["outlet_loop_vertex_count"] = result.outletLoop.size();
+        report["closed_surface"] = "closed_surface.stl";
+        report["topology"]["welded_vertex_count"] = result.topology.weldedVertexCount;
+        report["topology"]["edge_count"] = result.topology.edgeCount;
+        report["topology"]["boundary_edge_count"] = result.topology.boundaryEdgeCount;
+        report["topology"]["non_manifold_edge_count"] = result.topology.nonManifoldEdgeCount;
+        report["topology"]["connected_component_count"] = result.topology.connectedComponentCount;
+        report["topology"]["signed_volume"] = result.topology.signedVolume;
+        std::ofstream reportOutput(output / "cut_report.json", std::ios::trunc);
+        if (!reportOutput) throw std::runtime_error("Cannot create STL surface-cut report");
+        reportOutput << report.dump(2) << '\n';
+        if (!reportOutput) throw std::runtime_error("Failed writing STL surface-cut report");
+        std::cout << "STL surface cutting completed: " << result.wall.triangles.size()
+                  << " wall triangles, " << result.inletCap.triangles.size()
+                  << " inlet-cap triangles, " << result.outletCap.triangles.size()
+                  << " outlet-cap triangles." << std::endl;
+        return fs::absolute(output / "closed_surface.stl");
+    }
+
     void ConvertStl( const GridConfig & config, const std::string & caseDir )
     {
-        switch ( config.targetType )
+        GridConfig effectiveConfig = config;
+        if ( config.stlSurfaceCutEnabled )
+        {
+            if (config.targetType != GridFileType::Gmsh)
+                throw std::invalid_argument(
+                    "Native STL surface cutting currently requires targetGridType = gmsh; "
+                    "direct CGNS conversion does not preserve the three cut-region groups.");
+            effectiveConfig.sourceFile = PrepareStlSurfaceCut(config, caseDir).string();
+            effectiveConfig.sourceCaseDir.clear();
+        }
+        switch ( effectiveConfig.targetType )
         {
             case GridFileType::CGNS:
-                ConvertStlToCgns( config, caseDir );
+                ConvertStlToCgns( effectiveConfig, caseDir );
                 return;
             case GridFileType::Gmsh:
-                ConvertStlToGmsh( config, caseDir );
+                ConvertStlToGmsh( effectiveConfig, caseDir );
                 return;
             default:
                 throw std::invalid_argument(
                     std::string( "Unsupported STL target type: " ) +
-                    std::string( ToString( config.targetType ) ) );
+                    std::string( ToString( effectiveConfig.targetType ) ) );
         }
     }
 

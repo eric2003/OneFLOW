@@ -18,6 +18,16 @@ class RunState(str, Enum):
 
 
 @dataclass(frozen=True, slots=True)
+class CaseImplementation:
+    """One selectable producer implementation for a catalog Case."""
+
+    implementation_id: str
+    kind: str
+    runner_script: Path
+    compiler_standard: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class CaseDefinition:
     """Resolved catalog entry; paths are absolute and validated at load time."""
 
@@ -32,6 +42,9 @@ class CaseDefinition:
     execution_script: Path | None = None
     workspace_relative_directory: Path | None = None
     dimension: int | None = None
+    requires_gmsh: bool = False
+    implementations: tuple[CaseImplementation, ...] = ()
+    default_implementation: str | None = None
 
 
 @dataclass(frozen=True, slots=True)

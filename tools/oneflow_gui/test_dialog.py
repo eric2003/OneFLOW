@@ -11,19 +11,21 @@ from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QCheckBox,
     QComboBox,
     QDialog,
     QFormLayout,
+    QHeaderView,
     QHBoxLayout,
     QLabel,
     QMessageBox,
     QPlainTextEdit,
     QSpinBox,
+    QStyledItemDelegate,
     QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
-    QHeaderView,
     QVBoxLayout,
 )
 
@@ -33,6 +35,7 @@ from .case_repository import (
     select_cases_by_execution_kind,
     select_cases_for_execution,
     select_cases_for_selection_dialog,
+    build_case_command,
 )
 from .models import CaseDefinition
 from .process_control import process_group_options, terminate_and_reap, terminate_process_tree
@@ -315,6 +318,10 @@ class TestRunnerDialog(QDialog):
             kind: list(cases)
             for kind, cases in self._available_database_cases_by_kind.items()
         }
+        self._selected_implementation_by_case = {
+            case.case_id: case.default_implementation
+            for case in all_database_cases if case.default_implementation
+        }
         self._run_database_after_commands = False
         self.setWindowTitle("OneFLOW Tests")
         self.resize(900, 650)
@@ -391,11 +398,12 @@ class TestRunnerDialog(QDialog):
         self.case_database_check = QCheckBox("Run Development Cases")
         self.case_database_check.setChecked(False)
         database_layout.insertWidget(0, self.case_database_check)
-        self.python_development_check = QCheckBox("Python reference cases")
+        self.python_development_check = QCheckBox("Python / mesh producer cases")
         self.python_development_check.setChecked(False)
         self.python_development_check.setToolTip(
-            "Runs Python reference cases. Together with Run Development Cases, "
-            "you can run Python only, native C++ only, or both. Selections are retained by type."
+            "Runs Python-driven mesh producer Cases. Cases that provide multiple geometry "
+            "implementations, such as the 90-degree pipe bend, let you choose Python reference "
+            "or native C++ geometry in the case selector. This is distinct from the OneFLOW solver."
         )
         self.python_development_check.toggled.connect(
             self._update_case_database_button_text
@@ -462,7 +470,7 @@ class TestRunnerDialog(QDialog):
         kinds = self._development_case_selection_kinds()
         labels = []
         for kind in kinds:
-            label = "Python" if kind == "python" else "C++"
+            label = "Mesh producers" if kind == "python" else "OneFLOW C++"
             labels.append(f"{label} ({len(self._database_cases_by_kind[kind])})")
         self.case_database_button.setText("Select cases... [" + " + ".join(labels) + "]")
 
@@ -476,10 +484,14 @@ class TestRunnerDialog(QDialog):
         selected_cases = [
             case for kind in kinds for case in self._database_cases_by_kind[kind]
         ]
-        dialog = CaseDatabaseSelectionDialog(available_cases, selected_cases, self)
+        dialog = CaseDatabaseSelectionDialog(
+            available_cases, selected_cases, self,
+            selected_implementations=self._selected_implementation_by_case,
+        )
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
         selected = dialog.selected_cases()
+        self._selected_implementation_by_case.update(dialog.selected_implementations())
         for kind in kinds:
             self._database_cases_by_kind[kind] = [
                 case for case in selected if case.execution_kind == kind
@@ -608,7 +620,19 @@ class TestRunnerDialog(QDialog):
                 if case.execution_kind == "python":
                     if case.execution_script is None:
                         raise ValueError(f"{case.case_id}: Python execution script is missing.")
-                    arguments = (sys.executable, str(case.execution_script), "--case-directory", str(case_directory))
+                    if case.requires_gmsh:
+                        from grid.stl_to_gmsh.generate_volume_mesh import discover_gmsh
+
+                        gmsh_executable = discover_gmsh()
+                    else:
+                        gmsh_executable = None
+                    arguments = build_case_command(
+                        case,
+                        case_directory,
+                        python_executable=sys.executable,
+                        gmsh_executable=gmsh_executable,
+                        implementation_id=self._selected_implementation_by_case.get(case.case_id),
+                    )
                     working_directory = self._repository_root
                 else:
                     assert executable is not None
@@ -627,8 +651,24 @@ class TestRunnerDialog(QDialog):
         enabled_modes = []
         if any(case.execution_kind == "oneflow" for case in selected_cases):
             enabled_modes.append("native C++ OneFLOW")
-        if any(case.execution_kind == "python" for case in selected_cases):
-            enabled_modes.append("Python reference")
+        for case in selected_cases:
+            if case.execution_kind != "python":
+                continue
+            selected_id = self._selected_implementation_by_case.get(
+                case.case_id, case.default_implementation
+            )
+            implementation = next(
+                (
+                    item for item in case.implementations
+                    if item.implementation_id == selected_id
+                ),
+                None,
+            )
+            if implementation is not None and implementation.kind == "cpp":
+                enabled_modes.append("native C++ geometry")
+            else:
+                enabled_modes.append("Python reference")
+        enabled_modes = list(dict.fromkeys(enabled_modes))
         self.log_view.appendPlainText(
             f"Development case modes: {' + '.join(enabled_modes)}\n"
             f"Development case workspace: {workspace_root}\nStaged {len(commands)} selected case(s)."
@@ -731,6 +771,41 @@ class TestRunnerDialog(QDialog):
         event.accept()
 
 
+class ImplementationComboDelegate(QStyledItemDelegate):
+    """Create short-lived combo editors instead of persistent tree-owned widgets.
+
+    QTreeWidget.setItemWidget() transfers C++ ownership of persistent widgets to
+    the view. A delegate keeps editors transient and lets Qt's item-view
+    machinery own their complete create/edit/commit/destroy lifecycle.
+    """
+
+    def __init__(self, values: dict[str, str], parent=None) -> None:
+        super().__init__(parent)
+        self._values = values
+
+    def createEditor(self, parent, option, index):
+        editor = QComboBox(parent)
+        for label, implementation_id in index.data(
+            Qt.ItemDataRole.UserRole + 1
+        ) or ():
+            editor.addItem(label, implementation_id)
+        return editor
+
+    def setEditorData(self, editor, index) -> None:
+        current = editor.findData(index.data(Qt.ItemDataRole.UserRole))
+        if current >= 0:
+            editor.setCurrentIndex(current)
+
+    def setModelData(self, editor, model, index) -> None:
+        implementation_id = str(editor.currentData())
+        label = editor.currentText()
+        model.setData(index, implementation_id, Qt.ItemDataRole.UserRole)
+        model.setData(index, label, Qt.ItemDataRole.DisplayRole)
+        case_id = index.data(Qt.ItemDataRole.UserRole + 2)
+        if case_id:
+            self._values[str(case_id)] = implementation_id
+
+
 class CaseDatabaseSelectionDialog(QDialog):
     """Configure which development cases the parent Tests page should run."""
 
@@ -739,12 +814,16 @@ class CaseDatabaseSelectionDialog(QDialog):
         available_cases: list[CaseDefinition],
         selected_cases: list[CaseDefinition],
         parent=None,
+        *,
+        selected_implementations: dict[str, str] | None = None,
     ) -> None:
         super().__init__(parent)
         self._cases = list(available_cases)
         selected_ids = {case.case_id for case in selected_cases}
         self.setWindowTitle("Select Development Test Cases")
-        self.resize(760, 560)
+        self.resize(1120, 760)
+        self.setMinimumSize(820, 520)
+        self.setSizeGripEnabled(True)
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel(
             "Select development cases to include when you press Run. "
@@ -752,10 +831,35 @@ class CaseDatabaseSelectionDialog(QDialog):
         ))
         self.case_tree = QTreeWidget()
         self.case_tree.setColumnCount(3)
-        self.case_tree.setHeaderLabels(["Run", "Case / Group", "Configuration"])
+        self.case_tree.setHeaderLabels(["Case / Group", "Configuration", "Implementation"])
         self.case_tree.setRootIsDecorated(True)
         self.case_tree.setAlternatingRowColors(True)
-        self.case_tree.header().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.case_tree.setWordWrap(False)
+        self.case_tree.setTextElideMode(Qt.TextElideMode.ElideNone)
+        self.case_tree.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        # Keep each checkbox immediately beside its tree-item label. The tree
+        # and selection therefore share one compact column; configuration
+        # details remain in a separate, resizable column.
+        self.case_tree.setTreePosition(0)
+        header = self.case_tree.header()
+        header.setStretchLastSection(False)
+        header.setMinimumSectionSize(120)
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
+        header.setSectionsMovable(False)
+        self.case_tree.setColumnWidth(0, 680)
+        self.case_tree.setColumnWidth(1, 260)
+        self.case_tree.setColumnWidth(2, 250)
+        self._implementation_values: dict[str, str] = {}
+        self._implementation_delegate = ImplementationComboDelegate(
+            self._implementation_values, self.case_tree
+        )
+        self.case_tree.setItemDelegateForColumn(2, self._implementation_delegate)
+        self.case_tree.setEditTriggers(
+            QAbstractItemView.EditTrigger.DoubleClicked
+            | QAbstractItemView.EditTrigger.EditKeyPressed
+            | QAbstractItemView.EditTrigger.SelectedClicked
+        )
+        selected_implementations = selected_implementations or {}
         dimension_items: dict[str, QTreeWidgetItem] = {}
         category_items: dict[tuple[str, str], QTreeWidgetItem] = {}
         for case in self._cases:
@@ -763,7 +867,7 @@ class CaseDatabaseSelectionDialog(QDialog):
             dimension_item = dimension_items.get(dimension)
             if dimension_item is None:
                 dimension_item = QTreeWidgetItem(self.case_tree)
-                dimension_item.setText(1, dimension)
+                dimension_item.setText(0, dimension)
                 dimension_item.setFlags(
                     dimension_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
                 )
@@ -773,7 +877,7 @@ class CaseDatabaseSelectionDialog(QDialog):
             category_item = category_items.get(category_key)
             if category_item is None:
                 category_item = QTreeWidgetItem(dimension_item)
-                category_item.setText(1, category_key[1])
+                category_item.setText(0, category_key[1])
                 category_item.setFlags(
                     category_item.flags() | Qt.ItemFlag.ItemIsUserCheckable
                 )
@@ -782,13 +886,43 @@ class CaseDatabaseSelectionDialog(QDialog):
             case_item = QTreeWidgetItem(category_item)
             case_item.setFlags(case_item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             case_item.setData(0, Qt.ItemDataRole.UserRole, case.case_id)
-            case_item.setText(1, case.title)
+            case_item.setText(0, case.title)
+            case_item.setToolTip(0, case.title)
             configuration = (
                 f"Python: {case.execution_script.name}"
                 if case.execution_kind == "python" and case.execution_script is not None
                 else ("Typed profile" if case.profile else "Legacy config")
             )
-            case_item.setText(2, configuration)
+            case_item.setText(1, configuration)
+            if case.implementations:
+                choices = tuple(
+                    (
+                        "Native C++ geometry"
+                        if implementation.kind == "cpp"
+                        else "Python reference",
+                        implementation.implementation_id,
+                    )
+                    for implementation in case.implementations
+                )
+                requested = selected_implementations.get(
+                    case.case_id, case.default_implementation
+                )
+                selected = next(
+                    (pair for pair in choices if pair[1] == requested),
+                    choices[0],
+                )
+                self._implementation_values[case.case_id] = selected[1]
+                case_item.setFlags(case_item.flags() | Qt.ItemFlag.ItemIsEditable)
+                case_item.setData(2, Qt.ItemDataRole.UserRole, selected[1])
+                case_item.setData(2, Qt.ItemDataRole.UserRole + 1, choices)
+                case_item.setData(2, Qt.ItemDataRole.UserRole + 2, case.case_id)
+                case_item.setText(2, selected[0])
+            else:
+                implementation_label = case.default_implementation or (
+                    "Python" if case.execution_kind == "python" else "Native OneFLOW"
+                )
+                self._implementation_values[case.case_id] = implementation_label
+                case_item.setText(2, implementation_label)
             case_item.setCheckState(
                 0,
                 Qt.CheckState.Checked
@@ -870,3 +1004,7 @@ class CaseDatabaseSelectionDialog(QDialog):
         for index in range(self.case_tree.topLevelItemCount()):
             visit(self.case_tree.topLevelItem(index))
         return [case for case in self._cases if case.case_id in selected_ids]
+
+    def selected_implementations(self) -> dict[str, str]:
+        """Return the implementation choice for each Case in the selector."""
+        return dict(self._implementation_values)

@@ -62,6 +62,70 @@ class WorkflowCaseRuntimeTest(unittest.TestCase):
             self.assertTrue((open_visual / "view.dat").is_file())
             self.assertFalse((staged_case / "results" / "grid.msh").exists())
 
+
+    def test_stages_shared_parent_level_stl_cut_configuration(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            case = root / "oblique_cut" / "cpp"
+            (case / "script").mkdir(parents=True)
+            (case / "input").mkdir()
+            shared = root / "oblique_cut" / "script" / "cutting.json"
+            shared.parent.mkdir(parents=True, exist_ok=True)
+            shared.write_text('{"cutting_planes": {}}\n', encoding="utf-8")
+            (case / "script" / "grid.txt").write_text(
+                'string stlSurfaceCutConfigFile = "../script/cutting.json";\n'
+                'string targetGridFileName = "results/cut.msh";\n',
+                encoding="utf-8",
+            )
+            plan = build_case_graph_plan([
+                {
+                    "id": "oblique_cut",
+                    "directory": "oblique_cut/cpp",
+                    "outputs": [{
+                        "id": "mesh",
+                        "path": "results/cut.msh",
+                        "parameter_file": "script/grid.txt",
+                        "setting": "targetGridFileName",
+                    }],
+                },
+            ], root)
+            run_root = root / "validation"
+            stale_config = run_root / "cases" / "script" / "cutting.json"
+            stale_config.parent.mkdir(parents=True)
+            stale_config.write_text('{"stale": true}\\n', encoding="utf-8")
+            staged = prepare_case_directory(plan.steps[0], run_root, {})
+            staged_shared = run_root / "cases" / "script" / "cutting.json"
+            self.assertEqual(staged_shared.read_text(encoding="utf-8"), '{"cutting_planes": {}}\n')
+            self.assertEqual(
+                (staged / "script" / "grid.txt").read_text(encoding="utf-8").splitlines()[0],
+                'string stlSurfaceCutConfigFile = "../script/cutting.json";',
+            )
+            self.assertEqual(shared.read_text(encoding="utf-8"), '{"cutting_planes": {}}\n')
+
+    def test_stages_shared_cut_config_for_python_reference_case(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            case = root / "oblique_cut" / "python"
+            (case / "input").mkdir(parents=True)
+            shared = root / "oblique_cut" / "script" / "cutting.json"
+            shared.parent.mkdir(parents=True)
+            shared.write_text('{"shared": true}\n', encoding="utf-8")
+            plan = build_case_graph_plan([
+                {
+                    "id": "oblique_python",
+                    "directory": "oblique_cut/python",
+                    "runtime_directory": "stl_to_gmsh",
+                    "outputs": [{"id": "mesh", "path": "results/cut.msh"}],
+                },
+            ], root)
+            run_root = root / "validation"
+            staged = prepare_case_directory(plan.steps[0], run_root, {})
+            self.assertTrue((run_root / "script" / "cutting.json").is_file())
+            self.assertEqual(
+                (run_root / "script" / "cutting.json").read_text(encoding="utf-8"),
+                '{"shared": true}\n',
+            )
+
     def test_rejects_parameter_file_traversal(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

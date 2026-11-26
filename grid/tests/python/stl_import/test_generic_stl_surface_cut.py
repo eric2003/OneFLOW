@@ -1,6 +1,8 @@
 """Generic plane cutting tests using the canonical cylinder STL as blind input."""
 import contextlib
 import io
+import json
+import math
 import os
 import shutil
 import tempfile
@@ -24,6 +26,13 @@ class GenericStlSurfaceCutTest(unittest.TestCase):
             / "automatic_tetrahedra" / "python" / "input" / "model.stl"
         )
         self.source = read_stl(self.stl)
+        self.case_directory = (
+            root / "grid" / "stl_to_gmsh" / "3d" / "cylinder_internal_flow"
+            / "oblique_cut" / "python"
+        )
+        self.case_config = json.loads(
+            (self.case_directory.parent / "script" / "cutting.json").read_text(encoding="utf-8")
+        )
 
     def test_cylinder_stl_is_cut_without_reading_analytic_manifest(self):
         result = cut_closed_surface_between_planes(
@@ -47,6 +56,55 @@ class GenericStlSurfaceCutTest(unittest.TestCase):
         self.assertGreater(result["inlet_loop_vertex_count"], 3)
         self.assertGreater(result["outlet_loop_vertex_count"], 3)
         validate_closed_genus_zero_surface(result["closed_triangles"], 1.0e-8)
+
+
+    def test_oblique_cylinder_cut_creates_elliptical_inlet_and_circular_outlet(self):
+        config = self.case_config
+        planes = config["cutting_planes"]
+        inlet, outlet = planes["inlet"], planes["outlet"]
+        result = cut_closed_surface_between_planes(
+            self.source, tuple(inlet["point"]), tuple(inlet["normal"]),
+            tuple(outlet["point"]), tuple(outlet["normal"]),
+            tolerance=config["tolerance"],
+            inlet_keep_positive=inlet.get("keep_positive", True),
+            outlet_keep_positive=outlet.get("keep_positive", False),
+        )
+        angle = math.radians(inlet["inclination_degrees"])
+        major_axis = (-math.sin(angle), math.cos(angle), 0.0)
+        minor_axis = (0.0, 0.0, 1.0)
+        center = tuple(inlet["point"])
+
+        def semi_extent(loop, axis):
+            values = [
+                sum((point[i] - center[i]) * axis[i] for i in range(3))
+                for point in loop
+            ]
+            return 0.5 * (max(values) - min(values))
+
+        measured_ratio = (
+            semi_extent(result["inlet_loop"], major_axis)
+            / semi_extent(result["inlet_loop"], minor_axis)
+        )
+        expected_ratio = config["analytic_expectation_for_verification_only"][
+            "inlet_major_to_minor_ratio"
+        ]
+        self.assertGreater(measured_ratio, 1.10)
+        self.assertAlmostEqual(measured_ratio, expected_ratio, delta=0.04)
+
+        outlet_y = [point[1] for point in result["outlet_loop"]]
+        outlet_z = [point[2] for point in result["outlet_loop"]]
+        outlet_ratio = (
+            (max(outlet_y) - min(outlet_y))
+            / (max(outlet_z) - min(outlet_z))
+        )
+        self.assertAlmostEqual(outlet_ratio, 1.0, delta=0.04)
+        topology = validate_closed_genus_zero_surface(
+            result["closed_triangles"], config["tolerance"]
+        )
+        self.assertEqual(topology["euler_characteristic"], 2)
+        self.assertGreater(topology["signed_volume"], 0.0)
+        self.assertGreater(result["inlet_cap_triangle_count"], 0)
+        self.assertGreater(result["outlet_cap_triangle_count"], 0)
 
     def test_cli_writes_named_surface_regions_and_report(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -220,6 +278,55 @@ class GenericStlSurfaceCutTest(unittest.TestCase):
                 sum(groups[(2, name)] for name in ("wall", "inflow", "outflow")),
                 mesh["triangle_elements"],
                 "Every curved-shell exterior triangle must belong to one named boundary group",
+            )
+
+
+    @unittest.skipUnless(
+        os.environ.get("ONEFLOW_RUN_GMSH_TESTS") == "1"
+        and (shutil.which("gmsh") or shutil.which("gmsh.exe")),
+        "Set ONEFLOW_RUN_GMSH_TESTS=1 and install Gmsh for the oblique-cut volume-mesh test",
+    )
+    def test_gmsh_meshes_oblique_cylinder_with_elliptical_inlet_group(self):
+        from grid.stl_to_gmsh.generate_volume_mesh import generate
+
+        config = self.case_config
+        planes = config["cutting_planes"]
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "oblique-cylinder"
+            arguments = [
+                "--input", str(self.case_directory / "input" / "model.stl"),
+                "--output-directory", str(output),
+                "--inlet-point", *(str(value) for value in planes["inlet"]["point"]),
+                "--inlet-normal", *(str(value) for value in planes["inlet"]["normal"]),
+                "--outlet-point", *(str(value) for value in planes["outlet"]["point"]),
+                "--outlet-normal", *(str(value) for value in planes["outlet"]["normal"]),
+                "--tolerance", str(config["tolerance"]),
+            ]
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(cut_surface_main(arguments), 0)
+            report = generate(
+                output / "closed_surface.stl",
+                output / "results" / "cylinder_oblique_cut.msh",
+                shutil.which("gmsh") or shutil.which("gmsh.exe"),
+                mesh_size_min=config["volume_mesh"]["mesh_size_min"],
+                mesh_size_max=config["volume_mesh"]["mesh_size_max"],
+            )
+            self.assertTrue(report["validated"], report)
+            mesh = report["mesh_summary"]
+            self.assertGreater(mesh["tetrahedron_elements"], 0)
+            self.assertGreater(mesh["triangle_elements"], 0)
+            groups = {
+                (item["dimension"], item["name"]): item["element_count"]
+                for item in mesh["physical_groups"]
+            }
+            self.assertEqual(
+                set(groups),
+                {(2, "wall"), (2, "inflow"), (2, "outflow"), (3, "fluid_domain")},
+            )
+            self.assertTrue(all(count > 0 for count in groups.values()))
+            self.assertEqual(
+                sum(groups[(2, name)] for name in ("wall", "inflow", "outflow")),
+                mesh["triangle_elements"],
             )
 
     def test_empty_input_is_rejected(self):

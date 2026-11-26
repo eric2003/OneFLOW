@@ -141,3 +141,91 @@ every exterior triangle to belong to exactly one of `wall`, `inflow` or
 in GitHub Actions. CGNS inspection and OneFLOW CFD boundary verification
 remain downstream checks; a successful solver launch alone is not accepted
 as evidence that the three physical boundary conditions are correct.
+
+
+Oblique cylinder inlet reference case
+-------------------------------------
+
+The standard reference case is stored under
+``grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python``.
+It reuses the canonical closed cylinder STL as a blind triangle-shell input;
+there is deliberately no geometry sidecar for the cutting operation.
+
+The cylinder axis is X and its reference radius is ``R = 1``. The inlet
+plane passes through ``(-1.2, 0, 0)`` with unit normal
+``(cos(30 deg), sin(30 deg), 0)``. The outlet remains at ``x = 1.5``
+with normal ``(1, 0, 0)``.
+
+For the inlet plane,
+
+``cos(theta) (x - x0) + sin(theta) y = 0``
+
+and the cylinder satisfies ``y^2 + z^2 = R^2``. In plane-local
+coordinates, the ellipse semi-axes are ``R / cos(theta)`` and ``R``.
+At 30 degrees the expected major/minor ratio is approximately 1.1547. The
+outlet remains circular. These analytic values are used only by verification;
+the cutter receives only STL triangles and plane points/normals.
+
+Run the complete cut and Gmsh volume-mesh example from the repository root:
+
+.. code-block:: console
+
+   python grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py --gmsh gmsh
+
+The runner writes generated geometry and mesh artifacts below the user's
+``.oneflow/mesh-generation/cylinder_oblique_cut`` directory. It retains
+``wall``, ``inflow`` and ``outflow`` as separate named surface regions
+and requires the ``fluid_domain`` volume group. The pure geometry test checks
+the measured inlet ellipse and circular outlet; the opt-in Gmsh integration
+checks non-empty Physical Groups and complete exterior-facet assignment.
+
+The Mesh Generation GUI now offers **Convert + Run OneFLOW** after this MSH is
+generated. It hands the existing mesh to the shared Mesh-to-CFD Validation
+pipeline, which stages the mesh, converts Gmsh MSH to CGNS, converts CGNS to
+the native OneFLOW grid, and runs a short 3-D solver smoke test. Validation
+artifacts and the run report are written below the mesh project's ``validation``
+directory. The smoke test confirms workflow execution and mesh ingestion only;
+it is not a claim of physically validated oblique-inlet CFD accuracy.
+
+
+Native C++ surface-cut entry
+----------------------------
+
+The native geometry operation is implemented under ``codes/geometry/stl``. STL cutting is opt-in through the grid control parameters: ``stlSurfaceCutEnabled = 1`` enables the operation, ``stlSurfaceCutConfigFile`` identifies a JSON file relative to the case, and ``stlSurfaceCutTolerance`` supplies the fallback geometric tolerance. The JSON uses ``cutting_planes.inlet/outlet.point`` and ``normal``, with ``keep_positive`` selecting the retained half-space. The default is disabled, so existing STL workflows are unchanged. The current native implementation requires one connected, closed, outward-oriented input shell and one simple loop at each cut plane.
+
+
+Native Case Execution
+---------------------
+
+The native case is registered as
+``stl_to_gmsh_cylinder_internal_flow_oblique_cut`` in
+``grid/case_catalog.json``. It is a normal OneFLOW C++ Case under
+``grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp``, not a
+standalone utility. It can be selected in Run Development Cases or directly
+in Mesh-to-CFD Validation. The validation workflow stages the Case in the
+user's OneFLOW workspace, stages the shared parent-level cut configuration,
+runs the native mesh producer, checks the four Physical Groups, then continues
+through MSH → CGNS → OneFLOW grid → CFD smoke test.
+
+The Python reference entry is separately registered as
+``stl_to_gmsh_python_cylinder_internal_flow_oblique_cut``. Its runner is
+``grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py``.
+Both implementations read the common
+``grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/script/cutting.json``.
+
+The native OneFLOW parameters are:
+
+* ``stlSurfaceCutEnabled`` (default ``0``): set to 1 to enable native
+  plane cutting.
+* ``stlSurfaceCutConfigFile`` (default empty): Case-relative path to the
+  shared cutting JSON.
+* ``stlSurfaceCutTolerance`` (default ``1e-8``): fallback tolerance;
+  an explicit JSON tolerance takes precedence.
+
+When disabled, the existing STL conversion behavior is unchanged. When
+enabled, the current native cutter requires a single connected, closed,
+outward-oriented shell and one simple boundary loop at each cutting plane.
+The native operation requires a 3-D layout with
+``volume_mesh = closed_surface_automatic_tetrahedra``. The current Gmsh volume
+converter additionally requires genus-zero input and rejects zero-area or
+near-degenerate triangles.

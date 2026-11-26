@@ -1,9 +1,11 @@
 Mesh-to-CFD Validation
 ======================
 
-Mesh-to-CFD Validation is a dedicated mode in the OneFLOW Tests dialog. It is
-separate from **Run Development Cases**, which continues to execute individual
-preconfigured Cases.
+Mesh-to-CFD Validation is available from the Workbench home screen, the Mesh
+Generation hub, and the OneFLOW Tests dialog. It is separate from **Run
+Development Cases**, which continues to execute individual preconfigured
+Cases. The STL-to-Gmsh project page also opens this workbench for its current
+MSH file; this project-scoped route does not regenerate the mesh.
 
 The initial conversion route is:
 
@@ -50,10 +52,38 @@ Gmsh-to-CGNS conversion and CGNS-to-OneFLOW native-grid ingestion, it continues
 into ``oneflow_cfd_solve``. The existing ``laminar_flat_plate`` CFD control
 Case is reused as the generic solver smoke setup, with ``dimension`` overridden
 to ``3`` in the isolated runtime Case. When the project carries a
-checksum-verified ``region_manifest.json``, its ``wall``, ``inflow`` and
-``outflow`` region names become required MSH Physical Groups for that run.
-Legacy imported projects that previously used the prolate-spheroid Case as a
-generic fallback are migrated when reopened.
+checksum-verified ``region_manifest.json``, its named regions become required
+MSH Physical Groups for that run.
+
+The generated 90-degree pipe-bend Case shares the same geometry-neutral
+region-aware converter, but its own lifecycle contract currently selects a
+shorter milestone ending at CGNS conversion. The declared lifecycle scope
+determines which workflow stages are run and which stages are expected to
+remain ``NOT_RUN``; the generic four-stage route must not be inferred for
+every geometry Case.
+
+90-degree pipe bend
+-------------------
+
+The parameterized 90-degree pipe bend is registered as a generated
+Python-reference Case in the 3-D **Mesh-to-CFD Validation** tree. The producer
+runs the parameterized geometry generator and the shared region-aware Gmsh
+volume mesher, then copies the resulting MSH into an isolated validation run.
+Its current lifecycle scope includes geometry, named surface regions, the
+tetrahedral volume mesh and Gmsh-to-CGNS conversion. The four required MSH
+Physical Groups are dimension-2 ``wall``, ``inflow`` and ``outflow``,
+plus dimension-3 ``fluid_domain``.
+
+The declared milestone ends after CGNS conversion. CGNS-to-OneFLOW ingestion,
+the native solver smoke test and physical CFD validation remain separate
+future milestones; the current milestone is not considered failed because
+those later stages are ``planned``. Mesh-quality metrics are diagnostic and
+do not gate conversion. This milestone verifies software geometry/mesh/format
+handoff only, not pressure loss, secondary-flow accuracy or mesh independence.
+
+When a generated mesh project is opened directly, the project-scoped
+**Mesh-to-CFD Validation...** action validates that exact project. Its workflow
+scope remains governed by the selected Case lifecycle contract.
 
 3-D internal-flow cylinder
 --------------------------
@@ -182,7 +212,8 @@ created it. The GUI shows these lineage rows alongside the workflow stages.
 Persistent geometry lineage sidecars
 -------------------------------------
 
-Each generated CGNS volume mesh is accompanied by\n``<mesh.cgns>.geometry-lineage.json``. It records the geometry provenance,
+Each generated CGNS volume mesh is accompanied by
+``<mesh.cgns>.geometry-lineage.json``. It records the geometry provenance,
 verified source STL (when available), derived Gmsh MSH, and a SHA-256 checksum
 of the CGNS file itself. The following CGNS-to-OneFLOW stage verifies that
 checksum before consuming the record and writes the inherited lineage beside
@@ -194,4 +225,66 @@ native-grid binary formats. A missing, malformed, or checksum-mismatched
 upstream record causes the lineage handoff stage to fail rather than silently
 claiming an unverified chain. The geometry source may still be explicitly
 ``unknown``; persistence does not manufacture historical provenance.
-\n
+
+Artifact inventory and report recovery
+---------------------------------------
+
+The run report also contains ``artifacts.files``, a deterministic inventory of
+files that actually existed when the report was finalized. Each entry stores a
+run-relative POSIX path, stage, display name, category, byte size and SHA-256 digest.
+The report itself is excluded from this list to avoid a self-referential
+checksum. Temporary atomic-write files and symlinks are not followed.
+
+The inventory categories are Geometry, Volume Mesh, CFD Results, Reports,
+Logs and Other. The GUI groups the entries by category and checks whether each
+recorded file is present when the report is opened. A missing file remains
+visible as Missing; the UI does not silently discard it. Paths are relative to
+the report directory, so moving the complete run directory preserves the
+artifact links. The console-log reference is also run-relative when the log
+is stored inside the run directory. When a report is reopened, the GUI
+re-bases its run directory on the report's current location, so moving the
+complete run directory does not leave stale absolute paths in the result view.
+The worker refreshes the inventory after writing the durable console log,
+ensuring that the final report includes that log as well.
+
+Reports created before ``artifacts.files`` was introduced remain readable:
+their existing artifact fields and geometry lineage continue to be displayed.
+The raw JSON report remains available for complete machine-readable evidence.
+
+
+Recovering a run when its JSON report is missing
+-------------------------------------------------
+
+Each run now writes a small ``mesh-validation-run.json`` metadata record
+before executing its stages. It preserves the Case ID, implementation, input
+mode, CFD template, step limit, source paths, run ID, start time and planned
+stage directories. This makes interrupted runs identifiable even when no
+final report was written.
+
+Use **Recover Folder...** and select the run directory when
+``mesh-validation-report.json`` is missing or unreadable. Recovery reads
+the per-stage ``results/mesh-validation.log`` records, the optional
+``stl_to_gmsh/results/mesh-validation.json`` evidence, the durable
+``mesh-validation-console.log``, and checksum-bound geometry lineage
+sidecars. For older runs whose stage logs predate terminal-status recording,
+the durable console log is used as a fallback source for the exact
+``[stage] succeeded/failed/cancelled`` records.
+
+A stage is marked PASS, FAIL or NOT RUN only when its own log contains the
+terminal status line written by the stage runner. A mesh file, CGNS file, CFD
+result or partial log alone never proves that its producing stage completed
+successfully; such stages remain NOT CHECKED. Verified geometry sidecars are
+accepted only when their artifact checksum still matches.
+
+The recovered view is explicitly labelled RECOVERED. It does not invent the
+original overall exit code, run completion time, missing stage outcomes, or
+physical-accuracy verdict. The reconstructed report is an in-memory evidence
+view; recovery does not overwrite or recreate the missing original report.
+
+
+Run history and retention
+-------------------------
+
+Each new validation execution is stored in its own timestamped run directory below the Case validation workspace. Starting a new run no longer deletes previous reports, logs, meshes or solver outputs. The **Run History** tab lists completed reports and interrupted runs with readable run metadata; double-clicking an entry opens the recorded report or reconstructs an evidence-only view from its durable stage logs.
+
+The history list is a filesystem view, not a second source of truth. It is rebuilt by scanning run directories, so deleting or corrupting an optional index cannot orphan a run. A completed report determines its recorded status; a directory with metadata or stage logs but no readable report is labelled ``RECOVERABLE`` until opened and reconstructed. Older runs stored directly in the validation workspace remain discoverable. Run directories are retained until the user explicitly removes them outside the application; automatic cleanup is intentionally not performed.

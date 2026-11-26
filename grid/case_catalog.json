@@ -544,6 +544,115 @@
       },
       "mesh_project_template": true,
       "mesh_validation": "cfd_smoke"
+    },
+    {
+      "id": "stl_to_gmsh_cylinder_internal_flow_oblique_cut",
+      "title": "STL to Gmsh: Internal-flow Cylinder with Generic Oblique Cut (Native C++)",
+      "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp",
+      "group": "STL to Gmsh",
+      "dimension": 3,
+      "mesh_validation": "cfd_smoke",
+      "required_physical_groups": [
+        {
+          "name": "wall",
+          "dimension": 2
+        },
+        {
+          "name": "inflow",
+          "dimension": 2
+        },
+        {
+          "name": "outflow",
+          "dimension": 2
+        },
+        {
+          "name": "fluid_domain",
+          "dimension": 3
+        }
+      ]
+    },
+    {
+      "id": "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut",
+      "title": "STL to Gmsh: Internal-flow Cylinder with Generic Oblique Cut (Python Reference)",
+      "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py",
+        "output_directory_argument": "--output-directory"
+      },
+      "dimension": 3,
+      "mesh_validation": "cfd_smoke",
+      "required_physical_groups": [
+        {
+          "name": "wall",
+          "dimension": 2
+        },
+        {
+          "name": "inflow",
+          "dimension": 2
+        },
+        {
+          "name": "outflow",
+          "dimension": 2
+        },
+        {
+          "name": "fluid_domain",
+          "dimension": 3
+        }
+      ]
+    },
+    {
+      "id": "stl_to_gmsh_pipe_bend_90_degree",
+      "title": "STL to Gmsh: 90-Degree Pipe Bend with Automatic TETRA_4 Volume Mesh",
+      "directory": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/run_pipe_bend_case.py",
+        "generates_input": true,
+        "requires_gmsh": true,
+        "implementations": [
+          {
+            "id": "python_reference",
+            "kind": "python",
+            "script": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/run_pipe_bend_case.py",
+            "default": true
+          },
+          {
+            "id": "native_cpp_geometry",
+            "kind": "cpp",
+            "script": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/run_pipe_bend_cpp_case.py",
+            "compiler_standard": "c++17"
+          }
+        ]
+      },
+      "dimension": 3,
+      "lifecycle_contract": "stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/case-lifecycle.json",
+      "mesh_validation": "cfd_smoke",
+      "required_physical_groups": [
+        {
+          "name": "wall",
+          "dimension": 2
+        },
+        {
+          "name": "inflow",
+          "dimension": 2
+        },
+        {
+          "name": "outflow",
+          "dimension": 2
+        },
+        {
+          "name": "fluid_domain",
+          "dimension": 3
+        }
+      ],
+      "geometry_provenance": {
+        "kind": "generated",
+        "generator": "oneflow_pipe_bend_geometry",
+        "notes": "Parametric 90-degree pipe-bend STL and region manifest are generated at run time; the generic region-aware Gmsh volume mesher produces the MSH4 volume mesh."
+      }
     }
   ],
   "mesh_validation_inputs": [
@@ -590,6 +699,37 @@
         "project_directory": "generic_surface_mesh",
         "mesh_file": "results/generic_surface_mesh.msh"
       }
+    },
+    {
+      "id": "stl_to_gmsh_oblique_cylinder_cut",
+      "title": "Oblique-cut Cylinder (Elliptical Inlet, Existing MSH)",
+      "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python",
+      "group": "STL to Gmsh",
+      "dimension": 3,
+      "mesh_validation": "cfd_smoke",
+      "execution": {
+        "kind": "existing_mesh",
+        "project_directory": "cylinder_oblique_cut",
+        "mesh_file": "results/cylinder_oblique_cut.msh"
+      },
+      "required_physical_groups": [
+        {
+          "name": "wall",
+          "dimension": 2
+        },
+        {
+          "name": "inflow",
+          "dimension": 2
+        },
+        {
+          "name": "outflow",
+          "dimension": 2
+        },
+        {
+          "name": "fluid_domain",
+          "dimension": 3
+        }
+      ]
     }
   ]
 }

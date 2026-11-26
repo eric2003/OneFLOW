@@ -1,0 +1,31 @@
+{
+  "schema": "oneflow.mesh-case-expectation",
+  "version": 1,
+  "case_id": "stl_to_gmsh_oblique_cylinder_cut",
+  "artifact": {
+    "mesh_file": "cylinder_oblique_cut.msh"
+  },
+  "mesh": {
+    "dimension": 3,
+    "cell_type": "TETRA_4"
+  },
+  "physical_groups": [
+    {
+      "name": "wall",
+      "dimension": 2
+    },
+    {
+      "name": "inflow",
+      "dimension": 2
+    },
+    {
+      "name": "outflow",
+      "dimension": 2
+    },
+    {
+      "name": "fluid_domain",
+      "dimension": 3
+    }
+  ],
+  "notes": "Blind-STL oblique inlet reference mesh. The inlet section is elliptical; this expectation records boundary identity, not analytic geometry used by the cutter."
+}

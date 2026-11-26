@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import gc
+import hashlib
 import json
 import os
 import tempfile
@@ -11,7 +13,11 @@ from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
+from PySide6.QtCore import QEvent
 from PySide6.QtWidgets import QApplication, QPushButton, QScrollArea
+
+
+_QT_APPLICATION = QApplication.instance() or QApplication([])
 from tools.oneflow_gui.application_settings import ApplicationSettings
 from tools.oneflow_gui.user_data_paths import UserDataPaths
 from grid.stl_to_gmsh.generate_volume_mesh import (
@@ -28,7 +34,9 @@ from tools.oneflow_gui.mesh_generation_dialog import (
     StlToGmshDialog,
 )
 from tools.oneflow_gui.generic_surface_cut_dialog import GenericSurfaceCutDialog
+from tools.oneflow_gui.case_repository import select_cases_for_selection_dialog
 from tools.oneflow_gui.mesh_project import (
+    create_mesh_project_from_stl,
     create_mesh_project_from_template,
     load_mesh_project,
 )
@@ -37,8 +45,21 @@ from tools.oneflow_gui.mesh_project import (
 class MeshGenerationDialogTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.application = QApplication.instance() or QApplication([])
+        cls.application = _QT_APPLICATION
         cls.repository_root = Path(__file__).resolve().parents[2]
+
+    def tearDown(self) -> None:
+        # Close and destroy every top-level widget created by this test before
+        # the next test starts. Closing alone leaves Qt-owned child objects and
+        # deferred-delete events queued until interpreter shutdown on Linux.
+        for widget in QApplication.topLevelWidgets():
+            widget.close()
+            widget.deleteLater()
+        self.application.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        self.application.processEvents()
+        gc.collect()
+        self.application.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        self.application.processEvents()
 
     def test_geometry_library_is_available_from_mesh_generation(self) -> None:
         from tools.oneflow_gui.geometry_library_dialog import GeometryLibraryDialog
@@ -113,6 +134,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 if "Mesh" in button.text()
             ]
             self.assertIn("Mesh Generation...", mesh_buttons)
+            self.assertIn("Mesh-to-CFD Validation...", mesh_buttons)
             self.assertNotIn("Mesh Layout Editor...", mesh_buttons)
             with patch(
                 "tools.oneflow_gui.home_window.MeshGenerationDialog"
@@ -122,6 +144,14 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 self.repository_root.resolve(), window
             )
             dialog_type.return_value.exec.assert_called_once()
+            with patch(
+                "tools.oneflow_gui.home_window.MeshValidationDialog"
+            ) as validation_type:
+                window._open_mesh_validation()
+            validation_type.assert_called_once_with(
+                self.repository_root.resolve(), parent=window
+            )
+            validation_type.return_value.exec.assert_called_once()
         finally:
             window.close()
 
@@ -132,6 +162,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             labels = {button.text() for button in buttons}
             self.assertIn("Mesh Layout Editor", labels)
             self.assertIn("STL to Gmsh", labels)
+            self.assertIn("Mesh-to-CFD Validation...", labels)
             self.assertIn("Geometry Library...", labels)
             self.assertNotIn("Generate STL Geometry", labels)
             self.assertIn("Mesh Knowledge", labels)
@@ -162,6 +193,14 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 self.repository_root.resolve(), "mesh", dialog
             )
             knowledge_type.return_value.exec.assert_called_once()
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.MeshValidationDialog"
+            ) as validation_type:
+                dialog._open_mesh_validation()
+            validation_type.assert_called_once_with(
+                self.repository_root.resolve(), parent=dialog
+            )
+            validation_type.return_value.exec.assert_called_once()
         finally:
             dialog.close()
 
@@ -206,6 +245,59 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     self.assertEqual(dialog.generated_stl, output.resolve())
                     self.assertIn("inflow", dialog.result_view.toPlainText())
                     self.assertIn("outflow", dialog.result_view.toPlainText())
+                    self.assertIn("Manifest:", dialog.result_view.toPlainText())
+                    self.assertIn("Patch triangles:", dialog.result_view.toPlainText())
+                    geometry_manifest = json.loads(manifest.read_text(encoding="utf-8"))
+                    self.assertEqual(
+                        set(geometry_manifest["patch_triangle_indices"]),
+                        {"wall", "inflow", "outflow"},
+                    )
+                    project = create_mesh_project_from_stl(
+                        self.repository_root, output, "cylinder-ui"
+                    )
+                    project_geometry_manifest = (
+                        project["stl_path"].with_suffix(".geometry.json")
+                    )
+                    self.assertTrue(project_geometry_manifest.is_file())
+                    project_geometry = json.loads(
+                        project_geometry_manifest.read_text(encoding="utf-8")
+                    )
+                    self.assertEqual(
+                        project_geometry["asset_id"], "geometry.cylinder.internal_flow"
+                    )
+                    self.assertEqual(
+                        project["geometry_lineage"]["provenance"]["kind"], "generated"
+                    )
+                    self.assertIsNone(project["boundary_regions"])
+                    gmsh_dialog = StlToGmshDialog(
+                        self.repository_root, project=project
+                    )
+                    try:
+                        self.assertEqual(
+                            gmsh_dialog.geometry_preset.currentData(),
+                            "cylinder_internal_flow",
+                        )
+                        self.assertTrue(gmsh_dialog.geometry_preset.isEnabled())
+                        self.assertFalse(gmsh_dialog.boundary_name.isEnabled())
+                        self.assertFalse(gmsh_dialog.volume_name.isEnabled())
+                        self.assertEqual(gmsh_dialog.stl_path.text(), str(project["stl_path"]))
+                        self.assertEqual(
+                            gmsh_dialog._mesh_case_id,
+                            "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow",
+                        )
+                        self.assertEqual(
+                            gmsh_dialog.validate_button.text(),
+                            "Mesh-to-CFD Validation...",
+                        )
+                        lineage_text = gmsh_dialog.geometry_lineage_view.toPlainText()
+                        self.assertIn(
+                            "Boundary patches: inflow, outflow, wall",
+                            lineage_text.splitlines(),
+                        )
+                        self.assertIn("\nGeometry asset:", lineage_text)
+                        self.assertNotIn("\\n", lineage_text)
+                    finally:
+                        gmsh_dialog.close()
                 finally:
                     dialog.close()
 
@@ -445,6 +537,202 @@ class MeshGenerationDialogTest(unittest.TestCase):
             self.assertIn(str(expected_stl), dialog._command_text())
         finally:
             dialog.close()
+
+    def test_mesh_validation_case_tree_uses_single_selection_column(self) -> None:
+        from PySide6.QtCore import Qt
+        from tools.oneflow_gui.mesh_validation_dialog import MeshValidationDialog
+
+        dialog = MeshValidationDialog(self.repository_root)
+        try:
+            self.assertEqual(dialog.case_tree.columnCount(), 1)
+            self.assertEqual(
+                dialog.case_tree.headerItem().text(0), "STL / Mesh Case"
+            )
+            self.assertTrue(dialog.case_tree.isColumnHidden(0) is False)
+            self.assertTrue(dialog._case_items)
+            self.assertIn(
+                "stl_to_gmsh_pipe_bend_90_degree",
+                dialog._case_items,
+            )
+
+            case_item = next(iter(dialog._case_items.values()))
+            category_item = case_item.parent()
+            dimension_item = category_item.parent()
+            case_item.setCheckState(0, Qt.CheckState.Unchecked)
+            self.assertEqual(
+                category_item.checkState(0), Qt.CheckState.PartiallyChecked
+            )
+            self.assertEqual(
+                dimension_item.checkState(0), Qt.CheckState.PartiallyChecked
+            )
+
+            category_item.setCheckState(0, Qt.CheckState.Checked)
+            for index in range(category_item.childCount()):
+                self.assertEqual(
+                    category_item.child(index).checkState(0), Qt.CheckState.Checked
+                )
+        finally:
+            dialog.close()
+
+    def test_mesh_validation_dialog_reconstructs_report_views(self) -> None:
+        from tools.oneflow_gui.mesh_validation_dialog import MeshValidationDialog
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            console_path = root / "mesh-validation-console.log"
+            console_path.write_text("restored console output\n", encoding="utf-8")
+            report_path = root / "mesh-validation-report.json"
+            report = {
+                "schema": "oneflow.run-report",
+                "version": 1,
+                "workflow": "Mesh-to-CFD Validation",
+                "status": "success",
+                "exit_code": 0,
+                "mesh_case_id": "test_mesh_case",
+                "stages": {"gmsh_to_cgns": {"status": "PASS", "message": "Converted"}},
+                "metrics": {"nodes": 12},
+                "artifacts": {
+                    "report": str(report_path),
+                    "console_log": str(console_path),
+                    "mesh": str(root / "mesh.msh"),
+                },
+                "execution": {"console_log": str(console_path)},
+                "geometry_lineage": {},
+                "error": None,
+            }
+            report_path.write_text(json.dumps(report), encoding="utf-8")
+            dialog = MeshValidationDialog(self.repository_root)
+            try:
+                with patch(
+                    "tools.oneflow_gui.mesh_validation_dialog.QFileDialog.getOpenFileName",
+                    return_value=(str(report_path), "JSON files (*.json)"),
+                ):
+                    dialog._open_run_report()
+                self.assertEqual(dialog.result_tabs.count(), 5)
+                self.assertEqual(dialog.result_tabs.tabText(0), "Results")
+                self.assertEqual(dialog.result_tabs.tabText(1), "Artifacts")
+                self.assertEqual(dialog.result_tabs.tabText(4), "Run History")
+                self.assertGreaterEqual(dialog.result_tree.topLevelItemCount(), 1)
+                self.assertGreaterEqual(dialog.artifact_tree.topLevelItemCount(), 1)
+                self.assertIn("restored console output", dialog.log_view.toPlainText())
+                self.assertIn("test_mesh_case", dialog.raw_report_view.toPlainText())
+            finally:
+                dialog.close()
+                dialog.deleteLater()
+                self.application.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+                self.application.processEvents()
+
+    def test_mesh_validation_dialog_recovers_run_directory_without_report(self) -> None:
+        from tools.oneflow_gui.mesh_validation_dialog import MeshValidationDialog
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stage_log = root / "stl_to_gmsh/results/mesh-validation.log"
+            stage_log.parent.mkdir(parents=True)
+            stage_log.write_text(
+                '$ ["gmsh", "model.geo"]\n'
+                "[stl_to_gmsh] succeeded: Recovered from stage log.\n",
+                encoding="utf-8",
+            )
+            (root / "mesh-validation-console.log").write_text(
+                "recovered console text\n", encoding="utf-8"
+            )
+            (root / "mesh-validation-run.json").write_text(
+                json.dumps({
+                    "schema": "oneflow.mesh-validation-run",
+                    "version": 1,
+                    "mesh_case_id": "stl_to_gmsh_test_case",
+                    "mesh_implementation": "python",
+                    "mesh_input_mode": "generated_mesh",
+                }),
+                encoding="utf-8",
+            )
+            dialog = MeshValidationDialog(self.repository_root)
+            try:
+                self.assertTrue(dialog.recover_run_button.isEnabled())
+                with patch(
+                    "tools.oneflow_gui.mesh_validation_dialog.QFileDialog.getExistingDirectory",
+                    return_value=str(root),
+                ):
+                    dialog._open_run_directory()
+
+                self.assertEqual(
+                    dialog.result_tree.topLevelItem(0).text(1), "RECOVERED"
+                )
+                self.assertIn("stl_to_gmsh_test_case", dialog.raw_report_view.toPlainText())
+                self.assertIn("recovered console text", dialog.log_view.toPlainText())
+                self.assertGreaterEqual(dialog.artifact_tree.topLevelItemCount(), 1)
+            finally:
+                dialog.close()
+                dialog.deleteLater()
+                self.application.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+                self.application.processEvents()
+
+    def test_mesh_validation_worker_persists_console_log_and_links_report(self) -> None:
+        from tools.oneflow_gui.mesh_validation_dialog import MeshValidationWorker
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            report_path = root / "run" / "mesh-validation-report.json"
+            report_path.parent.mkdir(parents=True)
+            report_path.write_text(
+                json.dumps({
+                    "schema": "oneflow.run-report",
+                    "version": 1,
+                    "workflow": "Mesh-to-CFD Validation",
+                    "status": "success",
+                    "exit_code": 0,
+                    "stages": {"gmsh_to_cgns": {"status": "PASS"}},
+                    "metrics": {},
+                    "artifacts": {"report": str(report_path)},
+                    "error": None,
+                }),
+                encoding="utf-8",
+            )
+
+            class FakeProcess:
+                stdout = iter([f"report: {report_path}\n", "conversion complete\n"])
+
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *_args):
+                    return False
+
+                def wait(self):
+                    return 0
+
+            worker = MeshValidationWorker(
+                [("Test Case", ("python", "-m", "fake_case"), root)],
+                root / "session-logs",
+            )
+            with patch(
+                "tools.oneflow_gui.mesh_validation_dialog.subprocess.Popen",
+                return_value=FakeProcess(),
+            ):
+                worker.run()
+
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            console_reference = report["execution"]["console_log"]
+            self.assertEqual(report["artifacts"]["console_log"], console_reference)
+            console_log = Path(console_reference)
+            self.assertFalse(console_log.is_absolute())
+            console_log = report_path.parent / console_log
+            self.assertTrue(console_log.is_file())
+            log_text = console_log.read_text(encoding="utf-8")
+            self.assertIn("Working directory:", log_text)
+            self.assertIn("Command:", log_text)
+            self.assertIn("conversion complete", log_text)
+            self.assertIn("PASSED: Test Case", log_text)
+            console_record = next(
+                item for item in report["artifacts"]["files"]
+                if item["path"] == "mesh-validation-console.log"
+            )
+            self.assertEqual(console_record["size_bytes"], console_log.stat().st_size)
+            self.assertEqual(
+                console_record["sha256"],
+                hashlib.sha256(console_log.read_bytes()).hexdigest(),
+            )
 
     def test_validate_current_mesh_opens_single_mesh_validation_mode(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -710,6 +998,183 @@ class MeshGenerationDialogTest(unittest.TestCase):
             with patch.dict(os.environ, {"GMSH_EXECUTABLE": str(executable)}):
                 self.assertEqual(discover_gmsh(), str(executable.resolve()))
 
+
+    def test_geometry_library_exposes_pipe_bend_parameter_editor(self) -> None:
+        from tools.oneflow_gui.geometry_library_dialog import GeometryLibraryDialog
+
+        dialog = MeshGenerationDialog(self.repository_root)
+        edited_assets = []
+        library = GeometryLibraryDialog(
+            self.repository_root, dialog, on_edit_asset=edited_assets.append
+        )
+        try:
+            row = next(
+                index for index, asset in enumerate(library._assets)
+                if asset["id"] == "geometry.pipe_bend.90_degree"
+            )
+            library.asset_list.setCurrentRow(row)
+            self.assertTrue(library.edit_button.isEnabled())
+            self.assertIn("90-Degree Circular Pipe Bend", library.details.toPlainText())
+            library._edit_selected_asset()
+            self.assertEqual(edited_assets[0]["id"], "geometry.pipe_bend.90_degree")
+        finally:
+            library.close()
+            dialog.close()
+
+    def test_stl_to_gmsh_geometry_presets_include_generated_pipe_bend(self) -> None:
+        dialog = StlToGmshDialog(self.repository_root)
+        try:
+            index = dialog.geometry_preset.findData("pipe_bend_90_degree")
+            self.assertGreaterEqual(index, 0)
+            self.assertEqual(dialog.geometry_preset.itemText(index), "90-Degree Pipe Bend STL")
+        finally:
+            dialog.close()
+
+    def test_stl_to_gmsh_pipe_bend_preset_generates_user_workspace_input(self) -> None:
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory) / "mesh-generation"
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                dialog = StlToGmshDialog(self.repository_root)
+                try:
+                    index = dialog.geometry_preset.findData("pipe_bend_90_degree")
+                    self.assertGreaterEqual(index, 0)
+                    dialog.geometry_preset.setCurrentIndex(index)
+                    stl = Path(dialog.stl_path.text())
+                    self.assertTrue(stl.is_file())
+                    self.assertTrue(stl.with_suffix(".geometry.json").is_file())
+                    self.assertTrue((stl.parent / "region_manifest.json").is_file())
+                    self.assertEqual(
+                        dialog._mesh_case_id, "stl_to_gmsh_pipe_bend_90_degree"
+                    )
+                    self.assertEqual(
+                        dialog.output_path.text(),
+                        str(workspace / "pipe_bend_90_degree" / "pipe_bend_90_degree.msh"),
+                    )
+                    self.assertFalse(dialog.boundary_name.isEnabled())
+                    self.assertFalse(dialog.volume_name.isEnabled())
+                    self.assertIn(str(stl), dialog.command_view.toPlainText())
+                    self.assertNotIn(str(self.repository_root), str(stl))
+                finally:
+                    dialog.close()
+
+    def test_development_case_selector_offers_pipe_bend_python_reference(self) -> None:
+        from tools.oneflow_gui.test_dialog import TestRunnerDialog
+
+        dialog = TestRunnerDialog(self.repository_root)
+        try:
+            self.assertFalse(dialog.python_development_check.isChecked())
+            dialog.python_development_check.setChecked(True)
+            self.assertIn("Mesh producers (", dialog.case_database_button.text())
+            self.assertIn(
+                "stl_to_gmsh_pipe_bend_90_degree",
+                {case.case_id for case in dialog._available_database_cases_by_kind["python"]},
+            )
+            available = select_cases_for_selection_dialog(
+                dialog._all_database_cases,
+                run_native=False,
+                run_python=True,
+            )
+            self.assertIn(
+                "stl_to_gmsh_pipe_bend_90_degree",
+                {case.case_id for case in available},
+            )
+        finally:
+            dialog.close()
+
+    def test_pipe_bend_asset_opens_matching_parameter_editor(self) -> None:
+        dialog = StlGeometryDialog(
+            self.repository_root, asset_id="geometry.pipe_bend.90_degree"
+        )
+        try:
+            self.assertEqual(dialog.geometry.currentData(), "pipe_bend_90_degree")
+            self.assertFalse(dialog.pipe_bend_group.isHidden())
+            self.assertTrue(dialog.cylinder_group.isHidden())
+            self.assertEqual(dialog.pipe_bend_radius.text(), "0.5")
+            self.assertEqual(dialog.pipe_bend_bend_radius.text(), "1.0")
+            self.assertEqual(dialog.pipe_bend_angle.text(), "90")
+        finally:
+            dialog.close()
+
+    def test_generate_pipe_bend_stl_and_manifest_from_geometry_workbench(self) -> None:
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory) / "mesh-generation"
+            with patch(
+                "tools.oneflow_gui.mesh_generation_dialog.UserDataPaths.discover",
+                return_value=SimpleNamespace(mesh_generation=workspace),
+            ):
+                dialog = StlGeometryDialog(self.repository_root)
+                try:
+                    dialog.geometry.setCurrentIndex(
+                        dialog.geometry.findData("pipe_bend_90_degree")
+                    )
+                    self.assertFalse(dialog.pipe_bend_group.isHidden())
+                    self.assertIn("not solid walls", dialog.patch_note.text())
+                    output = Path(directory) / "pipe_bend_90_degree.stl"
+                    dialog.output.setText(str(output))
+                    dialog._generate()
+                    self.assertTrue(output.is_file())
+                    manifest_path = output.with_suffix(".geometry.json")
+                    self.assertTrue(manifest_path.is_file())
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    self.assertEqual(manifest["asset_id"], "geometry.pipe_bend.90_degree")
+                    self.assertTrue(manifest["surface"]["watertight"])
+                    self.assertLess(manifest["surface"]["relative_volume_error"], 0.01)
+                    region_manifest = json.loads(
+                        (output.parent / "region_manifest.json").read_text(encoding="utf-8")
+                    )
+                    self.assertEqual(
+                        set(region_manifest["regions"]), {"wall", "inflow", "outflow"}
+                    )
+                    self.assertEqual(
+                        region_manifest["closed_surface_sha256"],
+                        manifest["stl_sha256"],
+                    )
+                    self.assertEqual(len(manifest["patch_triangle_indices"]["inflow"]), 48)
+                    self.assertEqual(len(manifest["patch_triangle_indices"]["outflow"]), 48)
+                    self.assertEqual(dialog.generated_geometry, "pipe_bend_90_degree")
+                    self.assertEqual(dialog.generated_stl, output.resolve())
+                    self.assertTrue(dialog.open_gmsh_button.isEnabled())
+                    self.assertIn("inflow", dialog.result_view.toPlainText())
+                    self.assertIn("outflow", dialog.result_view.toPlainText())
+                    self.assertIn("Region manifest:", dialog.result_view.toPlainText())
+                    self.assertIn("wall:", dialog.result_view.toPlainText())
+                    project = create_mesh_project_from_stl(
+                        self.repository_root, output, "pipe-bend-ui"
+                    )
+                    self.assertTrue(
+                        (project["stl_path"].parent / "region_manifest.json").is_file()
+                    )
+                    gmsh_dialog = StlToGmshDialog(
+                        self.repository_root, project=project
+                    )
+                    try:
+                        self.assertEqual(
+                            gmsh_dialog.geometry_preset.currentData(),
+                            "pipe_bend_90_degree",
+                        )
+                        self.assertFalse(gmsh_dialog.geometry_preset.isEnabled())
+                        self.assertFalse(gmsh_dialog.boundary_name.isEnabled())
+                        self.assertFalse(gmsh_dialog.volume_name.isEnabled())
+                        self.assertEqual(gmsh_dialog.stl_path.text(), str(project["stl_path"]))
+                        self.assertEqual(
+                            gmsh_dialog._mesh_case_id,
+                            "stl_to_gmsh_pipe_bend_90_degree",
+                        )
+                        self.assertEqual(
+                            gmsh_dialog.validate_button.text(),
+                            "Mesh-to-CFD Validation...",
+                        )
+                    finally:
+                        gmsh_dialog.close()
+                finally:
+                    dialog.close()
 
 if __name__ == "__main__":
     unittest.main()

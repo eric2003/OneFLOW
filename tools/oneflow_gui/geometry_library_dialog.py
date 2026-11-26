@@ -152,6 +152,7 @@ class GeometryLibraryDialog(QDialog):
                 "geometry.sphere.unit",
                 "geometry.spheroid.prolate_6_to_1",
                 "geometry.cylinder.internal_flow",
+                "geometry.pipe_bend.90_degree",
             }
         )
 

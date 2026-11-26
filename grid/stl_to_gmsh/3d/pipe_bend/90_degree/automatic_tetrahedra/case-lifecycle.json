@@ -1,0 +1,419 @@
+{
+  "schema": "oneflow.case-lifecycle",
+  "version": 1,
+  "case_id": "stl_to_gmsh_pipe_bend_90_degree",
+  "contract_version": 1,
+  "verification_scope": "geometry_regions_gmsh_volume_mesh_cgns_conversion_oneflow_ingestion_and_cfd_smoke",
+  "stages": [
+    {
+      "id": "geometry",
+      "type": "geometry",
+      "implementation_status": "implemented",
+      "verification_status": "not_run",
+      "depends_on": [],
+      "implementations": [
+        {
+          "id": "python_geometry",
+          "kind": "python",
+          "status": "implemented",
+          "entrypoint": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/python/generate_pipe_bend.py"
+        },
+        {
+          "id": "native_cpp_geometry",
+          "kind": "cpp",
+          "status": "implemented",
+          "notes": "Implement against the same geometry parameters and semantic output contract; do not duplicate downstream workflow code.",
+          "entrypoint": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/cpp/generate_pipe_bend.cpp"
+        }
+      ],
+      "inputs": [
+        {
+          "id": "pipe_bend_parameters",
+          "format": "json"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "closed_surface",
+          "format": "stl",
+          "dimension": 3,
+          "topology": "surface"
+        },
+        {
+          "id": "geometry_provenance",
+          "format": "oneflow.stl-geometry-manifest"
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "pipe_bend.geometry.topology",
+          "kind": "contract",
+          "description": "Generated surface is connected, watertight, consistently oriented, and has positive volume.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets"
+        },
+        {
+          "id": "pipe_bend.geometry.provenance",
+          "kind": "contract",
+          "description": "Geometry parameters, units, generator identity, and content hashes are recorded.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets"
+        },
+        {
+          "id": "pipe_bend.geometry.cpp_parity",
+          "kind": "contract",
+          "description": "Native C++ generator produces a watertight STL and matching geometry metrics under the shared geometry contract.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_cpp_generator_matches_python_geometry"
+        }
+      ]
+    },
+    {
+      "id": "surface_regions",
+      "type": "surface_discretization",
+      "implementation_status": "implemented",
+      "verification_status": "not_run",
+      "depends_on": [
+        "geometry"
+      ],
+      "implementations": [
+        {
+          "id": "python_region_export",
+          "kind": "python",
+          "status": "implemented",
+          "entrypoint": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/python/generate_pipe_bend.py"
+        },
+        {
+          "id": "native_cpp_region_export",
+          "kind": "cpp",
+          "status": "implemented",
+          "entrypoint": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/cpp/generate_pipe_bend.cpp"
+        }
+      ],
+      "inputs": [
+        {
+          "id": "closed_surface",
+          "format": "stl",
+          "dimension": 3,
+          "topology": "surface"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "region_manifest",
+          "format": "oneflow.stl-surface-regions"
+        },
+        {
+          "id": "wall_region",
+          "format": "stl",
+          "dimension": 2,
+          "topology": "surface"
+        },
+        {
+          "id": "inflow_region",
+          "format": "stl",
+          "dimension": 2,
+          "topology": "surface"
+        },
+        {
+          "id": "outflow_region",
+          "format": "stl",
+          "dimension": 2,
+          "topology": "surface"
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "pipe_bend.regions.coverage",
+          "kind": "contract",
+          "description": "Region manifest resolves each named region to a checksum-bound STL patch.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets"
+        },
+        {
+          "id": "pipe_bend.regions.partition",
+          "kind": "contract",
+          "description": "Wall, inflow, and outflow patches partition the closed surface without missing or duplicated triangles.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets"
+        },
+        {
+          "id": "pipe_bend.regions.cpp_contract",
+          "kind": "contract",
+          "description": "Native C++ generator writes checksum-bound wall, inflow and outflow STL patches accepted by the shared generic STL-to-Gmsh converter.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_cpp_generator_matches_python_geometry"
+        }
+      ]
+    },
+    {
+      "id": "volume_mesh",
+      "type": "volume_discretization",
+      "implementation_status": "implemented",
+      "verification_status": "not_run",
+      "depends_on": [
+        "surface_regions"
+      ],
+      "implementations": [
+        {
+          "id": "python_gmsh_runner",
+          "kind": "python",
+          "status": "implemented",
+          "entrypoint": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/run_pipe_bend_case.py"
+        },
+        {
+          "id": "shared_gmsh_mesher",
+          "kind": "gmsh",
+          "status": "implemented",
+          "entrypoint": "grid/stl_to_gmsh/generate_volume_mesh.py"
+        },
+        {
+          "id": "native_cpp_geometry_shared_gmsh_runner",
+          "kind": "cpp",
+          "status": "implemented",
+          "entrypoint": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/run_pipe_bend_cpp_case.py",
+          "notes": "C++17 generates geometry and named regions; the Python adapter invokes the shared Gmsh volume mesher. This is not a native OneFLOW solver."
+        }
+      ],
+      "inputs": [
+        {
+          "id": "closed_surface",
+          "format": "stl",
+          "dimension": 3,
+          "topology": "surface"
+        },
+        {
+          "id": "region_manifest",
+          "format": "oneflow.stl-surface-regions"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "volume_mesh",
+          "format": "gmsh-msh4",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "pipe_bend.volume.physical_groups",
+          "kind": "integration",
+          "description": "MSH4 contains wall, inflow, outflow, and fluid_domain physical groups with correct dimensions."
+        },
+        {
+          "id": "pipe_bend.volume.elements",
+          "kind": "integration",
+          "description": "The volume mesh contains supported first-order tetrahedral cells and valid boundary connectivity."
+        },
+        {
+          "id": "pipe_bend.volume_mesh.native_cpp_runner",
+          "kind": "contract",
+          "description": "The native C++ geometry runner hands its STL and named regions to the shared Gmsh service and produces a non-empty MSH4 tetrahedral mesh with wall, inflow, outflow and fluid_domain physical groups.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_cpp_case_runner_generates_msh4_with_shared_physical_groups"
+        }
+      ]
+    },
+    {
+      "id": "mesh_quality",
+      "type": "mesh_quality",
+      "implementation_status": "implemented",
+      "verification_status": "not_run",
+      "depends_on": [
+        "volume_mesh"
+      ],
+      "implementations": [
+        {
+          "id": "msh4_quality_diagnostics",
+          "kind": "python",
+          "status": "implemented",
+          "entrypoint": "grid/stl_to_gmsh/converter.py",
+          "notes": "Reports mean-ratio distribution, low-quality element counts, degenerate-cell count, and worst-element locations. Diagnostic only; never gates conversion, ingestion, or CFD smoke."
+        }
+      ],
+      "inputs": [
+        {
+          "id": "volume_mesh",
+          "format": "gmsh-msh4",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "mesh_quality_report",
+          "format": "oneflow.mesh-quality-report"
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "pipe_bend.quality.diagnostic_evidence",
+          "kind": "contract",
+          "description": "Mesh quality diagnostics are recorded and available for inspection without imposing a pass/fail threshold or blocking downstream workflow stages."
+        }
+      ]
+    },
+    {
+      "id": "msh_to_cgns",
+      "type": "format_conversion",
+      "implementation_status": "implemented",
+      "verification_status": "not_run",
+      "depends_on": [
+        "volume_mesh"
+      ],
+      "implementations": [
+        {
+          "id": "shared_gmsh_to_cgns",
+          "kind": "oneflow",
+          "status": "implemented",
+          "notes": "Uses the shared Gmsh MSH4 reader, CGNS writer, and Mesh-to-CFD Validation stage adapter; no pipe-bend-specific conversion implementation."
+        }
+      ],
+      "inputs": [
+        {
+          "id": "volume_mesh",
+          "format": "gmsh-msh4",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "cgns_mesh",
+          "format": "cgns",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "pipe_bend.conversion.cgns",
+          "kind": "integration",
+          "description": "CGNS preserves cell counts, dimensions, and named boundary regions."
+        }
+      ]
+    },
+    {
+      "id": "oneflow_ingestion",
+      "type": "oneflow_ingestion",
+      "implementation_status": "implemented",
+      "verification_status": "not_run",
+      "depends_on": [
+        "msh_to_cgns"
+      ],
+      "implementations": [
+        {
+          "id": "native_grid_reader",
+          "kind": "oneflow",
+          "status": "implemented",
+          "notes": "Uses the shared CGNS-to-OneFLOW grid conversion stage and writes the native grid, BC region map, and grid metadata."
+        }
+      ],
+      "inputs": [
+        {
+          "id": "cgns_mesh",
+          "format": "cgns",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "oneflow_native_grid",
+          "format": "oneflow-native-grid",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "pipe_bend.ingestion.boundaries",
+          "kind": "integration",
+          "description": "The shared CGNS-to-OneFLOW stage reads the unstructured 3-D grid, writes the native grid and boundary-region map, and preserves wall, inflow, and outflow identities."
+        }
+      ]
+    },
+    {
+      "id": "cfd_smoke",
+      "type": "cfd_smoke",
+      "implementation_status": "implemented",
+      "verification_status": "not_run",
+      "depends_on": [
+        "oneflow_ingestion"
+      ],
+      "implementations": [
+        {
+          "id": "oneflow_cfd_runner",
+          "kind": "oneflow",
+          "status": "implemented",
+          "notes": "Uses the shared OneFLOW CFD stage adapter with the selected 3-D consumer configuration and bounded max-steps setting."
+        }
+      ],
+      "inputs": [
+        {
+          "id": "oneflow_native_grid",
+          "format": "oneflow-native-grid",
+          "dimension": 3,
+          "topology": "unstructured"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "cfd_smoke_report",
+          "format": "oneflow.cfd-smoke-report"
+        },
+        {
+          "id": "cfd_residuals",
+          "format": "oneflow-residual-data"
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "pipe_bend.cfd.smoke",
+          "kind": "smoke",
+          "description": "The shared native solver stage runs the configured bounded 3-D smoke case, exits successfully, and produces finite residuals and required result artifacts."
+        }
+      ]
+    },
+    {
+      "id": "cfd_validation",
+      "type": "cfd_validation",
+      "implementation_status": "planned",
+      "verification_status": "not_run",
+      "depends_on": [
+        "cfd_smoke"
+      ],
+      "implementations": [],
+      "inputs": [
+        {
+          "id": "cfd_residuals",
+          "format": "oneflow-residual-data"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "cfd_validation_report",
+          "format": "oneflow.cfd-validation-report"
+        }
+      ],
+      "acceptance": [
+        {
+          "id": "pipe_bend.cfd.physics",
+          "kind": "physical_validation",
+          "description": "Flow quantities are compared with an independent analytical, experimental, or published reference using declared tolerances."
+        }
+      ],
+      "notes": "A CFD smoke test is not physical validation."
+    }
+  ],
+  "verification_stages": [
+    "geometry",
+    "surface_regions",
+    "volume_mesh",
+    "msh_to_cgns",
+    "oneflow_ingestion",
+    "cfd_smoke"
+  ],
+  "quality_policy": {
+    "role": "diagnostic",
+    "blocking": false,
+    "affects_mesh_conversion": false,
+    "affects_oneflow_ingestion": false,
+    "affects_cfd_smoke": false,
+    "note": "Mesh quality metrics and degenerate-cell counts are advisory diagnostics for workflow smoke testing. Physical accuracy and production suitability require separate validation."
+  }
+}

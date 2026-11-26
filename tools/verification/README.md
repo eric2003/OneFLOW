@@ -636,6 +636,32 @@ Python tests pass, or CFD results are physically validated. See
 recommended workflow.
 
 
+## Change Gate
+
+The Change Gate extends the existing read-only preflight with change-aware
+Python test execution. It reuses `_PYTHON_UNIT_TESTS` from
+`tools/oneflow_gui/test_runner.py`; no second test-module inventory is
+maintained.
+
+Run `python -m tools.verification.change_gate --changed` locally to check repository
+consistency and execute the registered tests selected for staged, unstaged,
+and untracked paths. Add `--dry-run` to inspect the exact commands without
+executing them, or use `--all` to execute the complete registered Python
+suite. Documentation-only changes select no Python tests. Known STL, mesh
+layout, GUI, and verification areas select their related registered tests.
+Unknown implementation paths conservatively select the full registered
+Python suite rather than being silently skipped. CI uses
+`python -m tools.verification.change_gate --base <base-commit-sha>` so that
+it evaluates the commit diff rather than the clean checkout state; manual
+workflow dispatch uses `--all`.
+
+The gate stops before test execution when repository-wide preflight fails.
+Its PASS is limited to the preflight and selected Python commands in the
+current environment. Native build/CTest, external-tool integration, and
+cross-platform CI remain required where applicable. See
+`docs/source/change_preflight.rst` for selection rules, exit codes, and
+verification boundaries.
+
 ## Contract verification status
 
 `contract_verification.py` is a Qt-independent, read-only evaluator for

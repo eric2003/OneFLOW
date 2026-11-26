@@ -50,7 +50,9 @@ and CGNS interchange boundary; it is not a second direct Gmsh converter.
 Small topology inputs belong to the conversion route they exercise. The
 `gmsh_to_cgns` template owns the MSH 4.1 fixtures in
 `grid/conversion/gmsh_to_cgns/grid/`, including `square.msh`,
-`two_quads.msh`, and `cube_single_hex.msh`. The two-quad fixture exercises
+`two_quads.msh`, `cube_single_hex.msh`, and
+`two_tetrahedra_regions.msh`. The tetrahedral fixture verifies two volume
+cells, their shared face, and three named exterior boundary groups. The two-quad fixture exercises
 adjacent QUAD_4 cells, their shared internal edge, and Physical Group
 membership. It is consumed by automated conversion integration tests; it is
 not a separate GUI Case or a second conversion route.

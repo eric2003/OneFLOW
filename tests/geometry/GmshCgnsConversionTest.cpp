@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "GridConversion.h"
+#include "GmshMeshReader.h"
 #include "GridTypes.h"
 #include "HXCgns.h"
 #include "CgnsFactory.h"
@@ -14,11 +15,15 @@
 #include "Dimension.h"
 #include <chrono>
 #include <algorithm>
+#include <array>
+#include <map>
+#include <set>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <string>
 #include <vector>
+#include <utility>
 
 #ifdef ENABLE_CGNS
 using namespace ONEFLOW;
@@ -561,6 +566,203 @@ TEST(GmshCgnsConversionTest, ConvertsSingleHexahedronWithFaceCenterBoundaries) {
     }
 
     grids.clear();
+    std::filesystem::remove_all(caseDirectory);
+}
+
+
+TEST(GmshCgnsConversionTest, IndependentlyReadsTetrahedralVolumeAndNamedFaceRegions)
+{
+    const std::filesystem::path source =
+        std::filesystem::path(ONEFLOW_SOURCE_DIR) /
+        "grid" / "conversion" / "gmsh_to_cgns" / "grid" /
+        "two_tetrahedra_regions.msh";
+    ASSERT_TRUE(std::filesystem::is_regular_file(source));
+
+    std::ifstream mshInput(source);
+    ASSERT_TRUE(mshInput.good());
+    const std::string mshContent{
+        std::istreambuf_iterator<char>(mshInput),
+        std::istreambuf_iterator<char>()
+    };
+    const ONEFLOW::GmshMesh gmsh =
+        ONEFLOW::ReadGmsh41AsciiMesh(mshContent);
+    ASSERT_EQ(gmsh.nodes.size(), 5u);
+    ASSERT_EQ(gmsh.elements.size(), 8u);
+    ASSERT_EQ(gmsh.physicalNames.size(), 4u);
+    EXPECT_EQ(gmsh.physicalNames.at({2, 1}), "wall");
+    EXPECT_EQ(gmsh.physicalNames.at({2, 2}), "inflow");
+    EXPECT_EQ(gmsh.physicalNames.at({2, 3}), "outflow");
+    EXPECT_EQ(gmsh.physicalNames.at({3, 4}), "fluid_domain");
+    EXPECT_EQ(gmsh.entityPhysicalTags.at({3, 1}),
+              (std::vector<long long>{4}));
+
+    const auto topology = ONEFLOW::ValidateGmshTetrahedralTopology(gmsh);
+    EXPECT_EQ(topology.tetrahedronCount, 2u);
+    EXPECT_EQ(topology.boundaryFaceCount, 6u);
+    EXPECT_EQ(topology.internalFaceCount, 1u);
+    EXPECT_EQ(topology.surfaceTriangleCount, 6u);
+
+    const std::filesystem::path caseDirectory = MakeTemporaryCaseDirectory();
+    const std::filesystem::path input = caseDirectory / source.filename();
+    std::filesystem::copy_file(source, input);
+    const std::filesystem::path resultsDirectory = caseDirectory / "results";
+    std::filesystem::create_directories(resultsDirectory);
+    const std::filesystem::path output =
+        resultsDirectory / "two_tetrahedra_regions.cgns";
+
+    ONEFLOW::GridConfig config;
+    config.sourceType = ONEFLOW::GridFileType::Gmsh;
+    config.targetType = ONEFLOW::GridFileType::CGNS;
+    config.sourceFile = input.filename().string();
+    config.targetFile =
+        (std::filesystem::path("results") / output.filename()).generic_string();
+    ASSERT_NO_THROW(ONEFLOW::ConvertGrid(config, caseDirectory.string()));
+    ASSERT_TRUE(std::filesystem::is_regular_file(output));
+
+    int fileId = -1;
+    ASSERT_EQ(cg_open(output.string().c_str(), CG_MODE_READ, &fileId), CG_OK);
+    int baseCount = 0;
+    ASSERT_EQ(cg_nbases(fileId, &baseCount), CG_OK);
+    ASSERT_EQ(baseCount, 1);
+    char baseName[33] = {};
+    int cellDimension = 0;
+    int physicalDimension = 0;
+    ASSERT_EQ(cg_base_read(fileId, 1, baseName,
+                           &cellDimension, &physicalDimension), CG_OK);
+    EXPECT_EQ(cellDimension, 3);
+    EXPECT_EQ(physicalDimension, 3);
+
+    int zoneCount = 0;
+    ASSERT_EQ(cg_nzones(fileId, 1, &zoneCount), CG_OK);
+    ASSERT_EQ(zoneCount, 1);
+    char zoneName[33] = {};
+    cgsize_t zoneSize[9] = {};
+    ASSERT_EQ(cg_zone_read(fileId, 1, 1, zoneName, zoneSize), CG_OK);
+    EXPECT_EQ(zoneSize[0], 5);
+    EXPECT_EQ(zoneSize[1], 2);
+    EXPECT_EQ(zoneSize[2], 0);
+
+    cgsize_t coordinateMinimum[3] = {1, 0, 0};
+    cgsize_t coordinateMaximum[3] = {5, 0, 0};
+    std::array<double, 5> x = {};
+    std::array<double, 5> y = {};
+    std::array<double, 5> z = {};
+    ASSERT_EQ(cg_coord_read(fileId, 1, 1, "CoordinateX", RealDouble,
+                            coordinateMinimum, coordinateMaximum, x.data()), CG_OK);
+    ASSERT_EQ(cg_coord_read(fileId, 1, 1, "CoordinateY", RealDouble,
+                            coordinateMinimum, coordinateMaximum, y.data()), CG_OK);
+    ASSERT_EQ(cg_coord_read(fileId, 1, 1, "CoordinateZ", RealDouble,
+                            coordinateMinimum, coordinateMaximum, z.data()), CG_OK);
+    EXPECT_EQ(x, (std::array<double, 5>{0.0, 1.0, 0.0, 0.0, 0.0}));
+    EXPECT_EQ(y, (std::array<double, 5>{0.0, 0.0, 1.0, 0.0, 0.0}));
+    EXPECT_EQ(z, (std::array<double, 5>{0.0, 0.0, 0.0, 1.0, -1.0}));
+
+    int sectionCount = 0;
+    ASSERT_EQ(cg_nsections(fileId, 1, 1, &sectionCount), CG_OK);
+    ASSERT_EQ(sectionCount, 2);
+    char sectionName[33] = {};
+    ElementType_t sectionType = ElementTypeNull;
+    cgsize_t sectionStart = 0;
+    cgsize_t sectionEnd = 0;
+    int boundaryCount = 0;
+    int parentFlag = 0;
+    ASSERT_EQ(cg_section_read(fileId, 1, 1, 1, sectionName, &sectionType,
+                              &sectionStart, &sectionEnd, &boundaryCount,
+                              &parentFlag), CG_OK);
+    EXPECT_EQ(sectionType, TETRA_4);
+    EXPECT_EQ(sectionStart, 1);
+    EXPECT_EQ(sectionEnd, 2);
+    std::array<cgsize_t, 8> volumeConnectivity = {};
+    ASSERT_EQ(cg_elements_read(fileId, 1, 1, 1,
+                               volumeConnectivity.data(), nullptr), CG_OK);
+
+    using NodeSet = std::set<cgsize_t>;
+    const std::set<NodeSet> expectedTetrahedra{
+        NodeSet{1, 2, 3, 4},
+        NodeSet{1, 2, 3, 5}
+    };
+    std::set<NodeSet> actualTetrahedra;
+    for (std::size_t cell = 0; cell < 2; ++cell) {
+        NodeSet nodes;
+        for (std::size_t local = 0; local < 4; ++local)
+            nodes.insert(volumeConnectivity[cell * 4 + local]);
+        actualTetrahedra.insert(std::move(nodes));
+    }
+    EXPECT_EQ(actualTetrahedra, expectedTetrahedra);
+
+    ASSERT_EQ(cg_section_read(fileId, 1, 1, 2, sectionName, &sectionType,
+                              &sectionStart, &sectionEnd, &boundaryCount,
+                              &parentFlag), CG_OK);
+    EXPECT_EQ(sectionType, TRI_3);
+    EXPECT_EQ(sectionStart, 3);
+    EXPECT_EQ(sectionEnd, 8);
+    std::array<cgsize_t, 18> boundaryConnectivity = {};
+    ASSERT_EQ(cg_elements_read(fileId, 1, 1, 2,
+                               boundaryConnectivity.data(), nullptr), CG_OK);
+
+    const std::map<std::string, std::pair<BCType_t, std::set<NodeSet>>>
+        expectedBoundaryRegions{
+            {"wall", {BCWall, {
+                NodeSet{2, 3, 4}, NodeSet{1, 3, 4},
+                NodeSet{1, 2, 5}, NodeSet{1, 3, 5}
+            }}},
+            {"inflow", {BCInflow, {NodeSet{1, 2, 4}}}},
+            {"outflow", {BCOutflow, {NodeSet{2, 3, 5}}}}
+        };
+    std::map<std::string, std::set<NodeSet>> actualBoundaryRegions;
+    int bocoCount = 0;
+    ASSERT_EQ(cg_nbocos(fileId, 1, 1, &bocoCount), CG_OK);
+    ASSERT_EQ(bocoCount, 3);
+    for (int bocoIndex = 1; bocoIndex <= bocoCount; ++bocoIndex) {
+        char bocoName[33] = {};
+        BCType_t bocoType = BCTypeNull;
+        PointSetType_t pointSetType = PointSetTypeNull;
+        cgsize_t pointCount = 0;
+        int normalIndex[3] = {};
+        cgsize_t normalListSize = 0;
+        DataType_t normalDataType = DataTypeNull;
+        int dataSetCount = 0;
+        ASSERT_EQ(cg_boco_info(fileId, 1, 1, bocoIndex, bocoName, &bocoType,
+                               &pointSetType, &pointCount, normalIndex,
+                               &normalListSize, &normalDataType, &dataSetCount), CG_OK);
+        GridLocation_t location = GridLocationNull;
+        ASSERT_EQ(cg_boco_gridlocation_read(fileId, 1, 1, bocoIndex, &location), CG_OK);
+        EXPECT_EQ(location, FaceCenter);
+        EXPECT_EQ(pointSetType, PointList);
+
+        const auto expected = expectedBoundaryRegions.find(bocoName);
+        ASSERT_NE(expected, expectedBoundaryRegions.end())
+            << "Unexpected CGNS BC_t patch " << bocoName;
+        EXPECT_EQ(bocoType, expected->second.first);
+        const cgsize_t expectedCount =
+            static_cast<cgsize_t>(expected->second.second.size());
+        EXPECT_EQ(pointCount, expectedCount);
+
+        std::vector<cgsize_t> elementIds(static_cast<std::size_t>(pointCount));
+        ASSERT_EQ(cg_boco_read(fileId, 1, 1, bocoIndex,
+                               elementIds.data(), nullptr), CG_OK);
+        for (cgsize_t elementId : elementIds) {
+            ASSERT_GE(elementId, 3);
+            ASSERT_LE(elementId, 8);
+            const std::size_t offset =
+                static_cast<std::size_t>(elementId - 3) * 3;
+            NodeSet face{
+                boundaryConnectivity[offset],
+                boundaryConnectivity[offset + 1],
+                boundaryConnectivity[offset + 2]
+            };
+            actualBoundaryRegions[bocoName].insert(std::move(face));
+        }
+    }
+    EXPECT_EQ(actualBoundaryRegions.size(), expectedBoundaryRegions.size());
+    for (const auto& expected : expectedBoundaryRegions)
+        EXPECT_EQ(actualBoundaryRegions[expected.first], expected.second.second)
+            << "CGNS boundary face membership changed for " << expected.first;
+
+    // fluid_domain is a top-dimensional Gmsh Physical Volume, not a CGNS BC_t.
+    // Its cells are represented by the TETRA_4 volume section above.
+    EXPECT_EQ(actualBoundaryRegions.count("fluid_domain"), 0u);
+    EXPECT_EQ(cg_close(fileId), CG_OK);
     std::filesystem::remove_all(caseDirectory);
 }
 

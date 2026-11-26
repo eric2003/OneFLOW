@@ -164,6 +164,9 @@ struct GridConfig
     bool          ignoreNoBoundary{ false };
     Real          scale{ 1.0 };
     Real          stlWeldTolerance{ 1.0e-10 };
+    bool          stlSurfaceCutEnabled{ false };
+    std::string   stlSurfaceCutConfigFile;
+    Real          stlSurfaceCutTolerance{ 1.0e-8 };
     std::array< Real, 3 > translate{};
 
     // Implemented in GridTypes.cpp (needs DataBase).

@@ -7,7 +7,7 @@ from pathlib import Path
 
 from tools.mesh_cases import load_catalog, validate_case
 
-from .models import CaseDefinition
+from .models import CaseDefinition, CaseImplementation
 
 
 def _case_dimension(entry: dict, case_directory: Path) -> int | None:
@@ -64,6 +64,32 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
             if execution_kind == "oneflow" and entry.get("runtimeConfig") else None
         )
         execution_script = (root / execution["script"]).resolve() if execution_kind == "python" else None
+        raw_implementations = execution.get("implementations", [])
+        if not isinstance(raw_implementations, list):
+            raw_implementations = []
+        implementations = tuple(
+            CaseImplementation(
+                implementation_id=str(item["id"]),
+                kind=str(item["kind"]),
+                runner_script=(root / item["script"]).resolve(),
+                compiler_standard=item.get("compiler_standard"),
+            )
+            for item in raw_implementations
+            if isinstance(item, dict)
+            and isinstance(item.get("id"), str)
+            and isinstance(item.get("kind"), str)
+            and isinstance(item.get("script"), str)
+        )
+        default_implementation = execution.get("default_implementation")
+        if implementations and default_implementation is None:
+            default_implementation = next(
+                (
+                    item["id"] for item in raw_implementations
+                    if isinstance(item, dict) and item.get("default")
+                    and isinstance(item.get("id"), str)
+                ),
+                implementations[0].implementation_id,
+            )
         directory_parts = Path(entry["directory"]).parts
         workspace_relative_directory = (
             Path(*directory_parts[1:])
@@ -83,6 +109,9 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
                 execution_script=execution_script,
                 workspace_relative_directory=workspace_relative_directory,
                 dimension=_case_dimension(entry, case_directory),
+                requires_gmsh=bool(execution.get("requires_gmsh", False)),
+                implementations=implementations,
+                default_implementation=default_implementation,
             )
         )
 
@@ -91,6 +120,30 @@ def load_cases(repository_root: Path) -> list[CaseDefinition]:
         raise ValueError(f"Case catalog validation failed:\n{details}")
     return cases
 
+
+
+def build_python_case_command(
+    case: CaseDefinition,
+    case_directory: Path,
+    *,
+    python_executable: str,
+    gmsh_executable: str | None = None,
+) -> tuple[str, ...]:
+    """Build a catalog-driven Python Case command and its declared tool inputs."""
+    if case.execution_kind != "python" or case.execution_script is None:
+        raise ValueError(f"{case.case_id}: Python execution script is missing.")
+    arguments = [
+        python_executable, str(case.execution_script),
+        "--case-directory", str(case_directory),
+    ]
+    if case.requires_gmsh:
+        if not gmsh_executable:
+            raise ValueError(
+                f"{case.case_id}: Gmsh is required. Install Gmsh, add it to PATH, "
+                "or set GMSH_EXECUTABLE."
+            )
+        arguments.extend(("--gmsh", gmsh_executable))
+    return tuple(arguments)
 
 def select_cases_by_execution_kind(
     cases: list[CaseDefinition], execution_kind: str,
@@ -133,3 +186,40 @@ def select_cases_for_execution(
     if run_python:
         kinds.add("python")
     return [case for case in cases if case.execution_kind in kinds]
+
+
+def build_case_command(
+    case: CaseDefinition,
+    case_directory: Path,
+    *,
+    python_executable: str,
+    gmsh_executable: str | None = None,
+    implementation_id: str | None = None,
+) -> tuple[str, ...]:
+    """Build the selected implementation's runner command for one staged Case."""
+    selected_id = implementation_id or case.default_implementation
+    if case.implementations:
+        implementation = next(
+            (item for item in case.implementations if item.implementation_id == selected_id),
+            None,
+        )
+        if implementation is None:
+            raise ValueError(
+                f"{case.case_id}: unknown implementation {selected_id!r}"
+            )
+        if case.requires_gmsh and not gmsh_executable:
+            raise ValueError(
+                f"{case.case_id}: Gmsh is required. Install Gmsh, add it to PATH, "
+                "or set GMSH_EXECUTABLE."
+            )
+        arguments = [
+            python_executable, str(implementation.runner_script),
+            "--case-directory", str(case_directory),
+        ]
+        if case.requires_gmsh:
+            arguments.extend(("--gmsh", str(gmsh_executable)))
+        return tuple(arguments)
+    return build_python_case_command(
+        case, case_directory, python_executable=python_executable,
+        gmsh_executable=gmsh_executable,
+    )

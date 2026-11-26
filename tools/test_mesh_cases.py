@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 
 from mesh_cases import load_catalog, validate_case, validate_profile
+from case_lifecycle import validate_lifecycle_contract
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
@@ -153,6 +154,9 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
             "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
             "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
+            "stl_to_gmsh_cylinder_internal_flow_oblique_cut",
+            "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut",
+            "stl_to_gmsh_pipe_bend_90_degree",
         })
         for case_id in (
             "stl_to_gmsh_square",
@@ -513,6 +517,161 @@ class MeshCaseCatalogTest(unittest.TestCase):
             path.write_text(json.dumps(catalog), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "Duplicate case id"):
                 load_catalog(path)
+
+    def test_pipe_bend_declares_incremental_lifecycle_not_final_completion(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        entry = next(
+            case for case in catalog["cases"]
+            if case["id"] == "stl_to_gmsh_pipe_bend_90_degree"
+        )
+        self.assertEqual(
+            entry["lifecycle_contract"],
+            "stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/case-lifecycle.json",
+        )
+        contract_path = REPOSITORY_ROOT / "grid" / entry["lifecycle_contract"]
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        self.assertEqual(
+            validate_lifecycle_contract(
+                contract, expected_case_id="stl_to_gmsh_pipe_bend_90_degree"
+            ),
+            [],
+        )
+        stages = {stage["id"]: stage for stage in contract["stages"]}
+        self.assertEqual(
+            contract["verification_scope"],
+            "geometry_regions_gmsh_volume_mesh_cgns_conversion_oneflow_ingestion_and_cfd_smoke",
+        )
+        self.assertEqual(
+            contract["verification_stages"],
+            [
+                "geometry",
+                "surface_regions",
+                "volume_mesh",
+                "msh_to_cgns",
+                "oneflow_ingestion",
+                "cfd_smoke",
+            ],
+        )
+        self.assertEqual(stages["msh_to_cgns"]["implementation_status"], "implemented")
+        self.assertEqual(stages["msh_to_cgns"]["verification_status"], "not_run")
+        self.assertEqual(stages["oneflow_ingestion"]["implementation_status"], "implemented")
+        self.assertEqual(stages["oneflow_ingestion"]["verification_status"], "not_run")
+        self.assertEqual(stages["geometry"]["implementation_status"], "implemented")
+        self.assertEqual(stages["geometry"]["verification_status"], "not_run")
+        geometry_implementations = {
+            item["id"]: item["status"]
+            for item in stages["geometry"]["implementations"]
+        }
+        self.assertEqual(
+            geometry_implementations,
+            {"python_geometry": "implemented", "native_cpp_geometry": "implemented"},
+        )
+        region_implementations = {
+            item["id"]: item["status"]
+            for item in stages["surface_regions"]["implementations"]
+        }
+        self.assertEqual(
+            region_implementations,
+            {"python_region_export": "implemented", "native_cpp_region_export": "implemented"},
+        )
+        self.assertEqual(stages["cfd_smoke"]["implementation_status"], "implemented")
+        self.assertEqual(stages["cfd_smoke"]["verification_status"], "not_run")
+        self.assertEqual(stages["cfd_validation"]["implementation_status"], "planned")
+        acceptance_references = {
+            check.get("reference")
+            for stage_id in ("geometry", "surface_regions")
+            for check in stages[stage_id]["acceptance"]
+        }
+        self.assertEqual(
+            acceptance_references,
+            {
+                "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases."
+                "StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets",
+                "grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry."
+                "PipeBendGeometryTest.test_cpp_generator_matches_python_geometry",
+            },
+        )
+
+    def test_lifecycle_contract_allows_incremental_stages_but_rejects_cycles(self) -> None:
+        contract = {
+            "schema": "oneflow.case-lifecycle",
+            "version": 1,
+            "case_id": "sample",
+            "contract_version": 1,
+            "verification_scope": "geometry_only",
+            "verification_stages": ["geometry"],
+            "stages": [
+                {
+                    "id": "geometry",
+                    "type": "geometry",
+                    "implementation_status": "implemented",
+                    "verification_status": "not_run",
+                    "depends_on": [],
+                    "implementations": [
+                        {"id": "python", "kind": "python", "status": "implemented"}
+                    ],
+                    "inputs": [],
+                    "outputs": [{"id": "surface", "format": "stl"}],
+                    "acceptance": [
+                        {"id": "geometry.topology", "kind": "contract", "description": "Closed surface"}
+                    ],
+                },
+                {
+                    "id": "cfd",
+                    "type": "cfd_smoke",
+                    "implementation_status": "planned",
+                    "verification_status": "not_run",
+                    "depends_on": ["geometry"],
+                    "implementations": [],
+                    "inputs": [{"id": "surface", "format": "stl"}],
+                    "outputs": [],
+                    "acceptance": [],
+                },
+            ],
+        }
+        self.assertEqual(validate_lifecycle_contract(contract), [])
+        contract["stages"][0]["depends_on"] = ["cfd"]
+        self.assertTrue(any(
+            "cycle" in error for error in validate_lifecycle_contract(contract)
+        ))
+
+    def test_passed_lifecycle_stage_requires_implemented_dependencies(self) -> None:
+        contract = {
+            "schema": "oneflow.case-lifecycle",
+            "version": 1,
+            "case_id": "sample",
+            "contract_version": 1,
+            "verification_scope": "mesh",
+            "verification_stages": ["geometry", "mesh"],
+            "stages": [
+                {
+                    "id": "geometry",
+                    "type": "geometry",
+                    "implementation_status": "implemented",
+                    "verification_status": "not_run",
+                    "depends_on": [],
+                    "implementations": [],
+                    "inputs": [],
+                    "outputs": [],
+                    "acceptance": [],
+                },
+                {
+                    "id": "mesh",
+                    "type": "volume_discretization",
+                    "implementation_status": "implemented",
+                    "verification_status": "passed",
+                    "depends_on": ["geometry"],
+                    "implementations": [],
+                    "inputs": [],
+                    "outputs": [],
+                    "acceptance": [
+                        {"id": "mesh.check", "kind": "integration", "description": "Mesh exists"}
+                    ],
+                },
+            ],
+        }
+        errors = validate_lifecycle_contract(contract)
+        self.assertTrue(any("cannot be passed" in error for error in errors))
 
     def test_non_object_catalog_root_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

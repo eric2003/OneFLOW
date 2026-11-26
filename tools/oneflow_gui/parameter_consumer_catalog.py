@@ -341,8 +341,35 @@ _CONSUMERS = (
         "Optionally overrides the STL geometric tolerance. The default is 1.0e-10; the value controls STL vertex welding, planar tolerance and endpoint matching in the native STL-to-Gmsh path.",
         "Grid task with STL source geometry.",
         "The guarded typed read is present in GridConfig::FromDataBase; the value is passed to ExtractStlPlanarBoundary and used by ConvertStlToGmsh.",
-        ("codes/geometry/src/StlMeshIO.cpp", "codes/geometry/src/GridConversion.cpp"),
+        ("codes/geometry/stl/src/StlMeshIO.cpp", "codes/geometry/src/GridConversion.cpp"),
         ("ExtractStlPlanarBoundary", "ConvertStlToGmsh"),
+    ),
+    ParameterConsumer(
+        "stlSurfaceCutEnabled", "codes/geometry/src/GridTypes.cpp", "GridConfig::FromDataBase",
+        'GetDataValue<int>("stlSurfaceCutEnabled")', ConsumerReadKind.OPTIONAL,
+        "Opt-in switch for native STL plane cutting. Missing or zero keeps the legacy STL conversion path; nonzero enables the configured cutter.",
+        "Grid task; only STL source conversion invokes the native surface cutter.",
+        "The guarded typed read is present in GridConfig::FromDataBase; PrepareStlSurfaceCut is called from ConvertStl before the existing Gmsh conversion pipeline.",
+        ("codes/geometry/src/GridConversion.cpp",),
+        ("PrepareStlSurfaceCut", "ConvertStl"),
+    ),
+    ParameterConsumer(
+        "stlSurfaceCutConfigFile", "codes/geometry/src/GridTypes.cpp", "GridConfig::FromDataBase",
+        'GetDataValue<std::string>("stlSurfaceCutConfigFile")', ConsumerReadKind.OPTIONAL,
+        "Case-relative JSON file containing inlet/outlet plane points, normals, retained half-spaces and cap policy. Required only when stlSurfaceCutEnabled is nonzero.",
+        "Grid task; shared by the native STL cutter and its Python reference case.",
+        "The guarded typed read is present in GridConfig::FromDataBase; PrepareStlSurfaceCut resolves the file relative to the active Case and parses cutting_planes.",
+        ("codes/geometry/src/GridConversion.cpp",),
+        ("PrepareStlSurfaceCut",),
+    ),
+    ParameterConsumer(
+        "stlSurfaceCutTolerance", "codes/geometry/src/GridTypes.cpp", "GridConfig::FromDataBase",
+        'GetDataValue<Real>("stlSurfaceCutTolerance")', ConsumerReadKind.OPTIONAL,
+        "Fallback tolerance for native STL plane cutting. The default is 1.0e-8; an explicit tolerance in the JSON cut configuration takes precedence.",
+        "Grid task; used by native STL plane intersection, vertex welding and cap validation.",
+        "The guarded typed read is present in GridConfig::FromDataBase; PrepareStlSurfaceCut forwards the fallback unless the JSON file declares tolerance.",
+        ("codes/geometry/src/GridConversion.cpp",),
+        ("PrepareStlSurfaceCut",),
     )
 )
 

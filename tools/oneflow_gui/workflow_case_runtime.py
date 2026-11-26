@@ -1,6 +1,7 @@
 """Prepare isolated case directories for one workflow graph run."""
 from __future__ import annotations
 
+import re
 import shutil
 from pathlib import Path
 from typing import Mapping
@@ -8,6 +9,39 @@ from typing import Mapping
 from .path_utils import is_path_within, normalize_path, paths_equal
 from .workflow_plan import WorkflowPlanStep
 from .workflow_runtime_overrides import apply_runtime_overrides
+
+
+
+def _stage_shared_grid_configuration(source: Path, target: Path) -> None:
+    """Stage one parent-level STL cut config referenced by a native grid case."""
+    grid_file = source / "script" / "grid.txt"
+    match = None
+    if grid_file.is_file():
+        text = grid_file.read_text(encoding="utf-8")
+        match = re.search(
+            r'^\s*string\s+stlSurfaceCutConfigFile\s*=\s*"([^"]+)"\s*;',
+            text,
+            re.MULTILINE,
+        )
+    if match is None:
+        shared_config = source.parent / "script" / "cutting.json"
+        if not shared_config.is_file():
+            return
+        relative = Path("../script/cutting.json")
+    else:
+        relative = Path(match.group(1))
+    if relative.is_absolute():
+        raise ValueError("STL surface-cut config must be a relative Case path.")
+    source_config = (source / relative).resolve()
+    target_config = (target / relative).resolve()
+    if not is_path_within(source_config, source.parent):
+        raise ValueError("Shared STL surface-cut config must stay beside its Case directory.")
+    if not is_path_within(target_config, target.parent):
+        raise ValueError("Staged shared STL surface-cut config must stay in the run workspace.")
+    if not source_config.is_file():
+        raise FileNotFoundError(f"Shared STL surface-cut config not found: {source_config}")
+    target_config.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source_config, target_config)
 
 
 def prepare_case_directory(
@@ -41,6 +75,7 @@ def prepare_case_directory(
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(source, target)
 
+    _stage_shared_grid_configuration(source, target)
     overrides_by_file: dict[Path, dict[str, str]] = {}
     for output in step.outputs:
         output_path = target / output.relative_path

@@ -199,7 +199,12 @@ def create_mesh_project_from_stl(
         "version": 1,
         "name": directory.name,
         "template_case_id": None,
-        "mesh_case_id": _GENERIC_3D_VALIDATION_CASE,
+        "mesh_case_id": (
+            "stl_to_gmsh_pipe_bend_90_degree"
+            if geometry_manifest
+            and geometry_manifest.get("geometry") == "pipe_bend_90_degree"
+            else _GENERIC_3D_VALIDATION_CASE
+        ),
         "input_stl": "input/model.stl",
         "output_mesh": f"results/{directory.name}.msh",
         "mesh_size": 0.20,
@@ -298,6 +303,30 @@ def _project_geometry_lineage(
                         "notes": "The project STL matches its geometry manifest checksum.",
                     },
                 })
+                patches = manifest.get("patch_triangle_indices")
+                surface = manifest.get("surface") or {}
+                triangle_count = surface.get("triangle_count")
+                if (
+                    isinstance(patches, dict)
+                    and patches
+                    and all(
+                        isinstance(name, str)
+                        and name
+                        and isinstance(indices, list)
+                        and all(
+                            isinstance(index, int)
+                            and not isinstance(index, bool)
+                            and index >= 0
+                            and (
+                                not isinstance(triangle_count, int)
+                                or index < triangle_count
+                            )
+                            for index in indices
+                        )
+                        for name, indices in patches.items()
+                    )
+                ):
+                    lineage["boundary_patches"] = sorted(patches)
             else:
                 lineage["manifest_status"] = "invalid_or_checksum_mismatch"
         except (OSError, json.JSONDecodeError):

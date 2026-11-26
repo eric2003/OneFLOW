@@ -8,24 +8,328 @@ import sys
 import tempfile
 import unittest
 from unittest import mock
+from types import SimpleNamespace
 from pathlib import Path
 
 from tools.oneflow_gui.mesh_validation import (
     build_mesh_validation_cases, cfd_template_choices, mesh_case_choices, mesh_case_groups,
+    mesh_case_lifecycle_summary, mesh_case_requires_oneflow_executable,
     mesh_case_group_categories,
     mesh_validation_workspace, project_mesh_validation_workspace,
     reset_mesh_validation_workspace, create_mesh_validation_run_workspace,
+    prepare_mesh_validation_run_workspace,
     _copy_existing_mesh, _graph_step_records,
     _mesh_case_command, _mesh_validation_stage_results, run_report_stage_rows,
     existing_mesh_case_paths, _validate_required_physical_groups,
     _geometry_lineage, geometry_lineage_rows, _project_required_physical_groups,
     _geometry_artifact_lineage_path, _write_geometry_artifact_lineage,
     _read_geometry_artifact_lineage, _downstream_lineage_artifacts,
+    _collect_run_artifacts, _artifact_file_state, _sha256_file,
+    _persist_graph_stage_outcomes,
+    recover_mesh_validation_run, list_mesh_validation_runs,
 )
 from tools.oneflow_gui.case_repository import _case_dimension
 from tools.oneflow_gui.workflow_graph_runner import (
     CaseExecutionResult, WorkflowGraphRunResult,
 )
+
+
+class RunArtifactInventoryTest(unittest.TestCase):
+    def test_inventory_records_relative_paths_sizes_hashes_and_categories(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            files = {
+                "stl_to_gmsh/input/model.stl": b"geometry",
+                "stl_to_gmsh/results/model.msh": b"mesh",
+                "gmsh_to_cgns/results/model.cgns": b"cgns",
+                "oneflow_cfd_solve/results/residual.dat": b"residual",
+                "oneflow_cfd_solve/results/solver.log": b"log",
+                "gmsh_to_cgns/results/mesh-validation.json": b"{}",
+                "misc/custom.bin": b"other",
+            }
+            for relative, payload in files.items():
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(payload)
+            report_path = root / "mesh-validation-report.json"
+            report_path.write_text("{}", encoding="utf-8")
+            (root / ".temporary.tmp").write_text("temporary", encoding="utf-8")
+
+            records = _collect_run_artifacts(root, report_path)
+            by_path = {item["path"]: item for item in records}
+
+            self.assertEqual(set(by_path), set(files))
+            self.assertEqual(by_path["stl_to_gmsh/input/model.stl"]["category"], "Geometry")
+            self.assertEqual(by_path["stl_to_gmsh/results/model.msh"]["category"], "Volume Mesh")
+            self.assertEqual(by_path["gmsh_to_cgns/results/model.cgns"]["category"], "Volume Mesh")
+            self.assertEqual(by_path["oneflow_cfd_solve/results/residual.dat"]["category"], "CFD Results")
+            self.assertEqual(by_path["oneflow_cfd_solve/results/solver.log"]["category"], "Logs")
+            self.assertEqual(by_path["gmsh_to_cgns/results/mesh-validation.json"]["category"], "Reports")
+            self.assertEqual(by_path["misc/custom.bin"]["category"], "Other")
+            self.assertEqual(by_path["stl_to_gmsh/input/model.stl"]["stage"], "stl_to_gmsh")
+            self.assertEqual(by_path["stl_to_gmsh/input/model.stl"]["size_bytes"], len(b"geometry"))
+            self.assertEqual(
+                by_path["stl_to_gmsh/input/model.stl"]["sha256"],
+                hashlib.sha256(b"geometry").hexdigest(),
+            )
+            self.assertNotIn(str(root), by_path["stl_to_gmsh/input/model.stl"]["path"])
+            self.assertNotIn("mesh-validation-report.json", by_path)
+
+    def test_artifact_paths_report_available_missing_and_reject_escape_paths(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            present = root / "results/mesh.msh"
+            present.parent.mkdir()
+            present.write_bytes(b"mesh")
+            self.assertEqual(
+                _artifact_file_state("results/mesh.msh", root)[0], "Available"
+            )
+            self.assertEqual(
+                _artifact_file_state("results/missing.cgns", root)[0], "Missing"
+            )
+            self.assertEqual(
+                _artifact_file_state("../../outside.txt", root),
+                ("Unsafe path", None),
+            )
+            self.assertEqual(
+                _artifact_file_state("results/mesh.msh", None),
+                ("Unresolved", None),
+            )
+
+    def test_sha256_streaming_matches_standard_digest_for_large_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "large.mesh"
+            payload = b"OneFLOW mesh evidence" * 100_000
+            path.write_bytes(payload)
+            self.assertEqual(_sha256_file(path), hashlib.sha256(payload).hexdigest())
+
+    def test_inventory_skips_symlinks_and_missing_run_directories(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "run"
+            self.assertEqual(_collect_run_artifacts(root), [])
+            root.mkdir()
+            target = root / "target.dat"
+            target.write_text("data", encoding="utf-8")
+            link = root / "link.dat"
+            try:
+                link.symlink_to(target)
+            except (OSError, NotImplementedError):
+                self.skipTest("Symlinks are unavailable in this environment.")
+            self.assertEqual(
+                [item["path"] for item in _collect_run_artifacts(root)],
+                ["target.dat"],
+            )
+
+
+class RecoverMeshValidationRunTest(unittest.TestCase):
+    def test_graph_final_outcomes_override_preliminary_stage_log_status(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            log = root / "stl_to_gmsh/results/mesh-validation.log"
+            log.parent.mkdir(parents=True)
+            log.write_text(
+                '$ ["gmsh", "model.geo"]\n'
+                "[stl_to_gmsh] succeeded: Process returned zero.\n",
+                encoding="utf-8",
+            )
+            plan = SimpleNamespace(steps=[
+                SimpleNamespace(
+                    case_id="stl_to_gmsh",
+                    runtime_directory=Path("stl_to_gmsh"),
+                ),
+                SimpleNamespace(
+                    case_id="gmsh_to_cgns",
+                    runtime_directory=Path("gmsh_to_cgns"),
+                ),
+            ])
+            result = SimpleNamespace(cases=[
+                CaseExecutionResult(
+                    "stl_to_gmsh", "failed",
+                    "Declared output artifacts were not produced: mesh.cgns",
+                ),
+                CaseExecutionResult(
+                    "gmsh_to_cgns", "skipped", "Blocked by unsuccessful dependencies.",
+                ),
+            ])
+
+            _persist_graph_stage_outcomes(result, plan, root)
+            report = recover_mesh_validation_run(root)
+
+            self.assertEqual(report["stages"]["mesh_generation"]["status"], "FAIL")
+            self.assertIn("Declared output artifacts", report["stages"]["mesh_generation"]["message"])
+            self.assertEqual(report["stages"]["gmsh_to_cgns"]["status"], "NOT_RUN")
+            self.assertEqual(report["steps"][1]["status"], "skipped")
+
+    def test_stage_log_serialization_persists_terminal_outcome(self):
+        from tools.oneflow_gui.mesh_validation import _format_mesh_validation_stage_log
+
+        rendered = _format_mesh_validation_stage_log(
+            "gmsh_to_cgns", ["OneFLOW.exe", "r", "case"],
+            ["Converting mesh...", "Conversion complete."],
+            "succeeded", "CGNS file created.",
+        )
+        self.assertIn('$ ["OneFLOW.exe", "r", "case"]\n', rendered)
+        self.assertTrue(rendered.endswith(
+            "[gmsh_to_cgns] succeeded: CGNS file created.\n"
+        ))
+
+    def test_recovers_terminal_stage_states_metrics_and_verified_lineage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            producer_log = root / "stl_to_gmsh/results/mesh-validation.log"
+            producer_log.parent.mkdir(parents=True)
+            producer_log.write_text(
+                '$ ["gmsh", "model.geo"]\n'
+                "[stl_to_gmsh] succeeded: Mesh generated and validated.\n",
+                encoding="utf-8",
+            )
+            cgns_log = root / "gmsh_to_cgns/results/mesh-validation.log"
+            cgns_log.parent.mkdir(parents=True)
+            cgns_log.write_text(
+                '$ ["OneFLOW.exe", "r", "gmsh_to_cgns"]\n'
+                "[gmsh_to_cgns] failed: Conversion rejected an invalid element.\n",
+                encoding="utf-8",
+            )
+            mesh_report = root / "stl_to_gmsh/results/mesh-validation.json"
+            mesh_report.write_text(
+                json.dumps({
+                    "nodes": 120,
+                    "elements": 240,
+                    "tetrahedron_elements": 180,
+                    "tetrahedron_quality": {
+                        "minimum_quality": 0.25,
+                        "mean_quality": 0.72,
+                        "minimum_volume": 0.001,
+                        "total_volume": 1.5,
+                        "quality_percentiles": {
+                            "p05": 0.31, "p50": 0.74, "p95": 0.93,
+                        },
+                        "quality_below_threshold_counts": {
+                            "0.1": 0, "0.2": 2, "0.3": 8,
+                        },
+                    },
+                    "physical_groups": [{"name": "fluid"}],
+                }),
+                encoding="utf-8",
+            )
+            cgns = root / "gmsh_to_cgns/results/mesh.cgns"
+            cgns.write_bytes(b"cgns")
+            lineage = {
+                "provenance": {"kind": "generated", "notes": "Verified source."},
+                "source_representation": {"format": "STL", "sha256": "a" * 64},
+            }
+            _write_geometry_artifact_lineage(cgns, "CGNS volume mesh", lineage)
+            (root / "mesh-validation-console.log").write_text(
+                "durable console output\n", encoding="utf-8"
+            )
+
+            report = recover_mesh_validation_run(root)
+
+            self.assertEqual(report["status"], "recovered")
+            self.assertIsNone(report["exit_code"])
+            self.assertEqual(report["stages"]["mesh_generation"]["status"], "PASS")
+            self.assertEqual(report["stages"]["gmsh_to_cgns"]["status"], "FAIL")
+            self.assertEqual(report["stages"]["cgns_to_oneflow"]["status"], "NOT_CHECKED")
+            self.assertEqual(report["metrics"], {
+                "nodes": 120,
+                "elements": 240,
+                "tetrahedron_elements": 180,
+                "tetrahedron_mean_ratio_minimum": 0.25,
+                "tetrahedron_mean_ratio_mean": 0.72,
+                "tetrahedron_minimum_volume": 0.001,
+                "tetrahedron_total_volume": 1.5,
+                "tetrahedron_mean_ratio_p05": 0.31,
+                "tetrahedron_mean_ratio_p50": 0.74,
+                "tetrahedron_mean_ratio_p95": 0.93,
+                "tetrahedron_mean_ratio_below_0_1_count": 0,
+                "tetrahedron_mean_ratio_below_0_2_count": 2,
+                "tetrahedron_mean_ratio_below_0_3_count": 8,
+                "physical_group_count": 1,
+            })
+            self.assertEqual(report["geometry_lineage"]["provenance"]["kind"], "generated")
+            self.assertEqual(report["recovery"]["verified_geometry_sidecars"], 1)
+            self.assertTrue(any(
+                item["path"] == "mesh-validation-console.log"
+                for item in report["artifacts"]["files"]
+            ))
+
+    def test_older_stage_logs_recover_terminal_status_from_console_log(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stage_log = root / "stl_to_gmsh/results/mesh-validation.log"
+            stage_log.parent.mkdir(parents=True)
+            stage_log.write_text(
+                '$ ["gmsh", "model.geo"]\nRaw Gmsh output only.\n',
+                encoding="utf-8",
+            )
+            (root / "mesh-validation-console.log").write_text(
+                "[stl_to_gmsh] succeeded: Legacy run completed.\n",
+                encoding="utf-8",
+            )
+
+            report = recover_mesh_validation_run(root)
+
+            self.assertEqual(report["stages"]["mesh_generation"]["status"], "PASS")
+            self.assertEqual(report["steps"][0]["message"], "Legacy run completed.")
+
+    def test_run_metadata_restores_case_parameters_without_inventing_outcomes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            metadata = {
+                "schema": "oneflow.mesh-validation-run",
+                "version": 1,
+                "run_id": "run-123",
+                "mesh_case_id": "stl_to_gmsh_sphere",
+                "mesh_implementation": "python",
+                "mesh_input_mode": "generated_mesh",
+                "cfd_template_id": "laminar_flat_plate",
+                "max_steps": 2,
+                "started_at_utc": "2026-11-25T08:00:00+00:00",
+            }
+            (root / "mesh-validation-run.json").write_text(
+                json.dumps(metadata), encoding="utf-8"
+            )
+
+            report = recover_mesh_validation_run(root)
+
+            self.assertEqual(report["run_id"], "run-123")
+            self.assertEqual(report["mesh_case_id"], "stl_to_gmsh_sphere")
+            self.assertEqual(report["mesh_implementation"], "python")
+            self.assertEqual(report["cfd_template_id"], "laminar_flat_plate")
+            self.assertEqual(report["max_steps"], 2)
+            self.assertEqual(report["recovery"]["run_metadata_status"], "readable")
+            self.assertEqual(report["stages"]["mesh_generation"]["status"], "NOT_CHECKED")
+
+    def test_artifact_presence_alone_never_claims_a_stage_pass(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            mesh = root / "stl_to_gmsh/results/model.msh"
+            mesh.parent.mkdir(parents=True)
+            mesh.write_bytes(b"mesh")
+
+            report = recover_mesh_validation_run(root)
+
+            self.assertEqual(report["status"], "recovered")
+            self.assertEqual(report["stages"]["mesh_generation"]["status"], "NOT_CHECKED")
+            self.assertEqual(report["stages"]["gmsh_to_cgns"]["status"], "NOT_CHECKED")
+            self.assertEqual(len(report["steps"]), 4)
+            self.assertTrue(all(item["status"] == "unknown" for item in report["steps"]))
+
+    def test_recovers_existing_mesh_input_stage_name(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            log = root / "stl_to_gmsh/results/mesh-validation.log"
+            log.parent.mkdir(parents=True)
+            log.write_text(
+                '$ ["<copy-existing-mesh>", "source.msh"]\n'
+                "[stl_to_gmsh] succeeded: Existing mesh staged.\n",
+                encoding="utf-8",
+            )
+
+            report = recover_mesh_validation_run(root)
+
+            self.assertNotIn("mesh_generation", report["stages"])
+            self.assertEqual(report["stages"]["existing_msh_input"]["status"], "PASS")
 
 
 class GeometryArtifactLineageTest(unittest.TestCase):
@@ -242,6 +546,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
         (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/cpp/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/3d/sphere/automatic_tetrahedra/python/script").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp/script").mkdir(parents=True)
+        (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python").mkdir(parents=True)
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/python").mkdir(parents=True)
         (self.root / "test/cfd/plateuns2dslau2/script").mkdir(parents=True)
         (self.root / "grid/case_catalog.json").write_text(json.dumps({
@@ -312,7 +618,20 @@ class MeshValidationCatalogTest(unittest.TestCase):
             item for item in catalog["cases"] if item["id"] == "cylinder_existing_mesh"
         )
         catalog["cases"].remove(cylinder_input)
-        catalog["mesh_validation_inputs"] = [cylinder_input]
+        catalog["mesh_validation_inputs"] = [
+            cylinder_input,
+            {"id": "stl_to_gmsh_cylinder_internal_flow_oblique_cut",
+             "title": "Internal-flow Cylinder with Generic Oblique Cut (Native C++)",
+             "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp",
+             "group": "STL to Gmsh", "dimension": 3, "mesh_validation": "cfd_smoke"},
+            {"id": "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut",
+             "title": "Internal-flow Cylinder with Generic Oblique Cut (Python Reference)",
+             "directory": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python",
+             "group": "STL to Gmsh", "dimension": 3, "mesh_validation": "cfd_smoke",
+             "execution": {"kind": "python",
+                           "script": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py",
+                           "output_directory_argument": "--output-directory"}},
+        ]
         catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/python/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "square.msh"}}), encoding="utf-8"
@@ -336,6 +655,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
         (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/expected.json").write_text(
             json.dumps({"artifact": {"mesh_file": "cylinder_internal_flow.msh"}}),
             encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp/script/grid.txt").write_text(
+            'string targetGridFileName = "results/cylinder_oblique_cut.msh";\n', encoding="utf-8")
+        (self.root / "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/expected.json").write_text(
+            json.dumps({"artifact": {"mesh_file": "cylinder_oblique_cut.msh"}}), encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/single_quad/cpp/script/grid.txt").write_text(
             'string targetGridFileName = "results/square.msh";\n', encoding="utf-8")
         (self.root / "grid/stl_to_gmsh/2d/square/two_triangles/cpp/script/grid.txt").write_text(
@@ -391,6 +714,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
             ("stl_to_gmsh_python_square_two_triangles", "Square with Two TRI_3 Cells (Python Reference)"),
             ("stl_to_gmsh_python_square_automatic_triangles", "Square with Automatic TRI_3 Refinement (Python Reference)"),
             ("cylinder_existing_mesh", "3D Cylinder Internal Flow (Generated MSH)"),
+            ("stl_to_gmsh_cylinder_internal_flow_oblique_cut", "Internal-flow Cylinder with Generic Oblique Cut (Native C++)"),
+            ("stl_to_gmsh_python_cylinder_internal_flow_oblique_cut", "Internal-flow Cylinder with Generic Oblique Cut (Python Reference)"),
         ))
     def test_existing_cylinder_is_grouped_as_existing_gmsh_mesh_not_stl_producer(self):
         groups = dict(mesh_case_group_categories(self.root))
@@ -479,7 +804,12 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertEqual(
             [case_id for case_id, _title in groups[1][1]],
-            ["native_cube", "python_cube", "native_sphere", "python_sphere", "cylinder_existing_mesh"],
+            [
+                "native_cube", "python_cube", "native_sphere", "python_sphere",
+                "cylinder_existing_mesh",
+                "stl_to_gmsh_cylinder_internal_flow_oblique_cut",
+                "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut",
+            ],
         )
 
     def test_mesh_producer_command_dispatches_by_implementation(self):
@@ -487,6 +817,13 @@ class MeshValidationCatalogTest(unittest.TestCase):
             "execution": {
                 "kind": "python",
                 "script": "grid/stl_to_gmsh/run_python_case.py",
+            }
+        }
+        python_output_entry = {
+            "execution": {
+                "kind": "python",
+                "script": "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py",
+                "output_directory_argument": "--output-directory",
             }
         }
         command = _mesh_case_command(
@@ -499,6 +836,15 @@ class MeshValidationCatalogTest(unittest.TestCase):
             "--case-directory", str(self.root / ".oneflow/staged/python_case"),
             "--gmsh", "gmsh",
         ])
+        staged_output = self.root / ".oneflow/staged/oblique_case"
+        oblique_command = _mesh_case_command(
+            self.root, python_output_entry, Path("OneFLOW"), Path("gmsh"),
+            staged_output,
+        )
+        self.assertEqual(
+            oblique_command[-2:],
+            ["--output-directory", str(staged_output)],
+        )
         native = _mesh_case_command(
             self.root, {}, Path("OneFLOW"), Path("gmsh"),
             self.root / ".oneflow/staged/native_case",
@@ -619,6 +965,48 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[3]["inputs"][1]["setting"], "bcRegionMapFile")
 
 
+
+    def test_pipe_bend_runs_the_complete_three_dimensional_cfd_smoke_chain(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        case_id = "stl_to_gmsh_pipe_bend_90_degree"
+        cases = build_mesh_validation_cases(repository_root, case_id, "laminar_flat_plate")
+        expected_steps = [
+            "stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow",
+            "oneflow_cfd_solve",
+        ]
+        self.assertEqual([item["id"] for item in cases], expected_steps)
+        self.assertEqual(
+            cases[0]["directory"],
+            "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra",
+        )
+        self.assertEqual(cases[0]["outputs"][0]["path"],
+                         "results/pipe_bend_90_degree.msh")
+        self.assertEqual(cases[2]["outputs"], [
+            {"id": "oneflow_grid", "path": "results/pipe_bend_90_degree.oneflow.grid",
+             "parameter_file": "script/grid.txt", "setting": "targetGridFileName"},
+            {"id": "bc_region_map", "path": "results/pipe_bend_90_degree_bcRegionMap.txt",
+             "parameter_file": "script/grid.txt", "setting": "bcRegionMapFile"},
+            {"id": "grid_info", "path": "results/pipe_bend_90_degree.info.json",
+             "parameter_file": "script/grid.txt", "setting": "gridInfoFileName"},
+        ])
+        self.assertEqual(cases[3]["runtime_directory"], "oneflow_cfd_solve")
+        self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
+        self.assertEqual(cases[3]["inputs"][0]["artifact"], "oneflow_grid")
+        self.assertEqual(cases[3]["inputs"][1]["artifact"], "bc_region_map")
+        self.assertEqual(cases[3]["inputs"][0]["setting"], "gridFileName")
+        self.assertEqual(cases[3]["inputs"][1]["setting"], "bcRegionMapFile")
+
+        lifecycle = mesh_case_lifecycle_summary(repository_root, case_id)
+        self.assertEqual(
+            lifecycle["verification_stages"],
+            ["geometry", "surface_regions", "volume_mesh", "msh_to_cgns",
+             "oneflow_ingestion", "cfd_smoke"],
+        )
+        stage_states = {item["id"]: item for item in lifecycle["stages"]}
+        for stage_id in ("oneflow_ingestion", "cfd_smoke"):
+            self.assertEqual(stage_states[stage_id]["implementation_status"], "implemented")
+            self.assertTrue(stage_states[stage_id]["in_current_scope"])
+
     def test_native_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
         cases = build_mesh_validation_cases(self.root, "native_cube", "laminar_flat_plate")
         self.assertEqual([item["id"] for item in cases],
@@ -698,6 +1086,44 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(python[3]["runtime_directory"], "oneflow_cfd_solve")
         self.assertEqual(native[3]["directory"], "test/cfd/plateuns2dslau2")
         self.assertEqual(python[3]["directory"], "test/cfd/plateuns2dslau2")
+
+    def test_oblique_cut_native_and_python_cases_are_registered_for_validation(self):
+        native_id = "stl_to_gmsh_cylinder_internal_flow_oblique_cut"
+        python_id = "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut"
+        choices = dict(mesh_case_choices(self.root))
+        self.assertIn(native_id, choices)
+        self.assertIn(python_id, choices)
+
+        native = build_mesh_validation_cases(
+            self.root, native_id, "laminar_flat_plate"
+        )
+        python = build_mesh_validation_cases(
+            self.root, python_id, "laminar_flat_plate"
+        )
+        expected_steps = [
+            "stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow",
+            "oneflow_cfd_solve",
+        ]
+        self.assertEqual([item["id"] for item in native], expected_steps)
+        self.assertEqual([item["id"] for item in python], expected_steps)
+        self.assertEqual(
+            native[0]["directory"],
+            "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp",
+        )
+        self.assertEqual(
+            native[0]["outputs"][0]["path"],
+            "results/cylinder_oblique_cut.msh",
+        )
+        self.assertEqual(
+            python[0]["directory"],
+            "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python",
+        )
+        self.assertEqual(
+            python[0]["outputs"][0]["path"],
+            "results/cylinder_oblique_cut.msh",
+        )
+        self.assertEqual(native[0]["runtime_directory"], "stl_to_gmsh")
+        self.assertEqual(native[3]["directory"], "test/cfd/plateuns2dslau2")
 
     def test_python_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
         cube_dir = self.root / "grid/stl_to_gmsh/3d/cube/single_hex/python"
@@ -936,6 +1362,141 @@ class MeshValidationCatalogTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "inflow"):
             _validate_required_physical_groups(mesh_info, entry)
 
+    def test_pipe_bend_is_registered_as_a_generated_mesh_case(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        case_id = "stl_to_gmsh_pipe_bend_90_degree"
+        choices = dict(mesh_case_choices(repository_root))
+        self.assertIn(case_id, choices)
+        self.assertIn("90-Degree Pipe Bend", choices[case_id])
+        catalog = json.loads(
+            (repository_root / "grid/case_catalog.json").read_text(encoding="utf-8")
+        )
+        entry = next(item for item in catalog["cases"] if item["id"] == case_id)
+        self.assertEqual(entry["execution"]["kind"], "python")
+        self.assertEqual(
+            entry["execution"]["script"],
+            "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/run_pipe_bend_case.py",
+        )
+        self.assertEqual(
+            {(item["dimension"], item["name"]) for item in entry["required_physical_groups"]},
+            {(2, "wall"), (2, "inflow"), (2, "outflow"), (3, "fluid_domain")},
+        )
+        categories = dict(mesh_case_group_categories(repository_root))
+        self.assertTrue(any(
+            item[0] == "STL to Gmsh" and case_id in dict(item[1])
+            for item in categories["3D"]
+        ))
+        self.assertFalse(any(
+            item[0] == "Existing Gmsh Mesh" and case_id in dict(item[1])
+            for item in categories["3D"]
+        ))
+        steps = build_mesh_validation_cases(repository_root, case_id, "laminar_flat_plate")
+        self.assertEqual(
+            [step["id"] for step in steps],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
+        )
+        self.assertEqual(steps[0]["outputs"][0]["path"], "results/pipe_bend_90_degree.msh")
+        command = _mesh_case_command(
+            repository_root, entry, Path("OneFLOW.exe"), Path("gmsh.exe"),
+            Path("case-directory"),
+        )
+        self.assertIn("run_pipe_bend_case.py", command[1])
+        self.assertEqual(command[2:4], ["--case-directory", "case-directory"])
+
+    def test_pipe_bend_lifecycle_summary_distinguishes_current_and_future_stages(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        summary = mesh_case_lifecycle_summary(
+            repository_root, "stl_to_gmsh_pipe_bend_90_degree"
+        )
+        self.assertIsNotNone(summary)
+        self.assertEqual(
+            summary["verification_scope"],
+            "geometry_regions_gmsh_volume_mesh_cgns_conversion_oneflow_ingestion_and_cfd_smoke",
+        )
+        stages = {stage["id"]: stage for stage in summary["stages"]}
+        self.assertTrue(stages["geometry"]["in_current_scope"])
+        self.assertTrue(stages["surface_regions"]["in_current_scope"])
+        self.assertTrue(stages["volume_mesh"]["in_current_scope"])
+        self.assertTrue(stages["msh_to_cgns"]["in_current_scope"])
+        self.assertFalse(stages["mesh_quality"]["in_current_scope"])
+        self.assertEqual(stages["mesh_quality"]["implementation_status"], "implemented")
+        self.assertTrue(stages["oneflow_ingestion"]["in_current_scope"])
+        self.assertTrue(stages["cfd_smoke"]["in_current_scope"])
+        self.assertFalse(stages["cfd_validation"]["in_current_scope"])
+        self.assertEqual(stages["geometry"]["implementation_status"], "implemented")
+        self.assertEqual(stages["geometry"]["verification_status"], "not_run")
+        self.assertEqual(stages["msh_to_cgns"]["implementation_status"], "implemented")
+        self.assertEqual(stages["msh_to_cgns"]["verification_status"], "not_run")
+        self.assertEqual(stages["oneflow_ingestion"]["implementation_status"], "implemented")
+        self.assertEqual(stages["oneflow_ingestion"]["verification_status"], "not_run")
+        self.assertEqual(stages["cfd_smoke"]["implementation_status"], "implemented")
+        self.assertEqual(stages["cfd_smoke"]["verification_status"], "not_run")
+        self.assertFalse(stages["cfd_validation"]["in_current_scope"])
+        contract_path = (
+            repository_root / "grid" / "stl_to_gmsh" / "3d" / "pipe_bend"
+            / "90_degree" / "automatic_tetrahedra" / "case-lifecycle.json"
+        )
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        contract_stages = {stage["id"]: stage for stage in contract["stages"]}
+        self.assertEqual(
+            contract_stages["oneflow_ingestion"]["depends_on"],
+            ["msh_to_cgns"],
+        )
+        self.assertEqual(
+            contract["quality_policy"]["role"], "diagnostic"
+        )
+        self.assertFalse(contract["quality_policy"]["blocking"])
+        self.assertFalse(contract["quality_policy"]["affects_oneflow_ingestion"])
+        self.assertFalse(contract["quality_policy"]["affects_cfd_smoke"])
+        self.assertIn(
+            {"id": "native_cpp_geometry", "kind": "cpp", "status": "implemented"},
+            stages["geometry"]["implementations"],
+        )
+        self.assertIn(
+            {"id": "native_cpp_region_export", "kind": "cpp", "status": "implemented"},
+            stages["surface_regions"]["implementations"],
+        )
+        self.assertEqual(stages["cfd_validation"]["implementation_status"], "planned")
+
+    def test_cases_without_lifecycle_contract_have_no_milestone_summary(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        self.assertIsNone(
+            mesh_case_lifecycle_summary(repository_root, "stl_to_gmsh_square")
+        )
+        legacy_steps = build_mesh_validation_cases(
+            repository_root, "stl_to_gmsh_square", "laminar_flat_plate"
+        )
+        self.assertEqual(
+            [step["id"] for step in legacy_steps],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
+        )
+        self.assertTrue(
+            mesh_case_requires_oneflow_executable(
+                repository_root, "stl_to_gmsh_square"
+            )
+        )
+        # The pipe-bend lifecycle now includes the shared native-grid
+        # ingestion and bounded CFD smoke stages.
+        self.assertTrue(
+            mesh_case_requires_oneflow_executable(
+                repository_root, "stl_to_gmsh_pipe_bend_90_degree"
+            )
+        )
+        pipe_bend_steps = build_mesh_validation_cases(
+            repository_root, "stl_to_gmsh_pipe_bend_90_degree",
+            "laminar_flat_plate",
+        )
+        self.assertEqual(
+            [step["id"] for step in pipe_bend_steps],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
+        )
+        self.assertTrue(
+            any(step["id"] == "cgns_to_oneflow" for step in pipe_bend_steps)
+        )
+        self.assertTrue(
+            any(step["id"] == "oneflow_cfd_solve" for step in pipe_bend_steps)
+        )
+
     def test_existing_mesh_case_resolves_only_inside_user_mesh_workspace(self):
         with tempfile.TemporaryDirectory() as temporary:
             workspace = Path(temporary) / "mesh-generation"
@@ -951,6 +1512,39 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 (
                     expected_project / "results/cylinder_internal_flow.msh",
                     expected_project,
+                ),
+            )
+
+            invalid_workspace = Path(temporary) / "invalid-mesh-generation"
+            invalid_project = invalid_workspace / "invalid_cylinder"
+            (invalid_project / "results").mkdir(parents=True)
+            (invalid_project / "results/escaped.msh").write_text(
+                "mesh", encoding="ascii"
+            )
+            (invalid_project / "project.json").write_text(
+                json.dumps({
+                    "schema": "oneflow.mesh-project", "version": 1,
+                    "geometry": "cylinder_internal_flow",
+                    "output_mesh": "../../outside.msh",
+                }), encoding="utf-8"
+            )
+            invalid_paths = type(
+                "Paths", (), {"mesh_generation": invalid_workspace}
+            )()
+            with mock.patch(
+                "tools.oneflow_gui.mesh_validation.UserDataPaths.discover",
+                return_value=invalid_paths,
+            ):
+                ignored_invalid_project = existing_mesh_case_paths(
+                    Path(__file__).resolve().parents[2],
+                    "stl_to_gmsh_existing_mesh_3d_cylinder_internal_flow",
+                )
+            self.assertEqual(
+                ignored_invalid_project,
+                (
+                    (invalid_workspace / "cylinder_internal_flow"
+                     / "results/cylinder_internal_flow.msh").resolve(),
+                    (invalid_workspace / "cylinder_internal_flow").resolve(),
                 ),
             )
 
@@ -985,7 +1579,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
             root = Path(temporary)
             source = root / "project" / "mesh.msh"
             source.parent.mkdir()
-            source.write_text("$MeshFormat\\n4.1 0 8\\n$EndMeshFormat\\n", encoding="ascii")
+            source.write_text("$MeshFormat\n4.1 0 8\n$EndMeshFormat\n", encoding="ascii")
             destination = root / "validation" / "run-1" / "producer" / "results" / "mesh.msh"
             _copy_existing_mesh(source, destination)
             self.assertEqual(destination.read_bytes(), source.read_bytes())
@@ -998,9 +1592,55 @@ class MeshValidationCatalogTest(unittest.TestCase):
             with self.assertRaisesRegex(FileNotFoundError, "not found"):
                 _copy_existing_mesh(root / "missing.msh", root / "stage" / "mesh.msh")
             invalid = root / "mesh.stl"
-            invalid.write_text("solid mesh\\nendsolid mesh\\n", encoding="ascii")
+            invalid.write_text("solid mesh\nendsolid mesh\n", encoding="ascii")
             with self.assertRaisesRegex(ValueError, "extension"):
                 _copy_existing_mesh(invalid, root / "stage" / "mesh.msh")
+
+    def test_project_validation_workspace_flattens_legacy_run_directory(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary) / "pipe_bend_90_degree" / "validation"
+            legacy = workspace / "run-20261125T153212Z-a3ce16f7"
+            (legacy / "gmsh_to_cgns" / "results").mkdir(parents=True)
+            (legacy / "mesh-validation-report.json").write_text(
+                '{"status":"SUCCEEDED"}', encoding="utf-8"
+            )
+            (legacy / "gmsh_to_cgns" / "results" / "mesh.cgns").write_text(
+                "cgns", encoding="ascii"
+            )
+            prepared = prepare_mesh_validation_run_workspace(
+                workspace, preserve_history=False, run_id="next-run"
+            )
+            self.assertTrue(prepared.samefile(workspace))
+            self.assertTrue((workspace / "mesh-validation-report.json").is_file())
+            self.assertTrue(
+                (workspace / "gmsh_to_cgns" / "results" / "mesh.cgns").is_file()
+            )
+            self.assertFalse(legacy.exists())
+            self.assertFalse(any(
+                child.is_dir() and child.name.startswith("run-")
+                for child in workspace.iterdir()
+            ))
+
+    def test_gui_validation_run_uses_stable_case_directory_without_run_subfolder(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary) / "stl_to_gmsh" / "3d" / "pipe_bend" / "90_degree" / "automatic_tetrahedra"
+            prepared = prepare_mesh_validation_run_workspace(
+                workspace, preserve_history=True, run_id="20261125T191006Z-ac08120a"
+            )
+            self.assertTrue(prepared.samefile(workspace))
+            self.assertTrue(workspace.is_dir())
+            self.assertFalse(any(
+                child.is_dir() and child.name.startswith("run-")
+                for child in workspace.iterdir()
+            ))
+            (workspace / "mesh-validation-report.json").write_text(
+                '{"status":"SUCCEEDED"}', encoding="utf-8"
+            )
+            prepared_again = prepare_mesh_validation_run_workspace(
+                workspace, preserve_history=True, run_id="next-run"
+            )
+            self.assertTrue(prepared_again.samefile(workspace))
+            self.assertFalse((workspace / "mesh-validation-report.json").exists())
 
     def test_workspace_uses_mesh_case_relative_directory(self):
         paths = type(
@@ -1052,30 +1692,69 @@ class MeshValidationCatalogTest(unittest.TestCase):
             self.assertTrue((sibling / "keep.txt").is_file())
 
 
-    def test_each_run_clears_and_recreates_the_stable_validation_directory(self):
+    def test_explicit_stage_root_uses_direct_output_and_resets_stale_artifacts(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            stage_root = Path(temporary) / "oneflow-generic-curved-shell-validation"
+            stage_root.mkdir()
+            (stage_root / "stale-report.json").write_text("stale", encoding="utf-8")
+            (stage_root / "old-stage").mkdir()
+            run_root = prepare_mesh_validation_run_workspace(
+                stage_root, preserve_history=False, run_id="ci-run"
+            )
+            self.assertEqual(run_root, stage_root.resolve())
+            self.assertFalse((run_root / "stale-report.json").exists())
+            self.assertFalse((run_root / "old-stage").exists())
+            (run_root / "mesh-validation-report.json").write_text(
+                "{}", encoding="utf-8"
+            )
+            (run_root / "gmsh_to_cgns").mkdir()
+            (run_root / "cgns_to_oneflow").mkdir()
+            self.assertTrue((stage_root / "mesh-validation-report.json").is_file())
+            self.assertTrue((stage_root / "gmsh_to_cgns").is_dir())
+            self.assertTrue((stage_root / "cgns_to_oneflow").is_dir())
+
+    def test_each_run_gets_an_isolated_directory_and_preserves_history(self):
         with tempfile.TemporaryDirectory() as temporary:
             base = Path(temporary) / "project" / "validation"
             old_run = base / "run-20261115T173711-ae8d11f2"
             old_run.mkdir(parents=True)
-            (old_run / "stale-report.json").write_text("old", encoding="utf-8")
+            (old_run / "mesh-validation-report.json").write_text(
+                json.dumps({"status": "success", "mesh_case_id": "old_case"}), encoding="utf-8"
+            )
+            first = create_mesh_validation_run_workspace(base, "first123")
+            second = create_mesh_validation_run_workspace(base, "second123")
+            self.assertNotEqual(first, second)
+            self.assertEqual(first.parent, base.resolve())
+            self.assertTrue((old_run / "mesh-validation-report.json").is_file())
 
-            first = create_mesh_validation_run_workspace(base)
-
-            self.assertEqual(first, base.resolve())
-            self.assertTrue(base.is_dir())
-            self.assertFalse(old_run.exists())
-            self.assertEqual(list(base.iterdir()), [])
-
-            stale_output = base / "oneflow_cfd_solve" / "visual" / "visual.dat"
-            stale_output.parent.mkdir(parents=True)
-            stale_output.write_text("old run", encoding="utf-8")
-
-            second = create_mesh_validation_run_workspace(base)
-
-            self.assertEqual(second, first)
-            self.assertTrue(base.is_dir())
-            self.assertFalse(stale_output.exists())
-            self.assertEqual(list(base.iterdir()), [])
+    def test_run_history_lists_reports_and_interrupted_runs(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary) / "validation"
+            complete, interrupted = base / "run-complete", base / "run-interrupted"
+            complete.mkdir(parents=True)
+            interrupted.mkdir()
+            (complete / "mesh-validation-report.json").write_text(
+                json.dumps({"status": "success", "mesh_case_id": "sphere_case",
+                            "started_at": "2026-11-24T10:00:00Z"}), encoding="utf-8"
+            )
+            (interrupted / "mesh-validation-run.json").write_text(
+                json.dumps({"schema": "oneflow.mesh-validation-run", "version": 1,
+                            "mesh_case_id": "cylinder_case",
+                            "started_at_utc": "2026-11-24T11:00:00Z"}), encoding="utf-8"
+            )
+            nested = base / "stl_to_gmsh" / "3d" / "sphere" / "run-nested"
+            nested.mkdir(parents=True)
+            (nested / "mesh-validation-run.json").write_text(
+                json.dumps({"schema": "oneflow.mesh-validation-run", "version": 1,
+                            "mesh_case_id": "nested_sphere",
+                            "started_at_utc": "2026-11-24T12:00:00Z"}), encoding="utf-8"
+            )
+            records = list_mesh_validation_runs(base)
+            self.assertEqual([item["mesh_case_id"] for item in records],
+                             ["nested_sphere", "cylinder_case", "sphere_case"])
+            self.assertEqual(records[0]["status"], "RECOVERABLE")
+            self.assertEqual(records[1]["status"], "RECOVERABLE")
+            self.assertEqual(records[2]["status"], "SUCCESS")
 
 
 if __name__ == "__main__":

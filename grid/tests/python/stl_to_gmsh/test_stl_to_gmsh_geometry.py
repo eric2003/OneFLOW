@@ -201,6 +201,119 @@ $EndElements
             {"inflow", "outflow", "symmetry", "farfield", "fluid_domain"},
         )
 
+    def test_inspect_msh4_reports_tetrahedron_mean_ratio_and_volume(self):
+        content = """$MeshFormat
+4.1 0 8
+$EndMeshFormat
+$PhysicalNames
+0
+$EndPhysicalNames
+$Nodes
+4 4 1 4
+0 1 0 1
+1
+0 0 0
+0 2 0 1
+2
+1 0 0
+0 3 0 1
+3
+0 1 0
+0 4 0 1
+4
+0 0 1
+$EndNodes
+$Elements
+5 5 1 5
+2 1 2 1
+1 1 2 3
+2 2 2 1
+2 1 2 4
+2 3 2 1
+3 2 3 4
+2 4 2 1
+4 1 3 4
+3 5 4 1
+5 1 2 3 4
+$EndElements
+"""
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "tetrahedron.msh"
+            path.write_text(content, encoding="utf-8")
+            summary = inspect_msh4(path)
+        quality = summary["tetrahedron_quality"]
+        self.assertEqual(quality["metric"], "mean_ratio")
+        self.assertEqual(quality["degenerate_count"], 0)
+        self.assertGreater(quality["minimum_quality"], 0.8)
+        self.assertLess(quality["minimum_quality"], 0.9)
+        self.assertAlmostEqual(quality["minimum_volume"], 1.0 / 6.0)
+        self.assertAlmostEqual(quality["total_volume"], 1.0 / 6.0)
+        self.assertEqual(
+            quality["quality_percentiles"],
+            {
+                "p05": quality["minimum_quality"],
+                "p50": quality["minimum_quality"],
+                "p95": quality["minimum_quality"],
+            },
+        )
+        self.assertEqual(
+            quality["quality_below_threshold_counts"],
+            {"0.1": 0, "0.2": 0, "0.3": 0},
+        )
+        self.assertEqual(len(quality["worst_elements"]), 1)
+        self.assertEqual(quality["worst_elements"][0]["element_tag"], 5)
+        self.assertEqual(quality["worst_elements"][0]["node_tags"], [1, 2, 3, 4])
+        self.assertEqual(quality["worst_elements"][0]["centroid"], [0.25, 0.25, 0.25])
+
+    def test_inspect_msh4_reports_degenerate_tetrahedron_without_blocking(self):
+        content = """$MeshFormat
+4.1 0 8
+$EndMeshFormat
+$PhysicalNames
+0
+$EndPhysicalNames
+$Nodes
+4 4 1 4
+0 1 0 1
+1
+0 0 0
+0 2 0 1
+2
+1 0 0
+0 3 0 1
+3
+0 1 0
+0 4 0 1
+4
+1 1 0
+$EndNodes
+$Elements
+5 5 1 5
+2 1 2 1
+1 1 2 3
+2 2 2 1
+2 1 2 4
+2 3 2 1
+3 2 3 4
+2 4 2 1
+4 1 3 4
+3 5 4 1
+5 1 2 3 4
+$EndElements
+"""
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "degenerate.msh"
+            path.write_text(content, encoding="utf-8")
+            summary = inspect_msh4(path)
+        quality = summary["tetrahedron_quality"]
+        self.assertEqual(summary["tetrahedron_elements"], 1)
+        self.assertEqual(quality["degenerate_count"], 1)
+        self.assertEqual(quality["minimum_quality"], 0.0)
+        self.assertEqual(quality["minimum_volume"], 0.0)
+        self.assertEqual(quality["quality_below_threshold_counts"]["0.3"], 1)
+        self.assertEqual(len(quality["worst_elements"]), 1)
+        self.assertEqual(quality["worst_elements"][0]["element_tag"], 5)
+
     def test_unit_sphere_stl_is_closed_outward_and_genus_zero(self):
         case = ROOT / "grid" / "stl_to_gmsh" / "3d" / "sphere" / "automatic_tetrahedra" / "python"
         triangles = read_stl(case / "input" / "model.stl")

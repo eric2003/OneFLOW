@@ -22,7 +22,7 @@
       "status": "implemented",
       "implementation": "GridConversion.cpp",
       "input_scope": "MSH 4.1 ASCII; first-order LINE_2, TRI_3, QUAD_4, TETRA_4, HEXA_8, PENTA_6, PYRA_5",
-      "evidence": "GmshCgnsConversionTest independently reopens CGNS and checks mesh and boundary data.",
+      "evidence": "GmshCgnsConversionTest independently reopens CGNS and checks triangle, tetrahedral and hexahedral cell connectivity, coordinates, boundary element sections, BC_t types, GridLocation and Physical Group membership.",
       "template": "grid/conversion/gmsh_to_cgns"
     },
     {
@@ -85,6 +85,29 @@
     }
   ],
   "cases": [
+    {
+      "id": "gmsh_to_cgns_two_tetrahedra_regions",
+      "source": "gmsh",
+      "dimension": 3,
+      "topology": "two TETRA_4 cells sharing one triangular face",
+      "expected": {
+        "nodes": 5,
+        "cells": 2,
+        "boundary_elements": 6,
+        "internal_interface_faces": 1,
+        "physical_boundary_groups": 3,
+        "physical_volume_groups": 1,
+        "wall_faces": 4,
+        "inflow_faces": 1,
+        "outflow_faces": 1
+      },
+      "routes": [
+        "gmsh->cgns"
+      ],
+      "execution": "automated_integration_test",
+      "purpose": "Independently verify TETRA_4 volume connectivity and named TRI_3 boundary patches after CGNS write/read, including the distinction between a fluid_domain Physical Volume and BC_t boundary regions.",
+      "fixture": "grid/conversion/gmsh_to_cgns/grid/two_tetrahedra_regions.msh"
+    },
     {
       "id": "gmsh_to_cgns_two_quads",
       "source": "gmsh",

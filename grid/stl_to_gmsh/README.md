@@ -41,6 +41,44 @@ indices, then creates an analytic OpenCASCADE cylinder with separate
 semantics instead of treating the end caps as solid walls. See
 docs/source/stl_geometry_generation.rst.
 
+## Incremental Case lifecycle contracts
+
+New geometry and mesh Cases are delivered through explicit lifecycle contracts,
+not an assumed all-at-once pipeline. The contract records which geometry,
+surface-region, volume-mesh, conversion, OneFLOW-ingestion, CFD-smoke, and
+physical-validation stages are planned, implemented, and actually verified.
+A future stage being planned does not fail the acceptance checks for the
+current delivery scope.
+
+The common contract and stage-state rules are documented in
+[OneFLOW Case Lifecycle and Incremental Verification](../../docs/architecture/oneflow-case-lifecycle-contract.md);
+the machine-readable schema is
+[case-lifecycle-v1.schema.json](../../tools/schemas/case-lifecycle-v1.schema.json).
+
+The 90-degree pipe bend is the first staged example:
+`3d/pipe_bend/90_degree/automatic_tetrahedra/case-lifecycle.json`.
+Its lifecycle contract records Python and native C++ geometry/region
+implementations independently. The native C++ producer is executable through
+`run_pipe_bend_cpp_case.py`; it compiles into the staged Case workspace,
+writes the same STL, checksum-bound region manifest and geometry manifest,
+then delegates volume meshing to the shared
+`grid/stl_to_gmsh/generate_volume_mesh.py` service. For example:
+
+```powershell
+python grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/run_pipe_bend_cpp_case.py --case-directory "$HOME/.oneflow/grid-development/pipe-bend-cpp" --gmsh gmsh
+```
+
+This is a native C++ geometry implementation driven by a Python workflow
+adapter; it is not a native OneFLOW solver Case. In the OneFLOW Tests dialog,
+enable the Python / mesh producer Cases, select the pipe bend, and choose
+`Native C++ geometry` in its Implementation column. The Python reference
+remains the default. The selected implementation is remembered by the dialog
+and both variants run through the same staged Case workspace and Gmsh service.
+The current lifecycle verification scope remains the Python reference
+milestone until the native runner and its generated MSH4 output have passed
+the complete declared acceptance checks. Downstream CGNS conversion, OneFLOW
+ingestion and CFD stages remain separate milestones.
+
 This directory contains native C++ STL-to-Gmsh Cases and independent Python
 reference Cases. The native Cases run through the standard OneFLOW Grid task
 and the C++ Geometry conversion pipeline. The geometric definitions and STL
@@ -274,3 +312,20 @@ modified in the source checkout. Both implementations are registered in the norm
 externally by `run_cases.py`. The C++ implementation validates the closed
 surface topology and manifest patch partition before constructing the OCC
 cylinder; its validation is intentionally independent of the Python adapter.
+
+
+## 3D curved pipe-bend geometry
+
+The first curved-pipe asset is registered as `geometry.pipe_bend.90_degree`
+in `grid/geometry/catalog.json`. Its independent Python and C++17 geometry
+generators live under `3d/pipe_bend/90_degree/geometry/`. The Python generator
+writes a checksum-bound closed STL, wall/inflow/outflow patch STL files and a
+`region_manifest.json`; the existing generic region-aware volume-mesh route
+consumes those files without pipe-bend-specific geometry logic. The GUI can
+import the generated STL into a user mesh project and open the Gmsh workflow.
+The C++17 generator writes the same named wall/inflow/outflow patch
+STLs and checksum-bound `region_manifest.json` used by the Python path. The
+native Case adapter compiles that generator in the external workspace and
+hands its assets to the shared region-aware Gmsh volume mesher. See
+`../../docs/source/stl_pipe_bend.rst` and the geometry README for equations,
+defaults, commands and verification scope.

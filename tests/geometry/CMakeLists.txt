@@ -48,6 +48,7 @@ endif()
 # ==============================================================================
 set ( INCLUDE_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/include
+    ${CMAKE_SOURCE_DIR}/codes/geometry/stl/include
     ${CMAKE_SOURCE_DIR}/codes/global/include
     ${CMAKE_SOURCE_DIR}/codes/basic/include
     ${CMAKE_SOURCE_DIR}/codes/io/include
@@ -72,7 +73,9 @@ set ( SRC_DIRS
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridWorkflow.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridConversion.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GmshMeshReader.cpp
-    ${CMAKE_SOURCE_DIR}/codes/geometry/src/StlMeshIO.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/stl/src/StlMeshIO.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/stl/src/StlSurfaceTopology.cpp
+    ${CMAKE_SOURCE_DIR}/codes/geometry/stl/src/StlSurfaceCut.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridTypes.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridLayout.cpp
     ${CMAKE_SOURCE_DIR}/codes/geometry/src/GridMediator.cpp
@@ -251,6 +254,8 @@ add_oneflow_gtest(UnsGridBoundaryTopologyRoundTripTest UnsGridBoundaryTopologyRo
 add_oneflow_gtest(GridSummaryAdapterTest GridSummaryAdapterTest.cpp)
 add_oneflow_gtest(GmshMeshReaderTest GmshMeshReaderTest.cpp)
 add_oneflow_gtest(StlMeshIOTest StlMeshIOTest.cpp)
+add_oneflow_gtest(StlSurfaceCutTest StlSurfaceCutTest.cpp)
+target_compile_definitions(StlSurfaceCutTest PRIVATE ONEFLOW_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 
 if (ONEFLOW_ENABLE_GMSH_INTEGRATION_TESTS)
     target_compile_definitions(StlMeshIOTest PRIVATE

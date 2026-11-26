@@ -46,6 +46,24 @@ class TestDiagnosticParserTest(unittest.TestCase):
         self.assertEqual(item.verification_impact, "requires_review")
         self.assertEqual(item.to_dict()["contract_ids"], ["runtime/process-lifecycle"])
 
+    def test_windows_absolute_working_directory_is_preserved_on_posix_hosts(self) -> None:
+        records = parse_test_diagnostics(
+            ["ERROR: test_path (sample.TestPath)", "OSError: failed"],
+            task_label="Python tests",
+            framework="unittest",
+            working_directory=r"D:\work\OneFLOW",
+        )
+        self.assertEqual(records[0].working_directory, "D:/work/OneFLOW")
+
+    def test_windows_unc_working_directory_is_preserved(self) -> None:
+        records = parse_test_diagnostics(
+            ["ERROR: test_path (sample.TestPath)", "OSError: failed"],
+            task_label="Python tests",
+            framework="unittest",
+            working_directory=r"\\build-server\workspace\OneFLOW",
+        )
+        self.assertEqual(records[0].working_directory, "//build-server/workspace/OneFLOW")
+
     def test_final_failure_summary_lists_case_location_and_cause(self) -> None:
         records = parse_test_diagnostics(
             [

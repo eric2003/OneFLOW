@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oneflow-cfd.readthedocs.io/schemas/case-lifecycle-v1.schema.json",
+  "title": "OneFLOW Case Lifecycle Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "case_id",
+    "contract_version",
+    "verification_scope",
+    "stages",
+    "verification_stages"
+  ],
+  "properties": {
+    "schema": {
+      "const": "oneflow.case-lifecycle"
+    },
+    "version": {
+      "const": 1
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+    },
+    "contract_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "verification_scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/stage"
+      }
+    },
+    "verification_stages": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "format"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "format": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        },
+        "topology": {
+          "type": "string",
+          "enum": [
+            "structured",
+            "unstructured",
+            "surface",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "cpp",
+            "python",
+            "oneflow",
+            "gmsh",
+            "external",
+            "shared"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "in_progress",
+            "implemented",
+            "not_applicable",
+            "blocked"
+          ]
+        },
+        "entrypoint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "unit",
+            "contract",
+            "integration",
+            "smoke",
+            "physical_validation",
+            "manual"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": {
+          "type": "boolean",
+          "default": true
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "implementation_status",
+        "verification_status",
+        "depends_on",
+        "implementations",
+        "inputs",
+        "outputs",
+        "acceptance"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "geometry",
+            "surface_discretization",
+            "volume_discretization",
+            "mesh_quality",
+            "format_conversion",
+            "oneflow_ingestion",
+            "cfd_smoke",
+            "cfd_validation",
+            "custom"
+          ]
+        },
+        "implementation_status": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "in_progress",
+            "implemented",
+            "not_applicable",
+            "blocked"
+          ]
+        },
+        "verification_status": {
+          "type": "string",
+          "enum": [
+            "not_run",
+            "running",
+            "passed",
+            "failed",
+            "not_applicable"
+          ]
+        },
+        "depends_on": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "implementations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/implementation"
+          }
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifact"
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifact"
+          }
+        },
+        "acceptance": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/acceptance"
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

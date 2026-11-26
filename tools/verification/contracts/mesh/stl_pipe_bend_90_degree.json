@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "id": "mesh/stl-pipe-bend-90-degree",
+  "title": "90-degree pipe-bend STL geometry asset",
+  "domain": "mesh",
+  "kind": "geometry_asset_pipeline",
+  "status": "partially_verified",
+  "overview": "Defines a parameterized 90-degree circular pipe bend with inlet/outlet straight extensions. Python and C++17 geometry generators, Geometry Library controls, region-aware Gmsh handoff, and geometry verification are implemented. The automatic-tetrahedra producer is registered as a runnable Python-reference Mesh-to-CFD Case under 3-D STL to Gmsh. Full executed CGNS/OneFLOW/CFD evidence and physical-accuracy evidence remain to be collected. The STL-to-Gmsh Geometry preset generates the default pipe-bend STL and manifest in user data, and the Python-reference Case is selectable from Run Development Cases when that mode is enabled.",
+  "principle": "Separate centreline geometry, cross-section geometry, surface discretization and volume-mesh density. Preserve wall, inflow and outflow patch identity explicitly. The STL shell is a closed fluid-domain boundary: inlet/outlet disks close the shell but are not solid walls. The future meshing adapter must consume the STL and patch contract without depending on pipe-bend equations.",
+  "architecture": "Parameter contract -> parametric Python geometry generator -> closed STL + checksum-bound wall/inflow/outflow patch files and manifests -> generic region-aware Gmsh tetrahedral volume mesher -> MSH4 -> CGNS -> OneFLOW native grid -> CFD smoke test. The producer Case runner orchestrates the geometry generator and generic volume mesher without embedding pipe-bend equations in the converter.",
+  "references": [
+    "docs/source/stl_pipe_bend.rst",
+    "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/README.md",
+    "Gmsh Reference Manual: https://gmsh.info/doc/texinfo/gmsh.html"
+  ],
+  "implementation": {
+    "source_paths": [
+      "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/python/generate_pipe_bend.py",
+      "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/cpp/generate_pipe_bend.cpp",
+      "grid/tests/python/stl_to_gmsh/test_pipe_bend_geometry.py",
+      "grid/stl_to_gmsh/pipe_bend_geometry.py",
+      "tools/oneflow_gui/mesh_generation_dialog.py",
+      "tools/oneflow_gui/geometry_library_dialog.py",
+      "tools/oneflow_gui/test_mesh_generation_dialog.py",
+      "grid/stl_to_gmsh/converter.py",
+      "grid/stl_to_gmsh/generate_volume_mesh.py",
+      "tools/oneflow_gui/mesh_project.py",
+      "tools/oneflow_gui/test_mesh_project.py",
+      "tools/oneflow_gui/home_window.py",
+      "tools/oneflow_gui/mesh_validation.py",
+      "tools/oneflow_gui/mesh_validation_dialog.py",
+      "tools/oneflow_gui/test_mesh_validation.py",
+      "grid/case_catalog.json",
+      "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/expected.json",
+      "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/run_pipe_bend_case.py",
+      "tools/oneflow_gui/mesh_validation.py",
+      "tools/oneflow_gui/test_mesh_validation.py",
+      "tools/oneflow_gui/test_dialog.py"
+    ],
+    "case_paths": [
+      "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra"
+    ]
+  },
+  "documentation": {
+    "paths": [
+      "docs/source/stl_pipe_bend.rst",
+      "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/README.md",
+      "docs/source/stl_geometry_generation.rst",
+      "docs/source/workbench_user_guide_zh.rst",
+      "docs/source/contract_workbench_information_architecture.rst",
+      "docs/source/mesh_stl_geometry_pipeline.rst",
+      "docs/source/mesh_to_cfd_validation.rst",
+      "tools/oneflow_gui/README.md",
+      "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/README.md",
+      "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/README.md"
+    ]
+  },
+  "claims": {
+    "proves": [
+      "The default 90-degree pipe-bend geometry is defined by a circular centreline arc joined tangentially to straight inlet and outlet segments.",
+      "The circular cross-section is transported continuously along the centreline frame.",
+      "The Python generator emits a watertight connected shell, a checksum-bound manifest and explicit wall/inflow/outflow triangle-index groups.",
+      "The C++17 generator emits an equivalent analytic pipe-bend surface using the same default geometric and discretization parameters.",
+      "The triangulated shell volume is checked against the analytic constant-area swept-volume formula.",
+      "Generated assets are intended for the user's .oneflow workspace rather than the source tree.",
+      "The Geometry Library and Generate STL Geometry GUI expose the 90-degree pipe bend and its analytic/discretization controls, generating output in the user's mesh-generation workspace.",
+      "The Python geometry generator exports separate wall, inflow and outflow STL patches plus a checksum-bound oneflow.stl-surface-regions manifest.",
+      "The existing region-aware generic STL-to-Gmsh converter produces a Gmsh geometry script that merges the three patch files, coheres shared nodes, constructs discrete geometry and assigns wall/inflow/outflow/fluid_domain Physical Groups without pipe-bend-specific equations.",
+      "The mesh-project importer preserves the region manifest and all three patch files when importing the generated STL.",
+      "The generic region-aware converter verifies that the three patch STL triangle geometries form an exact, non-overlapping partition of the closed STL, rather than relying only on triangle counts.",
+      "The 90-degree pipe bend is registered as a generated Python-reference Case in the 3-D STL to Gmsh GUI category, not Existing Gmsh Mesh.",
+      "The producer Case runner invokes the parameterized STL/region-manifest generator and the shared region-aware Gmsh volume mesher.",
+      "The STL-to-Gmsh Geometry preset includes a 90-degree pipe bend and generates its checksum-bound STL and region manifest in the user mesh-generation workspace.",
+      "The pipe-bend producer appears in the Run Development Cases selector when Python reference cases are enabled, while the default native C++ selection remains unchanged."
+    ],
+    "does_not_prove": [
+      "The current pipe-bend geometry has been converted into a Gmsh tetrahedral volume mesh.",
+      "The pipe-bend mesh has been converted to CGNS or ingested by OneFLOW.",
+      "The C++ companion report has the same SHA-256 provenance fields as the Python manifest.",
+      "The resulting MSH 4.1 has been converted to CGNS or consumed by OneFLOW.",
+      "The full pipe-bend producer-to-CFD workflow has completed successfully in CI or on a user workstation."
+    ]
+  },
+  "verification": [
+    {
+      "kind": "python_test",
+      "reference": "PipeBendGeometryTest.test_default_bend_is_watertight_and_has_three_semantic_patches",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_to_gmsh/test_pipe_bend_geometry.py; checks default topology, region-manifest checksums, patch STL files and generated generic Gmsh geometry script."
+    },
+    {
+      "kind": "python_test",
+      "reference": "PipeBendGeometryTest.test_analytic_volume_and_turn_angle_are_parameterized",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_to_gmsh/test_pipe_bend_geometry.py; checks non-default angle/dimensions against the analytic volume."
+    },
+    {
+      "kind": "python_test",
+      "reference": "PipeBendGeometryTest.test_invalid_geometry_and_source_tree_output_are_rejected",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_to_gmsh/test_pipe_bend_geometry.py; checks invalid dimensions and source-tree output protection."
+    },
+    {
+      "kind": "python_test",
+      "reference": "MeshGenerationDialogTest.test_generate_pipe_bend_stl_and_manifest_from_geometry_workbench",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_mesh_generation_dialog.py; verifies the GUI parameter editor, generated STL, patch metadata and geometry manifest."
+    },
+    {
+      "kind": "python_test",
+      "reference": "PipeBendGeometryTest.test_gmsh_generates_pipe_bend_volume_with_named_physical_groups",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_to_gmsh/test_pipe_bend_geometry.py; runs real Gmsh and verifies MSH 4.1 tetrahedra and the four required Physical Groups in the Gmsh integration workflow."
+    },
+    {
+      "kind": "python_test",
+      "reference": "MeshGenerationDialogTest.test_geometry_library_exposes_pipe_bend_parameter_editor",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_mesh_generation_dialog.py; verifies the catalog entry is editable in Geometry Library."
+    },
+    {
+      "kind": "python_test",
+      "reference": "MeshProjectTest.test_pipe_bend_region_manifest_and_patch_files_are_preserved",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_mesh_project.py; verifies geometry manifest, region manifest and three patch STL files are copied into a user mesh project."
+    },
+    {
+      "kind": "python_test",
+      "reference": "PipeBendGeometryTest.test_region_manifest_rejects_wrong_patch_geometry_even_when_counts_match",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_to_gmsh/test_pipe_bend_geometry.py; corrupts the inflow patch while preserving checksums/counts and verifies that the generic converter rejects the mismatch."
+    },
+    {
+      "kind": "python_test",
+      "reference": "PipeBendGeometryTest.test_cpp_generator_matches_python_geometry",
+      "status": "linked_not_executed",
+      "scope": "grid/tests/python/stl_to_gmsh/test_pipe_bend_geometry.py; the Linux and Windows C++ smoke-test steps compare both STL artifacts for closed topology, component/vertex/triangle counts, area, volume and coordinate bounds."
+    },
+    {
+      "kind": "python_test",
+      "reference": "MeshValidationCatalogTest.test_pipe_bend_is_registered_as_a_generated_mesh_case",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_mesh_validation.py; verifies that the pipe bend is a generated 3-D STL-to-Gmsh Case, invokes the Python producer, declares four Physical Groups, and builds the four-stage validation graph."
+    },
+    {
+      "kind": "python_test",
+      "reference": "MeshValidationCatalogTest.test_existing_mesh_case_resolves_only_inside_user_mesh_workspace",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_mesh_validation.py; verifies discovery of completed pipe-bend projects by geometry ID and safe project-relative MSH paths."
+    },
+    {
+      "kind": "python_test",
+      "reference": "MeshGenerationDialogTest.test_stl_to_gmsh_geometry_presets_include_generated_pipe_bend",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_mesh_generation_dialog.py; verifies the pipe bend is a first-class STL-to-Gmsh Geometry preset."
+    },
+    {
+      "kind": "python_test",
+      "reference": "MeshGenerationDialogTest.test_development_case_selector_offers_pipe_bend_python_reference",
+      "status": "linked_not_executed",
+      "scope": "tools/oneflow_gui/test_mesh_generation_dialog.py; verifies the generated pipe-bend Case is available in the Python reference development-case selection."
+    }
+  ],
+  "group": {
+    "id": "mesh_generation",
+    "title": "Mesh Generation",
+    "order": 24
+  },
+  "implementation_paths": [
+    "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/python/generate_pipe_bend.py",
+    "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/cpp/generate_pipe_bend.cpp",
+    "grid/tests/python/stl_to_gmsh/test_pipe_bend_geometry.py"
+  ]
+}

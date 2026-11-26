@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import shutil
 import subprocess
@@ -12,10 +13,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tools"))
+sys.path.insert(0, str(ROOT / "grid/stl_to_gmsh/3d/pipe_bend/90_degree/geometry/python"))
 
 from mesh_cases import load_catalog, validate_case  # noqa: E402
 from grid.stl_to_gmsh.converter import convert, inspect_msh4, read_stl  # noqa: E402
 from grid.stl_to_gmsh.run_cases import NATIVE_CASES, PYTHON_CASES, REFINEMENT_LEVELS, SPHERE_REFINEMENT_CASES  # noqa: E402
+from generate_pipe_bend import generate as generate_pipe_bend  # noqa: E402
 
 def _manual_gmsh():
     """Return Gmsh only when a developer explicitly opts into integration tests."""
@@ -49,6 +52,9 @@ EXPECTED_IDS = {
     "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra",
     "stl_to_gmsh_python_cylinder_internal_flow_automatic_tetrahedra",
     "stl_to_gmsh_cylinder_internal_flow_automatic_tetrahedra",
+    "stl_to_gmsh_cylinder_internal_flow_oblique_cut",
+    "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut",
+    "stl_to_gmsh_pipe_bend_90_degree",
 }
 
 
@@ -285,6 +291,42 @@ class StlToGmshCaseTest(unittest.TestCase):
             "3d/cylinder_internal_flow/automatic_tetrahedra/python",
             PYTHON_CASES,
         )
+
+    def test_oblique_cut_cylinder_cases_are_registered_for_both_implementations(self):
+        native_id = "stl_to_gmsh_cylinder_internal_flow_oblique_cut"
+        python_id = "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut"
+        native = self.entries[native_id]
+        python = self.entries[python_id]
+
+        self.assertEqual(
+            native["directory"],
+            "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/cpp",
+        )
+        self.assertNotIn("execution", native)
+        self.assertEqual(
+            python["directory"],
+            "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python",
+        )
+        self.assertEqual(
+            python["execution"]["script"],
+            "grid/stl_to_gmsh/3d/cylinder_internal_flow/oblique_cut/python/run_cylinder_oblique_cut.py",
+        )
+        self.assertEqual(python["execution"]["kind"], "python")
+        self.assertEqual(validate_case(ROOT, native), [])
+        self.assertEqual(validate_case(ROOT, python), [])
+        native_dir = ROOT / native["directory"]
+        self.assertEqual(
+            (native_dir / "script/simu.txt").read_text(encoding="utf-8").splitlines(),
+            ['string simutask = "Grid";'],
+        )
+        self.assertTrue((native_dir / "script/grid.txt").is_file())
+        self.assertEqual(
+            (native_dir / "script/dimension.txt").read_text(encoding="utf-8").splitlines(),
+            ["int dimension = 3;"],
+        )
+        for entry in (native, python):
+            self.assertTrue((ROOT / entry["directory"]).is_dir())
+            self.assertFalse((ROOT / entry["directory"] / "results").exists())
 
     def test_native_and_python_cases_are_registered_separately(self):
         self.assertEqual(set(self.entries), EXPECTED_IDS)
@@ -900,6 +942,52 @@ class StlToGmshCaseTest(unittest.TestCase):
                 "cylinder_internal_flow",
             )
         self.assertFalse((source / "results").exists())
+
+    def test_pipe_bend_geometry_contract_emits_verified_region_assets(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "pipe_bend_90_degree.stl"
+            generated = generate_pipe_bend(output)
+            self.assertTrue(generated["surface"]["watertight"])
+            self.assertGreater(generated["surface"]["signed_volume"], 0.0)
+            self.assertLess(generated["surface"]["relative_volume_error"], 0.03)
+
+            geometry_manifest = json.loads(
+                generated["manifest"].read_text(encoding="utf-8")
+            )
+            surface_sha256 = hashlib.sha256(output.read_bytes()).hexdigest()
+            self.assertEqual(
+                geometry_manifest["schema"], "oneflow.stl-geometry-manifest"
+            )
+            self.assertEqual(geometry_manifest["stl_sha256"], surface_sha256)
+            self.assertEqual(geometry_manifest["units"], "m")
+            self.assertIn("parameters", geometry_manifest)
+
+            region_manifest = json.loads(
+                generated["region_manifest_path"].read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                region_manifest["schema"], "oneflow.stl-surface-regions"
+            )
+            self.assertEqual(
+                region_manifest["closed_surface_sha256"], surface_sha256
+            )
+            self.assertEqual(
+                set(region_manifest["regions"]), {"wall", "inflow", "outflow"}
+            )
+            total_region_triangles = 0
+            for name, record in region_manifest["regions"].items():
+                region_file = output.parent / record["file"]
+                self.assertTrue(region_file.is_file(), name)
+                self.assertEqual(
+                    hashlib.sha256(region_file.read_bytes()).hexdigest(),
+                    record["sha256"],
+                )
+                self.assertGreater(record["triangle_count"], 0)
+                total_region_triangles += record["triangle_count"]
+            self.assertEqual(
+                total_region_triangles, generated["surface"]["triangle_count"]
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,8 +1,13 @@
-OneFLOW Change Preflight
-========================
+OneFLOW Change Preflight and Change Gate
+==========================================
 
-The Change Preflight is a read-only repository consistency check. It is
-intended to run before a functional-slice commit and in Python Tooling CI.
+The repository provides two complementary checks before a functional-slice
+commit. The Change Preflight validates repository declarations and references.
+The Change Gate adds change-aware Python test selection and execution. Neither
+replaces the complete cross-platform CI workflows.
+
+Change Preflight
+----------------
 
 Run from the repository root:
 
@@ -11,38 +16,89 @@ Run from the repository root:
    python -m tools.verification.preflight
    python -m tools.verification.preflight --changed
 
-The optional --changed switch lists staged, unstaged, and untracked paths.
-It does not narrow validation to those paths: the full contract catalog and
-Python test registry are checked deliberately, because a changed implementation
-can affect a contract or test declaration in another directory.
+The read-only preflight reuses the Contract Catalog and Python test inventory.
+It checks contract schema and paths, supported evidence declarations,
+duplicate evidence identities, Python unittest declarations and registration,
+and statically recognized GoogleTest/CMake discovery relationships.
+`--changed` lists staged, unstaged, and untracked paths; it does not narrow
+repository-wide consistency checks.
 
-Checks performed
+Change Gate
+-----------
+
+Run the affected Python tests for the current working tree:
+
+.. code-block:: console
+
+   python -m tools.verification.change_gate --changed
+
+Preview the commands without running them:
+
+.. code-block:: console
+
+   python -m tools.verification.change_gate --changed --dry-run
+
+For CI, compare the checked-out commit with the event base revision:
+
+.. code-block:: console
+
+   python -m tools.verification.change_gate --base <base-commit-sha>
+
+The Python Tooling workflow fetches the required Git history and invokes this
+mode on pushes and pull requests. Manual workflow dispatch runs `--all`.
+
+Run the complete registered Python suite:
+
+.. code-block:: console
+
+   python -m tools.verification.change_gate --all
+
+The gate always runs the repository-wide Change Preflight first. The Python
+Tooling CI invokes the gate after Python compilation and before the detailed
+service test steps; push and pull-request runs use the event base revision so
+the clean CI checkout still has a meaningful changed-file set. If that fails,
+test execution is stopped. It then selects commands from the existing
+`_PYTHON_UNIT_TESTS` registry in `tools/oneflow_gui/test_runner.py`; it does
+not maintain a second list of Python test modules.
+
+Selection policy
 ----------------
 
-* Load all supported Numerical, Geometry, and versioned domain contracts.
-* Reuse the Contract Catalog path and schema validation.
-* Resolve supported evidence references, including Python unittest class/method
-  declarations and linked GoogleTest declarations.
-* Reject duplicate evidence identities within one contract.
-* Discover Python unittest source files and compare them with the existing
-  _PYTHON_UNIT_TESTS execution registry and documented exclusions.
-* Require each resolved python_test contract evidence source to be covered by
-  that execution registry.
-* When a Python evidence source is missing, search repository Python files for
-  the exact declared unittest class/method identity and report matching
-  candidate paths.
-* When a linked GoogleTest source is missing, search repository C++ test files
-  for the exact GoogleTest macro identity and report matching candidate paths.
-  Comments and string literals are masked before matching; build/cache
-  directories are excluded. A unique match is suggested; multiple matches are
-  listed for manual disambiguation.
-* For a resolved GoogleTest source with a statically recognized CMake target,
-  require a matching ``gtest_discover_tests`` declaration. Simple local
-  CMake function/macro wrappers with literal arguments are expanded, including
-  the repository's ``add_oneflow_gtest`` helper.
-The command exits with status 0 when checks pass, 1 when consistency issues
-are found, and 2 when the check cannot run (for example, Git changed-file
-discovery fails).
+* STL-to-Gmsh changes select the registered STL-to-Gmsh and STL-import tests,
+  plus the directly related mesh validation, geometry asset, and mesh
+  generation Workbench tests.
+* STL-import changes select the registered STL-import and STL-to-Gmsh tests,
+  plus the related cylinder-cut Workbench tests.
+* Mesh-layout changes select registered mesh-layout tests and related
+  Workbench tests.
+* `tools/oneflow_gui/` changes select registered GUI/service tests.
+* `tools/verification/` changes select registered verification tests.
+* Documentation-only changes do not select Python tests.
+* An unrecognized code area (including native solver, CMake, or other
+  implementation paths) conservatively selects the complete registered
+  Python suite. Mixed known and unknown code changes also select the full
+  suite. The gate must never silently treat an unmapped code change as having
+  no affected tests.
+
+The selector only executes commands already present in the central registry.
+Registry exclusions remain exclusions and are not silently converted into
+tests; the full C++ build/CTest and platform CI workflows remain required for
+native changes. A zero-test result is appropriate only when the changed paths
+are documentation-only or the change set is empty.
+
+Exit codes are 0 for a passing preflight and selected tests, 1 for consistency
+or test failures, and 2 when Git change discovery or gate setup cannot run.
+A dry run reports planned commands but is not test evidence.
+
+Boundaries
+----------
+
+A passing Change Gate means the declared consistency checks and selected
+Python commands passed in the current environment. It does not prove that
+native targets compile, CTest passes, Gmsh/CGNS integrations execute, or CFD
+results are physically valid. Mesh-quality diagnostics remain diagnostics,
+not implicit blockers. Continue to run the applicable Windows/Linux build,
+CTest, Python Tooling, and external-tool integration workflows.
 
 Configured CTest evidence
 -------------------------
@@ -54,87 +110,22 @@ inspect the populated CTest registry without running tests:
 
    python -m tools.verification.ctest_evidence --build-dir build --configuration Debug
 
-The command uses ``ctest -N --show-only=json-v1``. The repository uses
-``gtest_discover_tests(... DISCOVERY_MODE PRE_TEST)`` for its GoogleTest
-executables, so individual cases are materialized when CTest first runs. The
-native Linux and Windows CI workflows run this report after CTest execution.
-It compares exact GoogleTest
-contract identities with configured CTest test names and checks target
-provenance using the discovered executable name or CMake backtrace file. It
-reports ``discovered``, ``not_discovered``, ``target_unmapped``,
-``discovery_not_declared``, ``discovery_deferred``, and ``stale_source`` separately. Optional build
-features may legitimately be absent from a particular configured tree; use
-``--require-all`` only when that build configuration is expected to contain
-every declared GoogleTest.
-
-A ``discovered`` result proves only that this configured build tree currently
-lists the matching test. It does not prove that the test binary has been run
-or that the test passed. The GUI Test Workbench writes CTest JUnit output into
-the build directory and captures one durable ExecutionRecord per reported
-testcase. Contract IDs are attached only after exact test-name and CMake target
-provenance matching; other CTest cases remain unlinked records. Actual
-execution outcomes belong in durable ExecutionRecords and CI test results.
-
-Interpretation and boundaries
------------------------------
-
-A PASS means that the supported declarations and repository references are
-internally consistent. It does not mean that C++ targets compile, CTest or
-unittest cases execute successfully, CFD results are physically valid, or
-contract evidence has passed. Runtime verification remains the responsibility
-of the existing build and test workflows.
-
-GoogleTest evidence is checked in distinct stages. The Contract Catalog checks
-the source declaration. The preflight then checks CMake target mapping and
-CTest discovery when the source-to-target relationship is expressible through
-the supported static reader. A mapped target without ``gtest_discover_tests``
-is a consistency failure. An unmapped source remains explicitly unresolved:
-the reader does not evaluate arbitrary CMake variables, conditions, generated
-lists, or general function semantics. This static check does not prove that
-CMake configured, the target compiled, CTest discovered the test in a build
-tree, or the test executed. The native CMake/CTest jobs remain the authorities
-for those runtime stages.
-When a new Python test module is added, either register it in
-tools/oneflow_gui/test_runner.py or add a justified entry to the existing
-_PYTHON_TEST_EXCLUSIONS map. Contract evidence should point to an existing
-test declaration and its source file; the preflight then checks that the
-module is included in the execution registry. If the path is stale but the same exact unittest or GoogleTest identity exists
-elsewhere, the report suggests the candidate path(s). C++ matching ignores
-comments and string literals to avoid treating examples as declarations.
-Review the match and update the Contract explicitly; the preflight never
-rewrites evidence or assumes that a matching identity proves the intended
-test is the same after a refactor.
+The command uses ``ctest -N --show-only=json-v1``. Discovery proves only that
+the configured build lists a test; it does not prove execution or success.
+Actual outcomes belong in durable ExecutionRecords and CI results.
 
 Recommended functional-slice workflow
 -------------------------------------
 
-#. Implement the related code and tests.
-#. Add or update contract implementation, documentation, and evidence links.
-#. Register executable Python tests (or document a deliberate exclusion).
-#. Run the focused tests and python -m tools.verification.preflight.
-#. Run the applicable CMake/CTest and Python test workflows.
-#. Commit the implementation, tests, inventory/CI wiring, and documentation
+#. Implement related code and tests.
+#. Update the relevant contract, documentation, and evidence links.
+#. Register Python tests in the existing execution registry (or document a
+   deliberate exclusion).
+#. Run the Change Gate and review its selected command list.
+#. Run applicable CMake/CTest and full cross-platform CI workflows.
+#. Commit implementation, tests, registry/CI wiring, and documentation
    together.
 
-The tool intentionally reuses existing catalogs and registries. Do not add a
-second hand-maintained list of contract files, Python test modules, or
-evidence counts here.
-
-
-Contract execution status
--------------------------
-
-The Contract Workbench computes execution status separately from the declared
-Contract lifecycle status. Only explicit Contract-ID links and exact CTest test
-identities (or exact declared Python test source modules) can contribute.
-Current-commit results are distinguished from stale or unknown revisions.
-Failed and blocked outcomes are not converted into passes, and Debug/Release
-and platform contexts remain separate. A context with incomplete evidence is
-reported as partially verified or not run. The evaluator is read-only and does
-not infer an expected CI matrix or modify Contract declarations.
-
-Validate the status evaluator with:
-
-.. code-block:: console
-
-   python -m unittest tools.verification.test_contract_verification
+The tools deliberately reuse existing catalogs and registries. Do not add
+parallel hand-maintained contract lists, Python test inventories, or evidence
+counts.

@@ -223,12 +223,13 @@ def cut_closed_surface_between_planes(
     outlet_point: Point,
     outlet_normal: Point,
     tolerance: float = 1.0e-8,
+    inlet_keep_positive: bool = True,
+    outlet_keep_positive: bool = False,
 ) -> dict:
     """Clip a closed STL shell between two planes and generate its end caps.
 
-    The inlet normal points into the retained domain; the outlet normal points
-    from the retained domain toward the outlet. Exactly one simple loop per
-    plane is supported. No geometry manifest or analytic primitive is read.
+    Retained half-spaces are explicit for each plane. Exactly one simple loop
+    per plane is supported. No geometry manifest or analytic primitive is read.
     """
     source = list(triangles)
     if not math.isfinite(tolerance) or tolerance <= 0:
@@ -241,8 +242,12 @@ def cut_closed_surface_between_planes(
 
     clipped = []
     for triangle in source:
-        polygon = _clip_polygon(list(triangle), inlet_point, inlet_normal, True, tolerance)
-        polygon = _clip_polygon(polygon, outlet_point, outlet_normal, False, tolerance)
+        polygon = _clip_polygon(
+            list(triangle), inlet_point, inlet_normal, inlet_keep_positive, tolerance
+        )
+        polygon = _clip_polygon(
+            polygon, outlet_point, outlet_normal, outlet_keep_positive, tolerance
+        )
         polygon = _clean(polygon, tolerance)
         for index in range(1, len(polygon)-1):
             candidate = (polygon[0], polygon[index], polygon[index+1])
@@ -276,11 +281,16 @@ def cut_closed_surface_between_planes(
 
     inlet_loop = _extract_loop(inlet_edges, points, "inlet")
     outlet_loop = _extract_loop(outlet_edges, points, "outlet")
-    inlet_cap = _triangulate_cap(
-        inlet_loop, inlet_normal,
-        (-inlet_normal[0],-inlet_normal[1],-inlet_normal[2]), tolerance
+    inlet_outward = (
+        tuple(-value for value in inlet_normal)
+        if inlet_keep_positive else inlet_normal
     )
-    outlet_cap = _triangulate_cap(outlet_loop, outlet_normal, outlet_normal, tolerance)
+    outlet_outward = (
+        tuple(-value for value in outlet_normal)
+        if outlet_keep_positive else outlet_normal
+    )
+    inlet_cap = _triangulate_cap(inlet_loop, inlet_normal, inlet_outward, tolerance)
+    outlet_cap = _triangulate_cap(outlet_loop, outlet_normal, outlet_outward, tolerance)
     closed = [*clipped, *inlet_cap, *outlet_cap]
     return {
         "side_triangles": clipped,

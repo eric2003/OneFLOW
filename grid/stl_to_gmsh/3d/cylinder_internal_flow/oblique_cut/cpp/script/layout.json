@@ -1,0 +1,12 @@
+{
+  "volume_mesh": "closed_surface_automatic_tetrahedra",
+  "case_name": "cylinder_internal_flow_oblique_cut",
+  "mesh_dimension": 3,
+  "mesh_size": 0.2,
+  "mesh_size_min": 0.15,
+  "mesh_size_max": 0.25,
+  "boundary_name": "wall",
+  "surface_name": "fluid_domain",
+  "surface_angle_degrees": 40,
+  "curve_angle_degrees": 180
+}
