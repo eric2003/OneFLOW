@@ -602,6 +602,8 @@ TEST(GmshCgnsConversionTest, IndependentlyReadsTetrahedralVolumeAndNamedFaceRegi
     EXPECT_EQ(topology.surfaceTriangleCount, 6u);
 
     const std::filesystem::path caseDirectory = MakeTemporaryCaseDirectory();
+    const std::filesystem::path input = caseDirectory / source.filename();
+    std::filesystem::copy_file(source, input);
     const std::filesystem::path resultsDirectory = caseDirectory / "results";
     std::filesystem::create_directories(resultsDirectory);
     const std::filesystem::path output =
@@ -610,7 +612,7 @@ TEST(GmshCgnsConversionTest, IndependentlyReadsTetrahedralVolumeAndNamedFaceRegi
     ONEFLOW::GridConfig config;
     config.sourceType = ONEFLOW::GridFileType::Gmsh;
     config.targetType = ONEFLOW::GridFileType::CGNS;
-    config.sourceFile = std::filesystem::relative(source, caseDirectory).generic_string();
+    config.sourceFile = input.filename().string();
     config.targetFile =
         (std::filesystem::path("results") / output.filename()).generic_string();
     ASSERT_NO_THROW(ONEFLOW::ConvertGrid(config, caseDirectory.string()));
