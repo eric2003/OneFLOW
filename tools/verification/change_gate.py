@@ -29,7 +29,13 @@ def select_test_commands(
     registry: tuple = _PYTHON_UNIT_TESTS,
 ) -> tuple[tuple[str, tuple[str, ...]], ...]:
     """Select registered test commands; unknown code paths trigger full suite."""
-    paths = tuple(sorted({str(path).replace("\\", "/").lstrip("./") for path in changed_files}))
+    normalized = set()
+    for item in changed_files:
+        path = str(item).replace("\\", "/")
+        if path.startswith("./"):
+            path = path[2:]
+        normalized.add(path)
+    paths = tuple(sorted(normalized))
     if not paths:
         return ()
 
@@ -65,11 +71,24 @@ def select_test_commands(
 
     selected = []
     for label, arguments in registry:
-        module = _module(tuple(arguments))
-        if full_suite or (module and any(
+        arguments = tuple(arguments)
+        module = _module(arguments)
+        matches_module = module is not None and any(
             module == scope or module.startswith(scope) for scope in scopes
-        )):
-            selected.append((label, tuple(arguments)))
+        )
+        matches_discovery = False
+        if len(arguments) >= 6 and arguments[:3] == ("-m", "unittest", "discover"):
+            try:
+                start_dir = arguments[arguments.index("-s") + 1].replace("\\", "/").rstrip("/")
+                matches_discovery = any(
+                    start_dir == scope.rstrip(".").replace(".", "/")
+                    or start_dir.startswith(scope.rstrip(".").replace(".", "/") + "/")
+                    for scope in scopes
+                )
+            except (ValueError, IndexError):
+                matches_discovery = False
+        if full_suite or matches_module or matches_discovery:
+            selected.append((label, arguments))
     return tuple(selected)
 
 
