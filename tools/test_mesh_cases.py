@@ -540,7 +540,22 @@ class MeshCaseCatalogTest(unittest.TestCase):
         self.assertEqual(contract["verification_scope"], "python_geometry_and_gmsh_volume_mesh")
         self.assertEqual(stages["geometry"]["implementation_status"], "implemented")
         self.assertEqual(stages["geometry"]["verification_status"], "not_run")
-        self.assertEqual(stages["geometry"]["implementations"][1]["status"], "planned")
+        geometry_implementations = {
+            item["id"]: item["status"]
+            for item in stages["geometry"]["implementations"]
+        }
+        self.assertEqual(
+            geometry_implementations,
+            {"python_geometry": "implemented", "native_cpp_geometry": "implemented"},
+        )
+        region_implementations = {
+            item["id"]: item["status"]
+            for item in stages["surface_regions"]["implementations"]
+        }
+        self.assertEqual(
+            region_implementations,
+            {"python_region_export": "implemented", "native_cpp_region_export": "implemented"},
+        )
         self.assertEqual(stages["cfd_smoke"]["implementation_status"], "planned")
         self.assertEqual(stages["cfd_validation"]["implementation_status"], "planned")
         acceptance_references = {
@@ -552,7 +567,9 @@ class MeshCaseCatalogTest(unittest.TestCase):
             acceptance_references,
             {
                 "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases."
-                "StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets"
+                "StlToGmshCaseTest.test_pipe_bend_geometry_contract_emits_verified_region_assets",
+                "grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry."
+                "PipeBendGeometryTest.test_cpp_generator_matches_python_geometry",
             },
         )
 
