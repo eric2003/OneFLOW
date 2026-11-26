@@ -192,7 +192,24 @@ class RecoverMeshValidationRunTest(unittest.TestCase):
             )
             mesh_report = root / "stl_to_gmsh/results/mesh-validation.json"
             mesh_report.write_text(
-                json.dumps({"nodes": 120, "elements": 240, "physical_groups": [{"name": "fluid"}]}),
+                json.dumps({
+                    "nodes": 120,
+                    "elements": 240,
+                    "tetrahedron_elements": 180,
+                    "tetrahedron_quality": {
+                        "minimum_quality": 0.25,
+                        "mean_quality": 0.72,
+                        "minimum_volume": 0.001,
+                        "total_volume": 1.5,
+                        "quality_percentiles": {
+                            "p05": 0.31, "p50": 0.74, "p95": 0.93,
+                        },
+                        "quality_below_threshold_counts": {
+                            "0.1": 0, "0.2": 2, "0.3": 8,
+                        },
+                    },
+                    "physical_groups": [{"name": "fluid"}],
+                }),
                 encoding="utf-8",
             )
             cgns = root / "gmsh_to_cgns/results/mesh.cgns"
@@ -214,7 +231,20 @@ class RecoverMeshValidationRunTest(unittest.TestCase):
             self.assertEqual(report["stages"]["gmsh_to_cgns"]["status"], "FAIL")
             self.assertEqual(report["stages"]["cgns_to_oneflow"]["status"], "NOT_CHECKED")
             self.assertEqual(report["metrics"], {
-                "nodes": 120, "elements": 240, "physical_group_count": 1,
+                "nodes": 120,
+                "elements": 240,
+                "tetrahedron_elements": 180,
+                "tetrahedron_mean_ratio_minimum": 0.25,
+                "tetrahedron_mean_ratio_mean": 0.72,
+                "tetrahedron_minimum_volume": 0.001,
+                "tetrahedron_total_volume": 1.5,
+                "tetrahedron_mean_ratio_p05": 0.31,
+                "tetrahedron_mean_ratio_p50": 0.74,
+                "tetrahedron_mean_ratio_p95": 0.93,
+                "tetrahedron_mean_ratio_below_0_1_count": 0,
+                "tetrahedron_mean_ratio_below_0_2_count": 2,
+                "tetrahedron_mean_ratio_below_0_3_count": 8,
+                "physical_group_count": 1,
             })
             self.assertEqual(report["geometry_lineage"]["provenance"]["kind"], "generated")
             self.assertEqual(report["recovery"]["verified_geometry_sidecars"], 1)
