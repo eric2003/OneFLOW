@@ -69,11 +69,15 @@ python grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/run_pipe_ben
 ```
 
 This is a native C++ geometry implementation driven by a Python workflow
-adapter; it is not a native OneFLOW solver Case. The current lifecycle
-verification scope remains the Python reference milestone until the native
-runner and its generated MSH4 output have passed the complete declared
-acceptance checks. Downstream CGNS conversion, OneFLOW ingestion and CFD
-stages remain separate milestones.
+adapter; it is not a native OneFLOW solver Case. In the OneFLOW Tests dialog,
+enable the Python / mesh producer Cases, select the pipe bend, and choose
+`Native C++ geometry` in its Implementation column. The Python reference
+remains the default. The selected implementation is remembered by the dialog
+and both variants run through the same staged Case workspace and Gmsh service.
+The current lifecycle verification scope remains the Python reference
+milestone until the native runner and its generated MSH4 output have passed
+the complete declared acceptance checks. Downstream CGNS conversion, OneFLOW
+ingestion and CFD stages remain separate milestones.
 
 This directory contains native C++ STL-to-Gmsh Cases and independent Python
 reference Cases. The native Cases run through the standard OneFLOW Grid task
