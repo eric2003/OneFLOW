@@ -866,11 +866,12 @@ class CaseDatabaseSelectionDialog(QDialog):
                     combo.setCurrentIndex(index)
                 self._implementation_combos[case.case_id] = combo
                 self._implementation_values[case.case_id] = str(combo.currentData())
+                implementation_ids = tuple(
+                    item.implementation_id for item in case.implementations
+                )
                 combo.currentIndexChanged.connect(
-                    lambda _index, case_id=case.case_id, widget=combo:
-                    self._implementation_values.__setitem__(
-                        case_id, str(widget.currentData())
-                    )
+                    lambda index, case_id=case.case_id, values=self._implementation_values,
+                    ids=implementation_ids: values.__setitem__(case_id, ids[index])
                 )
                 self.case_tree.setItemWidget(case_item, 2, combo)
             else:
