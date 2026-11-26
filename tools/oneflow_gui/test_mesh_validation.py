@@ -996,7 +996,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[3]["inputs"][0]["setting"], "gridFileName")
         self.assertEqual(cases[3]["inputs"][1]["setting"], "bcRegionMapFile")
 
-        lifecycle = mesh_case_lifecycle_summary(self.root, case_id)
+        lifecycle = mesh_case_lifecycle_summary(repository_root, case_id)
         self.assertEqual(
             lifecycle["verification_stages"],
             ["geometry", "surface_regions", "volume_mesh", "msh_to_cgns",
