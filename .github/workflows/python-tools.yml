@@ -179,8 +179,8 @@ jobs:
         run: python -m unittest tools.verification.test_ctest_evidence
       - name: Test verification contract catalog
         run: python -m unittest tools.verification.test_contract_catalog
-      - name: Test change preflight
-        run: python -m unittest tools.verification.test_preflight
+      - name: Test change preflight and Change Gate selection
+        run: python -m unittest tools.verification.test_preflight tools.verification.test_change_gate
       - name: Run repository change preflight
         run: python -m tools.verification.preflight
       - name: Test LaTeX formula preview

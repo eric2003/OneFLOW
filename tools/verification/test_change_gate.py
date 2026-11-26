@@ -15,6 +15,7 @@ class ChangeGateSelectionTest(unittest.TestCase):
             ("GUI mesh", ("-m", "unittest", "tools.oneflow_gui.test_mesh_validation")),
             ("GUI unrelated", ("-m", "unittest", "tools.oneflow_gui.test_parameter_model")),
             ("verification", ("-m", "unittest", "tools.verification.test_preflight")),
+            ("verification discovery", ("-m", "unittest", "discover", "-s", "tools/verification", "-p", "test_*.py")),
             ("workflow discover", ("-m", "unittest", "discover", "-s", "tools", "-p", "test_workflow.py")),
             ("mesh catalog", ("tools/test_mesh_cases.py",)),
         )
@@ -28,7 +29,7 @@ class ChangeGateSelectionTest(unittest.TestCase):
 
     def test_verification_changes_select_verification_modules(self):
         selected = select_test_commands(("tools/verification/preflight.py",), self.registry)
-        self.assertEqual(tuple(label for label, _ in selected), ("verification",))
+        self.assertEqual(tuple(label for label, _ in selected), ("verification", "verification discovery"))
 
     def test_gui_changes_select_gui_modules(self):
         selected = select_test_commands(("tools/oneflow_gui/home_window.py",), self.registry)

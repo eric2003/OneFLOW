@@ -1,6 +1,6 @@
 # OneFLOW Documentation
 
-[English](README.md) | [简体中文](README_zh_CN.md) | [Project README](../README.md) | [Online documentation](https://oneflow-cfd.readthedocs.io/en/latest/)
+[English](README.md) | [Simplified Chinese](README_zh_CN.md) | [Project README](../README.md) | [Online documentation](https://oneflow-cfd.readthedocs.io/en/latest/)
 
 The `docs/` directory is the documentation root for OneFLOW. It contains
 engineering records and the source of the published Sphinx manual. These
