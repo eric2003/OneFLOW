@@ -18,64 +18,52 @@ to the shared, region-aware Gmsh volume mesher. The C++ option is a native
 geometry implementation; its current adapter still uses the shared Python
 Gmsh service. It is not a native OneFLOW solver.
 
-## Current producer milestone
+## Current verified workflow scope
 
-The current verification scope is geometry, semantic surface regions,
-Gmsh volume-mesh generation, and MSH-to-CGNS conversion:
+The lifecycle contract now covers the complete shared execution chain, from
+geometry generation through a bounded native CFD smoke run:
 
 1. Generate the parameterized 90-degree circular pipe-bend surface.
 2. Export the closed fluid-domain STL, the `wall`, `inflow`, and `outflow`
    patch STL files, and checksum-linked geometry/region manifests.
 3. Validate that the named patches form an exact, non-overlapping partition
    of the closed surface.
-4. Invoke the shared region-aware Gmsh tetrahedral mesher.
-5. Validate MSH4 structure, first-order tetrahedral volume cells, boundary
-   connectivity, and the required Physical Groups:
+4. Invoke the shared region-aware Gmsh tetrahedral mesher and validate the
+   MSH4 topology, boundary connectivity, and Physical Groups:
    dimension-2 `wall`, `inflow`, `outflow`, and dimension-3 `fluid_domain`.
-6. Run the shared MSH4-to-CGNS conversion stage and retain the CGNS artifact
-   with checksum-bound geometry lineage.
+5. Convert MSH4 to CGNS using the shared OneFLOW converter.
+6. Read CGNS into the OneFLOW native grid and retain the boundary-region map
+   and grid metadata. In particular, `wall`, `inflow`, and `outflow`
+   must remain identifiable through the conversion handoff.
+7. Run the shared CFD consumer with a bounded step count (the current smoke
+   invocation uses two steps) and verify successful process completion and
+   the expected residual/restart/visual output artifacts.
 
-The producer runners write generated inputs and results to the user's OneFLOW
-workspace. They do not put generated STL/MSH files in the source tree. The
-existing standalone producer entry points are workflow adapters; geometry
-construction and volume meshing remain reusable services.
+The Mesh-to-CFD Validation report is authoritative for whether each stage
+actually ran and passed. A completed Gmsh-to-CGNS conversion alone does not
+prove OneFLOW ingestion or CFD execution. The shared workflow writes each
+stage's inputs, results, and logs under the external project `validation/`
+directory; generated data is not written into the source tree.
 
-## Remaining lifecycle stages
+## Mesh quality and physical validation
 
-The MSH4 inspector calculates scale-independent TETRA_4 mean-ratio
-quality, minimum and mean element quality, P05/P50/P95 quality percentiles,
-counts below the 0.1/0.2/0.3 diagnostic levels, minimum and total cell volume,
-and the ten lowest-quality elements (element/node tags and centroid). The
-distribution and worst-element records are persisted in mesh-validation
-evidence; scalar statistics are also exposed as run metrics and restored during
-evidence recovery. The shared converter and subsequent OneFLOW ingestion/CFD smoke stages
-are independent of these quality diagnostics. Quality statistics never gate
-MSH-to-CGNS conversion, CGNS-to-OneFLOW ingestion, or a bounded solver smoke
-test. Low-quality and degenerate TETRA_4 cells are reported (degenerate cells
-receive mean-ratio quality zero) so users can inspect and locate them, but the
-workflow continues. The 0.1/0.2/0.3 levels are diagnostic buckets only, not
-acceptance limits. Mesh quality is advisory in workflow testing; any future
-production-quality or physical-accuracy acceptance policy belongs to a
-separate validation scope.
+The MSH4 inspector reports TETRA_4 mean-ratio quality, minimum and mean
+quality, P05/P50/P95 percentiles, counts below diagnostic levels, minimum and
+total cell volume, and worst-element locations. These are advisory diagnostics
+and do not block conversion, ingestion, or smoke execution. The current
+smoke run is a software/runtime handoff check, not a physical validation.
 
-The following stages remain outside the current verified scope:
+The following remain outside the current verified scope:
 
-- **Mesh quality diagnostics:** quality distribution and degenerate-cell
-  counts are available as advisory information. They do not block any
-  conversion, ingestion, or smoke-test stage.
-- **OneFLOW ingestion:** read the converted CGNS grid into the native grid
-  model and verify inlet, outlet, wall, dimensions, and runtime environment
-  evidence.
-- **CFD smoke:** execute a bounded solver run and verify finite residuals and
-  required result artifacts.
-- **CFD physical validation:** independently validate pressure loss and
-  secondary-flow behavior, with mesh-refinement/convergence evidence.
+- **Mesh quality acceptance:** define justified thresholds and test mesh
+  sensitivity before claiming production suitability.
+- **CFD physical validation:** compare pressure loss and secondary-flow
+  behavior with an independent analytical, experimental, or published
+  reference, including mesh-refinement/convergence evidence.
 
-A stage is not considered passed merely because its implementation exists.
-The lifecycle contract keeps implementation status separate from verification
-status, and the run evidence is authoritative. The short CFD smoke test, when
-added, will prove runtime handoff only; it will not prove physical accuracy,
-pressure-loss convergence, or Dean-vortex resolution.
+The two-step CFD smoke test does not prove pressure-loss accuracy, convergence,
+or Dean-vortex resolution. Stage implementation status and verification
+status remain separate; only actual run evidence can establish a passed stage.
 
 ## Reuse requirement
 
