@@ -539,15 +539,23 @@ class MeshCaseCatalogTest(unittest.TestCase):
         stages = {stage["id"]: stage for stage in contract["stages"]}
         self.assertEqual(
             contract["verification_scope"],
-            "geometry_regions_gmsh_volume_mesh_and_cgns_conversion",
+            "geometry_regions_gmsh_volume_mesh_cgns_conversion_oneflow_ingestion_and_cfd_smoke",
         )
         self.assertEqual(
             contract["verification_stages"],
-            ["geometry", "surface_regions", "volume_mesh", "msh_to_cgns"],
+            [
+                "geometry",
+                "surface_regions",
+                "volume_mesh",
+                "msh_to_cgns",
+                "oneflow_ingestion",
+                "cfd_smoke",
+            ],
         )
         self.assertEqual(stages["msh_to_cgns"]["implementation_status"], "implemented")
         self.assertEqual(stages["msh_to_cgns"]["verification_status"], "not_run")
-        self.assertEqual(stages["oneflow_ingestion"]["implementation_status"], "planned")
+        self.assertEqual(stages["oneflow_ingestion"]["implementation_status"], "implemented")
+        self.assertEqual(stages["oneflow_ingestion"]["verification_status"], "not_run")
         self.assertEqual(stages["geometry"]["implementation_status"], "implemented")
         self.assertEqual(stages["geometry"]["verification_status"], "not_run")
         geometry_implementations = {
@@ -566,7 +574,8 @@ class MeshCaseCatalogTest(unittest.TestCase):
             region_implementations,
             {"python_region_export": "implemented", "native_cpp_region_export": "implemented"},
         )
-        self.assertEqual(stages["cfd_smoke"]["implementation_status"], "planned")
+        self.assertEqual(stages["cfd_smoke"]["implementation_status"], "implemented")
+        self.assertEqual(stages["cfd_smoke"]["verification_status"], "not_run")
         self.assertEqual(stages["cfd_validation"]["implementation_status"], "planned")
         acceptance_references = {
             check.get("reference")
