@@ -106,24 +106,33 @@ output directory is already dedicated to this geometry.
 Python and C++ implementations
 ------------------------------
 
-The Python generator writes binary STL, a checksum-bound ``.geometry.json``
-manifest, three separate patch STL files and ``region_manifest.json`` using
-the existing ``oneflow.stl-surface-regions`` contract. The converter verifies
-that the patch triangles form an exact geometric partition of the closed STL,
-not merely a matching triangle-count sum. The C++17 generator
-writes ASCII STL and a companion ``.geometry-report.json`` with the same
-geometric parameters, units and patch counts. Their STL bytes are not expected
-to match because one is binary and the other ASCII. An automated C++/Python
-parity test is now registered in CI: it compares closed topology, component
-and vertex/triangle counts, surface area, signed volume and bounds. Its CI
-result is pending. The generic Gmsh adapter consumes only the three patch
-files and region manifest; it merges
-them, coheres shared nodes, creates discrete geometry, and forms the closed
-fluid volume without consulting the bend equations. The GUI's region-aware
-mesh-project path currently uses the Python generator. The C++17 program is an
-independent analytic geometry reference; until it also emits the region
-manifest and patch STL files, its STL should not be sent through this
-pipe-bend-specific project handoff.
+Both generators write a closed STL, a checksum-bound
+``oneflow.stl-geometry-manifest`` sidecar, three named patch STL files
+(``wall``, ``inflow``, ``outflow``) and a checksum-bound
+``region_manifest.json`` using the shared
+``oneflow.stl-surface-regions`` contract. The Python generator writes
+binary STL; the C++17 generator writes ASCII STL. Their STL bytes are not
+expected to match, but both record the same geometric parameters, units,
+surface counts and intended Gmsh Physical Groups. The C++ manifest also
+records the generator source hash.
+
+The generic converter verifies that the patch triangles form an exact
+geometric partition of the closed STL, not merely a matching triangle-count
+sum. It consumes only the STL patches and region manifest: it merges the
+patches, coheres shared nodes, creates discrete geometry and forms the closed
+fluid volume without consulting the bend equations. Both geometry generators
+therefore use the same downstream meshing path. The GUI geometry editor
+currently invokes the Python generator; the generated Case also exposes a
+native C++17 producer that writes the same patch/manifest contract before
+calling the shared Gmsh volume mesher.
+
+Automated C++/Python parity tests verify both manifests and patch checksums,
+then compare closed topology, component and vertex/triangle counts, surface
+area, signed volume and coordinate bounds. A separate real-Gmsh integration
+test runs the C++ producer through the shared volume mesher and checks the
+four Physical Groups and non-empty TETRA_4 volume mesh in the Linux/Windows
+CI matrix. These checks establish geometry and mesh-production parity, not
+CGNS conversion, OneFLOW ingestion or CFD physical accuracy.
 
 The geometry is available in **Mesh Generation -> Generate STL Geometry**
 and in the **Geometry Library** parameter editor as ``90° Pipe Bend — Internal
