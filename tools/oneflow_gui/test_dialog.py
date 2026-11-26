@@ -11,6 +11,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal, Qt
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QCheckBox,
     QComboBox,
     QDialog,
@@ -854,9 +855,9 @@ class CaseDatabaseSelectionDialog(QDialog):
         )
         self.case_tree.setItemDelegateForColumn(2, self._implementation_delegate)
         self.case_tree.setEditTriggers(
-            QTreeWidget.EditTrigger.DoubleClicked
-            | QTreeWidget.EditTrigger.EditKeyPressed
-            | QTreeWidget.EditTrigger.SelectedClicked
+            QAbstractItemView.EditTrigger.DoubleClicked
+            | QAbstractItemView.EditTrigger.EditKeyPressed
+            | QAbstractItemView.EditTrigger.SelectedClicked
         )
         selected_implementations = selected_implementations or {}
         dimension_items: dict[str, QTreeWidgetItem] = {}
