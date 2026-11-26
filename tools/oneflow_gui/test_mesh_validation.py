@@ -965,6 +965,47 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(cases[3]["inputs"][1]["setting"], "bcRegionMapFile")
 
 
+
+    def test_pipe_bend_runs_the_complete_three_dimensional_cfd_smoke_chain(self):
+        case_id = "stl_to_gmsh_pipe_bend_90_degree"
+        cases = build_mesh_validation_cases(self.root, case_id, "laminar_flat_plate")
+        expected_steps = [
+            "stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow",
+            "oneflow_cfd_solve",
+        ]
+        self.assertEqual([item["id"] for item in cases], expected_steps)
+        self.assertEqual(
+            cases[0]["directory"],
+            "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra",
+        )
+        self.assertEqual(cases[0]["outputs"][0]["path"],
+                         "results/pipe_bend_90_degree.msh")
+        self.assertEqual(cases[2]["outputs"], [
+            {"id": "oneflow_grid", "path": "results/pipe_bend_90_degree.oneflow.grid",
+             "parameter_file": "script/grid.txt", "setting": "targetGridFileName"},
+            {"id": "bc_region_map", "path": "results/pipe_bend_90_degree_bcRegionMap.txt",
+             "parameter_file": "script/grid.txt", "setting": "bcRegionMapFile"},
+            {"id": "grid_info", "path": "results/pipe_bend_90_degree.info.json",
+             "parameter_file": "script/grid.txt", "setting": "gridInfoFileName"},
+        ])
+        self.assertEqual(cases[3]["runtime_directory"], "oneflow_cfd_solve")
+        self.assertEqual(cases[3]["directory"], "test/cfd/plateuns2dslau2")
+        self.assertEqual(cases[3]["inputs"][0]["artifact"], "oneflow_grid")
+        self.assertEqual(cases[3]["inputs"][1]["artifact"], "bc_region_map")
+        self.assertEqual(cases[3]["inputs"][0]["setting"], "gridFileName")
+        self.assertEqual(cases[3]["inputs"][1]["setting"], "bcRegionMapFile")
+
+        lifecycle = mesh_case_lifecycle_summary(self.root, case_id)
+        self.assertEqual(
+            lifecycle["verification_stages"],
+            ["geometry", "surface_regions", "volume_mesh", "msh_to_cgns",
+             "oneflow_ingestion", "cfd_smoke"],
+        )
+        stage_states = {item["id"]: item for item in lifecycle["stages"]}
+        for stage_id in ("oneflow_ingestion", "cfd_smoke"):
+            self.assertEqual(stage_states[stage_id]["implementation_status"], "implemented")
+            self.assertTrue(stage_states[stage_id]["in_current_scope"])
+
     def test_native_cube_single_hex_runs_the_complete_cfd_smoke_chain(self):
         cases = build_mesh_validation_cases(self.root, "native_cube", "laminar_flat_plate")
         self.assertEqual([item["id"] for item in cases],
