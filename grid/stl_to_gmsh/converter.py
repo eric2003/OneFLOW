@@ -1088,6 +1088,11 @@ def inspect_msh4(path: Path) -> dict:
                         for axis in range(3)
                     ],
                 })
+                if len(tetrahedron_quality_records) > 10:
+                    tetrahedron_quality_records.sort(
+                        key=lambda item: (item["quality"], item["element_tag"])
+                    )
+                    del tetrahedron_quality_records[10:]
 
     if sum(element_types.values()) != element_count:
         raise Stl2DError("MSH 4.1 element block counts do not match the file header")
@@ -1129,16 +1134,19 @@ def inspect_msh4(path: Path) -> dict:
         "maximum": [max(point[axis] for point in coordinates) for axis in range(3)],
     }
 
-    def percentile(values: list[float], fraction: float) -> float:
-        if not values:
+    ordered_qualities = sorted(tetrahedron_qualities)
+
+    def percentile(fraction: float) -> float:
+        if not ordered_qualities:
             return 0.0
-        ordered = sorted(values)
-        position = (len(ordered) - 1) * fraction
+        position = (len(ordered_qualities) - 1) * fraction
         lower = math.floor(position)
         upper = math.ceil(position)
         if lower == upper:
-            return ordered[lower]
-        return ordered[lower] + (ordered[upper] - ordered[lower]) * (position - lower)
+            return ordered_qualities[lower]
+        return ordered_qualities[lower] + (
+            ordered_qualities[upper] - ordered_qualities[lower]
+        ) * (position - lower)
 
     quality_thresholds = (0.1, 0.2, 0.3)
     tetrahedron_quality_records.sort(key=lambda item: (item["quality"], item["element_tag"]))
@@ -1148,7 +1156,7 @@ def inspect_msh4(path: Path) -> dict:
         "minimum_quality": min(tetrahedron_qualities) if tetrahedron_qualities else 0.0,
         "mean_quality": (sum(tetrahedron_qualities) / len(tetrahedron_qualities)) if tetrahedron_qualities else 0.0,
         "quality_percentiles": {
-            f"p{int(fraction * 100):02d}": percentile(tetrahedron_qualities, fraction)
+            f"p{int(fraction * 100):02d}": percentile(fraction)
             for fraction in (0.05, 0.50, 0.95)
         },
         "quality_below_threshold_counts": {
