@@ -162,9 +162,11 @@
           "entrypoint": "grid/stl_to_gmsh/generate_volume_mesh.py"
         },
         {
-          "id": "native_cpp_case",
+          "id": "native_cpp_geometry_shared_gmsh_runner",
           "kind": "cpp",
-          "status": "planned"
+          "status": "implemented",
+          "entrypoint": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra/run_pipe_bend_cpp_case.py",
+          "notes": "C++17 generates geometry and named regions; the Python adapter invokes the shared Gmsh volume mesher. This is not a native OneFLOW solver."
         }
       ],
       "inputs": [
@@ -197,6 +199,12 @@
           "id": "pipe_bend.volume.elements",
           "kind": "integration",
           "description": "The volume mesh contains supported first-order tetrahedral cells and valid boundary connectivity."
+        },
+        {
+          "id": "pipe_bend.volume_mesh.native_cpp_runner",
+          "kind": "contract",
+          "description": "The native C++ geometry runner hands its STL and named regions to the shared Gmsh service and produces a non-empty MSH4 tetrahedral mesh with wall, inflow, outflow and fluid_domain physical groups.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_cpp_case_runner_generates_msh4_with_shared_physical_groups"
         }
       ]
     },

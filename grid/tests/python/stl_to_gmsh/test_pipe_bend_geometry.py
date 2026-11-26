@@ -312,6 +312,54 @@ class PipeBendGeometryTest(unittest.TestCase):
             (ROOT / implementations["native_cpp_geometry"]["script"]).is_file()
         )
 
+
+    @unittest.skipUnless(
+        os.environ.get("ONEFLOW_RUN_GMSH_TESTS") == "1"
+        and (shutil.which("gmsh") or shutil.which("gmsh.exe")),
+        "Set ONEFLOW_RUN_GMSH_TESTS=1 and install Gmsh for this integration test",
+    )
+    def test_cpp_case_runner_generates_msh4_with_shared_physical_groups(self):
+        runner_path = (
+            ROOT / "grid/stl_to_gmsh/3d/pipe_bend/90_degree"
+            / "automatic_tetrahedra/run_pipe_bend_cpp_case.py"
+        )
+        runner_spec = importlib.util.spec_from_file_location(
+            "oneflow_pipe_bend_cpp_case_integration_runner", runner_path
+        )
+        self.assertIsNotNone(runner_spec)
+        self.assertIsNotNone(runner_spec.loader)
+        runner = importlib.util.module_from_spec(runner_spec)
+        runner_spec.loader.exec_module(runner)
+        try:
+            compiler = runner.discover_cpp_compiler()
+        except RuntimeError as error:
+            self.skipTest(str(error))
+        gmsh = shutil.which("gmsh") or shutil.which("gmsh.exe")
+        with tempfile.TemporaryDirectory() as temporary:
+            mesh = runner.run_case(
+                Path(temporary) / "case",
+                gmsh=gmsh,
+                mesh_size=0.25,
+                compiler=compiler,
+            )
+            self.assertTrue(mesh.is_file())
+            self.assertGreater(mesh.stat().st_size, 0)
+            report = json.loads(
+                mesh.with_suffix(".report.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(report["stages"]["geometry"]["status"], "PASS")
+            self.assertEqual(report["stages"]["gmsh"]["status"], "PASS")
+            self.assertEqual(report["stages"]["physical_groups"]["status"], "PASS")
+            groups = {
+                (item["dimension"], item["name"])
+                for item in report["mesh_summary"]["physical_groups"]
+            }
+            self.assertEqual(
+                groups,
+                {(2, "wall"), (2, "inflow"), (2, "outflow"), (3, "fluid_domain")},
+            )
+            self.assertGreater(report["mesh_summary"]["tetrahedron_elements"], 0)
+
     def test_cpp_case_runner_builds_the_native_geometry_in_workspace(self):
         runner_path = (
             ROOT / "grid/stl_to_gmsh/3d/pipe_bend/90_degree"
