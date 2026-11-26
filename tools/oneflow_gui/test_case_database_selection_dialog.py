@@ -132,15 +132,15 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
             )
             index = dialog.case_tree.indexFromItem(item, 2)
             delegate = dialog.case_tree.itemDelegateForColumn(2)
-            editor = delegate.createEditor(dialog.case_tree, None, index)
+            editor = delegate.createEditor(dialog.case_tree.viewport(), None, index)
             try:
                 delegate.setEditorData(editor, index)
                 self.assertEqual(editor.currentData(), "native_cpp_geometry")
                 editor.setCurrentIndex(0)
                 delegate.setModelData(editor, dialog.case_tree.model(), index)
             finally:
-                editor.deleteLater()
-                self._application.processEvents()
+                delegate.destroyEditor(editor, index)
+                self._flush_deferred_deletes()
             self.assertEqual(item.text(2), "Python reference")
             self.assertEqual(
                 dialog.selected_implementations()["pipe-bend"], "python_reference"
