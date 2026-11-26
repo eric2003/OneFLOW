@@ -396,7 +396,7 @@ class TestRunnerDialog(QDialog):
         self.case_database_check = QCheckBox("Run Development Cases")
         self.case_database_check.setChecked(False)
         database_layout.insertWidget(0, self.case_database_check)
-        self.python_development_check = QCheckBox("Python reference cases")
+        self.python_development_check = QCheckBox("Python / mesh producer cases")
         self.python_development_check.setChecked(False)
         self.python_development_check.setToolTip(
             "Runs Python-driven mesh producer Cases. Cases that provide multiple geometry "
@@ -468,7 +468,7 @@ class TestRunnerDialog(QDialog):
         kinds = self._development_case_selection_kinds()
         labels = []
         for kind in kinds:
-            label = "Python" if kind == "python" else "C++"
+            label = "Mesh producers" if kind == "python" else "OneFLOW C++"
             labels.append(f"{label} ({len(self._database_cases_by_kind[kind])})")
         self.case_database_button.setText("Select cases... [" + " + ".join(labels) + "]")
 
@@ -649,8 +649,24 @@ class TestRunnerDialog(QDialog):
         enabled_modes = []
         if any(case.execution_kind == "oneflow" for case in selected_cases):
             enabled_modes.append("native C++ OneFLOW")
-        if any(case.execution_kind == "python" for case in selected_cases):
-            enabled_modes.append("Python reference")
+        for case in selected_cases:
+            if case.execution_kind != "python":
+                continue
+            selected_id = self._selected_implementation_by_case.get(
+                case.case_id, case.default_implementation
+            )
+            implementation = next(
+                (
+                    item for item in case.implementations
+                    if item.implementation_id == selected_id
+                ),
+                None,
+            )
+            if implementation is not None and implementation.kind == "cpp":
+                enabled_modes.append("native C++ geometry")
+            else:
+                enabled_modes.append("Python reference")
+        enabled_modes = list(dict.fromkeys(enabled_modes))
         self.log_view.appendPlainText(
             f"Development case modes: {' + '.join(enabled_modes)}\n"
             f"Development case workspace: {workspace_root}\nStaged {len(commands)} selected case(s)."
