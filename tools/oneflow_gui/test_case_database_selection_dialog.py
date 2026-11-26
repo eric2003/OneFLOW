@@ -8,7 +8,7 @@ from pathlib import Path
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtWidgets import QApplication, QHeaderView
+from PySide6.QtWidgets import QApplication, QComboBox, QHeaderView
 
 from .models import CaseDefinition, CaseImplementation
 from .test_dialog import CaseDatabaseSelectionDialog
@@ -77,7 +77,8 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
             [case], [case], selected_implementations={"pipe-bend": "native_cpp_geometry"}
         )
         try:
-            combo = dialog._implementation_combos["pipe-bend"]
+            combo = dialog.findChild(QComboBox)
+            self.assertIsNotNone(combo)
             self.assertEqual(combo.currentData(), "native_cpp_geometry")
             self.assertEqual(
                 dialog.selected_implementations()["pipe-bend"], "native_cpp_geometry"
