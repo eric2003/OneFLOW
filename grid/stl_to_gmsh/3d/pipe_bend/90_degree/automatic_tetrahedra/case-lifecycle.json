@@ -3,7 +3,7 @@
   "version": 1,
   "case_id": "stl_to_gmsh_pipe_bend_90_degree",
   "contract_version": 1,
-  "verification_scope": "geometry_regions_gmsh_volume_mesh_and_cgns_conversion",
+  "verification_scope": "geometry_regions_gmsh_volume_mesh_cgns_conversion_oneflow_ingestion_and_cfd_smoke",
   "stages": [
     {
       "id": "geometry",
@@ -290,7 +290,7 @@
     {
       "id": "oneflow_ingestion",
       "type": "oneflow_ingestion",
-      "implementation_status": "planned",
+      "implementation_status": "implemented",
       "verification_status": "not_run",
       "depends_on": [
         "msh_to_cgns"
@@ -299,7 +299,8 @@
         {
           "id": "native_grid_reader",
           "kind": "oneflow",
-          "status": "planned"
+          "status": "implemented",
+          "notes": "Uses the shared CGNS-to-OneFLOW grid conversion stage and writes the native grid, BC region map, and grid metadata."
         }
       ],
       "inputs": [
@@ -322,14 +323,14 @@
         {
           "id": "pipe_bend.ingestion.boundaries",
           "kind": "integration",
-          "description": "OneFLOW reads the grid and retains the intended inlet, outlet, and wall boundary identities."
+          "description": "The shared CGNS-to-OneFLOW stage reads the unstructured 3-D grid, writes the native grid and boundary-region map, and preserves wall, inflow, and outflow identities."
         }
       ]
     },
     {
       "id": "cfd_smoke",
       "type": "cfd_smoke",
-      "implementation_status": "planned",
+      "implementation_status": "implemented",
       "verification_status": "not_run",
       "depends_on": [
         "oneflow_ingestion"
@@ -338,7 +339,8 @@
         {
           "id": "oneflow_cfd_runner",
           "kind": "oneflow",
-          "status": "planned"
+          "status": "implemented",
+          "notes": "Uses the shared OneFLOW CFD stage adapter with the selected 3-D consumer configuration and bounded max-steps setting."
         }
       ],
       "inputs": [
@@ -363,7 +365,7 @@
         {
           "id": "pipe_bend.cfd.smoke",
           "kind": "smoke",
-          "description": "A bounded native solver run exits successfully and produces finite residuals and required result artifacts."
+          "description": "The shared native solver stage runs the configured bounded 3-D smoke case, exits successfully, and produces finite residuals and required result artifacts."
         }
       ]
     },
@@ -402,7 +404,9 @@
     "geometry",
     "surface_regions",
     "volume_mesh",
-    "msh_to_cgns"
+    "msh_to_cgns",
+    "oneflow_ingestion",
+    "cfd_smoke"
   ],
   "quality_policy": {
     "role": "diagnostic",
