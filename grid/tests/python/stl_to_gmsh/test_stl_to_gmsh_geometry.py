@@ -205,6 +205,9 @@ $EndElements
         content = """$MeshFormat
 4.1 0 8
 $EndMeshFormat
+$PhysicalNames
+0
+$EndPhysicalNames
 $Nodes
 4 4 1 4
 0 1 0 1
