@@ -87,7 +87,12 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
             self.assertEqual(
                 dialog.selected_implementations()["pipe-bend"], "python_reference"
             )
+            dialog.done(0)
+            self.assertEqual(dialog._implementation_combos, {})
+            self.assertEqual(dialog._implementation_items, {})
+            self.assertTrue(dialog._implementation_widgets_disposed)
         finally:
+            # Exercise the second cleanup entry point too; disposal is idempotent.
             dialog.close()
 
 
