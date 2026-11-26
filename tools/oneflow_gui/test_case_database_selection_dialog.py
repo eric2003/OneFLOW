@@ -12,7 +12,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 # Turn Qt ownership/lifetime warnings into immediate test failures on both OSes.
 os.environ.setdefault("QT_FATAL_WARNINGS", "1")
 
-from PySide6.QtCore import QCoreApplication, QEvent, Qt
+from PySide6.QtCore import QCoreApplication, QEvent, Qt, qInstallMessageHandler
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QComboBox, QHeaderView
 
@@ -23,14 +23,29 @@ from .test_dialog import CaseDatabaseSelectionDialog
 class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        if os.environ.get("ONEFLOW_QT_TEST_CHILD") == "1":
+            import faulthandler
+
+            faulthandler.enable()
+            os.write(2, b"[qt-selector] setUpClass: before QApplication\\n")
+
+            def report_qt_message(mode, context, message):
+                details = (
+                    f"[qt-selector] Qt message mode={mode}: {message}\\n"
+                )
+                os.write(2, details.encode("utf-8", errors="replace"))
+
+            qInstallMessageHandler(report_qt_message)
         cls._application = QApplication.instance() or QApplication([])
+        if os.environ.get("ONEFLOW_QT_TEST_CHILD") == "1":
+            os.write(2, b"[qt-selector] setUpClass: QApplication ready\\n")
 
     def _run_isolated_test(self, test_name: str) -> None:
         """Run one Qt test in a fresh process so native crashes are attributable."""
         environment = os.environ.copy()
         environment["ONEFLOW_QT_TEST_CHILD"] = "1"
         result = subprocess.run(
-            [sys.executable, "-m", "unittest", f"{__name__}.{self.__class__.__name__}.{test_name}"],
+            [sys.executable, "-u", "-X", "faulthandler", "-m", "unittest", f"{__name__}.{self.__class__.__name__}.{test_name}"],
             cwd=Path(__file__).resolve().parents[2],
             env=environment,
             text=True,
@@ -87,7 +102,9 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
             group="Mesh Workflow",
             dimension=3,
         )
+        os.write(2, b"[qt-selector] layout: before dialog construction\\n")
         dialog = CaseDatabaseSelectionDialog([case], [case])
+        os.write(2, b"[qt-selector] layout: dialog constructed\\n")
         try:
             tree = dialog.case_tree
             header = tree.header()
@@ -113,7 +130,9 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
         finally:
             dialog.close()
             dialog.deleteLater()
+            os.write(2, b"[qt-selector] layout: before deferred-delete flush\\n")
             self._flush_deferred_deletes()
+            os.write(2, b"[qt-selector] layout: deferred-delete flush complete\\n")
 
     def _pipe_bend_case(self) -> CaseDefinition:
         return CaseDefinition(
