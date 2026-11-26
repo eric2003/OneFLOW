@@ -1377,6 +1377,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertTrue(stages["volume_mesh"]["in_current_scope"])
         self.assertTrue(stages["msh_to_cgns"]["in_current_scope"])
         self.assertFalse(stages["mesh_quality"]["in_current_scope"])
+        self.assertEqual(stages["mesh_quality"]["implementation_status"], "implemented")
         self.assertFalse(stages["oneflow_ingestion"]["in_current_scope"])
         self.assertFalse(stages["cfd_smoke"]["in_current_scope"])
         self.assertFalse(stages["cfd_validation"]["in_current_scope"])
