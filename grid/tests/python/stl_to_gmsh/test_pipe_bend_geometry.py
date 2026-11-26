@@ -324,12 +324,10 @@ class PipeBendGeometryTest(unittest.TestCase):
         self.assertIsNotNone(runner_spec.loader)
         runner = importlib.util.module_from_spec(runner_spec)
         runner_spec.loader.exec_module(runner)
-        compiler = next(
-            (shutil.which(name) for name in ("c++", "g++", "clang++") if shutil.which(name)),
-            None,
-        )
-        if not compiler:
-            self.skipTest("A C++17 compiler is required for the native Case runner")
+        try:
+            compiler = runner.discover_cpp_compiler()
+        except RuntimeError as error:
+            self.skipTest(str(error))
         with tempfile.TemporaryDirectory() as temporary:
             workspace = Path(temporary)
             executable = runner.build_cpp_generator(
