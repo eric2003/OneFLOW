@@ -10,7 +10,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal, Qt
-from shiboken6 import delete as delete_qobject
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -22,6 +21,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QSpinBox,
+    QStyledItemDelegate,
     QPushButton,
     QTreeWidget,
     QTreeWidgetItem,
@@ -770,6 +770,41 @@ class TestRunnerDialog(QDialog):
         event.accept()
 
 
+class ImplementationComboDelegate(QStyledItemDelegate):
+    """Create short-lived combo editors instead of persistent tree-owned widgets.
+
+    QTreeWidget.setItemWidget() transfers C++ ownership of persistent widgets to
+    the view. A delegate keeps editors transient and lets Qt's item-view
+    machinery own their complete create/edit/commit/destroy lifecycle.
+    """
+
+    def __init__(self, values: dict[str, str], parent=None) -> None:
+        super().__init__(parent)
+        self._values = values
+
+    def createEditor(self, parent, option, index):
+        editor = QComboBox(parent)
+        for label, implementation_id in index.data(
+            Qt.ItemDataRole.UserRole + 1
+        ) or ():
+            editor.addItem(label, implementation_id)
+        return editor
+
+    def setEditorData(self, editor, index) -> None:
+        current = editor.findData(index.data(Qt.ItemDataRole.UserRole))
+        if current >= 0:
+            editor.setCurrentIndex(current)
+
+    def setModelData(self, editor, model, index) -> None:
+        implementation_id = str(editor.currentData())
+        label = editor.currentText()
+        model.setData(index, implementation_id, Qt.ItemDataRole.UserRole)
+        model.setData(index, label, Qt.ItemDataRole.DisplayRole)
+        case_id = index.data(Qt.ItemDataRole.UserRole + 2)
+        if case_id:
+            self._values[str(case_id)] = implementation_id
+
+
 class CaseDatabaseSelectionDialog(QDialog):
     """Configure which development cases the parent Tests page should run."""
 
@@ -814,12 +849,15 @@ class CaseDatabaseSelectionDialog(QDialog):
         self.case_tree.setColumnWidth(1, 260)
         self.case_tree.setColumnWidth(2, 250)
         self._implementation_values: dict[str, str] = {}
-        # Keep the Python wrappers alive for the lifetime of the dialog. The
-        # QTreeWidget owns the C++ item widgets, but retaining their PySide
-        # wrappers avoids premature wrapper finalization during Qt teardown.
-        self._implementation_combos: dict[str, QComboBox] = {}
-        self._implementation_items: dict[str, QTreeWidgetItem] = {}
-        self._implementation_widgets_disposed = False
+        self._implementation_delegate = ImplementationComboDelegate(
+            self._implementation_values, self.case_tree
+        )
+        self.case_tree.setItemDelegateForColumn(2, self._implementation_delegate)
+        self.case_tree.setEditTriggers(
+            QTreeWidget.EditTrigger.DoubleClicked
+            | QTreeWidget.EditTrigger.EditKeyPressed
+            | QTreeWidget.EditTrigger.SelectedClicked
+        )
         selected_implementations = selected_implementations or {}
         dimension_items: dict[str, QTreeWidgetItem] = {}
         category_items: dict[tuple[str, str], QTreeWidgetItem] = {}
@@ -856,31 +894,28 @@ class CaseDatabaseSelectionDialog(QDialog):
             )
             case_item.setText(1, configuration)
             if case.implementations:
-                combo = QComboBox()
-                for implementation in case.implementations:
-                    label = (
+                choices = tuple(
+                    (
                         "Native C++ geometry"
                         if implementation.kind == "cpp"
-                        else "Python reference"
+                        else "Python reference",
+                        implementation.implementation_id,
                     )
-                    combo.addItem(label, implementation.implementation_id)
+                    for implementation in case.implementations
+                )
                 requested = selected_implementations.get(
                     case.case_id, case.default_implementation
                 )
-                index = combo.findData(requested)
-                if index >= 0:
-                    combo.setCurrentIndex(index)
-                self._implementation_values[case.case_id] = str(combo.currentData())
-                implementation_ids = tuple(
-                    item.implementation_id for item in case.implementations
+                selected = next(
+                    (pair for pair in choices if pair[1] == requested),
+                    choices[0],
                 )
-                combo.currentIndexChanged.connect(
-                    lambda index, case_id=case.case_id, values=self._implementation_values,
-                    ids=implementation_ids: values.__setitem__(case_id, ids[index])
-                )
-                self.case_tree.setItemWidget(case_item, 2, combo)
-                self._implementation_combos[case.case_id] = combo
-                self._implementation_items[case.case_id] = case_item
+                self._implementation_values[case.case_id] = selected[1]
+                case_item.setFlags(case_item.flags() | Qt.ItemFlag.ItemIsEditable)
+                case_item.setData(2, Qt.ItemDataRole.UserRole, selected[1])
+                case_item.setData(2, Qt.ItemDataRole.UserRole + 1, choices)
+                case_item.setData(2, Qt.ItemDataRole.UserRole + 2, case.case_id)
+                case_item.setText(2, selected[0])
             else:
                 implementation_label = case.default_implementation or (
                     "Python" if case.execution_kind == "python" else "Native OneFLOW"
@@ -914,36 +949,6 @@ class CaseDatabaseSelectionDialog(QDialog):
         actions.addWidget(ok_button)
         actions.addWidget(cancel_button)
         layout.addLayout(actions)
-
-    def _dispose_implementation_widgets(self) -> None:
-        """Detach and explicitly destroy embedded Qt widgets before tree teardown.
-
-        QTreeWidget takes C++ ownership of setItemWidget() children. Keeping
-        their PySide wrappers alive prevents premature wrapper finalization,
-        but then the wrappers must be invalidated before the owning tree is
-        destroyed. Detach each widget and let Shiboken perform the one
-        authoritative C++ deletion.
-        """
-        if self._implementation_widgets_disposed:
-            return
-        self._implementation_widgets_disposed = True
-        tree = self.case_tree
-        for case_id, widget in tuple(self._implementation_combos.items()):
-            item = self._implementation_items.get(case_id)
-            if item is not None:
-                tree.removeItemWidget(item, 2)
-            widget.setParent(None)
-            delete_qobject(widget)
-        self._implementation_combos.clear()
-        self._implementation_items.clear()
-
-    def done(self, result: int) -> None:
-        self._dispose_implementation_widgets()
-        super().done(result)
-
-    def closeEvent(self, event) -> None:
-        self._dispose_implementation_widgets()
-        super().closeEvent(event)
 
     def _set_subtree_state(self, item: QTreeWidgetItem, state: Qt.CheckState) -> None:
         item.setCheckState(0, state)
