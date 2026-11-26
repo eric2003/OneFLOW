@@ -10,6 +10,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 # Turn Qt ownership/lifetime warnings into immediate test failures on both OSes.
 os.environ.setdefault("QT_FATAL_WARNINGS", "1")
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QComboBox, QHeaderView
 
 from .models import CaseDefinition, CaseImplementation
@@ -60,7 +61,7 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
 
 
 
-    def test_embedded_widget_lifecycle_is_stable_across_repeated_dialogs(self) -> None:
+    def test_delegate_editor_lifecycle_is_stable_across_repeated_dialogs(self) -> None:
         case = CaseDefinition(
             case_id="pipe-bend",
             title="90-Degree Pipe Bend",
@@ -77,15 +78,27 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
         )
         for _ in range(25):
             dialog = CaseDatabaseSelectionDialog([case], [case])
-            combo = dialog._implementation_combos["pipe-bend"]
-            combo.setCurrentIndex(1)
-            self.assertEqual(
-                dialog.selected_implementations()["pipe-bend"], "native_cpp_geometry"
-            )
-            dialog.done(0)
-            dialog.close()
-            self.assertEqual(dialog._implementation_combos, {})
-            self._application.processEvents()
+            try:
+                item = dialog.case_tree.topLevelItem(0).child(0).child(0)
+                index = dialog.case_tree.indexFromItem(item, 2)
+                delegate = dialog.case_tree.itemDelegateForColumn(2)
+                editor = delegate.createEditor(dialog.case_tree, None, index)
+                try:
+                    delegate.setEditorData(editor, index)
+                    self.assertEqual(editor.currentData(), "python_reference")
+                    editor.setCurrentIndex(1)
+                    delegate.setModelData(editor, dialog.case_tree.model(), index)
+                    self.assertEqual(
+                        dialog.selected_implementations()["pipe-bend"],
+                        "native_cpp_geometry",
+                    )
+                finally:
+                    editor.deleteLater()
+                    self._application.processEvents()
+            finally:
+                dialog.close()
+                dialog.deleteLater()
+                self._application.processEvents()
 
     def test_multiple_implementations_are_selectable_per_case(self) -> None:
         case = CaseDefinition(
@@ -106,23 +119,30 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
             [case], [case], selected_implementations={"pipe-bend": "native_cpp_geometry"}
         )
         try:
-            combo = dialog.findChild(QComboBox)
-            self.assertIsNotNone(combo)
-            self.assertEqual(combo.currentData(), "native_cpp_geometry")
+            item = dialog.case_tree.topLevelItem(0).child(0).child(0)
+            self.assertEqual(item.text(2), "Native C++ geometry")
             self.assertEqual(
                 dialog.selected_implementations()["pipe-bend"], "native_cpp_geometry"
             )
-            combo.setCurrentIndex(0)
+            index = dialog.case_tree.indexFromItem(item, 2)
+            delegate = dialog.case_tree.itemDelegateForColumn(2)
+            editor = delegate.createEditor(dialog.case_tree, None, index)
+            try:
+                delegate.setEditorData(editor, index)
+                self.assertEqual(editor.currentData(), "native_cpp_geometry")
+                editor.setCurrentIndex(0)
+                delegate.setModelData(editor, dialog.case_tree.model(), index)
+            finally:
+                editor.deleteLater()
+                self._application.processEvents()
+            self.assertEqual(item.text(2), "Python reference")
             self.assertEqual(
                 dialog.selected_implementations()["pipe-bend"], "python_reference"
             )
-            dialog.done(0)
-            self.assertEqual(dialog._implementation_combos, {})
-            self.assertEqual(dialog._implementation_items, {})
-            self.assertTrue(dialog._implementation_widgets_disposed)
         finally:
-            # Exercise the second cleanup entry point too; disposal is idempotent.
             dialog.close()
+            dialog.deleteLater()
+            self._application.processEvents()
 
 
 if __name__ == "__main__":
