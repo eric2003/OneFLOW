@@ -52,41 +52,38 @@ Gmsh-to-CGNS conversion and CGNS-to-OneFLOW native-grid ingestion, it continues
 into ``oneflow_cfd_solve``. The existing ``laminar_flat_plate`` CFD control
 Case is reused as the generic solver smoke setup, with ``dimension`` overridden
 to ``3`` in the isolated runtime Case. When the project carries a
-checksum-verified ``region_manifest.json``, its ``wall``, ``inflow`` and
-``outflow`` region names become required MSH Physical Groups for that run.
-Legacy imported projects that previously used the prolate-spheroid Case as a
-generic fallback are migrated when reopened. The 90-degree pipe-bend geometry
-uses this same geometry-neutral handoff: its checksum-verified region manifest
-is copied into the project, and the validation run requires dimension-2
-``wall``, ``inflow`` and ``outflow`` plus dimension-3 ``fluid_domain`` before
-starting CGNS conversion. This makes the bend available through the normal
-Mesh Generation -> STL to Gmsh -> Mesh-to-CFD Validation sequence without a
-pipe-bend-specific validation runner.
+checksum-verified ``region_manifest.json``, its named regions become required
+MSH Physical Groups for that run.
+
+The generated 90-degree pipe-bend Case shares the same geometry-neutral
+region-aware converter, but its own lifecycle contract currently selects a
+shorter milestone ending at CGNS conversion. The declared lifecycle scope
+determines which workflow stages are run and which stages are expected to
+remain ``NOT_RUN``; the generic four-stage route must not be inferred for
+every geometry Case.
 
 90-degree pipe bend
 -------------------
 
-The parameterized 90-degree pipe bend is registered as an existing-MSH
-profile in the 3-D **Mesh-to-CFD Validation** tree. Generate it through
-**Mesh Generation -> Geometry Library**, open the generated STL in **STL to
-Gmsh**, and create its volume mesh. The standalone validation tree then
-resolves the most recently modified completed project whose project manifest
-identifies ``pipe_bend_90_degree``. The resolver accepts only project-relative
-MSH paths contained within the user's mesh-generation workspace. If the MSH
-has not yet been generated, the Case is shown but skipped with a clear
-missing-input message.
+The parameterized 90-degree pipe bend is registered as a generated
+Python-reference Case in the 3-D **Mesh-to-CFD Validation** tree. The producer
+runs the parameterized geometry generator and the shared region-aware Gmsh
+volume mesher, then copies the resulting MSH into an isolated validation run.
+Its current lifecycle scope includes geometry, named surface regions, the
+tetrahedral volume mesh and Gmsh-to-CGNS conversion. The four required MSH
+Physical Groups are dimension-2 ``wall``, ``inflow`` and ``outflow``,
+plus dimension-3 ``fluid_domain``.
 
-Selecting the pipe-bend profile copies the existing MSH into an isolated
-validation run; Gmsh is not rerun. The project region manifest makes
-``wall``, ``inflow`` and ``outflow`` dimension-2 Physical Surfaces and
-``fluid_domain`` dimension-3 Physical Volume mandatory before CGNS conversion.
-The workflow then continues through CGNS-to-OneFLOW ingestion and the short
-CFD consumer smoke test. This verifies the complete software handoff, not
-pressure loss, secondary-flow accuracy or mesh independence.
+The declared milestone ends after CGNS conversion. CGNS-to-OneFLOW ingestion,
+the native solver smoke test and physical CFD validation remain separate
+future milestones; the current milestone is not considered failed because
+those later stages are ``planned``. Mesh-quality metrics are diagnostic and
+do not gate conversion. This milestone verifies software geometry/mesh/format
+handoff only, not pressure loss, secondary-flow accuracy or mesh independence.
 
-The same workflow is available directly from the pipe-bend STL-to-Gmsh
-project page through **Mesh-to-CFD Validation...**, which always validates
-that specific project rather than selecting the newest pipe-bend project.
+When a generated mesh project is opened directly, the project-scoped
+**Mesh-to-CFD Validation...** action validates that exact project. Its workflow
+scope remains governed by the selected Case lifecycle contract.
 
 3-D internal-flow cylinder
 --------------------------
