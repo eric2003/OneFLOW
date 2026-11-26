@@ -3,7 +3,7 @@
   "version": 1,
   "case_id": "stl_to_gmsh_pipe_bend_90_degree",
   "contract_version": 1,
-  "verification_scope": "geometry_regions_and_gmsh_volume_mesh",
+  "verification_scope": "geometry_regions_gmsh_volume_mesh_and_cgns_conversion",
   "stages": [
     {
       "id": "geometry",
@@ -245,7 +245,7 @@
       "implementation_status": "planned",
       "verification_status": "not_run",
       "depends_on": [
-        "mesh_quality"
+        "volume_mesh"
       ],
       "implementations": [
         {
@@ -284,7 +284,8 @@
       "implementation_status": "planned",
       "verification_status": "not_run",
       "depends_on": [
-        "msh_to_cgns"
+        "msh_to_cgns",
+        "mesh_quality"
       ],
       "implementations": [
         {
@@ -392,6 +393,7 @@
   "verification_stages": [
     "geometry",
     "surface_regions",
-    "volume_mesh"
+    "volume_mesh",
+    "msh_to_cgns"
   ]
 }
