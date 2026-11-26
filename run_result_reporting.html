@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Run-result status and evidence contract &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="STL Geometry Generation for 3-D Mesh Cases" href="stl_geometry_generation.html" />
+    <link rel="prev" title="3D STL-to-Gmsh Volume Cases" href="stl_to_gmsh_3d.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake_build_architecture.html">CMake Build Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry_asset_architecture.html">Geometry Asset Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html">OneFLOW Native STL Surface I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html#native-oneflow-grid-case">Native OneFLOW grid Case</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_2d.html">Planar STL to Gmsh 2D Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_3d.html">3D STL-to-Gmsh Volume Cases</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Run-result status and evidence contract</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#outcome-layers">Outcome layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stage-states">Stage states</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#versioned-report-envelope">Versioned report envelope</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#human-readable-terminal-output">Human-readable terminal output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#failure-and-stale-report-behavior">Failure and stale-report behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#current-stl-to-gmsh-implementation">Current STL-to-Gmsh implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gmsh-to-cgns-conversion-report">Gmsh-to-CGNS conversion report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mesh-to-cfd-validation-report">Mesh-to-CFD Validation report</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="stl_geometry_generation.html">STL Geometry Generation for 3-D Mesh Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_pipe_bend.html">90-Degree Pipe-Bend STL Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_stl_geometry_pipeline.html">STL Geometry Assets and STL-to-Gmsh Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_sphere.html">STL Unit Sphere to Gmsh 3D Tetrahedral Mesh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_prolate_spheroid.html">6:1 Prolate Spheroid STL to Gmsh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_conversion_cases.html">Grid Conversion Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_case_methodology.html">Development Case Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_condition_architecture.html">Boundary Condition Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_to_cfd_validation.html">Mesh-to-CFD Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Run-result status and evidence contract</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/run_result_reporting.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="run-result-status-and-evidence-contract">
+<h1>Run-result status and evidence contract<a class="headerlink" href="#run-result-status-and-evidence-contract" title="Link to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>OneFLOW tools must make outcomes obvious without requiring users to inspect
+large JSON documents or infer success from output-file existence. The terminal
+is the human-first summary. A versioned JSON report is the machine-readable
+record consumed by GUIs, automation, tests, and later workflow stages.</p>
+</section>
+<section id="outcome-layers">
+<h2>Outcome layers<a class="headerlink" href="#outcome-layers" title="Link to this heading"></a></h2>
+<p>Do not collapse these independent claims into one generic validated flag:</p>
+<ul class="simple">
+<li><p><strong>Execution</strong> — the process completed and its exit status is known.</p></li>
+<li><p><strong>Structure</strong> — the artifact is readable and satisfies implemented
+structural invariants such as counts, connectivity, topology, and groups.</p></li>
+<li><p><strong>Mesh quality</strong> — numerical quality metrics have been evaluated against
+stated acceptance criteria. Calculating or displaying a metric alone is
+not a quality pass.</p></li>
+<li><p><strong>CFD validation</strong> — the mesh has been consumed by the intended OneFLOW
+runtime and passed declared solver/workflow checks. A smoke run is not a
+physical accuracy benchmark unless the case and reference establish that.</p></li>
+</ul>
+<p>A successful mesh-generation process can therefore have successful execution
+and structural checks while mesh quality remains NOT_CHECKED and CFD
+validation remains NOT_RUN. The STL-to-Gmsh report explicitly records the
+separate CFD validation stage as NOT_RUN; that does not invalidate a successful
+mesh-generation result because CFD validation is outside this command.</p>
+</section>
+<section id="stage-states">
+<h2>Stage states<a class="headerlink" href="#stage-states" title="Link to this heading"></a></h2>
+<p>Every stage uses exactly one of these case-sensitive values:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>State</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>PASS</p></td>
+<td><p>The stage ran and every declared assertion passed.</p></td>
+</tr>
+<tr class="row-odd"><td><p>FAIL</p></td>
+<td><p>The stage ran and at least one declared assertion failed, or it raised
+an error.</p></td>
+</tr>
+<tr class="row-even"><td><p>NOT_RUN</p></td>
+<td><p>The stage was not reached because an earlier stage failed or execution
+was blocked.</p></td>
+</tr>
+<tr class="row-odd"><td><p>NOT_CHECKED</p></td>
+<td><p>The capability or criterion is not implemented or was deliberately not
+evaluated in this run.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Never use PASS merely because a file exists, a subprocess returned zero, or
+a report was written. Do not conflate NOT_RUN with NOT_CHECKED.</p>
+</section>
+<section id="versioned-report-envelope">
+<h2>Versioned report envelope<a class="headerlink" href="#versioned-report-envelope" title="Link to this heading"></a></h2>
+<p>The stable envelope is oneflow.run-report version 1:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"schema"</span><span class="p">:</span><span class="w"> </span><span class="s2">"oneflow.run-report"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"workflow"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STL -&gt; Gmsh"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"exit_code"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"created_at_utc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-11-16T00:00:00Z"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"stages"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"input"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PASS"</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"geometry"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PASS"</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"gmsh"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PASS"</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"mesh_structure"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PASS"</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"physical_groups"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PASS"</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"mesh_quality"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NOT_CHECKED"</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"cfd_validation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NOT_RUN"</span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"metrics"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">  </span><span class="nt">"artifacts"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The status is success only when the process-level run succeeds; otherwise it
+is failed. The exit_code is the command result (the current STL-to-Gmsh
+adapter uses 0 for success and 2 for handled failures). The error is null on
+success and otherwise contains an error type and human-readable message.
+Workflow-specific legacy fields may be retained during migration, but must
+not redefine shared status semantics.</p>
+</section>
+<section id="human-readable-terminal-output">
+<h2>Human-readable terminal output<a class="headerlink" href="#human-readable-terminal-output" title="Link to this heading"></a></h2>
+<p>A tool should finish with a short summary containing:</p>
+<ul class="simple">
+<li><p>workflow name and an unmistakable SUCCESS or FAILED verdict;</p></li>
+<li><p>each stage and its state;</p></li>
+<li><p>a small set of useful counts and metrics;</p></li>
+<li><p>output artifact paths and report path;</p></li>
+<li><p>process exit code;</p></li>
+<li><p>the first actionable error on failure.</p></li>
+</ul>
+<p>Do not dump the entire JSON report to the terminal by default. Keep detailed
+diagnostics in the report and, when useful, a separate log. External-tool
+progress output should not bury the final verdict.</p>
+</section>
+<section id="failure-and-stale-report-behavior">
+<h2>Failure and stale-report behavior<a class="headerlink" href="#failure-and-stale-report-behavior" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Write a failure report when the destination is known, including the failed
+stage, the error, and later stages marked NOT_RUN.</p></li>
+<li><p>Remove or invalidate an earlier report before beginning a new run. A stale
+success report must never describe a failed new attempt.</p></li>
+<li><p>Write reports atomically in the destination directory so readers never see
+partially written JSON. Generated files and report temporaries belong in
+the designated external workspace, never in the checked-in source tree.</p></li>
+<li><p>The process exit code remains authoritative for shell/CI control flow. The
+report supplements it with stage detail; stdout text must not be parsed as
+the machine interface.</p></li>
+</ul>
+</section>
+<section id="current-stl-to-gmsh-implementation">
+<h2>Current STL-to-Gmsh implementation<a class="headerlink" href="#current-stl-to-gmsh-implementation" title="Link to this heading"></a></h2>
+<p>grid/stl_to_gmsh/generate_volume_mesh.py is the first adapter implementing
+this contract. Its stages are input, geometry, Gmsh execution, mesh structure,
+and Physical Groups. Mesh quality is NOT_CHECKED: current surface triangle
+diagnostics detect degeneracy and calculate descriptive metrics, but the
+adapter does not yet apply a complete tetrahedron-quality acceptance policy.
+CFD validation is a separate workflow and is not implied by this report.</p>
+<p>The adapter retains its legacy validated field for compatibility. It means
+only that the implemented geometry, MSH structure, and Physical Group checks
+passed. It does not claim tetrahedron-quality or CFD validation.</p>
+<p>Future Gmsh-to-CGNS, CGNS-to-OneFLOW, and Mesh-to-CFD adapters should preserve
+the envelope, stage vocabulary, exit-code semantics, and distinction between
+execution, structural, quality, and CFD evidence. Add domain-specific stages
+and metrics rather than inventing incompatible status flags.</p>
+</section>
+<section id="gmsh-to-cgns-conversion-report">
+<h2>Gmsh-to-CGNS conversion report<a class="headerlink" href="#gmsh-to-cgns-conversion-report" title="Link to this heading"></a></h2>
+<p>The C++ Gmsh-to-CGNS adapter writes three complementary files in the Case
+results/ directory:</p>
+<ul class="simple">
+<li><p>&lt;stem&gt;.gmsh-read-report.json — detailed reader diagnostics;</p></li>
+<li><p>&lt;stem&gt;.gmsh-report.md — human-readable mesh inspection and boundary mapping,
+headed by an explicit Gmsh -&gt; CGNS: SUCCESS verdict;</p></li>
+<li><p>&lt;stem&gt;.run-report.json — the shared oneflow.run-report envelope.</p></li>
+</ul>
+<p>The conversion report marks MSH input, Gmsh reading and CGNS writing PASS only
+after the writer has completed and the output file exists. CGNS read-back is
+NOT_CHECKED by the command (the independent C++ conversion tests reopen and
+inspect the file); mesh quality is NOT_CHECKED until numerical acceptance
+criteria are implemented; CFD validation is NOT_RUN until the separate
+Mesh-to-CFD workflow is run. A successful conversion is therefore not a
+claim of solver ingestion or physical accuracy.</p>
+</section>
+<section id="mesh-to-cfd-validation-report">
+<h2>Mesh-to-CFD Validation report<a class="headerlink" href="#mesh-to-cfd-validation-report" title="Link to this heading"></a></h2>
+<p>The workflow report uses the same top-level envelope and stage vocabulary.
+Its stages are mesh_generation, gmsh_to_cgns, cgns_to_oneflow, and cfd_smoke.
+A blocked or unvisited stage is NOT_RUN. Mesh quality and CFD physical
+accuracy remain NOT_CHECKED unless their own acceptance checks are
+implemented and executed. The detailed per-Case messages remain in steps
+and each stage log remains beside its staged Case outputs.</p>
+<p>The GUI displays the concise terminal summary, including the process exit
+status and each stage. JSON is the machine interface; the process exit code
+remains authoritative for pass/fail control flow.</p>
+<p>In the Mesh-to-CFD dialog, each completed run report is read after its process
+exits and shown as a compact per-Case tree with stage, status and diagnostic
+message. The detailed live log is retained separately; the report tree is not
+reconstructed by guessing from log text.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="stl_to_gmsh_3d.html" class="btn btn-neutral float-left" title="3D STL-to-Gmsh Volume Cases" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stl_geometry_generation.html" class="btn btn-neutral float-right" title="STL Geometry Generation for 3-D Mesh Cases" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

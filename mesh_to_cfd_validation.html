@@ -1,0 +1,469 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mesh-to-CFD Validation &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Contract Workbench Information Architecture" href="contract_workbench_information_architecture.html" />
+    <link rel="prev" title="OneFLOW Workbench Architecture" href="workbench_architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake_build_architecture.html">CMake Build Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry_asset_architecture.html">Geometry Asset Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html">OneFLOW Native STL Surface I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html#native-oneflow-grid-case">Native OneFLOW grid Case</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_2d.html">Planar STL to Gmsh 2D Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_3d.html">3D STL-to-Gmsh Volume Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run_result_reporting.html">Run-result status and evidence contract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_geometry_generation.html">STL Geometry Generation for 3-D Mesh Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_pipe_bend.html">90-Degree Pipe-Bend STL Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_stl_geometry_pipeline.html">STL Geometry Assets and STL-to-Gmsh Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_sphere.html">STL Unit Sphere to Gmsh 3D Tetrahedral Mesh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_prolate_spheroid.html">6:1 Prolate Spheroid STL to Gmsh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_conversion_cases.html">Grid Conversion Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_case_methodology.html">Development Case Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_condition_architecture.html">Boundary Condition Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Mesh-to-CFD Validation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#generic-imported-3-d-stl-projects">Generic imported 3-D STL projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#degree-pipe-bend">90-degree pipe bend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-internal-flow-cylinder">3-D internal-flow cylinder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#boundary-type-mapping">Boundary type mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-result-reporting">Run-result reporting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#geometry-lineage">Geometry lineage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#persistent-geometry-lineage-sidecars">Persistent geometry lineage sidecars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#artifact-inventory-and-report-recovery">Artifact inventory and report recovery</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#recovering-a-run-when-its-json-report-is-missing">Recovering a run when its JSON report is missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-history-and-retention">Run history and retention</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Mesh-to-CFD Validation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mesh_to_cfd_validation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mesh-to-cfd-validation">
+<h1>Mesh-to-CFD Validation<a class="headerlink" href="#mesh-to-cfd-validation" title="Link to this heading"></a></h1>
+<p>Mesh-to-CFD Validation is available from the Workbench home screen, the Mesh
+Generation hub, and the OneFLOW Tests dialog. It is separate from <strong>Run
+Development Cases</strong>, which continues to execute individual preconfigured
+Cases. The STL-to-Gmsh project page also opens this workbench for its current
+MSH file; this project-scoped route does not regenerate the mesh.</p>
+<p>The initial conversion route is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>selected STL-to-Gmsh Case -&gt; Gmsh MSH -&gt; Gmsh-to-CGNS Case
+    -&gt; CGNS-to-OneFLOW Case -&gt; selected CFD template
+</pre></div>
+</div>
+<p>The mesh producer can be either the native C++ OneFLOW Grid task or an
+independent Python reference Case. Both implementations publish the same
+Case-specific MSH artifact contract. Native Cases declare the artifact path in
+<code class="docutils literal notranslate"><span class="pre">script/grid.txt</span></code>; Python Cases declare the mesh filename in
+<code class="docutils literal notranslate"><span class="pre">expected.json</span></code>. The language-specific producer is selected from the Case
+Catalog, while the downstream conversion and validation graph is shared.</p>
+<p>The first CFD consumer is the existing <code class="docutils literal notranslate"><span class="pre">test/cfd/plateuns2dslau2</span></code> Laminar
+Flat Plate Case. Each source Case is copied into a unique directory under
+<code class="docutils literal notranslate"><span class="pre">~/.oneflow/mesh-validation</span></code> (or the equivalent user-home directory on
+Windows). Runtime parameter changes are applied only to those copies. Every
+producer and consumer process runs with its own staged Case directory as its
+working directory. Users do not edit workflow JSON or manually copy
+intermediate files.</p>
+<p>The default solver smoke test advances two steps. A square mesh with the
+flat-plate template tests conversion, native-grid ingestion, initialization,
+and short time advancement; it is not a physical flat-plate validation.
+Each stage writes a log, and the run writes <code class="docutils literal notranslate"><span class="pre">mesh-validation-report.json</span></code>.
+Additional CFD templates, including a turbulent flat plate, can be registered
+as this mode evolves.</p>
+<p>The 6:1 prolate spheroid is registered as a native C++ Development Case and
+an independent Python reference Case. Both appear in the same 3-D Mesh-to-CFD
+selection tree. Its wall-only Physical Group makes this a conversion and
+runtime smoke test, not an external-flow accuracy benchmark.</p>
+<section id="generic-imported-3-d-stl-projects">
+<h2>Generic imported 3-D STL projects<a class="headerlink" href="#generic-imported-3-d-stl-projects" title="Link to this heading"></a></h2>
+<p>A mesh project imported from an arbitrary STL uses the geometry-neutral
+<code class="docutils literal notranslate"><span class="pre">stl_to_gmsh_generic_3d_mesh_handoff</span></code> validation entry. The entry is a 3-D
+mesh input profile, not a handoff-only route: after MSH4 inspection,
+Gmsh-to-CGNS conversion and CGNS-to-OneFLOW native-grid ingestion, it continues
+into <code class="docutils literal notranslate"><span class="pre">oneflow_cfd_solve</span></code>. The existing <code class="docutils literal notranslate"><span class="pre">laminar_flat_plate</span></code> CFD control
+Case is reused as the generic solver smoke setup, with <code class="docutils literal notranslate"><span class="pre">dimension</span></code> overridden
+to <code class="docutils literal notranslate"><span class="pre">3</span></code> in the isolated runtime Case. When the project carries a
+checksum-verified <code class="docutils literal notranslate"><span class="pre">region_manifest.json</span></code>, its named regions become required
+MSH Physical Groups for that run.</p>
+<p>The generated 90-degree pipe-bend Case shares the same geometry-neutral
+region-aware converter, but its own lifecycle contract currently selects a
+shorter milestone ending at CGNS conversion. The declared lifecycle scope
+determines which workflow stages are run and which stages are expected to
+remain <code class="docutils literal notranslate"><span class="pre">NOT_RUN</span></code>; the generic four-stage route must not be inferred for
+every geometry Case.</p>
+</section>
+<section id="degree-pipe-bend">
+<h2>90-degree pipe bend<a class="headerlink" href="#degree-pipe-bend" title="Link to this heading"></a></h2>
+<p>The parameterized 90-degree pipe bend is registered as a generated
+Python-reference Case in the 3-D <strong>Mesh-to-CFD Validation</strong> tree. The producer
+runs the parameterized geometry generator and the shared region-aware Gmsh
+volume mesher, then copies the resulting MSH into an isolated validation run.
+Its current lifecycle scope includes geometry, named surface regions, the
+tetrahedral volume mesh and Gmsh-to-CGNS conversion. The four required MSH
+Physical Groups are dimension-2 <code class="docutils literal notranslate"><span class="pre">wall</span></code>, <code class="docutils literal notranslate"><span class="pre">inflow</span></code> and <code class="docutils literal notranslate"><span class="pre">outflow</span></code>,
+plus dimension-3 <code class="docutils literal notranslate"><span class="pre">fluid_domain</span></code>.</p>
+<p>The declared milestone ends after CGNS conversion. CGNS-to-OneFLOW ingestion,
+the native solver smoke test and physical CFD validation remain separate
+future milestones; the current milestone is not considered failed because
+those later stages are <code class="docutils literal notranslate"><span class="pre">planned</span></code>. Mesh-quality metrics are diagnostic and
+do not gate conversion. This milestone verifies software geometry/mesh/format
+handoff only, not pressure loss, secondary-flow accuracy or mesh independence.</p>
+<p>When a generated mesh project is opened directly, the project-scoped
+<strong>Mesh-to-CFD Validation…</strong> action validates that exact project. Its workflow
+scope remains governed by the selected Case lifecycle contract.</p>
+</section>
+<section id="d-internal-flow-cylinder">
+<h2>3-D internal-flow cylinder<a class="headerlink" href="#d-internal-flow-cylinder" title="Link to this heading"></a></h2>
+<p>The generated <strong>3D Cylinder Internal Flow</strong> mesh is available as an
+existing-mesh validation input. It is recorded in the catalog’s separate
+<code class="docutils literal notranslate"><span class="pre">mesh_validation_inputs</span></code> collection, not as a runnable Development Case. The dialog resolves
+<code class="docutils literal notranslate"><span class="pre">~/.oneflow/mesh-generation/cylinder_internal_flow/results/cylinder_internal_flow.msh</span></code>
+(or the equivalent Windows user-data path), copies it into the project’s
+isolated <code class="docutils literal notranslate"><span class="pre">validation/</span></code> workspace, and runs the MSH4 inspection,
+Gmsh-to-CGNS conversion, and CGNS-to-OneFLOW ingestion stages. It does not
+rerun STL/Gmsh generation or modify the source project mesh.</p>
+<p>Its MSH check requires the two-dimensional Physical Surfaces <code class="docutils literal notranslate"><span class="pre">wall</span></code>,
+<code class="docutils literal notranslate"><span class="pre">inflow</span></code> and <code class="docutils literal notranslate"><span class="pre">outflow</span></code>, plus the three-dimensional Physical Volume
+<code class="docutils literal notranslate"><span class="pre">fluid_domain</span></code>. Missing groups or groups declared with the wrong dimension
+fail the mesh-generation stage before conversion. The validation then runs
+the same four-stage graph used by other 3-D mesh Cases, including
+<code class="docutils literal notranslate"><span class="pre">oneflow_cfd_solve</span></code>. The existing laminar flat-plate solver controls are
+reused, but the runtime <code class="docutils literal notranslate"><span class="pre">dimension.txt</span></code> is overridden to <code class="docutils literal notranslate"><span class="pre">3</span></code>; the native
+grid and boundary-region map are passed into the solver stage in the
+project-local validation workspace. This is deliberately a short solver
+smoke test, not a claim that the flat-plate physical model represents a
+validated internal-flow experiment. Mesh quality and physical accuracy remain
+<code class="docutils literal notranslate"><span class="pre">NOT_CHECKED</span></code>. The Windows CI workflow also exercises the generic curved
+two-loop STL through the same CFD smoke stage and keeps all run data under
+the runner temporary directory.</p>
+</section>
+<section id="boundary-type-mapping">
+<h2>Boundary type mapping<a class="headerlink" href="#boundary-type-mapping" title="Link to this heading"></a></h2>
+<p>The Gmsh-to-CGNS adapter maps common Physical Group name aliases to CGNS
+<code class="docutils literal notranslate"><span class="pre">BCType_t</span></code> values. Matching is case-insensitive and ignores punctuation;
+the original Physical Group name is retained as the boundary patch name.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Gmsh Physical Group name</p></th>
+<th class="head"><p>CGNS <code class="docutils literal notranslate"><span class="pre">BCType_t</span></code></p></th>
+<th class="head"><p>OneFLOW boundary category</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Inlet</span></code>, <code class="docutils literal notranslate"><span class="pre">Inflow</span></code>, <code class="docutils literal notranslate"><span class="pre">VelocityInlet</span></code>, <code class="docutils literal notranslate"><span class="pre">MassFlowInlet</span></code>, <code class="docutils literal notranslate"><span class="pre">PressureInlet</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCInflow</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::INFLOW</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Outlet</span></code>, <code class="docutils literal notranslate"><span class="pre">Outflow</span></code>, <code class="docutils literal notranslate"><span class="pre">PressureOutlet</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCOutflow</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::OUTFLOW</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Wall</span></code>, <code class="docutils literal notranslate"><span class="pre">LowerWall</span></code>, <code class="docutils literal notranslate"><span class="pre">UpperWall</span></code>, <code class="docutils literal notranslate"><span class="pre">BodyWall</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCWall</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::SOLID_SURFACE</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">NoSlipWall</span></code>, <code class="docutils literal notranslate"><span class="pre">ViscousWall</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCWallViscous</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::SOLID_SURFACE</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SlipWall</span></code>, <code class="docutils literal notranslate"><span class="pre">InviscidWall</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCWallInviscid</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::SOLID_SURFACE</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Symmetry</span></code>, <code class="docutils literal notranslate"><span class="pre">SymmetryPlane</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCSymmetryPlane</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::SYMMETRY</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Farfield</span></code>, <code class="docutils literal notranslate"><span class="pre">Freestream</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCFarfield</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::FARFIELD</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>unrecognized names</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BCTypeUserDefined</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">BC::GENERIC_2</span></code> (existing fallback)</p></td>
+</tr>
+</tbody>
+</table>
+<p>This mapping is deliberately a boundary-type mapping, not a complete
+physical boundary-state definition. <code class="docutils literal notranslate"><span class="pre">BCInflow</span></code> does not specify velocity,
+mass flow, temperature or turbulence quantities. <code class="docutils literal notranslate"><span class="pre">BCOutflow</span></code> does not
+specify a target pressure. Mapping <code class="docutils literal notranslate"><span class="pre">NoSlipWall</span></code> to the broad OneFLOW
+<code class="docutils literal notranslate"><span class="pre">SOLID_SURFACE</span></code> category does not prove that a particular viscous wall
+treatment is configured. The original name and CGNS type are retained for
+diagnostics and later richer contracts.</p>
+<p>Periodic connectivity is not inferred from a name such as <code class="docutils literal notranslate"><span class="pre">Periodic</span></code>:
+CGNS periodic interfaces are represented through zone connectivity metadata,
+not as a <code class="docutils literal notranslate"><span class="pre">BCType_t</span></code> member in the enum. Neumann, Dirichlet, degenerate
+and other CGNS types remain unmapped until their OneFLOW semantics and
+numerical treatment are explicitly defined.</p>
+<p>The Mesh-to-CFD dialog displays this common mapping as a quick reference.
+It is not a compatibility approval: physical problem type, required boundary
+state data and solver support must still be checked before a CFD template runs.</p>
+</section>
+<section id="run-result-reporting">
+<h2>Run-result reporting<a class="headerlink" href="#run-result-reporting" title="Link to this heading"></a></h2>
+<p>Every Mesh-to-CFD run writes mesh-validation-report.json using the shared
+oneflow.run-report version 1 envelope. The top-level status and exit_code
+give the overall verdict; stages separates mesh generation, Gmsh-to-CGNS
+conversion, CGNS-to-OneFLOW ingestion and the CFD smoke run. Blocked stages
+are NOT_RUN, while mesh quality and physical CFD accuracy are NOT_CHECKED
+until explicit acceptance criteria exist. The report also retains the
+workflow’s selected Case, input mode, run directory, per-stage messages
+and compatibility metadata.</p>
+<p>The command prints a short SUCCESS/FAILED summary with stage states, mesh
+counts, output locations and the report path. A successful short solver
+smoke run is not a physical-accuracy validation.</p>
+<p>The dialog also presents a compact per-Case result tree: one row for each
+workflow stage, its status, and its short diagnostic message. The full
+terminal log remains available separately from that summary.</p>
+</section>
+<section id="geometry-lineage">
+<h2>Geometry lineage<a class="headerlink" href="#geometry-lineage" title="Link to this heading"></a></h2>
+<p>Each run report includes a <code class="docutils literal notranslate"><span class="pre">geometry_lineage</span></code> record. When a companion
+<code class="docutils literal notranslate"><span class="pre">.geometry.json</span></code> is present, its asset ID, definition hash and generator
+metadata are accepted only if the manifest schema is recognized and its STL
+SHA-256 matches the actual source bytes. The report records the source STL
+checksum and the derived MSH checksum, with the MSH linked to the source
+representation. When produced, the CGNS conversion and OneFLOW native-grid
+artifacts are also recorded with their own checksums and parent links. A
+missing or mismatched manifest is not silently trusted.</p>
+<p>Historical cube STL Cases currently have no verified original source or
+generator record. Their Case Catalog entries explicitly declare provenance
+<code class="docutils literal notranslate"><span class="pre">unknown</span></code>; the validation result still records the actual checked-in STL
+path and checksum and the produced MSH path and checksum. A checksum proves
+which bytes were used, not who authored the geometry or which tool originally
+created it. The GUI shows these lineage rows alongside the workflow stages.</p>
+</section>
+<section id="persistent-geometry-lineage-sidecars">
+<h2>Persistent geometry lineage sidecars<a class="headerlink" href="#persistent-geometry-lineage-sidecars" title="Link to this heading"></a></h2>
+<p>Each generated CGNS volume mesh is accompanied by
+<code class="docutils literal notranslate"><span class="pre">&lt;mesh.cgns&gt;.geometry-lineage.json</span></code>. It records the geometry provenance,
+verified source STL (when available), derived Gmsh MSH, and a SHA-256 checksum
+of the CGNS file itself. The following CGNS-to-OneFLOW stage verifies that
+checksum before consuming the record and writes the inherited lineage beside
+the native grid as <code class="docutils literal notranslate"><span class="pre">&lt;mesh.oneflow.grid&gt;.geometry-lineage.json</span></code>. The native
+grid sidecar links back to the CGNS filename and checksum.</p>
+<p>These JSON files are companion metadata; they do not modify the CGNS or
+native-grid binary formats. A missing, malformed, or checksum-mismatched
+upstream record causes the lineage handoff stage to fail rather than silently
+claiming an unverified chain. The geometry source may still be explicitly
+<code class="docutils literal notranslate"><span class="pre">unknown</span></code>; persistence does not manufacture historical provenance.</p>
+</section>
+<section id="artifact-inventory-and-report-recovery">
+<h2>Artifact inventory and report recovery<a class="headerlink" href="#artifact-inventory-and-report-recovery" title="Link to this heading"></a></h2>
+<p>The run report also contains <code class="docutils literal notranslate"><span class="pre">artifacts.files</span></code>, a deterministic inventory of
+files that actually existed when the report was finalized. Each entry stores a
+run-relative POSIX path, stage, display name, category, byte size and SHA-256 digest.
+The report itself is excluded from this list to avoid a self-referential
+checksum. Temporary atomic-write files and symlinks are not followed.</p>
+<p>The inventory categories are Geometry, Volume Mesh, CFD Results, Reports,
+Logs and Other. The GUI groups the entries by category and checks whether each
+recorded file is present when the report is opened. A missing file remains
+visible as Missing; the UI does not silently discard it. Paths are relative to
+the report directory, so moving the complete run directory preserves the
+artifact links. The console-log reference is also run-relative when the log
+is stored inside the run directory. When a report is reopened, the GUI
+re-bases its run directory on the report’s current location, so moving the
+complete run directory does not leave stale absolute paths in the result view.
+The worker refreshes the inventory after writing the durable console log,
+ensuring that the final report includes that log as well.</p>
+<p>Reports created before <code class="docutils literal notranslate"><span class="pre">artifacts.files</span></code> was introduced remain readable:
+their existing artifact fields and geometry lineage continue to be displayed.
+The raw JSON report remains available for complete machine-readable evidence.</p>
+</section>
+<section id="recovering-a-run-when-its-json-report-is-missing">
+<h2>Recovering a run when its JSON report is missing<a class="headerlink" href="#recovering-a-run-when-its-json-report-is-missing" title="Link to this heading"></a></h2>
+<p>Each run now writes a small <code class="docutils literal notranslate"><span class="pre">mesh-validation-run.json</span></code> metadata record
+before executing its stages. It preserves the Case ID, implementation, input
+mode, CFD template, step limit, source paths, run ID, start time and planned
+stage directories. This makes interrupted runs identifiable even when no
+final report was written.</p>
+<p>Use <strong>Recover Folder…</strong> and select the run directory when
+<code class="docutils literal notranslate"><span class="pre">mesh-validation-report.json</span></code> is missing or unreadable. Recovery reads
+the per-stage <code class="docutils literal notranslate"><span class="pre">results/mesh-validation.log</span></code> records, the optional
+<code class="docutils literal notranslate"><span class="pre">stl_to_gmsh/results/mesh-validation.json</span></code> evidence, the durable
+<code class="docutils literal notranslate"><span class="pre">mesh-validation-console.log</span></code>, and checksum-bound geometry lineage
+sidecars. For older runs whose stage logs predate terminal-status recording,
+the durable console log is used as a fallback source for the exact
+<code class="docutils literal notranslate"><span class="pre">[stage]</span> <span class="pre">succeeded/failed/cancelled</span></code> records.</p>
+<p>A stage is marked PASS, FAIL or NOT RUN only when its own log contains the
+terminal status line written by the stage runner. A mesh file, CGNS file, CFD
+result or partial log alone never proves that its producing stage completed
+successfully; such stages remain NOT CHECKED. Verified geometry sidecars are
+accepted only when their artifact checksum still matches.</p>
+<p>The recovered view is explicitly labelled RECOVERED. It does not invent the
+original overall exit code, run completion time, missing stage outcomes, or
+physical-accuracy verdict. The reconstructed report is an in-memory evidence
+view; recovery does not overwrite or recreate the missing original report.</p>
+</section>
+<section id="run-history-and-retention">
+<h2>Run history and retention<a class="headerlink" href="#run-history-and-retention" title="Link to this heading"></a></h2>
+<p>Each new validation execution is stored in its own timestamped run directory below the Case validation workspace. Starting a new run no longer deletes previous reports, logs, meshes or solver outputs. The <strong>Run History</strong> tab lists completed reports and interrupted runs with readable run metadata; double-clicking an entry opens the recorded report or reconstructs an evidence-only view from its durable stage logs.</p>
+<p>The history list is a filesystem view, not a second source of truth. It is rebuilt by scanning run directories, so deleting or corrupting an optional index cannot orphan a run. A completed report determines its recorded status; a directory with metadata or stage logs but no readable report is labelled <code class="docutils literal notranslate"><span class="pre">RECOVERABLE</span></code> until opened and reconstructed. Older runs stored directly in the validation workspace remain discoverable. Run directories are retained until the user explicitly removes them outside the application; automatic cleanup is intentionally not performed.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="workbench_architecture.html" class="btn btn-neutral float-left" title="OneFLOW Workbench Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="contract_workbench_information_architecture.html" class="btn btn-neutral float-right" title="Contract Workbench Information Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

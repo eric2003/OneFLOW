@@ -1,0 +1,479 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STL Geometry Assets and STL-to-Gmsh Pipeline &mdash; Scientific Computing 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="STL Unit Sphere to Gmsh 3D Tetrahedral Mesh" href="stl_to_gmsh_sphere.html" />
+    <link rel="prev" title="90-Degree Pipe-Bend STL Geometry" href="stl_pipe_bend.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Scientific Computing
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="info.html">OneFLOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Install</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user.html">THEORY</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmd.html">Cmd</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_user_guide_zh.html">OneFLOW Workbench 用户手册</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bash.html">Bash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cfd/index.html">CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cgns.html">CGNS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chatgpt.html">CHATGPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cpp/index.html">CPP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake.html">CMake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuda.html">CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design_patterns.html">Design Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eigen.html">Eigen3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html">Git</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git.html#contexts">Contexts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fortran.html">Fortran</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hdf5.html">HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hpc.html">HPC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="julia.html">Julia</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jupyter.html">Jupyter Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="latex.html">LaTeX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="makefile.html">Makefile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metis.html">METIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mkdocs.html">MkDocs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Environment Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mpi.html">MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical/index.html">Numerical analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneapi.html">oneAPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="oneflow.html">OneFLOW-CFD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openacc.html">OpenACC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opencl.html">OpenCL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opengl.html">OpenGL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openmp.html">OpenMP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="powershell.html">PowerShell</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python/index.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qt.html">Qt</a></li>
+<li class="toctree-l1"><a class="reference internal" href="regex.html">Regular Expressions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sphinx.html">Sphinx</a></li>
+<li class="toctree-l1"><a class="reference internal" href="system/index.html">System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="taichi.html">Taichi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tcltk.html">Tcl/tk</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tecplot.html">Tecplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unreal_engine.html">Unreal Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vcpkg.html">vcpkg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml.html">yaml</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">OneFLOW Design and Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture_review.html">OneFLOW Architecture Review and Development Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cmake_build_architecture.html">CMake Build Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="verification_evidence_lifecycle.html">Verification and Evidence Lifecycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_architecture.html">OneFLOW Runtime Architecture and Development Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_case_lifecycle.html">Runtime Case Lifecycle and Production Entry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_architecture.html">Database Architecture and Data Access Contracts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="evolutionary_computation_architecture.html">Evolutionary Scientific-Computing Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="geometry_asset_architecture.html">Geometry Asset Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_architecture.html">OneFLOW Mesh Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html">OneFLOW Native STL Surface I/O</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_mesh_io.html#native-oneflow-grid-case">Native OneFLOW grid Case</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gmsh_interface.html">Gmsh MSH Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_2d.html">Planar STL to Gmsh 2D Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_3d.html">3D STL-to-Gmsh Volume Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="run_result_reporting.html">Run-result status and evidence contract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_geometry_generation.html">STL Geometry Generation for 3-D Mesh Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_pipe_bend.html">90-Degree Pipe-Bend STL Geometry</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">STL Geometry Assets and STL-to-Gmsh Pipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#geometry-asset-preparation">Geometry asset preparation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#asset-generation-command-examples">Asset generation command examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stl-import-and-topology-validation">STL import and topology validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#stl-to-gmsh-method-selection">STL-to-Gmsh: method selection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#closed-sphere-and-spheroid-route">Closed sphere and spheroid route</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#internal-flow-cylinder-route">Internal-flow cylinder route</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#curved-pipe-bend-route">Curved pipe-bend route</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#d-planar-route">2-D planar route</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#gmsh-mesh-size-controls">Gmsh mesh-size controls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gmsh-to-cfd-handoff">Gmsh-to-CFD handoff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#execution-and-evidence-boundaries">Execution and evidence boundaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#related-references">Related references</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generic-stl-surface-cutting">Generic STL surface cutting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_sphere.html">STL Unit Sphere to Gmsh 3D Tetrahedral Mesh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stl_to_gmsh_prolate_spheroid.html">6:1 Prolate Spheroid STL to Gmsh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_conversion_cases.html">Grid Conversion Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_case_methodology.html">Development Case Methodology</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grid_topology.html">Grid Topology and Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_condition_architecture.html">Boundary Condition Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="face_stage_pipeline.html">Face Stage Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workbench_architecture.html">OneFLOW Workbench Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mesh_to_cfd_validation.html">Mesh-to-CFD Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contract_workbench_information_architecture.html">Contract Workbench Information Architecture</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="case_parameter_design.html">Case Parameter Design and GUI Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="engineering_nomenclature.html">Engineering nomenclature and semantic cross-reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Scientific Computing</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">STL Geometry Assets and STL-to-Gmsh Pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mesh_stl_geometry_pipeline.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="stl-geometry-assets-and-stl-to-gmsh-pipeline">
+<h1>STL Geometry Assets and STL-to-Gmsh Pipeline<a class="headerlink" href="#stl-geometry-assets-and-stl-to-gmsh-pipeline" title="Link to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>This page connects the geometry asset library to the concrete mesh-generation
+adapters. It explains what an STL asset represents, how the built-in curved
+surfaces are parameterized, how metadata preserves identity and boundary
+patches, and how native C++ and Python paths hand the surface to Gmsh.</p>
+<p>The current reference families are:</p>
+<ul class="simple">
+<li><p>Unit sphere: a closed, wall-only surface.</p></li>
+<li><p>6:1 prolate spheroid: a stretched unit-sphere surface, also wall-only.</p></li>
+<li><p>Internal-flow cylinder: a closed shell whose lateral wall, inlet cap and
+outlet cap have distinct identities.</p></li>
+<li><p>90-degree pipe bend: a swept circular section with straight inlet/outlet
+extensions; the Python generator exports a closed STL and three named patch
+STLs for the generic region-aware volume route.</p></li>
+</ul>
+<p>An STL is a triangulated boundary representation. It is not a volume mesh,
+does not contain a standard Gmsh Physical Group table, and does not encode
+solver boundary-state values.</p>
+</section>
+<section id="geometry-asset-preparation">
+<h2>Geometry asset preparation<a class="headerlink" href="#geometry-asset-preparation" title="Link to this heading"></a></h2>
+<p>The deterministic generator is
+<code class="docutils literal notranslate"><span class="pre">grid/stl_to_gmsh/generate_stl_geometry.py</span></code> (generator version 1.0).
+It uses Python standard-library code to create vertices and triangle
+connectivity, orient triangles outward, calculate surface metrics, write
+binary STL and write a sibling <code class="docutils literal notranslate"><span class="pre">.geometry.json`</span> <span class="pre">manifest.</span> <span class="pre">It</span> <span class="pre">refuses</span> <span class="pre">output</span>
+<span class="pre">inside</span> <span class="pre">the</span> <span class="pre">repository</span> <span class="pre">source</span> <span class="pre">tree.</span> <span class="pre">The</span> <span class="pre">normal</span> <span class="pre">destination</span> <span class="pre">is</span> <span class="pre">the</span> <span class="pre">user's</span>
+<span class="pre">OneFLOW</span> <span class="pre">workspace,</span> <span class="pre">under</span> <span class="pre">``.oneflow/mesh-generation/generated_stl/</span></code>.</p>
+<p>The built-in analytic definitions and defaults are:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 22.0%" />
+<col style="width: 36.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Asset</p></th>
+<th class="head"><p>Analytic definition</p></th>
+<th class="head"><p>Surface controls</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Unit sphere</p></td>
+<td><p><cite>x^2 + y^2 + z^2 = R^2</cite>, default <cite>R=1</cite></p></td>
+<td><p>Icosphere subdivision level, default 3</p></td>
+</tr>
+<tr class="row-odd"><td><p>Prolate spheroid</p></td>
+<td><p><cite>x^2/a^2 + y^2/b^2 + z^2/c^2 = 1</cite>,
+default semi-axes <cite>(3, 0.5, 0.5)</cite></p></td>
+<td><p>Icosphere subdivision level, default 3, then axis scaling</p></td>
+</tr>
+<tr class="row-even"><td><p>Internal-flow cylinder</p></td>
+<td><p><cite>-L/2 &lt;= x &lt;= L/2</cite>, <cite>y^2+z^2=R^2</cite>,
+default <cite>R=1, L=4</cite></p></td>
+<td><p>Circumferential divisions 48, axial intervals 16</p></td>
+</tr>
+</tbody>
+</table>
+<p>The sphere begins with an icosahedron. Each subdivision replaces one
+triangle with four, reuses shared edge midpoints, projects new vertices onto
+the radius, and preserves outward winding. Three rounds yield 1,280 facets.
+The spheroid uses the same unit-sphere connectivity and scales each vertex
+by <cite>(a,b,c)</cite>; the current reference is a prolate 6:1 body. This is a
+controlled geometry pair: connectivity and facet count are held fixed while
+the analytic shape changes.</p>
+<p>The cylinder generator creates <cite>N_x+1</cite> axial rings with <cite>N_theta</cite> points
+per ring, triangulates each lateral quad, and closes both ends with cap
+triangles. The three patch labels are <cite>wall</cite>, <cite>inflow</cite> and <cite>outflow</cite>.
+The inlet and outlet caps are closure surfaces for a watertight shell; they
+are not solid walls.</p>
+<p>The manifest binds the STL bytes to its asset ID, analytic definition,
+parameters, units, generator name/version, surface metrics, triangle count,
+patch-to-triangle index lists and SHA-256. A unit label is metadata: changing
+<cite>m</cite> to <cite>mm</cite> does not scale coordinates. Geometry resolution (icosphere
+subdivision or cylinder divisions) is independent of Gmsh volume mesh size.</p>
+</section>
+<section id="asset-generation-command-examples">
+<h2>Asset generation command examples<a class="headerlink" href="#asset-generation-command-examples" title="Link to this heading"></a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python grid/stl_to_gmsh/generate_stl_geometry.py --geometry sphere --output "%USERPROFILE%/.oneflow/mesh-generation/generated_stl/sphere/sphere.stl"</span>
+<span class="go">python grid/stl_to_gmsh/generate_stl_geometry.py --geometry prolate_spheroid --output "%USERPROFILE%/.oneflow/mesh-generation/generated_stl/prolate_spheroid/prolate_spheroid.stl"</span>
+<span class="go">python grid/stl_to_gmsh/generate_stl_geometry.py --geometry cylinder_internal_flow --output "%USERPROFILE%/.oneflow/mesh-generation/generated_stl/cylinder_internal_flow/cylinder_internal_flow.stl"</span>
+</pre></div>
+</div>
+<p>Use the generator’s <code class="docutils literal notranslate"><span class="pre">--help</span></code> output for all parameter overrides. Generated
+STL and manifest files belong in the user workspace. Version-controlled
+standard assets under <code class="docutils literal notranslate"><span class="pre">grid/stl_to_gmsh/3d/</span></code> are immutable Case inputs;
+normal GUI runs must not regenerate them in place.</p>
+</section>
+<section id="stl-import-and-topology-validation">
+<h2>STL import and topology validation<a class="headerlink" href="#stl-import-and-topology-validation" title="Link to this heading"></a></h2>
+<p>The shared Python STL reader is <code class="docutils literal notranslate"><span class="pre">grid/stl_import/reader.py</span></code>. It detects
+ASCII or binary STL and returns triangle records without pretending that
+file parsing itself validates topology. The Python surface utilities in
+<code class="docutils literal notranslate"><span class="pre">grid/stl_import/surface.py</span></code> weld vertices within a configured tolerance
+and extract planar boundary loops. Closed 3-D validation is implemented in
+<code class="docutils literal notranslate"><span class="pre">grid/stl_to_gmsh/converter.py</span></code>: it checks finite coordinates,
+non-degenerate and non-duplicate triangles, edge incidence and orientation,
+one connected component, genus-zero topology and positive signed volume.</p>
+<p>The native C++ reader is <code class="docutils literal notranslate"><span class="pre">StlMeshReader</span></code> in
+<code class="docutils literal notranslate"><span class="pre">codes/geometry/stl/src/StlMeshIO.cpp</span></code>, declared in
+<code class="docutils literal notranslate"><span class="pre">codes/geometry/stl/include/StlMeshIO.h</span></code>. The STL-to-Gmsh dispatch and
+geometry generation are in <code class="docutils literal notranslate"><span class="pre">codes/geometry/src/GridConversion.cpp</span></code>.
+The native closed-shell route validates the surface before Gmsh generation;
+the cylinder route additionally checks the manifest patch partition and
+analytic dimensions. Do not assume the C++ route implements every Python
+manifest check: in particular, checksum verification must be documented only
+where the current implementation actually performs it.</p>
+</section>
+<section id="stl-to-gmsh-method-selection">
+<h2>STL-to-Gmsh: method selection<a class="headerlink" href="#stl-to-gmsh-method-selection" title="Link to this heading"></a></h2>
+<p>The Case layout JSON selects the geometry pipeline using
+<code class="docutils literal notranslate"><span class="pre">mesh_dimension</span></code> and, for 3-D, <code class="docutils literal notranslate"><span class="pre">volume_mesh</span></code>. The C++ dispatcher
+<code class="docutils literal notranslate"><span class="pre">ConvertStlToGmsh</span></code> selects the corresponding conversion routine.
+Python Case execution is orchestrated by
+<code class="docutils literal notranslate"><span class="pre">grid/stl_to_gmsh/run_python_case.py</span></code> and uses
+<code class="docutils literal notranslate"><span class="pre">grid/stl_to_gmsh/converter.py</span></code>.</p>
+<section id="closed-sphere-and-spheroid-route">
+<h3>Closed sphere and spheroid route<a class="headerlink" href="#closed-sphere-and-spheroid-route" title="Link to this heading"></a></h3>
+<p>For the generic closed-shell volume path:</p>
+<ol class="arabic simple">
+<li><p>Read the STL and validate a single closed, outward-oriented, genus-zero
+shell.</p></li>
+<li><p>Merge the STL into the Gmsh geometry model.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">ClassifySurfaces</span></code> using configured surface and curve angle
+thresholds.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">CreateGeometry</span></code> to reconstruct parametrizable surface patches.</p></li>
+<li><p>Collect the reconstructed surfaces into one <code class="docutils literal notranslate"><span class="pre">Surface</span> <span class="pre">Loop</span></code>.</p></li>
+<li><p>Create one enclosed <code class="docutils literal notranslate"><span class="pre">Volume</span></code>.</p></li>
+<li><p>Assign a dimension-2 <code class="docutils literal notranslate"><span class="pre">wall</span></code> Physical Surface and a dimension-3
+<code class="docutils literal notranslate"><span class="pre">fluid_domain</span></code> Physical Volume.</p></li>
+<li><p>Invoke Gmsh in 3-D mode and write ASCII MSH 4.1 with first-order
+TETRA_4 cells and TRI_3 exterior facets.</p></li>
+</ol>
+<p>The native C++ path writes a <code class="docutils literal notranslate"><span class="pre">.geo</span></code> script, invokes the configured Gmsh
+executable, reads the generated MSH 4.1 and validates tetrahedral topology
+and Physical Group names. The Python path generates equivalent Gmsh geometry
+through the converter and inspects the MSH output. The sphere and spheroid
+Cases exercise this generic closed-shell route.</p>
+</section>
+<section id="internal-flow-cylinder-route">
+<h3>Internal-flow cylinder route<a class="headerlink" href="#internal-flow-cylinder-route" title="Link to this heading"></a></h3>
+<p>The cylinder uses a specialized region-aware route because classifying every
+cap facet as wall would destroy the inlet/outlet meaning.</p>
+<p>The manifest must provide the analytic radius, length, circumferential and
+axial divisions, plus three non-overlapping triangle-index lists whose union
+covers every STL facet exactly once. The Python converter additionally
+verifies the SHA-256, expected patch counts, cap planes, lateral radius and
+axial bounds. The native C++ routine
+<code class="docutils literal notranslate"><span class="pre">ConvertStlParametricCylinderToGmsh</span></code> validates the closed shell,
+manifest schema, dimensions, expected patch counts, complete index
+assignment, cap planes and wall radius.</p>
+<p>After validation, the adapter constructs an analytic OpenCASCADE cylinder
+rather than trying to infer three CAD faces from arbitrary STL facet
+classification. It creates separate Physical Surfaces <code class="docutils literal notranslate"><span class="pre">wall</span></code>,
+<code class="docutils literal notranslate"><span class="pre">inflow</span></code> and <code class="docutils literal notranslate"><span class="pre">outflow</span></code>, and a Physical Volume
+<code class="docutils literal notranslate"><span class="pre">fluid_domain</span></code>. Gmsh then generates the tetrahedral volume mesh. This
+method preserves the CFD patch intent while using the STL and manifest as
+the checked-in geometry asset contract.</p>
+</section>
+<section id="curved-pipe-bend-route">
+<h3>Curved pipe-bend route<a class="headerlink" href="#curved-pipe-bend-route" title="Link to this heading"></a></h3>
+<p>The 90-degree pipe bend does not use an analytic OCC torus or cylinder.
+Its Python geometry generator writes the closed STL, separate wall/inflow/
+outflow patch STLs, a checksum-bound geometry manifest and the
+<code class="docutils literal notranslate"><span class="pre">region_manifest.json</span></code> file using the existing
+<code class="docutils literal notranslate"><span class="pre">oneflow.stl-surface-regions</span></code> schema. The generic
+<code class="docutils literal notranslate"><span class="pre">generate_volume_mesh.py</span></code> entry point detects this region manifest and
+selects <code class="docutils literal notranslate"><span class="pre">region_aware_closed_surface_automatic_tetrahedra</span></code>.</p>
+<p>The converter verifies the closed-shell topology, the closed STL checksum,
+each patch STL checksum and triangle count, and compares the orientation-
+independent triangle geometry across all patch STLs against the closed STL.
+This proves an exact, non-overlapping patch partition rather than relying on
+matching counts alone. It then merges the three patch STLs, runs <code class="docutils literal notranslate"><span class="pre">Coherence</span> <span class="pre">Mesh</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CreateTopology</span></code> and <code class="docutils literal notranslate"><span class="pre">CreateGeometry</span></code>, forms one surface loop and
+one volume, and assigns Physical Surfaces <code class="docutils literal notranslate"><span class="pre">wall</span></code>, <code class="docutils literal notranslate"><span class="pre">inflow</span></code> and
+<code class="docutils literal notranslate"><span class="pre">outflow</span></code> plus Physical Volume <code class="docutils literal notranslate"><span class="pre">fluid_domain</span></code>. This is the same
+geometry-independent region-aware adapter used for generic cut surfaces;
+the converter does not read the pipe-bend centreline equation, bend radius or
+angle.</p>
+<p>The mesh-project importer copies the geometry manifest, region manifest and
+three patch files together, preserving this contract when the generated STL
+is opened from the Geometry Library. The C++17 geometry generator currently
+writes an equivalent analytic STL and a parameter/patch-count report; the
+region-manifest export is presently provided by the Python implementation.</p>
+</section>
+<section id="d-planar-route">
+<h3>2-D planar route<a class="headerlink" href="#d-planar-route" title="Link to this heading"></a></h3>
+<p>For planar STL cases, the native path uses <code class="docutils literal notranslate"><span class="pre">StlMeshReader</span></code>, welds
+vertices with <code class="docutils literal notranslate"><span class="pre">stlWeldTolerance</span></code>, extracts a single planar boundary,
+and writes Gmsh geometry. A layout may provide <code class="docutils literal notranslate"><span class="pre">transfinite_cells</span></code> for
+a structured/transfinite layout; omitting it selects automatic triangular
+meshing. For external flow, the layout supplies a rectangular outer domain
+and the STL loop becomes an internal obstacle boundary. For channel/internal
+flow, the STL loop itself bounds the fluid region. Physical Curve names
+describe patches, not inlet/outlet state values.</p>
+</section>
+</section>
+<section id="gmsh-mesh-size-controls">
+<h2>Gmsh mesh-size controls<a class="headerlink" href="#gmsh-mesh-size-controls" title="Link to this heading"></a></h2>
+<p>Geometry tessellation and volume mesh density are separate controls:</p>
+<ul class="simple">
+<li><p>Geometry controls determine the STL approximation: sphere/spheroid
+subdivision or cylinder circumferential/axial divisions.</p></li>
+<li><p>Volume mesh controls determine Gmsh target characteristic length:
+<code class="docutils literal notranslate"><span class="pre">mesh_size</span></code>, or <code class="docutils literal notranslate"><span class="pre">mesh_size_min</span></code> and <code class="docutils literal notranslate"><span class="pre">mesh_size_max</span></code>.</p></li>
+</ul>
+<p>Keep the STL bytes and geometry reconstruction settings fixed when performing
+a volume-mesh refinement study. Gmsh target size is not an exact element
+count. Record the Gmsh version, input STL checksum, size bounds, generated
+node/cell counts and validation report for each run.</p>
+</section>
+<section id="gmsh-to-cfd-handoff">
+<h2>Gmsh-to-CFD handoff<a class="headerlink" href="#gmsh-to-cfd-handoff" title="Link to this heading"></a></h2>
+<p>The expected pipeline is:</p>
+<p><code class="docutils literal notranslate"><span class="pre">STL</span> <span class="pre">+</span> <span class="pre">manifest</span> <span class="pre">-&gt;</span> <span class="pre">Gmsh</span> <span class="pre">.geo</span> <span class="pre">-&gt;</span> <span class="pre">MSH</span> <span class="pre">4.1</span> <span class="pre">-&gt;</span> <span class="pre">CGNS</span> <span class="pre">-&gt;</span> <span class="pre">OneFLOW</span> <span class="pre">grid</span> <span class="pre">-&gt;</span> <span class="pre">CFD</span> <span class="pre">Case</span></code></p>
+<p>The C++ MSH reader in <code class="docutils literal notranslate"><span class="pre">codes/geometry/src/GridConversion.cpp</span></code> parses
+ASCII MSH 4.1 (and the documented legacy 2.x path), maps supported
+first-order element types, preserves Physical Group names and writes CGNS
+through the unstructured-grid writer. The subsequent CGNS-to-OneFLOW stage
+uses the existing grid reader and explicit boundary-region mapping. Physical
+names are not boundary state data; inlet profiles, wall models and other
+solver parameters remain separate Case configuration.</p>
+</section>
+<section id="execution-and-evidence-boundaries">
+<h2>Execution and evidence boundaries<a class="headerlink" href="#execution-and-evidence-boundaries" title="Link to this heading"></a></h2>
+<p>Run registered producers through <code class="docutils literal notranslate"><span class="pre">grid/stl_to_gmsh/run_cases.py</span></code> or
+the Mesh Generation / Mesh-to-CFD Validation Workbench. The runner stages
+Cases under the user workspace (normally <code class="docutils literal notranslate"><span class="pre">.oneflow/grid-development</span></code>);
+do not execute a checked-in Case in place. Mesh-to-CFD Validation adds the
+Gmsh-to-CGNS, CGNS-to-OneFLOW and short CFD runtime stages. A successful
+producer proves mesh generation and structural checks only. A short CFD
+smoke run proves pipeline execution, not physical accuracy, convergence or
+grid independence.</p>
+</section>
+<section id="related-references">
+<h2>Related references<a class="headerlink" href="#related-references" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="stl_geometry_generation.html"><span class="doc">STL Geometry Generation for 3-D Mesh Cases</span></a> — analytic asset definitions and generator.</p></li>
+<li><p><a class="reference internal" href="stl_to_gmsh_2d.html"><span class="doc">Planar STL to Gmsh 2D Geometry</span></a> — planar STL route.</p></li>
+<li><p><a class="reference internal" href="stl_to_gmsh_3d.html"><span class="doc">3D STL-to-Gmsh Volume Cases</span></a> — cube and closed-shell 3-D Cases.</p></li>
+<li><p><a class="reference internal" href="stl_to_gmsh_sphere.html"><span class="doc">STL Unit Sphere to Gmsh 3D Tetrahedral Mesh</span></a> — sphere-specific acceptance contract.</p></li>
+<li><p><a class="reference internal" href="stl_to_gmsh_prolate_spheroid.html"><span class="doc">6:1 Prolate Spheroid STL to Gmsh</span></a> — 6:1 spheroid Case.</p></li>
+<li><p><a class="reference internal" href="stl_to_gmsh_commands.html"><span class="doc">STL to Gmsh: 3-D Volume Mesh Command</span></a> — direct volume-mesh command.</p></li>
+</ul>
+</section>
+<section id="generic-stl-surface-cutting">
+<h2>Generic STL surface cutting<a class="headerlink" href="#generic-stl-surface-cutting" title="Link to this heading"></a></h2>
+<p>The canonical internal-flow cylinder is also used as the first blind-input
+fixture for generic surface cutting. This route intentionally does not read
+its geometry manifest or use the cylinder equation. The cutter accepts only
+STL triangles, two plane points, two plane normals and a geometric tolerance.</p>
+<p>The implementation in grid/stl_import/surface_cut.py clips each triangle
+against the inlet and outlet half-spaces, extracts one boundary loop on each
+plane, triangulates both loops and returns a closed triangle shell. The inlet
+normal points into the retained domain; the outlet normal points toward the
+outlet. The generated caps are oriented outward.</p>
+<p>The first implementation supports one simple loop per cut plane. Automatic
+endpoint direction estimation, branching, multiple cross-section loops and
+holes are later stages. The geometry-only regression test reads the cylinder
+STL without opening its analytic manifest. Actual Gmsh volume generation,
+CGNS handoff and the short OneFLOW CFD smoke run are performed manually from
+the Workbench, not in CI.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="stl_pipe_bend.html" class="btn btn-neutral float-left" title="90-Degree Pipe-Bend STL Geometry" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stl_to_gmsh_sphere.html" class="btn btn-neutral float-right" title="STL Unit Sphere to Gmsh 3D Tetrahedral Mesh" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2017-2026, eric.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
