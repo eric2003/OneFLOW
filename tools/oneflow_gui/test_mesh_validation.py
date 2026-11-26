@@ -1428,7 +1428,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 repository_root, "stl_to_gmsh_square"
             )
         )
-        self.assertTrue(
+        self.assertFalse(
             mesh_case_requires_oneflow_executable(
                 repository_root, "stl_to_gmsh_pipe_bend_90_degree"
             )
@@ -1440,6 +1440,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(
             [step["id"] for step in pipe_bend_steps],
             ["stl_to_gmsh", "gmsh_to_cgns"],
+        )
+        self.assertFalse(
+            any(step["id"] in {"cgns_to_oneflow", "oneflow_cfd_solve"}
+                for step in pipe_bend_steps)
         )
 
     def test_existing_mesh_case_resolves_only_inside_user_mesh_workspace(self):
