@@ -812,7 +812,6 @@ class CaseDatabaseSelectionDialog(QDialog):
         self.case_tree.setColumnWidth(0, 680)
         self.case_tree.setColumnWidth(1, 260)
         self.case_tree.setColumnWidth(2, 250)
-        self._implementation_combos: dict[str, QComboBox] = {}
         self._implementation_values: dict[str, str] = {}
         selected_implementations = selected_implementations or {}
         dimension_items: dict[str, QTreeWidgetItem] = {}
@@ -864,7 +863,6 @@ class CaseDatabaseSelectionDialog(QDialog):
                 index = combo.findData(requested)
                 if index >= 0:
                     combo.setCurrentIndex(index)
-                self._implementation_combos[case.case_id] = combo
                 self._implementation_values[case.case_id] = str(combo.currentData())
                 implementation_ids = tuple(
                     item.implementation_id for item in case.implementations
