@@ -51,7 +51,7 @@ class TestDiagnosticParserTest(unittest.TestCase):
             ["ERROR: test_path (sample.TestPath)", "OSError: failed"],
             task_label="Python tests",
             framework="unittest",
-            working_directory=r"D:\\work\\OneFLOW",
+            working_directory=r"D:\work\OneFLOW",
         )
         self.assertEqual(records[0].working_directory, "D:/work/OneFLOW")
 
