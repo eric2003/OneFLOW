@@ -1069,7 +1069,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
         try:
             self.assertFalse(dialog.python_development_check.isChecked())
             dialog.python_development_check.setChecked(True)
-            self.assertIn("Python (", dialog.case_database_button.text())
+            self.assertIn("Mesh producers (", dialog.case_database_button.text())
             self.assertIn(
                 "stl_to_gmsh_pipe_bend_90_degree",
                 {case.case_id for case in dialog._available_database_cases_by_kind["python"]},
