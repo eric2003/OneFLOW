@@ -27,18 +27,18 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
             import faulthandler
 
             faulthandler.enable()
-            os.write(2, b"[qt-selector] setUpClass: before QApplication\\n")
+            os.write(2, b"[qt-selector] setUpClass: before QApplication\n")
 
             def report_qt_message(mode, context, message):
                 details = (
-                    f"[qt-selector] Qt message mode={mode}: {message}\\n"
+                    f"[qt-selector] Qt message mode={mode}: {message}\n"
                 )
                 os.write(2, details.encode("utf-8", errors="replace"))
 
             qInstallMessageHandler(report_qt_message)
         cls._application = QApplication.instance() or QApplication([])
         if os.environ.get("ONEFLOW_QT_TEST_CHILD") == "1":
-            os.write(2, b"[qt-selector] setUpClass: QApplication ready\\n")
+            os.write(2, b"[qt-selector] setUpClass: QApplication ready\n")
 
     def _run_isolated_test(self, test_name: str) -> None:
         """Run one Qt test in a fresh process so native crashes are attributable."""
@@ -57,7 +57,7 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
             result.returncode,
             0,
             f"Isolated Qt test {test_name} failed with exit code "
-            f"{result.returncode}:\\n{result.stdout}",
+            f"{result.returncode}:\n{result.stdout}",
         )
 
     def _flush_deferred_deletes(self) -> None:
@@ -102,9 +102,9 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
             group="Mesh Workflow",
             dimension=3,
         )
-        os.write(2, b"[qt-selector] layout: before dialog construction\\n")
+        os.write(2, b"[qt-selector] layout: before dialog construction\n")
         dialog = CaseDatabaseSelectionDialog([case], [case])
-        os.write(2, b"[qt-selector] layout: dialog constructed\\n")
+        os.write(2, b"[qt-selector] layout: dialog constructed\n")
         try:
             tree = dialog.case_tree
             header = tree.header()
@@ -130,9 +130,9 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
         finally:
             dialog.close()
             dialog.deleteLater()
-            os.write(2, b"[qt-selector] layout: before deferred-delete flush\\n")
+            os.write(2, b"[qt-selector] layout: before deferred-delete flush\n")
             self._flush_deferred_deletes()
-            os.write(2, b"[qt-selector] layout: deferred-delete flush complete\\n")
+            os.write(2, b"[qt-selector] layout: deferred-delete flush complete\n")
 
     def _pipe_bend_case(self) -> CaseDefinition:
         return CaseDefinition(
