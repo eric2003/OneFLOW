@@ -604,7 +604,7 @@
     },
     {
       "id": "stl_to_gmsh_pipe_bend_90_degree",
-      "title": "STL to Gmsh: 90-Degree Pipe Bend with Automatic TETRA_4 Volume Mesh (Python Reference)",
+      "title": "STL to Gmsh: 90-Degree Pipe Bend with Automatic TETRA_4 Volume Mesh",
       "directory": "grid/stl_to_gmsh/3d/pipe_bend/90_degree/automatic_tetrahedra",
       "group": "STL to Gmsh",
       "execution": {
