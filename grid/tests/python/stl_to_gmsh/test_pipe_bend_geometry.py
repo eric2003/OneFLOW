@@ -292,6 +292,26 @@ class PipeBendGeometryTest(unittest.TestCase):
             self._assert_cpp_generator_matches_python_geometry(cpp_stl)
 
 
+    def test_pipe_bend_catalog_exposes_both_geometry_implementations(self):
+        catalog = json.loads((ROOT / "grid/case_catalog.json").read_text(encoding="utf-8"))
+        entry = next(
+            item for item in catalog["cases"]
+            if item["id"] == "stl_to_gmsh_pipe_bend_90_degree"
+        )
+        implementations = {
+            item["id"]: item for item in entry["execution"]["implementations"]
+        }
+        self.assertEqual(set(implementations), {"python_reference", "native_cpp_geometry"})
+        self.assertTrue(implementations["python_reference"]["default"])
+        self.assertEqual(implementations["python_reference"]["kind"], "python")
+        self.assertEqual(implementations["native_cpp_geometry"]["kind"], "cpp")
+        self.assertEqual(
+            implementations["native_cpp_geometry"]["compiler_standard"], "c++17"
+        )
+        self.assertTrue(
+            (ROOT / implementations["native_cpp_geometry"]["script"]).is_file()
+        )
+
     def test_cpp_case_runner_builds_the_native_geometry_in_workspace(self):
         runner_path = (
             ROOT / "grid/stl_to_gmsh/3d/pipe_bend/90_degree"
