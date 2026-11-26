@@ -40,10 +40,14 @@ construction and volume meshing remain reusable services.
 
 ## Remaining lifecycle stages
 
-The MSH4 inspector now calculates scale-independent TETRA_4 mean-ratio
-quality, minimum and mean element quality, minimum cell volume, and total
-volume. These measurements are persisted in the mesh-validation evidence and
-run metrics. Degenerate tetrahedra are rejected. However, the quality stage is
+The MSH4 inspector calculates scale-independent TETRA_4 mean-ratio
+quality, minimum and mean element quality, P05/P50/P95 quality percentiles,
+counts below the 0.1/0.2/0.3 diagnostic levels, minimum and total cell volume,
+and the ten lowest-quality elements (element/node tags and centroid). The
+distribution and worst-element records are persisted in mesh-validation
+evidence; scalar statistics are also exposed as run metrics and restored during
+evidence recovery. The 0.1/0.2/0.3 levels are diagnostic buckets only, not
+acceptance limits. Degenerate tetrahedra are rejected. The quality stage is
 not yet an acceptance gate: no pass/fail thresholds are applied until
 case-appropriate limits and their rationale are declared.
 
