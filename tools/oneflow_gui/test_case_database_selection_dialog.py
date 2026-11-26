@@ -7,6 +7,8 @@ import unittest
 from pathlib import Path
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+# Turn Qt ownership/lifetime warnings into immediate test failures on both OSes.
+os.environ.setdefault("QT_FATAL_WARNINGS", "1")
 
 from PySide6.QtWidgets import QApplication, QComboBox, QHeaderView
 
@@ -57,6 +59,33 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
             dialog.close()
 
 
+
+    def test_embedded_widget_lifecycle_is_stable_across_repeated_dialogs(self) -> None:
+        case = CaseDefinition(
+            case_id="pipe-bend",
+            title="90-Degree Pipe Bend",
+            case_directory=Path("."),
+            runtime_config=None,
+            profile=None,
+            layout=None,
+            execution_kind="python",
+            implementations=(
+                CaseImplementation("python_reference", "python", Path("run_python.py")),
+                CaseImplementation("native_cpp_geometry", "cpp", Path("run_cpp.py"), "c++17"),
+            ),
+            default_implementation="python_reference",
+        )
+        for _ in range(25):
+            dialog = CaseDatabaseSelectionDialog([case], [case])
+            combo = dialog._implementation_combos["pipe-bend"]
+            combo.setCurrentIndex(1)
+            self.assertEqual(
+                dialog.selected_implementations()["pipe-bend"], "native_cpp_geometry"
+            )
+            dialog.done(0)
+            dialog.close()
+            self.assertEqual(dialog._implementation_combos, {})
+            self._application.processEvents()
 
     def test_multiple_implementations_are_selectable_per_case(self) -> None:
         case = CaseDefinition(
