@@ -10,7 +10,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 # Turn Qt ownership/lifetime warnings into immediate test failures on both OSes.
 os.environ.setdefault("QT_FATAL_WARNINGS", "1")
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QCoreApplication, QEvent, Qt
 from PySide6.QtWidgets import QApplication, QComboBox, QHeaderView
 
 from .models import CaseDefinition, CaseImplementation
@@ -21,6 +21,12 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls._application = QApplication.instance() or QApplication([])
+
+    def _flush_deferred_deletes(self) -> None:
+        # processEvents() alone does not guarantee delivery of DeferredDelete
+        # events when tests drive Qt without entering the main event loop.
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        self._application.processEvents()
 
     def test_checkbox_is_in_case_column_and_columns_are_resizable(self) -> None:
         case = CaseDefinition(
@@ -58,8 +64,8 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
             self.assertEqual(item.checkState(0).value, 2)
         finally:
             dialog.close()
-
-
+            dialog.deleteLater()
+            self._flush_deferred_deletes()
 
     def test_delegate_editor_lifecycle_is_stable_across_repeated_dialogs(self) -> None:
         case = CaseDefinition(
@@ -82,7 +88,7 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
                 item = dialog.case_tree.topLevelItem(0).child(0).child(0)
                 index = dialog.case_tree.indexFromItem(item, 2)
                 delegate = dialog.case_tree.itemDelegateForColumn(2)
-                editor = delegate.createEditor(dialog.case_tree, None, index)
+                editor = delegate.createEditor(dialog.case_tree.viewport(), None, index)
                 try:
                     delegate.setEditorData(editor, index)
                     self.assertEqual(editor.currentData(), "python_reference")
@@ -93,12 +99,12 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
                         "native_cpp_geometry",
                     )
                 finally:
-                    editor.deleteLater()
-                    self._application.processEvents()
+                    delegate.destroyEditor(editor, index)
+                    self._flush_deferred_deletes()
             finally:
                 dialog.close()
                 dialog.deleteLater()
-                self._application.processEvents()
+                self._flush_deferred_deletes()
 
     def test_multiple_implementations_are_selectable_per_case(self) -> None:
         case = CaseDefinition(
@@ -142,7 +148,7 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
         finally:
             dialog.close()
             dialog.deleteLater()
-            self._application.processEvents()
+            self._flush_deferred_deletes()
 
 
 if __name__ == "__main__":
