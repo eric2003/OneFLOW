@@ -37,6 +37,7 @@ Directory and metadata model
            square.msh
            two_quads.msh
            cube_single_hex.msh
+           two_tetrahedra_regions.msh
 
 The responsibilities are deliberately separate:
 
@@ -103,6 +104,31 @@ read the written CGNS files and verify the GridLocation and element references.
 The 3D test additionally sends the CGNS file through CgnsFactory and checks
 that OneFLOW reconstructs the expected 8-node, 1-cell, 6-boundary-face
 unstructured grid.
+
+3D tetrahedral conversion reference fixture: two_tetrahedra_regions
+-------------------------------------------------------------------
+
+The ``two_tetrahedra_regions.msh`` fixture contains five nodes and two
+TETRA_4 cells sharing one triangular internal face. Its six exterior TRI_3
+faces are assigned to three Physical Groups: four ``wall`` faces, one
+``inflow`` face and one ``outflow`` face. The top-dimensional entity
+belongs to the ``fluid_domain`` Physical Volume.
+
+The CGNS conversion test independently reopens the output file and checks
+the three-dimensional Base, node coordinates, two TETRA_4 connectivities,
+six TRI_3 boundary connectivities, and each BC_t's name, BC type,
+``FaceCenter`` GridLocation and PointList membership. It also verifies the
+Gmsh topology contract (two tetrahedra, six exterior faces, one shared
+interior face) before conversion.
+
+A Physical Volume such as ``fluid_domain`` is not a boundary condition and
+therefore is not written as a CGNS BC_t. Its top-dimensional cells are
+represented by the TETRA_4 element section. The independently read Gmsh
+PhysicalNames/Entities assertions verify that the source volume entity is
+assigned to ``fluid_domain``, while the CGNS assertions verify the actual
+volume-cell section and the codimension-one boundary patches. This fixture
+establishes deterministic multi-cell tetrahedral conversion coverage; it is
+not a substitute for running the generated pipe-bend mesh through CGNS.
 
 Conversion route and execution
 ------------------------------
@@ -233,8 +259,8 @@ topology, element-family, or boundary-semantic contract:
      - single_tetra, single_hexa
      - Volume cell and codimension-one boundary faces
    * - Multi-cell 3-D
-     - two_tetrahedra
-     - Shared triangular face and orientation
+     - two_tetrahedra_regions
+     - Shared triangular face, volume connectivity and named boundary patches
    * - Mixed 3-D
      - mixed_3d
      - Mixed volume cell sections and boundary semantics
