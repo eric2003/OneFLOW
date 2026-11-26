@@ -220,6 +220,43 @@ def validate_case(repository_root: Path, entry: dict[str, Any]) -> list[str]:
                     )
                     if not script_path.is_file():
                         errors.append(f"{case_id}: Python execution script not found: {script_path}")
+                variants = execution.get("implementations", [])
+                if not isinstance(variants, list):
+                    errors.append(f"{case_id}: execution implementations must be an array")
+                    variants = []
+                variant_ids = []
+                for variant in variants:
+                    if not isinstance(variant, dict):
+                        errors.append(f"{case_id}: execution implementation must be an object")
+                        continue
+                    variant_id = variant.get("id")
+                    variant_kind = variant.get("kind")
+                    variant_script = variant.get("script")
+                    if not isinstance(variant_id, str) or not variant_id:
+                        errors.append(f"{case_id}: execution implementation requires an id")
+                    elif variant_id in variant_ids:
+                        errors.append(f"{case_id}: duplicate implementation id {variant_id}")
+                    else:
+                        variant_ids.append(variant_id)
+                    if variant_kind not in {"python", "cpp"}:
+                        errors.append(f"{case_id}: unsupported implementation kind {variant_kind!r}")
+                    if not isinstance(variant_script, str) or not variant_script:
+                        errors.append(f"{case_id}: implementation {variant_id!r} requires a runner script")
+                    else:
+                        variant_path = resolve_case_path(
+                            repository_root, variant_script,
+                            f"runner script for {case_id}/{variant_id}",
+                        )
+                        if not variant_path.is_file():
+                            errors.append(f"{case_id}: implementation runner not found: {variant_path}")
+                default_implementation = execution.get("default_implementation")
+                defaults = [item.get("id") for item in variants if isinstance(item, dict) and item.get("default")]
+                if default_implementation is not None and default_implementation not in variant_ids:
+                    errors.append(f"{case_id}: default implementation is not registered")
+                if len(defaults) > 1:
+                    errors.append(f"{case_id}: only one implementation may be marked default")
+                if defaults and default_implementation and defaults[0] != default_implementation:
+                    errors.append(f"{case_id}: conflicting default implementation declarations")
                 required_files = ["expected.json"]
                 if not execution.get("generates_input", False):
                     required_files.append("input/model.stl")

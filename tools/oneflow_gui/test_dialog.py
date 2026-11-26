@@ -33,7 +33,7 @@ from .case_repository import (
     select_cases_by_execution_kind,
     select_cases_for_execution,
     select_cases_for_selection_dialog,
-    build_python_case_command,
+    build_case_command,
 )
 from .models import CaseDefinition
 from .process_control import process_group_options, terminate_and_reap, terminate_process_tree
@@ -316,6 +316,10 @@ class TestRunnerDialog(QDialog):
             kind: list(cases)
             for kind, cases in self._available_database_cases_by_kind.items()
         }
+        self._selected_implementation_by_case = {
+            case.case_id: case.default_implementation
+            for case in all_database_cases if case.default_implementation
+        }
         self._run_database_after_commands = False
         self.setWindowTitle("OneFLOW Tests")
         self.resize(900, 650)
@@ -395,9 +399,9 @@ class TestRunnerDialog(QDialog):
         self.python_development_check = QCheckBox("Python reference cases")
         self.python_development_check.setChecked(False)
         self.python_development_check.setToolTip(
-            "Runs Python reference cases, including the 3-D 90-degree pipe-bend STL-to-Gmsh producer. "
-            "Together with Run Development Cases, you can run Python only, native C++ only, or both. "
-            "Selections are retained by type."
+            "Runs Python-driven mesh producer Cases. Cases that provide multiple geometry "
+            "implementations, such as the 90-degree pipe bend, let you choose Python reference "
+            "or native C++ geometry in the case selector. This is distinct from the OneFLOW solver."
         )
         self.python_development_check.toggled.connect(
             self._update_case_database_button_text
@@ -478,10 +482,14 @@ class TestRunnerDialog(QDialog):
         selected_cases = [
             case for kind in kinds for case in self._database_cases_by_kind[kind]
         ]
-        dialog = CaseDatabaseSelectionDialog(available_cases, selected_cases, self)
+        dialog = CaseDatabaseSelectionDialog(
+            available_cases, selected_cases, self,
+            selected_implementations=self._selected_implementation_by_case,
+        )
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
         selected = dialog.selected_cases()
+        self._selected_implementation_by_case.update(dialog.selected_implementations())
         for kind in kinds:
             self._database_cases_by_kind[kind] = [
                 case for case in selected if case.execution_kind == kind
@@ -616,11 +624,12 @@ class TestRunnerDialog(QDialog):
                         gmsh_executable = discover_gmsh()
                     else:
                         gmsh_executable = None
-                    arguments = build_python_case_command(
+                    arguments = build_case_command(
                         case,
                         case_directory,
                         python_executable=sys.executable,
                         gmsh_executable=gmsh_executable,
+                        implementation_id=self._selected_implementation_by_case.get(case.case_id),
                     )
                     working_directory = self._repository_root
                 else:
@@ -752,6 +761,8 @@ class CaseDatabaseSelectionDialog(QDialog):
         available_cases: list[CaseDefinition],
         selected_cases: list[CaseDefinition],
         parent=None,
+        *,
+        selected_implementations: dict[str, str] | None = None,
     ) -> None:
         super().__init__(parent)
         self._cases = list(available_cases)
@@ -766,8 +777,8 @@ class CaseDatabaseSelectionDialog(QDialog):
             "This dialog only saves the selection; it does not start calculations."
         ))
         self.case_tree = QTreeWidget()
-        self.case_tree.setColumnCount(2)
-        self.case_tree.setHeaderLabels(["Case / Group", "Configuration"])
+        self.case_tree.setColumnCount(3)
+        self.case_tree.setHeaderLabels(["Case / Group", "Configuration", "Implementation"])
         self.case_tree.setRootIsDecorated(True)
         self.case_tree.setAlternatingRowColors(True)
         self.case_tree.setWordWrap(False)
@@ -782,8 +793,12 @@ class CaseDatabaseSelectionDialog(QDialog):
         header.setMinimumSectionSize(120)
         header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         header.setSectionsMovable(False)
-        self.case_tree.setColumnWidth(0, 760)
-        self.case_tree.setColumnWidth(1, 330)
+        self.case_tree.setColumnWidth(0, 680)
+        self.case_tree.setColumnWidth(1, 260)
+        self.case_tree.setColumnWidth(2, 250)
+        self._implementation_combos: dict[str, QComboBox] = {}
+        self._implementation_values: dict[str, str] = {}
+        selected_implementations = selected_implementations or {}
         dimension_items: dict[str, QTreeWidgetItem] = {}
         category_items: dict[tuple[str, str], QTreeWidgetItem] = {}
         for case in self._cases:
@@ -899,3 +914,7 @@ class CaseDatabaseSelectionDialog(QDialog):
         for index in range(self.case_tree.topLevelItemCount()):
             visit(self.case_tree.topLevelItem(index))
         return [case for case in self._cases if case.case_id in selected_ids]
+
+    def selected_implementations(self) -> dict[str, str]:
+        """Return the implementation choice for each Case in the selector."""
+        return dict(self._implementation_values)

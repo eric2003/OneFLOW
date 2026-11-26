@@ -5,7 +5,9 @@ from __future__ import annotations
 import unittest
 from pathlib import Path, PurePosixPath
 
-from tools.oneflow_gui.case_repository import build_python_case_command, load_cases
+from tools.oneflow_gui.case_repository import (
+    build_case_command, build_python_case_command, load_cases,
+)
 from tools.oneflow_gui.models import CaseDefinition
 
 
@@ -58,6 +60,24 @@ class PythonCaseCommandTest(unittest.TestCase):
             python_executable="python",
         )
         self.assertNotIn("--gmsh", command)
+
+    def test_pipe_bend_native_cpp_implementation_uses_python_runner_adapter(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        case = next(
+            item for item in load_cases(repository_root)
+            if item.case_id == "stl_to_gmsh_pipe_bend_90_degree"
+        )
+        command = build_case_command(
+            case, Path("/workspace/pipe-bend"),
+            python_executable="python",
+            gmsh_executable="gmsh",
+            implementation_id="native_cpp_geometry",
+        )
+        self.assertEqual(command[0], "python")
+        self.assertTrue(command[1].endswith("run_pipe_bend_cpp_case.py"))
+        self.assertIn("--case-directory", command)
+        self.assertIn("--gmsh", command)
+        self.assertNotIn("OneFLOW.exe", command)
 
     def test_pipe_bend_catalog_declares_gmsh_requirement(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
