@@ -40,11 +40,18 @@ construction and volume meshing remain reusable services.
 
 ## Remaining lifecycle stages
 
+The MSH4 inspector now calculates scale-independent TETRA_4 mean-ratio
+quality, minimum and mean element quality, minimum cell volume, and total
+volume. These measurements are persisted in the mesh-validation evidence and
+run metrics. Degenerate tetrahedra are rejected. However, the quality stage is
+not yet an acceptance gate: no pass/fail thresholds are applied until
+case-appropriate limits and their rationale are declared.
+
 The following stages are declared in the lifecycle contract but are not yet
 delivered as verified stages:
 
-- **Mesh quality:** implement and apply tetrahedral quality metrics and
-  explicit acceptance thresholds.
+- **Mesh quality acceptance:** declare and apply justified tetrahedral quality
+  thresholds, then verify the actual pipe-bend mesh against them.
 - **MSH to CGNS:** use the shared converter and verify cell counts, dimensions,
   connectivity, and named boundary preservation.
 - **OneFLOW ingestion:** read the CGNS grid into the native grid model and
