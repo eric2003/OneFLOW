@@ -1339,7 +1339,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertIsNotNone(summary)
         self.assertEqual(
             summary["verification_scope"],
-            "python_geometry_and_gmsh_volume_mesh",
+            "geometry_regions_and_gmsh_volume_mesh",
         )
         stages = {stage["id"]: stage for stage in summary["stages"]}
         self.assertTrue(stages["geometry"]["in_current_scope"])
