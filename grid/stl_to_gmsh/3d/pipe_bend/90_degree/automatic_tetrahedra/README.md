@@ -32,6 +32,8 @@ Gmsh volume-mesh generation, and MSH-to-CGNS conversion:
 5. Validate MSH4 structure, first-order tetrahedral volume cells, boundary
    connectivity, and the required Physical Groups:
    dimension-2 `wall`, `inflow`, `outflow`, and dimension-3 `fluid_domain`.
+6. Run the shared MSH4-to-CGNS conversion stage and retain the CGNS artifact
+   with checksum-bound geometry lineage.
 
 The producer runners write generated inputs and results to the user's OneFLOW
 workspace. They do not put generated STL/MSH files in the source tree. The
@@ -46,7 +48,11 @@ counts below the 0.1/0.2/0.3 diagnostic levels, minimum and total cell volume,
 and the ten lowest-quality elements (element/node tags and centroid). The
 distribution and worst-element records are persisted in mesh-validation
 evidence; scalar statistics are also exposed as run metrics and restored during
-evidence recovery. The 0.1/0.2/0.3 levels are diagnostic buckets only, not
+evidence recovery. The shared converter can be exercised as the next
+independent milestone: CGNS conversion does not certify mesh-quality
+acceptance. The quality stage remains a prerequisite for OneFLOW ingestion,
+so conversion evidence can be gathered without allowing an unaccepted mesh to
+proceed into the solver. The 0.1/0.2/0.3 levels are diagnostic buckets only, not
 acceptance limits. Degenerate tetrahedra are rejected. The quality stage is
 not yet an acceptance gate: no pass/fail thresholds are applied until
 case-appropriate limits and their rationale are declared.
