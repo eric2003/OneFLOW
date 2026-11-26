@@ -1428,7 +1428,9 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 repository_root, "stl_to_gmsh_square"
             )
         )
-        self.assertFalse(
+        # The lifecycle stops after CGNS conversion, but the shared
+        # gmsh_to_cgns Grid task is still executed by the OneFLOW binary.
+        self.assertTrue(
             mesh_case_requires_oneflow_executable(
                 repository_root, "stl_to_gmsh_pipe_bend_90_degree"
             )
