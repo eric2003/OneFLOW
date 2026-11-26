@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal, Qt
+from shiboken6 import delete as delete_qobject
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -817,6 +818,8 @@ class CaseDatabaseSelectionDialog(QDialog):
         # QTreeWidget owns the C++ item widgets, but retaining their PySide
         # wrappers avoids premature wrapper finalization during Qt teardown.
         self._implementation_combos: dict[str, QComboBox] = {}
+        self._implementation_items: dict[str, QTreeWidgetItem] = {}
+        self._implementation_widgets_disposed = False
         selected_implementations = selected_implementations or {}
         dimension_items: dict[str, QTreeWidgetItem] = {}
         category_items: dict[tuple[str, str], QTreeWidgetItem] = {}
@@ -877,6 +880,7 @@ class CaseDatabaseSelectionDialog(QDialog):
                 )
                 self.case_tree.setItemWidget(case_item, 2, combo)
                 self._implementation_combos[case.case_id] = combo
+                self._implementation_items[case.case_id] = case_item
             else:
                 implementation_label = case.default_implementation or (
                     "Python" if case.execution_kind == "python" else "Native OneFLOW"
@@ -910,6 +914,36 @@ class CaseDatabaseSelectionDialog(QDialog):
         actions.addWidget(ok_button)
         actions.addWidget(cancel_button)
         layout.addLayout(actions)
+
+    def _dispose_implementation_widgets(self) -> None:
+        """Detach and explicitly destroy embedded Qt widgets before tree teardown.
+
+        QTreeWidget takes C++ ownership of setItemWidget() children. Keeping
+        their PySide wrappers alive prevents premature wrapper finalization,
+        but then the wrappers must be invalidated before the owning tree is
+        destroyed. Detach each widget and let Shiboken perform the one
+        authoritative C++ deletion.
+        """
+        if self._implementation_widgets_disposed:
+            return
+        self._implementation_widgets_disposed = True
+        tree = self.case_tree
+        for case_id, widget in tuple(self._implementation_combos.items()):
+            item = self._implementation_items.get(case_id)
+            if item is not None:
+                tree.removeItemWidget(item, 2)
+            widget.setParent(None)
+            delete_qobject(widget)
+        self._implementation_combos.clear()
+        self._implementation_items.clear()
+
+    def done(self, result: int) -> None:
+        self._dispose_implementation_widgets()
+        super().done(result)
+
+    def closeEvent(self, event) -> None:
+        self._dispose_implementation_widgets()
+        super().closeEvent(event)
 
     def _set_subtree_state(self, item: QTreeWidgetItem, state: Qt.CheckState) -> None:
         item.setCheckState(0, state)
