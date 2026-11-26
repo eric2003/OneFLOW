@@ -20,8 +20,8 @@ Gmsh service. It is not a native OneFLOW solver.
 
 ## Current producer milestone
 
-The current verification scope is geometry, semantic surface regions, and
-Gmsh volume-mesh generation:
+The current verification scope is geometry, semantic surface regions,
+Gmsh volume-mesh generation, and MSH-to-CGNS conversion:
 
 1. Generate the parameterized 90-degree circular pipe-bend surface.
 2. Export the closed fluid-domain STL, the `wall`, `inflow`, and `outflow`
@@ -51,15 +51,14 @@ acceptance limits. Degenerate tetrahedra are rejected. The quality stage is
 not yet an acceptance gate: no pass/fail thresholds are applied until
 case-appropriate limits and their rationale are declared.
 
-The following stages are declared in the lifecycle contract but are not yet
-delivered as verified stages:
+The following stages remain outside the current verified scope:
 
-- **Mesh quality acceptance:** declare and apply justified tetrahedral quality
-  thresholds, then verify the actual pipe-bend mesh against them.
-- **MSH to CGNS:** use the shared converter and verify cell counts, dimensions,
-  connectivity, and named boundary preservation.
-- **OneFLOW ingestion:** read the CGNS grid into the native grid model and
-  verify inlet, outlet, wall, dimensions, and runtime environment evidence.
+- **Mesh quality acceptance:** quality distribution diagnostics are available,
+  but case-specific acceptance thresholds and their rationale are not yet
+  declared. This stage remains an explicit prerequisite for OneFLOW ingestion.
+- **OneFLOW ingestion:** read the converted CGNS grid into the native grid
+  model and verify inlet, outlet, wall, dimensions, and runtime environment
+  evidence.
 - **CFD smoke:** execute a bounded solver run and verify finite residuals and
   required result artifacts.
 - **CFD physical validation:** independently validate pressure loss and
