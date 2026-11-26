@@ -291,6 +291,42 @@ class PipeBendGeometryTest(unittest.TestCase):
             )
             self._assert_cpp_generator_matches_python_geometry(cpp_stl)
 
+
+    def test_cpp_case_runner_builds_the_native_geometry_in_workspace(self):
+        runner_path = (
+            ROOT / "grid/stl_to_gmsh/3d/pipe_bend/90_degree"
+            / "automatic_tetrahedra/run_pipe_bend_cpp_case.py"
+        )
+        runner_spec = importlib.util.spec_from_file_location(
+            "oneflow_pipe_bend_cpp_case_runner", runner_path
+        )
+        self.assertIsNotNone(runner_spec)
+        self.assertIsNotNone(runner_spec.loader)
+        runner = importlib.util.module_from_spec(runner_spec)
+        runner_spec.loader.exec_module(runner)
+        compiler = next(
+            (shutil.which(name) for name in ("c++", "g++", "clang++") if shutil.which(name)),
+            None,
+        )
+        if not compiler:
+            self.skipTest("A C++17 compiler is required for the native Case runner")
+        with tempfile.TemporaryDirectory() as temporary:
+            workspace = Path(temporary)
+            executable = runner.build_cpp_generator(
+                workspace / "build", compiler=compiler
+            )
+            self.assertTrue(executable.is_file())
+            stl = workspace / "input" / "pipe_bend_90_degree.stl"
+            stl.parent.mkdir(parents=True)
+            subprocess.run(
+                [str(executable), "--output", str(stl)],
+                cwd=ROOT, check=True, capture_output=True, text=True,
+            )
+            self.assertTrue(stl.is_file())
+            self.assertTrue((stl.parent / "region_manifest.json").is_file())
+            self.assertTrue(stl.with_suffix(".geometry.json").is_file())
+            self._assert_cpp_generator_matches_python_geometry(stl)
+
     def test_invalid_geometry_and_source_tree_output_are_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
             with self.assertRaisesRegex(ValueError, "bend_radius"):
