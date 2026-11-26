@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import asdict, dataclass
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Iterable
 
 
@@ -48,6 +48,17 @@ def _source_location(lines: list[str]) -> tuple[str | None, int | None]:
         if match:
             return match.group(1), int(match.group(2))
     return None, None
+
+
+def _working_directory(value: str | Path | None) -> str | None:
+    """Normalize host-native paths without reinterpreting foreign absolute paths."""
+    if value is None:
+        return None
+    raw = str(value)
+    windows_path = PureWindowsPath(raw)
+    if windows_path.is_absolute():
+        return windows_path.as_posix()
+    return Path(raw).resolve().as_posix()
 
 
 def _exception(lines: list[str]) -> tuple[str | None, str | None]:
@@ -97,7 +108,7 @@ def parse_test_diagnostics(
             records.append(TestDiagnostic(
                 task_label, "unittest", name, name, source, line_number,
                 error_type, message, configuration,
-                Path(working_directory).resolve().as_posix() if working_directory else None,
+                _working_directory(working_directory),
                 started_at, finished_at, exit_code, contracts, impact,
             ))
 
@@ -125,7 +136,7 @@ def parse_test_diagnostics(
             records.append(TestDiagnostic(
                 task_label, "GoogleTest", name, name, source, line_number,
                 error_type, message, configuration,
-                Path(working_directory).resolve().as_posix() if working_directory else None,
+                _working_directory(working_directory),
                 started_at, finished_at, exit_code, contracts, impact,
             ))
 
