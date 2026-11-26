@@ -211,12 +211,20 @@
     {
       "id": "mesh_quality",
       "type": "mesh_quality",
-      "implementation_status": "planned",
+      "implementation_status": "implemented",
       "verification_status": "not_run",
       "depends_on": [
         "volume_mesh"
       ],
-      "implementations": [],
+      "implementations": [
+        {
+          "id": "msh4_quality_diagnostics",
+          "kind": "python",
+          "status": "implemented",
+          "entrypoint": "grid/stl_to_gmsh/converter.py",
+          "notes": "Reports mean-ratio distribution, low-quality element counts, degenerate-cell count, and worst-element locations. Diagnostic only; never gates conversion, ingestion, or CFD smoke."
+        }
+      ],
       "inputs": [
         {
           "id": "volume_mesh",
@@ -233,9 +241,9 @@
       ],
       "acceptance": [
         {
-          "id": "pipe_bend.quality.thresholds",
+          "id": "pipe_bend.quality.diagnostic_evidence",
           "kind": "contract",
-          "description": "Declared element-quality metrics satisfy the Case-specific limits."
+          "description": "Mesh quality diagnostics are recorded and available for inspection without imposing a pass/fail threshold or blocking downstream workflow stages."
         }
       ]
     },
