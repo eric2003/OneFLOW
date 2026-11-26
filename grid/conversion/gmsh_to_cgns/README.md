@@ -17,12 +17,15 @@ Unrecognized names remain
 `BCTypeUserDefined`; names are never guessed from geometry or position. The writer reuses
 OneFLOW's shared UnstructuredMeshData and UnstructuredCgnsZoneWriter, followed by the CgnsFactory / CgnsZbase file writer.
 The bundled square sample writes four nodes, two TRI_3 cells, four BAR_2
-boundary elements, and four named BC_t records. The automated
-`grid/cube_single_hex.msh` fixture additionally exercises the 3D path with
-eight nodes, one HEXA_8 cell, six QUAD_4 boundary elements, and six named
-BC_t records, one for each geometric face. For unstructured meshes,
-the writer assigns `EdgeCenter` to 2D boundary elements and `FaceCenter` to
-3D boundary elements.
+boundary elements, and four named BC_t records. The
+`grid/cube_single_hex.msh` fixture exercises the 3D hexahedral path with eight
+nodes, one HEXA_8 cell, six QUAD_4 boundary elements, and six named BC_t
+records. The `grid/two_tetrahedra_regions.msh` fixture exercises the
+multi-cell tetrahedral path with five nodes, two TETRA_4 cells, six TRI_3
+boundary elements, and wall/inflow/outflow BC_t patches. Its `fluid_domain`
+Physical Volume identifies the top-dimensional cells; it is not emitted as a
+boundary BC_t. For unstructured meshes, the writer assigns `EdgeCenter` to
+2D boundary elements and `FaceCenter` to 3D boundary elements.
 
 ## Parameters
 
@@ -147,6 +150,24 @@ algorithm or a standalone CFD Case. Its automated test checks the CGNS Base
 and Zone dimensions, HEXA_8 and QUAD_4 sections, FaceCenter BC_t locations,
 boundary-element references, and OneFLOW's reconstructed 3D unstructured
 grid.
+
+The `two_tetrahedra_regions.msh` fixture exercises the first multi-cell
+TETRA_4 round trip. It contains two tetrahedra sharing one internal face and
+six exterior TRI_3 faces:
+
+| Physical Group | Exterior faces | CGNS BCType_t |
+|---|---:|---|
+| `wall` | 4 | `BCWall` |
+| `inflow` | 1 | `BCInflow` |
+| `outflow` | 1 | `BCOutflow` |
+| `fluid_domain` | Top-dimensional volume | TETRA_4 section, not BC_t |
+
+The conversion test reopens CGNS independently and compares the unordered
+node sets of both TETRA_4 cells and all six TRI_3 faces. It resolves every
+BC_t PointList element ID back to the corresponding TRI_3 connectivity and
+checks the exact named face membership and `FaceCenter` location. This is a
+small deterministic topology fixture; the generated pipe-bend MSH still
+requires a separate real-case CGNS read-back run.
 
 
 ## Small-mesh fixture and test strategy
