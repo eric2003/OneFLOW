@@ -1369,13 +1369,14 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertIsNotNone(summary)
         self.assertEqual(
             summary["verification_scope"],
-            "geometry_regions_and_gmsh_volume_mesh",
+            "geometry_regions_gmsh_volume_mesh_and_cgns_conversion",
         )
         stages = {stage["id"]: stage for stage in summary["stages"]}
         self.assertTrue(stages["geometry"]["in_current_scope"])
         self.assertTrue(stages["surface_regions"]["in_current_scope"])
         self.assertTrue(stages["volume_mesh"]["in_current_scope"])
-        self.assertFalse(stages["msh_to_cgns"]["in_current_scope"])
+        self.assertTrue(stages["msh_to_cgns"]["in_current_scope"])
+        self.assertFalse(stages["mesh_quality"]["in_current_scope"])
         self.assertFalse(stages["oneflow_ingestion"]["in_current_scope"])
         self.assertFalse(stages["cfd_smoke"]["in_current_scope"])
         self.assertFalse(stages["cfd_validation"]["in_current_scope"])
@@ -1408,10 +1409,18 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 repository_root, "stl_to_gmsh_square"
             )
         )
-        self.assertFalse(
+        self.assertTrue(
             mesh_case_requires_oneflow_executable(
                 repository_root, "stl_to_gmsh_pipe_bend_90_degree"
             )
+        )
+        pipe_bend_steps = build_mesh_validation_cases(
+            repository_root, "stl_to_gmsh_pipe_bend_90_degree",
+            "laminar_flat_plate",
+        )
+        self.assertEqual(
+            [step["id"] for step in pipe_bend_steps],
+            ["stl_to_gmsh", "gmsh_to_cgns"],
         )
 
     def test_existing_mesh_case_resolves_only_inside_user_mesh_workspace(self):
