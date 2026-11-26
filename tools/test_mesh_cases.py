@@ -537,7 +537,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
             [],
         )
         stages = {stage["id"]: stage for stage in contract["stages"]}
-        self.assertEqual(contract["verification_scope"], "python_geometry_and_gmsh_volume_mesh")
+        self.assertEqual(contract["verification_scope"], "geometry_regions_and_gmsh_volume_mesh")
         self.assertEqual(stages["geometry"]["implementation_status"], "implemented")
         self.assertEqual(stages["geometry"]["verification_status"], "not_run")
         geometry_implementations = {
