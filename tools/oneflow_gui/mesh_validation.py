@@ -840,9 +840,22 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
             if isinstance(candidate, dict):
                 mesh_summary = candidate
                 metrics = {
-                    key: candidate[key] for key in ("nodes", "elements")
+                    key: candidate[key] for key in (
+                        "nodes", "elements", "tetrahedron_elements",
+                    )
                     if isinstance(candidate.get(key), (int, float))
                 }
+                quality = candidate.get("tetrahedron_quality")
+                if isinstance(quality, dict):
+                    for source_key, metric_key in (
+                        ("minimum_quality", "tetrahedron_mean_ratio_minimum"),
+                        ("mean_quality", "tetrahedron_mean_ratio_mean"),
+                        ("minimum_volume", "tetrahedron_minimum_volume"),
+                        ("total_volume", "tetrahedron_total_volume"),
+                    ):
+                        value = quality.get(source_key)
+                        if isinstance(value, (int, float)):
+                            metrics[metric_key] = value
                 groups = candidate.get("physical_groups")
                 if isinstance(groups, list):
                     metrics["physical_group_count"] = len(groups)
@@ -1552,6 +1565,9 @@ def run_mesh_validation(
                     "kind": "gmsh_msh4", "path": rel,
                     "implementation": mesh_implementation,
                     "nodes": mesh_info["nodes"], "elements": mesh_info["elements"],
+                    "tetrahedron_elements": mesh_info["tetrahedron_elements"],
+                    "tetrahedral_topology": mesh_info.get("tetrahedral_topology"),
+                    "tetrahedron_quality": mesh_info.get("tetrahedron_quality", {}),
                     "physical_groups": mesh_info["physical_groups"],
                 }
                 mesh_evidence.update(validation)
@@ -1587,7 +1603,22 @@ def run_mesh_validation(
                  "message": f"{failed_step.case_id}: {failed_step.message}"}
     elif result.status == "cancelled":
         error = {"type": "WorkflowCancelled", "message": "The validation run was cancelled."}
-    metrics = {key: mesh_evidence[key] for key in ("nodes", "elements") if key in mesh_evidence}
+    metrics = {
+        key: mesh_evidence[key]
+        for key in ("nodes", "elements", "tetrahedron_elements")
+        if key in mesh_evidence
+    }
+    tetra_quality = mesh_evidence.get("tetrahedron_quality", {})
+    if isinstance(tetra_quality, dict):
+        for source_key, metric_key in (
+            ("minimum_quality", "tetrahedron_mean_ratio_minimum"),
+            ("mean_quality", "tetrahedron_mean_ratio_mean"),
+            ("minimum_volume", "tetrahedron_minimum_volume"),
+            ("total_volume", "tetrahedron_total_volume"),
+        ):
+            value = tetra_quality.get(source_key)
+            if isinstance(value, (int, float)):
+                metrics[metric_key] = value
     if "physical_groups" in mesh_evidence:
         metrics["physical_group_count"] = len(mesh_evidence["physical_groups"])
 
