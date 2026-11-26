@@ -1,4 +1,4 @@
-"""UI layout tests for the development case selector."""
+"""UI layout and real item-view editor lifecycle tests for the development case selector."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 os.environ.setdefault("QT_FATAL_WARNINGS", "1")
 
 from PySide6.QtCore import QCoreApplication, QEvent, Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QComboBox, QHeaderView
 
 from .models import CaseDefinition, CaseImplementation
@@ -26,6 +27,28 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
         # processEvents() alone does not guarantee delivery of DeferredDelete
         # events when tests drive Qt without entering the main event loop.
         QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+        self._application.processEvents()
+
+    def _select_implementation_through_view(
+        self, dialog: CaseDatabaseSelectionDialog, implementation_index: int
+    ) -> None:
+        """Exercise QTreeWidget's real delegate/editor ownership protocol."""
+        tree = dialog.case_tree
+        item = tree.topLevelItem(0).child(0).child(0)
+        dialog.show()
+        self._application.processEvents()
+
+        tree.editItem(item, 2)
+        self._application.processEvents()
+        editor = tree.findChild(QComboBox)
+        self.assertIsNotNone(editor, "QTreeWidget did not create its delegate editor")
+        assert editor is not None
+        self.assertGreaterEqual(implementation_index, 0)
+        self.assertLess(implementation_index, editor.count())
+        editor.setCurrentIndex(implementation_index)
+        # Let QAbstractItemView commit and close the editor. Tests must not call
+        # createEditor(), destroyEditor(), or deleteLater() on the editor.
+        QTest.keyClick(editor, Qt.Key.Key_Return)
         self._application.processEvents()
 
     def test_checkbox_is_in_case_column_and_columns_are_resizable(self) -> None:
@@ -67,8 +90,8 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
             dialog.deleteLater()
             self._flush_deferred_deletes()
 
-    def test_delegate_editor_lifecycle_is_stable_across_repeated_dialogs(self) -> None:
-        case = CaseDefinition(
+    def _pipe_bend_case(self) -> CaseDefinition:
+        return CaseDefinition(
             case_id="pipe-bend",
             title="90-Degree Pipe Bend",
             case_directory=Path("."),
@@ -82,45 +105,24 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
             ),
             default_implementation="python_reference",
         )
+
+    def test_delegate_editor_lifecycle_is_stable_across_repeated_dialogs(self) -> None:
+        case = self._pipe_bend_case()
         for _ in range(25):
             dialog = CaseDatabaseSelectionDialog([case], [case])
             try:
-                item = dialog.case_tree.topLevelItem(0).child(0).child(0)
-                index = dialog.case_tree.indexFromItem(item, 2)
-                delegate = dialog.case_tree.itemDelegateForColumn(2)
-                editor = delegate.createEditor(dialog.case_tree.viewport(), None, index)
-                try:
-                    delegate.setEditorData(editor, index)
-                    self.assertEqual(editor.currentData(), "python_reference")
-                    editor.setCurrentIndex(1)
-                    delegate.setModelData(editor, dialog.case_tree.model(), index)
-                    self.assertEqual(
-                        dialog.selected_implementations()["pipe-bend"],
-                        "native_cpp_geometry",
-                    )
-                finally:
-                    delegate.destroyEditor(editor, index)
-                    self._flush_deferred_deletes()
+                self._select_implementation_through_view(dialog, 1)
+                self.assertEqual(
+                    dialog.selected_implementations()["pipe-bend"],
+                    "native_cpp_geometry",
+                )
             finally:
                 dialog.close()
                 dialog.deleteLater()
                 self._flush_deferred_deletes()
 
     def test_multiple_implementations_are_selectable_per_case(self) -> None:
-        case = CaseDefinition(
-            case_id="pipe-bend",
-            title="90-Degree Pipe Bend",
-            case_directory=Path("."),
-            runtime_config=None,
-            profile=None,
-            layout=None,
-            execution_kind="python",
-            implementations=(
-                CaseImplementation("python_reference", "python", Path("run_python.py")),
-                CaseImplementation("native_cpp_geometry", "cpp", Path("run_cpp.py"), "c++17"),
-            ),
-            default_implementation="python_reference",
-        )
+        case = self._pipe_bend_case()
         dialog = CaseDatabaseSelectionDialog(
             [case], [case], selected_implementations={"pipe-bend": "native_cpp_geometry"}
         )
@@ -130,17 +132,7 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
             self.assertEqual(
                 dialog.selected_implementations()["pipe-bend"], "native_cpp_geometry"
             )
-            index = dialog.case_tree.indexFromItem(item, 2)
-            delegate = dialog.case_tree.itemDelegateForColumn(2)
-            editor = delegate.createEditor(dialog.case_tree.viewport(), None, index)
-            try:
-                delegate.setEditorData(editor, index)
-                self.assertEqual(editor.currentData(), "native_cpp_geometry")
-                editor.setCurrentIndex(0)
-                delegate.setModelData(editor, dialog.case_tree.model(), index)
-            finally:
-                delegate.destroyEditor(editor, index)
-                self._flush_deferred_deletes()
+            self._select_implementation_through_view(dialog, 0)
             self.assertEqual(item.text(2), "Python reference")
             self.assertEqual(
                 dialog.selected_implementations()["pipe-bend"], "python_reference"
