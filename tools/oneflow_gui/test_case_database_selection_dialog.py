@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -22,6 +24,26 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls._application = QApplication.instance() or QApplication([])
+
+    def _run_isolated_test(self, test_name: str) -> None:
+        """Run one Qt test in a fresh process so native crashes are attributable."""
+        environment = os.environ.copy()
+        environment["ONEFLOW_QT_TEST_CHILD"] = "1"
+        result = subprocess.run(
+            [sys.executable, "-m", "unittest", f"{__name__}.{test_name}"],
+            cwd=Path(__file__).resolve().parents[2],
+            env=environment,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"Isolated Qt test {test_name} failed with exit code "
+            f"{result.returncode}:\\n{result.stdout}",
+        )
 
     def _flush_deferred_deletes(self) -> None:
         # processEvents() alone does not guarantee delivery of DeferredDelete
@@ -52,6 +74,9 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
         self._application.processEvents()
 
     def test_checkbox_is_in_case_column_and_columns_are_resizable(self) -> None:
+        if os.environ.get("ONEFLOW_QT_TEST_CHILD") != "1":
+            self._run_isolated_test("test_checkbox_is_in_case_column_and_columns_are_resizable")
+            return
         case = CaseDefinition(
             case_id="sample",
             title="Sample development case",
@@ -107,6 +132,9 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
         )
 
     def test_delegate_editor_lifecycle_is_stable_across_repeated_dialogs(self) -> None:
+        if os.environ.get("ONEFLOW_QT_TEST_CHILD") != "1":
+            self._run_isolated_test("test_delegate_editor_lifecycle_is_stable_across_repeated_dialogs")
+            return
         case = self._pipe_bend_case()
         for _ in range(25):
             dialog = CaseDatabaseSelectionDialog([case], [case])
@@ -122,6 +150,9 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
                 self._flush_deferred_deletes()
 
     def test_multiple_implementations_are_selectable_per_case(self) -> None:
+        if os.environ.get("ONEFLOW_QT_TEST_CHILD") != "1":
+            self._run_isolated_test("test_multiple_implementations_are_selectable_per_case")
+            return
         case = self._pipe_bend_case()
         dialog = CaseDatabaseSelectionDialog(
             [case], [case], selected_implementations={"pipe-bend": "native_cpp_geometry"}
