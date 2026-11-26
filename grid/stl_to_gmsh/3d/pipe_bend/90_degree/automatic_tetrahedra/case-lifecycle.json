@@ -242,7 +242,7 @@
     {
       "id": "msh_to_cgns",
       "type": "format_conversion",
-      "implementation_status": "planned",
+      "implementation_status": "implemented",
       "verification_status": "not_run",
       "depends_on": [
         "volume_mesh"
@@ -251,7 +251,8 @@
         {
           "id": "shared_gmsh_to_cgns",
           "kind": "oneflow",
-          "status": "planned"
+          "status": "implemented",
+          "notes": "Uses the shared Gmsh MSH4 reader, CGNS writer, and Mesh-to-CFD Validation stage adapter; no pipe-bend-specific conversion implementation."
         }
       ],
       "inputs": [
