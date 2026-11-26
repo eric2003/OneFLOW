@@ -30,7 +30,7 @@ class CaseDatabaseSelectionDialogLayoutTest(unittest.TestCase):
         environment = os.environ.copy()
         environment["ONEFLOW_QT_TEST_CHILD"] = "1"
         result = subprocess.run(
-            [sys.executable, "-m", "unittest", f"{__name__}.{test_name}"],
+            [sys.executable, "-m", "unittest", f"{__name__}.{self.__class__.__name__}.{test_name}"],
             cwd=Path(__file__).resolve().parents[2],
             env=environment,
             text=True,
