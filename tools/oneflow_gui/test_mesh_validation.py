@@ -967,8 +967,9 @@ class MeshValidationCatalogTest(unittest.TestCase):
 
 
     def test_pipe_bend_runs_the_complete_three_dimensional_cfd_smoke_chain(self):
+        repository_root = Path(__file__).resolve().parents[2]
         case_id = "stl_to_gmsh_pipe_bend_90_degree"
-        cases = build_mesh_validation_cases(self.root, case_id, "laminar_flat_plate")
+        cases = build_mesh_validation_cases(repository_root, case_id, "laminar_flat_plate")
         expected_steps = [
             "stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow",
             "oneflow_cfd_solve",
@@ -1392,7 +1393,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         steps = build_mesh_validation_cases(repository_root, case_id, "laminar_flat_plate")
         self.assertEqual(
             [step["id"] for step in steps],
-            ["stl_to_gmsh", "gmsh_to_cgns"],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
         )
         self.assertEqual(steps[0]["outputs"][0]["path"], "results/pipe_bend_90_degree.msh")
         command = _mesh_case_command(
@@ -1410,7 +1411,7 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertIsNotNone(summary)
         self.assertEqual(
             summary["verification_scope"],
-            "geometry_regions_gmsh_volume_mesh_and_cgns_conversion",
+            "geometry_regions_gmsh_volume_mesh_cgns_conversion_oneflow_ingestion_and_cfd_smoke",
         )
         stages = {stage["id"]: stage for stage in summary["stages"]}
         self.assertTrue(stages["geometry"]["in_current_scope"])
@@ -1419,13 +1420,18 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertTrue(stages["msh_to_cgns"]["in_current_scope"])
         self.assertFalse(stages["mesh_quality"]["in_current_scope"])
         self.assertEqual(stages["mesh_quality"]["implementation_status"], "implemented")
-        self.assertFalse(stages["oneflow_ingestion"]["in_current_scope"])
-        self.assertFalse(stages["cfd_smoke"]["in_current_scope"])
+        self.assertTrue(stages["oneflow_ingestion"]["in_current_scope"])
+        self.assertTrue(stages["cfd_smoke"]["in_current_scope"])
         self.assertFalse(stages["cfd_validation"]["in_current_scope"])
         self.assertEqual(stages["geometry"]["implementation_status"], "implemented")
         self.assertEqual(stages["geometry"]["verification_status"], "not_run")
         self.assertEqual(stages["msh_to_cgns"]["implementation_status"], "implemented")
         self.assertEqual(stages["msh_to_cgns"]["verification_status"], "not_run")
+        self.assertEqual(stages["oneflow_ingestion"]["implementation_status"], "implemented")
+        self.assertEqual(stages["oneflow_ingestion"]["verification_status"], "not_run")
+        self.assertEqual(stages["cfd_smoke"]["implementation_status"], "implemented")
+        self.assertEqual(stages["cfd_smoke"]["verification_status"], "not_run")
+        self.assertFalse(stages["cfd_validation"]["in_current_scope"])
         contract_path = (
             repository_root / "grid" / "stl_to_gmsh" / "3d" / "pipe_bend"
             / "90_degree" / "automatic_tetrahedra" / "case-lifecycle.json"
@@ -1469,8 +1475,8 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 repository_root, "stl_to_gmsh_square"
             )
         )
-        # The lifecycle stops after CGNS conversion, but the shared
-        # gmsh_to_cgns Grid task is still executed by the OneFLOW binary.
+        # The pipe-bend lifecycle now includes the shared native-grid
+        # ingestion and bounded CFD smoke stages.
         self.assertTrue(
             mesh_case_requires_oneflow_executable(
                 repository_root, "stl_to_gmsh_pipe_bend_90_degree"
@@ -1482,11 +1488,13 @@ class MeshValidationCatalogTest(unittest.TestCase):
         )
         self.assertEqual(
             [step["id"] for step in pipe_bend_steps],
-            ["stl_to_gmsh", "gmsh_to_cgns"],
+            ["stl_to_gmsh", "gmsh_to_cgns", "cgns_to_oneflow", "oneflow_cfd_solve"],
         )
-        self.assertFalse(
-            any(step["id"] in {"cgns_to_oneflow", "oneflow_cfd_solve"}
-                for step in pipe_bend_steps)
+        self.assertTrue(
+            any(step["id"] == "cgns_to_oneflow" for step in pipe_bend_steps)
+        )
+        self.assertTrue(
+            any(step["id"] == "oneflow_cfd_solve" for step in pipe_bend_steps)
         )
 
     def test_existing_mesh_case_resolves_only_inside_user_mesh_workspace(self):
