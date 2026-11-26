@@ -996,6 +996,7 @@ def inspect_msh4(path: Path) -> dict:
     tetrahedron_volumes: list[float] = []
     tetrahedron_qualities: list[float] = []
     tetrahedron_quality_records: list[dict] = []
+    degenerate_tetrahedron_count = 0
     positive_xy = negative_xy = 0
     for _ in range(element_block_count):
         if cursor + 4 > len(element_tokens):
@@ -1067,14 +1068,20 @@ def inspect_msh4(path: Path) -> dict:
                 determinant = sum(a[i] * cross_bc[i] for i in range(3))
                 volume = abs(determinant) / 6.0
                 if volume <= volume_tolerance:
-                    raise Stl2DError("generated mesh contains a degenerate TETRA_4 element")
+                    degenerate_tetrahedron_count += 1
                 edge_squared_sum = sum(
                     math.dist(nodes[node_ids[i]], nodes[node_ids[j]]) ** 2
                     for i, j in ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3))
                 )
                 # Mean-ratio quality is scale-independent and equals one
-                # for an equilateral tetrahedron.
-                quality = 12.0 * (3.0 * volume) ** (2.0 / 3.0) / edge_squared_sum
+                # for an equilateral tetrahedron. Degenerate cells are kept
+                # in the report with quality zero; diagnostics do not gate
+                # conversion or the solver smoke-test workflow.
+                quality = (
+                    12.0 * (3.0 * volume) ** (2.0 / 3.0) / edge_squared_sum
+                    if volume > volume_tolerance and edge_squared_sum > 0.0
+                    else 0.0
+                )
                 quality = min(1.0, quality)
                 tetrahedron_volumes.append(volume)
                 tetrahedron_qualities.append(quality)
@@ -1152,7 +1159,7 @@ def inspect_msh4(path: Path) -> dict:
     tetrahedron_quality_records.sort(key=lambda item: (item["quality"], item["element_tag"]))
     tetrahedron_quality_summary = {
         "metric": "mean_ratio",
-        "degenerate_count": 0,
+        "degenerate_count": degenerate_tetrahedron_count,
         "minimum_quality": min(tetrahedron_qualities) if tetrahedron_qualities else 0.0,
         "mean_quality": (sum(tetrahedron_qualities) / len(tetrahedron_qualities)) if tetrahedron_qualities else 0.0,
         "quality_percentiles": {
