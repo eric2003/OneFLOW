@@ -48,20 +48,21 @@ counts below the 0.1/0.2/0.3 diagnostic levels, minimum and total cell volume,
 and the ten lowest-quality elements (element/node tags and centroid). The
 distribution and worst-element records are persisted in mesh-validation
 evidence; scalar statistics are also exposed as run metrics and restored during
-evidence recovery. The shared converter can be exercised as the next
-independent milestone: CGNS conversion does not certify mesh-quality
-acceptance. The quality stage remains a prerequisite for OneFLOW ingestion,
-so conversion evidence can be gathered without allowing an unaccepted mesh to
-proceed into the solver. The 0.1/0.2/0.3 levels are diagnostic buckets only, not
-acceptance limits. Degenerate tetrahedra are rejected. The quality stage is
-not yet an acceptance gate: no pass/fail thresholds are applied until
-case-appropriate limits and their rationale are declared.
+evidence recovery. The shared converter and subsequent OneFLOW ingestion/CFD smoke stages
+are independent of these quality diagnostics. Quality statistics never gate
+MSH-to-CGNS conversion, CGNS-to-OneFLOW ingestion, or a bounded solver smoke
+test. Low-quality and degenerate TETRA_4 cells are reported (degenerate cells
+receive mean-ratio quality zero) so users can inspect and locate them, but the
+workflow continues. The 0.1/0.2/0.3 levels are diagnostic buckets only, not
+acceptance limits. Mesh quality is advisory in workflow testing; any future
+production-quality or physical-accuracy acceptance policy belongs to a
+separate validation scope.
 
 The following stages remain outside the current verified scope:
 
-- **Mesh quality acceptance:** quality distribution diagnostics are available,
-  but case-specific acceptance thresholds and their rationale are not yet
-  declared. This stage remains an explicit prerequisite for OneFLOW ingestion.
+- **Mesh quality diagnostics:** quality distribution and degenerate-cell
+  counts are available as advisory information. They do not block any
+  conversion, ingestion, or smoke-test stage.
 - **OneFLOW ingestion:** read the converted CGNS grid into the native grid
   model and verify inlet, outlet, wall, dimensions, and runtime environment
   evidence.
