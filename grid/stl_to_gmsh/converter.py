@@ -944,6 +944,7 @@ def inspect_msh4(path: Path) -> dict:
         for axis in range(3)
     )
     area_tolerance = 64.0 * math.ulp(1.0) * coordinate_scale * coordinate_scale
+    volume_tolerance = 64.0 * math.ulp(1.0) * coordinate_scale ** 3
 
     try:
         entity_tokens = " ".join(section("Entities")).split()
@@ -992,6 +993,8 @@ def inspect_msh4(path: Path) -> dict:
     triangle_areas: list[float] = []
     triangle_qualities: list[float] = []
     triangle_min_angles: list[float] = []
+    tetrahedron_volumes: list[float] = []
+    tetrahedron_qualities: list[float] = []
     positive_xy = negative_xy = 0
     for _ in range(element_block_count):
         if cursor + 4 > len(element_tokens):
@@ -1015,42 +1018,64 @@ def inspect_msh4(path: Path) -> dict:
             if any(node_id not in nodes for node_id in node_ids):
                 raise Stl2DError("MSH element references an unknown node")
             element_records.append((entity_dim, element_type, tuple(node_ids)))
-            if element_type != 2:
-                continue
-            p0, p1, p2 = (nodes[node_id] for node_id in node_ids)
-            u = tuple(p1[i] - p0[i] for i in range(3))
-            v = tuple(p2[i] - p0[i] for i in range(3))
-            cross = (
-                u[1] * v[2] - u[2] * v[1],
-                u[2] * v[0] - u[0] * v[2],
-                u[0] * v[1] - u[1] * v[0],
-            )
-            area = 0.5 * math.sqrt(sum(value * value for value in cross))
-            signed_xy = 0.5 * (u[0] * v[1] - u[1] * v[0])
-            lengths = (
-                math.dist(p0, p1), math.dist(p1, p2), math.dist(p2, p0)
-            )
-            if area <= area_tolerance or min(lengths) <= 0.0:
-                raise Stl2DError("generated mesh contains a degenerate TRI_3 element")
-            angles = []
-            for opposite, adjacent_a, adjacent_b in (
-                (lengths[1], lengths[0], lengths[2]),
-                (lengths[2], lengths[0], lengths[1]),
-                (lengths[0], lengths[1], lengths[2]),
-            ):
-                cosine = (adjacent_a**2 + adjacent_b**2 - opposite**2) / (
-                    2.0 * adjacent_a * adjacent_b
+            if element_type == 2:
+                p0, p1, p2 = (nodes[node_id] for node_id in node_ids)
+                u = tuple(p1[i] - p0[i] for i in range(3))
+                v = tuple(p2[i] - p0[i] for i in range(3))
+                cross = (
+                    u[1] * v[2] - u[2] * v[1],
+                    u[2] * v[0] - u[0] * v[2],
+                    u[0] * v[1] - u[1] * v[0],
                 )
-                angles.append(math.degrees(math.acos(max(-1.0, min(1.0, cosine)))))
-            triangle_areas.append(area)
-            triangle_qualities.append(
-                4.0 * math.sqrt(3.0) * area / sum(length * length for length in lengths)
-            )
-            triangle_min_angles.append(min(angles))
-            if signed_xy > 0.0:
-                positive_xy += 1
-            elif signed_xy < 0.0:
-                negative_xy += 1
+                area = 0.5 * math.sqrt(sum(value * value for value in cross))
+                signed_xy = 0.5 * (u[0] * v[1] - u[1] * v[0])
+                lengths = (
+                    math.dist(p0, p1), math.dist(p1, p2), math.dist(p2, p0)
+                )
+                if area <= area_tolerance or min(lengths) <= 0.0:
+                    raise Stl2DError("generated mesh contains a degenerate TRI_3 element")
+                angles = []
+                for opposite, adjacent_a, adjacent_b in (
+                    (lengths[1], lengths[0], lengths[2]),
+                    (lengths[2], lengths[0], lengths[1]),
+                    (lengths[0], lengths[1], lengths[2]),
+                ):
+                    cosine = (adjacent_a**2 + adjacent_b**2 - opposite**2) / (
+                        2.0 * adjacent_a * adjacent_b
+                    )
+                    angles.append(math.degrees(math.acos(max(-1.0, min(1.0, cosine)))))
+                triangle_areas.append(area)
+                triangle_qualities.append(
+                    4.0 * math.sqrt(3.0) * area / sum(length * length for length in lengths)
+                )
+                triangle_min_angles.append(min(angles))
+                if signed_xy > 0.0:
+                    positive_xy += 1
+                elif signed_xy < 0.0:
+                    negative_xy += 1
+            elif entity_dim == 3 and element_type == 4:
+                p0, p1, p2, p3 = (nodes[node_id] for node_id in node_ids)
+                a = tuple(p1[i] - p0[i] for i in range(3))
+                b = tuple(p2[i] - p0[i] for i in range(3))
+                c = tuple(p3[i] - p0[i] for i in range(3))
+                cross_bc = (
+                    b[1] * c[2] - b[2] * c[1],
+                    b[2] * c[0] - b[0] * c[2],
+                    b[0] * c[1] - b[1] * c[0],
+                )
+                determinant = sum(a[i] * cross_bc[i] for i in range(3))
+                volume = abs(determinant) / 6.0
+                if volume <= volume_tolerance:
+                    raise Stl2DError("generated mesh contains a degenerate TETRA_4 element")
+                edge_squared_sum = sum(
+                    math.dist(nodes[node_ids[i]], nodes[node_ids[j]]) ** 2
+                    for i, j in ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3))
+                )
+                # Mean-ratio quality is scale-independent and equals one
+                # for an equilateral tetrahedron.
+                quality = 12.0 * (3.0 * volume) ** (2.0 / 3.0) / edge_squared_sum
+                tetrahedron_volumes.append(volume)
+                tetrahedron_qualities.append(min(1.0, quality))
 
     if sum(element_types.values()) != element_count:
         raise Stl2DError("MSH 4.1 element block counts do not match the file header")
@@ -1105,6 +1130,14 @@ def inspect_msh4(path: Path) -> dict:
         "tetrahedral_topology": tetrahedral_topology,
         "physical_groups": physical_groups,
         "coordinate_bounds": bounds,
+        "tetrahedron_quality": {
+            "metric": "mean_ratio",
+            "degenerate_count": 0,
+            "minimum_quality": min(tetrahedron_qualities) if tetrahedron_qualities else 0.0,
+            "mean_quality": (sum(tetrahedron_qualities) / len(tetrahedron_qualities)) if tetrahedron_qualities else 0.0,
+            "minimum_volume": min(tetrahedron_volumes) if tetrahedron_volumes else 0.0,
+            "total_volume": sum(tetrahedron_volumes),
+        },
         "triangle_quality": {
             "degenerate_count": 0,
             "positive_xy_orientation_count": positive_xy,
