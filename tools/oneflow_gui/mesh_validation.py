@@ -856,6 +856,13 @@ def recover_mesh_validation_run(run_directory: Path) -> dict:
                         value = quality.get(source_key)
                         if isinstance(value, (int, float)):
                             metrics[metric_key] = value
+                    for percentile, value in quality.get("quality_percentiles", {}).items():
+                        if isinstance(value, (int, float)):
+                            metrics[f"tetrahedron_mean_ratio_{percentile}"] = value
+                    for threshold, count in quality.get("quality_below_threshold_counts", {}).items():
+                        if isinstance(count, int):
+                            suffix = threshold.replace(".", "_")
+                            metrics[f"tetrahedron_mean_ratio_below_{suffix}_count"] = count
                 groups = candidate.get("physical_groups")
                 if isinstance(groups, list):
                     metrics["physical_group_count"] = len(groups)
@@ -1619,6 +1626,13 @@ def run_mesh_validation(
             value = tetra_quality.get(source_key)
             if isinstance(value, (int, float)):
                 metrics[metric_key] = value
+        for percentile, value in tetra_quality.get("quality_percentiles", {}).items():
+            if isinstance(value, (int, float)):
+                metrics[f"tetrahedron_mean_ratio_{percentile}"] = value
+        for threshold, count in tetra_quality.get("quality_below_threshold_counts", {}).items():
+            if isinstance(count, int):
+                suffix = threshold.replace(".", "_")
+                metrics[f"tetrahedron_mean_ratio_below_{suffix}_count"] = count
     if "physical_groups" in mesh_evidence:
         metrics["physical_group_count"] = len(mesh_evidence["physical_groups"])
 
