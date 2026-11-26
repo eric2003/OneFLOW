@@ -995,6 +995,7 @@ def inspect_msh4(path: Path) -> dict:
     triangle_min_angles: list[float] = []
     tetrahedron_volumes: list[float] = []
     tetrahedron_qualities: list[float] = []
+    tetrahedron_quality_records: list[dict] = []
     positive_xy = negative_xy = 0
     for _ in range(element_block_count):
         if cursor + 4 > len(element_tokens):
@@ -1074,8 +1075,19 @@ def inspect_msh4(path: Path) -> dict:
                 # Mean-ratio quality is scale-independent and equals one
                 # for an equilateral tetrahedron.
                 quality = 12.0 * (3.0 * volume) ** (2.0 / 3.0) / edge_squared_sum
+                quality = min(1.0, quality)
                 tetrahedron_volumes.append(volume)
-                tetrahedron_qualities.append(min(1.0, quality))
+                tetrahedron_qualities.append(quality)
+                tetrahedron_quality_records.append({
+                    "element_tag": _tag,
+                    "node_tags": node_ids,
+                    "quality": quality,
+                    "volume": volume,
+                    "centroid": [
+                        sum(nodes[node_id][axis] for node_id in node_ids) / 4.0
+                        for axis in range(3)
+                    ],
+                })
 
     if sum(element_types.values()) != element_count:
         raise Stl2DError("MSH 4.1 element block counts do not match the file header")
@@ -1116,6 +1128,37 @@ def inspect_msh4(path: Path) -> dict:
         "minimum": [min(point[axis] for point in coordinates) for axis in range(3)],
         "maximum": [max(point[axis] for point in coordinates) for axis in range(3)],
     }
+
+    def percentile(values: list[float], fraction: float) -> float:
+        if not values:
+            return 0.0
+        ordered = sorted(values)
+        position = (len(ordered) - 1) * fraction
+        lower = math.floor(position)
+        upper = math.ceil(position)
+        if lower == upper:
+            return ordered[lower]
+        return ordered[lower] + (ordered[upper] - ordered[lower]) * (position - lower)
+
+    quality_thresholds = (0.1, 0.2, 0.3)
+    tetrahedron_quality_records.sort(key=lambda item: (item["quality"], item["element_tag"]))
+    tetrahedron_quality_summary = {
+        "metric": "mean_ratio",
+        "degenerate_count": 0,
+        "minimum_quality": min(tetrahedron_qualities) if tetrahedron_qualities else 0.0,
+        "mean_quality": (sum(tetrahedron_qualities) / len(tetrahedron_qualities)) if tetrahedron_qualities else 0.0,
+        "quality_percentiles": {
+            f"p{int(fraction * 100):02d}": percentile(tetrahedron_qualities, fraction)
+            for fraction in (0.05, 0.50, 0.95)
+        },
+        "quality_below_threshold_counts": {
+            f"{threshold:.1f}": sum(value < threshold for value in tetrahedron_qualities)
+            for threshold in quality_thresholds
+        },
+        "worst_elements": tetrahedron_quality_records[:10],
+        "minimum_volume": min(tetrahedron_volumes) if tetrahedron_volumes else 0.0,
+        "total_volume": sum(tetrahedron_volumes),
+    }
     return {
         "format": format_values[0],
         "binary": False,
@@ -1130,14 +1173,7 @@ def inspect_msh4(path: Path) -> dict:
         "tetrahedral_topology": tetrahedral_topology,
         "physical_groups": physical_groups,
         "coordinate_bounds": bounds,
-        "tetrahedron_quality": {
-            "metric": "mean_ratio",
-            "degenerate_count": 0,
-            "minimum_quality": min(tetrahedron_qualities) if tetrahedron_qualities else 0.0,
-            "mean_quality": (sum(tetrahedron_qualities) / len(tetrahedron_qualities)) if tetrahedron_qualities else 0.0,
-            "minimum_volume": min(tetrahedron_volumes) if tetrahedron_volumes else 0.0,
-            "total_volume": sum(tetrahedron_volumes),
-        },
+        "tetrahedron_quality": tetrahedron_quality_summary,
         "triangle_quality": {
             "degenerate_count": 0,
             "positive_xy_orientation_count": positive_xy,
