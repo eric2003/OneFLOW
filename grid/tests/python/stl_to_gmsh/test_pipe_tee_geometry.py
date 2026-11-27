@@ -366,6 +366,34 @@ class PipeTeeGeometryTest(unittest.TestCase):
                 self.assertGreater(mode_volume["tetrahedron_elements"], 0)
                 self.assertEqual(mode_volume["geometry_validation"]["status"], "PASS")
 
+            # The native C++ geometry producer must be able to hand its STL
+            # artifacts to the same generic region-aware volume mesher.
+            cpp_runner = (
+                Path(__file__).resolve().parents[4] / "grid" / "stl_to_gmsh" / "3d"
+                / "pipe_tee" / "oecd_nea_vattenfall" / "automatic_tetrahedra"
+                / "run_pipe_tee_cpp_case.py"
+            )
+            cpp_run_case = runpy.run_path(str(cpp_runner))["run_case"]
+            cpp_mesh = cpp_run_case(
+                Path(temporary) / "cpp_stl_route",
+                gmsh=shutil.which("gmsh"),
+                mesh_size=0.045,
+                operating_mode="main_inlets",
+                meshing_route="stl",
+            )
+            cpp_summary = inspect_msh4(cpp_mesh)
+            self.assertEqual(
+                {
+                    (item["dimension"], item["name"])
+                    for item in cpp_summary["physical_groups"]
+                },
+                {
+                    (2, "wall"), (2, "inflow"), (2, "outflow"),
+                    (3, "fluid_domain"),
+                },
+            )
+            self.assertGreater(cpp_summary["tetrahedron_elements"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()
