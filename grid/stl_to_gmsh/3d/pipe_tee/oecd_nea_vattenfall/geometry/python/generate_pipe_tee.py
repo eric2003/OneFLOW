@@ -156,7 +156,7 @@ def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
     for name in ("main_inflow", "branch_inflow"):
         patch = output.parent / f"{output.stem}.{name}.stl"
         _write_stl(patch, nodes, groups[name], name)
-        subregions[name] = {"file": patch.name, "sha256": _sha(patch), "triangle_count": len(groups[name])}
+        subregions[name] = {"file": patch.name, "sha256": _sha(patch), "triangle_count": len(groups[name]), "parent_region": "inflow"}
     region_path = output.parent / "region_manifest.json"
     region_manifest = {
         "schema": "oneflow.stl-surface-regions",

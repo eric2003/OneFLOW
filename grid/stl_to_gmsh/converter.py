@@ -423,7 +423,7 @@ def _triangle_geometry_key(triangle: Triangle, tolerance: float) -> tuple:
 def _region_aware_closed_surface_volume_geo(
     stl: Path, triangles: list[Triangle], config: dict, tolerance: float
 ) -> tuple[str, dict]:
-    """Build a volume mesh while preserving the cutter's named STL regions."""
+    """Build a volume mesh while preserving named STL regions and subregions."""
     topology = validate_closed_genus_zero_surface(triangles, tolerance)
     manifest_path = Path(str(config.get("region_manifest", ""))).expanduser().resolve()
     if not manifest_path.is_file():
@@ -438,12 +438,9 @@ def _region_aware_closed_surface_volume_geo(
     if not isinstance(regions, dict) or set(regions) != {"wall", "inflow", "outflow"}:
         raise Stl2DError("region manifest must define wall, inflow and outflow")
     import hashlib
-    import shlex
-    region_paths = {}
-    region_counts = {}
-    region_triangle_keys: Counter[tuple] = Counter()
-    for name in ("wall", "inflow", "outflow"):
-        record = regions[name]
+    import re
+
+    def read_patch(name: str, record: dict) -> tuple[Path, Counter[tuple], int]:
         if not isinstance(record, dict):
             raise Stl2DError(f"invalid {name} region record")
         relative = Path(str(record.get("file", "")))
@@ -454,19 +451,46 @@ def _region_aware_closed_surface_volume_geo(
             raise Stl2DError(f"{name} region STL does not exist: {path}")
         if hashlib.sha256(path.read_bytes()).hexdigest() != record.get("sha256"):
             raise Stl2DError(f"{name} region STL checksum does not match its manifest")
-        region_triangles = read_stl(path)
-        if not region_triangles or len(region_triangles) != record.get("triangle_count"):
+        patch_triangles = read_stl(path)
+        if not patch_triangles or len(patch_triangles) != record.get("triangle_count"):
             raise Stl2DError(f"{name} region triangle count does not match its manifest")
-        region_paths[name] = path
-        region_counts[name] = len(region_triangles)
-        region_triangle_keys.update(
-            _triangle_geometry_key(triangle, tolerance)
-            for triangle in region_triangles
-        )
+        keys = Counter(_triangle_geometry_key(triangle, tolerance) for triangle in patch_triangles)
+        return path, keys, len(patch_triangles)
+
+    region_paths: dict[str, Path] = {}
+    region_keys: dict[str, Counter[tuple]] = {}
+    region_counts: dict[str, int] = {}
+    for name in ("wall", "inflow", "outflow"):
+        region_paths[name], region_keys[name], region_counts[name] = read_patch(name, regions[name])
+
+    subregions = manifest.get("subregions", {})
+    if not isinstance(subregions, dict):
+        raise Stl2DError("region manifest subregions must be an object")
+    subregion_paths: dict[str, list[tuple[str, Path]]] = {name: [] for name in regions}
+    subregion_keys: dict[str, Counter[tuple]] = {name: Counter() for name in regions}
+    for name, record in subregions.items():
+        if not re.fullmatch(r"[A-Za-z0-9_]+", name):
+            raise Stl2DError(f"invalid STL subregion name: {name!r}")
+        if not isinstance(record, dict):
+            raise Stl2DError(f"invalid {name} subregion record")
+        parent = record.get("parent_region")
+        if parent not in regions:
+            raise Stl2DError(f"{name} subregion must name a valid parent_region")
+        path, keys, count = read_patch(name, record)
+        subregion_paths[parent].append((name, path))
+        subregion_keys[parent].update(keys)
+        region_counts[f"{parent}/{name}"] = count
+
+    for parent, patches in subregion_paths.items():
+        if patches and subregion_keys[parent] != region_keys[parent]:
+            raise Stl2DError(
+                f"{parent} subregion patches must form an exact triangle partition of their parent region"
+            )
+
     closed_triangle_keys = Counter(
         _triangle_geometry_key(triangle, tolerance) for triangle in triangles
     )
-    if region_triangle_keys != closed_triangle_keys:
+    if Counter({key: count for keys in region_keys.values() for key, count in keys.items()}) != closed_triangle_keys:
         raise Stl2DError(
             "wall, inflow and outflow patch STLs must form an exact triangle partition of the closed STL"
         )
@@ -479,6 +503,18 @@ def _region_aware_closed_surface_volume_geo(
             or not math.isfinite(mesh_size_max) or mesh_size_max <= 0
             or mesh_size_min > mesh_size_max):
         raise Stl2DError("mesh size bounds must be positive, finite and ordered")
+
+    # Import each connected subregion independently. A combined inlet STL can
+    # contain multiple disconnected caps; CreateTopology/CreateGeometry may
+    # split such a discrete surface and invalidate its pre-conversion tag array.
+    patch_inputs: list[tuple[str, str, Path]] = []
+    for region in ("wall", "inflow", "outflow"):
+        children = subregion_paths[region]
+        if children:
+            patch_inputs.extend((region, name, path) for name, path in children)
+        else:
+            patch_inputs.append((region, region, region_paths[region]))
+
     lines = [
         "// Region-preserving generic STL cutting volume mesh.",
         'SetFactory("Built-in");',
@@ -486,21 +522,34 @@ def _region_aware_closed_surface_volume_geo(
         "Mesh.Binary = 0;",
         "Mesh.ElementOrder = 1;",
     ]
-    for index, name in enumerate(("wall", "inflow", "outflow")):
-        path = region_paths[name].as_posix()
-        if '"' in path:
-            raise Stl2DError("region STL path must not contain a quote character")
-        lines.append(f'Merge "{path}";')
+    region_patch_variables: dict[str, list[str]] = {name: [] for name in regions}
+    for index, (region, patch_name, path) in enumerate(patch_inputs):
+        path_text = path.as_posix()
+        if '"' in path_text:
+            raise Stl2DError(f"{patch_name} region STL path must not contain a quote character")
+        variable = f"regionPatch{index}"
+        lines.extend((
+            f'Merge "{path_text}";',
+            "allImportedSurfaces[] = Surface{:};",
+            f"{variable}[] = allImportedSurfaces[];",
+        ))
         if index == 0:
-            lines.append("wall[] = Surface{:};")
+            lines.append(f"importedSurfaces[] = {variable}[];")
         else:
             lines.extend((
-                "allImportedSurfaces[] = Surface{:};",
-                f"{name}[] = allImportedSurfaces[];",
-                f"{name}[] -= wall[];",
+                f"{variable}[] -= importedSurfaces[];",
+                f"importedSurfaces[] += {variable}[];",
             ))
-            if index == 2:
-                lines.append("outflow[] -= inflow[];")
+        region_patch_variables[region].append(variable)
+
+    for region in ("wall", "inflow", "outflow"):
+        variables = region_patch_variables[region]
+        if not variables:
+            raise Stl2DError(f"no STL patches were provided for {region}")
+        lines.append(f"{region}[] = {variables[0]}[];")
+        for variable in variables[1:]:
+            lines.append(f"{region}[] += {variable}[];")
+
     lines.extend((
         "Coherence Mesh;",
         "CreateTopology;",
@@ -525,8 +574,10 @@ def _region_aware_closed_surface_volume_geo(
         "mesh_size_min": mesh_size_min,
         "mesh_size_max": mesh_size_max,
         "region_manifest": str(manifest_path),
+        "region_subregion_counts": {
+            parent: len(patches) for parent, patches in subregion_paths.items() if patches
+        },
     }
-
 
 def _closed_surface_volume_geo(
     stl: Path, triangles: list[Triangle], config: dict, tolerance: float

@@ -91,6 +91,7 @@ class PipeTeeGeometryTest(unittest.TestCase):
                 self.assertEqual(record["triangle_count"], len(read_stl(root / record["file"])))
             self.assertEqual(set(manifest["regions"]), {"wall", "inflow", "outflow"})
             self.assertEqual(set(manifest["subregions"]), {"main_inflow", "branch_inflow"})
+            self.assertEqual({record["parent_region"] for record in manifest["subregions"].values()}, {"inflow"})
             self.assertEqual(manifest["regions"]["inflow"]["triangle_count"], 2)
             self.assertEqual(manifest["subregions"]["main_inflow"]["triangle_count"], 1)
             self.assertEqual(manifest["subregions"]["branch_inflow"]["triangle_count"], 1)
@@ -140,6 +141,10 @@ class PipeTeeGeometryTest(unittest.TestCase):
             groups = {(item["dimension"], item["name"]) for item in volume["mesh_summary"]["physical_groups"]}
             self.assertEqual(groups, {(2,"wall"),(2,"inflow"),(2,"outflow"),(3,"fluid_domain")})
             self.assertGreater(volume["mesh_summary"]["tetrahedron_elements"], 0)
+            self.assertEqual(volume["geometry_report"]["region_subregion_counts"], {"inflow": 2})
+            volume_geo = (Path(temporary) / "pipe_tee.geo").read_text(encoding="utf-8")
+            self.assertIn("Merge \""+(Path(temporary) / "pipe_tee.main_inflow.stl").as_posix()+"\";", volume_geo)
+            self.assertIn("Merge \""+(Path(temporary) / "pipe_tee.branch_inflow.stl").as_posix()+"\";", volume_geo)
 
 
 if __name__ == "__main__":
