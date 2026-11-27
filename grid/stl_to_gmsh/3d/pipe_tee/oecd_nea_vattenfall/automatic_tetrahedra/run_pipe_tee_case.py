@@ -127,7 +127,9 @@ def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict,
 
 
 def run_case(case_directory: Path, *, gmsh: str, mesh_size: float = 0.03,
-             operating_mode: str = "benchmark") -> Path:
+             operating_mode: str = "benchmark", meshing_route: str = "direct_occ") -> Path:
+    if meshing_route not in {"direct_occ", "stl"}:
+        raise ValueError(f"Unsupported T-junction meshing route: {meshing_route}")
     case_directory = case_directory.expanduser().resolve()
     input_dir = case_directory / "input"
     results_dir = case_directory / "results"
@@ -141,7 +143,14 @@ def run_case(case_directory: Path, *, gmsh: str, mesh_size: float = 0.03,
     )
     benchmark_path = GENERATOR.parents[2] / "automatic_tetrahedra" / "benchmark.json"
     geometry = json.loads(benchmark_path.read_text(encoding="utf-8"))["geometry"]
-    mesh_occ_volume(stl.with_suffix(".geo"), msh, gmsh, geometry, operating_mode)
+    if meshing_route == "stl":
+        from grid.stl_to_gmsh.generate_volume_mesh import generate as generate_volume_mesh
+
+        report = generate_volume_mesh(stl, msh, gmsh, mesh_size, mesh_size)
+        if report.get("validated") is not True:
+            raise RuntimeError("Generic STL-derived T-junction volume meshing failed.")
+    else:
+        mesh_occ_volume(stl.with_suffix(".geo"), msh, gmsh, geometry, operating_mode)
     return msh
 
 
@@ -151,10 +160,13 @@ def main() -> int:
     parser.add_argument("--gmsh", required=True)
     parser.add_argument("--mesh-size", type=float, default=0.03)
     parser.add_argument("--operating-mode", choices=tuple(OPERATING_MODES), default="benchmark")
+    parser.add_argument("--meshing-route", choices=("direct_occ", "stl"), default="direct_occ")
     args = parser.parse_args()
     try:
-        mesh = run_case(args.case_directory, gmsh=args.gmsh, mesh_size=args.mesh_size,
-                        operating_mode=args.operating_mode)
+        mesh = run_case(
+            args.case_directory, gmsh=args.gmsh, mesh_size=args.mesh_size,
+            operating_mode=args.operating_mode, meshing_route=args.meshing_route,
+        )
     except (OSError, ValueError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"T-junction Case failed: {error}\n")
     print(f"PASS: generated {mesh}")
