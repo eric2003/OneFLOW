@@ -311,8 +311,17 @@ jobs:
           $gmsh = Get-ChildItem -Path $destination -Filter gmsh.exe -Recurse | Select-Object -First 1
           if ($null -eq $gmsh) { throw "Gmsh executable was not found in the downloaded archive." }
           $gmsh.DirectoryName | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Configure MSVC developer environment (Windows)
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
       - name: Run generic STL cutting and pipe-bend Gmsh volume-mesh integration
         run: python -m unittest grid.tests.python.stl_import.test_generic_stl_surface_cut grid.tests.python.stl_to_gmsh.test_pipe_bend_geometry.PipeBendGeometryTest.test_gmsh_generates_pipe_bend_volume_with_named_physical_groups
+      - name: Run OECD/NEA–Vattenfall T-junction Python Gmsh integration
+        run: python -m unittest grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_gmsh_surface_mesh_contains_the_benchmark_physical_groups
+      - name: Run OECD/NEA–Vattenfall T-junction C++ geometry and MSH4 integration
+        run: python grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_cpp_case.py --case-directory "$RUNNER_TEMP/pipe_tee_cpp" --gmsh gmsh --mesh-size 0.045
 
   background-task-python-315:
     name: Background task lifecycle (Windows, Python 3.15)
