@@ -1308,7 +1308,27 @@ def _mesh_case_command(
 
 
 def _effective_required_physical_groups(mesh_entry: dict, project_data: dict) -> list[dict]:
-    """Prefer an explicit Case contract; use project regions only for generic Cases."""
+    """Resolve direct-OCC or STL-region T-junction groups from project evidence."""
+    if (
+        mesh_entry.get("id") == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+        and project_data.get("geometry") == "pipe_tee_oecd_nea_vattenfall"
+        and set(project_data.get("boundary_regions") or []) == {"wall", "inflow", "outflow"}
+    ):
+        subregions = set(project_data.get("boundary_subregions") or [])
+        valid_subregion_sets = (
+            {"main_left_inflow", "main_right_inflow", "branch_outflow"},
+            {"branch_inflow", "main_left_outflow", "main_right_outflow"},
+        )
+        if subregions not in valid_subregion_sets:
+            raise ValueError(
+                "T-junction STL project must preserve all three named port subregions."
+            )
+        return [
+            {"name": "wall", "dimension": 2},
+            {"name": "inflow", "dimension": 2},
+            {"name": "outflow", "dimension": 2},
+            {"name": "fluid_domain", "dimension": 3},
+        ]
     declared = mesh_entry.get("required_physical_groups")
     if declared:
         return list(declared)
