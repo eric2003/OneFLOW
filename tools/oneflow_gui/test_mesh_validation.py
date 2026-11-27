@@ -70,6 +70,34 @@ class TjunctionPhysicalGroupContractTest(unittest.TestCase):
                 case,
             )
 
+    def test_t_junction_stl_project_uses_generic_groups_and_requires_three_port_subregions(self):
+        root = Path(__file__).resolve().parents[2]
+        from tools.oneflow_gui.mesh_validation import _catalog
+        catalog = _catalog(root)
+        tee = next(
+            item for item in catalog["cases"]
+            if item["id"] == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+        )
+        project = {
+            "geometry": "pipe_tee_oecd_nea_vattenfall",
+            "boundary_regions": ["wall", "inflow", "outflow"],
+            "boundary_subregions": [
+                "main_left_inflow", "main_right_inflow", "branch_outflow"
+            ],
+        }
+        self.assertEqual(
+            _effective_required_physical_groups(tee, project),
+            [
+                {"name": "wall", "dimension": 2},
+                {"name": "inflow", "dimension": 2},
+                {"name": "outflow", "dimension": 2},
+                {"name": "fluid_domain", "dimension": 3},
+            ],
+        )
+        project["boundary_subregions"] = ["main_left_inflow"]
+        with self.assertRaisesRegex(ValueError, "all three named port subregions"):
+            _effective_required_physical_groups(tee, project)
+
     def test_case_contract_takes_precedence_over_legacy_project_regions(self):
         root = Path(__file__).resolve().parents[2]
         from tools.oneflow_gui.mesh_validation import _catalog
