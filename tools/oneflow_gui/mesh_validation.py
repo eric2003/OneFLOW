@@ -519,7 +519,10 @@ def mesh_validation_workspace(
         )
     relative_case = Path(*case_directory.parts[1:])
     workspace = UserDataPaths.discover().mesh_validation / relative_case
-    if mesh_case_id == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall":
+    if mesh_case_id in {
+        "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
+        "stl_to_gmsh_pipe_tee_stl_regions",
+    }:
         if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
             raise ValueError(f"Unsupported T-junction operating mode: {operating_mode!r}")
         workspace = workspace / operating_mode
