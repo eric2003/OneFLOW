@@ -334,7 +334,7 @@ defaults, commands and verification scope.
 ## Related standard case: OECD/NEA–Vattenfall T-junction
 
 The T-junction benchmark is registered as
-\`stl_to_gmsh_pipe_tee_oecd_nea_vattenfall\`. It uses the published 140 mm
+`stl_to_gmsh_pipe_tee_oecd_nea_vattenfall`. It uses the published 140 mm
 main pipe, 100 mm branch, 1070 mm straight extensions beyond the junction
 block, and 470 mm branch extension above the block. The resulting centreline-to-
 end distances are 1220 mm on the main pipe and 693 mm on the branch. The reference operating point is 9 L/s at 19 °C in
@@ -342,13 +342,13 @@ the main inlet and 6 L/s at 36 °C in the branch inlet.
 
 The Python reference and C++17 geometry driver both use Gmsh/OpenCASCADE to
 form the Boolean-union fluid domain. They export the same closed STL and
-checksum-bound \`wall\`, \`inflow\` and \`outflow\` regions, then use the shared
+checksum-bound `wall`, `inflow` and `outflow` regions, then use the shared
 region-aware volume mesher. The C++ driver uses the shared Python MSH2-to-STL
 serializer for identical patch manifests; it is not a second meshing pipeline.
 
 See
-[\`3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/README.md\`](3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/README.md)
-and its \`benchmark.json\` for geometry, equations, operating conditions,
+[`3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/README.md`](3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/README.md)
+and its `benchmark.json` for geometry, equations, operating conditions,
 measurement stations, literature and future comparison targets. Current
 Mesh-to-CFD use is a short runtime smoke test only; no benchmark physical
 validation is claimed.

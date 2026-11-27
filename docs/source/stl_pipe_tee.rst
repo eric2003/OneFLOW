@@ -28,7 +28,7 @@ Geometry, parameters and equations
 ----------------------------------
 
 The machine-readable source of truth is
-\`grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/benchmark.json\`.
+`grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/benchmark.json`.
 It records dimensions, operating conditions, derived bulk velocities, reported
 Reynolds numbers, measurement locations, formulas and the future validation
 plan.

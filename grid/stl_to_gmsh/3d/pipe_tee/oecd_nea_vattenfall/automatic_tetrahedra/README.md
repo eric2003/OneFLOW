@@ -5,7 +5,7 @@ STL-to-Gmsh and Mesh-to-CFD workflow. It follows the same staged Case pattern as
 the 90-degree pipe bend; it does not introduce a second meshing or validation
 framework.
 
-Case ID: \`stl_to_gmsh_pipe_tee_oecd_nea_vattenfall\`
+Case ID: `stl_to_gmsh_pipe_tee_oecd_nea_vattenfall`
 
 ## Benchmark identity and geometry
 
@@ -14,20 +14,23 @@ benchmark (NEA/CSNI/R(2011)5, 2011):
 
 - Main pipe inner diameter: 140 mm.
 - Branch pipe inner diameter: 100 mm.
-- Main inlet and outlet test-section lengths: 1070 mm each.
-- Branch inlet test-section length: 470 mm.
+- Main straight-pipe extensions beyond the junction block: 1070 mm each.
+- Figure 2 places each main-axis block side 150 mm from the pipe centreline,
+  giving 1220 mm from the centreline to each main pipe end.
+- Branch straight-pipe extension above the junction block: 470 mm. Figure 2
+  places the block top 223 mm above the main centreline, giving 693 mm from the
+  centreline to the branch inlet.
 - Main inlet: 9.0 L/s at 19 °C.
 - Branch inlet: 6.0 L/s at 36 °C.
 - Temperature difference: 17 K.
-- The junction block is 220 x 285 x 325 mm. The intersection edge is reported
-  as very slightly rounded, with an unmeasured radius below 0.2 mm. The baseline
-  geometry deliberately uses a sharp intersection rather than inventing a
-  fillet radius.
+- The intersection edge is reported as very slightly rounded, with an
+  unmeasured radius below 0.2 mm. The baseline geometry deliberately uses a
+  sharp intersection rather than inventing a fillet radius.
 
 The fluid domain is the Boolean union of the three cylindrical bores. The main
 pipe axis is +X, the branch inlet axis is +Z, and the origin is at the
-centreline intersection. The physical groups are dimension-2 \`wall\`,
-\`inflow\`, and \`outflow\`, plus dimension-3 \`fluid_domain\`.
+centreline intersection. The physical groups are dimension-2 `wall`,
+`inflow`, and `outflow`, plus dimension-3 `fluid_domain`.
 
 The initial geometry producer uses Gmsh/OpenCASCADE to form the union, mesh its
 boundary, and export a closed STL plus checksum-bound region patch files. The
@@ -39,7 +42,7 @@ step; it is not a substitute for the shared final volume-mesh stage.
 
 - Reuse the shared STL region manifest, generic volume mesher, MSH4 inspector,
   Gmsh-to-CGNS converter, CGNS-to-OneFLOW converter and CFD smoke consumer.
-- Preserve wall, both inlet patches (combined as \`inflow\`) and the main outlet
+- Preserve wall, both inlet patches (combined as `inflow`) and the main outlet
   as explicit semantic regions.
 - Run only a bounded CFD smoke test through the existing Mesh-to-CFD
   Validation Workbench. The current smoke configuration is not a benchmark
@@ -50,7 +53,7 @@ step; it is not a substitute for the shared final volume-mesh stage.
 ## Reference data and future physical validation
 
 The machine-readable reference contract is
-[\`benchmark.json\`](benchmark.json). It records the dimensions, flow rates,
+[`benchmark.json`](benchmark.json). It records the dimensions, flow rates,
 temperatures, derived bulk velocities, reported Reynolds numbers, formulas,
 measurement stations, reference quantities, source documents and future
 comparison plan.
@@ -66,7 +69,7 @@ Important benchmark details:
 - Downstream PIV velocity measurements are isothermal at 1.6D, 2.6D, 3.6D and
   4.6D. Thermocouple data cover 2D through 20D downstream.
 - The report describes a comparison metric
-  \`M = (1/N) sum_i |C_i - D_i|\`.
+  `M = (1/N) sum_i |C_i - D_i|`.
 
 The benchmark report states that the working fluid is de-ionized tap water and
 references the 1967 ASME Steam Tables for properties, with thermal expansion
@@ -78,7 +81,7 @@ The report documents the measurement quantities and locations and notes that
 tabular data files were distributed to benchmark participants. Original
 tabular data are not copied into this repository until their source and
 redistribution permissions are confirmed. The report and journal reference are
-recorded in \`benchmark.json\`.
+recorded in `benchmark.json`.
 
 ## Verification status
 
