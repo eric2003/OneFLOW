@@ -352,3 +352,58 @@ and its `benchmark.json` for geometry, equations, operating conditions,
 measurement stations, literature and future comparison targets. Current
 Mesh-to-CFD use is a short runtime smoke test only; no benchmark physical
 validation is claimed.
+
+## 3D case organization: physics first, generation method second
+
+The 3-D case tree is organized by the physical flow problem, not by the
+benchmark name or by the implementation language. Internal-flow geometries
+such as straight pipes, pipes with side openings, bends and T-junctions belong
+to one internal-flow family. A T-junction is one benchmark series within that
+family; it must not become the parent directory for straight-pipe or generic
+side-opening cases.
+
+The target organization for new internal-flow cases is:
+
+```text
+3d/
+  internal_flow/
+    straight_pipe/
+    pipe_with_side_opening/
+    pipe_bend/
+    pipe_tee/
+    pipe_s_bend/                 # future extension
+  external_flow/
+    sphere/
+    prolate_spheroid/
+  cube/                          # topology and element-family prototypes
+  generic_surface_mesh/
+```
+
+Within a geometry family, keep geometry definition and meshing strategy
+separate. A case may provide independent `python/` and `cpp/` producers
+where both are meaningful; geometry-generation routes such as STL-derived
+fluid shells and analytic OpenCASCADE construction are named explicitly in
+the case contract rather than encoded as unrelated top-level geometries.
+For example, the future straight-pipe STL benchmark should distinguish
+`stl_surface_to_volume` from `analytic_occ_reference`. A side-opening case
+should identify the opening patch as an inlet or outlet independently of the
+wall patch.
+
+The checked-in tree is currently transitional: the established cylinder is
+at `3d/cylinder_internal_flow/`, while the bend and T-junction are at
+`3d/pipe_bend/` and `3d/pipe_tee/`. Do not add more internal-flow cases at
+the 3-D root. These existing paths are retained temporarily because they are
+referenced by the case catalog, GUI presets, tests, lifecycle contracts and
+documentation. Moving them is a separate path-migration change that must
+update all those references atomically and preserve stable case IDs and
+external staging names. Until that migration is complete, new internal-flow
+benchmark cases should use the target `3d/internal_flow/` family and the
+catalog must register their canonical paths explicitly.
+
+The T-junction progression is a benchmark sequence, not a directory taxonomy:
+T0 straight internal pipe, T1 straight pipe with a side opening, T2 pipe with
+a short branch, and T3 the full OECD/NEA-Vattenfall T-junction. T0 and T1 are
+general internal-flow cases and must remain reusable outside the T-junction
+series. All stages share the same boundary-region and mesh-validation
+contracts, while each geometry and meshing route retains its own lifecycle
+evidence.
