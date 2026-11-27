@@ -676,6 +676,17 @@
             "kind": "cpp",
             "script": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_cpp_case.py",
             "compiler_standard": "c++17"
+          },
+          {
+            "id": "python_stl_regions",
+            "kind": "python",
+            "script": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_stl_case.py"
+          },
+          {
+            "id": "native_cpp_stl_regions",
+            "kind": "cpp",
+            "script": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_cpp_stl_case.py",
+            "compiler_standard": "c++17"
           }
         ]
       },
