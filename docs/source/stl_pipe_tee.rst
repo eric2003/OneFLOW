@@ -33,8 +33,8 @@ The principal relations are
 
 .. math::
 
-   A = \frac{\pi D^2}{4}, \\qquad
-   U_b = \frac{Q}{A}, \\qquad
+   A = \frac{\pi D^2}{4}, \qquad
+   U_b = \frac{Q}{A}, \qquad
    Re_D = \frac{\rho U_b D}{\mu}
 
 and
