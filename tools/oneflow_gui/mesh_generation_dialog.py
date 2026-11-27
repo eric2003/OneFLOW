@@ -598,8 +598,8 @@ class PipeTeeMeshDialog(QDialog):
         root.addWidget(heading)
         description = QLabel(
             "Generate the connected fluid volume of the orthogonal T-junction. "
-            "The geometry and mesh are shared by both operating modes; only the "
-            "inlet/outlet assignment changes."
+            "Both modes use the same connected fluid geometry. Gmsh generates "
+            "the volume mesh with the selected inlet/outlet Physical Groups."
         )
         description.setWordWrap(True)
         root.addWidget(description)
