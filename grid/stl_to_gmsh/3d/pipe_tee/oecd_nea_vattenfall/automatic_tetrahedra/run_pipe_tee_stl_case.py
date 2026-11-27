@@ -30,7 +30,7 @@ def main() -> int:
             meshing_route="stl",
         )
     except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as error:
-        parser.exit(2, f"Python T-junction STL Case failed: {error}\\n")
+        parser.exit(2, f"Python T-junction STL Case failed: {error}\n")
     print(f"PASS: Python STL-derived T-junction mesh generated {mesh}")
     return 0
 
