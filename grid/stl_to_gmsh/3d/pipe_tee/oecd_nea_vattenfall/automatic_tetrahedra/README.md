@@ -31,8 +31,12 @@ benchmark (NEA/CSNI/R(2011)5, 2011):
 
 The fluid domain is the Boolean union of the three cylindrical bores. The main
 pipe axis is +X, the branch inlet axis is +Z, and the origin is at the
-centreline intersection. The physical groups are dimension-2 `wall`,
-`inflow`, and `outflow`, plus dimension-3 `fluid_domain`.
+centreline intersection. The source surface MSH2 preserves dimension-2 `wall`, `main_inflow`,
+`branch_inflow` and `outflow` as distinct groups. The shared volume mesher
+currently combines the two inlet patches into the compatibility `inflow`
+region, so the final MSH4 contains `wall`, `inflow`, `outflow` and the
+`fluid_domain` volume group. The separate checksum-bound inlet STL subregions
+are retained for future benchmark-specific boundary conditions.
 
 The initial geometry producer uses Gmsh/OpenCASCADE to form the union, mesh its
 boundary, and export a closed STL plus checksum-bound region patch files. The
@@ -63,7 +67,7 @@ comparison plan.
 Important benchmark details:
 
 - The main inlet profile is fully developed and measured at x = -3D.
-- The branch inlet profile is developing and measured at z = -3.1D.
+- The branch inlet profile is developing and measured 3.1 branch diameters upstream (z = +0.31 m in the OneFLOW coordinate convention).
 - The published benchmark inlet profiles came from an earlier flow-ratio-2
   test; the branch flow remained 6 L/s while the main flow was 9 L/s for the
   benchmark test. This detail must not be lost when future inlet profiles are

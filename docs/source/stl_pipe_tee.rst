@@ -87,7 +87,7 @@ for the final MSH4 tetrahedral mesh. Mesh Project creation, replacement and
 import preserve the T-junction Case identity and inlet subregions. The Case is
 registered in the existing Case Catalog and Mesh-to-CFD Validation workflow.
 
-The current CFD stage is a bounded smoke test only. The generated mesh is the local test section: its inlet caps are at the pipe ends, not at the benchmark LDV measurement planes, and its outlet does not reach the 20D thermocouple station. The future CFD-domain crop/extension requirements are explicitly recorded in benchmark.json. It does not establish
+The current CFD stage is a bounded two-step smoke test only. The generated mesh is the local test section: its inlet caps are at the pipe ends, not at the benchmark LDV measurement planes, and its outlet does not reach the 20D thermocouple station. The future CFD-domain crop/extension requirements are explicitly recorded in benchmark.json. It does not establish
 mesh convergence, physical accuracy, thermal mixing fidelity, turbulence
 statistics or agreement with the benchmark. Future physical validation must
 record fluid properties, inlet profiles, turbulence and thermal models, wall
