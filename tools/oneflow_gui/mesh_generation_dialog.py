@@ -593,7 +593,7 @@ class PipeTeeMeshDialog(QDialog):
         self.resize(760, 620)
 
         root = QVBoxLayout(self)
-        heading = QLabel("T-Junction — Three-Port Internal Flow")
+        heading = QLabel("T-Junction - Three-Port Internal Flow")
         heading.setStyleSheet("font-size: 22px; font-weight: 650;")
         root.addWidget(heading)
         description = QLabel(
@@ -607,10 +607,10 @@ class PipeTeeMeshDialog(QDialog):
         form = QFormLayout()
         self.operating_mode = QComboBox()
         self.operating_mode.addItem(
-            "Two main-pipe inlets → branch outlet", "main_inlets"
+            "Two main-pipe inlets -> branch outlet", "main_inlets"
         )
         self.operating_mode.addItem(
-            "Branch inlet → two main-pipe outlets", "branch_inlet"
+            "Branch inlet -> two main-pipe outlets", "branch_inlet"
         )
         form.addRow("Operating mode", self.operating_mode)
         self.mesh_size = QLineEdit("0.03")
