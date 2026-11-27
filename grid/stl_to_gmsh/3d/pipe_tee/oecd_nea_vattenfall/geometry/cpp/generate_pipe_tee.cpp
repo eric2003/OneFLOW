@@ -70,6 +70,12 @@ int main(int argc, char** argv) {
     std::filesystem::create_directories(output.parent_path());
     const double meshSize = args.count("--mesh-size") ? std::stod(args["--mesh-size"]) : 0.03;
     if (!(meshSize > 0.0)) throw std::invalid_argument("mesh size must be positive");
+    const std::string operatingMode = args.count("--operating-mode")
+        ? args["--operating-mode"] : "benchmark";
+    if (operatingMode != "benchmark" && operatingMode != "main_inlets"
+        && operatingMode != "branch_inlet") {
+      throw std::invalid_argument("unsupported T-junction operating mode");
+    }
     const double mainRadius = (args.count("--main-diameter") ? std::stod(args["--main-diameter"]) : 0.140) / 2.0;
     const double branchRadius = (args.count("--branch-diameter") ? std::stod(args["--branch-diameter"]) : 0.100) / 2.0;
     const double mainInlet = args.count("--main-inlet-length") ? std::stod(args["--main-inlet-length"]) : 1.220;
@@ -111,7 +117,7 @@ int main(int argc, char** argv) {
           "--generator-kind", "cpp", "--generator-source",
           args.count("--generator-source") ? args["--generator-source"] : std::string(__FILE__),
           "--mesh-size", std::to_string(meshSize), "--validate-pipe-tee",
-          "--main-diameter", std::to_string(mainRadius * 2.0),
+          "--operating-mode", operatingMode, "--main-diameter", std::to_string(mainRadius * 2.0),
           "--branch-diameter", std::to_string(branchRadius * 2.0),
           "--main-inlet-length", std::to_string(mainInlet),
           "--main-outlet-length", std::to_string(mainOutlet),
