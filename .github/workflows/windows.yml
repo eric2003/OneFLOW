@@ -197,7 +197,7 @@ jobs:
           $teeCaseRoot = Join-Path $env:RUNNER_TEMP "oneflow-pipe-tee-case"
           $teeHome = Join-Path $env:RUNNER_TEMP "oneflow-pipe-tee-home"
           $env:ONEFLOW_HOME = $teeHome
-          python grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_case.py --case-directory $teeCaseRoot --gmsh $gmsh.Source --mesh-size 0.03
+          python grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_case.py --case-directory $teeCaseRoot --gmsh $gmsh.Source --mesh-size 0.03 --operating-mode main_inlets
           if ($LASTEXITCODE -ne 0) { throw "T-junction Python geometry and volume-mesh generation failed." }
 
           $teeStl = Join-Path $teeCaseRoot "input/pipe_tee_oecd_nea_vattenfall.stl"
