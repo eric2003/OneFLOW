@@ -11,8 +11,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[6]
+CASE_DIRECTORY = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+if str(CASE_DIRECTORY) not in sys.path:
+    sys.path.insert(0, str(CASE_DIRECTORY))
 
 from run_pipe_tee_case import mesh_occ_volume
 
