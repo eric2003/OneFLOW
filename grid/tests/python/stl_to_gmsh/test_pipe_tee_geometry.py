@@ -274,7 +274,7 @@ class PipeTeeGeometryTest(unittest.TestCase):
             expected_mode_groups = {
                 "main_inlets": {
                     (2, "wall"), (2, "main_left_inflow"), (2, "main_right_inflow"),
-                    (2, "outflow"), (3, "fluid_domain")
+                    (2, "branch_outflow"), (3, "fluid_domain")
                 },
                 "branch_inlet": {
                     (2, "wall"), (2, "main_left_outflow"), (2, "main_right_outflow"),

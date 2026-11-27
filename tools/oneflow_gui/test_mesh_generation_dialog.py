@@ -86,7 +86,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             main_mode = geo.read_text(encoding="ascii")
             self.assertIn('Physical Surface("main_left_inflow", 2) = {inlet[]};', main_mode)
             self.assertIn('Physical Surface("main_right_inflow", 4) = {outlet[]};', main_mode)
-            self.assertIn('Physical Surface("outflow", 5) = {branch_inlet[]};', main_mode)
+            self.assertIn('Physical Surface("branch_outflow", 5) = {branch_inlet[]};', main_mode)
             self.assertNotIn('Physical Surface("branch_inflow"', main_mode)
 
             geo.write_text(

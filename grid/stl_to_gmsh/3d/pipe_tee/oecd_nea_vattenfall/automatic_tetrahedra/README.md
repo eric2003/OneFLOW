@@ -151,7 +151,7 @@ Two modes are available:
 | `main_inlets` | Inlet | Inlet | Outlet |
 | `branch_inlet` | Outlet | Outlet | Inlet |
 
-The two main-pipe ends retain separate Physical Surface identities
+The two main-pipe ends retain separate Physical Surface identities; the vertical port is named `branch_outflow` or `branch_inflow` as appropriate
 (`main_left_inflow` / `main_right_inflow` or
 `main_left_outflow` / `main_right_outflow`). The OneFLOW Gmsh-to-CGNS
 adapter maps both names in each pair to the same CGNS boundary type. This

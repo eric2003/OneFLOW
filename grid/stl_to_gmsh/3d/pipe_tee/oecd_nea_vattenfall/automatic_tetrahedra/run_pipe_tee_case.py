@@ -42,7 +42,7 @@ def configure_operating_mode(geo: Path, operating_mode: str) -> None:
     if operating_mode == "main_inlets":
         groups = """Physical Surface("main_left_inflow", 2) = {inlet[]};
 Physical Surface("main_right_inflow", 4) = {outlet[]};
-Physical Surface("outflow", 5) = {branch_inlet[]};"""
+Physical Surface("branch_outflow", 5) = {branch_inlet[]};"""
     else:
         groups = """Physical Surface("main_left_outflow", 2) = {inlet[]};
 Physical Surface("main_right_outflow", 4) = {outlet[]};
@@ -81,7 +81,7 @@ def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict,
     if operating_mode == "benchmark":
         expected_groups = {
             (2, "wall"), (2, "main_inflow"), (2, "branch_inflow"),
-            (2, "outflow"), (3, "fluid_domain"),
+            (2, "branch_outflow"), (3, "fluid_domain"),
         }
     elif operating_mode == "main_inlets":
         expected_groups = {
