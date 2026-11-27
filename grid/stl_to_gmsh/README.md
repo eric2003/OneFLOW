@@ -345,6 +345,10 @@ form the Boolean-union fluid domain. They export the same closed STL and
 checksum-bound `wall`, `inflow` and `outflow` regions, then use the shared
 region-aware volume mesher. The C++ driver uses the shared Python MSH2-to-STL
 serializer for identical patch manifests; it is not a second meshing pipeline.
+The native runner supports both the direct OpenCASCADE volume route and the
+generic STL-derived route. Select the latter with `--meshing-route stl`;
+select either symmetric flow assignment with
+`--operating-mode main_inlets` or `--operating-mode branch_inlet`.
 
 The unified **STL to Gmsh** Geometry preset now also exposes this benchmark as
 a genuine STL-derived volume-mesh path. It generates the fluid-domain STL and
