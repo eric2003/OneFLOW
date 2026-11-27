@@ -182,7 +182,7 @@ def _mesh_case_id_for_geometry(geometry_manifest: dict | None) -> str:
     geometry = geometry_manifest.get("geometry") if geometry_manifest else None
     return {
         "pipe_bend_90_degree": "stl_to_gmsh_pipe_bend_90_degree",
-        "pipe_tee_oecd_nea_vattenfall": "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
+        "pipe_tee_oecd_nea_vattenfall": "stl_to_gmsh_pipe_tee_stl_regions",
     }.get(geometry, _GENERIC_3D_VALIDATION_CASE)
 
 
