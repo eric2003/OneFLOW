@@ -81,7 +81,7 @@ class PipeTeeGeometryTest(unittest.TestCase):
             output = root / "cube.stl"
             result = MODULE.export_surface(msh, output)
             self.assertTrue(output.is_file())
-            self.assertEqual(set(result["surface"]["region_triangle_counts"]), {"wall","inflow","outflow"})
+            self.assertEqual(set(result["surface"]["region_triangle_counts"]), {"wall","main_inflow","branch_inflow","outflow"})
             manifest = json.loads((root / "region_manifest.json").read_text(encoding="utf-8"))
             for name, record in manifest["regions"].items():
                 self.assertTrue((root / record["file"]).is_file())
