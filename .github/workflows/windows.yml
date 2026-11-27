@@ -247,6 +247,40 @@ jobs:
               throw "T-junction MSH report did not retain all four physical groups."
           }
 
+          # Exact planar square-duct T-junction: manually triangulated STL,
+          # generic region-aware Gmsh volume meshing, then two CFD smoke steps.
+          $squareCaseRoot = Join-Path $env:RUNNER_TEMP "oneflow-square-pipe-tee-case"
+          $squareHome = Join-Path $env:RUNNER_TEMP "oneflow-square-pipe-tee-home"
+          $env:ONEFLOW_HOME = $squareHome
+          python grid/stl_to_gmsh/3d/pipe_tee/square_duct/automatic_tetrahedra/run_square_tee_case.py --case-directory $squareCaseRoot --gmsh $gmsh.Source --mesh-size 0.75 --operating-mode main_inlets
+          if ($LASTEXITCODE -ne 0) { throw "Square-duct T-junction STL and TETRA_4 generation failed." }
+
+          $squareStl = Join-Path $squareCaseRoot "input/square_tee.stl"
+          $squareMesh = Join-Path $squareCaseRoot "results/square_tee.msh"
+          if (-not (Test-Path $squareStl)) { throw "Square T-junction STL is missing: $squareStl" }
+          if (-not (Test-Path $squareMesh)) { throw "Square T-junction MSH4 mesh is missing: $squareMesh" }
+          $squareProjectRoot = (python -c "import sys; from pathlib import Path; from tools.oneflow_gui.mesh_project import create_mesh_project_from_stl; project = create_mesh_project_from_stl(Path.cwd(), Path(sys.argv[1]), 'square-pipe-tee-ci'); print(project['directory'])" $squareStl | Out-String).Trim()
+          if ($LASTEXITCODE -ne 0) { throw "Square T-junction GUI mesh-project creation failed." }
+          $squareProjectManifest = Join-Path $squareProjectRoot "project.json"
+          python -c "import json,sys; from pathlib import Path; p=Path(sys.argv[1]); data=json.loads(p.read_text(encoding='utf-8')); data['output_mesh']='results/square_tee.msh'; data['mesh_size']=0.75; p.write_text(json.dumps(data, indent=2, sort_keys=True)+'\n', encoding='utf-8')" $squareProjectManifest
+          if ($LASTEXITCODE -ne 0) { throw "Square T-junction project settings could not be saved." }
+          $squareProjectMesh = Join-Path $squareProjectRoot "results/square_tee.msh"
+          New-Item -ItemType Directory -Force -Path (Split-Path $squareProjectMesh) | Out-Null
+          Copy-Item $squareMesh $squareProjectMesh -Force
+          $squareStageRoot = Join-Path $env:RUNNER_TEMP "oneflow-square-pipe-tee-validation"
+          python -m tools.oneflow_gui.mesh_validation --oneflow-executable (Join-Path $env:ONEFLOW_ROOT "bin/OneFLOW.exe") --gmsh $gmsh.Source --mesh-case-id stl_to_gmsh_pipe_tee_square_duct_smoke --mesh-file $squareProjectMesh --project-directory $squareProjectRoot --stage-root $squareStageRoot --cfd-template-id laminar_flat_plate --max-steps 2
+          if ($LASTEXITCODE -ne 0) { throw "Square T-junction two-step CFD smoke test failed." }
+          $squareReportPath = Join-Path $squareStageRoot "mesh-validation-report.json"
+          if (-not (Test-Path $squareReportPath)) { throw "Square T-junction validation report is missing." }
+          $squareReport = Get-Content -Raw $squareReportPath | ConvertFrom-Json
+          if ($squareReport.exit_code -ne 0) { throw "Square T-junction validation report has non-zero exit code." }
+          foreach ($stageName in @("existing_msh_input", "gmsh_to_cgns", "cgns_to_oneflow", "cfd_smoke")) {
+              $stage = $squareReport.stages.PSObject.Properties[$stageName].Value
+              if ($null -eq $stage -or $stage.status -ne "PASS") {
+                  throw "Square T-junction Mesh-to-CFD stage '$stageName' did not pass."
+              }
+          }
+
       - name: Upload generic STL mesh-to-CFD smoke evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -257,7 +291,10 @@ jobs:
             ${{ runner.temp }}/oneflow-generic-curved-shell-validation
             ${{ runner.temp }}/oneflow-pipe-tee-case
             ${{ runner.temp }}/oneflow-pipe-tee-home
-            ${{ runner.temp }}/oneflow-pipe-tee-validation
+${{ runner.temp }}/oneflow-pipe-tee-validation
+            ${{ runner.temp }}/oneflow-square-pipe-tee-case
+            ${{ runner.temp }}/oneflow-square-pipe-tee-home
+            ${{ runner.temp }}/oneflow-square-pipe-tee-validation
           if-no-files-found: ignore
 
       - name: Run OneFLOW Regression Tests
