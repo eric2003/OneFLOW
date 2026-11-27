@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
 from pathlib import Path
 
 from run_pipe_tee_cpp_case import run_case
@@ -29,7 +30,7 @@ def main() -> int:
             operating_mode=args.operating_mode,
             meshing_route="stl",
         )
-    except (OSError, RuntimeError, ValueError) as error:
+    except (OSError, RuntimeError, ValueError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"Native C++ T-junction STL Case failed: {error}\\n")
     print(f"PASS: native C++ STL-derived T-junction mesh generated {mesh}")
     return 0
