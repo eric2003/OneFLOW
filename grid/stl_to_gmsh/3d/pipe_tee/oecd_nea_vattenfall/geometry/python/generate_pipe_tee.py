@@ -28,7 +28,7 @@ DEFAULTS = {
     "branch_inlet_length": _GEOMETRY["branch_pipe"]["inlet_length"],
     "mesh_size": 0.030,
 }
-GROUPS = {"wall": 1, "inflow": 2, "outflow": 3}
+GROUPS = {"wall": 1, "main_inflow": 2, "branch_inflow": 3, "outflow": 4}
 
 
 def _sha(path: Path) -> str:
@@ -59,8 +59,9 @@ wall[] -= inlet[];
 wall[] -= outlet[];
 wall[] -= branch_inlet[];
 Physical Surface("wall", 1) = {{wall[]}};
-Physical Surface("inflow", 2) = {{inlet[], branch_inlet[]}};
-Physical Surface("outflow", 3) = {{outlet[]}};
+Physical Surface("main_inflow", 2) = {{inlet[]}};
+Physical Surface("branch_inflow", 3) = {{branch_inlet[]}};
+Physical Surface("outflow", 4) = {{outlet[]}};
 """
 
 
@@ -126,27 +127,40 @@ def _write_stl(path: Path, nodes: dict, faces: list[tuple[int, int, int]], label
 
 
 def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
-                   generator_source: Path | None = None) -> dict:
+                   generator_source: Path | None = None, mesh_size: float | None = None) -> dict:
     output = output.expanduser().resolve()
     if output.suffix.lower() != ".stl":
         raise ValueError("T-junction output must use the .stl extension.")
     if output == ROOT or ROOT in output.parents:
         raise ValueError("Generated STL assets must stay outside the OneFLOW source tree.")
     output.parent.mkdir(parents=True, exist_ok=True)
+    msh = Path(msh).expanduser().resolve()
     nodes, groups = _parse_msh2(msh)
-    all_faces = groups["wall"] + groups["inflow"] + groups["outflow"]
+    inflow_faces = groups["main_inflow"] + groups["branch_inflow"]
+    final_regions = {
+        "wall": groups["wall"],
+        "inflow": inflow_faces,
+        "outflow": groups["outflow"],
+    }
+    all_faces = final_regions["wall"] + final_regions["inflow"] + final_regions["outflow"]
     _write_stl(output, nodes, all_faces, "closed-fluid-domain")
     records = {}
-    for name in ("wall", "inflow", "outflow"):
+    for name, faces in final_regions.items():
+        patch = output.parent / f"{output.stem}.{name}.stl"
+        _write_stl(patch, nodes, faces, name)
+        records[name] = {"file": patch.name, "sha256": _sha(patch), "triangle_count": len(faces)}
+    subregions = {}
+    for name in ("main_inflow", "branch_inflow"):
         patch = output.parent / f"{output.stem}.{name}.stl"
         _write_stl(patch, nodes, groups[name], name)
-        records[name] = {"file": patch.name, "sha256": _sha(patch), "triangle_count": len(groups[name])}
+        subregions[name] = {"file": patch.name, "sha256": _sha(patch), "triangle_count": len(groups[name])}
     region_path = output.parent / "region_manifest.json"
     region_manifest = {
         "schema": "oneflow.stl-surface-regions",
         "version": 1,
         "closed_surface_sha256": _sha(output),
         "regions": records,
+        "subregions": subregions,
     }
     region_path.write_text(json.dumps(region_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     parameters = dict(DEFAULTS)
@@ -158,6 +172,7 @@ def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
         "coordinate_system": "main pipe axis +X; branch inlet axis +Z; junction origin at pipe centreline intersection",
     }
     definition_hash = hashlib.sha256(json.dumps(definition, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    source_path = (generator_source or Path(__file__)).expanduser().resolve()
     manifest = {
         "schema": "oneflow.stl-geometry-manifest",
         "version": 1,
@@ -171,22 +186,29 @@ def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
             "name": "oneflow_pipe_tee_geometry",
             "version": "1.0",
             "kind": generator_kind,
-            "source": Path(__file__).resolve().relative_to(ROOT).as_posix(),
-            "source_sha256": _sha(Path(__file__).resolve()),
+            "source": source_path.relative_to(ROOT).as_posix(),
+            "source_sha256": _sha(source_path),
+        },
+        "mesh_generation": {
+            "surface_mesh_size_m": mesh_size if mesh_size is not None else DEFAULTS["mesh_size"],
+            "surface_mesh_file": msh.name,
+            "surface_mesh_sha256": _sha(msh),
         },
         "surface": {
             "node_count": len(nodes),
             "triangle_count": len(all_faces),
-            "region_triangle_counts": {name: len(groups[name]) for name in GROUPS},
+            "region_triangle_counts": {name: len(faces) for name, faces in final_regions.items()},
+            "inlet_subregion_triangle_counts": {name: len(groups[name]) for name in ("main_inflow", "branch_inflow")},
         },
         "region_manifest": region_path.name,
         "stl_file": output.name,
         "stl_sha256": _sha(output),
         "intended_gmsh_physical_groups": {
-            "surface": ["wall", "inflow", "outflow"],
+            "surface": ["wall", "main_inflow", "branch_inflow", "outflow"],
+            "shared_volume_mesher_surface_groups": ["wall", "inflow", "outflow"],
             "volume": ["fluid_domain"],
         },
-        "notes": "Fluid domain is the Boolean union of the three cylindrical bores. The benchmark junction edge is reported as very slightly rounded (radius < 0.2 mm, not measured); the baseline geometry uses a sharp intersection and does not invent a fillet radius.",
+        "notes": "Fluid domain is the Boolean union of the three cylindrical bores. Separate checksum-bound main/branch inlet subregions are retained; the shared volume mesher currently combines them into inflow for compatibility. The benchmark junction edge is reported as very slightly rounded (radius < 0.2 mm, not measured); the baseline geometry uses a sharp intersection and does not invent a fillet radius.",
     }
     sidecar = output.with_suffix(".geometry.json")
     sidecar.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -211,7 +233,7 @@ def generate(output: Path, gmsh: str, mesh_size: float = DEFAULTS["mesh_size"]) 
         [executable, str(geo), "-2", "-format", "msh2", "-o", str(msh), "-v", "2"],
         check=True, cwd=output.parent, capture_output=True, text=True,
     )
-    return export_surface(msh, output)
+    return export_surface(msh, output, mesh_size=mesh_size)
 
 
 def main() -> int:
@@ -225,7 +247,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         result = export_surface(args.extract_msh, args.output, generator_kind=args.generator_kind,
-                                generator_source=args.generator_source) if args.extract_msh else generate(args.output, args.gmsh, args.mesh_size)
+                                generator_source=args.generator_source, mesh_size=args.mesh_size) if args.extract_msh else generate(args.output, args.gmsh, args.mesh_size)
     except (OSError, ValueError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"T-junction geometry generation failed: {error}\n")
     print(json.dumps({key: str(value) if isinstance(value, Path) else value for key, value in result.items()}, indent=2))

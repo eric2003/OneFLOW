@@ -110,3 +110,14 @@ Vattenfall experiment.
 2. B. L. Smith, J. H. Mahaffy and K. Angele, “A CFD benchmarking exercise based
    on flow mixing in a T-junction,” *Nuclear Engineering and Design*, 264,
    80–88 (2013). DOI: 10.1016/j.nucengdes.2013.02.030.
+
+
+### Preserved inlet subregions
+
+The source surface mesh has separate `main_inflow` and `branch_inflow`
+Physical Surfaces. The generator also writes separate checksum-bound
+`main_inflow.stl` and `branch_inflow.stl` patches. The shared volume-mesher
+contract currently accepts the three-region `wall`/`inflow`/`outflow`
+partition, so it combines the two inlet patches into the compatibility
+`inflow` group for the current smoke-test MSH4. Their separate source patches
+remain available for future benchmark-specific inlet profiles and temperatures.

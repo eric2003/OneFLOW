@@ -370,5 +370,24 @@
     "downstream_extent_requirement": "The current test-section outlet plane at x=+1.220 m does not reach the furthest thermocouple station at x=20D_main=2.800 m. Extend the downstream pipe to include the 2D-20D temperature stations before attempting the complete thermal benchmark.",
     "omitted_full_rig": "The full rig includes a greater-than-80D main upstream feed and an approximately-20D branch upstream feed. The current mesh does not model the full upstream supply system; the measured inlet profiles are the intended future boundary data.",
     "note": "These are explicit future-domain requirements, not claims that the current smoke-test mesh is already a benchmark-ready CFD domain."
+  },
+  "boundary_groups": {
+    "source_surface_mesh": [
+      "wall",
+      "main_inflow",
+      "branch_inflow",
+      "outflow"
+    ],
+    "current_shared_volume_mesh": [
+      "wall",
+      "inflow",
+      "outflow",
+      "fluid_domain"
+    ],
+    "preserved_inlet_subregions": [
+      "main_inflow",
+      "branch_inflow"
+    ],
+    "note": "The shared STL region-manifest converter currently accepts exactly wall/inflow/outflow. The two inlet subregions are stored separately as additional checksum-bound patches while the compatibility inflow patch is their union. Future work can extend the common converter to emit distinct final MSH4 inlet groups."
   }
 }

@@ -75,15 +75,17 @@ int main(int argc, char** argv) {
            << "branch_inlet[] = Surface In BoundingBox{" << -branchRadius-eps << ", " << -branchRadius-eps << ", " << branchLength-eps << ", " << branchRadius+eps << ", " << branchRadius+eps << ", " << branchLength+eps << "};\n"
            << "wall[] = surfaces[];\nwall[] -= inlet[];\nwall[] -= outlet[];\nwall[] -= branch_inlet[];\n"
            << "Physical Surface(\"wall\", 1) = {wall[]};\n"
-           << "Physical Surface(\"inflow\", 2) = {inlet[], branch_inlet[]};\n"
-           << "Physical Surface(\"outflow\", 3) = {outlet[]};\n";
+           << "Physical Surface(\"main_inflow\", 2) = {inlet[]};\n"
+           << "Physical Surface(\"branch_inflow\", 3) = {branch_inlet[]};\n"
+           << "Physical Surface(\"outflow\", 4) = {outlet[]};\n";
     script.close();
     const std::string gmshCommand = quote(args["--gmsh"]) + " " + quote(geo.string())
       + " -2 -format msh2 -o " + quote(msh.string()) + " -v 2";
     if (std::system(gmshCommand.c_str()) != 0) throw std::runtime_error("Gmsh surface meshing failed");
     const std::string pythonCommand = quote(args["--python"]) + " " + quote(args["--extractor"])
       + " --extract-msh " + quote(msh.string()) + " --output " + quote(output.string())
-      + " --generator-kind cpp --generator-source " + quote(args.count("--generator-source") ? args["--generator-source"] : std::string(__FILE__));
+      + " --generator-kind cpp --generator-source " + quote(args.count("--generator-source") ? args["--generator-source"] : std::string(__FILE__))
+      + " --mesh-size " + std::to_string(meshSize);
     if (std::system(pythonCommand.c_str()) != 0) throw std::runtime_error("shared MSH2-to-STL exporter failed");
     std::cout << "PASS: native C++ geometry driver generated " << output << '\n';
   } catch (const std::exception& error) {
