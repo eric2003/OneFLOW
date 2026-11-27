@@ -10,9 +10,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[6]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from run_pipe_tee_case import mesh_occ_volume
 
-ROOT = Path(__file__).resolve().parents[6]
 SOURCE = ROOT / "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/geometry/cpp/generate_pipe_tee.cpp"
 EXTRACTOR = ROOT / "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/geometry/python/generate_pipe_tee.py"
 
@@ -44,12 +47,17 @@ def build(build_dir: Path, compiler: str | None = None) -> Path:
 
 
 def run_case(case_directory: Path, *, gmsh: str, mesh_size: float = 0.03,
-             compiler: str | None = None) -> Path:
+             compiler: str | None = None, operating_mode: str = "benchmark",
+             meshing_route: str = "direct_occ") -> Path:
     case_directory = case_directory.expanduser().resolve()
     input_dir, results_dir = case_directory / "input", case_directory / "results"
     build_dir = case_directory / ".build"
     input_dir.mkdir(parents=True, exist_ok=True)
     results_dir.mkdir(parents=True, exist_ok=True)
+    if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
+        raise ValueError(f"Unsupported T-junction operating mode: {operating_mode}")
+    if meshing_route not in {"direct_occ", "stl"}:
+        raise ValueError(f"Unsupported T-junction meshing route: {meshing_route}")
     executable = build(build_dir, compiler)
     gmsh_executable = shutil.which(gmsh) or gmsh
     benchmark_path = SOURCE.parents[2] / "automatic_tetrahedra" / "benchmark.json"
@@ -64,11 +72,21 @@ def run_case(case_directory: Path, *, gmsh: str, mesh_size: float = 0.03,
          "--branch-diameter", str(geometry["branch_pipe"]["inner_diameter"]),
          "--main-inlet-length", str(geometry["main_pipe"]["inlet_length"]),
          "--main-outlet-length", str(geometry["main_pipe"]["outlet_length"]),
-         "--branch-inlet-length", str(geometry["branch_pipe"]["inlet_length"])],
+         "--branch-inlet-length", str(geometry["branch_pipe"]["inlet_length"]),
+         "--operating-mode", operating_mode],
         cwd=ROOT, check=True,
     )
     mesh = results_dir / "pipe_tee_oecd_nea_vattenfall.msh"
-    mesh_occ_volume(stl.with_suffix(".geo"), mesh, gmsh, geometry)
+    if meshing_route == "stl":
+        from grid.stl_to_gmsh.generate_volume_mesh import generate as generate_volume_mesh
+
+        report = generate_volume_mesh(
+            stl, mesh, gmsh_executable, mesh_size, mesh_size
+        )
+        if report.get("validated") is not True:
+            raise RuntimeError("Generic STL-derived T-junction volume meshing failed.")
+    else:
+        mesh_occ_volume(stl.with_suffix(".geo"), mesh, gmsh, geometry, operating_mode)
     return mesh
 
 
@@ -78,9 +96,15 @@ def main() -> int:
     parser.add_argument("--gmsh", required=True)
     parser.add_argument("--mesh-size", type=float, default=0.03)
     parser.add_argument("--compiler")
+    parser.add_argument("--operating-mode", choices=("benchmark", "main_inlets", "branch_inlet"), default="benchmark")
+    parser.add_argument("--meshing-route", choices=("direct_occ", "stl"), default="direct_occ")
     args = parser.parse_args()
     try:
-        mesh = run_case(args.case_directory, gmsh=args.gmsh, mesh_size=args.mesh_size, compiler=args.compiler)
+        mesh = run_case(
+            args.case_directory, gmsh=args.gmsh, mesh_size=args.mesh_size,
+            compiler=args.compiler, operating_mode=args.operating_mode,
+            meshing_route=args.meshing_route,
+        )
     except (OSError, RuntimeError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"Native C++ T-junction Case failed: {error}\n")
     print(f"PASS: native C++ T-junction Case generated {mesh}")
