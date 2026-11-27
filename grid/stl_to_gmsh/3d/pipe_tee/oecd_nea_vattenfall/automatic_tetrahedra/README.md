@@ -46,8 +46,9 @@ step; it is not a substitute for the shared final volume-mesh stage.
 
 ## Current delivery scope
 
-- Reuse the shared STL region manifest, generic volume mesher, MSH4 inspector,
-  Gmsh-to-CGNS converter, CGNS-to-OneFLOW converter and CFD smoke consumer.
+- Reuse the shared STL region manifest and MSH4 inspector, while generating
+  the final volume mesh directly from the original OpenCASCADE BooleanUnion.
+- Reuse the Gmsh-to-CGNS converter, CGNS-to-OneFLOW converter and CFD smoke consumer.
 - Preserve wall, both inlet patches (combined as `inflow`) and the main outlet
   as explicit semantic regions.
 - Run only a bounded CFD smoke test through the existing Mesh-to-CFD

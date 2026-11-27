@@ -65,6 +65,7 @@ Physical Surface("wall", 1) = {{wall[]}};
 Physical Surface("main_inflow", 2) = {{inlet[]}};
 Physical Surface("branch_inflow", 3) = {{branch_inlet[]}};
 Physical Surface("outflow", 4) = {{outlet[]}};
+Physical Volume("fluid_domain", 1) = {{fluid[]}};
 """
 
 
@@ -125,17 +126,54 @@ def _validate_pipe_tee_surface_geometry(nodes: dict, groups: dict, parameters: d
     wall_ids = {i for face in groups["wall"] for i in face}
     if not wall_ids:
         raise ValueError("T-junction wall Physical Surface contains no mesh nodes.")
-    for i in wall_ids:
-        x, y, z = nodes[i]
-        main_error = abs(math.hypot(y, z) - rm)
-        branch_error = abs(math.hypot(x, y) - rb)
-        if min(main_error, branch_error) > radial_tol:
-            raise ValueError(f"Wall node {i} does not lie on either cylindrical pipe wall.")
+    wall_surface_counts = {"main_pipe": 0, "branch_pipe": 0}
+    checked_wall_faces = 0
+    for face in groups["wall"]:
+        pts = [nodes[i] for i in face]
+        main_residuals = [abs(math.hypot(p[1], p[2]) - rm) for p in pts]
+        branch_residuals = [abs(math.hypot(p[0], p[1]) - rb) for p in pts]
+        on_main = max(main_residuals) <= radial_tol
+        on_branch = max(branch_residuals) <= radial_tol
+        if on_main == on_branch:
+            raise ValueError(
+                "A wall triangle must belong to exactly one analytic cylinder surface; "
+                "it is either off-surface or ambiguously on the cylinder intersection."
+            )
+        centroid = tuple(sum(p[axis] for p in pts) / 3.0 for axis in range(3))
+        x, y, z = centroid
+        if on_main:
+            inside_other_bore = (
+                0.0 + radial_tol < z < lb - radial_tol
+                and x * x + y * y < (rb - radial_tol) ** 2
+            )
+            if inside_other_bore:
+                raise ValueError(
+                    "A main-pipe wall triangle lies inside the branch bore; "
+                    "BooleanUnion must remove this internal interface from wall."
+                )
+            wall_surface_counts["main_pipe"] += 1
+        else:
+            inside_other_bore = (
+                -li + radial_tol < x < lo - radial_tol
+                and y * y + z * z < (rm - radial_tol) ** 2
+            )
+            if inside_other_bore:
+                raise ValueError(
+                    "A branch-pipe wall triangle lies inside the main bore; "
+                    "BooleanUnion must remove this internal interface from wall."
+                )
+            wall_surface_counts["branch_pipe"] += 1
+        checked_wall_faces += 1
+    if not wall_surface_counts["main_pipe"] or not wall_surface_counts["branch_pipe"]:
+        raise ValueError("T-junction wall must contain exposed faces from both pipe cylinders.")
     return {
         "status": "PASS", "geometry": "orthogonal_three_port_t_junction", "units": "m",
         "main_axis": "+X", "branch_axis": "+Z", "axis_angle_degrees": 90.0,
         "port_count": len(ports), "ports": ports, "wall_node_count": len(wall_ids),
+        "wall_triangle_count": checked_wall_faces,
+        "wall_surface_triangle_counts": wall_surface_counts,
         "wall_radial_tolerance_m": radial_tol,
+        "internal_overlap_wall_triangles": 0,
     }
 
 
@@ -283,10 +321,10 @@ def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
         "stl_sha256": _sha(output),
         "intended_gmsh_physical_groups": {
             "surface": ["wall", "main_inflow", "branch_inflow", "outflow"],
-            "shared_volume_mesher_surface_groups": ["wall", "inflow", "outflow"],
+            "direct_occ_volume_mesh_surface_groups": ["wall", "main_inflow", "branch_inflow", "outflow"],
             "volume": ["fluid_domain"],
         },
-        "notes": "Fluid domain is the Boolean union of the three cylindrical bores. Separate checksum-bound main/branch inlet subregions are retained; the shared volume mesher currently combines them into inflow for compatibility. The benchmark junction edge is reported as very slightly rounded (radius < 0.2 mm, not measured); the baseline geometry uses a sharp intersection and does not invent a fillet radius.",
+        "notes": "Fluid domain is the Boolean union of the three cylindrical bores. Separate checksum-bound main/branch inlet subregions are retained; the shared volume mesher currently combines them into inflow for compatibility. The benchmark junction edge is reported as very slightly rounded (radius < 0.2 mm, not measured); the baseline geometry uses a sharp intersection and does not invent a fillet radius. The final volume mesh is generated directly from this OpenCASCADE BooleanUnion geometry, not reconstructed from the exported STL.",
     }
     sidecar = output.with_suffix(".geometry.json")
     sidecar.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")

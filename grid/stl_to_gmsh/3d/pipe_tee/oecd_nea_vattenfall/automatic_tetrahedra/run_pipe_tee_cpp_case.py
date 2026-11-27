@@ -10,10 +10,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+from run_pipe_tee_case import mesh_occ_volume
+
 ROOT = Path(__file__).resolve().parents[6]
 SOURCE = ROOT / "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/geometry/cpp/generate_pipe_tee.cpp"
 EXTRACTOR = ROOT / "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/geometry/python/generate_pipe_tee.py"
-VOLUME_MESHER = ROOT / "grid/stl_to_gmsh/generate_volume_mesh.py"
 
 
 def discover_compiler() -> str:
@@ -67,12 +68,7 @@ def run_case(case_directory: Path, *, gmsh: str, mesh_size: float = 0.03,
         cwd=ROOT, check=True,
     )
     mesh = results_dir / "pipe_tee_oecd_nea_vattenfall.msh"
-    subprocess.run(
-        [sys.executable, str(VOLUME_MESHER), "--stl", str(stl), "--output", str(mesh),
-         "--gmsh", gmsh, "--mesh-size", str(mesh_size),
-         "--boundary-name", "wall", "--volume-name", "fluid_domain"],
-        cwd=ROOT, check=True,
-    )
+    mesh_occ_volume(stl.with_suffix(".geo"), mesh, gmsh, geometry, mesh_size)
     return mesh
 
 

@@ -79,11 +79,16 @@ Current OneFLOW scope
 ---------------------
 
 The Python reference and C++17 geometry driver use Gmsh/OpenCASCADE to create
-the fluid-domain Boolean union. The source surface mesh keeps `main_inflow` and
-`branch_inflow` distinct, and the geometry exporter preserves separate
-checksum-bound inlet STL subregions. The shared region-aware STL mesher
-currently combines those two patches into its compatibility `inflow` region
-for the final MSH4 tetrahedral mesh. Mesh Project creation, replacement and
+one fluid-domain BooleanUnion from the perpendicular main and branch bores.
+The source surface mesh keeps `wall`, `main_inflow`, `branch_inflow` and
+`outflow` distinct, and the geometry exporter preserves checksum-bound STL
+patches as portable surface evidence. The final MSH4 tetrahedral mesh is
+generated directly from the same OpenCASCADE geometry script, not rebuilt from
+the STL patches. This preserves both inlet Physical Groups and avoids a second
+discrete-surface topology reconstruction. The shared MSH4 inspector checks
+every tetrahedron vertex, edge midpoint and centroid against the analytic
+union of the two cylindrical bores, in addition to checking boundary
+connectivity and Physical Groups. Mesh Project creation, replacement and
 import preserve the T-junction Case identity and inlet subregions. The Case is
 registered in the existing Case Catalog and Mesh-to-CFD Validation workflow.
 

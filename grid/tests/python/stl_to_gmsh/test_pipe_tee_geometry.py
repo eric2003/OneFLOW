@@ -83,12 +83,17 @@ class PipeTeeGeometryTest(unittest.TestCase):
         add_cap("main_inflow", 0, -params["main_inlet_length"], params["main_diameter"] / 2)
         add_cap("outflow", 0, params["main_outlet_length"], params["main_diameter"] / 2)
         branch_ring = add_cap("branch_inflow", 2, params["branch_inlet_length"], params["branch_diameter"] / 2)
-        wall_ids = []
-        for point in ((0.0, 0.07, 0.0), (0.0, 0.0, 0.07), (0.0, -0.07, 0.0)):
-            wall_ids.append(next_id)
-            nodes[next_id] = point
-            next_id += 1
-        groups["wall"] = [tuple(wall_ids)]
+        def add_wall_face(points):
+            nonlocal next_id
+            face = []
+            for point in points:
+                face.append(next_id)
+                nodes[next_id] = point
+                next_id += 1
+            groups["wall"].append(tuple(face))
+
+        add_wall_face(((-0.50, 0.070, 0.0), (-0.49, 0.070 * math.cos(0.1), 0.070 * math.sin(0.1)), (-0.48, 0.070 * math.cos(0.2), 0.070 * math.sin(0.2))))
+        add_wall_face(((0.050, 0.0, 0.15), (0.050 * math.cos(0.2), 0.050 * math.sin(0.2), 0.15), (0.050 * math.cos(0.4), 0.050 * math.sin(0.4), 0.15)))
 
         report = MODULE._validate_pipe_tee_surface_geometry(nodes, groups, params)
         self.assertEqual(report["status"], "PASS")
@@ -101,6 +106,46 @@ class PipeTeeGeometryTest(unittest.TestCase):
             x, y, z = nodes[node_id]
             nodes[node_id] = (params["branch_inlet_length"], y, 0.0)
         with self.assertRaisesRegex(ValueError, "branch_inflow.*end plane"):
+            MODULE._validate_pipe_tee_surface_geometry(nodes, groups, params)
+
+    def test_surface_geometry_validator_rejects_internal_overlap_wall(self):
+        nodes = {}
+        groups = {"wall": [], "main_inflow": [], "branch_inflow": [], "outflow": []}
+        params = dict(MODULE.DEFAULTS)
+        next_id = 1
+
+        def add_cap(name, axis, coordinate, radius):
+            nonlocal next_id
+            center = [0.0, 0.0, 0.0]
+            center[axis] = coordinate
+            center_id = next_id
+            nodes[next_id] = tuple(center)
+            next_id += 1
+            radial_axes = [index for index in range(3) if index != axis]
+            ring = []
+            for index in range(64):
+                angle = 2.0 * math.pi * index / 64
+                point = [0.0, 0.0, 0.0]
+                point[axis] = coordinate
+                point[radial_axes[0]] = radius * math.cos(angle)
+                point[radial_axes[1]] = radius * math.sin(angle)
+                ring.append(next_id)
+                nodes[next_id] = tuple(point)
+                next_id += 1
+            for index in range(64):
+                groups[name].append((center_id, ring[index], ring[(index + 1) % 64]))
+
+        add_cap("main_inflow", 0, -params["main_inlet_length"], params["main_diameter"] / 2)
+        add_cap("outflow", 0, params["main_outlet_length"], params["main_diameter"] / 2)
+        add_cap("branch_inflow", 2, params["branch_inlet_length"], params["branch_diameter"] / 2)
+        face = []
+        # These points lie on the main-pipe cylinder but inside the branch bore.
+        for point in ((0.0, 0.0, 0.070), (0.001, 0.070 * math.sin(0.01), 0.070 * math.cos(0.01)), (-0.001, 0.070 * math.sin(0.02), 0.070 * math.cos(0.02))):
+            face.append(next_id)
+            nodes[next_id] = point
+            next_id += 1
+        groups["wall"] = [tuple(face)]
+        with self.assertRaisesRegex(ValueError, "inside the branch bore"):
             MODULE._validate_pipe_tee_surface_geometry(nodes, groups, params)
 
     def test_exporter_creates_closed_surface_and_checksum_bound_regions(self):
@@ -189,18 +234,27 @@ class PipeTeeGeometryTest(unittest.TestCase):
             self.assertEqual(manifest["geometry_validation"]["axis_angle_degrees"], 90.0)
             self.assertEqual(set(manifest["geometry_validation"]["ports"]), {"main_inflow", "branch_inflow", "outflow"})
             self.assertEqual(set(manifest["intended_gmsh_physical_groups"]["surface"]), {"wall", "main_inflow", "branch_inflow", "outflow"})
-            self.assertEqual(set(manifest["intended_gmsh_physical_groups"]["shared_volume_mesher_surface_groups"]), {"wall", "inflow", "outflow"})
+            self.assertEqual(set(manifest["intended_gmsh_physical_groups"]["direct_occ_volume_mesh_surface_groups"]), {"wall", "main_inflow", "branch_inflow", "outflow"})
             self.assertTrue(all(count > 0 for count in manifest["surface"]["inlet_subregion_triangle_counts"].values()))
-            from grid.stl_to_gmsh.generate_volume_mesh import generate
-            volume = generate(stl, Path(temporary) / "pipe_tee.msh", shutil.which("gmsh"), 0.045, 0.045)
-            self.assertEqual(volume["stages"]["physical_groups"]["status"], "PASS")
-            groups = {(item["dimension"], item["name"]) for item in volume["mesh_summary"]["physical_groups"]}
-            self.assertEqual(groups, {(2,"wall"),(2,"inflow"),(2,"outflow"),(3,"fluid_domain")})
-            self.assertGreater(volume["mesh_summary"]["tetrahedron_elements"], 0)
-            self.assertEqual(volume["geometry_validation"]["region_subregion_counts"], {"inflow": 2})
-            volume_geo = (Path(temporary) / "pipe_tee.geo").read_text(encoding="utf-8")
-            self.assertIn("pipe_tee.main_inflow.stl", volume_geo)
-            self.assertIn("pipe_tee.branch_inflow.stl", volume_geo)
+            from grid.stl_to_gmsh.converter import inspect_msh4
+            geo = stl.with_suffix(".geo")
+            volume_path = Path(temporary) / "pipe_tee.msh"
+            subprocess.run([shutil.which("gmsh"), str(geo), "-3", "-format", "msh4", "-o", str(volume_path)],
+                           check=True, capture_output=True, text=True)
+            benchmark_geometry = MODULE._BENCHMARK["geometry"]
+            volume = inspect_msh4(volume_path, geometry_contract={
+                "main_diameter": benchmark_geometry["main_pipe"]["inner_diameter"],
+                "branch_diameter": benchmark_geometry["branch_pipe"]["inner_diameter"],
+                "main_inlet_length": benchmark_geometry["main_pipe"]["inlet_length"],
+                "main_outlet_length": benchmark_geometry["main_pipe"]["outlet_length"],
+                "branch_inlet_length": benchmark_geometry["branch_pipe"]["inlet_length"],
+            })
+            groups = {(item["dimension"], item["name"]) for item in volume["physical_groups"]}
+            self.assertEqual(groups, {(2,"wall"),(2,"main_inflow"),(2,"branch_inflow"),(2,"outflow"),(3,"fluid_domain")})
+            self.assertGreater(volume["tetrahedron_elements"], 0)
+            self.assertEqual(volume["geometry_validation"]["status"], "PASS")
+            self.assertGreater(volume["geometry_validation"]["checked_tetrahedra"], 0)
+            self.assertIn('Physical Volume("fluid_domain"', geo.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

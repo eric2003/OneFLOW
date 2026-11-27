@@ -42,6 +42,12 @@
         {
           "id": "geometry_provenance",
           "format": "oneflow.stl-geometry-manifest"
+        },
+        {
+          "id": "occ_geometry_script",
+          "format": "gmsh-geo",
+          "dimension": 3,
+          "topology": "analytic_boolean_union"
         }
       ],
       "acceptance": [
@@ -152,38 +158,34 @@
       "implementation_status": "implemented",
       "verification_status": "not_run",
       "depends_on": [
-        "surface_regions"
+        "geometry"
       ],
       "implementations": [
         {
-          "id": "python_gmsh_runner",
+          "id": "python_direct_occ_mesher",
           "kind": "python",
           "status": "implemented",
-          "entrypoint": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_case.py"
+          "entrypoint": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_case.py",
+          "notes": "Invokes Gmsh -3 on the original OpenCASCADE BooleanUnion geometry; does not reconstruct the volume from exported STL."
         },
         {
-          "id": "shared_gmsh_mesher",
-          "kind": "gmsh",
-          "status": "implemented",
-          "entrypoint": "grid/stl_to_gmsh/generate_volume_mesh.py"
-        },
-        {
-          "id": "native_cpp_geometry_shared_gmsh_runner",
+          "id": "native_cpp_direct_occ_mesher",
           "kind": "cpp",
           "status": "implemented",
-          "entrypoint": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_cpp_case.py"
+          "entrypoint": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_cpp_case.py",
+          "notes": "Uses the same generated OCC .geo and direct Gmsh -3 path as the Python case."
         }
       ],
       "inputs": [
         {
-          "id": "closed_surface",
-          "format": "stl",
+          "id": "occ_geometry_script",
+          "format": "gmsh-geo",
           "dimension": 3,
-          "topology": "surface"
+          "topology": "analytic_boolean_union"
         },
         {
-          "id": "region_manifest",
-          "format": "oneflow.stl-surface-regions"
+          "id": "geometry_provenance",
+          "format": "oneflow.stl-geometry-manifest"
         }
       ],
       "outputs": [
@@ -198,20 +200,20 @@
         {
           "id": "pipe_tee.volume.physical_groups",
           "kind": "integration",
-          "description": "MSH4 contains wall, inflow, outflow, and fluid_domain physical groups with correct dimensions.",
+          "description": "Final MSH4 preserves wall, main_inflow, branch_inflow, outflow and fluid_domain as distinct OpenCASCADE Physical Groups.",
           "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_gmsh_surface_mesh_contains_the_benchmark_physical_groups"
         },
         {
           "id": "pipe_tee.volume.elements",
           "kind": "integration",
-          "description": "The volume mesh contains supported first-order tetrahedral cells and valid boundary connectivity.",
+          "description": "The direct OCC volume mesh contains supported first-order tetrahedra and a matching exterior boundary.",
           "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_gmsh_surface_mesh_contains_the_benchmark_physical_groups"
         },
         {
-          "id": "pipe_tee.volume_mesh.native_cpp_runner",
-          "kind": "contract",
-          "description": "The native C++ geometry runner hands its STL and named regions to the shared Gmsh service and produces a non-empty MSH4 tetrahedral mesh with wall, inflow, outflow and fluid_domain physical groups.",
-          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_gmsh_surface_mesh_contains_the_benchmark_physical_groups"
+          "id": "pipe_tee.volume.inside_boolean_union",
+          "kind": "geometry_contract",
+          "description": "Every tetrahedron vertex, edge midpoint and centroid is inside the analytic union of the main and branch cylindrical bores.",
+          "reference": "grid.stl_to_gmsh.converter.inspect_msh4"
         }
       ]
     },

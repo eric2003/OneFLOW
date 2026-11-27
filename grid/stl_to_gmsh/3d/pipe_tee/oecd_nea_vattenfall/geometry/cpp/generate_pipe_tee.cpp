@@ -98,7 +98,8 @@ int main(int argc, char** argv) {
            << "Physical Surface(\"wall\", 1) = {wall[]};\n"
            << "Physical Surface(\"main_inflow\", 2) = {inlet[]};\n"
            << "Physical Surface(\"branch_inflow\", 3) = {branch_inlet[]};\n"
-           << "Physical Surface(\"outflow\", 4) = {outlet[]};\n";
+           << "Physical Surface(\"outflow\", 4) = {outlet[]};\n"
+           << "Physical Volume(\"fluid_domain\", 1) = {fluid[]};\n";
     script.close();
     if (run_program(args["--gmsh"], {
           geo.string(), "-2", "-format", "msh2", "-o", msh.string(), "-v", "2"

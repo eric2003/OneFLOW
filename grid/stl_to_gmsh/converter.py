@@ -943,7 +943,7 @@ def _validate_tetrahedral_boundary(elements: list[tuple[int, int, tuple[int, ...
     }
 
 
-def inspect_msh4(path: Path) -> dict:
+def inspect_msh4(path: Path, geometry_contract: dict | None = None) -> dict:
     """Inspect MSH 4.1 topology, coordinates and first-order triangle quality."""
     lines = path.read_text(encoding="utf-8").splitlines()
 
@@ -1050,6 +1050,8 @@ def inspect_msh4(path: Path) -> dict:
     tetrahedron_volumes: list[float] = []
     tetrahedron_qualities: list[float] = []
     tetrahedron_quality_records: list[dict] = []
+    geometry_checked_tetrahedra = 0
+    geometry_checked_samples = 0
     degenerate_tetrahedron_count = 0
     positive_xy = negative_xy = 0
     for _ in range(element_block_count):
@@ -1111,6 +1113,48 @@ def inspect_msh4(path: Path) -> dict:
                     negative_xy += 1
             elif entity_dim == 3 and element_type == 4:
                 p0, p1, p2, p3 = (nodes[node_id] for node_id in node_ids)
+                if geometry_contract is not None:
+                    try:
+                        main_radius = float(geometry_contract["main_diameter"]) / 2.0
+                        branch_radius = float(geometry_contract["branch_diameter"]) / 2.0
+                        main_inlet = float(geometry_contract["main_inlet_length"])
+                        main_outlet = float(geometry_contract["main_outlet_length"])
+                        branch_length = float(geometry_contract["branch_inlet_length"])
+                    except (KeyError, TypeError, ValueError) as exc:
+                        raise Stl2DError("invalid T-junction volume geometry contract") from exc
+                    if not all(math.isfinite(value) and value > 0.0 for value in (
+                        main_radius, branch_radius, main_inlet, main_outlet, branch_length
+                    )):
+                        raise Stl2DError("T-junction volume geometry parameters must be positive and finite")
+                    tetra_points = (p0, p1, p2, p3)
+                    samples = list(tetra_points)
+                    for i, j in ((0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)):
+                        samples.append(tuple(
+                            (tetra_points[i][axis] + tetra_points[j][axis]) * 0.5
+                            for axis in range(3)
+                        ))
+                    samples.append(tuple(
+                        sum(point[axis] for point in tetra_points) / 4.0
+                        for axis in range(3)
+                    ))
+                    geometry_tolerance = max(1.0e-9, coordinate_scale * 1.0e-8)
+                    for sample in samples:
+                        x, y, z = sample
+                        in_main_bore = (
+                            -main_inlet - geometry_tolerance <= x <= main_outlet + geometry_tolerance
+                            and y*y + z*z <= (main_radius + geometry_tolerance) ** 2
+                        )
+                        in_branch_bore = (
+                            -geometry_tolerance <= z <= branch_length + geometry_tolerance
+                            and x*x + y*y <= (branch_radius + geometry_tolerance) ** 2
+                        )
+                        if not (in_main_bore or in_branch_bore):
+                            raise Stl2DError(
+                                f"Tetrahedron {_tag} has a vertex/edge/centroid sample outside "
+                                "the Boolean-union fluid domain."
+                            )
+                    geometry_checked_samples += len(samples)
+                    geometry_checked_tetrahedra += 1
                 a = tuple(p1[i] - p0[i] for i in range(3))
                 b = tuple(p2[i] - p0[i] for i in range(3))
                 c = tuple(p3[i] - p0[i] for i in range(3))
@@ -1240,6 +1284,13 @@ def inspect_msh4(path: Path) -> dict:
         "tetrahedron_elements": element_types.get(4, 0),
         "hexahedron_elements": element_types.get(5, 0),
         "tetrahedral_topology": tetrahedral_topology,
+        "geometry_validation": ({
+            "status": "PASS",
+            "geometry": "orthogonal_pipe_tee_boolean_union",
+            "checked_tetrahedra": geometry_checked_tetrahedra,
+            "checked_vertices_edge_midpoints_and_centroids": geometry_checked_samples,
+            "outside_samples": 0,
+        } if geometry_contract is not None else None),
         "physical_groups": physical_groups,
         "coordinate_bounds": bounds,
         "tetrahedron_quality": tetrahedron_quality_summary,
