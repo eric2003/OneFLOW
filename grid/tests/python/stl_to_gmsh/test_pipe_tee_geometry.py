@@ -4,6 +4,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import math
+import os
 import shutil
 import subprocess
 import tempfile
@@ -106,14 +107,19 @@ class PipeTeeGeometryTest(unittest.TestCase):
             self.assertEqual(metrics["connected_component_count"], 1)
 
     def test_cpp_geometry_driver_compiles(self):
-        compiler = next((shutil.which(name) for name in ("c++", "g++", "clang++") if shutil.which(name)), None)
+        candidates = ("cl", "c++", "g++", "clang++") if os.name == "nt" else ("c++", "g++", "clang++")
+        compiler = next((shutil.which(name) for name in candidates if shutil.which(name)), None)
         if not compiler:
             self.skipTest("A C++17 compiler is required.")
         source = ROOT / "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/geometry/cpp/generate_pipe_tee.cpp"
         with tempfile.TemporaryDirectory() as temporary:
-            executable = Path(temporary) / "pipe_tee_generator"
-            subprocess.run([compiler, "-std=c++17", str(source), "-o", str(executable)],
-                           check=True, capture_output=True, text=True)
+            is_msvc = Path(compiler).name.lower() in {"cl", "cl.exe"}
+            executable = Path(temporary) / ("pipe_tee_generator.exe" if os.name == "nt" else "pipe_tee_generator")
+            if is_msvc:
+                command = [compiler, "/nologo", "/std:c++17", "/EHsc", str(source), f"/Fe:{executable}"]
+            else:
+                command = [compiler, "-std=c++17", str(source), "-o", str(executable)]
+            subprocess.run(command, check=True, capture_output=True, text=True)
             self.assertTrue(executable.is_file())
 
     @unittest.skipUnless(shutil.which("gmsh"), "Gmsh is required for the geometry integration test")
