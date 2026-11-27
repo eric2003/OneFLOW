@@ -324,7 +324,7 @@ def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
             "direct_occ_volume_mesh_surface_groups": ["wall", "main_inflow", "branch_inflow", "outflow"],
             "volume": ["fluid_domain"],
         },
-        "notes": "Fluid domain is the Boolean union of the three cylindrical bores. Separate checksum-bound main/branch inlet subregions are retained; the shared volume mesher currently combines them into inflow for compatibility. The benchmark junction edge is reported as very slightly rounded (radius < 0.2 mm, not measured); the baseline geometry uses a sharp intersection and does not invent a fillet radius. The final volume mesh is generated directly from this OpenCASCADE BooleanUnion geometry, not reconstructed from the exported STL.",
+        "notes": "Fluid domain is the Boolean union of the main and branch cylindrical bores. Separate checksum-bound main/branch inlet subregions are retained in the STL evidence. The final volume mesh is generated directly from this OpenCASCADE BooleanUnion geometry and preserves both inlet Physical Groups; it is not reconstructed from the exported STL. The benchmark junction edge is reported as very slightly rounded (radius < 0.2 mm, not measured); the baseline geometry uses a sharp intersection and does not invent a fillet radius.",
     }
     sidecar = output.with_suffix(".geometry.json")
     sidecar.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")

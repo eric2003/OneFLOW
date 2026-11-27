@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile and run the C++17 T-junction geometry driver, then use shared Gmsh meshing."""
+"""Compile and run the C++17 T-junction geometry driver and direct OCC volume meshing."""
 from __future__ import annotations
 
 import argparse
@@ -68,7 +68,7 @@ def run_case(case_directory: Path, *, gmsh: str, mesh_size: float = 0.03,
         cwd=ROOT, check=True,
     )
     mesh = results_dir / "pipe_tee_oecd_nea_vattenfall.msh"
-    mesh_occ_volume(stl.with_suffix(".geo"), mesh, gmsh, geometry, mesh_size)
+    mesh_occ_volume(stl.with_suffix(".geo"), mesh, gmsh, geometry)
     return mesh
 
 
