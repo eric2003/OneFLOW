@@ -786,6 +786,37 @@
           "dimension": 3
         }
       ]
+    },
+    {
+      "id": "stl_to_gmsh_pipe_tee_stl_regions",
+      "title": "OECD/NEA–Vattenfall T-Junction (STL-Derived TETRA_4 Volume Mesh)",
+      "directory": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra",
+      "group": "STL to Gmsh",
+      "dimension": 3,
+      "mesh_validation": "cfd_smoke",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_stl_case.py",
+        "requires_gmsh": true
+      },
+      "required_physical_groups": [
+        {
+          "name": "wall",
+          "dimension": 2
+        },
+        {
+          "name": "inflow",
+          "dimension": 2
+        },
+        {
+          "name": "outflow",
+          "dimension": 2
+        },
+        {
+          "name": "fluid_domain",
+          "dimension": 3
+        }
+      ]
     }
   ]
 }
