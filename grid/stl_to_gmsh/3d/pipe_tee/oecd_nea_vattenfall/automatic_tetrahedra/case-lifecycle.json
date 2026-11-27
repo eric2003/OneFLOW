@@ -332,7 +332,7 @@
         {
           "id": "pipe_tee.ingestion.boundaries",
           "kind": "integration",
-          "description": "The shared CGNS-to-OneFLOW stage reads the unstructured 3-D grid, writes the native grid and boundary-region map, and preserves wall, inflow, and outflow identities."
+          "description": "The shared CGNS-to-OneFLOW stage reads the unstructured 3-D grid, writes the native grid and boundary-region map, and preserves wall, main_inflow, branch_inflow and outflow identities (with solver boundary-type mapping handled by the shared adapter)."
         }
       ]
     },
