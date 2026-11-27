@@ -1124,7 +1124,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     self.assertFalse(dialog.pipe_tee_mode.isHidden())
                     self.assertEqual(
                         dialog._mesh_case_id,
-                        "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
+                        "stl_to_gmsh_pipe_tee_stl_regions",
                     )
                     self.assertEqual(
                         dialog.output_path.text(),
