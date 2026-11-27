@@ -1293,7 +1293,10 @@ def _mesh_case_command(
         sys.executable, str(script_path), "--case-directory",
         str(case_directory), "--gmsh", str(gmsh_executable),
     ]
-    if mesh_entry.get("id") == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall":
+    if mesh_entry.get("id") in {
+        "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
+        "stl_to_gmsh_pipe_tee_stl_regions",
+    }:
         if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
             raise ValueError(f"Unsupported T-junction operating mode: {operating_mode!r}")
         command.extend(["--operating-mode", operating_mode])
@@ -1440,6 +1443,18 @@ def run_mesh_validation(
             **mesh_entry,
             "required_physical_groups": _pipe_tee_required_physical_groups(operating_mode),
         }
+    elif mesh_case_id == "stl_to_gmsh_pipe_tee_stl_regions":
+        if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
+            raise ValueError(f"Unsupported T-junction operating mode: {operating_mode!r}")
+        mesh_entry = {
+            **mesh_entry,
+            "required_physical_groups": [
+                {"name": "wall", "dimension": 2},
+                {"name": "inflow", "dimension": 2},
+                {"name": "outflow", "dimension": 2},
+                {"name": "fluid_domain", "dimension": 3},
+            ],
+        }
     elif operating_mode != "benchmark":
         raise ValueError("Operating mode selection is only supported by the T-junction Case.")
     if source_mesh is None and mesh_execution.get("kind") == "existing_mesh":
@@ -1525,7 +1540,10 @@ def run_mesh_validation(
         "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
         "source_stl_file": str(source_stl) if source_stl is not None else None,
         "cfd_template_id": cfd_template_id,
-        "operating_mode": operating_mode if mesh_case_id == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall" else None,
+        "operating_mode": operating_mode if mesh_case_id in {
+            "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
+            "stl_to_gmsh_pipe_tee_stl_regions",
+        } else None,
         "max_steps": max_steps,
         "lifecycle": lifecycle_metadata,
         "started_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
