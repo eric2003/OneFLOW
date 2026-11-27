@@ -352,17 +352,18 @@ def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
             "node_count": len(nodes),
             "triangle_count": len(all_faces),
             "region_triangle_counts": {name: len(faces) for name, faces in final_regions.items()},
-            "inlet_subregion_triangle_counts": {name: len(groups[name]) for name in ("main_inflow", "branch_inflow")},
+            "port_subregion_triangle_counts": {name: len(faces) for name, (_parent, faces) in named_subregions.items()},
         },
         "region_manifest": region_path.name,
         "stl_file": output.name,
         "stl_sha256": _sha(output),
         "intended_gmsh_physical_groups": {
-            "surface": ["wall", "main_inflow", "branch_inflow", "outflow"],
+            "surface": ["wall", "inflow", "outflow"],
+            "surface_subregions": sorted(named_subregions),
             "direct_occ_volume_mesh_surface_groups": ["wall", "main_inflow", "branch_inflow", "outflow"],
             "volume": ["fluid_domain"],
         },
-        "notes": "Fluid domain is the Boolean union of the main and branch cylindrical bores. Separate checksum-bound main/branch inlet subregions are retained in the STL evidence. The final volume mesh is generated directly from this OpenCASCADE BooleanUnion geometry and preserves both inlet Physical Groups; it is not reconstructed from the exported STL. The benchmark junction edge is reported as very slightly rounded (radius < 0.2 mm, not measured); the baseline geometry uses a sharp intersection and does not invent a fillet radius.",
+        "notes": "Fluid domain is the Boolean union of the main and branch cylindrical bores. The STL region manifest maps the selected operating mode to wall/inflow/outflow and retains each physical port as a checksum-bound subregion. The generic region-aware STL route reconstructs the fluid volume from the exported STL; the benchmark runner also retains a separate direct OpenCASCADE volume-mesh route. The benchmark junction edge is reported as very slightly rounded (radius < 0.2 mm, not measured); the baseline geometry uses a sharp intersection and does not invent a fillet radius.",
     }
     sidecar = output.with_suffix(".geometry.json")
     sidecar.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
