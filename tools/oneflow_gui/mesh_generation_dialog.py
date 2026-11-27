@@ -1078,7 +1078,7 @@ class StlToGmshDialog(QDialog):
                     manifest_path = Path(self._project["directory"]) / "project.json"
                     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
                     manifest["template_case_id"] = None
-                    manifest["mesh_case_id"] = "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+                    manifest["mesh_case_id"] = "stl_to_gmsh_pipe_tee_stl_regions"
                     manifest_path.write_text(
                         json.dumps(manifest, indent=2, sort_keys=True) + "\n",
                         encoding="utf-8",
