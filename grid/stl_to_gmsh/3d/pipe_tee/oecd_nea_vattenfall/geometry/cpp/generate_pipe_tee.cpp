@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -55,7 +56,8 @@ int main(int argc, char** argv) {
     const double mainInlet = args.count("--main-inlet-length") ? std::stod(args["--main-inlet-length"]) : 1.220;
     const double mainOutlet = args.count("--main-outlet-length") ? std::stod(args["--main-outlet-length"]) : 1.220;
     const double branchLength = args.count("--branch-inlet-length") ? std::stod(args["--branch-inlet-length"]) : 0.693;
-    constexpr double eps = 1.0e-7;
+    // Match the Python generator: OCC face bounds need a finite selection slab.
+    const double eps = std::max(1.0e-5, meshSize * 1.0e-3);
     std::ofstream script(geo);
     if (!script) throw std::runtime_error("cannot create Gmsh geometry script");
     script.precision(12);

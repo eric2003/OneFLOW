@@ -39,7 +39,10 @@ def _geo_text(p: dict) -> str:
     rm = p["main_diameter"] / 2.0
     rb = p["branch_diameter"] / 2.0
     li, lo, lb = p["main_inlet_length"], p["main_outlet_length"], p["branch_inlet_length"]
-    eps = 1.0e-7
+    # OCC Boolean operations introduce small bounding-box tolerances. Keep
+    # the selector slab wider than the kernel tolerance and scale it mildly
+    # with the requested mesh size.
+    eps = max(1.0e-5, p["mesh_size"] * 1.0e-3)
     return f"""SetFactory("OpenCASCADE");
 Geometry.OCCBooleanPreserveNumbering = 0;
 Mesh.MshFileVersion = 2.2;

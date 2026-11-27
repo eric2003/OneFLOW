@@ -55,6 +55,7 @@ EXPECTED_IDS = {
     "stl_to_gmsh_cylinder_internal_flow_oblique_cut",
     "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut",
     "stl_to_gmsh_pipe_bend_90_degree",
+    "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
 }
 
 

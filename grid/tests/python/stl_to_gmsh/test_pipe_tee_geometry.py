@@ -84,11 +84,12 @@ class PipeTeeGeometryTest(unittest.TestCase):
             output = root / "cube.stl"
             result = MODULE.export_surface(msh, output)
             self.assertTrue(output.is_file())
-            self.assertEqual(set(result["surface"]["region_triangle_counts"]), {"wall","main_inflow","branch_inflow","outflow"})
+            self.assertEqual(set(result["surface"]["region_triangle_counts"]), {"wall", "inflow", "outflow"})
             manifest = json.loads((root / "region_manifest.json").read_text(encoding="utf-8"))
             for name, record in manifest["regions"].items():
                 self.assertTrue((root / record["file"]).is_file())
                 self.assertEqual(record["triangle_count"], len(read_stl(root / record["file"])))
+            self.assertEqual(set(manifest["regions"]), {"wall", "inflow", "outflow"})
             self.assertEqual(set(manifest["subregions"]), {"main_inflow", "branch_inflow"})
             self.assertEqual(manifest["regions"]["inflow"]["triangle_count"], 2)
             self.assertEqual(manifest["subregions"]["main_inflow"]["triangle_count"], 1)
@@ -130,7 +131,9 @@ class PipeTeeGeometryTest(unittest.TestCase):
             self.assertTrue(stl.is_file())
             manifest = json.loads(result["manifest"].read_text(encoding="utf-8"))
             self.assertEqual(manifest["asset_id"], "geometry.pipe_tee.oecd_nea_vattenfall")
-            self.assertEqual(set(manifest["intended_gmsh_physical_groups"]["surface"]), {"wall","inflow","outflow"})
+            self.assertEqual(set(manifest["intended_gmsh_physical_groups"]["surface"]), {"wall", "main_inflow", "branch_inflow", "outflow"})
+            self.assertEqual(set(manifest["intended_gmsh_physical_groups"]["shared_volume_mesher_surface_groups"]), {"wall", "inflow", "outflow"})
+            self.assertTrue(all(count > 0 for count in manifest["surface"]["inlet_subregion_triangle_counts"].values()))
             from grid.stl_to_gmsh.generate_volume_mesh import generate
             volume = generate(stl, Path(temporary) / "pipe_tee.msh", shutil.which("gmsh"), 0.045, 0.045)
             self.assertEqual(volume["stages"]["physical_groups"]["status"], "PASS")
