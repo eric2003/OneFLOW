@@ -211,7 +211,7 @@
         },
         {
           "id": "pipe_tee.volume.inside_boolean_union",
-          "kind": "geometry_contract",
+          "kind": "contract",
           "description": "Every tetrahedron vertex, edge midpoint and centroid is inside the analytic union of the main and branch cylindrical bores.",
           "reference": "grid.stl_to_gmsh.converter.inspect_msh4"
         }
