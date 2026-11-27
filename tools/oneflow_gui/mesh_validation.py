@@ -1766,7 +1766,10 @@ def run_mesh_validation(
         "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
         "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
         "cfd_template_id": cfd_template_id,
-        "operating_mode": operating_mode if mesh_case_id == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall" else None,
+        "operating_mode": operating_mode if mesh_case_id in {
+            "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
+            "stl_to_gmsh_pipe_tee_stl_regions",
+        } else None,
         "max_steps": max_steps,
         "lifecycle": lifecycle_metadata,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
