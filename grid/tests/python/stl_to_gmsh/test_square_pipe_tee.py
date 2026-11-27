@@ -1,7 +1,8 @@
 from __future__ import annotations
 import importlib.util, json, tempfile, unittest
 from pathlib import Path
-SCRIPT=Path(__file__).resolve().parents[4]/"stl_to_gmsh/3d/pipe_tee/square_duct/geometry/python/generate_square_tee.py"
+ROOT=Path(__file__).resolve().parents[4]
+SCRIPT=ROOT/"grid/stl_to_gmsh/3d/pipe_tee/square_duct/geometry/python/generate_square_tee.py"
 SPEC=importlib.util.spec_from_file_location("generate_square_tee",SCRIPT)
 MODULE=importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
