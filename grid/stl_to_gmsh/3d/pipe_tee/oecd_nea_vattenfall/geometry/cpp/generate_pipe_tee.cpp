@@ -43,8 +43,9 @@ int main(int argc, char** argv) {
     }
     for (const auto* key : {"--output", "--gmsh", "--python", "--extractor"})
       if (!args.count(key)) throw std::invalid_argument(std::string("required option missing: ") + key);
-    const std::filesystem::path output = std::filesystem::absolute(args["--output"]);
-    const std::filesystem::path geo = output.replace_extension(".geo");
+    std::filesystem::path output = std::filesystem::absolute(args["--output"]);
+    std::filesystem::path geo = output;
+    geo.replace_extension(".geo");
     const std::filesystem::path msh = output.parent_path() / (output.stem().string() + ".surface.msh");
     std::filesystem::create_directories(output.parent_path());
     const double meshSize = args.count("--mesh-size") ? std::stod(args["--mesh-size"]) : 0.03;
