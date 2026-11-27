@@ -193,6 +193,60 @@ class PipeTeeGeometryTest(unittest.TestCase):
             self.assertEqual(manifest["regions"]["inflow"]["triangle_count"], 2)
             self.assertEqual(manifest["subregions"]["main_inflow"]["triangle_count"], 1)
             self.assertEqual(manifest["subregions"]["branch_inflow"]["triangle_count"], 1)
+
+            # The true STL route maps all three ports to the requested flow
+            # assignment while retaining each port as a distinct subregion.
+            for mode, expected_regions, expected_subregions in (
+                (
+                    "main_inlets",
+                    {"wall": 8, "inflow": 3, "outflow": 1},
+                    {
+                        "main_left_inflow": "inflow",
+                        "main_right_inflow": "inflow",
+                        "branch_outflow": "outflow",
+                    },
+                ),
+                (
+                    "branch_inlet",
+                    {"wall": 8, "inflow": 1, "outflow": 3},
+                    {
+                        "branch_inflow": "inflow",
+                        "main_left_outflow": "outflow",
+                        "main_right_outflow": "outflow",
+                    },
+                ),
+            ):
+                mode_directory = root / mode
+                mode_directory.mkdir()
+                mode_output = mode_directory / "pipe_tee.stl"
+                mode_result = MODULE.export_surface(
+                    msh, mode_output, operating_mode=mode
+                )
+                mode_regions = json.loads(
+                    mode_result["region_manifest"].read_text(encoding="utf-8")
+                )
+                self.assertEqual(
+                    {
+                        name: record["triangle_count"]
+                        for name, record in mode_regions["regions"].items()
+                    },
+                    expected_regions,
+                )
+                self.assertEqual(
+                    {
+                        name: record["parent_region"]
+                        for name, record in mode_regions["subregions"].items()
+                    },
+                    expected_subregions,
+                )
+                mode_geometry = json.loads(
+                    mode_output.with_suffix(".geometry.json").read_text(encoding="utf-8")
+                )
+                self.assertEqual(mode_geometry["operating_mode"], mode)
+                self.assertEqual(
+                    set(mode_geometry["intended_gmsh_physical_groups"]["stl_surface"]),
+                    {"wall", "inflow", "outflow"},
+                )
             for name, record in manifest["subregions"].items():
                 self.assertTrue((root / record["file"]).is_file())
                 self.assertEqual(record["triangle_count"], len(read_stl(root / record["file"])))
