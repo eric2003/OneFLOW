@@ -51,6 +51,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
             self.assertIn("T-Junction (3-Port Internal Flow)...", buttons)
             tee = PipeTeeMeshDialog(self.repository_root, dialog)
             try:
+                tee.gmsh_path.setText("gmsh")
                 self.assertEqual(tee.operating_mode.currentData(), "main_inlets")
                 self.assertIn("--operating-mode main_inlets", tee.command_view.toPlainText())
                 self.assertIn("Main left port: INLET", tee.mode_description.text())
