@@ -20,6 +20,7 @@ from tools.oneflow_gui.mesh_validation import (
     prepare_mesh_validation_run_workspace,
     _copy_existing_mesh, _graph_step_records,
     _mesh_case_command, _mesh_validation_stage_results, run_report_stage_rows,
+    _pipe_tee_required_physical_groups,
     existing_mesh_case_paths, _validate_required_physical_groups, _effective_required_physical_groups,
     _geometry_lineage, geometry_lineage_rows, _project_required_physical_groups,
     _geometry_artifact_lineage_path, _write_geometry_artifact_lineage,
@@ -1066,6 +1067,46 @@ class MeshValidationCatalogTest(unittest.TestCase):
         for stage_id in ("oneflow_ingestion", "cfd_smoke"):
             self.assertEqual(stage_states[stage_id]["implementation_status"], "implemented")
             self.assertTrue(stage_states[stage_id]["in_current_scope"])
+
+    def test_pipe_tee_validation_supports_both_symmetric_operating_modes(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        catalog = json.loads(
+            (repository_root / "grid/case_catalog.json").read_text(encoding="utf-8")
+        )
+        entry = next(
+            item for item in catalog["cases"]
+            if item["id"] == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+        )
+        for mode, expected_boundaries in (
+            ("main_inlets", {"main_left_inflow", "main_right_inflow", "branch_outflow"}),
+            ("branch_inlet", {"main_left_outflow", "main_right_outflow", "branch_inflow"}),
+        ):
+            command = _mesh_case_command(
+                repository_root, entry, Path("OneFLOW.exe"), Path("gmsh"),
+                Path("stage"), mode,
+            )
+            self.assertEqual(command[-2:], ["--operating-mode", mode])
+            groups = _pipe_tee_required_physical_groups(mode)
+            self.assertEqual(
+                {item["name"] for item in groups if item["dimension"] == 2},
+                {"wall", *expected_boundaries},
+            )
+            self.assertEqual(
+                [item for item in groups if item["dimension"] == 3],
+                [{"name": "fluid_domain", "dimension": 3}],
+            )
+        self.assertNotEqual(
+            mesh_validation_workspace(
+                repository_root, "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall", "main_inlets"
+            ),
+            mesh_validation_workspace(
+                repository_root, "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall", "branch_inlet"
+            ),
+        )
+        with self.assertRaisesRegex(ValueError, "only supported"):
+            mesh_validation_workspace(
+                repository_root, "stl_to_gmsh_pipe_bend_90_degree", "main_inlets"
+            )
 
     def test_pipe_tee_runs_the_complete_three_dimensional_cfd_smoke_chain(self):
         repository_root = Path(__file__).resolve().parents[2]

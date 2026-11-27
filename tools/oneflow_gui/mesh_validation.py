@@ -496,8 +496,10 @@ def _external(path: Path) -> Path:
     raise ValueError(f"Run data must stay outside the source repository: {resolved}")
 
 
-def mesh_validation_workspace(repository_root: Path, mesh_case_id: str) -> Path:
-    """Return the stable user-data directory for one mesh validation Case."""
+def mesh_validation_workspace(
+    repository_root: Path, mesh_case_id: str, operating_mode: str = "benchmark",
+) -> Path:
+    """Return the stable user-data directory for one mesh validation Case/mode."""
     root = Path(repository_root).resolve()
     entry = next(
         (item for item in _mesh_validation_entries(_catalog(root)) if item.get("id") == mesh_case_id),
@@ -516,7 +518,14 @@ def mesh_validation_workspace(repository_root: Path, mesh_case_id: str) -> Path:
             f"Mesh validation Case must be located below grid/: {case_directory}"
         )
     relative_case = Path(*case_directory.parts[1:])
-    return UserDataPaths.discover().mesh_validation / relative_case
+    workspace = UserDataPaths.discover().mesh_validation / relative_case
+    if mesh_case_id == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall":
+        if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
+            raise ValueError(f"Unsupported T-junction operating mode: {operating_mode!r}")
+        workspace = workspace / operating_mode
+    elif operating_mode != "benchmark":
+        raise ValueError("Operating mode selection is only supported by the T-junction Case.")
+    return workspace
 
 
 def project_mesh_validation_workspace(project_directory: Path) -> Path:
@@ -1238,12 +1247,31 @@ def _mesh_validation_stage_results(result, *, existing_mesh: bool = False) -> di
     return stages
 
 
+def _pipe_tee_required_physical_groups(operating_mode: str) -> list[dict]:
+    """Return the exact port and volume groups required for a T-junction mode."""
+    boundaries = {
+        "benchmark": ("main_inflow", "branch_inflow", "outflow"),
+        "main_inlets": ("main_left_inflow", "main_right_inflow", "branch_outflow"),
+        "branch_inlet": ("main_left_outflow", "main_right_outflow", "branch_inflow"),
+    }
+    try:
+        names = boundaries[operating_mode]
+    except KeyError as error:
+        raise ValueError(f"Unsupported T-junction operating mode: {operating_mode!r}") from error
+    return [
+        {"name": "wall", "dimension": 2},
+        *({"name": name, "dimension": 2} for name in names),
+        {"name": "fluid_domain", "dimension": 3},
+    ]
+
+
 def _mesh_case_command(
     repository_root: Path,
     mesh_entry: dict,
     oneflow_executable: Path,
     gmsh_executable: Path,
     case_directory: Path,
+    operating_mode: str = "benchmark",
 ) -> list[str]:
     """Build the selected mesh producer command without coupling to its language."""
     execution = mesh_entry.get("execution") or {}
@@ -1265,6 +1293,12 @@ def _mesh_case_command(
         sys.executable, str(script_path), "--case-directory",
         str(case_directory), "--gmsh", str(gmsh_executable),
     ]
+    if mesh_entry.get("id") == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall":
+        if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
+            raise ValueError(f"Unsupported T-junction operating mode: {operating_mode!r}")
+        command.extend(["--operating-mode", operating_mode])
+    elif operating_mode != "benchmark":
+        raise ValueError("Operating mode selection is only supported by the T-junction Case.")
     output_argument = execution.get("output_directory_argument")
     if output_argument:
         if not isinstance(output_argument, str) or not output_argument.startswith("--"):
@@ -1365,6 +1399,7 @@ def run_mesh_validation(
     cfd_template_id: str = "laminar_flat_plate", max_steps: int = 2,
     stage_root: Path | None = None, mesh_file: Path | None = None,
     project_directory: Path | None = None,
+    operating_mode: str = "benchmark",
 ) -> int:
     """Run a mesh producer or validate an existing MSH, then convert and consume it."""
     executable = oneflow.expanduser().resolve()
@@ -1380,6 +1415,13 @@ def run_mesh_validation(
     if mesh_entry is None:
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
     mesh_execution = mesh_entry.get("execution") or {}
+    if mesh_case_id == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall":
+        mesh_entry = {
+            **mesh_entry,
+            "required_physical_groups": _pipe_tee_required_physical_groups(operating_mode),
+        }
+    elif operating_mode != "benchmark":
+        raise ValueError("Operating mode selection is only supported by the T-junction Case.")
     if source_mesh is None and mesh_execution.get("kind") == "existing_mesh":
         existing_mesh_paths = existing_mesh_case_paths(REPOSITORY_ROOT, mesh_case_id)
         if existing_mesh_paths is None:
@@ -1445,7 +1487,9 @@ def run_mesh_validation(
             project_directory or source_mesh.parent
         )
     else:
-        selected_stage_root = mesh_validation_workspace(REPOSITORY_ROOT, mesh_case_id)
+        selected_stage_root = mesh_validation_workspace(
+            REPOSITORY_ROOT, mesh_case_id, operating_mode
+        )
     run_id = uuid.uuid4().hex
     # The mesh-case directory is the run directory. Keep all stage outputs
     # directly beneath it instead of creating another timestamped subdirectory.
@@ -1461,6 +1505,7 @@ def run_mesh_validation(
         "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
         "source_stl_file": str(source_stl) if source_stl is not None else None,
         "cfd_template_id": cfd_template_id,
+        "operating_mode": operating_mode if mesh_case_id == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall" else None,
         "max_steps": max_steps,
         "lifecycle": lifecycle_metadata,
         "started_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -1501,7 +1546,8 @@ def run_mesh_validation(
                 status, message = "failed", str(error)
         elif step.case_id == "stl_to_gmsh":
             command = _mesh_case_command(
-                REPOSITORY_ROOT, mesh_entry, executable, gmsh_path, step.directory
+                REPOSITORY_ROOT, mesh_entry, executable, gmsh_path,
+                step.directory, operating_mode,
             )
             status, message = "", ""
         else:
@@ -1681,7 +1727,9 @@ def run_mesh_validation(
         "mesh_implementation": mesh_implementation,
         "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
         "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
-        "cfd_template_id": cfd_template_id, "max_steps": max_steps,
+        "cfd_template_id": cfd_template_id,
+        "operating_mode": operating_mode if mesh_case_id == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall" else None,
+        "max_steps": max_steps,
         "lifecycle": lifecycle_metadata,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
         "mesh_summary": mesh_evidence or None,
@@ -1707,6 +1755,12 @@ def main() -> int:
     parser.add_argument("--cfd-template-id", default="laminar_flat_plate")
     parser.add_argument("--max-steps", type=int, default=2)
     parser.add_argument(
+        "--operating-mode",
+        choices=("benchmark", "main_inlets", "branch_inlet"),
+        default="benchmark",
+        help="T-junction port assignment.",
+    )
+    parser.add_argument(
         "--stage-root", type=Path,
         help="Dedicated output directory; cleared before this validation run. "
              "Without it, GUI-managed workspaces retain timestamped run history.",
@@ -1720,7 +1774,8 @@ def main() -> int:
         return run_mesh_validation(args.oneflow_executable, args.gmsh,
                                    args.mesh_case_id, args.cfd_template_id,
                                    args.max_steps, args.stage_root,
-                                   args.mesh_file, args.project_directory)
+                                   args.mesh_file, args.project_directory,
+                                   args.operating_mode)
     except (OSError, ValueError, KeyError, TypeError, RuntimeError, json.JSONDecodeError) as error:
         parser.exit(2, f"Mesh-to-CFD Validation failed: {error}\n")
 

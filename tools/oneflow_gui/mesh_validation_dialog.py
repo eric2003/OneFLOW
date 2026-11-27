@@ -359,6 +359,20 @@ class MeshValidationDialog(QDialog):
         self.template_combo = QComboBox()
         for template_id, title in cfd_template_choices():
             self.template_combo.addItem(title, template_id)
+        self.operating_mode_combo = QComboBox()
+        self.operating_mode_combo.addItem(
+            "Benchmark (original port assignment)", "benchmark"
+        )
+        self.operating_mode_combo.addItem(
+            "Two main-pipe inlets -> branch outlet", "main_inlets"
+        )
+        self.operating_mode_combo.addItem(
+            "Branch inlet -> two main-pipe outlets", "branch_inlet"
+        )
+        self.operating_mode_combo.setToolTip(
+            "Applied only when the OECD/NEA-Vattenfall T-junction Case is selected. "
+            "The left and right ports remain separate Physical Groups."
+        )
         self.steps_spin = QSpinBox()
         self.steps_spin.setRange(1, 100000)
         self.steps_spin.setValue(2)
@@ -377,6 +391,7 @@ class MeshValidationDialog(QDialog):
             "For 3D meshes, the runtime dimension is overridden from mesh metadata."
         )
         form.addRow(template_label, self.template_combo)
+        form.addRow("T-junction port assignment", self.operating_mode_combo)
         form.addRow("CFD smoke-test steps", self.steps_spin)
         content_layout.addLayout(form)
 
@@ -558,6 +573,11 @@ class MeshValidationDialog(QDialog):
                 "--cfd-template-id", str(self.template_combo.currentData()),
                 "--max-steps", str(self.steps_spin.value()),
             ]
+            if case_id == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall":
+                arguments.extend([
+                    "--operating-mode",
+                    str(self.operating_mode_combo.currentData()),
+                ])
             if executable is not None:
                 arguments.extend(["--oneflow-executable", str(executable)])
             if self._mesh_file is not None:

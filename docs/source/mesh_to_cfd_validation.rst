@@ -85,6 +85,31 @@ When a generated mesh project is opened directly, the project-scoped
 **Mesh-to-CFD Validation...** action validates that exact project. Its workflow
 scope remains governed by the selected Case lifecycle contract.
 
+3-D T-junction internal flow
+-----------------------------
+
+The OECD/NEA-Vattenfall T-junction is available in Mesh-to-CFD Validation
+with three explicit port-assignment modes. **Two main-pipe inlets -> branch
+outlet** assigns the two ends of the straight pipe as separate inlet Physical
+Groups and the vertical branch as the outlet. **Branch inlet -> two main-pipe
+outlets** reverses those roles. The original benchmark assignment remains
+available as a separate default mode.
+
+The selected mode is passed to the mesh producer, and the MSH validation
+requires the corresponding mode-specific Physical Groups before conversion.
+The left and right main-pipe ports are deliberately kept as separate groups;
+they are not merged just because they currently share the same boundary type.
+This preserves the ability to specify independent flow rates, temperatures or
+other boundary-state data in a future boundary-condition contract.
+
+Each operating mode has its own validation output directory under
+``~/.oneflow/mesh-validation``, so changing the port assignment cannot
+silently reuse or overwrite another mode's generated mesh and CFD evidence.
+The current solver stage remains a short smoke test. Successful generation,
+CGNS conversion, OneFLOW ingestion or a few solver steps do not establish
+T-junction flow accuracy or reproduce the experimental benchmark.
+
+
 3-D internal-flow cylinder
 --------------------------
 
