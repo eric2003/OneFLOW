@@ -192,6 +192,58 @@ jobs:
               throw "MSH report did not retain all four physical groups."
           }
 
+          # OECD/NEA-Vattenfall T-junction: reuse the same conversion and
+          # two-step CFD smoke chain, keeping every artifact outside the source tree.
+          $teeCaseRoot = Join-Path $env:RUNNER_TEMP "oneflow-pipe-tee-case"
+          $teeHome = Join-Path $env:RUNNER_TEMP "oneflow-pipe-tee-home"
+          $env:ONEFLOW_HOME = $teeHome
+          python grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_case.py --case-directory $teeCaseRoot --gmsh $gmsh.Source --mesh-size 0.03
+          if ($LASTEXITCODE -ne 0) { throw "T-junction Python geometry and volume-mesh generation failed." }
+
+          $teeStl = Join-Path $teeCaseRoot "input/pipe_tee_oecd_nea_vattenfall.stl"
+          $teeMesh = Join-Path $teeCaseRoot "results/pipe_tee_oecd_nea_vattenfall.msh"
+          if (-not (Test-Path $teeStl)) { throw "T-junction closed STL is missing: $teeStl" }
+          if (-not (Test-Path $teeMesh)) { throw "T-junction MSH4 volume mesh is missing: $teeMesh" }
+
+          $teeProjectRoot = (python -c "import sys; from pathlib import Path; from tools.oneflow_gui.mesh_project import create_mesh_project_from_stl; project = create_mesh_project_from_stl(Path.cwd(), Path(sys.argv[1]), 'pipe-tee-oecd-nea-vattenfall-ci'); print(project['directory'])" $teeStl | Out-String).Trim()
+          if ($LASTEXITCODE -ne 0) { throw "T-junction GUI mesh-project creation failed." }
+          if (-not (Test-Path (Join-Path $teeProjectRoot "project.json"))) {
+              throw "T-junction GUI mesh-project creation did not produce project.json: $teeProjectRoot"
+          }
+          $teeProjectMesh = Join-Path $teeProjectRoot "results/pipe_tee_oecd_nea_vattenfall.msh"
+          New-Item -ItemType Directory -Force -Path (Split-Path $teeProjectMesh) | Out-Null
+          Copy-Item $teeMesh $teeProjectMesh -Force
+
+          $teeStageRoot = Join-Path $env:RUNNER_TEMP "oneflow-pipe-tee-validation"
+          python -m tools.oneflow_gui.mesh_validation --oneflow-executable (Join-Path $env:ONEFLOW_ROOT "bin/OneFLOW.exe") --gmsh $gmsh.Source --mesh-case-id stl_to_gmsh_pipe_tee_oecd_nea_vattenfall --mesh-file $teeProjectMesh --project-directory $teeProjectRoot --stage-root $teeStageRoot --cfd-template-id laminar_flat_plate --max-steps 2
+          if ($LASTEXITCODE -ne 0) { throw "T-junction Mesh-to-CFD two-step smoke test failed." }
+
+          $teeReportPath = Join-Path $teeStageRoot "mesh-validation-report.json"
+          if (-not (Test-Path $teeReportPath)) { throw "T-junction Mesh-to-CFD report is missing: $teeReportPath" }
+          $teeReport = Get-Content -Raw $teeReportPath | ConvertFrom-Json
+          if ($teeReport.exit_code -ne 0) { throw "T-junction Mesh-to-CFD report has non-zero exit code." }
+          foreach ($stageName in @("existing_msh_input", "gmsh_to_cgns", "cgns_to_oneflow", "cfd_smoke")) {
+              $stage = $teeReport.stages.PSObject.Properties[$stageName].Value
+              if ($null -eq $stage -or $stage.status -ne "PASS") {
+                  throw "T-junction Mesh-to-CFD stage '$stageName' did not pass."
+              }
+          }
+          $teeCgns = Join-Path $teeStageRoot "gmsh_to_cgns/results/pipe_tee_oecd_nea_vattenfall.cgns"
+          $teeNative = Join-Path $teeStageRoot "cgns_to_oneflow/results/pipe_tee_oecd_nea_vattenfall.oneflow.grid"
+          $teeRegionMap = Join-Path $teeStageRoot "cgns_to_oneflow/results/pipe_tee_oecd_nea_vattenfall_bcRegionMap.txt"
+          if (-not (Test-Path $teeCgns)) { throw "T-junction CGNS artifact is missing: $teeCgns" }
+          if (-not (Test-Path $teeNative)) { throw "T-junction OneFLOW native grid is missing: $teeNative" }
+          if (-not (Test-Path $teeRegionMap)) { throw "T-junction boundary-region map is missing: $teeRegionMap" }
+          $teeRegionText = Get-Content -Raw $teeRegionMap
+          foreach ($regionName in @("wall", "inflow", "outflow")) {
+              if (-not $teeRegionText.Contains($regionName)) {
+                  throw "T-junction boundary-region map does not contain '$regionName'."
+              }
+          }
+          if ($teeReport.metrics.physical_group_count -lt 4) {
+              throw "T-junction MSH report did not retain all four physical groups."
+          }
+
       - name: Upload generic STL mesh-to-CFD smoke evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -200,6 +252,9 @@ jobs:
           path: |
             ${{ runner.temp }}/oneflow-generic-curved-shell-home
             ${{ runner.temp }}/oneflow-generic-curved-shell-validation
+            ${{ runner.temp }}/oneflow-pipe-tee-case
+            ${{ runner.temp }}/oneflow-pipe-tee-home
+            ${{ runner.temp }}/oneflow-pipe-tee-validation
           if-no-files-found: ignore
 
       - name: Run OneFLOW Regression Tests
