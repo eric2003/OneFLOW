@@ -122,7 +122,8 @@ def _write_stl(path: Path, nodes: dict, faces: list[tuple[int, int, int]], label
             stream.write(struct.pack("<12fH", *normal, *a, *b, *c, 0))
 
 
-def export_surface(msh: Path, output: Path, *, generator_kind: str = "python") -> dict:
+def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
+                   generator_source: Path | None = None) -> dict:
     output = output.expanduser().resolve()
     if output.suffix.lower() != ".stl":
         raise ValueError("T-junction output must use the .stl extension.")
@@ -217,9 +218,11 @@ def main() -> int:
     parser.add_argument("--mesh-size", type=float, default=DEFAULTS["mesh_size"])
     parser.add_argument("--extract-msh", type=Path)
     parser.add_argument("--generator-kind", choices=("python", "cpp"), default="python")
+    parser.add_argument("--generator-source", type=Path)
     args = parser.parse_args()
     try:
-        result = export_surface(args.extract_msh, args.output, generator_kind=args.generator_kind) if args.extract_msh else generate(args.output, args.gmsh, args.mesh_size)
+        result = export_surface(args.extract_msh, args.output, generator_kind=args.generator_kind,
+                                generator_source=args.generator_source) if args.extract_msh else generate(args.output, args.gmsh, args.mesh_size)
     except (OSError, ValueError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"T-junction geometry generation failed: {error}\n")
     print(json.dumps({key: str(value) if isinstance(value, Path) else value for key, value in result.items()}, indent=2))

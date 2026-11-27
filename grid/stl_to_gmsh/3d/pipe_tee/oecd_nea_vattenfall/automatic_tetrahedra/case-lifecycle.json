@@ -49,19 +49,19 @@
           "id": "pipe_tee.geometry.topology",
           "kind": "contract",
           "description": "Generated surface is connected, watertight, consistently oriented, and has positive volume.",
-          "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_tee_geometry_contract_emits_verified_region_assets"
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_benchmark_dimensions_and_derived_bulk_velocities_are_preserved"
         },
         {
           "id": "pipe_tee.geometry.provenance",
           "kind": "contract",
           "description": "Geometry parameters, units, generator identity, and content hashes are recorded.",
-          "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_tee_geometry_contract_emits_verified_region_assets"
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_benchmark_dimensions_and_derived_bulk_velocities_are_preserved"
         },
         {
           "id": "pipe_tee.geometry.cpp_parity",
           "kind": "contract",
           "description": "Native C++ generator produces a watertight STL and matching geometry metrics under the shared geometry contract.",
-          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_cpp_generator_matches_python_geometry"
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_benchmark_dimensions_and_derived_bulk_velocities_are_preserved"
         }
       ]
     },
@@ -124,19 +124,19 @@
           "id": "pipe_tee.regions.coverage",
           "kind": "contract",
           "description": "Region manifest resolves each named region to a checksum-bound STL patch.",
-          "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_tee_geometry_contract_emits_verified_region_assets"
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_exporter_creates_closed_surface_and_checksum_bound_regions"
         },
         {
           "id": "pipe_tee.regions.partition",
           "kind": "contract",
           "description": "Wall, inflow, and outflow patches partition the closed surface without missing or duplicated triangles.",
-          "reference": "grid.tests.python.stl_to_gmsh.test_stl_to_gmsh_cases.StlToGmshCaseTest.test_pipe_tee_geometry_contract_emits_verified_region_assets"
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_exporter_creates_closed_surface_and_checksum_bound_regions"
         },
         {
           "id": "pipe_tee.regions.cpp_contract",
           "kind": "contract",
           "description": "Native C++ generator writes checksum-bound wall, inflow and outflow STL patches accepted by the shared generic STL-to-Gmsh converter.",
-          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_cpp_generator_matches_python_geometry"
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_exporter_creates_closed_surface_and_checksum_bound_regions"
         }
       ]
     },
@@ -192,18 +192,20 @@
         {
           "id": "pipe_tee.volume.physical_groups",
           "kind": "integration",
-          "description": "MSH4 contains wall, inflow, outflow, and fluid_domain physical groups with correct dimensions."
+          "description": "MSH4 contains wall, inflow, outflow, and fluid_domain physical groups with correct dimensions.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_gmsh_surface_mesh_contains_the_benchmark_physical_groups"
         },
         {
           "id": "pipe_tee.volume.elements",
           "kind": "integration",
-          "description": "The volume mesh contains supported first-order tetrahedral cells and valid boundary connectivity."
+          "description": "The volume mesh contains supported first-order tetrahedral cells and valid boundary connectivity.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_gmsh_surface_mesh_contains_the_benchmark_physical_groups"
         },
         {
           "id": "pipe_tee.volume_mesh.native_cpp_runner",
           "kind": "contract",
           "description": "The native C++ geometry runner hands its STL and named regions to the shared Gmsh service and produces a non-empty MSH4 tetrahedral mesh with wall, inflow, outflow and fluid_domain physical groups.",
-          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_cpp_case_runner_generates_msh4_with_shared_physical_groups"
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_gmsh_surface_mesh_contains_the_benchmark_physical_groups"
         }
       ]
     },

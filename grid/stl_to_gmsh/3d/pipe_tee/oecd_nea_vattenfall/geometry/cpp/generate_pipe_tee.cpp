@@ -37,7 +37,10 @@ std::string value(int& i, int argc, char** argv) {
 int main(int argc, char** argv) {
   try {
     std::map<std::string, std::string> args;
-    for (int i = 1; i < argc; ++i) args[argv[i]] = value(i, argc, argv);
+    for (int i = 1; i < argc; ++i) {
+      const std::string option = argv[i];
+      args[option] = value(i, argc, argv);
+    }
     for (const auto* key : {"--output", "--gmsh", "--python", "--extractor"})
       if (!args.count(key)) throw std::invalid_argument(std::string("required option missing: ") + key);
     const std::filesystem::path output = std::filesystem::absolute(args["--output"]);
@@ -76,7 +79,7 @@ int main(int argc, char** argv) {
     if (std::system(gmshCommand.c_str()) != 0) throw std::runtime_error("Gmsh surface meshing failed");
     const std::string pythonCommand = quote(args["--python"]) + " " + quote(args["--extractor"])
       + " --extract-msh " + quote(msh.string()) + " --output " + quote(output.string())
-      + " --generator-kind cpp";
+      + " --generator-kind cpp --generator-source " + quote(args.count("--generator-source") ? args["--generator-source"] : std::string(__FILE__));
     if (std::system(pythonCommand.c_str()) != 0) throw std::runtime_error("shared MSH2-to-STL exporter failed");
     std::cout << "PASS: native C++ geometry driver generated " << output << '\n';
   } catch (const std::exception& error) {

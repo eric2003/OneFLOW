@@ -26,5 +26,10 @@
     "nodes": 5,
     "triangle_elements": 4,
     "tetrahedron_elements": 1
+  },
+  "mesh": {
+    "line_elements": 0,
+    "quadrilateral_elements": 0,
+    "hexahedron_elements": 0
   }
 }

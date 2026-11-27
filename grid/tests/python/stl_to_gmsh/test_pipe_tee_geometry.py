@@ -83,6 +83,17 @@ class PipeTeeGeometryTest(unittest.TestCase):
             self.assertTrue(metrics["edge_manifold"])
             self.assertEqual(metrics["connected_component_count"], 1)
 
+    def test_cpp_geometry_driver_compiles(self):
+        compiler = next((shutil.which(name) for name in ("c++", "g++", "clang++") if shutil.which(name)), None)
+        if not compiler:
+            self.skipTest("A C++17 compiler is required.")
+        source = ROOT / "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/geometry/cpp/generate_pipe_tee.cpp"
+        with tempfile.TemporaryDirectory() as temporary:
+            executable = Path(temporary) / "pipe_tee_generator"
+            subprocess.run([compiler, "-std=c++17", str(source), "-o", str(executable)],
+                           check=True, capture_output=True, text=True)
+            self.assertTrue(executable.is_file())
+
     @unittest.skipUnless(shutil.which("gmsh"), "Gmsh is required for the geometry integration test")
     def test_gmsh_surface_mesh_contains_the_benchmark_physical_groups(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -92,6 +103,12 @@ class PipeTeeGeometryTest(unittest.TestCase):
             manifest = json.loads(result["manifest"].read_text(encoding="utf-8"))
             self.assertEqual(manifest["asset_id"], "geometry.pipe_tee.oecd_nea_vattenfall")
             self.assertEqual(set(manifest["intended_gmsh_physical_groups"]["surface"]), {"wall","inflow","outflow"})
+            from grid.stl_to_gmsh.generate_volume_mesh import generate
+            volume = generate(stl, Path(temporary) / "pipe_tee.msh", shutil.which("gmsh"), 0.045, 0.045)
+            self.assertEqual(volume["stages"]["physical_groups"]["status"], "PASS")
+            groups = {(item["dimension"], item["name"]) for item in volume["mesh_summary"]["physical_groups"]}
+            self.assertEqual(groups, {(2,"wall"),(2,"inflow"),(2,"outflow"),(3,"fluid_domain")})
+            self.assertGreater(volume["mesh_summary"]["tetrahedron_elements"], 0)
 
 
 if __name__ == "__main__":

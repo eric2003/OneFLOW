@@ -78,8 +78,10 @@
       "temperature_c": 36,
       "volumetric_flow_rate_m3_s": 0.006,
       "diameter_m": 0.1,
-      "measurement_plane_from_junction_m": -0.31,
-      "measurement_plane_diameter_ratio": -3.1
+      "measurement_plane_from_junction_m": 0.31,
+      "measurement_plane_diameter_ratio": 3.1,
+      "measurement_plane_coordinate_m": 0.31,
+      "measurement_plane_note": "Distance is positive upstream along the +Z branch axis; the benchmark report uses its own signed coordinate convention."
     },
     "outlet": {
       "designation": "Main outlet",
