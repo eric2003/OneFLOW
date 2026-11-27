@@ -262,6 +262,55 @@ class PipeTeeGeometryTest(unittest.TestCase):
             self.assertGreater(volume["geometry_validation"]["checked_tetrahedra"], 0)
             self.assertIn('Physical Volume("fluid_domain"', geo.read_text(encoding="utf-8"))
 
+            # Exercise both UI operating modes with the real Gmsh parser and
+            # verify that the two main ports receive one shared Physical Group.
+            import runpy
+            runner_path = (
+                Path(__file__).resolve().parents[4] / "grid" / "stl_to_gmsh" / "3d"
+                / "pipe_tee" / "oecd_nea_vattenfall" / "automatic_tetrahedra"
+                / "run_pipe_tee_case.py"
+            )
+            configure_mode = runpy.run_path(str(runner_path))["configure_operating_mode"]
+            expected_mode_groups = {
+                "main_inlets": {
+                    (2, "wall"), (2, "main_inflow"), (2, "outflow"), (3, "fluid_domain")
+                },
+                "branch_inlet": {
+                    (2, "wall"), (2, "branch_inflow"), (2, "outflow"), (3, "fluid_domain")
+                },
+            }
+            for mode, expected in expected_mode_groups.items():
+                mode_geo = Path(temporary) / f"pipe_tee_{mode}.geo"
+                mode_msh = Path(temporary) / f"pipe_tee_{mode}.msh"
+                configure_mode(mode_geo, mode) if mode_geo.exists() else None
+                mode_geo.write_text(
+                    geo.read_text(encoding="utf-8"), encoding="utf-8"
+                )
+                configure_mode(mode_geo, mode)
+                mode_volume_geo = mode_geo.with_name(f"pipe_tee_{mode}.volume.geo")
+                mode_volume_geo.write_text(
+                    mode_geo.read_text(encoding="utf-8") + "\\nMesh.MshFileVersion = 4.1;\\n",
+                    encoding="utf-8",
+                )
+                subprocess.run(
+                    [shutil.which("gmsh"), str(mode_volume_geo), "-3", "-format", "msh4", "-o", str(mode_msh)],
+                    check=True, capture_output=True, text=True,
+                )
+                mode_volume = inspect_msh4(mode_msh, geometry_contract={
+                    "main_diameter": benchmark_geometry["main_pipe"]["inner_diameter"],
+                    "branch_diameter": benchmark_geometry["branch_pipe"]["inner_diameter"],
+                    "main_inlet_length": benchmark_geometry["main_pipe"]["inlet_length"],
+                    "main_outlet_length": benchmark_geometry["main_pipe"]["outlet_length"],
+                    "branch_inlet_length": benchmark_geometry["branch_pipe"]["inlet_length"],
+                })
+                mode_groups = {
+                    (item["dimension"], item["name"])
+                    for item in mode_volume["physical_groups"]
+                }
+                self.assertEqual(mode_groups, expected)
+                self.assertGreater(mode_volume["tetrahedron_elements"], 0)
+                self.assertEqual(mode_volume["geometry_validation"]["status"], "PASS")
+
 
 if __name__ == "__main__":
     unittest.main()
