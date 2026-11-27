@@ -1070,7 +1070,7 @@ class StlToGmshDialog(QDialog):
                     self.stl_path.setText(str(self._project["stl_path"]))
                 else:
                     self.stl_path.setText(str(stl))
-                self._mesh_case_id = "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+                self._mesh_case_id = "stl_to_gmsh_pipe_tee_stl_regions"
                 self.boundary_name.setEnabled(False)
                 self.volume_name.setEnabled(False)
                 if output_is_default:
@@ -1490,7 +1490,7 @@ class StlToGmshDialog(QDialog):
         from .mesh_validation_dialog import MeshValidationDialog
 
         if (
-            self._mesh_case_id == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+            self._mesh_case_id == "stl_to_gmsh_pipe_tee_stl_regions"
             and self._project is None
         ):
             try:
@@ -1511,6 +1511,11 @@ class StlToGmshDialog(QDialog):
             mesh_file=mesh_path,
             project_directory=self._project_directory or mesh_path.parent,
             mesh_case_id=self._mesh_case_id,
+            operating_mode=(
+                str(self.pipe_tee_mode.currentData())
+                if self.geometry_preset.currentData() == "pipe_tee_oecd_nea_vattenfall"
+                else "benchmark"
+            ),
             parent=self,
         )
         dialog.exec()
