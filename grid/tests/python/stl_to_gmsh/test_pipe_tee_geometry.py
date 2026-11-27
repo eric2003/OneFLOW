@@ -366,8 +366,36 @@ class PipeTeeGeometryTest(unittest.TestCase):
                 self.assertGreater(mode_volume["tetrahedron_elements"], 0)
                 self.assertEqual(mode_volume["geometry_validation"]["status"], "PASS")
 
-            # The native C++ geometry producer must be able to hand its STL
-            # artifacts to the same generic region-aware volume mesher.
+            # The Python reference route must reconstruct the fluid volume
+            # from the exported STL and preserve the selected port assignment.
+            python_runner = (
+                Path(__file__).resolve().parents[4] / "grid" / "stl_to_gmsh" / "3d"
+                / "pipe_tee" / "oecd_nea_vattenfall" / "automatic_tetrahedra"
+                / "run_pipe_tee_case.py"
+            )
+            python_run_case = runpy.run_path(str(python_runner))["run_case"]
+            python_mesh = python_run_case(
+                Path(temporary) / "python_stl_route",
+                gmsh=shutil.which("gmsh"),
+                mesh_size=0.045,
+                operating_mode="branch_inlet",
+                meshing_route="stl",
+            )
+            python_summary = inspect_msh4(python_mesh)
+            self.assertEqual(
+                {
+                    (item["dimension"], item["name"])
+                    for item in python_summary["physical_groups"]
+                },
+                {
+                    (2, "wall"), (2, "inflow"), (2, "outflow"),
+                    (3, "fluid_domain"),
+                },
+            )
+            self.assertGreater(python_summary["tetrahedron_elements"], 0)
+
+            # The native C++ geometry producer must hand its STL artifacts
+            # to the same generic region-aware volume mesher.
             cpp_runner = (
                 Path(__file__).resolve().parents[4] / "grid" / "stl_to_gmsh" / "3d"
                 / "pipe_tee" / "oecd_nea_vattenfall" / "automatic_tetrahedra"
