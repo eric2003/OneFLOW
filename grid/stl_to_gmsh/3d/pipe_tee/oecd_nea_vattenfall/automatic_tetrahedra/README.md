@@ -29,28 +29,30 @@ benchmark (NEA/CSNI/R(2011)5, 2011):
   unmeasured radius below 0.2 mm. The baseline geometry deliberately uses a
   sharp intersection rather than inventing a fillet radius.
 
-The fluid domain is the Boolean union of the three cylindrical bores. The main
-pipe axis is +X, the branch inlet axis is +Z, and the origin is at the
-centreline intersection. The source surface MSH2 preserves dimension-2 `wall`, `main_inflow`,
-`branch_inflow` and `outflow` as distinct groups. The shared volume mesher
-currently combines the two inlet patches into the compatibility `inflow`
-region, so the final MSH4 contains `wall`, `inflow`, `outflow` and the
-`fluid_domain` volume group. The separate checksum-bound inlet STL subregions
-are retained for future benchmark-specific boundary conditions.
+The fluid domain is the Boolean union of the two cylindrical bores. The
+main pipe axis is +X, the branch inlet axis is +Z, and the origin is at the
+centreline intersection. The source surface MSH2 and final MSH4 preserve
+dimension-2 `wall`, `main_inflow`, `branch_inflow` and `outflow` as
+distinct groups, plus the dimension-3 `fluid_domain` group.
 
-The initial geometry producer uses Gmsh/OpenCASCADE to form the union, mesh its
-boundary, and export a closed STL plus checksum-bound region patch files. The
-existing generic region-aware STL-to-Gmsh mesher then generates the final
-TETRA_4 volume mesh. The Gmsh surface-mesh step is a geometry discretization
-step; it is not a substitute for the shared final volume-mesh stage.
+The geometry producer uses Gmsh/OpenCASCADE to form one BooleanUnion volume.
+It still exports a closed STL and checksum-bound region patches as portable
+surface evidence, but the final TETRA_4 mesh is generated directly from the
+same OpenCASCADE geometry script. A machine-readable
+`*.geometry-validation.json` report is written beside the MSH4, recording the
+mesh checksum, Physical Group counts, tetrahedral topology and analytic-domain
+sample checks. The volume mesh is deliberately not reconstructed from the STL
+patches: this avoids a second discrete-surface topology build and prevents the
+mesher from accidentally treating internal overlap interfaces as exterior
+walls.
 
 ## Current delivery scope
 
 - Reuse the shared STL region manifest and MSH4 inspector, while generating
   the final volume mesh directly from the original OpenCASCADE BooleanUnion.
 - Reuse the Gmsh-to-CGNS converter, CGNS-to-OneFLOW converter and CFD smoke consumer.
-- Preserve wall, both inlet patches (combined as `inflow`) and the main outlet
-  as explicit semantic regions.
+- Preserve `wall`, `main_inflow`, `branch_inflow`, and `outflow` as separate
+  OpenCASCADE Physical Surfaces in the final MSH4.
 - Run only a bounded CFD smoke test through the existing Mesh-to-CFD
   Validation Workbench. The current smoke configuration is not a benchmark
   calculation.
