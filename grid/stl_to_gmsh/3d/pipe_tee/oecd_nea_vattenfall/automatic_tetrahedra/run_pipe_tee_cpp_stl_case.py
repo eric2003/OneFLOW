@@ -16,7 +16,7 @@ def main() -> int:
     parser.add_argument("--compiler")
     parser.add_argument(
         "--operating-mode",
-        choices=("main_inlets", "branch_inlet"),
+        choices=("benchmark", "main_inlets", "branch_inlet"),
         default="main_inlets",
     )
     args = parser.parse_args()
