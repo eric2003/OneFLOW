@@ -1091,6 +1091,55 @@ class MeshGenerationDialogTest(unittest.TestCase):
         finally:
             dialog.close()
 
+    def test_stl_to_gmsh_pipe_tee_preset_generates_mode_aware_user_workspace_input(self) -> None:
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory) / "mesh-generation"
+            calls = []
+
+            def fake_generate(stl, gmsh, operating_mode="benchmark"):
+                stl = Path(stl)
+                stl.parent.mkdir(parents=True, exist_ok=True)
+                stl.write_bytes(b"generated tee surface")
+                calls.append((gmsh, operating_mode))
+                return {"stl": stl}
+
+            with (
+                patch(
+                    "tools.oneflow_gui.mesh_generation_dialog.UserDataPaths.discover",
+                    return_value=SimpleNamespace(mesh_generation=workspace),
+                ),
+                patch("tools.oneflow_gui.mesh_generation_dialog.discover_gmsh", return_value="gmsh"),
+                patch("tools.oneflow_gui.mesh_generation_dialog.generate_pipe_tee_stl", side_effect=fake_generate),
+            ):
+                dialog = StlToGmshDialog(self.repository_root)
+                try:
+                    index = dialog.geometry_preset.findData("pipe_tee_oecd_nea_vattenfall")
+                    self.assertGreaterEqual(index, 0)
+                    dialog.geometry_preset.setCurrentIndex(index)
+                    stl = Path(dialog.stl_path.text())
+                    self.assertTrue(stl.is_file())
+                    self.assertEqual(calls[-1], ("gmsh", "main_inlets"))
+                    self.assertTrue(dialog.pipe_tee_mode.isVisible())
+                    self.assertEqual(
+                        dialog._mesh_case_id,
+                        "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
+                    )
+                    self.assertEqual(
+                        dialog.output_path.text(),
+                        str(workspace / "pipe_tee_oecd_nea_vattenfall" / "pipe_tee_oecd_nea_vattenfall.msh"),
+                    )
+                    dialog.pipe_tee_mode.setCurrentIndex(
+                        dialog.pipe_tee_mode.findData("branch_inlet")
+                    )
+                    self.assertEqual(calls[-1], ("gmsh", "branch_inlet"))
+                    self.assertIn(str(stl), dialog.command_view.toPlainText())
+                    self.assertIn("generate_volume_mesh.py", dialog.command_view.toPlainText())
+                    self.assertNotIn(str(self.repository_root), str(stl))
+                finally:
+                    dialog.close()
+
     def test_stl_to_gmsh_pipe_bend_preset_generates_user_workspace_input(self) -> None:
         from types import SimpleNamespace
 
