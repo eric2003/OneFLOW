@@ -36,14 +36,16 @@ class PipeTeeGeometryTest(unittest.TestCase):
         self.assertAlmostEqual(p["mesh_size"], 0.030)
         main_area = math.pi * p["main_diameter"] ** 2 / 4.0
         branch_area = math.pi * p["branch_diameter"] ** 2 / 4.0
-        self.assertAlmostEqual(0.009 / main_area, 0.5848, places=4)
+        self.assertAlmostEqual(0.009 / main_area, 0.5847, places=4)
         self.assertAlmostEqual(0.006 / branch_area, 0.7639, places=4)
+        self.assertAlmostEqual(0.015 / main_area, 0.9744, places=4)
 
-    def test_geo_definition_has_boolean_union_and_three_named_surface_regions(self):
+    def test_geo_definition_has_boolean_union_and_separate_inlet_surface_regions(self):
         text = MODULE._geo_text(MODULE.DEFAULTS)
         self.assertIn("BooleanUnion", text)
         self.assertIn('Physical Surface("wall"', text)
-        self.assertIn('Physical Surface("inflow"', text)
+        self.assertIn('Physical Surface("main_inflow"', text)
+        self.assertIn('Physical Surface("branch_inflow"', text)
         self.assertIn('Physical Surface("outflow"', text)
         self.assertIn("Surface In BoundingBox", text)
 
