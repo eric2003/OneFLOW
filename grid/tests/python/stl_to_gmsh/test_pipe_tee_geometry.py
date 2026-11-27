@@ -429,6 +429,26 @@ class PipeTeeGeometryTest(unittest.TestCase):
                 },
             )
             self.assertGreater(python_summary["tetrahedron_elements"], 0)
+            python_geometry_manifest = json.loads(
+                (Path(temporary) / "python_stl_route" / "input"
+                 / "pipe_tee_oecd_nea_vattenfall.geometry.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(python_geometry_manifest["operating_mode"], "branch_inlet")
+            python_region_manifest = json.loads(
+                (Path(temporary) / "python_stl_route" / "input"
+                 / "region_manifest.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                {
+                    name: record["parent_region"]
+                    for name, record in python_region_manifest["subregions"].items()
+                },
+                {
+                    "branch_inflow": "inflow",
+                    "main_left_outflow": "outflow",
+                    "main_right_outflow": "outflow",
+                },
+            )
 
             # The native C++ geometry producer must hand its STL artifacts
             # to the same generic region-aware volume mesher.

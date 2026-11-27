@@ -138,7 +138,11 @@ def run_case(case_directory: Path, *, gmsh: str, mesh_size: float = 0.03,
     stl = input_dir / "pipe_tee_oecd_nea_vattenfall.stl"
     msh = results_dir / "pipe_tee_oecd_nea_vattenfall.msh"
     subprocess.run(
-        [sys.executable, str(GENERATOR), "--output", str(stl), "--gmsh", gmsh, "--mesh-size", str(mesh_size)],
+        [
+            sys.executable, str(GENERATOR), "--output", str(stl),
+            "--gmsh", gmsh, "--mesh-size", str(mesh_size),
+            "--operating-mode", operating_mode,
+        ],
         cwd=ROOT, check=True,
     )
     benchmark_path = GENERATOR.parents[2] / "automatic_tetrahedra" / "benchmark.json"
