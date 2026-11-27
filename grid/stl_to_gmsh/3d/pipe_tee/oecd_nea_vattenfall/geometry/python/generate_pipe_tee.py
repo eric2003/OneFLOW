@@ -114,8 +114,8 @@ def _validate_pipe_tee_surface_geometry(nodes: dict, groups: dict, parameters: d
             raise ValueError(f"T-junction port '{name}' area differs from its circular design area by {area_error:.1%}.")
         if center_offset > radius * 0.15:
             raise ValueError(f"T-junction port '{name}' is not centered on its design axis.")
-        if max_radius > radius * 1.001:
-            raise ValueError(f"T-junction port '{name}' exceeds its specified radius.")
+        if not radius * 0.999 <= max_radius <= radius * 1.001:
+            raise ValueError(f"T-junction port '{name}' boundary radius does not match its specified radius.")
         ports[name] = {
             "axis": axis, "plane_coordinate_m": plane, "measured_area_m2": area,
             "expected_area_m2": expected_area, "relative_area_error": area_error,

@@ -58,6 +58,12 @@
           "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_benchmark_dimensions_and_derived_bulk_velocities_are_preserved"
         },
         {
+          "id": "pipe_tee.geometry.orthogonal_ports",
+          "kind": "contract",
+          "description": "The generated three port caps match the two perpendicular cylinder axes, benchmark radii and centres; wall nodes lie on one of the two cylindrical walls.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_gmsh_surface_mesh_contains_the_benchmark_physical_groups"
+        },
+        {
           "id": "pipe_tee.geometry.cpp_parity",
           "kind": "contract",
           "description": "Native C++ generator produces a watertight STL and matching geometry metrics under the shared geometry contract.",
