@@ -4,7 +4,7 @@
   "id": "oecd_nea_vattenfall_t_junction",
   "title": "OECD/NEA–Vattenfall T-Junction Benchmark",
   "status": {
-    "geometry_and_mesh_pipeline": "implementation_target",
+    "geometry_and_mesh_pipeline": "implemented_not_verified",
     "cfd_smoke": "bounded_runtime_check_only",
     "physical_validation": "not_started",
     "experimental_data_comparison": "reserved_for_future_work"
