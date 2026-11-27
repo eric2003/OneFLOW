@@ -98,6 +98,36 @@ class TjunctionPhysicalGroupContractTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "all three named port subregions"):
             _effective_required_physical_groups(tee, project)
 
+    def test_region_aware_t_junction_stl_case_is_registered_with_generic_groups(self):
+        root = Path(__file__).resolve().parents[2]
+        case_id = "stl_to_gmsh_pipe_tee_stl_regions"
+        choices = dict(mesh_case_choices(root))
+        self.assertIn(case_id, choices)
+        steps = build_mesh_validation_cases(root, case_id, "laminar_flat_plate")
+        self.assertEqual(steps[0]["id"], "stl_to_gmsh")
+        self.assertEqual(steps[-1]["id"], "oneflow_cfd_solve")
+        from tools.oneflow_gui.mesh_validation import _catalog
+        entry = next(
+            item for item in _catalog(root)["mesh_validation_inputs"]
+            if item["id"] == case_id
+        )
+        self.assertEqual(
+            _effective_required_physical_groups(entry, {}),
+            [
+                {"name": "wall", "dimension": 2},
+                {"name": "inflow", "dimension": 2},
+                {"name": "outflow", "dimension": 2},
+                {"name": "fluid_domain", "dimension": 3},
+            ],
+        )
+        command = _mesh_case_command(
+            root, entry, Path("OneFLOW"), Path("gmsh"),
+            Path("staged-tee"), operating_mode="branch_inlet",
+        )
+        self.assertIn("run_pipe_tee_stl_case.py", command[1])
+        self.assertIn("--operating-mode", command)
+        self.assertIn("branch_inlet", command)
+
     def test_case_contract_takes_precedence_over_legacy_project_regions(self):
         root = Path(__file__).resolve().parents[2]
         from tools.oneflow_gui.mesh_validation import _catalog
