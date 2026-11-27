@@ -129,6 +129,10 @@
           "format": "stl",
           "dimension": 2,
           "topology": "surface"
+        },
+        {
+          "id": "named_port_subregions",
+          "format": "oneflow.stl-surface-regions"
         }
       ],
       "acceptance": [
@@ -148,6 +152,12 @@
           "id": "pipe_tee.regions.cpp_contract",
           "kind": "contract",
           "description": "Native C++ generator writes checksum-bound wall, inflow and outflow STL patches accepted by the shared generic STL-to-Gmsh converter.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_exporter_creates_closed_surface_and_checksum_bound_regions"
+        },
+        {
+          "id": "pipe_tee.regions.symmetric_operating_modes",
+          "kind": "contract",
+          "description": "Both symmetric operating modes assign the two main-pipe end ports the same boundary type and preserve all three named port patches as subregions.",
           "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_exporter_creates_closed_surface_and_checksum_bound_regions"
         }
       ]
@@ -174,6 +184,20 @@
           "status": "implemented",
           "entrypoint": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_cpp_case.py",
           "notes": "Uses the same generated OCC .geo and direct Gmsh -3 path as the Python case."
+        },
+        {
+          "id": "python_stl_region_aware_mesher",
+          "kind": "python",
+          "status": "implemented",
+          "entrypoint": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_case.py",
+          "notes": "Exports the selected operating mode as checksum-bound STL wall/inflow/outflow patches with three named port subregions, then invokes the geometry-independent generic STL-to-Gmsh volume mesher."
+        },
+        {
+          "id": "native_cpp_stl_region_aware_mesher",
+          "kind": "cpp",
+          "status": "implemented",
+          "entrypoint": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_cpp_case.py",
+          "notes": "Native C++ generates the same surface mesh and shared STL serializer writes the selected port subregions; the generic STL-to-Gmsh mesher reconstructs the volume."
         }
       ],
       "inputs": [
@@ -198,6 +222,10 @@
         {
           "id": "volume_geometry_validation",
           "format": "oneflow.pipe-tee-occ-volume-validation"
+        },
+        {
+          "id": "stl_volume_mesh_report",
+          "format": "oneflow.run-report"
         }
       ],
       "acceptance": [
@@ -218,6 +246,18 @@
           "kind": "contract",
           "description": "Every tetrahedron vertex, edge midpoint and centroid is inside the analytic union of the main and branch cylindrical bores.",
           "reference": "grid.stl_to_gmsh.converter.inspect_msh4"
+        },
+        {
+          "id": "pipe_tee.volume.stl_physical_groups",
+          "kind": "integration",
+          "description": "The generic STL-derived MSH4 contains non-empty wall, inflow, outflow and fluid_domain Physical Groups for both Python and native C++ producers.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_gmsh_surface_mesh_contains_the_benchmark_physical_groups"
+        },
+        {
+          "id": "pipe_tee.volume.stl_port_subregions",
+          "kind": "integration",
+          "description": "The STL region manifest retains each main-pipe end and branch port as a separate checksum-bound subregion while the generic converter uses shared CFD boundary categories.",
+          "reference": "grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_exporter_creates_closed_surface_and_checksum_bound_regions"
         }
       ]
     },
@@ -336,7 +376,7 @@
         {
           "id": "pipe_tee.ingestion.boundaries",
           "kind": "integration",
-          "description": "The shared CGNS-to-OneFLOW stage reads the unstructured 3-D grid, writes the native grid and boundary-region map, and preserves wall, main_inflow, branch_inflow and outflow identities (with solver boundary-type mapping handled by the shared adapter)."
+          "description": "The shared CGNS-to-OneFLOW stage reads the unstructured 3-D grid and writes the native grid and boundary-region map. Direct OCC meshes retain separate main/branch port names; STL-derived meshes use wall/inflow/outflow Physical Groups while their source region manifest retains the three named port subregions."
         }
       ]
     },
