@@ -191,7 +191,7 @@ class MeshValidationDialog(QDialog):
         self, repository_root: Path, *, executable: str = "",
         mesh_file: Path | None = None, project_directory: Path | None = None,
         mesh_case_id: str = "stl_to_gmsh_sphere_automatic_tetrahedra",
-        operating_mode: str = "benchmark",
+        operating_mode: str = "main_inlets",
         parent=None,
     ) -> None:
         super().__init__(parent)
