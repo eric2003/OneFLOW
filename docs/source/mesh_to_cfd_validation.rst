@@ -103,8 +103,15 @@ This preserves the ability to specify independent flow rates, temperatures or
 other boundary-state data in a future boundary-condition contract.
 
 Each operating mode has its own validation output directory under
-``~/.oneflow/mesh-validation``, so changing the port assignment cannot
-silently reuse or overwrite another mode's generated mesh and CFD evidence.
+``~/.oneflow/mesh-validation``. The two geometry-generation routes are also
+isolated: the STL-derived route is the default comparison path and writes to
+``.../automatic_tetrahedra/stl/<mode>/``; the OpenCASCADE route is retained
+as a reference and writes to ``.../automatic_tetrahedra/occ/<mode>/``.
+Both routes use the same downstream stage layout, while their reports record
+``meshing_route: stl`` or ``meshing_route: occ``. Existing results in the
+previous unqualified ``<mode>/`` directory are left untouched.
+Changing either the route or port assignment therefore cannot silently reuse
+or overwrite another run's generated mesh and CFD evidence.
 The current solver stage remains a short smoke test. Successful generation,
 CGNS conversion, OneFLOW ingestion or a few solver steps do not establish
 T-junction flow accuracy or reproduce the experimental benchmark.

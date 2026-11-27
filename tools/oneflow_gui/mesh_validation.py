@@ -519,13 +519,14 @@ def mesh_validation_workspace(
         )
     relative_case = Path(*case_directory.parts[1:])
     workspace = UserDataPaths.discover().mesh_validation / relative_case
-    if mesh_case_id in {
-        "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
-        "stl_to_gmsh_pipe_tee_stl_regions",
-    }:
+    meshing_route = {
+        "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall": "occ",
+        "stl_to_gmsh_pipe_tee_stl_regions": "stl",
+    }.get(mesh_case_id)
+    if meshing_route is not None:
         if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
             raise ValueError(f"Unsupported T-junction operating mode: {operating_mode!r}")
-        workspace = workspace / operating_mode
+        workspace = workspace / meshing_route / operating_mode
     elif operating_mode != "benchmark":
         raise ValueError("Operating mode selection is only supported by the T-junction Case.")
     return workspace
@@ -1539,6 +1540,10 @@ def run_mesh_validation(
         "run_id": run_id,
         "mesh_case_id": mesh_case_id,
         "mesh_implementation": mesh_implementation,
+        "meshing_route": {
+            "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall": "occ",
+            "stl_to_gmsh_pipe_tee_stl_regions": "stl",
+        }.get(mesh_case_id),
         "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
         "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
         "source_stl_file": str(source_stl) if source_stl is not None else None,
@@ -1766,6 +1771,10 @@ def run_mesh_validation(
         "legacy_schema": "oneflow.mesh-to-cfd-validation",
         "schema_version": 1, "run_id": run_id, "mesh_case_id": mesh_case_id,
         "mesh_implementation": mesh_implementation,
+        "meshing_route": {
+            "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall": "occ",
+            "stl_to_gmsh_pipe_tee_stl_regions": "stl",
+        }.get(mesh_case_id),
         "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
         "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
         "cfd_template_id": cfd_template_id,

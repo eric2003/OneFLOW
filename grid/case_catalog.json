@@ -800,7 +800,7 @@
     },
     {
       "id": "stl_to_gmsh_pipe_tee_stl_regions",
-      "title": "OECD/NEA–Vattenfall T-Junction (STL-Derived TETRA_4 Volume Mesh)",
+      "title": "OECD/NEA–Vattenfall T-Junction (STL Default, TETRA_4 Volume Mesh)",
       "directory": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra",
       "group": "STL to Gmsh",
       "dimension": 3,

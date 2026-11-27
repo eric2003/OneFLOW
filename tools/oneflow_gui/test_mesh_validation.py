@@ -1153,6 +1153,21 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 [item for item in groups if item["dimension"] == 3],
                 [{"name": "fluid_domain", "dimension": 3}],
             )
+        occ_workspace = mesh_validation_workspace(
+            repository_root, "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall", "main_inlets"
+        )
+        stl_workspace = mesh_validation_workspace(
+            repository_root, "stl_to_gmsh_pipe_tee_stl_regions", "main_inlets"
+        )
+        self.assertEqual(occ_workspace.name, "main_inlets")
+        self.assertEqual(occ_workspace.parent.name, "occ")
+        self.assertEqual(stl_workspace.name, "main_inlets")
+        self.assertEqual(stl_workspace.parent.name, "stl")
+        self.assertNotEqual(occ_workspace, stl_workspace)
+        self.assertEqual(
+            stl_workspace.parent.parent,
+            occ_workspace.parent.parent,
+        )
         self.assertNotEqual(
             mesh_validation_workspace(
                 repository_root, "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall", "main_inlets"
