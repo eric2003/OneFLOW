@@ -406,11 +406,36 @@ def build_mesh_validation_cases(
     if template is None:
         raise ValueError(f"Unknown CFD template: {cfd_template_id!r}")
 
-    mesh_dir = root / mesh["directory"]
+    mesh_directory = str(mesh["directory"])
+    mesh_dir = root / mesh_directory
     if implementation == "oneflow":
         msh = _setting(mesh_dir / "script/grid.txt", "targetGridFileName")
     else:
         expected_path = mesh_dir / "expected.json"
+        if not expected_path.is_file():
+            # Older/local catalogs may point at a geometry-family directory
+            # while the executable Python Case lives in a nested workflow
+            # directory. Prefer the Case script's directory when it owns the
+            # expected artifact manifest; do not copy manifests upward.
+            script_value = execution.get("script")
+            if isinstance(script_value, str) and script_value:
+                script_relative = Path(script_value)
+                if (
+                    not script_relative.is_absolute()
+                    and ".." not in script_relative.parts
+                    and script_relative.suffix.lower() == ".py"
+                ):
+                    script_path = root / script_relative
+                    script_expected = script_path.parent / "expected.json"
+                    if script_path.is_file() and script_expected.is_file():
+                        mesh_dir = script_path.parent
+                        mesh_directory = mesh_dir.relative_to(root).as_posix()
+                        expected_path = script_expected
+        if not expected_path.is_file():
+            raise FileNotFoundError(
+                f"Mesh Case {mesh_case_id!r} has no expected.json manifest "
+                f"in its Case directory or Python script directory: {expected_path}"
+            )
         expected = json.loads(expected_path.read_text(encoding="utf-8"))
         mesh_name = expected.get("artifact", {}).get("mesh_file")
         if (
@@ -431,7 +456,7 @@ def build_mesh_validation_cases(
     mesh_id, cgns_id, native_id = "gmsh_mesh", "cgns_mesh", "oneflow_grid"
     cfd_config = root / template["directory"] / "script/cfd.txt"
     steps = [
-        {"id": "stl_to_gmsh", "directory": mesh["directory"],
+        {"id": "stl_to_gmsh", "directory": mesh_directory,
          "runtime_directory": "stl_to_gmsh",
          "outputs": (
              [{"id": mesh_id, "path": msh, "parameter_file": "script/grid.txt",

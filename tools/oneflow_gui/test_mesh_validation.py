@@ -1065,6 +1065,34 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertEqual(native[1]["id"], "gmsh_to_cgns")
         self.assertEqual(python[1]["id"], "gmsh_to_cgns")
 
+    def test_python_mesh_case_resolves_nested_script_directory_when_catalog_is_legacy(self):
+        catalog_path = self.root / "grid/case_catalog.json"
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        entry = next(item for item in catalog["cases"] if item["id"] == "python_square")
+        entry["directory"] = "grid/stl_to_gmsh/2d/square"
+        entry["execution"]["script"] = (
+            "grid/stl_to_gmsh/2d/square/single_quad/python/run_square_case.py"
+        )
+        catalog_path.write_text(json.dumps(catalog), encoding="utf-8")
+        script_directory = self.root / "grid/stl_to_gmsh/2d/square/single_quad/python"
+        script_directory.mkdir(parents=True, exist_ok=True)
+        (script_directory / "run_square_case.py").write_text(
+            "raise SystemExit(0)\\n", encoding="utf-8"
+        )
+        (script_directory / "expected.json").write_text(
+            json.dumps({"artifact": {"mesh_file": "square.msh"}}),
+            encoding="utf-8",
+        )
+
+        cases = build_mesh_validation_cases(
+            self.root, "python_square", "laminar_flat_plate"
+        )
+        self.assertEqual(
+            cases[0]["directory"],
+            "grid/stl_to_gmsh/2d/square/single_quad/python",
+        )
+        self.assertEqual(cases[0]["outputs"][0]["path"], "results/square.msh")
+
     def test_python_mesh_case_uses_the_same_artifact_handoff_contract(self):
         cases = build_mesh_validation_cases(
             self.root, "python_square", "laminar_flat_plate"
