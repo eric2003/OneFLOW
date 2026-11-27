@@ -194,6 +194,10 @@
           "format": "gmsh-msh4",
           "dimension": 3,
           "topology": "unstructured"
+        },
+        {
+          "id": "volume_geometry_validation",
+          "format": "oneflow.pipe-tee-occ-volume-validation"
         }
       ],
       "acceptance": [
