@@ -108,3 +108,16 @@ References
 * B. L. Smith, J. H. Mahaffy and K. Angele, “A CFD benchmarking exercise based
   on flow mixing in a T-junction,” *Nuclear Engineering and Design*, 264,
   80–88 (2013). DOI: 10.1016/j.nucengdes.2013.02.030.
+
+
+# Square-duct T-junction benchmark
+
+The new `square_duct` case complements the existing circular
+OECD/NEA–Vattenfall case. It is a deliberately simple topology benchmark:
+4 m × 1 m × 1 m main duct, 2 m × 1 m × 1 m branch, sharp orthogonal junction,
+explicitly constructed planar STL facets, and no Boolean geometry intersection.
+
+The Python generator preserves three independently named ports and writes a
+region manifest for the generic STL volume mesher. The first target is a very
+coarse TETRA_4 mesh (characteristic length 0.75 m). Its registered mesh
+validation profile is a CFD smoke test only; physical accuracy is not claimed.
