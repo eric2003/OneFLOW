@@ -83,6 +83,14 @@ TEST( BcTypeMapTest, GmshPhysicalNamesMapToStandardCgnsTypes )
 
     EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "xmin_inflow" ),
                static_cast< int >( CGNS_ENUMV( BCInflow ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "main_inflow" ),
+               static_cast< int >( CGNS_ENUMV( BCInflow ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "branch_inflow" ),
+               static_cast< int >( CGNS_ENUMV( BCInflow ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "main-inlet" ),
+               static_cast< int >( CGNS_ENUMV( BCInflow ) ) );
+    EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "branch-inlet" ),
+               static_cast< int >( CGNS_ENUMV( BCInflow ) ) );
     EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "xmax_outflow" ),
                static_cast< int >( CGNS_ENUMV( BCOutflow ) ) );
     EXPECT_EQ( GmshPhysicalNameToCgnsBcType( "ymin_wall" ),

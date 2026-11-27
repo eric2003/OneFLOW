@@ -88,7 +88,8 @@ identity; the mapping selects a coarse CGNS type.
    * - Gmsh Physical Group aliases
      - CGNS BCType_t
      - Meaning and limitation
-   * - Inlet, Inflow, VelocityInlet, MassFlowInlet, PressureInlet
+   * - Inlet, Inflow, VelocityInlet, MassFlowInlet, PressureInlet,
+       MainInflow, BranchInflow, MainInlet, BranchInlet
      - BCInflow (9)
      - Generic inflow. Alias spelling does not encode prescribed state variables.
    * - Outlet, Outflow, PressureOutlet
