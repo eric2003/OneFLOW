@@ -47,7 +47,7 @@
       "outlet_length": 1.22,
       "inlet_extension_from_junction_block": 1.07,
       "outlet_extension_from_junction_block": 1.07,
-      "junction_half_length": 0.15
+      "centerline_to_extension_reference": 0.15
     },
     "branch_pipe": {
       "inner_diameter": 0.1,
@@ -56,10 +56,11 @@
       "junction_block_top_offset": 0.223
     },
     "junction_block": {
-      "main_axis_half_length": 0.15,
-      "branch_top_offset_from_main_centerline": 0.223,
+      "length_x": 0.22,
+      "width_y": 0.285,
+      "height_z": 0.325,
       "material": "Plexiglas",
-      "notes": "Only dimensions explicitly shown in Figure 2 are recorded here; no unverified overall block width/depth is assumed."
+      "notes": "Dimensions from Table A1 of NEA/CSNI/R(2011)5. The fluid-domain generator models the drilled fluid bores, not the external solid block."
     },
     "intersection_edge": {
       "reported_radius_upper_bound": 0.0002,
@@ -110,7 +111,70 @@
       "The benchmark inlet velocity profiles were measured in an earlier test at main/branch flow-rate ratio 2; branch flow stayed at 6 L/s and the main flow was changed to 9 L/s for the benchmark.",
       "The benchmark report requires careful inlet-profile definition; uniform velocity is a smoke-test simplification, not the benchmark boundary condition."
     ],
-    "property_reference": "Use water properties from the 1967 ASME Steam Tables as specified by the benchmark report, with thermal-expansion data referenced to Incropera and DeWitt. Record the selected interpolation state and property values in every future physical-validation run."
+    "property_reference": "Use water properties from the 1967 ASME Steam Tables as specified by the benchmark report, with thermal-expansion data referenced to Incropera and DeWitt. Record the selected interpolation state and property values in every future physical-validation run.",
+    "reference_properties": {
+      "source": "NEA/CSNI/R(2011)5 Table A2 (1967 ASME Steam Tables; thermal expansion from Incropera and DeWitt)",
+      "water": {
+        "15": {
+          "density_kg_m3": 999.2,
+          "thermal_conductivity_w_m_k": 0.5911,
+          "dynamic_viscosity_pa_s": 0.001138,
+          "specific_heat_j_kg_k": 4186,
+          "prandtl": 8.058
+        },
+        "20": {
+          "density_kg_m3": 998.3,
+          "thermal_conductivity_w_m_k": 0.5996,
+          "dynamic_viscosity_pa_s": 0.001002,
+          "specific_heat_j_kg_k": 4182,
+          "prandtl": 6.988
+        },
+        "25": {
+          "density_kg_m3": 997.2,
+          "thermal_conductivity_w_m_k": 0.6076,
+          "dynamic_viscosity_pa_s": 0.0008904,
+          "specific_heat_j_kg_k": 4179,
+          "prandtl": 6.125
+        },
+        "30": {
+          "density_kg_m3": 995.8,
+          "thermal_conductivity_w_m_k": 0.6151,
+          "dynamic_viscosity_pa_s": 0.0007977,
+          "specific_heat_j_kg_k": 4178,
+          "prandtl": 5.419
+        },
+        "35": {
+          "density_kg_m3": 994.1,
+          "thermal_conductivity_w_m_k": 0.6221,
+          "dynamic_viscosity_pa_s": 0.0007196,
+          "specific_heat_j_kg_k": 4178,
+          "prandtl": 4.833
+        },
+        "40": {
+          "density_kg_m3": 992.3,
+          "thermal_conductivity_w_m_k": 0.6287,
+          "dynamic_viscosity_pa_s": 0.0006533,
+          "specific_heat_j_kg_k": 4178,
+          "prandtl": 4.342
+        }
+      },
+      "volumetric_thermal_expansion_per_k": {
+        "285": 0.0001141,
+        "290": 0.000174,
+        "295": 0.0002275,
+        "300": 0.0002761,
+        "305": 0.0003206,
+        "310": 0.0003619,
+        "315": 0.0004004
+      },
+      "plexiglas": {
+        "density_kg_m3": 1200,
+        "thermal_conductivity_w_m_k": 0.19,
+        "specific_heat_j_kg_k": 1460,
+        "volumetric_thermal_expansion_per_k": 0.00024
+      },
+      "note": "Tabulated values are the report's guide values at listed temperatures. Future runs must document interpolation to 19 °C and 36 °C instead of silently substituting 20 °C and 35 °C."
+    }
   },
   "equations": {
     "cross_section_area": "A = pi D^2 / 4",
@@ -146,7 +210,12 @@
         "Reynolds stresses"
       ],
       "sampling_hz": 60,
-      "sample_duration_s": 12
+      "sample_duration_s": 12,
+      "recording_frequencies_hz": [
+        60,
+        4
+      ],
+      "image_pairs_per_recording": 1424
     },
     "downstream_thermocouples": {
       "stations_in_main_diameters": [
@@ -204,10 +273,43 @@
         "mean temperature",
         "RMS temperature fluctuation",
         "temperature spectrum"
-      ]
+      ],
+      "sampling_response_hz": 30,
+      "uncertainty": {
+        "mean_temperature_c": 0.5,
+        "normalized_mean_temperature": 0.03,
+        "rms_temperature_relative_percent": 8,
+        "rms_temperature_relative_percent_near_lower_wall": 13
+      }
     },
     "dominant_frequency_hz_approx": 3.5,
-    "data_status": "Reference locations and quantities are recorded; original Vattenfall tabular files are not bundled until redistribution permission and source files are confirmed."
+    "data_status": "Reference locations and quantities are recorded; original Vattenfall tabular files are not bundled until redistribution permission and source files are confirmed.",
+    "downstream_ldv": {
+      "stations_in_main_diameters": [
+        2.6,
+        6.6
+      ],
+      "quantities": [
+        "mean velocity components",
+        "RMS velocity components",
+        "turbulence statistics"
+      ],
+      "source": "Section 3.2.1 and Figure 2; upstream LDV planes are at -3D_main and -3.1D_branch."
+    },
+    "uncertainty": {
+      "inlet_flow_meters_relative_percent": 0.5,
+      "inlet_temperature_c": {
+        "minimum": 0.1,
+        "maximum": 0.2
+      },
+      "upstream_ldv_relative_percent": {
+        "minimum": 6,
+        "maximum": 8
+      },
+      "piv_mean_velocity_relative_percent": 5,
+      "piv_mean_velocity_absolute_m_s": 0.02,
+      "piv_rms_velocity_note": "Uncertainty is approximately twice the mean-velocity uncertainty due to error propagation."
+    }
   },
   "future_validation_plan": {
     "mesh_refinement": [

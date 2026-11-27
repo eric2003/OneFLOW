@@ -56,7 +56,8 @@ retained in the benchmark data contract.
 Reference measurements
 ----------------------
 
-The report documents inlet LDV profiles, downstream PIV velocity measurements
+The report documents upstream LDV profiles at -3D_main and -3.1D_branch,
+downstream LDV stations at 2.6D and 6.6D, downstream PIV velocity measurements
 at 1.6D, 2.6D, 3.6D and 4.6D, and wall thermocouple measurements from 2D to 20D
 downstream. The PIV measurements are isothermal; thermocouple data characterize
 the thermal mixing case. The report also defines a curve-comparison metric

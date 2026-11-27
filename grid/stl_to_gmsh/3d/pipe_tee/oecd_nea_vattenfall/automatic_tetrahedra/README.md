@@ -15,8 +15,10 @@ benchmark (NEA/CSNI/R(2011)5, 2011):
 - Main pipe inner diameter: 140 mm.
 - Branch pipe inner diameter: 100 mm.
 - Main straight-pipe extensions beyond the junction block: 1070 mm each.
-- Figure 2 places each main-axis block side 150 mm from the pipe centreline,
-  giving 1220 mm from the centreline to each main pipe end.
+- Figure A2 gives 1220 mm from the junction midpoint to each main pipe end
+  (1070 mm straight-pipe length plus the 150 mm centreline-to-extension
+  reference shown in that drawing). Table A1 separately records the Plexiglas
+  block dimensions as 220 x 285 x 325 mm.
 - Branch straight-pipe extension above the junction block: 470 mm. Figure 2
   places the block top 223 mm above the main centreline, giving 693 mm from the
   centreline to the branch inlet.
@@ -66,8 +68,9 @@ Important benchmark details:
   test; the branch flow remained 6 L/s while the main flow was 9 L/s for the
   benchmark test. This detail must not be lost when future inlet profiles are
   reconstructed.
-- Downstream PIV velocity measurements are isothermal at 1.6D, 2.6D, 3.6D and
-  4.6D. Thermocouple data cover 2D through 20D downstream.
+- Downstream LDV stations are at 2.6D and 6.6D. Downstream PIV velocity
+  measurements are isothermal at 1.6D, 2.6D, 3.6D and 4.6D. Thermocouple data
+  cover 2D through 20D downstream.
 - The report describes a comparison metric
   `M = (1/N) sum_i |C_i - D_i|`.
 
