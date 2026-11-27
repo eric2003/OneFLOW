@@ -224,11 +224,12 @@ class PipeTeeGeometryTest(unittest.TestCase):
                 self.assertTrue((root / record["file"]).is_file())
                 self.assertEqual(record["triangle_count"], len(read_stl(root / record["file"])))
             self.assertEqual(set(manifest["regions"]), {"wall", "inflow", "outflow"})
-            self.assertEqual(set(manifest["subregions"]), {"main_inflow", "branch_inflow"})
-            self.assertEqual({record["parent_region"] for record in manifest["subregions"].values()}, {"inflow"})
+            self.assertEqual(set(manifest["subregions"]), {"main_inflow", "branch_inflow", "main_outflow"})
+            self.assertEqual({record["parent_region"] for record in manifest["subregions"].values()}, {"inflow", "outflow"})
             self.assertEqual(manifest["regions"]["inflow"]["triangle_count"], 2)
             self.assertEqual(manifest["subregions"]["main_inflow"]["triangle_count"], 1)
             self.assertEqual(manifest["subregions"]["branch_inflow"]["triangle_count"], 1)
+            self.assertEqual(manifest["subregions"]["main_outflow"]["triangle_count"], 2)
 
             # The true STL route maps all three ports to the requested flow
             # assignment while retaining each port as a distinct subregion.

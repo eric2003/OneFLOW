@@ -3,7 +3,7 @@
 
 The Boolean fluid volume is constructed by Gmsh/OpenCASCADE. The resulting
 MSH2 surface triangles are exported as a closed STL plus checksum-bound
-wall/inflow/outflow compatibility patches plus separate main/branch inlet subregions for the shared OneFLOW region-aware STL mesher.
+wall/inflow/outflow compatibility patches plus one named subregion for each physical port for the shared OneFLOW region-aware STL mesher.
 """
 from __future__ import annotations
 
@@ -290,6 +290,7 @@ def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
         named_subregions = {
             "main_inflow": ("inflow", port_faces["main_left"]),
             "branch_inflow": ("inflow", port_faces["branch"]),
+            "main_outflow": ("outflow", port_faces["main_right"]),
         }
     all_faces = final_regions["wall"] + final_regions["inflow"] + final_regions["outflow"]
     _write_stl(output, nodes, all_faces, "closed-fluid-domain")
