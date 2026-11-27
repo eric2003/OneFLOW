@@ -973,6 +973,25 @@ class StlToGmshDialog(QDialog):
                 self.geometry_preset.setEnabled(False)
                 self.boundary_name.setEnabled(False)
                 self.volume_name.setEnabled(False)
+            elif project.get("geometry") == "pipe_tee_oecd_nea_vattenfall":
+                self._mesh_case_id = "stl_to_gmsh_pipe_tee_stl_regions"
+                self.geometry_preset.setCurrentIndex(
+                    self.geometry_preset.findData("pipe_tee_oecd_nea_vattenfall")
+                )
+                self.geometry_preset.setEnabled(False)
+                self.boundary_name.setEnabled(False)
+                self.volume_name.setEnabled(False)
+                try:
+                    tee_metadata = json.loads(
+                        Path(project["stl_path"]).with_suffix(".geometry.json").read_text(encoding="utf-8")
+                    )
+                    mode_index = self.pipe_tee_mode.findData(
+                        str(tee_metadata.get("operating_mode", "main_inlets"))
+                    )
+                    if mode_index >= 0:
+                        self.pipe_tee_mode.setCurrentIndex(mode_index)
+                except (OSError, ValueError, KeyError, json.JSONDecodeError):
+                    pass
             elif template_id == "stl_to_gmsh_python_prolate_spheroid_automatic_tetrahedra":
                 self.geometry_preset.setCurrentIndex(self.geometry_preset.findData("prolate_spheroid"))
             elif template_id == "stl_to_gmsh_python_sphere_automatic_tetrahedra":
