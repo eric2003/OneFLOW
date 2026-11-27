@@ -282,14 +282,13 @@ class PipeTeeGeometryTest(unittest.TestCase):
             for mode, expected in expected_mode_groups.items():
                 mode_geo = Path(temporary) / f"pipe_tee_{mode}.geo"
                 mode_msh = Path(temporary) / f"pipe_tee_{mode}.msh"
-                configure_mode(mode_geo, mode) if mode_geo.exists() else None
                 mode_geo.write_text(
                     geo.read_text(encoding="utf-8"), encoding="utf-8"
                 )
                 configure_mode(mode_geo, mode)
                 mode_volume_geo = mode_geo.with_name(f"pipe_tee_{mode}.volume.geo")
                 mode_volume_geo.write_text(
-                    mode_geo.read_text(encoding="utf-8") + "\\nMesh.MshFileVersion = 4.1;\\n",
+                    mode_geo.read_text(encoding="utf-8") + "\nMesh.MshFileVersion = 4.1;\n",
                     encoding="utf-8",
                 )
                 subprocess.run(
