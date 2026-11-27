@@ -811,6 +811,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     mesh_file=mesh.resolve(),
                     project_directory=mesh.parent.resolve(),
                     mesh_case_id="stl_to_gmsh_sphere_automatic_tetrahedra",
+                    operating_mode="benchmark",
                     parent=dialog,
                 )
                 dialog_type.return_value.exec.assert_called_once()
