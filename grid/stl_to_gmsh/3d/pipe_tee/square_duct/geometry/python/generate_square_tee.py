@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse, hashlib, json, math, struct
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[8]
+ROOT = Path(__file__).resolve().parents[7]
 DEFAULTS = {"main_length": 4.0, "branch_length": 2.0, "duct_width": 1.0}
 
 def cross(a,b,c):
