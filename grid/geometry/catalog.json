@@ -328,7 +328,7 @@
           "main_outlet_length": 1.22,
           "branch_inlet_length": 0.693
         },
-        "notes": "Main end planes are 1.220 m from the centreline (1.070 m straight extension plus the 0.150 m centreline-to-extension reference in Figure A2); branch end plane is 0.693 m from the centreline (0.470 m above the block plus 0.223 m block-top offset). Table A1 lists the solid block as 0.220 x 0.285 x 0.325 m; the fluid geometry is the Boolean union of the drilled bores."
+        "notes": "Main end planes are 1.220 m from the centreline (1.070 m straight extension plus the 0.150 m centreline-to-extension reference in Figure A2); branch end plane is 0.693 m from the centreline (0.470 m above the block plus 0.223 m block-top offset). Table A1 lists the solid block as 0.220 x 0.285 x 0.325 m; the current mesh is the local test section, not the future benchmark CFD domain."
       },
       "provenance": {
         "kind": "literature_benchmark",

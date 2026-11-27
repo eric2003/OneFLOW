@@ -95,14 +95,27 @@
       "volumetric_flow_rate_from_mass_conservation_m3_s": 0.015
     },
     "derived": {
-      "main_bulk_velocity_m_s": 0.5848,
-      "branch_bulk_velocity_m_s": 0.7639,
-      "outlet_bulk_velocity_m_s": 0.9747,
+      "main_bulk_velocity_m_s": 0.5846508114,
+      "branch_bulk_velocity_m_s": 0.7639437268,
+      "outlet_bulk_velocity_m_s": 0.9744180189,
       "inlet_flow_rate_ratio_main_to_branch": 1.5,
       "temperature_difference_k": 17,
-      "reported_reynolds_numbers": {
-        "main": 81000,
-        "branch": 100000
+      "fluid_properties_at_inlet_temperatures": {
+        "main_19_c": {
+          "density_kg_m3": 998.48,
+          "dynamic_viscosity_pa_s": 0.0010292,
+          "method": "linear interpolation of Table A2 between 15 and 20 C"
+        },
+        "branch_36_c": {
+          "density_kg_m3": 993.74,
+          "dynamic_viscosity_pa_s": 0.00070634,
+          "method": "linear interpolation of Table A2 between 35 and 40 C"
+        }
+      },
+      "estimated_reynolds_numbers": {
+        "main": 79408,
+        "branch": 107478,
+        "method": "Re_D = rho U_b D / mu using the tabulated water properties linearly interpolated to the inlet temperatures; these are derived estimates, not quoted benchmark Reynolds numbers."
       }
     },
     "inlet_profile_notes": [
@@ -173,7 +186,8 @@
         "specific_heat_j_kg_k": 1460,
         "volumetric_thermal_expansion_per_k": 0.00024
       },
-      "note": "Tabulated values are the report's guide values at listed temperatures. Future runs must document interpolation to 19 °C and 36 °C instead of silently substituting 20 °C and 35 °C."
+      "note": "Tabulated values are the report's guide values at listed temperatures. Future runs must document interpolation to 19 °C and 36 °C instead of silently substituting 20 °C and 35 °C.",
+      "interpolation_method": "Linear interpolation between adjacent Table A2 temperatures for the values shown in fluid_properties_at_inlet_temperatures; future validation may use a higher-order property formulation if documented."
     }
   },
   "equations": {
@@ -215,7 +229,8 @@
         60,
         4
       ],
-      "image_pairs_per_recording": 1424
+      "image_pairs_per_recording": 1424,
+      "time_dependent_recording_note": "The report describes 60 Hz time-dependent PIV sampled for 12 seconds in two separate sets; it also states 1424 image pairs in each of the 60 Hz and 4 Hz recordings at each measurement location."
     },
     "downstream_thermocouples": {
       "stations_in_main_diameters": [
@@ -274,13 +289,15 @@
         "RMS temperature fluctuation",
         "temperature spectrum"
       ],
-      "sampling_response_hz": 30,
       "uncertainty": {
         "mean_temperature_c": 0.5,
         "normalized_mean_temperature": 0.03,
         "rms_temperature_relative_percent": 8,
         "rms_temperature_relative_percent_near_lower_wall": 13
-      }
+      },
+      "frequency_response_hz": 30,
+      "response_time_s": 0.013,
+      "wall_offset_uncertainty_m": 0.0002
     },
     "dominant_frequency_hz_approx": 3.5,
     "data_status": "Reference locations and quantities are recorded; original Vattenfall tabular files are not bundled until redistribution permission and source files are confirmed.",
@@ -308,7 +325,15 @@
       },
       "piv_mean_velocity_relative_percent": 5,
       "piv_mean_velocity_absolute_m_s": 0.02,
-      "piv_rms_velocity_note": "Uncertainty is approximately twice the mean-velocity uncertainty due to error propagation."
+      "piv_rms_velocity_note": "Uncertainty is approximately twice the mean-velocity uncertainty due to error propagation.",
+      "ldv_random_streamwise_mean_relative_percent": {
+        "minimum": 2,
+        "maximum": 3
+      },
+      "ldv_random_rms_relative_percent": {
+        "minimum": 3,
+        "maximum": 4
+      }
     }
   },
   "future_validation_plan": {
@@ -326,5 +351,24 @@
     ],
     "numerical_methods": "Select and document turbulence/thermal model, temporal resolution, wall treatment and averaging duration before claiming benchmark validation.",
     "smoke_test_warning": "A two-step or otherwise short CFD smoke run verifies only runtime handoff and process completion. It cannot establish convergence, turbulence statistics, thermal mixing accuracy or agreement with experimental measurements."
+  },
+  "future_cfd_domain": {
+    "current_mesh_scope": "Local T-junction test-section geometry only; main pipe end planes are at x=+/-1.220 m and the branch inlet is at z=+0.693 m.",
+    "benchmark_inlet_measurement_planes": {
+      "main": {
+        "coordinate": "x=-0.420 m",
+        "distance_upstream": 0.42,
+        "diameter_ratio": 3
+      },
+      "branch": {
+        "coordinate": "z=+0.310 m in this OneFLOW coordinate convention",
+        "distance_upstream": 0.31,
+        "diameter_ratio": 3.1
+      }
+    },
+    "future_boundary_requirement": "The measured LDV inlet profiles are specified at the measurement planes, which are internal to the current local test-section geometry. A future physical-validation domain must be cropped or rebuilt so these measured planes become inlet boundaries; it must not silently apply those profiles at the current pipe-end caps.",
+    "downstream_extent_requirement": "The current test-section outlet plane at x=+1.220 m does not reach the furthest thermocouple station at x=20D_main=2.800 m. Extend the downstream pipe to include the 2D-20D temperature stations before attempting the complete thermal benchmark.",
+    "omitted_full_rig": "The full rig includes a greater-than-80D main upstream feed and an approximately-20D branch upstream feed. The current mesh does not model the full upstream supply system; the measured inlet profiles are the intended future boundary data.",
+    "note": "These are explicit future-domain requirements, not claims that the current smoke-test mesh is already a benchmark-ready CFD domain."
   }
 }

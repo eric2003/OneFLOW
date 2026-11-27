@@ -9,8 +9,10 @@ Benchmark definition
 
 The test section uses a 140 mm main-pipe inner diameter and a 100 mm branch
 inner diameter. The main straight-pipe extensions beyond the junction block are each 1070 mm.
-Figure 2 places each block side 150 mm from the main-pipe centreline, giving
-1220 mm from the centreline to each main pipe end. The branch straight-pipe
+Figure A2 gives 1220 mm from the junction midpoint to each main pipe end
+(1070 mm straight-pipe length plus the 150 mm centreline-to-extension
+reference shown in that drawing). Table A1 separately records the Plexiglas
+block as 220 x 285 x 325 mm. The branch straight-pipe
 extension above the block is 470 mm; the block top is 223 mm above the main
 centreline, giving 693 mm from the centreline to the branch inlet. The baseline
 fluid domain is the Boolean union of the cylindrical bores. The intersection
@@ -81,7 +83,7 @@ surface patches. The shared region-aware STL mesher creates the final MSH4
 tetrahedral mesh. The Case is registered in the existing Case Catalog and
 Mesh-to-CFD Validation workflow.
 
-The current CFD stage is a bounded smoke test only. It does not establish
+The current CFD stage is a bounded smoke test only. The generated mesh is the local test section: its inlet caps are at the pipe ends, not at the benchmark LDV measurement planes, and its outlet does not reach the 20D thermocouple station. The future CFD-domain crop/extension requirements are explicitly recorded in benchmark.json. It does not establish
 mesh convergence, physical accuracy, thermal mixing fidelity, turbulence
 statistics or agreement with the benchmark. Future physical validation must
 record fluid properties, inlet profiles, turbulence and thermal models, wall

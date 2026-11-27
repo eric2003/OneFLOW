@@ -19,7 +19,7 @@ benchmark (NEA/CSNI/R(2011)5, 2011):
   (1070 mm straight-pipe length plus the 150 mm centreline-to-extension
   reference shown in that drawing). Table A1 separately records the Plexiglas
   block dimensions as 220 x 285 x 325 mm.
-- Branch straight-pipe extension above the junction block: 470 mm. Figure 2
+- Branch straight-pipe extension above the junction block: 470 mm. Figure A2
   places the block top 223 mm above the main centreline, giving 693 mm from the
   centreline to the branch inlet.
 - Main inlet: 9.0 L/s at 19 °C.
