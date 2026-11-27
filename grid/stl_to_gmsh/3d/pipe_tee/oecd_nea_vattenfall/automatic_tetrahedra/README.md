@@ -56,7 +56,7 @@ step; it is not a substitute for the shared final volume-mesh stage.
 
 The machine-readable reference contract is
 [`benchmark.json`](benchmark.json). It records the dimensions, flow rates,
-temperatures, derived bulk velocities, reported Reynolds numbers, formulas,
+temperatures, derived bulk velocities, estimated Reynolds numbers derived from linearly interpolated Table A2 properties, formulas,
 measurement stations, reference quantities, source documents and future
 comparison plan.
 

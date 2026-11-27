@@ -31,9 +31,10 @@ Geometry, parameters and equations
 
 The machine-readable source of truth is
 `grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/benchmark.json`.
-It records dimensions, operating conditions, derived bulk velocities, reported
-Reynolds numbers, measurement locations, formulas and the future validation
-plan.
+It records dimensions, operating conditions, derived bulk velocities and
+Reynolds-number estimates (using linearly interpolated Table A2 properties),
+water/Plexiglas properties, measurement locations, uncertainties, formulas and
+the future CFD-domain requirements.
 
 The principal relations are
 
@@ -78,10 +79,13 @@ Current OneFLOW scope
 ---------------------
 
 The Python reference and C++17 geometry driver use Gmsh/OpenCASCADE to create
-the fluid-domain Boolean union, then export the same closed STL and named
-surface patches. The shared region-aware STL mesher creates the final MSH4
-tetrahedral mesh. The Case is registered in the existing Case Catalog and
-Mesh-to-CFD Validation workflow.
+the fluid-domain Boolean union. The source surface mesh keeps `main_inflow` and
+`branch_inflow` distinct, and the geometry exporter preserves separate
+checksum-bound inlet STL subregions. The shared region-aware STL mesher
+currently combines those two patches into its compatibility `inflow` region
+for the final MSH4 tetrahedral mesh. Mesh Project creation, replacement and
+import preserve the T-junction Case identity and inlet subregions. The Case is
+registered in the existing Case Catalog and Mesh-to-CFD Validation workflow.
 
 The current CFD stage is a bounded smoke test only. The generated mesh is the local test section: its inlet caps are at the pipe ends, not at the benchmark LDV measurement planes, and its outlet does not reach the 20D thermocouple station. The future CFD-domain crop/extension requirements are explicitly recorded in benchmark.json. It does not establish
 mesh convergence, physical accuracy, thermal mixing fidelity, turbulence

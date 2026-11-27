@@ -207,9 +207,12 @@ jobs:
 
           $teeProjectRoot = (python -c "import sys; from pathlib import Path; from tools.oneflow_gui.mesh_project import create_mesh_project_from_stl; project = create_mesh_project_from_stl(Path.cwd(), Path(sys.argv[1]), 'pipe-tee-oecd-nea-vattenfall-ci'); print(project['directory'])" $teeStl | Out-String).Trim()
           if ($LASTEXITCODE -ne 0) { throw "T-junction GUI mesh-project creation failed." }
-          if (-not (Test-Path (Join-Path $teeProjectRoot "project.json"))) {
+          $teeProjectManifestPath = Join-Path $teeProjectRoot "project.json"
+          if (-not (Test-Path $teeProjectManifestPath)) {
               throw "T-junction GUI mesh-project creation did not produce project.json: $teeProjectRoot"
           }
+          python -c "import json,sys; from pathlib import Path; p=Path(sys.argv[1]); data=json.loads(p.read_text(encoding='utf-8')); data['output_mesh']='results/pipe_tee_oecd_nea_vattenfall.msh'; data['mesh_size']=0.03; p.write_text(json.dumps(data, indent=2, sort_keys=True)+'\\n', encoding='utf-8')" $teeProjectManifestPath
+          if ($LASTEXITCODE -ne 0) { throw "T-junction mesh-project output settings could not be persisted." }
           $teeProjectMesh = Join-Path $teeProjectRoot "results/pipe_tee_oecd_nea_vattenfall.msh"
           New-Item -ItemType Directory -Force -Path (Split-Path $teeProjectMesh) | Out-Null
           Copy-Item $teeMesh $teeProjectMesh -Force
