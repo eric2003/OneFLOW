@@ -88,7 +88,8 @@ the STL patches. This preserves both inlet Physical Groups and avoids a second
 discrete-surface topology reconstruction. The shared MSH4 inspector checks
 every tetrahedron vertex, edge midpoint and centroid against the analytic
 union of the two cylindrical bores, in addition to checking boundary
-connectivity and Physical Groups. Mesh Project creation, replacement and
+connectivity and Physical Groups. A checksum-bound `*.geometry-validation.json`
+report is written beside the final MSH4. Mesh Project creation, replacement and
 import preserve the T-junction Case identity and inlet subregions. The Case is
 registered in the existing Case Catalog and Mesh-to-CFD Validation workflow.
 
