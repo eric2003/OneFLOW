@@ -346,6 +346,22 @@ checksum-bound `wall`, `inflow` and `outflow` regions, then use the shared
 region-aware volume mesher. The C++ driver uses the shared Python MSH2-to-STL
 serializer for identical patch manifests; it is not a second meshing pipeline.
 
+The unified **STL to Gmsh** Geometry preset now also exposes this benchmark as
+a genuine STL-derived volume-mesh path. It generates the fluid-domain STL and
+its checksum-bound region manifest in the user's `.oneflow` workspace, then
+passes that STL to the geometry-independent region-aware volume mesher. This
+is intentionally separate from the benchmark runner's direct OpenCASCADE
+volume-mesh route: both paths remain available and can be compared.
+
+The STL preset offers two symmetric flow assignments: **two main-pipe inlets
+and one branch outlet**, or **one branch inlet and two main-pipe outlets**.
+The two main-pipe end patches always share the same boundary type. The
+`region_manifest.json` retains each of the three port patches as a named
+subregion while the volume mesher assigns the broader `wall`, `inflow` and
+`outflow` Physical Groups. This preserves port identity without introducing
+T-junction-specific logic into the generic STL mesher. The closed STL is the
+internal fluid volume boundary, not an external solid-body shell.
+
 See
 [`3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/README.md`](3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/README.md)
 and its `benchmark.json` for geometry, equations, operating conditions,
