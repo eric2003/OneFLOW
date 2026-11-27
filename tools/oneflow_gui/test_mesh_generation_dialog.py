@@ -75,10 +75,10 @@ class MeshGenerationDialogTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             geo = Path(directory) / "pipe_tee.geo"
             geo.write_text(
-                'Physical Surface("wall", 1) = {wall[]};\\n'
-                'Physical Surface("main_inflow", 2) = {inlet[]};\\n'
-                'Physical Surface("branch_inflow", 3) = {branch_inlet[]};\\n'
-                'Physical Surface("outflow", 4) = {outlet[]};\\n',
+                'Physical Surface("wall", 1) = {wall[]};\n'
+                'Physical Surface("main_inflow", 2) = {inlet[]};\n'
+                'Physical Surface("branch_inflow", 3) = {branch_inlet[]};\n'
+                'Physical Surface("outflow", 4) = {outlet[]};\n',
                 encoding="ascii",
             )
             configure(geo, "main_inlets")
@@ -88,10 +88,10 @@ class MeshGenerationDialogTest(unittest.TestCase):
             self.assertNotIn('Physical Surface("branch_inflow"', main_mode)
 
             geo.write_text(
-                'Physical Surface("wall", 1) = {wall[]};\\n'
-                'Physical Surface("main_inflow", 2) = {inlet[]};\\n'
-                'Physical Surface("branch_inflow", 3) = {branch_inlet[]};\\n'
-                'Physical Surface("outflow", 4) = {outlet[]};\\n',
+                'Physical Surface("wall", 1) = {wall[]};\n'
+                'Physical Surface("main_inflow", 2) = {inlet[]};\n'
+                'Physical Surface("branch_inflow", 3) = {branch_inlet[]};\n'
+                'Physical Surface("outflow", 4) = {outlet[]};\n',
                 encoding="ascii",
             )
             configure(geo, "branch_inlet")
@@ -141,13 +141,13 @@ class MeshGenerationDialogTest(unittest.TestCase):
                 library._edit_selected_asset()
                 self.assertEqual(edited_assets[0]["id"], "geometry.sphere.unit")
                 self.assertIn("\nDefinition\n", library.details.toPlainText())
-                self.assertNotIn("\\nDefinition", library.details.toPlainText())
+                self.assertNotIn("\nDefinition", library.details.toPlainText())
                 displayed = library.details.toPlainText()
                 self.assertIn("\nProvenance\n", displayed)
                 self.assertIn("\nRepresentations\n", displayed)
                 self.assertIn("\n  Kind: ", displayed)
                 self.assertIn("\n\nDefinition\n", displayed)
-                self.assertNotIn("\\n", displayed)
+                self.assertNotIn("\n", displayed)
                 self.assertIn("analytic-equation", library.details.toPlainText())
                 library.asset_list.setCurrentRow(1)
                 self.assertEqual(edited_assets[0]["id"], "geometry.sphere.unit")
@@ -353,7 +353,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                             lineage_text.splitlines(),
                         )
                         self.assertIn("\nGeometry asset:", lineage_text)
-                        self.assertNotIn("\\n", lineage_text)
+                        self.assertNotIn("\n", lineage_text)
                     finally:
                         gmsh_dialog.close()
                 finally:
