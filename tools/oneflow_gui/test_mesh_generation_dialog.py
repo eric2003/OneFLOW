@@ -1121,7 +1121,7 @@ class MeshGenerationDialogTest(unittest.TestCase):
                     stl = Path(dialog.stl_path.text())
                     self.assertTrue(stl.is_file())
                     self.assertEqual(calls[-1], ("gmsh", "main_inlets"))
-                    self.assertTrue(dialog.pipe_tee_mode.isVisible())
+                    self.assertFalse(dialog.pipe_tee_mode.isHidden())
                     self.assertEqual(
                         dialog._mesh_case_id,
                         "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
