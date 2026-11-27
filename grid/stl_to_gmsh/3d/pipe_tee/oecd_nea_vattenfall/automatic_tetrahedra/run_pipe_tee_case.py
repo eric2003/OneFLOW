@@ -167,7 +167,7 @@ def main() -> int:
             args.case_directory, gmsh=args.gmsh, mesh_size=args.mesh_size,
             operating_mode=args.operating_mode, meshing_route=args.meshing_route,
         )
-    except (OSError, ValueError, subprocess.CalledProcessError) as error:
+    except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"T-junction Case failed: {error}\n")
     print(f"PASS: generated {mesh}")
     return 0
