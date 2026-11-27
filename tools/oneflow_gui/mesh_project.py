@@ -158,17 +158,20 @@ def _copy_region_manifest(source_stl: Path, destination_stl: Path) -> dict | Non
     import hashlib
     if hashlib.sha256(source_stl.read_bytes()).hexdigest() != manifest.get("closed_surface_sha256"):
         raise ValueError("Closed STL checksum does not match region_manifest.json")
-    for name in ("wall", "inflow", "outflow"):
-        record = manifest["regions"][name]
-        relative = Path(str(record.get("file", "")))
-        if relative.is_absolute() or len(relative.parts) != 1 or ".." in relative.parts:
-            raise ValueError(f"{name} region filename must be a simple relative filename")
-        region_source = source_stl.parent / relative
-        if not region_source.is_file():
-            raise FileNotFoundError(f"Missing {name} region STL: {region_source}")
-        if hashlib.sha256(region_source.read_bytes()).hexdigest() != record.get("sha256"):
-            raise ValueError(f"{name} region STL checksum does not match its manifest")
-        shutil.copy2(region_source, destination_stl.parent / relative.name)
+    subregions = manifest.get("subregions", {})
+    if not isinstance(subregions, dict) or set(subregions) - {"main_inflow", "branch_inflow"}:
+        raise ValueError(f"Unsupported STL inlet subregion manifest: {manifest_path}")
+    for collection_name, records in (("regions", manifest["regions"]), ("subregions", subregions)):
+        for name, record in records.items():
+            relative = Path(str(record.get("file", "")))
+            if relative.is_absolute() or len(relative.parts) != 1 or ".." in relative.parts:
+                raise ValueError(f"{name} region filename must be a simple relative filename")
+            region_source = source_stl.parent / relative
+            if not region_source.is_file():
+                raise FileNotFoundError(f"Missing {name} region STL: {region_source}")
+            if hashlib.sha256(region_source.read_bytes()).hexdigest() != record.get("sha256"):
+                raise ValueError(f"{name} region STL checksum does not match its manifest")
+            shutil.copy2(region_source, destination_stl.parent / relative.name)
     destination_manifest = destination_stl.parent / "region_manifest.json"
     shutil.copy2(manifest_path, destination_manifest)
     return manifest
@@ -199,11 +202,12 @@ def create_mesh_project_from_stl(
         "version": 1,
         "name": directory.name,
         "template_case_id": None,
-        "mesh_case_id": (
-            "stl_to_gmsh_pipe_bend_90_degree"
-            if geometry_manifest
-            and geometry_manifest.get("geometry") == "pipe_bend_90_degree"
-            else _GENERIC_3D_VALIDATION_CASE
+        "mesh_case_id": {
+            "pipe_bend_90_degree": "stl_to_gmsh_pipe_bend_90_degree",
+            "pipe_tee_oecd_nea_vattenfall": "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
+        }.get(
+            geometry_manifest.get("geometry") if geometry_manifest else None,
+            _GENERIC_3D_VALIDATION_CASE,
         ),
         "input_stl": "input/model.stl",
         "output_mesh": f"results/{directory.name}.msh",
@@ -213,6 +217,7 @@ def create_mesh_project_from_stl(
         "source_stl": str(source),
         "geometry": geometry_manifest.get("geometry") if geometry_manifest else None,
         "boundary_regions": sorted(region_manifest["regions"]) if region_manifest else None,
+        "boundary_subregions": sorted(region_manifest.get("subregions", {})) if region_manifest else None,
     }
     return _write_manifest(directory, manifest)
 

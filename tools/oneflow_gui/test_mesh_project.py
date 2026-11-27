@@ -152,6 +152,64 @@ class MeshProjectTest(unittest.TestCase):
         self.assertTrue(updated["stl_path"].with_suffix(".geometry.json").is_file())
 
 
+    def test_pipe_tee_region_manifest_preserves_distinct_inlet_subregions(self) -> None:
+        source_directory = self.home / "generated_pipe_tee"
+        source_directory.mkdir()
+        source_stl = source_directory / "pipe_tee_oecd_nea_vattenfall.stl"
+        source_stl.write_bytes(b"closed pipe tee test surface")
+        region_names = ("wall", "inflow", "outflow")
+        subregion_names = ("main_inflow", "branch_inflow")
+        regions = {}
+        subregions = {}
+        for name in region_names + subregion_names:
+            patch = source_directory / f"{name}.stl"
+            patch.write_bytes(f"{name} patch".encode("ascii"))
+            record = {
+                "file": patch.name,
+                "sha256": hashlib.sha256(patch.read_bytes()).hexdigest(),
+                "triangle_count": 1,
+            }
+            (subregions if name in subregion_names else regions)[name] = record
+        (source_directory / "region_manifest.json").write_text(
+            json.dumps({
+                "schema": "oneflow.stl-surface-regions",
+                "version": 1,
+                "closed_surface_sha256": hashlib.sha256(source_stl.read_bytes()).hexdigest(),
+                "regions": regions,
+                "subregions": subregions,
+            }),
+            encoding="utf-8",
+        )
+        source_stl.with_suffix(".geometry.json").write_text(
+            json.dumps({
+                "schema": "oneflow.stl-geometry-manifest",
+                "version": 1,
+                "asset_id": "geometry.pipe_tee.oecd_nea_vattenfall",
+                "geometry": "pipe_tee_oecd_nea_vattenfall",
+                "stl_sha256": hashlib.sha256(source_stl.read_bytes()).hexdigest(),
+                "definition_sha256": "a" * 64,
+                "generator": {"name": "oneflow_pipe_tee_geometry", "version": "1.0"},
+                "region_manifest": "region_manifest.json",
+            }),
+            encoding="utf-8",
+        )
+
+        project = create_mesh_project_from_stl(
+            self.repository_root, source_stl, "pipe_tee_oecd_nea_vattenfall"
+        )
+        self.assertEqual(project["geometry"], "pipe_tee_oecd_nea_vattenfall")
+        self.assertEqual(project["mesh_case_id"], "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall")
+        self.assertEqual(project["boundary_regions"], ["inflow", "outflow", "wall"])
+        self.assertEqual(project["boundary_subregions"], ["branch_inflow", "main_inflow"])
+        copied_manifest = project["stl_path"].parent / "region_manifest.json"
+        copied = json.loads(copied_manifest.read_text(encoding="utf-8"))
+        self.assertEqual(set(copied["subregions"]), set(subregion_names))
+        for name in region_names + subregion_names:
+            record = (copied["regions"] if name in region_names else copied["subregions"])[name]
+            patch = project["stl_path"].parent / record["file"]
+            self.assertTrue(patch.is_file(), name)
+            self.assertEqual(hashlib.sha256(patch.read_bytes()).hexdigest(), record["sha256"])
+
     def test_pipe_bend_region_manifest_and_patch_files_are_preserved(self) -> None:
         source_directory = self.home / "generated_pipe_bend"
         source_directory.mkdir()
