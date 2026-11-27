@@ -105,7 +105,7 @@ def main() -> int:
             compiler=args.compiler, operating_mode=args.operating_mode,
             meshing_route=args.meshing_route,
         )
-    except (OSError, RuntimeError, subprocess.CalledProcessError) as error:
+    except (OSError, RuntimeError, ValueError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"Native C++ T-junction Case failed: {error}\n")
     print(f"PASS: native C++ T-junction Case generated {mesh}")
     return 0
