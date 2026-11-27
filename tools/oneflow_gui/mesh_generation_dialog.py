@@ -44,6 +44,7 @@ from .mesh_project import (
 )
 from grid.stl_to_gmsh.generate_stl_geometry import generate_geometry
 from grid.stl_to_gmsh.pipe_bend_geometry import generate as generate_pipe_bend
+from grid.stl_to_gmsh.pipe_tee_geometry import generate as generate_pipe_tee_stl
 from grid.stl_to_gmsh.generate_volume_mesh import (
     DEFAULT_MESH_SIZE,
     DEFAULT_SPHERE_STL,
@@ -815,11 +816,21 @@ class StlToGmshDialog(QDialog):
         self.geometry_preset.addItem("6:1 Prolate Spheroid STL", "prolate_spheroid")
         self.geometry_preset.addItem("Internal-flow cylinder STL", "cylinder_internal_flow")
         self.geometry_preset.addItem("90-Degree Pipe Bend STL", "pipe_bend_90_degree")
+        self.geometry_preset.addItem("OECD/NEA–Vattenfall T-Junction STL", "pipe_tee_oecd_nea_vattenfall")
         self.geometry_preset.addItem("Closed STL shell (genus zero)", "closed_shell")
         self.geometry_preset.setToolTip(
             "Selects a bundled or generated geometry, its STL input, validation Case and default output location."
         )
         form.addRow("Geometry preset", self.geometry_preset)
+        self.pipe_tee_mode = QComboBox()
+        self.pipe_tee_mode.addItem("Two main-pipe inlets → branch outlet", "main_inlets")
+        self.pipe_tee_mode.addItem("Branch inlet → two main-pipe outlets", "branch_inlet")
+        self.pipe_tee_mode.setToolTip(
+            "The two ends of the straight main pipe always share one boundary type; "
+            "the perpendicular branch uses the opposite type."
+        )
+        self.pipe_tee_mode.setVisible(False)
+        form.addRow("T-junction operating mode", self.pipe_tee_mode)
 
         stl_row = QHBoxLayout()
         self.stl_path = QLineEdit()
@@ -974,6 +985,7 @@ class StlToGmshDialog(QDialog):
             self.maximum_size.setText(f"{maximum:.6g}")
         self._active_geometry_preset = str(self.geometry_preset.currentData() or "sphere")
         self.geometry_preset.currentIndexChanged.connect(self._geometry_preset_changed)
+        self.pipe_tee_mode.currentIndexChanged.connect(self._pipe_tee_mode_changed)
         self._density_changed()
         self._refresh_command()
 
@@ -1005,6 +1017,10 @@ class StlToGmshDialog(QDialog):
     def _geometry_default_output(self, preset: str) -> Path:
         return UserDataPaths.discover().mesh_generation / preset / f"{preset}.msh"
 
+    def _pipe_tee_mode_changed(self, *_args) -> None:
+        if self.geometry_preset.currentData() == "pipe_tee_oecd_nea_vattenfall":
+            self._geometry_preset_changed()
+
     def _geometry_preset_changed(self, *_args) -> None:
         """Switch every geometry-dependent input when a preset is selected."""
         preset = str(self.geometry_preset.currentData() or "closed_shell")
@@ -1024,6 +1040,53 @@ class StlToGmshDialog(QDialog):
         self.boundary_name.setEnabled(True)
         self.volume_name.setEnabled(True)
         definition = self._geometry_preset_paths(preset)
+        self.pipe_tee_mode.setVisible(preset == "pipe_tee_oecd_nea_vattenfall")
+
+        if preset == "pipe_tee_oecd_nea_vattenfall":
+            stl = (
+                UserDataPaths.discover().mesh_generation
+                / "generated_stl" / preset / f"{preset}.stl"
+            )
+            try:
+                gmsh = discover_gmsh()
+                if not gmsh:
+                    raise FileNotFoundError("Gmsh is required to generate the T-junction STL surface.")
+                stl.parent.mkdir(parents=True, exist_ok=True)
+                mode = str(self.pipe_tee_mode.currentData() or "main_inlets")
+                generate_pipe_tee_stl(stl, gmsh, operating_mode=mode)
+                if self._project is not None:
+                    self._project = replace_project_stl(self._project, stl)
+                    manifest_path = Path(self._project["directory"]) / "project.json"
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    manifest["template_case_id"] = None
+                    manifest["mesh_case_id"] = "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+                    manifest_path.write_text(
+                        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                        encoding="utf-8",
+                        newline="\n",
+                    )
+                    self._project = load_mesh_project(Path(self._project["directory"]))
+                    self._project_directory = Path(self._project["directory"])
+                    self.stl_path.setText(str(self._project["stl_path"]))
+                else:
+                    self.stl_path.setText(str(stl))
+                self._mesh_case_id = "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+                self.boundary_name.setEnabled(False)
+                self.volume_name.setEnabled(False)
+                if output_is_default:
+                    self.output_path.setText(str(self._geometry_default_output(preset)))
+            except (OSError, ValueError, KeyError) as error:
+                QMessageBox.warning(self, "Cannot prepare T-junction STL", str(error))
+                self.geometry_preset.blockSignals(True)
+                self.geometry_preset.setCurrentIndex(
+                    self.geometry_preset.findData(previous)
+                )
+                self.geometry_preset.blockSignals(False)
+                self.pipe_tee_mode.setVisible(previous == "pipe_tee_oecd_nea_vattenfall")
+                return
+            self._active_geometry_preset = preset
+            self._refresh_command()
+            return
 
         if preset == "pipe_bend_90_degree":
             stl = (
