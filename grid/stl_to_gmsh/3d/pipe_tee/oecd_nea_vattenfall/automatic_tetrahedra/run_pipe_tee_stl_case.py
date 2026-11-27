@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
 from pathlib import Path
 
@@ -28,7 +29,7 @@ def main() -> int:
             operating_mode=args.operating_mode,
             meshing_route="stl",
         )
-    except (OSError, ValueError, RuntimeError) as error:
+    except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"Python T-junction STL Case failed: {error}\\n")
     print(f"PASS: Python STL-derived T-junction mesh generated {mesh}")
     return 0
