@@ -240,7 +240,8 @@ def _write_stl(path: Path, nodes: dict, faces: list[tuple[int, int, int]], label
 
 def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
                    generator_source: Path | None = None, mesh_size: float | None = None,
-                   geometry_parameters: dict | None = None) -> dict:
+                   geometry_parameters: dict | None = None,
+                   operating_mode: str = "benchmark") -> dict:
     output = output.expanduser().resolve()
     if output.suffix.lower() != ".stl":
         raise ValueError("T-junction output must use the .stl extension.")
@@ -251,12 +252,45 @@ def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
     nodes, groups = _parse_msh2(msh)
     geometry_validation = (_validate_pipe_tee_surface_geometry(nodes, groups, geometry_parameters)
                            if geometry_parameters is not None else None)
-    inflow_faces = groups["main_inflow"] + groups["branch_inflow"]
-    final_regions = {
-        "wall": groups["wall"],
-        "inflow": inflow_faces,
-        "outflow": groups["outflow"],
+    if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
+        raise ValueError(f"Unsupported T-junction operating mode: {operating_mode}")
+    port_faces = {
+        "main_left": groups["main_inflow"],
+        "main_right": groups["outflow"],
+        "branch": groups["branch_inflow"],
     }
+    if operating_mode == "main_inlets":
+        final_regions = {
+            "wall": groups["wall"],
+            "inflow": port_faces["main_left"] + port_faces["main_right"],
+            "outflow": port_faces["branch"],
+        }
+        named_subregions = {
+            "main_left_inflow": ("inflow", port_faces["main_left"]),
+            "main_right_inflow": ("inflow", port_faces["main_right"]),
+            "branch_outflow": ("outflow", port_faces["branch"]),
+        }
+    elif operating_mode == "branch_inlet":
+        final_regions = {
+            "wall": groups["wall"],
+            "inflow": port_faces["branch"],
+            "outflow": port_faces["main_left"] + port_faces["main_right"],
+        }
+        named_subregions = {
+            "branch_inflow": ("inflow", port_faces["branch"]),
+            "main_left_outflow": ("outflow", port_faces["main_left"]),
+            "main_right_outflow": ("outflow", port_faces["main_right"]),
+        }
+    else:
+        final_regions = {
+            "wall": groups["wall"],
+            "inflow": port_faces["main_left"] + port_faces["branch"],
+            "outflow": port_faces["main_right"],
+        }
+        named_subregions = {
+            "main_inflow": ("inflow", port_faces["main_left"]),
+            "branch_inflow": ("inflow", port_faces["branch"]),
+        }
     all_faces = final_regions["wall"] + final_regions["inflow"] + final_regions["outflow"]
     _write_stl(output, nodes, all_faces, "closed-fluid-domain")
     records = {}
@@ -265,10 +299,13 @@ def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
         _write_stl(patch, nodes, faces, name)
         records[name] = {"file": patch.name, "sha256": _sha(patch), "triangle_count": len(faces)}
     subregions = {}
-    for name in ("main_inflow", "branch_inflow"):
+    for name, (parent_region, faces) in named_subregions.items():
         patch = output.parent / f"{output.stem}.{name}.stl"
-        _write_stl(patch, nodes, groups[name], name)
-        subregions[name] = {"file": patch.name, "sha256": _sha(patch), "triangle_count": len(groups[name]), "parent_region": "inflow"}
+        _write_stl(patch, nodes, faces, name)
+        subregions[name] = {
+            "file": patch.name, "sha256": _sha(patch),
+            "triangle_count": len(faces), "parent_region": parent_region,
+        }
     region_path = output.parent / "region_manifest.json"
     region_manifest = {
         "schema": "oneflow.stl-surface-regions",
@@ -295,6 +332,7 @@ def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
         "geometry": "pipe_tee_oecd_nea_vattenfall",
         "units": "m",
         "parameters": parameters,
+        "operating_mode": operating_mode,
         "definition": definition,
         "definition_sha256": definition_hash,
         "generator": {
@@ -331,7 +369,8 @@ def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
     return {"stl": output, "manifest": sidecar, "region_manifest": region_path, "surface": manifest["surface"]}
 
 
-def generate(output: Path, gmsh: str, mesh_size: float = DEFAULTS["mesh_size"]) -> dict:
+def generate(output: Path, gmsh: str, mesh_size: float = DEFAULTS["mesh_size"],
+             operating_mode: str = "benchmark") -> dict:
     if not math.isfinite(mesh_size) or mesh_size <= 0:
         raise ValueError("mesh_size must be positive and finite.")
     executable = shutil.which(gmsh) or (str(Path(gmsh).resolve()) if Path(gmsh).is_file() else None)
@@ -349,7 +388,8 @@ def generate(output: Path, gmsh: str, mesh_size: float = DEFAULTS["mesh_size"]) 
         [executable, str(geo), "-2", "-format", "msh2", "-o", str(msh), "-v", "2"],
         check=True, cwd=output.parent, capture_output=True, text=True,
     )
-    return export_surface(msh, output, mesh_size=mesh_size, geometry_parameters=parameters)
+    return export_surface(msh, output, mesh_size=mesh_size, geometry_parameters=parameters,
+                          operating_mode=operating_mode)
 
 
 def main() -> int:
@@ -357,6 +397,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--gmsh")
     parser.add_argument("--mesh-size", type=float, default=DEFAULTS["mesh_size"])
+    parser.add_argument("--operating-mode", choices=("benchmark", "main_inlets", "branch_inlet"), default="benchmark")
     parser.add_argument("--extract-msh", type=Path)
     parser.add_argument("--generator-kind", choices=("python", "cpp"), default="python")
     parser.add_argument("--generator-source", type=Path)
@@ -374,7 +415,10 @@ def main() -> int:
                                if args.validate_pipe_tee else None)
         result = export_surface(args.extract_msh, args.output, generator_kind=args.generator_kind,
                                 generator_source=args.generator_source, mesh_size=args.mesh_size,
-                                geometry_parameters=geometry_parameters) if args.extract_msh else generate(args.output, args.gmsh, args.mesh_size)
+                                geometry_parameters=geometry_parameters,
+                                operating_mode=args.operating_mode) if args.extract_msh else generate(
+                                    args.output, args.gmsh, args.mesh_size, args.operating_mode
+                                )
     except (OSError, ValueError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"T-junction geometry generation failed: {error}\n")
     print(json.dumps({key: str(value) if isinstance(value, Path) else value for key, value in result.items()}, indent=2))
