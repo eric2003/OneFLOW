@@ -321,7 +321,7 @@ jobs:
       - name: Run OECD/NEA–Vattenfall T-junction Python Gmsh integration
         run: python -m unittest grid.tests.python.stl_to_gmsh.test_pipe_tee_geometry.PipeTeeGeometryTest.test_gmsh_surface_mesh_contains_the_benchmark_physical_groups
       - name: Run OECD/NEA–Vattenfall T-junction C++ geometry and MSH4 integration
-        run: python grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_cpp_case.py --case-directory "$RUNNER_TEMP/pipe_tee_cpp" --gmsh gmsh --mesh-size 0.045
+        run: python grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_cpp_case.py --case-directory "${{ runner.temp }}/pipe_tee_cpp" --gmsh gmsh --mesh-size 0.045
 
   background-task-python-315:
     name: Background task lifecycle (Windows, Python 3.15)
