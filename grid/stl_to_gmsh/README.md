@@ -366,6 +366,18 @@ subregion while the volume mesher assigns the broader `wall`, `inflow` and
 T-junction-specific logic into the generic STL mesher. The closed STL is the
 internal fluid volume boundary, not an external solid-body shell.
 
+The Python and native C++ STL-derived routes can also be run independently:
+
+```powershell
+python grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_stl_case.py --case-directory "$HOME/.oneflow/grid-development/pipe-tee-stl-python" --gmsh gmsh --operating-mode main_inlets
+python grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_cpp_stl_case.py --case-directory "$HOME/.oneflow/grid-development/pipe-tee-stl-cpp" --gmsh gmsh --operating-mode branch_inlet
+```
+
+The Mesh-to-CFD selector exposes the STL-derived route separately as
+`stl_to_gmsh_pipe_tee_stl_regions`, with the generic Physical Group contract.
+The original `stl_to_gmsh_pipe_tee_oecd_nea_vattenfall` entry remains the
+direct OpenCASCADE route with its port-specific Physical Groups.
+
 See
 [`3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/README.md`](3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/README.md)
 and its `benchmark.json` for geometry, equations, operating conditions,
