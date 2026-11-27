@@ -45,6 +45,16 @@ def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict) -> dict:
     actual_groups = {(item["dimension"], item["name"]) for item in summary["physical_groups"]}
     if actual_groups != expected_groups:
         raise RuntimeError(f"Direct OCC T-junction Physical Groups {sorted(actual_groups)} do not match {sorted(expected_groups)}")
+    group_counts = {
+        (item["dimension"], item["name"]): item.get("element_count", 0)
+        for item in summary["physical_groups"]
+    }
+    empty_groups = sorted(
+        f"{dimension}:{name}" for dimension, name in expected_groups
+        if group_counts.get((dimension, name), 0) <= 0
+    )
+    if empty_groups:
+        raise RuntimeError(f"Direct OCC T-junction Physical Groups are empty: {empty_groups}")
     if summary["tetrahedron_elements"] <= 0 or summary["triangle_elements"] <= 0:
         raise RuntimeError("Direct OCC T-junction mesh must contain tetrahedra and boundary triangles.")
     if summary["geometry_validation"]["status"] != "PASS":
