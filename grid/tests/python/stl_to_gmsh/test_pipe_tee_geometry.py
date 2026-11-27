@@ -239,7 +239,10 @@ class PipeTeeGeometryTest(unittest.TestCase):
             from grid.stl_to_gmsh.converter import inspect_msh4
             geo = stl.with_suffix(".geo")
             volume_path = Path(temporary) / "pipe_tee.msh"
-            subprocess.run([shutil.which("gmsh"), str(geo), "-3", "-setnumber", "Mesh.MshFileVersion", "4.1", "-format", "msh4", "-o", str(volume_path)],
+            volume_geo = Path(temporary) / "pipe_tee.volume.geo"
+            volume_geo.write_text(geo.read_text(encoding="utf-8") + "\nMesh.MshFileVersion = 4.1;\n",
+                                  encoding="utf-8")
+            subprocess.run([shutil.which("gmsh"), str(volume_geo), "-3", "-format", "msh4", "-o", str(volume_path)],
                            check=True, capture_output=True, text=True)
             benchmark_geometry = MODULE._BENCHMARK["geometry"]
             volume = inspect_msh4(volume_path, geometry_contract={

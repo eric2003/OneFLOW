@@ -20,8 +20,13 @@ def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict) -> dict:
 
     gmsh_executable = shutil.which(gmsh) or gmsh
     msh.parent.mkdir(parents=True, exist_ok=True)
+    volume_geo = msh.with_suffix(".geo")
+    volume_geo.write_text(
+        geo.read_text(encoding="utf-8") + "\nMesh.MshFileVersion = 4.1;\n",
+        encoding="utf-8",
+    )
     subprocess.run(
-        [gmsh_executable, str(geo), "-3", "-setnumber", "Mesh.MshFileVersion", "4.1", "-format", "msh4", "-o", str(msh)],
+        [gmsh_executable, str(volume_geo), "-3", "-format", "msh4", "-o", str(msh)],
         cwd=msh.parent, check=True, capture_output=True, text=True,
     )
     summary = inspect_msh4(msh, geometry_contract={
