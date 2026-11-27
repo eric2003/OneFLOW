@@ -119,8 +119,14 @@ Vattenfall experiment.
 ### Preserved inlet subregions
 
 The source surface mesh has separate `main_inflow` and `branch_inflow`
-Physical Surfaces. The generator also writes separate checksum-bound
-`main_inflow.stl` and `branch_inflow.stl` patches. The shared volume-mesher
+Physical Surfaces. Before exporting the STL, the shared Python exporter
+validates the three port planes, circular areas, area centroids, and wall-node
+distances against the two perpendicular cylinder axes. The measured results
+are stored in the `geometry_validation` section of the geometry manifest. The
+native C++ driver passes its geometry parameters through the same validator,
+so both generation paths enforce the same geometric contract. The generator
+also writes separate checksum-bound `main_inflow.stl` and
+`branch_inflow.stl` patches. The shared volume-mesher
 contract currently accepts the three-region `wall`/`inflow`/`outflow`
 partition, so it combines the two inlet patches into the compatibility
 `inflow` group for the current smoke-test MSH4. Their separate source patches

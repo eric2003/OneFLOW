@@ -109,7 +109,12 @@ int main(int argc, char** argv) {
           args["--extractor"], "--extract-msh", msh.string(), "--output", output.string(),
           "--generator-kind", "cpp", "--generator-source",
           args.count("--generator-source") ? args["--generator-source"] : std::string(__FILE__),
-          "--mesh-size", std::to_string(meshSize)
+          "--mesh-size", std::to_string(meshSize), "--validate-pipe-tee",
+          "--main-diameter", std::to_string(mainRadius * 2.0),
+          "--branch-diameter", std::to_string(branchRadius * 2.0),
+          "--main-inlet-length", std::to_string(mainInlet),
+          "--main-outlet-length", std::to_string(mainOutlet),
+          "--branch-inlet-length", std::to_string(branchLength)
         }) != 0) {
       throw std::runtime_error("shared MSH2-to-STL exporter failed");
     }

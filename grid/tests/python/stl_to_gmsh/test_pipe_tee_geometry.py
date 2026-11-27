@@ -43,6 +43,67 @@ class PipeTeeGeometryTest(unittest.TestCase):
 
     def test_geo_definition_has_boolean_union_and_separate_inlet_surface_regions(self):
         text = MODULE._geo_text(MODULE.DEFAULTS)
+        self.assertIn("Cylinder(1) = {-1.22, 0, 0, 2.44, 0, 0, 0.07};", text)
+        self.assertIn("Cylinder(2) = {0, 0, 0, 0, 0, 0.693, 0.05};", text)
+        self.assertIn("BooleanUnion", text)
+        self.assertIn('Physical Surface("wall"', text)
+        self.assertIn('Physical Surface("main_inflow"', text)
+        self.assertIn('Physical Surface("branch_inflow"', text)
+        self.assertIn('Physical Surface("outflow"', text)
+        self.assertIn("Surface In BoundingBox", text)
+
+    def test_surface_geometry_validator_checks_three_orthogonal_ports(self):
+        nodes = {}
+        groups = {"wall": [], "main_inflow": [], "branch_inflow": [], "outflow": []}
+        params = dict(MODULE.DEFAULTS)
+        next_id = 1
+
+        def add_cap(name, axis, coordinate, radius):
+            nonlocal next_id
+            center = [0.0, 0.0, 0.0]
+            center[axis] = coordinate
+            center_id = next_id
+            nodes[center_id] = tuple(center)
+            next_id += 1
+            radial_axes = [index for index in range(3) if index != axis]
+            ring = []
+            for index in range(64):
+                angle = 2.0 * math.pi * index / 64
+                point = [0.0, 0.0, 0.0]
+                point[axis] = coordinate
+                point[radial_axes[0]] = radius * math.cos(angle)
+                point[radial_axes[1]] = radius * math.sin(angle)
+                ring.append(next_id)
+                nodes[next_id] = tuple(point)
+                next_id += 1
+            for index in range(64):
+                groups[name].append((center_id, ring[index], ring[(index + 1) % 64]))
+            return ring
+
+        add_cap("main_inflow", 0, -params["main_inlet_length"], params["main_diameter"] / 2)
+        add_cap("outflow", 0, params["main_outlet_length"], params["main_diameter"] / 2)
+        branch_ring = add_cap("branch_inflow", 2, params["branch_inlet_length"], params["branch_diameter"] / 2)
+        wall_ids = []
+        for point in ((0.0, 0.07, 0.0), (0.0, 0.0, 0.07), (0.0, -0.07, 0.0)):
+            wall_ids.append(next_id)
+            nodes[next_id] = point
+            next_id += 1
+        groups["wall"] = [tuple(wall_ids)]
+
+        report = MODULE._validate_pipe_tee_surface_geometry(nodes, groups, params)
+        self.assertEqual(report["status"], "PASS")
+        self.assertEqual(report["axis_angle_degrees"], 90.0)
+        self.assertEqual(report["port_count"], 3)
+        self.assertEqual(report["ports"]["branch_inflow"]["axis"], "+Z")
+
+        # A branch cap moved onto a non-Z plane must be rejected.
+        for node_id in branch_ring:
+            x, y, z = nodes[node_id]
+            nodes[node_id] = (params["branch_inlet_length"], y, 0.0)
+        with self.assertRaisesRegex(ValueError, "branch_inflow.*end plane"):
+            MODULE._validate_pipe_tee_surface_geometry(nodes, groups, params)
+
+        text = MODULE._geo_text(MODULE.DEFAULTS)
         self.assertIn("BooleanUnion", text)
         self.assertIn('Physical Surface("wall"', text)
         self.assertIn('Physical Surface("main_inflow"', text)
@@ -132,6 +193,9 @@ class PipeTeeGeometryTest(unittest.TestCase):
             self.assertTrue(stl.is_file())
             manifest = json.loads(result["manifest"].read_text(encoding="utf-8"))
             self.assertEqual(manifest["asset_id"], "geometry.pipe_tee.oecd_nea_vattenfall")
+            self.assertEqual(manifest["geometry_validation"]["status"], "PASS")
+            self.assertEqual(manifest["geometry_validation"]["axis_angle_degrees"], 90.0)
+            self.assertEqual(set(manifest["geometry_validation"]["ports"]), {"main_inflow", "branch_inflow", "outflow"})
             self.assertEqual(set(manifest["intended_gmsh_physical_groups"]["surface"]), {"wall", "main_inflow", "branch_inflow", "outflow"})
             self.assertEqual(set(manifest["intended_gmsh_physical_groups"]["shared_volume_mesher_surface_groups"]), {"wall", "inflow", "outflow"})
             self.assertTrue(all(count > 0 for count in manifest["surface"]["inlet_subregion_triangle_counts"].values()))

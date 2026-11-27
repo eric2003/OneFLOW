@@ -68,6 +68,77 @@ Physical Surface("outflow", 4) = {{outlet[]}};
 """
 
 
+def _validate_pipe_tee_surface_geometry(nodes: dict, groups: dict, parameters: dict) -> dict:
+    """Check the three orthogonal circular ports and cylindrical wall of the T-junction."""
+    required = ("wall", "main_inflow", "branch_inflow", "outflow")
+    if any(not groups.get(name) for name in required):
+        raise ValueError("T-junction geometry is missing one or more physical surface groups.")
+    rm = parameters["main_diameter"] / 2.0
+    rb = parameters["branch_diameter"] / 2.0
+    li, lo, lb = parameters["main_inlet_length"], parameters["main_outlet_length"], parameters["branch_inlet_length"]
+    mesh_size = parameters["mesh_size"]
+    plane_tol = max(1.0e-8, mesh_size * 1.0e-4)
+    radial_tol = max(1.0e-5, mesh_size * 1.0e-3)
+    specs = (
+        ("main_inflow", 0, -li, 1, 2, rm, (-li, 0.0, 0.0), "+X"),
+        ("outflow", 0, lo, 1, 2, rm, (lo, 0.0, 0.0), "+X"),
+        ("branch_inflow", 2, lb, 0, 1, rb, (0.0, 0.0, lb), "+Z"),
+    )
+    ports = {}
+    for name, axis_index, plane, radial_a, radial_b, radius, center, axis in specs:
+        area = 0.0
+        centroid_sum = [0.0, 0.0, 0.0]
+        max_radius = 0.0
+        for face in groups[name]:
+            pts = [nodes[i] for i in face]
+            if any(abs(p[axis_index] - plane) > plane_tol for p in pts):
+                raise ValueError(f"T-junction port '{name}' is not on its expected {axis} end plane.")
+            a, b, c = pts
+            ab = [b[i] - a[i] for i in range(3)]
+            ac = [c[i] - a[i] for i in range(3)]
+            cross = (ab[1]*ac[2]-ab[2]*ac[1], ab[2]*ac[0]-ab[0]*ac[2], ab[0]*ac[1]-ab[1]*ac[0])
+            tri_area = 0.5 * math.sqrt(sum(v*v for v in cross))
+            area += tri_area
+            for i in range(3):
+                centroid_sum[i] += tri_area * sum(p[i] for p in pts) / 3.0
+            for p in pts:
+                r = math.hypot(p[radial_a]-center[radial_a], p[radial_b]-center[radial_b])
+                max_radius = max(max_radius, r)
+        if area <= 0.0:
+            raise ValueError(f"T-junction port '{name}' has zero surface area.")
+        centroid = [v / area for v in centroid_sum]
+        center_offset = math.hypot(centroid[radial_a]-center[radial_a], centroid[radial_b]-center[radial_b])
+        expected_area = math.pi * radius * radius
+        area_error = abs(area-expected_area) / expected_area
+        if area_error > 0.20:
+            raise ValueError(f"T-junction port '{name}' area differs from its circular design area by {area_error:.1%}.")
+        if center_offset > radius * 0.15:
+            raise ValueError(f"T-junction port '{name}' is not centered on its design axis.")
+        if max_radius > radius * 1.001:
+            raise ValueError(f"T-junction port '{name}' exceeds its specified radius.")
+        ports[name] = {
+            "axis": axis, "plane_coordinate_m": plane, "measured_area_m2": area,
+            "expected_area_m2": expected_area, "relative_area_error": area_error,
+            "area_centroid_m": centroid, "maximum_radius_m": max_radius,
+            "triangle_count": len(groups[name]),
+        }
+    wall_ids = {i for face in groups["wall"] for i in face}
+    if not wall_ids:
+        raise ValueError("T-junction wall Physical Surface contains no mesh nodes.")
+    for i in wall_ids:
+        x, y, z = nodes[i]
+        main_error = abs(math.hypot(y, z) - rm)
+        branch_error = abs(math.hypot(x, y) - rb)
+        if min(main_error, branch_error) > radial_tol:
+            raise ValueError(f"Wall node {i} does not lie on either cylindrical pipe wall.")
+    return {
+        "status": "PASS", "geometry": "orthogonal_three_port_t_junction", "units": "m",
+        "main_axis": "+X", "branch_axis": "+Z", "axis_angle_degrees": 90.0,
+        "port_count": len(ports), "ports": ports, "wall_node_count": len(wall_ids),
+        "wall_radial_tolerance_m": radial_tol,
+    }
+
+
 def _parse_msh2(path: Path) -> tuple[dict[int, tuple[float, float, float]], dict[str, list[tuple[int, int, int]]]]:
     lines = path.read_text(encoding="utf-8", errors="strict").splitlines()
     physical_names: dict[tuple[int, int], str] = {}
@@ -130,7 +201,8 @@ def _write_stl(path: Path, nodes: dict, faces: list[tuple[int, int, int]], label
 
 
 def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
-                   generator_source: Path | None = None, mesh_size: float | None = None) -> dict:
+                   generator_source: Path | None = None, mesh_size: float | None = None,
+                   geometry_parameters: dict | None = None) -> dict:
     output = output.expanduser().resolve()
     if output.suffix.lower() != ".stl":
         raise ValueError("T-junction output must use the .stl extension.")
@@ -139,6 +211,8 @@ def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
     output.parent.mkdir(parents=True, exist_ok=True)
     msh = Path(msh).expanduser().resolve()
     nodes, groups = _parse_msh2(msh)
+    geometry_validation = (_validate_pipe_tee_surface_geometry(nodes, groups, geometry_parameters)
+                           if geometry_parameters is not None else None)
     inflow_faces = groups["main_inflow"] + groups["branch_inflow"]
     final_regions = {
         "wall": groups["wall"],
@@ -197,6 +271,7 @@ def export_surface(msh: Path, output: Path, *, generator_kind: str = "python",
             "surface_mesh_file": msh.name,
             "surface_mesh_sha256": _sha(msh),
         },
+        "geometry_validation": geometry_validation,
         "surface": {
             "node_count": len(nodes),
             "triangle_count": len(all_faces),
@@ -236,7 +311,7 @@ def generate(output: Path, gmsh: str, mesh_size: float = DEFAULTS["mesh_size"]) 
         [executable, str(geo), "-2", "-format", "msh2", "-o", str(msh), "-v", "2"],
         check=True, cwd=output.parent, capture_output=True, text=True,
     )
-    return export_surface(msh, output, mesh_size=mesh_size)
+    return export_surface(msh, output, mesh_size=mesh_size, geometry_parameters=parameters)
 
 
 def main() -> int:
@@ -247,10 +322,21 @@ def main() -> int:
     parser.add_argument("--extract-msh", type=Path)
     parser.add_argument("--generator-kind", choices=("python", "cpp"), default="python")
     parser.add_argument("--generator-source", type=Path)
+    parser.add_argument("--validate-pipe-tee", action="store_true")
+    parser.add_argument("--main-diameter", type=float, default=DEFAULTS["main_diameter"])
+    parser.add_argument("--branch-diameter", type=float, default=DEFAULTS["branch_diameter"])
+    parser.add_argument("--main-inlet-length", type=float, default=DEFAULTS["main_inlet_length"])
+    parser.add_argument("--main-outlet-length", type=float, default=DEFAULTS["main_outlet_length"])
+    parser.add_argument("--branch-inlet-length", type=float, default=DEFAULTS["branch_inlet_length"])
     args = parser.parse_args()
     try:
+        geometry_parameters = ({"main_diameter": args.main_diameter, "branch_diameter": args.branch_diameter,
+                                "main_inlet_length": args.main_inlet_length, "main_outlet_length": args.main_outlet_length,
+                                "branch_inlet_length": args.branch_inlet_length, "mesh_size": args.mesh_size}
+                               if args.validate_pipe_tee else None)
         result = export_surface(args.extract_msh, args.output, generator_kind=args.generator_kind,
-                                generator_source=args.generator_source, mesh_size=args.mesh_size) if args.extract_msh else generate(args.output, args.gmsh, args.mesh_size)
+                                generator_source=args.generator_source, mesh_size=args.mesh_size,
+                                geometry_parameters=geometry_parameters) if args.extract_msh else generate(args.output, args.gmsh, args.mesh_size)
     except (OSError, ValueError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"T-junction geometry generation failed: {error}\n")
     print(json.dumps({key: str(value) if isinstance(value, Path) else value for key, value in result.items()}, indent=2))
