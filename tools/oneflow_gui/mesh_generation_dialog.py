@@ -1489,6 +1489,23 @@ class StlToGmshDialog(QDialog):
             return
         from .mesh_validation_dialog import MeshValidationDialog
 
+        if (
+            self._mesh_case_id == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+            and self._project is None
+        ):
+            try:
+                self._project = create_mesh_project_from_stl(
+                    self._repository_root,
+                    Path(self.stl_path.text()).expanduser().resolve(),
+                    "pipe_tee_oecd_nea_vattenfall",
+                )
+                self._project_directory = Path(self._project["directory"])
+            except (OSError, ValueError, KeyError) as error:
+                QMessageBox.warning(
+                    self, "Cannot prepare T-junction validation project", str(error)
+                )
+                return
+
         dialog = MeshValidationDialog(
             self._repository_root,
             mesh_file=mesh_path,
