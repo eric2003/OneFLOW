@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
-import shutil
 import shutil
 import subprocess
 import sys
@@ -49,6 +49,19 @@ def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict) -> dict:
         raise RuntimeError("Direct OCC T-junction mesh must contain tetrahedra and boundary triangles.")
     if summary["geometry_validation"]["status"] != "PASS":
         raise RuntimeError("Direct OCC T-junction volume geometry validation did not pass.")
+    report_path = msh.with_suffix(".geometry-validation.json")
+    report = {
+        "schema": "oneflow.pipe-tee-occ-volume-validation",
+        "version": 1,
+        "geometry": "oecd_nea_vattenfall_t_junction",
+        "geometry_script": str(volume_geo),
+        "mesh_file": str(msh),
+        "mesh_sha256": hashlib.sha256(msh.read_bytes()).hexdigest(),
+        "geometry_contract": geometry,
+        "mesh_summary": summary,
+    }
+    report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    summary["validation_report"] = str(report_path)
     return summary
 
 
