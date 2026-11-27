@@ -34,7 +34,7 @@ def generate(output:Path,operating_mode="main_inlets"):
   quad(target,p(*start,y0),p(*start,y1),p(*end,y1),p(*end,y0))
  # Two adjoining rectangles tile the broad y-normal walls exactly.
  for y in (y0,y1):
-  for xa,za,xb,zb in ((x0,-h,x1,h),(-h,h,h,z1)):
+  for xa,za,xb,zb in ((x0,-h,-h,h),(-h,-h,h,h),(h,-h,x1,h),(-h,h,h,z1)):
    a,b,c,d=p(xa,za,y),p(xb,za,y),p(xb,zb,y),p(xa,zb,y)
    if y==y0: quad(groups["wall"],a,b,c,d)
    else: quad(groups["wall"],a,d,c,b)
