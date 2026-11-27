@@ -17,6 +17,7 @@ GENERATOR = ROOT / "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/geometry/py
 
 
 OPERATING_MODES = {
+    "benchmark": "Original OECD/NEA-Vattenfall benchmark assignment: one main inlet and one branch inlet.",
     "main_inlets": "Both ends of the straight main pipe are inlets; the vertical branch is the outlet.",
     "branch_inlet": "The vertical branch is the inlet; both ends of the straight main pipe are outlets.",
 }
@@ -26,6 +27,8 @@ def configure_operating_mode(geo: Path, operating_mode: str) -> None:
     """Assign symmetric main-pipe ports and the opposite branch boundary type."""
     if operating_mode not in OPERATING_MODES:
         raise ValueError(f"Unsupported T-junction operating mode: {operating_mode}")
+    if operating_mode == "benchmark":
+        return
     source = geo.read_text(encoding="utf-8")
     old_groups = (
         'Physical Surface("main_inflow", 2) = {inlet[]};',
@@ -54,7 +57,8 @@ Physical Surface("branch_inflow", 3) = {branch_inlet[]};"""
     geo.write_text(source, encoding="ascii")
 
 
-def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict, operating_mode: str) -> dict:
+def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict,
+                    operating_mode: str = "benchmark") -> dict:
     """Mesh the original OpenCASCADE BooleanUnion directly, never reconstruct it from STL."""
     configure_operating_mode(geo, operating_mode)
     from grid.stl_to_gmsh.converter import inspect_msh4
@@ -77,11 +81,19 @@ def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict, operating_m
         "main_outlet_length": geometry["main_pipe"]["outlet_length"],
         "branch_inlet_length": geometry["branch_pipe"]["inlet_length"],
     })
-    expected_groups = (
-        {(2, "wall"), (2, "main_inflow"), (2, "outflow"), (3, "fluid_domain")}
-        if operating_mode == "main_inlets"
-        else {(2, "wall"), (2, "branch_inflow"), (2, "outflow"), (3, "fluid_domain")}
-    )
+    if operating_mode == "benchmark":
+        expected_groups = {
+            (2, "wall"), (2, "main_inflow"), (2, "branch_inflow"),
+            (2, "outflow"), (3, "fluid_domain"),
+        }
+    elif operating_mode == "main_inlets":
+        expected_groups = {
+            (2, "wall"), (2, "main_inflow"), (2, "outflow"), (3, "fluid_domain")
+        }
+    else:
+        expected_groups = {
+            (2, "wall"), (2, "branch_inflow"), (2, "outflow"), (3, "fluid_domain")
+        }
     actual_groups = {(item["dimension"], item["name"]) for item in summary["physical_groups"]}
     if actual_groups != expected_groups:
         raise RuntimeError(f"Direct OCC T-junction Physical Groups {sorted(actual_groups)} do not match {sorted(expected_groups)}")
@@ -116,7 +128,7 @@ def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict, operating_m
 
 
 def run_case(case_directory: Path, *, gmsh: str, mesh_size: float = 0.03,
-             operating_mode: str = "main_inlets") -> Path:
+             operating_mode: str = "benchmark") -> Path:
     case_directory = case_directory.expanduser().resolve()
     input_dir = case_directory / "input"
     results_dir = case_directory / "results"
@@ -139,7 +151,7 @@ def main() -> int:
     parser.add_argument("--case-directory", type=Path, required=True)
     parser.add_argument("--gmsh", required=True)
     parser.add_argument("--mesh-size", type=float, default=0.03)
-    parser.add_argument("--operating-mode", choices=tuple(OPERATING_MODES), default="main_inlets")
+    parser.add_argument("--operating-mode", choices=tuple(OPERATING_MODES), default="benchmark")
     args = parser.parse_args()
     try:
         mesh = run_case(args.case_directory, gmsh=args.gmsh, mesh_size=args.mesh_size,
