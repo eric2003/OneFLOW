@@ -254,6 +254,87 @@ TEST(GmshCgnsConversionTest, WritesAndIndependentlyReadsTriangleZone) {
     std::filesystem::remove_all(caseDirectory);
 }
 
+TEST(GmshCgnsConversionTest, WritesNamedTeeInletsAsCgnsInflowTypes) {
+    const std::filesystem::path source =
+        std::filesystem::path(ONEFLOW_SOURCE_DIR) /
+        "grid" / "conversion" / "gmsh_to_cgns" / "grid" / "square.msh";
+    ASSERT_TRUE(std::filesystem::is_regular_file(source));
+
+    const std::filesystem::path caseDirectory = MakeTemporaryCaseDirectory();
+    const std::filesystem::path input = caseDirectory / "named_inlets.msh";
+    const std::filesystem::path resultsDirectory = caseDirectory / "results";
+    std::filesystem::create_directories(resultsDirectory);
+
+    std::ifstream sourceInput(source);
+    ASSERT_TRUE(sourceInput.good());
+    std::string msh{std::istreambuf_iterator<char>(sourceInput),
+                    std::istreambuf_iterator<char>()};
+    const auto replacePhysicalName = [&msh](const std::string & from,
+                                             const std::string & to) {
+        const std::string quotedFrom = "\"" + from + "\"";
+        const std::string quotedTo = "\"" + to + "\"";
+        const std::size_t position = msh.find(quotedFrom);
+        if (position == std::string::npos)
+            return false;
+        msh.replace(position, quotedFrom.size(), quotedTo);
+        return true;
+    };
+    ASSERT_TRUE(replacePhysicalName("inflow", "main_inflow"));
+    ASSERT_TRUE(replacePhysicalName("symmetry", "branch_inflow"));
+    {
+        std::ofstream target(input);
+        ASSERT_TRUE(target.good());
+        target << msh;
+        ASSERT_TRUE(target.good());
+    }
+
+    ONEFLOW::GridConfig config;
+    config.sourceType = ONEFLOW::GridFileType::Gmsh;
+    config.targetType = ONEFLOW::GridFileType::CGNS;
+    config.sourceFile = input.filename().string();
+    config.targetFile = (std::filesystem::path("results") / "named_inlets.cgns").string();
+    ASSERT_NO_THROW(ONEFLOW::ConvertGrid(config, caseDirectory.string()));
+
+    const std::filesystem::path output = resultsDirectory / "named_inlets.cgns";
+    ASSERT_TRUE(std::filesystem::is_regular_file(output));
+    int fileId = -1;
+    ASSERT_EQ(cg_open(output.string().c_str(), CG_MODE_READ, &fileId), CG_OK);
+    int bocoCount = 0;
+    ASSERT_EQ(cg_nbocos(fileId, 1, 1, &bocoCount), CG_OK);
+    ASSERT_EQ(bocoCount, 4);
+
+    bool foundMainInflow = false;
+    bool foundBranchInflow = false;
+    for (int index = 1; index <= bocoCount; ++index)
+    {
+        char name[33] = {};
+        BCType_t type = BCTypeNull;
+        PointSetType_t pointSetType = PointSetTypeNull;
+        cgsize_t pointCount = 0;
+        int normalIndex[3] = {};
+        cgsize_t normalListSize = 0;
+        DataType_t normalDataType = DataTypeNull;
+        int dataSetCount = 0;
+        ASSERT_EQ(cg_boco_info(fileId, 1, 1, index, name, &type,
+                               &pointSetType, &pointCount, normalIndex,
+                               &normalListSize, &normalDataType, &dataSetCount), CG_OK);
+        if (std::string(name) == "main_inflow")
+        {
+            EXPECT_EQ(type, BCInflow);
+            foundMainInflow = true;
+        }
+        else if (std::string(name) == "branch_inflow")
+        {
+            EXPECT_EQ(type, BCInflow);
+            foundBranchInflow = true;
+        }
+    }
+    EXPECT_TRUE(foundMainInflow);
+    EXPECT_TRUE(foundBranchInflow);
+    EXPECT_EQ(cg_close(fileId), CG_OK);
+    std::filesystem::remove_all(caseDirectory);
+}
+
 TEST(GmshCgnsConversionTest, ConvertsGmshThroughCgnsIntoOneFlowGrid) {
     const std::filesystem::path source =
         std::filesystem::path(ONEFLOW_SOURCE_DIR) /
