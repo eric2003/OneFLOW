@@ -191,6 +191,7 @@ class MeshValidationDialog(QDialog):
         self, repository_root: Path, *, executable: str = "",
         mesh_file: Path | None = None, project_directory: Path | None = None,
         mesh_case_id: str = "stl_to_gmsh_sphere_automatic_tetrahedra",
+        operating_mode: str = "benchmark",
         parent=None,
     ) -> None:
         super().__init__(parent)
@@ -370,9 +371,12 @@ class MeshValidationDialog(QDialog):
             "Branch inlet -> two main-pipe outlets", "branch_inlet"
         )
         self.operating_mode_combo.setToolTip(
-            "Applied only when the OECD/NEA-Vattenfall T-junction Case is selected. "
-            "The left and right ports remain separate Physical Groups."
+            "Applied only when an OECD/NEA-Vattenfall T-junction Case is selected. "
+            "The two main-pipe end ports share one boundary type."
         )
+        selected_mode_index = self.operating_mode_combo.findData(operating_mode)
+        if selected_mode_index >= 0:
+            self.operating_mode_combo.setCurrentIndex(selected_mode_index)
         self.steps_spin = QSpinBox()
         self.steps_spin.setRange(1, 100000)
         self.steps_spin.setValue(2)
@@ -573,7 +577,10 @@ class MeshValidationDialog(QDialog):
                 "--cfd-template-id", str(self.template_combo.currentData()),
                 "--max-steps", str(self.steps_spin.value()),
             ]
-            if case_id == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall":
+            if case_id in {
+                "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
+                "stl_to_gmsh_pipe_tee_stl_regions",
+            }:
                 arguments.extend([
                     "--operating-mode",
                     str(self.operating_mode_combo.currentData()),
