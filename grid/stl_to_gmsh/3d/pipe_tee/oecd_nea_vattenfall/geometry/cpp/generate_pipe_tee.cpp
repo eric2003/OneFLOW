@@ -9,6 +9,9 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#ifdef _WIN32
+#include <process.h>
+#endif
 
 namespace {
 std::string quote(const std::string& value) {
@@ -33,6 +36,22 @@ std::string quote(const std::string& value) {
 std::string value(int& i, int argc, char** argv) {
   if (i + 1 >= argc) throw std::invalid_argument("missing value after " + std::string(argv[i]));
   return argv[++i];
+}
+
+int run_program(const std::string& executable, const std::vector<std::string>& arguments) {
+#ifdef _WIN32
+  // Avoid cmd.exe quoting rules for paths and arguments on Windows.
+  std::vector<const char*> argv;
+  argv.reserve(arguments.size() + 2);
+  argv.push_back(executable.c_str());
+  for (const auto& argument : arguments) argv.push_back(argument.c_str());
+  argv.push_back(nullptr);
+  return _spawnv(_P_WAIT, executable.c_str(), argv.data());
+#else
+  std::string command = quote(executable);
+  for (const auto& argument : arguments) command += " " + quote(argument);
+  return std::system(command.c_str());
+#endif
 }
 }
 int main(int argc, char** argv) {
@@ -81,14 +100,19 @@ int main(int argc, char** argv) {
            << "Physical Surface(\"branch_inflow\", 3) = {branch_inlet[]};\n"
            << "Physical Surface(\"outflow\", 4) = {outlet[]};\n";
     script.close();
-    const std::string gmshCommand = quote(args["--gmsh"]) + " " + quote(geo.string())
-      + " -2 -format msh2 -o " + quote(msh.string()) + " -v 2";
-    if (std::system(gmshCommand.c_str()) != 0) throw std::runtime_error("Gmsh surface meshing failed");
-    const std::string pythonCommand = quote(args["--python"]) + " " + quote(args["--extractor"])
-      + " --extract-msh " + quote(msh.string()) + " --output " + quote(output.string())
-      + " --generator-kind cpp --generator-source " + quote(args.count("--generator-source") ? args["--generator-source"] : std::string(__FILE__))
-      + " --mesh-size " + std::to_string(meshSize);
-    if (std::system(pythonCommand.c_str()) != 0) throw std::runtime_error("shared MSH2-to-STL exporter failed");
+    if (run_program(args["--gmsh"], {
+          geo.string(), "-2", "-format", "msh2", "-o", msh.string(), "-v", "2"
+        }) != 0) {
+      throw std::runtime_error("Gmsh surface meshing failed");
+    }
+    if (run_program(args["--python"], {
+          args["--extractor"], "--extract-msh", msh.string(), "--output", output.string(),
+          "--generator-kind", "cpp", "--generator-source",
+          args.count("--generator-source") ? args["--generator-source"] : std::string(__FILE__),
+          "--mesh-size", std::to_string(meshSize)
+        }) != 0) {
+      throw std::runtime_error("shared MSH2-to-STL exporter failed");
+    }
     std::cout << "PASS: native C++ geometry driver generated " << output << '\n';
   } catch (const std::exception& error) {
     std::cerr << "T-junction C++ geometry failed: " << error.what() << '\n';
