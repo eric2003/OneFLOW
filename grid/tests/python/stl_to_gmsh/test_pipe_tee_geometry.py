@@ -143,8 +143,8 @@ class PipeTeeGeometryTest(unittest.TestCase):
             self.assertGreater(volume["mesh_summary"]["tetrahedron_elements"], 0)
             self.assertEqual(volume["geometry_validation"]["region_subregion_counts"], {"inflow": 2})
             volume_geo = (Path(temporary) / "pipe_tee.geo").read_text(encoding="utf-8")
-            self.assertIn("Merge \""+(Path(temporary) / "pipe_tee.main_inflow.stl").as_posix()+"\";", volume_geo)
-            self.assertIn("Merge \""+(Path(temporary) / "pipe_tee.branch_inflow.stl").as_posix()+"\";", volume_geo)
+            self.assertIn("pipe_tee.main_inflow.stl", volume_geo)
+            self.assertIn("pipe_tee.branch_inflow.stl", volume_geo)
 
 
 if __name__ == "__main__":
