@@ -201,6 +201,14 @@ class MeshProjectTest(unittest.TestCase):
         self.assertEqual(project["mesh_case_id"], "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall")
         self.assertEqual(project["boundary_regions"], ["inflow", "outflow", "wall"])
         self.assertEqual(project["boundary_subregions"], ["branch_inflow", "main_inflow"])
+        replaced = replace_project_stl(project, source_stl)
+        self.assertEqual(replaced["mesh_case_id"], "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall")
+        self.assertEqual(replaced["boundary_subregions"], ["branch_inflow", "main_inflow"])
+        imported = import_mesh_project_directory(
+            self.repository_root, replaced["directory"]
+        )
+        self.assertEqual(imported["mesh_case_id"], "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall")
+        self.assertEqual(imported["boundary_subregions"], ["branch_inflow", "main_inflow"])
         copied_manifest = project["stl_path"].parent / "region_manifest.json"
         copied = json.loads(copied_manifest.read_text(encoding="utf-8"))
         self.assertEqual(set(copied["subregions"]), set(subregion_names))

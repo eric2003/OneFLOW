@@ -177,6 +177,15 @@ def _copy_region_manifest(source_stl: Path, destination_stl: Path) -> dict | Non
     return manifest
 
 
+def _mesh_case_id_for_geometry(geometry_manifest: dict | None) -> str:
+    """Resolve generated geometry to its registered mesh-validation case."""
+    geometry = geometry_manifest.get("geometry") if geometry_manifest else None
+    return {
+        "pipe_bend_90_degree": "stl_to_gmsh_pipe_bend_90_degree",
+        "pipe_tee_oecd_nea_vattenfall": "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
+    }.get(geometry, _GENERIC_3D_VALIDATION_CASE)
+
+
 def create_mesh_project_from_stl(
     repository_root: Path, stl_file: Path, project_name: str | None = None,
 ) -> dict:
@@ -202,13 +211,7 @@ def create_mesh_project_from_stl(
         "version": 1,
         "name": directory.name,
         "template_case_id": None,
-        "mesh_case_id": {
-            "pipe_bend_90_degree": "stl_to_gmsh_pipe_bend_90_degree",
-            "pipe_tee_oecd_nea_vattenfall": "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
-        }.get(
-            geometry_manifest.get("geometry") if geometry_manifest else None,
-            _GENERIC_3D_VALIDATION_CASE,
-        ),
+        "mesh_case_id": _mesh_case_id_for_geometry(geometry_manifest),
         "input_stl": "input/model.stl",
         "output_mesh": f"results/{directory.name}.msh",
         "mesh_size": 0.20,
@@ -245,11 +248,12 @@ def import_mesh_project_directory(repository_root: Path, source_directory: Path)
         ignore=shutil.ignore_patterns(".git", "build", "results", "__pycache__"),
     )
     selected_stl = normalize_path(selected_stl)
-    _validate_region_metadata_compatibility(selected_stl)
+    geometry_manifest = _validate_region_metadata_compatibility(selected_stl)
     if not is_path_within(selected_stl, source):
         raise ValueError("Prepared project STL must remain inside the selected directory.")
     relative_stl = relative_path_within(selected_stl, source)
     copied_stl = copied / relative_stl
+    region_manifest = _copy_region_manifest(selected_stl, copied_stl)
     layout_path = copied / "script/layout.json"
     layout = {}
     if layout_path.is_file():
@@ -259,13 +263,16 @@ def import_mesh_project_directory(repository_root: Path, source_directory: Path)
         "version": 1,
         "name": directory.name,
         "template_case_id": None,
-        "mesh_case_id": _GENERIC_3D_VALIDATION_CASE,
+        "mesh_case_id": _mesh_case_id_for_geometry(geometry_manifest),
         "input_stl": (Path("source_project") / relative_stl).as_posix(),
         "output_mesh": f"results/{directory.name}.msh",
         "mesh_size": float(layout.get("mesh_size", 0.20)),
         "boundary_name": str(layout.get("boundary_name", "wall")),
         "volume_name": str(layout.get("surface_name", "fluid_domain")),
         "source_directory": str(source),
+        "geometry": geometry_manifest.get("geometry") if geometry_manifest else None,
+        "boundary_regions": sorted(region_manifest["regions"]) if region_manifest else None,
+        "boundary_subregions": sorted(region_manifest.get("subregions", {})) if region_manifest else None,
     }
     (directory / "results").mkdir()
     return _write_manifest(directory, manifest)
@@ -476,18 +483,25 @@ def replace_project_stl(project: dict, stl_file: Path) -> dict:
     else:
         destination_sidecar.unlink(missing_ok=True)
     region_manifest_path = destination.parent / "region_manifest.json"
-    for region_name in ("wall", "inflow", "outflow"):
-        (destination.parent / f"{region_name}.stl").unlink(missing_ok=True)
+    if region_manifest_path.is_file():
+        try:
+            previous = json.loads(region_manifest_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            previous = {}
+        for collection in ("regions", "subregions"):
+            for record in (previous.get(collection) or {}).values():
+                relative_patch = Path(str(record.get("file", "")))
+                if not relative_patch.is_absolute() and len(relative_patch.parts) == 1:
+                    (destination.parent / relative_patch.name).unlink(missing_ok=True)
     region_manifest = _copy_region_manifest(source, destination)
     if region_manifest is None:
         region_manifest_path.unlink(missing_ok=True)
     manifest["boundary_regions"] = sorted(region_manifest["regions"]) if region_manifest else None
-    manifest["geometry"] = (
-        geometry_manifest.get("geometry") if geometry_manifest else None
-    )
+    manifest["boundary_subregions"] = sorted(region_manifest.get("subregions", {})) if region_manifest else None
+    manifest["geometry"] = geometry_manifest.get("geometry") if geometry_manifest else None
     manifest["source_stl"] = str(source)
     manifest["template_case_id"] = None
-    manifest["mesh_case_id"] = _GENERIC_3D_VALIDATION_CASE
+    manifest["mesh_case_id"] = _mesh_case_id_for_geometry(geometry_manifest)
     return _write_manifest(root, manifest)
 
 
