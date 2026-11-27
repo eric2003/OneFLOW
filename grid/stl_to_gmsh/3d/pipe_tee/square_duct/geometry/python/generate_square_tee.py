@@ -24,13 +24,16 @@ def generate(output:Path,operating_mode="main_inlets"):
  output.parent.mkdir(parents=True,exist_ok=True)
  width=1.; h=width/2; x0=-2.; x1=2.; z1=h+2.; y0=-h; y1=h
  # T-shaped cross-section: 4x1 main duct plus a 2x1 perpendicular branch.
- polygon=[(x0,-h),(x1,-h),(x1,h),(h,h),(h,z1),(-h,z1),(-h,h),(x0,h)]
+ polygon=[(x0,-h),(-h,-h),(h,-h),(x1,-h),(x1,h),(h,h),(h,z1),(-h,z1),(-h,h),(x0,h)]
  groups={"wall":[],"main_left":[],"main_right":[],"branch":[]}
  def p(x,z,y): return (float(x),float(y),float(z))
  def quad(target,a,b,c,d): target.extend(((a,b,c),(a,c,d)))
- port_edges={1:"main_right",4:"branch",7:"main_left"}
  for i,start in enumerate(polygon):
-  end=polygon[(i+1)%len(polygon)]; target=groups[port_edges[i]] if i in port_edges else groups["wall"]
+  end=polygon[(i+1)%len(polygon)]
+  if start[0]==x0 and end[0]==x0: target=groups["main_left"]
+  elif start[0]==x1 and end[0]==x1: target=groups["main_right"]
+  elif start[1]==z1 and end[1]==z1: target=groups["branch"]
+  else: target=groups["wall"]
   quad(target,p(*start,y0),p(*start,y1),p(*end,y1),p(*end,y0))
  # Two adjoining rectangles tile the broad y-normal walls exactly.
  for y in (y0,y1):
