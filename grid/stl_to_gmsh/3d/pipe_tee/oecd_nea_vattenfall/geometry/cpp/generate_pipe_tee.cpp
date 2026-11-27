@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
     script.precision(12);
     script << "SetFactory(\"OpenCASCADE\");\n"
            << "Geometry.OCCBooleanPreserveNumbering = 0;\n"
-           << "Mesh.MshFileVersion = 4.1;\n"
+           << "Mesh.MshFileVersion = 2.2;\n"
            << "Mesh.MeshSizeMin = " << meshSize << ";\n"
            << "Mesh.MeshSizeMax = " << meshSize << ";\n"
            << "Mesh.MeshSizeFromCurvature = 16;\n"

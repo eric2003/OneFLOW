@@ -45,7 +45,7 @@ def _geo_text(p: dict) -> str:
     eps = max(1.0e-5, p["mesh_size"] * 1.0e-3)
     return f"""SetFactory("OpenCASCADE");
 Geometry.OCCBooleanPreserveNumbering = 0;
-Mesh.MshFileVersion = 4.1;
+Mesh.MshFileVersion = 2.2;
 Mesh.MeshSizeMin = {p["mesh_size"]:.12g};
 Mesh.MeshSizeMax = {p["mesh_size"]:.12g};
 Mesh.MeshSizeFromCurvature = 16;
