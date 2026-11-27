@@ -33,6 +33,7 @@ class PipeTeeGeometryTest(unittest.TestCase):
         self.assertEqual(p["main_outlet_length"], benchmark["geometry"]["main_pipe"]["outlet_length"])
         self.assertEqual(p["branch_inlet_length"], benchmark["geometry"]["branch_pipe"]["inlet_length"])
         self.assertEqual(MODULE._BENCHMARK["id"], "oecd_nea_vattenfall_t_junction")
+        self.assertAlmostEqual(p["mesh_size"], 0.030)
         main_area = math.pi * p["main_diameter"] ** 2 / 4.0
         branch_area = math.pi * p["branch_diameter"] ** 2 / 4.0
         self.assertAlmostEqual(0.009 / main_area, 0.5848, places=4)

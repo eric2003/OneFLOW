@@ -157,6 +157,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
             "stl_to_gmsh_cylinder_internal_flow_oblique_cut",
             "stl_to_gmsh_python_cylinder_internal_flow_oblique_cut",
             "stl_to_gmsh_pipe_bend_90_degree",
+            "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
         })
         for case_id in (
             "stl_to_gmsh_square",
@@ -622,7 +623,7 @@ class MeshCaseCatalogTest(unittest.TestCase):
             self.assertEqual(stages[stage_id]["verification_status"], "not_run")
         self.assertEqual(stages["cfd_validation"]["implementation_status"], "planned")
         benchmark = json.loads(
-            (REPOSITORY_ROOT / "grid" / entry["directory"] / "benchmark.json").read_text(encoding="utf-8")
+            (REPOSITORY_ROOT / entry["directory"] / "benchmark.json").read_text(encoding="utf-8")
         )
         self.assertEqual(benchmark["geometry"]["main_pipe"]["inner_diameter"], 0.14)
         self.assertEqual(benchmark["geometry"]["branch_pipe"]["inner_diameter"], 0.10)
