@@ -3,7 +3,7 @@
 
 The Boolean fluid volume is constructed by Gmsh/OpenCASCADE. The resulting
 MSH2 surface triangles are exported as a closed STL plus checksum-bound
-wall/inflow/outflow patches for the shared OneFLOW region-aware STL mesher.
+wall/inflow/outflow compatibility patches plus separate main/branch inlet subregions for the shared OneFLOW region-aware STL mesher.
 """
 from __future__ import annotations
 

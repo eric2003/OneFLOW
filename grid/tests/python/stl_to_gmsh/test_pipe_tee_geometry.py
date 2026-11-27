@@ -67,7 +67,7 @@ class PipeTeeGeometryTest(unittest.TestCase):
             msh = root / "fixture.msh"
             names = [(2,1,"wall"),(2,2,"main_inflow"),(2,3,"branch_inflow"),(2,4,"outflow")]
             with msh.open("w",encoding="utf-8") as f:
-                f.write("$MeshFormat\n2.2 0 8\n$EndMeshFormat\n$PhysicalNames\n3\n")
+                f.write("$MeshFormat\n2.2 0 8\n$EndMeshFormat\n$PhysicalNames\n4\n")
                 for dim,tag,name in names: f.write(f'{dim} {tag} "{name}"\n')
                 f.write("$EndPhysicalNames\n$Nodes\n8\n")
                 for i,p in nodes.items(): f.write(f"{i} {p[0]} {p[1]} {p[2]}\n")
@@ -87,10 +87,16 @@ class PipeTeeGeometryTest(unittest.TestCase):
                 self.assertTrue((root / record["file"]).is_file())
                 self.assertEqual(record["triangle_count"], len(read_stl(root / record["file"])))
             self.assertEqual(set(manifest["subregions"]), {"main_inflow", "branch_inflow"})
+            self.assertEqual(manifest["regions"]["inflow"]["triangle_count"], 2)
+            self.assertEqual(manifest["subregions"]["main_inflow"]["triangle_count"], 1)
+            self.assertEqual(manifest["subregions"]["branch_inflow"]["triangle_count"], 1)
             for name, record in manifest["subregions"].items():
                 self.assertTrue((root / record["file"]).is_file())
                 self.assertEqual(record["triangle_count"], len(read_stl(root / record["file"])))
             metrics = analyze_surface(read_stl(output))
+            geometry_manifest = json.loads(output.with_suffix(".geometry.json").read_text(encoding="utf-8"))
+            self.assertEqual(geometry_manifest["mesh_generation"]["surface_mesh_size_m"], MODULE.DEFAULTS["mesh_size"])
+            self.assertEqual(geometry_manifest["generator"]["kind"], "python")
             self.assertEqual(metrics["status"], "valid")
             self.assertTrue(metrics["closed"])
             self.assertTrue(metrics["edge_manifold"])
