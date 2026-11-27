@@ -41,6 +41,42 @@ class PipeTeeGeometryTest(unittest.TestCase):
         self.assertAlmostEqual(0.006 / branch_area, 0.7639, places=4)
         self.assertAlmostEqual(0.015 / main_area, 0.9744, places=4)
 
+    def test_catalog_registers_python_and_native_cpp_stl_meshing_routes(self):
+        catalog = json.loads((ROOT / "grid/case_catalog.json").read_text(encoding="utf-8"))
+        case = next(
+            item for item in catalog["cases"]
+            if item["id"] == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+        )
+        implementations = {
+            item["id"]: item for item in case["execution"]["implementations"]
+        }
+        self.assertIn("python_stl_regions", implementations)
+        self.assertIn("native_cpp_stl_regions", implementations)
+        self.assertTrue(
+            (ROOT / implementations["python_stl_regions"]["script"]).is_file()
+        )
+        self.assertTrue(
+            (ROOT / implementations["native_cpp_stl_regions"]["script"]).is_file()
+        )
+        self.assertEqual(
+            implementations["native_cpp_stl_regions"]["compiler_standard"],
+            "c++17",
+        )
+        validation_input = next(
+            item for item in catalog["mesh_validation_inputs"]
+            if item["id"] == "stl_to_gmsh_pipe_tee_stl_regions"
+        )
+        self.assertEqual(
+            {
+                (item["dimension"], item["name"])
+                for item in validation_input["required_physical_groups"]
+            },
+            {
+                (2, "wall"), (2, "inflow"), (2, "outflow"),
+                (3, "fluid_domain"),
+            },
+        )
+
     def test_geo_definition_has_boolean_union_and_separate_inlet_surface_regions(self):
         text = MODULE._geo_text(MODULE.DEFAULTS)
         self.assertIn("Cylinder(1) = {-1.22, 0, 0, 2.44, 0, 0, 0.07};", text)
