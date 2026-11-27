@@ -50,12 +50,13 @@ def run_case(case_directory: Path, *, gmsh: str, mesh_size: float = 0.03,
     input_dir.mkdir(parents=True, exist_ok=True)
     results_dir.mkdir(parents=True, exist_ok=True)
     executable = build(build_dir, compiler)
+    gmsh_executable = shutil.which(gmsh) or gmsh
     benchmark_path = SOURCE.parents[2] / "automatic_tetrahedra" / "benchmark.json"
     benchmark = json.loads(benchmark_path.read_text(encoding="utf-8"))
     geometry = benchmark["geometry"]
     stl = input_dir / "pipe_tee_oecd_nea_vattenfall.stl"
     subprocess.run(
-        [str(executable), "--output", str(stl), "--gmsh", gmsh,
+        [str(executable), "--output", str(stl), "--gmsh", gmsh_executable,
          "--python", sys.executable, "--extractor", str(EXTRACTOR),
          "--mesh-size", str(mesh_size),
          "--main-diameter", str(geometry["main_pipe"]["inner_diameter"]),
