@@ -50,8 +50,11 @@ int main(int argc, char** argv) {
     std::filesystem::create_directories(output.parent_path());
     const double meshSize = args.count("--mesh-size") ? std::stod(args["--mesh-size"]) : 0.03;
     if (!(meshSize > 0.0)) throw std::invalid_argument("mesh size must be positive");
-    constexpr double mainRadius = 0.070, branchRadius = 0.050;
-    constexpr double mainInlet = 1.070, mainOutlet = 1.070, branchLength = 0.470;
+    const double mainRadius = (args.count("--main-diameter") ? std::stod(args["--main-diameter"]) : 0.140) / 2.0;
+    const double branchRadius = (args.count("--branch-diameter") ? std::stod(args["--branch-diameter"]) : 0.100) / 2.0;
+    const double mainInlet = args.count("--main-inlet-length") ? std::stod(args["--main-inlet-length"]) : 1.070;
+    const double mainOutlet = args.count("--main-outlet-length") ? std::stod(args["--main-outlet-length"]) : 1.070;
+    const double branchLength = args.count("--branch-inlet-length") ? std::stod(args["--branch-inlet-length"]) : 0.470;
     constexpr double eps = 1.0e-7;
     std::ofstream script(geo);
     if (!script) throw std::runtime_error("cannot create Gmsh geometry script");

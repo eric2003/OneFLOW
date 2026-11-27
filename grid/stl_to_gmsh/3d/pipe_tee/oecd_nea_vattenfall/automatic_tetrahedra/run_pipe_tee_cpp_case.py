@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -49,11 +50,19 @@ def run_case(case_directory: Path, *, gmsh: str, mesh_size: float = 0.03,
     input_dir.mkdir(parents=True, exist_ok=True)
     results_dir.mkdir(parents=True, exist_ok=True)
     executable = build(build_dir, compiler)
+    benchmark_path = SOURCE.parents[2] / "automatic_tetrahedra" / "benchmark.json"
+    benchmark = json.loads(benchmark_path.read_text(encoding="utf-8"))
+    geometry = benchmark["geometry"]
     stl = input_dir / "pipe_tee_oecd_nea_vattenfall.stl"
     subprocess.run(
         [str(executable), "--output", str(stl), "--gmsh", gmsh,
          "--python", sys.executable, "--extractor", str(EXTRACTOR),
-         "--mesh-size", str(mesh_size)],
+         "--mesh-size", str(mesh_size),
+         "--main-diameter", str(geometry["main_pipe"]["inner_diameter"]),
+         "--branch-diameter", str(geometry["branch_pipe"]["inner_diameter"]),
+         "--main-inlet-length", str(geometry["main_pipe"]["inlet_length"]),
+         "--main-outlet-length", str(geometry["main_pipe"]["outlet_length"]),
+         "--branch-inlet-length", str(geometry["branch_pipe"]["inlet_length"])],
         cwd=ROOT, check=True,
     )
     mesh = results_dir / "pipe_tee_oecd_nea_vattenfall.msh"

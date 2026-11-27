@@ -17,12 +17,15 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[7]
+CASE_DIRECTORY = Path(__file__).resolve().parents[2] / "automatic_tetrahedra"
+_BENCHMARK = json.loads((CASE_DIRECTORY / "benchmark.json").read_text(encoding="utf-8"))
+_GEOMETRY = _BENCHMARK["geometry"]
 DEFAULTS = {
-    "main_diameter": 0.140,
-    "branch_diameter": 0.100,
-    "main_inlet_length": 1.070,
-    "main_outlet_length": 1.070,
-    "branch_inlet_length": 0.470,
+    "main_diameter": _GEOMETRY["main_pipe"]["inner_diameter"],
+    "branch_diameter": _GEOMETRY["branch_pipe"]["inner_diameter"],
+    "main_inlet_length": _GEOMETRY["main_pipe"]["inlet_length"],
+    "main_outlet_length": _GEOMETRY["main_pipe"]["outlet_length"],
+    "branch_inlet_length": _GEOMETRY["branch_pipe"]["inlet_length"],
     "mesh_size": 0.030,
 }
 GROUPS = {"wall": 1, "inflow": 2, "outflow": 3}

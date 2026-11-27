@@ -33,15 +33,15 @@ The principal relations are
 
 .. math::
 
-   A = \\frac{\\pi D^2}{4}, \\qquad
-   U_b = \\frac{Q}{A}, \\qquad
-   Re_D = \\frac{\\rho U_b D}{\\mu}
+   A = \frac{\pi D^2}{4}, \\qquad
+   U_b = \frac{Q}{A}, \\qquad
+   Re_D = \frac{\rho U_b D}{\mu}
 
 and
 
 .. math::
 
-   T^* = \\frac{T-T_{cold}}{T_{hot}-T_{cold}}.
+   T^* = \frac{T-T_{cold}}{T_{hot}-T_{cold}}.
 
 The main inlet profile is fully developed and measured at x=-3D. The branch
 profile is developing and measured 3.1 branch diameters upstream of the
