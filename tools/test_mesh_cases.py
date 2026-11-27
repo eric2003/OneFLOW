@@ -592,6 +592,43 @@ class MeshCaseCatalogTest(unittest.TestCase):
             },
         )
 
+
+    def test_pipe_tee_declares_benchmark_geometry_and_incremental_smoke_scope(self) -> None:
+        catalog = load_catalog(REPOSITORY_ROOT / "grid" / "case_catalog.json")
+        entry = next(
+            case for case in catalog["cases"]
+            if case["id"] == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+        )
+        self.assertEqual(
+            entry["lifecycle_contract"],
+            "stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/case-lifecycle.json",
+        )
+        self.assertEqual(entry["mesh_validation"], "cfd_smoke")
+        contract = json.loads(
+            (REPOSITORY_ROOT / "grid" / entry["lifecycle_contract"]).read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            validate_lifecycle_contract(
+                contract, expected_case_id="stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+            ),
+            [],
+        )
+        self.assertEqual(
+            contract["verification_stages"],
+            ["geometry", "surface_regions", "volume_mesh", "msh_to_cgns", "oneflow_ingestion", "cfd_smoke"],
+        )
+        stages = {stage["id"]: stage for stage in contract["stages"]}
+        for stage_id in contract["verification_stages"]:
+            self.assertEqual(stages[stage_id]["verification_status"], "not_run")
+        self.assertEqual(stages["cfd_validation"]["implementation_status"], "planned")
+        benchmark = json.loads(
+            (REPOSITORY_ROOT / "grid" / entry["directory"] / "benchmark.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(benchmark["geometry"]["main_pipe"]["inner_diameter"], 0.14)
+        self.assertEqual(benchmark["geometry"]["branch_pipe"]["inner_diameter"], 0.10)
+        self.assertEqual(benchmark["operating_conditions"]["main_inlet"]["volumetric_flow_rate_m3_s"], 0.009)
+        self.assertEqual(benchmark["operating_conditions"]["branch_inlet"]["volumetric_flow_rate_m3_s"], 0.006)
+
     def test_lifecycle_contract_allows_incremental_stages_but_rejects_cycles(self) -> None:
         contract = {
             "schema": "oneflow.case-lifecycle",

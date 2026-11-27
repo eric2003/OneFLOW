@@ -703,7 +703,6 @@
       "geometry_provenance": {
         "kind": "generated",
         "generator": "oneflow_pipe_tee_geometry",
-        "manifest": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/benchmark.json",
         "notes": "OECD/NEA-Vattenfall experimental dimensions and conditions; current CFD scope is a bounded smoke test only."
       }
     }
