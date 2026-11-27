@@ -1273,6 +1273,14 @@ def _mesh_case_command(
     return command
 
 
+def _effective_required_physical_groups(mesh_entry: dict, project_data: dict) -> list[dict]:
+    """Prefer an explicit Case contract; use project regions only for generic Cases."""
+    declared = mesh_entry.get("required_physical_groups")
+    if declared:
+        return list(declared)
+    return _project_required_physical_groups(project_data)
+
+
 def _project_required_physical_groups(project_data: dict) -> list[dict]:
     """Translate checksum-verified project boundary-region names into MSH requirements."""
     regions = project_data.get("boundary_regions")
@@ -1386,7 +1394,7 @@ def run_mesh_validation(
         project_manifest = project_root / "project.json"
         if project_manifest.is_file():
             project_data = json.loads(project_manifest.read_text(encoding="utf-8"))
-            project_groups = _project_required_physical_groups(project_data)
+            project_groups = _effective_required_physical_groups(mesh_entry, project_data)
             if project_groups:
                 mesh_entry = {**mesh_entry, "required_physical_groups": project_groups}
             relative_stl = Path(str(project_data.get("input_stl", "")))

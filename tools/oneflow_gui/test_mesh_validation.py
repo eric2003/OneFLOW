@@ -20,7 +20,7 @@ from tools.oneflow_gui.mesh_validation import (
     prepare_mesh_validation_run_workspace,
     _copy_existing_mesh, _graph_step_records,
     _mesh_case_command, _mesh_validation_stage_results, run_report_stage_rows,
-    existing_mesh_case_paths, _validate_required_physical_groups,
+    existing_mesh_case_paths, _validate_required_physical_groups, _effective_required_physical_groups,
     _geometry_lineage, geometry_lineage_rows, _project_required_physical_groups,
     _geometry_artifact_lineage_path, _write_geometry_artifact_lineage,
     _read_geometry_artifact_lineage, _downstream_lineage_artifacts,
@@ -68,6 +68,30 @@ class TjunctionPhysicalGroupContractTest(unittest.TestCase):
                 ]},
                 case,
             )
+
+    def test_case_contract_takes_precedence_over_legacy_project_regions(self):
+        root = Path(__file__).resolve().parents[2]
+        from tools.oneflow_gui.mesh_validation import _catalog
+        catalog = _catalog(root)
+        tee = next(
+            item for item in catalog["cases"]
+            if item["id"] == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+        )
+        legacy_project = {"boundary_regions": ["wall", "inflow", "outflow"]}
+        self.assertEqual(
+            _effective_required_physical_groups(tee, legacy_project),
+            tee["required_physical_groups"],
+        )
+        generic_case = {"id": "generic_stl_project"}
+        self.assertEqual(
+            _effective_required_physical_groups(generic_case, legacy_project),
+            [
+                {"name": "wall", "dimension": 2},
+                {"name": "inflow", "dimension": 2},
+                {"name": "outflow", "dimension": 2},
+                {"name": "fluid_domain", "dimension": 3},
+            ],
+        )
 
 
 class RunArtifactInventoryTest(unittest.TestCase):

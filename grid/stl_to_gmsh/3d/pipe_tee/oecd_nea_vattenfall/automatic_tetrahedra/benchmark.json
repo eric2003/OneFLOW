@@ -380,7 +380,8 @@
     ],
     "current_shared_volume_mesh": [
       "wall",
-      "inflow",
+      "main_inflow",
+      "branch_inflow",
       "outflow",
       "fluid_domain"
     ],
@@ -388,6 +389,6 @@
       "main_inflow",
       "branch_inflow"
     ],
-    "note": "The shared STL region-manifest converter currently accepts exactly wall/inflow/outflow. The two inlet subregions are stored separately as additional checksum-bound patches while the compatibility inflow patch is their union. Future work can extend the common converter to emit distinct final MSH4 inlet groups."
+    "note": "The canonical OECD/NEA-Vattenfall Case meshes the original OpenCASCADE BooleanUnion volume directly and emits distinct main_inflow and branch_inflow Physical Groups. Its exported STL region manifest retains a compatibility inflow patch as the union of the two inlet subregions for generic STL-region consumers; this compatibility patch is not the Physical Group contract of the direct OCC MSH4 mesh."
   }
 }
