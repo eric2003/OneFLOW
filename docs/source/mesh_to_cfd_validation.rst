@@ -125,7 +125,8 @@ the original Physical Group name is retained as the boundary patch name.
    * - Gmsh Physical Group name
      - CGNS ``BCType_t``
      - OneFLOW boundary category
-   * - ``Inlet``, ``Inflow``, ``VelocityInlet``, ``MassFlowInlet``, ``PressureInlet``
+   * - ``Inlet``, ``Inflow``, ``VelocityInlet``, ``MassFlowInlet``, ``PressureInlet``,
+     ``MainInflow``, ``BranchInflow``, ``MainInlet``, ``BranchInlet``
      - ``BCInflow``
      - ``BC::INFLOW``
    * - ``Outlet``, ``Outflow``, ``PressureOutlet``

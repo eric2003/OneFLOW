@@ -10,7 +10,7 @@ MSH 4.1 ASCII conversion writes a real CGNS unstructured Zone for supported
 first-order top-dimensional cells. It also maps first-order elements from
 the immediately lower dimension through Gmsh Entities and Physical Names
 into CGNS boundary element sections and BC_t point lists. The conversion recognizes
-explicit Physical Group names such as `inflow`, `outflow`, `wall`, `symmetry`, and `farfield`,
+explicit Physical Group names such as `inflow`, `main_inflow`, `branch_inflow`, `outflow`, `wall`, `symmetry`, and `farfield`,
 as well as directional cube patch names such as `xmin_inflow`, `ymin_wall`,
 and `zmax_symmetry`, mapping them to the corresponding CGNS `BCType_t` values.
 Unrecognized names remain
