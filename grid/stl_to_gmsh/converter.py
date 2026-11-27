@@ -490,7 +490,10 @@ def _region_aware_closed_surface_volume_geo(
     closed_triangle_keys = Counter(
         _triangle_geometry_key(triangle, tolerance) for triangle in triangles
     )
-    if Counter({key: count for keys in region_keys.values() for key, count in keys.items()}) != closed_triangle_keys:
+    combined_region_keys: Counter[tuple] = Counter()
+    for keys in region_keys.values():
+        combined_region_keys.update(keys)
+    if combined_region_keys != closed_triangle_keys:
         raise Stl2DError(
             "wall, inflow and outflow patch STLs must form an exact triangle partition of the closed STL"
         )

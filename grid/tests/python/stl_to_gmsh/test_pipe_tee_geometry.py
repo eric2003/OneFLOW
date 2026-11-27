@@ -141,7 +141,7 @@ class PipeTeeGeometryTest(unittest.TestCase):
             groups = {(item["dimension"], item["name"]) for item in volume["mesh_summary"]["physical_groups"]}
             self.assertEqual(groups, {(2,"wall"),(2,"inflow"),(2,"outflow"),(3,"fluid_domain")})
             self.assertGreater(volume["mesh_summary"]["tetrahedron_elements"], 0)
-            self.assertEqual(volume["geometry_report"]["region_subregion_counts"], {"inflow": 2})
+            self.assertEqual(volume["geometry_validation"]["region_subregion_counts"], {"inflow": 2})
             volume_geo = (Path(temporary) / "pipe_tee.geo").read_text(encoding="utf-8")
             self.assertIn("Merge \""+(Path(temporary) / "pipe_tee.main_inflow.stl").as_posix()+"\";", volume_geo)
             self.assertIn("Merge \""+(Path(temporary) / "pipe_tee.branch_inflow.stl").as_posix()+"\";", volume_geo)
