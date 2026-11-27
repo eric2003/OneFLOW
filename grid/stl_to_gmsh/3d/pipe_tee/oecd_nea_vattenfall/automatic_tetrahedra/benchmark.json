@@ -43,18 +43,23 @@
     "coordinate_system": "Cartesian right-handed; main pipe axis +X; branch inlet axis +Z; origin at centreline intersection",
     "main_pipe": {
       "inner_diameter": 0.14,
-      "inlet_length": 1.07,
-      "outlet_length": 1.07
+      "inlet_length": 1.22,
+      "outlet_length": 1.22,
+      "inlet_extension_from_junction_block": 1.07,
+      "outlet_extension_from_junction_block": 1.07,
+      "junction_half_length": 0.15
     },
     "branch_pipe": {
       "inner_diameter": 0.1,
-      "inlet_length": 0.47
+      "inlet_length": 0.693,
+      "extension_above_junction_block": 0.47,
+      "junction_block_top_offset": 0.223
     },
     "junction_block": {
-      "length_x": 0.22,
-      "width_y": 0.285,
-      "height_z": 0.325,
-      "material": "Plexiglas"
+      "main_axis_half_length": 0.15,
+      "branch_top_offset_from_main_centerline": 0.223,
+      "material": "Plexiglas",
+      "notes": "Only dimensions explicitly shown in Figure 2 are recorded here; no unverified overall block width/depth is assumed."
     },
     "intersection_edge": {
       "reported_radius_upper_bound": 0.0002,

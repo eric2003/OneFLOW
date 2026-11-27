@@ -8,11 +8,15 @@ Benchmark definition
 --------------------
 
 The test section uses a 140 mm main-pipe inner diameter and a 100 mm branch
-inner diameter. The main inlet and outlet test sections are each 1070 mm long;
-the branch inlet section is 470 mm long. The baseline fluid domain is the
-Boolean union of the cylindrical bores. The intersection edge was described as
-slightly rounded, with a radius below 0.2 mm that was not measured. The
-baseline therefore uses a sharp intersection and does not invent a fillet.
+inner diameter. The main straight-pipe extensions beyond the junction block are each 1070 mm.
+Figure 2 places each block side 150 mm from the main-pipe centreline, giving
+1220 mm from the centreline to each main pipe end. The branch straight-pipe
+extension above the block is 470 mm; the block top is 223 mm above the main
+centreline, giving 693 mm from the centreline to the branch inlet. The baseline
+fluid domain is the Boolean union of the cylindrical bores. The intersection
+edge was described as slightly rounded, with a radius below 0.2 mm that was
+not measured. The baseline therefore uses a sharp intersection and does not
+invent a fillet.
 
 The benchmark operating point is 9.0 L/s at 19 °C in the main inlet and 6.0 L/s
 at 36 °C in the branch inlet. The temperature difference is 17 K. The

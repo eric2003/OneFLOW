@@ -23,9 +23,9 @@ class PipeTeeGeometryTest(unittest.TestCase):
         p = MODULE.DEFAULTS
         self.assertAlmostEqual(p["main_diameter"], 0.140)
         self.assertAlmostEqual(p["branch_diameter"], 0.100)
-        self.assertAlmostEqual(p["main_inlet_length"], 1.070)
-        self.assertAlmostEqual(p["main_outlet_length"], 1.070)
-        self.assertAlmostEqual(p["branch_inlet_length"], 0.470)
+        self.assertAlmostEqual(p["main_inlet_length"], 1.220)
+        self.assertAlmostEqual(p["main_outlet_length"], 1.220)
+        self.assertAlmostEqual(p["branch_inlet_length"], 0.693)
         benchmark = json.loads((ROOT / "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/benchmark.json").read_text(encoding="utf-8"))
         self.assertEqual(p["main_diameter"], benchmark["geometry"]["main_pipe"]["inner_diameter"])
         self.assertEqual(p["branch_diameter"], benchmark["geometry"]["branch_pipe"]["inner_diameter"])

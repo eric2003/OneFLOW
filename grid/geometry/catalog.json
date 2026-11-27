@@ -324,11 +324,11 @@
         "parameters": {
           "main_diameter": 0.14,
           "branch_diameter": 0.1,
-          "main_inlet_length": 1.07,
-          "main_outlet_length": 1.07,
-          "branch_inlet_length": 0.47
+          "main_inlet_length": 1.22,
+          "main_outlet_length": 1.22,
+          "branch_inlet_length": 0.693
         },
-        "notes": "Geometry follows NEA/CSNI/R(2011)5. The fluid domain is the Boolean union of three cylindrical bores. The reported junction edge radius is <0.2 mm but was not measured; the baseline does not invent a fillet."
+        "notes": "Main end planes are 1.220 m from the centreline (1.070 m straight extension plus 0.150 m junction half-length); branch end plane is 0.693 m from the centreline (0.470 m above the block plus 0.223 m block-top offset)."
       },
       "provenance": {
         "kind": "literature_benchmark",

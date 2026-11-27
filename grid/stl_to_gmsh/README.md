@@ -335,8 +335,9 @@ defaults, commands and verification scope.
 
 The T-junction benchmark is registered as
 \`stl_to_gmsh_pipe_tee_oecd_nea_vattenfall\`. It uses the published 140 mm
-main pipe, 100 mm branch, 1070 mm main inlet/outlet test sections, and 470 mm
-branch inlet test section. The reference operating point is 9 L/s at 19 °C in
+main pipe, 100 mm branch, 1070 mm straight extensions beyond the junction
+block, and 470 mm branch extension above the block. The resulting centreline-to-
+end distances are 1220 mm on the main pipe and 693 mm on the branch. The reference operating point is 9 L/s at 19 °C in
 the main inlet and 6 L/s at 36 °C in the branch inlet.
 
 The Python reference and C++17 geometry driver both use Gmsh/OpenCASCADE to
