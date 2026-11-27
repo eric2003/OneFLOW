@@ -151,11 +151,14 @@ Two modes are available:
 | `main_inlets` | Inlet | Inlet | Outlet |
 | `branch_inlet` | Outlet | Outlet | Inlet |
 
-The two ends of the straight main pipe are grouped together under one
-Physical Surface name in each mode, so OneFLOW receives the same boundary
-type at both ends. The branch receives the opposite type. Wall and fluid
-volume groups are unchanged. Output is written under the user's OneFLOW
-mesh-generation directory, with separate folders for the two modes.
+The two main-pipe ends retain separate Physical Surface identities
+(`main_left_inflow` / `main_right_inflow` or
+`main_left_outflow` / `main_right_outflow`). The OneFLOW Gmsh-to-CGNS
+adapter maps both names in each pair to the same CGNS boundary type. This
+preserves port identity for later independent flow-rate or pressure settings.
+The branch receives the opposite type. Wall and fluid-volume groups are
+unchanged. Output is written under the user's OneFLOW mesh-generation
+directory, with separate folders for the two modes.
 
 This is a geometry/mesh and boundary-ingestion smoke-test facility. It does
 not claim physical validation against the OECD/NEA–Vattenfall measurements.

@@ -662,7 +662,7 @@ class PipeTeeMeshDialog(QDialog):
 
     def _mode_changed(self, *_args) -> None:
         current = Path(self.case_directory.text()).expanduser() if self.case_directory.text() else None
-        if current is None or (current.parent.parent.name == "pipe_tee"):
+        if current is None or (current.parent.name == "pipe_tee"):
             self.case_directory.setText(str(self._default_case_directory()))
         if self.operating_mode.currentData() == "main_inlets":
             self.mode_description.setText(

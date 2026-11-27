@@ -116,10 +116,12 @@ int GmshPhysicalNameToCgnsBcType( const std::string & physicalName )
          key == "massflowinlet" || key == "pressureinlet" ||
          key == "xmininflow" || key == "maininflow" ||
          key == "branchinflow" || key == "maininlet" ||
-         key == "branchinlet" )
+         key == "branchinlet" || key == "mainleftinflow" ||
+         key == "mainrightinflow" )
         return static_cast< int >( CGNS_ENUMV( BCInflow ) );
     if ( key == "outlet" || key == "outflow" || key == "pressureoutlet" ||
-         key == "xmaxoutflow" )
+         key == "xmaxoutflow" || key == "mainleftoutflow" ||
+         key == "mainrightoutflow" )
         return static_cast< int >( CGNS_ENUMV( BCOutflow ) );
     if ( key == "symmetry" || key == "symmetryplane" ||
          key == "zminsymmetry" || key == "zmaxsymmetry" )

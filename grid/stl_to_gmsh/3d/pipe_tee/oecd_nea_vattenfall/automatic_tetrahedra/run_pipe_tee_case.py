@@ -40,15 +40,12 @@ def configure_operating_mode(geo: Path, operating_mode: str) -> None:
     for item in old_groups:
         source = source.replace(item, "")
     if operating_mode == "main_inlets":
-        groups = """main_ports[] = inlet[];
-main_ports[] += outlet[];
-branch_outlet[] = branch_inlet[];
-Physical Surface("main_inflow", 2) = {main_ports[]};
-Physical Surface("outflow", 4) = {branch_outlet[]};"""
+        groups = """Physical Surface("main_left_inflow", 2) = {inlet[]};
+Physical Surface("main_right_inflow", 4) = {outlet[]};
+Physical Surface("outflow", 5) = {branch_inlet[]};"""
     else:
-        groups = """main_ports[] = inlet[];
-main_ports[] += outlet[];
-Physical Surface("outflow", 4) = {main_ports[]};
+        groups = """Physical Surface("main_left_outflow", 2) = {inlet[]};
+Physical Surface("main_right_outflow", 4) = {outlet[]};
 Physical Surface("branch_inflow", 3) = {branch_inlet[]};"""
     anchor = 'Physical Surface("wall", 1) = {wall[]};'
     if anchor not in source:
@@ -88,11 +85,13 @@ def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict,
         }
     elif operating_mode == "main_inlets":
         expected_groups = {
-            (2, "wall"), (2, "main_inflow"), (2, "outflow"), (3, "fluid_domain")
+            (2, "wall"), (2, "main_left_inflow"), (2, "main_right_inflow"),
+            (2, "outflow"), (3, "fluid_domain")
         }
     else:
         expected_groups = {
-            (2, "wall"), (2, "branch_inflow"), (2, "outflow"), (3, "fluid_domain")
+            (2, "wall"), (2, "main_left_outflow"), (2, "main_right_outflow"),
+            (2, "branch_inflow"), (3, "fluid_domain")
         }
     actual_groups = {(item["dimension"], item["name"]) for item in summary["physical_groups"]}
     if actual_groups != expected_groups:
