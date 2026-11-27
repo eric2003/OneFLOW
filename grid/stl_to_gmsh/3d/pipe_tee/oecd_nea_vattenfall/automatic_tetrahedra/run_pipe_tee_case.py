@@ -81,12 +81,12 @@ def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict,
     if operating_mode == "benchmark":
         expected_groups = {
             (2, "wall"), (2, "main_inflow"), (2, "branch_inflow"),
-            (2, "branch_outflow"), (3, "fluid_domain"),
+            (2, "outflow"), (3, "fluid_domain"),
         }
     elif operating_mode == "main_inlets":
         expected_groups = {
             (2, "wall"), (2, "main_left_inflow"), (2, "main_right_inflow"),
-            (2, "outflow"), (3, "fluid_domain")
+            (2, "branch_outflow"), (3, "fluid_domain")
         }
     else:
         expected_groups = {
