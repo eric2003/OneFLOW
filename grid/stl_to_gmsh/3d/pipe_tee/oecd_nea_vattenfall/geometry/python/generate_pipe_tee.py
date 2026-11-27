@@ -1,0 +1,230 @@
+#!/usr/bin/env python3
+"""Generate the OECD/NEA-Vattenfall T-junction surface and named STL regions.
+
+The Boolean fluid volume is constructed by Gmsh/OpenCASCADE. The resulting
+MSH2 surface triangles are exported as a closed STL plus checksum-bound
+wall/inflow/outflow patches for the shared OneFLOW region-aware STL mesher.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import math
+import shutil
+import struct
+import subprocess
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[7]
+DEFAULTS = {
+    "main_diameter": 0.140,
+    "branch_diameter": 0.100,
+    "main_inlet_length": 1.070,
+    "main_outlet_length": 1.070,
+    "branch_inlet_length": 0.470,
+    "mesh_size": 0.030,
+}
+GROUPS = {"wall": 1, "inflow": 2, "outflow": 3}
+
+
+def _sha(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _geo_text(p: dict) -> str:
+    rm = p["main_diameter"] / 2.0
+    rb = p["branch_diameter"] / 2.0
+    li, lo, lb = p["main_inlet_length"], p["main_outlet_length"], p["branch_inlet_length"]
+    eps = 1.0e-7
+    return f"""SetFactory("OpenCASCADE");
+Geometry.OCCBooleanPreserveNumbering = 0;
+Mesh.MshFileVersion = 2.2;
+Mesh.MeshSizeMin = {p["mesh_size"]:.12g};
+Mesh.MeshSizeMax = {p["mesh_size"]:.12g};
+Mesh.MeshSizeFromCurvature = 16;
+Mesh.MeshSizeExtendFromBoundary = 1;
+Cylinder(1) = {{{-li:.12g}, 0, 0, {li + lo:.12g}, 0, 0, {rm:.12g}}};
+Cylinder(2) = {{0, 0, 0, 0, 0, {lb:.12g}, {rb:.12g}}};
+fluid[] = BooleanUnion{{ Volume{{1}}; Delete; }}{{ Volume{{2}}; Delete; }};
+surfaces[] = Boundary{{ Volume{{fluid[]}}; }};
+inlet[] = Surface In BoundingBox{{ {-li-eps:.12g}, {-rm-eps:.12g}, {-rm-eps:.12g}, {-li+eps:.12g}, {rm+eps:.12g}, {rm+eps:.12g} }};
+outlet[] = Surface In BoundingBox{{ {lo-eps:.12g}, {-rm-eps:.12g}, {-rm-eps:.12g}, {lo+eps:.12g}, {rm+eps:.12g}, {rm+eps:.12g} }};
+branch_inlet[] = Surface In BoundingBox{{ {-rb-eps:.12g}, {-rb-eps:.12g}, {lb-eps:.12g}, {rb+eps:.12g}, {rb+eps:.12g}, {lb+eps:.12g} }};
+wall[] = surfaces[];
+wall[] -= inlet[];
+wall[] -= outlet[];
+wall[] -= branch_inlet[];
+Physical Surface("wall", 1) = {{wall[]}};
+Physical Surface("inflow", 2) = {{inlet[], branch_inlet[]}};
+Physical Surface("outflow", 3) = {{outlet[]}};
+"""
+
+
+def _parse_msh2(path: Path) -> tuple[dict[int, tuple[float, float, float]], dict[str, list[tuple[int, int, int]]]]:
+    lines = path.read_text(encoding="utf-8", errors="strict").splitlines()
+    physical_names: dict[tuple[int, int], str] = {}
+    nodes: dict[int, tuple[float, float, float]] = {}
+    triangles: dict[str, list[tuple[int, int, int]]] = {name: [] for name in GROUPS}
+    i = 0
+    while i < len(lines):
+        marker = lines[i].strip()
+        if marker == "$PhysicalNames":
+            count = int(lines[i + 1].strip())
+            for line in lines[i + 2:i + 2 + count]:
+                dim_text, tag_text, name_text = line.split(maxsplit=2)
+                physical_names[(int(dim_text), int(tag_text))] = name_text.strip().strip('"')
+            i += count + 3
+            continue
+        if marker == "$Nodes":
+            count = int(lines[i + 1].strip())
+            for line in lines[i + 2:i + 2 + count]:
+                fields = line.split()
+                nodes[int(fields[0])] = tuple(map(float, fields[1:4]))
+            i += count + 3
+            continue
+        if marker == "$Elements":
+            count = int(lines[i + 1].strip())
+            for line in lines[i + 2:i + 2 + count]:
+                fields = list(map(int, line.split()))
+                element_type, tag_count = fields[1], fields[2]
+                if element_type != 2 or tag_count < 1:
+                    continue
+                name = physical_names.get((2, fields[3]))
+                if name in triangles:
+                    node_ids = fields[3 + tag_count:]
+                    if len(node_ids) != 3:
+                        raise ValueError("Unexpected non-triangular surface element in MSH2 output.")
+                    triangles[name].append(tuple(node_ids))
+            i += count + 3
+            continue
+        i += 1
+    if not nodes:
+        raise ValueError(f"No nodes were found in Gmsh surface mesh: {path}")
+    if any(not triangles[name] for name in GROUPS):
+        counts = {name: len(items) for name, items in triangles.items()}
+        raise ValueError(f"One or more T-junction Physical Surface groups are empty: {counts}")
+    return nodes, triangles
+
+
+def _write_stl(path: Path, nodes: dict, faces: list[tuple[int, int, int]], label: str) -> None:
+    with path.open("wb") as stream:
+        stream.write((f"OneFLOW OECD Vattenfall T-junction {label}").encode("ascii").ljust(80, b"\0")[:80])
+        stream.write(struct.pack("<I", len(faces)))
+        for face in faces:
+            a, b, c = (nodes[index] for index in face)
+            ab = (b[0]-a[0], b[1]-a[1], b[2]-a[2])
+            ac = (c[0]-a[0], c[1]-a[1], c[2]-a[2])
+            normal = (ab[1]*ac[2]-ab[2]*ac[1], ab[2]*ac[0]-ab[0]*ac[2], ab[0]*ac[1]-ab[1]*ac[0])
+            length = math.sqrt(sum(value*value for value in normal))
+            if length:
+                normal = tuple(value/length for value in normal)
+            stream.write(struct.pack("<12fH", *normal, *a, *b, *c, 0))
+
+
+def export_surface(msh: Path, output: Path, *, generator_kind: str = "python") -> dict:
+    output = output.expanduser().resolve()
+    if output.suffix.lower() != ".stl":
+        raise ValueError("T-junction output must use the .stl extension.")
+    if output == ROOT or ROOT in output.parents:
+        raise ValueError("Generated STL assets must stay outside the OneFLOW source tree.")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    nodes, groups = _parse_msh2(msh)
+    all_faces = groups["wall"] + groups["inflow"] + groups["outflow"]
+    _write_stl(output, nodes, all_faces, "closed-fluid-domain")
+    records = {}
+    for name in ("wall", "inflow", "outflow"):
+        patch = output.parent / f"{output.stem}.{name}.stl"
+        _write_stl(patch, nodes, groups[name], name)
+        records[name] = {"file": patch.name, "sha256": _sha(patch), "triangle_count": len(groups[name])}
+    region_path = output.parent / "region_manifest.json"
+    region_manifest = {
+        "schema": "oneflow.stl-surface-regions",
+        "version": 1,
+        "closed_surface_sha256": _sha(output),
+        "regions": records,
+    }
+    region_path.write_text(json.dumps(region_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    parameters = dict(DEFAULTS)
+    parameters.pop("mesh_size")
+    definition = {
+        "kind": "oecd_nea_vattenfall_t_junction",
+        "units": "m",
+        "parameters": parameters,
+        "coordinate_system": "main pipe axis +X; branch inlet axis +Z; junction origin at pipe centreline intersection",
+    }
+    definition_hash = hashlib.sha256(json.dumps(definition, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    manifest = {
+        "schema": "oneflow.stl-geometry-manifest",
+        "version": 1,
+        "asset_id": "geometry.pipe_tee.oecd_nea_vattenfall",
+        "geometry": "pipe_tee_oecd_nea_vattenfall",
+        "units": "m",
+        "parameters": parameters,
+        "definition": definition,
+        "definition_sha256": definition_hash,
+        "generator": {
+            "name": "oneflow_pipe_tee_geometry",
+            "version": "1.0",
+            "kind": generator_kind,
+            "source": Path(__file__).resolve().relative_to(ROOT).as_posix(),
+            "source_sha256": _sha(Path(__file__).resolve()),
+        },
+        "surface": {
+            "node_count": len(nodes),
+            "triangle_count": len(all_faces),
+            "region_triangle_counts": {name: len(groups[name]) for name in GROUPS},
+        },
+        "region_manifest": region_path.name,
+        "stl_file": output.name,
+        "stl_sha256": _sha(output),
+        "intended_gmsh_physical_groups": {
+            "surface": ["wall", "inflow", "outflow"],
+            "volume": ["fluid_domain"],
+        },
+        "notes": "Fluid domain is the Boolean union of the three cylindrical bores. The benchmark junction edge is reported as very slightly rounded (radius < 0.2 mm, not measured); the baseline geometry uses a sharp intersection and does not invent a fillet radius.",
+    }
+    sidecar = output.with_suffix(".geometry.json")
+    sidecar.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return {"stl": output, "manifest": sidecar, "region_manifest": region_path, "surface": manifest["surface"]}
+
+
+def generate(output: Path, gmsh: str, mesh_size: float = DEFAULTS["mesh_size"]) -> dict:
+    if not math.isfinite(mesh_size) or mesh_size <= 0:
+        raise ValueError("mesh_size must be positive and finite.")
+    executable = shutil.which(gmsh) or (str(Path(gmsh).resolve()) if Path(gmsh).is_file() else None)
+    if not executable:
+        raise FileNotFoundError(f"Gmsh executable was not found: {gmsh}")
+    output = output.expanduser().resolve()
+    if output == ROOT or ROOT in output.parents:
+        raise ValueError("Generated STL assets must stay outside the OneFLOW source tree.")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    parameters = {**DEFAULTS, "mesh_size": mesh_size}
+    geo = output.with_suffix(".geo")
+    msh = output.with_suffix(".surface.msh")
+    geo.write_text(_geo_text(parameters), encoding="ascii")
+    subprocess.run(
+        [executable, str(geo), "-2", "-format", "msh2", "-o", str(msh), "-v", "2"],
+        check=True, cwd=output.parent, capture_output=True, text=True,
+    )
+    return export_surface(msh, output)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--gmsh")
+    parser.add_argument("--mesh-size", type=float, default=DEFAULTS["mesh_size"])
+    parser.add_argument("--extract-msh", type=Path)
+    parser.add_argument("--generator-kind", choices=("python", "cpp"), default="python")
+    args = parser.parse_args()
+    try:
+        result = export_surface(args.extract_msh, args.output, generator_kind=args.generator_kind) if args.extract_msh else generate(args.output, args.gmsh, args.mesh_size)
+    except (OSError, ValueError, subprocess.CalledProcessError) as error:
+        parser.exit(2, f"T-junction geometry generation failed: {error}\n")
+    print(json.dumps({key: str(value) if isinstance(value, Path) else value for key, value in result.items()}, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

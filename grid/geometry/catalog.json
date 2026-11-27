@@ -294,6 +294,82 @@
       "related_assets": [
         "geometry.cylinder.internal_flow"
       ]
+    },
+    {
+      "schema": "oneflow.geometry-asset",
+      "version": 1,
+      "id": "geometry.pipe_tee.oecd_nea_vattenfall",
+      "name": "OECD/NEA–Vattenfall T-Junction",
+      "description": "Three-dimensional main-pipe and branch-pipe fluid domain based on the OECD/NEA–Vattenfall T-junction experimental benchmark.",
+      "dimension": 3,
+      "tags": [
+        "pipe-tee",
+        "t-junction",
+        "branch-flow",
+        "internal-flow",
+        "benchmark",
+        "fluid-domain"
+      ],
+      "units": {
+        "length": "m",
+        "coordinate_system": "Cartesian right-handed; main axis +X, branch inlet +Z; origin at centreline intersection"
+      },
+      "definition": {
+        "kind": "parametric",
+        "equations": [
+          "A = pi D^2 / 4",
+          "U_b = Q / A",
+          "Re_D = rho U_b D / mu"
+        ],
+        "parameters": {
+          "main_diameter": 0.14,
+          "branch_diameter": 0.1,
+          "main_inlet_length": 1.07,
+          "main_outlet_length": 1.07,
+          "branch_inlet_length": 0.47
+        },
+        "notes": "Geometry follows NEA/CSNI/R(2011)5. The fluid domain is the Boolean union of three cylindrical bores. The reported junction edge radius is <0.2 mm but was not measured; the baseline does not invent a fillet."
+      },
+      "provenance": {
+        "kind": "literature_benchmark",
+        "tutorial": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/README.md",
+        "source": "NEA/CSNI/R(2011)5",
+        "generator": {
+          "name": "oneflow_pipe_tee_geometry",
+          "version": "1.0",
+          "source": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/geometry/python/generate_pipe_tee.py",
+          "algorithm": "OpenCASCADE Boolean union of main and branch cylinders; named boundary surfaces exported as STL patches"
+        },
+        "notes": "Experimental data belong to Vattenfall Research and Development AB. Reference locations and quantities are documented; raw tables are not redistributed without permission."
+      },
+      "representations": [
+        {
+          "role": "native_definition",
+          "format": "analytic-parametric",
+          "status": "source"
+        },
+        {
+          "role": "surface_mesh",
+          "format": "STL",
+          "path": "~/.oneflow/mesh-generation/generated_stl/pipe_tee_oecd_nea_vattenfall/pipe_tee_oecd_nea_vattenfall.stl",
+          "status": "generated_on_demand",
+          "generator": "oneflow_pipe_tee_geometry"
+        },
+        {
+          "role": "volume_mesh",
+          "format": "Gmsh MSH",
+          "path": "~/.oneflow/mesh-generation/pipe_tee_oecd_nea_vattenfall/",
+          "status": "derived",
+          "parent_representation": "surface_mesh"
+        }
+      ],
+      "tutorials": [
+        "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/README.md"
+      ],
+      "related_assets": [
+        "geometry.cylinder.internal_flow",
+        "geometry.pipe_bend.90_degree"
+      ]
     }
   ]
 }

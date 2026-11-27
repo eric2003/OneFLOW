@@ -653,6 +653,59 @@
         "generator": "oneflow_pipe_bend_geometry",
         "notes": "Parametric 90-degree pipe-bend STL and region manifest are generated at run time; the generic region-aware Gmsh volume mesher produces the MSH4 volume mesh."
       }
+    },
+    {
+      "id": "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
+      "title": "STL to Gmsh: OECD/NEA–Vattenfall T-Junction with Automatic TETRA_4 Volume Mesh",
+      "directory": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_case.py",
+        "generates_input": true,
+        "requires_gmsh": true,
+        "implementations": [
+          {
+            "id": "python_reference",
+            "kind": "python",
+            "script": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_case.py",
+            "default": true
+          },
+          {
+            "id": "native_cpp_geometry",
+            "kind": "cpp",
+            "script": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_cpp_case.py",
+            "compiler_standard": "c++17"
+          }
+        ]
+      },
+      "dimension": 3,
+      "lifecycle_contract": "stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/case-lifecycle.json",
+      "mesh_validation": "cfd_smoke",
+      "required_physical_groups": [
+        {
+          "name": "wall",
+          "dimension": 2
+        },
+        {
+          "name": "inflow",
+          "dimension": 2
+        },
+        {
+          "name": "outflow",
+          "dimension": 2
+        },
+        {
+          "name": "fluid_domain",
+          "dimension": 3
+        }
+      ],
+      "geometry_provenance": {
+        "kind": "generated",
+        "generator": "oneflow_pipe_tee_geometry",
+        "manifest": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/benchmark.json",
+        "notes": "OECD/NEA-Vattenfall experimental dimensions and conditions; current CFD scope is a bounded smoke test only."
+      }
     }
   ],
   "mesh_validation_inputs": [
