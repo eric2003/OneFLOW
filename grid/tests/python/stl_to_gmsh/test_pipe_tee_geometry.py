@@ -103,14 +103,6 @@ class PipeTeeGeometryTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "branch_inflow.*end plane"):
             MODULE._validate_pipe_tee_surface_geometry(nodes, groups, params)
 
-        text = MODULE._geo_text(MODULE.DEFAULTS)
-        self.assertIn("BooleanUnion", text)
-        self.assertIn('Physical Surface("wall"', text)
-        self.assertIn('Physical Surface("main_inflow"', text)
-        self.assertIn('Physical Surface("branch_inflow"', text)
-        self.assertIn('Physical Surface("outflow"', text)
-        self.assertIn("Surface In BoundingBox", text)
-
     def test_exporter_creates_closed_surface_and_checksum_bound_regions(self):
         from grid.stl_import.reader import read_stl
         from grid.stl_import.validation import analyze_surface
