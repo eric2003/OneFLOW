@@ -34,6 +34,42 @@ from tools.oneflow_gui.workflow_graph_runner import (
 )
 
 
+class TjunctionPhysicalGroupContractTest(unittest.TestCase):
+    def test_oecd_vattenfall_case_requires_distinct_inlet_physical_groups(self):
+        from tools.oneflow_gui.mesh_validation import _catalog
+        root = Path(__file__).resolve().parents[2]
+        catalog = _catalog(root)
+        case = next(
+            item for item in catalog["cases"]
+            if item["id"] == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+        )
+        required = {
+            (item["dimension"], item["name"])
+            for item in case["required_physical_groups"]
+        }
+        self.assertEqual(required, {
+            (2, "wall"), (2, "main_inflow"), (2, "branch_inflow"),
+            (2, "outflow"), (3, "fluid_domain"),
+        })
+        _validate_required_physical_groups(
+            {"physical_groups": [
+                {"dimension": dimension, "name": name}
+                for dimension, name in required
+            ]},
+            case,
+        )
+        with self.assertRaisesRegex(ValueError, "main_inflow"):
+            _validate_required_physical_groups(
+                {"physical_groups": [
+                    {"dimension": 2, "name": "wall"},
+                    {"dimension": 2, "name": "branch_inflow"},
+                    {"dimension": 2, "name": "outflow"},
+                    {"dimension": 3, "name": "fluid_domain"},
+                ]},
+                case,
+            )
+
+
 class RunArtifactInventoryTest(unittest.TestCase):
     def test_inventory_records_relative_paths_sizes_hashes_and_categories(self):
         with tempfile.TemporaryDirectory() as directory:

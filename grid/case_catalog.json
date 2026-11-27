@@ -688,7 +688,11 @@
           "dimension": 2
         },
         {
-          "name": "inflow",
+          "name": "main_inflow",
+          "dimension": 2
+        },
+        {
+          "name": "branch_inflow",
           "dimension": 2
         },
         {
