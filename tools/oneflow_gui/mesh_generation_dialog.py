@@ -154,6 +154,15 @@ class MeshGenerationDialog(QDialog):
         layout_button.clicked.connect(self._open_mesh_layout)
         root.addWidget(layout_button)
 
+        tee_button = QPushButton("T-Junction (3-Port Internal Flow)...")
+        tee_button.setMinimumHeight(64)
+        tee_button.setToolTip(
+            "Generate the connected T-junction fluid volume with two main-pipe "
+            "inlets and one branch outlet, or the reverse split-flow condition."
+        )
+        tee_button.clicked.connect(self._open_pipe_tee_mesh)
+        root.addWidget(tee_button)
+
         stl_button = QPushButton("STL to Gmsh")
         stl_button.setMinimumHeight(64)
         stl_button.setToolTip("Generate a 3-D tetrahedral volume mesh from a closed STL shell.")
@@ -273,6 +282,9 @@ class MeshGenerationDialog(QDialog):
 
     def _open_stl_to_gmsh(self) -> None:
         StlToGmshDialog(self._repository_root, self).exec()
+
+    def _open_pipe_tee_mesh(self) -> None:
+        PipeTeeMeshDialog(self._repository_root, self).exec()
 
     def _open_mesh_validation(self) -> None:
         MeshValidationDialog(self._repository_root, parent=self).exec()
@@ -564,6 +576,191 @@ class StlGeometryDialog(QDialog):
             QMessageBox.warning(self, "Cannot create mesh project", str(error))
             return
         StlToGmshDialog(self._repository_root, self, project=project).exec()
+
+
+class PipeTeeMeshDialog(QDialog):
+    """Generate one T-junction mesh with either symmetric three-port flow mode."""
+
+    def __init__(self, repository_root: Path, parent=None) -> None:
+        super().__init__(parent)
+        self._repository_root = repository_root.resolve()
+        self._process = QProcess(self)
+        self._process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
+        self._process.readyReadStandardOutput.connect(self._read_output)
+        self._process.finished.connect(self._process_finished)
+        self._process.errorOccurred.connect(self._process_error)
+        self.setWindowTitle("T-Junction Internal-Flow Mesh")
+        self.resize(760, 620)
+
+        root = QVBoxLayout(self)
+        heading = QLabel("T-Junction — Three-Port Internal Flow")
+        heading.setStyleSheet("font-size: 22px; font-weight: 650;")
+        root.addWidget(heading)
+        description = QLabel(
+            "Generate the connected fluid volume of the orthogonal T-junction. "
+            "The geometry and mesh are shared by both operating modes; only the "
+            "inlet/outlet assignment changes."
+        )
+        description.setWordWrap(True)
+        root.addWidget(description)
+
+        form = QFormLayout()
+        self.operating_mode = QComboBox()
+        self.operating_mode.addItem(
+            "Two main-pipe inlets → branch outlet", "main_inlets"
+        )
+        self.operating_mode.addItem(
+            "Branch inlet → two main-pipe outlets", "branch_inlet"
+        )
+        form.addRow("Operating mode", self.operating_mode)
+        self.mesh_size = QLineEdit("0.03")
+        form.addRow("Target mesh size (m)", self.mesh_size)
+        self.gmsh_path = QLineEdit(discover_gmsh() or "")
+        self.gmsh_path.setPlaceholderText("Auto-detected Gmsh executable")
+        form.addRow("Gmsh executable", self.gmsh_path)
+        self.case_directory = QLineEdit()
+        form.addRow("Output directory", self.case_directory)
+        root.addLayout(form)
+
+        self.mode_description = QLabel()
+        self.mode_description.setWordWrap(True)
+        self.mode_description.setStyleSheet("color: #475569;")
+        root.addWidget(self.mode_description)
+        root.addWidget(QLabel("Command Preview"))
+        self.command_view = QPlainTextEdit()
+        self.command_view.setReadOnly(True)
+        self.command_view.setMaximumHeight(100)
+        root.addWidget(self.command_view)
+
+        actions = QHBoxLayout()
+        self.copy_button = QPushButton("Copy Command")
+        self.copy_button.clicked.connect(self._copy_command)
+        actions.addWidget(self.copy_button)
+        actions.addStretch(1)
+        self.run_button = QPushButton("Generate T-Junction Mesh")
+        self.run_button.clicked.connect(self._run)
+        actions.addWidget(self.run_button)
+        root.addLayout(actions)
+
+        root.addWidget(QLabel("Execution Output"))
+        self.output_view = QPlainTextEdit()
+        self.output_view.setReadOnly(True)
+        root.addWidget(self.output_view, 1)
+        self.status_label = QLabel("Ready.")
+        self.status_label.setWordWrap(True)
+        root.addWidget(self.status_label)
+
+        self.operating_mode.currentIndexChanged.connect(self._mode_changed)
+        self.mesh_size.textChanged.connect(self._refresh_command)
+        self.gmsh_path.textChanged.connect(self._refresh_command)
+        self.case_directory.textChanged.connect(self._refresh_command)
+        self._mode_changed()
+
+    def _default_case_directory(self) -> Path:
+        mode = str(self.operating_mode.currentData() or "main_inlets")
+        return UserDataPaths.discover().mesh_generation / "pipe_tee" / mode
+
+    def _mode_changed(self, *_args) -> None:
+        current = Path(self.case_directory.text()).expanduser() if self.case_directory.text() else None
+        if current is None or (current.parent.name == "pipe_tee"):
+            self.case_directory.setText(str(self._default_case_directory()))
+        if self.operating_mode.currentData() == "main_inlets":
+            self.mode_description.setText(
+                "Main left port: INLET  |  Main right port: INLET  |  "
+                "Vertical branch: OUTLET"
+            )
+        else:
+            self.mode_description.setText(
+                "Main left port: OUTLET  |  Main right port: OUTLET  |  "
+                "Vertical branch: INLET"
+            )
+        self._refresh_command()
+
+    def _arguments(self) -> list[str]:
+        try:
+            size = float(self.mesh_size.text().strip())
+        except ValueError as error:
+            raise ValueError("Target mesh size must be a positive number.") from error
+        if not math.isfinite(size) or size <= 0:
+            raise ValueError("Target mesh size must be positive and finite.")
+        gmsh = self.gmsh_path.text().strip()
+        if not gmsh:
+            raise ValueError("Gmsh executable was not found. Select it explicitly.")
+        directory = self.case_directory.text().strip()
+        if not directory:
+            raise ValueError("Choose an output directory.")
+        script = (
+            self._repository_root / "grid" / "stl_to_gmsh" / "3d" / "pipe_tee"
+            / "oecd_nea_vattenfall" / "automatic_tetrahedra" / "run_pipe_tee_case.py"
+        )
+        return [
+            str(script), "--case-directory", str(Path(directory).expanduser()),
+            "--gmsh", gmsh, "--mesh-size", self.mesh_size.text().strip(),
+            "--operating-mode", str(self.operating_mode.currentData()),
+        ]
+
+    def _refresh_command(self, *_args) -> None:
+        try:
+            args = [sys.executable, *self._arguments()]
+            command = subprocess.list2cmdline(args) if os.name == "nt" else shlex.join(args)
+            self.command_view.setPlainText(command)
+            self.run_button.setEnabled(self._process.state() == QProcess.ProcessState.NotRunning)
+            self.status_label.setText("Command is valid.")
+        except (OSError, ValueError) as error:
+            self.command_view.setPlainText(f"Command cannot be prepared:\n{error}")
+            self.run_button.setEnabled(False)
+            self.status_label.setText("Check the mesh-generation settings.")
+
+    def _copy_command(self) -> None:
+        if self.run_button.isEnabled():
+            from PySide6.QtWidgets import QApplication
+            QApplication.clipboard().setText(self.command_view.toPlainText())
+            self.status_label.setText("Command copied to clipboard.")
+
+    def _run(self) -> None:
+        try:
+            args = self._arguments()
+            Path(self.case_directory.text()).expanduser().mkdir(parents=True, exist_ok=True)
+        except (OSError, ValueError) as error:
+            QMessageBox.warning(self, "Cannot generate T-junction mesh", str(error))
+            return
+        self.output_view.clear()
+        self.output_view.appendPlainText(f"Working directory: {self._repository_root}")
+        self.output_view.appendPlainText(f"Command: {self.command_view.toPlainText()}")
+        self._process.setWorkingDirectory(str(self._repository_root))
+        self.run_button.setEnabled(False)
+        self.status_label.setText("Generating T-junction volume mesh...")
+        self._process.start(sys.executable, args)
+
+    def _read_output(self) -> None:
+        data = bytes(self._process.readAllStandardOutput()).decode("utf-8", errors="replace")
+        if data:
+            self.output_view.appendPlainText(data.rstrip())
+
+    def _process_finished(self, exit_code: int, _exit_status) -> None:
+        self._read_output()
+        self.run_button.setEnabled(True)
+        if exit_code == 0:
+            mesh = Path(self.case_directory.text()).expanduser() / "results" / "pipe_tee_oecd_nea_vattenfall.msh"
+            self.status_label.setText(f"Mesh generated successfully: {mesh}")
+        else:
+            self.status_label.setText(f"Mesh generation failed (exit code {exit_code}). See execution output.")
+        self._refresh_command()
+
+    def _process_error(self, _error) -> None:
+        self._read_output()
+        self.run_button.setEnabled(True)
+        self.status_label.setText("T-junction mesh process error. See execution output.")
+
+    def closeEvent(self, event) -> None:
+        if self._process.state() != QProcess.ProcessState.NotRunning:
+            QMessageBox.information(
+                self, "Mesh generation is running",
+                "Wait for T-junction mesh generation to finish before closing this page.",
+            )
+            event.ignore()
+            return
+        event.accept()
 
 
 class StlToGmshDialog(QDialog):
@@ -1286,4 +1483,4 @@ class StlToGmshDialog(QDialog):
         event.accept()
 
 
-__all__ = ["MeshGenerationDialog", "StlToGmshDialog"]
+__all__ = ["MeshGenerationDialog", "PipeTeeMeshDialog", "StlToGmshDialog"]

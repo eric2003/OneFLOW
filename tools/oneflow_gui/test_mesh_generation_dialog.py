@@ -30,6 +30,7 @@ from grid.stl_to_gmsh.generate_volume_mesh import (
 from tools.oneflow_gui import mesh_validation_dialog
 from tools.oneflow_gui.mesh_generation_dialog import (
     MeshGenerationDialog,
+    PipeTeeMeshDialog,
     StlGeometryDialog,
     StlToGmshDialog,
 )
@@ -43,6 +44,63 @@ from tools.oneflow_gui.mesh_project import (
 
 
 class MeshGenerationDialogTest(unittest.TestCase):
+    def test_mesh_generation_exposes_pipe_tee_entry_and_symmetric_modes(self) -> None:
+        dialog = MeshGenerationDialog(self.repository_root)
+        try:
+            buttons = [item.text() for item in dialog.findChildren(QPushButton)]
+            self.assertIn("T-Junction (3-Port Internal Flow)...", buttons)
+            tee = PipeTeeMeshDialog(self.repository_root, dialog)
+            try:
+                self.assertEqual(tee.operating_mode.currentData(), "main_inlets")
+                self.assertIn("--operating-mode main_inlets", tee.command_view.toPlainText())
+                self.assertIn("Main left port: INLET", tee.mode_description.text())
+                self.assertIn("Main right port: INLET", tee.mode_description.text())
+                self.assertIn("Vertical branch: OUTLET", tee.mode_description.text())
+                tee.operating_mode.setCurrentIndex(tee.operating_mode.findData("branch_inlet"))
+                self.assertIn("--operating-mode branch_inlet", tee.command_view.toPlainText())
+                self.assertIn("Main left port: OUTLET", tee.mode_description.text())
+                self.assertIn("Main right port: OUTLET", tee.mode_description.text())
+                self.assertIn("Vertical branch: INLET", tee.mode_description.text())
+                self.assertEqual(Path(tee.case_directory.text()).name, "branch_inlet")
+            finally:
+                tee.close()
+        finally:
+            dialog.close()
+
+    def test_pipe_tee_operating_mode_assigns_symmetric_physical_groups(self) -> None:
+        import runpy
+
+        runner = self.repository_root / "grid" / "stl_to_gmsh" / "3d" / "pipe_tee" / "oecd_nea_vattenfall" / "automatic_tetrahedra" / "run_pipe_tee_case.py"
+        configure = runpy.run_path(str(runner))["configure_operating_mode"]
+        with tempfile.TemporaryDirectory() as directory:
+            geo = Path(directory) / "pipe_tee.geo"
+            geo.write_text(
+                'Physical Surface("wall", 1) = {wall[]};\\n'
+                'Physical Surface("main_inflow", 2) = {inlet[]};\\n'
+                'Physical Surface("branch_inflow", 3) = {branch_inlet[]};\\n'
+                'Physical Surface("outflow", 4) = {outlet[]};\\n',
+                encoding="ascii",
+            )
+            configure(geo, "main_inlets")
+            main_mode = geo.read_text(encoding="ascii")
+            self.assertIn('Physical Surface("main_inflow", 2) = {main_ports[]};', main_mode)
+            self.assertIn('Physical Surface("outflow", 4) = {branch_outlet[]};', main_mode)
+            self.assertNotIn('Physical Surface("branch_inflow"', main_mode)
+
+            geo.write_text(
+                'Physical Surface("wall", 1) = {wall[]};\\n'
+                'Physical Surface("main_inflow", 2) = {inlet[]};\\n'
+                'Physical Surface("branch_inflow", 3) = {branch_inlet[]};\\n'
+                'Physical Surface("outflow", 4) = {outlet[]};\\n',
+                encoding="ascii",
+            )
+            configure(geo, "branch_inlet")
+            branch_mode = geo.read_text(encoding="ascii")
+            self.assertIn('Physical Surface("outflow", 4) = {main_ports[]};', branch_mode)
+            self.assertIn('Physical Surface("branch_inflow", 3) = {branch_inlet[]};', branch_mode)
+            self.assertNotIn('Physical Surface("main_inflow"', branch_mode)
+
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.application = _QT_APPLICATION

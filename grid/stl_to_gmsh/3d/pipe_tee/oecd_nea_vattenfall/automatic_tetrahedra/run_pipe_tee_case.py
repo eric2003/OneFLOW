@@ -16,8 +16,47 @@ if str(ROOT) not in sys.path:
 GENERATOR = ROOT / "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/geometry/python/generate_pipe_tee.py"
 
 
-def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict) -> dict:
+OPERATING_MODES = {
+    "main_inlets": "Both ends of the straight main pipe are inlets; the vertical branch is the outlet.",
+    "branch_inlet": "The vertical branch is the inlet; both ends of the straight main pipe are outlets.",
+}
+
+
+def configure_operating_mode(geo: Path, operating_mode: str) -> None:
+    """Assign symmetric main-pipe ports and the opposite branch boundary type."""
+    if operating_mode not in OPERATING_MODES:
+        raise ValueError(f"Unsupported T-junction operating mode: {operating_mode}")
+    source = geo.read_text(encoding="utf-8")
+    old_groups = (
+        'Physical Surface("main_inflow", 2) = {inlet[]};',
+        'Physical Surface("branch_inflow", 3) = {branch_inlet[]};',
+        'Physical Surface("outflow", 4) = {outlet[]};',
+    )
+    if not all(item in source for item in old_groups):
+        raise ValueError("The generated T-junction geometry does not contain the expected three-port Physical Groups.")
+    for item in old_groups:
+        source = source.replace(item, "")
+    if operating_mode == "main_inlets":
+        groups = """main_ports[] = inlet[];
+main_ports[] += outlet[];
+branch_outlet[] = branch_inlet[];
+Physical Surface("main_inflow", 2) = {main_ports[]};
+Physical Surface("outflow", 4) = {branch_outlet[]};"""
+    else:
+        groups = """main_ports[] = inlet[];
+main_ports[] += outlet[];
+Physical Surface("outflow", 4) = {main_ports[]};
+Physical Surface("branch_inflow", 3) = {branch_inlet[]};"""
+    anchor = 'Physical Surface("wall", 1) = {wall[]};'
+    if anchor not in source:
+        raise ValueError("The generated T-junction geometry is missing its wall Physical Group.")
+    source = source.replace(anchor, anchor + "\n" + groups)
+    geo.write_text(source, encoding="ascii")
+
+
+def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict, operating_mode: str) -> dict:
     """Mesh the original OpenCASCADE BooleanUnion directly, never reconstruct it from STL."""
+    configure_operating_mode(geo, operating_mode)
     from grid.stl_to_gmsh.converter import inspect_msh4
 
     gmsh_executable = shutil.which(gmsh) or gmsh
@@ -38,10 +77,11 @@ def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict) -> dict:
         "main_outlet_length": geometry["main_pipe"]["outlet_length"],
         "branch_inlet_length": geometry["branch_pipe"]["inlet_length"],
     })
-    expected_groups = {
-        (2, "wall"), (2, "main_inflow"), (2, "branch_inflow"),
-        (2, "outflow"), (3, "fluid_domain"),
-    }
+    expected_groups = (
+        {(2, "wall"), (2, "main_inflow"), (2, "outflow"), (3, "fluid_domain")}
+        if operating_mode == "main_inlets"
+        else {(2, "wall"), (2, "branch_inflow"), (2, "outflow"), (3, "fluid_domain")}
+    )
     actual_groups = {(item["dimension"], item["name"]) for item in summary["physical_groups"]}
     if actual_groups != expected_groups:
         raise RuntimeError(f"Direct OCC T-junction Physical Groups {sorted(actual_groups)} do not match {sorted(expected_groups)}")
@@ -75,7 +115,8 @@ def mesh_occ_volume(geo: Path, msh: Path, gmsh: str, geometry: dict) -> dict:
     return summary
 
 
-def run_case(case_directory: Path, *, gmsh: str, mesh_size: float = 0.03) -> Path:
+def run_case(case_directory: Path, *, gmsh: str, mesh_size: float = 0.03,
+             operating_mode: str = "main_inlets") -> Path:
     case_directory = case_directory.expanduser().resolve()
     input_dir = case_directory / "input"
     results_dir = case_directory / "results"
@@ -89,7 +130,7 @@ def run_case(case_directory: Path, *, gmsh: str, mesh_size: float = 0.03) -> Pat
     )
     benchmark_path = GENERATOR.parents[2] / "automatic_tetrahedra" / "benchmark.json"
     geometry = json.loads(benchmark_path.read_text(encoding="utf-8"))["geometry"]
-    mesh_occ_volume(stl.with_suffix(".geo"), msh, gmsh, geometry)
+    mesh_occ_volume(stl.with_suffix(".geo"), msh, gmsh, geometry, operating_mode)
     return msh
 
 
@@ -98,9 +139,11 @@ def main() -> int:
     parser.add_argument("--case-directory", type=Path, required=True)
     parser.add_argument("--gmsh", required=True)
     parser.add_argument("--mesh-size", type=float, default=0.03)
+    parser.add_argument("--operating-mode", choices=tuple(OPERATING_MODES), default="main_inlets")
     args = parser.parse_args()
     try:
-        mesh = run_case(args.case_directory, gmsh=args.gmsh, mesh_size=args.mesh_size)
+        mesh = run_case(args.case_directory, gmsh=args.gmsh, mesh_size=args.mesh_size,
+                        operating_mode=args.operating_mode)
     except (OSError, ValueError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"T-junction Case failed: {error}\n")
     print(f"PASS: generated {mesh}")

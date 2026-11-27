@@ -134,3 +134,28 @@ contract currently accepts the three-region `wall`/`inflow`/`outflow`
 partition, so it combines the two inlet patches into the compatibility
 `inflow` group for the current smoke-test MSH4. Their separate source patches
 remain available for future benchmark-specific inlet profiles and temperatures.
+
+
+## Mesh Generation workbench: symmetric T-junction operating modes
+
+The Mesh Generation workbench exposes the three-port T-junction as a dedicated
+internal-flow operation. It uses the existing OECD/NEA–Vattenfall geometry and
+direct OpenCASCADE Boolean-union volume-mesh route. The selected operating mode
+changes only the Gmsh Physical Surface assignment; it does not alter the
+geometry or generate a different topology.
+
+Two modes are available:
+
+| Mode | Main-pipe left end | Main-pipe right end | Vertical branch |
+|---|---|---|---|
+| `main_inlets` | Inlet | Inlet | Outlet |
+| `branch_inlet` | Outlet | Outlet | Inlet |
+
+The two ends of the straight main pipe are grouped together under one
+Physical Surface name in each mode, so OneFLOW receives the same boundary
+type at both ends. The branch receives the opposite type. Wall and fluid
+volume groups are unchanged. Output is written under the user's OneFLOW
+mesh-generation directory, with separate folders for the two modes.
+
+This is a geometry/mesh and boundary-ingestion smoke-test facility. It does
+not claim physical validation against the OECD/NEA–Vattenfall measurements.
