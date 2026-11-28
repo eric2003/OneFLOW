@@ -1619,6 +1619,7 @@ def run_mesh_validation(
         "geometry_variant": geometry_contract.get("geometry_variant"),
         "geometry_source": geometry_contract.get("geometry_source"),
         "volume_mesh_method": geometry_contract.get("volume_mesh_method"),
+        "geometry_stl_filename": mesh_entry.get("geometry_stl_filename"),
         "meshing_route": geometry_contract.get("geometry_source"),
         "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
         "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
@@ -1781,6 +1782,15 @@ def run_mesh_validation(
     stages = _mesh_validation_stage_results(
         result, existing_mesh=mesh_implementation == "existing_mesh"
     )
+    if (
+        source_stl is None
+        and geometry_contract.get("geometry_source") in {"occ_to_stl", "manual_stl"}
+    ):
+        stl_name = mesh_entry.get("geometry_stl_filename")
+        if isinstance(stl_name, str) and Path(stl_name).name == stl_name:
+            generated_stl = run_root / "stl_to_gmsh" / "input" / stl_name
+            if generated_stl.is_file():
+                source_stl = generated_stl.resolve()
     exit_code = 0 if result.status == "succeeded" else 130 if result.status == "cancelled" else 1
     failed_step = next((item for item in result.cases if item.status == "failed"), None)
     error = None
@@ -1848,6 +1858,7 @@ def run_mesh_validation(
         "geometry_variant": geometry_contract.get("geometry_variant"),
         "geometry_source": geometry_contract.get("geometry_source"),
         "volume_mesh_method": geometry_contract.get("volume_mesh_method"),
+        "geometry_stl_filename": mesh_entry.get("geometry_stl_filename"),
         "meshing_route": geometry_contract.get("geometry_source"),
         "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
         "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
