@@ -85,15 +85,24 @@ class TjunctionPhysicalGroupContractTest(unittest.TestCase):
                 "main_left_inflow", "main_right_inflow", "branch_outflow"
             ],
         }
-        self.assertEqual(
-            _effective_required_physical_groups(tee, project),
-            [
-                {"name": "wall", "dimension": 2},
-                {"name": "inflow", "dimension": 2},
-                {"name": "outflow", "dimension": 2},
-                {"name": "fluid_domain", "dimension": 3},
-            ],
-        )
+        expected_groups = [
+            {"name": "wall", "dimension": 2},
+            {"name": "inflow", "dimension": 2},
+            {"name": "outflow", "dimension": 2},
+            {"name": "fluid_domain", "dimension": 3},
+        ]
+        for subregions in (
+            ["main_inflow", "branch_inflow", "main_outflow"],
+            ["main_left_inflow", "main_right_inflow", "branch_outflow"],
+            ["main_left_outflow", "main_right_outflow", "branch_inflow"],
+        ):
+            project["boundary_subregions"] = subregions
+            self.assertEqual(_effective_required_physical_groups(tee, project), expected_groups)
+
+        # Three arbitrary names are not enough: preserve the three-port contract.
+        project["boundary_subregions"] = ["port_a", "port_b", "port_c"]
+        with self.assertRaisesRegex(ValueError, "all three named port subregions"):
+            _effective_required_physical_groups(tee, project)
         project["boundary_subregions"] = ["main_left_inflow"]
         with self.assertRaisesRegex(ValueError, "all three named port subregions"):
             _effective_required_physical_groups(tee, project)
