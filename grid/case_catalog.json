@@ -717,13 +717,58 @@
       ],
       "geometry_provenance": {
         "kind": "generated",
-        "generator": "oneflow_pipe_tee_geometry",
-        "notes": "OECD/NEA-Vattenfall experimental dimensions and conditions; current CFD scope is a bounded smoke test only."
+        "generator": "Gmsh OpenCASCADE BooleanUnion",
+        "notes": "Circular three-port duct constructed and volume-meshed directly from OCC geometry; no STL re-import occurs in this route."
+      },
+      "benchmark_family": "pipe_tee",
+      "geometry_variant": "circular_duct",
+      "geometry_source": "occ_native",
+      "volume_mesh_method": "automatic_tetrahedra"
+    },
+    {
+      "id": "stl_to_gmsh_pipe_tee_circular_duct_occ_to_stl",
+      "title": "T-Junction: Circular-duct OCC to STL to Automatic TETRA_4",
+      "directory": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra",
+      "group": "STL to Gmsh",
+      "execution": {
+        "kind": "python",
+        "script": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_stl_case.py",
+        "generates_input": true,
+        "requires_gmsh": true
+      },
+      "dimension": 3,
+      "mesh_validation": "cfd_smoke",
+      "benchmark_family": "pipe_tee",
+      "geometry_variant": "circular_duct",
+      "geometry_source": "occ_to_stl",
+      "volume_mesh_method": "automatic_tetrahedra",
+      "required_physical_groups": [
+        {
+          "name": "wall",
+          "dimension": 2
+        },
+        {
+          "name": "inflow",
+          "dimension": 2
+        },
+        {
+          "name": "outflow",
+          "dimension": 2
+        },
+        {
+          "name": "fluid_domain",
+          "dimension": 3
+        }
+      ],
+      "geometry_provenance": {
+        "kind": "generated",
+        "generator": "Gmsh OpenCASCADE BooleanUnion exported as STL",
+        "notes": "The OCC-built circular T-junction is exported to STL and then re-imported for generic surface-based automatic tetrahedral meshing."
       }
     },
     {
       "id": "stl_to_gmsh_pipe_tee_square_duct",
-      "title": "STL to Gmsh: Square-duct T-junction with Automatic TETRA_4 Volume Mesh",
+      "title": "T-Junction: Hand-faceted Square-duct STL to Automatic TETRA_4",
       "directory": "grid/stl_to_gmsh/3d/pipe_tee/square_duct/automatic_tetrahedra",
       "group": "STL to Gmsh",
       "execution": {
@@ -755,9 +800,13 @@
       ],
       "geometry_provenance": {
         "kind": "generated",
-        "generator": "oneflow_square_tee_geometry",
-        "notes": "Explicit planar triangular STL surface with exact shared vertices and three named ports; no Boolean intersection."
-      }
+        "generator": "explicit_planar_facets_no_boolean_intersection",
+        "notes": "A deterministic, hand-authored low-facet square-duct STL reference surface; it does not originate from OCC and is intended to exercise the generic STL import/remeshing path."
+      },
+      "benchmark_family": "pipe_tee",
+      "geometry_variant": "square_duct",
+      "geometry_source": "manual_stl",
+      "volume_mesh_method": "automatic_tetrahedra"
     }
   ],
   "mesh_validation_inputs": [
@@ -865,7 +914,16 @@
           "name": "fluid_domain",
           "dimension": 3
         }
-      ]
+      ],
+      "benchmark_family": "pipe_tee",
+      "geometry_variant": "circular_duct",
+      "geometry_source": "occ_to_stl",
+      "volume_mesh_method": "automatic_tetrahedra",
+      "geometry_provenance": {
+        "kind": "generated",
+        "generator": "Gmsh OpenCASCADE BooleanUnion exported as STL",
+        "notes": "The OCC-built circular T-junction is exported to STL and then re-imported for generic surface-based automatic tetrahedral meshing."
+      }
     },
     {
       "id": "stl_to_gmsh_pipe_tee_square_duct_smoke",
@@ -897,7 +955,16 @@
           "name": "fluid_domain",
           "dimension": 3
         }
-      ]
+      ],
+      "benchmark_family": "pipe_tee",
+      "geometry_variant": "square_duct",
+      "geometry_source": "manual_stl",
+      "volume_mesh_method": "automatic_tetrahedra",
+      "geometry_provenance": {
+        "kind": "generated",
+        "generator": "explicit_planar_facets_no_boolean_intersection",
+        "notes": "A deterministic, hand-authored low-facet square-duct STL reference surface; it does not originate from OCC and is intended to exercise the generic STL import/remeshing path."
+      }
     }
   ]
 }
