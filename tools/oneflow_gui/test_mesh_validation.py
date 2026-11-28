@@ -1262,13 +1262,21 @@ class MeshValidationCatalogTest(unittest.TestCase):
             repository_root, "stl_to_gmsh_pipe_tee_stl_regions", "main_inlets"
         )
         self.assertEqual(occ_workspace.name, "main_inlets")
-        self.assertEqual(occ_workspace.parent.name, "occ")
+        self.assertEqual(occ_workspace.parent.name, "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall")
         self.assertEqual(stl_workspace.name, "main_inlets")
-        self.assertEqual(stl_workspace.parent.name, "stl")
+        self.assertEqual(stl_workspace.parent.name, "stl_to_gmsh_pipe_tee_stl_regions")
+        self.assertEqual(
+            occ_workspace.parent.parent.name, "automatic_tetrahedra"
+        )
+        self.assertEqual(
+            stl_workspace.parent.parent.name, "automatic_tetrahedra"
+        )
         self.assertNotEqual(occ_workspace, stl_workspace)
         self.assertEqual(
-            stl_workspace.parent.parent,
-            occ_workspace.parent.parent,
+            occ_workspace.parents[4].name, "pipe_tee"
+        )
+        self.assertEqual(
+            stl_workspace.parents[4].name, "pipe_tee"
         )
         self.assertNotEqual(
             mesh_validation_workspace(
