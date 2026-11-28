@@ -1456,7 +1456,9 @@ def _effective_required_physical_groups(mesh_entry: dict, project_data: dict) ->
     """Resolve direct-OCC or STL-region T-junction groups from project evidence."""
     if (
         _mesh_geometry_contract(mesh_entry).get("benchmark_family") == "pipe_tee"
-        and _mesh_geometry_contract(mesh_entry).get("geometry_source") in {"occ_native", "occ_to_stl"}
+        and _mesh_geometry_contract(mesh_entry).get("geometry_source") in {
+            "occ_native", "occ_to_stl", "manual_stl"
+        }
         and project_data.get("geometry") == "pipe_tee_oecd_nea_vattenfall"
         and set(project_data.get("boundary_regions") or []) == {"wall", "inflow", "outflow"}
     ):
@@ -1621,6 +1623,25 @@ def run_mesh_validation(
         project_manifest = project_root / "project.json"
         if project_manifest.is_file():
             project_data = json.loads(project_manifest.read_text(encoding="utf-8"))
+            project_geometry = _mesh_geometry_contract(project_data)
+            if project_geometry:
+                geometry_contract = project_geometry
+                mesh_entry = {**mesh_entry, **project_geometry}
+                if geometry_contract.get("benchmark_family") == "pipe_tee":
+                    project_required_groups = (
+                        _pipe_tee_required_physical_groups(operating_mode)
+                        if geometry_contract["geometry_source"] == "occ_native"
+                        else [
+                            {"name": "wall", "dimension": 2},
+                            {"name": "inflow", "dimension": 2},
+                            {"name": "outflow", "dimension": 2},
+                            {"name": "fluid_domain", "dimension": 3},
+                        ]
+                    )
+                    mesh_entry = {
+                        **mesh_entry,
+                        "required_physical_groups": project_required_groups,
+                    }
             project_groups = _effective_required_physical_groups(mesh_entry, project_data)
             if project_groups:
                 mesh_entry = {**mesh_entry, "required_physical_groups": project_groups}
