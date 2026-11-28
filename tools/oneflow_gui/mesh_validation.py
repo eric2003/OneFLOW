@@ -1244,9 +1244,14 @@ def _geometry_lineage(
         if manifest_path.is_file():
             try:
                 candidate = json.loads(manifest_path.read_text(encoding="utf-8"))
-                if (isinstance(candidate, dict)
-                        and candidate.get("schema") == "oneflow.stl-geometry-manifest"
-                        and candidate.get("stl_sha256") == digest):
+                if (
+                    isinstance(candidate, dict)
+                    and candidate.get("schema") in {
+                        "oneflow.stl-geometry-manifest",
+                        "oneflow.generated-geometry",
+                    }
+                    and candidate.get("stl_sha256") == digest
+                ):
                     manifest = candidate
                 else:
                     lineage["manifest_status"] = "invalid_or_checksum_mismatch"
@@ -1254,6 +1259,7 @@ def _geometry_lineage(
                 lineage["manifest_status"] = "unreadable"
     if manifest is not None:
         lineage["asset_id"] = manifest.get("asset_id")
+        lineage["geometry"] = manifest.get("geometry")
         lineage["definition_sha256"] = manifest.get("definition_sha256")
         lineage["generator"] = manifest.get("generator", {})
         lineage["provenance"] = {
@@ -1269,7 +1275,11 @@ def _geometry_lineage(
         lineage["derived_mesh"] = {
             "format": "Gmsh MSH", "path": mesh_label,
             "sha256": _sha256_file(mesh_file),
-            "parent": "source_representation",
+            "parent": (
+                "occ_native_geometry"
+                if geometry_contract.get("geometry_source") == "occ_native"
+                else "source_representation"
+            ),
         }
     downstream = []
     for item in downstream_artifacts or []:
