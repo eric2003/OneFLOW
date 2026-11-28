@@ -78,6 +78,16 @@ def _mesh_geometry_contract(entry: dict) -> dict:
         raise ValueError(
             f"Unsupported T-junction volume mesh method: {contract['volume_mesh_method']!r}"
         )
+    ports = entry.get("port_identities")
+    if ports is not None:
+        if (
+            not isinstance(ports, list)
+            or ports != ["main_left", "main_right", "branch"]
+        ):
+            raise ValueError(
+                f"Unsupported T-junction port identity contract: {ports!r}"
+            )
+        contract["port_identities"] = list(ports)
     return contract
 
 
@@ -1646,6 +1656,7 @@ def run_mesh_validation(
         "geometry_variant": geometry_contract.get("geometry_variant"),
         "geometry_source": geometry_contract.get("geometry_source"),
         "volume_mesh_method": geometry_contract.get("volume_mesh_method"),
+        "port_identities": geometry_contract.get("port_identities"),
         "geometry_stl_filename": mesh_entry.get("geometry_stl_filename"),
         "meshing_route": geometry_contract.get("geometry_source"),
         "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
@@ -1893,6 +1904,7 @@ def run_mesh_validation(
         "geometry_variant": geometry_contract.get("geometry_variant"),
         "geometry_source": geometry_contract.get("geometry_source"),
         "volume_mesh_method": geometry_contract.get("volume_mesh_method"),
+        "port_identities": geometry_contract.get("port_identities"),
         "geometry_stl_filename": mesh_entry.get("geometry_stl_filename"),
         "meshing_route": geometry_contract.get("geometry_source"),
         "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
