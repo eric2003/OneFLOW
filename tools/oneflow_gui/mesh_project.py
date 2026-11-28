@@ -204,8 +204,40 @@ def _mesh_case_id_for_geometry(geometry_manifest: dict | None) -> str:
     }.get(geometry, _GENERIC_3D_VALIDATION_CASE)
 
 
+def _pipe_tee_geometry_identity(
+    geometry_manifest: dict | None, geometry_source: str | None = None,
+) -> dict:
+    """Resolve known T-junction STL geometry to the shared benchmark contract."""
+    geometry = geometry_manifest.get("geometry") if geometry_manifest else None
+    variants = {
+        "pipe_tee_oecd_nea_vattenfall": "circular_duct",
+        "square_duct_pipe_tee": "square_duct",
+    }
+    variant = variants.get(geometry)
+    if variant is None:
+        if geometry_source is not None:
+            raise ValueError(
+                "A T-junction geometry variant must be identified before assigning "
+                "a geometry source to an unrelated STL."
+            )
+        return {}
+    source = geometry_source or (
+        "manual_stl" if variant == "square_duct" else "occ_to_stl"
+    )
+    if source not in {"occ_native", "occ_to_stl", "manual_stl"}:
+        raise ValueError(f"Unsupported T-junction geometry source: {source!r}")
+    return {
+        "benchmark_family": "pipe_tee",
+        "geometry_variant": variant,
+        "geometry_source": source,
+        "volume_mesh_method": "automatic_tetrahedra",
+        "port_identities": ["main_left", "main_right", "branch"],
+    }
+
+
 def create_mesh_project_from_stl(
     repository_root: Path, stl_file: Path, project_name: str | None = None,
+    *, geometry_source: str | None = None,
 ) -> dict:
     """Import an STL from the repository database or user disk into a new project."""
     source = Path(stl_file).expanduser().resolve()
@@ -239,6 +271,7 @@ def create_mesh_project_from_stl(
         "geometry": geometry_manifest.get("geometry") if geometry_manifest else None,
         "boundary_regions": sorted(region_manifest["regions"]) if region_manifest else None,
         "boundary_subregions": sorted(region_manifest.get("subregions", {})) if region_manifest else None,
+        **_pipe_tee_geometry_identity(geometry_manifest, geometry_source),
     }
     return _write_manifest(directory, manifest)
 
@@ -272,6 +305,15 @@ def import_mesh_project_directory(repository_root: Path, source_directory: Path)
     relative_stl = relative_path_within(selected_stl, source)
     copied_stl = copied / relative_stl
     region_manifest = _copy_region_manifest(selected_stl, copied_stl)
+    source_project_manifest = {}
+    source_manifest_path = source / "project.json"
+    if source_manifest_path.is_file():
+        try:
+            source_project_manifest = json.loads(
+                source_manifest_path.read_text(encoding="utf-8")
+            )
+        except (OSError, json.JSONDecodeError):
+            source_project_manifest = {}
     layout_path = copied / "script/layout.json"
     layout = {}
     if layout_path.is_file():
@@ -291,6 +333,9 @@ def import_mesh_project_directory(repository_root: Path, source_directory: Path)
         "geometry": geometry_manifest.get("geometry") if geometry_manifest else None,
         "boundary_regions": sorted(region_manifest["regions"]) if region_manifest else None,
         "boundary_subregions": sorted(region_manifest.get("subregions", {})) if region_manifest else None,
+        **_pipe_tee_geometry_identity(
+            geometry_manifest, source_project_manifest.get("geometry_source")
+        ),
     }
     (directory / "results").mkdir()
     return _write_manifest(directory, manifest)
