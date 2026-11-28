@@ -62,32 +62,48 @@ def _mesh_geometry_contract(entry: dict) -> dict:
         raise ValueError(
             f"Mesh Case {entry.get('id')!r} has incomplete geometry metadata: {missing}"
         )
-    if contract["benchmark_family"] != "pipe_tee":
-        raise ValueError(
-            f"Unsupported mesh benchmark family: {contract['benchmark_family']!r}"
-        )
-    if contract["geometry_variant"] not in {"square_duct", "circular_duct"}:
-        raise ValueError(
-            f"Unsupported T-junction geometry variant: {contract['geometry_variant']!r}"
-        )
-    if contract["geometry_source"] not in {"occ_native", "occ_to_stl", "manual_stl"}:
-        raise ValueError(
-            f"Unsupported T-junction geometry source: {contract['geometry_source']!r}"
-        )
-    if contract["volume_mesh_method"] != "automatic_tetrahedra":
-        raise ValueError(
-            f"Unsupported T-junction volume mesh method: {contract['volume_mesh_method']!r}"
-        )
-    ports = entry.get("port_identities")
-    if ports is not None:
+    for key, value in contract.items():
         if (
-            not isinstance(ports, list)
-            or ports != ["main_left", "main_right", "branch"]
+            not isinstance(value, str)
+            or not value
+            or not value[0].isalnum()
+            or any(not (character.islower() or character.isdigit() or character == "_")
+                   for character in value)
         ):
+            raise ValueError(
+                f"Mesh Case {entry.get('id')!r} has an invalid {key}: {value!r}"
+            )
+    if contract["benchmark_family"] == "pipe_tee":
+        if contract["geometry_variant"] not in {"square_duct", "circular_duct"}:
+            raise ValueError(
+                f"Unsupported T-junction geometry variant: {contract['geometry_variant']!r}"
+            )
+        if contract["geometry_source"] not in {"occ_native", "occ_to_stl", "manual_stl"}:
+            raise ValueError(
+                f"Unsupported T-junction geometry source: {contract['geometry_source']!r}"
+            )
+        if contract["volume_mesh_method"] != "automatic_tetrahedra":
+            raise ValueError(
+                f"Unsupported T-junction volume mesh method: {contract['volume_mesh_method']!r}"
+            )
+        ports = entry.get("port_identities")
+        if ports != ["main_left", "main_right", "branch"]:
             raise ValueError(
                 f"Unsupported T-junction port identity contract: {ports!r}"
             )
         contract["port_identities"] = list(ports)
+    else:
+        ports = entry.get("port_identities")
+        if ports is not None:
+            if (
+                not isinstance(ports, list)
+                or not all(isinstance(port, str) and port for port in ports)
+                or len(ports) != len(set(ports))
+            ):
+                raise ValueError(
+                    f"Invalid mesh Case port identity contract: {ports!r}"
+                )
+            contract["port_identities"] = list(ports)
     return contract
 
 
@@ -599,9 +615,13 @@ def mesh_validation_workspace(
             / geometry["volume_mesh_method"]
             / mesh_case_id
         )
-        if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
-            raise ValueError(f"Unsupported T-junction operating mode: {operating_mode!r}")
-        return workspace / operating_mode
+        if geometry["benchmark_family"] == "pipe_tee":
+            if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
+                raise ValueError(f"Unsupported T-junction operating mode: {operating_mode!r}")
+            return workspace / operating_mode
+        if operating_mode != "benchmark":
+            raise ValueError("Operating mode selection is only supported by a T-junction Case.")
+        return workspace
 
     if operating_mode != "benchmark":
         raise ValueError("Operating mode selection is only supported by a T-junction Case.")
