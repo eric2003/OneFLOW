@@ -610,7 +610,9 @@ class GeometryLineageTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             msh = root / "pipe_tee.msh"
+            stl = root / "pipe_tee.sidecar.stl"
             msh.write_bytes(b"occ-native-mesh")
+            stl.write_bytes(b"auxiliary-occ-surface-export")
             entry = {
                 "benchmark_family": "pipe_tee",
                 "geometry_variant": "circular_duct",
@@ -618,10 +620,11 @@ class GeometryLineageTest(unittest.TestCase):
                 "volume_mesh_method": "automatic_tetrahedra",
                 "port_identities": ["main_left", "main_right", "branch"],
             }
-            lineage = _geometry_lineage(entry, None, msh, root)
+            lineage = _geometry_lineage(entry, stl, msh, root)
             self.assertEqual(lineage["benchmark_identity"]["geometry_source"], "occ_native")
             self.assertEqual(lineage["derived_mesh"]["parent"], "occ_native_geometry")
             self.assertNotIn("source_representation", lineage)
+            self.assertIn("auxiliary_surface_export", lineage)
 
     def test_geometry_lineage_rows_accepts_string_generator_metadata(self):
         rows = geometry_lineage_rows({
