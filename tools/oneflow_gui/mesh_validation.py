@@ -1359,10 +1359,16 @@ def _effective_required_physical_groups(mesh_entry: dict, project_data: dict) ->
             raise ValueError(
                 "T-junction STL project must preserve all three named port subregions."
             )
+        # T-junction STL projects export each port as its own Physical Group.
+        # Requiring aggregate inflow/outflow groups here rejects valid MSH files
+        # because those aggregate groups are not emitted by the region-aware
+        # surface pipeline.
         return [
             {"name": "wall", "dimension": 2},
-            {"name": "inflow", "dimension": 2},
-            {"name": "outflow", "dimension": 2},
+            *(
+                {"name": name, "dimension": 2}
+                for name in sorted(subregions)
+            ),
             {"name": "fluid_domain", "dimension": 3},
         ]
     declared = mesh_entry.get("required_physical_groups")
