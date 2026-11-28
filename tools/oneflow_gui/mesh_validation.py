@@ -1670,6 +1670,7 @@ def run_mesh_validation(
     if gmsh_path.is_file():
         os.environ["PATH"] = str(gmsh_path.parent) + os.pathsep + os.environ.get("PATH", "")
     def execute(step):
+        nonlocal source_stl
         inherited_cgns_lineage = None
         if step.case_id == "oneflow_cfd_solve":
             # Dimension is part of the mesh Case contract. Do not infer it from
@@ -1788,6 +1789,18 @@ def run_mesh_validation(
             except (OSError, ValueError, KeyError, RuntimeError) as error:
                 status, message = "failed", f"Gmsh MSH4 validation failed: {error}"
 
+        if (
+            status == "succeeded"
+            and step.case_id == "stl_to_gmsh"
+            and source_stl is None
+            and geometry_contract.get("geometry_source") in {"occ_to_stl", "manual_stl"}
+        ):
+            stl_name = mesh_entry.get("geometry_stl_filename")
+            if isinstance(stl_name, str) and Path(stl_name).name == stl_name:
+                generated_stl = step.directory / "input" / stl_name
+                if generated_stl.is_file():
+                    source_stl = generated_stl.resolve()
+
         results = step.directory / "results"
         results.mkdir(parents=True, exist_ok=True)
         (results / "mesh-validation.log").write_text(
@@ -1809,15 +1822,10 @@ def run_mesh_validation(
     stages = _mesh_validation_stage_results(
         result, existing_mesh=mesh_implementation == "existing_mesh"
     )
-    if (
-        source_stl is None
-        and geometry_contract.get("geometry_source") in {"occ_to_stl", "manual_stl"}
-    ):
-        stl_name = mesh_entry.get("geometry_stl_filename")
-        if isinstance(stl_name, str) and Path(stl_name).name == stl_name:
-            generated_stl = run_root / "stl_to_gmsh" / "input" / stl_name
-            if generated_stl.is_file():
-                source_stl = generated_stl.resolve()
+    if source_stl is not None:
+        run_metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        run_metadata["source_stl_file"] = str(source_stl)
+        write_run_report(metadata_path, run_metadata)
     exit_code = 0 if result.status == "succeeded" else 130 if result.status == "cancelled" else 1
     failed_step = next((item for item in result.cases if item.status == "failed"), None)
     error = None
