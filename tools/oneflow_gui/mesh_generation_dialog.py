@@ -767,6 +767,11 @@ class PipeTeeMeshDialog(QDialog):
         self.output_view.appendPlainText(f"Command: {self.command_view.toPlainText()}")
         self._process.setWorkingDirectory(str(self._repository_root))
         self.run_button.setEnabled(False)
+        for control in (
+            self.geometry_source, self.operating_mode, self.mesh_size,
+            self.gmsh_path, self.case_directory,
+        ):
+            control.setEnabled(False)
         self.status_label.setText("Generating T-junction volume mesh...")
         self._process.start(sys.executable, args)
 
@@ -777,6 +782,11 @@ class PipeTeeMeshDialog(QDialog):
 
     def _process_finished(self, exit_code: int, _exit_status) -> None:
         self._read_output()
+        for control in (
+            self.geometry_source, self.operating_mode, self.mesh_size,
+            self.gmsh_path, self.case_directory,
+        ):
+            control.setEnabled(True)
         self.run_button.setEnabled(True)
         if exit_code == 0:
             mesh_name = (
@@ -792,6 +802,11 @@ class PipeTeeMeshDialog(QDialog):
 
     def _process_error(self, _error) -> None:
         self._read_output()
+        for control in (
+            self.geometry_source, self.operating_mode, self.mesh_size,
+            self.gmsh_path, self.case_directory,
+        ):
+            control.setEnabled(True)
         self.run_button.setEnabled(True)
         self.status_label.setText("T-junction mesh process error. See execution output.")
 
