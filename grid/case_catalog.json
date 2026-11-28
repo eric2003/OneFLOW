@@ -656,7 +656,7 @@
     },
     {
       "id": "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
-      "title": "STL to Gmsh: OECD/NEA–Vattenfall T-Junction with Automatic TETRA_4 Volume Mesh",
+      "title": "T-Junction: Circular-duct OCC Native to Automatic TETRA_4",
       "directory": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra",
       "group": "STL to Gmsh",
       "execution": {
@@ -887,7 +887,7 @@
     },
     {
       "id": "stl_to_gmsh_pipe_tee_stl_regions",
-      "title": "OECD/NEA–Vattenfall T-Junction (STL Default, TETRA_4 Volume Mesh)",
+      "title": "T-Junction: Circular-duct OCC Exported STL to TETRA_4",
       "directory": "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra",
       "group": "STL to Gmsh",
       "dimension": 3,
@@ -927,7 +927,7 @@
     },
     {
       "id": "stl_to_gmsh_pipe_tee_square_duct_smoke",
-      "title": "Square-duct T-junction (STL to TETRA_4 to OneFLOW CFD smoke)",
+      "title": "T-Junction: Hand-faceted Square-duct STL (CFD smoke alias)",
       "directory": "grid/stl_to_gmsh/3d/pipe_tee/square_duct",
       "group": "STL to Gmsh",
       "dimension": 3,
