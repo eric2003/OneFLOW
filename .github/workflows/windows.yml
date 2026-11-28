@@ -205,7 +205,7 @@ jobs:
           if (-not (Test-Path $teeStl)) { throw "T-junction closed STL is missing: $teeStl" }
           if (-not (Test-Path $teeMesh)) { throw "T-junction MSH4 volume mesh is missing: $teeMesh" }
 
-          $teeProjectRoot = (python -c "import sys; from pathlib import Path; from tools.oneflow_gui.mesh_project import create_mesh_project_from_stl; project = create_mesh_project_from_stl(Path.cwd(), Path(sys.argv[1]), 'pipe-tee-oecd-nea-vattenfall-ci'); print(project['directory'])" $teeStl | Out-String).Trim()
+          $teeProjectRoot = (python -c "import sys; from pathlib import Path; from tools.oneflow_gui.mesh_project import create_mesh_project_from_stl; project = create_mesh_project_from_stl(Path.cwd(), Path(sys.argv[1]), 'pipe-tee-oecd-nea-vattenfall-ci', geometry_source='occ_native'); print(project['directory'])" $teeStl | Out-String).Trim()
           if ($LASTEXITCODE -ne 0) { throw "T-junction GUI mesh-project creation failed." }
           $teeProjectManifestPath = Join-Path $teeProjectRoot "project.json"
           if (-not (Test-Path $teeProjectManifestPath)) {
@@ -265,7 +265,7 @@ jobs:
           if (-not (Test-Path $teeStlSource) -or -not (Test-Path $teeStlMesh)) {
               throw "OCC-to-STL T-junction source or volume mesh is missing."
           }
-          $teeStlProjectRoot = (python -c "import sys; from pathlib import Path; from tools.oneflow_gui.mesh_project import create_mesh_project_from_stl; project = create_mesh_project_from_stl(Path.cwd(), Path(sys.argv[1]), 'pipe-tee-occ-to-stl-ci'); print(project['directory'])" $teeStlSource | Out-String).Trim()
+          $teeStlProjectRoot = (python -c "import sys; from pathlib import Path; from tools.oneflow_gui.mesh_project import create_mesh_project_from_stl; project = create_mesh_project_from_stl(Path.cwd(), Path(sys.argv[1]), 'pipe-tee-occ-to-stl-ci', geometry_source='occ_to_stl'); print(project['directory'])" $teeStlSource | Out-String).Trim()
           if ($LASTEXITCODE -ne 0) { throw "OCC-to-STL T-junction mesh-project creation failed." }
           $teeStlProjectManifest = Join-Path $teeStlProjectRoot "project.json"
           python -c "import json,sys; from pathlib import Path; p=Path(sys.argv[1]); data=json.loads(p.read_text(encoding='utf-8')); data['output_mesh']='results/pipe_tee_oecd_nea_vattenfall.msh'; data['mesh_size']=0.03; p.write_text(json.dumps(data, indent=2, sort_keys=True)+'\n', encoding='utf-8')" $teeStlProjectManifest
