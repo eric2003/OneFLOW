@@ -152,6 +152,38 @@ class MeshProjectTest(unittest.TestCase):
         self.assertTrue(updated["stl_path"].with_suffix(".geometry.json").is_file())
 
 
+    def test_hand_authored_square_tee_stl_manifest_is_importable(self) -> None:
+        source = self.home / "square_tee.stl"
+        source.write_bytes(b"hand-authored square tee STL")
+        digest = hashlib.sha256(source.read_bytes()).hexdigest()
+        source.with_suffix(".geometry.json").write_text(
+            json.dumps({
+                "schema": "oneflow.generated-geometry",
+                "version": 1,
+                "geometry": "square_duct_pipe_tee",
+                "stl_sha256": digest,
+                "generator": {
+                    "kind": "python",
+                    "method": "explicit_planar_facets_no_boolean_intersection",
+                },
+            }),
+            encoding="utf-8",
+        )
+        project = create_mesh_project_from_stl(
+            self.repository_root, source, "hand_authored_square_tee"
+        )
+        self.assertEqual(project["geometry"], "square_duct_pipe_tee")
+        self.assertEqual(
+            project["mesh_case_id"], "stl_to_gmsh_pipe_tee_square_duct"
+        )
+        self.assertEqual(
+            project["geometry_lineage"]["geometry"], "square_duct_pipe_tee"
+        )
+        self.assertEqual(
+            project["geometry_lineage"]["generator"]["method"],
+            "explicit_planar_facets_no_boolean_intersection",
+        )
+
     def test_pipe_tee_region_manifest_preserves_distinct_inlet_subregions(self) -> None:
         source_directory = self.home / "generated_pipe_tee"
         source_directory.mkdir()
