@@ -225,6 +225,12 @@ jobs:
           if (-not (Test-Path $teeReportPath)) { throw "T-junction Mesh-to-CFD report is missing: $teeReportPath" }
           $teeReport = Get-Content -Raw $teeReportPath | ConvertFrom-Json
           if ($teeReport.exit_code -ne 0) { throw "T-junction Mesh-to-CFD report has non-zero exit code." }
+          if ($teeReport.geometry_source -ne "occ_native" -or $teeReport.geometry_variant -ne "circular_duct") {
+              throw "OCC-native T-junction report lost its geometry source identity."
+          }
+          if (($teeReport.port_identities -join ",") -ne "main_left,main_right,branch") {
+              throw "OCC-native T-junction report lost stable port identities."
+          }
           foreach ($stageName in @("existing_msh_input", "gmsh_to_cgns", "cgns_to_oneflow", "cfd_smoke")) {
               $stage = $teeReport.stages.PSObject.Properties[$stageName].Value
               if ($null -eq $stage -or $stage.status -ne "PASS") {
@@ -312,6 +318,12 @@ jobs:
           if (-not (Test-Path $squareReportPath)) { throw "Square T-junction validation report is missing." }
           $squareReport = Get-Content -Raw $squareReportPath | ConvertFrom-Json
           if ($squareReport.exit_code -ne 0) { throw "Square T-junction validation report has non-zero exit code." }
+          if ($squareReport.geometry_source -ne "manual_stl" -or $squareReport.geometry_variant -ne "square_duct") {
+              throw "Manual-STL T-junction report lost its geometry source identity."
+          }
+          if (($squareReport.port_identities -join ",") -ne "main_left,main_right,branch") {
+              throw "Manual-STL T-junction report lost stable port identities."
+          }
           foreach ($stageName in @("existing_msh_input", "gmsh_to_cgns", "cgns_to_oneflow", "cfd_smoke")) {
               $stage = $squareReport.stages.PSObject.Properties[$stageName].Value
               if ($null -eq $stage -or $stage.status -ne "PASS") { throw "Square T-junction stage '$stageName' did not pass." }
