@@ -152,6 +152,34 @@ class MeshProjectTest(unittest.TestCase):
         self.assertTrue(updated["stl_path"].with_suffix(".geometry.json").is_file())
 
 
+    def test_occ_native_t_junction_project_keeps_stl_as_auxiliary_export(self) -> None:
+        source = self.home / "occ_pipe_tee.stl"
+        source.write_bytes(b"occ-native auxiliary surface")
+        digest = hashlib.sha256(source.read_bytes()).hexdigest()
+        source.with_suffix(".geometry.json").write_text(
+            json.dumps({
+                "schema": "oneflow.stl-geometry-manifest",
+                "version": 1,
+                "geometry": "pipe_tee_oecd_nea_vattenfall",
+                "stl_sha256": digest,
+                "generator": {"name": "oneflow_pipe_tee_geometry"},
+            }),
+            encoding="utf-8",
+        )
+        project = create_mesh_project_from_stl(
+            self.repository_root, source, "occ_native_pipe_tee",
+            geometry_source="occ_native",
+        )
+        project["output_path"].write_bytes(b"occ-native-msh")
+        reopened = load_mesh_project(project["directory"])
+        self.assertEqual(reopened["geometry_source"], "occ_native")
+        self.assertIn("auxiliary_surface_export", reopened["geometry_lineage"])
+        self.assertNotIn("source_representation", reopened["geometry_lineage"])
+        self.assertEqual(
+            reopened["geometry_lineage"]["derived_mesh"]["parent"],
+            "occ_native_geometry",
+        )
+
     def test_hand_authored_square_tee_stl_manifest_is_importable(self) -> None:
         source = self.home / "square_tee.stl"
         source.write_bytes(b"hand-authored square tee STL")
