@@ -723,8 +723,7 @@
       "benchmark_family": "pipe_tee",
       "geometry_variant": "circular_duct",
       "geometry_source": "occ_native",
-      "volume_mesh_method": "automatic_tetrahedra",
-      "geometry_stl_filename": "pipe_tee_oecd_nea_vattenfall.stl"
+      "volume_mesh_method": "automatic_tetrahedra"
     },
     {
       "id": "stl_to_gmsh_pipe_tee_circular_duct_occ_to_stl",
