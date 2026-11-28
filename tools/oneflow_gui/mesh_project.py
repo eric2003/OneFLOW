@@ -134,7 +134,10 @@ def _validate_region_metadata_compatibility(stl_file: Path) -> dict | None:
         raise ValueError(
             f"Cannot read STL geometry manifest: {manifest_path}: {error}"
         ) from error
-    if manifest.get("schema") != "oneflow.stl-geometry-manifest":
+    if manifest.get("schema") not in {
+        "oneflow.stl-geometry-manifest",
+        "oneflow.generated-geometry",
+    }:
         raise ValueError(f"Unsupported STL geometry manifest: {manifest_path}")
     return manifest
 
@@ -197,6 +200,7 @@ def _mesh_case_id_for_geometry(geometry_manifest: dict | None) -> str:
     return {
         "pipe_bend_90_degree": "stl_to_gmsh_pipe_bend_90_degree",
         "pipe_tee_oecd_nea_vattenfall": "stl_to_gmsh_pipe_tee_stl_regions",
+        "square_duct_pipe_tee": "stl_to_gmsh_pipe_tee_square_duct",
     }.get(geometry, _GENERIC_3D_VALIDATION_CASE)
 
 
@@ -317,11 +321,15 @@ def _project_geometry_lineage(
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             if (
                 isinstance(manifest, dict)
-                and manifest.get("schema") == "oneflow.stl-geometry-manifest"
+                and manifest.get("schema") in {
+                    "oneflow.stl-geometry-manifest",
+                    "oneflow.generated-geometry",
+                }
                 and manifest.get("stl_sha256") == source_digest
             ):
                 lineage.update({
                     "asset_id": manifest.get("asset_id"),
+                    "geometry": manifest.get("geometry"),
                     "definition_sha256": manifest.get("definition_sha256"),
                     "generator": manifest.get("generator", {}),
                     "provenance": {
