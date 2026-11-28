@@ -1930,12 +1930,60 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 repository_root, "stl_to_gmsh_pipe_tee_square_duct_smoke"
             )
         self.assertNotEqual(generated, smoke_alias)
-        self.assertTrue(generated.name.startswith("case-stl_to_gmsh_pipe_tee_square_duct"))
-        self.assertTrue(smoke_alias.name.startswith("case-stl_to_gmsh_pipe_tee_square_duct_smoke"))
+        self.assertEqual(generated.parts[-5:], (
+            "manual_stl", "automatic_tetrahedra",
+            "stl_to_gmsh_pipe_tee_square_duct", "benchmark",
+        )[-5:])
+        self.assertEqual(smoke_alias.parts[-2:], (
+            "stl_to_gmsh_pipe_tee_square_duct_smoke", "benchmark",
+        ))
         with self.assertRaises(ValueError):
             generated.relative_to(smoke_alias)
         with self.assertRaises(ValueError):
             smoke_alias.relative_to(generated)
+
+    def test_pipe_tee_geometry_sources_are_explicit_and_workspace_scoped(self):
+        from tools.oneflow_gui.mesh_validation import _catalog, _mesh_geometry_contract
+
+        repository_root = Path(__file__).resolve().parents[2]
+        catalog = _catalog(repository_root)
+        entries = {
+            item["id"]: item
+            for item in [*catalog["cases"], *catalog.get("mesh_validation_inputs", [])]
+        }
+        expected = {
+            "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall": (
+                "circular_duct", "occ_native",
+            ),
+            "stl_to_gmsh_pipe_tee_circular_duct_occ_to_stl": (
+                "circular_duct", "occ_to_stl",
+            ),
+            "stl_to_gmsh_pipe_tee_square_duct": (
+                "square_duct", "manual_stl",
+            ),
+        }
+        paths = type(
+            "Paths", (),
+            {"mesh_validation": self.root / ".oneflow" / "mesh-validation"},
+        )()
+        workspaces = []
+        with mock.patch(
+            "tools.oneflow_gui.mesh_validation.UserDataPaths.discover",
+            return_value=paths,
+        ):
+            for case_id, (variant, source) in expected.items():
+                contract = _mesh_geometry_contract(entries[case_id])
+                self.assertEqual(contract["benchmark_family"], "pipe_tee")
+                self.assertEqual(contract["geometry_variant"], variant)
+                self.assertEqual(contract["geometry_source"], source)
+                self.assertEqual(
+                    contract["volume_mesh_method"], "automatic_tetrahedra"
+                )
+                workspaces.append(mesh_validation_workspace(repository_root, case_id))
+        self.assertEqual(len(workspaces), len(set(workspaces)))
+        self.assertTrue(any("occ_native" in path.parts for path in workspaces))
+        self.assertTrue(any("occ_to_stl" in path.parts for path in workspaces))
+        self.assertTrue(any("manual_stl" in path.parts for path in workspaces))
 
     def test_workspace_uses_mesh_case_relative_directory(self):
         paths = type(
