@@ -576,6 +576,53 @@ class GeometryLineageTest(unittest.TestCase):
             self.assertEqual(lineage["provenance"]["kind"], "generated")
             self.assertEqual(lineage["generator"]["source_sha256"], "b" * 64)
 
+    def test_hand_authored_generated_geometry_manifest_is_verified(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            stl = root / "square_tee.stl"
+            msh = root / "square_tee.msh"
+            stl.write_bytes(b"hand-authored-square-tee")
+            msh.write_bytes(b"tetrahedral-mesh")
+            digest = hashlib.sha256(stl.read_bytes()).hexdigest()
+            stl.with_suffix(".geometry.json").write_text(json.dumps({
+                "schema": "oneflow.generated-geometry",
+                "version": 1,
+                "geometry": "square_duct_pipe_tee",
+                "stl_sha256": digest,
+                "generator": {
+                    "kind": "python",
+                    "method": "explicit_planar_facets_no_boolean_intersection",
+                },
+            }), encoding="utf-8")
+            lineage = _geometry_lineage(
+                {"geometry_provenance": {"kind": "generated"}},
+                stl, msh, root,
+            )
+            self.assertEqual(lineage["geometry"], "square_duct_pipe_tee")
+            self.assertEqual(lineage["provenance"]["kind"], "generated")
+            self.assertEqual(
+                lineage["generator"]["method"],
+                "explicit_planar_facets_no_boolean_intersection",
+            )
+            self.assertEqual(lineage["derived_mesh"]["parent"], "source_representation")
+
+    def test_occ_native_mesh_lineage_does_not_claim_an_stl_parent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            msh = root / "pipe_tee.msh"
+            msh.write_bytes(b"occ-native-mesh")
+            entry = {
+                "benchmark_family": "pipe_tee",
+                "geometry_variant": "circular_duct",
+                "geometry_source": "occ_native",
+                "volume_mesh_method": "automatic_tetrahedra",
+                "port_identities": ["main_left", "main_right", "branch"],
+            }
+            lineage = _geometry_lineage(entry, None, msh, root)
+            self.assertEqual(lineage["benchmark_identity"]["geometry_source"], "occ_native")
+            self.assertEqual(lineage["derived_mesh"]["parent"], "occ_native_geometry")
+            self.assertNotIn("source_representation", lineage)
+
     def test_geometry_lineage_rows_accepts_string_generator_metadata(self):
         rows = geometry_lineage_rows({
             "geometry_lineage": {"generator": "oneflow_stl_geometry"}
