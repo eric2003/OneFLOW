@@ -1453,7 +1453,7 @@ def _mesh_case_command(
 
 
 def _effective_required_physical_groups(mesh_entry: dict, project_data: dict) -> list[dict]:
-    """Resolve direct-OCC or STL-region T-junction groups from project evidence."""
+    """Resolve named T-junction port groups from verified project evidence."""
     if (
         _mesh_geometry_contract(mesh_entry).get("benchmark_family") == "pipe_tee"
         and _mesh_geometry_contract(mesh_entry).get("geometry_source") in {
