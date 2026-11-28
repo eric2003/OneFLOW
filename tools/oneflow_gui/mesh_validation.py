@@ -543,7 +543,38 @@ def mesh_validation_workspace(
             f"Mesh validation Case must be located below grid/: {case_directory}"
         )
     relative_case = Path(*case_directory.parts[1:])
+
+    # Catalog directories are descriptive source locations, not globally
+    # unique runtime workspace IDs. A validation-only alias may intentionally
+    # point at a parent directory (or the same directory) as its executable
+    # Case. Clearing that parent would erase another Case's active outputs.
+    # Detect every ancestor/descendant overlap and give each affected Case a
+    # stable leaf directory so cleanup is strictly scoped to that Case.
+    overlapping_case_ids = []
+    current_parts = relative_case.parts
+    for other in _mesh_validation_entries(_catalog(root)):
+        other_id = str(other.get("id", ""))
+        if not other_id or other_id == mesh_case_id:
+            continue
+        other_directory = Path(str(other.get("directory", "")))
+        if (
+            other_directory.is_absolute()
+            or ".." in other_directory.parts
+            or len(other_directory.parts) < 2
+            or other_directory.parts[0] != "grid"
+        ):
+            continue
+        other_parts = Path(*other_directory.parts[1:]).parts
+        shared_prefix = (
+            current_parts[:len(other_parts)] == other_parts
+            or other_parts[:len(current_parts)] == current_parts
+        )
+        if shared_prefix:
+            overlapping_case_ids.append(other_id)
+
     workspace = UserDataPaths.discover().mesh_validation / relative_case
+    if overlapping_case_ids:
+        workspace = workspace / f"case-{mesh_case_id}"
     meshing_route = {
         "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall": "occ",
         "stl_to_gmsh_pipe_tee_stl_regions": "stl",
