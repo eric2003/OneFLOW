@@ -314,6 +314,20 @@ def import_mesh_project_directory(repository_root: Path, source_directory: Path)
             )
         except (OSError, json.JSONDecodeError):
             source_project_manifest = {}
+    identity_keys = (
+        "benchmark_family", "geometry_variant", "geometry_source",
+        "volume_mesh_method", "port_identities",
+    )
+    source_identity = {
+        key: source_project_manifest[key]
+        for key in identity_keys if key in source_project_manifest
+    }
+    if source_identity and len(source_identity) != len(identity_keys):
+        raise ValueError("Imported project has an incomplete T-junction geometry identity.")
+    if not source_identity:
+        source_identity = _pipe_tee_geometry_identity(
+            geometry_manifest, source_project_manifest.get("geometry_source")
+        )
     layout_path = copied / "script/layout.json"
     layout = {}
     if layout_path.is_file():
@@ -333,9 +347,7 @@ def import_mesh_project_directory(repository_root: Path, source_directory: Path)
         "geometry": geometry_manifest.get("geometry") if geometry_manifest else None,
         "boundary_regions": sorted(region_manifest["regions"]) if region_manifest else None,
         "boundary_subregions": sorted(region_manifest.get("subregions", {})) if region_manifest else None,
-        **_pipe_tee_geometry_identity(
-            geometry_manifest, source_project_manifest.get("geometry_source")
-        ),
+        **source_identity,
     }
     (directory / "results").mkdir()
     return _write_manifest(directory, manifest)
