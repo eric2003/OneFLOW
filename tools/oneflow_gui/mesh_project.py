@@ -309,8 +309,12 @@ def import_mesh_project_directory(repository_root: Path, source_directory: Path)
     source_manifest_path = source / "project.json"
     if source_manifest_path.is_file():
         try:
-            source_project_manifest = json.loads(
+            loaded_project_manifest = json.loads(
                 source_manifest_path.read_text(encoding="utf-8")
+            )
+            source_project_manifest = (
+                loaded_project_manifest
+                if isinstance(loaded_project_manifest, dict) else {}
             )
         except (OSError, json.JSONDecodeError):
             source_project_manifest = {}
