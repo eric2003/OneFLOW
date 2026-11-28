@@ -48,6 +48,39 @@ def _mesh_validation_entries(catalog: dict) -> list[dict]:
     return [*cases, *inputs]
 
 
+def _mesh_geometry_contract(entry: dict) -> dict:
+    """Return validated, source-independent geometry identity from the Case catalog."""
+    keys = (
+        "benchmark_family", "geometry_variant", "geometry_source",
+        "volume_mesh_method",
+    )
+    contract = {key: entry[key] for key in keys if key in entry}
+    if not contract:
+        return {}
+    if set(contract) != set(keys):
+        missing = sorted(set(keys) - set(contract))
+        raise ValueError(
+            f"Mesh Case {entry.get('id')!r} has incomplete geometry metadata: {missing}"
+        )
+    if contract["benchmark_family"] != "pipe_tee":
+        raise ValueError(
+            f"Unsupported mesh benchmark family: {contract['benchmark_family']!r}"
+        )
+    if contract["geometry_variant"] not in {"square_duct", "circular_duct"}:
+        raise ValueError(
+            f"Unsupported T-junction geometry variant: {contract['geometry_variant']!r}"
+        )
+    if contract["geometry_source"] not in {"occ_native", "occ_to_stl", "manual_stl"}:
+        raise ValueError(
+            f"Unsupported T-junction geometry source: {contract['geometry_source']!r}"
+        )
+    if contract["volume_mesh_method"] != "automatic_tetrahedra":
+        raise ValueError(
+            f"Unsupported T-junction volume mesh method: {contract['volume_mesh_method']!r}"
+        )
+    return contract
+
+
 def mesh_case_groups(
     repository_root: Path,
 ) -> tuple[tuple[str, tuple[tuple[str, str], ...]], ...]:
@@ -524,7 +557,7 @@ def _external(path: Path) -> Path:
 def mesh_validation_workspace(
     repository_root: Path, mesh_case_id: str, operating_mode: str = "benchmark",
 ) -> Path:
-    """Return the stable user-data directory for one mesh validation Case/mode."""
+    """Return a Case-owned workspace keyed by geometry family, source and method."""
     root = Path(repository_root).resolve()
     entry = next(
         (item for item in _mesh_validation_entries(_catalog(root)) if item.get("id") == mesh_case_id),
@@ -542,50 +575,27 @@ def mesh_validation_workspace(
         raise ValueError(
             f"Mesh validation Case must be located below grid/: {case_directory}"
         )
-    relative_case = Path(*case_directory.parts[1:])
 
-    # Catalog directories are descriptive source locations, not globally
-    # unique runtime workspace IDs. A validation-only alias may intentionally
-    # point at a parent directory (or the same directory) as its executable
-    # Case. Clearing that parent would erase another Case's active outputs.
-    # Detect every ancestor/descendant overlap and give each affected Case a
-    # stable leaf directory so cleanup is strictly scoped to that Case.
-    overlapping_case_ids = []
-    current_parts = relative_case.parts
-    for other in _mesh_validation_entries(_catalog(root)):
-        other_id = str(other.get("id", ""))
-        if not other_id or other_id == mesh_case_id:
-            continue
-        other_directory = Path(str(other.get("directory", "")))
-        if (
-            other_directory.is_absolute()
-            or ".." in other_directory.parts
-            or len(other_directory.parts) < 2
-            or other_directory.parts[0] != "grid"
-        ):
-            continue
-        other_parts = Path(*other_directory.parts[1:]).parts
-        shared_prefix = (
-            current_parts[:len(other_parts)] == other_parts
-            or other_parts[:len(current_parts)] == current_parts
+    geometry = _mesh_geometry_contract(entry)
+    base = UserDataPaths.discover().mesh_validation
+    if geometry:
+        # Do not derive runtime identity from descriptive source-tree paths.
+        # Several catalog entries may intentionally share a producer directory;
+        # each gets a unique leaf, and geometry provenance remains visible.
+        workspace = (
+            base / geometry["benchmark_family"]
+            / geometry["geometry_variant"]
+            / geometry["geometry_source"]
+            / geometry["volume_mesh_method"]
+            / mesh_case_id
         )
-        if shared_prefix:
-            overlapping_case_ids.append(other_id)
-
-    workspace = UserDataPaths.discover().mesh_validation / relative_case
-    if overlapping_case_ids:
-        workspace = workspace / f"case-{mesh_case_id}"
-    meshing_route = {
-        "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall": "occ",
-        "stl_to_gmsh_pipe_tee_stl_regions": "stl",
-    }.get(mesh_case_id)
-    if meshing_route is not None:
         if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
             raise ValueError(f"Unsupported T-junction operating mode: {operating_mode!r}")
-        workspace = workspace / meshing_route / operating_mode
-    elif operating_mode != "benchmark":
-        raise ValueError("Operating mode selection is only supported by the T-junction Case.")
-    return workspace
+        return workspace / operating_mode
+
+    if operating_mode != "benchmark":
+        raise ValueError("Operating mode selection is only supported by a T-junction Case.")
+    return base / Path(*case_directory.parts[1:])
 
 
 def project_mesh_validation_workspace(project_directory: Path) -> Path:
@@ -1159,6 +1169,9 @@ def _geometry_lineage(
         "notes": "No verified geometry provenance is registered for this source Case.",
     }
     lineage = {"provenance": provenance}
+    geometry_contract = _mesh_geometry_contract(mesh_entry)
+    if geometry_contract:
+        lineage["benchmark_identity"] = geometry_contract
     manifest = None
     if source_stl is not None and source_stl.is_file():
         source_stl = source_stl.resolve()
@@ -1353,15 +1366,13 @@ def _mesh_case_command(
         sys.executable, str(script_path), "--case-directory",
         str(case_directory), "--gmsh", str(gmsh_executable),
     ]
-    if mesh_entry.get("id") in {
-        "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
-        "stl_to_gmsh_pipe_tee_stl_regions",
-    }:
+    geometry = _mesh_geometry_contract(mesh_entry)
+    if geometry.get("benchmark_family") == "pipe_tee":
         if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
             raise ValueError(f"Unsupported T-junction operating mode: {operating_mode!r}")
         command.extend(["--operating-mode", operating_mode])
     elif operating_mode != "benchmark":
-        raise ValueError("Operating mode selection is only supported by the T-junction Case.")
+        raise ValueError("Operating mode selection is only supported by a T-junction Case.")
     output_argument = execution.get("output_directory_argument")
     if output_argument:
         if not isinstance(output_argument, str) or not output_argument.startswith("--"):
@@ -1373,7 +1384,8 @@ def _mesh_case_command(
 def _effective_required_physical_groups(mesh_entry: dict, project_data: dict) -> list[dict]:
     """Resolve direct-OCC or STL-region T-junction groups from project evidence."""
     if (
-        mesh_entry.get("id") == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall"
+        _mesh_geometry_contract(mesh_entry).get("benchmark_family") == "pipe_tee"
+        and _mesh_geometry_contract(mesh_entry).get("geometry_source") in {"occ_native", "occ_to_stl"}
         and project_data.get("geometry") == "pipe_tee_oecd_nea_vattenfall"
         and set(project_data.get("boundary_regions") or []) == {"wall", "inflow", "outflow"}
     ):
@@ -1508,25 +1520,22 @@ def run_mesh_validation(
     if mesh_entry is None:
         raise ValueError(f"Unknown mesh-generation Case: {mesh_case_id!r}")
     mesh_execution = mesh_entry.get("execution") or {}
-    if mesh_case_id == "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall":
-        mesh_entry = {
-            **mesh_entry,
-            "required_physical_groups": _pipe_tee_required_physical_groups(operating_mode),
-        }
-    elif mesh_case_id == "stl_to_gmsh_pipe_tee_stl_regions":
-        if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
-            raise ValueError(f"Unsupported T-junction operating mode: {operating_mode!r}")
-        mesh_entry = {
-            **mesh_entry,
-            "required_physical_groups": [
+    geometry_contract = _mesh_geometry_contract(mesh_entry)
+    if geometry_contract.get("benchmark_family") == "pipe_tee":
+        if geometry_contract["geometry_source"] == "occ_native":
+            required_groups = _pipe_tee_required_physical_groups(operating_mode)
+        else:
+            if operating_mode not in {"benchmark", "main_inlets", "branch_inlet"}:
+                raise ValueError(f"Unsupported T-junction operating mode: {operating_mode!r}")
+            required_groups = [
                 {"name": "wall", "dimension": 2},
                 {"name": "inflow", "dimension": 2},
                 {"name": "outflow", "dimension": 2},
                 {"name": "fluid_domain", "dimension": 3},
-            ],
-        }
+            ]
+        mesh_entry = {**mesh_entry, "required_physical_groups": required_groups}
     elif operating_mode != "benchmark":
-        raise ValueError("Operating mode selection is only supported by the T-junction Case.")
+        raise ValueError("Operating mode selection is only supported by a T-junction Case.")
     if source_mesh is None and mesh_execution.get("kind") == "existing_mesh":
         existing_mesh_paths = existing_mesh_case_paths(REPOSITORY_ROOT, mesh_case_id)
         if existing_mesh_paths is None:
@@ -1606,18 +1615,16 @@ def run_mesh_validation(
         "run_id": run_id,
         "mesh_case_id": mesh_case_id,
         "mesh_implementation": mesh_implementation,
-        "meshing_route": {
-            "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall": "occ",
-            "stl_to_gmsh_pipe_tee_stl_regions": "stl",
-        }.get(mesh_case_id),
+        "benchmark_family": geometry_contract.get("benchmark_family"),
+        "geometry_variant": geometry_contract.get("geometry_variant"),
+        "geometry_source": geometry_contract.get("geometry_source"),
+        "volume_mesh_method": geometry_contract.get("volume_mesh_method"),
+        "meshing_route": geometry_contract.get("geometry_source"),
         "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
         "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
         "source_stl_file": str(source_stl) if source_stl is not None else None,
         "cfd_template_id": cfd_template_id,
-        "operating_mode": operating_mode if mesh_case_id in {
-            "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
-            "stl_to_gmsh_pipe_tee_stl_regions",
-        } else None,
+        "operating_mode": operating_mode if geometry_contract.get("benchmark_family") == "pipe_tee" else None,
         "max_steps": max_steps,
         "lifecycle": lifecycle_metadata,
         "started_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -1837,17 +1844,15 @@ def run_mesh_validation(
         "legacy_schema": "oneflow.mesh-to-cfd-validation",
         "schema_version": 1, "run_id": run_id, "mesh_case_id": mesh_case_id,
         "mesh_implementation": mesh_implementation,
-        "meshing_route": {
-            "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall": "occ",
-            "stl_to_gmsh_pipe_tee_stl_regions": "stl",
-        }.get(mesh_case_id),
+        "benchmark_family": geometry_contract.get("benchmark_family"),
+        "geometry_variant": geometry_contract.get("geometry_variant"),
+        "geometry_source": geometry_contract.get("geometry_source"),
+        "volume_mesh_method": geometry_contract.get("volume_mesh_method"),
+        "meshing_route": geometry_contract.get("geometry_source"),
         "mesh_input_mode": "existing_mesh" if source_mesh is not None else "generated_mesh",
         "source_mesh_file": str(source_mesh) if source_mesh is not None else None,
         "cfd_template_id": cfd_template_id,
-        "operating_mode": operating_mode if mesh_case_id in {
-            "stl_to_gmsh_pipe_tee_oecd_nea_vattenfall",
-            "stl_to_gmsh_pipe_tee_stl_regions",
-        } else None,
+        "operating_mode": operating_mode if geometry_contract.get("benchmark_family") == "pipe_tee" else None,
         "max_steps": max_steps,
         "lifecycle": lifecycle_metadata,
         "run_directory": str(run_root), "steps": _graph_step_records(result),
