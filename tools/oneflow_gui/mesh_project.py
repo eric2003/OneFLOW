@@ -159,8 +159,22 @@ def _copy_region_manifest(source_stl: Path, destination_stl: Path) -> dict | Non
     if hashlib.sha256(source_stl.read_bytes()).hexdigest() != manifest.get("closed_surface_sha256"):
         raise ValueError("Closed STL checksum does not match region_manifest.json")
     subregions = manifest.get("subregions", {})
-    if not isinstance(subregions, dict) or set(subregions) - {"main_inflow", "branch_inflow"}:
-        raise ValueError(f"Unsupported STL inlet subregion manifest: {manifest_path}")
+    if not isinstance(subregions, dict):
+        raise ValueError(f"Unsupported STL subregion manifest: {manifest_path}")
+    # Port names describe geometry and operating mode, not a closed enum.
+    # Preserve any named subregion as long as it is attached to one of the
+    # declared boundary regions. This supports symmetric main-pipe ports,
+    # branch outlets, and future multi-port geometries without weakening the
+    # manifest's parent-region contract.
+    for name, record in subregions.items():
+        if not isinstance(name, str) or not name or not isinstance(record, dict):
+            raise ValueError(f"Invalid STL subregion record in manifest: {manifest_path}")
+        parent_region = record.get("parent_region")
+        if parent_region is not None and parent_region not in manifest["regions"]:
+            raise ValueError(
+                f"STL subregion {name!r} references unknown parent region "
+                f"{parent_region!r}: {manifest_path}"
+            )
     for collection_name, records in (("regions", manifest["regions"]), ("subregions", subregions)):
         for name, record in records.items():
             relative = Path(str(record.get("file", "")))

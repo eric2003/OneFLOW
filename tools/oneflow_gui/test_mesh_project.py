@@ -158,7 +158,7 @@ class MeshProjectTest(unittest.TestCase):
         source_stl = source_directory / "pipe_tee_oecd_nea_vattenfall.stl"
         source_stl.write_bytes(b"closed pipe tee test surface")
         region_names = ("wall", "inflow", "outflow")
-        subregion_names = ("main_inflow", "branch_inflow")
+        subregion_names = ("main_left_inflow", "main_right_inflow", "branch_outflow")
         regions = {}
         subregions = {}
         for name in region_names + subregion_names:
@@ -168,6 +168,8 @@ class MeshProjectTest(unittest.TestCase):
                 "file": patch.name,
                 "sha256": hashlib.sha256(patch.read_bytes()).hexdigest(),
                 "triangle_count": 1,
+                **({"parent_region": "inflow" if name != "branch_outflow" else "outflow"}
+                   if name in subregion_names else {}),
             }
             (subregions if name in subregion_names else regions)[name] = record
         (source_directory / "region_manifest.json").write_text(
@@ -200,15 +202,15 @@ class MeshProjectTest(unittest.TestCase):
         self.assertEqual(project["geometry"], "pipe_tee_oecd_nea_vattenfall")
         self.assertEqual(project["mesh_case_id"], "stl_to_gmsh_pipe_tee_stl_regions")
         self.assertEqual(project["boundary_regions"], ["inflow", "outflow", "wall"])
-        self.assertEqual(project["boundary_subregions"], ["branch_inflow", "main_inflow"])
+        self.assertEqual(project["boundary_subregions"], ["branch_outflow", "main_left_inflow", "main_right_inflow"])
         replaced = replace_project_stl(project, source_stl)
         self.assertEqual(replaced["mesh_case_id"], "stl_to_gmsh_pipe_tee_stl_regions")
-        self.assertEqual(replaced["boundary_subregions"], ["branch_inflow", "main_inflow"])
+        self.assertEqual(replaced["boundary_subregions"], ["branch_outflow", "main_left_inflow", "main_right_inflow"])
         imported = import_mesh_project_directory(
             self.repository_root, replaced["directory"]
         )
         self.assertEqual(imported["mesh_case_id"], "stl_to_gmsh_pipe_tee_stl_regions")
-        self.assertEqual(imported["boundary_subregions"], ["branch_inflow", "main_inflow"])
+        self.assertEqual(imported["boundary_subregions"], ["branch_outflow", "main_left_inflow", "main_right_inflow"])
         copied_manifest = project["stl_path"].parent / "region_manifest.json"
         copied = json.loads(copied_manifest.read_text(encoding="utf-8"))
         self.assertEqual(set(copied["subregions"]), set(subregion_names))
