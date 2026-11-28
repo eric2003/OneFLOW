@@ -344,6 +344,7 @@ def import_mesh_project_directory(repository_root: Path, source_directory: Path)
 
 def _project_geometry_lineage(
     root: Path, stl_path: Path, output_path: Path,
+    geometry_source: str | None = None,
 ) -> dict:
     """Discover project geometry lineage using only checksum-verified records."""
     source_digest = hashlib.sha256(stl_path.read_bytes()).hexdigest()
@@ -351,15 +352,19 @@ def _project_geometry_lineage(
         source_label = stl_path.relative_to(root).as_posix()
     except ValueError:
         source_label = str(stl_path)
+    stl_record = {
+        "format": "STL", "path": source_label, "sha256": source_digest,
+    }
     lineage = {
         "provenance": {
             "kind": "unknown",
             "notes": "No checksum-verified geometry asset manifest is available.",
         },
-        "source_representation": {
-            "format": "STL", "path": source_label, "sha256": source_digest,
-        },
     }
+    if geometry_source == "occ_native":
+        lineage["auxiliary_surface_export"] = stl_record
+    else:
+        lineage["source_representation"] = stl_record
     manifest_path = stl_path.with_suffix(".geometry.json")
     if manifest_path.is_file():
         try:
@@ -416,7 +421,11 @@ def _project_geometry_lineage(
             "path": output_path.relative_to(root).as_posix()
                 if is_path_within(output_path, root) else str(output_path),
             "sha256": hashlib.sha256(output_path.read_bytes()).hexdigest(),
-            "parent": "source_representation",
+            "parent": (
+                "occ_native_geometry"
+                if geometry_source == "occ_native"
+                else "source_representation"
+            ),
         }
 
     downstream = []
@@ -521,7 +530,9 @@ def load_mesh_project(directory: Path) -> dict:
         "directory": root,
         "stl_path": stl_path,
         "output_path": output_path.resolve(),
-        "geometry_lineage": _project_geometry_lineage(root, stl_path, output_path.resolve()),
+        "geometry_lineage": _project_geometry_lineage(
+            root, stl_path, output_path.resolve(), manifest.get("geometry_source")
+        ),
     }
 
 
@@ -569,6 +580,7 @@ def replace_project_stl(project: dict, stl_file: Path) -> dict:
     manifest["source_stl"] = str(source)
     manifest["template_case_id"] = None
     manifest["mesh_case_id"] = _mesh_case_id_for_geometry(geometry_manifest)
+    manifest.update(_pipe_tee_geometry_identity(geometry_manifest))
     return _write_manifest(root, manifest)
 
 
