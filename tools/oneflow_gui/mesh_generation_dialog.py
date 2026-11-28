@@ -245,9 +245,35 @@ class MeshGenerationDialog(QDialog):
         )
         if not path:
             return
+        source_stl = Path(path)
+        geometry_manifest_path = source_stl.with_suffix(".geometry.json")
+        geometry_manifest = {}
+        if geometry_manifest_path.is_file():
+            try:
+                geometry_manifest = json.loads(
+                    geometry_manifest_path.read_text(encoding="utf-8")
+                )
+            except (OSError, json.JSONDecodeError):
+                geometry_manifest = {}
+        geometry = geometry_manifest.get("geometry")
+        geometry_source = None
+        if geometry == "pipe_tee_oecd_nea_vattenfall":
+            geometry_source, accepted = QInputDialog.getItem(
+                self,
+                "T-Junction STL Source",
+                "How was this circular-duct STL produced?",
+                ["manual_stl", "occ_to_stl"],
+                0,
+                False,
+            )
+            if not accepted:
+                return
+        elif geometry == "square_duct_pipe_tee":
+            geometry_source = "manual_stl"
         try:
             project = create_mesh_project_from_stl(
-                self._repository_root, Path(path)
+                self._repository_root, source_stl,
+                geometry_source=geometry_source,
             )
         except (OSError, ValueError, KeyError) as error:
             QMessageBox.warning(self, "Cannot import STL", str(error))
