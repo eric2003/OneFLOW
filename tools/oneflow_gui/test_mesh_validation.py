@@ -85,19 +85,34 @@ class TjunctionPhysicalGroupContractTest(unittest.TestCase):
                 "main_left_inflow", "main_right_inflow", "branch_outflow"
             ],
         }
-        expected_groups = [
-            {"name": "wall", "dimension": 2},
-            {"name": "inflow", "dimension": 2},
-            {"name": "outflow", "dimension": 2},
-            {"name": "fluid_domain", "dimension": 3},
-        ]
-        for subregions in (
+        valid_subregion_sets = (
             ["main_inflow", "branch_inflow", "main_outflow"],
             ["main_left_inflow", "main_right_inflow", "branch_outflow"],
             ["main_left_outflow", "main_right_outflow", "branch_inflow"],
-        ):
+        )
+        for subregions in valid_subregion_sets:
             project["boundary_subregions"] = subregions
-            self.assertEqual(_effective_required_physical_groups(tee, project), expected_groups)
+            expected_groups = {
+                (2, "wall"),
+                *((2, name) for name in subregions),
+                (3, "fluid_domain"),
+            }
+            required = _effective_required_physical_groups(tee, project)
+            self.assertEqual(
+                {(item["dimension"], item["name"]) for item in required},
+                expected_groups,
+            )
+            # Aggregate groups alone are not a substitute for the named ports.
+            with self.assertRaisesRegex(ValueError, "main_|branch_"):
+                _validate_required_physical_groups(
+                    {"physical_groups": [
+                        {"dimension": 2, "name": "wall"},
+                        {"dimension": 2, "name": "inflow"},
+                        {"dimension": 2, "name": "outflow"},
+                        {"dimension": 3, "name": "fluid_domain"},
+                    ]},
+                    {"required_physical_groups": required},
+                )
 
         # Three arbitrary names are not enough: preserve the three-port contract.
         project["boundary_subregions"] = ["port_a", "port_b", "port_c"]
