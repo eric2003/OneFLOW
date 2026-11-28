@@ -1979,6 +1979,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 self.assertEqual(
                     contract["volume_mesh_method"], "automatic_tetrahedra"
                 )
+                self.assertEqual(
+                    contract["port_identities"],
+                    ["main_left", "main_right", "branch"],
+                )
                 workspaces.append(mesh_validation_workspace(repository_root, case_id))
         self.assertEqual(len(workspaces), len(set(workspaces)))
         self.assertTrue(any("occ_native" in path.parts for path in workspaces))
