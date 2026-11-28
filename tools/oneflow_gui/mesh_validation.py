@@ -595,7 +595,34 @@ def mesh_validation_workspace(
 
     if operating_mode != "benchmark":
         raise ValueError("Operating mode selection is only supported by a T-junction Case.")
-    return base / Path(*case_directory.parts[1:])
+
+    # Preserve collision protection for older catalog entries that have not
+    # adopted the explicit geometry identity contract yet.
+    relative_case = Path(*case_directory.parts[1:])
+    current_parts = relative_case.parts
+    overlapping = False
+    for other in _mesh_validation_entries(_catalog(root)):
+        if other.get("id") == mesh_case_id:
+            continue
+        other_directory = Path(str(other.get("directory", "")))
+        if (
+            other_directory.is_absolute()
+            or ".." in other_directory.parts
+            or len(other_directory.parts) < 2
+            or other_directory.parts[0] != "grid"
+        ):
+            continue
+        other_parts = Path(*other_directory.parts[1:]).parts
+        if (
+            current_parts[:len(other_parts)] == other_parts
+            or other_parts[:len(current_parts)] == current_parts
+        ):
+            overlapping = True
+            break
+    workspace = base / relative_case
+    if overlapping:
+        workspace = workspace / f"case-{mesh_case_id}"
+    return workspace
 
 
 def project_mesh_validation_workspace(project_directory: Path) -> Path:
