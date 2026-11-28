@@ -723,7 +723,8 @@
       "benchmark_family": "pipe_tee",
       "geometry_variant": "circular_duct",
       "geometry_source": "occ_native",
-      "volume_mesh_method": "automatic_tetrahedra"
+      "volume_mesh_method": "automatic_tetrahedra",
+      "geometry_stl_filename": "pipe_tee_oecd_nea_vattenfall.stl"
     },
     {
       "id": "stl_to_gmsh_pipe_tee_circular_duct_occ_to_stl",
@@ -764,7 +765,8 @@
         "kind": "generated",
         "generator": "Gmsh OpenCASCADE BooleanUnion exported as STL",
         "notes": "The OCC-built circular T-junction is exported to STL and then re-imported for generic surface-based automatic tetrahedral meshing."
-      }
+      },
+      "geometry_stl_filename": "pipe_tee_oecd_nea_vattenfall.stl"
     },
     {
       "id": "stl_to_gmsh_pipe_tee_square_duct",
@@ -806,7 +808,8 @@
       "benchmark_family": "pipe_tee",
       "geometry_variant": "square_duct",
       "geometry_source": "manual_stl",
-      "volume_mesh_method": "automatic_tetrahedra"
+      "volume_mesh_method": "automatic_tetrahedra",
+      "geometry_stl_filename": "square_tee.stl"
     }
   ],
   "mesh_validation_inputs": [
@@ -923,7 +926,8 @@
         "kind": "generated",
         "generator": "Gmsh OpenCASCADE BooleanUnion exported as STL",
         "notes": "The OCC-built circular T-junction is exported to STL and then re-imported for generic surface-based automatic tetrahedral meshing."
-      }
+      },
+      "geometry_stl_filename": "pipe_tee_oecd_nea_vattenfall.stl"
     },
     {
       "id": "stl_to_gmsh_pipe_tee_square_duct_smoke",
@@ -964,7 +968,8 @@
         "kind": "generated",
         "generator": "explicit_planar_facets_no_boolean_intersection",
         "notes": "A deterministic, hand-authored low-facet square-duct STL reference surface; it does not originate from OCC and is intended to exercise the generic STL import/remeshing path."
-      }
+      },
+      "geometry_stl_filename": "square_tee.stl"
     }
   ]
 }
