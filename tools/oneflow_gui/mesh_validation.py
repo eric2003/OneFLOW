@@ -1237,9 +1237,13 @@ def _geometry_lineage(
             source_label = source_stl.relative_to(repository_root.resolve()).as_posix()
         except ValueError:
             source_label = str(source_stl)
-        lineage["source_representation"] = {
+        stl_record = {
             "format": "STL", "path": source_label, "sha256": digest,
         }
+        if geometry_contract.get("geometry_source") == "occ_native":
+            lineage["auxiliary_surface_export"] = stl_record
+        else:
+            lineage["source_representation"] = stl_record
         manifest_path = source_stl.with_suffix(".geometry.json")
         if manifest_path.is_file():
             try:
