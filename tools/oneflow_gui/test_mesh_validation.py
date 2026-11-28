@@ -1989,6 +1989,24 @@ class MeshValidationCatalogTest(unittest.TestCase):
         self.assertTrue(any("occ_to_stl" in path.parts for path in workspaces))
         self.assertTrue(any("manual_stl" in path.parts for path in workspaces))
 
+        occ_to_stl_command = _mesh_case_command(
+            repository_root, entries["stl_to_gmsh_pipe_tee_circular_duct_occ_to_stl"],
+            Path("OneFLOW"), Path("gmsh"), Path("mesh-run"), "branch_inlet",
+        )
+        self.assertIn(
+            "run_pipe_tee_stl_case.py",
+            occ_to_stl_command[1],
+        )
+        self.assertEqual(
+            occ_to_stl_command[occ_to_stl_command.index("--operating-mode") + 1],
+            "branch_inlet",
+        )
+        manual_stl_command = _mesh_case_command(
+            repository_root, entries["stl_to_gmsh_pipe_tee_square_duct"],
+            Path("OneFLOW"), Path("gmsh"), Path("mesh-run"), "main_inlets",
+        )
+        self.assertIn("run_square_tee_case.py", manual_stl_command[1])
+
     def test_workspace_uses_mesh_case_relative_directory(self):
         paths = type(
             "Paths", (),
