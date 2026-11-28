@@ -1913,6 +1913,30 @@ class MeshValidationCatalogTest(unittest.TestCase):
             self.assertTrue(prepared_again.samefile(workspace))
             self.assertFalse((workspace / "mesh-validation-report.json").exists())
 
+    def test_overlapping_square_duct_cases_get_isolated_workspaces(self):
+        repository_root = Path(__file__).resolve().parents[2]
+        paths = type(
+            "Paths", (),
+            {"mesh_validation": self.root / ".oneflow" / "mesh-validation"},
+        )()
+        with mock.patch(
+            "tools.oneflow_gui.mesh_validation.UserDataPaths.discover",
+            return_value=paths,
+        ):
+            generated = mesh_validation_workspace(
+                repository_root, "stl_to_gmsh_pipe_tee_square_duct"
+            )
+            smoke_alias = mesh_validation_workspace(
+                repository_root, "stl_to_gmsh_pipe_tee_square_duct_smoke"
+            )
+        self.assertNotEqual(generated, smoke_alias)
+        self.assertTrue(generated.name.startswith("case-stl_to_gmsh_pipe_tee_square_duct"))
+        self.assertTrue(smoke_alias.name.startswith("case-stl_to_gmsh_pipe_tee_square_duct_smoke"))
+        with self.assertRaises(ValueError):
+            generated.relative_to(smoke_alias)
+        with self.assertRaises(ValueError):
+            smoke_alias.relative_to(generated)
+
     def test_workspace_uses_mesh_case_relative_directory(self):
         paths = type(
             "Paths", (),
