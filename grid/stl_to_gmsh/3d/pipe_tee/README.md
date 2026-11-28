@@ -24,7 +24,8 @@ reference Case; it should not be mislabeled as an OCC-generated STL.
 
 The square and circular variants share the same abstract three-port internal-flow
 contract: a connected fluid volume, two ends of the straight main duct, one
-perpendicular branch, and a wall boundary. They are geometrically different
+perpendicular branch, and a wall boundary. The stable port identities are
+`main_left`, `main_right`, and `branch`. They are geometrically different
 cross-sections, not identical surface meshes.
 
 The operating modes are:
