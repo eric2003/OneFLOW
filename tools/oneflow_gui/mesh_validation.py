@@ -1348,7 +1348,11 @@ def _effective_required_physical_groups(mesh_entry: dict, project_data: dict) ->
     ):
         subregions = set(project_data.get("boundary_subregions") or [])
         valid_subregion_sets = (
+            # Original OECD/NEA benchmark: main inlet + branch inlet + main outlet.
+            {"main_inflow", "branch_inflow", "main_outflow"},
+            # Symmetric main-duct inlets and branch outlet.
             {"main_left_inflow", "main_right_inflow", "branch_outflow"},
+            # Branch inlet and symmetric main-duct outlets.
             {"branch_inflow", "main_left_outflow", "main_right_outflow"},
         )
         if subregions not in valid_subregion_sets:
