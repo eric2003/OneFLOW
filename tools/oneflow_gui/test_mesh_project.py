@@ -270,6 +270,12 @@ class MeshProjectTest(unittest.TestCase):
         self.assertEqual(project["benchmark_family"], "pipe_tee")
         self.assertEqual(project["geometry_variant"], "circular_duct")
         self.assertEqual(project["geometry_source"], "occ_to_stl")
+        manual_project = create_mesh_project_from_stl(
+            self.repository_root, source_stl, "manual_circular_pipe_tee",
+            geometry_source="manual_stl",
+        )
+        self.assertEqual(manual_project["geometry_source"], "manual_stl")
+        self.assertEqual(manual_project["geometry_variant"], "circular_duct")
         self.assertEqual(project["boundary_regions"], ["inflow", "outflow", "wall"])
         self.assertEqual(project["boundary_subregions"], ["branch_outflow", "main_left_inflow", "main_right_inflow"])
         replaced = replace_project_stl(project, source_stl)
