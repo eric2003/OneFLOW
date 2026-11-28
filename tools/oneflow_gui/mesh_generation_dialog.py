@@ -606,6 +606,11 @@ class PipeTeeMeshDialog(QDialog):
         root.addWidget(description)
 
         form = QFormLayout()
+        self.geometry_source = QComboBox()
+        self.geometry_source.addItem("OCC native (circular duct)", "occ_native")
+        self.geometry_source.addItem("OCC -> STL -> Gmsh (circular duct)", "occ_to_stl")
+        self.geometry_source.addItem("Hand-faceted STL reference (square duct)", "manual_stl")
+        form.addRow("Geometry source", self.geometry_source)
         self.operating_mode = QComboBox()
         self.operating_mode.addItem(
             "Two main-pipe inlets -> branch outlet", "main_inlets"
@@ -620,6 +625,8 @@ class PipeTeeMeshDialog(QDialog):
         self.gmsh_path.setPlaceholderText("Auto-detected Gmsh executable")
         form.addRow("Gmsh executable", self.gmsh_path)
         self.case_directory = QLineEdit()
+        self._directory_is_default = True
+        self.case_directory.textEdited.connect(self._mark_custom_directory)
         form.addRow("Output directory", self.case_directory)
         root.addLayout(form)
 
@@ -651,6 +658,7 @@ class PipeTeeMeshDialog(QDialog):
         self.status_label.setWordWrap(True)
         root.addWidget(self.status_label)
 
+        self.geometry_source.currentIndexChanged.connect(self._source_changed)
         self.operating_mode.currentIndexChanged.connect(self._mode_changed)
         self.mesh_size.textChanged.connect(self._refresh_command)
         self.gmsh_path.textChanged.connect(self._refresh_command)
@@ -659,22 +667,39 @@ class PipeTeeMeshDialog(QDialog):
 
     def _default_case_directory(self) -> Path:
         mode = str(self.operating_mode.currentData() or "main_inlets")
-        return UserDataPaths.discover().mesh_generation / "pipe_tee" / mode
+        source = str(self.geometry_source.currentData() or "occ_native")
+        variant = "square_duct" if source == "manual_stl" else "circular_duct"
+        return (
+            UserDataPaths.discover().mesh_generation
+            / "pipe_tee" / variant / source / mode
+        )
+
+    def _mark_custom_directory(self, _value: str) -> None:
+        self._directory_is_default = False
+
+    def _source_changed(self, *_args) -> None:
+        if self._directory_is_default:
+            self.case_directory.setText(str(self._default_case_directory()))
+        self._mode_changed()
 
     def _mode_changed(self, *_args) -> None:
-        current = Path(self.case_directory.text()).expanduser() if self.case_directory.text() else None
-        if current is None or (current.parent.name == "pipe_tee"):
+        if self._directory_is_default:
             self.case_directory.setText(str(self._default_case_directory()))
-        if self.operating_mode.currentData() == "main_inlets":
-            self.mode_description.setText(
-                "Main left port: INLET  |  Main right port: INLET  |  "
-                "Vertical branch: OUTLET"
-            )
-        else:
-            self.mode_description.setText(
-                "Main left port: OUTLET  |  Main right port: OUTLET  |  "
-                "Vertical branch: INLET"
-            )
+        mode_text = (
+            "Main left port: INLET  |  Main right port: INLET  |  "
+            "Vertical branch: OUTLET"
+            if self.operating_mode.currentData() == "main_inlets"
+            else
+            "Main left port: OUTLET  |  Main right port: OUTLET  |  "
+            "Vertical branch: INLET"
+        )
+        source = str(self.geometry_source.currentData() or "occ_native")
+        source_text = {
+            "occ_native": "OCC Native: direct OpenCASCADE Boolean geometry and volume mesh.",
+            "occ_to_stl": "OCC to STL: export the OCC surface, re-import STL, then tetrahedralize.",
+            "manual_stl": "Manual STL: hand-faceted square-duct reference surface; external STL files can be imported from the Mesh Projects section.",
+        }[source]
+        self.mode_description.setText(source_text + "\n" + mode_text)
         self._refresh_command()
 
     def _arguments(self) -> list[str]:
@@ -690,10 +715,22 @@ class PipeTeeMeshDialog(QDialog):
         directory = self.case_directory.text().strip()
         if not directory:
             raise ValueError("Choose an output directory.")
-        script = (
-            self._repository_root / "grid" / "stl_to_gmsh" / "3d" / "pipe_tee"
-            / "oecd_nea_vattenfall" / "automatic_tetrahedra" / "run_pipe_tee_case.py"
-        )
+        source = str(self.geometry_source.currentData() or "occ_native")
+        scripts = {
+            "occ_native": (
+                "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/"
+                "automatic_tetrahedra/run_pipe_tee_case.py"
+            ),
+            "occ_to_stl": (
+                "grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/"
+                "automatic_tetrahedra/run_pipe_tee_stl_case.py"
+            ),
+            "manual_stl": (
+                "grid/stl_to_gmsh/3d/pipe_tee/square_duct/"
+                "automatic_tetrahedra/run_square_tee_case.py"
+            ),
+        }
+        script = self._repository_root / scripts[source]
         return [
             str(script), "--case-directory", str(Path(directory).expanduser()),
             "--gmsh", gmsh, "--mesh-size", self.mesh_size.text().strip(),
@@ -742,7 +779,12 @@ class PipeTeeMeshDialog(QDialog):
         self._read_output()
         self.run_button.setEnabled(True)
         if exit_code == 0:
-            mesh = Path(self.case_directory.text()).expanduser() / "results" / "pipe_tee_oecd_nea_vattenfall.msh"
+            mesh_name = (
+                "square_tee.msh"
+                if self.geometry_source.currentData() == "manual_stl"
+                else "pipe_tee_oecd_nea_vattenfall.msh"
+            )
+            mesh = Path(self.case_directory.text()).expanduser() / "results" / mesh_name
             self.status_label.setText(f"Mesh generated successfully: {mesh}")
         else:
             self.status_label.setText(f"Mesh generation failed (exit code {exit_code}). See execution output.")
