@@ -671,7 +671,7 @@ class PipeTeeMeshDialog(QDialog):
         variant = "square_duct" if source == "manual_stl" else "circular_duct"
         return (
             UserDataPaths.discover().mesh_generation
-            / "pipe_tee" / variant / source / mode
+            / "pipe_tee" / variant / source / "automatic_tetrahedra" / mode
         )
 
     def _mark_custom_directory(self, _value: str) -> None:
