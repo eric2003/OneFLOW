@@ -1930,10 +1930,10 @@ class MeshValidationCatalogTest(unittest.TestCase):
                 repository_root, "stl_to_gmsh_pipe_tee_square_duct_smoke"
             )
         self.assertNotEqual(generated, smoke_alias)
-        self.assertEqual(generated.parts[-5:], (
+        self.assertEqual(generated.parts[-4:], (
             "manual_stl", "automatic_tetrahedra",
             "stl_to_gmsh_pipe_tee_square_duct", "benchmark",
-        )[-5:])
+        ))
         self.assertEqual(smoke_alias.parts[-2:], (
             "stl_to_gmsh_pipe_tee_square_duct_smoke", "benchmark",
         ))
