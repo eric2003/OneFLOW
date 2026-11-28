@@ -247,6 +247,46 @@ jobs:
               throw "T-junction MSH report did not retain all four physical groups."
           }
 
+          # OCC -> STL -> generic STL re-import -> TETRA_4, followed by the
+          # same conversion, OneFLOW ingestion and two-step CFD smoke chain.
+          $teeStlCaseRoot = Join-Path $env:RUNNER_TEMP "oneflow-pipe-tee-occ-to-stl-case"
+          $teeStlHome = Join-Path $env:RUNNER_TEMP "oneflow-pipe-tee-occ-to-stl-home"
+          $env:ONEFLOW_HOME = $teeStlHome
+          python grid/stl_to_gmsh/3d/pipe_tee/oecd_nea_vattenfall/automatic_tetrahedra/run_pipe_tee_stl_case.py --case-directory $teeStlCaseRoot --gmsh $gmsh.Source --mesh-size 0.03 --operating-mode main_inlets
+          if ($LASTEXITCODE -ne 0) { throw "OCC-exported STL T-junction remeshing failed." }
+          $teeStlSource = Join-Path $teeStlCaseRoot "input/pipe_tee_oecd_nea_vattenfall.stl"
+          $teeStlMesh = Join-Path $teeStlCaseRoot "results/pipe_tee_oecd_nea_vattenfall.msh"
+          if (-not (Test-Path $teeStlSource) -or -not (Test-Path $teeStlMesh)) {
+              throw "OCC-to-STL T-junction source or volume mesh is missing."
+          }
+          $teeStlProjectRoot = (python -c "import sys; from pathlib import Path; from tools.oneflow_gui.mesh_project import create_mesh_project_from_stl; project = create_mesh_project_from_stl(Path.cwd(), Path(sys.argv[1]), 'pipe-tee-occ-to-stl-ci'); print(project['directory'])" $teeStlSource | Out-String).Trim()
+          if ($LASTEXITCODE -ne 0) { throw "OCC-to-STL T-junction mesh-project creation failed." }
+          $teeStlProjectManifest = Join-Path $teeStlProjectRoot "project.json"
+          python -c "import json,sys; from pathlib import Path; p=Path(sys.argv[1]); data=json.loads(p.read_text(encoding='utf-8')); data['output_mesh']='results/pipe_tee_oecd_nea_vattenfall.msh'; data['mesh_size']=0.03; p.write_text(json.dumps(data, indent=2, sort_keys=True)+'\n', encoding='utf-8')" $teeStlProjectManifest
+          if ($LASTEXITCODE -ne 0) { throw "OCC-to-STL T-junction project settings could not be saved." }
+          $teeStlProjectMesh = Join-Path $teeStlProjectRoot "results/pipe_tee_oecd_nea_vattenfall.msh"
+          New-Item -ItemType Directory -Force -Path (Split-Path $teeStlProjectMesh) | Out-Null
+          Copy-Item $teeStlMesh $teeStlProjectMesh -Force
+          $teeStlStageRoot = Join-Path $env:RUNNER_TEMP "oneflow-pipe-tee-occ-to-stl-validation"
+          python -m tools.oneflow_gui.mesh_validation --oneflow-executable (Join-Path $env:ONEFLOW_ROOT "bin/OneFLOW.exe") --gmsh $gmsh.Source --mesh-case-id stl_to_gmsh_pipe_tee_circular_duct_occ_to_stl --mesh-file $teeStlProjectMesh --project-directory $teeStlProjectRoot --stage-root $teeStlStageRoot --cfd-template-id laminar_flat_plate --max-steps 2
+          if ($LASTEXITCODE -ne 0) { throw "OCC-to-STL T-junction Mesh-to-CFD smoke test failed." }
+          $teeStlReportPath = Join-Path $teeStlStageRoot "mesh-validation-report.json"
+          if (-not (Test-Path $teeStlReportPath)) { throw "OCC-to-STL T-junction validation report is missing." }
+          $teeStlReport = Get-Content -Raw $teeStlReportPath | ConvertFrom-Json
+          if ($teeStlReport.exit_code -ne 0) { throw "OCC-to-STL T-junction report has non-zero exit code." }
+          if ($teeStlReport.geometry_source -ne "occ_to_stl" -or $teeStlReport.geometry_variant -ne "circular_duct") {
+              throw "OCC-to-STL T-junction report lost its geometry source identity."
+          }
+          if (($teeStlReport.port_identities -join ",") -ne "main_left,main_right,branch") {
+              throw "OCC-to-STL T-junction report lost stable port identities."
+          }
+          foreach ($stageName in @("existing_msh_input", "gmsh_to_cgns", "cgns_to_oneflow", "cfd_smoke")) {
+              $stage = $teeStlReport.stages.PSObject.Properties[$stageName].Value
+              if ($null -eq $stage -or $stage.status -ne "PASS") {
+                  throw "OCC-to-STL T-junction stage '$stageName' did not pass."
+              }
+          }
+
           # Exact planar square-duct T-junction: manually triangulated STL,
           # generic region-aware Gmsh volume meshing, then two CFD smoke steps.
           $squareCaseRoot = Join-Path $env:RUNNER_TEMP "oneflow-square-pipe-tee-case"
@@ -288,6 +328,9 @@ jobs:
             ${{ runner.temp }}/oneflow-pipe-tee-case
             ${{ runner.temp }}/oneflow-pipe-tee-home
             ${{ runner.temp }}/oneflow-pipe-tee-validation
+            ${{ runner.temp }}/oneflow-pipe-tee-occ-to-stl-case
+            ${{ runner.temp }}/oneflow-pipe-tee-occ-to-stl-home
+            ${{ runner.temp }}/oneflow-pipe-tee-occ-to-stl-validation
             ${{ runner.temp }}/oneflow-square-pipe-tee-case
             ${{ runner.temp }}/oneflow-square-pipe-tee-home
             ${{ runner.temp }}/oneflow-square-pipe-tee-validation
