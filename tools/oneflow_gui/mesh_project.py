@@ -580,6 +580,11 @@ def replace_project_stl(project: dict, stl_file: Path) -> dict:
     manifest["source_stl"] = str(source)
     manifest["template_case_id"] = None
     manifest["mesh_case_id"] = _mesh_case_id_for_geometry(geometry_manifest)
+    for key in (
+        "benchmark_family", "geometry_variant", "geometry_source",
+        "volume_mesh_method", "port_identities",
+    ):
+        manifest.pop(key, None)
     manifest.update(_pipe_tee_geometry_identity(geometry_manifest))
     return _write_manifest(root, manifest)
 
